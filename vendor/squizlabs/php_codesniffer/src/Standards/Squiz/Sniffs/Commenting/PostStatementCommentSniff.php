@@ -47,7 +47,7 @@ class PostStatementCommentSniff implements Sniff
     /**
      * Returns an array of tokens this test wants to listen for.
      *
-     * @return array
+     * @return array<int|string>
      */
     public function register()
     {
@@ -107,6 +107,14 @@ class PostStatementCommentSniff implements Sniff
                     return;
                 }
             }
+        }
+
+        if ($phpcsFile->tokenizerType === 'PHP'
+            && preg_match('|^//[ \t]*@[^\s]+|', $tokens[$stackPtr]['content']) === 1
+        ) {
+            $error = 'Annotations may not appear after statements';
+            $phpcsFile->addError($error, $stackPtr, 'AnnotationFound');
+            return;
         }
 
         $error = 'Comments may not appear after statements';

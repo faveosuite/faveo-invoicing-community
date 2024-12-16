@@ -21,6 +21,7 @@ use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\Variable;
+use PhpParser\Node\VariadicPlaceholder;
 use Psy\Exception\FatalErrorException;
 
 /**
@@ -59,11 +60,20 @@ class PassableByReferencePass extends CodeCleanerPass
                 return;
             }
 
+            $args = [];
+            foreach ($node->args as $position => $arg) {
+                if ($arg instanceof VariadicPlaceholder) {
+                    continue;
+                }
+
+                $args[$arg->name !== null ? $arg->name->name : $position] = $arg;
+            }
+
             foreach ($refl->getParameters() as $key => $param) {
-                if (\array_key_exists($key, $node->args)) {
-                    $arg = $node->args[$key];
+                if (\array_key_exists($key, $args) || \array_key_exists($param->name, $args)) {
+                    $arg = $args[$param->name] ?? $args[$key];
                     if ($param->isPassedByReference() && !$this->isPassableByReference($arg)) {
-                        throw new FatalErrorException(self::EXCEPTION_MESSAGE, 0, \E_ERROR, null, $node->getLine());
+                        throw new FatalErrorException(self::EXCEPTION_MESSAGE, 0, \E_ERROR, null, $node->getStartLine());
                     }
                 }
             }
@@ -112,7 +122,7 @@ class PassableByReferencePass extends CodeCleanerPass
             } elseif (++$nonPassable > 2) {
                 // There can be *at most* two non-passable-by-reference args in a row. This is about
                 // as close as we can get to validating the arguments for this function :-/
-                throw new FatalErrorException(self::EXCEPTION_MESSAGE, 0, \E_ERROR, null, $node->getLine());
+                throw new FatalErrorException(self::EXCEPTION_MESSAGE, 0, \E_ERROR, null, $node->getStartLine());
             }
         }
     }

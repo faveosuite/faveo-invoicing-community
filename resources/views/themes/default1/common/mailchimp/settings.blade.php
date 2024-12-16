@@ -25,19 +25,22 @@ Mailchimp
 
 
             <div class="card-body">
-                {!! Form::model($set,['url'=>'mailchimp','method'=>'patch','files'=>true]) !!}
+                {!! html()->modelForm($set, 'PATCH', url('mailchimp'))
+    ->acceptsFiles()
+    ->open() !!}
+
 
                 <table class="table table-condensed">
 
                      
                     <tr>
 
-                        <td><b>{!! Form::label('api_key',Lang::get('message.api_key'),['class'=>'required']) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.api_key'), 'api_key')->class('required') !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('api_key') ? 'has-error' : '' }}">
 
 
-                                {!! Form::text('api_key', null, ['class' => 'form-control', 'disabled' => 'disabled']) !!}
+                                {!! html()->text('api_key')->class('form-control')->disabled() !!}
                                 <p><i> {{ Lang::get('message.enter-the-mailchimp-api-key-setting') }}</i></p>
 
 
@@ -47,7 +50,7 @@ Mailchimp
                     </tr>
                     <tr>
 
-                        <td><b>{!! Form::label('list_id',Lang::get('message.list_id'),['class'=>'required']) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.list_id'), 'list_id')->class('required') !!}</b></td>
                         <td>
                             <div class="row">
                                 <div class="col-md-6 form-group {{ $errors->has('list_id') ? 'has-error' : '' }}">
@@ -69,12 +72,17 @@ Mailchimp
 
                     <tr>
 
-                        <td><b>{!! Form::label('subscribe_status',Lang::get('message.subscribe_status'),['class'=>'required']) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.subscribe_status'), 'subscribe_status')->class('required') !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('subscribe_status') ? 'has-error' : '' }}">
 
 
-                                {!! Form::select('subscribe_status',['subscribed'=>'Subscribed','unsubscribed'=>'Unsubscribed','cleaned'=>'Cleaned','pending'=>'Pending'],null,['class' => 'form-control']) !!}
+                                {!! html()->select('subscribe_status', [
+    'subscribed' => 'Subscribed',
+    'unsubscribed' => 'Unsubscribed',
+    'cleaned' => 'Cleaned',
+    'pending' => 'Pending'
+])->class('form-control') !!}
                                 <p><i> {{Lang::get('message.enter-the-mailchimp-subscribe-status')}}</i> </p>
 
 
@@ -86,7 +94,7 @@ Mailchimp
                     @if($set->api_key&&$set->list_id)
                     <tr>
 
-                        <td><b>{!! Form::label('mapping',Lang::get('message.mapping'),['class'=>'required']) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.mapping'), 'mapping')->class('required') !!}</b></td>
                         <td>
                             <div class="form-group">
 
@@ -104,7 +112,7 @@ Mailchimp
                     </tr>
                     @endif
 
-                    {!! Form::close() !!}
+                    {!! html()->closeModelForm() !!}
 
                 </table>
 

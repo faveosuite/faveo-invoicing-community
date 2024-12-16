@@ -4,7 +4,9 @@ namespace Laravel\Horizon\Console;
 
 use Illuminate\Console\Command;
 use Laravel\Horizon\Contracts\MasterSupervisorRepository;
+use Symfony\Component\Console\Attribute\AsCommand;
 
+#[AsCommand(name: 'horizon:list')]
 class ListCommand extends Command
 {
     /**
@@ -32,8 +34,10 @@ class ListCommand extends Command
         $masters = $masters->all();
 
         if (empty($masters)) {
-            return $this->info('No machines are running.');
+            return $this->components->info('No machines are running.');
         }
+
+        $this->output->writeln('');
 
         $this->table([
             'Name', 'PID', 'Supervisors', 'Status',
@@ -47,5 +51,7 @@ class ListCommand extends Command
                 $master->status,
             ];
         })->all());
+
+        $this->output->writeln('');
     }
 }

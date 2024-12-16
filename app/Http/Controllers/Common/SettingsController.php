@@ -16,7 +16,6 @@ use App\Model\Payment\Currency;
 use App\Model\Plugin;
 use App\Payment_log;
 use App\User;
-use File;
 use Illuminate\Http\Request;
 use Spatie\Activitylog\Models\Activity;
 use Yajra\DataTables\DataTables;
@@ -577,18 +576,12 @@ class SettingsController extends BaseSettingsController
 
     public function postdebugSettings(Request $request)
     {
-        $request = $request->get('debug');
-        if ($request == 'true') {
-            $debug_new = base_path().DIRECTORY_SEPARATOR.'.env';
-            $datacontent = File::get($debug_new);
-            $datacontent = str_replace('APP_DEBUG=false', 'APP_DEBUG=true', $datacontent);
-            File::put($debug_new, $datacontent);
-        } elseif ($request == 'false') {
-            $debug_new = base_path().DIRECTORY_SEPARATOR.'.env';
-            $datacontent = File::get($debug_new);
-            $datacontent = str_replace('APP_DEBUG=true', 'APP_DEBUG=false', $datacontent);
-            File::put($debug_new, $datacontent);
-        }
+        $enable = $request->get('debug') === 'true';
+        setEnvValue([
+            'APP_DEBUG' => $enable ? 'true' : 'false',
+            'PULSE_ENABLED' => $enable ? 'true' : 'false',
+            'CLOCKWORK_ENABLE' => $enable ? 'true' : 'false',
+        ]);
 
         return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
     }

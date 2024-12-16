@@ -1,7 +1,7 @@
 <?php
 /**
  * @package php-font-lib
- * @link    https://github.com/PhenX/php-font-lib
+ * @link    https://github.com/dompdf/php-font-lib
  * @author  Fabien Ménager <fabien.menager@gmail.com>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
@@ -49,20 +49,8 @@ class DirectoryEntry extends BinaryStream {
       $data = str_pad($data, $len + (4 - $mod), "\0");
     }
 
-    $len = mb_strlen($data, '8bit');
-
-    $hi = 0x0000;
-    $lo = 0x0000;
-
-    for ($i = 0; $i < $len; $i += 4) {
-      $hi += (ord($data[$i]) << 8) + ord($data[$i + 1]);
-      $lo += (ord($data[$i + 2]) << 8) + ord($data[$i + 3]);
-      $hi += $lo >> 16;
-      $lo = $lo & 0xFFFF;
-      $hi = $hi & 0xFFFF;
-    }
-
-    return ($hi << 8) + $lo;
+    $table = unpack("N*", $data);
+    return array_sum($table);
   }
 
   function __construct(File $font) {
@@ -93,6 +81,14 @@ class DirectoryEntry extends BinaryStream {
     $this->offset = $table_offset;
     $table_length = $data->encode();
 
+    $font->seek($table_offset + $table_length);
+    $pad = 0;
+    $mod = $table_length % 4;
+    if ($mod != 0) {
+      $pad = 4 - $mod;
+      $font->write(str_pad("", $pad, "\0"), $pad);
+    }
+
     $font->seek($table_offset);
     $table_data = $font->read($table_length);
 
@@ -105,7 +101,7 @@ class DirectoryEntry extends BinaryStream {
 
     Font::d("Bytes written = $table_length");
 
-    $font->seek($table_offset + $table_length);
+    $font->seek($table_offset + $table_length + $pad);
   }
 
   /**

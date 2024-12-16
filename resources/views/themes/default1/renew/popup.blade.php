@@ -2,7 +2,7 @@
 <div class="modal fade" id="renew{{$id}}" tabindex="-1" role="dialog" aria-labelledby="renewModalLabel" aria-hidden="true">
 
                             <div class="modal-dialog">
-                                 {!! Form::open(['url'=>'client/renew/'.$id,'data-form-id'=>"$id"]) !!}
+                                {!! html()->form('POST', url('client/renew/'.$id))->attribute('data-form-id', $id)->open() !!}
 
                                 <div class="modal-content">
 
@@ -74,12 +74,13 @@
                                                 <div class="form-group col">
                                                     <label class="form-label">Plans <span class="text-danger"> *</span></label>
                                                     <div class="custom-select-1">
-                                                            @if($agents == 'Unlimited')
-                                                                {!! Form::select('plan',['' => 'Select'] + $plans, null, ['class' => 'form-control plan-dropdown', 'onchange' => 'fetchPlanCost(this.value)','id'=>"plan$id"]) !!}
-                                                            @else
-                                                                {!! Form::select('plan',['' => 'Select'] + $plans, null, ['class' => 'form-control plan-dropdown', 'onchange' => 'fetchPlanCost(this.value, ' . $agents . ')','id'=>"plan$id"]) !!}
-                                                            @endif
-                                                            {!! Form::hidden('user',$userid) !!}
+                                                        @if($agents == 'Unlimited')
+                                                            {!! html()->select('plan')->options(['' => 'Select'] + $plans)->class('form-control plan-dropdown')->attribute('onchange', 'fetchPlanCost(this.value)')->id("plan$id") !!}
+                                                        @else
+                                                            {!! html()->select('plan')->options(['' => 'Select'] + $plans)->class('form-control plan-dropdown')->attribute('onchange', 'fetchPlanCost(this.value, ' . $agents . ')')->id("plan$id") !!}
+                                                        @endif
+
+                                                        {!! html()->hidden('user', $userid) !!}
                                                     </div>
                                                 </div>
                                             </div>
@@ -89,7 +90,7 @@
                                                 <div class="form-group col">
                                                     <label class="form-label">Agents <span class="text-danger"> *</span></label>
                                                     <div class="custom-select-1">
-                                                         {!! Form::number('agents', $agents, ['class' => 'form-control agents', 'id' => "agents$id",'min' => '1', 'placeholder' => '',]) !!}
+                                                        {!! html()->number('agents', $agents)->class('form-control agents')->id('agents'.$id)->attribute('min', 1)->placeholder('') !!}
                                                     </div>
                                                 </div>
                                             </div>
@@ -112,7 +113,7 @@
                                             <button type="submit" class="btn btn-primary" data-bs-dismiss="modal" id="{{$id}}">Renew</button>
                                         </div>
                                 </div>
-                                 {!! Form::close()  !!} 
+                                 {!! html()->form()->close()  !!}
                             </div>
                         </div>
   

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package php-font-lib
- * @link    https://github.com/PhenX/php-font-lib
+ * @link    https://github.com/dompdf/php-font-lib
  * @author  Fabien Ménager <fabien.menager@gmail.com>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
@@ -101,6 +101,72 @@ class File extends BinaryStream {
     "Ccaron", "ccaron", "dmacron"
   );
 
+  private function uniord (string $c, string $encoding = null) {
+    if (function_exists("mb_ord")) {
+      if (PHP_VERSION_ID < 80000 && $encoding === null) {
+          // in PHP < 8 the encoding argument, if supplied, must be a valid encoding
+          $encoding = "UTF-8";
+      }
+      return mb_ord($c, $encoding);
+    }
+
+    if ($encoding != "UTF-8" && $encoding !== null) {
+      $c = mb_convert_encoding($c, "UTF-8", $encoding);
+    }
+
+    $length = mb_strlen(mb_substr($c, 0, 1), '8bit');
+    $ord = false;
+    $bytes = [];
+    $numbytes = 1;
+    for ($i = 0; $i < $length; $i++) {
+      $o = \ord($c[$i]); // get one string character at time
+      if (\count($bytes) === 0) { // get starting octect
+        if ($o <= 0x7F) {
+          $ord = $o;
+          $numbytes = 1;
+        } elseif (($o >> 0x05) === 0x06) { // 2 bytes character (0x06 = 110 BIN)
+          $bytes[] = ($o - 0xC0) << 0x06;
+          $numbytes = 2;
+        } elseif (($o >> 0x04) === 0x0E) { // 3 bytes character (0x0E = 1110 BIN)
+          $bytes[] = ($o - 0xE0) << 0x0C;
+          $numbytes = 3;
+        } elseif (($o >> 0x03) === 0x1E) { // 4 bytes character (0x1E = 11110 BIN)
+          $bytes[] = ($o - 0xF0) << 0x12;
+          $numbytes = 4;
+        } else {
+          $ord = false;
+          break;
+        }
+      } elseif (($o >> 0x06) === 0x02) { // bytes 2, 3 and 4 must start with 0x02 = 10 BIN
+          $bytes[] = $o - 0x80;
+          if (\count($bytes) === $numbytes) {
+            // compose UTF-8 bytes to a single unicode value
+            $o = $bytes[0];
+            for ($j = 1; $j < $numbytes; $j++) {
+              $o += ($bytes[$j] << (($numbytes - $j - 1) * 0x06));
+            }
+            if ((($o >= 0xD800) and ($o <= 0xDFFF)) or ($o >= 0x10FFFF)) {
+              // The definition of UTF-8 prohibits encoding character numbers between
+              // U+D800 and U+DFFF, which are reserved for use with the UTF-16
+              // encoding form (as surrogate pairs) and do not directly represent
+              // characters.
+              return false;
+            } else {
+              $ord = $o; // add char to array
+            }
+            // reset data for next char
+            $bytes = [];
+            $numbytes = 1;
+          }
+      } else {
+        $ord = false;
+        break;
+      }
+    }
+
+    return $ord;
+  }
+
   function getTable() {
     $this->parseTableEntries();
 
@@ -157,7 +223,7 @@ class File extends BinaryStream {
   function getUnicodeCharMap() {
     $subtable = null;
     foreach ($this->getData("cmap", "subtables") as $_subtable) {
-      if ($_subtable["platformID"] == 0 || $_subtable["platformID"] == 3 && $_subtable["platformSpecificID"] == 1) {
+      if ($_subtable["platformID"] == 0 || ($_subtable["platformID"] == 3 && $_subtable["platformSpecificID"] == 1)) {
         $subtable = $_subtable;
         break;
       }
@@ -167,6 +233,51 @@ class File extends BinaryStream {
       return $subtable["glyphIndexArray"];
     }
 
+    $system_encodings = mb_list_encodings();
+    $system_encodings = array_change_key_case(array_fill_keys($system_encodings, true), CASE_UPPER);
+    foreach ($this->getData("cmap", "subtables") as $_subtable) {
+      $encoding = null;
+      switch ($_subtable["platformID"]) {
+        case 3:
+          switch ($_subtable["platformSpecificID"]) {
+            case 2:
+              if (\array_key_exists("SJIS", $system_encodings)) {
+                $encoding = "SJIS";
+              }
+              break;
+            case 3:
+              if (\array_key_exists("GB18030", $system_encodings)) {
+                $encoding = "GB18030";
+              }
+              break;
+            case 4:
+              if (\array_key_exists("BIG-5", $system_encodings)) {
+                $encoding = "BIG-5";
+              }
+              break;
+            case 5:
+              if (\array_key_exists("UHC", $system_encodings)) {
+                $encoding = "UHC";
+              }
+              break;
+          }
+          break;
+      }
+      if ($encoding) {
+        $glyphIndexArray = array();
+        foreach ($_subtable["glyphIndexArray"] as $c => $gid) {
+          $str = trim(pack("N", $c));
+          if (\strlen($str) > 0) {
+            $ord = $this->uniord($str, $encoding);
+            if ($ord > 0) {
+              $glyphIndexArray[$ord] = $gid;
+            }
+          }
+        }
+        return $glyphIndexArray;
+      }
+    }
+    
     return null;
   }
 
@@ -199,11 +310,11 @@ class File extends BinaryStream {
 
     /** @var glyf $glyf */
     $glyf = $this->getTableObject("glyf");
-    $gids = $glyf->getGlyphIDs($gids);
-
-    sort($gids);
-
-    $this->glyph_subset = $gids;
+    if ($glyf) {
+      $gids = $glyf->getGlyphIDs($gids);
+      sort($gids);
+      $this->glyph_subset = $gids;
+    }
     $this->glyph_all    = array_values($glyphIndexArray); // FIXME
   }
 
@@ -217,13 +328,12 @@ class File extends BinaryStream {
 
   function encode($tags = array()) {
     if (!self::$raw) {
-      $tags = array_merge(array("head", "hhea", "cmap", "hmtx", "maxp", "glyf", "loca", "name", "post"), $tags);
+      $tags = array_merge(array("head", "hhea", "cmap", "hmtx", "maxp", "glyf", "loca", "name", "post", "cvt ", "fpgm", "prep"), $tags);
     }
     else {
       $tags = array_keys($this->directory);
     }
 
-    $num_tables = count($tags);
     $n          = 16; // @todo
 
     Font::d("Tables : " . implode(", ", $tags));
@@ -239,7 +349,14 @@ class File extends BinaryStream {
       $entries[$tag] = $this->directory[$tag];
     }
 
+    $num_tables = count($entries);
+    $exponent = floor(log($num_tables, 2));
+    $power_of_two = pow(2, $exponent);
+
     $this->header->data["numTables"] = $num_tables;
+    $this->header->data["searchRange"] = $power_of_two * 16;
+    $this->header->data["entrySelector"] = log($power_of_two, 2);
+    $this->header->data["rangeShift"] = $num_tables * 16 - $this->header->data["searchRange"];
     $this->header->encode();
 
     $directory_offset = $this->pos();
@@ -326,7 +443,10 @@ class File extends BinaryStream {
    * @return Table
    */
   public function getTableObject($name) {
-    return $this->data[$name];
+    if (\array_key_exists($name, $this->data)) {
+      return $this->data[$name];
+    }
+    return null;
   }
 
   public function setTableObject($name, Table $data) {

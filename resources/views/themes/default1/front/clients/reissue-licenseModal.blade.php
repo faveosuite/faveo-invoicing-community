@@ -10,9 +10,15 @@
 			   <input type="hidden" name="orderId" id="orderId">
 		  <div class="form-group {{ $errors->has('domain') ? 'has-error' : '' }}">
                     <!-- name -->
-                    {!! Form::label('domain',Lang::get('message.domain'),['class'=>'required']) !!}
-                    {!! Form::text('domain',null,['class' => 'form-control domainss' ,'id'=>'newDomain','required'=>'required','placeholder'=>'Domain Name Should be in the form domain.com or sub.domain.com']) !!}
-                           <h6 id ="domaincheck"></h6>
+              {!! html()->label('domain', Lang::get('message.domain'))
+->class('required') !!}
+
+              {!! html()->text('domain')
+                  ->class('form-control domainss')
+                  ->id('newDomain')
+                  ->required()
+                  ->placeholder('Domain Name Should be in the form domain.com or sub.domain.com') !!}
+              <h6 id ="domaincheck"></h6>
                 </div>
           <div class="form-group">
 			<span style="color:red;">*&nbsp By changing the domain, license on the current domain will be cancelled and all Installation on the current domain will be aborted. </span>

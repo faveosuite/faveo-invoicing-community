@@ -27,7 +27,7 @@ use Psy\Exception\FatalErrorException;
  */
 class ValidFunctionNamePass extends NamespaceAwarePass
 {
-    private $conditionalScopes = 0;
+    private int $conditionalScopes = 0;
 
     /**
      * Store newly defined function names on the way in, to allow recursion.
@@ -53,7 +53,7 @@ class ValidFunctionNamePass extends NamespaceAwarePass
                 if (\function_exists($name) ||
                     isset($this->currentScope[\strtolower($name)])) {
                     $msg = \sprintf('Cannot redeclare %s()', $name);
-                    throw new FatalErrorException($msg, 0, \E_ERROR, null, $node->getLine());
+                    throw new FatalErrorException($msg, 0, \E_ERROR, null, $node->getStartLine());
                 }
             }
 

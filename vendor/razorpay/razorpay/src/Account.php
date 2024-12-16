@@ -59,4 +59,20 @@ class Account extends Entity
 
         return $webhook;
     }
+
+    public function uploadAccountDoc($attributes = array())
+    {
+      $attributes = $this->setFile($attributes);
+
+      $entityUrl = $this->getEntityUrl() .$this->id .'/documents';
+      
+      return $this->request('POST', $entityUrl, $attributes, 'v2');
+    }
+
+    public function fetchAccountDoc()
+    {
+        $entityUrl = $this->getEntityUrl() .$this->id .'/documents';
+
+        return $this->request('GET', $entityUrl, null, 'v2');
+    }
 }

@@ -31,7 +31,7 @@ class UserFactory extends Factory
             'address' => $this->faker->address(),
             'town' => $this->faker->city(),
             'state' => 'Tamilnadu',
-            'zip' => $this->faker->postcode(),
+            'zip' => $this->faker->numerify('######'),
             'password' => bcrypt('password'),
             'timezone_id' => 79,
             'remember_token' => str_random(10),

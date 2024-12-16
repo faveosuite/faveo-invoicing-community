@@ -34,16 +34,23 @@ class MyClass {
     /* testMessyNullableReturnMethod */
     public function myFunction() /* comment
         */ :
-        /* comment */ ? //comment
+        /* comment */ ? // phpcs:ignore Stnd.Cat.Sniff -- For reasons.
         array {}
 
     /* testReturnNamespace */
     function myFunction(): \MyNamespace\MyClass {}
 
     /* testReturnMultilineNamespace */
+    // Parse error in PHP 8.0.
     function myFunction(): \MyNamespace /** comment *\/ comment */
                            \MyClass /* comment */
                            \Foo {}
+
+    /* testReturnUnqualifiedName */
+    private function myFunction(): ?MyClass {}
+
+    /* testReturnPartiallyQualifiedName */
+    function myFunction(): Sub\Level\MyClass {}
 }
 
 abstract class MyClass
@@ -70,6 +77,11 @@ $result = array_map(
 class ReturnMe {
     /* testReturnTypeStatic */
     private function myFunction(): static {
+        return $this;
+    }
+
+    /* testReturnTypeNullableStatic */
+    function myNullableFunction(): ?static {
         return $this;
     }
 }
@@ -157,3 +169,58 @@ function pseudoTypeTrue(): ?true {}
 /* testPHP82PseudoTypeFalseAndTrue */
 // Intentional fatal error - Type contains both true and false, bool should be used instead, but that's not the concern of the method.
 function pseudoTypeFalseAndTrue(): true|false {}
+
+/* testPHP82DNFType */
+function hasDNFType() : bool|(Foo&Bar)|string {}
+
+abstract class AbstractClass {
+    /* testPHP82DNFTypeAbstractMethod */
+    abstract protected function abstractMethodDNFType() : float|(Foo&Bar);
+}
+
+/* testPHP82DNFTypeIllegalNullable */
+// Intentional fatal error - nullable operator cannot be combined with DNF.
+function illegalNullableDNF(): ?(A&\Pck\B)|bool {}
+
+/* testPHP82DNFTypeClosure */
+$closure = function() : object|(namespace\Foo&Countable) {};
+
+/* testPHP82DNFTypeFn */
+// Intentional fatal error - void type cannot be combined with DNF.
+$arrow = fn() : null|(Partially\Qualified&Traversable)|void => do_something();
+
+/* testNotAFunction */
+return true;
+
+/* testPhpcsIssue1264 */
+function foo() : array {
+    echo $foo;
+}
+
+/* testArrowFunctionArrayReturnValue */
+$fn = fn(): array => [a($a, $b)];
+
+/* testArrowFunctionReturnByRef */
+fn&(?string $a) : ?string => $b;
+
+/* testFunctionCallFnPHPCS353-354 */
+$value = $obj->fn(true);
+
+/* testFunctionDeclarationNestedInTernaryPHPCS2975 */
+return (!$a ? [ new class { public function b(): c {} } ] : []);
+
+/* testClosureWithUseNoReturnType */
+$closure = function () use($a) /*comment*/ {};
+
+/* testClosureWithUseNoReturnTypeIllegalUseProp */
+$closure = function () use ($this->prop){};
+
+/* testClosureWithUseWithReturnType */
+$closure = function () use /*comment*/ ($a): Type {};
+
+/* testClosureWithUseMultiParamWithReturnType */
+$closure = function () use ($a, &$b, $c, $d, $e, $f, $g): ?array {};
+
+/* testArrowFunctionLiveCoding */
+// Intentional parse error. This has to be the last test in the file.
+$fn = fn

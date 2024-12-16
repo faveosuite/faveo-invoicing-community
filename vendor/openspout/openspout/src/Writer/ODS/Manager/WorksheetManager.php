@@ -22,16 +22,16 @@ use OpenSpout\Writer\ODS\Manager\Style\StyleManager;
 /**
  * @internal
  */
-final class WorksheetManager implements WorksheetManagerInterface
+final readonly class WorksheetManager implements WorksheetManagerInterface
 {
     /** @var ODSEscaper Strings escaper */
-    private readonly ODSEscaper $stringsEscaper;
+    private ODSEscaper $stringsEscaper;
 
     /** @var StyleManager Manages styles */
-    private readonly StyleManager $styleManager;
+    private StyleManager $styleManager;
 
     /** @var StyleMerger Helper to merge styles together */
-    private readonly StyleMerger $styleMerger;
+    private StyleMerger $styleMerger;
 
     /**
      * WorksheetManager constructor.
@@ -51,7 +51,7 @@ final class WorksheetManager implements WorksheetManagerInterface
      *
      * @param Worksheet $worksheet The worksheet to start
      *
-     * @throws \OpenSpout\Common\Exception\IOException If the sheet data file cannot be opened for writing
+     * @throws IOException If the sheet data file cannot be opened for writing
      */
     public function startSheet(Worksheet $worksheet): void
     {
@@ -88,7 +88,7 @@ final class WorksheetManager implements WorksheetManagerInterface
         $databaseRange = '';
 
         if (null !== $autofilter = $externalSheet->getAutoFilter()) {
-            $rangeAddress = sprintf(
+            $rangeAddress = \sprintf(
                 '\'%s\'.%s%s:\'%s\'.%s%s',
                 $escapedSheetName,
                 CellHelper::getColumnLettersFromColumnIndex($autofilter->fromColumnIndex),

@@ -11,16 +11,7 @@ use Yajra\DataTables\Transformers\FractalTransformer;
 class FractalServiceProvider extends ServiceProvider
 {
     /**
-     * Indicates if loading of the provider is deferred.
-     *
-     * @var bool
-     */
-    protected bool $defer = false;
-
-    /**
      * Bootstrap the application events.
-     *
-     * @return void
      */
     public function boot(): void
     {
@@ -32,8 +23,6 @@ class FractalServiceProvider extends ServiceProvider
 
     /**
      * Publish datatables assets.
-     *
-     * @return void
      */
     protected function publishAssets(): void
     {
@@ -46,8 +35,6 @@ class FractalServiceProvider extends ServiceProvider
 
     /**
      * Register DataTables macro methods.
-     *
-     * @return void
      */
     protected function registerMacro(): void
     {
@@ -72,8 +59,6 @@ class FractalServiceProvider extends ServiceProvider
 
     /**
      * Register the service provider.
-     *
-     * @return void
      */
     public function register(): void
     {
@@ -104,8 +89,6 @@ class FractalServiceProvider extends ServiceProvider
 
     /**
      * Get the services provided by the provider.
-     *
-     * @return array
      */
     public function provides(): array
     {

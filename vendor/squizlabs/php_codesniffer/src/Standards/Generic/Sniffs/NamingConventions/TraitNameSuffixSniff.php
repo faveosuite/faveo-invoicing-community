@@ -18,7 +18,7 @@ class TraitNameSuffixSniff implements Sniff
     /**
      * Registers the tokens that this sniff wants to listen for.
      *
-     * @return int[]
+     * @return array<int|string>
      */
     public function register()
     {
@@ -40,6 +40,7 @@ class TraitNameSuffixSniff implements Sniff
     {
         $traitName = $phpcsFile->getDeclarationName($stackPtr);
         if ($traitName === null) {
+            // Live coding or parse error. Bow out.
             return;
         }
 

@@ -34,7 +34,7 @@ System Setting
             </div>
 
             <div class="card-body">
-                {!! Form::model($set,['url'=>'settings/system','method'=>'patch','files'=>true, 'enctype' => 'multipart/form-data','id'=>'companyDetailsForm']) !!}
+                {!! html()->modelForm($set, 'PATCH' ,url('settings/system'))->attribute('enctype', 'multipart/form-data')->acceptsFiles()->id('companyDetailsForm')->open() !!}
                 <div class="row">
                  <div class="col-md-6">
               
@@ -43,12 +43,12 @@ System Setting
 
                     <tr>
 
-                        <td><b>{!! Form::label('company',Lang::get('message.company-name'),['class'=>'required']) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.company-name'), 'company')->class('required') !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('company') ? 'has-error' : '' }}">
 
 
-                                {!! Form::text('company',null,['class' => 'form-control'.($errors->has('company') ? ' is-invalid' : '')]) !!}
+                                {!! html()->text('company')->class('form-control'.($errors->has('company') ? ' is-invalid' : '')) !!}
                                 @error('company')
                                 <span class="error-message"> {{$message}}</span>
                                 @enderror
@@ -63,13 +63,13 @@ System Setting
 
                     <tr>
 
-                        <td><b>{!! Form::label('company_email',Lang::get('message.company-email'),['class'=>'required']) !!}</b></td>
-                       
+                        <td><b>{!! html()->label(Lang::get('message.company-email'), 'company_email')->class('required') !!}</b></td>
+
                         <td>
                             <div class="form-group {{ $errors->has('company_email') ? 'has-error' : '' }}">
 
 
-                                {!! Form::email('company_email', null, ['class' => 'form-control'.($errors->has('company_email') ? ' is-invalid' : '')]) !!}
+                                {!! html()->email('company_email')->class('form-control'.($errors->has('company_email') ? ' is-invalid' : '')) !!}
                                 @error('company_email')
                                 <span class="error-message"> {{$message}}</span>
                                 @enderror
@@ -84,12 +84,12 @@ System Setting
                     </tr>
                       <tr>
 
-                        <td><b>{!! Form::label('title',Lang::get('message.app-title')) !!}</b></td>
-                        <td>
+                          <td><b>{!! html()->label(Lang::get('message.app-title'), 'title') !!}</b></td>
+                          <td>
                             <div class="form-group {{ $errors->has('company') ? 'has-error' : '' }}">
 
 
-                                {!! Form::text('title',null,['class' => 'form-control'.($errors->has('title') ? ' is-invalid' : '')]) !!}
+                                {!! html()->text('title')->class('form-control'.($errors->has('title') ? ' is-invalid' : '')) !!}
                                 @error('title')
                                 <span class="error-message"> {{$message}}</span>
                                 @enderror
@@ -100,11 +100,11 @@ System Setting
                     </tr>
                     <tr>
 
-                        <td><b>{!! Form::label('website',Lang::get('message.website'),['class'=>'required']) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.website'), 'website')->class('required') !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('website') ? 'has-error' : '' }}">
 
-                                {!! Form::text('website',null,['class' => 'form-control'.($errors->has('website') ? ' is-invalid' : ''),'placeholder'=>'https://example.com']) !!}
+                                {!! html()->text('website')->class('form-control'.($errors->has('website') ? ' is-invalid' : ''))->placeholder('https://example.com') !!}
                                 @error('website')
                                 <span class="error-message"> {{$message}}</span>
                                 @enderror
@@ -117,15 +117,16 @@ System Setting
                     </tr>
                     <tr>
 
-                        <td><b>{!! Form::label('phone',Lang::get('message.phone'),['class'=>'required']) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.phone'), 'phone')->class('required') !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('phone') ? 'has-error' : '' }}">
 
 
-                                {!! Form::input('tel', 'phone', null, ['class' => 'form-control selected-dial-code'.($errors->has('phone') ? ' is-invalid' : ''), 'id' => 'phone']) !!}
 
-                                {!! Form::hidden('phone_code',null,['id'=>'phone_code_hidden']) !!}
-                                {!! Form::hidden('phone_country_iso',null,['id' => 'phone_country_iso']) !!}
+                                {!! html()->input('tel', 'phone')->class('form-control selected-dial-code'.($errors->has('phone') ? ' is-invalid' : ''))->id('phone') !!}
+
+                                {!! html()->hidden('phone_code')->id('phone_code_hidden') !!}
+                                {!! html()->hidden('phone_country_iso')->id('phone_country_iso') !!}
                                 @error('phone')
                                 <span class="error-message"> {{$message}}</span>
                                 @enderror
@@ -140,11 +141,11 @@ System Setting
                     </tr>
                     <tr>
 
-                        <td><b>{!! Form::label('address',Lang::get('message.address'),['class'=>'required']) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.address'), 'address')->class('required') !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('address') ? 'has-error' : '' }}">
 
-                                {!! Form::textarea('address',null,['class' => 'form-control'.($errors->has('address') ? ' is-invalid' : ''),'size' => '128x10','id'=>'address']) !!}
+                                {!! html()->textarea('address')->class('form-control'.($errors->has('address') ? ' is-invalid' : ''))->id('address')->attribute('rows', 10)->attribute('cols', 128) !!}
                                 @error('address')
                                 <span class="error-message"> {{$message}}</span>
                                 @enderror
@@ -156,12 +157,12 @@ System Setting
                     </tr>
                      <tr>
 
-                        <td><b>{!! Form::label('City',Lang::get('message.city')) !!}</b></td>
-                        <td>
+                         <td><b>{!! html()->label(Lang::get('message.city'), 'City') !!}</b></td>
+                         <td>
                             <div class="form-group {{ $errors->has('city') ? 'has-error' : '' }}">
 
 
-                                {!! Form::text('city',null,['class' => 'form-control'.($errors->has('city') ? ' is-invalid' : '')]) !!}
+                                {!! html()->text('city')->class('form-control'.($errors->has('city') ? ' is-invalid' : '')) !!}
                                 @error('city')
                                 <span class="error-message"> {{$message}}</span>
                                 @enderror
@@ -173,12 +174,12 @@ System Setting
 
                     <tr>
 
-                        <td><b>{!! Form::label('zip','Zip') !!}</b></td>
+                        <td><b>{!! html()->label('Zip', 'zip') !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('zip') ? 'has-error' : '' }}">
 
 
-                                {!! Form::text('zip',null,['class' => 'form-control'.($errors->has('zip') ? ' is-invalid' : ''),'id'=>'zip1']) !!}
+                                {!! html()->text('zip')->class('form-control'.($errors->has('zip') ? ' is-invalid' : ''))->id('zip1') !!}
                                 <span id="zip-error-msg"></span>
                                 @error('zip')
                                 <span class="error-message"> {{$message}}</span>
@@ -191,12 +192,12 @@ System Setting
 
                     <tr>
 
-                        <td><b>{!! Form::label('knowledge_base_url','Knowledge Base URL') !!}</b></td>
+                        <td><b>{!! html()->label('Knowledge Base URL', 'knowledge_base_url') !!}</b></td>
                         <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{Lang::get('message.url_tooltip')}}"></i>
                         <td>
                             <div class="form-group {{ $errors->has('knowledge_base_url') ? 'has-error' : '' }}">
 
-                                {!! Form::text('knowledge_base_url',null,['class' => 'form-control'.($errors->has('knowledge_base_url') ? ' is-invalid' : ''),'id'=>'knowledge_base_url','placeholder'=>'https://example.com']) !!}
+                                {!! html()->text('knowledge_base_url')->class('form-control'.($errors->has('knowledge_base_url') ? ' is-invalid' : ''))->id('knowledge_base_url')->placeholder('https://example.com') !!}
                                 @error('knowledge_base_url')
                                 <span class="error-message"> {{$message}}</span>
                                 @enderror
@@ -214,12 +215,12 @@ System Setting
             
                     <tr>
 
-                        <td><b>{!! Form::label('country',Lang::get('message.country') ,['class'=>'required']) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.country'), 'country')->class('required') !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('city') ? 'has-error' : '' }}">
 
 
-                                <!-- {!! Form::text('country',null,['class' => 'form-control']) !!} -->
+                                <!-- {!! html()->text('country')->class('form-control') !!} -->
                                 <!-- <p><i> {{Lang::get('message.country')}}</i> </p> -->
                                   <?php $countries = \App\Model\Common\Country::pluck('nicename', 'country_code_char2')->toArray(); ?>
 
@@ -248,11 +249,11 @@ System Setting
 
                              <div class="form-group cin">
                                   <td>
-                                    {!! Form::label('CIN No.',Lang::get('CIN')) !!}
-                                </td>
+                                      {!! html()->label(Lang::get('CIN'), 'CIN No.') !!}
+                                  </td>
 
                                  <td>
-                                {!! Form::text('cin_no',null,['class' => 'form-control'.($errors->has('cin_no') ? ' is-invalid' : ''),'id'=>'cin']) !!}
+                                     {!! html()->text('cin_no')->class('form-control'.($errors->has('cin_no') ? ' is-invalid' : ''))->id('cin') !!}
                                      @error('cin_no')
                                      <span class="error-message"> {{$message}}</span>
                                  @enderror
@@ -265,12 +266,12 @@ System Setting
                      <tr class="form-group ">
                               <div class="form-group gstin">
                                  <td>
-                                    {!! Form::label('GSTIN',Lang::get('GSTIN')) !!}
-                                </td>
+                                     {!! html()->label(Lang::get('GSTIN'), 'GSTIN') !!}
+                                 </td>
 
                                  <td>
-                                     
-                                    {!! Form::number('gstin',null,['class' => 'form-control'.($errors->has('gstin') ? ' is-invalid' : ''),'id'=>'gstin']) !!}
+
+                                     {!! html()->text('gstin')->class('form-control'.($errors->has('gstin') ? ' is-invalid' : ''))->id('gstin') !!}
                                      <span class="hide" id="gst-error-msg"></span>
                                      @error('gstin')
                                      <span class="error-message"> {{$message}}</span>
@@ -284,7 +285,7 @@ System Setting
 
                     <tr>
 
-                        <td><b>{!! Form::label('state',Lang::get('message.state') ,['class'=>'required']) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.state'), 'state')->class('required') !!}</b></td>
                         <td>
                         <select name="state" id="state-list" class="form-control {{$errors->has('state') ? ' is-invalid' : ''}}">
                                 @if($set->state)
@@ -304,8 +305,8 @@ System Setting
                     <br>
                         <tr>
 
-                        <td><b>{!! Form::label('default_currency',Lang::get('message.default-currency') ,['class'=>'required']) !!}</b></td>
-                        <td>
+                            <td><b>{!! html()->label(Lang::get('message.default-currency'), 'default_currency')->class('required') !!}</b></td>
+                            <td>
                              <?php $currencies = \App\Model\Payment\Currency::where('status',1)->pluck('name','code')->toArray(); 
                              ?>
                          <select name="default_currency" value= "Choose"  class="form-control selectpicker {{$errors->has('default_currency') ? ' is-invalid' : ''}}" data-live-search="true" data-live-search-placeholder="Search" data-dropup-auto="false" data-size="10">
@@ -324,9 +325,9 @@ System Setting
                     </tr>
                     <br>
                       <tr>
-                     
-                        <td><b>{!! Form::label('logo',Lang::get('message.admin-logo')) !!}</b></td>
-                        <td>
+
+                          <td><b>{!! html()->label(Lang::get('message.admin-logo'), 'logo') !!}</b></td>
+                          <td>
                             <div class="form-group {{ $errors->has('admin-logo') ? 'has-error' : '' }}">
                                    {{ __('Upload Application Logo') }}
 
@@ -336,7 +337,7 @@ System Setting
                                     @endif
 
                                     <div class="custom-file ml-3">
-                                        {!! Form::file('admin-logo', ['class' => 'custom-file-input cursor-pointer'.($errors->has('admin-logo') ? ' is-invalid' : ''), 'id' => 'admin-logo' , 'role' => 'button']) !!}
+                                        {!! html()->file('admin-logo')->class('custom-file-input cursor-pointer'.($errors->has('admin-logo') ? ' is-invalid' : ''))->id('admin-logo')->attribute('role', 'button') !!}
                                         <label role="button" class="custom-file-label cursor-pointer" for="admin-logo">{{ __('Choose file') }}</label>
                                         @error('admin_logo')
                                         <span class="error-message"> {{$message}}</span>
@@ -356,9 +357,9 @@ System Setting
 
                      <tr>
 
-                        <td><b>{!! Form::label('icon',Lang::get('message.fav-icon')) !!}</b></td>
+                         <td><b>{!! html()->label(Lang::get('message.fav-icon'), 'icon') !!}</b></td
 
-                        <td>
+                         <td>
                             <div class="form-group {{ $errors->has('fav-icon') ? 'has-error' : '' }}">
                                     {{ __('Upload favicon for Admin and Client Panel') }}
 
@@ -368,7 +369,7 @@ System Setting
                                     @endif
 
                                     <div class="custom-file ml-3">
-                                        {!! Form::file('fav-icon', ['class' => 'custom-file-input'.($errors->has('fav-icon') ? ' is-invalid' : ''), 'id' => 'fav-icon' ,'role' => 'button']) !!}
+                                        {!! html()->file('fav-icon')->class('custom-file-input'.($errors->has('fav-icon') ? ' is-invalid' : ''))->id('fav-icon')->attribute('role', 'button') !!}
                                         <label role="button" class="custom-file-label" for="fav-icon">{{ __('Choose file') }}</label>
                                     </div>
                                 </div>
@@ -385,12 +386,12 @@ System Setting
 
                      <tr>
 
-                        <td><b>{!! Form::label('favicon_title',Lang::get('message.fav-title-admin')) !!}</b></td>
-                        <td>
+                         <td><b>{!! html()->label(Lang::get('message.fav-title-admin'), 'favicon_title') !!}</b></td>
+                         <td>
                             <div class="form-group {{ $errors->has('favicon_title') ? 'has-error' : '' }}">
 
 
-                                {!! Form::text('favicon_title',null,['class' => 'form-control'.($errors->has('favicon_title') ? ' is-invalid' : '')]) !!}
+                                {!! html()->text('favicon_title')->class('form-control'.($errors->has('favicon_title') ? ' is-invalid' : '')) !!}
                                 @error('favicon_title')
                                 <span class="error-message"> {{$message}}</span>
                                 @enderror
@@ -403,12 +404,13 @@ System Setting
 
                      <tr>
 
-                        <td><b>{!! Form::label('favicon_title_client',Lang::get('message.fav-title-client')) !!}</b></td>
-                        <td>
+                         <td><b>{!! html()->label(Lang::get('message.fav-title-client'), 'favicon_title_client') !!}</b></td>
+                         <td>
                             <div class="form-group {{ $errors->has('favicon_title_client') ? 'has-error' : '' }}">
 
 
-                                {!! Form::text('favicon_title_client',null,['class' => 'form-control'.($errors->has('favicon_title_client') ? ' is-invalid' : '')]) !!}
+                                {!! html()->text('favicon_title_client')->class('form-control'.($errors->has('favicon_title_client') ? ' is-invalid' : '')) !!}
+
 
                                 @error('favicon_title_client')
                                 <span class="error-message"> {{$message}}</span>
@@ -421,15 +423,29 @@ System Setting
 
                 <tr>
 
-                    <td><b>{!! Form::label('logo',Lang::get('message.client-logo')) !!}</b></td>
-                    <td>
-                        <div class="form-group {{ $errors->has('logo') ? 'has-error' : '' }}">
-                            {{ __('Upload the company logo') }}
+                        <td><b>{!! html()->label(Lang::get('message.client-logo'), 'logo') !!}</b></td>
+                        <td>
+                            <div class="form-group {{ $errors->has('logo') ? 'has-error' : '' }}">
+                                   {{ __('Upload the company logo') }}
 
-                            <div class="d-flex align-items-center mt-1">
-                                @if($set->logo)
-                                    <img src="{{ $set->logo }}" class="img-thumbnail shadow-sm border"
-                                         style="height: 50px; width: 100px;" alt="Company Logo" id="preview-logo">
+                                <div class="d-flex align-items-center mt-1">
+                                    @if($set->logo)
+                                        <img src="{{ $set->logo }}" class="img-thumbnail shadow-sm border"
+                                             style="height: 50px; width: 100px;" alt="Company Logo" id="preview-logo">
+                                    @endif
+
+                                    <div class="custom-file ml-3">
+
+                                        {!! html()->file('logo')->class('custom-file-input'.($errors->has('logo') ? ' is-invalid' : ''))->id('logo')->attribute('role', 'button')->attribute('onchange', 'previewImage("preview-logo", "logo")') !!}
+
+                                        <label role="button" class="custom-file-label" for="logo">{{ __('Choose file') }}</label>
+                                    </div>
+                                </div>
+
+                                @if($errors->has('logo'))
+                                    <small class="form-text text-danger mt-1">
+                                        <i class="fas fa-exclamation-circle"></i> {{ $errors->first('logo') }}
+                                    </small>
                                 @endif
 
                                 <div class="custom-file ml-3">
@@ -455,10 +471,10 @@ System Setting
 
                 </div>
                 <button type="submit" class="btn btn-primary" id="submit" name="submit" value="save" ><i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}</button>
-               
 
-                {!! Form::close() !!}
-        </div>
+
+                {!! html()->closeModelForm() !!}
+            </div>
     </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.0/sweetalert.min.js"></script>

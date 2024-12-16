@@ -7,9 +7,11 @@ namespace OpenSpout\Reader\ODS;
 use DOMElement;
 use OpenSpout\Common\Entity\Cell;
 use OpenSpout\Common\Entity\Row;
+use OpenSpout\Common\Exception\IOException;
 use OpenSpout\Reader\Common\XMLProcessor;
 use OpenSpout\Reader\Exception\InvalidValueException;
 use OpenSpout\Reader\Exception\IteratorNotRewindableException;
+use OpenSpout\Reader\Exception\SharedStringNotFoundException;
 use OpenSpout\Reader\ODS\Helper\CellValueFormatter;
 use OpenSpout\Reader\RowIteratorInterface;
 use OpenSpout\Reader\Wrapper\XMLReader;
@@ -35,8 +37,8 @@ final class RowIterator implements RowIteratorInterface
     /** @var XMLProcessor Helper Object to process XML nodes */
     private readonly XMLProcessor $xmlProcessor;
 
-    /** @var Helper\CellValueFormatter Helper to format cell values */
-    private readonly Helper\CellValueFormatter $cellValueFormatter;
+    /** @var CellValueFormatter Helper to format cell values */
+    private readonly CellValueFormatter $cellValueFormatter;
 
     /** @var bool Whether the iterator has already been rewound once */
     private bool $hasAlreadyBeenRewound = false;
@@ -90,7 +92,7 @@ final class RowIterator implements RowIteratorInterface
      *
      * @see http://php.net/manual/en/iterator.rewind.php
      *
-     * @throws \OpenSpout\Reader\Exception\IteratorNotRewindableException If the iterator is rewound more than once
+     * @throws IteratorNotRewindableException If the iterator is rewound more than once
      */
     public function rewind(): void
     {
@@ -125,8 +127,8 @@ final class RowIterator implements RowIteratorInterface
      *
      * @see http://php.net/manual/en/iterator.next.php
      *
-     * @throws \OpenSpout\Reader\Exception\SharedStringNotFoundException If a shared string was not found
-     * @throws \OpenSpout\Common\Exception\IOException                   If unable to read the sheet data XML
+     * @throws SharedStringNotFoundException If a shared string was not found
+     * @throws IOException                   If unable to read the sheet data XML
      */
     public function next(): void
     {
@@ -176,8 +178,8 @@ final class RowIterator implements RowIteratorInterface
     }
 
     /**
-     * @throws \OpenSpout\Reader\Exception\SharedStringNotFoundException If a shared string was not found
-     * @throws \OpenSpout\Common\Exception\IOException                   If unable to read the sheet data XML
+     * @throws SharedStringNotFoundException If a shared string was not found
+     * @throws IOException                   If unable to read the sheet data XML
      */
     private function readDataForNextRow(): void
     {

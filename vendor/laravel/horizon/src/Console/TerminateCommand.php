@@ -9,7 +9,9 @@ use Illuminate\Support\InteractsWithTime;
 use Illuminate\Support\Str;
 use Laravel\Horizon\Contracts\MasterSupervisorRepository;
 use Laravel\Horizon\MasterSupervisor;
+use Symfony\Component\Console\Attribute\AsCommand;
 
+#[AsCommand(name: 'horizon:terminate')]
 class TerminateCommand extends Command
 {
     use InteractsWithTime;
@@ -48,13 +50,20 @@ class TerminateCommand extends Command
             return Str::startsWith($master->name, MasterSupervisor::basename());
         })->all();
 
-        foreach (Arr::pluck($masters, 'pid') as $processId) {
-            $this->info("Sending TERM Signal To Process: {$processId}");
+        collect(Arr::pluck($masters, 'pid'))
+            ->whenNotEmpty(fn () => $this->components->info('Sending TERM signal to processes.'))
+            ->whenEmpty(fn () => $this->components->info('No processes to terminate.'))
+            ->each(function ($processId) {
+                $result = true;
 
-            if (! posix_kill($processId, SIGTERM)) {
-                $this->error("Failed to kill process: {$processId} (".posix_strerror(posix_get_last_error()).')');
-            }
-        }
+                $this->components->task("Process: $processId", function () use ($processId, &$result) {
+                    return $result = posix_kill($processId, SIGTERM);
+                });
+
+                if (! $result) {
+                    $this->components->error("Failed to kill process: {$processId} (".posix_strerror(posix_get_last_error()).')');
+                }
+            })->whenNotEmpty(fn () => $this->output->writeln(''));
 
         $this->laravel['cache']->forever('illuminate:queue:restart', $this->currentTime());
     }

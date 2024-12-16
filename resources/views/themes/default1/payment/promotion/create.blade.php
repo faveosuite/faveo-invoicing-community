@@ -26,18 +26,18 @@ Create Coupon
 
 
             <div class="card-body">
-                {!! Form::open(['url'=>'promotions','id'=>'myform']) !!}
+                {!! html()->form('POST', url('promotions'))->id('myform')->open() !!}
 
                 <table class="table table-condensed">
 
                     <tr>
-                        <td><b>{!! Form::label('company',Lang::get('message.code'),['class'=>'required']) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.code'), 'company')->class('required') !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('code') ? 'has-error' : '' }}">
                                     <div class="d-flex">
                                     <div class="col-md-6">
-                                        <!-- {!! Form::text('code',null,['class' => 'form-control','id'=>'code']) !!} -->
-                                        {!! Form::text('code',null,['class' => 'form-control'.($errors->has('code') ? ' is-invalid' : ''),'id'=>'code','title'=>'Generate Coupon Code']) !!}
+                                        <!-- {!! html()->text('code')->class('form-control')->id('code') !!} -->
+                                        {!! html()->text('code')->class('form-control'.($errors->has('code') ? ' is-invalid' : ''))->id('code')->attribute('title', 'Generate Coupon Code') !!}
                                        <!--   <input id="code" name="code" type="text" class="form-control" title="Generate Coupon Code"/> -->
                                         @error('code')
                                         <span class="error-message"> {{$message}}</span>
@@ -56,13 +56,13 @@ Create Coupon
                     </tr>
                     <tr>
 
-                        <td ><b>{!! Form::label('type',Lang::get('message.type'),['class'=>'required']) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.type'), 'type')->class('required') !!}</b></td>
 
                         <td>
                             <div class="form-group col-lg-6 {{ $errors->has('type') ? 'has-error' : '' }}">
 
 
-                                {!! Form::select('type',[''=>'Select','Types'=>$type],null,['class' => 'form-control'.($errors->has('type') ? ' is-invalid' : ''),  'title'=>"Type Of Coupon"]) !!}
+                                {!! html()->select('type', ['' => 'Select', 'Types' => $type])->class('form-control'.($errors->has('type') ? ' is-invalid' : ''))->attribute('title', 'Type Of Coupon') !!}
                                 @error('type')
                                 <span class="error-message"> {{$message}}</span>
                                 @enderror
@@ -74,10 +74,10 @@ Create Coupon
                     </tr>
                     <tr>
 
-                        <td><b>{!! Form::label('value',Lang::get('message.value'),['class'=>'required']) !!} &nbsp;&nbsp;<i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="Enter the discount amount."></i></b></td>
+                        <td><b>{!! html()->label(Lang::get('message.value'), 'value')->class('required') !!} &nbsp;&nbsp;<i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="Enter the discount amount."></i></b></td>
                         <td>
                             <div class="form-group col-lg-6 {{ $errors->has('value') ? 'has-error' : '' }}">
-                                {!! Form::number('value',null,['class' => 'form-control'.($errors->has('value') ? ' is-invalid' : ''),'title'=>'Value of the Coupon']) !!}
+                                {!! html()->text('value')->class('form-control'.($errors->has('value') ? ' is-invalid' : ''))->attribute('title','Value of the Coupon') !!}
                                 @error('value')
                                 <span class="error-message"> {{$message}}</span>
                                 @enderror
@@ -90,10 +90,10 @@ Create Coupon
                     </tr>
                     <tr>
 
-                        <td><b>{!! Form::label('uses',Lang::get('message.uses'),['class'=>'required']) !!} &nbsp;&nbsp;<i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="Enter the maximum number of times the coupon can be used, Coupon usage limit."></i></b></td>
+                        <td><b>{!! html()->label(Lang::get('message.uses'), 'uses')->class('required') !!} &nbsp;&nbsp;<i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="Enter the maximum number of times the coupon can be used, Coupon usage limit."></i></b></td>
                         <td>
                             <div class="form-group col-lg-6 {{ $errors->has('uses') ? 'has-error' : '' }}">
-                                {!! Form::number('uses',null,['class' => 'form-control'.($errors->has('uses') ? ' is-invalid' : ''),'title'=>'No. Of times the coupon can be Used']) !!}
+                                {!! html()->text('uses')->class('form-control'.($errors->has('uses') ? ' is-invalid' : ''))->attribute('title', 'No. Of times the coupon can be Used') !!}
                                 @error('uses')
                                 <span class="error-message"> {{$message}}</span>
                                 @enderror
@@ -106,11 +106,17 @@ Create Coupon
                     </tr>
                     <tr>
 
-                        <td><b>{!! Form::label('applied',Lang::get('message.applied'),['class'=>'required']) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.applied'), 'applied')->class('required') !!}</b></td>
                         <td>
 
                             <div class="form-group col-lg-6{{ $errors->has('applied') ? 'has-error' : '' }}">
-                                {!! Form::select('applied',[''=>'Choose','Products'=>$product],null,['class' => 'form-control'.($errors->has('applied') ? ' is-invalid' : ''),'data-live-search'=>'true','data-live-search-placeholder' => 'Search','data-dropup-auto'=>'false','data-size'=>'10','title'=>'Products for which coupon is Applied']) !!}
+                                {!! html()->select('applied', ['' => 'Choose', 'Products' => $product])
+     ->class('form-control'.($errors->has('applied') ? ' is-invalid' : ''))
+     ->attribute('data-live-search', 'true')
+     ->attribute('data-live-search-placeholder', 'Search')
+     ->attribute('data-dropup-auto', 'false')
+     ->attribute('data-size', '10')
+     ->attribute('title','Products for which coupon is Applied') !!}
                                 @error('applied')
                                 <span class="error-message"> {{$message}}</span>
                                 @enderror
@@ -123,12 +129,12 @@ Create Coupon
                     </tr>
                     <tr>
 
-                        <td><b>{!! Form::label('start',Lang::get('message.start'),['class'=>'required']) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.start'), 'start')->class('required') !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('start') ? 'has-error' : '' }}">
                                 <div class="input-group date col-lg-6" id="startDate" data-target-input="nearest">
 
-                                     {!! Form::text('start',null,['class' => 'form-control datetimepicker-input'.($errors->has('start') ? ' is-invalid' : ''),'title'=>'Date from which Coupon is Valid','data-target'=>'#startDate']) !!}
+                                    {!! html()->text('start')->class('form-control datetimepicker-input'.($errors->has('start') ? ' is-invalid' : ''))->attribute('title','Date from which Coupon is Valid')->attribute('data-target', '#startDate') !!}
                                     <div class="input-group-append" data-target="#startDate" data-toggle="datetimepicker">
                                         <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                     </div>
@@ -148,15 +154,14 @@ Create Coupon
 
                     <tr>
 
-                        <td><b>{!! Form::label('expiry',Lang::get('message.expiry'),['class'=>'required']) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.expiry'), 'expiry')->class('required') !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('expiry') ? 'has-error' : '' }}">
 
                                 <div class="input-group date col-lg-6" id="endDate" data-target-input="nearest">
 
-                                    {!! Form::text('expiry',null,['class' => 'form-control datetimepicker-input'.($errors->has('expiry') ? ' is-invalid' : ''),'title'=>'Date on which Coupon Expires','data-target'=>'#endDate']) !!}
+                                    {!! html()->text('expiry')->class('form-control datetimepicker-input'.($errors->has('expiry') ? ' is-invalid' : ''))->attribute('title','Date on which Coupon Expires')->attribute('data-target', '#endDate') !!}
 
-                                   
                                     <div class="input-group-append" data-target="#endDate" data-toggle="datetimepicker">
                                         <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                     </div>
@@ -178,7 +183,7 @@ Create Coupon
 
 
 
-                    {!! Form::close() !!}
+                    {!! html()->form()->close() !!}
 
                 </table>
                 <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fa fa-save">&nbsp;</i>{!!Lang::get('message.save')!!}</button>

@@ -21,8 +21,7 @@ use function ksort;
 use function method_exists;
 use function sort;
 use function sprintf;
-use function str_replace;
-use function strpos;
+use function str_contains;
 use function trait_exists;
 use ReflectionClass;
 use ReflectionFunction;
@@ -31,7 +30,7 @@ use ReflectionMethod;
 final class Mapper
 {
     /**
-     * @psalm-return array<string,list<int>>
+     * @return array<string,list<int>>
      */
     public function codeUnitsToSourceLines(CodeUnitCollection $codeUnits): array
     {
@@ -64,41 +63,15 @@ final class Mapper
      */
     public function stringToCodeUnits(string $unit): CodeUnitCollection
     {
-        if (strpos($unit, '::') !== false) {
+        if (str_contains($unit, '::')) {
             [$firstPart, $secondPart] = explode('::', $unit);
 
-            if (empty($firstPart) && $this->isUserDefinedFunction($secondPart)) {
+            if ($this->isUserDefinedFunction($secondPart)) {
                 return CodeUnitCollection::fromList(CodeUnit::forFunction($secondPart));
             }
 
-            if ($this->isUserDefinedClass($firstPart)) {
-                if ($secondPart === '<public>') {
-                    return $this->publicMethodsOfClass($firstPart);
-                }
-
-                if ($secondPart === '<!public>') {
-                    return $this->protectedAndPrivateMethodsOfClass($firstPart);
-                }
-
-                if ($secondPart === '<protected>') {
-                    return $this->protectedMethodsOfClass($firstPart);
-                }
-
-                if ($secondPart === '<!protected>') {
-                    return $this->publicAndPrivateMethodsOfClass($firstPart);
-                }
-
-                if ($secondPart === '<private>') {
-                    return $this->privateMethodsOfClass($firstPart);
-                }
-
-                if ($secondPart === '<!private>') {
-                    return $this->publicAndProtectedMethodsOfClass($firstPart);
-                }
-
-                if ($this->isUserDefinedMethod($firstPart, $secondPart)) {
-                    return CodeUnitCollection::fromList(CodeUnit::forClassMethod($firstPart, $secondPart));
-                }
+            if ($this->isUserDefinedMethod($firstPart, $secondPart)) {
+                return CodeUnitCollection::fromList(CodeUnit::forClassMethod($firstPart, $secondPart));
             }
 
             if ($this->isUserDefinedInterface($firstPart)) {
@@ -110,19 +83,12 @@ final class Mapper
             }
         } else {
             if ($this->isUserDefinedClass($unit)) {
-                $units = [CodeUnit::forClass($unit)];
-
-                foreach ($this->reflectorForClass($unit)->getTraits() as $trait) {
-                    if (!$trait->isUserDefined()) {
-                        // @codeCoverageIgnoreStart
-                        continue;
-                        // @codeCoverageIgnoreEnd
-                    }
-
-                    $units[] = CodeUnit::forTrait($trait->getName());
-                }
-
-                return CodeUnitCollection::fromArray($units);
+                return CodeUnitCollection::fromList(
+                    ...array_merge(
+                        [CodeUnit::forClass($unit)],
+                        $this->traits(new ReflectionClass($unit)),
+                    ),
+                );
             }
 
             if ($this->isUserDefinedInterface($unit)) {
@@ -136,166 +102,18 @@ final class Mapper
             if ($this->isUserDefinedFunction($unit)) {
                 return CodeUnitCollection::fromList(CodeUnit::forFunction($unit));
             }
-
-            $unit = str_replace('<extended>', '', $unit);
-
-            if ($this->isUserDefinedClass($unit)) {
-                return $this->classAndParentClassesAndTraits($unit);
-            }
         }
 
         throw new InvalidCodeUnitException(
             sprintf(
                 '"%s" is not a valid code unit',
-                $unit
-            )
+                $unit,
+            ),
         );
     }
 
     /**
-     * @psalm-param class-string $className
-     *
-     * @throws ReflectionException
-     */
-    private function publicMethodsOfClass(string $className): CodeUnitCollection
-    {
-        return $this->methodsOfClass($className, ReflectionMethod::IS_PUBLIC);
-    }
-
-    /**
-     * @psalm-param class-string $className
-     *
-     * @throws ReflectionException
-     */
-    private function publicAndProtectedMethodsOfClass(string $className): CodeUnitCollection
-    {
-        return $this->methodsOfClass($className, ReflectionMethod::IS_PUBLIC | ReflectionMethod::IS_PROTECTED);
-    }
-
-    /**
-     * @psalm-param class-string $className
-     *
-     * @throws ReflectionException
-     */
-    private function publicAndPrivateMethodsOfClass(string $className): CodeUnitCollection
-    {
-        return $this->methodsOfClass($className, ReflectionMethod::IS_PUBLIC | ReflectionMethod::IS_PRIVATE);
-    }
-
-    /**
-     * @psalm-param class-string $className
-     *
-     * @throws ReflectionException
-     */
-    private function protectedMethodsOfClass(string $className): CodeUnitCollection
-    {
-        return $this->methodsOfClass($className, ReflectionMethod::IS_PROTECTED);
-    }
-
-    /**
-     * @psalm-param class-string $className
-     *
-     * @throws ReflectionException
-     */
-    private function protectedAndPrivateMethodsOfClass(string $className): CodeUnitCollection
-    {
-        return $this->methodsOfClass($className, ReflectionMethod::IS_PROTECTED | ReflectionMethod::IS_PRIVATE);
-    }
-
-    /**
-     * @psalm-param class-string $className
-     *
-     * @throws ReflectionException
-     */
-    private function privateMethodsOfClass(string $className): CodeUnitCollection
-    {
-        return $this->methodsOfClass($className, ReflectionMethod::IS_PRIVATE);
-    }
-
-    /**
-     * @psalm-param class-string $className
-     *
-     * @throws ReflectionException
-     */
-    private function methodsOfClass(string $className, int $filter): CodeUnitCollection
-    {
-        $units = [];
-
-        foreach ($this->reflectorForClass($className)->getMethods($filter) as $method) {
-            if (!$method->isUserDefined()) {
-                continue;
-            }
-
-            $units[] = CodeUnit::forClassMethod($className, $method->getName());
-        }
-
-        return CodeUnitCollection::fromArray($units);
-    }
-
-    /**
-     * @psalm-param class-string $className
-     *
-     * @throws ReflectionException
-     */
-    private function classAndParentClassesAndTraits(string $className): CodeUnitCollection
-    {
-        $units = [CodeUnit::forClass($className)];
-
-        $reflector = $this->reflectorForClass($className);
-
-        foreach ($this->reflectorForClass($className)->getTraits() as $trait) {
-            if (!$trait->isUserDefined()) {
-                // @codeCoverageIgnoreStart
-                continue;
-                // @codeCoverageIgnoreEnd
-            }
-
-            $units[] = CodeUnit::forTrait($trait->getName());
-        }
-
-        while ($reflector = $reflector->getParentClass()) {
-            if (!$reflector->isUserDefined()) {
-                break;
-            }
-
-            $units[] = CodeUnit::forClass($reflector->getName());
-
-            foreach ($reflector->getTraits() as $trait) {
-                if (!$trait->isUserDefined()) {
-                    // @codeCoverageIgnoreStart
-                    continue;
-                    // @codeCoverageIgnoreEnd
-                }
-
-                $units[] = CodeUnit::forTrait($trait->getName());
-            }
-        }
-
-        return CodeUnitCollection::fromArray($units);
-    }
-
-    /**
-     * @psalm-param class-string $className
-     *
-     * @throws ReflectionException
-     */
-    private function reflectorForClass(string $className): ReflectionClass
-    {
-        try {
-            return new ReflectionClass($className);
-            // @codeCoverageIgnoreStart
-        } catch (\ReflectionException $e) {
-            throw new ReflectionException(
-                $e->getMessage(),
-                (int) $e->getCode(),
-                $e
-            );
-        }
-        // @codeCoverageIgnoreEnd
-    }
-
-    /**
-     * @throws ReflectionException
+     * @phpstan-assert-if-true callable-string $functionName
      */
     private function isUserDefinedFunction(string $functionName): bool
     {
@@ -303,21 +121,11 @@ final class Mapper
             return false;
         }
 
-        try {
-            return (new ReflectionFunction($functionName))->isUserDefined();
-            // @codeCoverageIgnoreStart
-        } catch (\ReflectionException $e) {
-            throw new ReflectionException(
-                $e->getMessage(),
-                (int) $e->getCode(),
-                $e
-            );
-        }
-        // @codeCoverageIgnoreEnd
+        return (new ReflectionFunction($functionName))->isUserDefined();
     }
 
     /**
-     * @throws ReflectionException
+     * @phpstan-assert-if-true class-string $className
      */
     private function isUserDefinedClass(string $className): bool
     {
@@ -325,21 +133,11 @@ final class Mapper
             return false;
         }
 
-        try {
-            return (new ReflectionClass($className))->isUserDefined();
-            // @codeCoverageIgnoreStart
-        } catch (\ReflectionException $e) {
-            throw new ReflectionException(
-                $e->getMessage(),
-                (int) $e->getCode(),
-                $e
-            );
-        }
-        // @codeCoverageIgnoreEnd
+        return (new ReflectionClass($className))->isUserDefined();
     }
 
     /**
-     * @throws ReflectionException
+     * @phpstan-assert-if-true interface-string $interfaceName
      */
     private function isUserDefinedInterface(string $interfaceName): bool
     {
@@ -347,21 +145,11 @@ final class Mapper
             return false;
         }
 
-        try {
-            return (new ReflectionClass($interfaceName))->isUserDefined();
-            // @codeCoverageIgnoreStart
-        } catch (\ReflectionException $e) {
-            throw new ReflectionException(
-                $e->getMessage(),
-                (int) $e->getCode(),
-                $e
-            );
-        }
-        // @codeCoverageIgnoreEnd
+        return (new ReflectionClass($interfaceName))->isUserDefined();
     }
 
     /**
-     * @throws ReflectionException
+     * @phpstan-assert-if-true trait-string $traitName
      */
     private function isUserDefinedTrait(string $traitName): bool
     {
@@ -369,46 +157,46 @@ final class Mapper
             return false;
         }
 
-        try {
-            return (new ReflectionClass($traitName))->isUserDefined();
-            // @codeCoverageIgnoreStart
-        } catch (\ReflectionException $e) {
-            throw new ReflectionException(
-                $e->getMessage(),
-                (int) $e->getCode(),
-                $e
-            );
-        }
-        // @codeCoverageIgnoreEnd
+        return (new ReflectionClass($traitName))->isUserDefined();
     }
 
     /**
-     * @throws ReflectionException
+     * @phpstan-assert-if-true class-string $className
      */
     private function isUserDefinedMethod(string $className, string $methodName): bool
     {
         if (!class_exists($className)) {
-            // @codeCoverageIgnoreStart
             return false;
-            // @codeCoverageIgnoreEnd
         }
 
         if (!method_exists($className, $methodName)) {
-            // @codeCoverageIgnoreStart
             return false;
-            // @codeCoverageIgnoreEnd
         }
 
-        try {
-            return (new ReflectionMethod($className, $methodName))->isUserDefined();
-            // @codeCoverageIgnoreStart
-        } catch (\ReflectionException $e) {
-            throw new ReflectionException(
-                $e->getMessage(),
-                (int) $e->getCode(),
-                $e
-            );
+        return (new ReflectionMethod($className, $methodName))->isUserDefined();
+    }
+
+    /**
+     * @param ReflectionClass<object> $class
+     *
+     * @return list<TraitUnit>
+     */
+    private function traits(ReflectionClass $class): array
+    {
+        $result = [];
+
+        foreach ($class->getTraits() as $trait) {
+            if (!$trait->isUserDefined()) {
+                // @codeCoverageIgnoreStart
+                continue;
+                // @codeCoverageIgnoreEnd
+            }
+
+            $result[] = CodeUnit::forTrait($trait->getName());
+
+            $result = array_merge($result, $this->traits($trait));
         }
-        // @codeCoverageIgnoreEnd
+
+        return $result;
     }
 }

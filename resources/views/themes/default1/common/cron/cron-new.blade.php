@@ -32,10 +32,10 @@
         @endif
 
 
-    
 
-    {!! Form::model($status,['url' => 'post-scheduler', 'method' => 'PATCH','id'=>'Form']) !!}
-    <div class="card-header">
+
+{!! html()->modelForm($status, 'PATCH', url('post-scheduler'))->id('Form')->open() !!}
+<div class="card-header">
         <h4 class="card-title">{{Lang::get('message.cron')}} </h4>
 
 
@@ -48,7 +48,7 @@
                 </div>
         </div>
 
-        
+
          <div class="alert  alert-dismissable" style="background: #F3F3F3">
             <div class="row">
             <div class="col-md-2 copy-command1">
@@ -70,7 +70,7 @@
                     </div>
                 </div>
                   <div class="col-md-5 copy-command2">
-                   <span style="font-size: 15px">-q {{$cronPath}} schedule:run 2>&1 </span> 
+                   <span style="font-size: 15px">-q {{$cronPath}} schedule:run 2>&1 </span>
                 </div>
                 <div class="col-md-1">
                     <span style="font-size: 20px" id="copyBtn" title="{{Lang::get('message.verify-and-copy-command')}}" onclick="verifyPHPExecutableAndCopyCommand()"><i class="fa fa-clipboard"></i></span>
@@ -78,30 +78,46 @@
                 </div>
             </div>
         </div>
-        
+
      <div class="row">
         <div class="col-md-6">
             <div class="info-box">
                 <span class="info-box-icon bg-info" style="height: 70px;"><i class="fa fa-envelope"></i></span>
                 <!-- Apply any bg-* class to to the icon to color it -->
                 <div class="info-box-content" style="display: block;">
-               
+
                     <div class="col-md-6">
 
                         <div class="form-group">
 
-                            {!! Form::label('email_fetching', Lang::get('message.expiry_mail') . ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="This cron is to trigger email which are sent out to users before product expiry reminding them to renew the product. This email is send out only to those who have not enabled auto renewal"></i>', [], false) !!}<br>
-                            {!! Form::checkbox('expiry_cron',1,$condition->checkActiveJob()['expiryMail'],['id'=>'email_fetching']) !!}&nbsp;{{Lang::get('message.enable_expiry-cron')}}
+                            {!! html()->label()->for('email_fetching')->html(
+    Lang::get('message.expiry_mail') .
+    ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top"
+    title="This cron is to trigger email which are sent out to users before product expiry
+    reminding them to renew the product. This email is sent out only to those who have not
+    enabled auto-renewal"></i>'
+) !!}
+                            <br>
+                            {!! html()->checkbox('expiry_cron', 1, $condition->checkActiveJob()['expiryMail'])->id('email_fetching') !!}
+                            &nbsp;{{ Lang::get('message.enable_expiry-cron') }}
+
                         </div>
 
                     </div>
                     <div class="col-md-6" id="fetching">
-                        {!! Form::select('expiry-commands',$commands,$condition->getConditionValue('expiryMail')['condition'],['class'=>'form-control','id'=>'fetching-command']) !!}
-                          <div id='fetching-daily-at'>
-                            {!! Form::text('expiry-dailyAt',$condition->getConditionValue('expiryMail')['at'],['class'=>'form-control time-picker',"placeholder" => "HH:MM"]) !!}
+                        {!! html()->select('expiry-commands', $commands, $condition->getConditionValue('expiryMail')['condition'])
+    ->class('form-control')
+    ->id('fetching-command')
+!!}
 
-                        </div>
-                      
+                        <div id="fetching-daily-at">
+                            {!! html()->text('expiry-dailyAt', $condition->getConditionValue('expiryMail')['at'])
+                                ->class('form-control time-picker')
+                                ->placeholder('HH:MM')
+                            !!}
+
+                    </div>
+
                     </div>
                 </div>
             </div><!-- /.info-box-content -->
@@ -115,18 +131,25 @@
                 <div class="info-box-content" style="display: block;">
                     <div class="col-md-6">
                         <div class="form-group">
-                            {!! Form::label('activity',Lang::get('message.delete_activity')) !!}<br>
-                            {!! Form::checkbox('activity',1,$condition->checkActiveJob()['deleteLogs'],['id'=>'auto_close']) !!}
-                                   {{Lang::get('message.enable_activity_clean')}}
+                            {!! html()->label(Lang::get('message.delete_activity'))->for('auto_close') !!}
+                            <br>
+                            {!! html()->checkbox('activity', 1, $condition->checkActiveJob()['deleteLogs'])->id('auto_close') !!}
+                            {{ Lang::get('message.enable_activity_clean') }}
                         </div>
                     </div>
                     <div class="col-md-6" id="workflow">
-                        {!! Form::select('activity-commands',$commands,$condition->getConditionValue('deleteLogs')['condition'],['class'=>'form-control','id'=>'workflow-command']) !!}
-                         <div id='workflow-daily-at'>
-                            {!! Form::text('activity-dailyAt',$condition->getConditionValue('deleteLogs')['at'],['class'=>'form-control time-picker',"placeholder" => "HH:MM"]) !!}
+                        {!! html()->select('activity-commands', $commands, $condition->getConditionValue('deleteLogs')['condition'])
+    ->class('form-control')
+    ->id('workflow-command')
+!!}
 
+                        <div id="workflow-daily-at">
+                            {!! html()->text('activity-dailyAt', $condition->getConditionValue('deleteLogs')['at'])
+                                ->class('form-control time-picker')
+                                ->placeholder('HH:MM')
+                            !!}
                         </div>
-                       
+
                     </div>
                 </div><!-- /.info-box-content -->
             </div><!-- /.info-box -->
@@ -137,28 +160,47 @@
                 <span class="info-box-icon bg-info" style="height: 70px;"><i class="fa fa-cloud"></i></span>
                 <!-- Apply any bg-* class to to the icon to color it -->
                 <div class="info-box-content" style="display: block;">
-               
+
                     <div class="col-md-6">
 
                         <div class="form-group">
 
-                            {!! Form::label('sub_fetching', Lang::get('Subscription renewal reminder - Auto payment') . ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="This cron is to trigger email which are sent out to users before product expiry reminding them product will be renewed automatically. This email is send out only to those who have enabled auto renewal"></i>', [], false) !!}<br>
-                            {!! Form::checkbox('subs_expirymail',1,$condition->checkActiveJob()['subsExpirymail'],['id'=>'sub_fetching']) !!}&nbsp;{{Lang::get('message.enable_expiry-cron')}}
+                            {!! html()->label()
+     ->for('sub_fetching')
+     ->html(
+         Lang::get('Subscription renewal reminder - Auto payment') .
+         ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top"
+         title="This cron is to trigger email which are sent out to users before product expiry
+         reminding them the product will be renewed automatically. This email is sent out only to those
+         who have enabled auto renewal"></i>'
+     )
+ !!}
+                            <br>
+                            {!! html()->checkbox('subs_expirymail', 1, $condition->checkActiveJob()['subsExpirymail'])
+                                ->id('sub_fetching')
+                            !!}
+                            &nbsp; {{ Lang::get('message.enable_expiry-cron') }}
                             <!-- <input type="checkbox" name="subs_expirymail" value="1"> -->
                         </div>
 
                     </div>
                     <div class="col-md-6" id="subfetching">
-                        {!! Form::select('subexpiry-commands',$commands,$condition->getConditionValue('subsExpirymail')['condition'],['class'=>'form-control','id'=>'subfetching-command']) !!}
-                          <div id='subfetching-daily-at'>
-                        {!! Form::text('subexpiry-dailyAt',$condition->getConditionValue('subsExpirymail')['at'],['class'=>'form-control time-picker',"placeholder" => "HH:MM"]) !!}
+                        {!! html()->select('subexpiry-commands', $commands, $condition->getConditionValue('subsExpirymail')['condition'])
+                            ->class('form-control')
+                            ->id('subfetching-command')
+                        !!}
 
+                        <div id="subfetching-daily-at">
+                            {!! html()->text('subexpiry-dailyAt', $condition->getConditionValue('subsExpirymail')['at'])
+                                ->class('form-control time-picker')
+                                ->placeholder('HH:MM')
+                            !!}
                         </div>
-
                     </div>
 
 
-                   
+
+
                 </div>
             </div><!-- /.info-box-content -->
 
@@ -173,23 +215,39 @@
                 <span class="info-box-icon bg-info" style="height: 70px;"><i class="fa fa-envelope"></i></span>
                 <!-- Apply any bg-* class to to the icon to color it -->
                 <div class="info-box-content" style="display: block;">
-               
+
                     <div class="col-md-6">
 
                         <div class="form-group">
-
-                            {!! Form::label('postsub_fetching', Lang::get('Subscription expired') . ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="This cron is to trigger email which are sent out to users after product expiry reminding them to renew the product. This email is send out to all users using auto renewal or are using manual payment method. For self hosted and cloud both"></i>', [], false) !!}<br>
-                            {!! Form::checkbox('postsubs_expirymail',1,$condition->checkActiveJob()['postExpirymail'],['id'=>'postsub_fetching']) !!}&nbsp;{{Lang::get('message.enable_expiry-cron')}}
+                            {!! html()->label()->for('postsub_fetching')->html(
+        Lang::get('Subscription expired') .
+        ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top"
+        title="This cron is to trigger email which are sent out to users after product expiry
+        reminding them to renew the product. This email is sent out to all users using auto renewal
+        or manual payment method. For self-hosted and cloud both"></i>'
+    )
+!!}
+                            <br>
+                            {!! html()->checkbox('postsubs_expirymail', $condition->checkActiveJob()['postExpirymail'], 1)
+                                ->id('postsub_fetching')
+                            !!}
+                            &nbsp;{{ Lang::get('message.enable_expiry-cron') }}
                         </div>
+
 
                     </div>
                     <div class="col-md-6" id="postsubfetching">
-                        {!! Form::select('postsubexpiry-commands',$commands,$condition->getConditionValue('postExpirymail')['condition'],['class'=>'form-control','id'=>'postsubfetching-command']) !!}
-                          <div id='postsubfetching-daily-at'>
-                            {!! Form::text('postsubexpiry-dailyAt',$condition->getConditionValue('postExpirymail')['at'],['class'=>'form-control time-picker',"placeholder" => "HH:MM"]) !!}
+                        {!! html()->select('postsubexpiry-commands', $commands, $condition->getConditionValue('postExpirymail')['condition'])
+                            ->class('form-control')
+                            ->id('postsubfetching-command')
+                        !!}
 
+                        <div id="postsubfetching-daily-at">
+                            {!! html()->text('postsubexpiry-dailyAt', $condition->getConditionValue('postExpirymail')['at'])
+                                ->class('form-control time-picker')
+                                ->placeholder('HH:MM')
+                            !!}
                         </div>
-                      
                     </div>
                 </div>
             </div><!-- /.info-box-content -->
@@ -201,25 +259,45 @@
                 <span class="info-box-icon bg-info" style="height: 70px;"><i class="fa fa-cloud"></i></span>
                 <!-- Apply any bg-* class to to the icon to color it -->
                 <div class="info-box-content" style="display: block;">
-               
+
                     <div class="col-md-6">
 
                         <div class="form-group">
+                            {!! html()->label()->for('cloud_fetching')->class('form-label')->html(
+        Lang::get('Cloud subscription deletion') .
+        ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top"
+        title="This cron is to trigger email which are sent out to users after product expiry & on cloud instance
+        deletion. This email is sent out to all users using auto renewal or manual payment method.
+        For cloud instance only"></i>'
+    )
+!!}
 
-                           {!! Form::label('cloud_fetching', Lang::get('Cloud subscription deletion') . ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="This cron is to trigger email which are sent out to users after product expiry & on cloud instance deletion. This email is send out to all users using auto renewal or are using manual payment method. For cloud instance only"></i>', [], false) !!}<br>
-                            {!! Form::checkbox('cloud_cron',1,$condition->checkActiveJob()['cloud'],['id'=>'cloud_fetching']) !!}&nbsp;{{Lang::get('Enable Faveo Cloud')}}
+                            <br>
+
+                            {!! html()->checkbox('cloud_cron', 1, $condition->checkActiveJob()['cloud'])
+                                ->id('cloud_fetching')
+                            !!}
+                            &nbsp;{{ Lang::get('Enable Faveo Cloud') }}
                         </div>
 
+
                     </div>
-                         <div class="col-md-6" id="cloud">
-                        {!! Form::select('cloud-commands',$commands,$condition->getConditionValue('cloud')['condition'],['class'=>'form-control','id'=>'cloud-command']) !!}
-                          <div id='cloud-daily-at'>
-                            {!! Form::text('cloud-dailyAt',$condition->getConditionValue('cloud')['at'],['class'=>'form-control time-picker',"placeholder" => "HH:MM"]) !!}
+                    <div class="col-md-6" id="cloud">
+                        {!! html()->select('cloud-commands', $commands, $condition->getConditionValue('cloud')['condition'])
+                            ->class('form-control')
+                            ->id('cloud-command')
+                        !!}
+
+                        <div id="cloud-daily-at">
+                            {!! html()->text('cloud-dailyAt', $condition->getConditionValue('cloud')['at'])
+                                ->class('form-control time-picker')
+                                ->placeholder('HH:MM')
+                            !!}
                         </div>
                     </div>
 
 
-                   
+
                 </div>
             </div><!-- /.info-box-content -->
 
@@ -230,25 +308,43 @@
                 <span class="info-box-icon bg-info" style="height: 70px;"><i class="fas fa-file-invoice"></i></span>
                 <!-- Apply any bg-* class to to the icon to color it -->
                 <div class="info-box-content" style="display: block;">
-               
+
                     <div class="col-md-6">
 
                         <div class="form-group">
 
-                           {!! Form::label('invoice_fetching', Lang::get('Invoice deletion') . ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="This cron is to trigger deletion of the old unpaid invoices that are not linked to any orders."></i>', [], false) !!}<br>
-                            {!! Form::checkbox('invoice_cron',1,$condition->checkActiveJob()['invoice'],['id'=>'invoice_fetching']) !!}&nbsp;{{Lang::get('Enable Invoice Deletion')}}
+                            <div class="form-group">
+                                {!! html()->label(
+                                    Lang::get('Invoice deletion') .
+                                    ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="This cron is to trigger deletion of the old unpaid invoices that are not linked to any orders."></i>'
+                                )->for('invoice_fetching')->class('required') !!}
+
+                                <br>
+
+                                {!! html()->checkbox('invoice_cron', $condition->checkActiveJob()['invoice'])
+                                    ->id('invoice_fetching')
+                                !!}
+                                &nbsp; {{ Lang::get('Enable Invoice Deletion') }}
+                            </div>
                         </div>
 
                     </div>
-                         <div class="col-md-6" id="invoice">
-                        {!! Form::select('invoice-commands',$commands,$condition->getConditionValue('invoice')['condition'],['class'=>'form-control','id'=>'invoice-command']) !!}
-                          <div id='invoice-daily-at'>
-                            {!! Form::text('invoice-dailyAt',$condition->getConditionValue('invoice')['at'],['class'=>'form-control time-picker',"placeholder" => "HH:MM"]) !!}
+                    <div class="col-md-6" id="invoice">
+                        {!! html()->select('invoice-commands', $commands, $condition->getConditionValue('invoice')['condition'])
+                            ->class('form-control')
+                            ->id('invoice-command')
+                        !!}
+
+                        <div id="invoice-daily-at">
+                            {!! html()->text('invoice-dailyAt', $condition->getConditionValue('invoice')['at'])
+                                ->class('form-control time-picker')
+                                ->placeholder('HH:MM')
+                            !!}
                         </div>
                     </div>
 
 
-                   
+
                 </div>
             </div><!-- /.info-box-content -->
 
@@ -258,7 +354,7 @@
         </div>
     </div>
 
- {!! Form::close() !!}
+{!! html()->form()->close() !!}
 
 
 
@@ -302,7 +398,7 @@ $('#tab2url').click(function(){
             }
         }
 
-      
+
 
 
 
@@ -344,7 +440,7 @@ $(".time-picker").datetimepicker({
             }
         }
 
-      
+
 
 
 
@@ -477,7 +573,7 @@ $(".time-picker").datetimepicker({
             }
         }
 
-      
+
 
 
 
@@ -522,7 +618,7 @@ $(".time-picker").datetimepicker({
             }
         }
 
-      
+
 
 
 
@@ -565,7 +661,7 @@ $(".time-picker").datetimepicker({
             }
         }
 
-      
+
 
 
 

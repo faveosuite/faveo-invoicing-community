@@ -1,19 +1,20 @@
 # Laravel DataTables Buttons Plugin
 
-[![Laravel 10.x](https://img.shields.io/badge/Laravel-10.x-orange.svg)](http://laravel.com)
+[![Laravel 11.x](https://img.shields.io/badge/Laravel-11.x-orange.svg)](http://laravel.com)
 [![Latest Stable Version](https://img.shields.io/packagist/v/yajra/laravel-datatables-buttons.svg)](https://packagist.org/packages/yajra/laravel-datatables-buttons)
+[![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://packagist.org/packages/yajra/laravel-datatables-buttons)
+
 [![Continuous Integration](https://github.com/yajra/laravel-datatables-buttons/actions/workflows/continuous-integration.yml/badge.svg)](https://github.com/yajra/laravel-datatables-buttons/actions/workflows/continuous-integration.yml)
 [![Static Analysis](https://github.com/yajra/laravel-datatables-buttons/actions/workflows/static-analysis.yml/badge.svg)](https://github.com/yajra/laravel-datatables-buttons/actions/workflows/static-analysis.yml)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/yajra/laravel-datatables-buttons/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/yajra/laravel-datatables-buttons/?branch=master)
 [![Total Downloads](https://img.shields.io/packagist/dt/yajra/laravel-datatables-buttons.svg)](https://packagist.org/packages/yajra/laravel-datatables-buttons)
-[![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://packagist.org/packages/yajra/laravel-datatables-buttons)
 
 This package is a plugin of [Laravel DataTables](https://github.com/yajra/laravel-datatables) for handling server-side function of exporting the table as csv, excel, pdf and printing.
 
 ## Requirements
 
-- [PHP >= 8.1](http://php.net/)
-- [Laravel 10.x](https://github.com/laravel/framework)
+- [PHP >= 8.2](http://php.net/)
+- [Laravel 11.x](https://github.com/laravel/framework)
 - [Laravel DataTables](https://github.com/yajra/laravel-datatables)
 - [jQuery DataTables v1.10.x](http://datatables.net/)
 - [jQuery DataTables Buttons Extension](https://datatables.net/reference/button/)
@@ -29,10 +30,11 @@ This package is a plugin of [Laravel DataTables](https://github.com/yajra/larave
 | 8.x and below | 4.x     |
 | 9.x           | 9.x     |
 | 10.x          | 10.x    |
+| 11.x          | 11.x    |
 
 ## Quick Installation
 
-`composer require yajra/laravel-datatables-buttons:^10`
+`composer require yajra/laravel-datatables-buttons:^11`
 
 #### Service Provider (Optional on Laravel 5.5)
 

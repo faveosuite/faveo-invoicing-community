@@ -54,6 +54,8 @@ The resources can be accessed via the `$api` object. All the methods invocations
 ## Supported Resources
 - [Account](documents/account.md)
 - [Customer](documents/customer.md)
+- [Dispute](documents/dispute.md)
+- [Document](documents/document.md)
 - [Token](documents/token.md)
 - [Order](documents/order.md)
 - [Payments](documents/payment.md)
@@ -61,6 +63,7 @@ The resources can be accessed via the `$api` object. All the methods invocations
 - [Refunds](documents/refund.md)
 - [Fund](documents/fund.md)
 - [Invoice](documents/invoice.md)
+- [Iin](documents/Iin.md)
 - [Plan](documents/plan.md)
 - [Item](documents/item.md)
 - [Subscriptions](documents/subscription.md)
@@ -79,6 +82,7 @@ The resources can be accessed via the `$api` object. All the methods invocations
 - [Register NACH and Charge First Payment Together](documents/registernach.md)
 - [Payment Verification](documents/paymentVerfication.md)
 - [Webhook](documents/webhook.md)
+
 
 ## Development
 

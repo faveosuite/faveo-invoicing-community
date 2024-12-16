@@ -11,7 +11,12 @@ namespace PHP_CodeSniffer\Standards\Squiz\Tests\ControlStructures;
 
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
 
-class ControlSignatureUnitTest extends AbstractSniffUnitTest
+/**
+ * Unit test class for the ControlSignature sniff.
+ *
+ * @covers \PHP_CodeSniffer\Standards\Squiz\Sniffs\ControlStructures\ControlSignatureSniff
+ */
+final class ControlSignatureUnitTest extends AbstractSniffUnitTest
 {
 
 
@@ -25,7 +30,7 @@ class ControlSignatureUnitTest extends AbstractSniffUnitTest
      *
      * @return array<int, int>
      */
-    public function getErrorList($testFile='ControlSignatureUnitTest.inc')
+    public function getErrorList($testFile='')
     {
         $errors = [
             7   => 1,
@@ -50,7 +55,8 @@ class ControlSignatureUnitTest extends AbstractSniffUnitTest
             112 => 1,
         ];
 
-        if ($testFile === 'ControlSignatureUnitTest.inc') {
+        switch ($testFile) {
+        case 'ControlSignatureUnitTest.1.inc':
             $errors[122] = 1;
             $errors[130] = 2;
             $errors[134] = 1;
@@ -79,9 +85,14 @@ class ControlSignatureUnitTest extends AbstractSniffUnitTest
             $errors[306] = 3;
             $errors[309] = 1;
             $errors[315] = 1;
-        }//end if
+            return $errors;
 
-        return $errors;
+        case 'ControlSignatureUnitTest.js':
+            return $errors;
+
+        default:
+            return [];
+        }//end switch
 
     }//end getErrorList()
 

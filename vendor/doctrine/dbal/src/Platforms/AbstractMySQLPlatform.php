@@ -11,6 +11,8 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\MySQLSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
+use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\TextType;
@@ -398,6 +400,8 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     }
 
     /**
+     * @deprecated Use {@see getColumnTypeSQLSnippet()} instead.
+     *
      * The SQL snippets required to elucidate a column type
      *
      * Returns an array of the form [column type SELECT snippet, additional JOIN statement snippet]
@@ -406,6 +410,13 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
      */
     public function getColumnTypeSQLSnippets(string $tableAlias = 'c'): array
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6202',
+            'AbstractMySQLPlatform::getColumnTypeSQLSnippets() is deprecated. '
+            . 'Use AbstractMySQLPlatform::getColumnTypeSQLSnippet() instead.',
+        );
+
         return [$this->getColumnTypeSQLSnippet(...func_get_args()), ''];
     }
 
@@ -530,6 +541,11 @@ SQL
         }
 
         return $sql;
+    }
+
+    public function createSelectSQLBuilder(): SelectSQLBuilder
+    {
+        return new DefaultSelectSQLBuilder($this, 'FOR UPDATE', null);
     }
 
     /**
@@ -1413,8 +1429,16 @@ SQL
         return true;
     }
 
+    /** @deprecated Will be removed without replacement. */
     protected function getDatabaseNameSQL(?string $databaseName): string
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6215',
+            '%s is deprecated without replacement.',
+            __METHOD__,
+        );
+
         if ($databaseName !== null) {
             return $this->quoteStringLiteral($databaseName);
         }
@@ -1443,5 +1467,31 @@ SQL
         }
 
         return $result;
+    }
+
+    public function fetchTableOptionsByTable(bool $includeTableName): string
+    {
+        $sql = <<<'SQL'
+    SELECT t.TABLE_NAME,
+           t.ENGINE,
+           t.AUTO_INCREMENT,
+           t.TABLE_COMMENT,
+           t.CREATE_OPTIONS,
+           t.TABLE_COLLATION,
+           ccsa.CHARACTER_SET_NAME
+      FROM information_schema.TABLES t
+        INNER JOIN information_schema.COLLATION_CHARACTER_SET_APPLICABILITY ccsa
+          ON ccsa.COLLATION_NAME = t.TABLE_COLLATION
+SQL;
+
+        $conditions = ['t.TABLE_SCHEMA = ?'];
+
+        if ($includeTableName) {
+            $conditions[] = 't.TABLE_NAME = ?';
+        }
+
+        $conditions[] = "t.TABLE_TYPE = 'BASE TABLE'";
+
+        return $sql . ' WHERE ' . implode(' AND ', $conditions);
     }
 }

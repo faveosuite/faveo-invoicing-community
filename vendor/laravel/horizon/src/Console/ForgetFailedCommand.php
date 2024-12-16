@@ -4,7 +4,9 @@ namespace Laravel\Horizon\Console;
 
 use Illuminate\Console\Command;
 use Laravel\Horizon\Contracts\JobRepository;
+use Symfony\Component\Console\Attribute\AsCommand;
 
+#[AsCommand(name: 'horizon:forget')]
 class ForgetFailedCommand extends Command
 {
     /**
@@ -12,7 +14,7 @@ class ForgetFailedCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'horizon:forget {id : The ID of the failed job}';
+    protected $signature = 'horizon:forget {id? : The ID of the failed job} {--all : Delete all failed jobs}';
 
     /**
      * The console command description.
@@ -24,16 +26,46 @@ class ForgetFailedCommand extends Command
     /**
      * Execute the console command.
      *
-     * @return void
+     * @return int|null
      */
     public function handle(JobRepository $repository)
     {
+        if ($this->option('all')) {
+            $totalFailedCount = $repository->totalFailed();
+
+            do {
+                $failedJobs = collect($repository->getFailed());
+
+                $failedJobs->pluck('id')->each(function ($failedId) use ($repository): void {
+                    $repository->deleteFailed($failedId);
+
+                    if ($this->laravel['queue.failer']->forget($failedId)) {
+                        $this->components->info('Failed job (id): '.$failedId.' deleted successfully!');
+                    }
+                });
+            } while ($repository->totalFailed() !== 0 && $failedJobs->isNotEmpty());
+
+            if ($totalFailedCount) {
+                $this->components->info($totalFailedCount.' failed jobs deleted successfully!');
+            } else {
+                $this->components->info('No failed jobs detected.');
+            }
+
+            return;
+        }
+
+        if (! $this->argument('id')) {
+            $this->components->error('No failed job ID provided.');
+        }
+
         $repository->deleteFailed($this->argument('id'));
 
         if ($this->laravel['queue.failer']->forget($this->argument('id'))) {
-            $this->info('Failed job deleted successfully!');
+            $this->components->info('Failed job deleted successfully!');
         } else {
-            $this->error('No failed job matches the given ID.');
+            $this->components->error('No failed job matches the given ID.');
+
+            return 1;
         }
     }
 }

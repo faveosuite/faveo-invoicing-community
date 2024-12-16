@@ -28,13 +28,13 @@ interface Sniff
      *
      * <code>
      *    return array(
-     *            T_WHITESPACE,
-     *            T_DOC_COMMENT,
-     *            T_COMMENT,
-     *           );
+     *        T_WHITESPACE,
+     *        T_DOC_COMMENT,
+     *        T_COMMENT,
+     *    );
      * </code>
      *
-     * @return mixed[]
+     * @return array<int|string>
      * @see    Tokens.php
      */
     public function register();
@@ -71,7 +71,7 @@ interface Sniff
      *
      * @return void|int Optionally returns a stack pointer. The sniff will not be
      *                  called again on the current file until the returned stack
-     *                  pointer is reached. Return (count($tokens) + 1) to skip
+     *                  pointer is reached. Return `$phpcsFile->numTokens` to skip
      *                  the rest of the file.
      */
     public function process(File $phpcsFile, $stackPtr);

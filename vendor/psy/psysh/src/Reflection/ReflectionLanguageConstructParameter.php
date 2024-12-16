@@ -18,10 +18,17 @@ namespace Psy\Reflection;
  */
 class ReflectionLanguageConstructParameter extends \ReflectionParameter
 {
+    /** @var string|array|object */
     private $function;
+    /** @var int|string */
     private $parameter;
-    private $opts;
+    private array $opts;
 
+    /**
+     * @param string|array|object $function
+     * @param int|string          $parameter
+     * @param array               $opts
+     */
     public function __construct($function, $parameter, array $opts)
     {
         $this->function = $function;
@@ -31,13 +38,10 @@ class ReflectionLanguageConstructParameter extends \ReflectionParameter
 
     /**
      * No class here.
-     *
-     * @todo remove \ReturnTypeWillChange attribute after dropping support for PHP 7.0 (when we can use nullable types)
      */
-    #[\ReturnTypeWillChange]
-    public function getClass()
+    public function getClass(): ?\ReflectionClass
     {
-        return;
+        return null;
     }
 
     /**

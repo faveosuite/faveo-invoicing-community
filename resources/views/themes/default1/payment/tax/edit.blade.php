@@ -21,7 +21,7 @@ Edit Tax
 
 
 
-        {!! Form::model($tax,['url'=>'tax/'.$tax->id,'method'=>'patch']) !!}
+    {{ html()->modelForm($tax, 'PATCH', url('tax/' . $tax->id))->open() }}
 
 
 
@@ -38,15 +38,15 @@ Edit Tax
 
                     <div class="col-md-4 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         <!-- name -->
-                        {!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}
-                        {!! Form::text('name',null,['class' => 'form-control'. ($errors->has('name') ? ' is-invalid' : ''),'id'=>'tax-name']) !!}
+                        {{ html()->label(Lang::get('message.name'), 'name')->class('required') }}
+                        {{ html()->text('name')->class('form-control'. ($errors->has('name') ? ' is-invalid' : ''))->id('tax-name') }}
                         <div class="input-group-append">
                         </div>
                     </div>
                    
                     <div class="col-md-4 form-group {{ $errors->has('tax_class') ? 'has-error' : '' }}">
                         <!-- name -->
-                        {!! Form::label('tax_class',Lang::get('Tax Type'),['class'=>'required']) !!}
+                        {{ html()->label(Lang::get('Tax Type'), 'tax_class')->class('required') }}
                          <select name="tax_classes_id" id="editTax" class="form-control {{$errors->has('tax_classes_id') ? ' is-invalid' : ''}}">
                       <option value="{{$txClass->name}}">{{$taxClassName}}</option>
                       <option value="Others">Others</option>
@@ -61,18 +61,18 @@ Edit Tax
                    
                     <div class="col-md-4 form-group">
                         <!-- name -->
-                        {!! Form::label('status',Lang::get('message.status')) !!}
+                        {{ html()->label(Lang::get('message.status'), 'status') }}
                         <div class="row">
                             <div class="col-md-6 form-group {{ $errors->has('active') ? 'has-error' : '' }}">
                                 <!-- name -->
-                                {!! Form::label('active',Lang::get('message.active')) !!}
-                                {!! Form::radio('active',1) !!}
+                                {{ html()->label(Lang::get('message.active'), 'active') }}
+                                {{ html()->radio('active', 1) }}
 
                             </div>
                             <div class="col-md-6 form-group {{ $errors->has('active') ? 'has-error' : '' }}">
                                 <!-- name -->
-                                {!! Form::label('active',Lang::get('message.inactive')) !!}
-                                {!! Form::radio('active',0) !!}
+                                {{ html()->label(Lang::get('message.inactive'), 'inactive') }}
+                                {{ html()->radio('active', 0) }}
 
                             </div>
                         </div>
@@ -89,27 +89,26 @@ Edit Tax
                    <?php $countries = \App\Model\Common\Country::pluck('nicename', 'country_code_char2')->toArray(); ?>
                   
                         <!-- name -->
-                        {!! Form::label('country',Lang::get('message.country')) !!}
-                     {!! Form::select('country',[''=>'All Countries','Countries'=>$countries],null,['class' => 'form-control country']) !!}
-                      </div>
-                  
-                    <div class="col-md-4 form-group changegststate">
-                        <!-- name -->
-                        {!! Form::label('state',Lang::get('message.state')) !!}
-                         {!! Form::select('state',[''=>'All States','state'=>$states],null,['class' => 'form-control'. ($errors->has('state') ? ' is-invalid' : ''),'id'=>'state-list']) !!}
-                      
-
+                        {{ html()->label(Lang::get('message.country'), 'country') }}
+                        {{ html()->select('country', ['' => 'All Countries'] + $countries)
+                            ->class('form-control country') }}
                     </div>
-            
-                    
+
+                    <div class="col-md-4 form-group changegststate">
+                        {{ html()->label(Lang::get('message.state'), 'state') }}
+                        {{ html()->select('state', ['' => 'All States'] + $states)
+                            ->class('form-control'. ($errors->has('state') ? ' is-invalid' : ''))
+                            ->id('state-list') }}
+                    </div>
+
                     <div class="col-md-4 form-group changegstrate">
                         <!-- name -->
-                        {!! Form::label('rate',Lang::get('message.rate').' (%)',['class'=>'required']) !!}
-                        {!! Form::number('rate',null,['class' => 'form-control'. ($errors->has('rate') ? ' is-invalid' : '')]) !!}
+                        {{ html()->label(Lang::get('message.rate') . ' (%)', 'rate')->class('required') }}
+                        {{ html()->number('rate')->class('form-control'. ($errors->has('rate') ? ' is-invalid' : '')) }}
                         <div class="input-group-append">
                         </div>
                     </div>
-               
+
 
 
                 </div>
@@ -284,7 +283,7 @@ $(document).find('.changegststate').hide();
     }).parentsUntil(".nav-sidebar > .nav-treeview").addClass('menu-open').prev('a').addClass('active');
 </script>
 
-{!! Form::close() !!}
+{!! html()->form()->close() !!}
 <script>
      $('ul.nav-sidebar a').filter(function() {
         return this.id == 'setting';

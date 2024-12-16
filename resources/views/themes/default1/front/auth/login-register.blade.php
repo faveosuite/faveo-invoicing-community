@@ -122,7 +122,7 @@ foreach($scripts as $script) {
 
                     <h2 class="font-weight-bold text-5 mb-0">Login</h2>
 
-                    {!!  Form::open(['url'=>'login', 'method'=>'post','id'=>'formoid']) !!}
+                    {!! html()->form('POST', url('login'))->id('formoid')->open() !!}
 
                         <div class="row">
 
@@ -130,7 +130,11 @@ foreach($scripts as $script) {
 
                                 <label class="form-label text-color-dark text-3">Username or E-mail Address <span class="text-color-danger">*</span></label>
 
-                                 {!! Form::email('email_username',null,['class' => 'form-control form-control-lg text-4','id'=>'username','autocomplete'=>"off", 'style' => 'height: calc(1.5em + 0.75rem + 2px);' ]) !!}
+                                {!! html()->email('email_username')
+   ->class('form-control form-control-lg text-4')
+   ->id('username')
+   ->attribute('autocomplete', 'off')
+   ->style('height: calc(1.5em + 0.75rem + 2px);') !!}
                                 <div id="error-login-email"></div>
                             </div>
                         </div>
@@ -142,7 +146,10 @@ foreach($scripts as $script) {
                                 <label class="form-label text-color-dark text-3">Password <span class="text-color-danger">*</span></label>
 
                                 <div class="input-group">
-                                    {!! Form::password('password1', ['class' => 'form-control form-control-lg text-4', 'id' => 'pass', 'style' => 'height: calc(1.5em + 0.75rem + 2px);']) !!}
+                                    {!! html()->password('password1')
+    ->class('form-control form-control-lg text-4')
+    ->id('pass')
+    ->style('height: calc(1.5em + 0.75rem + 2px);') !!}
 
                                     <div class="input-group-append">
                                         <span class="input-group-text" role="button" onclick="togglePasswordVisibility(this)">
@@ -160,7 +167,9 @@ foreach($scripts as $script) {
 
                                 <div class="custom-control custom-checkbox" style="padding-right: 100px;">
 
-                                    {!! Form::checkbox('remember', '1', false, ['class' => 'custom-control-input', 'id' => 'rememberme']) !!}
+                                    {!! html()->checkbox('remember', '1', false)
+    ->class('custom-control-input')
+    ->id('rememberme') !!}
                                     <label class="form-label custom-control-label cur-pointer text-2" for="rememberme">Remember Me</label>
                                 </div>
                             </div>
@@ -220,8 +229,8 @@ foreach($scripts as $script) {
                                 @endif
                             </div>
                         </div>
-                   {!! Form::close() !!}
-                </div>
+                        {!! html()->closeModelForm() !!}
+                                          </div>
 
                 <div class="col-md-6 col-lg-6 ps-5">
 
@@ -236,7 +245,9 @@ foreach($scripts as $script) {
 
                                 <label class="form-label text-color-dark text-3">First Name <span class="text-color-danger">*</span></label>
 
-                                 {!! Form::text('first_name',null,['class'=>'form-control form-control-lg text-4', 'id'=>'first_name']) !!}
+                                {!! html()->text('first_name')
+   ->class('form-control form-control-lg text-4')
+   ->id('first_name') !!}
                                 <span id="first_namecheck"></span>
                             </div>
 
@@ -244,7 +255,9 @@ foreach($scripts as $script) {
 
                                 <label class="form-label text-color-dark text-3">Last Name <span class="text-color-danger">*</span></label>
 
-                                {!! Form::text('last_name',null,['class'=>'form-control form-control-lg text-4', 'id'=>'last_name']) !!}
+                                {!! html()->text('last_name')
+    ->class('form-control form-control-lg text-4')
+    ->id('last_name') !!}
                                 <span id="last_namecheck"></span>
                             </div>
                         </div>
@@ -255,7 +268,9 @@ foreach($scripts as $script) {
 
                                 <label class="form-label text-color-dark text-3">E-mail Address <span class="text-color-danger">*</span></label>
 
-                                {!! Form::email('email',null,['class'=>'form-control form-control-lg text-4', 'id'=>'email']) !!}
+                                {!! html()->email('email')
+    ->class('form-control form-control-lg text-4')
+    ->id('email') !!}
                                 <span id="emailcheck"></span>
                             </div>
                         </div>
@@ -266,7 +281,9 @@ foreach($scripts as $script) {
 
                                 <label class="form-label text-color-dark text-3">Company Name <span class="text-color-danger">*</span></label>
 
-                                {!! Form::text('company',null,['class'=>'form-control form-control-lg text-4', 'id'=>'company']) !!}
+                                {!! html()->text('company')
+    ->class('form-control form-control-lg text-4')
+    ->id('company') !!}
                                 <span id="companycheck"></span>
                             </div>
                         </div>
@@ -277,8 +294,11 @@ foreach($scripts as $script) {
 
                                 <label class="form-label text-color-dark text-3">Address <span class="text-color-danger">*</span></label>
 
-                                {!! Form::textarea('address',null,['class'=>'form-control form-control-lg text-4','rows'=>4, 'id'=>'address']) !!}
-                                 <span id="addresscheck"></span>
+                                {!! html()->textarea('address')
+    ->class('form-control form-control-lg text-4')
+    ->rows(4)
+    ->id('address') !!}
+                                <span id="addresscheck"></span>
                             </div>
                         </div>
 
@@ -289,7 +309,15 @@ foreach($scripts as $script) {
                                 <label class="form-label text-color-dark text-3">Country <span class="text-color-danger">*</span></label>
 
                                 <?php $countries = \App\Model\Common\Country::pluck('nicename', 'country_code_char2')->toArray(); ?>
-                                {!! Form::select('country',[''=>'','Choose'=>$countries],$country,['class' => 'form-select form-control h-auto py-2 selectpicker con','data-live-search-style'=>"startsWith",'data-live-search'=>'true','data-live-search-placeholder'=>'Search','data-dropup-auto'=>'false','data-size'=>'10', 'onChange' => 'updateToMobile(this.value)','id'=>'country']) !!}
+                                {!! html()->select('country', ['' => ''] + $countries, $country)
+    ->class('form-select form-control h-auto py-2 selectpicker con')
+    ->attribute('data-live-search-style', 'startsWith')
+    ->attribute('data-live-search', 'true')
+    ->attribute('data-live-search-placeholder', 'Search')
+    ->attribute('data-dropup-auto', 'false')
+    ->attribute('data-size', '10')
+    ->attribute('onchange', 'updateToMobile(this.value)')
+    ->id('country') !!}
                                 <span id="countrycheck"></span>
                             </div>
                         </div>
@@ -300,10 +328,14 @@ foreach($scripts as $script) {
 
                                 <label class="form-label text-color-dark text-3">Mobile <span class="text-color-danger">*</span></label>
 
-{{--                                {!! Form::hidden('mobile',null,['id'=>'mobile_code_hidden']) !!}--}}
+{{--                                {!! html()->hidden('mobile')->id('mobile_code_hidden') !!}--}}
                                 <input class="form-control form-control-lg text-4" id="mobilenum" name="mobile" type="tel">
-                                {!! Form::hidden('mobile_code',null,['class'=>'form-control form-control-lg text-4','id'=>'mobile_code']) !!}
-                                {!! Form::hidden('mobile_county_iso',null,['id'=>'mobile_country_iso']) !!}
+                                {!! html()->hidden('mobile_code')
+    ->class('form-control form-control-lg text-4')
+    ->id('mobile_code') !!}
+
+                                {!! html()->hidden('mobile_county_iso')
+                                    ->id('mobile_country_iso') !!}
                                 <span id="valid-msg" class="hide"></span>
                                 <span id="error-msg" class="hide"></span>
                                 <span id="mobile_codecheck"></span>
@@ -312,7 +344,7 @@ foreach($scripts as $script) {
 
                       <div class="form-row hidden">
                         <div class="form-group col{{ $errors->has('state') ? 'has-error' : '' }}">
-                            {!! Form::label('state',Lang::get('message.state')) !!}
+                            {!! html()->label(__('message.state'), 'state') !!}
                             <?php
                             $value = "";
                             if (count($state) > 0) {
@@ -323,7 +355,9 @@ foreach($scripts as $script) {
                             }
                             ?>
 
-                            {!! Form::select('state',[$states],$value,['class' => 'form-control input-lg','id'=>'state-list']) !!}
+                            {!! html()->select('state', $states, $value)
+    ->class('form-control input-lg')
+    ->id('state-list') !!}
 
                             <span id="statecheck"></span>
                         </div>
@@ -336,7 +370,9 @@ foreach($scripts as $script) {
 
                                 <label class="form-label text-color-dark text-3">Password <span class="text-color-danger">*</span></label>
                                 <div class="input-group">
-                                {!! Form::password('password',['class'=>'form-control form-control-lg text-4', 'id'=>'password']) !!}
+                                    {!! html()->password('password')
+        ->class('form-control form-control-lg text-4')
+        ->id('password') !!}
                                     <div class="input-group-append">
                                         <span class="input-group-text pointer" role="button" onclick="togglePasswordVisibility(this)">
                                             <i class="fa fa-eye-slash"></i>
@@ -350,7 +386,9 @@ foreach($scripts as $script) {
 
                                 <label class="form-label text-color-dark text-3">Re-enter Password <span class="text-color-danger">*</span></label>
                                 <div class="input-group">
-                               {!! Form::password('password_confirmation',['class'=>'form-control form-control-lg text-4', 'id'=>'confirm_pass']) !!}
+                                    {!! html()->password('password_confirmation')
+         ->class('form-control form-control-lg text-4')
+         ->id('confirm_pass') !!}
                                     <div class="input-group-append">
                                         <span class="input-group-text pointer" role="button" onclick="togglePasswordVisibility(this)">
                                             <i class="fa fa-eye-slash"></i>

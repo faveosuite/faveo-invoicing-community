@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace OpenSpout\Reader\Wrapper;
 
+use OpenSpout\Common\Exception\IOException;
+use OpenSpout\Reader\Exception\XMLProcessingException;
 use ZipArchive;
 
 /**
@@ -51,7 +53,12 @@ final class XMLReader extends \XMLReader
         // The file path should not start with a '/', otherwise it won't be found
         $fileInsideZipPathWithoutLeadingSlash = ltrim($fileInsideZipPath, '/');
 
-        return self::ZIP_WRAPPER.realpath($zipFilePath).'#'.$fileInsideZipPathWithoutLeadingSlash;
+        $realpath = realpath($zipFilePath);
+        if (false === $realpath) {
+            throw new IOException("Could not open {$zipFilePath} for reading! File does not exist.");
+        }
+
+        return self::ZIP_WRAPPER.$realpath.'#'.$fileInsideZipPathWithoutLeadingSlash;
     }
 
     /**
@@ -59,7 +66,7 @@ final class XMLReader extends \XMLReader
      *
      * @see \XMLReader::read
      *
-     * @throws \OpenSpout\Reader\Exception\XMLProcessingException If an error/warning occurred
+     * @throws XMLProcessingException If an error/warning occurred
      */
     public function read(): bool
     {
@@ -79,7 +86,7 @@ final class XMLReader extends \XMLReader
      *
      * @return bool TRUE on success or FALSE on failure
      *
-     * @throws \OpenSpout\Reader\Exception\XMLProcessingException If an error/warning occurred
+     * @throws XMLProcessingException If an error/warning occurred
      */
     public function readUntilNodeFound(string $nodeName): bool
     {
@@ -98,7 +105,7 @@ final class XMLReader extends \XMLReader
      *
      * @param null|string $localName The name of the next node to move to
      *
-     * @throws \OpenSpout\Reader\Exception\XMLProcessingException If an error/warning occurred
+     * @throws XMLProcessingException If an error/warning occurred
      */
     public function next($localName = null): bool
     {

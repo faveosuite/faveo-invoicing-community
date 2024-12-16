@@ -169,7 +169,7 @@ class Style
                                 $value = $this->color;
                             }
                         }
-                        if ($value !== null && $value[3] !== 1 && array_key_exists("{$from}-opacity", $style_map) === true) {
+                        if (is_array($value) && $value[3] !== 1.0 && array_key_exists("{$from}-opacity", $style_map) === true) {
                             $styles["{$from}-opacity"] = $value[3];
                         }
                         break;
@@ -219,6 +219,10 @@ class Style
             return "currentcolor";
         }
 
+        if ($color === "transparent") {
+            return [0.0, 0.0, 0.0, 0.0];
+        }
+
         // SVG color name
         if (isset(self::$colorNames[$color])) {
             return self::parseHexColor(self::$colorNames[$color]);
@@ -234,7 +238,7 @@ class Style
             return self::getQuad($color);
         }
 
-        // RGB color
+        // HSL color
         if (strpos($color, "hsl") !== false) {
             $quad = self::getQuad($color, true);
 
@@ -311,7 +315,8 @@ class Style
                 return null;
             }
 
-            return trim(substr($color, $i + 1, $j - $i - 1));
+            //FIXME: gradients not supported?
+            return null; // trim(substr($color, $i + 1, $j - $i - 1));
         }
 
         return null;
@@ -328,7 +333,7 @@ class Style
 
         $quad = preg_split("/\\s*[,\\/]\\s*/", trim(substr($color, $i + 1, $j - $i - 1)));
         if (!isset($quad[3])) {
-            $quad[3] = 1;
+            $quad[3] = "1";
         }
 
         if (count($quad) != 3 && count($quad) != 4) {
@@ -342,11 +347,13 @@ class Style
                 if ($quad[$c][strlen($quad[$c]) - 1] === "%") {
                     $quad[$c] = floatval($quad[$c]) / 100;
                 } else {
-                    $quad[$c] = $quad[$c] / 255;
+                    $quad[$c] = floatval($quad[$c]) / 255;
                 }
             } else {
                 if ($quad[$c][strlen($quad[$c]) - 1] === "%") {
-                    $quad[$c] = round(floatval($quad[$c]) * 2.55);
+                    $quad[$c] = floatval($quad[$c]) * 2.55;
+                } else {
+                    $quad[$c] = floatval($quad[$c]);
                 }
             }
         }
@@ -356,7 +363,7 @@ class Style
 
     static function parseHexColor($hex)
     {
-        $c = array(0, 0, 0, 1);
+        $c = array(0.0, 0.0, 0.0, 1.0);
 
         // #FFFFFF
         if (isset($hex[6])) {

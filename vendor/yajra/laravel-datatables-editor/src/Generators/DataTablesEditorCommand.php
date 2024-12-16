@@ -35,7 +35,6 @@ class DataTablesEditorCommand extends GeneratorCommand
      * Build the class with the given name.
      *
      * @param  string  $name
-     * @return string
      *
      * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
@@ -48,15 +47,12 @@ class DataTablesEditorCommand extends GeneratorCommand
 
     /**
      * Replace model name.
-     *
-     * @param  string  $stub
-     * @return string
      */
     protected function replaceModel(string &$stub): string
     {
         $model = explode('\\', $this->getModel());
         $model = array_pop($model);
-        $stub  = str_replace('ModelName', $model, $stub);
+        $stub = str_replace('ModelName', $model, $stub);
 
         return $stub;
     }
@@ -66,21 +62,18 @@ class DataTablesEditorCommand extends GeneratorCommand
      */
     protected function getModel(): string
     {
-        $name           = $this->getNameInput();
-        $rootNamespace  = $this->laravel->getNamespace();
-        $model          = $this->option('model') || $this->option('model-namespace');
-        $modelNamespace = $this->option('model-namespace') ? $this->option('model-namespace') : $this->laravel['config']->get('datatables-buttons.namespace.model');
+        $name = $this->getNameInput();
+        $rootNamespace = $this->laravel->getNamespace();
+        $model = $this->option('model') || $this->option('model-namespace');
+        $modelNamespace = $this->option('model-namespace') ?: config('datatables-buttons.namespace.model');
 
         return $model
-            ? ($modelNamespace ?? $rootNamespace) . '\\' . Str::singular($name)
-            : $rootNamespace . '\\Models\\User';
+            ? ($modelNamespace ?? $rootNamespace).'\\'.Str::singular($name)
+            : $rootNamespace.'\\Models\\User';
     }
 
     /**
      * Replace model import.
-     *
-     * @param  string  $stub
-     * @return $this
      */
     protected function replaceModelImport(string &$stub): DataTablesEditorCommand
     {
@@ -93,21 +86,19 @@ class DataTablesEditorCommand extends GeneratorCommand
 
     /**
      * Get the stub file for the generator.
-     *
-     * @return string
      */
     protected function getStub(): string
     {
-        $path = $this->laravel['config']->get('datatables-buttons.stub');
+        $path = config('datatables-buttons.stub');
+        if ($path && is_string($path)) {
+            return base_path($path).'/editor.stub';
+        }
 
-        return $path ? base_path($path) . '/editor.stub' : __DIR__ . '/stubs/editor.stub';
+        return __DIR__.'/stubs/editor.stub';
     }
 
     /**
      * Replace the filename.
-     *
-     * @param  string  $stub
-     * @return string
      */
     protected function replaceFilename(string &$stub): string
     {
@@ -122,7 +113,6 @@ class DataTablesEditorCommand extends GeneratorCommand
      * Parse the name and format according to the root namespace.
      *
      * @param  string  $name
-     * @return string
      */
     protected function qualifyClass($name): string
     {
@@ -140,17 +130,16 @@ class DataTablesEditorCommand extends GeneratorCommand
             $name .= $this->type;
         }
 
-        return $this->getDefaultNamespace(trim($rootNamespace, '\\')) . '\\' . $name;
+        return $this->getDefaultNamespace(trim((string) $rootNamespace, '\\')).'\\'.$name;
     }
 
     /**
      * Get the default namespace for the class.
      *
      * @param  string  $rootNamespace
-     * @return string
      */
     protected function getDefaultNamespace($rootNamespace): string
     {
-        return $rootNamespace . '\\' . $this->laravel['config']->get('datatables-buttons.namespace.base', 'DataTables');
+        return $rootNamespace.'\\'.config('datatables-buttons.namespace.base', 'DataTables');
     }
 }

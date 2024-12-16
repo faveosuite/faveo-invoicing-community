@@ -5,7 +5,9 @@ namespace Laravel\Horizon\Console;
 use Illuminate\Console\Command;
 use Laravel\Horizon\Contracts\MetricsRepository;
 use Laravel\Horizon\Lock;
+use Symfony\Component\Console\Attribute\AsCommand;
 
+#[AsCommand(name: 'horizon:snapshot')]
 class SnapshotCommand extends Command
 {
     /**
@@ -34,7 +36,7 @@ class SnapshotCommand extends Command
         if ($lock->get('metrics:snapshot', config('horizon.metrics.snapshot_lock', 300) - 30)) {
             $metrics->snapshot();
 
-            $this->info('Metrics snapshot stored successfully.');
+            $this->components->info('Metrics snapshot stored successfully.');
         }
     }
 }

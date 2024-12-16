@@ -1,4 +1,4 @@
-<p align="center"><img src="/art/logo.svg" alt="Logo Laravel Socialite"></p>
+<p align="center"><img width="337" height="66" src="/art/logo.svg" alt="Logo Laravel Socialite"></p>
 
 <p align="center">
 <a href="https://github.com/laravel/socialite/actions"><img src="https://github.com/laravel/socialite/workflows/tests/badge.svg" alt="Build Status"></a>
@@ -13,7 +13,7 @@ Laravel Socialite provides an expressive, fluent interface to OAuth authenticati
 
 **We are not accepting new adapters.**
 
-Adapters for other platforms are listed at the community driven [Socialite Providers](https://socialiteproviders.netlify.com/) website.
+Adapters for other platforms are listed at the community driven [Socialite Providers](https://socialiteproviders.com/) website.
 
 ## Official Documentation
 

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package php-font-lib
- * @link    https://github.com/PhenX/php-font-lib
+ * @link    https://github.com/dompdf/php-font-lib
  * @author  Fabien Ménager <fabien.menager@gmail.com>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
@@ -33,7 +33,7 @@ class AdobeFontMetrics {
 
     if ($encoding) {
       $encoding = preg_replace("/[^a-z0-9-_]/", "", $encoding);
-      $map_file = dirname(__FILE__) . "/../maps/$encoding.map";
+      $map_file = dirname(__FILE__) . "/../../maps/$encoding.map";
       if (!file_exists($map_file)) {
         throw new \Exception("Unknown encoding ($encoding)");
       }
@@ -48,7 +48,7 @@ class AdobeFontMetrics {
 
     $this->startSection("FontMetrics", 4.1);
     $this->addPair("Notice", "Converted by PHP-font-lib");
-    $this->addPair("Comment", "https://github.com/PhenX/php-font-lib");
+    $this->addPair("Comment", "https://github.com/dompdf/php-font-lib");
 
     $encoding_scheme = ($encoding ? $encoding : "FontSpecific");
     $this->addPair("EncodingScheme", $encoding_scheme);
@@ -75,12 +75,50 @@ class AdobeFontMetrics {
 
     if (isset($hhea["ascent"])) {
       $this->addPair("FontHeightOffset", $font->normalizeFUnit($hhea["lineGap"]));
-      $this->addPair("Ascender", $font->normalizeFUnit($hhea["ascent"]));
-      $this->addPair("Descender", $font->normalizeFUnit($hhea["descent"]));
     }
     else {
       $this->addPair("FontHeightOffset", $font->normalizeFUnit($os2["typoLineGap"]));
+    }
+
+    $glyf = $font->getData("glyf");
+    $glyphIndexArray = $font->getUnicodeCharMap();
+    $hasGlyphs = $glyf instanceof glyf && is_array($glyphIndexArray);
+
+    // capHeight is based on capital H
+    if ($hasGlyphs && \array_key_exists(72, $glyphIndexArray)) {
+      $upperH = $glyf[$glyphIndexArray[72]];
+      $upperH->parseData();
+      $this->addPair("CapHeight", $font->normalizeFUnit($upperH->yMax));
+    }
+
+    // xHeight is based on lowercase x
+    if ($hasGlyphs && \array_key_exists(120, $glyphIndexArray)) {
+      $lowerX = $glyf[$glyphIndexArray[120]];
+      $lowerX->parseData();
+      $this->addPair("XHeight", $font->normalizeFUnit($lowerX->yMax));
+    }
+
+    // ascender is based on lowercase d
+    if ($hasGlyphs && \array_key_exists(100, $glyphIndexArray)) {
+      $lowerD = $glyf[$glyphIndexArray[100]];
+      $lowerD->parseData();
+      $this->addPair("Ascender", $font->normalizeFUnit($lowerD->yMax));
+    } elseif (isset($hhea["ascent"])) {
+      $this->addPair("Ascender", $font->normalizeFUnit($hhea["ascent"]));
+    }
+    else {
       $this->addPair("Ascender", $font->normalizeFUnit($os2["typoAscender"]));
+    }
+
+    // descender is based on lowercase p
+    if ($hasGlyphs && \array_key_exists(112, $glyphIndexArray)) {
+      $lowerP = $glyf[$glyphIndexArray[112]];
+      $lowerP->parseData();
+      $this->addPair("Descender", $font->normalizeFUnit($lowerP->yMin));
+    } elseif (isset($hhea["descent"])) {
+      $this->addPair("Descender", $font->normalizeFUnit($hhea["descent"]));
+    }
+    else {
       $this->addPair("Descender", -abs($font->normalizeFUnit($os2["typoDescender"])));
     }
 
@@ -91,8 +129,6 @@ class AdobeFontMetrics {
       $font->normalizeFUnit($head["xMax"]),
       $font->normalizeFUnit($head["yMax"]),
     ));
-
-    $glyphIndexArray = $font->getUnicodeCharMap();
 
     if ($glyphIndexArray) {
       $hmtx  = $font->getData("hmtx");

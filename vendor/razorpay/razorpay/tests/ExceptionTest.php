@@ -13,25 +13,6 @@ class ExceptionTest extends TestCase
     }
     
     /**
-     * Create an order from json payload
-     */
-    public function testCreateJsonOrderException()
-    {
-        $payload = $this->payload();
-        $attribute = json_encode($payload);
-        try
-        {
-         $data = $this->api->order->create($attribute);
-
-         $this->assertTrue(is_array($data->toArray()));
-
-        }
-        catch(Error $e){
-            throw new InvalidArgumentException($e);
-        }
-    }
-
-    /**
      * Create an order from set header application/json
      */
     public function testCreateOrderSetHeaderException()

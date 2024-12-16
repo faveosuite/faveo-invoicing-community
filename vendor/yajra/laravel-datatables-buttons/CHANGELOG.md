@@ -1,38 +1,17 @@
 # Laravel DataTables Buttons Plugin CHANGELOG.
 
-## v10.0.8 - 2023-11-15
+## v11.2.1 - 2024-09-14
 
-- fix: unnecessary exception thrown #183
+- fix: fast-excel exporting of related models #189
 
-## v10.0.7 - 2023-07-31
+## v11.2.0 - 2024-09-03
 
-- fix: use callback function if exportRender method is set #177
+- feat: fast-excel export via Column's exportRender() #187
 
-## v10.0.6 - 2023-02-28
+## v11.1.0 - 2024-09-02
 
-- fix: export package integration error message #174
+- feat: fast-excel export cell styling via exportFormat #186
 
-## v10.0.5 - 2023-02-28
+## v11.0.0 - 2024-03-14
 
-- fix: prevent redeclaring export query generator function (Laravel Octane) #173
-
-## v10.0.4 - 2023-02-21
-
-- fix: stubs - remove redundant docs #172
-- fix: default model namespace
-
-## v10.0.3 - 2023-02-20
-
-- fix: default model namespace config #171
-
-## v10.0.2 - 2023-02-20
-
-- fix: scopes when using api resource #170
-
-## v10.0.1 - 2023-02-20
-
-- fix: applyScopes method to support Collection #168
-
-## v10.0.0 - 2023-02-07
-
-- Add Laravel 10 compatibility #169
+- Laravel 11.x support

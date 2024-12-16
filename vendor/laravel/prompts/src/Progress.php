@@ -34,7 +34,7 @@ class Progress extends Prompt
      */
     public function __construct(public string $label, public iterable|int $steps, public string $hint = '')
     {
-        $this->total = match (true) {
+        $this->total = match (true) { // @phpstan-ignore assign.propertyType
             is_int($this->steps) => $this->steps,
             is_countable($this->steps) => count($this->steps),
             is_iterable($this->steps) => iterator_count($this->steps),
@@ -136,6 +136,14 @@ class Progress extends Prompt
         $this->render();
         $this->restoreCursor();
         $this->resetSignals();
+    }
+
+    /**
+     * Force the progress bar to re-render.
+     */
+    public function render(): void
+    {
+        parent::render();
     }
 
     /**

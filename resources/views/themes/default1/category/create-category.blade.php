@@ -8,11 +8,11 @@
                 </button>
             </div>
 
-            {!! Form::open(['url'=>'category']) !!} 
+            {!! html()->form('POST', url('category'))->open() !!}
             <div class="modal-body">
                 
                 <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                    {!! Form::label('name',Lang::get('message.category-name'),['class'=>'required']) !!}
+                    {!! html()->label(Lang::get('message.category-name'), 'name')->class('required') !!}
                     <input type="text" name="category_name" class="form-control" required="required">
                 </div>
             </div>
@@ -20,7 +20,7 @@
                  <button type="button" id="close" class="btn btn-default pull-left" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
                 <button type="submit" class="btn btn-primary " id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('Save')!!}</button>
             </div>
-            {!! Form::close() !!}
+            {!! html()->form()->close() !!}
         </div>
     </div>
 </div>
