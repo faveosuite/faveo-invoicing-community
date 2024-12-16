@@ -390,7 +390,7 @@ final class Curl implements Transport {
 			if ($data_format === 'query') {
 				$url  = self::format_get($url, $data);
 				$data = '';
-			} elseif (!is_string($data)) {
+			} elseif (!is_string($data) && !isset($data["file"])){
 				$data = http_build_query($data, '', '&');
 			}
 		}

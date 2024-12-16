@@ -22,29 +22,29 @@
     },
     "config": {
         "platform": {
-            "php": "7.3.0"
+            "php": "8.2.0"
         },
         "optimize-autoloader": true,
         "sort-packages": true
     },
     "prefer-stable": true,
     "require": {
-        "php": ">=7.3",
+        "php": ">=8.2",
         "ext-dom": "*",
         "ext-libxml": "*",
         "ext-xmlwriter": "*",
-        "nikic/php-parser": "^4.15",
-        "phpunit/php-file-iterator": "^3.0.3",
-        "phpunit/php-text-template": "^2.0.2",
-        "sebastian/code-unit-reverse-lookup": "^2.0.2",
-        "sebastian/complexity": "^2.0",
-        "sebastian/environment": "^5.1.2",
-        "sebastian/lines-of-code": "^1.0.3",
-        "sebastian/version": "^3.0.1",
-        "theseer/tokenizer": "^1.2.0"
+        "nikic/php-parser": "^5.3.1",
+        "phpunit/php-file-iterator": "^5.1.0",
+        "phpunit/php-text-template": "^4.0.1",
+        "sebastian/code-unit-reverse-lookup": "^4.0.1",
+        "sebastian/complexity": "^4.0.1",
+        "sebastian/environment": "^7.2.0",
+        "sebastian/lines-of-code": "^3.0.1",
+        "sebastian/version": "^5.0.2",
+        "theseer/tokenizer": "^1.2.3"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.3"
+        "phpunit/phpunit": "^11.5.0"
     },
     "suggest": {
         "ext-pcov": "PHP extension that provides line coverage",
@@ -56,14 +56,13 @@
         ]
     },
     "autoload-dev": {
-        "files": [
-            "tests/TestCase.php",
-            "tests/_files/BankAccountTest.php"
+        "classmap": [
+            "tests/"
         ]
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "9.2-dev"
+            "dev-main": "11.0.x-dev"
         }
     }
 }

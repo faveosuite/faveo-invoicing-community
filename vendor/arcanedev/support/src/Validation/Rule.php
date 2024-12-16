@@ -10,6 +10,9 @@ use Illuminate\Contracts\Validation\Rule as RuleContract;
  * Class     Rule
  *
  * @author   ARCANEDEV <arcanedev.maroc@gmail.com>
+ *
+ * @deprecated Use the ValidationRule class instead.
+ * @see \Illuminate\Contracts\Validation\ValidationRule
  */
 abstract class Rule implements RuleContract
 {

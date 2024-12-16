@@ -12,7 +12,7 @@
 			   <input type="hidden" name="orderId" value="" id="order3">
 		        <div class="form-group">
                     <!-- name -->
-                    {!! Form::label('support',Lang::get('message.support_end'),['class'=>'required']) !!}
+                    {!! html()->label(Lang::get('message.support_end'), 'support')->class('required') !!}
 
                     <div class="input-group date" id="supportEnds" data-target-input="nearest">
                         <input type="text" name="support_ends_at" id="newDate3" class="form-control datetimepicker-input" autocomplete="off"  data-target="#supportEnds"/>

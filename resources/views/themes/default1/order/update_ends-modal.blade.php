@@ -11,7 +11,7 @@
 			   <input type="hidden" name="orderId" value="" id="order">
 		  <div class="form-group">
                     <!-- name -->
-                    {!! Form::label('updates',Lang::get('message.update_end'),['class'=>'required']) !!}
+              {!! html()->label(Lang::get('message.update_end'), 'updates')->class('required') !!}
               <div class="input-group date" id="updateEnds" data-target-input="nearest">
                   <input type="text" name="update_ends_at" id="newDate" class="form-control datetimepicker-input" autocomplete="off"  data-target="#updateEnds"/>
                   <div class="input-group-append" data-target="#updateEnds" data-toggle="datetimepicker">

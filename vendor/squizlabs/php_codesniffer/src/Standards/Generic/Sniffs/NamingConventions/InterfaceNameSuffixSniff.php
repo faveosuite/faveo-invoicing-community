@@ -18,7 +18,7 @@ class InterfaceNameSuffixSniff implements Sniff
     /**
      * Registers the tokens that this sniff wants to listen for.
      *
-     * @return int[]
+     * @return array<int|string>
      */
     public function register()
     {
@@ -40,6 +40,7 @@ class InterfaceNameSuffixSniff implements Sniff
     {
         $interfaceName = $phpcsFile->getDeclarationName($stackPtr);
         if ($interfaceName === null) {
+            // Live coding or parse error. Bow out.
             return;
         }
 

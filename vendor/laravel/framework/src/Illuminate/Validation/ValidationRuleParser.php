@@ -7,6 +7,7 @@ use Illuminate\Contracts\Validation\InvokableRule;
 use Illuminate\Contracts\Validation\Rule as RuleContract;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Exists;
 use Illuminate\Validation\Rules\Unique;
@@ -127,7 +128,7 @@ class ValidationRuleParser
 
         if ($rule instanceof NestedRules) {
             return $rule->compile(
-                $attribute, $this->data[$attribute] ?? null, Arr::dot($this->data)
+                $attribute, $this->data[$attribute] ?? null, Arr::dot($this->data), $this->data
             )->rules[$attribute];
         }
 
@@ -152,7 +153,9 @@ class ValidationRuleParser
             if (Str::startsWith($key, $attribute) || (bool) preg_match('/^'.$pattern.'\z/', $key)) {
                 foreach ((array) $rules as $rule) {
                     if ($rule instanceof NestedRules) {
-                        $compiled = $rule->compile($key, $value, $data);
+                        $context = Arr::get($this->data, Str::beforeLast($key, '.'));
+
+                        $compiled = $rule->compile($key, $value, $data, $context);
 
                         $this->implicitAttributes = array_merge_recursive(
                             $compiled->implicitAttributes,
@@ -280,7 +283,7 @@ class ValidationRuleParser
      */
     protected static function parseParameters($rule, $parameter)
     {
-        return static::ruleIsRegex($rule) ? [$parameter] : str_getcsv($parameter);
+        return static::ruleIsRegex($rule) ? [$parameter] : str_getcsv($parameter, escape: '\\');
     }
 
     /**
@@ -318,7 +321,7 @@ class ValidationRuleParser
      */
     public static function filterConditionalRules($rules, array $data = [])
     {
-        return collect($rules)->mapWithKeys(function ($attributeRules, $attribute) use ($data) {
+        return (new Collection($rules))->mapWithKeys(function ($attributeRules, $attribute) use ($data) {
             if (! is_array($attributeRules) &&
                 ! $attributeRules instanceof ConditionalRules) {
                 return [$attribute => $attributeRules];
@@ -330,7 +333,7 @@ class ValidationRuleParser
                                 : array_filter($attributeRules->defaultRules($data)), ];
             }
 
-            return [$attribute => collect($attributeRules)->map(function ($rule) use ($data) {
+            return [$attribute => (new Collection($attributeRules))->map(function ($rule) use ($data) {
                 if (! $rule instanceof ConditionalRules) {
                     return [$rule];
                 }

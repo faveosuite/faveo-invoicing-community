@@ -1,20 +1,20 @@
-# Agora Invoicing
+# Faveo Invoicing
 
 [![StyleCI](https://styleci.io/repos/51429040/shield)](https://styleci.io/repos/51429040) [![License](https://img.shields.io/badge/License-OSL-blue.svg)](https://opensource.org/licenses/OSL)  [![Quality Score](https://scrutinizer-ci.com/g/ladybirdweb/agorainvoicing/badges/quality-score.png?b=development)](https://scrutinizer-ci.com/g/ladybirdweb/agorainvoicing)  [![Travis CI](https://travis-ci.org/ladybirdweb/agora-invoicing-community.svg?branch=development)](https://travis-ci.org/ladybirdweb/agora-invoicing-community)  [![PHP CodeSniffer](http://squizlabs.github.io/PHP_CodeSniffer/analysis/ladybirdweb/agorainvoicing/grade.svg)](http://squizlabs.github.io/PHP_CodeSniffer/analysis/ladybirdweb/agorainvoicing/index.html)
 
-Agora is a comprehensive billing and subscription management system designed for SaaS and other software businesses. It efficiently handles signups, provisioning, billing, and support, making it the ideal solution for subscription-based models.
+Faveo Invoicing is a comprehensive billing and subscription management system designed for SaaS and other software businesses. It efficiently handles signups, provisioning, billing, and support, making it the ideal solution for subscription-based models.
 
-Agora can be customized according to your business requirements, and we offer professional customization services.
+Faveo Invoicing can be customized according to your business requirements, and we offer professional customization services.
 
-Additionally, **Agora Invoicing** integrates with **[Agora License Manager](https://github.com/ladybirdweb/agora-license-manager)** for efficient software licensing management. To explore the integration further, check out our [sample integration app](https://github.com/ladybirdweb/agora-integration-sample).
+Additionally, **Faveo Invoicing** integrates with **[Faveo License Manager](https://github.com/ladybirdweb/faveo-license-manager)** for efficient software licensing management. To explore the integration further, check out our [sample integration app](https://github.com/ladybirdweb/faveo-integration-sample).
 
-The [Agora Invoicing WordPress plugin](https://github.com/ladybirdweb/Agora-Invoicing-Wordpress-Plugin) is available to integrate Agora invoicing with your website.
+The [Faveo Invoicing WordPress plugin](https://github.com/ladybirdweb/Faveo-Invoicing-Wordpress-Plugin) is available to integrate Faveo invoicing with your website.
 
 Developed and launched by [Ladybird Web Solution Pvt Ltd](http://www.ladybirdweb.com/) in **March 2016**.
 
 ## Requirements
 
-To run Agora Invoicing, your server should meet the following requirements:
+To run Faveo Invoicing, your server should meet the following requirements:
 
 - **PHP Version**: 8.2+
 - **Laravel Framework**: 10+
@@ -25,7 +25,7 @@ To run Agora Invoicing, your server should meet the following requirements:
 
 ## Installation Guide
 
-The installation process for Agora Invoicing is identical to that of [Faveo Helpdesk](https://www.faveohelpdesk.com/). Please refer to the [Faveo Installation Guide](https://docs.faveohelpdesk.com/) for detailed step-by-step instructions.
+The installation process for Faveo Invoicing is identical to that of [Faveo Helpdesk](https://www.faveohelpdesk.com/). Please refer to the [Faveo Installation Guide](https://docs.faveohelpdesk.com/) for detailed step-by-step instructions.
 
 ## Credits
 
@@ -34,17 +34,17 @@ The installation process for Agora Invoicing is identical to that of [Faveo Help
 
 ## Features
 
-Check out the detailed features of Agora Invoicing in our [Agora Features Wiki](https://github.com/ladybirdweb/agora-invoicing-community/wiki/Agora-Features).
+Check out the detailed features of Faveo Invoicing in our [Faveo Invoicing Features Wiki](https://github.com/ladybirdweb/faveo-invoicing-community/wiki/Faveo-Features).
 
 ## Error Reporting
 
-Agora Invoicing uses [Bugsnag](https://www.bugsnag.com/) to monitor application stability in production environments. This helps us quickly identify issues and release bug fixes and updates.
+Faveo Invoicing uses [Bugsnag](https://www.bugsnag.com/) to monitor application stability in production environments. This helps us quickly identify issues and release bug fixes and updates.
 
 ### Disable Error Reporting for Development
 If you are customizing the application in a development environment, we recommend disabling error reporting to avoid unnecessary alerts. You can easily disable error reporting from the **Error Logs and Debugging** section in the admin panel, or by setting the environment to `development` in your `.env` file.
 
 ### Reporting Issues or Customizations
-You can still report any issues or share your customizations via our [GitHub Issues page](https://github.com/ladybirdweb/agora-invoicing-community/issues). If your changes follow our [contributing guidelines](https://github.com/ladybirdweb/agora-invoicing-community/blob/development/CONTRIBUTING.md), we may integrate them into the main application.
+You can still report any issues or share your customizations via our [GitHub Issues page](https://github.com/ladybirdweb/faveo-invoicing-community/issues). If your changes follow our [contributing guidelines](https://github.com/ladybirdweb/faveo-invoicing-community/blob/development/CONTRIBUTING.md), we may integrate them into the main application.
 
 ## Security Policy
 
@@ -67,7 +67,7 @@ If you suspect a security vulnerability, please report it to [support@faveohelpd
 
 ## User Manual
 
-For detailed guidance on using Agora Invoicing, please refer to the [Agora Invoicing Wiki](https://github.com/ladybirdweb/agora-invoicing-community/wiki).
+For detailed guidance on using Faveo Invoicing, please refer to the [Faveo Invoicing Wiki](https://github.com/ladybirdweb/faveo-invoicing-community/wiki).
 
 ## Commercial Support
 

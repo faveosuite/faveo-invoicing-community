@@ -7,16 +7,16 @@ on:
     - cron: '30 20 * * *'  
 jobs:
   semgrep:
-    name: Scan
-    runs-on: [ubuntu-latest]                               # nosemgrep : semgrep.dev/s/swati31196:github_provided_runner
+    name: Semgrep
+    runs-on: [ubuntu-latest]
+    container:
+      image: returntocorp/semgrep
     steps:
-      - uses: actions/checkout@v2
-      - uses: returntocorp/semgrep-action@v1
-        with:
-          publishToken: ${{ secrets.SEMGREP_APP_TOKEN }}
-          publishDeployment: 339
+      - uses: actions/checkout@v4.0.0
+      - name: Run semgrep
+        run: semgrep ci
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
 
   workflow_status:
     runs-on: [ ubuntu-latest ]                               # nosemgrep : semgrep.dev/s/swati31196:github_provided_runner

@@ -25,10 +25,10 @@
 
 
 
-        {!! Form::open(['url'=>'plans','method'=>'post','id'=> 'plan']) !!}
+            {!! html()->form('POST', url('plans'))->id('plan')->open() !!}
 
 
-        <div class="box-body">
+            <div class="box-body">
 
           <div class="row">
 
@@ -39,16 +39,16 @@
                 <div
                   class="col-md-4 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                   <!-- first name -->
-                  {!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}
-                  {!! Form::text('name',null,['class' => 'form-control','id'=>'planname']) !!}
-                  <h6 id="plannamecheck"> </h6>
+                    {!! html()->label(__('message.name'), 'name')->class('required') !!}
+                    {!! html()->text('name')->class('form-control')->id('planname') !!}
+                    <h6 id="plannamecheck"> </h6>
 
                 </div>
                 <div
                   class="col-md-4 form-group {{ $errors->has('product') ? 'has-error' : '' }}">
                   <!-- first name -->
-                  {!! Form::label('product',Lang::get('message.product'),['class'=>'required']) !!}
-                  <select name="product" value="Choose" class="form-control" id="planproduct" onchange="myProduct()">
+                    {!! html()->label(__('message.product'), 'product')->class('required') !!}
+                    <select name="product" value="Choose" class="form-control" id="planproduct" onchange="myProduct()">
                     <option value="">Choose</option>
                     @foreach($products as $key=>$product)
                      @if (Request::old('product') == $key)
@@ -58,7 +58,7 @@
                      @endif
                     @endforeach
                   </select>
-                  <!--  {!! Form::select('product',[''=>'Select','Products'=>$products],null,['class' => 'form-control','id'=>'planproduct']) !!} -->
+                  <!--  {!! html()->select('product', ['' => 'Select', 'Products' => $products])->class('form-control')->id('planproduct') !!} -->
                   <h6 id="productcheck"></h6>
 
 
@@ -66,8 +66,8 @@
                 <div
                   class="col-md-4 form-group plandays {{ $errors->has('days') ? 'has-error' : '' }}">
                   <!-- last name -->
-                  {!! Form::label('days','Periods',['class'=>'required']) !!}
-                  <div class="input-group">
+                    {!! html()->label('Periods', 'days')->class('required') !!}
+                    <div class="input-group">
                     <select name="days" value="Choose" class="form-control" id="plandays">
                       <option value="">Choose</option>
                       @foreach($periods as $key=>$period)
@@ -82,7 +82,7 @@
                   </div>
                   <h6 id="dayscheck"></h6>
 
-                  <!-- {!! Form::select('days',[''=>'Select','Periods'=>$periods],null,['class' => 'form-control','id'=>'plandays']) !!} -->
+                  <!-- {!! html()->select('days', ['' => 'Select', 'Periods' => $periods])->class('form-control')->id('plandays') !!} -->
                 </div>
                 <div class="col-md-12">
 
@@ -154,34 +154,30 @@
                 </div>
 
 
-                <div class="col-md-12 form-group">
-                  <!-- last name -->
-                  {!! Form::label('description','Price Description') !!}
-                  {!! Form::text("price_description",null,['class' => 'form-control' ,'placeholder'=>'Enter Price Description to be Shown on Pricing Page. eg: Yearly,Monthly,One-Time']) !!}
-                  <h6 id="dayscheck"></h6>
+                  <div class="col-md-12 form-group">
+                      <!-- Price Description -->
+                      {!! html()->label('Price Description', 'description') !!}
+                      {!! html()->text('price_description')->class('form-control')->placeholder('Enter Price Description to be Shown on Pricing Page. eg: Yearly,Monthly,One-Time') !!}
+                      <h6 id="dayscheck"></h6>
 
-                  <!-- {!! Form::select('days',[''=>'Select','Periods'=>$periods],null,['class' => 'form-control','id'=>'plandays']) !!} -->
-                </div>
+                      <!-- {!! html()->select('days', ['' => 'Select', 'Periods' => $periods])->class('form-control')->id('plandays') !!} -->
+                  </div>
 
-                <div class="col-md-6 form-group">
-                  <!-- last name -->
-                  {!! Form::label('product_quantity','Product Quantity',['class'=>'required'])!!}
-                  {!! Form::number("product_quantity",null,['class' =>
-                  'form-control','disabled'=>'disabled','id'=>'prodquant','placeholder'=>'Pricing for No. of Products'])
-                  !!}
+                  <div class="col-md-6 form-group">
+                      <!-- Product Quantity -->
+                      {!! html()->label('Product Quantity', 'product_quantity')->class('required') !!}
+                      {!! html()->number('product_quantity')->class('form-control')->id('prodquant')->disabled()->placeholder('Pricing for No. of Products') !!}
+                  </div>
 
-                </div>
-
-                <div class="col-md-6 form-group">
+                  <div class="col-md-6 form-group">
                   <!-- last name -->
                   <i class='fa fa-info-circle' style='cursor: help; font-size: small; color: rgb(60, 141, 188)'<label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="If '0' Agents Selected, Plan will be for Unlimited Agents.">
                         </label></i>
-                  
-                    {!! Form::label('agents','No. of Agents',['class'=>'required']) !!}
-                  {!! Form::number("no_of_agents",null,['class' => 'form-control'
-                  ,'disabled'=>'disabled','id'=>'agentquant','placeholder'=>'Pricing for No. of Agents']) !!}
 
-                </div>
+                      {!! html()->label('No. of Agents', 'agents')->class('required') !!}
+                      {!! html()->number('no_of_agents')->class('form-control')->id('agentquant')->disabled()->placeholder('Pricing for No. of Agents') !!}
+
+                  </div>
               </div>
             </div>
 
@@ -200,7 +196,7 @@
 
 
 
-      {!! Form::close() !!}
+      {!! html()->form()->close() !!}
 
     </div>
   </div>

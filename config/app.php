@@ -108,7 +108,14 @@ return [
 
     */
 
-    'key' => 'SomeRandomString',
+    'key' => env('APP_KEY', 'base64:G4WSQduFNvk9rYtoLS1ozg=='),
+
+    'previous_keys' => [
+        ...array_filter(
+            explode(',', env('APP_PREVIOUS_KEYS', 'base64:G4WSQduFNvk9rYtoLS1ozg=='))
+        ),
+    ],
+
     'cipher' => 'AES-128-CBC',
 
     /*
@@ -200,7 +207,6 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\CustomValidationProvider::class,
 
-        Collective\Html\HtmlServiceProvider::class,
         Barryvdh\DomPDF\ServiceProvider::class,
         // Illuminate\Support\Facades\Input::class,
 
@@ -221,7 +227,7 @@ return [
         Laravel\Socialite\SocialiteServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
         \App\Providers\AttachmentHelperServiceProvider::class,
-
+        Spatie\Html\HtmlServiceProvider::class,
     ],
 
     /*
@@ -241,10 +247,9 @@ return [
         'Cart' => Darryldecode\Cart\Facades\CartFacade::class,
         'Currency' => \Torann\Currency\Facades\Currency::class,
         'DataTables' => Yajra\DataTables\Facades\DataTables::class,
-        'Form' => Collective\Html\FormFacade::class,
         'GeoIP' => \Torann\GeoIP\Facades\GeoIP::class,
         'Google2FA' => PragmaRX\Google2FALaravel\Facade::class,
-        'HTML' => Collective\Html\HtmlFacade::class,
+        'Html' => Spatie\Html\Facades\Html::class,
         'Input' => Illuminate\Support\Facades\Input::class,
         'PDF' => Barryvdh\DomPDF\Facade::class,
         'Pipedrive' => Devio\Pipedrive\PipedriveFacade::class,

@@ -25,6 +25,7 @@ use Illuminate\Queue\Events\JobProcessing;
 use Illuminate\Queue\QueueManager;
 use Illuminate\Routing\Events\RouteMatched;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Context;
 use Laravel\Lumen\Application as LumenApplication;
 use Monolog\Handler\PsrHandler;
 use Monolog\Logger;
@@ -37,7 +38,7 @@ class BugsnagServiceProvider extends ServiceProvider
      *
      * @var string
      */
-    const VERSION = '2.26.0';
+    const VERSION = '2.28.0';
 
     /**
      * Boot the service provider.
@@ -438,6 +439,27 @@ class BugsnagServiceProvider extends ServiceProvider
                     }
                 }
             }));
+        }
+
+        // Laravel 11 has a 'Context' class for storing metadata
+        // https://laravel.com/docs/11.x/context
+        if (class_exists(Context::class)) {
+            $client->registerCallback(function (Report $report) {
+                $context = Context::all();
+
+                $report->setMetaData(['Laravel Context' => $context]);
+            });
+
+            // only attach hidden context if enabled, otherwise sensitive data
+            // could leak to bugsnag
+            if (isset($config['attach_hidden_context']) && $config['attach_hidden_context']) {
+                $client->registerCallback(function (Report $report) {
+                    $hiddenContext = Context::allHidden();
+
+                    $report->setMetaData(['Laravel Hidden Context' => $hiddenContext]);
+                });
+
+            }
         }
     }
 

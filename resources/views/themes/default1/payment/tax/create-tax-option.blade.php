@@ -24,13 +24,13 @@
                     @endif
 
                 <!-- Form  -->
-                {!! Form::open(['url'=>'taxes/class','id'=>'taxClass', 'method'=>'post']) !!}
+                        {!! html()->form('POST', url('taxes/class'))->id('taxClass')->open() !!}
 
-                <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                        <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                     <!-- name -->
-                    {!! Form::label('name',Lang::get('Tax Type'),['class'=>'required']) !!}
+                            {!! html()->label(Lang::get('Tax Type'))->for('name')->class('required') !!}
 
-                    <!-- {!! Form::text('name',null,['class' => 'form-control']) !!} -->
+                            <!-- {!! html()->text('name')->class('form-control') !!} -->
                       <select name="name" id="gst" class="form-control">
                       <option value="Others">Others</option>
                        @if($options->tax_enable)
@@ -40,64 +40,66 @@
                         @endif
                       </select>
                 </div>
-                
-                {!! Form::open(['url'=>'tax']) !!}
-                 <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+
+                        {!! html()->form('POST', url('tax'))->open() !!}
+                        <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                     <!-- name -->
-                    
-                    {!! Form::label('tax-name',Lang::get('Tax Name'),['class'=>'required']) !!}
-                    {!! Form::text('tax-name',null,['class' => 'form-control','id'=>'taxname']) !!}
-                   <h6 id ="namecheck"></h6>
+
+                            {{ html()->label(Lang::get('Tax Name'))->class('required')->for('tax-name') }}
+                            {{ html()->text('tax-name')->class('form-control')->id('taxname') }}
+                            <h6 id ="namecheck"></h6>
                 </div>
            
                  <div class="form-group">
                     <!-- name -->
-                    {!! Form::label('status',Lang::get('message.status')) !!}
-                    
-                </div>
+                     {{ html()->label(Lang::get('message.status'))->for('status') }}
+
+                 </div>
 
                  <div class="row">
-                    <div class="col-md-3 form-group {{ $errors->has('active') ? 'has-error' : '' }}">
-                        <!-- name -->
-                        {!! Form::label('active',Lang::get('message.active')) !!}
-                        {!! Form::radio('active',1,true) !!}
+                     <div class="col-md-3 form-group {{ $errors->has('active') ? 'has-error' : '' }}">
+                         <!-- Active -->
+                         {{ html()->label(Lang::get('message.active'))->for('active') }}
+                         {{ html()->radio('active', 1)->checked() }}
+                     </div>
 
-                    </div>
-                    <div class="col-md-3 form-group {{ $errors->has('active') ? 'has-error' : '' }}">
-                        <!-- name -->
-                        {!! Form::label('active',Lang::get('message.inactive')) !!}
-                        {!! Form::radio('active',0) !!}
-
-                    </div>
-                </div>
+                     <div class="col-md-3 form-group {{ $errors->has('active') ? 'has-error' : '' }}">
+                         <!-- Inactive -->
+                         {{ html()->label(Lang::get('message.inactive'))->for('inactive') }}
+                         {{ html()->radio('active', 0) }}
+                     </div>
+                 </div>
                   <div class="form-group {{ $errors->has('country') ? 'has-error' : '' }}">
                     <!-- name -->
-                    {!! Form::label('country',Lang::get('message.country')) !!}
-                    <br>
-                      {!! Form::select('country',[''=>'All Countries','Choose'=>$countries],null,['class' => 'form-control select2','style'=>'width:460px','onChange'=>'getState(this.value);','id'=>'countryvisible']) !!}
+                      {{ html()->label(Lang::get('message.country'))->for('countryvisible') }}
+                      <br>
+                      {{ html()->select('country', ['' => 'All Countries', 'Choose' => $countries])
+                          ->class('form-control select2')
+                          ->style('width:460px')
+                          ->id('countryvisible')
+                          ->attribute('onChange', 'getState(this.value);') }}
 
-                     
-                     <input type='text' name="country1" id= "countrynotvisible" class="form-control hide" value="India" readonly>
+                      <input type='text' name="country1" id= "countrynotvisible" class="form-control hide" value="India" readonly>
                    
 
                 </div>
                   <div class="form-group showwhengst {{ $errors->has('state') ? 'has-error' : '' }}" style="display:block">
                     <!-- name -->
-                    {!! Form::label('state',Lang::get('message.state')) !!}
-                 
+                      {{ html()->label(Lang::get('message.state'))->for('state') }}
 
-                    <select name="state"  class="form-control" id="statess">
+
+                      <select name="state"  class="form-control" id="statess">
                         <option name="state" value=''>All States</option>
                     </select>
 
                 </div>
                  <div class="form-group showwhengst{{ $errors->has('rate') ? 'has-error' : '' }}" style="display:block" >
                     <!-- name -->
-                    {!! Form::label('rate',Lang::get('message.rate').' (%)',['class'=>'required']) !!}
-                    {!! Form::number('rate',null,['class' => 'form-control','id'=>'rate']) !!}
-                  
+                     {{ html()->label(Lang::get('message.rate') . ' (%)')->for('rate')->class('required') }}
+                     {{ html()->number('rate')->class('form-control')->id('rate') }}
 
-                </div>
+
+                 </div>
                   
                 
 
@@ -108,7 +110,7 @@
                 <button type="submit"  class="btn btn-primary"><i class="fas fa-save"></i>&nbsp;Save</button>
 
             </div>
-            {!! Form::close()  !!}
+            {!! html()->form()->close() !!}
             <!-- /Form -->
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
@@ -215,4 +217,4 @@ $("#closeTax").click(function() {
 
     });
 </script>
-{!! Form::close()  !!}
+{!! html()->form()->close() !!}

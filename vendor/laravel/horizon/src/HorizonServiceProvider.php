@@ -3,6 +3,7 @@
 namespace Laravel\Horizon;
 
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\Foundation\CachesRoutes;
 use Illuminate\Queue\QueueManager;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -22,7 +23,6 @@ class HorizonServiceProvider extends ServiceProvider
         $this->registerEvents();
         $this->registerRoutes();
         $this->registerResources();
-        $this->defineAssetPublishing();
         $this->offerPublishing();
         $this->registerCommands();
     }
@@ -50,6 +50,10 @@ class HorizonServiceProvider extends ServiceProvider
      */
     protected function registerRoutes()
     {
+        if ($this->app instanceof CachesRoutes && $this->app->routesAreCached()) {
+            return;
+        }
+
         Route::group([
             'domain' => config('horizon.domain', null),
             'prefix' => config('horizon.path'),
@@ -68,18 +72,6 @@ class HorizonServiceProvider extends ServiceProvider
     protected function registerResources()
     {
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'horizon');
-    }
-
-    /**
-     * Define the asset publishing configuration.
-     *
-     * @return void
-     */
-    public function defineAssetPublishing()
-    {
-        $this->publishes([
-            HORIZON_PATH.'/public' => public_path('vendor/horizon'),
-        ], ['horizon-assets', 'laravel-assets']);
     }
 
     /**
@@ -123,6 +115,7 @@ class HorizonServiceProvider extends ServiceProvider
                 Console\PurgeCommand::class,
                 Console\StatusCommand::class,
                 Console\SupervisorCommand::class,
+                Console\SupervisorStatusCommand::class,
                 Console\SupervisorsCommand::class,
                 Console\TerminateCommand::class,
                 Console\TimeoutCommand::class,

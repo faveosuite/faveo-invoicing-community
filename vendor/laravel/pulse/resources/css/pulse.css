@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+[x-cloak] {
+    display: none;
+}
+
+@keyframes detect-scroll {
+  from, to { --can-scroll: ; }
+}
+
+@supports selector(::-webkit-scrollbar) {
+    .supports-scrollbars {
+        animation: detect-scroll linear;
+        animation-timeline: scroll(self);
+
+        padding-right: var(--can-scroll) theme('spacing.3');
+    }
+}

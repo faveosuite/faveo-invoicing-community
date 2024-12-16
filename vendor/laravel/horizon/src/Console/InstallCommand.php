@@ -3,8 +3,11 @@
 namespace Laravel\Horizon\Console;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Symfony\Component\Console\Attribute\AsCommand;
 
+#[AsCommand(name: 'horizon:install')]
 class InstallCommand extends Command
 {
     /**
@@ -28,18 +31,16 @@ class InstallCommand extends Command
      */
     public function handle()
     {
-        $this->comment('Publishing Horizon Service Provider...');
-        $this->callSilent('vendor:publish', ['--tag' => 'horizon-provider']);
+        $this->components->info('Installing Horizon resources.');
 
-        $this->comment('Publishing Horizon Assets...');
-        $this->callSilent('vendor:publish', ['--tag' => 'horizon-assets']);
-
-        $this->comment('Publishing Horizon Configuration...');
-        $this->callSilent('vendor:publish', ['--tag' => 'horizon-config']);
+        collect([
+            'Service Provider' => fn () => $this->callSilent('vendor:publish', ['--tag' => 'horizon-provider']) == 0,
+            'Configuration' => fn () => $this->callSilent('vendor:publish', ['--tag' => 'horizon-config']) == 0,
+        ])->each(fn ($task, $description) => $this->components->task($description, $task));
 
         $this->registerHorizonServiceProvider();
 
-        $this->info('Horizon scaffolding installed successfully.');
+        $this->components->info('Horizon scaffolding installed successfully.');
     }
 
     /**
@@ -51,17 +52,21 @@ class InstallCommand extends Command
     {
         $namespace = Str::replaceLast('\\', '', $this->laravel->getNamespace());
 
-        $appConfig = file_get_contents(config_path('app.php'));
+        if (file_exists($this->laravel->bootstrapPath('providers.php'))) {
+            ServiceProvider::addProviderToBootstrapFile("{$namespace}\\Providers\\HorizonServiceProvider");
+        } else {
+            $appConfig = file_get_contents(config_path('app.php'));
 
-        if (Str::contains($appConfig, $namespace.'\\Providers\\HorizonServiceProvider::class')) {
-            return;
+            if (Str::contains($appConfig, $namespace.'\\Providers\\HorizonServiceProvider::class')) {
+                return;
+            }
+
+            file_put_contents(config_path('app.php'), str_replace(
+                "{$namespace}\\Providers\EventServiceProvider::class,".PHP_EOL,
+                "{$namespace}\\Providers\EventServiceProvider::class,".PHP_EOL."        {$namespace}\Providers\HorizonServiceProvider::class,".PHP_EOL,
+                $appConfig
+            ));
         }
-
-        file_put_contents(config_path('app.php'), str_replace(
-            "{$namespace}\\Providers\EventServiceProvider::class,".PHP_EOL,
-            "{$namespace}\\Providers\EventServiceProvider::class,".PHP_EOL."        {$namespace}\Providers\HorizonServiceProvider::class,".PHP_EOL,
-            $appConfig
-        ));
 
         file_put_contents(app_path('Providers/HorizonServiceProvider.php'), str_replace(
             "namespace App\Providers;",

@@ -31,4 +31,20 @@ class Stakeholder extends Entity
 
         return $this->request('PATCH', $entityUrl, $attributes, 'v2');
     }
+
+    public function uploadStakeholderDoc($id, $attributes = array())
+    {
+      $attributes = $this->setFile($attributes);
+
+      $entityUrl = 'accounts/'.$this->account_id .'/'.$this->getEntityUrl().'/'.$id.'/documents';
+      
+      return $this->request('POST', $entityUrl, $attributes, 'v2');
+    }
+
+    public function fetchStakeholderDoc($id)
+    {
+        $entityUrl = 'accounts/'.$this->account_id .'/'.$this->getEntityUrl().'/'.$id.'/documents';
+
+        return $this->request('GET', $entityUrl, null, 'v2');
+    }
 }

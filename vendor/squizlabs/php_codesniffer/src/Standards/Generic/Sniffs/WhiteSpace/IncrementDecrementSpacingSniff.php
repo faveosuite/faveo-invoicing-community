@@ -30,7 +30,7 @@ class IncrementDecrementSpacingSniff implements Sniff
     /**
      * Returns an array of tokens this test wants to listen for.
      *
-     * @return array
+     * @return array<int|string>
      */
     public function register()
     {
@@ -135,7 +135,7 @@ class IncrementDecrementSpacingSniff implements Sniff
                 $fixable = false;
                 $spaces  = 'comment';
             } else {
-                if ($tokens[$stackPtr]['line'] !== $tokens[$nextNonEmpty]['line']) {
+                if ($tokens[$stackPtr]['line'] !== $tokens[$prevNonEmpty]['line']) {
                     $spaces = 'newline';
                 } else {
                     $spaces = $tokens[($stackPtr - 1)]['length'];

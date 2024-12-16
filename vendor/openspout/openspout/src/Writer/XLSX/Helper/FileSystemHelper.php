@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OpenSpout\Writer\XLSX\Helper;
 
 use DateTimeImmutable;
+use OpenSpout\Common\Exception\IOException;
 use OpenSpout\Common\Helper\Escaper\XLSX;
 use OpenSpout\Common\Helper\FileSystemHelper as CommonFileSystemHelper;
 use OpenSpout\Writer\Common\Entity\Sheet;
@@ -15,6 +16,7 @@ use OpenSpout\Writer\Common\Helper\ZipHelper;
 use OpenSpout\Writer\XLSX\Manager\Style\StyleManager;
 use OpenSpout\Writer\XLSX\MergeCell;
 use OpenSpout\Writer\XLSX\Options;
+use OpenSpout\Writer\XLSX\Properties;
 
 /**
  * @internal
@@ -30,6 +32,7 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
     public const RELS_FILE_NAME = '.rels';
     public const APP_XML_FILE_NAME = 'app.xml';
     public const CORE_XML_FILE_NAME = 'core.xml';
+    public const CUSTOM_XML_FILE_NAME = 'custom.xml';
     public const CONTENT_TYPES_XML_FILE_NAME = '[Content_Types].xml';
     public const WORKBOOK_XML_FILE_NAME = 'workbook.xml';
     public const WORKBOOK_RELS_XML_FILE_NAME = 'workbook.xml.rels';
@@ -46,8 +49,8 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
     /** @var ZipHelper Helper to perform tasks with Zip archive */
     private readonly ZipHelper $zipHelper;
 
-    /** @var string document creator */
-    private readonly string $creator;
+    /** @var Properties document properties */
+    private readonly Properties $properties;
 
     /** @var XLSX Used to escape XML data */
     private readonly XLSX $escaper;
@@ -74,18 +77,18 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
     private string $sheetsContentTempFolder;
 
     /**
-     * @param string    $baseFolderPath The path of the base folder where all the I/O can occur
-     * @param ZipHelper $zipHelper      Helper to perform tasks with Zip archive
-     * @param XLSX      $escaper        Used to escape XML data
-     * @param string    $creator        document creator
+     * @param string     $baseFolderPath The path of the base folder where all the I/O can occur
+     * @param ZipHelper  $zipHelper      Helper to perform tasks with Zip archive
+     * @param XLSX       $escaper        Used to escape XML data
+     * @param Properties $properties     document properies
      */
-    public function __construct(string $baseFolderPath, ZipHelper $zipHelper, XLSX $escaper, string $creator)
+    public function __construct(string $baseFolderPath, ZipHelper $zipHelper, XLSX $escaper, Properties $properties)
     {
         $this->baseFileSystemHelper = new CommonFileSystemHelper($baseFolderPath);
         $this->baseFolderRealPath = $this->baseFileSystemHelper->getBaseFolderRealPath();
         $this->zipHelper = $zipHelper;
         $this->escaper = $escaper;
-        $this->creator = $creator;
+        $this->properties = $properties;
     }
 
     public function createFolder(string $parentFolderPath, string $folderName): string
@@ -131,7 +134,7 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
     /**
      * Creates all the folders needed to create a XLSX file, as well as the files that won't change.
      *
-     * @throws \OpenSpout\Common\Exception\IOException If unable to create at least one of the base folders
+     * @throws IOException If unable to create at least one of the base folders
      */
     public function createBaseFilesAndFolders(): void
     {
@@ -167,10 +170,19 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
         }
 
         $contentTypesXmlFileContents .= <<<'EOD'
-                <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml" PartName="/xl/styles.xml"/>
-                <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml" PartName="/xl/sharedStrings.xml"/>
-                <Override ContentType="application/vnd.openxmlformats-package.core-properties+xml" PartName="/docProps/core.xml"/>
-                <Override ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml" PartName="/docProps/app.xml"/>
+            <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml" PartName="/xl/styles.xml"/>
+            <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml" PartName="/xl/sharedStrings.xml"/>
+            <Override ContentType="application/vnd.openxmlformats-package.core-properties+xml" PartName="/docProps/core.xml"/>
+            <Override ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml" PartName="/docProps/app.xml"/>
+            EOD;
+
+        if ([] !== $this->properties->customProperties) {
+            $contentTypesXmlFileContents .= <<<'EOD'
+                <Override ContentType="application/vnd.openxmlformats-officedocument.custom-properties+xml" PartName="/docProps/custom.xml" />
+                EOD;
+        }
+
+        $contentTypesXmlFileContents .= <<<'EOD'
             </Types>
             EOD;
 
@@ -184,11 +196,18 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
      *
      * @param Worksheet[] $worksheets
      */
-    public function createWorkbookFile(array $worksheets): self
+    public function createWorkbookFile(Options $options, array $worksheets): self
     {
         $workbookXmlFileContents = <<<'EOD'
             <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
             <workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+            EOD;
+
+        if (null !== $options->getWorkbookProtection()) {
+            $workbookXmlFileContents .= $options->getWorkbookProtection()->getXml();
+        }
+
+        $workbookXmlFileContents .= <<<'EOD'
                 <sheets>
             EOD;
 
@@ -211,7 +230,7 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
             $sheet = $worksheet->getExternalSheet();
             if (null !== $autofilter = $sheet->getAutoFilter()) {
                 $worksheetName = $sheet->getName();
-                $name = sprintf(
+                $name = \sprintf(
                     '\'%s\'!$%s$%s:$%s$%s',
                     $this->escaper->escape($worksheetName),
                     CellHelper::getColumnLettersFromColumnIndex($autofilter->fromColumnIndex),
@@ -220,6 +239,9 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
                     $autofilter->toRow
                 );
                 $definedNames .= '<definedName function="false" hidden="true" localSheetId="'.$sheet->getIndex().'" name="_xlnm._FilterDatabase" vbProcedure="false">'.$name.'</definedName>';
+            }
+            if (null !== $printTitleRows = $sheet->getPrintTitleRows()) {
+                $definedNames .= '<definedName name="_xlnm.Print_Titles" localSheetId="'.$sheet->getIndex().'">'.$this->escaper->escape($sheet->getName()).'!'.$printTitleRows.'</definedName>';
             }
         }
         if ('' !== $definedNames) {
@@ -307,7 +329,7 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
     public function createContentFiles(Options $options, array $worksheets): self
     {
         $allMergeCells = $options->getMergeCells();
-
+        $pageSetup = $options->getPageSetup();
         foreach ($worksheets as $worksheet) {
             $contentXmlFilePath = $this->getXlWorksheetsFolder().\DIRECTORY_SEPARATOR.basename($worksheet->getFilePath());
             $worksheetFilePointer = fopen($contentXmlFilePath, 'w');
@@ -317,19 +339,23 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
             fwrite($worksheetFilePointer, self::SHEET_XML_FILE_HEADER);
 
             // AutoFilter tags
-            $range = '';
             if (null !== $autofilter = $sheet->getAutoFilter()) {
-                $range = sprintf(
-                    '%s%s:%s%s',
-                    CellHelper::getColumnLettersFromColumnIndex($autofilter->fromColumnIndex),
-                    $autofilter->fromRow,
-                    CellHelper::getColumnLettersFromColumnIndex($autofilter->toColumnIndex),
-                    $autofilter->toRow
-                );
-                fwrite($worksheetFilePointer, '<sheetPr filterMode="false"><pageSetUpPr fitToPage="false"/></sheetPr>');
-                fwrite($worksheetFilePointer, sprintf('<dimension ref="%s"/>', $range));
+                if (isset($pageSetup) && $pageSetup->fitToPage) {
+                    fwrite($worksheetFilePointer, '<sheetPr filterMode="false"><pageSetUpPr fitToPage="true"/></sheetPr>');
+                } else {
+                    fwrite($worksheetFilePointer, '<sheetPr filterMode="false"><pageSetUpPr fitToPage="false"/></sheetPr>');
+                }
+            } elseif (isset($pageSetup) && $pageSetup->fitToPage) {
+                fwrite($worksheetFilePointer, '<sheetPr><pageSetUpPr fitToPage="true"/></sheetPr>');
             }
-
+            $sheetRange = \sprintf(
+                '%s%s:%s%s',
+                CellHelper::getColumnLettersFromColumnIndex(0),
+                1,
+                CellHelper::getColumnLettersFromColumnIndex($worksheet->getMaxNumColumns() - 1),
+                $worksheet->getLastWrittenRowIndex()
+            );
+            fwrite($worksheetFilePointer, \sprintf('<dimension ref="%s"/>', $sheetRange));
             if (null !== ($sheetView = $sheet->getSheetView())) {
                 fwrite($worksheetFilePointer, '<sheetViews>'.$sheetView->getXml().'</sheetViews>');
             }
@@ -341,9 +367,20 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
             $this->copyFileContentsToTarget($worksheetFilePath, $worksheetFilePointer);
             fwrite($worksheetFilePointer, '</sheetData>');
 
+            if (null !== $sheet->getSheetProtection()) {
+                fwrite($worksheetFilePointer, $sheet->getSheetProtection()->getXml());
+            }
+
             // AutoFilter tag
-            if ('' !== $range) {
-                fwrite($worksheetFilePointer, sprintf('<autoFilter ref="%s"/>', $range));
+            if (null !== $autofilter) {
+                $autoFilterRange = \sprintf(
+                    '%s%s:%s%s',
+                    CellHelper::getColumnLettersFromColumnIndex($autofilter->fromColumnIndex),
+                    $autofilter->fromRow,
+                    CellHelper::getColumnLettersFromColumnIndex($autofilter->toColumnIndex),
+                    $autofilter->toRow
+                );
+                fwrite($worksheetFilePointer, \sprintf('<autoFilter ref="%s"/>', $autoFilterRange));
             }
 
             // create nodes for merge cells
@@ -356,7 +393,7 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
                 foreach ($mergeCells as $mergeCell) {
                     $topLeft = CellHelper::getColumnLettersFromColumnIndex($mergeCell->topLeftColumn).$mergeCell->topLeftRow;
                     $bottomRight = CellHelper::getColumnLettersFromColumnIndex($mergeCell->bottomRightColumn).$mergeCell->bottomRightRow;
-                    $mergeCellString .= sprintf(
+                    $mergeCellString .= \sprintf(
                         '<mergeCell ref="%s:%s"/>',
                         $topLeft,
                         $bottomRight
@@ -369,6 +406,8 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
             $this->getXMLFragmentForPageMargin($worksheetFilePointer, $options);
 
             $this->getXMLFragmentForPageSetup($worksheetFilePointer, $options);
+
+            $this->getXMLFragmentForHeaderFooter($worksheetFilePointer, $options);
 
             // Add the legacy drawing for comments
             fwrite($worksheetFilePointer, '<legacyDrawing r:id="rId_comments_vml1"/>');
@@ -431,6 +470,47 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
     /**
      * @param resource $targetResource
      */
+    private function getXMLFragmentForHeaderFooter($targetResource, Options $options): void
+    {
+        $headerFooter = $options->getHeaderFooter();
+        if (null === $headerFooter) {
+            return;
+        }
+
+        $xml = '<headerFooter';
+
+        if ($headerFooter->differentOddEven) {
+            $xml .= " differentOddEven=\"{$headerFooter->differentOddEven}\"";
+        }
+
+        $xml .= '>';
+
+        if (null !== $headerFooter->oddHeader) {
+            $xml .= "<oddHeader>{$headerFooter->oddHeader}</oddHeader>";
+        }
+
+        if (null !== $headerFooter->oddFooter) {
+            $xml .= "<oddFooter>{$headerFooter->oddFooter}</oddFooter>";
+        }
+
+        if ($headerFooter->differentOddEven) {
+            if (null !== $headerFooter->evenHeader) {
+                $xml .= "<evenHeader>{$headerFooter->evenHeader}</evenHeader>";
+            }
+
+            if (null !== $headerFooter->evenFooter) {
+                $xml .= "<evenFooter>{$headerFooter->evenFooter}</evenFooter>";
+            }
+        }
+
+        $xml .= '</headerFooter>';
+
+        fwrite($targetResource, $xml);
+    }
+
+    /**
+     * @param resource $targetResource
+     */
     private function getXMLFragmentForPageSetup($targetResource, Options $options): void
     {
         $pageSetup = $options->getPageSetup();
@@ -446,6 +526,14 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
 
         if (null !== $pageSetup->paperSize) {
             $xml .= " paperSize=\"{$pageSetup->paperSize->value}\"";
+        }
+
+        if (null !== $pageSetup->fitToHeight) {
+            $xml .= " fitToHeight=\"{$pageSetup->fitToHeight}\"";
+        }
+
+        if (null !== $pageSetup->fitToWidth) {
+            $xml .= " fitToWidth=\"{$pageSetup->fitToWidth}\"";
         }
 
         $xml .= '/>';
@@ -495,7 +583,7 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
     /**
      * Creates the folder that will be used as root.
      *
-     * @throws \OpenSpout\Common\Exception\IOException If unable to create the folder
+     * @throws IOException If unable to create the folder
      */
     private function createRootFolder(): self
     {
@@ -507,7 +595,7 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
     /**
      * Creates the "_rels" folder under the root folder as well as the ".rels" file in it.
      *
-     * @throws \OpenSpout\Common\Exception\IOException If unable to create the folder or the ".rels" file
+     * @throws IOException If unable to create the folder or the ".rels" file
      */
     private function createRelsFolderAndFile(): self
     {
@@ -521,17 +609,25 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
     /**
      * Creates the ".rels" file under the "_rels" folder (under root).
      *
-     * @throws \OpenSpout\Common\Exception\IOException If unable to create the file
+     * @throws IOException If unable to create the file
      */
     private function createRelsFile(): self
     {
-        $relsFileContents = <<<'EOD'
+        $relationshipsXmlContents = <<<'EOD'
+            <Relationship Id="rIdWorkbook" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
+            <Relationship Id="rIdCore" Type="http://schemas.openxmlformats.org/officedocument/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/>
+            <Relationship Id="rIdApp" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/>
+            EOD;
+
+        if ([] !== $this->properties->customProperties) {
+            $relationshipsXmlContents .= <<<'EOD'
+                <Relationship Id="rId4" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/custom-properties" Target="docProps/custom.xml"/>
+                EOD;
+        }
+
+        $relsFileContents = <<<EOD
             <?xml version="1.0" encoding="UTF-8"?>
-            <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-                <Relationship Id="rIdWorkbook" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
-                <Relationship Id="rIdCore" Type="http://schemas.openxmlformats.org/officedocument/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/>
-                <Relationship Id="rIdApp" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/>
-            </Relationships>
+            <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">{$relationshipsXmlContents}</Relationships>
             EOD;
 
         $this->createFileWithContents($this->relsFolder, self::RELS_FILE_NAME, $relsFileContents);
@@ -542,7 +638,7 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
     /**
      * Creates the "docProps" folder under the root folder as well as the "app.xml" and "core.xml" files in it.
      *
-     * @throws \OpenSpout\Common\Exception\IOException If unable to create the folder or one of the files
+     * @throws IOException If unable to create the folder or one of the files
      */
     private function createDocPropsFolderAndFiles(): self
     {
@@ -551,20 +647,24 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
         $this->createAppXmlFile();
         $this->createCoreXmlFile();
 
+        if ([] !== $this->properties->customProperties) {
+            $this->createCustomXmlFile();
+        }
+
         return $this;
     }
 
     /**
      * Creates the "app.xml" file under the "docProps" folder.
      *
-     * @throws \OpenSpout\Common\Exception\IOException If unable to create the file
+     * @throws IOException If unable to create the file
      */
     private function createAppXmlFile(): self
     {
         $appXmlFileContents = <<<EOD
             <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
             <Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties">
-                <Application>{$this->creator}</Application>
+                <Application>{$this->properties->application}</Application>
                 <TotalTime>0</TotalTime>
             </Properties>
             EOD;
@@ -577,7 +677,7 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
     /**
      * Creates the "core.xml" file under the "docProps" folder.
      *
-     * @throws \OpenSpout\Common\Exception\IOException If unable to create the file
+     * @throws IOException If unable to create the file
      */
     private function createCoreXmlFile(): self
     {
@@ -585,6 +685,14 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
         $coreXmlFileContents = <<<EOD
             <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
             <cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <dc:title>{$this->properties->title}</dc:title>
+                <dc:subject>{$this->properties->subject}</dc:subject>
+                <dc:creator>{$this->properties->creator}</dc:creator>
+                <cp:lastModifiedBy>{$this->properties->lastModifiedBy}</cp:lastModifiedBy>
+                <cp:keywords>{$this->properties->keywords}</cp:keywords>
+                <dc:description>{$this->properties->description}</dc:description>
+                <cp:category>{$this->properties->category}</cp:category>
+                <dc:language>{$this->properties->language}</dc:language>
                 <dcterms:created xsi:type="dcterms:W3CDTF">{$createdDate}</dcterms:created>
                 <dcterms:modified xsi:type="dcterms:W3CDTF">{$createdDate}</dcterms:modified>
                 <cp:revision>0</cp:revision>
@@ -597,9 +705,38 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
     }
 
     /**
+     * Creates the "custom.xml" file under the "docProps" folder.
+     *
+     * @throws IOException If unable to create the file
+     */
+    private function createCustomXmlFile(): self
+    {
+        /** The pid must increment for each property, starting with 2 */
+        $pid = 2;
+        $propertiesXmlContents = '';
+
+        foreach ($this->properties->customProperties as $name => $value) {
+            $propertiesXmlContents .= <<<EOD
+                <property fmtid="{D5CDD505-2E9C-101B-9397-08002B2CF9AE}" pid="{$pid}" name="{$name}"><vt:lpwstr>{$value}</vt:lpwstr></property>
+                EOD;
+
+            ++$pid;
+        }
+
+        $customXmlFileContents = <<<EOD
+            <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+            <Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/custom-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">{$propertiesXmlContents}</Properties>
+            EOD;
+
+        $this->createFileWithContents($this->docPropsFolder, self::CUSTOM_XML_FILE_NAME, $customXmlFileContents);
+
+        return $this;
+    }
+
+    /**
      * Creates the "xl" folder under the root folder as well as its subfolders.
      *
-     * @throws \OpenSpout\Common\Exception\IOException If unable to create at least one of the folders
+     * @throws IOException If unable to create at least one of the folders
      */
     private function createXlFolderAndSubFolders(): self
     {
@@ -615,7 +752,7 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
      * Creates the temp folder where specific sheets content will be written to.
      * This folder is not part of the final ODS file and is only used to be able to jump between sheets.
      *
-     * @throws \OpenSpout\Common\Exception\IOException If unable to create the folder
+     * @throws IOException If unable to create the folder
      */
     private function createSheetsContentTempFolder(): self
     {
@@ -627,7 +764,7 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
     /**
      * Creates the "_rels" folder under the "xl" folder.
      *
-     * @throws \OpenSpout\Common\Exception\IOException If unable to create the folder
+     * @throws IOException If unable to create the folder
      */
     private function createXlRelsFolder(): self
     {
@@ -639,7 +776,7 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
     /**
      * Creates the "drawings" folder under the "xl" folder.
      *
-     * @throws \OpenSpout\Common\Exception\IOException If unable to create the folder
+     * @throws IOException If unable to create the folder
      */
     private function createDrawingsFolder(): self
     {
@@ -651,7 +788,7 @@ final class FileSystemHelper implements FileSystemWithRootFolderHelperInterface
     /**
      * Creates the "worksheets" folder under the "xl" folder.
      *
-     * @throws \OpenSpout\Common\Exception\IOException If unable to create the folder
+     * @throws IOException If unable to create the folder
      */
     private function createXlWorksheetsFolder(): self
     {

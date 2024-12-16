@@ -12,7 +12,7 @@ class InvoiceAndPaymentCalculationTest extends DBTestCase
 {
     use DatabaseTransactions;
 
-    /** @group InvoiceAndPayment */
+    #[Group('InvoiceAndPayment')]
     public function test_change_invoiceTotal_whenInvoiceIsUpdated()
     {
         $this->withoutMiddleware();
@@ -29,11 +29,9 @@ class InvoiceAndPaymentCalculationTest extends DBTestCase
         $response->assertStatus(200);
     }
 
-    /** @group InvoiceAndPayment */
+    #[Group('InvoiceAndPayment')]
     public function test_change_get_clients_invoiceDetailsWhenInvoiceIsViewed()
     {
-        $this->expectException(\Exception::class);
-        $this->withoutMiddleware();
         $this->getLoggedInUser();
         $user = $this->user;
         $user_id = $user->id;
@@ -58,6 +56,5 @@ class InvoiceAndPaymentCalculationTest extends DBTestCase
             'user_id' => $user_id,
         ]);
         $this->assertStringContainsSubstring($response->content(), '<!DOCTYPE html>');
-        $response->setExpectedException(\Exception::class);
     }
 }

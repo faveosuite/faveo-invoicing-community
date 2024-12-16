@@ -36,7 +36,7 @@ class NonExecutableCodeSniff implements Sniff
     /**
      * Returns an array of tokens this test wants to listen for.
      *
-     * @return array
+     * @return array<int|string>
      */
     public function register()
     {
@@ -275,7 +275,7 @@ class NonExecutableCodeSniff implements Sniff
             }
 
             // Skip HTML whitespace.
-            if ($tokens[$i]['code'] === T_INLINE_HTML && \trim($tokens[$i]['content']) === '') {
+            if ($tokens[$i]['code'] === T_INLINE_HTML && trim($tokens[$i]['content']) === '') {
                 continue;
             }
 

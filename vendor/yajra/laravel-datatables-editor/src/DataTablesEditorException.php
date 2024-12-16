@@ -4,6 +4,4 @@ namespace Yajra\DataTables;
 
 use Exception;
 
-class DataTablesEditorException extends Exception
-{
-}
+class DataTablesEditorException extends Exception {}

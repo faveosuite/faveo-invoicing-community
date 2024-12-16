@@ -656,48 +656,199 @@ Doc reference [doc](https://razorpay.com/docs/payments/payment-methods/cards/aut
 ```
 
 -------------------------------------------------------------------------------------------------------
-### Token IIN API
+
+### Fetch a Payment (With Expanded Card Details)
 
 ```php
-$tokenIin = "412345";
-$api->iin->fetch($tokenIin);
+$paymentId = "pay_MLzFlOC98cJmHQ";
+
+$api->payment->fetch($paymentId)->expandedDetails(["expand[]"=> "card"]);
 ```
 
 **Parameters:**
 
-| Name       | Type   | Description                       |
-|------------|--------|-----------------------------------|
-| tokenIin* | string | The token IIN. |
+| Name        | Type    | Description                          |
+|-------------|---------|--------------------------------------|
+| paymentId*    | integer | Unique identifier of the payment                                               |
+| expand[]    | string | Use to expand the card details when the payment method is `card`.   |
 
-**Response:**
+**Response:** <br>
+
 ```json
 {
-  "iin": "412345",
-  "entity": "iin",
-  "network": "Visa",
-  "type": "credit",
-  "sub_type": "business",
-  "issuer_code": "HDFC",
-  "issuer_name": "HDFC Bank Ltd",
+  "id": "pay_H9oR0gLCaVlV6m",
+  "entity": "payment",
+  "amount": 100,
+  "currency": "INR",
+  "status": "failed",
+  "order_id": "order_H9o58N6qmLYQKC",
+  "invoice_id": null,
+  "terminal_id": "term_G5kJnYM9GhhLYT",
   "international": false,
-  "is_tokenized": true,
-  "card_iin": "411111",
-  "emi":{
-     "available": true
-     },
-  "recurring": {
-     "available": true
-     },
-  "authentication_types": [
-   {
-       "type":"3ds"
-   },
-   {
-       "type":"otp"
-   }
-  ]
+  "method": "card",
+  "amount_refunded": 0,
+  "refund_status": null,
+  "captured": false,
+  "description": null,
+  "card_id": "card_H9oR0ocen1cmZq",
+  "card": {
+    "id": "card_H9oR0ocen1cmZq",
+    "entity": "card",
+    "name": "Gaurav",
+    "last4": "1213",
+    "network": "RuPay",
+    "type": "credit",
+    "issuer": "UTIB",
+    "international": false,
+    "emi": false,
+    "sub_type": "business"
+  },
+  "bank": null,
+  "wallet": null,
+  "vpa": null,
+  "email": "gaurav.kumar@example.com",
+  "contact": "+919000090000",
+  "notes": {
+    "email": "gaurav.kumar@example.com",
+    "phone": "09000090000"
+  },
+  "fee": null,
+  "tax": null,
+  "error_code": "BAD_REQUEST_ERROR",
+  "error_description": "Card issuer is invalid",
+  "error_source": "customer",
+  "error_step": "payment_authentication",
+  "error_reason": "incorrect_card_details",
+  "acquirer_data": {
+    "auth_code": null,
+    "authentication_reference_number": "100222021120200000000742753928"
+  },
+  "created_at": 1620807547
 }
 ```
+
+-------------------------------------------------------------------------------------------------------
+
+### Fetch a Payment (With Expanded Offers Details)
+
+```php
+$paymentId = "pay_MLzFlOC98cJmHQ";
+
+$api->payment->fetch($paymentId)->expandedDetails(["expand[]"=> "emi"]);
+```
+
+**Parameters:**
+
+| Name        | Type    | Description                          |
+|-------------|---------|--------------------------------------|
+| paymentId*    | integer | Unique identifier of the payment                                               |
+| expand[]    | string | Use to expand the emi details when the payment method is emi.   |
+
+**Response:** <br>
+
+```json
+{
+  "id": "pay_DG4ZdRK8ZnXC3k",
+  "entity": "payment",
+  "amount": 200000,
+  "currency": "INR",
+  "status": "authorized",
+  "order_id": null,
+  "invoice_id": null,
+  "international": false,
+  "method": "emi",
+  "amount_refunded": 0,
+  "refund_status": null,
+  "captured": false,
+  "description": null,
+  "card_id": "card_DG4ZdUO3xABb20",
+  "bank": "ICIC",
+  "wallet": null,
+  "vpa": null,
+  "email": "gaurav@example.com",
+  "contact": "+919972000005",
+  "notes": [],
+  "fee": null,
+  "tax": null,
+  "error_code": null,
+  "error_description": null,
+  "error_source": null,
+  "error_step": null,
+  "error_reason": null,
+  "emi": {
+    "issuer": "ICIC",
+    "rate": 1300,
+    "duration": 6
+  },
+  "acquirer_data": {
+    "auth_code": "828553"
+  },
+  "created_at": 1568026077
+}
+```
+
+-------------------------------------------------------------------------------------------------------
+
+### Fetch a Payment (With Expanded UPI Details)
+
+```php
+$paymentId = "pay_MLzFlOC98cJmHQ";
+
+$api->payment->fetch($paymentId)->expandedDetails(["expand[]"=> "upi"]);
+```
+
+**Parameters:**
+
+| Name        | Type    | Description                          |
+|-------------|---------|--------------------------------------|
+| paymentId*    | integer | Unique identifier of the payment                                               |
+| expand[]    | string | Use to expand the UPI details when the payment method is upi. |
+
+**Response:** <br>
+
+```json
+{
+  "id": "pay_DG4ZdRK8ZnXC3k",
+  "entity": "payment",
+  "amount": 100,
+  "currency": "INR",
+  "status": "captured",
+  "order_id": "order_GjCr5oKh4AVC51",
+  "invoice_id": null,
+  "international": false,
+  "method": "upi",
+  "amount_refunded": 0,
+  "refund_status": null,
+  "captured": true,
+  "description": "Payment for Adidas shoes",
+  "card_id": null,
+  "bank": null,
+  "wallet": null,
+  "vpa": "gaurav.kumar@upi",
+  "email": "gaurav.kumar@example.com",
+  "contact": "9000090000",
+  "customer_id": "cust_K6fNE0WJZWGqtN",
+  "token_id": "token_KOdY$DBYQOv08n",
+  "notes": [],
+  "fee": 1,
+  "tax": 0,
+  "error_code": null,
+  "error_description": null,
+  "error_source": null,
+  "error_step": null,
+  "error_reason": null,
+  "acquirer_data": {
+    "rrn": "303107535132"
+  },
+  "created_at": 1605871409,
+  "upi": {
+    "payer_account_type": "credit_card",
+    "vpa": "gaurav.kumar@upi",
+    "flow": "in_app" // appears only for Turbo UPI Payments.
+  }
+}
+```
+
 -------------------------------------------------------------------------------------------------------
 **PN: * indicates mandatory fields**
 <br>

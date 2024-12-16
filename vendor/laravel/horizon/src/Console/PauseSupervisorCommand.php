@@ -6,7 +6,9 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Str;
 use Laravel\Horizon\Contracts\SupervisorRepository;
 use Laravel\Horizon\MasterSupervisor;
+use Symfony\Component\Console\Attribute\AsCommand;
 
+#[AsCommand(name: 'horizon:pause-supervisor')]
 class PauseSupervisorCommand extends Command
 {
     /**
@@ -38,15 +40,15 @@ class PauseSupervisorCommand extends Command
         }))->pid;
 
         if (is_null($processId)) {
-            $this->error('Failed to find a supervisor with this name');
+            $this->components->error('Failed to find a supervisor with this name');
 
             return 1;
         }
 
-        $this->info("Sending USR2 Signal To Process: {$processId}");
+        $this->components->info("Sending USR2 signal to process: {$processId}");
 
         if (! posix_kill($processId, SIGUSR2)) {
-            $this->error("Failed to send USR2 signal to process: {$processId} (".posix_strerror(posix_get_last_error()).')');
+            $this->components->error("Failed to send USR2 signal to process: {$processId} (".posix_strerror(posix_get_last_error()).')');
         }
     }
 }

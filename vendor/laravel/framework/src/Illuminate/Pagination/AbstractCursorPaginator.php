@@ -14,19 +14,24 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\ForwardsCalls;
 use Illuminate\Support\Traits\Tappable;
+use Stringable;
 use Traversable;
 
 /**
- * @mixin \Illuminate\Support\Collection
+ * @template TKey of array-key
+ *
+ * @template-covariant TValue
+ *
+ * @mixin \Illuminate\Support\Collection<TKey, TValue>
  */
-abstract class AbstractCursorPaginator implements Htmlable
+abstract class AbstractCursorPaginator implements Htmlable, Stringable
 {
     use ForwardsCalls, Tappable;
 
     /**
      * All of the items being paginated.
      *
-     * @var \Illuminate\Support\Collection
+     * @var \Illuminate\Support\Collection<TKey, TValue>
      */
     protected $items;
 
@@ -204,7 +209,8 @@ abstract class AbstractCursorPaginator implements Htmlable
      */
     public function getParametersForItem($item)
     {
-        return collect($this->parameters)
+        return (new Collection($this->parameters))
+            ->filter()
             ->flip()
             ->map(function ($_, $parameterName) use ($item) {
                 if ($item instanceof JsonResource) {
@@ -386,7 +392,7 @@ abstract class AbstractCursorPaginator implements Htmlable
     /**
      * Get the slice of items being paginated.
      *
-     * @return array
+     * @return array<TKey, TValue>
      */
     public function items()
     {
@@ -522,7 +528,7 @@ abstract class AbstractCursorPaginator implements Htmlable
     /**
      * Get an iterator for the items.
      *
-     * @return \ArrayIterator
+     * @return \ArrayIterator<TKey, TValue>
      */
     public function getIterator(): Traversable
     {

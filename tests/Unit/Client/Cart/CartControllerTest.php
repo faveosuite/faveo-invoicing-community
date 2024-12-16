@@ -19,7 +19,7 @@ class CartControllerTest extends DBTestCase
         $this->classObject = new CartController();
     }
 
-    /** @group cart */
+    #[Group('cart')]
     public function test_addProduct_addNewProductToCart_returnArrayOfProductDetails()
     {
         $this->getLoggedInUser();
@@ -32,7 +32,7 @@ class CartControllerTest extends DBTestCase
         $this->assertStringContainsSubstring($response['name'], 'Helpdesk Advance');
     }
 
-    /** @group cart */
+    #[Group('cart')]
     public function test_planCost_getCostForProductPlan_returnCost()
     {
         $this->getLoggedInUser();
@@ -45,7 +45,7 @@ class CartControllerTest extends DBTestCase
         $this->assertEquals($response, 1000);
     }
 
-    /** @group cart */
+    #[Group('cart')]
     public function test_planCost_whenPlanIdNotRelatedToProductPassed_throwsException()
     {
         $this->expectException(\Exception::class);
@@ -59,7 +59,7 @@ class CartControllerTest extends DBTestCase
         $response = $this->classObject->planCost($product->id, $this->user->id, 1);
     }
 
-    /** @group cart */
+    #[Group('cart')]
     public function test_planCost_whenPlanIdNotPassed_returnsProductCost()
     {
         $this->getLoggedInUser();
@@ -72,7 +72,7 @@ class CartControllerTest extends DBTestCase
         $this->assertEquals($response, 1000);
     }
 
-    /** @group cart */
+    #[Group('cart')]
     public function test_planCost_whenPlanIdForOtherProductPassed_throwsException()
     {
         $this->expectException(\Exception::class);
@@ -91,7 +91,7 @@ class CartControllerTest extends DBTestCase
         $response = $this->classObject->planCost($product1->id, $this->user->id, $plan2->id);
     }
 
-    /** @group cart */
+    #[Group('cart')]
     public function test_cartRemove_removeAnItemFromCart_returnEmptyCart()
     {
         $this->getLoggedInUser();
@@ -118,7 +118,7 @@ class CartControllerTest extends DBTestCase
         $this->assertCount(0, \Cart::getContent());
     }
 
-    /** @group cart */
+    #[Group('cart')]
     public function test_cartRemove_clearsCart_returnEmptyCart()
     {
         $this->getLoggedInUser();

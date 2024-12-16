@@ -39,8 +39,8 @@ Payment
 
                        <div class="col-md-4 form-group {{ $errors->has('invoice_status') ? 'has-error' : '' }}">
                            <!-- first name -->
-                           {!! Form::label('payment_date',Lang::get('message.date-of-payment'),['class'=>'required']) !!}
-                             <div class="input-group date" id="payment" data-target-input="nearest">
+                           {!! html()->label(Lang::get('message.date-of-payment'), 'payment_date')->class('required') !!}
+                           <div class="input-group date" id="payment" data-target-input="nearest">
                                 <input type="text" id="payment_date" name="payment_date" class="form-control datetimepicker-input" autocomplete="off"  data-target="#payment"/>
                                <div class="input-group-append" data-target="#payment" data-toggle="datetimepicker">
                                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
@@ -54,16 +54,24 @@ Payment
 
                        <div class="col-md-4 form-group {{ $errors->has('payment_method') ? 'has-error' : '' }}">
                            <!-- last name -->
-                           {!! Form::label('payment_method',Lang::get('message.payment-method'),['class'=>'required']) !!}
-                           {!! Form::select('payment_method',[''=>'Choose','cash'=>'Cash','check'=>'Check','online payment'=>'Online Payment','razorpay'=>'Razorpay', 'stripe' => 'Stripe','Credit Balance'=> 'Credit Balance'],null,['class' => 'form-control','id'=>'payment_method']) !!}
+                           {!! html()->label(Lang::get('message.payment-method'), 'payment_method')->class('required') !!}
+                           {!! html()->select('payment_method', [
+                               '' => 'Choose',
+                               'cash' => 'Cash',
+                               'check' => 'Check',
+                               'online payment' => 'Online Payment',
+                               'razorpay' => 'Razorpay',
+                               'stripe' => 'Stripe',
+                               'Credit Balance' => 'Credit Balance'
+                           ])->class('form-control')->id('payment_method') !!}
 
                        </div>
 
                       
                        <div class="col-md-4 form-group {{ $errors->has('amount') ? 'has-error' : '' }}">
                            <!-- first name -->
-                           {!! Form::label('amount',Lang::get('message.amount'),['class'=>'required']) !!}
-                           {!! Form::text('amount',null,['class' => 'form-control','id'=>'amount']) !!}
+                           {!! html()->label(Lang::get('message.amount'), 'amount')->class('required') !!}
+                           {!! html()->text('amount', null)->class('form-control')->id('amount') !!}
                            <input type="hidden" name="hidden" id="amount1">
                        </div>
 

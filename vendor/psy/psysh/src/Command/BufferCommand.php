@@ -11,7 +11,6 @@
 
 namespace Psy\Command;
 
-use Psy\Exception\RuntimeException;
 use Psy\Output\ShellOutput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -50,16 +49,13 @@ HELP
      *
      * @return int 0 if everything went fine, or an exit code
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $app = $this->getApplication();
-        if (!$app instanceof \Psy\Shell) {
-            throw new RuntimeException('Buffer command requires a \Psy\Shell application');
-        }
+        $shell = $this->getShell();
 
-        $buf = $app->getCodeBuffer();
+        $buf = $shell->getCodeBuffer();
         if ($input->getOption('clear')) {
-            $app->resetCodeBuffer();
+            $shell->resetCodeBuffer();
             $output->writeln($this->formatLines($buf, 'urgent'), ShellOutput::NUMBER_LINES);
         } else {
             $output->writeln($this->formatLines($buf), ShellOutput::NUMBER_LINES);

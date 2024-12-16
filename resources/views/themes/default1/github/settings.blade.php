@@ -102,16 +102,18 @@ input:checked + .slider:before {
                            <input type ="hidden" id="hidden_client_secret" value="{{$githubFileds->client_secret}}">
                     <div class="col-md-6 form-group {{ $errors->has('username') ? 'has-error' : '' }}">
                         <!-- first name -->
-                        {!! Form::label('username',Lang::get('message.username'),['class'=>'required']) !!}
-                        {!! Form::text('username',$githubFileds->username,['class' => 'form-control git_username','id'=>'git_username']) !!}
+                        {!! html()->label(Lang::get('message.username'))->class('required')->for('git_username') !!}
+                        {!! html()->text('username', $githubFileds->username)
+                            ->class('form-control git_username')
+                            ->id('git_username') !!}
                         <h6 id="user"></h6>
                     </div>
 
                     <div class="col-md-6 form-group {{ $errors->has('password') ? 'has-error' : '' }}">
                         <!-- last name -->
-                        {!! Form::label('password',Lang::get('message.password'),['class'=>'required']) !!}
-                         <!-- {!! Form::password('password',['class' => 'form-control', 'id'=>'password']) !!}
-                        {!! Form::password('password',null,['class' => 'form-control']) !!} -->
+                        {!! html()->label(Lang::get('message.password'))->class('required')->for('password') !!}
+                        <!-- {!! html()->password('password')->class('form-control')->id('password') !!}
+                        {!! html()->password('password')->class('form-control') !!} -->
                         <input type= "password" value="" name="password" id="git_password" class="form-control git_password">
                         <h6 id="pass"></h6>
                     </div>
@@ -125,16 +127,14 @@ input:checked + .slider:before {
                 <div class="row">
 
                     <div class="col-md-6 form-group {{ $errors->has('client_id') ? 'has-error' : '' }}">
-                        <!-- first name -->
-                        {!! Form::label('client_id',Lang::get('message.client_id'),['class'=>'required']) !!}
-                        {!! Form::text('client_id',$githubFileds->client_id,['class' => 'form-control git_client','id'=>'git_client']) !!}
+                        {!! html()->label(Lang::get('message.client_id'))->class('required')->for('client_id') !!}
+                        {!! html()->text('client_id', $githubFileds->client_id)->class('form-control git_client')->id('git_client') !!}
                         <h6 id="c_id"></h6>
                     </div>
 
                     <div class="col-md-6 form-group {{ $errors->has('client_secret') ? 'has-error' : '' }}">
-                        <!-- last name -->
-                        {!! Form::label('client_secret',Lang::get('message.client_secret'),['class'=>'required']) !!}
-                        {!! Form::text('client_secret',$githubFileds->client_secret,['class' => 'form-control git_secret','id'=>'git_secret']) !!}
+                        {!! html()->label(Lang::get('message.client_secret'))->class('required')->for('client_secret') !!}
+                        {!! html()->text('client_secret', $githubFileds->client_secret)->class('form-control git_secret')->id('git_secret') !!}
                         <h6 id="c_secret"></h6>
                     </div>
 

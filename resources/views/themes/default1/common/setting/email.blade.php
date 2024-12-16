@@ -28,12 +28,23 @@ Email
 
                     <tr>
                         <div class="form-group {{ $errors->has('driver') ? 'has-error' : '' }}">
-                        <td><b>{!! Form::label('driver',Lang::get('message.driver'),['class'=>'required']) !!}</b></td>
-                        <td>
+                            <td><b>{!! html()->label(__('message.driver'))->class('required')->for('driver') !!}</b></td>
+                            <td>
 
 
 
-                                {!! Form::select('driver',[''=>'Choose','smtp'=>'SMTP','mail'=>'Php mail','mailgun'=>'Mailgun','mandrill'=>'Mandrill','ses'=>'SES','sparkpost'=>'Sparkpost'],$set->driver,['class' => 'form-control', 'id'=>'driver']) !!}
+                                {!! html()->select('driver', [
+                                    '' => 'Choose',
+                                    'smtp' => 'SMTP',
+                                    'mail' => 'Php mail',
+                                    'mailgun' => 'Mailgun',
+                                    'mandrill' => 'Mandrill',
+                                    'ses' => 'SES',
+                                    'sparkpost' => 'Sparkpost'
+                                ], $set->driver)
+                                ->class('form-control')
+                                ->id('driver') !!}
+
                                 <p><i> {{Lang::get('message.select-email-driver')}}</i> </p>
 
 
@@ -43,12 +54,14 @@ Email
                     </tr>
                     <tr>
                         <div class="form-group showWhenSmtpSelected">
-                        <td><b>{!! Form::label('port',Lang::get('message.port'),['class'=>'required']) !!}</b></td>
-                        <td>
+                            <td><b>{!! html()->label(__('message.port'))->class('required')->for('port') !!}</b></td>
+                            <td>
 
 
 
-                                {!! Form::text('port',$set->port,['class' => 'form-control','id'=>'port']) !!}
+                                {!! html()->text('port', $set->port)
+    ->class('form-control')
+    ->id('port') !!}
                                 <p><i> {{Lang::get('message.enter-email-port')}}</i> </p>
 
 
@@ -57,12 +70,14 @@ Email
                     </tr>
                     <tr>
                         <div class="form-group showWhenSmtpSelected">
-                        <td><b>{!! Form::label('host',Lang::get('message.host'),['class'=>'required']) !!}</b></td>
-                        <td>
+                            <td><b>{!! html()->label(__('message.host'))->class('required')->for('host') !!}</b></td>
+                            <td>
 
 
 
-                                {!! Form::text('host',$set->host,['class' => 'form-control','id'=>'host']) !!}
+                                {!! html()->text('host', $set->host)
+    ->class('form-control')
+    ->id('host') !!}
                                 <p><i> {{Lang::get('message.enter-email-host')}}</i> </p>
 
 
@@ -72,11 +87,19 @@ Email
                     </tr>
                     <tr>
                         <div class="form-group showWhenSmtpSelected" >
-                        <td><b>{!! Form::label('encryption',Lang::get('message.encryption'),['class'=>'required']) !!}</b></td>
-                        <td>
+                            <td><b>{!! html()->label(__('message.encryption'))->class('required')->for('encryption') !!}</b></td>
+                            <td>
 
 
-                                {!! Form::select('encryption',[''=>'Choose','ssl'=>'SSL','tls'=>'TLS','starttls'=>'STARTTLS'],$set->encryption,['class' => 'form-control','id'=>'encryption']) !!}
+                                {!! html()->select('encryption', [
+    '' => 'Choose',
+    'ssl' => 'SSL',
+    'tls' => 'TLS',
+    'starttls' => 'STARTTLS'
+], $set->encryption)
+->class('form-control')
+->id('encryption') !!}
+
                                 <p><i> {{Lang::get('message.select-email-encryption-method')}}</i> </p>
 
 
@@ -87,43 +110,47 @@ Email
 
 
 
-                    <tr>
-                        <div class="form-group secret" >
-                        <td><b>{!! Form::label('secret','Secret',['class'=>'required']) !!}</b></td>
-                        <td>
+                      <tr>
+                          <td><b>{!! html()->label('Secret')->class('required')->for('secret') !!}</b></td>
+                          <td>
+                              <div class="form-group secret">
+                                  {!! html()->text('secret', $set->secret)
+                                      ->class('form-control')
+                                      ->id('secret') !!}
+                              </div>
+                          </td>
+                      </tr>
 
 
-                                {!! Form::text('secret',$set->secret,['class' => 'form-control','id'=>'secret']) !!}
-                        </div>
-
-                    </tr>
-
-
-                    <tr>
-                        <div class="form-group showWhenMailGunSelected">
-                        <td><b>{!! Form::label('domain','Domain',['class'=>'required']) !!}</b></td>
-                        <td>
-                             {!! Form::text('domain',$set->domain,['class' => 'form-control','id'=>'domain']) !!}
-                         </td>
-                        </div>
-                    </tr>
+                      <tr class="showWhenMailGunSelected">
+                          <td><b>{!! html()->label('Domain')->class('required')->for('domain') !!}</b></td>
+                          <td>
+                              {!! html()->text('domain', $set->domain)
+                                  ->class('form-control')
+                                  ->id('domain') !!}
+                          </td>
+                      </tr>
 
 
 
-                    <tr>
+                      <tr>
                         <div class="form-group showWhenSesSelected">
-                        <td><b>{!! Form::label('key','API Key',['class'=>'required']) !!}</b></td>
+                            <td><b>{!! html()->label('API Key')->class('required')->for('api_key') !!}</b></td>
                         <td>
-                             {!! Form::text('key',$set->key,['class' => 'form-control','id'=>'api_key']) !!}
+                            {!! html()->text('key', $set->key)
+           ->class('form-control')
+           ->id('api_key') !!}
                          </td>
                         </div>
                     </tr>
 
                       <tr>
                         <div class="form-group showWhenSesSelected">
-                        <td><b>{!! Form::label('region','Region',['class'=>'required']) !!}</b></td>
+                            <td><b>{!! html()->label('Region')->class('required')->for('region') !!}</b></td>
                         <td>
-                             {!! Form::text('region',$set->region,['class' => 'form-control','id'=>'region']) !!}
+                            {!! html()->text('region', $set->region)
+           ->class('form-control')
+           ->id('region') !!} !!}
                          </td>
                         </div>
                     </tr>
@@ -135,11 +162,13 @@ Email
 
                     <tr>
                         <div class="form-group {{ $errors->has('email') ? 'has-error' : '' }}">
-                        <td><b>{!! Form::label('email',Lang::get('message.email'),['class'=>'required']) !!}</b></td>
-                        <td>
+                            <td><b>{!! html()->label(__('message.email'))->class('required')->for('email') !!}</b></td>
+                            <td>
 
 
-                                {!! Form::text('email',$set->email,['class' => 'form-control','id'=>'email']) !!}
+                                {!! html()->text('email', $set->email)
+     ->class('form-control')
+     ->id('email') !!}
                                 <p><i> {{Lang::get('message.enter-email')}} ({{Lang::get('message.enter-email-message')}})</i> </p>
 
 
@@ -149,11 +178,13 @@ Email
                     
                       <tr>
                         <div class="form-group {{ $errors->has('from_name') ? 'has-error' : '' }}">
-                        <td><b>{!! Form::label('from_name',Lang::get('From Name'),['class'=>'required']) !!}</b></td>
-                        <td>
+                            <td><b>{!! html()->label(__('From Name'))->class('required')->for('from_name') !!}</b></td>
+                            <td>
 
 
-                                {!! Form::text('from_name',$set->from_name,['class' => 'form-control','id'=>'from_name']) !!}
+                                {!! html()->text('from_name', $set->from_name)
+    ->class('form-control')
+    ->id('from_name') !!}
                                 <p><i> {{Lang::get('Enter From Name')}} </i> </p>
 
 
@@ -163,11 +194,13 @@ Email
 
                     <tr>
                         <div class="form-group {{ $errors->has('password') ? 'has-error' : '' }} showWhenSmtpSelected">
-                            <td><b>{!! Form::label('password',Lang::get('message.password'),['class'=>'required']) !!}</b></td>
-                        <td>
+                            <td><b>{!! html()->label(__('message.password'))->class('required')->for('password') !!}</b></td>
+                            <td>
 
 
-                                {!! Form::password('password',['class' => 'form-control', 'id'=>'password']) !!}
+                                {!! html()->password('password')
+    ->class('form-control')
+    ->id('password') !!}
                                 <p><i> {{Lang::get('message.enter-email-password')}}</i> </p>
 
                             

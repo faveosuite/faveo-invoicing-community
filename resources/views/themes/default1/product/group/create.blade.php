@@ -27,8 +27,8 @@ Create Group
           
 
             <div class="card-body">
-                {!! Form::open(['url'=>'groups']) !!}
-        
+                {!! html()->form('POST', url('groups'))->open() !!}
+
 
 
                 <table class="table table-condensed">
@@ -37,13 +37,13 @@ Create Group
 
                     <tr>
 
-                        <td><b>{!! Form::label('company',Lang::get('message.name'),['class'=>'required']) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.name'), 'company')->class('required') !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
 
                                 <div class='row'>
                                     <div class="col-md-10">
-                                        {!! Form::text('name',null,['class' => 'form-control','id'=>'name']) !!}
+                                        {!! html()->text('name')->class('form-control')->id('name') !!}
                                     </div>
 
                                 </div>
@@ -55,13 +55,13 @@ Create Group
                     </tr>
                     <tr>
 
-                        <td><b>{!! Form::label('headline',Lang::get('message.headline')) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.headline'), 'headline') !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('headline') ? 'has-error' : '' }}">
 
                                 <div class='row'>
                                     <div class="col-md-10">
-                                        {!! Form::text('headline',null,['class' => 'form-control']) !!}
+                                        {!! html()->text('headline')->class('form-control') !!}
                                     </div>
 
                                 </div>
@@ -72,13 +72,13 @@ Create Group
                     </tr>
                     <tr>
 
-                        <td><b>{!! Form::label('tagline',Lang::get('message.tagline')) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.tagline'), 'tagline') !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('tagline') ? 'has-error' : '' }}">
 
                                 <div class='row'>
                                     <div class="col-md-10">
-                                        {!! Form::text('tagline',null,['class' => 'form-control']) !!}
+                                        {!! html()->text('tagline')->class('form-control') !!}
                                     </div>
 
                                 </div>
@@ -92,13 +92,13 @@ Create Group
 
                     <tr>
 
-                        <td><b>{!! Form::label('hidden',Lang::get('message.hidden')) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.hidden'), 'hidden') !!}</b></td>
                         <td>
-                             <p>{!! Form::hidden('hidden',0) !!}</p>
+                             <p>{!! html()->hidden('hidden', 0) !!}</p>
                             <div class="form-group {{ $errors->has('hidden') ? 'has-error' : '' }}">
 
                                
-                                <p>{!! Form::checkbox('hidden',1) !!}  {{Lang::get('message.check-this-box-if-this-is-a-hidden-group')}}</p>
+                                <p>{!! html()->checkbox('hidden', 1) !!} {{Lang::get('message.check-this-box-if-this-is-a-hidden-group')}}</p>
 
 
                             </div>
@@ -110,7 +110,7 @@ Create Group
 
                      <tr>
                           
-                        <td><b>{!! Form::label('design',Lang::get('message.select_design'),['class'=>'required']) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.select_design'), 'design')->class('required') !!}</b></td>
                         <td>
 
                            <div class="form-group">
@@ -132,13 +132,13 @@ Create Group
 
                    <!--        <tr>
 
-                        <td><b>{!! Form::label('status',Lang::get('message.toggle_status')) !!}</b></td>
-                        <td>
-                             <p>{!! Form::hidden('status',0) !!}</p>
-                            <div class="form-group {{ $errors->has('status') ? 'has-error' : '' }}">
+                        <td><b>{!! html()->label(Lang::get('message.toggle_status'), 'status') !!}</b></td>
+                                            <td>
+                                                 <p>{!! html()->hidden('status', 0) !!}</p>
+                                                <div class="form-group {{ $errors->has('status') ? 'has-error' : '' }}">
 
                                
-                                <p>{!! Form::checkbox('status',1) !!}  {{Lang::get('message.check-this-box_to_toggle_status')}}</p>
+                                <p>{!! html()->checkbox('status', false, 1) !!}{{Lang::get('message.check-this-box_to_toggle_status')}}</p>
 
 
                             </div>
@@ -166,15 +166,15 @@ Create Group
 
                     <tr>
 
-                        <td><b>{!! Form::label('hidden',Lang::get('message.title'),['class'=>'required']) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.title'), 'hidden')->class('required') !!}</b></td>
 
-                        <td>
-                            <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
+                                            <td>
+                                                <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
 
                                 <div class='row'>
                                     <div class="col-md-6">
-                                        {!! Form::text('title',null,['class' => 'form-control']) !!}
-                                    </div>
+                                        {!! html()->text('title')->class('form-control') !!}
+                    </div>
 
                                 </div>
 
@@ -185,15 +185,15 @@ Create Group
 
                     <tr>
 
-                        <td><b>{!! Form::label('hidden',Lang::get('message.type'),['class'=>'required']) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.type'), 'hidden')->class('required') !!}</b></td>
 
-                        <td>
-                            <div class="form-group {{ $errors->has('type') ? 'has-error' : '' }}">
+                                            <td>
+                                                <div class="form-group {{ $errors->has('type') ? 'has-error' : '' }}">
 
                                 <div class='row'>
                                     <div class="col-md-6">
-                                        {!! Form::select('type',[''=>'select a type','1'=>'dropdown','2'=>'radio'],null,['class' => 'form-control','id'=>'type']) !!}
-                                    </div>
+                                        {!! html()->select('type', ['' => 'select a type', '1' => 'dropdown', '2' => 'radio'])->class('form-control')->id('type') !!}
+                    </div>
 
                                 </div>
 
@@ -204,22 +204,22 @@ Create Group
 
                     <tr>
 
-                        <td><b>{!! Form::label('hidden',Lang::get('message.options')) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.options'), 'hidden') !!}</b></td>
 
-                        <td>
-                            <div class="input_fields_wrap2">
-                            
-                                    
-                                    
-                                        <div class='row form-group'>
-                                            
-                                            <div class="col-md-4 {{ $errors->has('value.0.name') ? 'has-error' : '' }}">
-                                                <b>{!! Form::label('hidden',Lang::get('message.value'),['class'=>'required']) !!}</b>
-                                                <input type="text" name="value[][name]" class="form-control" value="{{ old('value.0.name') }}">
+                                            <td>
+                                                <div class="input_fields_wrap2">
+
+
+
+                                                            <div class='row form-group'>
+
+                                                                <div class="col-md-4 {{ $errors->has('value.0.name') ? 'has-error' : '' }}">
+                                                <b>{!! html()->label(Lang::get('message.value'), 'hidden')->class('required') !!}</b>
+                                                                                        <input type="text" name="value[][name]" class="form-control" value="{{ old('value.0.name') }}">
                                             </div>
                                             <div class="col-md-4 {{ $errors->has('price.0.name') ? 'has-error' : '' }}">
-                                                <b>{!! Form::label('hidden',Lang::get('message.price'),['class'=>'required']) !!}</b>
-                                                <input type="text" name="price[][name]" class="form-control" value="{{ old('price.0.name') }}">
+                                                <b>{!! html()->label(Lang::get('message.price'), 'hidden')->class('required') !!}</b>
+                                                                    <input type="text" name="price[][name]" class="form-control" value="{{ old('price.0.name') }}">
                                             </div>
                                             <div class="col-md-4">
                                                 <br>
@@ -235,7 +235,7 @@ Create Group
 
                     </tr> -->
 
-                    {!! Form::close() !!}
+                    {!! html()->form()->close() !!}
                 </table>
                 <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button>
 
