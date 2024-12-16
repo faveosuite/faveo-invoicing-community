@@ -37,7 +37,7 @@ class LineEndingsSniff implements Sniff
     /**
      * Returns an array of tokens this test wants to listen for.
      *
-     * @return array
+     * @return array<int|string>
      */
     public function register()
     {
@@ -68,7 +68,7 @@ class LineEndingsSniff implements Sniff
 
         if ($found === $this->eolChar) {
             // Ignore the rest of the file.
-            return ($phpcsFile->numTokens + 1);
+            return $phpcsFile->numTokens;
         }
 
         // Check for single line files without an EOL. This is a very special
@@ -79,7 +79,7 @@ class LineEndingsSniff implements Sniff
             if ($tokens[$lastToken]['line'] === 1
                 && $tokens[$lastToken]['content'] !== "\n"
             ) {
-                return ($phpcsFile->numTokens + 1);
+                return $phpcsFile->numTokens;
             }
         }
 
@@ -140,7 +140,7 @@ class LineEndingsSniff implements Sniff
         }//end if
 
         // Ignore the rest of the file.
-        return ($phpcsFile->numTokens + 1);
+        return $phpcsFile->numTokens;
 
     }//end process()
 

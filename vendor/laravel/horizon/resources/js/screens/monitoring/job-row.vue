@@ -1,13 +1,12 @@
 <template>
     <tr>
         <td>
-            <router-link :title="job.name" :to="{ name: $parent.type != 'failed' ? 'completed-jobs-preview' : 'failed-jobs-preview', params: { jobId: job.id }}">
+            <router-link :title="job.name" :to="{ name: 'job-preview', params: { jobId: job.id, type: $parent.type }}">
                 {{ jobBaseName(job.name) }}
             </router-link>
 
-            <small class="ml-1 badge badge-secondary badge-sm"
-                    v-tooltip:top="`Delayed for ${delayed}`"
-                    v-if="delayed && (job.status == 'reserved' || job.status == 'pending')">
+            <small class="badge bg-secondary badge-sm" :title="`Delayed for ${delayed}`"
+                   v-if="delayed && (job.status == 'reserved' || job.status == 'pending')">
                 Delayed
             </small>
 

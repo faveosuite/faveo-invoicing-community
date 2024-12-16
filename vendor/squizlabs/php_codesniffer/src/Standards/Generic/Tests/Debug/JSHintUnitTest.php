@@ -12,7 +12,12 @@ namespace PHP_CodeSniffer\Standards\Generic\Tests\Debug;
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
 use PHP_CodeSniffer\Config;
 
-class JSHintUnitTest extends AbstractSniffUnitTest
+/**
+ * Unit test class for the JSHint sniff.
+ *
+ * @covers \PHP_CodeSniffer\Standards\Generic\Sniffs\Debug\JSHintSniff
+ */
+final class JSHintUnitTest extends AbstractSniffUnitTest
 {
 
 
@@ -23,7 +28,6 @@ class JSHintUnitTest extends AbstractSniffUnitTest
      */
     protected function shouldSkipTest()
     {
-        $rhinoPath  = Config::getExecutablePath('rhino');
         $jshintPath = Config::getExecutablePath('jshint');
         if ($jshintPath === null) {
             return true;

@@ -6,7 +6,8 @@ use Illuminate\Contracts\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Contracts\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Traits\Macroable;
 use Yajra\DataTables\Exceptions\Exception;
-use Yajra\DataTables\Html\Builder;
+use Yajra\DataTables\Utilities\Config;
+use Yajra\DataTables\Utilities\Request;
 
 class DataTables
 {
@@ -14,17 +15,8 @@ class DataTables
 
     /**
      * DataTables request object.
-     *
-     * @var \Yajra\DataTables\Utilities\Request
      */
     protected Utilities\Request $request;
-
-    /**
-     * HTML builder instance.
-     *
-     * @var \Yajra\DataTables\Html\Builder|null
-     */
-    protected ?Builder $html = null;
 
     /**
      * Make a DataTable instance from source.
@@ -81,38 +73,33 @@ class DataTables
             }
         }
 
-        throw new Exception('No available engine for '.get_class($source));
+        throw new Exception('No available engine for '.$source::class);
     }
 
     /**
      * Get request object.
-     *
-     * @return \Yajra\DataTables\Utilities\Request
      */
-    public function getRequest()
+    public function getRequest(): Request
     {
         return app('datatables.request');
     }
 
     /**
      * Get config instance.
-     *
-     * @return \Yajra\DataTables\Utilities\Config
      */
-    public function getConfig()
+    public function getConfig(): Config
     {
         return app('datatables.config');
     }
 
     /**
-     * DataTables using Query.
+     * DataTables using query builder.
      *
-     * @param  QueryBuilder  $builder
-     * @return \Yajra\DataTables\QueryDataTable
+     * @throws \Yajra\DataTables\Exceptions\Exception
      */
     public function query(QueryBuilder $builder): QueryDataTable
     {
-        /** @var string */
+        /** @var string $dataTable */
         $dataTable = config('datatables.engines.query');
 
         $this->validateDataTable($dataTable, QueryDataTable::class);
@@ -123,12 +110,11 @@ class DataTables
     /**
      * DataTables using Eloquent Builder.
      *
-     * @param  \Illuminate\Contracts\Database\Eloquent\Builder  $builder
-     * @return \Yajra\DataTables\EloquentDataTable
+     * @throws \Yajra\DataTables\Exceptions\Exception
      */
     public function eloquent(EloquentBuilder $builder): EloquentDataTable
     {
-        /** @var string */
+        /** @var string $dataTable */
         $dataTable = config('datatables.engines.eloquent');
 
         $this->validateDataTable($dataTable, EloquentDataTable::class);
@@ -140,11 +126,12 @@ class DataTables
      * DataTables using Collection.
      *
      * @param  \Illuminate\Support\Collection<array-key, array>|array  $collection
-     * @return \Yajra\DataTables\CollectionDataTable
+     *
+     * @throws \Yajra\DataTables\Exceptions\Exception
      */
     public function collection($collection): CollectionDataTable
     {
-        /** @var string */
+        /** @var string $dataTable */
         $dataTable = config('datatables.engines.collection');
 
         $this->validateDataTable($dataTable, CollectionDataTable::class);
@@ -164,44 +151,12 @@ class DataTables
     }
 
     /**
-     * Get html builder instance.
-     *
-     * @return \Yajra\DataTables\Html\Builder
-     *
-     * @throws \Yajra\DataTables\Exceptions\Exception
-     */
-    public function getHtmlBuilder()
-    {
-        if (! class_exists(Builder::class)) {
-            throw new Exception('Please install yajra/laravel-datatables-html to be able to use this function.');
-        }
-
-        return $this->html ?: $this->html = app('datatables.html');
-    }
-
-    /**
-     * @param  string  $engine
-     * @param  string  $parent
-     * @return void
-     *
      * @throws \Yajra\DataTables\Exceptions\Exception
      */
     public function validateDataTable(string $engine, string $parent): void
     {
         if (! ($engine == $parent || is_subclass_of($engine, $parent))) {
-            $this->throwInvalidEngineException($engine, $parent);
+            throw new Exception("The given datatable engine `$engine` is not compatible with `$parent`.");
         }
-    }
-
-    /**
-     * @param  string  $engine
-     * @param  string  $parent
-     * @return void
-     *
-     * @throws \Yajra\DataTables\Exceptions\Exception
-     */
-    public function throwInvalidEngineException(string $engine, string $parent): void
-    {
-        throw new Exception("The given datatable engine `{$engine}` is not compatible with `{$parent}`.");
     }
 }

@@ -18,7 +18,31 @@ use Illuminate\Support\Facades\Storage;
  * @package laravel-dompdf
  * @author Barry vd. Heuvel
  *
- * @mixin \Dompdf\Dompdf
+ * @method PDF setBaseHost(string $baseHost)
+ * @method PDF setBasePath(string $basePath)
+ * @method PDF setCanvas(\Dompdf\Canvas $canvas)
+ * @method PDF setCallbacks(array $callbacks)
+ * @method PDF setCss(\Dompdf\Css\Stylesheet $css)
+ * @method PDF setDefaultView(string $defaultView, array $options)
+ * @method PDF setDom(\DOMDocument $dom)
+ * @method PDF setFontMetrics(\Dompdf\FontMetrics $fontMetrics)
+ * @method PDF setHttpContext(resource|array $httpContext)
+ * @method PDF setPaper(string|float[] $paper, string $orientation = 'portrait')
+ * @method PDF setProtocol(string $protocol)
+ * @method PDF setTree(\Dompdf\Frame\FrameTree $tree)
+ * @method string getBaseHost()
+ * @method string getBasePath()
+ * @method \Dompdf\Canvas getCanvas()
+ * @method array getCallbacks()
+ * @method \Dompdf\Css\Stylesheet getCss()
+ * @method \DOMDocument getDom()
+ * @method \Dompdf\FontMetrics getFontMetrics()
+ * @method resource getHttpContext()
+ * @method Options getOptions()
+ * @method \Dompdf\Frame\FrameTree getTree()
+ * @method string getPaperOrientation()
+ * @method float[] getPaperSize()
+ * @method string getProtocol()
  */
 class PDF
 {
@@ -43,12 +67,6 @@ class PDF
     /** @var string */
     protected $public_path;
 
-    /**
-     * @param Dompdf $dompdf
-     * @param \Illuminate\Contracts\Config\Repository $config
-     * @param \Illuminate\Filesystem\Filesystem $files
-     * @param \Illuminate\Contracts\View\Factory $view
-     */
     public function __construct(Dompdf $dompdf, ConfigRepository $config, Filesystem $files, ViewFactory $view)
     {
         $this->dompdf = $dompdf;
@@ -61,8 +79,6 @@ class PDF
 
     /**
      * Get the DomPDF instance
-     *
-     * @return Dompdf
      */
     public function getDomPDF(): Dompdf
     {
@@ -104,7 +120,6 @@ class PDF
     /**
      * Add metadata info
      * @param array<string, string> $info
-     * @return static
      */
     public function addInfo(array $info): self
     {
@@ -131,7 +146,6 @@ class PDF
      *
      * @param array<string, mixed>|string $attribute
      * @param null|mixed $value
-     * @return $this
      */
     public function setOption($attribute, $value = null): self
     {
@@ -142,13 +156,15 @@ class PDF
     /**
      * Replace all the Options from DomPDF
      *
-     * @deprecated Use setOption to override individual options.
      * @param array<string, mixed> $options
      */
-    public function setOptions(array $options): self
+    public function setOptions(array $options, bool $mergeWithDefaults = false): self
     {
-        $options = new Options($options);
-        $this->dompdf->setOptions($options);
+        if ($mergeWithDefaults) {
+            $options = array_merge(app()->make('dompdf.options'), $options);
+        }
+
+        $this->dompdf->setOptions(new Options($options));
         return $this;
     }
 

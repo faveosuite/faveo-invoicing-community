@@ -11,7 +11,12 @@ namespace PHP_CodeSniffer\Standards\Generic\Tests\Strings;
 
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
 
-class UnnecessaryStringConcatUnitTest extends AbstractSniffUnitTest
+/**
+ * Unit test class for the UnnecessaryStringConcat sniff.
+ *
+ * @covers \PHP_CodeSniffer\Standards\Generic\Sniffs\Strings\UnnecessaryStringConcatSniff
+ */
+final class UnnecessaryStringConcatUnitTest extends AbstractSniffUnitTest
 {
 
 
@@ -25,10 +30,10 @@ class UnnecessaryStringConcatUnitTest extends AbstractSniffUnitTest
      *
      * @return array<int, int>
      */
-    public function getErrorList($testFile='UnnecessaryStringConcatUnitTest.inc')
+    public function getErrorList($testFile='')
     {
         switch ($testFile) {
-        case 'UnnecessaryStringConcatUnitTest.inc':
+        case 'UnnecessaryStringConcatUnitTest.1.inc':
             return [
                 2  => 1,
                 6  => 1,
@@ -60,11 +65,21 @@ class UnnecessaryStringConcatUnitTest extends AbstractSniffUnitTest
      * The key of the array should represent the line number and the value
      * should represent the number of warnings that should occur on that line.
      *
+     * @param string $testFile The name of the file being tested.
+     *
      * @return array<int, int>
      */
-    public function getWarningList()
+    public function getWarningList($testFile='')
     {
-        return [];
+        switch ($testFile) {
+        case 'UnnecessaryStringConcatUnitTest.1.inc':
+            return [
+                33 => 1,
+            ];
+
+        default:
+            return [];
+        }
 
     }//end getWarningList()
 

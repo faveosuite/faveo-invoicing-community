@@ -19,8 +19,6 @@ class EloquentDataTable extends QueryDataTable
 {
     /**
      * EloquentEngine constructor.
-     *
-     * @param  Model|EloquentBuilder  $model
      */
     public function __construct(Model|EloquentBuilder $model)
     {
@@ -39,7 +37,6 @@ class EloquentDataTable extends QueryDataTable
      * Can the DataTable engine be created with these parameters.
      *
      * @param  mixed  $source
-     * @return bool
      */
     public static function canCreate($source): bool
     {
@@ -49,7 +46,6 @@ class EloquentDataTable extends QueryDataTable
     /**
      * Add columns in collection.
      *
-     * @param  array  $names
      * @param  bool|int  $order
      * @return $this
      */
@@ -60,9 +56,7 @@ class EloquentDataTable extends QueryDataTable
                 $name = $attribute;
             }
 
-            $this->addColumn($name, function ($model) use ($attribute) {
-                return $model->getAttribute($attribute);
-            }, is_int($order) ? $order++ : $order);
+            $this->addColumn($name, fn ($model) => $model->getAttribute($attribute), is_int($order) ? $order++ : $order);
         }
 
         return $this;
@@ -70,8 +64,6 @@ class EloquentDataTable extends QueryDataTable
 
     /**
      * If column name could not be resolved then use primary key.
-     *
-     * @return string
      */
     protected function getPrimaryKeyName(): string
     {
@@ -79,7 +71,7 @@ class EloquentDataTable extends QueryDataTable
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function compileQuerySearch($query, string $column, string $keyword, string $boolean = 'or', bool $nested = false): void
     {
@@ -165,8 +157,6 @@ class EloquentDataTable extends QueryDataTable
     /**
      * Resolve the proper column name be used.
      *
-     * @param  string  $column
-     * @return string
      *
      * @throws \Yajra\DataTables\Exceptions\Exception
      */
@@ -245,7 +235,7 @@ class EloquentDataTable extends QueryDataTable
                     break;
 
                 default:
-                    throw new Exception('Relation '.get_class($model).' is not yet supported.');
+                    throw new Exception('Relation '.$model::class.' is not yet supported.');
             }
             $this->performJoin($table, $foreign, $other);
             $lastQuery = $model->getQuery();
@@ -261,12 +251,12 @@ class EloquentDataTable extends QueryDataTable
      * @param  string  $foreign
      * @param  string  $other
      * @param  string  $type
-     * @return void
      */
     protected function performJoin($table, $foreign, $other, $type = 'left'): void
     {
         $joins = [];
-        foreach ((array) $this->getBaseQueryBuilder()->joins as $key => $join) {
+        $builder = $this->getBaseQueryBuilder();
+        foreach ($builder->joins ?? [] as $join) {
             $joins[] = $join->table;
         }
 

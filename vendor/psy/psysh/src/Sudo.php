@@ -97,7 +97,7 @@ class Sudo
         $prop = self::getProperty(new \ReflectionClass($class), $property);
         $refl = $prop->getDeclaringClass();
 
-        if (\version_compare(\PHP_VERSION, '7.4', '>=') && \method_exists($refl, 'setStaticPropertyValue')) {
+        if (\method_exists($refl, 'setStaticPropertyValue')) {
             $refl->setStaticPropertyValue($property, $value);
         } else {
             $prop->setValue($value);
@@ -135,6 +135,11 @@ class Sudo
     public static function fetchClassConst($class, string $const)
     {
         $refl = new \ReflectionClass($class);
+
+        // Special case the ::class magic constant, because `getConstant` does the wrong thing here.
+        if ($const === 'class') {
+            return $refl->getName();
+        }
 
         do {
             if ($refl->hasConstant($const)) {

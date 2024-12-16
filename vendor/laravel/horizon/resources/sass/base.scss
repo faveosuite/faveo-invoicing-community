@@ -1,5 +1,5 @@
 @import 'syntaxhighlight';
-@import 'node_modules/bootstrap/scss/bootstrap';
+@import 'bootstrap';
 
 body {
     padding-bottom: 20px;
@@ -94,7 +94,7 @@ svg.icon {
             .icon-wrapper {
                 display: flex;
                 align-items: center;
-                jusify-content: center;
+                justify-content: center;
                 position: absolute;
                 top: 0;
                 left: 0.75rem;
@@ -353,4 +353,8 @@ button:hover {
 
 .badge-sm {
     font-size: 0.75rem;
+}
+
+.table > :not(:first-child) {
+    border-top: none;
 }

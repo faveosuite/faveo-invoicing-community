@@ -35,7 +35,6 @@ class TransformerMakeCommand extends GeneratorCommand
      *
      * @param  string  $stub  Contents of the stub
      * @param  string  $name  The class name
-     * @return string
      */
     protected function replaceClass($stub, $name): string
     {
@@ -53,8 +52,6 @@ class TransformerMakeCommand extends GeneratorCommand
 
     /**
      * Get the stub file for the generator.
-     *
-     * @return string
      */
     protected function getStub(): string
     {
@@ -67,7 +64,6 @@ class TransformerMakeCommand extends GeneratorCommand
      * Get the default namespace for the class.
      *
      * @param  string  $rootNamespace  The root namespace
-     * @return string
      */
     protected function getDefaultNamespace($rootNamespace): string
     {
@@ -78,7 +74,6 @@ class TransformerMakeCommand extends GeneratorCommand
      * Get the destination class path.
      *
      * @param  string  $name  Name of the class with namespace
-     * @return string
      */
     protected function getPath($name): string
     {

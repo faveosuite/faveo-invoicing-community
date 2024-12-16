@@ -8,6 +8,7 @@ use Illuminate\Database\Connection;
 use Illuminate\Queue\Jobs\DatabaseJob;
 use Illuminate\Queue\Jobs\DatabaseJobRecord;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use PDO;
 
@@ -51,12 +52,13 @@ class DatabaseQueue extends Queue implements QueueContract, ClearableQueue
      * @param  bool  $dispatchAfterCommit
      * @return void
      */
-    public function __construct(Connection $database,
-                                $table,
-                                $default = 'default',
-                                $retryAfter = 60,
-                                $dispatchAfterCommit = false)
-    {
+    public function __construct(
+        Connection $database,
+        $table,
+        $default = 'default',
+        $retryAfter = 60,
+        $dispatchAfterCommit = false,
+    ) {
         $this->table = $table;
         $this->default = $default;
         $this->database = $database;
@@ -147,7 +149,7 @@ class DatabaseQueue extends Queue implements QueueContract, ClearableQueue
 
         $now = $this->availableAt();
 
-        return $this->database->table($this->table)->insert(collect((array) $jobs)->map(
+        return $this->database->table($this->table)->insert((new Collection((array) $jobs))->map(
             function ($job) use ($queue, $data, $now) {
                 return $this->buildDatabaseRecord(
                     $queue,
@@ -268,7 +270,8 @@ class DatabaseQueue extends Queue implements QueueContract, ClearableQueue
 
         if (($databaseEngine === 'mysql' && version_compare($databaseVersion, '8.0.1', '>=')) ||
             ($databaseEngine === 'mariadb' && version_compare($databaseVersion, '10.6.0', '>=')) ||
-            ($databaseEngine === 'pgsql' && version_compare($databaseVersion, '9.5', '>='))) {
+            ($databaseEngine === 'pgsql' && version_compare($databaseVersion, '9.5', '>=')) ||
+            ($databaseEngine === 'vitess' && version_compare($databaseVersion, '19.0', '>='))) {
             return 'FOR UPDATE SKIP LOCKED';
         }
 
@@ -317,10 +320,12 @@ class DatabaseQueue extends Queue implements QueueContract, ClearableQueue
      */
     protected function marshalJob($queue, $job)
     {
-        $job = $this->markJobAsReserved($job);
-
         return new DatabaseJob(
-            $this->container, $this, $job, $this->connectionName, $queue
+            $this->container,
+            $this,
+            $this->markJobAsReserved($job),
+            $this->connectionName,
+            $queue,
         );
     }
 

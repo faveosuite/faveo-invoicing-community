@@ -200,7 +200,6 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\CustomValidationProvider::class,
 
-        Collective\Html\HtmlServiceProvider::class,
         Barryvdh\DomPDF\ServiceProvider::class,
         // Illuminate\Support\Facades\Input::class,
 
@@ -244,7 +243,7 @@ return [
         'Form' => Collective\Html\FormFacade::class,
         'GeoIP' => \Torann\GeoIP\Facades\GeoIP::class,
         'Google2FA' => PragmaRX\Google2FALaravel\Facade::class,
-        'HTML' => Collective\Html\HtmlFacade::class,
+        'Html' => Spatie\Html\Facades\Html::class,
         'Input' => Illuminate\Support\Facades\Input::class,
         'PDF' => Barryvdh\DomPDF\Facade::class,
         'Pipedrive' => Devio\Pipedrive\PipedriveFacade::class,

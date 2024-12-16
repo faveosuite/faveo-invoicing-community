@@ -13,6 +13,23 @@ class Deals extends Entity
     use ListsProducts, ListsAttachedFiles, Searches;
 
     /**
+     * 
+     * Get the deals summary
+     * 
+     * @param array $options
+     * 
+     * @return Response
+     * 
+    */
+
+    public function summary($options = [])
+    {
+
+        return $this->request->get('summary', $options);
+
+    }
+
+    /**
      * Get the deals timeline.
      *
      * @param string $start_date

@@ -1,16 +1,121 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+## 3.2.1 - 2024-10-28
 
-[Next release](https://github.com/barryvdh/laravel-ide-helper/compare/v2.12.3...master)
---------------
+### What's Changed
+* chore: Fix the description of unused option by @KentarouTakeda in https://github.com/barryvdh/laravel-ide-helper/pull/1600
+* feat(pivot): add support for multiple pivot types when using the same accessor by @pataar in https://github.com/barryvdh/laravel-ide-helper/pull/1597
+* Add support for `AsCollection::using` and `AsEnumCollection::of` casts by @uno-sw in https://github.com/barryvdh/laravel-ide-helper/pull/1577
+* Smarter reset by @barryvdh in https://github.com/barryvdh/laravel-ide-helper/pull/1603
+* feat: use `numeric` type on fields with `decimal` casts by @ekisu in https://github.com/barryvdh/laravel-ide-helper/pull/1583
 
-### Fixes
+### New Contributors
+* @uno-sw made their first contribution in https://github.com/barryvdh/laravel-ide-helper/pull/1577
+* @ekisu made their first contribution in https://github.com/barryvdh/laravel-ide-helper/pull/1583
+
+**Full Changelog**: https://github.com/barryvdh/laravel-ide-helper/compare/v3.2.0...v3.2.1
+
+## 3.2.0 - 2024-10-18
+
+### Fixed
+- Fix type of hashed model property to `string`
+
+### Changed
+- Add support for EloquentBuilder generics introduced in Laravel 11.15.
+- Drop support for Laravel versions earlier than 11.15.
+
+### Added
+
+- Add support for AsCollection::using and AsEnumCollection::of casts [#1577 / uno-sw](https://github.com/barryvdh/laravel-ide-helper/pull/1577)
+
+## 3.1.0 - 2024-07-12
+
+### Fixed
+- Fix return value of query scopes from parent class [#1366 / sforward](https://github.com/barryvdh/laravel-ide-helper/pull/1366)
+- Add static to isBuiltin() check in ide-helper:models [#1541 / bram-pkg](https://github.com/barryvdh/laravel-ide-helper/pull/1541)
+- Fix for getSomethingAttribute functions which return a collection with type templating in the phpDoc. [#1567 / stefanScrumble](https://github.com/barryvdh/laravel-ide-helper/pull/1567)
+
+### Added
+ - Add type to pivot when using a custom pivot class [#1518 / d3v2a](https://github.com/barryvdh/laravel-ide-helper/pull/1518)
+ - Add support in morphTo relationship for null values [#1547 / matysekmichal](https://github.com/barryvdh/laravel-ide-helper/pull/1547)
+ - Add support for AsEnumCollection casts [#1557 / Braunson](https://github.com/barryvdh/laravel-ide-helper/pull/1557)
+ - Support for Attribute class in attributes [#1567 / stefanScrumble](https://github.com/barryvdh/laravel-ide-helper/pull/1567)
+
+## 3.0.0 - 2024-03-01
+
+### Added
+- Support for Laravel 11 [#1520 / KentarouTakeda](https://github.com/barryvdh/laravel-ide-helper/pull/1520)
+
+### Changed
+- Make `--reset` always keep the text and remove `--smart-reset`. Always skip the classname [#1523 / barryvdh](https://github.com/barryvdh/laravel-ide-helper/pull/1523) & [#1525 / mfn](https://github.com/barryvdh/laravel-ide-helper/pull/1525)
+- Use short types (`int` and `bool` instead of `integer` and `boolean`) [#1524 / barryvdh](https://github.com/barryvdh/laravel-ide-helper/pull/1524)
+
+### Removed
+- Support for Laravel 9 and use of doctrine/dbal [#1512 / barryvdh](https://github.com/barryvdh/laravel-ide-helper/pull/1512)
+  With this functionality gone, a few changes have been made:
+  - support for custom datatypes has been dropped (config `custom_db_types`) unknown data types default to `string` now and to fix the type, add a proper cast in Eloquent
+  - You _might_ have top-level dependency on doctrine/dbal. This may have been in the past due to ide-helper, we suggest to check if you still need it and remove it otherwise
+  - Minimum PHP version, due to Laravel 10, is now PHP 8.1
+
+2024-02-15, 2.15.1
+------------------
+
+### Fixed
+- Fix final class keyword in wrong position [#1517 / barryvdh](https://github.com/barryvdh/laravel-ide-helper/pull/1517)
+
+### Changed
+
+### Added
+
+2024-02-14, 2.15.0
+------------------
+### Fixed
+- Fix case issue in `ModelsCommand::unsetMethod()` [#1453 / leo108](https://github.com/barryvdh/laravel-ide-helper/pull/1453)
+- Fix non-facade classes will result in no autocomplete [#841 / netpok](https://github.com/barryvdh/laravel-ide-helper/pull/841)
+- Skip swoole, otherwise fatal error [#1477 / TimoFrenzel](https://github.com/barryvdh/laravel-ide-helper/pull/1477)
+- Fix vulnerability CVE-2021-43608 [#1392 / allanlaal](https://github.com/barryvdh/laravel-ide-helper/pull/1392)
+- Reset foreignKeyConstraintsColumns on model loop start [#1461 / snmatsui](https://github.com/barryvdh/laravel-ide-helper/pull/1461)
+- Accept scope & scopes as relation [#1452 / Muetze42](https://github.com/barryvdh/laravel-ide-helper/pull/1452)
+- Fix #1300 relation_return_type must take precedence if it is defined [#1394 / menthol](https://github.com/barryvdh/laravel-ide-helper/pull/1394)
+
+### Changed
+- Disable inspections of helper files [#1486 / eidng8](https://github.com/barryvdh/laravel-ide-helper/pull/1486)
+- Removed support for Laravel 8 and therefore for PHP < 8.0 [#1504 / mfn](https://github.com/barryvdh/laravel-ide-helper/pull/1504)
+
+### Added
+- Add support for enum default arguments using enum cases. [#1464 / d8vjork](https://github.com/barryvdh/laravel-ide-helper/pull/1464)
+- Add support for real-time facades in the helper file. [#1455 / filipac](https://github.com/barryvdh/laravel-ide-helper/pull/1455)
+- Add support for relations with composite keys. [#1479 / calebdw](https://github.com/barryvdh/laravel-ide-helper/pull/1479)
+- Add support for attribute accessors with no backing field or type hinting [#1411 / pindab0ter](https://github.com/barryvdh/laravel-ide-helper/pull/1411).
+- Add support for AsCollection and AsArrayObject casts [#1393 / pataar](https://github.com/barryvdh/laravel-ide-helper/pull/1393)
+- Reintroduce support for multi-db setups [#1426 / benpoulson](https://github.com/barryvdh/laravel-ide-helper/pull/1426)
+- Support the BINARY(...) database field type [#1434 / Sfonxs](https://github.com/barryvdh/laravel-ide-helper/pull/1434)
+- Add AllowDynamicProperties Attribute to cooperate with php8.2 deprecation [#1428 / GeoSot](https://github.com/barryvdh/laravel-ide-helper/pull/1428)
+
+2024-02-05, 2.14.0
+------------------
+
+### Changed
+- Official support for Lumen has been dropped [#1425 / mfn](https://github.com/barryvdh/laravel-ide-helper/pull/1425)
+- Refactor resolving of null information for custom casted attribute types [#1330 / wimski](https://github.com/barryvdh/laravel-ide-helper/pull/1330)
+
+### Fixed
+- Catch exceptions when loading aliases [#1465 / dongm2ez](https://github.com/barryvdh/laravel-ide-helper/pull/1465)
+
+### Added
+- Add support for nikic/php-parser 5 (next to 4) [#1502 / mfn](https://github.com/barryvdh/laravel-ide-helper/pull/1502)
+- Add support for `immutable_date:*` and `immutable_datetime:*` casts. [#1380 / thekonz](https://github.com/barryvdh/laravel-ide-helper/pull/1380)
+- Add support for attribute accessors marked as protected. [#1339 / pindab0ter](https://github.com/barryvdh/laravel-ide-helper/pull/1339)
+
+2023-02-04, 2.13.0
+------------------
+
+### Fixed
 - Fix return type of methods provided by `SoftDeletes` [#1345 / KentarouTakeda](https://github.com/barryvdh/laravel-ide-helper/pull/1345)
 - Handle PHP 8.1 deprecation warnings when passing `null` to `new \ReflectionClass` [#1351 / mfn](https://github.com/barryvdh/laravel-ide-helper/pull/1351)
 - Fix issue where \Eloquent is not included when using write_mixin [#1352 / Jefemy](https://github.com/barryvdh/laravel-ide-helper/pull/1352)
 - Fix model factory method arguments for Laravel >= 9 [#1361 / wimski](https://github.com/barryvdh/laravel-ide-helper/pull/1361)
-- Improve return type of mock helper methods in tests [#1405 / bentleyo](https://github.com/barryvdh/laravel-ide-helper/pull/1405) 
+- Improve return type of mock helper methods in tests [#1405 / bentleyo](https://github.com/barryvdh/laravel-ide-helper/pull/1405)
 - Fix Castable class if failed to detect it from return types [#1388 / kwarcu](https://github.com/barryvdh/laravel-ide-helper/pull/1388)
 
 ### Added

@@ -15,6 +15,7 @@ return [
      */
 
     'enabled' => env('DEBUGBAR_ENABLED', null),
+    'hide_empty_tabs' => false, // Hide tabs until they have content
     'except' => [
         'telescope*',
         'horizon*',
@@ -34,10 +35,11 @@ return [
      | Warning: Enabling storage.open will allow everyone to access previous
      | request, do not enable open storage in publicly available environments!
      | Specify a callback if you want to limit based on IP or authentication.
+     | Leaving it to null will allow localhost only.
      */
     'storage' => [
         'enabled'    => true,
-        'open'       => env('DEBUGBAR_OPEN_STORAGE', false), // bool/callback.
+        'open'       => env('DEBUGBAR_OPEN_STORAGE'), // bool/callback.
         'driver'     => 'file', // redis, file, pdo, socket, custom
         'path'       => storage_path('debugbar'), // For file driver
         'connection' => null,   // Leave null for default connection (Redis/PDO)
@@ -60,7 +62,7 @@ return [
     |
     */
 
-    'editor' => env('DEBUGBAR_EDITOR', 'phpstorm'),
+    'editor' => env('DEBUGBAR_EDITOR') ?: env('IGNITION_EDITOR', 'phpstorm'),
 
     /*
     |--------------------------------------------------------------------------
@@ -85,8 +87,8 @@ return [
     |
     */
 
-    'remote_sites_path' => env('DEBUGBAR_REMOTE_SITES_PATH', ''),
-    'local_sites_path' => env('DEBUGBAR_LOCAL_SITES_PATH', ''),
+    'remote_sites_path' => env('DEBUGBAR_REMOTE_SITES_PATH'),
+    'local_sites_path' => env('DEBUGBAR_LOCAL_SITES_PATH', env('IGNITION_LOCAL_SITES_PATH')),
 
     /*
      |--------------------------------------------------------------------------
@@ -116,10 +118,15 @@ return [
      |
      | Note for your request to be identified as ajax requests they must either send the header
      | X-Requested-With with the value XMLHttpRequest (most JS libraries send this), or have application/json as a Accept header.
+     |
+     | By default `ajax_handler_auto_show` is set to true allowing ajax requests to be shown automatically in the Debugbar.
+     | Changing `ajax_handler_auto_show` to false will prevent the Debugbar from reloading.
      */
 
     'capture_ajax' => true,
     'add_ajax_timing' => false,
+    'ajax_handler_auto_show' => true,
+    'ajax_handler_enable_tab' => true,
 
     /*
      |--------------------------------------------------------------------------
@@ -176,6 +183,8 @@ return [
         'cache'           => false, // Display cache events
         'models'          => true,  // Display models
         'livewire'        => true,  // Display Livewire (when available)
+        'jobs'            => false, // Display dispatched jobs
+        'pennant'         => false, // Display Pennant feature flags
     ],
 
     /*
@@ -188,33 +197,63 @@ return [
      */
 
     'options' => [
+        'time' => [
+            'memory_usage' => false,  // Calculated by subtracting memory start and end, it may be inaccurate
+        ],
+        'messages' => [
+            'trace' => true,   // Trace the origin of the debug message
+        ],
+        'memory' => [
+            'reset_peak' => false,     // run memory_reset_peak_usage before collecting
+            'with_baseline' => false,  // Set boot memory usage as memory peak baseline
+            'precision' => 0,          // Memory rounding precision
+        ],
         'auth' => [
             'show_name' => true,   // Also show the users name/email in the debugbar
+            'show_guards' => true, // Show the guards that are used
         ],
         'db' => [
             'with_params'       => true,   // Render SQL with the parameters substituted
+            'exclude_paths'     => [       // Paths to exclude entirely from the collector
+//                'vendor/laravel/framework/src/Illuminate/Session', // Exclude sessions queries
+            ],
             'backtrace'         => true,   // Use a backtrace to find the origin of the query in your files.
             'backtrace_exclude_paths' => [],   // Paths to exclude from backtrace. (in addition to defaults)
             'timeline'          => false,  // Add the queries to the timeline
             'duration_background'  => true,   // Show shaded background on each query relative to how long it took to execute.
             'explain' => [                 // Show EXPLAIN output on queries
                 'enabled' => false,
-                'types' => ['SELECT'],     // Deprecated setting, is always only SELECT
             ],
-            'hints'             => false,    // Show hints for common mistakes
-            'show_copy'         => false,    // Show copy button next to the query,
+            'hints'             => false,   // Show hints for common mistakes
+            'show_copy'         => true,    // Show copy button next to the query,
             'slow_threshold'    => false,   // Only track queries that last longer than this time in ms
+            'memory_usage'      => false,   // Show queries memory usage
+            'soft_limit'       => 100,      // After the soft limit, no parameters/backtrace are captured
+            'hard_limit'       => 500,      // After the hard limit, queries are ignored
         ],
         'mail' => [
-            'full_log' => false,
+            'timeline' => false,  // Add mails to the timeline
+            'show_body' => true,
         ],
         'views' => [
-            'timeline' => false,  // Add the views to the timeline (Experimental)
-            'data' => false,    //Note: Can slow down the application, because the data can be quite large..
-            'exclude_paths' => [], // Add the paths which you don't want to appear in the views
+            'timeline' => false,    // Add the views to the timeline (Experimental)
+            'data' => false,        //true for all data, 'keys' for only names, false for no parameters.
+            'group' => 50,          // Group duplicate views. Pass value to auto-group, or true/false to force
+            'exclude_paths' => [    // Add the paths which you don't want to appear in the views
+                'vendor/filament'   // Exclude Filament components by default
+            ],
         ],
         'route' => [
             'label' => true,  // show complete route on bar
+        ],
+        'session' => [
+            'hiddens' => [], // hides sensitive values using array paths
+        ],
+        'symfony_request' => [
+            'hiddens' => [], // hides sensitive values using array paths, example: request_request.password
+        ],
+        'events' => [
+            'data' => false, // collect events data, listeners
         ],
         'logs' => [
             'file' => null,
@@ -248,6 +287,15 @@ return [
      |
      */
     'route_prefix' => '_debugbar',
+
+    /*
+     |--------------------------------------------------------------------------
+     | DebugBar route middleware
+     |--------------------------------------------------------------------------
+     |
+     | Additional middleware to run on the Debugbar routes
+     */
+    'route_middleware' => [],
 
     /*
      |--------------------------------------------------------------------------

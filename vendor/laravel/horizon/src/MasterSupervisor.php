@@ -69,7 +69,7 @@ class MasterSupervisor implements Pausable, Restartable, Terminable
      * @param  string  $environment
      * @return void
      */
-    public function __construct(string $environment = null)
+    public function __construct(?string $environment = null)
     {
         $this->environment = $environment;
 

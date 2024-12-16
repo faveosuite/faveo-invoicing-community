@@ -202,7 +202,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
     {
         $table = $this->normalizeName($table);
 
-        $columns = $this->selectForeignKeyColumns('', $table)
+        $columns = $this->selectForeignKeyColumns($database ?? 'main', $table)
             ->fetchAllAssociative();
 
         if (count($columns) > 0) {
@@ -222,8 +222,6 @@ class SqliteSchemaManager extends AbstractSchemaManager
 
     /**
      * {@inheritDoc}
-     *
-     * @link http://ezcomponents.org/docs/api/trunk/DatabaseSchema/ezcDbSchemaPgsqlReader.html
      */
     protected function _getPortableTableIndexesList($tableIndexes, $tableName = null)
     {
@@ -744,7 +742,7 @@ SQL;
                    p.*
               FROM sqlite_master t
               JOIN pragma_foreign_key_list(t.name) p
-                ON p."seq" != "-1"
+                ON p."seq" != '-1'
 SQL;
 
         $conditions = [

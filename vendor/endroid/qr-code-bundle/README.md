@@ -44,23 +44,23 @@ endroid_qr_code:
         writer: Endroid\QrCode\Writer\PngWriter
         data: 'This is customized QR code'
         # Label is not implemented for SvgWriter
-        labelText: 'This is the label'
-        labelFontPath: '%kernel.project_dir%/vendor/endroid/qr-code/assets/noto_sans.otf'
-        labelFontSize: 20
-        labelAlignment: 'center'
+        label_text: 'This is the label'
+        label_font_path: '%kernel.project_dir%/vendor/endroid/qr-code/assets/noto_sans.otf'
+        label_font_size: 20
+        label_alignment: 'center'
     custom:
         writer: Endroid\QrCode\Writer\SvgWriter
-        writerOptions:
+        writer_options:
             exclude_xml_declaration: true # default: false
         data: 'This is customized QR code'
         size: 300
         encoding: 'UTF-8'
-        errorCorrectionLevel: 'low' # 'low', 'medium', 'quartile', or 'high'
-        roundBlockSizeMode: 'margin'
-        logoPath: '%kernel.project_dir%/vendor/endroid/qr-code/tests/assets/symfony.png'
-        logoResizeToWidth: 150
-        logoPunchoutBackground: true
-        validateResult: false
+        error_correction_level: 'low' # 'low', 'medium', 'quartile', or 'high'
+        round_block_size_mode: 'margin'
+        logo_path: '%kernel.project_dir%/vendor/endroid/qr-code/tests/assets/symfony.png'
+        logo_resize_to_width: 150
+        logo_punchout_background: true
+        validate_result: false
 ```
 
 ## Using builders
@@ -110,6 +110,10 @@ URI. You can use the second argument to specify the builder to use.
 
 {# You can specify the builder via the second parameter #}
 <img src="{{ qr_code_data_uri('My QR Code', 'custom') }}" />
+
+{# You can access the width and height via the matrix #}
+{% set qrCode = qr_code_result('My QR Code') %}
+<img src="{{ qrCode.dataUri }}" width="{{ qrCode.matrix.outerSize }}" />
 ```
     
 ## Versioning

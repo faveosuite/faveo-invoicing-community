@@ -5,6 +5,7 @@ namespace Illuminate\Session;
 use Closure;
 use Illuminate\Contracts\Session\Session;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\MessageBag;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
@@ -98,7 +99,7 @@ class Store implements Session
      */
     protected function loadSession()
     {
-        $this->attributes = array_merge($this->attributes, $this->readFromHandler());
+        $this->attributes = array_replace($this->attributes, $this->readFromHandler());
 
         $this->marshalErrorBag();
     }
@@ -246,6 +247,17 @@ class Store implements Session
     }
 
     /**
+     * Get all the session data except for a specified array of items.
+     *
+     * @param  array  $keys
+     * @return array
+     */
+    public function except(array $keys)
+    {
+        return Arr::except($this->attributes, $keys);
+    }
+
+    /**
      * Checks if a key exists.
      *
      * @param  string|array  $key
@@ -255,7 +267,7 @@ class Store implements Session
     {
         $placeholder = new stdClass;
 
-        return ! collect(is_array($key) ? $key : func_get_args())->contains(function ($key) use ($placeholder) {
+        return ! (new Collection(is_array($key) ? $key : func_get_args()))->contains(function ($key) use ($placeholder) {
             return $this->get($key, $placeholder) === $placeholder;
         });
     }
@@ -272,16 +284,29 @@ class Store implements Session
     }
 
     /**
-     * Checks if a key is present and not null.
+     * Determine if a key is present and not null.
      *
      * @param  string|array  $key
      * @return bool
      */
     public function has($key)
     {
-        return ! collect(is_array($key) ? $key : func_get_args())->contains(function ($key) {
+        return ! (new Collection(is_array($key) ? $key : func_get_args()))->contains(function ($key) {
             return is_null($this->get($key));
         });
+    }
+
+    /**
+     * Determine if any of the given keys are present and not null.
+     *
+     * @param  string|array  $key
+     * @return bool
+     */
+    public function hasAny($key)
+    {
+        return (new Collection(is_array($key) ? $key : func_get_args()))->filter(function ($key) {
+            return ! is_null($this->get($key));
+        })->count() >= 1;
     }
 
     /**
@@ -617,6 +642,16 @@ class Store implements Session
     public function setName($name)
     {
         $this->name = $name;
+    }
+
+    /**
+     * Get the current session ID.
+     *
+     * @return string
+     */
+    public function id()
+    {
+        return $this->getId();
     }
 
     /**

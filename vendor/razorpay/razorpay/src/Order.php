@@ -48,4 +48,18 @@ class Order extends Entity
 
         return $this->request('GET', $relativeUrl, $options);
     }
+
+    public function viewRtoReview()
+    {
+        $relativeUrl = $this->getEntityUrl(). $this->id .'/rto_review';
+
+        return $this->request('POST', $relativeUrl);
+    }
+
+    public function editFulfillment($attributes = array())
+    {
+        $relativeUrl = $this->getEntityUrl(). $this->id .'/fulfillment';
+
+        return $this->request('POST', $relativeUrl, $attributes);
+    }
 }

@@ -29,6 +29,8 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\UniqueConstraint;
+use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
+use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
@@ -211,6 +213,7 @@ abstract class AbstractPlatform
 
         foreach (Type::getTypesMap() as $typeName => $className) {
             foreach (Type::getType($typeName)->getMappedDatabaseTypes($this) as $dbType) {
+                $dbType                             = strtolower($dbType);
                 $this->doctrineTypeMapping[$dbType] = $typeName;
             }
         }
@@ -1340,8 +1343,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to add the number of given seconds to a date.
      *
-     * @param string             $date
-     * @param int|numeric-string $seconds
+     * @param string     $date
+     * @param int|string $seconds
      *
      * @return string
      *
@@ -1363,8 +1366,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to subtract the number of given seconds from a date.
      *
-     * @param string             $date
-     * @param int|numeric-string $seconds
+     * @param string     $date
+     * @param int|string $seconds
      *
      * @return string
      *
@@ -1386,8 +1389,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to add the number of given minutes to a date.
      *
-     * @param string             $date
-     * @param int|numeric-string $minutes
+     * @param string     $date
+     * @param int|string $minutes
      *
      * @return string
      *
@@ -1409,8 +1412,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to subtract the number of given minutes from a date.
      *
-     * @param string             $date
-     * @param int|numeric-string $minutes
+     * @param string     $date
+     * @param int|string $minutes
      *
      * @return string
      *
@@ -1432,8 +1435,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to add the number of given hours to a date.
      *
-     * @param string             $date
-     * @param int|numeric-string $hours
+     * @param string     $date
+     * @param int|string $hours
      *
      * @return string
      *
@@ -1455,8 +1458,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to subtract the number of given hours to a date.
      *
-     * @param string             $date
-     * @param int|numeric-string $hours
+     * @param string     $date
+     * @param int|string $hours
      *
      * @return string
      *
@@ -1478,8 +1481,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to add the number of given days to a date.
      *
-     * @param string             $date
-     * @param int|numeric-string $days
+     * @param string     $date
+     * @param int|string $days
      *
      * @return string
      *
@@ -1501,8 +1504,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to subtract the number of given days to a date.
      *
-     * @param string             $date
-     * @param int|numeric-string $days
+     * @param string     $date
+     * @param int|string $days
      *
      * @return string
      *
@@ -1524,8 +1527,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to add the number of given weeks to a date.
      *
-     * @param string             $date
-     * @param int|numeric-string $weeks
+     * @param string     $date
+     * @param int|string $weeks
      *
      * @return string
      *
@@ -1547,8 +1550,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to subtract the number of given weeks from a date.
      *
-     * @param string             $date
-     * @param int|numeric-string $weeks
+     * @param string     $date
+     * @param int|string $weeks
      *
      * @return string
      *
@@ -1570,8 +1573,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to add the number of given months to a date.
      *
-     * @param string             $date
-     * @param int|numeric-string $months
+     * @param string     $date
+     * @param int|string $months
      *
      * @return string
      *
@@ -1593,8 +1596,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to subtract the number of given months to a date.
      *
-     * @param string             $date
-     * @param int|numeric-string $months
+     * @param string     $date
+     * @param int|string $months
      *
      * @return string
      *
@@ -1616,8 +1619,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to add the number of given quarters to a date.
      *
-     * @param string             $date
-     * @param int|numeric-string $quarters
+     * @param string     $date
+     * @param int|string $quarters
      *
      * @return string
      *
@@ -1639,8 +1642,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to subtract the number of given quarters from a date.
      *
-     * @param string             $date
-     * @param int|numeric-string $quarters
+     * @param string     $date
+     * @param int|string $quarters
      *
      * @return string
      *
@@ -1662,8 +1665,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to add the number of given years to a date.
      *
-     * @param string             $date
-     * @param int|numeric-string $years
+     * @param string     $date
+     * @param int|string $years
      *
      * @return string
      *
@@ -1685,8 +1688,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to subtract the number of given years from a date.
      *
-     * @param string             $date
-     * @param int|numeric-string $years
+     * @param string     $date
+     * @param int|string $years
      *
      * @return string
      *
@@ -1708,11 +1711,11 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL for a date arithmetic expression.
      *
-     * @param string             $date     The column or literal representing a date
+     * @param string     $date     The column or literal representing a date
      *                                     to perform the arithmetic operation on.
-     * @param string             $operator The arithmetic operator (+ or -).
-     * @param int|numeric-string $interval The interval that shall be calculated into the date.
-     * @param string             $unit     The unit of the interval that shall be calculated into the date.
+     * @param string     $operator The arithmetic operator (+ or -).
+     * @param int|string $interval The interval that shall be calculated into the date.
+     * @param string     $unit     The unit of the interval that shall be calculated into the date.
      *                                     One of the {@see DateIntervalUnit} constants.
      *
      * @return string
@@ -1722,6 +1725,17 @@ abstract class AbstractPlatform
     protected function getDateArithmeticIntervalExpression($date, $operator, $interval, $unit)
     {
         throw Exception::notSupported(__METHOD__);
+    }
+
+    /**
+     * Generates the SQL expression which represents the given date interval multiplied by a number
+     *
+     * @param string $interval   SQL expression describing the interval value
+     * @param int    $multiplier Interval multiplier
+     */
+    protected function multiplyInterval(string $interval, int $multiplier): string
+    {
+        return sprintf('(%s * %d)', $interval, $multiplier);
     }
 
     /**
@@ -1758,10 +1772,19 @@ abstract class AbstractPlatform
     /**
      * Returns the FOR UPDATE expression.
      *
+     * @deprecated This API is not portable. Use {@link QueryBuilder::forUpdate()}` instead.
+     *
      * @return string
      */
     public function getForUpdateSQL()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6191',
+            '%s is deprecated as non-portable.',
+            __METHOD__,
+        );
+
         return 'FOR UPDATE';
     }
 
@@ -1793,10 +1816,19 @@ abstract class AbstractPlatform
      * This defaults to the ANSI SQL "FOR UPDATE", which is an exclusive lock (Write). Some database
      * vendors allow to lighten this constraint up to be a real read lock.
      *
+     * @deprecated This API is not portable.
+     *
      * @return string
      */
     public function getReadLockSQL()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6191',
+            '%s is deprecated as non-portable.',
+            __METHOD__,
+        );
+
         return $this->getForUpdateSQL();
     }
 
@@ -1805,10 +1837,19 @@ abstract class AbstractPlatform
      *
      * The semantics of this lock mode should equal the SELECT .. FOR UPDATE of the ANSI SQL standard.
      *
+     * @deprecated This API is not portable.
+     *
      * @return string
      */
     public function getWriteLockSQL()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6191',
+            '%s is deprecated as non-portable.',
+            __METHOD__,
+        );
+
         return $this->getForUpdateSQL();
     }
 
@@ -2050,6 +2091,11 @@ abstract class AbstractPlatform
             ($createFlags & self::CREATE_INDEXES) > 0,
             ($createFlags & self::CREATE_FOREIGNKEYS) > 0,
         );
+    }
+
+    public function createSelectSQLBuilder(): SelectSQLBuilder
+    {
+        return new DefaultSelectSQLBuilder($this, 'FOR UPDATE', 'SKIP LOCKED');
     }
 
     /**
@@ -4645,6 +4691,11 @@ abstract class AbstractPlatform
 
         if ($column1->getComment() !== $column2->getComment()) {
             return false;
+        }
+
+        // If disableTypeComments is true, we do not need to check types, all comparison is already done above
+        if ($this->disableTypeComments) {
+            return true;
         }
 
         return $column1->getType() === $column2->getType();

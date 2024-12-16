@@ -31,21 +31,6 @@ class PostgresProcessor extends Processor
     }
 
     /**
-     * Process the results of a column listing query.
-     *
-     * @deprecated Will be removed in a future Laravel version.
-     *
-     * @param  array  $results
-     * @return array
-     */
-    public function processColumnListing($results)
-    {
-        return array_map(function ($result) {
-            return ((object) $result)->column_name;
-        }, $results);
-    }
-
-    /**
      * Process the results of a types query.
      *
      * @param  array  $results
@@ -107,14 +92,21 @@ class PostgresProcessor extends Processor
             $autoincrement = $result->default !== null && str_starts_with($result->default, 'nextval(');
 
             return [
-                'name' => str_starts_with($result->name, '"') ? str_replace('"', '', $result->name) : $result->name,
+                'name' => $result->name,
                 'type_name' => $result->type_name,
                 'type' => $result->type,
                 'collation' => $result->collation,
                 'nullable' => (bool) $result->nullable,
-                'default' => $autoincrement ? null : $result->default,
+                'default' => $result->generated ? null : $result->default,
                 'auto_increment' => $autoincrement,
                 'comment' => $result->comment,
+                'generation' => $result->generated ? [
+                    'type' => match ($result->generated) {
+                        's' => 'stored',
+                        default => null,
+                    },
+                    'expression' => $result->default,
+                ] : null,
             ];
         }, $results);
     }

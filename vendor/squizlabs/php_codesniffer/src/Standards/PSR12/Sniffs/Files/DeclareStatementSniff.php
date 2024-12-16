@@ -20,7 +20,7 @@ class DeclareStatementSniff implements Sniff
     /**
      * Returns an array of tokens this test wants to listen for.
      *
-     * @return array
+     * @return array<int|string>
      */
     public function register()
     {
@@ -110,6 +110,12 @@ class DeclareStatementSniff implements Sniff
 
         // There should be no space between equal sign and directive value.
         $value = $phpcsFile->findNext(T_WHITESPACE, ($equals + 1), null, true);
+
+        if ($value === false) {
+            // Live coding / parse error.
+            return;
+        }
+
         if ($equals !== false) {
             if ($tokens[($equals + 1)]['type'] !== 'T_LNUMBER') {
                 $error = 'Expected no space between equal sign and the directive value in a declare statement';

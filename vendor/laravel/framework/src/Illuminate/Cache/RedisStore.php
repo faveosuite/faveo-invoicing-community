@@ -57,7 +57,7 @@ class RedisStore extends TaggableStore implements LockProvider
     /**
      * Retrieve an item from the cache by key.
      *
-     * @param  string|array  $key
+     * @param  string  $key
      * @return mixed
      */
     public function get($key)
@@ -292,10 +292,15 @@ class RedisStore extends TaggableStore implements LockProvider
             default => '',
         };
 
+        $defaultCursorValue = match (true) {
+            $connection instanceof PhpRedisConnection && version_compare(phpversion('redis'), '6.1.0', '>=') => null,
+            default => '0',
+        };
+
         $prefix = $connectionPrefix.$this->getPrefix();
 
-        return LazyCollection::make(function () use ($connection, $chunkSize, $prefix) {
-            $cursor = $defaultCursorValue = '0';
+        return LazyCollection::make(function () use ($connection, $chunkSize, $prefix, $defaultCursorValue) {
+            $cursor = $defaultCursorValue;
 
             do {
                 [$cursor, $tagsChunk] = $connection->scan(
@@ -392,7 +397,7 @@ class RedisStore extends TaggableStore implements LockProvider
      */
     public function setPrefix($prefix)
     {
-        $this->prefix = ! empty($prefix) ? $prefix.':' : '';
+        $this->prefix = $prefix;
     }
 
     /**

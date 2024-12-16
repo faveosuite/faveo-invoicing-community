@@ -4,6 +4,19 @@ Changelog for Razorpay-PHP SDK. Follows [keepachangelog.com](https://keepachange
 
 ## Unreleased
 
+## [2.9.0] - 2023-12-18
+feat: Added new API endpoints
+
+* Added support for `addBankAccount`, `deleteBankAccount`, `requestEligibilityCheck` & `fetchEligibility` on customer
+* Added support for `uploadAccountDoc` & `fetchAccountDoc` on account
+* Added support for [Dispute](https://razorpay.com/docs/api/disputes/)
+* Added support for [Document](https://razorpay.com/docs/api/documents/)
+* Added support for fetch all IINs Supporting native otps & fetch all IINs with business sub-type using `all`
+* Added support for `viewRtoReview` & `editFulfillment` on order
+* Added support for fetch a payment (emi/ offer/ card/ upi) using `expandedDetails` on payments
+* Added support for `uploadStakeholderDoc` & `fetchStakeholderDoc` on stakeholder 
+
+
 ## [2.8.7] - 2023-09-11
 [#357](https://github.com/razorpay/razorpay-php/pull/357) [`b29754f`](https://github.com/razorpay/razorpay-php/commit/b29754f8892e0c2035055cf73fd7ab132de18e52) Chore: Changed Content-Type `application/json` for `order create` API from default `application/x-www-form-urlencoded`
 

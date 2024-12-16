@@ -20,7 +20,7 @@ class ArrayDeclarationSniff implements Sniff
     /**
      * Returns an array of tokens this test wants to listen for.
      *
-     * @return array
+     * @return array<int|string>
      */
     public function register()
     {
@@ -44,6 +44,26 @@ class ArrayDeclarationSniff implements Sniff
     public function process(File $phpcsFile, $stackPtr)
     {
         $tokens = $phpcsFile->getTokens();
+
+        // Prevent acting on short lists inside a foreach (see
+        // https://github.com/PHPCSStandards/PHP_CodeSniffer/issues/527).
+        if ($tokens[$stackPtr]['code'] === T_OPEN_SHORT_ARRAY
+            && isset($tokens[$stackPtr]['nested_parenthesis']) === true
+        ) {
+            $nestedParens          = $tokens[$stackPtr]['nested_parenthesis'];
+            $lastParenthesisCloser = end($nestedParens);
+            $lastParenthesisOpener = key($nestedParens);
+
+            if (isset($tokens[$lastParenthesisCloser]['parenthesis_owner']) === true
+                && $tokens[$tokens[$lastParenthesisCloser]['parenthesis_owner']]['code'] === T_FOREACH
+            ) {
+                $asKeyword = $phpcsFile->findNext(T_AS, ($lastParenthesisOpener + 1), $lastParenthesisCloser);
+
+                if ($asKeyword !== false && $asKeyword < $stackPtr) {
+                    return;
+                }
+            }
+        }
 
         if ($tokens[$stackPtr]['code'] === T_ARRAY) {
             $phpcsFile->recordMetric($stackPtr, 'Short array syntax used', 'no');
@@ -654,7 +674,11 @@ class ArrayDeclarationSniff implements Sniff
                 if ($tokens[$valuePointer]['code'] === T_CLOSURE
                     || $tokens[$valuePointer]['code'] === T_FN
                 ) {
-                    $ignoreTokens += [T_STATIC => T_STATIC];
+                    // Check if the closure is static, if it is, override the value pointer as indices before skip static.
+                    $staticPointer = $phpcsFile->findPrevious($ignoreTokens, ($valuePointer - 1), ($arrayStart + 1), true);
+                    if ($staticPointer !== false && $tokens[$staticPointer]['code'] === T_STATIC) {
+                        $valuePointer = $staticPointer;
+                    }
                 }
 
                 $previous = $phpcsFile->findPrevious($ignoreTokens, ($valuePointer - 1), ($arrayStart + 1), true);

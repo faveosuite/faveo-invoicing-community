@@ -23,13 +23,9 @@ class DataTablesServiceProvider extends ServiceProvider
         $this->setupAssets();
 
         $this->app->alias('datatables', DataTables::class);
-        $this->app->singleton('datatables', function () {
-            return new DataTables;
-        });
+        $this->app->singleton('datatables', fn () => new DataTables);
 
-        $this->app->singleton('datatables.request', function () {
-            return new Request;
-        });
+        $this->app->singleton('datatables.request', fn () => new Request);
 
         $this->app->singleton('datatables.config', Config::class);
     }
@@ -49,7 +45,7 @@ class DataTablesServiceProvider extends ServiceProvider
                 DataTables::macro($engine, function () use ($class) {
                     $canCreate = [$class, 'canCreate'];
                     if (is_callable($canCreate) && ! call_user_func_array($canCreate, func_get_args())) {
-                        throw new \InvalidArgumentException();
+                        throw new \InvalidArgumentException;
                     }
 
                     $create = [$class, 'create'];

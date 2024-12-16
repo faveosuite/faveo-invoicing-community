@@ -4,21 +4,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Filename & Format
+    | Filename
     |--------------------------------------------------------------------------
     |
-    | The default filename
+    | The default filename.
     |
     */
 
-    'filename'  => '_ide_helper.php',
+    'filename' => '_ide_helper.php',
 
     /*
     |--------------------------------------------------------------------------
     | Models filename
     |--------------------------------------------------------------------------
     |
-    | The default filename for the models helper file
+    | The default filename for the models helper file.
     |
     */
 
@@ -26,7 +26,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Where to write the PhpStorm specific meta file
+    | PhpStorm meta filename
     |--------------------------------------------------------------------------
     |
     | PhpStorm also supports the directory `.phpstorm.meta.php/` with arbitrary
@@ -41,7 +41,7 @@ return [
     | Fluent helpers
     |--------------------------------------------------------------------------
     |
-    | Set to true to generate commonly used Fluent methods
+    | Set to true to generate commonly used Fluent methods.
     |
     */
 
@@ -49,7 +49,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Factory Builders
+    | Factory builders
     |--------------------------------------------------------------------------
     |
     | Set to true to generate factory generators for better factory()
@@ -63,10 +63,10 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Write Model Magic methods
+    | Write model magic methods
     |--------------------------------------------------------------------------
     |
-    | Set to false to disable write magic methods of model
+    | Set to false to disable write magic methods of model.
     |
     */
 
@@ -74,10 +74,10 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Write Model External Eloquent Builder methods
+    | Write model external Eloquent builder methods
     |--------------------------------------------------------------------------
     |
-    | Set to false to disable write external eloquent builder methods
+    | Set to false to disable write external Eloquent builder methods.
     |
     */
 
@@ -85,7 +85,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Write Model relation count properties
+    | Write model relation count properties
     |--------------------------------------------------------------------------
     |
     | Set to false to disable writing of relation count properties to model DocBlocks.
@@ -96,11 +96,11 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Write Eloquent Model Mixins
+    | Write Eloquent model mixins
     |--------------------------------------------------------------------------
     |
     | This will add the necessary DocBlock mixins to the model class
-    | contained in the Laravel Framework. This helps the IDE with
+    | contained in the Laravel framework. This helps the IDE with
     | auto-completion.
     |
     | Please be aware that this setting changes a file within the /vendor directory.
@@ -134,7 +134,7 @@ return [
     | for models.
     |
     | glob patterns are supported to easier reach models in sub-directories,
-    | e.g. `app/Services/* /Models` (without the space)
+    | e.g. `app/Services/* /Models` (without the space).
     |
     */
 
@@ -152,7 +152,7 @@ return [
     */
 
     'ignored_models' => [
-
+        // App\MyModel::class,
     ],
 
     /*
@@ -160,7 +160,7 @@ return [
     | Models hooks
     |--------------------------------------------------------------------------
     |
-    | Define which hook classes you want to run for models to add custom information
+    | Define which hook classes you want to run for models to add custom information.
     |
     | Hooks should implement Barryvdh\LaravelIdeHelper\Contracts\ModelHookInterface.
     |
@@ -175,7 +175,7 @@ return [
     | Extra classes
     |--------------------------------------------------------------------------
     |
-    | These implementations are not really extended, but called with magic functions
+    | These implementations are not really extended, but called with magic functions.
     |
     */
 
@@ -197,37 +197,7 @@ return [
     */
 
     'interfaces' => [
-
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Support for custom DB types
-    |--------------------------------------------------------------------------
-    |
-    | This setting allow you to map any custom database type (that you may have
-    | created using CREATE TYPE statement or imported using database plugin
-    | / extension to a Doctrine type.
-    |
-    | Each key in this array is a name of the Doctrine2 DBAL Platform. Currently valid names are:
-    | 'postgresql', 'db2', 'drizzle', 'mysql', 'oracle', 'sqlanywhere', 'sqlite', 'mssql'
-    |
-    | This name is returned by getName() method of the specific Doctrine/DBAL/Platforms/AbstractPlatform descendant
-    |
-    | The value of the array is an array of type mappings. Key is the name of the custom type,
-    | (for example, "jsonb" from Postgres 9.4) and the value is the name of the corresponding Doctrine2 type (in
-    | our case it is 'json_array'. Doctrine types are listed here:
-    | https://www.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/types.html#types
-    |
-    | So to support jsonb in your models when working with Postgres, just add the following entry to the array below:
-    |
-    | "postgresql" => array(
-    |       "jsonb" => "json_array",
-    |  ),
-    |
-    */
-    'custom_db_types' => [
-
+        // App\MyInterface::class => App\MyImplementation::class,
     ],
 
     /*
@@ -258,7 +228,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Property Casts
+    | Property casts
     |--------------------------------------------------------------------------
     |
     | Cast the given "real type" to the given "type".
@@ -285,9 +255,9 @@ return [
     | Force FQN usage
     |--------------------------------------------------------------------------
     |
-    | Use the fully qualified (class) name in docBlock,
-    | event if class exists in a given file
-    | or there is an import (use className) of a given class
+    | Use the fully qualified (class) name in DocBlocks,
+    | even if the class exists in the same namespace
+    | or there is an import (use className) of the class.
     |
     */
     'force_fqn' => false,
@@ -309,8 +279,8 @@ return [
     |--------------------------------------------------------------------------
     |
     | Sometimes it's needed to create custom relation types. The key of the array
-    | is the Relationship Method name. The value of the array is the canonical class
-    | name of the Relationship, e.g. `'relationName' => RelationShipClass::class`.
+    | is the relationship method name. The value of the array is the fully-qualified
+    | class name of the relationship, e.g. `'relationName' => RelationShipClass::class`.
     |
     */
     'additional_relation_types' => [],
@@ -322,7 +292,8 @@ return [
     |
     | When using custom relation types its possible for the class name to not contain
     | the proper return type of the relation. The key of the array is the relationship
-    | method name. The value of the array is the return type of the relation.
+    | method name. The value of the array is the return type of the relation ('many'
+    | or 'morphTo').
     | e.g. `'relationName' => 'many'`.
     |
     */

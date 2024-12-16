@@ -12,7 +12,12 @@ namespace PHP_CodeSniffer\Standards\Generic\Tests\Debug;
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
 use PHP_CodeSniffer\Config;
 
-class ESLintUnitTest extends AbstractSniffUnitTest
+/**
+ * Unit test class for the ESLint sniff.
+ *
+ * @covers \PHP_CodeSniffer\Standards\Generic\Sniffs\Debug\ESLintSniff
+ */
+final class ESLintUnitTest extends AbstractSniffUnitTest
 {
 
     /**
@@ -46,6 +51,8 @@ class ESLintUnitTest extends AbstractSniffUnitTest
 
         $cwd = getcwd();
         file_put_contents($cwd.'/.eslintrc.json', self::ESLINT_CONFIG);
+
+        putenv('ESLINT_USE_FLAT_CONFIG=false');
 
     }//end setUpPrerequisites()
 
