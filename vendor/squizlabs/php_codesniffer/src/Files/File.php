@@ -9,12 +9,13 @@
 
 namespace PHP_CodeSniffer\Files;
 
-use PHP_CodeSniffer\Ruleset;
 use PHP_CodeSniffer\Config;
-use PHP_CodeSniffer\Fixer;
-use PHP_CodeSniffer\Util;
 use PHP_CodeSniffer\Exceptions\RuntimeException;
 use PHP_CodeSniffer\Exceptions\TokenizerException;
+use PHP_CodeSniffer\Fixer;
+use PHP_CodeSniffer\Ruleset;
+use PHP_CodeSniffer\Util\Common;
+use PHP_CodeSniffer\Util\Tokens;
 
 class File
 {
@@ -276,7 +277,7 @@ class File
         $this->tokens  = [];
 
         try {
-            $this->eolChar = Util\Common::detectLineEndings($content);
+            $this->eolChar = Common::detectLineEndings($content);
         } catch (RuntimeException $e) {
             $this->addWarningOnLine($e->getMessage(), 1, 'Internal.DetectLineEndings');
             return;
@@ -430,7 +431,7 @@ class File
 
             if (PHP_CODESNIFFER_VERBOSITY > 2) {
                 $type    = $token['type'];
-                $content = Util\Common::prepareForOutput($token['content']);
+                $content = Common::prepareForOutput($token['content']);
                 echo "\t\tProcess token $stackPtr: $type => $content".PHP_EOL;
             }
 
@@ -872,16 +873,20 @@ class File
         $parts = explode('.', $code);
         if ($parts[0] === 'Internal') {
             // An internal message.
-            $listenerCode = Util\Common::getSniffCode($this->activeListener);
-            $sniffCode    = $code;
-            $checkCodes   = [$sniffCode];
+            $listenerCode = '';
+            if ($this->activeListener !== '') {
+                $listenerCode = Common::getSniffCode($this->activeListener);
+            }
+
+            $sniffCode  = $code;
+            $checkCodes = [$sniffCode];
         } else {
             if ($parts[0] !== $code) {
                 // The full message code has been passed in.
                 $sniffCode    = $code;
                 $listenerCode = substr($sniffCode, 0, strrpos($sniffCode, '.'));
             } else {
-                $listenerCode = Util\Common::getSniffCode($this->activeListener);
+                $listenerCode = Common::getSniffCode($this->activeListener);
                 $sniffCode    = $listenerCode.'.'.$code;
                 $parts        = explode('.', $sniffCode);
             }
@@ -904,7 +909,7 @@ class File
                 }
             }
 
-            // If it is ignored, make sure it's not whitelisted.
+            // If it is ignored, make sure there is no exception in place.
             if ($ignored === true
                 && isset($this->tokenizer->ignoredLines[$line]['.except']) === true
             ) {
@@ -1418,7 +1423,9 @@ class File
             // it's likely to be an array which might have arguments in it. This
             // could cause problems in our parsing below, so lets just skip to the
             // end of it.
-            if (isset($this->tokens[$i]['parenthesis_opener']) === true) {
+            if ($this->tokens[$i]['code'] !== T_TYPE_OPEN_PARENTHESIS
+                && isset($this->tokens[$i]['parenthesis_opener']) === true
+            ) {
                 // Don't do this if it's the close parenthesis for the method.
                 if ($i !== $this->tokens[$i]['parenthesis_closer']) {
                     $i = $this->tokens[$i]['parenthesis_closer'];
@@ -1512,6 +1519,8 @@ class File
             case T_NS_SEPARATOR:
             case T_TYPE_UNION:
             case T_TYPE_INTERSECTION:
+            case T_TYPE_OPEN_PARENTHESIS:
+            case T_TYPE_CLOSE_PARENTHESIS:
             case T_FALSE:
             case T_TRUE:
             case T_NULL:
@@ -1615,7 +1624,7 @@ class File
                 $paramCount++;
                 break;
             case T_EQUAL:
-                $defaultStart = $this->findNext(Util\Tokens::$emptyTokens, ($i + 1), null, true);
+                $defaultStart = $this->findNext(Tokens::$emptyTokens, ($i + 1), null, true);
                 $equalToken   = $i;
                 break;
             }//end switch
@@ -1734,18 +1743,20 @@ class File
             }
 
             $valid = [
-                T_STRING            => T_STRING,
-                T_CALLABLE          => T_CALLABLE,
-                T_SELF              => T_SELF,
-                T_PARENT            => T_PARENT,
-                T_STATIC            => T_STATIC,
-                T_FALSE             => T_FALSE,
-                T_TRUE              => T_TRUE,
-                T_NULL              => T_NULL,
-                T_NAMESPACE         => T_NAMESPACE,
-                T_NS_SEPARATOR      => T_NS_SEPARATOR,
-                T_TYPE_UNION        => T_TYPE_UNION,
-                T_TYPE_INTERSECTION => T_TYPE_INTERSECTION,
+                T_STRING                 => T_STRING,
+                T_CALLABLE               => T_CALLABLE,
+                T_SELF                   => T_SELF,
+                T_PARENT                 => T_PARENT,
+                T_STATIC                 => T_STATIC,
+                T_FALSE                  => T_FALSE,
+                T_TRUE                   => T_TRUE,
+                T_NULL                   => T_NULL,
+                T_NAMESPACE              => T_NAMESPACE,
+                T_NS_SEPARATOR           => T_NS_SEPARATOR,
+                T_TYPE_UNION             => T_TYPE_UNION,
+                T_TYPE_INTERSECTION      => T_TYPE_INTERSECTION,
+                T_TYPE_OPEN_PARENTHESIS  => T_TYPE_OPEN_PARENTHESIS,
+                T_TYPE_CLOSE_PARENTHESIS => T_TYPE_CLOSE_PARENTHESIS,
             ];
 
             for ($i = $this->tokens[$stackPtr]['parenthesis_closer']; $i < $this->numTokens; $i++) {
@@ -1754,6 +1765,20 @@ class File
                 ) {
                     // End of function definition.
                     break;
+                }
+
+                if ($this->tokens[$i]['code'] === T_USE) {
+                    // Skip over closure use statements.
+                    for ($j = ($i + 1); $j < $this->numTokens && isset(Tokens::$emptyTokens[$this->tokens[$j]['code']]) === true; $j++);
+                    if ($this->tokens[$j]['code'] === T_OPEN_PARENTHESIS) {
+                        if (isset($this->tokens[$j]['parenthesis_closer']) === false) {
+                            // Live coding/parse error, stop parsing.
+                            break;
+                        }
+
+                        $i = $this->tokens[$j]['parenthesis_closer'];
+                        continue;
+                    }
                 }
 
                 if ($this->tokens[$i]['code'] === T_NULLABLE) {
@@ -1885,7 +1910,7 @@ class File
             T_READONLY  => T_READONLY,
         ];
 
-        $valid += Util\Tokens::$emptyTokens;
+        $valid += Tokens::$emptyTokens;
 
         $scope          = 'public';
         $scopeSpecified = false;
@@ -1937,17 +1962,19 @@ class File
         if ($i < $stackPtr) {
             // We've found a type.
             $valid = [
-                T_STRING            => T_STRING,
-                T_CALLABLE          => T_CALLABLE,
-                T_SELF              => T_SELF,
-                T_PARENT            => T_PARENT,
-                T_FALSE             => T_FALSE,
-                T_TRUE              => T_TRUE,
-                T_NULL              => T_NULL,
-                T_NAMESPACE         => T_NAMESPACE,
-                T_NS_SEPARATOR      => T_NS_SEPARATOR,
-                T_TYPE_UNION        => T_TYPE_UNION,
-                T_TYPE_INTERSECTION => T_TYPE_INTERSECTION,
+                T_STRING                 => T_STRING,
+                T_CALLABLE               => T_CALLABLE,
+                T_SELF                   => T_SELF,
+                T_PARENT                 => T_PARENT,
+                T_FALSE                  => T_FALSE,
+                T_TRUE                   => T_TRUE,
+                T_NULL                   => T_NULL,
+                T_NAMESPACE              => T_NAMESPACE,
+                T_NS_SEPARATOR           => T_NS_SEPARATOR,
+                T_TYPE_UNION             => T_TYPE_UNION,
+                T_TYPE_INTERSECTION      => T_TYPE_INTERSECTION,
+                T_TYPE_OPEN_PARENTHESIS  => T_TYPE_OPEN_PARENTHESIS,
+                T_TYPE_CLOSE_PARENTHESIS => T_TYPE_CLOSE_PARENTHESIS,
             ];
 
             for ($i; $i < $stackPtr; $i++) {
@@ -2073,7 +2100,7 @@ class File
         }
 
         $tokenBefore = $this->findPrevious(
-            Util\Tokens::$emptyTokens,
+            Tokens::$emptyTokens,
             ($stackPtr - 1),
             null,
             true
@@ -2097,14 +2124,14 @@ class File
             return true;
         }
 
-        if (isset(Util\Tokens::$assignmentTokens[$this->tokens[$tokenBefore]['code']]) === true) {
+        if (isset(Tokens::$assignmentTokens[$this->tokens[$tokenBefore]['code']]) === true) {
             // This is directly after an assignment. It's a reference. Even if
             // it is part of an operation, the other tests will handle it.
             return true;
         }
 
         $tokenAfter = $this->findNext(
-            Util\Tokens::$emptyTokens,
+            Tokens::$emptyTokens,
             ($stackPtr + 1),
             null,
             true
@@ -2155,7 +2182,7 @@ class File
             if ($this->tokens[$tokenAfter]['code'] === T_VARIABLE) {
                 return true;
             } else {
-                $skip   = Util\Tokens::$emptyTokens;
+                $skip   = Tokens::$emptyTokens;
                 $skip[] = T_NS_SEPARATOR;
                 $skip[] = T_SELF;
                 $skip[] = T_PARENT;
@@ -2245,7 +2272,7 @@ class File
      *                                  be returned.
      * @param bool             $local   If true, tokens outside the current statement
      *                                  will not be checked. IE. checking will stop
-     *                                  at the previous semi-colon found.
+     *                                  at the previous semicolon found.
      *
      * @return int|false
      * @see    findNext()
@@ -2326,7 +2353,7 @@ class File
      *                                  be returned.
      * @param bool             $local   If true, tokens outside the current statement
      *                                  will not be checked. i.e., checking will stop
-     *                                  at the next semi-colon found.
+     *                                  at the next semicolon found.
      *
      * @return int|false
      * @see    findPrevious()
@@ -2382,7 +2409,7 @@ class File
      */
     public function findStartOfStatement($start, $ignore=null)
     {
-        $startTokens = Util\Tokens::$blockOpeners;
+        $startTokens = Tokens::$blockOpeners;
         $startTokens[T_OPEN_SHORT_ARRAY]   = true;
         $startTokens[T_OPEN_TAG]           = true;
         $startTokens[T_OPEN_TAG_WITH_ECHO] = true;
@@ -2412,51 +2439,88 @@ class File
         // If the start token is inside the case part of a match expression,
         // find the start of the condition. If it's in the statement part, find
         // the token that comes after the match arrow.
-        $matchExpression = $this->getCondition($start, T_MATCH);
-        if ($matchExpression !== false) {
-            for ($prevMatch = $start; $prevMatch > $this->tokens[$matchExpression]['scope_opener']; $prevMatch--) {
-                if ($prevMatch !== $start
-                    && ($this->tokens[$prevMatch]['code'] === T_MATCH_ARROW
-                    || $this->tokens[$prevMatch]['code'] === T_COMMA)
-                ) {
-                    break;
-                }
+        if (empty($this->tokens[$start]['conditions']) === false) {
+            $conditions         = $this->tokens[$start]['conditions'];
+            $lastConditionOwner = end($conditions);
+            $matchExpression    = key($conditions);
 
-                // Skip nested statements.
-                if (isset($this->tokens[$prevMatch]['bracket_opener']) === true
-                    && $prevMatch === $this->tokens[$prevMatch]['bracket_closer']
-                ) {
-                    $prevMatch = $this->tokens[$prevMatch]['bracket_opener'];
-                } else if (isset($this->tokens[$prevMatch]['parenthesis_opener']) === true
-                    && $prevMatch === $this->tokens[$prevMatch]['parenthesis_closer']
-                ) {
-                    $prevMatch = $this->tokens[$prevMatch]['parenthesis_opener'];
-                }
-            }
+            if ($lastConditionOwner === T_MATCH
+                // Check if the $start token is at the same parentheses nesting level as the match token.
+                && ((empty($this->tokens[$matchExpression]['nested_parenthesis']) === true
+                && empty($this->tokens[$start]['nested_parenthesis']) === true)
+                || ((empty($this->tokens[$matchExpression]['nested_parenthesis']) === false
+                && empty($this->tokens[$start]['nested_parenthesis']) === false)
+                && $this->tokens[$matchExpression]['nested_parenthesis'] === $this->tokens[$start]['nested_parenthesis']))
+            ) {
+                // Walk back to the previous match arrow (if it exists).
+                $lastComma          = null;
+                $inNestedExpression = false;
+                for ($prevMatch = $start; $prevMatch > $this->tokens[$matchExpression]['scope_opener']; $prevMatch--) {
+                    if ($prevMatch !== $start && $this->tokens[$prevMatch]['code'] === T_MATCH_ARROW) {
+                        break;
+                    }
 
-            if ($prevMatch <= $this->tokens[$matchExpression]['scope_opener']) {
-                // We're before the arrow in the first case.
-                $next = $this->findNext(Util\Tokens::$emptyTokens, ($this->tokens[$matchExpression]['scope_opener'] + 1), null, true);
-                if ($next === false) {
-                    return $start;
-                }
+                    if ($prevMatch !== $start && $this->tokens[$prevMatch]['code'] === T_COMMA) {
+                        $lastComma = $prevMatch;
+                        continue;
+                    }
 
-                return $next;
-            }
+                    // Skip nested statements.
+                    if (isset($this->tokens[$prevMatch]['bracket_opener']) === true
+                        && $prevMatch === $this->tokens[$prevMatch]['bracket_closer']
+                    ) {
+                        $prevMatch = $this->tokens[$prevMatch]['bracket_opener'];
+                        continue;
+                    }
 
-            if ($this->tokens[$prevMatch]['code'] === T_COMMA) {
-                // We're before the arrow, but not in the first case.
-                $prevMatchArrow = $this->findPrevious(T_MATCH_ARROW, ($prevMatch - 1), $this->tokens[$matchExpression]['scope_opener']);
-                if ($prevMatchArrow === false) {
-                    // We're before the arrow in the first case.
-                    $next = $this->findNext(Util\Tokens::$emptyTokens, ($this->tokens[$matchExpression]['scope_opener'] + 1), null, true);
+                    if (isset($this->tokens[$prevMatch]['parenthesis_opener']) === true
+                        && $prevMatch === $this->tokens[$prevMatch]['parenthesis_closer']
+                    ) {
+                        $prevMatch = $this->tokens[$prevMatch]['parenthesis_opener'];
+                        continue;
+                    }
+
+                    // Stop if we're _within_ a nested short array statement, which may contain comma's too.
+                    // No need to deal with parentheses, those are handled above via the `nested_parenthesis` checks.
+                    if (isset($this->tokens[$prevMatch]['bracket_opener']) === true
+                        && $this->tokens[$prevMatch]['bracket_closer'] > $start
+                    ) {
+                        $inNestedExpression = true;
+                        break;
+                    }
+                }//end for
+
+                if ($inNestedExpression === false) {
+                    // $prevMatch will now either be the scope opener or a match arrow.
+                    // If it is the scope opener, go the first non-empty token after. $start will have been part of the first condition.
+                    if ($prevMatch <= $this->tokens[$matchExpression]['scope_opener']) {
+                        // We're before the arrow in the first case.
+                        $next = $this->findNext(Tokens::$emptyTokens, ($this->tokens[$matchExpression]['scope_opener'] + 1), null, true);
+                        if ($next === false) {
+                            // Shouldn't be possible.
+                            return $start;
+                        }
+
+                        return $next;
+                    }
+
+                    // Okay, so we found a match arrow.
+                    // If $start was part of the "next" condition, the last comma will be set.
+                    // Otherwise, $start must have been part of a return expression.
+                    if (isset($lastComma) === true && $lastComma > $prevMatch) {
+                        $prevMatch = $lastComma;
+                    }
+
+                    // In both cases, go to the first non-empty token after.
+                    $next = $this->findNext(Tokens::$emptyTokens, ($prevMatch + 1), null, true);
+                    if ($next === false) {
+                        // Shouldn't be possible.
+                        return $start;
+                    }
+
                     return $next;
-                }
-
-                $end  = $this->findEndOfStatement($prevMatchArrow);
-                $next = $this->findNext(Util\Tokens::$emptyTokens, ($end + 1), null, true);
-                return $next;
-            }
+                }//end if
+            }//end if
         }//end if
 
         $lastNotEmpty = $start;
@@ -2515,7 +2579,7 @@ class File
                 }
             }//end if
 
-            if (isset(Util\Tokens::$emptyTokens[$this->tokens[$i]['code']]) === false) {
+            if (isset(Tokens::$emptyTokens[$this->tokens[$i]['code']]) === false) {
                 $lastNotEmpty = $i;
             }
         }//end for
@@ -2610,7 +2674,7 @@ class File
                     continue;
                 }
 
-                if ($i === $start && isset(Util\Tokens::$scopeOpeners[$this->tokens[$i]['code']]) === true) {
+                if ($i === $start && isset(Tokens::$scopeOpeners[$this->tokens[$i]['code']]) === true) {
                     return $this->tokens[$i]['scope_closer'];
                 }
 
@@ -2630,7 +2694,7 @@ class File
                 }
             }//end if
 
-            if (isset(Util\Tokens::$emptyTokens[$this->tokens[$i]['code']]) === false) {
+            if (isset(Tokens::$emptyTokens[$this->tokens[$i]['code']]) === false) {
                 $lastNotEmpty = $i;
             }
         }//end for
@@ -2647,15 +2711,18 @@ class File
      *
      * @param int|string|array $types   The type(s) of tokens to search for.
      * @param int              $start   The position to start searching from in the
-     *                                  token stack. The first token matching on
-     *                                  this line before this token will be returned.
+     *                                  token stack.
      * @param bool             $exclude If true, find the token that is NOT of
      *                                  the types specified in $types.
      * @param string           $value   The value that the token must be equal to.
      *                                  If value is omitted, tokens with any value will
      *                                  be returned.
      *
-     * @return int|false
+     * @return int|false The first token which matches on the line containing the start
+     *                   token, between the start of the line and the start token.
+     *                   Note: The first token matching might be the start token.
+     *                   FALSE when no matching token could be found between the start of
+     *                   the line and the start token.
      */
     public function findFirstOnLine($types, $start, $exclude=false, $value=null)
     {
@@ -2715,7 +2782,7 @@ class File
         }
 
         // Make sure the token has conditions.
-        if (isset($this->tokens[$stackPtr]['conditions']) === false) {
+        if (empty($this->tokens[$stackPtr]['conditions']) === true) {
             return false;
         }
 
@@ -2756,7 +2823,7 @@ class File
         }
 
         // Make sure the token has conditions.
-        if (isset($this->tokens[$stackPtr]['conditions']) === false) {
+        if (empty($this->tokens[$stackPtr]['conditions']) === true) {
             return false;
         }
 

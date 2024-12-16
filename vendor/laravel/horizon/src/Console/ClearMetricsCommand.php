@@ -4,7 +4,9 @@ namespace Laravel\Horizon\Console;
 
 use Illuminate\Console\Command;
 use Laravel\Horizon\Contracts\MetricsRepository;
+use Symfony\Component\Console\Attribute\AsCommand;
 
+#[AsCommand(name: 'horizon:clear-metrics')]
 class ClearMetricsCommand extends Command
 {
     /**
@@ -31,6 +33,6 @@ class ClearMetricsCommand extends Command
     {
         $metrics->clear();
 
-        $this->info('Metrics cleared successfully.');
+        $this->components->info('Metrics cleared successfully.');
     }
 }

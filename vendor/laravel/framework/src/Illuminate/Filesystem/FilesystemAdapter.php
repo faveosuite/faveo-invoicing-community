@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Contracts\Filesystem\Cloud as CloudFilesystemContract;
 use Illuminate\Contracts\Filesystem\Filesystem as FilesystemContract;
 use Illuminate\Http\File;
+use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -74,6 +75,13 @@ class FilesystemAdapter implements CloudFilesystemContract
     protected $prefixer;
 
     /**
+     * The file server callback.
+     *
+     * @var \Closure|null
+     */
+    protected $serveCallback;
+
+    /**
      * The temporary URL builder callback.
      *
      * @var \Closure|null
@@ -130,6 +138,27 @@ class FilesystemAdapter implements CloudFilesystemContract
                 );
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * Assert that the number of files in path equals the expected count.
+     *
+     * @param  string  $path
+     * @param  int  $count
+     * @param  bool  $recursive
+     * @return $this
+     */
+    public function assertCount($path, $count, $recursive = false)
+    {
+        clearstatcache();
+
+        $actual = count($this->files($path, $recursive));
+
+        PHPUnit::assertEquals(
+            $actual, $count, "Expected [{$count}] files at [{$path}], but found [{$actual}]."
+        );
 
         return $this;
     }
@@ -237,7 +266,7 @@ class FilesystemAdapter implements CloudFilesystemContract
     }
 
     /**
-     * Get the full path for the file at the given "short" path.
+     * Get the full path to the file that exists at the given relative path.
      *
      * @param  string  $path
      * @return string
@@ -316,8 +345,25 @@ class FilesystemAdapter implements CloudFilesystemContract
     /**
      * Create a streamed download response for a given file.
      *
+     * @param  \Illuminate\Http\Request  $request
      * @param  string  $path
      * @param  string|null  $name
+     * @param  array  $headers
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse
+     */
+    public function serve(Request $request, $path, $name = null, array $headers = [])
+    {
+        return isset($this->serveCallback)
+            ? call_user_func($this->serveCallback, $request, $path, $headers)
+            : $this->response($path, $name, $headers);
+    }
+
+    /**
+     * Create a streamed download response for a given file.
+     *
+     * @param  string  $path
+     * @param  string|null  $name
+     * @param  array  $headers
      * @return \Symfony\Component\HttpFoundation\StreamedResponse
      */
     public function download($path, $name = null, array $headers = [])
@@ -946,6 +992,17 @@ class FilesystemAdapter implements CloudFilesystemContract
             FilesystemContract::VISIBILITY_PRIVATE => Visibility::PRIVATE,
             default => throw new InvalidArgumentException("Unknown visibility: {$visibility}."),
         };
+    }
+
+    /**
+     * Define a custom callback that generates file download responses.
+     *
+     * @param  \Closure  $callback
+     * @return void
+     */
+    public function serveUsing(Closure $callback)
+    {
+        $this->serveCallback = $callback;
     }
 
     /**

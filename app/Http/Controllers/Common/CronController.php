@@ -290,6 +290,12 @@ class CronController extends BaseCronController
                 ->join('orders', 'subscriptions.order_id', '=', 'orders.id')
                 ->where('orders.order_status', 'executed')
                 ->where('subscriptions.is_subscribed', '0') // Apply this condition correctly
+                ->select([
+                    'subscriptions.*',
+                    'orders.id as order_id',
+                    'orders.*',
+                    'subscriptions.id as id',
+                ])
                 ->get()
                 ->toArray(); // Convert the collection to an array
 
@@ -323,6 +329,12 @@ class CronController extends BaseCronController
                 ->join('orders', 'subscriptions.order_id', '=', 'orders.id')
                 ->where('orders.order_status', 'executed')
                 ->where('subscriptions.is_subscribed', '1') // Apply this condition correctly
+                ->select([
+                    'subscriptions.*',
+                    'orders.id as order_id',
+                    'orders.*',
+                    'subscriptions.id as id',
+                ])
                 ->get()
                 ->toArray(); // Convert the collection to an array
 
@@ -356,6 +368,12 @@ class CronController extends BaseCronController
                 ->orWhere('ends_at', 'LIKE', $endDate.'%')
                 ->join('orders', 'subscriptions.order_id', '=', 'orders.id')
                 ->where('orders.order_status', 'executed')
+                ->select([
+                    'subscriptions.*',
+                    'orders.id as order_id',
+                    'orders.*',
+                    'subscriptions.id as id',
+                ])
                 ->get()
                 ->toArray();
 

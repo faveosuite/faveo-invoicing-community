@@ -6,8 +6,10 @@ namespace OpenSpout\Writer\XLSX;
 
 use OpenSpout\Common\Entity\Style\Style;
 use OpenSpout\Writer\Common\AbstractOptions;
+use OpenSpout\Writer\XLSX\Options\HeaderFooter;
 use OpenSpout\Writer\XLSX\Options\PageMargin;
 use OpenSpout\Writer\XLSX\Options\PageSetup;
+use OpenSpout\Writer\XLSX\Options\WorkbookProtection;
 
 final class Options extends AbstractOptions
 {
@@ -23,6 +25,12 @@ final class Options extends AbstractOptions
 
     private ?PageSetup $pageSetup = null;
 
+    private ?HeaderFooter $headerFooter = null;
+
+    private ?WorkbookProtection $workbookProtection = null;
+
+    private Properties $properties;
+
     public function __construct()
     {
         parent::__construct();
@@ -32,6 +40,8 @@ final class Options extends AbstractOptions
         $defaultRowStyle->setFontName(self::DEFAULT_FONT_NAME);
 
         $this->DEFAULT_ROW_STYLE = $defaultRowStyle;
+
+        $this->properties = new Properties();
     }
 
     /**
@@ -88,5 +98,35 @@ final class Options extends AbstractOptions
     public function getPageSetup(): ?PageSetup
     {
         return $this->pageSetup;
+    }
+
+    public function setHeaderFooter(HeaderFooter $headerFooter): void
+    {
+        $this->headerFooter = $headerFooter;
+    }
+
+    public function getHeaderFooter(): ?HeaderFooter
+    {
+        return $this->headerFooter;
+    }
+
+    public function getWorkbookProtection(): ?WorkbookProtection
+    {
+        return $this->workbookProtection;
+    }
+
+    public function setWorkbookProtection(WorkbookProtection $workbookProtection): void
+    {
+        $this->workbookProtection = $workbookProtection;
+    }
+
+    public function getProperties(): Properties
+    {
+        return $this->properties;
+    }
+
+    public function setProperties(Properties $properties): void
+    {
+        $this->properties = $properties;
     }
 }

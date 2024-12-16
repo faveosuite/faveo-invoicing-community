@@ -11,22 +11,49 @@ pre.phpdebugbar-widgets-code-block {
   pre.phpdebugbar-widgets-code-block code.phpdebugbar-widgets-numbered-code {
     padding: 5px;
   }
-    pre.phpdebugbar-widgets-code-block code span.phpdebugbar-widgets-highlighted-line {
-      background: #800000;
-      color: #fff;
-      display: inline-block;
-      min-width: 100%;
-    }
-      pre.phpdebugbar-widgets-code-block code span.phpdebugbar-widgets-highlighted-line span {
-        background: none !important;
-        color: inherit !important;
-      }
+  pre.phpdebugbar-widgets-code-block ul li.phpdebugbar-widgets-highlighted-line {
+    font-weight: bolder;
+    text-decoration: underline;
+  }
+  pre.phpdebugbar-widgets-code-block ul li.phpdebugbar-widgets-highlighted-line span {
+    position: absolute;
+    background: #800000;
+    min-width: calc(100% - 85px);
+    margin-left: 10px;
+    opacity: 0.15;
+  }
   pre.phpdebugbar-widgets-code-block ul {
+    position: static;
     float: left;
     padding: 5px;
     background: #cacaca;
     border-right: 1px solid #aaa;
     text-align: right;
+  }
+
+  .phpdebugbar-widgets-kvlist span.phpdebugbar-widgets-filename,
+  li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-filename {
+    display: block;
+    font-style: italic;
+    float: right;
+    margin-left: 8px;
+    color: #888;
+  }
+
+  a.phpdebugbar-widgets-editor-link:hover {
+    color: #aaaaaa;
+  }
+
+  a.phpdebugbar-widgets-editor-link:before {
+    font-family: PhpDebugbarFontAwesome;
+    margin-right: 4px;
+    font-size: 12px;
+    font-style: normal;
+  }
+
+  a.phpdebugbar-widgets-editor-link:before {
+    content: "\f08e";
+    margin-left: 4px;
   }
 
 /* -------------------------------------- */
@@ -38,7 +65,7 @@ ul.phpdebugbar-widgets-list {
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
 }
   ul.phpdebugbar-widgets-list li.phpdebugbar-widgets-list-item {
-    padding: 3px 6px;
+    padding: 3px;
     border-bottom: 1px solid #eee;
     position: relative;
     overflow: hidden;
@@ -54,27 +81,38 @@ div.phpdebugbar-widgets-messages {
   height: 100%;
 }
   div.phpdebugbar-widgets-messages ul.phpdebugbar-widgets-list {
-    padding-bottom: 20px;
+    padding-bottom: 45px;
   }
-  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-value.phpdebugbar-widgets-warning:before {
+  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-value:before {
     font-family: PhpDebugbarFontAwesome;
-    content: "\f071";
     margin-right: 8px;
     font-size: 11px;
+  }
+  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-value.phpdebugbar-widgets-alert:before {
+    content: "\f0f3";
+    color: #cbcf38;
+  }
+  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-value.phpdebugbar-widgets-debug:before {
+    content: "\f188";
+    color: #78d79a;
+  }
+  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-value.phpdebugbar-widgets-warning:before,
+  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-value.phpdebugbar-widgets-emergency:before,
+  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-value.phpdebugbar-widgets-notice:before {
+    content: "\f071";
     color: #ecb03d;
   }
-  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-value.phpdebugbar-widgets-error {
+  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-value.phpdebugbar-widgets-error,
+  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-value.phpdebugbar-widgets-critical:before {
     color: red;
   }
-  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-value.phpdebugbar-widgets-error:before {
-    font-family: PhpDebugbarFontAwesome;
+  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-value.phpdebugbar-widgets-error:before,
+  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-value.phpdebugbar-widgets-critical:before {
     content: "\f057";
-    margin-right: 8px;
-    font-size: 11px;
-    color: red;
   }
+  dl.phpdebugbar-widgets-kvlist dd.phpdebugbar-widgets-value pre.sf-dump,
   div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item pre.sf-dump {
-    display: inline;
+    display: inline-block !important;
   }
   div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-collector,
   div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-label {
@@ -97,6 +135,18 @@ div.phpdebugbar-widgets-messages {
     bottom: 0;
     width: 100%;
     background: #fff;
+  }
+  div.phpdebugbar-widgets-messages li .phpdebugbar-widgets-label-called-from {
+    float: right;
+    color: #666;
+    padding-left: 5px;
+    border-bottom: 1px dotted #666;
+  }
+  div.phpdebugbar-widgets-messages li .phpdebugbar-widgets-label-called-from:before {
+    content: "\f08d";
+    font-family: PhpDebugbarFontAwesome;
+    margin-right: 4px;
+    font-size: 12px;
   }
     div.phpdebugbar-widgets-messages div.phpdebugbar-widgets-toolbar input {
       border: 0;
@@ -226,16 +276,6 @@ div.phpdebugbar-widgets-exceptions li.phpdebugbar-widgets-list-item {
     color: red;
   }
 
-  div.phpdebugbar-widgets-exceptions li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-filename {
-    display: block;
-    font-style: italic;
-    color: #555;
-  }
-
-  div.phpdebugbar-widgets-exceptions li.phpdebugbar-widgets-list-item a.phpdebugbar-widgets-editor-link:hover {
-    color: #aaaaaa;
-  }
-
   div.phpdebugbar-widgets-exceptions li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-type {
     display: block;
     position: absolute;
@@ -252,17 +292,9 @@ div.phpdebugbar-widgets-exceptions li.phpdebugbar-widgets-list-item {
     font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
   }
 
-div.phpdebugbar-widgets-exceptions a.phpdebugbar-widgets-editor-link:before {
-  font-family: PhpDebugbarFontAwesome;
-  margin-right: 4px;
-  font-size: 12px;
-  font-style: normal;
-}
-
-div.phpdebugbar-widgets-exceptions a.phpdebugbar-widgets-editor-link:before {
-  content: "\f08e";
-  margin-left: 4px;
-}
+  div.phpdebugbar-widgets-exceptions li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-filename {
+    float: none;
+  }
 
 ul.phpdebugbar-widgets-timeline table.phpdebugbar-widgets-params {
     display: table;

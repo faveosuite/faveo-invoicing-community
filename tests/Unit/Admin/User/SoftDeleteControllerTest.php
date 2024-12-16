@@ -11,7 +11,7 @@ use Tests\DBTestCase;
 
 class SoftDeleteControllerTest extends DBTestCase
 {
-    /** @group softDelete */
+    #[Group('softDelete')]
     public function test_softDeletedUsers_checkUserIsSoftDeleted()
     {
         $this->withoutMiddleware();
@@ -22,7 +22,7 @@ class SoftDeleteControllerTest extends DBTestCase
         $this->assertSoftDeleted('users', ['id' => $user->id, 'email' => $user->email]);
     }
 
-    /** @group softDelete */
+    #[Group('softDelete')]
     public function test_restoreUser_checkSoftDeletedUserIsRestored()
     {
         $this->withoutMiddleware();
@@ -32,17 +32,18 @@ class SoftDeleteControllerTest extends DBTestCase
         $data->assertSessionHas('success');
     }
 
-    /** @group softDelete */
+    #[Group('softDelete')]
     public function test_permanentDeleteUser_deleteUserPermanently()
     {
         $this->withoutMiddleware();
         $user = User::factory()->create();
         $user->delete();
-        $data = $this->call('DELETE', 'permanent-delete-client', ['select' => [$user->id]]);
+        $this->expectOutputRegex('/Deleted Successfully/');
+        $response = $this->call('DELETE', 'permanent-delete-client', ['select' => [$user->id]]);
         $this->assertDatabaseMissing('users', ['id' => $user->id]);
     }
 
-    /** @group softDelete */
+    #[Group('softDelete')]
     public function test_permanentDeleteUser_deleteInvoiceOrderCommnetPermanently()
     {
         $this->withoutMiddleware();
@@ -53,6 +54,7 @@ class SoftDeleteControllerTest extends DBTestCase
         $comment = Comment::create(['user_id' => $user2->id, 'updated_by_user_id' => $user1->id, 'description' => 'TesComment']);
         $order = Order::create(['client' => $user1->id, 'order_status' => 'executed', 'product' => $product->id]);
         $user1->delete();
+        $this->expectOutputRegex('/Deleted Successfully/');
         $data = $this->call('DELETE', 'permanent-delete-client', ['select' => [$user1->id]]);
         $this->assertDatabaseMissing('users', ['id' => $user1->id]);
         $this->assertDatabaseMissing('invoices', ['user_id' => $user1->id]);

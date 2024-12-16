@@ -109,15 +109,16 @@ License Permission
 
     //Add Permissions for a License
 
-   
-          function bindEditButton() {
-              $('.addPermission').on('click',function(){
-                  var licenseTypeId = $(this).attr('data-id');
-                  var permissions = $(this).attr('data-permission') //All Permission for a particular License
-                  $.ajax({
-                    url:"{!! route('tick-permission') !!}",
-                    data: { 'license': licenseTypeId  },
-                    beforeSend: function() {
+
+      function bindEditButton() {
+          $('.addPermission').on('click', function() {
+              var licenseTypeId = $(this).attr('data-id');
+              var permissions = $(this).attr('data-permission'); // All Permission for a particular License
+
+              $.ajax({
+                  url: "{!! route('tick-permission') !!}",
+                  data: { 'license': licenseTypeId },
+                  beforeSend: function() {
                       $('input[type="checkbox"].minimal').iCheck('uncheck');
                     },
                 success: function (data) {
@@ -136,48 +137,77 @@ License Permission
               });
 
               $('#licenseTypeId').val(licenseTypeId);
-              $('#permissionssubmit').click(function(){
-               var permissionid = [];
-                $('.permission_checkbox:checked').each(function(){
-                permissionid.push($(this).val());
-                });
-                if(permissionid.length > 0) {
-                 $.ajax({
-                        url:"{!! route('add-permission') !!}",
-                         method: "delete",
-                         data: { 'licenseId': licenseTypeId ,'permissionid' : permissionid },
-                        beforeSend: function () {
-                       $('#permissionresponse').html( '<div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>');
-                     },
-                  success: function (data) {
-                   if (data.message =='success'){
-                     var result =  '<div class="alert alert-success alert-dismissable"><strong><i class="fa fa-check"></i> Success!! </strong> '+data.update+' <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button></div>';
-                        $('#permissionresponse').html(result);
-                         $('#permissionresponse').css('color', 'green');
-                    setTimeout(function(){
-                        window.location.reload();
-                      },3000);
-                    }
-                  },
-                  error: function(ex) {
-                     var myJSON = JSON.parse(ex.responseText);
-                       var html = '<div class="alert alert-danger"><strong>Whoops! </strong>Something went wrong<br><br><ul>';
-                                  for (var key in myJSON)
-                                  {
-                                      html += '<li>' + myJSON[key][0] + '</li>'
-                                  }
-                                 html += '</ul></div>';
-                                 $('#permissionresponse').show(); 
-                                  document.getElementById('permissionresponse').innerHTML = html;
-                                     }
-                   
-                                 })
-                              } else {
-                                alert('Plaese Select One Option');
-                              }
-                         });
+
+              $('#permissionssubmit').off('click').on('click', function() {
+                  var permissionid = [];
+                  $('.permission_checkbox:checked').each(function() {
+                      permissionid.push($(this).val());
+                  });
+
+                  if (permissionid.length > 0) {
+                      $.ajax({
+                          url: "{!! route('add-permission') !!}",
+                          method: "delete",
+                          data: { 'licenseId': licenseTypeId, 'permissionid': permissionid },
+                          beforeSend: function() {
+                              $('#permissionresponse').html('<div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>');
+                          },
+                          success: function(data) {
+                              showAlert('success', data);
+                              setTimeout(function (){
+                                  window.location.reload();
+                              }, 3000);
+                          },
+                          error: function(xhr) {
+                              showAlert('error', xhr.responseJSON);
+                          }
                       });
-                    }
+                  } else {
+                      showAlert('error', 'Please select at least one permission');
+                  }
+              });
+          });
+      }
+
+      let alertTimeout;
+
+      function showAlert(type, messageOrResponse) {
+          // Generate appropriate HTML
+          var html = generateAlertHtml(type, messageOrResponse);
+
+          // Clear any existing alerts and remove the timeout
+          $('#permissionresponse').html(html);
+          clearTimeout(alertTimeout); // Clear the previous timeout if it exists
+
+          // Display alert
+          window.scrollTo(0, 0);
+
+          // Auto-dismiss after 5 seconds
+          alertTimeout = setTimeout(function() {
+              $('#permissionresponse .alert').fadeOut('slow');
+          }, 5000);
+      }
+
+      function generateAlertHtml(type, response) {
+          // Determine alert styling based on type
+          const isSuccess = type === 'success';
+          const iconClass = isSuccess ? 'fa-check-circle' : 'fa-ban';
+          const alertClass = isSuccess ? 'alert-success' : 'alert-danger';
+
+          // Extract message and errors
+          const message = response.message || response || 'An error occurred. Please try again.';
+          const errors = response.errors || null;
+
+          // Build base HTML
+          let html = `<div class="alert ${alertClass} alert-dismissible">` +
+              `<i class="fa ${iconClass}"></i> ` +
+              `${message}` +
+              '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+
+          html += '</div>';
+
+          return html;
+      }
 
    </script>
 

@@ -65,7 +65,7 @@
     </style>
     <div class="card card-secondary card-tabs">
 
-        {!! Form::model($product,['url'=>'products/'.$product->id,'method'=>'patch','files' => true,'id'=>'editproduct']) !!}
+        {!! html()->modelForm($product, 'PATCH', url('products/'.$product->id))->acceptsFiles()->id('editproduct')->open() !!}
         <div class="card-header p-0 pt-1">
             <ul class="nav nav-tabs" id="custom-tabs-one-tab" role="tablist">
                 <li class="nav-item">
@@ -83,8 +83,8 @@
                     <div class="row">
                         <div class="col-md-4 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                             <!-- first name -->
-                            {!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}
-                            {!! Form::text('name',null,['class' => 'form-control'.($errors->has('name') ? ' is-invalid' : ''), 'id'=>'productname']) !!}
+                            {!! html()->label(trans('message.name'), 'name')->class('required') !!}
+                            {!! html()->text('name')->class( 'form-control'.($errors->has('name') ? ' is-invalid' : ''))->id('productname') !!}
                             <h6 id= "namecheck"></h6>
                             @error('name')
                             <span class="error-message"> {{$message}}</span>
@@ -93,8 +93,8 @@
 
                         <div class="col-md-4 form-group {{ $errors->has('type') ? 'has-error' : '' }}">
                             <!-- last name -->
-                            {!! Form::label('type',Lang::get('message.lic_type'),['class'=>'required']) !!}
-                            {!! Form::select('type',[''=>'Choose','Types'=>$type],null,['class' => 'form-control'.($errors->has('type') ? ' is-invalid' : '')]) !!}
+                            {!! html()->label(trans('message.lic_type'), 'type')->class('required') !!}
+                            {!! html()->select('type', ['' => 'Choose', 'Types' => $type])->class('form-control'.($errors->has('type') ? ' is-invalid' : '')) !!}
                             <div class="input-group-append"></div>
                             @error('type')
                             <span class="error-message"> {{$message}}</span>
@@ -105,7 +105,7 @@
                         ?>
                         <div class="col-md-4 form-group {{ $errors->has('group') ? 'has-error' : '' }}">
                             <!-- last name -->
-                            {!! Form::label('group',Lang::get('message.group'),['class'=>'required']) !!}
+                            {!! html()->label(Lang::get('message.group'), 'group')->class('required') !!}
                             <select name="group"  class="form-control {{$errors->has('group') ? ' is-invalid' : ''}}" id="groups">
                                 <option value="">Choose</option>
                                 @foreach($groups as $key=>$group)
@@ -129,8 +129,8 @@
 
                         <div class="col-md-6 form-group {{ $errors->has('description') ? 'has-error' : '' }}">
 
-                            {!! Form::label('description',Lang::get('message.price_description'),['class'=>'required']) !!}
-                            <!--{!! Form::text('description',null,['class' => 'form-control'.($errors->has('description') ? ' is-invalid' : ''),'id'=>'textarea1']) !!}-->
+                            {!! html()->label(Lang::get('message.price_description'), 'description')->class('required') !!}
+                            <!-- {!! html()->text('description')->class('form-control'.($errors->has('description') ? ' is-invalid' : ''))->id('textarea1') !!}-->
                             <textarea hidden class="form-control"  name="description" id='textarea1'>{!! $product->description !!}</textarea>
 
                             @error('description')
@@ -145,8 +145,8 @@
                                 <li>
                                     <div class="form-group {{ $errors->has('parent') ? 'has-error' : '' }}">
                                         <!-- last name -->
-                                        {!! Form::label('sku',Lang::get('message.sku'),['class'=>'required']) !!}
-                                        {!! Form::text('product_sku',null,['class' => 'form-control'.($errors->has('product_sku') ? ' is-invalid' : ''),'id'=>'product_sku']) !!}
+                                        {!! html()->label(trans('message.sku'), 'sku')->class('required') !!}
+                                        {!! html()->text('product_sku')->class('form-control'.($errors->has('product_sku') ? ' is-invalid' : ''))->id('product_sku') !!}
                                         <div class="input-group-append"></div>
                                         @error('product_sku')
                                         <span class="error-message"> {{$message}}</span>
@@ -156,8 +156,8 @@
                                 <li>
                                     <div class="form-group {{ $errors->has('parent') ? 'has-error' : '' }}">
                                         <!-- last name -->
-                                        {!! Form::label('parent',Lang::get('message.parent')) !!}
-                                        {!! Form::select('parent[]',[''=>'Choose','Products'=>$products],null,['class' => 'form-control'.($errors->has('parent[]') ? ' is-invalid' : '')]) !!}
+                                        {!! html()->label(trans('message.parent'), 'parent') !!}
+                                        {!! html()->select('parent[]', ['' => 'Choose', 'Products' => $products])->class('form-control'.($errors->has('parent[]') ? ' is-invalid' : '')) !!}
 
                                     </div>
                                 </li>
@@ -165,8 +165,8 @@
                                 <li>
                                     <div class="form-group {{ $errors->has('image') ? 'has-error' : '' }}">
                                         <!-- last name -->
-                                        {!! Form::label('image',Lang::get('message.image')) !!}
-                                        {!! Form::file('image',['id'=>'image']) !!}
+                                        {!! html()->label(trans('message.image'), 'image') !!}
+                                        {!! html()->file('image')->id('image') !!}
                                         <span class="system-error text-danger d-block mt-1" id="profilepic-err-Msg"></span>
                                         <br>
                                         @if($product->image)
@@ -193,16 +193,16 @@
                                                 <li>
                                                     <div class="form-group {{ $errors->has('github_owner') ? 'has-error' : '' }}">
                                                         <!-- first name -->
-                                                        {!! Form::label('github_owner',Lang::get('message.github-owner')) !!}
-                                                        {!! Form::text('github_owner',null,['class'=>'form-control'.($errors->has('github_owner') ? ' is-invalid' : ''),'id'=>'owner']) !!}
+                                                        {!! html()->label(trans('message.github-owner'), 'github_owner') !!}
+                                                        {!! html()->text('github_owner')->class('form-control'.($errors->has('github_owner') ? ' is-invalid' : ''))->id('owner') !!}
                                                         @error('github_owner')
                                                         <span class="error-message"> {{$message}}</span>
                                                         @enderror
                                                     </div>
                                                     <div class="form-group {{ $errors->has('github_repository') ? 'has-error' : '' }}">
                                                         <!-- last name -->
-                                                        {!! Form::label('github_repository',Lang::get('message.github-repository-name')) !!}
-                                                        {!! Form::text('github_repository',null,['class'=>'form-control'.($errors->has('github_repository') ? ' is-invalid' : ''),'id'=>'repo']) !!}
+                                                        {!! html()->label(trans('message.github-repository-name'), 'github_repository') !!}
+                                                        {!! html()->text('github_repository')->class('form-control'.($errors->has('github_repository') ? ' is-invalid' : ''))->id('repo') !!}
                                                         @error('github_repository')
                                                         <span class="error-message"> {{$message}}</span>
                                                         @enderror
@@ -213,8 +213,8 @@
                                                 <li>
                                                     <div class="form-group {{ $errors->has('version') ? 'has-error' : '' }}">
                                                         <!-- last name -->
-                                                        {!! Form::label('version',Lang::get('message.version')) !!}
-                                                        {!! Form::text('version',null,['class'=>'form-control'.($errors->has('version') ? ' is-invalid' : ''),'id'=>'version']) !!}
+                                                        {!! html()->label(trans('message.version'), 'version') !!}
+                                                        {!! html()->text('version')->class('form-control'.($errors->has('version') ? ' is-invalid' : ''))->id('version') !!}
                                                         @error('version')
                                                         <span class="error-message"> {{$message}}</span>
                                                         @enderror
@@ -236,17 +236,17 @@
                                 <li>
                                     <div class="form-group {{ $errors->has('require_domain') ? 'has-error' : '' }}">
                                         <!-- last name -->
-                                        {!! Form::label('require_domain',Lang::get('message.require_domain')) !!}
-                                        {!! Form::hidden('require_domain', 0) !!}
-                                        <p>{!! Form::checkbox('require_domain',1) !!} {{Lang::get('message.tick-to-show-domain-registration-options')}}</p>
+                                        {!! html()->label(trans('message.require_domain'), 'require_domain') !!}
+                                        {!! html()->hidden('require_domain', 0) !!}
+                                        <p>{!! html()->checkbox('require_domain', null ,1) !!} {{Lang::get('message.tick-to-show-domain-registration-options')}}</p>
 
                                     </div>
                                 </li>
                                 <li>
                                     <div class="form-group {{ $errors->has('shoping_cart_link') ? 'has-error' : '' }}">
                                         <!-- last name -->
-                                        {!! Form::label('shoping_cart_link',Lang::get('message.shoping-cart-link')) !!}
-                                        {!! Form::text('shoping_cart_link',null,['class'=>'form-control']) !!}
+                                        {!! html()->label(trans('message.shoping-cart-link'), 'shoping_cart_link') !!}
+                                        {!! html()->text('shoping_cart_link', null)->class('form-control') !!}
 
                                     </div>
                                 </li>
@@ -255,15 +255,15 @@
 
                                         <div class="form-group {{ $errors->has('hidden') ? 'has-error' : '' }}">
                                             <!-- first name -->
-                                            {!! Form::label('hidden',Lang::get('message.hidden')) !!}
-                                            {!! Form::hidden('hidden', 0) !!}
+                                            {!! html()->label(trans('message.hidden'), 'hidden') !!}
+                                            {!! html()->hidden('hidden', 0) !!}
                                             <?php
                                             $value=  "";
                                             if ($product->hidden==1) {
                                                 $value = 'true';
                                             }
                                             ?>
-                                            <p>{!! Form::checkbox('hidden',1,$value) !!}  {{Lang::get('message.tick-to-hide-from-order-form')}}</p>
+                                            <p>{!! html()->checkbox('hidden', $value, 1) !!}  {{Lang::get('message.tick-to-hide-from-order-form')}}</p>
 
                                         </div>
 
@@ -274,15 +274,15 @@
 
                                         <div class="form-group {{ $errors->has('highlight') ? 'has-error' : '' }}">
                                             <!-- first name -->
-                                            {!! Form::label('highlight',Lang::get('message.highlight')) !!}
-                                            {!! Form::hidden('highlight', 0) !!}
+                                            {!! html()->label(trans('message.highlight'))->for('highlight') !!}
+                                            {!! html()->hidden('highlight', 0) !!}
                                             <?php
                                             $value=  "";
                                             if ($product->highlight==1) {
                                                 $value = 'true';
                                             }
                                             ?>
-                                            <p>{!! Form::checkbox('highlight',1,$value) !!}  {{Lang::get('message.tick-to-highlight-product')}}</p>
+                                            <p>{!! html()->checkbox('highlight', $value) !!}  {{Lang::get('message.tick-to-highlight-product')}}</p>
 
                                         </div>
 
@@ -294,15 +294,15 @@
 
                                         <div class="form-group {{ $errors->has('add_to_contact') ? 'has-error' : '' }}">
                                             <!-- first name -->
-                                            {!! Form::label('add_to_contact',Lang::get('Contact to sales')) !!}
-                                            {!! Form::hidden('add_to_contact', 0) !!}
+                                            {!! html()->label(trans('Contact to sales'))->for('add_to_contact') !!}
+                                            {!! html()->hidden('add_to_contact', 0) !!}
                                             <?php
                                             $value=  "";
                                             if ($product->add_to_contact==1) {
                                                 $value = 'true';
                                             }
                                             ?>
-                                            <p>{!! Form::checkbox('add_to_contact',1,$value) !!}  {{Lang::get('message.tick-to-add_to_contact-product')}}</p>
+                                            <p>{!! html()->checkbox('add_to_contact', $value, 1) !!} {{Lang::get('message.tick-to-add_to_contact-product')}}</p>
 
                                         </div>
 
@@ -315,8 +315,8 @@
                     <div class="row">
 
                         <div class="col-md-12 form-group {{ $errors->has('product_description') ? 'has-error' : '' }}">
-                            {!! Form::label('product_description', Lang::get('message.product_description'), ['class' => 'required']) !!}
-                            {!! Form::textarea('product_description', $product->product_description, ['class' => 'form-control'.($errors->has('product_description') ? ' is-invalid' : ''), 'id' => 'product-description']) !!}
+                            {!! html()->label(Lang::get('message.product_description'))->class('required') !!}
+                            {!! html()->textarea('product_description', $product->product_description)->class('form-control'.($errors->has('product_description') ? ' is-invalid' : ''))->id('product-description') !!}
                             <div class="input-group-append"></div>
                             @error('product_description')
                             <span class="error-message"> {{$message}}</span>
@@ -338,14 +338,14 @@
                                 <td>
 
                                     <div><label>
-                                            {!! Form::radio('show_agent',1,null,['id'=>'agent']) !!}
+                                            {!! html()->radio('show_agent', null, 1)->id('agent') !!}
                                             <!-- <input type ="radio" id="agent" value="0" name="cartquantity" hidden>   -->
                                             Agents
                                         </label></div>
 
                                     <br/>
                                     <div class="col-md-10" id="allowmulagent" style="display:none">
-                                        <p>{!! Form::checkbox('can_modify_agent',1,null,['id'=>'agent_multiple_quantity']) !!} {{Lang::get('message.allow_multiple_agents_quantity')}} </p>
+                                        <p>{!! html()->checkbox('can_modify_agent', 1, null)->id('agent_multiple_quantity') !!} {{Lang::get('message.allow_multiple_agents_quantity')}} </p>
                                     </div>
 
                                 </td>
@@ -355,13 +355,13 @@
                             <td>
                                 <div>
                                     <label>
-                                        {!! Form::radio('show_agent',0,null,['id'=>'quantity']) !!}
+                                        {!! html()->radio('show_agent', false, null)->id('quantity') !!}
                                         Product Quantity
                                     </label>
                                 </div>
                                 <br/>
                                 <div class="col-md-10" id="allowmulproduct" style="display:none">
-                                    <p>{!! Form::checkbox('can_modify_quantity',1,null,['id'=>'product_multiple_quantity']) !!}  {{Lang::get('message.allow_multiple_product_quantity')}} </p>
+                                    <p>{!! html()->checkbox('can_modify_quantity', 1, null)->id('product_multiple_quantity') !!}  {{Lang::get('message.allow_multiple_product_quantity')}} </p>
                                 </div>
 
                             </td>
@@ -369,7 +369,7 @@
                     </table>
 
                     <tr>
-                        <td><b>{!! Form::label('tax',Lang::get('message.taxes')) !!}</b></td>
+                        <td><b>{!! html()->label('tax', trans('message.taxes')) !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('taxes') ? 'has-error' : '' }}">
                                 <div class="row">
@@ -436,7 +436,7 @@
             </div>
             <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fas fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}</button>
 
-            {!! Form::close() !!}
+            {!! html()->form()->close() !!}
 
             <!-- nav-tabs-custom -->
 
@@ -849,40 +849,7 @@
         function checking(e){
             $('#upload-table').find("td input[type='checkbox']").prop('checked', $(e).prop('checked'));
         }
-
-        // $(document).on('click','#bulk_delete',function(){
-        //     console.log('hii');
-
-            {{--var id=[];--}}
-            {{--if (confirm("Are you sure you want to delete this?"))--}}
-            {{--{--}}
-            {{--    $('.upload_checkbox:checked').each(function(){--}}
-            {{--        id.push($(this).val())--}}
-            {{--    });--}}
-            {{--    if(id.length >0)--}}
-            {{--    {--}}
-            {{--        $.ajax({--}}
-            {{--            url:"{!! Url('uploads-delete') !!}",--}}
-            {{--            method:"delete",--}}
-            {{--            data: $('#checks:checked').serialize(),--}}
-            {{--            beforeSend: function () {--}}
-            {{--                $('#gif').show();--}}
-            {{--            },--}}
-            {{--            success: function (data) {--}}
-
-            {{--                $('#gif').hide();--}}
-            {{--                $('#response').html(data);--}}
-            {{--                location.reload();--}}
-            {{--            }--}}
-            {{--        })--}}
-            {{--    }--}}
-            {{--    else--}}
-            {{--    {--}}
-            {{--        alert("Please select at least one checkbox");--}}
-            {{--    }--}}
-            {{--}--}}
-
-            $(document).ready(function () {
+        $(document).ready(function () {
                 var selectedIds = [];
 
                 let alertTimeout;
@@ -1279,6 +1246,7 @@
                     title:$('#producttitle'),
                     dependencies:$('#dependencies'),
                     version:$('#productver'),
+                    files: $('#file-upload-list')
                 };
 
                 // Clear previous errors
@@ -1297,9 +1265,21 @@
 
                 // Validate required fields
                 Object.keys(userFields).forEach(field => {
-                    if (!userFields[field].val()) {
-                        showError(userFields[field], userRequiredFields[field]);
-                        isValid = false;
+                    if (field === 'files') {
+                        userFields[field].removeClass('is-invalid');
+                        userFields[field].next('.error').remove(); // prevent duplicate errors
+
+                        if ($('#file-upload-list li').length === 0) {
+                            userFields[field].addClass('is-invalid');
+                            userFields[field].after(`<span class='error invalid-feedback'>File upload is required.</span>`);
+                            isValid = false;
+                        }
+                    }
+                    else {
+                        if (!userFields[field].val()) {
+                            showError(userFields[field], userRequiredFields[field]);
+                            isValid = false;
+                        }
                     }
                 });
 
@@ -1329,6 +1309,9 @@
                             $('#error').hide();
                             var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="far fa-check"></i> Success! </strong>'+response.message+'.</div>';
                             $('#alertMessage1').html(result+ ".");
+                            setTimeout(function() {
+                                location.reload();
+                            }, 5000);
                         } ,
                         error: function(ex) {
                             $("#uploadVersion").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");

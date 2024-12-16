@@ -2,7 +2,7 @@
 <div class="modal fade" id="edittenant" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog">
         <div class="modal-content">
-            {!! Form::open() !!}
+            {!! html()->form()->open() !!}
             <div class="modal-header">
                 <h4 class="modal-title">Do you want to change your existing faveo cloud domain?</h4>
             </div>
@@ -41,7 +41,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-default pull-left closebutton" id="closebutton" data-dismiss="modal"><i class="fa fa-times">&nbsp;&nbsp;</i>Close</button>
                 <button type="submit"  class="btn btn-primary createTenant" id="createTenant" onclick="changeTenantDomain()"><i class="fa fa-check">&nbsp;&nbsp;</i>Submit</button>
-                {!! Form::close()  !!}
+                {!! html()->form()->close()  !!}
             </div>
             <!-- /Form -->
         </div><!-- /.modal-content -->

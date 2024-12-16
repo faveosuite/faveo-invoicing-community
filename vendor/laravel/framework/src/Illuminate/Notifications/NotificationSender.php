@@ -4,7 +4,7 @@ namespace Illuminate\Notifications;
 
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Contracts\Translation\HasLocalePreference;
-use Illuminate\Database\Eloquent\Collection as ModelCollection;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Events\NotificationSending;
 use Illuminate\Notifications\Events\NotificationSent;
@@ -87,7 +87,7 @@ class NotificationSender
      * @param  array|null  $channels
      * @return void
      */
-    public function sendNow($notifiables, $notification, array $channels = null)
+    public function sendNow($notifiables, $notification, ?array $channels = null)
     {
         $notifiables = $this->formatNotifiables($notifiables);
 
@@ -247,7 +247,7 @@ class NotificationSender
     {
         if (! $notifiables instanceof Collection && ! is_array($notifiables)) {
             return $notifiables instanceof Model
-                            ? new ModelCollection([$notifiables]) : [$notifiables];
+                            ? new EloquentCollection([$notifiables]) : [$notifiables];
         }
 
         return $notifiables;

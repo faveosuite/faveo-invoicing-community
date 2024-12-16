@@ -11,7 +11,12 @@ namespace PHP_CodeSniffer\Standards\Generic\Tests\NamingConventions;
 
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
 
-class UpperCaseConstantNameUnitTest extends AbstractSniffUnitTest
+/**
+ * Unit test class for the ValidConstantName sniff.
+ *
+ * @covers \PHP_CodeSniffer\Standards\Generic\Sniffs\NamingConventions\UpperCaseConstantNameSniff
+ */
+final class UpperCaseConstantNameUnitTest extends AbstractSniffUnitTest
 {
 
 
@@ -21,19 +26,32 @@ class UpperCaseConstantNameUnitTest extends AbstractSniffUnitTest
      * The key of the array should represent the line number and the value
      * should represent the number of errors that should occur on that line.
      *
+     * @param string $testFile The name of the test file to process.
+     *
      * @return array<int, int>
      */
-    public function getErrorList()
+    public function getErrorList($testFile='')
     {
-        return [
-            8  => 1,
-            10 => 1,
-            12 => 1,
-            14 => 1,
-            19 => 1,
-            28 => 1,
-            30 => 1,
-        ];
+        switch ($testFile) {
+        case 'UpperCaseConstantNameUnitTest.1.inc':
+            return [
+                8  => 1,
+                10 => 1,
+                12 => 1,
+                14 => 1,
+                19 => 1,
+                28 => 1,
+                30 => 1,
+                40 => 1,
+                41 => 1,
+                45 => 1,
+                51 => 1,
+                71 => 1,
+                73 => 1,
+            ];
+        default:
+            return [];
+        }
 
     }//end getErrorList()
 

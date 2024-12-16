@@ -10,7 +10,7 @@ class EditUserTest extends TestCase
 {
     use DatabaseTransactions;
 
-    /** @group clientController */
+    #[Group('clientController')]
     public function test_clientController_whenUserUpdatesDetails()
     {
         $user = User::factory()->create();

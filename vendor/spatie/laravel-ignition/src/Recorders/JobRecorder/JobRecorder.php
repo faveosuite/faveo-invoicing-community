@@ -75,6 +75,13 @@ class JobRecorder
             }
         }
 
+        try {
+            if (is_string($payload['data'])) {
+                $properties['data'] = json_decode($payload['data'], true, 512, JSON_THROW_ON_ERROR);
+            }
+        } catch (Exception $exception) {
+        }
+
         if ($pushedAt = DateTime::createFromFormat('U.u', $payload->get('pushedAt', ''))) {
             $properties['pushedAt'] = $pushedAt->format(DATE_ATOM);
         }

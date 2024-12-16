@@ -42,9 +42,9 @@ Razorpay
 
                         <td>
 
-                                {!! Form::label('rzp_key','Razorpay key',['class'=>'required']) !!}
+                        {!! html()->label('Razorpay key', 'rzp_key')->class('required') !!}
                             <div class="form-group col-lg-5 pl-0">
-                            {!! Form::text('rzp_key',$rzpKeys->rzp_key,['class' => 'form-control rzp_key '.($errors->has('rzp_key') ? ' is-invalid' : ''),'id'=>'rzp_key']) !!}
+                                {!! html()->text('rzp_key', $rzpKeys->rzp_key)->class('form-control rzp_key '.($errors->has('rzp_key') ? ' is-invalid' : ''))->id('rzp_key') !!}
                                    <span id="rzp_keycheck"></span>
                             </div>
 
@@ -56,7 +56,7 @@ Razorpay
                 <tr>
                         <td>
                           <!-- last name -->
-                            {!! Form::label('rzp_secret','Razorpay Secret', ['class'=>'required']) !!}
+                            {!! html()->label('Razorpay Secret', 'rzp_secret')->class('required') !!}
                             <div class="form-group col-lg-5 pl-0">
                             <div class="input-group">
 {{--                        {!! Form::text('rzp_secret',$rzpKeys->rzp_secret,['class' => 'form-control rzp_secret','id'=>'rzp_secret']) !!}--}}
@@ -79,9 +79,9 @@ Razorpay
                 <tr>
                           <td>
                           <!-- last name -->
-                        {!! Form::label('apilayer_key','ApiLayer Access Key(For Exchange Rate Conversion)', ['class'=>'required']) !!}
+                              {!! html()->label('ApiLayer Access Key (For Exchange Rate Conversion)', 'apilayer_key')->class('required') !!}
                               <div class="form-group col-lg-5 pl-0">
-                                {!! Form::text('apilayer_key',$rzpKeys->apilayer_key,['class' => 'form-control apilayer_key','id'=>'apilayer_key']) !!}
+                                  {!! html()->text('apilayer_key', $rzpKeys->apilayer_key)->class('form-control apilayer_key')->id('apilayer_key') !!}
 
                            <span id="apilayer_check"></span>
                               </div>

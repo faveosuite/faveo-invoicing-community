@@ -125,17 +125,22 @@ class BaseProductController extends ExtendedBaseProductController
 
             $plan = new Plan();
             $plans = $plan->where('product', $productid)->pluck('name', 'id')->toArray();
-            if (count($plans) > 0) {//If Plan Exist For A product, Display Dropdown for Plans
-                $field = "<div>
-                        <label for='plan' class='required'>"./* @scrutinizer ignore-type */
-                        \Lang::get('message.subscription').'</label>
-                       '.\Form::select(
-                            'plan',
-                            ['' => 'Select', 'Plans' => $plans],
-                            null,
-                            ['class' => 'form-control required', 'id' => 'plan', 'onchange' => 'getPrice(this.value)']
-                        ).'<div class="error-message" id="subscription-msg"></div>
-                </div>';
+            if (count($plans) > 0) { // If Plans Exist For A Product, Display Dropdown for Plans
+                $field = html()->div()
+                        ->class('form-group')
+                        ->children([
+                            html()->label()
+                                ->class('required')
+                                ->text(__('message.subscription')), // Translated label
+                            html()->select('plan', ['' => 'Select', 'Plans' => $plans])
+                                ->class('form-control')
+                                ->id('plan')
+                                ->attribute('onchange', 'getPrice(this.value)'),
+                            html()->div()
+                                ->class('error-message')
+                                ->id('subscription-msg'),
+                        ])
+                        ->toHtml();
             } else {//If No Plan Exist For A Product
                 $userid = $request->input('user');
                 $price = $controller->cost($productid, $userid);

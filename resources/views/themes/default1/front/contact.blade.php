@@ -69,9 +69,9 @@ $country = \DB::table('countries')->where('country_code_char2',$set->country)->v
 
                                 <label class="form-label mb-1 text-2">Mobile <span class="text-color-danger">*</span></label>
 
-                                {!! Form::hidden('mobile',null,['id'=>'mobile_code_hiddenco','name'=>'country_code']) !!}
+                                {!! html()->hidden('mobile', null)->id('mobile_code_hiddenco')->name('country_code') !!}
                                 <input class="form-control input-lg" id="mobilenumcon" name="Mobile" type="tel">
-                                {!! Form::hidden('mobile_code',null,['class'=>'form-control text-3 h-auto py-2','disabled','id'=>'mobile_codecon']) !!}
+                                {!! html()->hidden('mobile_code', null)->class('form-control text-3 h-auto py-2')->id('mobile_codecon')->disabled() !!}
                                 <span id="valid-msgcon" class="hide"></span>
                                 <span id="error-msgcon" class="hide"></span>
                                 <span id="mobile_codecheckcon"></span>

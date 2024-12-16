@@ -1,6 +1,6 @@
     @extends('themes.default1.layouts.master')
 @section('title')
-User Profile
+View Profile
 @stop
 
 @section('content-header')
@@ -74,7 +74,7 @@ input:checked + .slider:before {
 </style>
 
     <div class="col-sm-6">
-        <h1>User Profile</h1>
+        <h1>View Profile</h1>
     </div>
     <div class="col-sm-6">
 
@@ -108,7 +108,7 @@ input:checked + .slider:before {
     <div class="col-md-6">
 
 
-        {!! Form::model($user,['id' => 'userUpdateForm','url'=>'profile', 'method' => 'PATCH','files'=>true]) !!}
+    {!! html()->modelForm($user, 'PATCH', url('profile'))->attribute('enctype', 'multipart/form-data')->id('userUpdateForm')->open() !!}
 
 
         <div class="card card-secondary card-outline">
@@ -121,8 +121,8 @@ input:checked + .slider:before {
 
                 <div class="form-group {{ $errors->has('first_name') ? 'has-error' : '' }}">
                     <!-- first name -->
-                    {!! Form::label('first_name',null,['class' => 'required'],Lang::get('message.first_name')) !!}
-                    {!! Form::text('first_name',null,['class' => 'form-control'. ($errors->has('first_name') ? ' is-invalid' : '')]) !!}
+                    {!! html()->label(Lang::get('message.first_name'))->class('required')->for('first_name') !!}
+                    {!! html()->text('first_name')->class('form-control'. ($errors->has('first_name') ? ' is-invalid' : '')) !!}
                     @error('first_name')
                     <span class="error-message"> {{$message}}</span>
                     @enderror
@@ -132,18 +132,19 @@ input:checked + .slider:before {
 
                 <div class="form-group {{ $errors->has('last_name') ? 'has-error' : '' }}">
                     <!-- last name -->
-                    {!! Form::label('last_name',null,['class' => 'required'],Lang::get('message.last_name')) !!}
-                    {!! Form::text('last_name',null,['class' => 'form-control'. ($errors->has('last_name') ? ' is-invalid' : '')]) !!}
+                    {!! html()->label(Lang::get('message.last_name'))->class('required')->for('last_name') !!}
+                    {!! html()->text('last_name')->class('form-control'. ($errors->has('last_name') ? ' is-invalid' : '')) !!}
                     @error('last_name')
                     <span class="error-message"> {{$message}}</span>
                     @enderror
                     <div class="input-group-append">
                     </div>
                 </div>
+
                 <div class="form-group {{ $errors->has('user_name') ? 'has-error' : '' }}">
                     <!-- mobile -->
-                    {!! Form::label('user_name',null,['class' => 'required'],Lang::get('message.user_name')) !!}
-                    {!! Form::text('user_name',null,['class' => 'form-control'. ($errors->has('user_name') ? ' is-invalid' : '')]) !!}
+                    {!! html()->label(Lang::get('message.user_name'))->class('required')->for('user_name') !!}
+                    {!! html()->text('user_name')->class('form-control'. ($errors->has('user_name') ? ' is-invalid' : '')) !!}
                     @error('user_name')
                     <span class="error-message"> {{$message}}</span>
                     @enderror
@@ -151,11 +152,10 @@ input:checked + .slider:before {
                     </div>
                 </div>
 
-
                 <div class="form-group">
                     <!-- email -->
-                    {!! Form::label('email',null,['class' => 'required'],Lang::get('message.email')) !!}
-                     {!! Form::text('email',null,['class' => 'form-control'. ($errors->has('email') ? ' is-invalid' : '')]) !!}
+                    {!! html()->label(Lang::get('message.email'))->class('required')->for('email') !!}
+                    {!! html()->text('email')->class('form-control'. ($errors->has('email') ? ' is-invalid' : '')) !!}
                     @error('email')
                     <span class="error-message"> {{$message}}</span>
                     @enderror
@@ -165,8 +165,8 @@ input:checked + .slider:before {
 
                 <div class="form-group {{ $errors->has('company') ? 'has-error' : '' }}">
                     <!-- company -->
-                    {!! Form::label('company',null,['class' => 'required'],Lang::get('message.company')) !!}
-                    {!! Form::text('company',null,['class' => 'form-control'. ($errors->has('company') ? ' is-invalid' : '')]) !!}
+                    {!! html()->label(Lang::get('message.company'))->class('required')->for('company') !!}
+                    {!! html()->text('company')->class('form-control'. ($errors->has('company') ? ' is-invalid' : '')) !!}
                     @error('company')
                     <span class="error-message"> {{$message}}</span>
                     @enderror
@@ -176,12 +176,11 @@ input:checked + .slider:before {
 
 
                 <div class="form-group {{ $errors->has('mobile_code') ? 'has-error' : '' }}">
-                  {!! Form::label('mobile',null,['class' => 'required'],Lang::get('message.mobile')) !!}
-                     {!! Form::hidden('mobile_code',null,['id'=>'mobile_code_hidden']) !!}
+                    {!! html()->label(Lang::get('message.mobile'))->class('required')->for('mobile') !!}
+                    {!! html()->hidden('mobile_code')->id('mobile_code_hidden') !!}
 
-                    {!! Form::input('tel', 'mobile', $user->mobile, ['class' => 'form-control selected-dial-code'. ($errors->has('mobile') ? ' is-invalid' : ''), 'id' => 'mobile_code']) !!}
-
-                    {!! Form::hidden('mobile_country_iso',null,['id' => 'mobile_country_iso']) !!}
+                    {!! html()->input('tel', 'mobile', $user->mobile)->class( 'form-control selected-dial-code'. ($errors->has('mobile') ? ' is-invalid' : ''))->id('mobile_code') !!}
+                    {!! html()->hidden('mobile_country_iso')->id('mobile_country_iso') !!}
                     @error('mobile')
                     <span class="error-message"> {{$message}}</span>
                     @enderror
@@ -196,8 +195,8 @@ input:checked + .slider:before {
 
                 <div class="form-group {{ $errors->has('address') ? 'has-error' : '' }}">
                     <!-- phone number -->
-                    {!! Form::label('address',null,['class' => 'required'],Lang::get('message.address')) !!}
-                    {!! Form::textarea('address',null,['class' => 'form-control'. ($errors->has('address') ? ' is-invalid' : '')]) !!}
+                    {!! html()->label(Lang::get('message.address'))->class('required')->for('address') !!}
+                    {!! html()->textarea('address')->class( 'form-control'. ($errors->has('address') ? ' is-invalid' : '')) !!}
                     @error('address')
                     <span class="error-message"> {{$message}}</span>
                     @enderror
@@ -209,16 +208,16 @@ input:checked + .slider:before {
 
                     <div class="col-md-6 form-group {{ $errors->has('town') ? 'has-error' : '' }}">
                         <!-- mobile -->
-                        {!! Form::label('town',Lang::get('message.town')) !!}
-                        {!! Form::text('town',null,['class' => 'form-control'. ($errors->has('town') ? ' is-invalid' : '')]) !!}
+                        {!! html()->label(Lang::get('message.town'))->for('town') !!}
+                        {!! html()->text('town')->class('form-control'. ($errors->has('town') ? ' is-invalid' : '')) !!}
 
                     </div>
 
                     <div class="col-md-6 form-group {{ $errors->has('timezone_id') ? 'has-error' : '' }}">
                         <!-- mobile -->
-                        {!! Form::label('timezone_id',Lang::get('message.timezone'),['class' => 'required']) !!}
-                        <!-- {!! Form::select('timezone_id',[''=>'Select','Timezones'=>$timezones],null,['class' => 'form-control']) !!} -->
-                        {!! Form::select('timezone_id', [Lang::get('message.choose')=>$timezones],null,['class' => 'form-control select2 selectpicker'. ($errors->has('timezone_id') ? ' is-invalid' : ''),'data-live-search'=>'true','required','data-live-search-placeholder' => 'Search','data-dropup-auto'=>'false','data-size'=>'10']) !!}
+                        {!! html()->label(Lang::get('message.timezone'))->for('timezone_id')->class('required') !!}
+                        <!-- {!! html()->select('timezone_id')->options(['' => 'Select'] + $timezones)->class('form-control') !!} -->
+                        {!! html()->select('timezone_id')->options([Lang::get('message.choose') => $timezones])->class('form-control select2 selectpicker'. ($errors->has('timezone_id') ? ' is-invalid' : ''))->attribute('data-live-search', 'true')->attribute('required', true)->attribute('data-live-search-placeholder', 'Search')->attribute('data-dropup-auto', 'false')->attribute('data-size', '10') !!}
                         @error('timezone_id')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
@@ -230,11 +229,8 @@ input:checked + .slider:before {
                 <div class="row">
                     <?php $countries = \App\Model\Common\Country::pluck('nicename', 'country_code_char2')->toArray(); ?>
                     <div class="col-md-6 form-group {{ $errors->has('country') ? 'has-error' : '' }}">
-                         {!! Form::label('country',Lang::get('message.country'),['class' => 'required']) !!}
-
-
-
-                        {!! Form::select('country',[Lang::get('message.choose')=>$countries],null,['class' => 'form-control select2'. ($errors->has('country') ? ' is-invalid' : ''),'id'=>'country','onChange'=>'getCountryAttr(this.value)','data-live-search'=>'true','required','data-live-search-placeholder' => 'Search','data-dropup-auto'=>'false','data-size'=>'10','disabled'=>'disabled']) !!}
+                        {!! html()->label(Lang::get('message.country'), 'country')->class('required') !!}
+                        {!! html()->select('country')->options([Lang::get('message.choose') => $countries])->class('form-control select2'. ($errors->has('country') ? ' is-invalid' : ''))->id('country')->attribute('onChange', 'getCountryAttr(this.value)')->attribute('data-live-search', 'true')->attribute('required', 'required')->attribute('data-live-search-placeholder', 'Search')->attribute('data-dropup-auto', 'false')->attribute('data-size', '10')->attribute('disabled', 'disabled') !!}
                         <!-- name -->
                         @error('country')
                         <span class="error-message"> {{$message}}</span>
@@ -242,8 +238,8 @@ input:checked + .slider:before {
                     </div>
                     <div class="col-md-6 form-group {{ $errors->has('state') ? 'has-error' : '' }}">
                         <!-- name -->
-                        {!! Form::label('state',Lang::get('message.state'),['class' => 'required']) !!}
-                        <!--{!! Form::select('state',[],null,['class' => 'form-control'. ($errors->has('state') ? ' is-invalid' : ''),'id'=>'state-list']) !!}-->
+                        {!! html()->label(Lang::get('message.state'))->class('required') !!}
+                        <!--{!! html()->select('state', [])->class('form-control'. ($errors->has('state') ? ' is-invalid' : ''))->id('state-list') !!} -->
                         <select name="state" id="state-list" class="form-control">
                             @if(count($state)>0)
                             <option value="{{$state['id']}}">{{$state['name']}}</option>
@@ -263,8 +259,8 @@ input:checked + .slider:before {
                  <div class="row">
                 <div class="col-md-6 form-group {{ $errors->has('zip') ? 'has-error' : '' }}">
                     <!-- mobile -->
-                    {!! Form::label('zip',null,Lang::get('message.zip')) !!}
-                    {!! Form::text('zip',null,['class' => 'form-control'. ($errors->has('zip') ? ' is-invalid' : ''),'id'=>'zip1']) !!}
+                    {!! html()->label(Lang::get('message.zip'))->for('zip') !!}
+                    {!! html()->text('zip')->class('form-control'. ($errors->has('zip') ? ' is-invalid' : ''))->id('zip1') !!}
                     <span id="zip-error-msg"></span>
                     @error('zip')
                     <span class="error-message"> {{$message}}</span>
@@ -273,8 +269,8 @@ input:checked + .slider:before {
 
                 <div class="col-md-6 form-group" id= "gstin">
                     <!-- mobile -->
-                    {!! Form::label('GSTIN',null,'GSTIN') !!}
-                    {!! Form::number('gstin',null,['class' => 'form-control'. ($errors->has('gstin') ? ' is-invalid' : ''),'id'=>'gstin1']) !!}
+                    {!! html()->label('GSTIN')->for('gstin') !!}
+                    {!! html()->text('gstin')->class('form-control'. ($errors->has('gstin') ? ' is-invalid' : ''))->id('gstin1') !!}
                     <span id="gst-error-msg"></span>
                     @error('gstin')
                     <span class="error-message"> {{$message}}</span>
@@ -284,10 +280,10 @@ input:checked + .slider:before {
 
                 <div class="form-group {{ $errors->has('profile_pic') ? 'has-error' : '' }}">
                     <!-- profile pic -->
-                    {!! Form::label('profile_pic',Lang::get('message.profile-picture')) !!}
+                    {!! html()->label(Lang::get('message.profile-picture'))->for('profile_pic') !!}
 
                     <div class="input-group">
-                    {!! Form::file('profile_pic',['id'=>'profile_pic']) !!}
+                        {!! html()->file('profile_pic')->id('profile_pic') !!}
                     </div>
                     <span class="system-error" id="profilepic-err-Msg"></span>
 
@@ -302,13 +298,14 @@ input:checked + .slider:before {
 
                 <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Updating..."><i class="fas fa-sync">&nbsp;&nbsp;</i>{!!Lang::get('message.update')!!}</button></h4>
 
-                {!! Form::token() !!}
-                {!! Form::close() !!}
+                {!! html()->token() !!}
+                {!! html()->form()->close() !!}
+
             </div>
         </div>
     </div>
     <div class="col-md-6">
-        {!! Form::model($user, ['url' => 'password', 'method' => 'PATCH', 'id' => 'changePasswordForm']) !!}
+        {!! html()->modelForm($user,'PATCH',url('password'))->id('changePasswordForm')->open() !!}
 
         <div class="card card-secondary card-outline">
             <div class="card-header">
@@ -340,9 +337,9 @@ input:checked + .slider:before {
                 @endif
                 <!-- old password -->
                 <div class="form-group has-feedback {{ $errors->has('old_password') ? 'has-error' : '' }}">
-                    {!! Form::label('old_password',null,['class' => 'required'],Lang::get('message.old_password')) !!}
+                    {!! html()->label(Lang::get('message.old_password'))->class('required')->for('old_password') !!}
                     <div class="input-group">
-                    {!! Form::password('old_password',['placeholder'=>'Password','class' => 'form-control'. ($errors->has('old_password') ? ' is-invalid' : '')]) !!}
+                        {!! html()->password('old_password')->placeholder('Password')->class('form-control'. ($errors->has('old_password') ? ' is-invalid' : '')) !!}
                         <div class="input-group-append">
                                         <span class="input-group-text" role="button" onclick="togglePasswordVisibility(this)">
                                             <i class="fa fa-eye-slash"></i>
@@ -356,9 +353,9 @@ input:checked + .slider:before {
                 </div>
                 <!-- new password -->
                 <div class="form-group has-feedback {{ $errors->has('new_password') ? 'has-error' : '' }}">
-                    {!! Form::label('new_password',null,['class' => 'required'],Lang::get('message.new_password')) !!}
+                    {!! html()->label(Lang::get('message.new_password'))->class('required')->for('new_password') !!}
                     <div class="input-group has-validation">
-                    {!! Form::password('new_password',['placeholder'=>'New Password','class' => 'form-control'. ($errors->has('new_password') ? ' is-invalid' : '')]) !!}
+                        {!! html()->password('new_password')->placeholder('New Password')->class('form-control'. ($errors->has('new_password') ? ' is-invalid' : '')) !!}
                     <div class="input-group-append">
                                         <span class="input-group-text" role="button" onclick="togglePasswordVisibility(this)">
                                             <i class="fa fa-eye-slash"></i>
@@ -381,9 +378,9 @@ input:checked + .slider:before {
                 </div>
                 <!-- confirm password -->
                 <div class="form-group has-feedback {{ $errors->has('confirm_password') ? 'has-error' : '' }}">
-                    {!! Form::label('confirm_password',null,['class' => 'required'],Lang::get('message.confirm_password')) !!}
+                    {!! html()->label(Lang::get('message.confirm_password'))->class('required')->for('confirm_password') !!}
                     <div class="input-group">
-                    {!! Form::password('confirm_password',['placeholder'=>'Confirm Password','class' => 'form-control'. ($errors->has('confirm_password') ? ' is-invalid' : '')]) !!}
+                        {!! html()->password('confirm_password')->placeholder('Confirm Password')->class('form-control'. ($errors->has('confirm_password') ? ' is-invalid' : '')) !!}
                     <div class="input-group-append">
                                         <span class="input-group-text" role="button" onclick="togglePasswordVisibility(this)">
                                             <i class="fa fa-eye-slash"></i>
@@ -397,7 +394,7 @@ input:checked + .slider:before {
                     @enderror
                 </div>
                     <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Updating..."><i class="fas fa-sync">&nbsp;&nbsp;</i>{!!Lang::get('message.update')!!}</button>
-                {!! Form::close() !!}
+                    {!! html()->form()->close() !!}
             </div>
         </div>
 
@@ -450,7 +447,7 @@ input:checked + .slider:before {
 </div>
 
 
-{!! Form::close() !!}
+{!! html()->form()->close() !!}
 <script src="{{asset('common/js/2fa.js')}}"></script>
 <script>
     $('#submit').on('click',function(e) {

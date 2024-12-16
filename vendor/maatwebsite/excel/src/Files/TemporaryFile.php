@@ -50,7 +50,7 @@ abstract class TemporaryFile
      * @param  string|null  $disk
      * @return TemporaryFile
      */
-    public function copyFrom($filePath, string $disk = null): TemporaryFile
+    public function copyFrom($filePath, ?string $disk = null): TemporaryFile
     {
         if ($filePath instanceof UploadedFile) {
             $readStream = fopen($filePath->getRealPath(), 'rb');
@@ -66,7 +66,7 @@ abstract class TemporaryFile
                     $logPath .= ' (' . $disk . ')';
                 }
 
-                throw new FileNotFoundException('File ' . $logPath . ' does not exist and can therefor not be imported.');
+                throw new FileNotFoundException('File ' . $logPath . ' does not exist and can therefore not be imported.');
             }
 
             $readStream = $diskInstance->readStream($filePath);

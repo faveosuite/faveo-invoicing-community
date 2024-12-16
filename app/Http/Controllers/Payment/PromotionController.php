@@ -275,7 +275,7 @@ class PromotionController extends BasePromotionController
             $codevalue = Promotion::where('code', $code)->first();
 
             if (! $codevalue) {
-                throw new \Exception('Invalid promo code');
+                throw new \Exception('Invalid Coupon code');
             }
             $promotion = $this->promotion->where('code', $code)->first();
             $uses = $promotion->uses;
@@ -331,7 +331,7 @@ class PromotionController extends BasePromotionController
 
                 return redirect()->back()->with('success', 'Coupon code applied successfully');
             } else {
-                throw new \Exception('Invalid promo code');
+                throw new \Exception('Invalid Coupon code');
             }
         } catch (\Exception $ex) {
             throw new \Exception($ex->getMessage());

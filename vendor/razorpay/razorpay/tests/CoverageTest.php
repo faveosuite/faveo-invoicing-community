@@ -395,17 +395,7 @@ class CoverageTest extends TestCase
       $order->setup();
       $order->testCreateOrderSetHeaderException();
     }
-    
-    /**
-     * @covers \Razorpay\Api\Order::create
-     */
-    public function testSendJsonPayload()
-    {
-      $order = new ExceptionTest();
-      $order->setup();
-      $order->testCreateJsonOrderException();
-    }
-    
+        
     /**
      * @covers \Razorpay\Api\Order::create
      */

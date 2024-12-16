@@ -26,21 +26,20 @@ Social Media
 
 
             <div class="card-body">
-                {!! Form::model($social,['url'=>'social-media/'.$social->id,'method'=>'patch','id'=>'socialForm']) !!}
-
+                {!! html()->modelForm($social, 'PATCH', url('social-media/' . $social->id))->id('socialForm')->open() !!}
                 <table class="table table-condensed">
 
 
 
                     <tr>
 
-                        <td><b>{!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.name'))->class('required') !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
 
                                 <p><i> {{Lang::get('message.enter-the-name-of-the-social-media')}}</i> </p>
 
-                                {!! Form::text('name',null,['class' => 'form-control'. ($errors->has('name') ? ' is-invalid' : ''),'id'=>'name']) !!}
+                                {!! html()->text('name')->class('form-control'. ($errors->has('name') ? ' is-invalid' : ''))->id('name') !!}
 
                                 <div class="input-group-append">
                                 </div>
@@ -54,12 +53,11 @@ Social Media
                    
                     <tr>
 
-                        <td><b>{!! Form::label('link',Lang::get('message.link'),['class'=>'required']) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.link'))->for('link')->class('required') !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('link') ? 'has-error' : '' }}">
                                 <p><i> {{Lang::get('message.enter-the-link-of-the-social-media')}}</i> </p>
-
-                                {!! Form::text('link',null,['class' => 'form-control'. ($errors->has('link') ? ' is-invalid' : ''),'id'=>'link','placeholder'=>'https://example.com']) !!}
+                                {!! html()->text('link')->class('form-control'. ($errors->has('link') ? ' is-invalid' : ''))->id('link')->placeholder('https://example.com') !!}
 
                                 <div class="input-group-append">
                                 </div>
@@ -73,7 +71,7 @@ Social Media
 
 
 
-                    {!! Form::close() !!}
+                    {!! html()->form()->close() !!}
 
                 </table>
                 <button type="submit" class="btn btn-primary pull-right" style="margin-top:-40px;"><i class="fa fa-sync-alt">&nbsp;&nbsp;</i>{!!Lang::get('message.update')!!}</button>

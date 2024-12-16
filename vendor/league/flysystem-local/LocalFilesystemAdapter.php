@@ -71,10 +71,10 @@ class LocalFilesystemAdapter implements FilesystemAdapter, ChecksumProvider
 
     public function __construct(
         string $location,
-        VisibilityConverter $visibility = null,
+        ?VisibilityConverter $visibility = null,
         private int $writeFlags = LOCK_EX,
         private int $linkHandling = self::DISALLOW_LINKS,
-        MimeTypeDetector $mimeTypeDetector = null,
+        ?MimeTypeDetector $mimeTypeDetector = null,
         bool $lazyRootCreation = false,
         bool $useInconclusiveMimeTypeFallback = false,
     ) {
@@ -271,7 +271,7 @@ class LocalFilesystemAdapter implements FilesystemAdapter, ChecksumProvider
             $this->resolveDirectoryVisibility($config->get(Config::OPTION_DIRECTORY_VISIBILITY))
         );
 
-        if ( ! @copy($sourcePath, $destinationPath)) {
+        if ($sourcePath !== $destinationPath && ! @copy($sourcePath, $destinationPath)) {
             throw UnableToCopyFile::because(error_get_last()['message'] ?? 'unknown', $source, $destination);
         }
 

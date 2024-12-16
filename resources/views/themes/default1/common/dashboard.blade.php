@@ -20,8 +20,8 @@ Dashboard
     height:300px;
 }
 </style>
- {!! Form::open(['url'=>'my-profile,"status=$status' ,'method'=>'get']) !!}
-   <div class="row">
+{!! html()->form('GET', url("my-profile?status=$status"))->open() !!}
+<div class="row">
         <div class="col-lg-4 col-xs-6">
           <!-- small box -->
           <div class="small-box bg-info">
@@ -138,7 +138,7 @@ Dashboard
              </div>
         </div>
 </div>
- {!! Form::close() !!}
+{!! html()->form()->close() !!}
 
 
 
@@ -165,12 +165,7 @@ Dashboard
             $client = \DB::table('users')->find($user['id']);
             ?>
                 <li>
-                    @if($client->profile_pic == '')
                     <a class="users-list-name" href="{{url('clients/'.$user['id'])}}"> <img src="{{$user['profile_pic']}}" style="height: 80px;width: 80px;" alt="User Image"></a>
-                    @else
-                    <a class="users-list-name" href="{{url('clients/'.$user['id'])}}"> <img src='{{ asset("storage/common/images/users/$client->profile_pic")}}' style="height: 80px;width: 80px;" alt="User Image"></a>
-
-                    @endif
                     <a class="users-list-name" href="{{url('clients/'.$user['id'])}}">{{$user['first_name']." ".$user['last_name']}}</a>
 
                     @php

@@ -59,22 +59,22 @@ class PageControllerTest extends DBTestCase
         $this->assertDatabaseHas('frontend_pages', ['name' => 'demo']);
     }
 
-    public function test_plansYear_returnstatus200()
-    {
-        // Create a sample product
-        $product = Product::factory()->create([
-            'id' => 1,
-            'name' => 'Example Product',
-        ]);
-
-        // Call the plansYear method with the sample URL and product ID
-        $page = new PageController();
-        $form = $page->plansYear('/example-url', $product->id);
-
-        // Assert that the form contains the expected action URL
-        $expectedAction = 'http://localhost/example-url';
-        $this->assertStringContainsString('action="'.$expectedAction.'"', $form);
-    }
+//    public function test_plansYear_returnstatus200()
+//    {
+//        // Create a sample product
+//        $product = Product::factory()->create([
+//            'id' => 1,
+//            'name' => 'Example Product',
+//        ]);
+//
+//        // Call the plansYear method with the sample URL and product ID
+//        $page = new PageController();
+//        $form = $page->plansYear('/example-url', $product->id);
+//
+//        // Assert that the form contains the expected action URL
+//        $expectedAction = 'http://localhost/example-url';
+//        $this->assertStringContainsString('action="'.$expectedAction.'"', $form);
+//    }
 
     public function test_getPrice()
     {

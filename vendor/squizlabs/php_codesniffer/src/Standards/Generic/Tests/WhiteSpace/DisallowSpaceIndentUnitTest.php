@@ -11,7 +11,12 @@ namespace PHP_CodeSniffer\Standards\Generic\Tests\WhiteSpace;
 
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
 
-class DisallowSpaceIndentUnitTest extends AbstractSniffUnitTest
+/**
+ * Unit test class for the DisallowSpaceIndent sniff.
+ *
+ * @covers \PHP_CodeSniffer\Standards\Generic\Sniffs\WhiteSpace\DisallowSpaceIndentSniff
+ */
+final class DisallowSpaceIndentUnitTest extends AbstractSniffUnitTest
 {
 
 
@@ -44,7 +49,7 @@ class DisallowSpaceIndentUnitTest extends AbstractSniffUnitTest
      *
      * @return array<int, int>
      */
-    public function getErrorList($testFile='DisallowSpaceIndentUnitTest.1.inc')
+    public function getErrorList($testFile='')
     {
         switch ($testFile) {
         case 'DisallowSpaceIndentUnitTest.1.inc':
@@ -84,6 +89,7 @@ class DisallowSpaceIndentUnitTest extends AbstractSniffUnitTest
                 115 => 1,
                 117 => 1,
                 118 => 1,
+                123 => 1,
             ];
 
         case 'DisallowSpaceIndentUnitTest.3.inc':
@@ -96,6 +102,17 @@ class DisallowSpaceIndentUnitTest extends AbstractSniffUnitTest
                 14 => 1,
                 15 => 1,
             ];
+
+        case 'DisallowSpaceIndentUnitTest.4.inc':
+            if (PHP_VERSION_ID >= 70300) {
+                return [
+                    7  => 1,
+                    13 => 1,
+                ];
+            }
+
+            // PHP 7.2 or lower: PHP version which doesn't support flexible heredocs/nowdocs yet.
+            return [];
 
         case 'DisallowSpaceIndentUnitTest.js':
             return [3 => 1];

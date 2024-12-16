@@ -12,6 +12,8 @@ use Illuminate\Support\Traits\Conditionable;
 use Laravel\SerializableClosure\SerializableClosure;
 use Throwable;
 
+use function Illuminate\Support\enum_value;
+
 class PendingBatch
 {
     use Conditionable;
@@ -72,6 +74,31 @@ class PendingBatch
         }
 
         return $this;
+    }
+
+    /**
+     * Add a callback to be executed when the batch is stored.
+     *
+     * @param  callable  $callback
+     * @return $this
+     */
+    public function before($callback)
+    {
+        $this->options['before'][] = $callback instanceof Closure
+            ? new SerializableClosure($callback)
+            : $callback;
+
+        return $this;
+    }
+
+    /**
+     * Get the "before" callbacks that have been registered with the pending batch.
+     *
+     * @return array
+     */
+    public function beforeCallbacks()
+    {
+        return $this->options['before'] ?? [];
     }
 
     /**
@@ -236,12 +263,12 @@ class PendingBatch
     /**
      * Specify the queue that the batched jobs should run on.
      *
-     * @param  string  $queue
+     * @param  \BackedEnum|string|null  $queue
      * @return $this
      */
-    public function onQueue(string $queue)
+    public function onQueue($queue)
     {
-        $this->options['queue'] = $queue;
+        $this->options['queue'] = enum_value($queue);
 
         return $this;
     }
@@ -282,7 +309,7 @@ class PendingBatch
         $repository = $this->container->make(BatchRepository::class);
 
         try {
-            $batch = $repository->store($this);
+            $batch = $this->store($repository);
 
             $batch = $batch->add($this->jobs);
         } catch (Throwable $e) {
@@ -309,7 +336,7 @@ class PendingBatch
     {
         $repository = $this->container->make(BatchRepository::class);
 
-        $batch = $repository->store($this);
+        $batch = $this->store($repository);
 
         if ($batch) {
             $this->container->terminating(function () use ($batch) {
@@ -333,9 +360,7 @@ class PendingBatch
         try {
             $batch = $batch->add($this->jobs);
         } catch (Throwable $e) {
-            if (isset($batch)) {
-                $batch->delete();
-            }
+            $batch->delete();
 
             throw $e;
         }
@@ -343,5 +368,50 @@ class PendingBatch
         $this->container->make(EventDispatcher::class)->dispatch(
             new BatchDispatched($batch)
         );
+    }
+
+    /**
+     * Dispatch the batch if the given truth test passes.
+     *
+     * @param  bool|\Closure  $boolean
+     * @return \Illuminate\Bus\Batch|null
+     */
+    public function dispatchIf($boolean)
+    {
+        return value($boolean) ? $this->dispatch() : null;
+    }
+
+    /**
+     * Dispatch the batch unless the given truth test passes.
+     *
+     * @param  bool|\Closure  $boolean
+     * @return \Illuminate\Bus\Batch|null
+     */
+    public function dispatchUnless($boolean)
+    {
+        return ! value($boolean) ? $this->dispatch() : null;
+    }
+
+    /**
+     * Store the batch using the given repository.
+     *
+     * @param  \Illuminate\Bus\BatchRepository  $repository
+     * @return \Illuminate\Bus\Batch
+     */
+    protected function store($repository)
+    {
+        $batch = $repository->store($this);
+
+        (new Collection($this->beforeCallbacks()))->each(function ($handler) use ($batch) {
+            try {
+                return $handler($batch);
+            } catch (Throwable $e) {
+                if (function_exists('report')) {
+                    report($e);
+                }
+            }
+        });
+
+        return $batch;
     }
 }

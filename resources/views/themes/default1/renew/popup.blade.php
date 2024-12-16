@@ -2,7 +2,7 @@
 <div class="modal fade" id="renew{{$id}}" tabindex="-1" role="dialog" aria-labelledby="renewModalLabel" aria-hidden="true">
 
                             <div class="modal-dialog">
-                                 {!! Form::open(['url'=>'client/renew/'.$id,'data-form-id'=>"$id"]) !!}
+                                {!! html()->form('POST', url('client/renew/'.$id))->attribute('data-form-id', $id)->open() !!}
 
                                 <div class="modal-content">
 
@@ -74,22 +74,26 @@
                                                 <div class="form-group col">
                                                     <label class="form-label">Plans <span class="text-danger"> *</span></label>
                                                     <div class="custom-select-1">
-                                                            @if($agents == 'Unlimited')
-                                                                {!! Form::select('plan',['' => 'Select'] + $plans, null, ['class' => 'form-control plan-dropdown', 'onchange' => 'fetchPlanCost(this.value)','id'=>"plan$id"]) !!}
-                                                            @else
-                                                                {!! Form::select('plan',['' => 'Select'] + $plans, null, ['class' => 'form-control plan-dropdown', 'onchange' => 'fetchPlanCost(this.value, ' . $agents . ')','id'=>"plan$id"]) !!}
-                                                            @endif
-                                                            {!! Form::hidden('user',$userid) !!}
+                                                        @if($agents == 'Unlimited')
+                                                            {!! html()->select('plan')->options(['' => 'Select'] + $plans)->class('form-control plan-dropdown')->attribute('onchange', 'fetchPlanCost(this.value)')->id("plan$id") !!}
+                                                        @else
+                                                            {!! html()->select('plan')->options(['' => 'Select'] + $plans)->class('form-control plan-dropdown')->attribute('onchange', 'fetchPlanCost(this.value, ' . $agents . ')')->id("plan$id") !!}
+                                                        @endif
+
+                                                        {!! html()->hidden('user', $userid) !!}
                                                     </div>
                                                 </div>
                                             </div>
-                                            @if(in_array($productid,cloudPopupProducts()))
+                                        @php
+                                           $isAgentAllowed = in_array($productid,cloudPopupProducts());
+                                        @endphp
+                                            @if($isAgentAllowed)
 
                                             <div class="row">
                                                 <div class="form-group col">
                                                     <label class="form-label">Agents <span class="text-danger"> *</span></label>
                                                     <div class="custom-select-1">
-                                                         {!! Form::number('agents', $agents, ['class' => 'form-control agents', 'id' => "agents$id",'min' => '1', 'placeholder' => '',]) !!}
+                                                        {!! html()->number('agents', $agents)->class('form-control agents')->id('agents'.$id)->attribute('min', 1)->placeholder('') !!}
                                                     </div>
                                                 </div>
                                             </div>
@@ -112,148 +116,154 @@
                                             <button type="submit" class="btn btn-primary" data-bs-dismiss="modal" id="{{$id}}">Renew</button>
                                         </div>
                                 </div>
-                                 {!! Form::close()  !!} 
+                                 {!! html()->form()->close()  !!}
                             </div>
                         </div>
-  
 <script>
-    $(document).on('submit', 'form[data-form-id]', function (e) {
-        e.preventDefault(); // Prevent default submission
+    $(document).ready(function () {
+        const formSelector = 'form[data-form-id]';
 
-        const form = $(this); // The form being submitted
-        const formId = form.data('form-id'); // Retrieve the unique form ID
+        $(document).on('submit', formSelector, function (e) {
+            e.preventDefault();
 
-        const userFields = {
-            planname: form.find(`#plan${formId}`),
-            planproduct: form.find(`#agents${formId}`)
-        };
+            const form = $(this);
+            const formId = form.data('form-id');
 
-        const userRequiredFields = {
-            planname:@json(trans('message.plan_renew')),
-            planproduct:@json(trans('message.agents')),
-        };
+            const userFields = {
+                planname: form.find(`#plan${formId}`),
+            };
 
-        // Clear previous errors
-        Object.values(userFields).forEach(field => {
-            field.removeClass('is-invalid');
-            field.siblings('.error').remove(); // Clear previous errors
-        });
+            const userRequiredFields = {
+                planname: @json(trans('message.plan_renew')),
+            };
 
-        let isValid = true;
+            @if(in_array($productid, cloudPopupProducts()))
+                userFields.planproduct = agentsField;
+            userRequiredFields.planproduct = @json(trans('message.agents'));
+            @endif
 
-        const showError = (field, message) => {
-            field.addClass('is-invalid');
-            field.after(`<span class='error invalid-feedback'>${message}</span>`);
-        };
+            Object.values(userFields).forEach(field => {
+                field.removeClass('is-invalid');
+                field.siblings('.error').remove();
+            });
 
-        // Validate required fields
-        Object.keys(userFields).forEach(key => {
-            if (!userFields[key].val()) {
-                showError(userFields[key], userRequiredFields[key]);
-                isValid = false;
+            let isValid = true;
+
+            const showError = (field, message) => {
+                field.addClass('is-invalid');
+                field.after(`<span class='error invalid-feedback'>${message}</span>`);
+            };
+
+            Object.keys(userFields).forEach(key => {
+                if (!userFields[key].val()) {
+                    showError(userFields[key], userRequiredFields[key]);
+                    isValid = false;
+                }
+            });
+
+            if (isValid) {
+                form[0].submit(); // Use the DOM form submission to avoid re-triggering jQuery event
             }
         });
 
-        // If valid, submit the form using native submission
-        if (isValid) {
-            form[0].submit(); // Use the DOM form submission to avoid re-triggering jQuery event
-        }
-    });
-
-    // Add input event listeners for all fields
-    ['plan{{$id}}','agents{{$id}}'].forEach(id => {
-
-        document.getElementById(id).addEventListener('input', function () {
-            removeErrorMessage(this);
-
+        ['plan{{$id}}', 'agents{{$id}}'].forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener('input', function () {
+                    this.classList.remove('is-invalid');
+                    const nextError = this.nextElementSibling;
+                    if (nextError && nextError.classList.contains('error')) {
+                        nextError.remove();
+                    }
+                });
+            }
         });
-    });
-
-
 
         $('.closebutton').on('click', function () {
             location.reload();
         });
-        var shouldFetchPlanCost = true; // Disable further calls until needed
 
-   function fetchPlanCost(planId,agents=null) {
-       // Show the loader and disable modal body
-       // Show the loader and disable modal body
-       $('.loader-wrapper').show();
-       $('.overlay').show(); // Show the overlay
-       $('.modal-body').css('pointer-events', 'none');
+        let shouldFetchPlanCost = true;
 
-       if(!shouldFetchPlanCost){
-           return
-       }
-       var user = document.getElementsByName('user')[0].value;
-       shouldFetchPlanCost = false;
-       agents=$('.agents').val();
+        // 🔧 Fix: Define as a global function
+        window.fetchPlanCost = function (planId, agents = null) {
+            if (!shouldFetchPlanCost) return;
 
-       $.ajax({
-           type: "get",
-           url: "{{ url('get-renew-cost') }}",
-           data: { 'user': user, 'plan': planId },
-           success: function (data) {
-               if(data[1]) {
-                   agents= $('.agents').val() ?? $('#agentsForSelf').val();
-                   var totalPrice = agents * parseFloat(data[0]);
-               }
-               else{
-                   var totalPrice = parseFloat(data[0])
-               }
-               var someprice = totalPrice.toFixed(2);
-               $.ajax({
-                   url: 'processFormat', // Update with the correct URL
-                   method: 'GET',
-                   data: { totalPrice: someprice },
-                   success: function (data) {
-                       $('.price').text(data);
-                       shouldFetchPlanCost = true;
-                   },
-               });
-               $('.loader-wrapper').hide();
-               $('.overlay').hide(); // Hide the overlay
-               $('.modal-body').css('pointer-events', 'auto');
-               $('#saveRenew').attr('disabled', false);
-               $("#agents").prop("disabled", false);
-           }
-       });
-   }
+            shouldFetchPlanCost = false;
 
-        // Call the fetchPlanCost function when the plan dropdown selection changes
+            const user = $('[name="user"]').val();
+            agents =  agents ?? $('#agents{{ $id }}').val();
+
+            $('.loader-wrapper').show();
+            $('.overlay').show();
+            $('.modal-body').css('pointer-events', 'none');
+
+            $.ajax({
+                type: "GET",
+                url: "{{ url('get-renew-cost') }}",
+                data: { user, plan: planId },
+                success: function (data) {
+                    let totalPrice = 0;
+                    if (data[1]) {
+                        agents = agents || $('#agentsForSelf').val();
+                        totalPrice = agents * parseFloat(data[0]);
+                    } else {
+                        totalPrice = parseFloat(data[0]);
+                    }
+
+                    const formattedPrice = totalPrice.toFixed(2);
+
+                    $.ajax({
+                        url: 'processFormat',
+                        method: 'GET',
+                        data: { totalPrice: formattedPrice },
+                        success: function (data) {
+                            $('.price').text(data);
+                            shouldFetchPlanCost = true;
+                        },
+                        complete: function () {
+                            $('.loader-wrapper').hide();
+                            $('.overlay').hide();
+                            $('.modal-body').css('pointer-events', 'auto');
+                            $('#saveRenew').prop('disabled', false);
+                            $('.agents').prop('disabled', false);
+                        }
+                    });
+                },
+                error: function () {
+                    shouldFetchPlanCost = true;
+                    $('.loader-wrapper').hide();
+                    $('.overlay').hide();
+                    $('.modal-body').css('pointer-events', 'auto');
+                    alert("Failed to fetch cost. Please try again.");
+                }
+            });
+        };
+
         $('#plan').on('change', function () {
-            var selectedPlanId = $(this).val(); // Get the selected plan ID
-            var agts = $('.agents').val();
-            fetchPlanCost(selectedPlanId,agts); // Call the function to fetch plan cost
+            const selectedPlanId = $(this).val();
+            const agts = $('.agents').val();
+            fetchPlanCost(selectedPlanId, agts);
         });
 
-        // Call the fetchPlanCost function initially with the default selected plan
-        $(document).ready(function () {
-            var initialPlanId = $('#plan').val();
-            var agt = $('.agents').val();
-            fetchPlanCost(initialPlanId,agt);
+        $('.agents').on('input', function () {
+            $(this).prop('disabled', true);
+            const selectedPlanId = $('#renew{{$id}} .plan-dropdown').val();
+            if (selectedPlanId) {
+                fetchPlanCost(selectedPlanId, $(this).val());
+            }
+            $(this).prop('disabled', false);
         });
 
-        // Prevent form submission when Enter key is pressed
+        const initialPlanId = $('#plan').val();
+        const initialAgents = $('.agents').val();
+        fetchPlanCost(initialPlanId, initialAgents);
+
         $('form').on('keypress', function (e) {
             if (e.keyCode === 13) {
                 e.preventDefault();
             }
         });
-
-        $(document).ready(function () {
-        $('.agents').on('input', function () {
-            $("#agents").prop("disabled", true);
-            var selectedPlanId = $('#renew{{$id}}').find('.plan-dropdown').val();
-            if (selectedPlanId) {
-                fetchPlanCost(selectedPlanId,$(this).val());
-                $("#agents").prop("disabled", false);
-
-            }
-            $("#agents").prop("disabled", false);
-        });
-
     });
 
 </script>

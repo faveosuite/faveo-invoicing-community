@@ -53,28 +53,35 @@ Plugins
                                  
                                  <td><a href={{$item['website']}}>{{$item['website']}}</a></td>
                                   <td>{{$item['version']}}</td>
-                             
-                            
-                        
-                              @foreach($status as $s)
-                              @if($item['name'] == $s->name && !$s->status)
-                               <td><form method="post" action="{{url('plugin/status/'.$item['name'])}}"><input type="hidden" name="_token" value='.\Session::token().'>
-                                   @csrf
-                                    <button type="submit" class="btn btn-secondary btn-sm btn-xs" title = "Activate"><i class="fa fa-tasks" style="color:white;"></i></button></form></td>
+
+
+
+                                @foreach($status as $s)
+                                    @if($item['name'] == $s->name && !$s->status)
+                                        <td>
+                                            <form method="post" action="{{ url('plugin/status/'.$item['name']) }}">
+                                                <input type="hidden" name="_token" value="{{ \Session::token() }}">
+                                                @csrf
+                                                <button type="submit" class="btn btn-secondary btn-sm btn-xs" data-toggle="tooltip" title="Activate">
+                                                    <i class="fa fa-tasks" style="color:white;"></i>
+                                                </button>
+                                            </form>
+                                        </td>
                                     @elseif($item['name'] == $s->name && $s->status)
-                                     <td>
-                                       <a href= "{{url($item['settings'])}}" class="btn btn-secondary btn-sm btn-xs"><i class="nav-icon fa fa-fw fa-cogs" style="color:white;"></i></a> 
-                                     
-                                       <form method="post" action="{{ url('plugin/status/'.$item['name']) }}"><input type="hidden" name="_token" value="\Session::token()
-                                       ">
-                                       @csrf
-                                    
-                                       <button type="submit" class="btn btn-secondary btn-sm btn-xs" title="Deactivate"><i class="fa fa-tasks" style="color:white;"></i></button></form>
-                                    </td>
-                                    
-                              @endif
-                              
-                              @endforeach
+                                        <td>
+                                            <a href="{{ url($item['settings']) }}" class="btn btn-secondary btn-sm btn-xs" data-toggle="tooltip" title="Settings">
+                                                <i class="nav-icon fa fa-fw fa-cogs" style="color:white;"></i>
+                                            </a>
+                                            <form method="post" action="{{ url('plugin/status/'.$item['name']) }}">
+                                                <input type="hidden" name="_token" value="{{ \Session::token() }}">
+                                                @csrf
+                                                <button type="submit" class="btn btn-secondary btn-sm btn-xs" data-toggle="tooltip" title="Deactivate">
+                                                    <i class="fa fa-tasks" style="color:white;"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    @endif
+                                @endforeach
                                  
                                      
                                 
@@ -106,6 +113,10 @@ Plugins
 <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
 <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
 
-
+<script>
+    $(document).ready(function(){
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+</script>
 
 @stop

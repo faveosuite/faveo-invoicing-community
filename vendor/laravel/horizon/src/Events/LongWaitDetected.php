@@ -2,7 +2,8 @@
 
 namespace Laravel\Horizon\Events;
 
-use Laravel\Horizon\Notifications\LongWaitDetected as LongWaitDetectedNotification;
+use Illuminate\Container\Container;
+use Laravel\Horizon\Contracts\LongWaitDetectedNotification;
 
 class LongWaitDetected
 {
@@ -49,8 +50,10 @@ class LongWaitDetected
      */
     public function toNotification()
     {
-        return new LongWaitDetectedNotification(
-            $this->connection, $this->queue, $this->seconds
-        );
+        return Container::getInstance()->make(LongWaitDetectedNotification::class, [
+            'connection' => $this->connection,
+            'queue' => $this->queue,
+            'seconds' => $this->seconds,
+        ]);
     }
 }

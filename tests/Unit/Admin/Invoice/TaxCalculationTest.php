@@ -23,7 +23,7 @@ class TaxCalculationTest extends DBTestCase
         $this->classObject = new InvoiceController();
     }
 
-    /** @group tax */
+    #[Group('tax')]
     public function test_calculateTax_whenNoTaxIsAppliedOnProduct()
     {
         $user = User::factory()->create();
@@ -35,7 +35,7 @@ class TaxCalculationTest extends DBTestCase
         $this->assertEquals($tax['value'], '0%');
     }
 
-    /** @group tax */
+    #[Group('tax')]
     public function test_calculateTax_whenIntraStateGstAppliedOnProductWhenGstIsDisabled_taxValueIsNull()
     {
         $user = User::factory()->create();
@@ -52,7 +52,7 @@ class TaxCalculationTest extends DBTestCase
         $this->assertEquals($tax['value'], '0%');
     }
 
-    /** @group tax */
+    #[Group('tax')]
     public function test_calculateTax_whenIntraStateGstAppliedOnProduct_taxValueAndNameIsReturned()
     {
         $user = User::factory()->create(['state' => 'IN-KA', 'country' => 'IN']);
@@ -70,7 +70,7 @@ class TaxCalculationTest extends DBTestCase
         $this->assertEquals($tax['value'], '18%');
     }
 
-    /** @group tax */
+    #[Group('tax')]
     public function test_calculateTax_whenInterStateGstAppliedButUserStateEqualsOriginState_taxValueIsNull()
     {
         $user = User::factory()->create(['state' => 'IN-KA', 'country' => 'IN']);
@@ -88,7 +88,7 @@ class TaxCalculationTest extends DBTestCase
         $this->assertEquals($tax['value'], '0%');
     }
 
-    /** @group tax */
+    #[Group('tax')]
     public function test_calculateTax_whenInterStateGstApplied_taxValueAndNameIsReturned()
     {
         $user = User::factory()->create(['state' => 'IN-DL', 'country' => 'IN']);
@@ -107,7 +107,7 @@ class TaxCalculationTest extends DBTestCase
         $this->assertEquals($tax['value'], '18%');
     }
 
-    /** @group tax */
+    #[Group('tax')]
     public function test_calculateTax_whenInterStateGstAppliedWhenStatusIsInactive_taxValueIsNull()
     {
         $user = User::factory()->create(['state' => 'IN-DL', 'country' => 'IN']);
@@ -125,7 +125,7 @@ class TaxCalculationTest extends DBTestCase
         $this->assertEquals($tax['value'], '0%');
     }
 
-    /** @group tax */
+    #[Group('tax')]
     public function test_calculateTax_whenUnionTerritoryGstAppliedWhenUserStateIsNotUT_taxValueIsNull()
     {
         $user = User::factory()->create(['state' => 'IN-DL', 'country' => 'IN']);
@@ -143,7 +143,7 @@ class TaxCalculationTest extends DBTestCase
         $this->assertEquals($tax['value'], '0%');
     }
 
-    /** @group tax */
+    #[Group('tax')]
     public function test_calculateTax_whenUnionTerritoryGstApplied_taxValueAndNameIsReturned()
     {
         $user = User::factory()->create(['state' => 'IN-AN', 'country' => 'IN']);
@@ -161,7 +161,7 @@ class TaxCalculationTest extends DBTestCase
         $this->assertEquals($tax['value'], '18%');
     }
 
-    /** @group tax */
+    #[Group('tax')]
     public function test_calculateTax_whenOtherTaxAppliedWhenUserStateIsIndian_taxValueIsNull()
     {
         $user = User::factory()->create(['state' => 'IN-DL', 'country' => 'IN']);
@@ -179,7 +179,7 @@ class TaxCalculationTest extends DBTestCase
         $this->assertEquals($tax['value'], '0%');
     }
 
-    /** @group tax */
+    #[Group('tax')]
     public function test_calculateTax_whenOtherTaxApplied_taxValueAndNameIsReturned()
     {
         $user = User::factory()->create(['state' => 'AU-NT', 'country' => 'AU']);
@@ -197,7 +197,7 @@ class TaxCalculationTest extends DBTestCase
         $this->assertEquals($tax['value'], '20%');
     }
 
-    /** @group tax */
+    #[Group('tax')]
     public function test_calculateTax_whenOtherTaxAppliedwhenTaxIsInactive_taxValueIsNull()
     {
         $user = User::factory()->create(['state' => 'AU-NT', 'country' => 'AU']);
@@ -215,7 +215,7 @@ class TaxCalculationTest extends DBTestCase
         $this->assertEquals($tax['value'], '0%');
     }
 
-    /** @group tax */
+    #[Group('tax')]
     public function test_calculateTax_whenOtherTaxAppliedwhenWhenUserIsFromOtherState_taxValueIsNull()
     {
         $user = User::factory()->create(['state' => 'AU-NT', 'country' => 'AU']);
@@ -233,7 +233,7 @@ class TaxCalculationTest extends DBTestCase
         $this->assertEquals($tax['value'], '0%');
     }
 
-    /** @group tax */
+    #[Group('tax')]
     public function test_calculateTax_whenOtherTaxAppliedwhenWhenUserIsFromOtherState_taxValueAndNameIsReturned()
     {
         $user = User::factory()->create(['state' => 'AU-NT', 'country' => 'AU']);
@@ -251,7 +251,7 @@ class TaxCalculationTest extends DBTestCase
         $this->assertEquals($tax['value'], '20%');
     }
 
-    /** @group tax */
+    #[Group('tax')]
     public function test_calculateTax_whenOtherTaxAppliedWhenUserIsFromSameCountryOtherState_taxValueIsNull()
     {
         $user = User::factory()->create(['state' => 'AU-NT', 'country' => 'AU']);
@@ -269,7 +269,7 @@ class TaxCalculationTest extends DBTestCase
         $this->assertEquals($tax['value'], '0%');
     }
 
-    /** @group tax */
+    #[Group('tax')]
     public function test_calculateTax_whenOtherTaxAppliedForAllStatesofUsersCountry_taxValueAndNameIsReturned()
     {
         $user = User::factory()->create(['state' => 'AU-NT', 'country' => 'AU']);
@@ -287,7 +287,7 @@ class TaxCalculationTest extends DBTestCase
         $this->assertEquals($tax['value'], '20%');
     }
 
-    /** @group tax */
+    #[Group('tax')]
     public function test_calculateTax_whenOtherTaxAppliedForAllStatesWhenTaxInactive_taxValueIsNull()
     {
         $user = User::factory()->create(['state' => 'AU-NT', 'country' => 'AU']);
@@ -305,7 +305,7 @@ class TaxCalculationTest extends DBTestCase
         $this->assertEquals($tax['value'], '0%');
     }
 
-    /** @group tax */
+    #[Group('tax')]
     public function test_calculateTax_whenTaxIsCreatedButNotLinkedToAProduct_taxValueIsNull()
     {
         $setting = Setting::factory()->create(['state' => 'Tamilnadu']);
@@ -322,7 +322,7 @@ class TaxCalculationTest extends DBTestCase
         $this->assertEquals($tax['value'], '0%');
     }
 
-    /** @group tax */
+    #[Group('tax')]
     public function test_calculateTax_whenTaxIsAppliedToAllCountriesAllStates_taxValueAndNameIsReturned()
     {
         $setting = Setting::factory()->create(['state' => 'Tamilnadu']);
@@ -340,7 +340,7 @@ class TaxCalculationTest extends DBTestCase
         $this->assertEquals($tax['value'], '20%');
     }
 
-    /** @group tax */
+    #[Group('tax')]
     public function test_calculateTax_whenTaxIsAppliedToAllCountriesAllStateUserStateIsNull_taxValueAndNameIsReturned()
     {
         $user = User::factory()->create(['state' => '', 'country' => 'AU']);
@@ -358,7 +358,7 @@ class TaxCalculationTest extends DBTestCase
         $this->assertEquals($tax['value'], '20%');
     }
 
-    /** @group tax */
+    #[Group('tax')]
     public function test_calculateTax_whenTaxIsAppliedToAllCountriesAllStateWhenGstDisabled_taxValueAndNameIsReturned()
     {
         $user = User::factory()->create(['state' => 'IN-KA', 'country' => 'IN']);
@@ -375,7 +375,7 @@ class TaxCalculationTest extends DBTestCase
         $this->assertEquals($tax['value'], '20%');
     }
 
-    /** @group tax */
+    #[Group('tax')]
     public function test_calculateTax_whenOtherTaxAppliedUserIsIndianGstDisabled_taxValueIsNull()
     {
         $user = User::factory()->create(['state' => 'IN-KA', 'country' => 'IN']);

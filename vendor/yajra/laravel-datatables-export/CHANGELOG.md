@@ -2,18 +2,25 @@
 
 ## UNRELEASED
 
-## v10.1.1 - 11-14-2023
+## v11.1.1 - 2024-04-29
 
-- fix: wrong export url generated when ajax is not set #54 
-- fix #33 - remove window._buildUrl dependency
+- fix: pestphp require-dev #61
+- bump deps 
+- fix: yajra/laravel-datatables#3136
 
-## v10.1.0 - 08-29-2023
+## v11.1.0 - 2024-04-29
 
-- feat: support livewire 3 #51
-- fix: #50
+- feat: add button name option #59
 
-## v10.0.0 - 02-20-2023
+## v11.0.1 - 2024-04-16
 
-- feat: Laravel 10 support
-- feat: OpenSpout v4 support
- 
+- fix: Export button URL: Merge new with existing query params #58
+- fix #57 - Handle new params with existing query params in the export button URL
+
+## v11.0.0 - 2023-03-14
+
+- Laravel 11.x support
+- Use Pest for testing
+- Add Pint and Rector for code quality
+- Add GitHub Actions for CI/CD
+- Fix PhpStan issues

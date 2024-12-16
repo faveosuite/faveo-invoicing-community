@@ -18,8 +18,7 @@ use Psy\Exception\FatalErrorException;
 
 class FunctionContextPass extends CodeCleanerPass
 {
-    /** @var int */
-    private $functionDepth;
+    private int $functionDepth = 0;
 
     /**
      * @param array $nodes
@@ -50,7 +49,7 @@ class FunctionContextPass extends CodeCleanerPass
         // It causes fatal error.
         if ($node instanceof Yield_) {
             $msg = 'The "yield" expression can only be used inside a function';
-            throw new FatalErrorException($msg, 0, \E_ERROR, null, $node->getLine());
+            throw new FatalErrorException($msg, 0, \E_ERROR, null, $node->getStartLine());
         }
     }
 

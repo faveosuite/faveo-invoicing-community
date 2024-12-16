@@ -26,10 +26,10 @@ main
 
                 <div class="col-md-6 col-lg-6 mb-5 mb-lg-0 pe-5">
 
-                    {!!  Form::open(['route'=>'verify-recovery-code', 'method'=>'post', 'id'=>'recovery_form']) !!}
+                    {!! html()->form('POST', route('verify-recovery-code'))->id('recovery_form')->open() !!}
 
 
-                        <div class="row">
+                    <div class="row">
 
                             <div class="form-group col">
 
@@ -60,7 +60,7 @@ main
                                 <button type="submit" class="btn btn-dark btn-modern w-100 text-uppercase font-weight-bold text-3 py-3" data-loading-text="Loading...">Verify</button>
                             </div>
                         </div>
-                    {!! Form::close() !!}
+                    {!! html()->form()->close() !!}
                 </div>
             </div>
 

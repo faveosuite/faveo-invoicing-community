@@ -11,7 +11,12 @@ namespace PHP_CodeSniffer\Standards\Squiz\Tests\Commenting;
 
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
 
-class FunctionCommentUnitTest extends AbstractSniffUnitTest
+/**
+ * Unit test class for the FunctionComment sniff.
+ *
+ * @covers \PHP_CodeSniffer\Standards\Squiz\Sniffs\Commenting\FunctionCommentSniff
+ */
+final class FunctionCommentUnitTest extends AbstractSniffUnitTest
 {
 
 
@@ -102,7 +107,6 @@ class FunctionCommentUnitTest extends AbstractSniffUnitTest
             792  => 1,
             794  => 1,
             797  => 1,
-            801  => 1,
             828  => 1,
             840  => 1,
             852  => 1,
@@ -132,6 +136,11 @@ class FunctionCommentUnitTest extends AbstractSniffUnitTest
             1123 => 1,
             1124 => 1,
             1125 => 1,
+            1138 => 1,
+            1139 => 1,
+            1144 => 1,
+            1145 => 1,
+            1151 => 1,
         ];
 
         // Scalar type hints only work from PHP 7 onwards.
@@ -151,6 +160,8 @@ class FunctionCommentUnitTest extends AbstractSniffUnitTest
             $errors[1089] = 3;
             $errors[1107] = 8;
             $errors[1129] = 3;
+            $errors[1154] = 1;
+            $errors[1160] = 1;
         } else {
             $errors[729] = 4;
             $errors[740] = 2;

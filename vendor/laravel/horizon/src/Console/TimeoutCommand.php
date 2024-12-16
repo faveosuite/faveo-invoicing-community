@@ -5,7 +5,9 @@ namespace Laravel\Horizon\Console;
 use Illuminate\Console\Command;
 use Laravel\Horizon\MasterSupervisor;
 use Laravel\Horizon\ProvisioningPlan;
+use Symfony\Component\Console\Attribute\AsCommand;
 
+#[AsCommand(name: 'horizon:timeout')]
 class TimeoutCommand extends Command
 {
     /**
@@ -38,6 +40,10 @@ class TimeoutCommand extends Command
     {
         $plan = ProvisioningPlan::get(MasterSupervisor::name())->plan;
 
-        $this->line(collect($plan[$this->argument('environment')] ?? [])->max('timeout') ?? 60);
+        $environment = $this->argument('environment');
+
+        $timeout = collect($plan[$this->argument('environment')] ?? [])->max('timeout') ?? 60;
+
+        $this->components->info('Maximum timeout for '.$environment.' environment: '.$timeout.' seconds.');
     }
 }

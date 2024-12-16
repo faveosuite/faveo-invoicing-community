@@ -32,10 +32,8 @@
         @endif
 
 
-
-
-    {!! Form::model($status,['url' => 'post-scheduler', 'method' => 'PATCH','id'=>'Form']) !!}
-    <div class="card-header">
+{!! html()->modelForm($status, 'PATCH', url('post-scheduler'))->id('Form')->open() !!}
+<div class="card-header">
         <h4 class="card-title">{{Lang::get('message.cron')}} </h4>
 
 
@@ -90,18 +88,33 @@
 
                         <div class="form-group">
 
-                            {!! Form::label('email_fetching', Lang::get('message.expiry_mail') . ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="This cron is to trigger email which are sent out to users before product expiry reminding them to renew the product. This email is send out only to those who have not enabled auto renewal"></i>', [], false) !!}<br>
-                            {!! Form::checkbox('expiry_cron',1,$condition->checkActiveJob()['expiryMail'],['id'=>'email_fetching']) !!}&nbsp;{{Lang::get('message.enable_expiry-cron')}}
+                            {!! html()->label()->for('email_fetching')->html(
+    Lang::get('message.expiry_mail') .
+    ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top"
+    title="This cron is to trigger email which are sent out to users before product expiry
+    reminding them to renew the product. This email is sent out only to those who have not
+    enabled auto-renewal"></i>'
+) !!}
+                            <br>
+                            {!! html()->checkbox('expiry_cron', $condition->checkActiveJob()['expiryMail'])->id('email_fetching') ,1 !!}
+                            &nbsp;{{ Lang::get('message.enable_expiry-cron') }}
+
                         </div>
 
                     </div>
                     <div class="col-md-6" id="fetching">
-                        {!! Form::select('expiry-commands',$commands,$condition->getConditionValue('expiryMail')['condition'],['class'=>'form-control','id'=>'fetching-command']) !!}
-                          <div id='fetching-daily-at'>
-                            {!! Form::text('expiry-dailyAt',$condition->getConditionValue('expiryMail')['at'],['class'=>'form-control time-picker',"placeholder" => "HH:MM"]) !!}
+                        {!! html()->select('expiry-commands', $commands, $condition->getConditionValue('expiryMail')['condition'])
+    ->class('form-control')
+    ->id('fetching-command')
+!!}
 
-                        </div>
+                        <div id="fetching-daily-at">
+                            {!! html()->text('expiry-dailyAt', $condition->getConditionValue('expiryMail')['at'])
+                                ->class('form-control time-picker')
+                                ->placeholder('HH:MM')
+                            !!}
 
+                    </div>
                     </div>
                 </div>
             </div><!-- /.info-box-content -->
@@ -115,16 +128,23 @@
                 <div class="info-box-content" style="display: block;">
                     <div class="col-md-6">
                         <div class="form-group">
-                            {!! Form::label('activity',Lang::get('message.delete_activity')) !!}<br>
-                            {!! Form::checkbox('activity',1,$condition->checkActiveJob()['deleteLogs'],['id'=>'auto_close']) !!}
-                                   {{Lang::get('message.enable_activity_clean')}}
+                            {!! html()->label(Lang::get('message.delete_activity'))->for('auto_close') !!}
+                            <br>
+                            {!! html()->checkbox('activity', $condition->checkActiveJob()['deleteLogs'])->id('auto_close') ,1 !!}
+                            {{ Lang::get('message.enable_activity_clean') }}
                         </div>
                     </div>
                     <div class="col-md-6" id="workflow">
-                        {!! Form::select('activity-commands',$commands,$condition->getConditionValue('deleteLogs')['condition'],['class'=>'form-control','id'=>'workflow-command']) !!}
-                         <div id='workflow-daily-at'>
-                            {!! Form::text('activity-dailyAt',$condition->getConditionValue('deleteLogs')['at'],['class'=>'form-control time-picker',"placeholder" => "HH:MM"]) !!}
+                        {!! html()->select('activity-commands', $commands, $condition->getConditionValue('deleteLogs')['condition'])
+    ->class('form-control')
+    ->id('workflow-command')
+!!}
 
+                        <div id="workflow-daily-at">
+                            {!! html()->text('activity-dailyAt', $condition->getConditionValue('deleteLogs')['at'])
+                                ->class('form-control time-picker')
+                                ->placeholder('HH:MM')
+                            !!}
                         </div>
 
                     </div>
@@ -142,23 +162,38 @@
 
                         <div class="form-group">
 
-                            {!! Form::label('sub_fetching', Lang::get('Subscription renewal reminder - Auto payment') . ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="This cron is to trigger email which are sent out to users before product expiry reminding them product will be renewed automatically. This email is send out only to those who have enabled auto renewal"></i>', [], false) !!}<br>
-                            {!! Form::checkbox('subs_expirymail',1,$condition->checkActiveJob()['subsExpirymail'],['id'=>'sub_fetching']) !!}&nbsp;{{Lang::get('message.enable_expiry-cron')}}
+                            {!! html()->label()
+     ->for('sub_fetching')
+     ->html(
+         Lang::get('Subscription renewal reminder - Auto payment') .
+         ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top"
+         title="This cron is to trigger email which are sent out to users before product expiry
+         reminding them the product will be renewed automatically. This email is sent out only to those
+         who have enabled auto renewal"></i>'
+     )
+ !!}
+                            <br>
+                            {!! html()->checkbox('subs_expirymail', $condition->checkActiveJob()['subsExpirymail'] ,1)
+                                ->id('sub_fetching')
+                            !!}
+                            &nbsp; {{ Lang::get('message.enable_expiry-cron') }}
                             <!-- <input type="checkbox" name="subs_expirymail" value="1"> -->
                         </div>
 
                     </div>
                     <div class="col-md-6" id="subfetching">
-                        {!! Form::select('subexpiry-commands',$commands,$condition->getConditionValue('subsExpirymail')['condition'],['class'=>'form-control','id'=>'subfetching-command']) !!}
-                          <div id='subfetching-daily-at'>
-                        {!! Form::text('subexpiry-dailyAt',$condition->getConditionValue('subsExpirymail')['at'],['class'=>'form-control time-picker',"placeholder" => "HH:MM"]) !!}
+                        {!! html()->select('subexpiry-commands', $commands, $condition->getConditionValue('subsExpirymail')['condition'])
+                            ->class('form-control')
+                            ->id('subfetching-command')
+                        !!}
 
+                        <div id="subfetching-daily-at">
+                            {!! html()->text('subexpiry-dailyAt', $condition->getConditionValue('subsExpirymail')['at'])
+                                ->class('form-control time-picker')
+                                ->placeholder('HH:MM')
+                            !!}
                         </div>
-
                     </div>
-
-
-
                 </div>
             </div><!-- /.info-box-content -->
 
@@ -177,19 +212,35 @@
                     <div class="col-md-6">
 
                         <div class="form-group">
-
-                            {!! Form::label('postsub_fetching', Lang::get('Subscription expired') . ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="This cron is to trigger email which are sent out to users after product expiry reminding them to renew the product. This email is send out to all users using auto renewal or are using manual payment method. For self hosted and cloud both"></i>', [], false) !!}<br>
-                            {!! Form::checkbox('postsubs_expirymail',1,$condition->checkActiveJob()['postExpirymail'],['id'=>'postsub_fetching']) !!}&nbsp;{{Lang::get('message.enable_expiry-cron')}}
+                            {!! html()->label()->for('postsub_fetching')->html(
+        Lang::get('Subscription expired') .
+        ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top"
+        title="This cron is to trigger email which are sent out to users after product expiry
+        reminding them to renew the product. This email is sent out to all users using auto renewal
+        or manual payment method. For self-hosted and cloud both"></i>'
+    )
+!!}
+                            <br>
+                            {!! html()->checkbox('postsubs_expirymail', $condition->checkActiveJob()['postExpirymail'], 1)
+                                ->id('postsub_fetching')
+                            !!}
+                            &nbsp;{{ Lang::get('message.enable_expiry-cron') }}
                         </div>
+
 
                     </div>
                     <div class="col-md-6" id="postsubfetching">
-                        {!! Form::select('postsubexpiry-commands',$commands,$condition->getConditionValue('postExpirymail')['condition'],['class'=>'form-control','id'=>'postsubfetching-command']) !!}
-                          <div id='postsubfetching-daily-at'>
-                            {!! Form::text('postsubexpiry-dailyAt',$condition->getConditionValue('postExpirymail')['at'],['class'=>'form-control time-picker',"placeholder" => "HH:MM"]) !!}
+                        {!! html()->select('postsubexpiry-commands', $commands, $condition->getConditionValue('postExpirymail')['condition'])
+                            ->class('form-control')
+                            ->id('postsubfetching-command')
+                        !!}
 
+                        <div id="postsubfetching-daily-at">
+                            {!! html()->text('postsubexpiry-dailyAt', $condition->getConditionValue('postExpirymail')['at'])
+                                ->class('form-control time-picker')
+                                ->placeholder('HH:MM')
+                            !!}
                         </div>
-
                     </div>
                 </div>
             </div><!-- /.info-box-content -->
@@ -205,16 +256,36 @@
                     <div class="col-md-6">
 
                         <div class="form-group">
+                            {!! html()->label()->for('cloud_fetching')->class('form-label')->html(
+        Lang::get('Cloud subscription deletion') .
+        ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top"
+        title="This cron is to trigger email which are sent out to users after product expiry & on cloud instance
+        deletion. This email is sent out to all users using auto renewal or manual payment method.
+        For cloud instance only"></i>'
+    )
+!!}
 
-                           {!! Form::label('cloud_fetching', Lang::get('Cloud subscription deletion') . ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="This cron is to trigger email which are sent out to users after product expiry & on cloud instance deletion. This email is send out to all users using auto renewal or are using manual payment method. For cloud instance only"></i>', [], false) !!}<br>
-                            {!! Form::checkbox('cloud_cron',1,$condition->checkActiveJob()['cloud'],['id'=>'cloud_fetching']) !!}&nbsp;{{Lang::get('Enable Faveo Cloud')}}
+                            <br>
+
+                            {!! html()->checkbox('cloud_cron', $condition->checkActiveJob()['cloud'] ,1)
+                                ->id('cloud_fetching')
+                            !!}
+                            &nbsp;{{ Lang::get('Enable Faveo Cloud') }}
                         </div>
 
+
                     </div>
-                         <div class="col-md-6" id="cloud">
-                        {!! Form::select('cloud-commands',$commands,$condition->getConditionValue('cloud')['condition'],['class'=>'form-control','id'=>'cloud-command']) !!}
-                          <div id='cloud-daily-at'>
-                            {!! Form::text('cloud-dailyAt',$condition->getConditionValue('cloud')['at'],['class'=>'form-control time-picker',"placeholder" => "HH:MM"]) !!}
+                    <div class="col-md-6" id="cloud">
+                        {!! html()->select('cloud-commands', $commands, $condition->getConditionValue('cloud')['condition'])
+                            ->class('form-control')
+                            ->id('cloud-command')
+                        !!}
+
+                        <div id="cloud-daily-at">
+                            {!! html()->text('cloud-dailyAt', $condition->getConditionValue('cloud')['at'])
+                                ->class('form-control time-picker')
+                                ->placeholder('HH:MM')
+                            !!}
                         </div>
                     </div>
 
@@ -235,20 +306,35 @@
 
                         <div class="form-group">
 
-                           {!! Form::label('invoice_fetching', Lang::get('Invoice deletion') . ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="This cron is to trigger deletion of the old unpaid invoices that are not linked to any orders."></i>', [], false) !!}<br>
-                            {!! Form::checkbox('invoice_cron',1,$condition->checkActiveJob()['invoice'],['id'=>'invoice_fetching']) !!}&nbsp;{{Lang::get('Enable Invoice Deletion')}}
+                            <div class="form-group">
+                                {!! html()->label(
+                                    Lang::get('Invoice deletion') .
+                                    ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="This cron is to trigger deletion of the old unpaid invoices that are not linked to any orders."></i>'
+                                )->for('invoice_fetching')->class('required') !!}
+
+                                <br>
+
+                                {!! html()->checkbox('invoice_cron', $condition->checkActiveJob()['invoice'], 1)
+                                    ->id('invoice_fetching')
+                                !!}
+                                &nbsp; {{ Lang::get('Enable Invoice Deletion') }}
+                            </div>
                         </div>
 
                     </div>
-                         <div class="col-md-6" id="invoice">
-                        {!! Form::select('invoice-commands',$commands,$condition->getConditionValue('invoice')['condition'],['class'=>'form-control','id'=>'invoice-command']) !!}
-                          <div id='invoice-daily-at'>
-                            {!! Form::text('invoice-dailyAt',$condition->getConditionValue('invoice')['at'],['class'=>'form-control time-picker',"placeholder" => "HH:MM"]) !!}
+                    <div class="col-md-6" id="invoice">
+                        {!! html()->select('invoice-commands', $commands, $condition->getConditionValue('invoice')['condition'])
+                            ->class('form-control')
+                            ->id('invoice-command')
+                        !!}
+
+                        <div id="invoice-daily-at">
+                            {!! html()->text('invoice-dailyAt', $condition->getConditionValue('invoice')['at'])
+                                ->class('form-control time-picker')
+                                ->placeholder('HH:MM')
+                            !!}
                         </div>
                     </div>
-
-
-
                 </div>
             </div><!-- /.info-box-content -->
 
@@ -261,24 +347,44 @@
                 <div class="info-box-content" style="display: block;">
 
                     <div class="col-md-6">
-
                         <div class="form-group">
+                            {!! html()
+                                ->label(
+                                    'Msg 91 Reports Deletion <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="This cron is to trigger deletion of the old Msg91 Reports."></i>'
+                                )
+                                ->for('msg91_fetching')
+                                ->toHtml()
+                            !!}
 
-                            {!! Form::label('msg91_report', 'Msg 91 Reports Deletion' . ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="This cron is to trigger deletion of the old Msg91 Reports."></i>', [], false) !!}
                             <br>
-                            {!! Form::checkbox('msg91_cron',1,$condition->checkActiveJob()['msg91Reports'],['id'=>'msg91_fetching']) !!}
-                            &nbsp;{{Lang::get('message.enable_msg_cron')}}
-                        </div>
 
+                            {!! html()
+                                ->checkbox('msg91_cron', 1, $condition->checkActiveJob()['msg91Reports'])
+                                ->id('msg91_fetching')
+                                ->toHtml()
+                            !!}
+                            &nbsp;{{ Lang::get('message.enable_msg_cron') }}
+                        </div>
                     </div>
+
                     <div class="col-md-6" id="invoice">
-                        {!! Form::select('msg91-commands',$commands,$condition->getConditionValue('msg91Reports')['condition'],['class'=>'form-control','id'=>'msg91-command']) !!}
+                        {!! html()
+                            ->select('msg91-commands', $commands)
+                            ->class('form-control')
+                            ->id('msg91-command')
+                            ->value($condition->getConditionValue('msg91Reports')['condition'])
+                            ->toHtml()
+                        !!}
+
                         <div id='msg91-daily-at'>
-                            {!! Form::text('msg91-dailyAt',$condition->getConditionValue('msg91Reports')['at'],['class'=>'form-control time-picker',"placeholder" => "HH:MM"]) !!}
+                            {!! html()
+                                ->text('msg91-dailyAt', $condition->getConditionValue('msg91Reports')['at'])
+                                ->class('form-control time-picker')
+                                ->placeholder('HH:MM')
+                                ->toHtml()
+                            !!}
                         </div>
                     </div>
-
-
                 </div>
             </div><!-- /.info-box-content -->
 
@@ -288,7 +394,7 @@
         </div>
     </div>
 
- {!! Form::close() !!}
+{!! html()->form()->close() !!}
 
 
 
@@ -311,28 +417,65 @@
             update();
             $checkbox.on('click', update);
         }
+        // Ldap cron settings end //
+    });
 
-        // Toggle daily-at section by command type
-        function handleCommand(selectId, targetId) {
-            const $select = $(`#${selectId}`);
-            const $target = $(`#${targetId}`);
-            const update = () => $target.toggle($select.val() === 'dailyAt');
-            update();
-            $select.on('change', update);
+        $(document).ready(function () {
+$(".time-picker").datetimepicker({
+        format: 'HH:ss',
+        // useCurrent: false, //Important! See issue #1075
+    });
+
+
+        var checked = $("#cloud_fetching").is(':checked');
+        check(checked, 'cloud_fetching');
+        $("#cloud_fetching").on('click', function () {
+            checked = $("#cloud_fetching").is(':checked');
+            check(checked);
+        });
+        var command = $("#cloud-command").val();
+        showDailyAt(command);
+        $("#cloud-command").on('change', function () {
+            command = $("#cloud-command").val();
+            showDailyAt(command);
+        });
+        function check(checked, id) {
+            if (checked) {
+                $("#cloud").show();
+            } else {
+                $("#cloud").hide();
+            }
+        }
+        function showDailyAt(command) {
+            if (command === 'dailyAt') {
+                $("#cloud-daily-at").show();
+                // $("input").prop('required',true);
+            } else {
+                $("#cloud-daily-at").hide();
+            }
         }
 
-        // Grouped config
-        const config = [
-            { checkbox: 'email_fetching', section: 'fetching', select: 'fetching-command', daily: 'fetching-daily-at' },
-            { checkbox: 'cloud_fetching', section: 'cloud', select: 'cloud-command', daily: 'cloud-daily-at' },
-            { checkbox: 'notification_cron', section: 'notification', select: 'notification-command', daily: 'notification-daily-at' },
-            { checkbox: 'auto_close', section: 'workflow', select: 'workflow-command', daily: 'workflow-daily-at' },
-            { checkbox: 'notification_cron1', section: 'notification1', select: 'notification-command1', daily: 'notification-daily-at1' },
-            { checkbox: 'sub_fetching', section: 'subfetching', select: 'subfetching-command', daily: 'subfetching-daily-at' },
-            { checkbox: 'postsub_fetching', section: 'postsubfetching', select: 'postsubfetching-command', daily: 'postsubfetching-daily-at' },
-            { checkbox: 'invoice_fetching', section: 'invoice', select: 'invoice-command', daily: 'invoice-daily-at' },
-            { checkbox: 'msg91_fetching', section: 'msg91', select: 'msg91-command', daily: 'msg91-daily-at' },
-        ];
+
+            function handleCommand(selectId, targetId) {
+                const $select = $(`#${selectId}`);
+                const $target = $(`#${targetId}`);
+                const update = () => $target.toggle($select.val() === 'dailyAt');
+                update();
+                $select.on('change', update);
+            }
+
+            // Grouped config
+            const config = [
+                { checkbox: 'email_fetching', section: 'fetching', select: 'fetching-command', daily: 'fetching-daily-at' },
+                { checkbox: 'cloud_fetching', section: 'cloud', select: 'cloud-command', daily: 'cloud-daily-at' },
+                { checkbox: 'notification_cron', section: 'notification', select: 'notification-command', daily: 'notification-daily-at' },
+                { checkbox: 'auto_close', section: 'workflow', select: 'workflow-command', daily: 'workflow-daily-at' },
+                { checkbox: 'notification_cron1', section: 'notification1', select: 'notification-command1', daily: 'notification-daily-at1' },
+                { checkbox: 'sub_fetching', section: 'subfetching', select: 'subfetching-command', daily: 'subfetching-daily-at' },
+                { checkbox: 'postsub_fetching', section: 'postsubfetching', select: 'postsubfetching-command', daily: 'postsubfetching-daily-at' },
+                { checkbox: 'invoice_fetching', section: 'invoice', select: 'invoice-command', daily: 'invoice-daily-at' },
+                { checkbox: 'msg91_fetching', section: 'msg91', select: 'msg91-command', daily: 'msg91-daily-at' },
+            ];
 
         config.forEach(({ checkbox, section, select, daily }) => {
             handleToggle(checkbox, section);
@@ -401,5 +544,256 @@
             document.body.removeChild(textArea);
         }
     });
+    $(document).ready(function () {
+        var checked = $("#auto_close").is(':checked');
+        check(checked, 'auto_close');
+        $("#auto_close").on('click', function () {
+            checked = $("#auto_close").is(':checked');
+            check(checked);
+        });
+        var command = $("#workflow-command").val();
+        showDailyAt(command);
+        $("#workflow-command").on('change', function () {
+            command = $("#workflow-command").val();
+            showDailyAt(command);
+        });
+        function check(checked, id) {
+            if (checked) {
+                $("#workflow").show();
+            } else {
+                $("#workflow").hide();
+            }
+        }
+        function showDailyAt(command) {
+            if (command == 'dailyAt') {
+                $("#workflow-daily-at").show();
+            } else {
+                $("#workflow-daily-at").hide();
+            }
+        }
+    });
+//follow up
+     $(document).ready(function () {
+        var checked = $("#notification_cron1").is(':checked');
+        check(checked, 'notification_cron1');
+        $("#notification_cron1").on('click', function () {
+            checked = $("#notification_cron1").is(':checked');
+            check(checked);
+        });
+        var command = $("#notification-command1").val();
+        showDailyAt(command);
+        $("#notification-command1").on('change', function () {
+            command = $("#notification-command1").val();
+            showDailyAt(command);
+        });
+        function check(checked, id) {
+            if (checked) {
+                $("#notification1").show();
+            } else {
+                $("#notification1").hide();
+            }
+        }
+        function showDailyAt(command) {
+            if (command === 'dailyAt') {
+                $("#notification-daily-at1").show();
+            } else {
+                $("#notification-daily-at1").hide();
+            }
+        }
+    });
+
+
+         $(document).ready(function () {
+$(".time-picker").datetimepicker({
+        format: 'HH:ss',
+        // useCurrent: false, //Important! See issue #1075
+    });
+
+
+
+        var checked = $("#sub_fetching").is(':checked');
+        check(checked, 'sub_fetching');
+        $("#sub_fetching").on('click', function () {
+            checked = $("#sub_fetching").is(':checked');
+            check(checked);
+        });
+        var command = $("#subfetching-command").val();
+        showDailyAt(command);
+        $("#subfetching-command").on('change', function () {
+            command = $("#subfetching-command").val();
+            showDailyAt(command);
+        });
+        function check(checked, id) {
+            if (checked) {
+                $("#subfetching").show();
+            } else {
+                $("#subfetching").hide();
+            }
+        }
+        function showDailyAt(command) {
+            if (command === 'dailyAt') {
+                $("#subfetching-daily-at").show();
+                // $("input").prop('required',true);
+            } else {
+                $("#subfetching-daily-at").hide();
+            }
+        }
+
+
+
+
+
+        // Ldap cron settings end //
+    });
+
+
+
+         $(document).ready(function () {
+$(".time-picker").datetimepicker({
+        format: 'HH:ss',
+        // useCurrent: false, //Important! See issue #1075
+    });
+
+
+
+        var checked = $("#postsub_fetching").is(':checked');
+        check(checked, 'postsub_fetching');
+        $("#postsub_fetching").on('click', function () {
+            checked = $("#postsub_fetching").is(':checked');
+            check(checked);
+        });
+        var command = $("#postsubfetching-command").val();
+        showDailyAt(command);
+        $("#postsubfetching-command").on('change', function () {
+            command = $("#postsubfetching-command").val();
+            showDailyAt(command);
+        });
+        function check(checked, id) {
+            if (checked) {
+                $("#postsubfetching").show();
+            } else {
+                $("#postsubfetching").hide();
+            }
+        }
+        function showDailyAt(command) {
+            if (command === 'dailyAt') {
+                $("#postsubfetching-daily-at").show();
+                // $("input").prop('required',true);
+            } else {
+                $("#postsubfetching-daily-at").hide();
+            }
+        }
+
+
+
+
+
+        // Ldap cron settings end //
+    });
+
+
+                 $(document).ready(function () {
+$(".time-picker").datetimepicker({
+        format: 'HH:ss',
+        // useCurrent: false, //Important! See issue #1075
+    });
+
+
+        var checked = $("#invoice_fetching").is(':checked');
+        check(checked, 'invoice_fetching');
+        $("#invoice_fetching").on('click', function () {
+            checked = $("#invoice_fetching").is(':checked');
+            check(checked);
+        });
+        var command = $("#invoice-command").val();
+        showDailyAt(command);
+        $("#invoice-command").on('change', function () {
+            command = $("#invoice-command").val();
+            showDailyAt(command);
+        });
+        function check(checked, id) {
+            if (checked) {
+                $("#invoice").show();
+            } else {
+                $("#invoice").hide();
+            }
+        }
+        function showDailyAt(command) {
+            if (command === 'dailyAt') {
+                $("#invoice-daily-at").show();
+                // $("input").prop('required',true);
+            } else {
+                $("#invoice-daily-at").hide();
+            }
+        }
+
+
+
+
+
+        // Ldap cron settings end //
+    });
+
+//-------------------------------------------------------------//
+
+    function checksome(showtext = true)
+    {
+        if (!showtext) {
+            $("#phpExecutableList").css('display', "block");
+            $("#phpExecutableList").val(0)
+            $("#phpExecutableTextArea").css('display', "none");
+        } else if($("#phpExecutableList").val() == 'Other') {
+            $("#phpExecutableList").css('display', "none");
+            $("#phpExecutableTextArea").css('display', "block");
+        }
+    }
+
+    function verifyPHPExecutableAndCopyCommand()
+    {
+        copy = false;
+        var path = ($("#phpExecutableList").val()=="Other")? $("#phpExecutableText").val(): $("#phpExecutableList").val();
+        var text = "* * * * * "+path.trim()+" "+$(".copy-command2").text().trim();
+        copyToClipboard(text);
+
+        $.ajax({
+            'method': 'post',
+            'url': "{{route('verify-cron')}}",
+            data: {
+                 "_token": "{{ csrf_token() }}",
+                "path": path
+            },
+            beforeSend: function() {
+                $("#loader").css("display", "block");
+                $(".alert-danger, .alert-success, #copyBtn").css('display', 'none');
+            },
+            success: function (result,status,xhr) {
+                $(".alert-success-message").html("{{Lang::get('message.cron-command-copied')}} "+result.message);
+                $(".cron-success, #copyBtn").css('display', 'block');
+                $("#loader").css("display", "none");
+                copy = true
+            },
+            error: function(xhr,status,error) {
+                $('#clearClipBoard').click();
+                $(".cron-danger, #copyBtn").css('display', 'block');
+                $("#loader").css("display", "none");
+                $(".alert-danger-message").html("{{Lang::get('message.cron-command-not-copied')}} "+xhr.responseJSON.message);
+            },
+        });
+    }
+
+    function copyToClipboard(text = " ")
+    {
+        var textArea = document.createElement("textarea");
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            var successful = document.execCommand('copy');
+            var msg = successful ? 'successful' : 'unsuccessful';
+        } catch (err) {
+        }
+        console.log(msg);
+        document.body.removeChild(textArea);
+    }
 </script>
 

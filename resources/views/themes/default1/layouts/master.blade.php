@@ -183,6 +183,14 @@
             font-size: 14px;
         }
 
+        .tooltip {
+            pointer-events: none;
+        }
+
+        .popover {
+            pointer-events: auto; /* allow interaction in popovers */
+        }
+
     </style>
     <?php
     $set = new \App\Model\Common\Setting();
@@ -560,8 +568,8 @@
 
     <script>
         setTimeout(function() {
-            $(".alert").slideUp(1000);
-        },10000);
+            $('.alert-success, .alert-danger').alert('close');
+        }, 10000);
     </script>
     <!-- Bootstrap 3.3.2 JS -->
     <script src="{{asset('admin/plugins/iCheck/icheck.min.js')}}" type="text/javascript"></script>
