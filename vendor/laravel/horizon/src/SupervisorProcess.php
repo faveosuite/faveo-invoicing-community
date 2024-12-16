@@ -50,7 +50,7 @@ class SupervisorProcess extends WorkerProcess
      * @param  \Closure|null  $output
      * @return void
      */
-    public function __construct(SupervisorOptions $options, $process, Closure $output = null)
+    public function __construct(SupervisorOptions $options, $process, ?Closure $output = null)
     {
         $this->options = $options;
         $this->name = $options->name;
@@ -67,6 +67,7 @@ class SupervisorProcess extends WorkerProcess
      *
      * @return void
      */
+    #[\Override]
     public function monitor()
     {
         if (! $this->process->isStarted()) {

@@ -21,7 +21,7 @@ class PromotionControllerTest extends DBTestCase
         $this->classObject = new PromotionController();
     }
 
-    /** @group promotion */
+    #[Group('promotion')]
     public function test_getPromotionDetails_whenRandomCodePassed_throwsException()
     {
         $this->expectException(\Exception::class);
@@ -29,7 +29,7 @@ class PromotionControllerTest extends DBTestCase
         $promotion = $this->classObject->getPromotionDetails('RANDOMCODE');
     }
 
-    /** @group promotion */
+    #[Group('promotion')]
     public function test_getPromotionDetails_whenCodeHasExpired_throwsException()
     {
         $this->expectException(\Exception::class);
@@ -40,7 +40,7 @@ class PromotionControllerTest extends DBTestCase
         $promotion = $this->classObject->getPromotionDetails('FAVEOCOUPON');
     }
 
-    /** @group promotion */
+    #[Group('promotion')]
     public function test_getPromotionDetails_whenProductIsNotLinkedToCode_throwsException()
     {
         $this->expectException(\Exception::class);
@@ -58,7 +58,7 @@ class PromotionControllerTest extends DBTestCase
         $promotion = $this->classObject->getPromotionDetails('FAVEOCOUPON');
     }
 
-    /** @group promotion */
+    #[Group('promotion')]
     public function test_getPromotionDetails_whenUsageCountHasExpired_throwsException()
     {
         $this->expectException(\Exception::class);
@@ -72,7 +72,7 @@ class PromotionControllerTest extends DBTestCase
         $promotion = $this->classObject->getPromotionDetails('FAVEOCOUPON');
     }
 
-    /** @group promotion */
+    #[Group('promotion')]
     public function test_getPromotionDetails_whenValidCodePassed_returnsSuccess()
     {
         $this->withoutMiddleware();
@@ -82,7 +82,7 @@ class PromotionControllerTest extends DBTestCase
         $this->assertStringContainsSubstring($promotion->code, 'FAVEOCOUPON');
     }
 
-    /** @group promotion */
+    #[Group('promotion')]
     public function test_findCostAfterDiscount_whenCodeTypeIsInPercents_returnsDiscountedPrice()
     {
         $this->withoutMiddleware();
@@ -98,7 +98,7 @@ class PromotionControllerTest extends DBTestCase
         $this->assertEquals($promotion, 900); //10% dicount on 1000
     }
 
-    /** @group promotion */
+    #[Group('promotion')]
     public function test_findCostAfterDiscount_whenCodeTypeIsFixedAmount_returnsDiscountedPrice()
     {
         $this->withoutMiddleware();
@@ -114,7 +114,7 @@ class PromotionControllerTest extends DBTestCase
         $this->assertEquals($promotion, 990); //Rs 10 dicount on 1000
     }
 
-    /** @group promotion */
+    #[Group('promotion')]
     public function test_checkCode_whenFixedAmtCouponCodeEnteredWithCartConditions_returnsUpdatedCartPrice()
     {
         $this->withoutMiddleware();
@@ -139,7 +139,7 @@ class PromotionControllerTest extends DBTestCase
         }
     }
 
-    /** @group promotion */
+    #[Group('promotion')]
     public function test_checkCode_whenPercentCouponCodeEnteredWithCartConditions_returnsUpdatedCartPrice()
     {
         $this->withoutMiddleware();
@@ -164,7 +164,7 @@ class PromotionControllerTest extends DBTestCase
         }
     }
 
-    /** @group promotion */
+    #[Group('promotion')]
     public function test_checkCode_whenCouponCodeIsEneteredForNonDiscountedProduct_throwsException()
     {
         $this->expectException(\Exception::class);
@@ -190,7 +190,7 @@ class PromotionControllerTest extends DBTestCase
         $promotion = $this->classObject->checkCode('FAVEOCOUPON');
     }
 
-    /** @group promotion */
+    #[Group('promotion')]
     public function test_checkCode_whenCouponCodeIsEneteredTwiceInSameSession_throwsException()
     {
         $this->expectException(\Exception::class);
@@ -216,7 +216,7 @@ class PromotionControllerTest extends DBTestCase
         }
     }
 
-    /** @group promotion */
+    #[Group('promotion')]
     public function test_store_saveNewPromotionCode_returnsSuccessMessage()
     {
         $this->getLoggedInUser();

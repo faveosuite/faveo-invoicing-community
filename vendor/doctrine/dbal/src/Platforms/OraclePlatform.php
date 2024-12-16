@@ -114,11 +114,11 @@ class OraclePlatform extends AbstractPlatform
             case DateIntervalUnit::YEAR:
                 switch ($unit) {
                     case DateIntervalUnit::QUARTER:
-                        $interval *= 3;
+                        $interval = $this->multiplyInterval((string) $interval, 3);
                         break;
 
                     case DateIntervalUnit::YEAR:
-                        $interval *= 12;
+                        $interval = $this->multiplyInterval((string) $interval, 12);
                         break;
                 }
 
@@ -473,8 +473,6 @@ class OraclePlatform extends AbstractPlatform
      * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
      *
      * {@inheritDoc}
-     *
-     * @link http://ezcomponents.org/docs/api/trunk/DatabaseSchema/ezcDbSchemaOracleReader.html
      */
     public function getListTableIndexesSQL($table, $database = null)
     {

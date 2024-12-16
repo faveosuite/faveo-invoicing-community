@@ -20,11 +20,13 @@ class PDOCollector extends DataCollector implements Renderable, AssetProvider
 
     protected $sqlQuotationChar = '<>';
 
+    protected $durationBackground = false;
+
     /**
      * @param \PDO $pdo
      * @param TimeDataCollector $timeCollector
      */
-    public function __construct(\PDO $pdo = null, TimeDataCollector $timeCollector = null)
+    public function __construct(?\PDO $pdo = null, ?TimeDataCollector $timeCollector = null)
     {
         $this->timeCollector = $timeCollector;
         if ($pdo !== null) {
@@ -41,6 +43,16 @@ class PDOCollector extends DataCollector implements Renderable, AssetProvider
     {
         $this->renderSqlWithParams = $enabled;
         $this->sqlQuotationChar = $quotationChar;
+    }
+
+    /**
+     * Enable/disable the shaded duration background on queries
+     *
+     * @param  bool $enabled
+     */
+    public function setDurationBackground($enabled)
+    {
+        $this->durationBackground = $enabled;
     }
 
     /**
@@ -126,7 +138,7 @@ class PDOCollector extends DataCollector implements Renderable, AssetProvider
      * @param string|null $connectionName the pdo connection (eg default | read | write)
      * @return array
      */
-    protected function collectPDO(TraceablePDO $pdo, TimeDataCollector $timeCollector = null, $connectionName = null)
+    protected function collectPDO(TraceablePDO $pdo, ?TimeDataCollector $timeCollector = null, $connectionName = null)
     {
         if (empty($connectionName) || $connectionName == 'default') {
             $connectionName = 'pdo';
@@ -156,11 +168,29 @@ class PDOCollector extends DataCollector implements Renderable, AssetProvider
             }
         }
 
+        $totalTime = $pdo->getAccumulatedStatementsDuration();
+        if ($this->durationBackground && $totalTime > 0) {
+            // For showing background measure on Queries tab
+            $start_percent = 0;
+            foreach ($stmts as $i => $stmt) {
+                if (!isset($stmt['duration'])) {
+                    continue;
+                }
+
+                $width_percent = $stmt['duration'] / $totalTime * 100;
+                $stmts[$i] = array_merge($stmt, [
+                    'start_percent' => round($start_percent, 3),
+                    'width_percent' => round($width_percent, 3),
+                ]);
+                $start_percent += $width_percent;
+            }
+        }
+
         return array(
             'nb_statements' => count($stmts),
             'nb_failed_statements' => count($pdo->getFailedExecutedStatements()),
-            'accumulated_duration' => $pdo->getAccumulatedStatementsDuration(),
-            'accumulated_duration_str' => $this->getDataFormatter()->formatDuration($pdo->getAccumulatedStatementsDuration()),
+            'accumulated_duration' => $totalTime,
+            'accumulated_duration_str' => $this->getDataFormatter()->formatDuration($totalTime),
             'memory_usage' => $pdo->getMemoryUsage(),
             'memory_usage_str' => $this->getDataFormatter()->formatBytes($pdo->getPeakMemoryUsage()),
             'peak_memory_usage' => $pdo->getPeakMemoryUsage(),

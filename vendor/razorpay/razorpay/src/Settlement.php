@@ -65,23 +65,24 @@ class Settlement extends Entity
      /**
      * fetch Ondemand Settlement by Id 
      * @param  string $id
+     * @param  array  $options
      * @return array
      */
-    public function fetchOndemandSettlementById()
+    public function fetchOndemandSettlementById($id, $options = array())
     {
-        $relativeUrl = $this->getEntityUrl(). "ondemand/" . $this->id ;
+        $relativeUrl = $this->getEntityUrl(). "ondemand/" . $id;
        
-        return $this->request('GET', $relativeUrl);
+        return $this->request('GET', $relativeUrl, $options);
     }
     /**
      * fetch all Ondemand Settlement 
      * @return array
      */
-    public function fetchAllOndemandSettlement()
+    public function fetchAllOndemandSettlement($options = array())
     {
         $relativeUrl = $this->getEntityUrl(). "ondemand/";
         
-        return $this->request('GET', $relativeUrl);
+        return $this->request('GET', $relativeUrl, $options);
     }
 }
 

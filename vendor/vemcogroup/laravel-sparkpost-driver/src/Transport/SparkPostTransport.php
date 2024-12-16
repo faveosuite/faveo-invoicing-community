@@ -5,6 +5,7 @@ namespace Vemcogroup\SparkPostDriver\Transport;
 use JsonException;
 use GuzzleHttp\ClientInterface;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Collection;
 use Symfony\Component\Mime\RawMessage;
 use Symfony\Component\Mailer\Envelope;
 use Symfony\Component\Mailer\SentMessage;
@@ -78,20 +79,29 @@ class SparkPostTransport implements TransportInterface
         $subaccount_id = $message->getHeaders()->get('subaccount_id');
         if ($subaccount_id) {
             $headers['X-MSYS-SUBACCOUNT'] = $subaccount_id->getValue();
+            $message->getHeaders()->remove('X-MSYS-SUBACCOUNT');
+        }
+
+        $content = [
+            'from' => $this->getFrom($message),
+            'subject' => $message->getSubject(),
+            'reply_to' => $this->getReplyTo($message),
+            'html' => $message->getHtmlBody(),
+            'text' => $message->getTextBody(),
+            'attachments' => $this->getAttachments($message),
+        ];
+
+        if (($cc = $this->getCc($message)->flatten(1)->pluck('email'))->count()) {
+            $content['headers'] = [
+                'CC' => $cc->implode(','),
+            ];
         }
 
         $response = $this->client->request('POST', $this->getEndpoint() . '/transmissions', [
             'headers' => $headers,
             'json' => array_merge([
                 'recipients' => $recipients,
-                'content' => [
-                    'from' => $this->getFrom($message),
-                    'subject' => $message->getSubject(),
-                    'reply_to' => $this->getReplyTo($message),
-                    'html' => $message->getHtmlBody(),
-                    'text' => $message->getTextBody(),
-                    'attachments' => $this->getAttachments($message),
-                ],
+                'content' => $content,
             ], $this->options),
         ]);
 
@@ -127,21 +137,59 @@ class SparkPostTransport implements TransportInterface
         return empty($email) ? $email : "{$name} <{$email}>";
     }
 
-    protected function getRecipients(RawMessage $message): array
+    protected function getRecipientByType(RawMessage $message, string $type): Collection
     {
-        $recipients = [];
+        $recipients = collect();
+
+        if ($addresses = $message->{'get' . ucfirst($type)}()) {
+            foreach ($addresses as $recipient) {
+                $recipients->add([
+                    'address' => [
+                        'name' => $recipient->getName(),
+                        'email' => $recipient->getAddress(),
+                    ],
+                ]);
+            }
+        }
+
+        return $recipients;
+    }
+
+    protected function addHeaderTo(Collection $to, $recipients): Collection
+    {
+        if ($to->count()) {
+            foreach ($recipients as $index => $recipient) {
+                $recipient['address']['header_to'] = $to->flatten(1)->pluck('email')->implode(',');
+                $recipients->put($index, $recipient);
+            }
+        }
+
+        return $recipients;
+    }
+
+    protected function getTo(RawMessage $message): Collection
+    {
+        $to = $this->getRecipientByType($message, 'to');
+
+        return $this->addHeaderTo($to, $to);
+    }
+
+    protected function getCc(RawMessage $message): Collection
+    {
+        return $this->addHeaderTo($this->getRecipientByType($message, 'to'), $this->getRecipientByType($message, 'cc'));
+    }
+
+    protected function getBcc(RawMessage $message): Collection
+    {
+        return $this->addHeaderTo($this->getRecipientByType($message, 'to'), $this->getRecipientByType($message, 'bcc'));
+    }
+
+    protected function getRecipients(RawMessage $message): Collection
+    {
+        $recipients = collect([]);
 
         foreach (['to', 'cc', 'bcc'] as $type) {
-            if ($addresses = $message->{'get' . ucfirst($type)}()) {
-                foreach ($addresses as $recipient) {
-                    $recipients[] = [
-                        'address' => [
-                            'name' => $recipient->getName(),
-                            'email' => $recipient->getAddress(),
-                        ],
-                    ];
-                }
-            }
+            $recipients = $recipients->merge($this->{'get' . ucfirst($type)}($message));
         }
 
         return $recipients;

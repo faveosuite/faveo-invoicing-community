@@ -9,10 +9,36 @@
 
 namespace PHP_CodeSniffer\Standards\Generic\Tests\Files;
 
+use PHP_CodeSniffer\Files\DummyFile;
+use PHP_CodeSniffer\Ruleset;
+use PHP_CodeSniffer\Tests\ConfigDouble;
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
 
-class LowercasedFilenameUnitTest extends AbstractSniffUnitTest
+/**
+ * Unit test class for the LowercasedFilename sniff.
+ *
+ * @covers \PHP_CodeSniffer\Standards\Generic\Sniffs\Files\LowercasedFilenameSniff
+ */
+final class LowercasedFilenameUnitTest extends AbstractSniffUnitTest
 {
+
+
+    /**
+     * Get a list of all test files to check.
+     *
+     * @param string $testFileBase The base path that the unit tests files will have.
+     *
+     * @return string[]
+     */
+    protected function getTestFiles($testFileBase)
+    {
+        $testFileDir = dirname($testFileBase);
+        $testFiles   = parent::getTestFiles($testFileBase);
+        $testFiles[] = $testFileDir.DIRECTORY_SEPARATOR.'lowercased_filename_unit_test.inc';
+
+        return $testFiles;
+
+    }//end getTestFiles()
 
 
     /**
@@ -51,6 +77,30 @@ class LowercasedFilenameUnitTest extends AbstractSniffUnitTest
         return [];
 
     }//end getWarningList()
+
+
+    /**
+     * Test the sniff bails early when handling STDIN.
+     *
+     * @return void
+     */
+    public function testStdIn()
+    {
+        $config            = new ConfigDouble();
+        $config->standards = ['Generic'];
+        $config->sniffs    = ['Generic.Files.LowercasedFilename'];
+
+        $ruleset = new Ruleset($config);
+
+        $content = '<?php ';
+        $file    = new DummyFile($content, $ruleset, $config);
+        $file->process();
+
+        $this->assertSame(0, $file->getErrorCount());
+        $this->assertSame(0, $file->getWarningCount());
+        $this->assertCount(0, $file->getErrors());
+
+    }//end testStdIn()
 
 
 }//end class

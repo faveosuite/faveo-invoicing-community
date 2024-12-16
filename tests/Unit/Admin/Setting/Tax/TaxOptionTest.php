@@ -10,7 +10,7 @@ class TaxOptionTest extends TestCase
 {
     use DatabaseTransactions;
 
-    /** @group taxController */
+    #[Group('taxController')]
     public function test_options_whenGstIsEnable()
     {
         $this->withoutMiddleware();
@@ -21,7 +21,7 @@ class TaxOptionTest extends TestCase
         $response->assertSessionHas('success');
     }
 
-    /** @group taxController */
+    #[Group('taxController')]
     public function test_options_whenTaxClassIsCreated_whenTaxTypeIsOthers()
     {
         $this->withoutMiddleware();
@@ -36,7 +36,7 @@ class TaxOptionTest extends TestCase
         $response->assertSessionHas('success');
     }
 
-    /** @group taxController */
+    #[Group('taxController')]
     public function test_options_whenTaxClassIsCreated_whenTaxTypeIsGst()
     {
         $this->withoutMiddleware();

@@ -88,14 +88,14 @@ Payment Logs
  
         <div class="card-body">
 
-              
-                    {!! Form::open(['method'=>'get']) !!}
 
-                    <div class="row">
+            {!! html()->form('GET')->open() !!}
+
+            <div class="row">
                          <div class="col-md-3 form-group">
                             <!-- first name -->
-                            {!! Form::label('from','From') !!}
-                            <div class="input-group date" id="paymentreservationdate_from" data-target-input="nearest">
+                             {!! html()->label('From', 'from') !!}
+                             <div class="input-group date" id="paymentreservationdate_from" data-target-input="nearest">
                                 <input type="text" name="from" class="form-control datetimepicker-input" autocomplete="off" value="" data-target="#paymentreservationdate_from"/>
 
                                 <div class="input-group-append" data-target="#paymentreservationdate_from" data-toggle="datetimepicker">
@@ -107,7 +107,7 @@ Payment Logs
 
                         <div class="col-md-3 form-group">
                             <!-- first name -->
-                            {!! Form::label('till','Till') !!}
+                            {!! html()->label('Till', 'till') !!}
                             <div class="input-group date" id="paymentreservationdate" data-target-input="nearest">
                                 <input type="text" name="till" class="form-control datetimepicker-input" autocomplete="off" value="" data-target="#paymentreservationdate"/>
 

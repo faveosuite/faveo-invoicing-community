@@ -408,7 +408,7 @@ class Pipedrive
      */
     public function __call($name, $arguments)
     {
-        if (! in_array($name, get_class_methods(get_class()))) {
+        if (! in_array($name, get_class_methods(get_class($this)))) {
             return $this->{$name};
         }
     }

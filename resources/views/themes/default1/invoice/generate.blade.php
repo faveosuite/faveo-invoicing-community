@@ -22,12 +22,12 @@ Create Invoice
 
     <div class="card-header">
          @if($user!='')
-            {!! Form::open(['url'=>'generate/invoice/'.$user->id,'id'=>'formoid']) !!}
+            {!! html()->form('POST', url('generate/invoice/' . $user->id))->id('formoid')->open() !!}
             <input type="hidden" name="user" value="{{$user->id}}">
             <h5>{{ucfirst($user->first_name)}} {{ucfirst($user->last_name)}}, ({{$user->email}}) </h5>
-            @else 
-            {!! Form::open(['url'=>'generate/invoice','id'=>'formoid']) !!}
-            @endif
+            @else
+            {!! html()->form('POST', url('generate/invoice'))->id('formoid')->open() !!}
+        @endif
         <div id="error">
         </div>
         <div id="successs">
@@ -50,8 +50,8 @@ Create Invoice
                     </style>
 
                 <div class="col-sm-4 form-group">
-                    {!! Form::label('user',Lang::get('message.clients'),['class'=>'required']) !!}
-                     {!! Form::select('user', [Lang::get('User')=>$users],null,['multiple'=>true,'class'=>"form-control select2". ($errors->has('user') ? ' is-invalid' : ''),'id'=>"users"]) !!}
+                    {!! html()->label(Lang::get('message.clients'))->class('required') !!}
+                    {!! html()->select('user', [Lang::get('User') => $users])->multiple()->class("form-control select2". ($errors->has('user') ? ' is-invalid' : ''))->id('users')->attribute('name', 'user') !!}
 
                     <span class="error-message" id="user-msg"></span>
                     <h6 id ="productusercheck"></h6>
@@ -59,11 +59,11 @@ Create Invoice
                 @endif
                 <div class="col-md-4 lg-4 form-group {{ $errors->has('invoice_status') ? 'has-error' : '' }}">
                             <!-- first name -->
-                            {!! Form::label('date',Lang::get('message.date'),['class'=>'required']) !!}
+                    {!! html()->label(Lang::get('message.date'))->class('required') !!}
 
 
                          <div class="input-group date" id="invoice_date" data-target-input="nearest" >
-                            {!! Form::text('date',null,['class' => 'form-control datetimepicker-input'. ($errors->has('date') ? ' is-invalid' : ''),'id'=>'datepicker','data-target'=>'#invoice_date']) !!}
+                             {!! html()->text('date')->class('form-control datetimepicker-input'. ($errors->has('date') ? ' is-invalid' : ''))->id('datepicker')->attribute('data-target', '#invoice_date') !!}
 
                             <div class="input-group-append" data-target="#invoice_date" data-toggle="datetimepicker">
                                     <div class="input-group-text"><i class="fa fa-calendar"></i></div>
@@ -77,7 +77,7 @@ Create Invoice
                     </div>
 
                 <div class="col-md-4 lg-4 form-group">
-                    {!! Form::label('product',Lang::get('message.product'),['class'=>'required']) !!}
+                    {!! html()->label(Lang::get('message.product'))->for('product')->class('required') !!}
                      <select name="product" value= "Choose" id="product" class="form-control {{$errors->has('product') ? ' is-invalid' : ''}}">
                              <option value="">Choose</option>
                            @foreach($products as $key=>$product)
@@ -96,8 +96,8 @@ Create Invoice
                 <div id="fields1" class="col-md-4">
                 </div>
                 <div class="col-md-4 form-group">
-                    {!! Form::label('price',Lang::get('message.price'),['class'=>'required']) !!}
-                    {!! Form::number('price',null,['class'=>'form-control'. ($errors->has('price') ? ' is-invalid' : ''),'id'=>'price']) !!}
+                    {!! html()->label(Lang::get('message.price'))->for('price')->class('required') !!}
+                    {!! html()->text('price')->class('form-control'. ($errors->has('price') ? ' is-invalid' : ''))->id('price') !!}
                     <span class="error-message" id="price-msg"></span>
                       <h6 id ="pricecheck"></h6>
                     @error('price')
@@ -105,8 +105,8 @@ Create Invoice
                     @enderror
                 </div>
                 <div class="col-md-4 form-group">
-                    {!! Form::label('code','Coupon code') !!}
-                    {!! Form::text('code',null,['class'=>'form-control'. ($errors->has('code') ? ' is-invalid' : '')]) !!}
+                    {!! html()->label('Coupon code')->for('code') !!}
+                    {!! html()->text('code')->class('form-control'. ($errors->has('code') ? ' is-invalid' : '')) !!}
                     <span class="error-message" id="code-msg"></span>
                 </div>
                     <div id="agents" class="col-md-4">
@@ -120,7 +120,7 @@ Create Invoice
             <br>
              <h4> <button name="generate" type="submit" id="generate" class="btn btn-primary pull-right" ><i class="fas fa-sync-alt">&nbsp;</i>{!!Lang::get('message.generate')!!}</button></h4>
              
-            {!! Form::close() !!}
+            {!! html()->form()->close() !!}
 
         </div>
     </div>

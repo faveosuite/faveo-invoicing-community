@@ -12,7 +12,14 @@ namespace PHP_CodeSniffer\Standards\Generic\Tests\Debug;
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
 use PHP_CodeSniffer\Config;
 
-class CSSLintUnitTest extends AbstractSniffUnitTest
+/**
+ * Unit test class for the CSSLint sniff.
+ *
+ * @covers \PHP_CodeSniffer\Standards\Generic\Sniffs\Debug\CSSLintSniff
+ * @covers \PHP_CodeSniffer\Config::getExecutablePath
+ * @group  Windows
+ */
+final class CSSLintUnitTest extends AbstractSniffUnitTest
 {
 
 

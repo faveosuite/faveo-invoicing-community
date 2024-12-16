@@ -2,6 +2,10 @@
 
 ## Change Log
 
+### v11.0.0 - 2024-03-16
+
+- Add Laravel 11 support
+
 ### v10.1.0 - 2023-02-20
 
 - Install export package by default.

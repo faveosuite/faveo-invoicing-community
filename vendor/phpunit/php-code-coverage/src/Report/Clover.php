@@ -16,7 +16,7 @@ use function is_string;
 use function ksort;
 use function max;
 use function range;
-use function strpos;
+use function str_contains;
 use function time;
 use DOMDocument;
 use SebastianBergmann\CodeCoverage\CodeCoverage;
@@ -73,13 +73,18 @@ final class Clover
                 $coveredMethods         = 0;
                 $classMethods           = 0;
 
+                // Assumption: one namespace per file
+                if ($class['namespace'] !== '') {
+                    $namespace = $class['namespace'];
+                }
+
                 foreach ($class['methods'] as $methodName => $method) {
                     if ($method['executableLines'] == 0) {
                         continue;
                     }
 
                     $classMethods++;
-                    $classStatements += $method['executableLines'];
+                    $classStatements        += $method['executableLines'];
                     $coveredClassStatements += $method['executedLines'];
 
                     if ($method['coverage'] == 100) {
@@ -89,7 +94,7 @@ final class Clover
                     $methodCount = 0;
 
                     foreach (range($method['startLine'], $method['endLine']) as $line) {
-                        if (isset($coverageData[$line]) && ($coverageData[$line] !== null)) {
+                        if (isset($coverageData[$line])) {
                             $methodCount = max($methodCount, count($coverageData[$line]));
                         }
                     }
@@ -104,41 +109,9 @@ final class Clover
                     ];
                 }
 
-                if (!empty($class['package']['namespace'])) {
-                    $namespace = $class['package']['namespace'];
-                }
-
                 $xmlClass = $xmlDocument->createElement('class');
                 $xmlClass->setAttribute('name', $className);
                 $xmlClass->setAttribute('namespace', $namespace);
-
-                if (!empty($class['package']['fullPackage'])) {
-                    $xmlClass->setAttribute(
-                        'fullPackage',
-                        $class['package']['fullPackage']
-                    );
-                }
-
-                if (!empty($class['package']['category'])) {
-                    $xmlClass->setAttribute(
-                        'category',
-                        $class['package']['category']
-                    );
-                }
-
-                if (!empty($class['package']['package'])) {
-                    $xmlClass->setAttribute(
-                        'package',
-                        $class['package']['package']
-                    );
-                }
-
-                if (!empty($class['package']['subpackage'])) {
-                    $xmlClass->setAttribute(
-                        'subpackage',
-                        $class['package']['subpackage']
-                    );
-                }
 
                 $xmlFile->appendChild($xmlClass);
 
@@ -213,7 +186,7 @@ final class Clover
             } else {
                 if (!isset($packages[$namespace])) {
                     $packages[$namespace] = $xmlDocument->createElement(
-                        'package'
+                        'package',
                     );
 
                     $packages[$namespace]->setAttribute('name', $namespace);
@@ -244,7 +217,7 @@ final class Clover
         $buffer = $xmlDocument->saveXML();
 
         if ($target !== null) {
-            if (!strpos($target, '://') !== false) {
+            if (!str_contains($target, '://')) {
                 Filesystem::createDirectory(dirname($target));
             }
 

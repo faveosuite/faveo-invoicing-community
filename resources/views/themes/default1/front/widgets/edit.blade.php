@@ -20,7 +20,7 @@ Edit Widget
 
 
 
-        {!! Form::model($widget,['url'=>'widgets/'.$widget->id,'method'=>'patch','id'=>'widgetForm']) !!}
+    {!! html()->modelForm($widget,'PATCH',url('widgets/'.$widget->id))->id('widgetForm')->open() !!}
 
 
     <div class="card-body">
@@ -35,44 +35,39 @@ Edit Widget
 
                     <div class="col-md-4 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         <!-- first name -->
-                        {!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}
-                        {!! Form::text('name',null,['class' => 'form-control'. ($errors->has('name') ? ' is-invalid' : ''),'id'=>'name']) !!}
+                        {!! html()->label(Lang::get('message.name'))->class('required')->for('name') !!}
+                        {!! html()->text('name')->class('form-control'. ($errors->has('name') ? ' is-invalid' : ''))->id('name') !!}
                         <div class="input-group-append">
                         </div>
                     </div>
 
                     <div class="col-md-4 form-group {{ $errors->has('publish') ? 'has-error' : '' }}">
                         <!-- last name -->
-                        {!! Form::label('publish',Lang::get('message.publish'),['class'=>'required']) !!}
-                        {!! Form::select('publish',[1=>'Yes',0=>'No'],null,['class' => 'form-control'. ($errors->has('publish') ? ' is-invalid' : ''),'id'=>'publish']) !!}
+                        {!! html()->label(Lang::get('message.publish'))->class('required')->for('publish') !!}
+                        {!! html()->select('publish', [1 => 'Yes', 0 => 'No'])->class('form-control'. ($errors->has('publish') ? ' is-invalid' : ''))->id('publish') !!}
                         <div class="input-group-append">
                         </div>
                     </div>
-                   <?php 
+                    <?php
                 $mail = ['class' => 'form-control','disabled' => 'true' , 'title' => 'Cofigure your mailchimp in settings to access'];
                 $twitter = ['class' => 'form-control','disabled' => 'true', 'title' => 'Configure your tweets in settings to access'];
                 
                 ?>
-                   
-                   <div class="col-md-4 form-group {{ $errors->has('allow_mailchimp') ? 'has-error' : '' }}">
-                        <!-- last name -->
-                        {!! Form::label('allow_mailchimp',Lang::get('message.allow_mailchimp'),['class'=>'required']) !!}
-                        {!! Form::select('allow_mailchimp',[1=>'Yes',0=>'No'],null,($mailchimpStatus) ? ['class' => 'form-control'] : $mail) !!}
 
-                    </div>
                     <div class="col-md-4 form-group {{ $errors->has('allow_mailchimp') ? 'has-error' : '' }}">
-                        <!-- last name -->
-                        {!! Form::label('allow_social_media','Allow social media icons',['class'=>'required']) !!}
-                        {!! Form::select('allow_social_media',[1=>'Yes',0=>'No'],null,['class' => 'form-control']) !!}
-
+                        {!! html()->label(Lang::get('message.allow_mailchimp'))->class('required')->for('allow_mailchimp') !!}
+                        {!! html()->select('allow_mailchimp', [1 => 'Yes', 0 => 'No'])->class('form-control')->value($mailchimpStatus ? null : $mail) !!}
                     </div>
-                
 
+                    <div class="col-md-4 form-group {{ $errors->has('allow_social_media') ? 'has-error' : '' }}">
+                        {!! html()->label('Allow social media icons')->class('required')->for('allow_social_media') !!}
+                        {!! html()->select('allow_social_media', [1 => 'Yes', 0 => 'No'])->class('form-control') !!}
+                    </div>
 
                     <div class="col-md-4 form-group {{ $errors->has('type') ? 'has-error' : '' }}">
                         <!-- last name -->
-                        {!! Form::label('type',Lang::get('message.type'),['class'=>'required']) !!}
-                        {!! Form::select('type', [''=>'Choose','footer1'=>'Footer 1','footer2'=>'Footer 2','footer3'=>'Footer 3'],$widget->type,['class' => 'form-control'. ($errors->has('type') ? ' is-invalid' : ''),'id'=>'type']) !!}
+                        {!! html()->label(Lang::get('message.type'))->class('required')->for('type') !!}
+                        {!! html()->select('type', ['' => 'Choose', 'footer1' => 'Footer 1', 'footer2' => 'Footer 2', 'footer3' => 'Footer 3'])->class('form-control'. ($errors->has('type') ? ' is-invalid' : ''))->value($widget->type)->id('type') !!}
                         <div class="input-group-append">
                         </div>
                     </div>
@@ -114,8 +109,8 @@ Edit Widget
                                     });
                         </script>
 
-                        {!! Form::label('content',Lang::get('message.content')) !!}
-                        {!! Form::textarea('content',null,['class'=>'form-control'. ($errors->has('content') ? ' is-invalid' : ''),'id'=>'textarea']) !!}
+                        {!! html()->label(Lang::get('message.content'))->for('content') !!}
+                        {!! html()->textarea('content')->class('form-control'. ($errors->has('content') ? ' is-invalid' : ''))->id('textarea') !!}
 
                     </div>
 
@@ -132,7 +127,7 @@ Edit Widget
 </div>
 
 
-{!! Form::close() !!}
+{!! html()->closeModelForm() !!}
 
 <script>
 

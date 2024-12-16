@@ -1,6 +1,6 @@
 # Laravel DataTables Export Plugin
 
-[![Laravel 8|9|10](https://img.shields.io/badge/Laravel-8|9|10-orange.svg)](http://laravel.com)
+[![Laravel 11](https://img.shields.io/badge/Laravel-11-orange.svg)](http://laravel.com)
 [![Latest Stable Version](https://img.shields.io/packagist/v/yajra/laravel-datatables-export.svg)](https://packagist.org/packages/yajra/laravel-datatables-export)
 [![Continuous Integration](https://github.com/yajra/laravel-datatables-export/actions/workflows/continuous-integration.yml/badge.svg)](https://github.com/yajra/laravel-datatables-export/actions/workflows/continuous-integration.yml)
 [![Static Analysis](https://github.com/yajra/laravel-datatables-export/actions/workflows/static-analysis.yml/badge.svg)](https://github.com/yajra/laravel-datatables-export/actions/workflows/static-analysis.yml)
@@ -12,11 +12,11 @@ exporting using Queue, OpenSpout and Livewire.
 
 ## Requirements
 
-- [PHP >=8.1](http://php.net/)
-- [Laravel 10](https://github.com/laravel/framework)
+- [PHP >=8.2](http://php.net/)
+- [Laravel 11](https://github.com/laravel/framework)
 - [Laravel Livewire](https://laravel-livewire.com/)
 - [OpenSpout](https://github.com/openspout/openspout/)
-- [Laravel DataTables 10.x](https://github.com/yajra/laravel-datatables)
+- [Laravel DataTables 11.x](https://github.com/yajra/laravel-datatables)
 - [jQuery DataTables v1.10.x](http://datatables.net/)
 
 ## Documentations
@@ -30,10 +30,11 @@ exporting using Queue, OpenSpout and Livewire.
 | 8.x     | 0.x     |
 | 9.x     | 1.x     |
 | 10.x    | 10.x    |
+| 11.x    | 11.x    |
 
 ## Quick Installation
 
-`composer require yajra/laravel-datatables-export`
+`composer require yajra/laravel-datatables-export:^11.0`
 
 The package also requires batch job:
 
@@ -87,11 +88,21 @@ $schedule->command('datatables:purge-export')->weekly();
 You can set the export filename by setting the property.
 
 ```html
-
 <livewire:export-button :table-id="$dataTable->getTableId()" filename="my-table.xlsx"/>
 <livewire:export-button :table-id="$dataTable->getTableId()" filename="my-table.csv"/>
 
 <livewire:export-button :table-id="$dataTable->getTableId()" :filename="$filename"/>
+```
+
+## Export Button Name
+
+You can set the export button name by setting the `buttonName` property.
+
+```html
+<!-- Examples demonstrating how to customize the button name for different scenarios -->
+<livewire:export-button :table-id="$dataTable->getTableId()" type="xlsx" buttonName="Export Excel"/>
+<livewire:export-button :table-id="$dataTable->getTableId()" type="csv"  buttonName="Export CSV"/>
+
 ```
 
 ## Export Type

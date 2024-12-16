@@ -358,7 +358,19 @@ return [
     | The maximum number of breadcrumbs to send with a report.
     |
     | This should be an integer between 0-100 (inclusive).
+    |
     */
 
     'max_breadcrumbs' => null,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Attach hidden context
+    |--------------------------------------------------------------------------
+    |
+    | Whether to attach hidden Context data to events as metadata.
+    |
+    */
+
+    'attach_hidden_context' => env('BUGSNAG_ATTACH_HIDDEN_CONTEXT', false),
 ];

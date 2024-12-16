@@ -8,7 +8,7 @@ use Tests\DBTestCase;
 
 class LocalizedLicenseControllerTest extends DBTestCase
 {
-    /** @group LocalizedLicense */
+    #[Group('LocalizedLicense')]
     public function test_chooseLicenseMode_fileChosen_returnStatusChangeSuccessfully()
     {
         $this->withoutMiddleware();
@@ -23,7 +23,7 @@ class LocalizedLicenseControllerTest extends DBTestCase
         $response->assertJson(['success' => 'Status change successfully.']);
     }
 
-    /** @group LocalizedLicense */
+    #[Group('LocalizedLicense')]
     public function test_storeFile_whenuserisnull_returnstatus302()
     {
         $this->withoutMiddleware();
@@ -43,7 +43,7 @@ class LocalizedLicenseControllerTest extends DBTestCase
         $response->assertStatus(302);
     }
 
-    // /** @group LocalizedLicense */
+    // #[Group('LocalizedLicense')]
     // public function test_downloadFile_clientDownloadsLicenseFile_return200WithFile()
     // {
     //     $this->withoutMiddleware();
@@ -57,7 +57,7 @@ class LocalizedLicenseControllerTest extends DBTestCase
     //     $response->assertHeader('content-disposition', 'attachment; filename="faveo-license-{192020}.txt"');
     // }
 
-    // /** @group LocalizedLicense */
+    // #[Group('LocalizedLicense')]
     // public function test_downloadPrivate_clientDownloadsPrivateKey_return()
     // {
     //     $this->withoutMiddleware();
@@ -70,7 +70,7 @@ class LocalizedLicenseControllerTest extends DBTestCase
 
     // }
 
-    // /** @group LocalizedLicense */
+    // #[Group('LocalizedLicense')]
     // public function test_downloadFileAdmin_adminDownloadsLicense_should200WithFile()
     // {
     //     $this->withoutMiddleware();
@@ -80,7 +80,7 @@ class LocalizedLicenseControllerTest extends DBTestCase
     //     $response->assertHeader('content-disposition', 'attachment; filename="faveo-license-{192020}.txt"');
     // }
 
-    // /** @group LocalizedLicense */
+    // #[Group('LocalizedLicense')]
     // public function test_downloadPrivateKeyAdmin_adminDownloadPrivateKey_should200WithFile()
     // {
     //     $this->withoutMiddleware();
@@ -90,7 +90,7 @@ class LocalizedLicenseControllerTest extends DBTestCase
     //     $response->assertHeader('content-disposition', 'attachment; filename=privateKey-192020.txt');
     // }
 
-    /** @group LocalizedLicense */
+    #[Group('LocalizedLicense')]
     public function test_deleteFile_deleteLicenseFile_should()
     {
         $this->withoutMiddleware();
@@ -100,7 +100,7 @@ class LocalizedLicenseControllerTest extends DBTestCase
         $response->assertHeaderMissing('content-disposition', 'attachment; filename="faveo-license-{192020}.txt"');
     }
 
-    /** @group LocalizedLicense */
+    #[Group('LocalizedLicense')]
     public function test_chooseLicenseMode_DatabaseChosen_returnStatusChangeSuccessfully()
     {
         $this->withoutMiddleware();

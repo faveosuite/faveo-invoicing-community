@@ -12,6 +12,8 @@
 
 namespace PHP_CodeSniffer;
 
+use Exception;
+use InvalidArgumentException;
 use PHP_CodeSniffer\Exceptions\DeepExitException;
 use PHP_CodeSniffer\Exceptions\RuntimeException;
 use PHP_CodeSniffer\Files\DummyFile;
@@ -20,6 +22,8 @@ use PHP_CodeSniffer\Files\FileList;
 use PHP_CodeSniffer\Util\Cache;
 use PHP_CodeSniffer\Util\Common;
 use PHP_CodeSniffer\Util\Standards;
+use PHP_CodeSniffer\Util\Timing;
+use PHP_CodeSniffer\Util\Tokens;
 
 class Runner
 {
@@ -56,7 +60,7 @@ class Runner
         $this->registerOutOfMemoryShutdownMessage('phpcs');
 
         try {
-            Util\Timing::startTiming();
+            Timing::startTiming();
             Runner::checkRequirements();
 
             if (defined('PHP_CODESNIFFER_CBF') === false) {
@@ -127,7 +131,7 @@ class Runner
                 && ($toScreen === false
                 || (($this->reporter->totalErrors + $this->reporter->totalWarnings) === 0 && $this->config->showProgress === true))
             ) {
-                Util\Timing::printRunTime();
+                Timing::printRunTime();
             }
         } catch (DeepExitException $e) {
             echo $e->getMessage();
@@ -162,7 +166,7 @@ class Runner
         }
 
         try {
-            Util\Timing::startTiming();
+            Timing::startTiming();
             Runner::checkRequirements();
 
             // Creating the Config object populates it with all required settings
@@ -194,7 +198,15 @@ class Runner
             $this->config->showSources  = false;
             $this->config->recordErrors = false;
             $this->config->reportFile   = null;
-            $this->config->reports      = ['cbf' => null];
+
+            // Only use the "Cbf" report, but allow for the Performance report as well.
+            $originalReports = array_change_key_case($this->config->reports, CASE_LOWER);
+            $newReports      = ['cbf' => null];
+            if (array_key_exists('performance', $originalReports) === true) {
+                $newReports['performance'] = $originalReports['performance'];
+            }
+
+            $this->config->reports = $newReports;
 
             // If a standard tries to set command line arguments itself, some
             // may be blocked because PHPCBF is running, so stop the script
@@ -205,7 +217,7 @@ class Runner
             $this->reporter->printReports();
 
             echo PHP_EOL;
-            Util\Timing::printRunTime();
+            Timing::printRunTime();
         } catch (DeepExitException $e) {
             echo $e->getMessage();
             return $e->getCode();
@@ -302,12 +314,12 @@ class Runner
 
         // Check that the standards are valid.
         foreach ($this->config->standards as $standard) {
-            if (Util\Standards::isInstalledStandard($standard) === false) {
+            if (Standards::isInstalledStandard($standard) === false) {
                 // They didn't select a valid coding standard, so help them
                 // out by letting them know which standards are installed.
                 $error = 'ERROR: the "'.$standard.'" coding standard is not installed. ';
                 ob_start();
-                Util\Standards::printInstalledStandards();
+                Standards::printInstalledStandards();
                 $error .= ob_get_contents();
                 ob_end_clean();
                 throw new DeepExitException($error, 3);
@@ -322,11 +334,11 @@ class Runner
 
         // Create this class so it is autoloaded and sets up a bunch
         // of PHP_CodeSniffer-specific token type constants.
-        $tokens = new Util\Tokens();
+        new Tokens();
 
         // Allow autoloading of custom files inside installed standards.
         $installedStandards = Standards::getInstalledStandardDetails();
-        foreach ($installedStandards as $name => $details) {
+        foreach ($installedStandards as $details) {
             Autoload::addSearchPath($details['path'], $details['namespace']);
         }
 
@@ -334,6 +346,10 @@ class Runner
         // should be checked and/or fixed.
         try {
             $this->ruleset = new Ruleset($this->config);
+
+            if ($this->ruleset->hasSniffDeprecations() === true) {
+                $this->ruleset->showSniffDeprecations();
+            }
         } catch (RuntimeException $e) {
             $error  = 'ERROR: '.$e->getMessage().PHP_EOL.PHP_EOL;
             $error .= $this->config->printShortUsage(true);
@@ -650,7 +666,7 @@ class Runner
                     echo " ($errors errors, $warnings warnings)".PHP_EOL;
                 }
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $error = 'An error occurred during processing; checking has been aborted. The error message was: '.$e->getMessage();
 
             // Determine which sniff caused the error.
@@ -673,22 +689,29 @@ class Runner
             }
 
             if (empty($sniffStack) === false) {
-                if (empty($nextStack) === false
-                    && isset($nextStack['class']) === true
-                    && substr($nextStack['class'], -5) === 'Sniff'
-                ) {
-                    $sniffCode = Common::getSniffCode($nextStack['class']);
-                } else {
+                $sniffCode = '';
+                try {
+                    if (empty($nextStack) === false
+                        && isset($nextStack['class']) === true
+                        && substr($nextStack['class'], -5) === 'Sniff'
+                    ) {
+                        $sniffCode = 'the '.Common::getSniffCode($nextStack['class']).' sniff';
+                    }
+                } catch (InvalidArgumentException $e) {
+                    // Sniff code could not be determined. This may be an abstract sniff class.
+                }
+
+                if ($sniffCode === '') {
                     $sniffCode = substr(strrchr(str_replace('\\', '/', $sniffStack['file']), '/'), 1);
                 }
 
-                $error .= sprintf(PHP_EOL.'The error originated in the %s sniff on line %s.', $sniffCode, $sniffStack['line']);
+                $error .= sprintf(PHP_EOL.'The error originated in %s on line %s.', $sniffCode, $sniffStack['line']);
             }
 
             $file->addErrorOnLine($error, 1, 'Internal.Exception');
         }//end try
 
-        $this->reporter->cacheFileReport($file, $this->config);
+        $this->reporter->cacheFileReport($file);
 
         if ($this->config->interactive === true) {
             /*
@@ -723,7 +746,7 @@ class Runner
                     $file->ruleset->populateTokenListeners();
                     $file->reloadContent();
                     $file->process();
-                    $this->reporter->cacheFileReport($file, $this->config);
+                    $this->reporter->cacheFileReport($file);
                     break;
                 }
             }//end while

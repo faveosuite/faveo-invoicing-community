@@ -6,6 +6,9 @@
     .vjs-tree-node {
         display: flex;
         position: relative;
+        &:hover {
+            background-color: unset;
+        }
         .vjs-indent-unit {
             &.has-line {
                 border-left: 1px dotted rgba(204, 204, 204, 0.28) !important;
@@ -35,6 +38,9 @@
     .vjs-key {
         color: #c3cbd3 !important;
         padding-right: 10px;
+    }
+    .vjs-value {
+        @extend .text-break;
     }
     .vjs-value-string {
         color: #c3e88d !important;

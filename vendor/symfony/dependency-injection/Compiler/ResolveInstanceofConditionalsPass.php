@@ -28,7 +28,7 @@ class ResolveInstanceofConditionalsPass implements CompilerPassInterface
     {
         foreach ($container->getAutoconfiguredInstanceof() as $interface => $definition) {
             if ($definition->getArguments()) {
-                throw new InvalidArgumentException(sprintf('Autoconfigured instanceof for type "%s" defines arguments but these are not supported and should be removed.', $interface));
+                throw new InvalidArgumentException(\sprintf('Autoconfigured instanceof for type "%s" defines arguments but these are not supported and should be removed.', $interface));
             }
         }
 
@@ -127,7 +127,7 @@ class ResolveInstanceofConditionalsPass implements CompilerPassInterface
                 foreach ($tags as $k => $v) {
                     if (null === $definition->getDecoratedService() || $interface === $definition->getClass() || \in_array($k, $tagsToKeep, true)) {
                         foreach ($v as $v) {
-                            if ($definition->hasTag($k) && \in_array($v, $definition->getTag($k))) {
+                            if ($definition->hasTag($k) && \in_array($v, $definition->getTag($k), true)) {
                                 continue;
                             }
                             $definition->addTag($k, $v);
@@ -160,7 +160,7 @@ class ResolveInstanceofConditionalsPass implements CompilerPassInterface
         foreach ($instanceofConditionals as $interface => $instanceofDef) {
             // make sure the interface/class exists (but don't validate automaticInstanceofConditionals)
             if (!$container->getReflectionClass($interface)) {
-                throw new RuntimeException(sprintf('"%s" is set as an "instanceof" conditional, but it does not exist.', $interface));
+                throw new RuntimeException(\sprintf('"%s" is set as an "instanceof" conditional, but it does not exist.', $interface));
             }
 
             if (!isset($autoconfiguredInstanceof[$interface])) {

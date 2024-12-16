@@ -79,7 +79,7 @@ class Gravatar
 	 */
 	public function exists($email)
 	{
-		// $this->checkEmail($email);
+		$this->checkEmail($email);
 		$this->email = $email;
 
 		$this->setConfig(['fallback' => 404]);

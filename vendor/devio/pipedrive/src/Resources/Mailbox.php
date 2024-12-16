@@ -67,4 +67,15 @@ class Mailbox extends Resource
         $params['id'] = $id;
         return $this->request->get('mailThreads/:id/mailMessages', $params);
     }
+
+    /**
+     * Get a specific email message by email ID.
+     *
+     * @param $id   email ID to find a message.
+	 * @return Response
+     */
+    public function mailSpecificMessage($id)
+    {
+        return $this->request->get('mailMessages/:id', compact('id'));    
+    }
 }

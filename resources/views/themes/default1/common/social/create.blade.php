@@ -24,17 +24,18 @@ Social Media
         <div class="card card-secondary card-outline">
 
             <div class="card-body">
-                {!! Form::open(['url'=>'social-media','method'=>'post','id'=>'socialForm']) !!}
+
+                {!! html()->form('POST', url('social-media'))->id('socialForm')->open() !!}
 
                 <table class="table table-condensed">
                     <tr>
 
-                        <td><b>{!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.name'))->class('required') !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
 
 
-                                {!! Form::text('name',null,['class' => 'form-control'. ($errors->has('name') ? ' is-invalid' : ''),'id'=>'name']) !!}
+                                {!! html()->text('name')->class('form-control'. ($errors->has('name') ? ' is-invalid' : ''))->id('name') !!}
                                 <i> {{Lang::get('message.enter-the-name-of-the-social-media')}}</i>
 
                                 <div class="input-group-append">
@@ -51,11 +52,11 @@ Social Media
 
                     <tr>
 
-                        <td><b>{!! Form::label('link',Lang::get('message.link'),['class'=>'required']) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.link'))->for('link')->class('required') !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('link') ? 'has-error' : '' }}">
 
-                                {!! Form::text('link',null,['class' => 'form-control'. ($errors->has('link') ? ' is-invalid' : ''),'id'=>'link','placeholder'=>'https://example.com']) !!}
+                                {!! html()->text('link')->class('form-control'. ($errors->has('link') ? ' is-invalid' : ''))->id('link')->placeholder('https://example.com') !!}
                                 <i> {{Lang::get('message.enter-the-link-of-the-social-media')}}</i>
 
                                 <div class="input-group-append">
@@ -71,7 +72,7 @@ Social Media
 
 
 
-                    {!! Form::close() !!}
+                    {!! html()->form()->close() !!}
 
                 </table>
 

@@ -11,7 +11,12 @@ namespace PHP_CodeSniffer\Standards\Squiz\Tests\Classes;
 
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
 
-class SelfMemberReferenceUnitTest extends AbstractSniffUnitTest
+/**
+ * Unit test class for the SelfMemberReference sniff.
+ *
+ * @covers \PHP_CodeSniffer\Standards\Squiz\Sniffs\Classes\SelfMemberReferenceSniff
+ */
+final class SelfMemberReferenceUnitTest extends AbstractSniffUnitTest
 {
 
 
@@ -41,6 +46,8 @@ class SelfMemberReferenceUnitTest extends AbstractSniffUnitTest
             143 => 2,
             162 => 1,
             171 => 1,
+            183 => 1,
+            197 => 1,
         ];
 
     }//end getErrorList()

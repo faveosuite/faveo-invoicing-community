@@ -3,7 +3,9 @@
 namespace Laravel\Horizon\Console;
 
 use Illuminate\Console\Command;
+use Symfony\Component\Console\Attribute\AsCommand;
 
+#[AsCommand(name: 'horizon:publish')]
 class PublishCommand extends Command
 {
     /**
@@ -27,9 +29,6 @@ class PublishCommand extends Command
      */
     public function handle()
     {
-        $this->call('vendor:publish', [
-            '--tag' => 'horizon-assets',
-            '--force' => true,
-        ]);
+        $this->components->warn('Horizon no longer publishes its assets. You may stop calling the `horizon:publish` command.');
     }
 }

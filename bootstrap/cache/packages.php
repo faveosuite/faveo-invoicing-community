@@ -2,11 +2,11 @@
 
 return  [
     'anhskohbo/no-captcha' => [
-        'providers' => [
-            0 => 'Anhskohbo\\NoCaptcha\\NoCaptchaServiceProvider',
-        ],
         'aliases' => [
             'NoCaptcha' => 'Anhskohbo\\NoCaptcha\\Facades\\NoCaptcha',
+        ],
+        'providers' => [
+            0 => 'Anhskohbo\\NoCaptcha\\NoCaptchaServiceProvider',
         ],
     ],
     'arcanedev/log-viewer' => [
@@ -16,20 +16,20 @@ return  [
         ],
     ],
     'barryvdh/laravel-debugbar' => [
-        'providers' => [
-            0 => 'Barryvdh\\Debugbar\\ServiceProvider',
-        ],
         'aliases' => [
             'Debugbar' => 'Barryvdh\\Debugbar\\Facades\\Debugbar',
         ],
+        'providers' => [
+            0 => 'Barryvdh\\Debugbar\\ServiceProvider',
+        ],
     ],
     'barryvdh/laravel-dompdf' => [
+        'aliases' => [
+            'PDF' => 'Barryvdh\\DomPDF\\Facade\\Pdf',
+            'Pdf' => 'Barryvdh\\DomPDF\\Facade\\Pdf',
+        ],
         'providers' => [
             0 => 'Barryvdh\\DomPDF\\ServiceProvider',
-        ],
-        'aliases' => [
-            'Pdf' => 'Barryvdh\\DomPDF\\Facade\\Pdf',
-            'PDF' => 'Barryvdh\\DomPDF\\Facade\\Pdf',
         ],
     ],
     'beyondcode/laravel-query-detector' => [
@@ -38,11 +38,11 @@ return  [
         ],
     ],
     'cartalyst/stripe-laravel' => [
-        'providers' => [
-            0 => 'Cartalyst\\Stripe\\Laravel\\StripeServiceProvider',
-        ],
         'aliases' => [
             'Stripe' => 'Cartalyst\\Stripe\\Laravel\\Facades\\Stripe',
+        ],
+        'providers' => [
+            0 => 'Cartalyst\\Stripe\\Laravel\\StripeServiceProvider',
         ],
     ],
     'coconutcraig/laravel-postmark' => [
@@ -51,27 +51,27 @@ return  [
         ],
     ],
     'creativeorange/gravatar' => [
-        'providers' => [
-            0 => 'Creativeorange\\Gravatar\\GravatarServiceProvider',
-        ],
         'aliases' => [
             'Gravatar' => 'Creativeorange\\Gravatar\\Facades\\Gravatar',
         ],
+        'providers' => [
+            0 => 'Creativeorange\\Gravatar\\GravatarServiceProvider',
+        ],
     ],
     'darryldecode/cart' => [
-        'providers' => [
-            0 => 'Darryldecode\\Cart\\CartServiceProvider',
-        ],
         'aliases' => [
             'Cart' => 'Darryldecode\\Cart\\Facades\\CartFacade',
         ],
+        'providers' => [
+            0 => 'Darryldecode\\Cart\\CartServiceProvider',
+        ],
     ],
     'devio/pipedrive' => [
-        'providers' => [
-            0 => 'Devio\\Pipedrive\\PipedriveServiceProvider',
-        ],
         'aliases' => [
             'Pipedrive' => 'Devio\\Pipedrive\\PipedriveFacade',
+        ],
+        'providers' => [
+            0 => 'Devio\\Pipedrive\\PipedriveServiceProvider',
         ],
     ],
     'graham-campbell/markdown' => [
@@ -87,20 +87,25 @@ return  [
             'Clockwork' => 'Clockwork\\Support\\Laravel\\Facade',
         ],
     ],
-    'laravel/horizon' => [
+    'laravel/dusk' => [
         'providers' => [
-            0 => 'Laravel\\Horizon\\HorizonServiceProvider',
+            0 => 'Laravel\\Dusk\\DuskServiceProvider',
         ],
+    ],
+    'laravel/horizon' => [
         'aliases' => [
             'Horizon' => 'Laravel\\Horizon\\Horizon',
         ],
+        'providers' => [
+            0 => 'Laravel\\Horizon\\HorizonServiceProvider',
+        ],
     ],
     'laravel/socialite' => [
-        'providers' => [
-            0 => 'Laravel\\Socialite\\SocialiteServiceProvider',
-        ],
         'aliases' => [
             'Socialite' => 'Laravel\\Socialite\\Facades\\Socialite',
+        ],
+        'providers' => [
+            0 => 'Laravel\\Socialite\\SocialiteServiceProvider',
         ],
     ],
     'laravel/tinker' => [
@@ -113,21 +118,12 @@ return  [
             0 => 'Laravel\\Ui\\UiServiceProvider',
         ],
     ],
-    'laravelcollective/html' => [
-        'providers' => [
-            0 => 'Collective\\Html\\HtmlServiceProvider',
-        ],
-        'aliases' => [
-            'Form' => 'Collective\\Html\\FormFacade',
-            'Html' => 'Collective\\Html\\HtmlFacade',
-        ],
-    ],
     'livewire/livewire' => [
-        'providers' => [
-            0 => 'Livewire\\LivewireServiceProvider',
-        ],
         'aliases' => [
             'Livewire' => 'Livewire\\Livewire',
+        ],
+        'providers' => [
+            0 => 'Livewire\\LivewireServiceProvider',
         ],
     ],
     'maatwebsite/excel' => [
@@ -189,12 +185,20 @@ return  [
             0 => 'Spatie\\Activitylog\\ActivitylogServiceProvider',
         ],
     ],
-    'spatie/laravel-ignition' => [
+    'spatie/laravel-html' => [
         'providers' => [
-            0 => 'Spatie\\LaravelIgnition\\IgnitionServiceProvider',
+            0 => 'Spatie\\Html\\HtmlServiceProvider',
         ],
         'aliases' => [
+            'Html' => 'Spatie\\Html\\Facades\\Html',
+        ],
+    ],
+    'spatie/laravel-ignition' => [
+        'aliases' => [
             'Flare' => 'Spatie\\LaravelIgnition\\Facades\\Flare',
+        ],
+        'providers' => [
+            0 => 'Spatie\\LaravelIgnition\\IgnitionServiceProvider',
         ],
     ],
     'spatie/laravel-referer' => [
@@ -249,11 +253,11 @@ return  [
         ],
     ],
     'yajra/laravel-datatables-oracle' => [
-        'providers' => [
-            0 => 'Yajra\\DataTables\\DataTablesServiceProvider',
-        ],
         'aliases' => [
             'DataTables' => 'Yajra\\DataTables\\Facades\\DataTables',
+        ],
+        'providers' => [
+            0 => 'Yajra\\DataTables\\DataTablesServiceProvider',
         ],
     ],
 ];

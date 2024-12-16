@@ -11,7 +11,12 @@ namespace PHP_CodeSniffer\Standards\Squiz\Tests\ControlStructures;
 
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
 
-class ForLoopDeclarationUnitTest extends AbstractSniffUnitTest
+/**
+ * Unit test class for the ForLoopDeclaration sniff.
+ *
+ * @covers \PHP_CodeSniffer\Standards\Squiz\Sniffs\ControlStructures\ForLoopDeclarationSniff
+ */
+final class ForLoopDeclarationUnitTest extends AbstractSniffUnitTest
 {
 
 
@@ -25,10 +30,10 @@ class ForLoopDeclarationUnitTest extends AbstractSniffUnitTest
      *
      * @return array<int, int>
      */
-    public function getErrorList($testFile='ForLoopDeclarationUnitTest.inc')
+    public function getErrorList($testFile='')
     {
         switch ($testFile) {
-        case 'ForLoopDeclarationUnitTest.inc':
+        case 'ForLoopDeclarationUnitTest.1.inc':
             return [
                 8   => 2,
                 11  => 2,
@@ -62,7 +67,7 @@ class ForLoopDeclarationUnitTest extends AbstractSniffUnitTest
                 116 => 2,
             ];
 
-        case 'ForLoopDeclarationUnitTest.js':
+        case 'ForLoopDeclarationUnitTest.1.js':
             return [
                 6   => 2,
                 9   => 2,
@@ -113,14 +118,15 @@ class ForLoopDeclarationUnitTest extends AbstractSniffUnitTest
      *
      * @return array<int, int>
      */
-    public function getWarningList($testFile='ForLoopDeclarationUnitTest.inc')
+    public function getWarningList($testFile='')
     {
         switch ($testFile) {
-        case 'ForLoopDeclarationUnitTest.inc':
-            return [129 => 1];
+        case 'ForLoopDeclarationUnitTest.2.inc':
+        case 'ForLoopDeclarationUnitTest.3.inc':
+            return [6 => 1];
 
-        case 'ForLoopDeclarationUnitTest.js':
-            return [125 => 1];
+        case 'ForLoopDeclarationUnitTest.2.js':
+            return [2 => 1];
 
         default:
             return [];

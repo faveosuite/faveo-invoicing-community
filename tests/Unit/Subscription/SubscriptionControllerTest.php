@@ -175,7 +175,7 @@ class SubscriptionControllerTest extends DBTestCase
         $payment_method = 'razorpay';
 
         $controller = $this->instantiateDependencies();
-        $response = $controller->postRazorpayPayment($invoice, $payment_method);
+        $response = $controller->postRazorpayPayment($invoiceItem, $payment_method);
         $this->assertTrue(true);
     }
 }

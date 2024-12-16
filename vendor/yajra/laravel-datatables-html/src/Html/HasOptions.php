@@ -2,8 +2,6 @@
 
 namespace Yajra\DataTables\Html;
 
-use Yajra\DataTables\Html\Options;
-
 /**
  * DataTables - Options builder.
  *
@@ -11,10 +9,10 @@ use Yajra\DataTables\Html\Options;
  */
 trait HasOptions
 {
-    use Options\HasFeatures;
     use Options\HasAjax;
     use Options\HasCallbacks;
     use Options\HasColumns;
+    use Options\HasFeatures;
     use Options\HasInternationalisation;
     use Options\Plugins\AutoFill;
     use Options\Plugins\Buttons;
@@ -26,17 +24,17 @@ trait HasOptions
     use Options\Plugins\RowGroup;
     use Options\Plugins\RowReorder;
     use Options\Plugins\Scroller;
-    use Options\Plugins\Select;
     use Options\Plugins\SearchPanes;
+    use Options\Plugins\Select;
 
     /**
      * Set deferLoading option value.
      *
-     * @param  array|int|null  $value
      * @return $this
+     *
      * @see https://datatables.net/reference/option/deferLoading
      */
-    public function deferLoading(array|int $value = null): static
+    public function deferLoading(array|int|null $value = null): static
     {
         $this->attributes['deferLoading'] = $value;
 
@@ -46,8 +44,8 @@ trait HasOptions
     /**
      * Set destroy option value.
      *
-     * @param  bool  $value
      * @return $this
+     *
      * @see https://datatables.net/reference/option/destroy
      */
     public function destroy(bool $value = false): static
@@ -60,8 +58,8 @@ trait HasOptions
     /**
      * Set displayStart option value.
      *
-     * @param  int  $value
      * @return $this
+     *
      * @see https://datatables.net/reference/option/displayStart
      */
     public function displayStart(int $value = 0): static
@@ -74,8 +72,9 @@ trait HasOptions
     /**
      * Set dom option value.
      *
-     * @param  string  $value
      * @return $this
+     *
+     * @deprecated Use layout() method instead.
      * @see https://datatables.net/reference/option/dom
      */
     public function dom(string $value): static
@@ -86,10 +85,34 @@ trait HasOptions
     }
 
     /**
+     * Set layout option value.
+     *
+     * @return $this
+     *
+     * @see https://datatables.net/reference/option/layout
+     */
+    public function layout(array|Layout|callable $value): static
+    {
+        if ($value instanceof Layout) {
+            $value = $value->toArray();
+        }
+
+        if (is_callable($value)) {
+            $layout = new Layout;
+            $value($layout);
+            $value = $layout->toArray();
+        }
+
+        $this->attributes['layout'] = $value;
+
+        return $this;
+    }
+
+    /**
      * Set lengthMenu option value.
      *
-     * @param  array  $value
      * @return $this
+     *
      * @see https://datatables.net/reference/option/lengthMenu
      */
     public function lengthMenu(array $value = [10, 25, 50, 100]): static
@@ -102,8 +125,8 @@ trait HasOptions
     /**
      * Set orders option value.
      *
-     * @param  array  $value
      * @return $this
+     *
      * @see https://datatables.net/reference/option/order
      */
     public function orders(array $value): static
@@ -116,8 +139,8 @@ trait HasOptions
     /**
      * Set orderCellsTop option value.
      *
-     * @param  bool  $value
      * @return $this
+     *
      * @see https://datatables.net/reference/option/orderCellsTop
      */
     public function orderCellsTop(bool $value = false): static
@@ -130,8 +153,8 @@ trait HasOptions
     /**
      * Set orderClasses option value.
      *
-     * @param  bool  $value
      * @return $this
+     *
      * @see https://datatables.net/reference/option/orderClasses
      */
     public function orderClasses(bool $value = true): static
@@ -144,9 +167,8 @@ trait HasOptions
     /**
      * Order option builder.
      *
-     * @param  array|int  $index
-     * @param  string  $direction
      * @return $this
+     *
      * @see https://datatables.net/reference/option/order
      */
     public function orderBy(array|int $index, string $direction = 'desc'): static
@@ -167,9 +189,8 @@ trait HasOptions
     /**
      * Order Fixed option builder.
      *
-     * @param  array|int  $index
-     * @param  string  $direction
      * @return $this
+     *
      * @see https://datatables.net/reference/option/orderFixed
      */
     public function orderByFixed(array|int $index, string $direction = 'desc'): static
@@ -190,8 +211,8 @@ trait HasOptions
     /**
      * Set orderMulti option value.
      *
-     * @param  bool  $value
      * @return $this
+     *
      * @see https://datatables.net/reference/option/orderMulti
      */
     public function orderMulti(bool $value = true): static
@@ -204,8 +225,8 @@ trait HasOptions
     /**
      * Set pageLength option value.
      *
-     * @param  int  $value
      * @return $this
+     *
      * @see https://datatables.net/reference/option/pageLength
      */
     public function pageLength(int $value = 10): static
@@ -218,8 +239,8 @@ trait HasOptions
     /**
      * Set pagingType option value.
      *
-     * @param  string  $value
      * @return $this
+     *
      * @see https://datatables.net/reference/option/pagingType
      */
     public function pagingType(string $value = 'simple_numbers'): static
@@ -232,8 +253,8 @@ trait HasOptions
     /**
      * Set renderer option value.
      *
-     * @param  string  $value
      * @return $this
+     *
      * @see https://datatables.net/reference/option/renderer
      */
     public function renderer(string $value = 'bootstrap'): static
@@ -246,8 +267,8 @@ trait HasOptions
     /**
      * Set retrieve option value.
      *
-     * @param  bool  $value
      * @return $this
+     *
      * @see https://datatables.net/reference/option/retrieve
      */
     public function retrieve(bool $value = false): static
@@ -260,8 +281,8 @@ trait HasOptions
     /**
      * Set rowId option value.
      *
-     * @param  string  $value
      * @return $this
+     *
      * @see https://datatables.net/reference/option/rowId
      */
     public function rowId(string $value = 'DT_RowId'): static
@@ -274,8 +295,8 @@ trait HasOptions
     /**
      * Set scrollCollapse option value.
      *
-     * @param  bool  $value
      * @return $this
+     *
      * @see https://datatables.net/reference/option/scrollCollapse
      */
     public function scrollCollapse(bool $value = false): static
@@ -288,8 +309,8 @@ trait HasOptions
     /**
      * Set search option value.
      *
-     * @param  array  $value
      * @return $this
+     *
      * @see https://datatables.net/reference/option/search
      */
     public function search(array $value): static
@@ -302,8 +323,8 @@ trait HasOptions
     /**
      * Set searchCols option value.
      *
-     * @param  array  $value
      * @return $this
+     *
      * @see https://datatables.net/reference/option/searchCols
      */
     public function searchCols(array $value): static
@@ -316,8 +337,8 @@ trait HasOptions
     /**
      * Set searchDelay option value.
      *
-     * @param  int  $value
      * @return $this
+     *
      * @see https://datatables.net/reference/option/searchDelay
      */
     public function searchDelay(int $value): static
@@ -330,8 +351,8 @@ trait HasOptions
     /**
      * Set stateDuration option value.
      *
-     * @param  int  $value
      * @return $this
+     *
      * @see https://datatables.net/reference/option/stateDuration
      */
     public function stateDuration(int $value): static
@@ -344,8 +365,8 @@ trait HasOptions
     /**
      * Set stripeClasses option value.
      *
-     * @param  array  $value
      * @return $this
+     *
      * @see https://datatables.net/reference/option/stripeClasses
      */
     public function stripeClasses(array $value): static
@@ -358,8 +379,8 @@ trait HasOptions
     /**
      * Set tabIndex option value.
      *
-     * @param  int  $value
      * @return $this
+     *
      * @see https://datatables.net/reference/option/tabIndex
      */
     public function tabIndex(int $value = 0): static
@@ -370,8 +391,6 @@ trait HasOptions
     }
 
     /**
-     * @param  string  $key
-     * @param  array|bool  $value
      * @return $this
      */
     public function setPluginAttribute(string $key, array|bool $value): static
@@ -385,12 +404,7 @@ trait HasOptions
         return $this;
     }
 
-    /**
-     * @param  string  $plugin
-     * @param  string|null  $key
-     * @return mixed
-     */
-    public function getPluginAttribute(string $plugin, string $key = null): mixed
+    public function getPluginAttribute(string $plugin, ?string $key = null): mixed
     {
         if (is_null($key)) {
             return $this->attributes[$plugin] ?? true;

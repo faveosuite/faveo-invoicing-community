@@ -60,7 +60,7 @@ class DoctrineCollector extends DataCollector implements Renderable, AssetProvid
         foreach ($this->debugStack->queries as $q) {
             $queries[] = array(
                 'sql' => $q['sql'],
-                'params' => (object) $q['params'],
+                'params' => (object) $this->getParameters($q['params'] ?? []),
                 'duration' => $q['executionMS'],
                 'duration_str' => $this->formatDuration($q['executionMS'])
             );
@@ -73,6 +73,29 @@ class DoctrineCollector extends DataCollector implements Renderable, AssetProvid
             'accumulated_duration_str' => $this->formatDuration($totalExecTime),
             'statements' => $queries
         );
+    }
+
+    /**
+     * Returns an array of parameters used with the query
+     *
+     * @return array
+     */
+    public function getParameters($params) : array
+    {
+        return array_map(function ($param) {
+            if (is_string($param)) {
+                return htmlentities($param, ENT_QUOTES, 'UTF-8', false);
+            } elseif (is_array($param)) {
+                return '[' . implode(', ', $this->getParameters($param)) . ']';
+            } elseif (is_numeric($param)) {
+                return strval($param);
+            } elseif ($param instanceof \DateTimeInterface) {
+                return $param->format('Y-m-d H:i:s');
+            } elseif (is_object($param)) {
+                return json_encode($param);
+            }
+            return $param ?: '';
+        }, $params);
     }
 
     /**

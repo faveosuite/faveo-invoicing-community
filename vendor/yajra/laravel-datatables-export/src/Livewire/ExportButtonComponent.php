@@ -17,13 +17,15 @@ class ExportButtonComponent extends Component
 {
     public string $class = 'btn btn-primary';
 
-    public ?string $tableId;
+    public ?string $tableId = null;
 
     public ?string $emailTo = '';
 
     public string $type = 'xlsx';
 
     public string $filename = '';
+
+    public string $buttonName = 'Export';
 
     public string $sheetName = 'Sheet1';
 
@@ -78,7 +80,7 @@ class ExportButtonComponent extends Component
     {
         if ($this->getS3Disk()) {
             return Storage::disk($this->getS3Disk())
-                          ->download($this->batchJobId.'.'.$this->getType(), $this->getFilename());
+                ->download($this->batchJobId.'.'.$this->getType(), $this->getFilename());
         }
 
         return Storage::disk($this->getDisk())->download($this->batchJobId.'.'.$this->getType(), $this->getFilename());

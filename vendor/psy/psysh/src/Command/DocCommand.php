@@ -15,8 +15,7 @@ use Psy\Formatter\DocblockFormatter;
 use Psy\Formatter\SignatureFormatter;
 use Psy\Input\CodeArgument;
 use Psy\Output\ShellOutput;
-use Psy\Reflection\ReflectionClassConstant;
-use Psy\Reflection\ReflectionConstant_;
+use Psy\Reflection\ReflectionConstant;
 use Psy\Reflection\ReflectionLanguageConstruct;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -63,7 +62,7 @@ HELP
      *
      * @return int 0 if everything went fine, or an exit code
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $value = $input->getArgument('target');
         if (ReflectionLanguageConstruct::isLanguageConstruct($value)) {
@@ -74,7 +73,7 @@ HELP
             $doc = $this->getManualDoc($reflector) ?: DocblockFormatter::format($reflector);
         }
 
-        $db = $this->getApplication()->getManualDb();
+        $db = $this->getShell()->getManualDb();
 
         if ($output instanceof ShellOutput) {
             $output->startPaging();
@@ -146,14 +145,13 @@ HELP
                 break;
 
             case \ReflectionClassConstant::class:
-            case ReflectionClassConstant::class:
                 // @todo this is going to collide with ReflectionMethod ids
                 // someday... start running the query by id + type if the DB
                 // supports it.
                 $id = $reflector->class.'::'.$reflector->name;
                 break;
 
-            case ReflectionConstant_::class:
+            case ReflectionConstant::class:
                 $id = $reflector->name;
                 break;
 
@@ -244,7 +242,7 @@ HELP
 
     private function getManualDocById($id)
     {
-        if ($db = $this->getApplication()->getManualDb()) {
+        if ($db = $this->getShell()->getManualDb()) {
             $result = $db->query(\sprintf('SELECT doc FROM php_manual WHERE id = %s', $db->quote($id)));
             if ($result !== false) {
                 return $result->fetchColumn(0);

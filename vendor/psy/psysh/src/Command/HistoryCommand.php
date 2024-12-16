@@ -26,8 +26,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class HistoryCommand extends Command
 {
-    private $filter;
-    private $readline;
+    private FilterOptions $filter;
+    private Readline $readline;
 
     /**
      * {@inheritdoc}
@@ -93,7 +93,7 @@ HELP
      *
      * @return int 0 if everything went fine, or an exit code
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->validateOnlyOne($input, ['show', 'head', 'tail']);
         $this->validateOnlyOne($input, ['save', 'replay', 'clear']);
@@ -135,7 +135,8 @@ HELP
 
             $count = \count($history);
             $output->writeln(\sprintf('Replaying %d line%s of history', $count, ($count !== 1) ? 's' : ''));
-            $this->getApplication()->addInput($history);
+
+            $this->getShell()->addInput($history);
         } elseif ($input->getOption('clear')) {
             $this->clearHistory();
             $output->writeln('<info>History cleared.</info>');
@@ -156,12 +157,12 @@ HELP
      *
      * @param string $range
      *
-     * @return array [ start, end ]
+     * @return int[] [ start, end ]
      */
     private function extractRange(string $range): array
     {
         if (\preg_match('/^\d+$/', $range)) {
-            return [$range, $range + 1];
+            return [(int) $range, (int) $range + 1];
         }
 
         $matches = [];
@@ -206,7 +207,7 @@ HELP
                 throw new \InvalidArgumentException('Please specify an integer argument for --tail');
             }
 
-            $start = \count($history) - $tail;
+            $start = \count($history) - (int) $tail;
             $length = (int) $tail + 1;
         } else {
             return $history;

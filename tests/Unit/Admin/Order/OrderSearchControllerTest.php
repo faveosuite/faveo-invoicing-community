@@ -19,7 +19,7 @@ class OrderSearchControllerTest extends DBTestCase
         $this->classObject = new OrderSearchController();
     }
 
-    /** @group orderFilter */
+    #[Group('orderFilter')]
     public function test_getBaseQueryForOrders_givesRequiredColumnsWhenCalled()
     {
         $this->getLoggedInUser('admin');
@@ -35,7 +35,7 @@ class OrderSearchControllerTest extends DBTestCase
         $this->assertEquals($subscription->version, $record->product_version);
     }
 
-    /** @group orderFilter */
+    #[Group('orderFilter')]
     public function test_getSelectedVersionOrders_whenVersionFromIsNullAndVersionTillIsNull_shouldNotChangeTheQuery()
     {
         $this->getLoggedInUser('admin');
@@ -47,7 +47,7 @@ class OrderSearchControllerTest extends DBTestCase
         $this->assertEquals(3, $query->get()->count());
     }
 
-    /** @group orderFilter */
+    #[Group('orderFilter')]
     public function test_getSelectedVersionOrders_whenVersionFromIsNull_shouldGiveResultWhichAllPassedVersion()
     {
         $this->getLoggedInUser('admin');
@@ -60,7 +60,7 @@ class OrderSearchControllerTest extends DBTestCase
         $this->assertEquals(3, $records->count());
     }
 
-    /** @group orderFilter */
+    #[Group('orderFilter')]
     public function test_getSelectedVersionOrders_whenVersionFromIsNotNullproductidisnull_shouldGiveResultWhichAreLessThanToPassedVersion()
     {
         $this->getLoggedInUser('admin');
@@ -74,7 +74,7 @@ class OrderSearchControllerTest extends DBTestCase
         $this->assertEquals('v3.1.0', $records[0]->product_version);
     }
 
-    /** @group orderFilter */
+    #[Group('orderFilter')]
     public function test_getSelectedVersionOrders_whenVersionFromIsNotNullAndVersionTillIsNotNull_shouldGiveIntersectionOfBoth()
     {
         $this->getLoggedInUser('admin');
@@ -100,7 +100,7 @@ class OrderSearchControllerTest extends DBTestCase
         $this->assertEquals(0, $records->count());
     }
 
-    /** @group orderFilter */
+    #[Group('orderFilter')]
     public function test_allInstallations_seachINotnstalledProducts_shouldGiveNotInstalledSubscripion()
     {
         $this->getLoggedInUser('admin');
@@ -113,7 +113,7 @@ class OrderSearchControllerTest extends DBTestCase
         $this->assertEquals(3, $records->count());
     }
 
-    /** @group orderFilter */
+    #[Group('orderFilter')]
     public function test_allInstallations_checkActiveInstallation_shouldGiveActiveInstallation()
     {
         $this->getLoggedInUser('admin');
@@ -126,7 +126,7 @@ class OrderSearchControllerTest extends DBTestCase
         $this->assertEquals(0, $records->count());
     }
 
-    /** @group orderFilter */
+    #[Group('orderFilter')]
     private function createOrder($version = 'v3.0.0')
     {
         $product = Product::create(['name' => 'Helpdesk'.$version]);
