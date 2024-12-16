@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::table('order_invoice_relations', function (Blueprint $table) {
             // Get all indexes for the order_invoice_relations table
-            $indexes = DB::select("SHOW INDEX FROM order_invoice_relations");
+            $indexes = DB::select('SHOW INDEX FROM order_invoice_relations');
 
             // Helper to check if a specific index exists
             $indexExists = function ($indexName) use ($indexes) {
@@ -24,6 +24,7 @@ return new class extends Migration
                         return true;
                     }
                 }
+
                 return false;
             };
 

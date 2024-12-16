@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::table('tax_product_relations', function (Blueprint $table) {
             // Fetch all indexes for the tax_product_relations table
-            $indexes = DB::select("SHOW INDEX FROM tax_product_relations");
+            $indexes = DB::select('SHOW INDEX FROM tax_product_relations');
 
             // Helper function to check if a specific index exists
             $indexExists = function ($indexName) use ($indexes) {
@@ -23,6 +23,7 @@ return new class extends Migration
                         return true;
                     }
                 }
+
                 return false;
             };
 

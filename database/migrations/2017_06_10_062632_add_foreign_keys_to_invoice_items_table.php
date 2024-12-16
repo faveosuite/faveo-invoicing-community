@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::table('invoice_items', function (Blueprint $table) {
             // Get all indexes for the invoice_items table
-            $indexes = DB::select("SHOW INDEX FROM invoice_items");
+            $indexes = DB::select('SHOW INDEX FROM invoice_items');
 
             // Check if the specific foreign key already exists
             $foreignKeyExists = false;

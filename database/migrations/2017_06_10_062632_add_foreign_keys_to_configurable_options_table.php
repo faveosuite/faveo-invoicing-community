@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -15,7 +15,7 @@ return new class extends Migration
     public function up()
     {
         // Get all indexes for the configurable_options table
-        $indexes = DB::select("SHOW INDEX FROM configurable_options");
+        $indexes = DB::select('SHOW INDEX FROM configurable_options');
 
         // Check if the specific foreign key already exists
         $foreignKeyExists = false;

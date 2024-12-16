@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::table('group_features', function (Blueprint $table) {
             // Get all indexes for the group_features table
-            $indexes = DB::select("SHOW INDEX FROM group_features");
+            $indexes = DB::select('SHOW INDEX FROM group_features');
 
             // Check if the specific foreign key already exists
             $foreignKeyExists = false;
