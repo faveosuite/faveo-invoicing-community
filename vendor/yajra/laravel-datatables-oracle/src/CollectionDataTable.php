@@ -18,19 +18,10 @@ class CollectionDataTable extends DataTableAbstract
      *
      * @var \Illuminate\Support\Collection<array-key, array>
      */
-    public Collection $collection;
-
-    /**
-     * Collection object.
-     *
-     * @var \Illuminate\Support\Collection<array-key, array>
-     */
     public Collection $original;
 
     /**
      * The offset of the first record in the full dataset.
-     *
-     * @var int
      */
     private int $offset = 0;
 
@@ -39,22 +30,18 @@ class CollectionDataTable extends DataTableAbstract
      *
      * @param  \Illuminate\Support\Collection<array-key, array>  $collection
      */
-    public function __construct(Collection $collection)
+    public function __construct(public Collection $collection)
     {
         $this->request = app('datatables.request');
         $this->config = app('datatables.config');
-        $this->collection = $collection;
-        $this->original = $collection;
-        $this->columns = array_keys($this->serialize($collection->first()));
+        $this->original = $this->collection;
+        $this->columns = array_keys($this->serialize($this->collection->first()));
     }
 
     /**
      * Serialize collection.
-     *
-     * @param  mixed  $collection
-     * @return array
      */
-    protected function serialize($collection): array
+    protected function serialize(mixed $collection): array
     {
         return $collection instanceof Arrayable ? $collection->toArray() : (array) $collection;
     }
@@ -87,8 +74,6 @@ class CollectionDataTable extends DataTableAbstract
 
     /**
      * Count results.
-     *
-     * @return int
      */
     public function count(): int
     {
@@ -97,8 +82,6 @@ class CollectionDataTable extends DataTableAbstract
 
     /**
      * Perform column search.
-     *
-     * @return void
      */
     public function columnSearch(): void
     {
@@ -143,8 +126,6 @@ class CollectionDataTable extends DataTableAbstract
 
     /**
      * Perform pagination.
-     *
-     * @return void
      */
     public function paging(): void
     {
@@ -157,12 +138,9 @@ class CollectionDataTable extends DataTableAbstract
     /**
      * Organizes works.
      *
-     * @param  bool  $mDataSupport
-     * @return \Illuminate\Http\JsonResponse
-     *
      * @throws \Exception
      */
-    public function make($mDataSupport = true): JsonResponse
+    public function make(bool $mDataSupport = true): JsonResponse
     {
         try {
             $this->totalRecords = $this->totalCount();
@@ -200,7 +178,6 @@ class CollectionDataTable extends DataTableAbstract
      * Revert transformed DT_RowIndex back to its original values.
      *
      * @param  bool  $mDataSupport
-     * @return void
      */
     private function revertIndexColumn($mDataSupport): void
     {
@@ -222,7 +199,6 @@ class CollectionDataTable extends DataTableAbstract
      * the FULL dataset the collection was sliced from. It effectively allows the
      * collection to be "pre-sliced".
      *
-     * @param  int  $offset
      * @return static
      */
     public function setOffset(int $offset): self
@@ -234,9 +210,6 @@ class CollectionDataTable extends DataTableAbstract
 
     /**
      * Perform global search for the given keyword.
-     *
-     * @param  string  $keyword
-     * @return void
      */
     protected function globalSearch(string $keyword): void
     {
@@ -264,8 +237,6 @@ class CollectionDataTable extends DataTableAbstract
 
     /**
      * Perform default query orderBy clause.
-     *
-     * @return void
      */
     protected function defaultOrdering(): void
     {
@@ -274,9 +245,7 @@ class CollectionDataTable extends DataTableAbstract
             $sorter = $this->getSorter($criteria);
 
             $this->collection = $this->collection
-                ->map(function ($data) {
-                    return Arr::dot($data);
-                })
+                ->map(fn ($data) => Arr::dot($data))
                 ->sort($sorter)
                 ->map(function ($data) {
                     foreach ($data as $key => $value) {
@@ -291,9 +260,6 @@ class CollectionDataTable extends DataTableAbstract
 
     /**
      * Get array sorter closure.
-     *
-     * @param  array  $criteria
-     * @return \Closure
      */
     protected function getSorter(array $criteria): Closure
     {

@@ -1,18 +1,23 @@
 # Laravel DataTables Complete Package
 
-[![Laravel 9.x](https://img.shields.io/badge/Laravel-9.x-orange.svg)](http://laravel.com)
-[![Latest Stable Version](https://img.shields.io/packagist/v/yajra/laravel-datatables.svg)](https://packagist.org/packages/yajra/laravel-datatables)
-[![Build Status](https://travis-ci.org/yajra/laravel-datatables.svg?branch=master)](https://travis-ci.org/yajra/laravel-datatables)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/yajra/laravel-datatables/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/yajra/laravel-datatables/?branch=master)
-[![Total Downloads](https://img.shields.io/packagist/dt/yajra/laravel-datatables.svg)](https://packagist.org/packages/yajra/laravel-datatables)
-[![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://packagist.org/packages/yajra/laravel-datatables)
+[![Join the chat at https://gitter.im/yajra/laravel-datatables](https://badges.gitter.im/yajra/laravel-datatables.svg)](https://gitter.im/yajra/laravel-datatables?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Donate](https://img.shields.io/badge/donate-paypal-blue.svg)](https://www.paypal.me/yajra)
+[![Donate](https://img.shields.io/badge/donate-patreon-blue.svg)](https://www.patreon.com/bePatron?u=4521203)
+
+[![Laravel 11](https://img.shields.io/badge/Laravel-11-orange.svg)](http://laravel.com)
+[![Latest Stable Version](https://img.shields.io/packagist/v/yajra/laravel-datatables-oracle.svg)](https://packagist.org/packages/yajra/laravel-datatables-oracle)
+[![Continuous Integration](https://github.com/yajra/laravel-datatables/actions/workflows/continuous-integration.yml/badge.svg)](https://github.com/yajra/laravel-datatables/actions/workflows/continuous-integration.yml)
+[![Static Analysis](https://github.com/yajra/laravel-datatables/actions/workflows/static-analysis.yml/badge.svg)](https://github.com/yajra/laravel-datatables/actions/workflows/static-analysis.yml)
+
+[![Total Downloads](https://poser.pugx.org/yajra/laravel-datatables-oracle/downloads.png)](https://packagist.org/packages/yajra/laravel-datatables-oracle)
+[![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://packagist.org/packages/yajra/laravel-datatables-oracle)
 
 This package is a complete installer of [Laravel DataTables](https://github.com/yajra/laravel-datatables) core & plugins.
 
 ## Requirements
 
-- [PHP >= 8.1](http://php.net/)
-- [Laravel 10.x](https://github.com/laravel/framework)
+- [PHP >= 8.2](http://php.net/)
+- [Laravel 11.x](https://github.com/laravel/framework)
 - [jQuery DataTables v1.10.x](http://datatables.net/)
 - [jQuery DataTables Buttons Extension](https://datatables.net/reference/button/)
 
@@ -27,14 +32,16 @@ This package is a complete installer of [Laravel DataTables](https://github.com/
 | 8.x and below | 1.x     |
 | 9.x           | 9.x     |
 | 10.x          | 10.x    |
+| 11.x          | 11.x    |
 
 ## Installation
 
-`composer require yajra/laravel-datatables:^10`
+`composer require yajra/laravel-datatables:^11`
 
 #### Service Providers
 
 Update `config/app.php` and register the following providers.
+
 > This step is optional if you are using Laravel 5.5.
 
 ```php
@@ -65,8 +72,3 @@ If you discover any security related issues, please email [aqangeles@gmail.com](
 ## License
 
 The MIT License (MIT). Please see [License File](https://github.com/yajra/laravel-datatables/blob/master/LICENSE.md) for more information.
-
-## Buy me a beer
-
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.me/yajra)
-<a href='https://www.patreon.com/bePatron?u=4521203'><img alt='Become a Patron' src='https://s3.amazonaws.com/patreon_public_assets/toolbox/patreon.png' border='0' width='200px' ></a>

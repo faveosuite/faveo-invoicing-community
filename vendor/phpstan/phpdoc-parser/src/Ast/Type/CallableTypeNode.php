@@ -3,6 +3,7 @@
 namespace PHPStan\PhpDocParser\Ast\Type;
 
 use PHPStan\PhpDocParser\Ast\NodeAttributes;
+use PHPStan\PhpDocParser\Ast\PhpDoc\TemplateTagValueNode;
 use function implode;
 
 class CallableTypeNode implements TypeNode
@@ -10,23 +11,26 @@ class CallableTypeNode implements TypeNode
 
 	use NodeAttributes;
 
-	/** @var IdentifierTypeNode */
-	public $identifier;
+	public IdentifierTypeNode $identifier;
+
+	/** @var TemplateTagValueNode[] */
+	public array $templateTypes;
 
 	/** @var CallableTypeParameterNode[] */
-	public $parameters;
+	public array $parameters;
 
-	/** @var TypeNode */
-	public $returnType;
+	public TypeNode $returnType;
 
 	/**
 	 * @param CallableTypeParameterNode[] $parameters
+	 * @param TemplateTagValueNode[]  $templateTypes
 	 */
-	public function __construct(IdentifierTypeNode $identifier, array $parameters, TypeNode $returnType)
+	public function __construct(IdentifierTypeNode $identifier, array $parameters, TypeNode $returnType, array $templateTypes)
 	{
 		$this->identifier = $identifier;
 		$this->parameters = $parameters;
 		$this->returnType = $returnType;
+		$this->templateTypes = $templateTypes;
 	}
 
 
@@ -36,8 +40,11 @@ class CallableTypeNode implements TypeNode
 		if ($returnType instanceof self) {
 			$returnType = "({$returnType})";
 		}
+		$template = $this->templateTypes !== []
+			? '<' . implode(', ', $this->templateTypes) . '>'
+			: '';
 		$parameters = implode(', ', $this->parameters);
-		return "{$this->identifier}({$parameters}): {$returnType}";
+		return "{$this->identifier}{$template}({$parameters}): {$returnType}";
 	}
 
 }

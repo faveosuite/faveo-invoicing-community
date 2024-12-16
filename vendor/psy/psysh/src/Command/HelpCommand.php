@@ -23,7 +23,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class HelpCommand extends Command
 {
-    private $command;
+    private ?Command $command = null;
 
     /**
      * {@inheritdoc}
@@ -55,7 +55,7 @@ class HelpCommand extends Command
      *
      * @return int 0 if everything went fine, or an exit code
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if ($this->command !== null) {
             // help for an individual command

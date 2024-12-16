@@ -23,7 +23,9 @@ class WidgetController extends Controller
     public function index()
     {
         try {
-            return view('themes.default1.front.widgets.index');
+            $widgetsCount = Widgets::count();
+
+            return view('themes.default1.front.widgets.index', compact('widgetsCount'));
         } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }

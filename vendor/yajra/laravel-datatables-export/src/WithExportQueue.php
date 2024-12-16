@@ -14,14 +14,11 @@ trait WithExportQueue
     /**
      * Process dataTables needed render output.
      *
-     * @param  string|null  $view
-     * @param  array  $data
-     * @param  array  $mergeData
      * @return mixed
      *
      * @throws \Throwable
      */
-    public function render(string $view = null, array $data = [], array $mergeData = [])
+    public function render(?string $view = null, array $data = [], array $mergeData = [])
     {
         if (request()->ajax() && request('action') == 'exportQueue') {
             return $this->exportQueue();
@@ -33,7 +30,6 @@ trait WithExportQueue
     /**
      * Create and run batch job.
      *
-     * @return string
      *
      * @throws \Throwable
      */
@@ -54,8 +50,6 @@ trait WithExportQueue
     /**
      * Default sheet name.
      * Character limit 31.
-     *
-     * @return string
      */
     protected function sheetName(): string
     {

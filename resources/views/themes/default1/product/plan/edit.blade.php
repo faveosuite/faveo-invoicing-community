@@ -17,7 +17,7 @@
 @section('content')
   <div class="card card-secondary card-outline">
 
-    {!! Form::model($plan,['url'=>'plans/'.$plan->id,'method'=>'patch','id'=>'editPlan']) !!}
+    {!! html()->modelForm($plan, 'PATCH', url('plans/' . $plan->id))->id('editPlan')->open() !!}
     <div class="card-body">
 
       <div class="row">
@@ -27,8 +27,8 @@
           <div class="row">
             <div class="col-md-4 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
               <!-- name -->
-              {!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}
-              {!! Form::text('name',null,['class' => 'form-control'.($errors->has('name') ? ' is-invalid' : ''),'id'=>'planname']) !!}
+                {!! html()->label(Lang::get('message.name'), 'name')->class('required') !!}
+                {!! html()->text('name')->class('form-control'.($errors->has('name') ? ' is-invalid' : ''))->id('planname') !!}
               @error('name')
               <span class="error-message"> {{$message}}</span>
               @enderror
@@ -37,7 +37,7 @@
             </div>
             <div class="col-md-4 form-group {{ $errors->has('product') ? 'has-error' : '' }}">
               <!-- product -->
-              {!! Form::label('product',Lang::get('message.product'),['class'=>'required']) !!}
+                {!! html()->label(Lang::get('message.product'), 'product')->class('required') !!}
               <select name="product" id="planproduct" class="form-control {{$errors->has('product') ? ' is-invalid' : ''}}" onchange="myProduct()">
                 <option value="">Choose</option>
 
@@ -54,7 +54,7 @@
             </div>
             <div class="col-md-4 form-group plandays {{ $errors->has('days') ? 'has-error' : '' }}">
               <!-- days-->
-              {!! Form::label('days','Periods',['class'=>'required']) !!}
+                {!! html()->label('Periods', 'days')->class('required') !!}
               <select name="days" id="plandays" class="form-control {{$errors->has('days') ? ' is-invalid' : ''}}">
                 <option value="">Choose</option>
 
@@ -183,8 +183,8 @@
 
             <div class="col-md-4 form-group">
               <!-- last name -->
-              {!! Form::label('description','Price Description') !!}
-              {!! Form::text("price_description",$priceDescription,['class' => 'form-control'.($errors->has('price_description') ? ' is-invalid' : '') ,'placeholder'=>'Enter Price Description to be Shown on Pricing Page. eg: Yearly,Monthly,One-Time']) !!}
+                {!! html()->label('Price Description', 'description') !!}
+                {!! html()->text('price_description', $priceDescription)->class('form-control'.($errors->has('product_quantity') ? ' is-invalid' : ''))->placeholder('Enter Price Description to be Shown on Pricing Page. eg: Yearly,Monthly,One-Time') !!}
               @error('description')
               <span class="error-message"> {{$message}}</span>
               @enderror
@@ -193,8 +193,12 @@
             </div>
             <div class="col-md-4 form-group">
               <!-- last name -->
-              {!! Form::label('product_quantity','Product Quantity',['class'=>'required']) !!}
-              {!! Form::number("product_quantity",$productQuantity,['class' => 'form-control'.($errors->has('product_quantity') ? ' is-invalid' : ''),'disabled'=>'disabled','id'=>'prodquant','placeholder'=>'Pricing for No. of Products']) !!}
+                {!! html()->label('Product Quantity', 'product_quantity')->class('required') !!}
+                {!! html()->number('product_quantity', $productQuantity)
+                    ->class('form-control'.($errors->has('product_quantity') ? ' is-invalid' : ''))
+                    ->id('prodquant')
+                    ->attribute('disabled', true)
+                    ->placeholder('Pricing for No. of Products') !!}
               @error('product_quantity')
               <span class="error-message"> {{$message}}</span>
               @enderror
@@ -206,8 +210,12 @@
               <!-- last name -->
                  <i class='fa fa-info-circle' style='cursor: help; font-size: small; color: rgb(60, 141, 188)'<label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="If '0' Agents Selected, Plan will be for Unlimited Agents.">
                         </label></i>
-                {!! Form::label('agents','No. of Agents',['class'=>'required']) !!}
-              {!! Form::number("no_of_agents",$agentQuantity,['class' => 'form-control'.($errors->has('no_of_agents') ? ' is-invalid' : '') ,'disabled'=>'disabled','id'=>'agentquant','placeholder'=>'Pricing for No. of Agents']) !!}
+                {!! html()->label('No. of Agents', 'agents')->class('required') !!}
+                {!! html()->number('no_of_agents', $agentQuantity)
+                    ->class('form-control'.($errors->has('no_of_agents') ? ' is-invalid' : ''))
+                    ->id('agentquant')
+                    ->attribute('disabled', true)
+                    ->placeholder('Pricing for No. of Agents') !!}
               @error('no_of_agents')
               <span class="error-message"> {{$message}}</span>
               @enderror
@@ -230,7 +238,7 @@
 
 
 
-  {!! Form::close() !!}
+  {!! html()->closeModelForm() !!}
 
   <script>
 

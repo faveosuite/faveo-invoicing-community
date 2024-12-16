@@ -1,107 +1,123 @@
+import dashboard from './screens/dashboard.vue';
+import monitoring from './screens/monitoring/index.vue';
+import monitoringTag from './screens/monitoring/tag.vue';
+import monitoringTagJobs from './screens/monitoring/tag-jobs.vue';
+import metrics from './screens/metrics/index.vue';
+import metricsJobs from './screens/metrics/jobs.vue';
+import metricsQueues from './screens/metrics/queues.vue';
+import metricsPreview from './screens/metrics/preview.vue';
+import recentJobs from './screens/recentJobs/index.vue';
+import recentJobsJob from './screens/recentJobs/job.vue';
+import failedJobs from './screens/failedJobs/index.vue';
+import failedJobsJob from './screens/failedJobs/job.vue';
+import batches from './screens/batches/index.vue';
+import batchesPreview from './screens/batches/preview.vue';
+
 export default [
     { path: '/', redirect: '/dashboard' },
 
     {
         path: '/dashboard',
         name: 'dashboard',
-        component: require('./screens/dashboard').default,
+        component: dashboard,
     },
 
     {
         path: '/monitoring',
-        name: 'monitoring',
-        component: require('./screens/monitoring/index').default,
-    },
-
-    {
-        path: '/monitoring/:tag',
-        component: require('./screens/monitoring/tag').default,
         children: [
             {
-                path: 'jobs',
-                name: 'monitoring-jobs',
-                component: require('./screens/monitoring/tag-jobs').default,
-                props: { type: 'jobs' },
+                path: '',
+                name: 'monitoring',
+                component: monitoring,
             },
             {
-                path: 'failed',
-                name: 'monitoring-failed',
-                component: require('./screens/monitoring/tag-jobs').default,
-                props: { type: 'failed' },
+                path: ':tag',
+                component: monitoringTag,
+                children: [
+                    {
+                        path: 'jobs',
+                        name: 'monitoring-jobs',
+                        component: monitoringTagJobs,
+                        props: { type: 'jobs' },
+                    },
+                    {
+                        path: 'failed',
+                        name: 'monitoring-failed',
+                        component: monitoringTagJobs,
+                        props: { type: 'failed' },
+                    },
+                ],
             },
         ],
     },
 
-    { path: '/metrics', redirect: '/metrics/jobs' },
-
     {
-        path: '/metrics/',
-        component: require('./screens/metrics/index').default,
+        path: '/metrics',
+        redirect: '/metrics/jobs',
         children: [
             {
                 path: 'jobs',
-                name: 'metrics-jobs',
-                component: require('./screens/metrics/jobs').default,
+                component: metrics,
+                children: [{ path: '', name: 'metrics-jobs', component: metricsJobs }],
             },
             {
                 path: 'queues',
-                name: 'metrics-queues',
-                component: require('./screens/metrics/queues').default,
+                component: metrics,
+                children: [{ path: '', name: 'metrics-queues', component: metricsQueues }],
+            },
+            {
+                path: ':type/:slug',
+                name: 'metrics-preview',
+                component: metricsPreview,
             },
         ],
-    },
-
-    {
-        path: '/metrics/:type/:slug',
-        name: 'metrics-preview',
-        component: require('./screens/metrics/preview').default,
     },
 
     {
         path: '/jobs/:type',
-        name: 'jobs',
-        component: require('./screens/recentJobs/index').default,
-    },
-
-    {
-        path: '/jobs/pending/:jobId',
-        name: 'pending-jobs-preview',
-        component: require('./screens/recentJobs/job').default,
-    },
-
-    {
-        path: '/jobs/completed/:jobId',
-        name: 'completed-jobs-preview',
-        component: require('./screens/recentJobs/job').default,
-    },
-
-    {
-        path: '/jobs/silenced/:jobId',
-        name: 'silenced-jobs-preview',
-        component: require('./screens/recentJobs/job').default,
+        children: [
+            {
+                path: '',
+                name: 'jobs',
+                component: recentJobs,
+            },
+            {
+                path: ':jobId',
+                name: 'job-preview',
+                component: recentJobsJob,
+            },
+        ],
     },
 
     {
         path: '/failed',
-        name: 'failed-jobs',
-        component: require('./screens/failedJobs/index').default,
-    },
-
-    {
-        path: '/failed/:jobId',
-        name: 'failed-jobs-preview',
-        component: require('./screens/failedJobs/job').default,
+        children: [
+            {
+                path: '',
+                name: 'failed-jobs',
+                component: failedJobs,
+            },
+            {
+                path: ':jobId',
+                name: 'failed-jobs-preview',
+                component: failedJobsJob,
+            },
+        ],
     },
 
     {
         path: '/batches',
-        name: 'batches',
-        component: require('./screens/batches/index').default,
-    },
-
-    {
-        path: '/batches/:batchId',
-        name: 'batches-preview',
-        component: require('./screens/batches/preview').default,
+        children: [
+            {
+                path: '',
+                name: 'batches',
+                component: batches,
+            },
+            {
+                path: ':batchId',
+                name: 'batches-preview',
+                component: batchesPreview,
+            },
+        ],
     },
 ];

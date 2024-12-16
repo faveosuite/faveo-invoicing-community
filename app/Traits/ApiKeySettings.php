@@ -284,7 +284,7 @@ trait ApiKeySettings
             'local_file_storage_path' => $path,
         ]);
 
-        setEnvValue('STORAGE_PATH', $path);
+        setEnvValue(['STORAGE_PATH' => $path]);
 
         return successResponse();
     }
@@ -334,7 +334,7 @@ trait ApiKeySettings
             };
 
             if ($envKey) {
-                setEnvValue($envKey, $value);
+                setEnvValue([$envKey => $value]);
             }
         }
     }

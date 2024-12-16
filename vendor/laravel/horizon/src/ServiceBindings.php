@@ -27,5 +27,8 @@ trait ServiceBindings
         Contracts\SupervisorRepository::class => Repositories\RedisSupervisorRepository::class,
         Contracts\TagRepository::class => Repositories\RedisTagRepository::class,
         Contracts\WorkloadRepository::class => Repositories\RedisWorkloadRepository::class,
+
+        // Notifications...
+        Contracts\LongWaitDetectedNotification::class => Notifications\LongWaitDetected::class,
     ];
 }

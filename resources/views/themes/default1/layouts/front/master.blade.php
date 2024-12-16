@@ -11,6 +11,13 @@
     .page-transition-active {
     opacity: 1 !important; /* Setting the opacity to 1 for full visibility */
 }
+        .tooltip {
+            pointer-events: none;
+        }
+
+        .popover {
+            pointer-events: auto; /* allow interaction in popovers */
+        }
 .custom-input {
     border: 1px solid transparent;
     border-radius: 4px;
@@ -586,7 +593,7 @@ $days = $pay->where('product','117')->value('days');
             <div class="modal-dialog">
 
                 <div class="modal-content">
-                    {!! Form::open() !!}
+                    {!! html()->form()->open() !!}
 
                     <div class="modal-header">
 
@@ -686,7 +693,7 @@ $days = $pay->where('product','117')->value('days');
                         <button type="button" class="btn btn-default pull-left closebutton" id="closebutton" data-dismiss="modal"><i class="fa fa-times">&nbsp;&nbsp;</i>Close</button>
                         <button type="submit"  class="btn btn-primary createTenant" id="createTenant" onclick="firstlogin({{Auth::user()->id}})"><i class="fa fa-check">&nbsp;&nbsp;</i>Submit</button>
 
-                        {!! Form::close()  !!}
+                        {!! html()->form()->close()  !!}
                     </div>
                 </div>
             </div>
@@ -696,7 +703,7 @@ $days = $pay->where('product','117')->value('days');
     <div class="modal fade" id="tenancy" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog">
             <div class="modal-content">
-                {!! Form::open() !!}
+                {!! html()->form()->open() !!}
                 <div class="modal-header">
                     <h4 class="modal-title">{{optional(cloudPopUpDetails())->cloud_top_message}}</h4>
                 </div>
@@ -780,7 +787,7 @@ $days = $pay->where('product','117')->value('days');
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default pull-left closebutton" id="closebutton" data-dismiss="modal"><i class="fa fa-times">&nbsp;&nbsp;</i>Close</button>
                     <button type="submit"  class="btn btn-primary createtenancy" id="createtenancy" onclick="createtenancy()"><i class="fa fa-check">&nbsp;&nbsp;</i>Submit</button>
-                    {!! Form::close()  !!}
+                    {!! html()->form()->close() !!}
                 </div>
                 <!-- /Form -->
             </div><!-- /.modal-content -->
@@ -1013,7 +1020,7 @@ $(document).ready(function() {
 
 setTimeout(function() {
     $('.alert-success, .alert-danger').alert('close');
-}, 5000);
+}, 10000);
 
 </script>
 

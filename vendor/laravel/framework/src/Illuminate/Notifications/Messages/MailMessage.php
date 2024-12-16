@@ -8,6 +8,7 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Mail\Attachment;
 use Illuminate\Mail\Markdown;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Traits\Conditionable;
 
 class MailMessage extends SimpleMessage implements Renderable
@@ -127,6 +128,21 @@ class MailMessage extends SimpleMessage implements Renderable
         $this->markdown = null;
 
         return $this;
+    }
+
+    /**
+     * Set the plain text view for the mail message.
+     *
+     * @param  string  $textView
+     * @param  array  $data
+     * @return $this
+     */
+    public function text($textView, array $data = [])
+    {
+        return $this->view([
+            'html' => is_array($this->view) ? ($this->view['html'] ?? null) : $this->view,
+            'text' => $textView,
+        ], $data);
     }
 
     /**
@@ -304,7 +320,7 @@ class MailMessage extends SimpleMessage implements Renderable
      */
     public function tag($value)
     {
-        array_push($this->tags, $value);
+        $this->tags[] = $value;
 
         return $this;
     }
@@ -356,7 +372,7 @@ class MailMessage extends SimpleMessage implements Renderable
      */
     protected function parseAddresses($value)
     {
-        return collect($value)->map(function ($address, $name) {
+        return (new Collection($value))->map(function ($address, $name) {
             return [$address, is_numeric($name) ? null : $name];
         })->values()->all();
     }

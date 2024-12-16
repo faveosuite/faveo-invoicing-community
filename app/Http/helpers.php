@@ -681,18 +681,32 @@ function isS3Enabled()
     return $fileSettings->disk === 's3';
 }
 
-function setEnvValue($key, $value)
+/**
+ * Update or append key-value pairs in the .env file.
+ *
+ * This function reads the current environment file, updates existing keys,
+ * or appends new ones if they do not exist.
+ *
+ * @param  array  $data  An associative array where the key is the environment
+ *                       variable name, and the value is the new value to set.
+ * @return void
+ *
+ * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException If the .env file is not found.
+ */
+function setEnvValue(array $data)
 {
     $envFile = app()->environmentFilePath();
     $content = File::get($envFile);
 
-    $keyExists = preg_match("/^{$key}=.*/m", $content);
-
-    if ($keyExists) {
-        $content = preg_replace("/^{$key}=.*/m", "{$key}={$value}", $content);
-    } else {
-        // Append the new key-value pair
-        $content .= "\n{$key}={$value}";
+    foreach ($data as $key => $value) {
+        // Check if the key exists in the .env file
+        if (preg_match("/^{$key}=.*/m", $content)) {
+            // Update existing key
+            $content = preg_replace("/^{$key}=.*/m", "{$key}={$value}", $content);
+        } else {
+            // Append new key-value pair
+            $content .= "\n{$key}={$value}";
+        }
     }
 
     // Save the updated .env file

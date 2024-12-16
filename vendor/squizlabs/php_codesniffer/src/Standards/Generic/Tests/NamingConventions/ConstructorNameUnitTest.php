@@ -11,7 +11,12 @@ namespace PHP_CodeSniffer\Standards\Generic\Tests\NamingConventions;
 
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
 
-class ConstructorNameUnitTest extends AbstractSniffUnitTest
+/**
+ * Unit test class for the ConstructorName sniff.
+ *
+ * @covers \PHP_CodeSniffer\Standards\Generic\Sniffs\NamingConventions\ConstructorNameSniff
+ */
+final class ConstructorNameUnitTest extends AbstractSniffUnitTest
 {
 
 
@@ -26,11 +31,18 @@ class ConstructorNameUnitTest extends AbstractSniffUnitTest
     public function getErrorList()
     {
         return [
-            6  => 1,
-            11 => 1,
-            47 => 1,
-            62 => 1,
-            91 => 1,
+            6   => 1,
+            11  => 1,
+            47  => 1,
+            62  => 1,
+            91  => 1,
+            103 => 1,
+            104 => 1,
+            112 => 1,
+            120 => 1,
+            121 => 1,
+            126 => 1,
+            127 => 1,
         ];
 
     }//end getErrorList()

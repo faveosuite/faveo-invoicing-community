@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "php": "^8.1",
+        "php": "^8.2",
         "composer-plugin-api": "^2.0"
     },
     "require-dev": {
@@ -27,7 +27,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "1.x-dev"
+            "dev-main": "1.x-dev"
         },
         "class": "Endroid\\Installer\\Installer"
     },

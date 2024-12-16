@@ -18,7 +18,7 @@ class AbstractClassNamePrefixSniff implements Sniff
     /**
      * Registers the tokens that this sniff wants to listen for.
      *
-     * @return int[]
+     * @return array<int|string>
      */
     public function register()
     {
@@ -45,7 +45,7 @@ class AbstractClassNamePrefixSniff implements Sniff
 
         $className = $phpcsFile->getDeclarationName($stackPtr);
         if ($className === null) {
-            // We are not interested in anonymous classes.
+            // Live coding or parse error.
             return;
         }
 

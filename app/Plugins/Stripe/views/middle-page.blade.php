@@ -925,6 +925,48 @@ $json = json_encode($data);
 
     // Handle form submission and generate Stripe token
     const form = document.getElementById('payment-form');
+
+    let alertTimeout;
+
+    function showAlert(type, messageOrResponse) {
+
+        // Generate appropriate HTML
+        var html = generateAlertHtml(type, messageOrResponse);
+
+        // Clear any existing alerts and remove the timeout
+        $('#card-errors').html(html);
+        clearTimeout(alertTimeout); // Clear the previous timeout if it exists
+
+        // Display alert
+        window.scrollTo(0, 0);
+
+        // Auto-dismiss after 5 seconds
+        alertTimeout = setTimeout(function() {
+            $('#card-errors .alert').fadeOut('slow');
+        }, 5000);
+    }
+
+
+    function generateAlertHtml(type, response) {
+        // Determine alert styling based on type
+        const isSuccess = type === 'success';
+        const iconClass = isSuccess ? 'fa-check-circle' : 'fa-ban';
+        const alertClass = isSuccess ? 'alert-success' : 'alert-danger';
+
+        // Extract message and errors
+        const message = response.message || response || 'An error occurred. Please try again.';
+        const errors = response.errors || null;
+
+        // Build base HTML
+        let html = `<div class="alert ${alertClass} alert-dismissible">` +
+            `<i class="fa ${iconClass}"></i> ` +
+            `${message}` +
+            '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+
+        html += '</div>';
+
+        return html;
+    }
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
 
@@ -937,6 +979,9 @@ $json = json_encode($data);
             $payButton.html("<i class='fa fa-circle-o-notch fa-spin fa-1x'></i> Processing ...");
             document.getElementById('stripe-token').value = token.id;
             document.getElementById('token-form').submit();
+        }
+        else if (error) {
+            showAlert('error', error);
         }
     });
 </script>

@@ -2,6 +2,10 @@
 
 ## Changelog
 
+### v11.0.0 - 2024-03-14
+
+- Add support for Laravel 11
+
 ### v10.0.0 - 2023-02-07
 
 - Add support for Laravel 10

@@ -5,6 +5,62 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com)
 and this project adheres to [Semantic Versioning](https://semver.org).
 
+## 1.29.6 - 2024-12-08
+
+### Fixed
+
+- Fix Minor Break Handling Drawings. Backport of [PR #4244](https://github.com/PHPOffice/PhpSpreadsheet/pull/4244)
+- Upgrade locked version of Tcpdf (security advisory).
+- Upgrade locked version of Dompdf (Php8.4 compatibility).
+- Remove unnecessary files from Composer package.
+
+## 1.29.5 - 2024-11-22
+
+### Changed
+
+- Settings::libXmlLoaderOptions is ignored. Backport of [PR #4233](https://github.com/PHPOffice/PhpSpreadsheet/pull/4233)
+
+### Deprecated
+
+- Settings::setLibXmlLoaderOptions() and Settings::getLibXmlLoaderOptions() are no longer needed - no replacement.
+
+## 1.29.4 - 2024-11-10
+
+### Fixed
+
+- 1.29.3 omitted
+- Backported security patches.
+- Write ignoredErrors Tag Before Drawings. Backport of [PR #4212](https://github.com/PHPOffice/PhpSpreadsheet/pull/4212) intended for 3.4.0.
+- Changes to ROUNDDOWN/ROUNDUP/TRUNC. Backport of [PR #4214](https://github.com/PHPOffice/PhpSpreadsheet/pull/4214) intended for 3.4.0.
+- Replace str_starts_with in Drawing. [Issue #4215](https://github.com/PHPOffice/PhpSpreadsheet/issues/4215)
+
+### Added
+
+- Method to Test Whether Csv Will Be Affected by Php9. Backport of [PR #4189](https://github.com/PHPOffice/PhpSpreadsheet/pull/4189)  intended for 3.4.0.
+
+## 1.29.2 - 2024-09-29
+
+### Fixed
+
+- Backported security patches.
+- Support for Php8.4.
+- Change to Csv Reader (see below under Deprecated). Backport of PR #4162 intended for 3.0.0. [Issue #4161](https://github.com/PHPOffice/PhpSpreadsheet/issues/4161)
+- Tweaks to ROUNDUP, ROUNDDOWN, TRUNC, AMORDEGRC (results had been different under 8.4).
+
+### Changed
+
+- Images will not be added to spreadsheet if they cannot be validated as images.
+
+### Deprecated
+
+- Php8.4 will deprecate the escape parameter of fgetcsv. Csv Reader is affected by this; code is changed to be unaffected, but this will mean a breaking change is coming with Php9. Any code which uses the default escape value of backslash will fail in Php9. It is recommended to explicitly set the escape value to null string before then.
+
+## 1.29.1 - 2024-09-03
+
+### Fixed
+
+- Backported security patches.
+
 ## 1.29.0 - 2023-06-15
 
 ### Added

@@ -129,27 +129,27 @@ Invoices
     <!-- /.box-header -->
     <div class="card-body" id="advance-search" style="display:none;">
 
-        {!! Form::open(['method'=>'get']) !!}
+        {!! html()->form('get')->open() !!}
 
         <div class="row">
             
              <div class="col-md-3 form-group">
                 <!-- first name -->
-                {!! Form::label('name','First Name') !!}
-                {!! Form::text('name',$request->name,['class' => 'form-control','id'=>'name']) !!}
+                 {!! html()->label('First Name', 'name') !!}
+                 {!! html()->text('name', $request->name)->class('form-control')->id('name') !!}
 
-            </div>
+             </div>
 
             <div class="col-md-3 form-group">
                 <!-- first name -->
-                {!! Form::label('invoice_no','Invoice No') !!}
-                {!! Form::text('invoice_no',$request->invoice_no,['class' => 'form-control','id'=>'invoice_no']) !!}
+                {!! html()->label('Invoice No', 'invoice_no') !!}
+                {!! html()->text('invoice_no', $request->invoice_no)->class('form-control')->id('invoice_no') !!}
 
             </div>
        <div class="col-md-3 form-group">
     <!-- first name -->
-    {!! Form::label('status', 'Status') !!}
-    <select name="status" class="form-control" id="status">
+           {!! html()->label('Status', 'status') !!}
+           <select name="status" class="form-control" id="status">
         <option value="">Choose</option>
         <option value="pending" @if($request->input('status') === 'pending') selected @endif>Unpaid</option>
         <option value="Partially paid" @if($request->input('status') === 'Partially paid') selected @endif>Partially Paid</option>
@@ -159,8 +159,8 @@ Invoices
 
 
               <div class="col-md-3 form-group">
-            {!! Form::label('currency', 'Currency') !!}
-            <select name="currency_id" class="form-control" id="currency">
+                  {!! html()->label('Currency', 'currency') !!}
+                  <select name="currency_id" class="form-control" id="currency">
                 <option value="">Choose</option>
                 @foreach($currencies as $currency)
                     @if($currency === $request->input('currency_id'))
@@ -175,7 +175,7 @@ Invoices
             
             <div class="col-md-3 form-group">
                 <!-- first name -->
-                {!! Form::label('from','Invoice From') !!}
+                {!! html()->label('Invoice From', 'from') !!}
                 <div class="input-group date" id="invoice_from" data-target-input="nearest">
                     <input type="text" name="from" class="form-control datetimepicker-input" autocomplete="off" value="{{ $request->input('from') }}"  data-target="#invoice_from"/>
 
@@ -190,7 +190,7 @@ Invoices
             </div>
             <div class="col-md-3 form-group">
                 <!-- first name -->
-                {!! Form::label('till','Invoice Till') !!}
+                {!! html()->label('Invoice Till', 'till') !!}
                 <div class="input-group date" id="invoice_till" data-target-input="nearest">
                     <input type="text" name="till" class="form-control datetimepicker-input" autocomplete="off" value="{{ $request->input('till') }}"  data-target="#invoice_till"/>
 
@@ -206,16 +206,16 @@ Invoices
 
             <div class='row'>
                 <div class="col-md-6">
-                    <!-- {!! Form::submit('Search',['class'=>'btn btn-primary']) !!} -->
+                    <!-- {!! html()->submit('Search')->class('btn btn-primary') !!} -->
                     <button name="Search" type="submit"  class="btn btn-secondary"><i class="fa fa-search">&nbsp;</i>{!!Lang::get('Search')!!}</button>
                      &nbsp;&nbsp;
-                    {!! Form::submit('Reset',['class'=>'btn btn-secondary','id'=>'reset']) !!}
-                    </div>
+                    {!! html()->submit('Reset')->class('btn btn-secondary')->id('reset') !!}
+                </div>
             </div>
 
 
         </div>
-        {!! Form::close() !!}
+        {!! html()->form()->close() !!}
     </div>
         </div>
     </div>

@@ -27,8 +27,7 @@ Create Group
           
 
             <div class="card-body">
-                {!! Form::open(['url'=>'groups','id'=>'groupForm']) !!}
-        
+                {!! html()->form('POST', url('groups'))->id('groupForm')->open() !!}
 
 
                 <table class="table table-condensed">
@@ -37,13 +36,13 @@ Create Group
 
                     <tr>
 
-                        <td><b>{!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.name'), 'company')->class('required') !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
 
                                 <div class='row'>
                                     <div class="col-md-10">
-                                        {!! Form::text('name',null,['class' => 'form-control'.($errors->has('name') ? ' is-invalid' : ''),'id'=>'name']) !!}
+                                        {!! html()->text('name')->class('form-control'.($errors->has('name') ? ' is-invalid' : ''))->id('name') !!}
                                         @error('name')
                                         <span class="error-message"> {{$message}}</span>
                                         @enderror
@@ -60,13 +59,13 @@ Create Group
                     </tr>
                     <tr>
 
-                        <td><b>{!! Form::label('headline',Lang::get('message.headline')) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.headline'), 'headline') !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('headline') ? 'has-error' : '' }}">
 
                                 <div class='row'>
                                     <div class="col-md-10">
-                                        {!! Form::text('headline',null,['class' => 'form-control'.($errors->has('headline') ? ' is-invalid' : '')]) !!}
+                                        {!! html()->text('headline')->class('form-control'.($errors->has('headline') ? ' is-invalid' : '')) !!}
                                         @error('headline')
                                         <span class="error-message"> {{$message}}</span>
                                         @enderror
@@ -80,13 +79,13 @@ Create Group
                     </tr>
                     <tr>
 
-                        <td><b>{!! Form::label('tagline',Lang::get('message.tagline')) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.tagline'), 'tagline') !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('tagline') ? 'has-error' : '' }}">
 
                                 <div class='row'>
                                     <div class="col-md-10">
-                                        {!! Form::text('tagline',null,['class' => 'form-control'.($errors->has('tagline') ? ' is-invalid' : '')]) !!}
+                                        {!! html()->text('tagline')->class('form-control'.($errors->has('tagline') ? ' is-invalid' : '')) !!}
                                         @error('tagline')
                                         <span class="error-message"> {{$message}}</span>
                                         @enderror
@@ -103,13 +102,13 @@ Create Group
 
                     <tr>
 
-                        <td><b>{!! Form::label('hidden',Lang::get('message.hidden')) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.hidden'), 'hidden') !!}</b></td>
                         <td>
-                             <p>{!! Form::hidden('hidden',0) !!}</p>
+                             <p>{!! html()->hidden('hidden', 0) !!}</p>
                             <div class="form-group {{ $errors->has('hidden') ? 'has-error' : '' }}">
 
                                
-                                <p>{!! Form::checkbox('hidden',1) !!}  {{Lang::get('message.check-this-box-if-this-is-a-hidden-group')}}</p>
+                                <p>{!! html()->checkbox('hidden', false , 1) !!} {{Lang::get('message.check-this-box-if-this-is-a-hidden-group')}}</p>
 
 
                             </div>
@@ -121,13 +120,13 @@ Create Group
 
                      <tr>
                           
-                        <td><b>{!! Form::label('design',Lang::get('message.select_design'),['class'=>'required']) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.select_design'), 'design')->class('required') !!}</b></td>
                         <td>
 
                            <div class="form-group">
                             
                             <div class="col-md-4">
-                             <img src='{{ asset("$template->image")}}' alt="Porto Theme" class="img-thumbnail" >
+                             <img src='{{ asset("images/$template->image")}}' alt="Porto Theme" class="img-thumbnail" >
                              <br/>
                             <input type="radio" name='pricing_templates_id' value='{{$template->id}}' id='template' style="text-align: center;">
                             {{$template->name}}
@@ -138,15 +137,15 @@ Create Group
                                 <span class="error-message"> {{$message}}</span>
                                 @enderror
                             </div>
-                   
-                            
+
+
                             </div>
                         </td>
 
                     </tr>
 
 
-                    {!! Form::close() !!}
+                    {!! html()->form()->close() !!}
                 </table>
                 <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button>
 

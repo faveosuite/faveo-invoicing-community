@@ -1221,7 +1221,6 @@ return [
     'cloud-error-message' => 'Please enter cloud domain.',
     'agents-error-message' => 'Please enter number of agents.',
     'quantity-error-message' => 'Please enter quantity.',
-
     'msg_reports' => 'MSG91 Reports',
     'advance_search' => 'Advance Search',
 
@@ -1247,4 +1246,5 @@ return [
     'delete_msg_reports' => 'Delete Msg91 Reports Older than..',
     'please_enable_cron_deletion' => 'Please Enable Msg Reports Deletion Cron',
     'pipedrive_third_party_tootip' => 'Generate third party key from Settings >> Third party apps to use MSG91 webhook.',
+    'source' => 'Source',
 ];

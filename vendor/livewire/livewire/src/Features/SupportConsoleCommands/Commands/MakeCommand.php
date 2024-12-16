@@ -4,11 +4,13 @@ namespace Livewire\Features\SupportConsoleCommands\Commands;
 
 use Illuminate\Contracts\Console\PromptsForMissingInput;
 use Illuminate\Support\Facades\File;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\select;
 
+#[AsCommand(name: 'livewire:make')]
 class MakeCommand extends FileManipulationCommand implements PromptsForMissingInput
 {
     protected $signature = 'livewire:make {name} {--force} {--inline} {--test} {--pest} {--stub= : If you have several stubs, stored in subfolders }';
@@ -204,6 +206,7 @@ class MakeCommand extends FileManipulationCommand implements PromptsForMissingIn
             'endif',
             'endswitch',
             'endwhile',
+            'enum',
             'eval',
             'exit',
             'extends',
@@ -225,6 +228,7 @@ class MakeCommand extends FileManipulationCommand implements PromptsForMissingIn
             'isset',
             'self',
             'list',
+            'match',
             'namespace',
             'new',
             'or',
@@ -232,6 +236,7 @@ class MakeCommand extends FileManipulationCommand implements PromptsForMissingIn
             'private',
             'protected',
             'public',
+            'readonly',
             'require',
             'require_once',
             'return',

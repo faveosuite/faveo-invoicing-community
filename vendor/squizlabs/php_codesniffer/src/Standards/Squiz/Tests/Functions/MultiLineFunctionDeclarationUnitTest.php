@@ -11,7 +11,12 @@ namespace PHP_CodeSniffer\Standards\Squiz\Tests\Functions;
 
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
 
-class MultiLineFunctionDeclarationUnitTest extends AbstractSniffUnitTest
+/**
+ * Unit test class for the MultiLineFunctionDeclaration sniff.
+ *
+ * @covers \PHP_CodeSniffer\Standards\Squiz\Sniffs\Functions\MultiLineFunctionDeclarationSniff
+ */
+final class MultiLineFunctionDeclarationUnitTest extends AbstractSniffUnitTest
 {
 
 
@@ -25,7 +30,7 @@ class MultiLineFunctionDeclarationUnitTest extends AbstractSniffUnitTest
      *
      * @return array<int, int>
      */
-    public function getErrorList($testFile='MultiLineFunctionDeclarationUnitTest.inc')
+    public function getErrorList($testFile='')
     {
         if ($testFile === 'MultiLineFunctionDeclarationUnitTest.inc') {
             $errors = [
@@ -70,6 +75,8 @@ class MultiLineFunctionDeclarationUnitTest extends AbstractSniffUnitTest
                 252 => 1,
                 253 => 1,
                 254 => 1,
+                318 => 1,
+                323 => 1,
             ];
         } else {
             $errors = [

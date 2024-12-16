@@ -47,7 +47,7 @@ class Caster
      *
      * @param bool $hasDebugInfo Whether the __debugInfo method exists on $obj or not
      */
-    public static function castObject(object $obj, string $class, bool $hasDebugInfo = false, string $debugClass = null): array
+    public static function castObject(object $obj, string $class, bool $hasDebugInfo = false, ?string $debugClass = null): array
     {
         if ($hasDebugInfo) {
             try {
@@ -190,7 +190,7 @@ class Caster
                 $p->isPublic() => $p->name,
                 $p->isProtected() => self::PREFIX_PROTECTED.$p->name,
                 default => "\0".$className."\0".$p->name,
-            }] = new UninitializedStub($p);
+            }] = \PHP_VERSION_ID >= 80400 && $p->isVirtual() ? new VirtualStub($p) : new UninitializedStub($p);
         }
 
         return $classProperties;

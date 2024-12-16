@@ -25,6 +25,12 @@ class PartnerTest extends TestCase
 
     protected static $webhook_id;
 
+    protected $accId = "acc_M83Uw27KXuC7c8";
+
+    protected $stkId = "sth_M83WuwmrCFa55g";
+
+    protected $docId = "doc_NBpjajKtxrMDg7";
+
     public function setUp(): void
     {
         $apiKey = getenv("RAZORPAY_API_KEY") ? getenv("RAZORPAY_PARTNER_API_KEY") : "";
@@ -278,5 +284,30 @@ class PartnerTest extends TestCase
                 "refund.created",
             ],
         ];
+    }
+
+    public function testAccountFetchDocument()
+    {
+        $data = $this->instance->account->fetch($this->accId)->fetchAccountDoc();
+
+        $this->assertTrue(is_array($data->toArray()));
+
+    }
+
+    public function testStakeholderFetchDocument()
+    {
+        $data = $this->instance->account->fetch($this->accId)->stakeholders()->fetchStakeholderDoc($this->stkId);
+
+        $this->assertTrue(is_array($data->toArray()));
+
+    }
+
+    public function testFetchDocument()
+    {
+        $data = $this->instance->document->fetch($this->docId);
+
+        $this->assertTrue(is_array($data->toArray()));
+
+        $this->assertArrayHasKey("entity", $data->toArray());
     }
 }

@@ -40,7 +40,7 @@ class RegistrationTest extends DBTestCase
         $this->mock->disable();
     }
 
-    /** @group postRegister */
+    #[Group('postRegister')]
     public function test_when_user_registers_emailAndUsername_not_given()
     {
         $user = User::factory()->create();
@@ -69,7 +69,7 @@ class RegistrationTest extends DBTestCase
         // $this->assertEquals($errors->get('email')[0], 'The email field is required.');
     }
 
-    // /** @group postRegister */
+    // #[Group('postRegister')]
     // public function test_when_user_registers_successfully()
     // {
     //     $this->setUpServerVariable('192.168.12.12', 'someaddress', 'IN');
@@ -103,7 +103,7 @@ class RegistrationTest extends DBTestCase
     // $this->tearDownServerVariable();
     // }
 
-    // /** @group postRegister */
+    // #[Group('postRegister')]
     // public function test_postRegister_whenUserRegistersAndIpIsNotDetected()
     // {
     //     $user = User::factory()->create(['bussiness'=>'Accounting', 'mobile_code'=>91]);
@@ -132,7 +132,7 @@ class RegistrationTest extends DBTestCase
     //     // $this->assertEquals(json_decode($response->content())[0], 'Undefined index: REMOTE_ADDR');
     // }
 
-    /** @group postRegister */
+    #[Group('postRegister')]
     public function test_postRegister_whenPasswordDoesNotMatch()
     {
         $this->setUpServerVariable('192.168.12.12', 'someaddress', 'IN');

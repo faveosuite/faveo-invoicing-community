@@ -22,13 +22,9 @@ class ShellOutput extends ConsoleOutput
 {
     const NUMBER_LINES = 128;
 
-    private $paging = 0;
-
-    /** @var OutputPager */
-    private $pager;
-
-    /** @var Theme */
-    private $theme;
+    private int $paging = 0;
+    private OutputPager $pager;
+    private Theme $theme;
 
     /**
      * Construct a ShellOutput instance.
@@ -38,7 +34,7 @@ class ShellOutput extends ConsoleOutput
      * @param OutputFormatterInterface|null $formatter (default: null)
      * @param string|OutputPager|null       $pager     (default: null)
      */
-    public function __construct($verbosity = self::VERBOSITY_NORMAL, $decorated = null, OutputFormatterInterface $formatter = null, $pager = null, $theme = null)
+    public function __construct($verbosity = self::VERBOSITY_NORMAL, $decorated = null, ?OutputFormatterInterface $formatter = null, $pager = null, $theme = null)
     {
         parent::__construct($verbosity, $decorated, $formatter);
 
@@ -119,7 +115,7 @@ class ShellOutput extends ConsoleOutput
      * @param bool         $newline  Whether to add a newline or not
      * @param int          $type     The type of output
      */
-    public function write($messages, $newline = false, $type = 0)
+    public function write($messages, $newline = false, $type = 0): void
     {
         if ($this->getVerbosity() === self::VERBOSITY_QUIET) {
             return;
@@ -154,9 +150,10 @@ class ShellOutput extends ConsoleOutput
      * @param string $message A message to write to the output
      * @param bool   $newline Whether to add a newline or not
      */
-    public function doWrite($message, $newline)
+    public function doWrite($message, $newline): void
     {
-        if ($this->paging > 0) {
+        // @todo Update OutputPager interface to require doWrite
+        if ($this->paging > 0 && $this->pager instanceof ProcOutputPager) {
             $this->pager->doWrite($message, $newline);
         } else {
             parent::doWrite($message, $newline);

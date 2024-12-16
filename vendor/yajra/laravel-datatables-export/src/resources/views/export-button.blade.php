@@ -5,15 +5,26 @@
                 var oTable = LaravelDataTables['{{ $tableId }}'];
                 var baseUrl = oTable.ajax.url() === '' ? window.location.toString() : oTable.ajax.url();
 
-                var params = new URLSearchParams({
-                    action: 'exportQueue',
-                    exportType: '{{$fileType}}',
-                    sheetName: '{{$sheetName}}',
-                    emailTo: '{{urlencode($emailTo)}}',
-                });
+                var url = new URL(baseUrl);
+                var searchParams = new URLSearchParams(url.search);
+                searchParams.set('action', 'exportQueue');
+                searchParams.set('exportType', '{{$fileType}}');
+                searchParams.set('sheetName', '{{$sheetName}}');
+                searchParams.set('buttonName', '{{$buttonName}}');
+                searchParams.set('emailTo', '{{urlencode($emailTo)}}');
 
-                $.get(baseUrl + '?' + params.toString() + '&' + $.param(oTable.ajax.params())).then(function(exportId) {
-                    $wire.export(exportId)
+                var tableParams = $.param(oTable.ajax.params());
+                if (tableParams) {
+                    var tableSearchParams = new URLSearchParams(tableParams);
+                    tableSearchParams.forEach((value, key) => {
+                        searchParams.append(key, value);
+                    });
+                }
+
+                url.search = searchParams.toString();
+
+                $.get(url.toString()).then(function(exportId) {
+                    $wire.export(exportId);
                 }).catch(function(error) {
                     $wire.exportFinished = true;
                     $wire.exporting = false;
@@ -25,7 +36,7 @@
                 x-ref="exportBtn"
                 :disabled="$wire.exporting"
                 class="{{ $class }}"
-        >Export
+        >{{$buttonName}}
         </button>
     </form>
 

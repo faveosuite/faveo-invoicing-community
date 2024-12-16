@@ -16,7 +16,6 @@ use App\Model\Payment\Currency;
 use App\Model\Plugin;
 use App\Payment_log;
 use App\User;
-use File;
 use Illuminate\Http\Request;
 use Spatie\Activitylog\Models\Activity;
 use Yajra\DataTables\DataTables;
@@ -311,14 +310,10 @@ class SettingsController extends BaseSettingsController
         $validator = \Validator::make($request->all(), [
             'from' => 'nullable',
             'till' => 'nullable|after:from',
-            'delFrom' => 'nullable',
-            'delTill' => 'nullable|after:delFrom',
         ]);
         if ($validator->fails()) {
             $request->from = '';
             $request->till = '';
-            $request->delFrom = '';
-            $request->delTill = '';
 
             return redirect('settings/activitylog')->with('fails', 'Start date should be before end date');
         }
@@ -326,10 +321,8 @@ class SettingsController extends BaseSettingsController
             $activity = $activities->all();
             $from = $request->input('from');
             $till = $request->input('till');
-            $delFrom = $request->input('delFrom');
-            $delTill = $request->input('delTill');
 
-            return view('themes.default1.common.Activity-Log', compact('activity', 'from', 'till', 'delFrom', 'delTill'));
+            return view('themes.default1.common.Activity-Log', compact('activity', 'from', 'till'));
         } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }
@@ -352,9 +345,7 @@ class SettingsController extends BaseSettingsController
         try {
             $from = $request->input('log_from');
             $till = $request->input('log_till');
-            $delFrom = $request->input('delFrom');
-            $delTill = $request->input('delTill');
-            $query = $this->advanceSearch($from, $till, $delFrom, $delTill);
+            $query = $this->advanceSearch($from, $till);
 
             return \DataTables::of($query->take(50))
              ->setTotalRecords($query->count())
@@ -420,7 +411,7 @@ class SettingsController extends BaseSettingsController
                                 $query->whereRaw($sql, ["%{$keyword}%"]);
                             })
 
-                            ->rawColumns(['checkbox', 'name', 'description',
+                            ->rawColumns(['name', 'description',
                                 'username', 'role', 'new', 'old', 'created_at', ])
                             ->make(true);
         } catch (\Exception $e) {
@@ -578,18 +569,12 @@ class SettingsController extends BaseSettingsController
 
     public function postdebugSettings(Request $request)
     {
-        $request = $request->get('debug');
-        if ($request == 'true') {
-            $debug_new = base_path().DIRECTORY_SEPARATOR.'.env';
-            $datacontent = File::get($debug_new);
-            $datacontent = str_replace('APP_DEBUG=false', 'APP_DEBUG=true', $datacontent);
-            File::put($debug_new, $datacontent);
-        } elseif ($request == 'false') {
-            $debug_new = base_path().DIRECTORY_SEPARATOR.'.env';
-            $datacontent = File::get($debug_new);
-            $datacontent = str_replace('APP_DEBUG=true', 'APP_DEBUG=false', $datacontent);
-            File::put($debug_new, $datacontent);
-        }
+        $enable = $request->get('debug') === 'true';
+        setEnvValue([
+            'APP_DEBUG' => $enable ? 'true' : 'false',
+            'PULSE_ENABLED' => $enable ? 'true' : 'false',
+            'CLOCKWORK_ENABLE' => $enable ? 'true' : 'false',
+        ]);
 
         return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
     }

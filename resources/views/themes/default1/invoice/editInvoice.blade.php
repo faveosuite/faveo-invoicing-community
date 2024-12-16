@@ -22,8 +22,7 @@ Edit Invoice
 <div class="card card-secondary card-outline">
 
     <div class="card-header">
-       
-        {!! Form::open(['url'=>'invoice/edit/'.$invoiceid,'method'=>'post','id'=>'editInvoiceForm']) !!}
+        {!! html()->form('POST', url('invoice/edit/'.$invoiceid))->id('editInvoiceForm')->open() !!}
 
         <h5>Invoice Number:#{{$invoice->number}}	</h5>
 
@@ -36,8 +35,7 @@ Edit Invoice
 
                    <div class="col-md-6 form-group {{ $errors->has('date') ? 'has-error' : '' }}">
                         <!-- date -->
-                        {!! Form::label('date',Lang::get('message.date'),['class'=>'required']) !!}
-                         <div class="input-group date" id="payment" data-target-input="nearest">
+                       {!! html()->label(Lang::get('message.date'))->class('required') !!}
                                  <input type="text" id="payment_date" name="date" value="{{$date}}" class="form-control datetimepicker-input {{$errors->has('date') ? ' is-invalid' : ''}}" autocomplete="off"  data-target="#payment" />
                              @error('date')
                              <span class="error-message"> {{$message}}</span>
@@ -51,7 +49,7 @@ Edit Invoice
 
                     <div class="col-md-6 form-group {{ $errors->has('total') ? 'has-error' : '' }}">
                         <!-- total -->
-                        {!! Form::label('total',Lang::get('message.invoice-total'),['class'=>'required']) !!}
+                        {!! html()->label(Lang::get('message.invoice-total'))->class('required') !!}
                         <input type="text" name="total" class="form-control {{$errors->has('total') ? ' is-invalid' : ''}}" value="{{$invoice->grand_total}}" id="total">
                         @error('total')
                         <span class="error-message"> {{$message}}</span>
@@ -63,7 +61,7 @@ Edit Invoice
 
                      <div class="col-md-6 form-group {{ $errors->has('amount') ? 'has-error' : '' }}">
                         <!-- status -->
-                        {!! Form::label('status',Lang::get('message.status')) !!}
+                         {!! html()->label(Lang::get('message.status'))->for('status') !!}
                          <select name="status"  class="form-control {{$errors->has('status') ? ' is-invalid' : ''}}" id="status">
                             <option selected="selected">{{$invoice->status}}</option>
                              <option value="">Choose</option>
@@ -88,9 +86,8 @@ Edit Invoice
 
 </div>
 
- 
-{!! Form::close() !!}
 
+{!! html()->form()->close() !!}
 <script>
 
     $(document).ready(function() {

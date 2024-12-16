@@ -6,7 +6,9 @@ use Exception;
 use Illuminate\Console\Command;
 use Laravel\Horizon\SupervisorFactory;
 use Laravel\Horizon\SupervisorOptions;
+use Symfony\Component\Console\Attribute\AsCommand;
 
+#[AsCommand(name: 'horizon:supervisor')]
 class SupervisorCommand extends Command
 {
     /**
@@ -68,7 +70,7 @@ class SupervisorCommand extends Command
         try {
             $supervisor->ensureNoDuplicateSupervisors();
         } catch (Exception $e) {
-            $this->error('A supervisor with this name is already running.');
+            $this->components->error('A supervisor with this name is already running.');
 
             return 13;
         }

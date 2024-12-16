@@ -7,7 +7,9 @@ use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use Illuminate\Support\Stringable;
 use Illuminate\Support\Traits\ReflectsClosures;
 use Illuminate\View\Component;
 use InvalidArgumentException;
@@ -30,6 +32,7 @@ class BladeCompiler extends Compiler implements CompilerInterface
         Concerns\CompilesLayouts,
         Concerns\CompilesLoops,
         Concerns\CompilesRawPhp,
+        Concerns\CompilesSessions,
         Concerns\CompilesStacks,
         Concerns\CompilesStyles,
         Concerns\CompilesTranslations,
@@ -219,7 +222,7 @@ class BladeCompiler extends Compiler implements CompilerInterface
      */
     protected function getOpenAndClosingPhpTokens($contents)
     {
-        return collect(token_get_all($contents))
+        return (new Collection(token_get_all($contents)))
             ->pluck(0)
             ->filter(function ($token) {
                 return in_array($token, [T_OPEN_TAG, T_OPEN_TAG_WITH_ECHO, T_CLOSE_TAG]);
@@ -389,8 +392,8 @@ class BladeCompiler extends Compiler implements CompilerInterface
      */
     protected function storeVerbatimBlocks($value)
     {
-        return preg_replace_callback('/(?<!@)@verbatim(.*?)@endverbatim/s', function ($matches) {
-            return $this->storeRawBlock($matches[1]);
+        return preg_replace_callback('/(?<!@)@verbatim(\s*)(.*?)@endverbatim/s', function ($matches) {
+            return $matches[1].$this->storeRawBlock($matches[2]);
         }, $value);
     }
 
@@ -759,7 +762,7 @@ class BladeCompiler extends Compiler implements CompilerInterface
 
         if (is_null($alias)) {
             $alias = str_contains($class, '\\View\\Components\\')
-                            ? collect(explode('\\', Str::after($class, '\\View\\Components\\')))->map(function ($segment) {
+                            ? (new Collection(explode('\\', Str::after($class, '\\View\\Components\\'))))->map(function ($segment) {
                                 return Str::kebab($segment);
                             })->implode(':')
                             : Str::kebab(class_basename($class));
@@ -807,7 +810,7 @@ class BladeCompiler extends Compiler implements CompilerInterface
      * @param  string|null  $prefix
      * @return void
      */
-    public function anonymousComponentPath(string $path, string $prefix = null)
+    public function anonymousComponentPath(string $path, ?string $prefix = null)
     {
         $prefixHash = md5($prefix ?: $path);
 
@@ -829,11 +832,11 @@ class BladeCompiler extends Compiler implements CompilerInterface
      * @param  string|null  $prefix
      * @return void
      */
-    public function anonymousComponentNamespace(string $directory, string $prefix = null)
+    public function anonymousComponentNamespace(string $directory, ?string $prefix = null)
     {
         $prefix ??= $directory;
 
-        $this->anonymousComponentNamespaces[$prefix] = Str::of($directory)
+        $this->anonymousComponentNamespaces[$prefix] = (new Stringable($directory))
                 ->replace('/', '.')
                 ->trim('. ')
                 ->toString();
@@ -934,7 +937,7 @@ class BladeCompiler extends Compiler implements CompilerInterface
     }
 
     /**
-     * Register a handler for custom directives.
+     * Register a handler for custom directives, binding the handler to the compiler.
      *
      * @param  string  $name
      * @param  callable  $handler
@@ -942,13 +945,28 @@ class BladeCompiler extends Compiler implements CompilerInterface
      *
      * @throws \InvalidArgumentException
      */
-    public function directive($name, callable $handler)
+    public function bindDirective($name, callable $handler)
+    {
+        $this->directive($name, $handler, bind: true);
+    }
+
+    /**
+     * Register a handler for custom directives.
+     *
+     * @param  string  $name
+     * @param  callable  $handler
+     * @param  bool  $bind
+     * @return void
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function directive($name, callable $handler, bool $bind = false)
     {
         if (! preg_match('/^\w+(?:::\w+)?$/x', $name)) {
             throw new InvalidArgumentException("The directive name [{$name}] is not valid. Directive names must only contain alphanumeric characters and underscores.");
         }
 
-        $this->customDirectives[$name] = $handler;
+        $this->customDirectives[$name] = $bind ? $handler->bindTo($this, BladeCompiler::class) : $handler;
     }
 
     /**

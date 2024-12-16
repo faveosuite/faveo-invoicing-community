@@ -3,7 +3,6 @@
 namespace Database\Seeders\v4_0_2_4_RC_1;
 
 use App\Model\Common\Msg91Status;
-use App\Model\Common\PipedriveLocalFields;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -14,6 +13,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->addMsgStatus();
+        $this->updateAppKey();
     }
 
     public function addMsgStatus()
@@ -33,6 +33,21 @@ class DatabaseSeeder extends Seeder
                 ['status_code' => $status['status_code']],
                 ['status_label' => $status['status_label']]
             );
+        }
+    }
+
+    private function updateAppKey()
+    {
+        $env = base_path().DIRECTORY_SEPARATOR.'.env';
+
+        if (is_file($env) && config('app.env') !== 'testing' && env('APP_KEY_UPDATED') !== 'true') {
+
+            setEnvValue(['APP_PREVIOUS_KEYS' => 'SomeRandomString']);
+
+            \Artisan::call('key:generate', ['--force' => true]);
+
+            setEnvValue(['APP_KEY_UPDATED' => 'true']);
+
         }
     }
 }

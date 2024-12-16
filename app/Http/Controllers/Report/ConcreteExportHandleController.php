@@ -399,7 +399,7 @@ class ConcreteExportHandleController extends ExportHandleController
                             $orderData['order_date'] = \Carbon\Carbon::parse($order->subscription_created_at)->format('Y-m-d');
                             break;
                         case 'update_ends_at':
-                            $orderData['update_ends_at'] = \Carbon\Carbon::parse($order->subscription_updated_at)->format('Y-m-d');
+                            $orderData['update_ends_at'] = \Carbon\Carbon::parse($order->subscription_ends_at)->format('Y-m-d');
                             break;
                         default:
                             $orderData[$column] = $order->$column;

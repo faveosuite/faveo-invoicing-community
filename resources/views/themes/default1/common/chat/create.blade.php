@@ -18,7 +18,7 @@ Script
 @section('content')
 <div class="card card-secondary card-outline">
 
-        {!! Form::open(['url'=>'chat','method'=>'post','id'=>'scriptForm']) !!}
+    {!! html()->form('POST', url('chat'))->id('scriptForm')->open() !!}
 
 
 
@@ -34,8 +34,8 @@ Script
 
                     <div class="col-md-12 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         <!-- first name -->
-                        {!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}
-                        {!! Form::text('name',null,['class' => 'form-control'. ($errors->has('name') ? ' is-invalid' : ''),'id'=>'name']) !!}
+                        {!! html()->label(Lang::get('message.name'), 'name')->class('required') !!}
+                        {!! html()->text('name')->class('form-control'. ($errors->has('name') ? ' is-invalid' : ''))->id('name') !!}
                         @error('name')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
@@ -54,11 +54,11 @@ Script
 
                     <div class="col-md-6 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         <!-- first name -->
-                        {!! Form::label('script','Show script',['class'=>'required']) !!}
+                        {!! html()->label('Show script', 'script')->class('required') !!}
                         <br>
-                        {!! Form::radio('on_registration',1,true) !!}
+                        {!! html()->radio('on_registration', 1)->checked() !!}
                         <label for="on_registration" style="font-weight: normal !important;">On registration</label>
-                        &nbsp;{!! Form::radio('on_registration',0,false) !!}
+                        &nbsp;{!! html()->radio('on_registration', 0) !!}
                         <label for="on_every_page" style="font-weight: normal !important;">On every page</label>
                         @error('on_registration')
                         <span class="error-message"> {{$message}}</span>
@@ -67,15 +67,15 @@ Script
 
                      <div class="col-md-3 form-group">
                         <!-- first name -->
-                         {!! Form::checkbox('google_analytics',null,null, array('id'=>'analytics')) !!}
-                         {!! Form::label('google_analytics','Google analytics') !!}
-                        {{Form::hidden('google_analytics',0,['id'=>'hidden_analytic'])}}
+                         {!! html()->checkbox('google_analytics')->id('analytics') !!}
+                         {!! html()->label('Google analytics', 'analytics') !!}
+                         {!! html()->hidden('google_analytics', 0)->id('hidden_analytic') !!}
                         <!-- <input type="checkbox" name="google_analytics" id="analytics"> -->
                     </div>
                         <br>
                     <div class="col-md-3 form-group analytics_tag" hidden>
-                        {!! Form::label('tag','Google analytics tag',['class'=>'required']) !!}
-                        {!! Form::text('google_analytics_tag',null,['class' => 'form-control','id'=>'google_analytics_tag']) !!}
+                        {!! html()->label('Google analytics tag', 'tag')->class('required') !!}
+                        {!! html()->text('google_analytics_tag')->class('form-control') !!}
                         <span class="error-messag hide" id="google-error-msg"></span>
                     </div>
 
@@ -89,10 +89,9 @@ Script
                 <div class="row">
                     <div class="col-md-12 form-group">
 
-       
 
-                        {!! Form::label('data',Lang::get('message.content'),['class'=>'required']) !!}
-                        {!! Form::textarea('script',null,['class'=>'form-control'. ($errors->has('script') ? ' is-invalid' : ''),'id'=>'textarea']) !!}
+                        {!! html()->label(Lang::get('message.content'), 'data')->class('required') !!}
+                        {!! html()->textarea('script')->class('form-control'. ($errors->has('script') ? ' is-invalid' : ''))->id('textarea') !!}
                         @error('script')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
@@ -113,7 +112,7 @@ Script
 </div>
 
 
-{!! Form::close() !!}
+{!! html()->form()->close() !!}
 <style>
     .error-messag{
         font-size:80%;

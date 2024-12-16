@@ -10,7 +10,7 @@ class LoginTest extends DBTestCase
 {
     use DatabaseTransactions;
 
-    /** @group postLogin */
+    #[Group('postLogin')]
     public function test_postLogin_forVerifiedUsers()
     {
         $user = User::factory()->create();
@@ -19,7 +19,7 @@ class LoginTest extends DBTestCase
         // $this->assertStringContainsSubstring($response->getTargetUrl(), 'home');
     }
 
-    /** @group postLogin */
+    #[Group('postLogin')]
     public function test_postLogin_forAdmin()
     {
         $user = User::factory()->create(['role' => 'admin']);
@@ -27,7 +27,7 @@ class LoginTest extends DBTestCase
         $this->assertStringContainsSubstring($response->getTargetUrl(), '/');
     }
 
-    /** @group postLogin */
+    #[Group('postLogin')]
     public function test_postLogin_when_mobile_is_Unverified()
     {
         $user = User::factory()->create(['mobile_verified' => 0]);
@@ -36,7 +36,7 @@ class LoginTest extends DBTestCase
         // $this->assertStringContainsSubstring($response->getTargetUrl(), '/verify');
     }
 
-    /** @group postLogin */
+    #[Group('postLogin')]
     public function test_postLogin_when_email_is_Unverified()
     {
         $user = User::factory()->create(['active' => 0]);
@@ -44,7 +44,7 @@ class LoginTest extends DBTestCase
         $response->assertStatus(302);
     }
 
-    /** @group postLogin */
+    #[Group('postLogin')]
     public function test_postLogin_when_email_and_mobile_are_Unverified()
     {
         $user = User::factory()->create(['active' => 0, 'mobile_verified' => 0]);

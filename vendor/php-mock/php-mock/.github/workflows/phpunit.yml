@@ -13,7 +13,7 @@ jobs:
   phpunit:
     name: PHPUnit tests on PHP ${{ matrix.php-version }}
 
-    runs-on: "ubuntu-latest"
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
@@ -27,21 +27,23 @@ jobs:
           - "8.0"
           - "8.1"
           - "8.2"
+          - "8.3"
+          - "8.4"
 
     steps:
-      - name: "Checkout"
-        uses: "actions/checkout@v3"
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: "Install PHP"
-        uses: "shivammathur/setup-php@v2"
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
         with:
           coverage: "pcov"
           php-version: "${{ matrix.php-version }}"
           ini-values: memory_limit=-1
           tools: composer:v2
 
-      - name: "Cache dependencies"
-        uses: "actions/cache@v2"
+      - name: Cache dependencies
+        uses: actions/cache@v3
         with:
           path: |
             ~/.composer/cache
@@ -49,8 +51,8 @@ jobs:
           key: "php-${{ matrix.php-version }}"
           restore-keys: "php-${{ matrix.php-version }}"
 
-      - name: "Install dependencies"
-        run: "composer install --no-interaction --no-progress --no-suggest"
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress
 
-      - name: "Tests"
+      - name: Tests
         run: vendor/bin/phpunit

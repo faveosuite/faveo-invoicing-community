@@ -49,6 +49,9 @@ class SetupTestEnv extends Command
         //setting up app env to testing
         Config::set('app.env', 'testing');
 
+        //add default app key for testing
+        Config::set('app.key', 'base64:G4WSQduFNvk9rYtoLS1ozg==');
+
         //opening a database connection
         DB::purge('mysql');
 
@@ -90,7 +93,6 @@ class SetupTestEnv extends Command
         $env['DB_PASSWORD'] = $dbPassword;
         $env['DB_DATABASE'] = $dbName;
         $env['APP_ENV'] = 'development';
-        $env['APP_KEY'] = 'SomeRandomString';
 
         $config = '';
 

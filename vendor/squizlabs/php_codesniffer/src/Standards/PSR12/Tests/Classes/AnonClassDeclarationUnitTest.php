@@ -11,7 +11,12 @@ namespace PHP_CodeSniffer\Standards\PSR12\Tests\Classes;
 
 use PHP_CodeSniffer\Tests\Standards\AbstractSniffUnitTest;
 
-class AnonClassDeclarationUnitTest extends AbstractSniffUnitTest
+/**
+ * Unit test class for the AnonClassDeclaration sniff.
+ *
+ * @covers \PHP_CodeSniffer\Standards\PSR12\Sniffs\Classes\AnonClassDeclarationSniff
+ */
+final class AnonClassDeclarationUnitTest extends AbstractSniffUnitTest
 {
 
 
@@ -50,6 +55,8 @@ class AnonClassDeclarationUnitTest extends AbstractSniffUnitTest
             75 => 1,
             87 => 1,
             88 => 1,
+            94 => 1,
+            96 => 1,
         ];
 
     }//end getErrorList()

@@ -19,10 +19,12 @@ Widgets
     <div class="card-header">
         <h3 class="card-title">{{Lang::get('message.widgets')}}</h3>
 
-        <div class="card-tools">
-            <a href="{{url('widgets/create')}}" class="btn btn-default btn-sm pull-right"><span class="fa fa-plus"></span>&nbsp;&nbsp;{{Lang::get('message.create')}}</a>
+         @if($widgetsCount < 3)
+            <div class="card-tools">
+                <a href="{{url('widgets/create')}}" class="btn btn-default btn-sm pull-right"><span class="fa fa-plus"></span>&nbsp;&nbsp;{{Lang::get('message.create')}}</a>
 
-        </div>
+            </div>
+         @endif
     </div>
 
 

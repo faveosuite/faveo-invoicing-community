@@ -1,4 +1,5 @@
- <div class="modal fade" id="edit-app" data-backdrop="static" data-keyboard="false">
+{!! html()->form('PATCH', null)->id('app-edit-form')->open() !!}
+<div class="modal fade" id="edit-app" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -6,11 +7,10 @@
               
             </div>
 
-           {!! Form::open(['method' => 'patch','id' => 'app-edit-form'])!!}
             <div class="modal-body">
                 
                 <div class= "form-group">
-                    {!! Form::label('name','App name',['class'=>'required']) !!}
+                    {!! html()->label(Lang::get('App name'))->class('required') !!}
                     <input type="text" name="app_name" id="name" class="form-control app-name {{$errors->has('app_name') ? ' is-invalid' : ''}}">
                     @error('name')
                     <span class="error-message"> {{$message}}</span>
@@ -18,8 +18,8 @@
                     <span class="appnamecheck"></span>
                 </div>
                  <div class= "form-group">
-                    {!! Form::label('key','App key',['class'=>'required']) !!}
-                    <div class="row">
+                     {!! html()->label(Lang::get('App key'))->for('key')->class('required') !!}
+                     <div class="row">
                      <div class="col-md-8">
                     
                     <input type="text" name="app_key" id="key" class="form-control app-key {{$errors->has('app_key') ? ' is-invalid' : ''}}" readonly>
@@ -34,8 +34,8 @@
                     </div>
                 </div>
                  <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                      {!! Form::label('name','App Secret',['class'=>'required']) !!}
-                    <div class="row">
+                     {!! html()->label(Lang::get('App Secret'))->for('name')->class('required') !!}
+                     <div class="row">
                      <div class="col-md-12">
                     <input type="text" name="app_secret" id="secret" class="form-control {{$errors->has('app_secret') ? ' is-invalid' : ''}}">
                          @error('app_secret')
@@ -51,7 +51,7 @@
                  <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
                 <button type="submit" class="btn btn-primary" id="submit" data-loading-text="<i class='fa fa-save'>&nbsp;</i> Saving..."><i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}</button>
             </div>
-            {!! Form::close() !!}
         </div>
     </div>
 </div>
+{!! html()->form()->close() !!}

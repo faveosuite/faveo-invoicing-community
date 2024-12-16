@@ -22,19 +22,19 @@ Edit Group
     <div class="col-md-12">
         <div class="card card-secondary card-outline">
 
-            {!! Form::model($group,['url'=>'groups/'.$group->id,'method'=>'patch','id'=>'groupForm']) !!}
+            {!! html()->modelForm($group, 'PATCH', url('groups/'.$group->id))->id('groupForm')->open() !!}
             <div class="card-body">
 
                 <table class="table table-condensed">
 
                     <tr>
-                        <td><b>{!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.name'), 'company')->class('required') !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
 
                                 <div class='row'>
                                     <div class="col-md-10">
-                                        {!! Form::text('name',null,['class' => 'form-control'.($errors->has('name') ? ' is-invalid' : '')]) !!}
+                                        {!! html()->text('name')->class('form-control'.($errors->has('name') ? ' is-invalid' : '')) !!}
                                         @error('name')
                                         <span class="error-message"> {{$message}}</span>
                                         @enderror
@@ -50,13 +50,13 @@ Edit Group
                     </tr>
                     <tr>
 
-                        <td><b>{!! Form::label('type',Lang::get('message.headline')) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.headline'), 'type') !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('headline') ? 'has-error' : '' }}">
 
                                 <div class='row'>
                                     <div class="col-md-10">
-                                        {!! Form::text('headline',null,['class' => 'form-control'.($errors->has('headline') ? ' is-invalid' : '')]) !!}
+                                        {!! html()->text('headline')->class('form-control'.($errors->has('headline') ? ' is-invalid' : '')) !!}
                                     </div>
 
                                 </div>
@@ -67,13 +67,13 @@ Edit Group
                     </tr>
                     <tr>
 
-                        <td><b>{!! Form::label('tagline',Lang::get('message.tagline')) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.tagline'), 'tagline') !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('tagline') ? 'has-error' : '' }}">
 
                                 <div class='row'>
                                     <div class="col-md-10">
-                                        {!! Form::text('tagline',null,['class' => 'form-control'.($errors->has('tagline') ? ' is-invalid' : '')]) !!}
+                                        {!! html()->text('tagline')->class('form-control'.($errors->has('tagline') ? ' is-invalid' : '')) !!}
                                         @error('tagline')
                                         <span class="error-message"> {{$message}}</span>
                                         @enderror
@@ -90,18 +90,18 @@ Edit Group
 
                     <tr>
 
-                        <td><b>{!! Form::label('hidden',Lang::get('message.hidden')) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.hidden'), 'hidden') !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('hidden') ? 'has-error' : '' }}">
 
-                                                {!! Form::hidden('hidden', 0) !!}
-                                                <?php 
+                                {!! html()->hidden('hidden', 0) !!}
+                                <?php
                                                 $value=  "";
                                                 if($group->hidden==1){
                                                  $value = 'true';   
                                                 }
                                                 ?>
-                                                <p>{!! Form::checkbox('hidden',1,$value) !!}  {{Lang::get('message.check-this-box-if-this-is-a-hidden-group')}}</p>
+                                                <p>{!! html()->checkbox('hidden', $value, 1) !!} {{Lang::get('message.check-this-box-if-this-is-a-hidden-group')}}</p>
 
                             </div>
                         </td>
@@ -111,12 +111,12 @@ Edit Group
 
                     <tr>
                           
-                        <td><b>{!! Form::label('design',Lang::get('message.select_design')) !!}</b></td>
+                        <td><b>{!! html()->label(__('message.select_design'), 'design') !!}</b></td>
                         <td>
 
                            <div class="form-group">
                             <div class="col-md-4">
-                             <img src='{{ asset("storage/images/$template->image")}}' alt="Porto theme" class="img-thumbnail">
+                             <img src='{{ asset("images/$template->image")}}' alt="Porto theme" class="img-thumbnail">
                              <br/>
                              @if($template->id == $selectedTemplate)
                              <input type="radio" id="template" name= 'pricing_templates_id' value="{{$template->id}}" checked style="text-align: center;">
@@ -137,18 +137,18 @@ Edit Group
                     </tr>
                            <tr>
 
-                        <td><b>{!! Form::label('status',Lang::get('message.toggle_status')) !!}</b></td>
+                        <td><b>{!! html()->label(__('message.toggle_status'), 'status') !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('status') ? 'has-error' : '' }}">
 
-                                                {!! Form::hidden('status', 0) !!}
-                                                <?php 
+                                {!! html()->hidden('status', 0) !!}
+                                <?php
                                                 $value=  "";
                                                 if($group->status==1){
                                                  $value = 'true';   
                                                 }
                                                 ?>
-                                                <p>{!! Form::checkbox('status',1,$value) !!}  {{Lang::get('message.check-this-box_to_toggle_status')}}</p>
+                                                <p>{!! html()->checkbox('status', $value ,1) !!} {{Lang::get('message.check-this-box_to_toggle_status')}}</p>
                             </div>
                         </td>
 
@@ -156,7 +156,7 @@ Edit Group
 
 
 
-                    {!! Form::close() !!}
+                    {!! html()->closeModelForm() !!}
                 </table>
 
                 <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.update')!!}</button>

@@ -21,7 +21,7 @@ class InvoiceControllerTest extends DBTestCase
         $this->classObject = new InvoiceController();
     }
 
-    /** @group invoice */
+    #[Group('invoice')]
     public function test_generateInvoice_generatesInvoiceAndInvoiceItem()
     {
         $this->getLoggedInUser();
@@ -44,7 +44,7 @@ class InvoiceControllerTest extends DBTestCase
         $this->assertDatabaseHas('invoices', ['id' => $invoice->id]);
     }
 
-    /** @group invoice */
+    #[Group('invoice')]
     public function test_createInvoiceItems_createsNewInvoiceItem()
     {
         $this->getLoggedInUser();
@@ -71,7 +71,7 @@ class InvoiceControllerTest extends DBTestCase
         }
     }
 
-    /** @group invoice */
+    #[Group('invoice')]
     public function test_invoiceGenerateByForm_createsNewInvoice()
     {
         $this->getLoggedInUser();
