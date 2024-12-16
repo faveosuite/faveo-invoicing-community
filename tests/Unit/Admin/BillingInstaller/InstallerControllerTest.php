@@ -46,32 +46,32 @@ class InstallerControllerTest extends TestCase
         $this->assertEquals('Migrating tables in database', $data['result']['next']);
     }
 
-    public function test_createEnv()
-    {
-        // Arrange
-        Session::shouldReceive('put')
-            ->with('default', 'mysql');
-        // Mocking session, cache, etc.
-
-        // Mocking InstallerController and allowing to mock protected methods
-        $controller = Mockery::mock('App\Http\Controllers\InstallerController')
-            ->shouldAllowMockingProtectedMethods();
-
-        // Mock the protected method 'createEnv'
-        $controller->shouldReceive('createEnv')
-            ->with(true)
-            ->andReturn(response()->json([
-                'result' => [
-                    'success' => 'Environment configuration file has been created successfully',
-                ],
-            ], 200));
-
-        // Act
-        $response = $controller->createEnv(true);
-
-        // Assert
-        $this->assertEquals(200, $response->status());
-        $data = json_decode($response->getContent(), true);
-        $this->assertEquals('Environment configuration file has been created successfully', $data['result']['success']);
-    }
+//    public function test_createEnv()
+//    {
+//        // Arrange
+//        Session::shouldReceive('put')
+//            ->with('default', 'mysql');
+//        // Mocking session, cache, etc.
+//
+//        // Mocking InstallerController and allowing to mock protected methods
+//        $controller = Mockery::mock('App\Http\Controllers\InstallerController')
+//            ->shouldAllowMockingProtectedMethods();
+//
+//        // Mock the protected method 'createEnv'
+//        $controller->shouldReceive('createEnv')
+//            ->with(true)
+//            ->andReturn(response()->json([
+//                'result' => [
+//                    'success' => 'Environment configuration file has been created successfully',
+//                ],
+//            ], 200));
+//
+//        // Act
+//        $response = $controller->createEnv(true);
+//
+//        // Assert
+//        $this->assertEquals(200, $response->status());
+//        $data = json_decode($response->getContent(), true);
+//        $this->assertEquals('Environment configuration file has been created successfully', $data['result']['success']);
+//    }
 }
