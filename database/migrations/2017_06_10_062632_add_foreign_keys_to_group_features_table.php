@@ -14,10 +14,25 @@ return new class extends Migration
     public function up()
     {
         Schema::table('group_features', function (Blueprint $table) {
-            $sm = Schema::getConnection()->getDoctrineSchemaManager();
-            $indexesFound = $sm->listTableIndexes('group_features');
-            if (! array_key_exists('group_features_group_id_foreign', $indexesFound)) {
-                $table->foreign('group_id')->references('id')->on('product_groups')->onUpdate('RESTRICT')->onDelete('RESTRICT');
+            // Get all indexes for the group_features table
+            $indexes = DB::select("SHOW INDEX FROM group_features");
+
+            // Check if the specific foreign key already exists
+            $foreignKeyExists = false;
+            foreach ($indexes as $index) {
+                if ($index->Key_name === 'group_features_group_id_foreign') {
+                    $foreignKeyExists = true;
+                    break;
+                }
+            }
+
+            // If the foreign key does not exist, add it
+            if (! $foreignKeyExists) {
+                $table->foreign('group_id')
+                    ->references('id')
+                    ->on('product_groups')
+                    ->onUpdate('RESTRICT')
+                    ->onDelete('RESTRICT');
             }
         });
     }

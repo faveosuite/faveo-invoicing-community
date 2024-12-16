@@ -13,13 +13,35 @@ return new class extends Migration
     public function up()
     {
         Schema::table('orders', function (Blueprint $table) {
-            $sm = Schema::getConnection()->getDoctrineSchemaManager();
-            $indexesFound = $sm->listTableIndexes('orders');
-            if (! array_key_exists('orders_client_foreign', $indexesFound)) {
-                $table->foreign('client')->references('id')->on('users')->onUpdate('RESTRICT')->onDelete('RESTRICT');
+            // Fetch all indexes for the orders table
+            $indexes = DB::select("SHOW INDEX FROM orders");
+
+            // Helper function to check if a specific index exists
+            $indexExists = function ($indexName) use ($indexes) {
+                foreach ($indexes as $index) {
+                    if ($index->Key_name === $indexName) {
+                        return true;
+                    }
+                }
+                return false;
+            };
+
+            // Check and add foreign key for client
+            if (! $indexExists('orders_client_foreign')) {
+                $table->foreign('client')
+                    ->references('id')
+                    ->on('users')
+                    ->onUpdate('RESTRICT')
+                    ->onDelete('RESTRICT');
             }
-            if (! array_key_exists('orders_product_foreign', $indexesFound)) {
-                $table->foreign('product')->references('id')->on('products')->onUpdate('RESTRICT')->onDelete('RESTRICT');
+
+            // Check and add foreign key for product
+            if (! $indexExists('orders_product_foreign')) {
+                $table->foreign('product')
+                    ->references('id')
+                    ->on('products')
+                    ->onUpdate('RESTRICT')
+                    ->onDelete('RESTRICT');
             }
         });
     }
