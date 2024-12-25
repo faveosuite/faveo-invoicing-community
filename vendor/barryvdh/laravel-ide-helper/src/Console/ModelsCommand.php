@@ -836,13 +836,15 @@ class ModelsCommand extends Command
         $fkProp = $reflectionObj->getProperty('foreignKey');
         $fkProp->setAccessible(true);
 
+        $enforceNullableRelation = $this->laravel['config']->get('ide-helper.enforce_nullable_relationships', true);
+
         foreach (Arr::wrap($fkProp->getValue($relationObj)) as $foreignKey) {
             if (isset($this->nullableColumns[$foreignKey])) {
                 return true;
             }
 
             if (!in_array($foreignKey, $this->foreignKeyConstraintsColumns, true)) {
-                return true;
+                return $enforceNullableRelation;
             }
         }
 
@@ -1299,10 +1301,11 @@ class ModelsCommand extends Command
      * Get method return type based on it DocBlock comment
      *
      * @param \ReflectionMethod $reflection
+     * @param ?\Reflector $reflectorForContext
      *
      * @return null|string
      */
-    protected function getReturnTypeFromDocBlock(\ReflectionMethod $reflection, \Reflector $reflectorForContext = null)
+    protected function getReturnTypeFromDocBlock(\ReflectionMethod $reflection, ?\Reflector $reflectorForContext = null)
     {
         $phpDocContext = (new ContextFactory())->createFromReflector($reflectorForContext ?? $reflection);
         $context = new Context(
