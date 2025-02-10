@@ -1,17 +1,17 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Create Invoice
+    {{ __('message.create_invoice') }}
 @stop
 @section('content-header')
     <div class="col-sm-6 md-6">
-        <h1>Generate An Invoice</h1>
+        <h1>{{ __('message.generate_an_invoice') }}</h1>
     </div>
     <div class="col-sm-6 md-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('clients')}}"> All Users</a></li>
-            <li class="breadcrumb-item"><a href="{{url('invoices')}}">View Invoices</a></li>
-            <li class="breadcrumb-item active">Generate Invoice</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('clients')}}"> {{ __('message.all-users') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('invoices')}}">{{ __('message.view_invoices') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.generate_invoice') }}</li>
         </ol>
     </div><!-- /.col -->
 
@@ -51,7 +51,7 @@ Create Invoice
 
                 <div class="col-sm-4 form-group">
                     {!! html()->label(Lang::get('message.clients'))->class('required') !!}
-                    {!! html()->select('user', [Lang::get('User') => $users])->multiple()->class("form-control select2". ($errors->has('user') ? ' is-invalid' : ''))->id('users')->attribute('name', 'user') !!}
+                    {!! html()->select('user', [Lang::get('message.user') => $users])->multiple()->class("form-control select2". ($errors->has('user') ? ' is-invalid' : ''))->id('users')->attribute('name', 'user') !!}
 
                     <span class="error-message" id="user-msg"></span>
                     <h6 id ="productusercheck"></h6>
@@ -79,7 +79,7 @@ Create Invoice
                 <div class="col-md-4 lg-4 form-group">
                     {!! html()->label(Lang::get('message.product'))->for('product')->class('required') !!}
                      <select name="product" value= "Choose" id="product" class="form-control {{$errors->has('product') ? ' is-invalid' : ''}}">
-                             <option value="">Choose</option>
+                             <option value="">{{ __('message.choose') }}</option>
                            @foreach($products as $key=>$product)
                               <option value={{$key}}>{{$product}}</option>
                           @endforeach
@@ -105,7 +105,7 @@ Create Invoice
                     @enderror
                 </div>
                 <div class="col-md-4 form-group">
-                    {!! html()->label('Coupon code')->for('code') !!}
+                    {!! html()->label(__('message.coupon-code'))->for('code') !!}
                     {!! html()->text('code')->class('form-control'. ($errors->has('code') ? ' is-invalid' : '')) !!}
                     <span class="error-message" id="code-msg"></span>
                 </div>
@@ -355,8 +355,8 @@ Create Invoice
             url: "{{url('get-subscription')}}" + '/' + val,
             success: function (data) {
                 if(data[0] == 'Product cannot be added to cart. No plan exists.') {
-                       var html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong>Whoops! </strong>Something went wrong<ul>';
-                    html += '<li>' + 'Add a plan for the product' + '</li>'
+                       var html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong>{{ __('message.whoops') }}! </strong>{{ __('message.something_wrong') }}<ul>';
+                    html += '<li> {!! json_encode(__('message.add_plan_product')) !!} </li>';
                     html += '</ul></div>';
                  $('#error').show();
                     setTimeout(function(){
@@ -444,7 +444,7 @@ Create Invoice
             }
         }
         data = data + '&plan=' + plan + '&subscription=' + subscription+'&description='+description;
-        $("#generate").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+        $("#generate").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
 
         $.ajax({
             type: "POST",
@@ -452,13 +452,13 @@ Create Invoice
             data: data,
             success: function (data) {
 
-                $("#generate").html("<i class='fas fa-sync-alt'>&nbsp;&nbsp;</i>Generate");
+                $("#generate").html("<i class='fas fa-sync-alt'>&nbsp;&nbsp;</i>{{ __('message.generate') }}");
                 // $('#formoid')[0].reset();             
                 if(data.success == true) {
                     $('#fails').hide();
                         $('#error').hide();
                         $('#successs').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong><i class="fa fa-check"></i>Success! </strong>'+data.message.success+'!</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong><i class="fa fa-check"></i>{{ __('message.success') }}! </strong>'+data.message.success+'!</div>';
                     $('#successs').html(result);
                     setTimeout(function(){
                         $("#successs").slideUp(1000);
@@ -473,12 +473,12 @@ Create Invoice
                 $('#datepicker').val('');
                 $('#datepicker').val(dateFormat);
 
-                $("#generate").html("<i class='fas fa-sync-alt'>&nbsp;&nbsp;</i>Generate");
+                $("#generate").html("<i class='fas fa-sync-alt'>&nbsp;&nbsp;</i>{{ __('message.generate') }}");
                 if(response.responseJSON.success == false) {
-                    var html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong>Whoops! </strong>Something went wrong<ul>';
+                    var html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong>{{ __('message.whoops') }}! </strong>{{ __('message.something_wrong') }}<ul>';
                     html += '<li>' + response.responseJSON.message[0] + '</li>'
                 } else {
-                    var html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong>Whoops! </strong>Something went wrong<br><br><ul>';
+                    var html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong>{{ __('message.whoops') }}! </strong>{{ __('message.something_wrong') }}<br><br><ul>';
                 for (var key in response.responseJSON.errors)
                 {
                     html += '<li>' + response.responseJSON.errors[key][0] + '</li>'
@@ -511,7 +511,7 @@ Create Invoice
     })
 
         $('#users').select2({
-        placeholder: "Search",
+        placeholder: "{{ __('message.search') }}",
         minimumInputLength: 1,
         maximumSelectionLength: 1,
         ajax: {

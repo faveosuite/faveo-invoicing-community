@@ -1,7 +1,7 @@
 @extends('log-viewer::bootstrap-3._master')
 
 @section('content')
-    <h1 class="page-header">Dashboard</h1>
+    <h1 class="page-header">{{ __('message.dashboard') }}</h1>
 
     <div class="row">
         <div class="col-md-3">

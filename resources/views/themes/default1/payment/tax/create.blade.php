@@ -3,7 +3,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">Create Tax</h4>
+                <h4 class="modal-title">{{ __('message.create_tax') }}</h4>
             </div>
             <div class="modal-body">
                 <!-- Form  -->
@@ -15,7 +15,7 @@
                     {!! html()->label(Lang::get('message.name'), 'name')->class('required') !!}
                     <!-- {!! html()->text('name')->class('form-control') !!} -->
                      <select name="name" class="form-control">
-                      <option>OTHERS</option>
+                      <option>{{ __('message.caps_others') }}</option>
                       <option> CGST + SGST</option>
                       <option>IGST</option>
                       <option>UTGST</option>
@@ -52,7 +52,7 @@
                     <!-- name -->
                     {!! html()->label(Lang::get('message.country'))->for('country') !!}
                     <?php $countries = \App\Model\Common\Country::pluck('country_name', 'country_code_char2')->toArray(); ?>
-                    {!! html()->select('country', ['' => 'Select a Country', 'Countries' => $countries])->class('form-control'. ($errors->has('country') ? ' is-invalid' : ''))->attribute('onChange', 'getState(this.value);') !!}
+                    {!! html()->select('country', ['' => __('message.select_a_country'), 'Countries' => $countries])->class('form-control'. ($errors->has('country') ? ' is-invalid' : ''))->attribute('onChange', 'getState(this.value);') !!}
 
                 </div>
                  <div class="form-group {{ $errors->has('state') ? 'has-error' : '' }}">
@@ -60,7 +60,7 @@
                      {!! html()->label(Lang::get('message.state'))->for('state') !!}
 
                     <select name="state"  class="form-control {{$errors->has('state') ? ' is-invalid' : ''}}" id="statess">
-                        <option name="state">Please Select Country</option>
+                        <option name="state">{{ __('message.error_select_country') }}</option>
                     </select>
 
                 </div>
@@ -75,7 +75,7 @@
 
             </div>
             <div class="modal-footer">
-                <button type="button" id="close" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                <button type="button" id="close" class="btn btn-default pull-left" data-dismiss="modal">{{ __('message.close') }}</button>
                 <input type="submit" class="btn btn-primary" value="{{Lang::get('message.save')}}">
             </div>
             {!! html()->form()->close() !!}

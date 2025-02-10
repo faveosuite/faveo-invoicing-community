@@ -119,14 +119,14 @@ class ExtendedOrderController extends Controller
             $updateInstallStatus = $cont->updateInstalledDomain($licenseCode, $order->product);
         }
 
-        return ['message' => 'success', 'update' => 'Licensed Domain Updated'];
+        return ['message' => 'success', 'update' => __('message.license_domain_updated')];
     }
 
     public function reissueLicense(Request $request)
     {
         $order = Order::findorFail($request->input('id'));
         if (\Auth::user()->role != 'admin' && $order->client != \Auth::user()->id) {
-            return errorResponse('Cannot reissue license. Invalid modification of data');
+            return errorResponse(__('message.reissue_license_invalid_modification_data'));
         }
         $order->domain = '';
         $licenseCode = $order->serial_key;
@@ -144,7 +144,7 @@ class ExtendedOrderController extends Controller
             $installationDetails = \DB::table('installation_details')->Where('order_id', $request->input('id'))->update(['last_active' => Carbon::now()]);
         }
 
-        return ['message' => 'success', 'update' => 'License Reissued'];
+        return ['message' => 'success', 'update' => __('message.license_reissued')];
     }
 
     public function getAllowedDomains($seperateDomains)

@@ -1,17 +1,17 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Edit Invoice
+    {{ __('message.edit-invoice') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1> Edit Invoice</h1>
+        <h1> {{ __('message.edit_invoice') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('clients')}}"> All Users</a></li>
-            <li class="breadcrumb-item"><a href="{{url('clients/'.$invoice->user_id)}}">View User</a></li>
-            <li class="breadcrumb-item active">Edit Invoice</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('clients')}}"> {{ __('message.all-users') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('clients/'.$invoice->user_id)}}">{{ __('message.view_user') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.edit_invoice') }}</li>
         </ol>
     </div><!-- /.col -->
 
@@ -24,7 +24,7 @@ Edit Invoice
     <div class="card-header">
         {!! html()->form('POST', url('invoice/edit/'.$invoiceid))->id('editInvoiceForm')->open() !!}
 
-        <h5>Invoice Number:#{{$invoice->number}}	</h5>
+        <h5>{{ __('message.invoice_number') }}:#{{$invoice->number}}	</h5>
 
     </div>
 
@@ -64,9 +64,9 @@ Edit Invoice
                          {!! html()->label(Lang::get('message.status'))->for('status') !!}
                          <select name="status"  class="form-control {{$errors->has('status') ? ' is-invalid' : ''}}" id="status">
                             <option selected="selected">{{$invoice->status}}</option>
-                             <option value="">Choose</option>
-                          <option value="success">Success</option>
-                        <option value="pending">Pending</option>
+                             <option value="">{{ __('message.choose') }}</option>
+                          <option value="success">{{ __('message.success') }}</option>
+                        <option value="pending">{{ __('message.pending') }}</option>
                          </select>
                          @error('status')
                          <span class="error-message"> {{$message}}</span>

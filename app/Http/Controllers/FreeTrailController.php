@@ -51,7 +51,7 @@ class FreeTrailController extends Controller
         $this->validate($request, [
             'domain' => 'required|regex:/^[a-zA-Z0-9]+$/u',
         ], [
-            'domain.regex' => 'Special characters are not allowed in domain name',
+            'domain.regex' => __('validation.special_characters_not_allowed'),
         ]);
         try {
             if (! Auth::check()) {
@@ -93,12 +93,12 @@ class FreeTrailController extends Controller
                 } catch (\Exception $ex) {
                     DB::rollback(); // Rollback the transaction
                     app('log')->error($ex->getMessage());
-                    throw new \Exception('Can not Generate Free-trial Cloud instance');
+                    throw new \Exception(__('message.cannot_generate_freetrial_cloud_instance'));
                 }
             }
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
-            throw new \Exception('Can not Generate Free-trial Cloud instance');
+            throw new \Exception(__('message.cannot_generate_freetrial_cloud_instance'));
         }
     }
 
@@ -124,7 +124,7 @@ class FreeTrailController extends Controller
             return $invoice;
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
-            throw new \Exception('Can not Generate Invoice');
+            throw new \Exception(__('message.cannot_generate_invoice'));
         }
     }
 
@@ -166,11 +166,11 @@ class FreeTrailController extends Controller
 
                 return $invoiceItem;
             } else {
-                throw new \Exception('Can not Find the Product');
+                throw new \Exception(__('message.cannot_find_product'));
             }
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
-            throw new \Exception('Can not Generate Invoice items');
+            throw new \Exception(__('message.cannot_generate_invoice_items'));
         }
     }
 
@@ -194,7 +194,7 @@ class FreeTrailController extends Controller
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
 
-            throw new \Exception('Can not Generate order');
+            throw new \Exception(__('message.cannot_generate_order'));
         }
     }
 
@@ -244,7 +244,7 @@ class FreeTrailController extends Controller
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
 
-            throw new \Exception('Can not Generate free trial order');
+            throw new \Exception(__('message.cannot_generate_free_trial_order'));
         }
     }
 
@@ -279,7 +279,7 @@ class FreeTrailController extends Controller
             return $licCode;
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
-            throw new \Exception('Can not Generate Free trail serialkey');
+            throw new \Exception(__('message.cannot_generate_free_trial_serialkey'));
         }
     }
 

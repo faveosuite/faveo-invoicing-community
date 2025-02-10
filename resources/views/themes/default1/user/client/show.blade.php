@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-User
+    {{ __('message.user') }}
 @stop
 @section('content-header')
 <style type="text/css">
@@ -41,13 +41,13 @@ User
 }
 </style>
     <div class="col-sm-6">
-        <h1>User Details</h1>
+        <h1>{{ __('message.user_details')}}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('clients')}}"> All Users</a></li>
-            <li class="breadcrumb-item active">View User</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('clients')}}"> {{ __('message.all-users') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.view_user') }}</li>
         </ol>
     </div><!-- /.col -->
 
@@ -82,7 +82,7 @@ User
                 <div class="col-sm-4 border-right">
                     <div class="description-block">
                         <h5 class="description-header">{{currency_format($invoiceSum,$code=$currency)}}</h5>
-                        <span class="description-text">INVOICE TOTAL</span>
+                        <span class="description-text">{{ __('message.caps_invoice_total') }}</span>
                     </div>
                     <!-- /.description-block -->
                 </div>
@@ -90,7 +90,7 @@ User
                 <div class="col-sm-4 border-right">
                     <div class="description-block">
                         <h5 class="description-header">{{currency_format($amountReceived,$code=$currency)}}</h5>
-                        <span class="description-text">PAID</span>
+                        <span class="description-text">{{ __('message.caps_paid') }}</span>
                     </div>
                     <!-- /.description-block -->
                 </div>
@@ -102,7 +102,7 @@ User
                          <div class="description-block">
                             @endif
                         <h5 class="description-header" >{{currency_format($pendingAmount,$code=$currency)}}</h5>
-                        <span class="description-text">BALANCE</span>
+                        <span class="description-text">{{ __('message.caps_balance') }}</span>
                     </div>
                     <!-- /.description-block -->
                 </div>
@@ -126,10 +126,10 @@ User
                 <h3 class="widget-user-username">
                     <a class="btn btn-sm btn-secondary" href="{{url('invoice/generate?clientid='.$client->id)}}"> <i class="fa fa-credit-card"></i> &nbsp;{{Lang::get('message.create-invoice')}}</a>
                     <a class="btn btn-sm btn-secondary" href="{{url('newPayment/receive?clientid='.$client->id)}}"> <i class="fa fa-bars"></i> &nbsp;{{Lang::get('message.create-payment')}}</a>
-                     <a class="btn btn-sm btn-secondary" href="{{url('clients/'.$client->id.'/edit')}}"> <i class="fas fa-edit"></i> Edit Details</a>
+                     <a class="btn btn-sm btn-secondary" href="{{url('clients/'.$client->id.'/edit')}}"> <i class="fas fa-edit"></i> {{ __('message.edit_details') }}</a>
                     @if($is2faEnabled)
                         <button id="disable2fa" value="{{$client->id}}" class="btn btn-sm btn-secondary"><i class="fa fa-ban"></i>&nbsp;
-                            Disable 2FA
+                            {{ __('message.disable_2fa') }}
                         </button>
 
                     @endif
@@ -140,7 +140,7 @@ User
             <div class="row">
                 <div class="col-md-2 col-lg-2 col-sm-2">
                     <div class="nav flex-column nav-tabs h-100" id="vert-tabs-tab myTab" role="tablist" aria-orientation="vertical">
-                        <a class="nav-link active" id="invoice" data-toggle="pill" href="#activity" role="tab"  aria-selected="true">Invoice Detail</a>
+                        <a class="nav-link active" id="invoice" data-toggle="pill" href="#activity" role="tab"  aria-selected="true">{{ __('message.invoice_detail') }}</a>
                         <a class="nav-link" id="customer_detail" data-toggle="pill" href="#settings" role="tab"  aria-selected="false">{{Lang::get('message.customer_detail')}}</a>
                         <a class="nav-link" id="payment" data-toggle="pill" href="#timeline" role="tab"  aria-selected="false">{{Lang::get('message.payment_detail')}}</a>
                         <a class="nav-link" id="orderdetail" data-toggle="pill" href="#order" role="tab" aria-controls="vert-tabs-settings" aria-selected="false">{{Lang::get('message.order_detail')}}</a>
@@ -159,17 +159,17 @@ User
                                 <i class="fa fa-spinner fa-spin"></i> 
                             </div>
                             <table id="invoice-table" class="table display" cellspacing="0" width="100%" styleClass="borderless">
-                                <button  value="" class="btn btn-secondary btn-sm btn-alldell" id="bulk_invoice_delete"><i class= "fa fa-trash"></i>&nbsp;&nbsp;Delete Selected</button><br /><br />
+                                <button  value="" class="btn btn-secondary btn-sm btn-alldell" id="bulk_invoice_delete"><i class= "fa fa-trash"></i>&nbsp;&nbsp;{{ __('message.delmultiple') }}</button><br /><br />
                                 <thead><tr>
                                     <th class="no-sort"><input type="checkbox" name="select_all" onchange="checkinginvoice(this)"></th>
-                                    <th style="width: 100px;">Date</th>
-                                    <th>Invoice No</th>
-                                    <th>Order No</th>
-                                    <th>Total</th>
-                                    <th>Paid</th>
-                                    <th>Balance</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
+                                    <th style="width: 100px;">{{ __('message.date') }}</th>
+                                    <th>{{ __('message.invoice_no') }}</th>
+                                    <th>{{ __('message.order_no') }}</th>
+                                    <th>{{ __('message.total') }}</th>
+                                    <th>{{ __('message.paid') }}</th>
+                                    <th>{{ __('message.balance') }}</th>
+                                    <th>{{ __('message.status') }}</th>
+                                    <th>{{ __('message.action') }}</th>
                                 </tr></thead>
                             </table>
                         </div>
@@ -216,7 +216,7 @@ User
                                     "url":  '{{url("get-client-invoice/".$id)}}',
                                        error: function(xhr) {
                                        if(xhr.status == 401) {
-                                        alert('Your session has expired. Please login again to continue.')
+                                        alert('{{ __('message.session_expired') }}')
                                         window.location.href = '/login';
                                        }
                                     }
@@ -228,8 +228,26 @@ User
                                     "oLanguage": {
                                         "sLengthMenu": "_MENU_ Records per page",
                                         "sSearch"    : "Search: ",
-                                        "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>'
+                                        "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
                                     },
+                                    language: {
+                                        paginate: {
+                                            first:      "{{ __('message.paginate_first') }}",
+                                            last:       "{{ __('message.paginate_last') }}",
+                                            next:       "{{ __('message.paginate_next') }}",
+                                            previous:   "{{ __('message.paginate_previous') }}"
+                                        },
+                                        emptyTable:     "{{ __('message.empty_table') }}",
+                                        info:           "{{ __('message.datatable_info') }}",
+                                        search:         "{{ __('message.datatable_search') }} ",
+                                        zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
+                                        infoEmpty:      "{{ __('message.info_empty') }}",
+                                        infoFiltered:   "{{ __('message.info_filtered') }}",
+                                        lengthMenu:     "{{ __('message.sLengthMenu') }}",
+                                        loadingRecords: "{{ __('message.loading_records') }}",
+                                        search:         "{{ __('message.table_search') }}",
+                                    },
+
                                     columnDefs: [
                                         {
                                             targets: 'no-sort',
@@ -368,60 +386,60 @@ User
                                     <div id="response"></div>
                                     <ul class="list-group list-group-unbordered mb-3">
                                         <li class="list-group-item">
-                                            <b>{{Lang::get('message.email')}}</b>: <span class="pull-right clientemail" style="float:right;"></span>
+                                            <b>{{Lang::get('message.email')}}</b>: <span class="pull-right clientemail" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};"></span>
                                         </li>
                                         <li class="list-group-item">
-                                            <b>{{Lang::get('message.company')}}</b>: <span class="pull-right clientcompanyname" style="float:right;"></span>
+                                            <b>{{Lang::get('message.company')}}</b>: <span class="pull-right clientcompanyname" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};"></span>
                                         </li>
                                         <li class="list-group-item">
-                                            <b>User Name</b>: <span class="pull-right clientuser_name" style="float:right;"></span>
-                                        </li>
-
-
-
-                                        <li class="list-group-item">
-                                            <b>Business</b>: <span class="pull-right clientbusiness" style="float:right;"></span>
-                                        </li>
-                                        <li class="list-group-item">
-                                            <b>{{Lang::get('message.mobile')}}</b>: <span class="clientmobile" style="float:right;">  @if($client->mobile_code)<b>+</b>{{$client->mobile_code}}@endif&nbsp;{{$client->mobile}}</span>
-                                        </li>
-                                        <li class="list-group-item">
-                                            <b>{{Lang::get('message.address')}}</b>: <span class="pull-right clientaddress" style="float:right;"></span>
+                                            <b>{{ __('message.user_name') }}</b>: <span class="pull-right clientuser_name" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};"></span>
                                         </li>
 
+
+
                                         <li class="list-group-item">
-                                            <b>{{Lang::get('message.town')}}</b>: <span class="pull-right clienttown" style="float:right;"></span>
+                                            <b>{{ __('message.business') }}</b>: <span class="pull-right clientbusiness" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};"></span>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <b>{{Lang::get('message.mobile')}}</b>: <span class="clientmobile" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};">  @if($client->mobile_code)<b>+</b>{{$client->mobile_code}}@endif&nbsp;{{$client->mobile}}</span>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <b>{{Lang::get('message.address')}}</b>: <span class="pull-right clientaddress" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};"></span>
                                         </li>
 
                                         <li class="list-group-item">
-                                            <b>{{Lang::get('message.state')}}</b>: <span class="pull-right clientstate" style="float:right;"></span>
+                                            <b>{{Lang::get('message.town')}}</b>: <span class="pull-right clienttown" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};"></span>
                                         </li>
 
                                         <li class="list-group-item">
-                                            <b>{{Lang::get('message.country')}}</b>: <span class="pull-right clientcountry" style="float:right;"></span>
+                                            <b>{{Lang::get('message.state')}}</b>: <span class="pull-right clientstate" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};"></span>
                                         </li>
 
                                         <li class="list-group-item">
-                                            <b>{{Lang::get('message.zip')}}</b>: <span class="pull-right clientzip" style="float:right;"></span>
+                                            <b>{{Lang::get('message.country')}}</b>: <span class="pull-right clientcountry" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};"></span>
                                         </li>
 
                                         <li class="list-group-item">
-                                            <b>{{Lang::get('message.role')}}</b>: <span class="pull-right clientrole" style="float:right;"></span>
-                                        </li>
-                                        <li class="list-group-item">
-                                            <b>Company Type</b>: <span class="pull-right clientcompany" style="float:right;"></span>
+                                            <b>{{Lang::get('message.zip')}}</b>: <span class="pull-right clientzip" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};"></span>
                                         </li>
 
                                         <li class="list-group-item">
-                                            <b>Company Size</b>: <span class="pull-right clientcomsize" style="float:right;"></span>
+                                            <b>{{Lang::get('message.role')}}</b>: <span class="pull-right clientrole" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};"></span>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <b>{{ __('message.company_type') }}</b>: <span class="pull-right clientcompany" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};"></span>
                                         </li>
 
                                         <li class="list-group-item">
-                                            <b>IP</b>: <span class="pull-right clientip" style="float:right;"></span>
+                                            <b>{{ __('message.company_size') }}</b>: <span class="pull-right clientcomsize" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};"></span>
+                                        </li>
+
+                                        <li class="list-group-item">
+                                            <b>IP</b>: <span class="pull-right clientip" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};"></span>
                                         </li>
                                         @if($client && $client->skype)
                                         <li class="list-group-item">
-                                            <b>Skype</b>: <span class="pull-right clientskype" style="float:right;"></span>
+                                            <b>{{ __('message.skype') }}</b>: <span class="pull-right clientskype" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};"></span>
                                         </li>
                                         @endif
 
@@ -429,24 +447,24 @@ User
                                         <?php $actManager = $client->accountManager()->select('id', 'first_name', 'last_name')->first(); ?>
                                         @if($client && $manager)
                                             <li class="list-group-item">
-                                                <b>Sales Manager</b>: <span class="pull-right clientmanager" style="float:right;"><a href="{{url('clients/'.$manager->id)}}">{{$manager->first_name}} {{$manager->last_name}}</a></span>
+                                                <b>{{ __('message.sales_manager') }}</b>: <span class="pull-right clientmanager" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};"><a href="{{url('clients/'.$manager->id)}}">{{$manager->first_name}} {{$manager->last_name}}</a></span>
                                             </li>
                                         @endif
                                         @if($client && $actManager)
                                         <li class="list-group-item">
-                                                <b>Account Manager</b>: <span class="pull-right actmanager" style="float:right;"><a href="{{url('clients/'.$actManager->id)}}">{{$actManager->first_name}} {{$actManager->last_name}}</a></span>
+                                                <b>{{ __('message.account_manager') }}</b>: <span class="pull-right actmanager" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};"><a href="{{url('clients/'.$actManager->id)}}">{{$actManager->first_name}} {{$actManager->last_name}}</a></span>
                                             </li>
                                         @endif
                                         <li class="list-group-item">
-                                            <b>Referrer</b>: <span class="pull-right referrer" style="float:right;"></span>
+                                            <b>{{ __('message.referrer') }}</b>: <span class="pull-right referrer" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};"></span>
                                         </li>
                                         <li class="list-group-item">
-                                         <b>{{Lang::get('message.mail_verify')}}</b>: 
-                                        <span class="pull-right mailVerify" style="float:right;">{{ $email }}</span>
+                                         <b>{{Lang::get('message.mail_verify')}}</b>:
+                                        <span class="pull-right mailVerify" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};">{{ $email }}</span>
                                     </li>
                                     <li class="list-group-item">
-                                          <b>{{Lang::get('message.mobile_verify')}}</b>: 
-                                        <span class="pull-right mobileVerify" style="float:right;">{{$mobile}}</span>
+                                          <b>{{Lang::get('message.mobile_verify')}}</b>:
+                                        <span class="pull-right mobileVerify" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};">{{$mobile}}</span>
                                     </li>
 
 
@@ -460,15 +478,15 @@ User
                             <!---------------------- Payment Detail tab---------------------------------------->
                         <div class="tab-pane fade" id="timeline" role="tabpanel" aria-labelledby="vert-tabs-messages-tab">
                             <table id="payment-table" class="table display" cellspacing="0" width="100%" styleClass="borderless">
-                                <button  value="" class="btn btn-secondary btn-sm btn-alldell" id="bulk_payment_delete"><i class= "fa fa-trash"></i>&nbsp;&nbsp;Delete Selected</button><br /><br />
+                                <button  value="" class="btn btn-secondary btn-sm btn-alldell" id="bulk_payment_delete"><i class= "fa fa-trash"></i>&nbsp;&nbsp;{{ __('message.delmultiple') }}</button><br /><br />
                                 <thead><tr>
                                     <th class="no-sort"><input type="checkbox" name="select_all" onchange="checkingpayment(this)"></th>
-                                    <th>Invoice No</th>
-                                    <th>Date</th>
-                                    <th>Payment Method</th>
-                                    <th>Total</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
+                                    <th>{{ __('message.invoice_no') }}</th>
+                                    <th>{{ __('message.date') }}</th>
+                                    <th>{{ __('message.payment-method') }}</th>
+                                    <th>{{ __('message.total') }}</th>
+                                    <th>{{ __('message.status') }}</th>
+                                    <th>{{ __('message.action') }}</th>
                                 </tr></thead>
                             </table>
                         </div>
@@ -490,7 +508,7 @@ User
                                     "url":  '{{url("getPaymentDetail/".$client->id)}}',
                                        error: function(xhr) {
                                        if(xhr.status == 401) {
-                                        alert('Your session has expired. Please login again to continue.')
+                                        alert('{{ __('message.session_expired') }}')
                                         window.location.href = '/login';
                                        }
                                     }
@@ -501,9 +519,27 @@ User
                                     "oLanguage": {
                                         "sLengthMenu": "_MENU_ Records per page",
                                         "sSearch"    : "Search: ",
-                                        "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>'
+                                        "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
                                     },
-                                     columnDefs: [
+                                    language: {
+                                        paginate: {
+                                            first:      "{{ __('message.paginate_first') }}",
+                                            last:       "{{ __('message.paginate_last') }}",
+                                            next:       "{{ __('message.paginate_next') }}",
+                                            previous:   "{{ __('message.paginate_previous') }}"
+                                        },
+                                        emptyTable:     "{{ __('message.empty_table') }}",
+                                        info:           "{{ __('message.datatable_info') }}",
+                                        search:         "{{ __('message.datatable_search') }} ",
+                                        zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
+                                        infoEmpty:      "{{ __('message.info_empty') }}",
+                                        infoFiltered:   "{{ __('message.info_filtered') }}",
+                                        lengthMenu:     "{{ __('message.sLengthMenu') }}",
+                                        loadingRecords: "{{ __('message.loading_records') }}",
+                                        search:         "{{ __('message.table_search') }}",
+                                    },
+
+                                    columnDefs: [
                                     {
                                         targets: 'no-sort',
                                         orderable: false,
@@ -627,16 +663,16 @@ User
 
                         <div class="tab-pane fade" id="order" role="tabpanel" aria-labelledby="vert-tabs-settings-tab">
                             <table id="orderdetail-table" class="table display" cellspacing="0" width="100%" styleClass="borderless">
-                                <button  value="" class="btn btn-secondary btn-sm btn-alldell" id="bulk_order_delete"><i class= "fa fa-trash"></i>&nbsp;&nbsp;Delete Selected</button><br /><br />
+                                <button  value="" class="btn btn-secondary btn-sm btn-alldell" id="bulk_order_delete"><i class= "fa fa-trash"></i>&nbsp;&nbsp;{{ __('message.delmultiple') }}</button><br /><br />
                                 <thead><tr>
                                     <th class="no-sort"><input type="checkbox" name="select_all" onchange="checkingorder(this)"></th>
-                                    <th>Order Date</th>
-                                    <th>Product</th>
-                                    <th>Order No</th>
-                                    <th>Version</th>
-                                    <th>Expiry</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
+                                    <th>{{ __('message.order_date') }}</th>
+                                    <th>{{ __('message.product') }}</th>
+                                    <th>{{ __('message.order_no') }}</th>
+                                    <th>{{ __('message.version') }}</th>
+                                    <th>{{ __('message.expiry') }}</th>
+                                    <th>{{ __('message.status') }}</th>
+                                    <th>{{ __('message.action') }}</th>
                                 </tr></thead>
                             </table>
 
@@ -658,7 +694,7 @@ User
                                         "url":  '{{url("getOrderDetail/".$client->id)}}',
                                            error: function(xhr) {
                                            if(xhr.status == 401) {
-                                            alert('Your session has expired. Please login again to continue.')
+                                            alert('{{ __('message.session_expired') }}')
                                             window.location.href = '/login';
                                            }
                                         }
@@ -668,9 +704,27 @@ User
                                         "oLanguage": {
                                             "sLengthMenu": "_MENU_ Records per page",
                                             "sSearch"    : "Search: ",
-                                            "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>'
+                                            "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
                                         },
-                                         columnDefs: [
+                                        language: {
+                                            paginate: {
+                                                first:      "{{ __('message.paginate_first') }}",
+                                                last:       "{{ __('message.paginate_last') }}",
+                                                next:       "{{ __('message.paginate_next') }}",
+                                                previous:   "{{ __('message.paginate_previous') }}"
+                                            },
+                                            emptyTable:     "{{ __('message.empty_table') }}",
+                                            info:           "{{ __('message.datatable_info') }}",
+                                            search:         "{{ __('message.datatable_search') }} ",
+                                            zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
+                                            infoEmpty:      "{{ __('message.info_empty') }}",
+                                            infoFiltered:   "{{ __('message.info_filtered') }}",
+                                            lengthMenu:     "{{ __('message.sLengthMenu') }}",
+                                            loadingRecords: "{{ __('message.loading_records') }}",
+                                            search:         "{{ __('message.table_search') }}",
+                                        },
+
+                                        columnDefs: [
                                         {
                                             targets: 'no-sort',
                                             orderable: false,
@@ -816,7 +870,7 @@ User
 
                                             <div class="timeline-item">
                                                    @include('themes.default1.user.client.editComment')
-                                                <h3 class="timeline-header"><a href="{{url('clients/'.$user->id)}}"><img src="{{ $user->profile_pic }}" class="img-circle img-bordered-sm" alt="User Image" width="35" height="35">&nbsp;{{$user->first_name}} {{$user->last_name}}</a> commented on
+                                                <h3 class="timeline-header"><a href="{{url('clients/'.$user->id)}}"><img src="{{ $user->profile_pic }}" class="img-circle img-bordered-sm" alt="User Image" width="35" height="35">&nbsp;{{$user->first_name}} {{$user->last_name}}</a> {{ __('message.commented_on') }}
                                                     <b> {!! getDateHtml($comment->created_at) !!}</b>
                                                 </h3>
 
@@ -825,9 +879,9 @@ User
 
                                                         @if(strlen($comment->description) > 100)
                                                             {{substr($comment->description,0,100)}}
-                                                            <span class="read-more-show hide_content">More&nbsp;<i class="fa fa-angle-down"></i></span>
+                                                            <span class="read-more-show hide_content">{{ __('message.more') }}&nbsp;<i class="fa fa-angle-down"></i></span>
                                                             <span class="read-more-content"> {{substr($comment->description,100,strlen($comment->description))}}
-                                <span class="read-more-hide hide_content">Less <i class="fa fa-angle-up"></i></span> </span>
+                                <span class="read-more-hide hide_content">{{ __('message.less') }} <i class="fa fa-angle-up"></i></span> </span>
                                                     @else
                                                         {{$comment->description}}
                                                     @endif
@@ -840,9 +894,9 @@ User
                                                     </div>
                                                     <div id="response"></div>
                                                     <div class="timeline-footer">
-                                                        <button type="submit" class="btn btn-secondary btn-sm btn-xs edit-comment"data-description="{{$comment->description}}" data-comment-id="{{$comment->id}}" data-user_id="{{$comment->user_id}}" data-admin_id="{{$comment->updated_by_user_id}}"><i class='fa fa-edit' style='color:white;'{!! tooltip('Edit') !!} </i></button>
+                                                        <button type="submit" class="btn btn-secondary btn-sm btn-xs edit-comment"data-description="{{$comment->description}}" data-comment-id="{{$comment->id}}" data-user_id="{{$comment->user_id}}" data-admin_id="{{$comment->updated_by_user_id}}"><i class='fa fa-edit' style='color:white;'{!! tooltip( __('message.edit')) !!} </i></button>
 
-                                                        <button type="submit" class="btn btn-danger btn-sm btn-xs deleteComment" data-comment-id="{{$comment->id}}"> <i class='fa fa-trash' style='color:white;' {!! tooltip('Delete') !!} </i></button>
+                                                        <button type="submit" class="btn btn-danger btn-sm btn-xs deleteComment" data-comment-id="{{$comment->id}}"> <i class='fa fa-trash' style='color:white;' {!! tooltip( __('message.delete')) !!} </i></button>
 
                                                     </div>
                                                 </div>
@@ -908,13 +962,13 @@ User
         <div class='modal-content'>
             <div class='modal-header'>
                 <button type='button' class='close' data-dismiss='modal' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
-                <h4 class='modal-title'>Invoice</h4>
+                <h4 class='modal-title'>{{ __('message.invoice') }}</h4>
             </div>
             <div class='modal-body'>
-                body
+                {{ __('message.body') }}
             </div>
             <div class='modal-footer'>
-                <button type=button id=close class='btn btn-default pull-left' data-dismiss=modal>Close</button>
+                <button type=button id=close class='btn btn-default pull-left' data-dismiss=modal>{{ __('message.close') }}</button>
                 <input type=submit class='btn btn-primary' value=Save>
             </div>
         </div>
@@ -924,19 +978,19 @@ User
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h4 class="modal-title">Turn off Two-Factor-Authentication</h4>
+              <h4 class="modal-title">{{ __('message.two_factor_authentication') }}</h4>
              
             </div>
             
             <div class="modal-body">
                <div id="alertMessage"></div>
-              
-                  Turning off 2-Step Verification will remove the extra security on your account, and you’ll only use your password to sign in.
+
+                {{ __('message.two_factor_verification') }}
            
             </div>
             <div class="modal-footer">
-              <button class="btn btn-danger pull-right float-right" id="turnoff2fa"><i class="fa fa-power-off"></i> TURN OFF</button>
-              <button type="button" class="btn btn-default pull-left closeandrefresh" data-dismiss="modal"><i class="fa fa-times">&nbsp;&nbsp;</i>Close</button>
+              <button class="btn btn-danger pull-right float-right" id="turnoff2fa"><i class="fa fa-power-off"></i> {{ __('message.caps_turn_off') }}</button>
+              <button type="button" class="btn btn-default pull-left closeandrefresh" data-dismiss="modal"><i class="fa fa-times">&nbsp;&nbsp;</i>{{ __('message.close') }}</button>
             </div>
           </div>
           <!-- /.modal-content -->
@@ -968,7 +1022,7 @@ User
     })
     $('#turnoff2fa').on('click',function(){
                 $("#turnoff2fa").attr('disabled',true);
-                $("#turnoff2fa").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait..");
+                $("#turnoff2fa").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
                 var user = $('#disable2fa').val();
                 $.ajax({
 
@@ -979,7 +1033,7 @@ User
                     },
                     success: function(response){
                         $("#turnoff2fa").attr('disabled',false);
-                        $("#turnoff2fa").html("<i class='fa fa-power-off'></i>TURNED OFF");
+                        $("#turnoff2fa").html("<i class='fa fa-power-off'></i>{{ __('message.caps_turned_off') }}");
                          var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong></strong>'+response.message+'.</div>';
                             $('#alertMessage').html(result+ ".");
                             setTimeout(function(){
@@ -1017,14 +1071,14 @@ User
                         data: {'data-comment-id':id},
                         success: function (data) {
                             $('#response').show();
-                            var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>Success! </strong>'+data.message+'!</div>';
+                            var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>{{ __('message.success') }}! </strong>'+data.message+'!</div>';
                             document.getElementById('response').innerHTML = result;
                             setTimeout(function(){
                                 location.reload();
                             },2000);
                         },error: function(data) {
                             $('#response').show();
-                            var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>Whoops! </strong>'+data.message+'!</div>';
+                            var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>{{ __('message.whoops') }} </strong>'+data.message+'!</div>';
                             document.getElementById('response').innerHTML = result;
                             location.reload();
                         }
@@ -1085,10 +1139,10 @@ User
                 url: "{{route('change-invoiceTotal')}}",
                 data: {'total':data,'number':number},
                 success: function () {
-                    alert('Invoice Total Updated');
+                    alert('{{ __('message.invoice_total_updated') }}');
                 },
                 error: function () {
-                    alert('Invalid URL');
+                    alert('{{ __('message.invalid_url') }}');
                 }
 
         });
@@ -1104,10 +1158,10 @@ User
                 url: "{{route('change-paymentTotal')}}",
                 data: {'total':data,'id':id},
                 success: function () {
-                    alert('Payment Total Updated');
+                    alert('{{ __('message.payment_total_updated') }}');
                 },
                 error: function () {
-                    alert('Invalid URL');
+                    alert('{{ __('message.invalid_url') }}');
                 }
 
         });

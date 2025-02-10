@@ -27,4 +27,12 @@ class LocalizedLicenseRequest extends FormRequest
             'domain' => 'required|url',
         ];
     }
+
+    public function messages()
+    {
+        return [
+            'domain.required' => __('validation.domain_form.domain.required'),
+            'domain.url' => __('validation.domain_form.domain.url'),
+        ];
+    }
 }

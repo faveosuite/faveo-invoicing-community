@@ -1,16 +1,16 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-    Create Product
+    {{ __('message.create_product') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Create New Product</h1>
+        <h1>{{ __('message.create_new_product') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('products')}}"><i class="fa fa-dashboard"></i>Products</a></li>
-            <li class="breadcrumb-item active">Create New Product</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('products')}}"><i class="fa fa-dashboard"></i>{{ __('message.products') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.create_new_product') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -51,10 +51,10 @@
         <div class="card-header p-0 pt-1">
             <ul class="nav nav-tabs" id="custom-tabs-one-tab" role="tablist">
                 <li class="nav-item">
-                    <a class="nav-link active" id="custom-tabs-detail-tab" data-toggle="pill" href="#custom-tabs-detail" role="tab" aria-controls="custom-tabs-detail" aria-selected="true">Details</a>
+                    <a class="nav-link active" id="custom-tabs-detail-tab" data-toggle="pill" href="#custom-tabs-detail" role="tab" aria-controls="custom-tabs-detail" aria-selected="true">{{ __('message.details') }}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="custom-tabs-plan-tab" data-toggle="pill" href="#custom-tabs-plan" role="tab" aria-controls="custom-tabs-plan" aria-selected="false">Tax</a>
+                    <a class="nav-link" id="custom-tabs-plan-tab" data-toggle="pill" href="#custom-tabs-plan" role="tab" aria-controls="custom-tabs-plan" aria-selected="false">{{ __('message.tax') }}</a>
                 </li>
             </ul>
 
@@ -84,7 +84,7 @@
                         <div class="col-md-4 form-group {{ $errors->has('type') ? 'has-error' : '' }}">
                             <!-- last name -->
                             {!! html()->label(Lang::get('message.lic_type'), 'type')->class('required') !!}
-                            {!! html()->select('type', ['' => 'Choose', 'Types' => $type])->class('form-control'.($errors->has('type') ? ' is-invalid' : ''))->id('type') !!}
+                            {!! html()->select('type', ['' => __('message.choose'), 'Types' => $type])->class('form-control'.($errors->has('type') ? ' is-invalid' : ''))->id('type') !!}
                             <div class="input-group-append"></div>
                             @error('type')
                             <span class="error-message"> {{$message}}</span>
@@ -96,7 +96,7 @@
                             <!-- last name -->
                             {!! html()->label(Lang::get('message.group'), 'group')->class('required') !!}
                             <select name="group" value= "Choose" class="form-control {{$errors->has('group') ? ' is-invalid' : ''}}" id="groups">
-                                <option value="">Choose</option>
+                                <option value="">{{ __('message.choose') }}</option>
                                 @foreach($group as $key=>$value)
                                     @if (Request::old('group') == $key)
                                         <option value={{$key}} selected>{{$value}}</option>
@@ -177,7 +177,7 @@
                                     <div class="form-group {{ $errors->has('parent') ? 'has-error' : '' }}">
                                         <!-- last name -->
                                         {!! html()->label(trans('message.parent'), 'parent') !!}
-                                        {!! html()->select('parent[]', ['' => 'Choose', 'Products' => $products])->class('form-control'.($errors->has('parent[]') ? ' is-invalid' : '')) !!}
+                                        {!! html()->select('parent[]', ['' => __('message.choose'), 'Products' => $products])->class('form-control'.($errors->has('parent[]') ? ' is-invalid' : '')) !!}
 
                                     </div>
                                 </li>
@@ -219,7 +219,7 @@
                                     <div class="form-group {{ $errors->has('hidden') ? 'has-error' : '' }}">
                                         <!-- first name -->
                                         <!--  <button type="button" class="" data-toggle="tooltip" data-placement="top" title="Tooltip on top"></button> -->
-                                        <label data-toggle="tooltip" data-placement="top" title="">Hidden</label>
+                                        <label data-toggle="tooltip" data-placement="top" title="">{{ __('message.hidden') }}</label>
 
                                         <p>{!! html()->checkbox('hidden', false ,1) !!}  {{Lang::get('message.tick-to-hide-from-order-form')}}</p>
 
@@ -229,7 +229,7 @@
                                     <div class="form-group {{ $errors->has('highlight') ? 'has-error' : '' }}">
                                         <!-- first name -->
                                         <!--  <button type="button" class="" data-toggle="tooltip" data-placement="top" title="Tooltip on top"></button> -->
-                                        <label data-toggle="tooltip" data-placement="top" title="">Highlight</label>
+                                        <label data-toggle="tooltip" data-placement="top" title="">{{ __('message.highlight') }}</label>
 
                                         <p>{!! html()->checkbox('highlight', false) !!}  {{Lang::get('message.tick-to-highlight-product')}}</p>
 
@@ -239,7 +239,7 @@
                                     <div class="form-group {{ $errors->has('add_to_contact') ? 'has-error' : '' }}">
                                         <!-- first name -->
                                         <!--  <button type="button" class="" data-toggle="tooltip" data-placement="top" title="Tooltip on top"></button> -->
-                                        <label data-toggle="tooltip" data-placement="top" title="">Contact to sales</label>
+                                        <label data-toggle="tooltip" data-placement="top" title="">{{ __('message.contact_to_sales') }}</label>
 
                                         <p>{!! html()->checkbox('add_to_contact', false) !!}  {{Lang::get('message.tick-to-add_to_contact-product')}}</p>
 
@@ -308,7 +308,7 @@
                 <div class="tab-pane fade" id="custom-tabs-plan" role="tabpanel"  aria-labelledby="custom-tabs-plan-tab">
 
                     <table class="table">
-                        <span class='required'>Show on Cart Page</span>
+                        <span class='required'>{{ __('message.show_cart_page') }}</span>
                         <tr>
                             <div class="row">
                                 <td>
@@ -318,7 +318,7 @@
                                             <!-- <input type ="radio" id="agent" value="1" name="cartquantity">   -->
                                             {!! html()->hidden('can_modify_agent', 0) !!}
                                             <!-- <input type ="radio" id="agent" value="0" name="cartquantity" hidden>   -->
-                                            Agents
+                                            {{ __('message.agents') }}
                                         </label>
                                     </div>
                                     <br/>
@@ -336,7 +336,7 @@
                                     {!! html()->radio('show_agent', 0)->id('quantity') !!}
                                     <!-- <input type="radio" id="quantity" value="0" name="cartquantity"> -->
                                     {!! html()->hidden('can_modify_quantity', 0) !!}
-                                    Product Quantity
+                                    {{ __('message.product_quantity') }}
                                 </label>
                                 <br/>
                                 <div class="col-md-10" id="allowmulproduct" style="display:none">
@@ -356,7 +356,7 @@
                                 <div class="row">
                                     <div class="col-md-2" >
 
-                                        <select id="Tax" placeholder="Select Taxes" name="tax[]" style="width:500px;" class="select2 " multiple="multiple">
+                                        <select id="Tax" placeholder="{{ __('message.select_taxes') }}" name="tax[]" style="width:500px;" class="select2 " multiple="multiple">
                                             <option></option>
                                             @foreach($taxes as $key => $value)
                                                 <option value={{$key}}>{{$value}}</option>
@@ -378,7 +378,7 @@
                     {!! html()->closeModelForm() !!}
 
                 </div>
-                <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button>
+                <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> {{ __('message.saving') }}"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button>
             </div>
         </div>
     </div>
@@ -493,10 +493,12 @@
 
                     if(isValid && !document.querySelector('input[name="show_agent"]:checked')){
                         Swal.fire({
-                            title: 'Incomplete Tax Details',
-                            text: 'Mandatory fields missing in Tax screen.',
+                            title: '{{ __('message.incomplete_tax_details') }}',
+                            text: '{{ __('message.mandatory_fields_missing') }}',
                             icon: 'info',
-                            confirmButtonColor: '#286090'
+                            confirmButtonColor: '#286090',
+                            confirmButtonText: '{{ __('message.ok') }}',
+                            cancelButtonText: '{{ __('message.cancel') }}',
                         });
                         //alert('Please check the tax page as well.')
 
@@ -509,7 +511,7 @@
 
                     if(!document.querySelector('input[name="show_agent"]:checked')){
                         $('#error-message').css({"color": "#dc3545", "margin-top": "5px", "font-size": "80%"});
-                        document.getElementById("error-message").textContent = "Please enter type of cart page";
+                        document.getElementById("error-message").textContent = "{{ __('message.enter_type_cart') }}";
                         isValid=false;
                     }
 
@@ -541,7 +543,7 @@
 
             $(document).ready(function() {
                 $("#Tax").select2({
-                    placeholder: 'Select Taxes',
+                    placeholder: '{{ __('message.select_taxes') }}',
                     tags:true
                 });
             });

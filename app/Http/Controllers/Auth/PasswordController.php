@@ -72,6 +72,10 @@ class PasswordController extends Controller
             'token' => 'required',
             //'email' => 'required|email',
             'password' => 'required|confirmed',
+        ], [
+            'token.required' => __('validation.token_validation.token_required'),
+            'password.required' => __('validation.token_validation.password_required'),
+            'password.confirmed' => __('validation.token_validation.password_confirmed'),
         ]);
         $token = $request->input('token');
         $pass = $request->input('password');
@@ -84,18 +88,20 @@ class PasswordController extends Controller
                 $user->password = \Hash::make($pass);
                 $user->save();
 
-                return redirect('auth/login')->with('success', 'You have successfully changed your password');
+                return redirect('auth/login')->with('success', __('message.password_changed_successfully'));
             } else {
                 return redirect()->back()
-                                ->withInput($request->only('email'))
-                                ->withErrors([
-                                    'email' => 'Invalid email', ]);
+                    ->withInput($request->only('email'))
+                    ->withErrors([
+                        'email' => __('message.invalid_email'),
+                    ]);
             }
         } else {
             return redirect()->back()
-                            ->withInput($request->only('email'))
-                            ->withErrors([
-                                'email' => 'Invalid email', ]);
+                ->withInput($request->only('email'))
+                ->withErrors([
+                    'email' => __('message.invalid_email'),
+                ]);
         }
     }
 
@@ -107,7 +113,12 @@ class PasswordController extends Controller
      */
     public function sendResetLinkEmail(Request $request)
     {
-        $this->validate($request, ['email' => 'required|email|exists:users,email']);
+        $this->validate($request, ['email' => 'required|email|exists:users,email'],
+            [
+                'email.required' => __('validation.custom_email.required'),
+                'email.email' => __('validation.custom_email.email'),
+                'email.exists' => __('validation.custom_email.exists'),
+            ]);
         $email = $request->input('email');
         $token = str_random(40);
         $password = new \App\Model\User\Password();
@@ -122,7 +133,7 @@ class PasswordController extends Controller
         $user = new \App\User();
         $user = $user->where('email', $email)->first();
         if (! $user) {
-            return redirect()->back()->with('fails', 'Invalid Email');
+            return redirect()->back()->with('fails', __('message.invalid_email'));
         }
         //check in the settings
         $settings = new \App\Model\Common\Setting();
@@ -147,7 +158,6 @@ class PasswordController extends Controller
             $mail->sendEmail($from, $to, $data, $subject, $replace, $type);
         }
 
-        return redirect()->back()->with('success', "Reset instructions have been mailed to $to
-Be sure to check your Junk folder if you do not see an email from us in your Inbox within a few minutes.");
+        return redirect()->back()->with('success', __('message.resets_instruction').$to.'. '.__('message.check_junk_folder'));
     }
 }

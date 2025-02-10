@@ -1,16 +1,16 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Demo Page Settings
+    {{ __('message.demo_page_settings') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Demo page settings</h1>
+        <h1>{{ __('message.demo_page_settings') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item active">DemoPage Settings</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.demopage_settings') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -18,7 +18,7 @@ Demo Page Settings
 <div class="card card-secondary card-outline">
     <div class="card-header">
         <div id="response"></div>
-        <h5>Configuring the Demo Page</h5>
+        <h5>{{ __('message.configuring_demo') }}</h5>
     </div>
 
     <div class="card-body">
@@ -26,13 +26,13 @@ Demo Page Settings
         <div class="row">
                        <div class="col-md-4">
                 <div class="form-group">
-                    {!! html()->label(Lang::get('Enable/Disable'))->for('Demopage')->class('required') !!}
+                    {!! html()->label(Lang::get('message.enable_disable'))->for('Demopage')->class('required') !!}
                     <div class="row">
                         <div class="col-sm-3">
-                            <input type="radio" name="status" value="true"  @if($Demo_page->status == true) checked="true" @endif > {{Lang::get('Enable')}}
+                            <input type="radio" name="status" value="true"  @if($Demo_page->status == true) checked="true" @endif > {{Lang::get('message.enable')}}
                         </div>
                         <div class="col-sm-3">
-                            <input type="radio" name="status" value="false" @if($Demo_page->status == false) checked="true" @endif> {{Lang::get('Disable')}}
+                            <input type="radio" name="status" value="false" @if($Demo_page->status == false) checked="true" @endif> {{Lang::get('message.disable')}}
                         </div>
                     </div>
                 </div> 
@@ -40,7 +40,7 @@ Demo Page Settings
         </div>
 
         <div class="text-center">
-            <button type="submit" class="btn btn-primary float-left">Save</button>
+            <button type="submit" class="btn btn-primary float-left">{{ __('message.save') }}</button>
         </div>
         {!! html()->form()->close() !!}
     </div>

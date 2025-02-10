@@ -14,7 +14,7 @@ class CaptchaValidation implements ValidationRule
 
     public function __construct($message = null)
     {
-        $this->message = $message ?? 'Woah, This will be termed as a hacking attempt.';
+        $this->message = $message ?? __('message.hacking_attempt');
     }
 
     /**

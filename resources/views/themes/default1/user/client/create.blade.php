@@ -1,16 +1,16 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Create User
+{{ __('message.create_user') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Create New User</h1>
+        <h1>{{ __('message.create_new_user') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-             <li class="breadcrumb-item"><a href="{{url('clients')}}"><i class="fa fa-dashboard"></i> Users</a></li>
-            <li class="breadcrumb-item active">Create User</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+             <li class="breadcrumb-item"><a href="{{url('clients')}}"><i class="fa fa-dashboard"></i> {{ __('message.users') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.create_user') }}</li>
         </ol>
     </div><!-- /.col -->
 
@@ -97,10 +97,10 @@ Create User
                     </div>
                     <div class="col-md-3 form-group {{ $errors->has('bussiness') ? 'has-error' : '' }}">
                         <!-- company -->
-                        {!! html()->label('Industry')->for('bussiness') !!}
+                        {!! html()->label( __('message.industry'))->for('bussiness') !!}
                          <!--  {!! html()->select('bussiness')->options(['Choose' => 'Choose', '' => $bussinesses])->class('form-control selectpicker')->attribute('data-live-search', 'true')->attribute('data-live-search-placeholder', 'Search')->attribute('data-dropup-auto', 'false')->attribute('data-size', '10') !!}  -->
                        <select name="bussiness"  class="form-control select2 {{$errors->has('bussiness') ? ' is-invalid' : ''}}">
-                             <option value="">Choose</option>
+                             <option value="">{{ __('message.choose') }}</option>
                            @foreach($bussinesses as $key=>$bussines)
                            @if (Request::old('bussiness') == $key)
                              <option value={{$key}} selected>{{$bussines}}</option>
@@ -123,9 +123,9 @@ Create User
                         {!! html()->label(Lang::get('message.email'), 'active') !!}
                         <p>
                             {!! html()->radio('active', true, 1) !!}
-                            &nbsp;Active&nbsp;&nbsp;
+                            &nbsp;{{ __('message.active') }}&nbsp;&nbsp;
                             {!! html()->radio('active', false, 0) !!}
-                            &nbsp;Inactive
+                            &nbsp;{{ __('message.inactive') }}
                         </p>
                     </div>
 
@@ -134,9 +134,9 @@ Create User
                         {!! html()->label(Lang::get('message.mobile'), 'mobile_verified') !!}
                         <p>
                             {!! html()->radio('mobile_verified', true, 1) !!}
-                            &nbsp;Active&nbsp;&nbsp;
+                            &nbsp;{{ __('message.active') }}&nbsp;&nbsp;
                             {!! html()->radio('mobile_verified', false, 0) !!}
-                            &nbsp;Inactive
+                            &nbsp;{{ __('message.inactive') }}
                         </p>
                     </div>
                 </div>
@@ -152,8 +152,8 @@ Create User
 
                     <div class="col-md-3 form-group {{ $errors->has('position') ? 'has-error' : '' }}">
                         <!-- email -->
-                        {!! html()->label('Position', 'position') !!}
-                        {!! html()->select('position', ['' => 'Choose', 'manager' => 'Sales Manager', 'account_manager' => 'Account Manager'])->class('form-control'.($errors->has('position') ? ' is-invalid' : '')) !!}
+                        {!! html()->label( __('message.position'), 'position') !!}
+                        {!! html()->select('position', ['' => __('message.choose'), 'manager' => 'Sales Manager', 'account_manager' => 'Account Manager'])->class('form-control'.($errors->has('position') ? ' is-invalid' : '')) !!}
                         @error('position')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
@@ -164,11 +164,11 @@ Create User
                     ?>
                      <div class="col-md-3 form-group {{ $errors->has('role') ? 'has-error' : '' }}">
                         <!-- email -->
-                         {!! html()->label('Company Type', 'company_type') !!}
+                         {!! html()->label( __('message.company_type'), 'company_type') !!}
                          <!-- {!! html()->select('company_type')->options(['choose' => 'Choose', '' => $type])->class('form-control') !!} -->
 
                          <select name="company_type" value= "Choose" class="form-control ($errors->has('company_type') ? ' is-invalid' : '')">
-                             <option value="">Choose</option>
+                             <option value="">{{ __('message.choose') }}</option>
                            @foreach($type as $key=>$types)
                               @if (Request::old('company_type') == $key)
                              <option value={{$key}} selected>{{$types}}</option>
@@ -183,9 +183,9 @@ Create User
                     </div>
                      <div class="col-md-3 form-group {{ $errors->has('role') ? 'has-error' : '' }}">
                         <!-- email -->
-                         {!! html()->label('Company Size', 'company_size') !!}
+                         {!! html()->label( __('message.company_size'), 'company_size') !!}
                           <select name="company_size" value= "Choose" class="form-control ($errors->has('email') ? ' is-invalid' : '')">
-                             <option value="">Choose</option>
+                             <option value="">{{ __('message.choose') }}</option>
                            @foreach($size as $key=>$sizes)
                               @if (Request::old('company_size') == $key)
                              <option value={{$key}} selected>{{$sizes}}</option>
@@ -234,7 +234,8 @@ Create User
 
 
                           <select name="country" value= "Choose" id="country" onChange="getCountryAttr(this.value)" class="form-control select2 {{$errors->has('country') ? ' is-invalid' : ''}}">
-                             <option value="">Choose</option>
+                             <option value="">{{ __('message.choose') }}</option>
+
                            @foreach($countries as $key=>$country)
                             @if (Request::old('country') == strtolower($key) || Request::old('country') == $key)
 
@@ -266,7 +267,7 @@ Create User
                              @endforeach
                              @else
                       
-                            <option value="">Choose A Country</option>
+                            <option value="">{{ __('message.choose_a_country') }}</option>
                             @endif
 
                         </select>
@@ -315,7 +316,7 @@ Create User
 
                     <div class="col-md-3 form-group {{ $errors->has('skype') ? 'has-error' : '' }}">
                         <!-- mobile -->
-                        {!! html()->label('Skype', 'Skype') !!}
+                        {!! html()->label( __('message.skype'), 'Skype') !!}
                         {!! html()->text('skype')->class('form-control') !!}
                         @error('skype')
                         <span class="error-message"> {{$message}}</span>
@@ -324,9 +325,9 @@ Create User
                     
                     <div class="col-md-3 form-group {{ $errors->has('manager') ? 'has-error' : '' }}">
                         <!-- mobile -->
-                        {!! html()->label('manager', 'Sales Manager') !!}
+                        {!! html()->label('manager', __('message.sales_manager')) !!}
                          <select name="manager" value= "Choose" class="form-control">
-                             <option value="">Choose</option>
+                             <option value="">{{ __('message.choose') }}</option>
                            @foreach($managers as $key=>$manager)
                              <option value={{$key}}>{{$manager}}</option>
                           @endforeach
@@ -338,9 +339,9 @@ Create User
 
                       <div class="col-md-3 form-group {{ $errors->has('manager') ? 'has-error' : '' }}">
                         <!-- mobile -->
-                          {!! html()->label('Account Manager', 'manager') !!}
+                          {!! html()->label( __('message.account_manager'), 'manager') !!}
                          <select name="account_manager" value= "Choose" class="form-control">
-                             <option value="">Choose</option>
+                             <option value="">{{ __('message.choose') }}</option>
                            @foreach($accountManager as $key=>$manager)
                              <option value={{$key}}>{{$manager}}</option>
                           @endforeach

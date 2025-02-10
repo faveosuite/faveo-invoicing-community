@@ -51,8 +51,19 @@ class CheckoutRequest extends Request
 
     public function messages()
     {
-        return[
-            'payment_gatway.required' => 'Choose one payment gateway',
+        return [
+            'payment_gatway.required' => __('message.choose_one_payment_gateway'),
+            'first_name.required' => __('validation.customer_form.first_name.required'),
+            'last_name.required' => __('validation.customer_form.last_name.required'),
+            'company.required' => __('validation.customer_form.company.required'),
+            'mobile.regex' => __('validation.customer_form.mobile.regex'),
+            'address.required' => __('validation.customer_form.address.required'),
+            'zip.required' => __('validation.customer_form.zip.required'),
+            'zip.min' => __('validation.customer_form.zip.min'),
+            'zip.numeric' => __('validation.customer_form.zip.numeric'),
+            'email.required' => __('validation.customer_form.email.required'),
+            'email.email' => __('validation.customer_form.email.email'),
+            'email.unique' => __('validation.customer_form.email.unique'),
         ];
     }
 }

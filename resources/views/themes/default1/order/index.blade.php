@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Orders
+    {{ __('message.orders') }}
 @stop
 @section('content-header')
 <style type="text/css">
@@ -113,14 +113,18 @@ Orders
             right: 50px; 
         }
 
+   .dropdown-menu {
+       max-height: none !important;
+   }
+
 </style>
     <div class="col-sm-6">
-        <h1>View All Orders</h1>
+        <h1>{{ __('message.view_all_orders') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item active">All Orders</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.all-orders') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -130,11 +134,11 @@ Orders
     <div class="col-12">
         <div class="card card-secondary card-outline collapsed-card">
     <div class="card-header">
-        <h3 class="card-title">Advance Search</h3>
+        <h3 class="card-title">{{ __('message.advance_search') }}</h3>
 
         <div class="card-tools">
 
-             <button type="button" class="btn btn-tool" id="tip-search" title="Expand"> <i id="search-icon" class="fas fa-plus"></i>
+             <button type="button" class="btn btn-tool" id="tip-search" title="{{ __('message.expand') }}"> <i id="search-icon" class="fas fa-plus"></i>
                             </button>
             
         </div>
@@ -146,12 +150,12 @@ Orders
           <div class="row">
 
               <div class="col-md-3 form-group">
-                  {!! html()->label('Order No:')->for('order_no') !!}
+                  {!! html()->label( __('message.order_no_colon'))->for('order_no') !!}
                   {!! html()->text('order_no', $request->order_no)->class('form-control')->id('order_no') !!}
               </div>
 
               <div class="col-md-3 form-group">
-                  {!! html()->label('Product')->for('product_id') !!} <br>
+                  {!! html()->label( __('message.product'))->for('product_id') !!} <br>
                   {!! html()->select('product_id', [null => 'Choose'] + $paidUnpaidOptions + $products, $request->product_id)
                       ->class('form-control select2')
                       ->style('width:100%')
@@ -163,7 +167,7 @@ Orders
 
               <div class="col-md-3 form-group">
                 <!-- first name -->
-                  {!! html()->label('From')->for('from') !!}
+                  {!! html()->label( __('message.from'))->for('from') !!}
                   <div class="input-group date" id="order_from" data-target-input="nearest">
                     <input type="text" name="from" class="form-control datetimepicker-input" autocomplete="off" value="{!! $request->from !!}" data-target="#order_from"/>
 
@@ -178,7 +182,7 @@ Orders
             </div>
             <div class="col-md-3 form-group">
                 <!-- first name -->
-                {!! html()->label('To')->for('till') !!}
+                {!! html()->label( __('message.to'))->for('till') !!}
                 <div class="input-group date" id="order_till" data-target-input="nearest">
                     <input type="text" name="till" class="form-control datetimepicker-input" autocomplete="off" value="{!! $request->till !!}" data-target="#order_till"/>
 
@@ -192,19 +196,19 @@ Orders
 
             </div>
               <div class="col-md-3 form-group">
-                  {!! html()->label('Domain')->for('domain') !!}
+                  {!! html()->label( __('message.domain2'))->for('domain') !!}
                   {!! html()->text('domain', $request->domain)->class('form-control')->id('domain') !!}
               </div>
 
               <div class="col-md-3 form-group">
-                  {!! html()->label('Installations')->for('act_inst') !!}
+                  {!! html()->label( __('message.installations'))->for('act_inst') !!}
                   {!! html()->select('act_inst', [null => 'Choose'] + $insNotIns + $activeInstallationOptions + $inactiveInstallationOptions, $request->act_inst)
                       ->class('form-control')
                       ->id('act_inst') !!}
               </div>
 
               <div class="col-md-3 form-group">
-                  {!! html()->label('Subscriptions')->for('renewal') !!}
+                  {!! html()->label( __('message.subscriptions'))->for('renewal') !!}
                   {!! html()->select('renewal', [null => 'Choose'] + $renewal, $request->renewal)
                       ->class('form-control')
                       ->id('renewal') !!}
@@ -215,10 +219,10 @@ Orders
               {!! html()->hidden('select', $request->version)->class('form-control')->id('select') !!}
               <div class="col-md-3 form-group {{ $errors->has('state') ? 'has-error' : '' }}">
             <!-- name -->
-                  {!! html()->label('Version', 'version') !!}
+                  {!! html()->label( __('message.version'), 'version') !!}
                   <select name="version" id="version-list" class="form-control">
         
-                    <option value="">Choose A Product</option>
+                    <option value="">{{ __('message.choose_product') }}</option>
             </select>
         </div>
 
@@ -226,9 +230,9 @@ Orders
 
            <div class='row'>
                 <div class="col-md-6">
-                      <button name="Search" type="submit"  class="btn btn-secondary"><i class="fa fa-search"></i>&nbsp;{!!Lang::get('Search')!!}</button>
+                      <button name="Search" type="submit"  class="btn btn-secondary"><i class="fa fa-search"></i>&nbsp;{!!Lang::get('message.search')!!}</button>
                       &nbsp;
-                    <!-- <a class="btn btn-secondary" href="{!! url('/orders') !!}"><i class="fas fa-sync-alt"></i>&nbsp;{!!Lang::get('Reset')!!}</a> -->
+                    <!-- <a class="btn btn-secondary" href="{!! url('/orders') !!}"><i class="fas fa-sync-alt"></i>&nbsp;{!!Lang::get('message.reset')!!}</a> -->
                     {!! html()->button('Reset')->type('submit')->class('btn btn-secondary')->id('reset') !!}
                 </div>
         </div>
@@ -238,12 +242,12 @@ Orders
 </div>
     <div class="card card-secondary card-outline">
     <div class="card-header">
-        <h3 class="card-title">Orders</h3>
+        <h3 class="card-title">{{ __('message.orders') }}</h3>
         <div class="card-tools">
-            <button type="button" id="order_export-report-btn" class="btn btn-sm pull-right" data-toggle="tooltip" title="Export" style="position: relative;top: 0px;left: -1px;">
+            <button type="button" id="order_export-report-btn" class="btn btn-sm pull-right" data-toggle="tooltip" title="{{ __('message.export') }}" style="position: relative;top: 0px;left: -1px;">
                 <i class="fas fa-paper-plane"></i>
             </button>
-            <a href="{{url('invoice/generate')}}" class="btn btn-sm pull-right" data-toggle="tooltip" title="Create new invoice" style="position: relative; right: 0px;">
+            <a href="{{url('invoice/generate')}}" class="btn btn-sm pull-right" data-toggle="tooltip" title="{{ __('message.create-invoice') }}" style="position: relative; right: 0px;">
                 <span class="fas fa-plus"></span>
             </a>
         </div>
@@ -256,67 +260,67 @@ Orders
         
                 <div class="d-flex justify-content-between mb-3">
                          <button value="" class="btn btn-secondary btn-sm btn-alldell" id="bulk_delete" style="padding-top: 10px;">
-                        <i class="fa fa-trash"></i>&nbsp;&nbsp;Delete Selected
+                        <i class="fa fa-trash"></i>&nbsp;&nbsp;{{ __('message.delmultiple') }}
                     </button>
                     <div class="custom-dropdown" id="columnUpdate">
                         <button class="btn btn-default" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="position: relative;top: 53px;">
-                            <span class="fa fa-columns"></span>&nbsp;&nbsp;Select Columns&nbsp;&nbsp;<span class="fas fa-caret-down"></span>
+                            <span class="fa fa-columns"></span>&nbsp;&nbsp;{{ __('message.selected_columns') }}&nbsp;&nbsp;<span class="fas fa-caret-down"></span>
                         </button>
                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="client" id="clientCheckbox">
-                                <label class="form-check-label" for="clientCheckbox">User</label>
+                                <label class="form-check-label" for="clientCheckbox">{{ __('message.user') }}</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="email" id="emailCheckbox">
-                                <label class="form-check-label" for="emailCheckbox">Email</label>
+                                <label class="form-check-label" for="emailCheckbox">{{ __('message.email') }}</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="mobile" id="mobileCheckbox">
-                                <label class="form-check-label" for="mobileCheckbox">Mobile</label>
+                                <label class="form-check-label" for="mobileCheckbox">{{ __('message.mobile') }}</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="country" id="countryCheckbox">
-                                <label class="form-check-label" for="countryCheckbox">Country</label>
+                                <label class="form-check-label" for="countryCheckbox">{{ __('message.country') }}</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="number" id="numberCheckbox">
-                                <label class="form-check-label" for="numberCheckbox">Order No</label>
+                                <label class="form-check-label" for="numberCheckbox">{{ __('message.order_no') }}</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="status" id="statusCheckbox">
-                                <label class="form-check-label" for="statusCheckbox">Order Status</label>
+                                <label class="form-check-label" for="statusCheckbox">{{ __('message.order-status') }}</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="product_name" id="productCheckbox">
-                                <label class="form-check-label" for="productCheckbox">Product</label>
+                                <label class="form-check-label" for="productCheckbox">{{ __('message.product') }}</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="plan_name" id="planCheckbox">
-                                <label class="form-check-label" for="planCheckbox">Plan</label>
+                                <label class="form-check-label" for="planCheckbox">{{ __('message.plan') }}</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="version" id="versionCheckbox">
-                                <label class="form-check-label" for="versionCheckbox">Version</label>
+                                <label class="form-check-label" for="versionCheckbox">{{ __('message.version') }}</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="agents" id="agentsCheckbox">
-                                <label class="form-check-label" for="agentsCheckbox">Agents</label>
+                                <label class="form-check-label" for="agentsCheckbox">{{ __('message.agents') }}</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="order_status" id="inorder_statusCheckbox">
-                                <label class="form-check-label" for="inorder_statusCheckbox">Status</label>
+                                <label class="form-check-label" for="inorder_statusCheckbox">{{ __('message.status') }}</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="order_date" id="inorder_dateCheckbox">
-                                <label class="form-check-label" for="inorder_dateCheckbox">Order Date</label>
+                                <label class="form-check-label" for="inorder_dateCheckbox">{{ __('message.order_date') }}</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="update_ends_at" id="inupdate_ends_atCheckbox">
-                                <label class="form-check-label" for="inupdate_ends_atCheckbox">Expiry</label>
+                                <label class="form-check-label" for="inupdate_ends_atCheckbox">{{ __('message.expiry') }}</label>
                             </div>
                             <br>
-                            <button type="button" class="btn btn-primary btn-sm" style="left: 10px; position: relative;" id="saveColumnsBtn">Apply</button>
+                            <button type="button" class="btn btn-primary btn-sm" style="left: 10px; position: relative;" id="saveColumnsBtn">{{ __('message.apply') }}</button>
                         </div>
                     </div>
                 </div>
@@ -330,20 +334,20 @@ Orders
                     <thead>
                         <tr>
                             <th class="no-sort"><input type="checkbox" name="select_all" onchange="checking(this)"></th>
-                            <th>User</th>
-                            <th>Email</th>
-                            <th>Mobile</th>
-                            <th>Country</th>
-                            <th>Order No</th>
-                            <th>Order Status</th>
-                            <th>Product</th>
-                            <th>Plan</th>
-                            <th>Version</th>
-                            <th>Agents</th>
-                            <th>Status</th>
-                            <th>Order Date</th>
-                            <th>Expiry</th>
-                            <th>Action</th>
+                            <th>{{ __('message.user') }}</th>
+                            <th>{{ __('message.email') }}</th>
+                            <th>{{ __('message.mobile') }}</th>
+                            <th>{{ __('message.country') }}</th>
+                            <th>{{ __('message.order_no') }}</th>
+                            <th>{{ __('message.order-status') }}</th>
+                            <th>{{ __('message.product') }}</th>
+                            <th>{{ __('message.plan') }}</th>
+                            <th>{{ __('message.version') }}</th>
+                            <th>{{ __('message.agents') }}</th>
+                            <th>{{ __('message.status') }}</th>
+                            <th>{{ __('message.order_date') }}</th>
+                            <th>{{ __('message.expiry') }}</th>
+                            <th>{{ __('message.action') }}</th>
                         </tr>
                     </thead>
                 </table>
@@ -395,7 +399,7 @@ Orders
               "url": '{!! route('get-orders', "order_no=$request->order_no&product_id=$request->product_id&expiry=$request->expiry&expiryTill=$request->expiryTill&from=$request->from&till=$request->till&sub_from=$request->sub_from&sub_till=$request->sub_till&ins_not_ins=$request->ins_not_ins&domain=$request->domain&p_un=$request->p_un&act_ins=$request->act_inst&renewal=$request->renewal&inact_ins=$request->inact_inst&version=$request->version") !!}',
               error: function(xhr) {
                 if (xhr.status == 401) {
-                  alert('Your session has expired. Please login again to continue.')
+                  alert('{{ __('message.session_expired') }}')
                   window.location.href = '/login';
                 }
               },
@@ -420,9 +424,24 @@ Orders
 
             "oLanguage": {
               "sLengthMenu": "_MENU_ Records per page",
-              "sSearch": "<span style='position: relative;right: 140px;'>Search:</span> ",
-                "sProcessing": ' <div class="overlay dataTables_processing"><i class="fas fa-3x fa-sync-alt fa-spin" style=" margin-top: -25px;"></i><div class="text-bold pt-2">Loading...</div></div>'
+              "sSearch": "<span style='position: relative;right: 140px;'>{!! __('message.search') !!}:</span> ",
+                "sProcessing": ' <div class="overlay dataTables_processing"><i class="fas fa-3x fa-sync-alt fa-spin" style=" margin-top: -25px;"></i><div class="text-bold pt-2">{!! __('message.loading') !!}</div></div>'
             },
+                language: {
+                    paginate: {
+                        first:      "{{ __('message.paginate_first') }}",
+                        last:       "{{ __('message.paginate_last') }}",
+                        next:       "{{ __('message.paginate_next') }}",
+                        previous:   "{{ __('message.paginate_previous') }}"
+                    },
+                    emptyTable:     "{{ __('message.empty_table') }}",
+                    info:           "{{ __('message.datatable_info') }}",
+                    infoEmpty:      "{{ __('message.info_empty') }}",
+                    zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
+                    infoFiltered:   "{{ __('message.info_filtered') }}",
+                    lengthMenu:     "{{ __('message.sLengthMenu') }}",
+                    loadingRecords: "{{ __('message.loading_records') }}",
+                },
             columns: [
                 {data: 'checkbox', name: 'checkbox'},
                 {data: 'client', name: 'client'},
@@ -469,7 +488,7 @@ Orders
             selectedColumns.push($(this).val());
         });
          if (selectedColumns.length === 0) {
-        alert('Please select at least one column.');
+        alert('{{ __('message.select_one_column') }}');
         return;
         }
 
@@ -578,7 +597,7 @@ Orders
                     var result = '<div class="alert alert-success">' +
                         '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
                         '<span aria-hidden="true">&times;</span></button>' +
-                        '<strong><i class="far fa-thumbs-up"></i> Well Done! </strong>' +
+                        '<strong><i class="far fa-thumbs-up"></i> {{ __('message.well_done') }}</strong>' +
                         response.message + '!</div>';
                     
                     $('#export-message').html(result).removeClass('text-danger').addClass('text-success');
@@ -591,8 +610,8 @@ Orders
                     var result = '<div class="alert alert-danger">' +
                         '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
                         '<span aria-hidden="true">&times;</span></button>' +
-                        '<strong><i class="far fa-thumbs-down"></i> Oops! </strong>' +
-                        'Export failed: ' + xhr.responseJSON.message + '</div>';
+                        '<strong><i class="far fa-thumbs-down"></i> {{ __('message.error_oops') }} </strong>' +
+                        '{{ __('message.export_failed') }}: ' + xhr.responseJSON.message + '</div>';
 
                     $('#export-message').html(result).removeClass('text-success').addClass('text-danger');
                     setTimeout(function() {
