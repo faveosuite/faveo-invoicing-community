@@ -28,14 +28,13 @@
         <link rel="stylesheet" href="{{asset('admin/css-1/icheck-bootstrap.min.css')}}">
         <!-- JQVMap -->
         <link rel="stylesheet" href="{{asset('admin/css-1/jqvmap.min.css')}}">
-        <!-- Theme style -->
-        <link rel="stylesheet" href="{{asset('admin/css-1/adminlte.min.css')}}">
         <!-- overlayScrollbars -->
         <link rel="stylesheet" href="{{asset('admin/css-1/OverlayScrollbars.min.css')}}">
         <!-- Daterange picker -->
         <link rel="stylesheet" href="{{asset('admin/css-1/daterangepicker.css')}}">
         <!-- summernote -->
         <link rel="stylesheet" href="{{asset('admin/css-1/summernote-bs4.css')}}">
+        <link rel="stylesheet" href="{{asset('admin/css-1/flag-icons.min.css')}}">
         <!-- Google Font: Source Sans Pro -->
         <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
 
@@ -43,6 +42,11 @@
 
         <!-- Custom css/js -->
         <link rel="stylesheet" href="{{ asset('common/intl-tel-input/css/intlTelInput.css') }}">
+        @if(app()->getLocale() == 'ar')
+            <link rel="stylesheet" href="{{asset('admin/css-1/adminlte-rtl.css')}}">
+        @else
+            <link rel="stylesheet" href="{{asset('admin/css-1/adminlte.min.css')}}">
+        @endif
 
         <script src="{{asset('https://code.jquery.com/ui/1.12.1/jquery-ui.min.js')}}"></script>
         <script src="{{asset('https://code.jquery.com/jquery-3.5.1.min.js')}}"></script>
@@ -60,6 +64,69 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             });
+
+            const languageDropdown = document.getElementById('language-dropdown');
+
+            $.ajax({
+                url: '{{url('/current-language')}}',
+                type: 'GET',
+                dataType: 'JSON',
+                success: function(response) {
+                    const localeMap = { 'ar': 'ae', 'bsn': 'bs', 'de': 'de', 'en': 'us', 'en-gb': 'gb', 'es': 'es', 'fr': 'fr', 'id': 'id', 'it': 'it', 'kr': 'kr', 'mt': 'mt', 'nl': 'nl', 'no': 'no', 'pt': 'pt', 'ru': 'ru', 'vi': 'vn', 'zh-hans': 'cn', 'zh-hant': 'cn' };
+                    const currentLanguage = response.data.language;
+                    const flagClass = 'flag-icon flag-icon-' + localeMap[currentLanguage];
+                    $('#flagIcon').attr('class', flagClass);
+                },
+                error: function(error) {
+                    console.error('Error fetching current language:', error);
+                }
+            });
+
+            $.ajax({
+                url: '{{url('/language/settings')}}',
+                type: 'GET',
+                success: function(response) {
+                    const localeMap = { 'ar': 'ae', 'bsn': 'bs', 'de': 'de', 'en': 'us', 'en-gb': 'gb', 'es': 'es', 'fr': 'fr', 'id': 'id', 'it': 'it', 'kr': 'kr', 'mt': 'mt', 'nl': 'nl', 'no': 'no', 'pt': 'pt', 'ru': 'ru', 'vi': 'vn', 'zh-hans': 'cn', 'zh-hant': 'cn' };
+                    $.each(response.data, function(key, value) {
+                        const mappedLocale = localeMap[value.locale] || value.locale;
+                        const isSelected = value.locale === '{{ app()->getLocale() }}' ? 'selected' : '';
+                        $('#language-dropdown').append(
+                            '<a href="javascript:;" class="dropdown-item" onclick="updateLanguage(\'' + value.locale + '\')" data-locale="' + value.locale + '" ' + isSelected + '>' +
+                            '<i class="flag-icon flag-icon-' + (mappedLocale || 'us') + ' mr-2"></i> ' + value.name +
+                            '</a>'
+                        );
+                    });
+
+                    // // Add event listeners for the dynamically added language options
+                    // $(document).on('click', '.dropdown-item', function() {
+                    //     const selectedLanguage = $(this).data('locale');
+                    //     const mappedLocale = localeMap[selectedLanguage] || selectedLanguage;
+                    //     const flagClass = 'flag-icon flag-icon-' + mappedLocale;
+                    //
+                    //     updateLanguage(selectedLanguage, flagClass);
+                    // });
+                },
+                error: function(error) {
+                    console.error('Error fetching languages:', error);
+                }
+            });
+
+            // const flagIcon = document.getElementById('flagIcon');
+
+            function updateLanguage(language, flagClass = '') {
+                $.ajax({
+                    url: '{{ url('/update/language') }}',
+                    type: 'POST',
+                    data: { language: language },
+                    success: function(response) {
+                        window.location.reload();
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error updating language:', xhr.responseText);
+                    }
+                });
+            }
+
 
 
         </script>
@@ -90,6 +157,7 @@
             display: none !important;
         }
 
+<<<<<<< HEAD
         .dropdown-menu-arrow:before {
             content: ""!important;
             position: absolute!important;
@@ -118,9 +186,13 @@
             color: #c2c7d0;
         }
 
-        .dropdown-profile{
+        .dropdown-profile {
             right: 0;
             left: auto !important;
+        }
+
+        #language-dropdown{
+            z-index: 9999;
         }
 
     </style>
@@ -136,14 +208,14 @@
     <div class="wrapper">
 
         <!-- Navbar -->
-        <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+        <nav class="main-header navbar navbar-expand navbar-white navbar-light" dir="{{app()->getLocale()=='ar' ? 'rtl' : 'ltr'}}">
             <!-- Left navbar links -->
             <ul class="navbar-nav">
                 <li class="nav-item">
                     <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
                 </li>
                 <li class="nav-item d-none d-sm-inline-block">
-                    <a href="{{url('client-dashboard')}}" class="nav-link">Go to Client Panel</a>
+                    <a href="{{url('client-dashboard')}}" class="nav-link">{{ __('message.go_to_client') }}</a>
                 </li>
 
             </ul>
@@ -152,6 +224,15 @@
 
             <!-- Right navbar links -->
             <ul class="navbar-nav ml-auto">
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="false">
+                        <i id="flagIcon" class="flag-icon flag-icon-us"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right p-0" style="left: inherit; right: 0px;" id="language-dropdown">
+                        <!-- Language options will be populated here -->
+                    </div>
+                </li>
                 <!-- Messages Dropdown Menu -->
                 <li class="nav-item dropdown user-menu">
                     <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">
@@ -181,7 +262,7 @@
         <!-- Main Sidebar Container -->
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
             <!-- Brand Logo -->
-            
+
                 @if ($set->admin_logo == '')
                     <!-- Brand Logo -->
                         <a href="{{url('/')}}" class="brand-link">
@@ -212,7 +293,7 @@
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                         <!-- Add icons to the links using the .nav-icon class
                              with font-awesome or any other icon font library -->
-                            
+
                         <li class="nav-item has-treeview">
                             <a href="{{url('/')}}" class="nav-link" id="dashboard">
                                 <i class="nav-icon fas fa-tachometer-alt"></i>
@@ -226,7 +307,7 @@
                             <a href="#" class="nav-link">
                                 <i class="nav-icon fas fa-user"></i>
                                 <p>
-                                    Users
+                                    {{ __('message.users') }}
                                     <i class="fas fa-angle-left right"></i>
                                  </p>
                             </a>
@@ -234,20 +315,20 @@
                                 <li class="nav-item">
                                     <a href="{{url('clients')}}" class="nav-link" id="all_user">
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>All Users</p>
+                                        <p>{{ __('message.all-users') }}</p>
                                     </a>
                                 </li>
-                                
+
                                 <li class="nav-item">
                                     <a href="{{url('clients/create')}}" class="nav-link" id="add_new_user">
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>Add New</p>
+                                        <p>{{ __('message.add-new') }}</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="{{url('deleted-users')}}" class="nav-link" id="soft_delete_user">
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>Suspended Users</p>
+                                        <p>{{ __('message.suspended_users') }}</p>
                                     </a>
                                 </li>
                             </ul>
@@ -256,7 +337,7 @@
                             <a href="#" class="nav-link">
                                 <i class="nav-icon fas fa-chart-pie"></i>
                                 <p>
-                                    Orders
+                                    {{ __('message.orders') }}
                                     <i class="right fas fa-angle-left"></i>
                                 </p>
                             </a>
@@ -352,11 +433,11 @@
                                         <p>{{Lang::get('message.add-products')}}</p>
                                     </a>
                                 </li>
-                                
+
                                 <li class="nav-item">
                                     <a href="{{url('plans')}}" class="nav-link" id="plan">
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>Plans</p>
+                                        <p>{{ __('message.plans') }}</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
@@ -378,7 +459,7 @@
                             <a href="#" class="nav-link">
                                 <i class="nav-icon fas fa-chart-line"></i>
                                 <p>
-                                    {{Lang::get('Reports')}}
+                                    {{ __('message.reports') }}
                                     <i class="right fas fa-angle-left"></i>
                                 </p>
                             </a>
@@ -386,7 +467,7 @@
                                 <li class="nav-item">
                                     <a href="{{url('reports/view')}}" class="nav-link" id="all_reports">
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>{{Lang::get('All Reports')}}</p>
+                                        <p>{{ __('message.all_reports') }}</p>
                                     </a>
                                 </li>
                             </ul>
@@ -394,7 +475,7 @@
                                 <li class="nav-item">
                                     <a href="{{url('records/column')}}" class="nav-link" id="add_col">
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>{{Lang::get('Report settings')}}</p>
+                                        <p>{{Lang::get('message.report_settings')}}</p>
                                     </a>
                                 </li>
                             </ul>
@@ -408,7 +489,7 @@
                                 </p>
                             </a>
                         </li>
-                       
+
 
 
 
@@ -419,7 +500,7 @@
         </aside>
 
         <!-- Content Wrapper. Contains page content -->
-        <div class="content-wrapper">
+        <div class="content-wrapper" dir="{{app()->getLocale()=='ar' ? 'rtl' : 'ltr' }}">
             <!-- Content Header (Page header) -->
             <div class="content-header">
                 <div class="container-fluid">
@@ -438,7 +519,7 @@
                     @if (count($errors) > 0)
 
                         <div class="alert alert-danger alert-dismissable" id="fail">
-                            <strong>Whoops!</strong> There were some problems with your input.
+                            <strong>{{ __('message.whoops') }}</strong> {{ __('message.input_problem') }}
                             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
                             <ul>
                                 @foreach ($errors->all() as $error)
@@ -554,17 +635,17 @@
     <script>
 
     // for sidebar menu entirely but not cover treeview
-    
+
     </script>
     @extends('mini_views.intl_tel_input')
-    
+
     @yield('icheck')
     @yield('datepicker')
             <script type="text/javascript">
 
             var csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-            setInterval(refreshToken, 3600000); 
+            setInterval(refreshToken, 3600000);
 
             function refreshToken(){
                 $.get('refresh-csrf').done(function(data){
@@ -604,11 +685,11 @@ $("document").ready(function(){
 
       $('#tip-search').click(function() {
             var advance = $('#advance-search');
-            
+
             if (advance.css('display') == 'none') {
                 this.setAttribute('title', 'Collapse');
                 $('#search-icon').removeClass('fas fa-plus').addClass('fas fa-minus');
-        
+
                 advance.show();
             }else {
                 this.setAttribute('title', 'Expand');
@@ -627,14 +708,16 @@ $("document").ready(function(){
                 icon.classList.toggle('fa-eye-slash', !isPassword);
                 icon.classList.toggle('fa-eye', isPassword);
             }
+            //handle language api
+            // var body = document.body;
           </script>
 
 
 
         </div><!-- ./wrapper -->
-       
+
         <!-- Bootstrap 3.3.2 JS -->
-       
+
 
 
     </body>

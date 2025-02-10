@@ -823,3 +823,10 @@ function isJson($string)
 
     return json_last_error() === JSON_ERROR_NONE;
 }
+
+function getUrl() {
+    $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
+    $host = $_SERVER['HTTP_HOST'];
+    $path = dirname($_SERVER['SCRIPT_NAME']);
+    return $protocol . '://' . $host . $path;
+}

@@ -8,10 +8,10 @@ Configure Queue
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item"><a href="{{url('queue')}}"><i class="fa fa-dashboard"></i> Queues</a></li>
-            <li class="breadcrumb-item active">Configure Queue</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('queue')}}"><i class="fa fa-dashboard"></i> {{ __('message.queues') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.configure_queue') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop

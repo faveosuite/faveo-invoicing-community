@@ -4,13 +4,13 @@ Mailchimp
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Mailchimp Settings</h1>
+        <h1>{{ __('message.mailchimp_setting') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item active">Mailchimp Setting</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.mailchimp_setting') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -52,7 +52,7 @@ Mailchimp
                             <div class="row">
                                 <div class="col-md-6 form-group {{ $errors->has('list_id') ? 'has-error' : '' }}">
                                 <select name="list_id" class="form-control" </select>
-                                    <option value="">Choose</option>
+                                    <option value="">{{ __('message.choose') }}</option>
                                     @foreach($allists as $list) 
                                      <option value="{{$list->id}}"<?php  if(in_array($list->id, $selectedList) ) 
                         { echo "selected";} ?>>{{$list->name}}</option>

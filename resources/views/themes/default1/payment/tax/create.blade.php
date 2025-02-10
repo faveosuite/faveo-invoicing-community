@@ -3,7 +3,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">Create Tax</h4>
+                <h4 class="modal-title">{{ __('message.create_tax') }}</h4>
             </div>
             <div class="modal-body">
                 <!-- Form  -->
@@ -15,7 +15,7 @@
                     {!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}
                     <!-- {!! Form::text('name',null,['class' => 'form-control']) !!} -->
                      <select name="name" class="form-control">
-                      <option>OTHERS</option>
+                      <option>{{ __('message.caps_others') }}</option>
                       <option> CGST + SGST</option>
                       <option>IGST</option>
                       <option>UTGST</option>
@@ -61,7 +61,7 @@
                  
 
                     <select name="state"  class="form-control" id="statess">
-                        <option name="state">Please Select Country</option>
+                        <option name="state">{{ __('message.please_select_city') }}</option>
                     </select>
 
                 </div>
@@ -76,7 +76,7 @@
 
             </div>
             <div class="modal-footer">
-                <button type="button" id="close" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                <button type="button" id="close" class="btn btn-default pull-left" data-dismiss="modal">{{ __('message.close') }}</button>
                 <input type="submit" class="btn btn-primary" value="{{Lang::get('message.save')}}">
             </div>
             {!! Form::close()  !!}

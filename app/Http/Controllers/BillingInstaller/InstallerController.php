@@ -5,15 +5,19 @@ namespace App\Http\Controllers\BillingInstaller;
 use App;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\SyncBillingToLatestVersion;
-use App\Model\Common\Setting;
+use App\Http\Requests\StoreLanguageRequest;
 use App\Model\Mailjob\QueueService;
 use App\User;
 use Artisan;
-use Cache;
 use DB;
 use Exception;
 use Illuminate\Http\Request;
-use Session;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
 
 class InstallerController extends Controller
 {
@@ -25,20 +29,27 @@ class InstallerController extends Controller
      */
     public function configurationcheck(Request $request)
     {
+        Cache::forever('config-check', 'config-check');
         $inputs = $request->only([
             'host', 'databasename', 'username', 'password', 'port',
             'db_ssl_key', 'db_ssl_cert', 'db_ssl_ca', 'db_ssl_verify',
         ]);
         Session::put(array_merge($inputs, ['default' => 'mysql', 'db_ssl_key' => $inputs['db_ssl_key'] ?? null, 'db_ssl_cert' => $inputs['db_ssl_cert'] ?? null, 'db_ssl_ca' => $inputs['db_ssl_ca'] ?? null, 'db_ssl_verify' => $inputs['db_ssl_verify'] ?? null]));
 
-        return response()->json((new DatabaseSetupController())->testResult());
+//        return response()->json((new DatabaseSetupController())->testResult());
+        return Redirect::route('database');
+
     }
 
     public function checkPreInstall()
     {
         Artisan::call('key:generate', ['--force' => true]);
 
-        $result = ['success' => \Lang::get('installer_messages.pre_migration_success'), 'next' => \Lang::get('installer_messages.migrating_tables')];
+        $url = url('migrate');
+
+
+        $result = ['success' => \Lang::get('installer_messages.pre_migration_success'), 'next' => \Lang::get('installer_messages.migrating_tables'), 'api' => $url,];
+
 
         return response()->json(compact('result'));
     }
@@ -58,7 +69,7 @@ class InstallerController extends Controller
                 (new SyncBillingToLatestVersion())->sync();
 
                 if (Cache::get('dummy_data_installation')) {
-                    $path = base_path().DIRECTORY_SEPARATOR.'DB'.DIRECTORY_SEPARATOR.'dummy-data.sql';
+                    $path = base_path() . DIRECTORY_SEPARATOR . 'DB' . DIRECTORY_SEPARATOR . 'dummy-data.sql';
                     \DB::unprepared(file_get_contents($path));
                 }
             }
@@ -113,6 +124,7 @@ class InstallerController extends Controller
             $result = [
                 'success' => \Lang::get('installer_messages.env_file_created'),
                 'next' => \Lang::get('installer_messages.pre_migration_test'),
+                'api' => $url,
             ];
 
             return response()->json(compact('result'));
@@ -122,7 +134,7 @@ class InstallerController extends Controller
     public function env($default, $host, $port, $database, $dbusername, $dbpassword, $appUrl = null)
     {
         $ENV = [
-            'APP_NAME' => 'Agora:'.md5(uniqid()),
+            'APP_NAME' => 'Agora:' . md5(uniqid()),
             'APP_DEBUG' => 'false',
             'APP_BUGSNAG' => 'true',
             'APP_URL' => $appUrl ?? url('/'),
@@ -139,7 +151,7 @@ class InstallerController extends Controller
             'DB_ENGINE' => 'InnoDB',
             'CACHE_DRIVER' => 'file',
             'SESSION_DRIVER' => 'file',
-            'SESSION_COOKIE_NAME' => 'agora_'.rand(0, 10000),
+            'SESSION_COOKIE_NAME' => 'agora_' . rand(0, 10000),
             'QUEUE_CONNECTION' => 'sync',
             'PROBE_PASS_PHRASE' => md5(uniqid()),
             'BROADCAST_DRIVER' => 'pusher',
@@ -158,7 +170,7 @@ class InstallerController extends Controller
         ];
 
         $config = collect($ENV)
-            ->map(fn ($val, $key) => "$key=$val")
+            ->map(fn($val, $key) => "$key=$val")
             ->implode("\n");
 
         $envPath = base_path('.env');
@@ -170,7 +182,7 @@ class InstallerController extends Controller
         }
 
         // Create a new example.env file if it doesn't exist
-        if (! is_file($exampleEnvPath)) {
+        if (!is_file($exampleEnvPath)) {
             touch($exampleEnvPath);
         }
 
@@ -183,24 +195,24 @@ class InstallerController extends Controller
 
     public function updateInstallEnv(string $environment, string $driver = null, $redisConfig = [])
     {
-        $env = base_path().DIRECTORY_SEPARATOR.'.env';
-        if (! is_file($env)) {
+        $env = base_path() . DIRECTORY_SEPARATOR . '.env';
+        if (!is_file($env)) {
             return errorResponse('.env not found', 400);
         }
 
         $txt1 = "\nAPP_ENV=$environment";
-        file_put_contents($env, str_replace('DB_INSTALL='. 0, 'DB_INSTALL='. 1, file_get_contents($env)));
-        file_put_contents($env, $txt1.PHP_EOL, FILE_APPEND | LOCK_EX);
+        file_put_contents($env, str_replace('DB_INSTALL=' . 0, 'DB_INSTALL=' . 1, file_get_contents($env)));
+        file_put_contents($env, $txt1 . PHP_EOL, FILE_APPEND | LOCK_EX);
 
         foreach ($redisConfig as $key => $value) {
-            $line = strtoupper($key).'='.$value.PHP_EOL;
+            $line = strtoupper($key) . '=' . $value . PHP_EOL;
             file_put_contents($env, $line, FILE_APPEND | LOCK_EX);
         }
 
         // If Redis is used as cache driver, update .env and relevant database records
         if ($driver === 'redis') {
             // Update .env file to set CACHE_DRIVER to 'redis'
-            file_put_contents($env, str_replace('CACHE_DRIVER='.getenv('CACHE_DRIVER'), 'CACHE_DRIVER='.'redis', file_get_contents($env)));
+            file_put_contents($env, str_replace('CACHE_DRIVER=' . getenv('CACHE_DRIVER'), 'CACHE_DRIVER=' . 'redis', file_get_contents($env)));
 
             // Disable all active QueueServices
             QueueService::where('status', 1)->update(['status' => 0]);
@@ -280,8 +292,6 @@ class InstallerController extends Controller
                 }
 
                 $this->updateInstallEnv($request->input('environment'), $request->input('cache_driver'), $redisConfig);
-            } else {
-                $this->updateInstallEnv($request->input('environment'), $request->input('cache_driver'));
             }
 
             $user = User::where('id', 1)->update([
@@ -298,7 +308,7 @@ class InstallerController extends Controller
 
             // Update the initial company settings
             DB::transaction(function () {
-                Setting::where('id', 1)
+                App\Model\Common\Setting::where('id', 1)
                     ->update([
                         'title' => 'Agora Invoicing',
                         'favicon_title' => 'Agora Invoicing',
@@ -309,8 +319,12 @@ class InstallerController extends Controller
                     ]);
             });
 
-            Session::flush();
-            \Cache::flush();
+            // checking if the user have been created
+            if ($user) {
+                Cache::forever('getting-started', 'getting-started');
+                Cache::forever('env', $request->input('environment'), 'production');
+            }
+
 
             // Return success response
             return successResponse(\Lang::get('installer_messages.setup_completed'), 201);
@@ -323,6 +337,7 @@ class InstallerController extends Controller
     public function getTimeZoneDropDown()
     {
         $timezonesList = \App\Model\Common\Timezone::get();
+        $display = [];
         foreach ($timezonesList as $timezone) {
             $location = $timezone->location;
             if ($location) {
@@ -330,24 +345,149 @@ class InstallerController extends Controller
                 $end = strpos($location, ')', $start + 1);
                 $length = $end - $start;
                 $result = substr($location, $start + 1, $length - 1);
-                $display[] = ['id' => $timezone->id, 'name' => '('.$result.')'.' '.$timezone->name];
+                $display[] = ['id' => $timezone->id, 'name' => '(' . $result . ')' . ' ' . $timezone->name];
             }
         }
 
         return $display;
     }
 
-    public function getLang(Request $request)
+    public function getLang()
     {
-        $set_lang = $request->input('set_lang');
-
-        if (! empty($set_lang)) {
-            App::setLocale($set_lang);
-        }
-        // Fetch all keys from the 'messages' language file
-        $lang = \Lang::get('installer_messages');
-
-        // Return the language array as a JSON response
-        return response()->json($lang);
+        $language = Cache::get('language', config('app.locale'));
+        $lang = Lang::get("installer_messages", [], $language);
+        return successResponse('', $lang);
     }
+
+
+    public function languageList(Request $request)
+    {
+        try {
+            $languageList = array_map('basename', \Illuminate\Support\Facades\File::directories(lang_path()));
+            $languages = [];
+
+            foreach ($languageList as $key => $langLocale) {
+                $language = [];
+                $language['id'] = $key;
+                $language['locale'] = $langLocale;
+                $languageArray = \Config::get("languages.$langLocale", ['', '']);
+                $language['name'] = $languageArray[0];
+                $language['translation'] = $languageArray[1];
+                $languages[] = $language;
+            }
+
+            return successResponse('', collect($languages)->sortBy('name')->values()->all());
+        } catch (\Exception $exception) {
+            \Log::error($exception);
+
+            return errorResponse($exception->getMessage());
+        }
+    }
+
+    public function storeLanguage(StoreLanguageRequest $request)
+    {
+        try {
+            $language = $request->input('language');
+            if (!Auth::check()) {
+                Session::put('language', $language);
+                Cache::put('language', $language);
+
+                return successResponse('Language set successfully');
+            }
+
+            $user = Auth::user();
+            $user->language = $request->language;
+            $user->save();
+
+            return successResponse('Language set successfully');
+        } catch (\Exception $exception) {
+            \Log::exception($exception);
+
+            return errorResponse('error could not change the language');
+        }
+    }
+
+    public function getCurrentLang()
+    {
+        if (Auth::check() && Auth::user()->language) {
+            $language = Auth::user()->language;
+        } elseif (Session::has('language')) {
+            $language = Session::get('language');
+        } else {
+            $language = 'en';
+        }
+
+        return successResponse('', ['language' => $language]);
+    }
+
+    public function dbsetup(Request $request)
+    {
+        //server requirements error checking
+        if (Session::has('fails')) {
+            Session::flush();
+        }
+
+        $errorCount = $request->input('count');
+
+        if ($errorCount == '0' && $errorCount == 0) {
+            Cache::forever('pre-db', 'pre-db');
+            return Redirect::route('db-setup');
+        }
+
+        return redirect()->back();
+    }
+
+    public function database(Request $request)
+    {
+        // checking if the installation is running for the first time or not
+        if (Cache::get('config-check') == 'config-check') {
+            return view('themes.default1.installer.databaseMigration');
+
+        } else {
+            return Redirect::route('config-check');
+        }
+    }
+
+    public function databasePage(Request $request)
+    {
+        // Database Setup Page
+        if (Cache::get('pre-db') == 'pre-db') {
+            return view('themes.default1.installer.dbSetup');
+
+        } else {
+            return redirect()->to('/probe.php');
+        }
+    }
+
+    public function account(Request $request)
+    {
+        // checking if the installation is running for the first time or not,getting-started page
+        if (Cache::get('config-check') == 'config-check') {
+
+            return view('themes.default1.installer.view5');
+        } else {
+            return Redirect::route('db-setup');
+        }
+    }
+
+    public function finalize()
+    {
+        //final page -> login url
+        if (Cache::get('getting-started') == 'getting-started') {
+
+            $environment = Cache::get('env');
+            $this->updateInstallEnv($environment);
+
+            Session::flush();
+            \Cache::flush();
+
+            return view('themes.default1.installer.finalPage');
+        }
+        else{
+            return Redirect::route('get-start');
+        }
+
+    }
+
+
 }

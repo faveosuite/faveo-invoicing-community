@@ -61,3 +61,11 @@
         margin-left: 0 !important;
     }
 }
+
+.content-wrapper{
+    min-height: 900px !important;
+}
+
+.cursor-pointer{
+    cursor: pointer;
+}

@@ -4,13 +4,13 @@ Payment
 @stop
 @section('content-header')
 <h1>
-Generate Payment
+    {{ __('message.generate_payment') }}
 </h1>
   <ol class="breadcrumb">
-        <li><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-        <li><a href="{{url('clients')}}">All Users</a></li>
-        <li><a href="{{url('clients/'.$userid)}}">View User</a></li>
-        <li class="active">Payment</li>
+        <li><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+        <li><a href="{{url('clients')}}">{{ __('message.all-users') }}</a></li>
+        <li><a href="{{url('clients/'.$userid)}}">{{ __('message.view_user') }}</a></li>
+        <li class="active">{{ __('message.payment') }}</li>
       </ol>
 @stop
 @section('content')
@@ -20,7 +20,7 @@ Generate Payment
     <div class="box-header">
         @if (count($errors) > 0)
                 <div class="alert alert-danger">
-                    <strong>Whoops!</strong> There were some problems with your input.<br><br>
+                    <strong>{{ __('message.whoops') }}</strong> {{ __('message.input_problem') }}<br><br>
                     <ul>
                         @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -48,7 +48,7 @@ Generate Payment
                 @endif
         {!! Form::open(['url'=>'payment/receive/'.$invoice_id,'method'=>'post']) !!}
 
-        <h4>{{Lang::get('message.payment')}}  (Invoice Number: {{$invoice->number}})	 <button type="submit" class="form-group btn btn-primary pull-right" id="submit"><i class="fa fa-floppy-o">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button></h4>
+        <h4>{{Lang::get('message.payment')}}  ({{ __('message.invoice_number') }}: {{$invoice->number}})	 <button type="submit" class="form-group btn btn-primary pull-right" id="submit"><i class="fa fa-floppy-o">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button></h4>
 
     </div>
 

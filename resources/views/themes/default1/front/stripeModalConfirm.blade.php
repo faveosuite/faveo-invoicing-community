@@ -8,11 +8,11 @@
 
 @section('breadcrumb')
 @if(Auth::check())
-    <li><a class="text-primary" href="{{url('my-invoices')}}">Home</a></li>
+    <li><a class="text-primary" href="{{url('my-invoices')}}">{{ __('message.home')}}</a></li>
 @else
-    <li><a class="text-primary" href="{{url('login')}}">Home</a></li>
+    <li><a class="text-primary" href="{{url('login')}}">{{ __('message.home')}}</a></li>
 @endif
-    <li class="active text-dark">Stripe</li>
+    <li class="active text-dark">{{ __('message.stripe')}}</li>
 @stop
 
 @section('main-class', 'main shop')
@@ -41,7 +41,7 @@ function getFlagIconByCardBrand($cardBrand) {
 
                         <div class="card-body">
 
-                            <h4 class="font-weight-bold text-uppercase text-4 mb-3">Your Order Confirmation</h4>
+                            <h4 class="font-weight-bold text-uppercase text-4 mb-3">{{ __('message.your_order_confirmation')}}</h4>
 
                             <table class="shop_table cart-totals mb-0">
 
@@ -50,7 +50,7 @@ function getFlagIconByCardBrand($cardBrand) {
 
                                 <tr>
                                     <td colspan="2" class="border-top-0">
-                                        <strong class="text-color-dark">Product</strong>
+                                        <strong class="text-color-dark">{{ __('message.product')}}</strong>
                                     </td>
                                 </tr>
                                  @foreach($invoice_item as $item)
@@ -67,7 +67,7 @@ function getFlagIconByCardBrand($cardBrand) {
                                @endforeach
                                <tr class="cart-subtotal">
                                     <td class="border-top-0">
-                                        <strong class="text-color-dark">Subtotal</strong>
+                                        <strong class="text-color-dark">{{ __('message.sub_total')}}</strong>
                                     </td>
                                     <td class="border-top-0 text-end">
                                         <strong><span class="amount font-weight-medium">{{currencyFormat($invoice->grand_total,$code = $invoice->currency)}}</span></strong>
@@ -76,7 +76,7 @@ function getFlagIconByCardBrand($cardBrand) {
 
                                 <tr class="total">
                                     <td>
-                                        <strong class="text-color-dark text-3-5">Total</strong>
+                                        <strong class="text-color-dark text-3-5">{{ __('message.total')}}</strong>
                                     </td>
                                     @php
                                     $cardBrandIcon = getFlagIconByCardBrand($details->brand);
@@ -84,7 +84,7 @@ function getFlagIconByCardBrand($cardBrand) {
                                     @endphp
                                     <td class="text-end">
                                         <strong class="text-color-dark"><span class="amount text-color-dark text-5">{{currencyFormat($invoice->grand_total,$code = $invoice->currency)}}</span></strong><br>
-                                       <strong class="d-block text-color-dark line-height-1 font-weight-bold"><span class="amount text-color-dark text-3">Paid with
+                                       <strong class="d-block text-color-dark line-height-1 font-weight-bold"><span class="amount text-color-dark text-3">{{ __('message.paid_with')}}
                                           @if($cardBrandIcon)
                                             <img class="img-responsive" src="{{ $cardBrandIcon }}" alt="{{ $details->brand }} Icon" width="25" height="25">
                                         @endif
@@ -115,7 +115,7 @@ function getFlagIconByCardBrand($cardBrand) {
                                 <input type="hidden" name="payment_intent" value="{{ $status }}">
                                 <input type="hidden" name="invoice" value="{{ $invoice->id }}">
                                 <button type="submit" class="btn btn-dark btn-modern w-50 text-uppercase text-3 py-3">
-                                    Finish <i class="fas fa-arrow-right ms-2"></i>
+                                    {{ __('message.finish')}} <i class="fas fa-arrow-right ms-2"></i>
                                 </button>
                             </form>
                         </div>

@@ -6,19 +6,19 @@ Report settings
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 
     <div class="col-sm-6">
-        <h1>Report settings</h1>
+        <h1>{{ __('message.report_settings') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item active">Report settings</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.report_settings') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
 @section('content')
     <div class="card card-secondary card-outline">
         <div class="card-header">
-            <h3 class="card-title">Settings</h3>
+            <h3 class="card-title">{{ __('message.settings') }}</h3>
         </div>
           {!! Form::open(['url' => 'add_records', 'method' => 'post']) !!}
         <div class="card-body table-responsive">
@@ -27,7 +27,7 @@ Report settings
             <div class="col-md-6">
                 <div class="form-group">
                     {!! Form::label('records', Lang::get('Records per export'), ['class' => 'required']) !!}
-                    <i class="fas fa-question-circle" data-toggle="tooltip" title="Add records per sheet. The maximum limit is 3000."></i>
+                    <i class="fas fa-question-circle" data-toggle="tooltip" title="{{ __('message.report_limit') }}"></i>
                     
                     {!! Form::select('records', [
                         200 => '200',

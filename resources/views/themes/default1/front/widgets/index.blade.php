@@ -4,13 +4,13 @@ Widgets
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>All Widgets</h1>
+        <h1>{{ __('message.all_widgets')}}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-             <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item active">Widgets</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home')}}</a></li>
+             <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings')}}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.widgets')}}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -33,13 +33,13 @@ Widgets
             <div class="col-md-12">
        
                    <table id="widgets-table" class="table display" cellspacing="0" width="100%" styleClass="borderless">
-                    <button  value="" class="btn btn-secondary btn-sm btn-alldell" id="bulk_delete"><i class= "fa fa-trash"></i>&nbsp;&nbsp;Delete Selected</button><br /><br />
+                    <button  value="" class="btn btn-secondary btn-sm btn-alldell" id="bulk_delete"><i class= "fa fa-trash"></i>&nbsp;&nbsp;{{ __('message.delmultiple')}}</button><br /><br />
                     <thead><tr>
                         <th class="no-sort"><input type="checkbox" name="select_all" onchange="checking(this)"></th>
-                         <th>Name</th>
-                          <th>Type</th>
-                          <th>Created At</th>
-                           <th>Action</th>
+                         <th>{{ __('message.name_page')}}</th>
+                          <th>{{ __('message.type')}}</th>
+                          <th>{{ __('message.created_at')}}</th>
+                           <th>{{ __('message.action')}}</th>
                         </tr></thead>
                      </table>
                 
@@ -65,7 +65,7 @@ Widgets
             "url":  '{!! route('get-widgets') !!}',
                error: function(xhr) {
                if(xhr.status == 401) {
-                alert('Your session has expired. Please login again to continue.')
+                   alert('{{ __('message.session_expired')}}');
                 window.location.href = '/login';
                }
             }
@@ -74,7 +74,7 @@ Widgets
             "oLanguage": {
                 "sLengthMenu": "_MENU_ Records per page",
                 "sSearch"    : "Search: ",
-                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>'
+                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading')}}</div></div>'
             },
                 columnDefs: [
                 { 
@@ -149,7 +149,7 @@ Widgets
             }
             else
             {
-                alert("Please select at least one checkbox");
+                alert("{{ __('message.select_checkbox')}}");
             }
         }  
 

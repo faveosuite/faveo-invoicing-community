@@ -49,7 +49,7 @@
                            title="{{ trans('message.path_tooltip') }}"></i>
                         <input class="form-control" name="path" type="text" id="path"
                                value="{{ $fileStorage->local_file_storage_path }}"
-                               placeholder="Storage Path">
+                               placeholder="{{ __('message.storage_path') }}">
                     </div>
 
 
@@ -57,41 +57,41 @@
                     <div class="form-group col-sm-6 s3_config">
                         <label>{{ trans('message.s3_path_style_endpoint') }}</label>
                         <select class="form-control" name="s3_path_style_endpoint" id="s3_path_style_endpoint">
-                            <option value="true" {{ $fileStorage->s3_path_style_endpoint === true ? 'selected' : '' }}>Yes</option>
-                            <option value="false" {{ $fileStorage->s3_path_style_endpoint !== true ? 'selected' : '' }}>No</option>
+                            <option value="true" {{ $fileStorage->s3_path_style_endpoint === true ? 'selected' : '' }}>{{ __('message.yes') }}</option>
+                            <option value="false" {{ $fileStorage->s3_path_style_endpoint !== true ? 'selected' : '' }}>{{ __('message.no') }}</option>
                         </select>
                     </div>
                     <div class="form-group col-sm-6 s3_config">
                         <label class="required">{{ trans('message.s3_bucket') }}</label>
                         <input class="form-control" name="s3_bucket" type="text" id="s3_bucket"
-                               placeholder="Enter S3 Bucket Name" value="{{ $fileStorage->s3_bucket }}">
+                               placeholder="{{ __('message.enter_bucket_name') }}" value="{{ $fileStorage->s3_bucket }}">
                     </div>
                     <div class="form-group col-sm-6 s3_config">
                         <label class="required">{{ trans('message.s3_region') }}</label>
                         <input class="form-control" name="s3_region" type="text" id="s3_region"
-                               placeholder="Enter S3 Region" value="{{ $fileStorage->s3_region }}">
+                               placeholder="{{ __('message.enter_region') }}" value="{{ $fileStorage->s3_region }}">
                     </div>
                     <div class="form-group col-sm-6 s3_config">
                         <label class="required">{{ trans('message.s3_access_key') }}</label>
                         <input class="form-control" name="s3_access_key" type="password" id="s3_access_key"
-                               placeholder="Enter S3 Access Key" value="{{ $fileStorage->s3_access_key }}">
+                               placeholder="{{ __('message.enter_access_key') }}" value="{{ $fileStorage->s3_access_key }}">
                     </div>
                     <div class="form-group col-sm-6 s3_config">
                         <label class="required">{{ trans('message.s3_secret_key') }}</label>
                         <input class="form-control" name="s3_secret_key" type="password" id="s3_secret_key"
-                               placeholder="Enter S3 Secret Key" value="{{ $fileStorage->s3_secret_key }}">
+                               placeholder="{{ __('message.enter_security_key') }}" value="{{ $fileStorage->s3_secret_key }}">
                     </div>
 
                     <div class="form-group col-sm-6 s3_config">
                         <label class="required">{{ trans('message.s3_endpoint_url') }}</label>
                         <input class="form-control" name="s3_endpoint_url" type="text" id="s3_endpoint_url"
-                               placeholder="Enter S3 Endpoint URL" value="{{ $fileStorage->s3_endpoint_url }}">
+                               placeholder="{{ __('message.enter_endpoint_url') }}" value="{{ $fileStorage->s3_endpoint_url }}">
                     </div>
 
                     <div class="form-group col-sm-6 s3_config">
                         <label>{{ trans('message.s3_url') }}</label>
                         <input class="form-control" name="s3_url" type="text" id="s3_url"
-                               placeholder="Enter S3 URL" value="{{ $fileStorage->s3_url }}">
+                               placeholder="{{ __('message.enter_url') }}" value="{{ $fileStorage->s3_url }}">
                     </div>
 
                 </div>

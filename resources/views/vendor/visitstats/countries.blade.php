@@ -7,10 +7,10 @@
 
 		<table class="visitortracker-table table table-sm table-striped fs-1">
 			<thead>
-				<th>Country</th>
-				<th>Unique Visitors</th>
-				<th>Visits</th>
-				<th>Last Visit</th>
+				<th>{{ __('message.country') }}</th>
+				<th>{{ __('message.unique_visitors') }}</th>
+				<th>{{ __('message.visits') }}</th>
+				<th>{{ __('message.last_visit') }}</th>
 			</thead>
 
 			<tbody>
@@ -34,8 +34,8 @@
 								<img class="visitortracker-icon"
 									src="{{ asset('/vendor/visitortracker/icons/flags/unknown.png') }}"
 									title="Unknown">
-								
-								Unknown
+
+								{{ __('message.unknown') }}
 							@endif
 						</td>
 							

@@ -8,7 +8,7 @@ active
 
 @section('content')
 
-<h2 class="mb-none"> Subscriptions Table</h2>
+<h2 class="mb-none"> {{ __('message.subscriptions_table')}}</h2>
 
 <div class="col-md-12 pull-center">
     {!! Datatable::table()

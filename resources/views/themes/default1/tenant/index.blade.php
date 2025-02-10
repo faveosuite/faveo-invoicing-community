@@ -126,14 +126,14 @@
 </style>
 
     <div class="col-sm-6">
-        <h1>Cloud Details</h1>
+        <h1>{{ __('message.cloud_details') }}</h1>
     </div>
 
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{ url('/') }}"> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{ url('settings') }}"> Settings</a></li>
-            <li class="breadcrumb-item active">Cloud Hub</li>
+            <li class="breadcrumb-item"><a href="{{ url('/') }}"> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ url('settings') }}"> {{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.cloud_hub') }}</li>
         </ol>
     </div>
 @stop
@@ -143,7 +143,7 @@
 
     <div class="card card-secondary card-outline">
         <div class="card-header">
-            <h3 class="card-title">Cloud server</h3>
+            <h3 class="card-title">{{ __('message.cloud_server') }}</h3>
         </div>
         <div class="card-body table-responsive">
             {!! Form::model($cloud, ['route'=> 'cloud-details']) !!}
@@ -173,7 +173,7 @@
     </div>
     <div class="card card-secondary card-outline">
         <div class="card-header">
-            <h3 class="card-title">Customise Cloud Popup</h3>
+            <h3 class="card-title">{{ __('message.customise_cloud_popup') }}</h3>
         </div>
 
         <div class="card-body table-responsive">
@@ -213,7 +213,7 @@
     ?>
     <div class="card card-secondary card-outline">
         <div class="card-header">
-            <h3 class="card-title">Cloud Product Configuration</h3>
+            <h3 class="card-title">{{ __('message.cloud_product_configuration') }}</h3>
         </div>
         <div class="card-body">
             {!! Form::model('',['route' => 'cloud-product-store']) !!}
@@ -256,7 +256,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <button type="submit" class="btn btn-primary">
-                        <i class="fa fa-save"></i> Save
+                        <i class="fa fa-save"></i> {{ __('message.save') }}
                     </button>
                 </div>
             </div>
@@ -271,10 +271,10 @@
             <table id="pop-product-table" class="table display" cellspacing="0" width="100%" styleClass="borderless">
                 <thead>
                 <tr>
-                    <th>Cloud Product</th>
-                    <th>Cloud free plan</th>
-                    <th>Cloud product key</th>
-                    <th>Action</th>
+                    <th>{{ __('message.cloud_prod') }}</th>
+                    <th>{{ __('message.free_plan_cloud') }}</th>
+                    <th>{{ __('message.cloud_prod_key') }}</th>
+                    <th>{{ __('message.action') }}</th>
                 </tr>
                 </thead>
             </table>
@@ -298,7 +298,7 @@
 
     <div class="card card-secondary card-outline">
             <div class="card-header">
-                <h3 class="card-title">Cloud Data Centers</h3>
+                <h3 class="card-title">{{ __('message.cloud_data_centers') }}</h3>
             </div>
 
           <div class="card-body">
@@ -310,7 +310,7 @@
                           <div class="form-group">
                               <!-- Select Field 1 -->
                               <select id="cloud_countries" name="cloud_countries" class="form-control select2">
-                                  <option value="">Choose</option>
+                                  <option value="">{{ __('message.choose') }}</option>
                                   @foreach($countries as $country)
                                       <option value="{!! strtolower($country->country_code_char2) !!}">{{$country->nicename}}</option>
                                   @endforeach
@@ -343,7 +343,7 @@
                            <div class="col-md-4">
                                <div class="form-group">
                                    <button type="submit" class="btn btn-primary">
-                                       <i class="fa fa-save"></i> Save
+                                       <i class="fa fa-save"></i> {{ __('message.save') }}
                                    </button>
                                </div>
 
@@ -358,20 +358,20 @@
         <div class="card card-secondary card-outline">
             <div class="card-header">
                 <div id="response"></div>
-                <h5>Set Cloud Free Trial Button Display Option</h5>
+                <h5>{{ __('message.set_cloud_free_trial') }}</h5>
             </div>
             <div class="card-body">
                 {!! Form::open(['url' => 'enable/cloud', 'method' => 'POST']) !!}
             <div class="row">
                 <div class="col-md-4">
                     <div class="form-group">
-                        {!! Form::label('debug', Lang::get('Cloud Free Trial')) !!}
+                        {!! Form::label('debug', Lang::get('message.cloud_free_trial')) !!}
                         <div class="row">
                             <div class="col-sm-3">
-                                <input type="radio" name="debug" value="true" @if($cloudButton == 1) checked="true" @endif > {{Lang::get('Enable')}}
+                                <input type="radio" name="debug" value="true" @if($cloudButton == 1) checked="true" @endif > {{Lang::get('message.enable')}}
                             </div>
                             <div class="col-sm-3">
-                                <input type="radio" name="debug" value="false" @if($cloudButton == 0) checked="true" @endif > {{Lang::get('Disable')}}
+                                <input type="radio" name="debug" value="false" @if($cloudButton == 0) checked="true" @endif > {{Lang::get('message.disable')}}
                             </div>
                         </div>
                     </div>
@@ -379,7 +379,7 @@
             </div>
             <div>
                 <button type="submit" class="btn btn-primary">
-                    <i class="fa fa-save"></i> Save
+                    <i class="fa fa-save"></i> {{ __('message.save') }}
                 </button>
             </div>
         </div>
@@ -388,7 +388,7 @@
     <div id="export-message"></div>
         <div class="card card-secondary card-outline">
     <div class="card-header">
-        <h3 class="card-title">Tenants</h3>
+        <h3 class="card-title">{{ __('message.tenants') }}</h3>
     </div>
     <div id="tenatloading" style="display: none;">
         <div class="tenatspinner"></div>
@@ -396,7 +396,7 @@
     <div id="successmsg"></div>
     <div id="error"></div>
 
-        <button type="button" id="tenat_export-report-btn" class="btn btn-sm pull-right" data-toggle="tooltip" title="Export" style="position: absolute;right: 10px;top: 10px;">
+        <button type="button" id="tenat_export-report-btn" class="btn btn-sm pull-right" data-toggle="tooltip" title="{{ __('message.export') }}" style="position: absolute;right: 10px;top: 10px;">
             <i class="fas fa-paper-plane"></i>
         </button>
         <br />
@@ -407,63 +407,63 @@
         <div class="d-flex justify-content-end" style="padding-top: 0px;">
             <div class="custom-dropdown" id="columnUpdate">
                 <button class="btn btn-default float-right" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="position: relative;top: 32px;">
-                    <span class="fa fa-columns"></span>&nbsp;&nbsp;Select Columns&nbsp;&nbsp;<span class="fas fa-caret-down"></span>
+                    <span class="fa fa-columns"></span>&nbsp;&nbsp;{{ __('message.selected_columns') }}&nbsp;&nbsp;<span class="fas fa-caret-down"></span>
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" value="Order" id="OrderCheckbox">
-                        <label class="form-check-label" for="Order">Order</label>
+                        <label class="form-check-label" for="Order">{{ __('message.order') }}</label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" value="name" id="nameCheckbox">
-                        <label class="form-check-label" for="name">Name</label>
+                        <label class="form-check-label" for="name">{{ __('message.name_page') }}</label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" value="email" id="emailCheckbox">
-                        <label class="form-check-label" for="email">Email</label>
+                        <label class="form-check-label" for="email">{{ __('message.email') }}</label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" value="mobile" id="mobileCheckbox">
-                        <label class="form-check-label" for="mobile">Mobile</label>
+                        <label class="form-check-label" for="mobile">{{ __('message.mobile') }}</label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" value="country" id="countryCheckbox">
-                        <label class="form-check-label" for="country">Country</label>
+                        <label class="form-check-label" for="country">{{ __('message.country') }}</label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" value="Expiry day" id="Expiry dayCheckbox">
-                        <label class="form-check-label" for="Expiry day">Expiry Day</label>
+                        <label class="form-check-label" for="Expiry day">{{ __('message.expiry_date') }}</label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" value="Deletion day" id="Deletion dayCheckbox">
-                        <label class="form-check-label" for="Deletion day">Deletion Day</label>
+                        <label class="form-check-label" for="Deletion day">{{ __('message.deletion_day') }}</label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" value="plan" id="planCheckbox">
-                        <label class="form-check-label" for="plan">Plan Status</label>
+                        <label class="form-check-label" for="plan">{{ __('message.plan_status') }}</label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" value="tenants" id="tenantsCheckbox">
-                        <label class="form-check-label" for="tenants">Tenants</label>
+                        <label class="form-check-label" for="tenants">{{ __('message.tenants') }}</label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" value="domain" id="domainCheckbox">
-                        <label class="form-check-label" for="domain">Domain</label>
+                        <label class="form-check-label" for="domain">{{ __('message.admin_domain') }}</label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" value="db_name" id="db_nameCheckbox">
-                        <label class="form-check-label" for="db_name">DB name</label>
+                        <label class="form-check-label" for="db_name">{{ __('message.db_name') }}</label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" value="db_username" id="db_usernameCheckbox">
-                        <label class="form-check-label" for="db_username">DB username</label>
+                        <label class="form-check-label" for="db_username">{{ __('message.db_username') }}</label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" value="action" id="actionCheckbox">
-                        <label class="form-check-label" for="action">Action</label>
+                        <label class="form-check-label" for="action">{{ __('message.action') }}</label>
                     </div>
                     <br>
-                    <button type="button" class="btn btn-primary btn-sm" style="position: relative; left: 20px; padding: 4px;" id="saveColumnsBtn">Apply</button>
+                    <button type="button" class="btn btn-primary btn-sm" style="position: relative; left: 20px; padding: 4px;" id="saveColumnsBtn">{{ __('message.apply') }}</button>
                 </div>
             </div>
 
@@ -473,19 +473,19 @@
             <table id="tenant-table" class="table display" cellspacing="0" width="100%" styleClass="borderless">
                 <thead>
                     <tr>
-                        <th>Order</th>
-                        <th>User</th>
-                        <th>Email</th>
-                        <th>Mobile</th>
-                        <th>Country</th>
-                        <th>Expiry day</th>
-                        <th>Deletion day</th>
-                        <th>Plan Status</th>
-                        <th>Tenant</th>
-                        <th>Domain</th>
-                        <th>DB name</th>
-                        <th>DB username</th>
-                        <th>Action</th>
+                        <th>{{ __('message.order') }}</th>
+                        <th>{{ __('message.user') }}</th>
+                        <th>{{ __('message.email') }}</th>
+                        <th>{{ __('message.mobile') }}</th>
+                        <th>{{ __('message.country') }}</th>
+                        <th>{{ __('message.expiry_date') }}</th>
+                        <th>{{ __('message.deletion_day') }}</th>
+                        <th>{{ __('message.plan_status') }}</th>
+                        <th>{{ __('message.tenant') }}</th>
+                        <th>{{ __('message.admin_domain') }}</th>
+                        <th>{{ __('message.db_name') }}</th>
+                        <th>{{ __('message.db_username') }}</th>
+                        <th>{{ __('message.action') }}</th>
                     </tr>
                 </thead>
             </table>
@@ -519,7 +519,7 @@
                     "url": '{!! route('get-tenants') !!}',
                     error: function (xhr) {
                         if (xhr.status == 401) {
-                            alert('Your session has expired. Please login again to continue.');
+                            alert('{{ __('message.session_expired') }}');
                             window.location.href = '/login';
                         }
                     },
@@ -535,9 +535,9 @@
                 },
                 "oLanguage": {
                     "sLengthMenu": "_MENU_ Records per page",
-                   "sSearch": "<span style='position: relative;right: 175px;'>Search:</span> ",
+                   "sSearch": "<span style='position: relative;right: 175px;'>{{ __('message.search') }}:</span> ",
 
-                    "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>'
+                    "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
                 },
                 columnDefs: [
                     { orderable: false, targets: 4 }
@@ -573,7 +573,7 @@
             selectedColumns.push($(this).val());
         });
          if (selectedColumns.length === 0) {
-        alert('Please select at least one column.');
+        alert('{{ __('message.select_checkbox') }}');
         return;
         }
 
@@ -660,11 +660,11 @@
                     search_params: searchParams
                 },
                     success: function(response, status, xhr) {
-                    var result = '<div class="alert alert-success">' +
-                        '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
-                        '<span aria-hidden="true">&times;</span></button>' +
-                        '<strong><i class="far fa-thumbs-up"></i> Well Done! </strong>' +
-                        response.message + '!</div>';
+                        var result = '<div class="alert alert-success">' +
+                            '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
+                            '<span aria-hidden="true">&times;</span></button>' +
+                            '<strong><i class="far fa-thumbs-up"></i> ' + @json(__('message.well_done')) + ' </strong>' +
+                            response.message + '!</div>';
 
                     $('#export-message').html(result).removeClass('text-danger').addClass('text-success');
                     setTimeout(function() {
@@ -708,7 +708,7 @@
                     success: function (data) {
                         if (data.success === true) {
                             console.log(data.message);
-                            var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong><i class="fa fa-check"></i>Success! </strong>' + data.message + '!</div>';
+                            var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true">&times;</span></button><strong><i class="fa fa-check"></i>{{ __('message.success') }}! </strong>' + data.message + '!</div>';
                             $('#successmsg').show();
                             $('#error').hide();
                             $('#successmsg').html(result);
@@ -719,7 +719,7 @@
                         } else if (data.success === false) {
                             $('#successmsg').hide();
                             $('#error').show();
-                            var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong><i class="fa fa-ban"></i>Whoops! </strong> Something went wrong<br>' + data.message + '!</div>';
+                            var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true">&times;</span></button><strong><i class="fa fa-ban"></i>{{ __('message.whoops') }} </strong> {{ __('message.something_wrong') }}<br>' + data.message + '!</div>';
                             $('#error').html(result);
                             setInterval(function () {
                                 $('#error').slideUp(5000);
@@ -730,7 +730,7 @@
                     error: function (data) {
                         $('#successmsg').hide();
                         $('#error').show();
-                        var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong><i class="fa fa-ban"></i>Whoops! </strong> Something went wrong<br>' + data.responseJSON.message + '!</div>';
+                        var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true">&times;</span></button><strong><i class="fa fa-ban"></i>{{ __('message.whoops') }} </strong> {{ __('message.something_wrong') }}<br>' + data.responseJSON.message + '!</div>';
                         $('#error').html(result);
                         setInterval(function () {
                             $('#error').slideUp(5000);
@@ -754,7 +754,7 @@
             // Add an OpenStreetMap tile layer.
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">{{ __('message.openstreetmap') }}</a> {{ __('message.contributors') }}'
             }).addTo(map);
 
             // Define an array of region coordinates
@@ -816,7 +816,7 @@
                 language: {
                     sLengthMenu: "_MENU_ Records per page",
                     sSearch: "Search: ",
-                    sProcessing: ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>'
+                    sProcessing: ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
                 },
                 columnDefs: [
                     { orderable: false, targets: 3 }
@@ -847,7 +847,7 @@
                     data: { 'id': id },
                     success: function (data) {
                         if (data.success === true) {
-                            var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong><i class="fa fa-check"></i>Success! </strong>' + data.message + '!</div>';
+                            var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true">&times;</span></button><strong><i class="fa fa-check"></i>{{ __('message.success') }}! </strong>' + data.message + '!</div>';
                             $('#successmsgpop').show();
                             $('#errorpop').hide();
                             $('#successmsgpop').html(result);
@@ -858,7 +858,7 @@
                         } else if (data.success === false) {
                             $('#successmsgpop').hide();
                             $('#errorpop').show();
-                            var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong><i class="fa fa-ban"></i>Whoops! </strong> Something went wrong<br>' + data.message + '!</div>';
+                            var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true">&times;</span></button><strong><i class="fa fa-ban"></i>{{ __('message.whoops') }} </strong> {{ __('message.something_wrong') }}<br>' + data.message + '!</div>';
                             $('#errorpop').html(result);
                             setInterval(function () {
                                 $('#errorpop').slideUp(5000);
@@ -869,7 +869,7 @@
                     error: function (data) {
                         $('#successmsgpop').hide();
                         $('#errorpop').show();
-                        var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong><i class="fa fa-ban"></i>Whoops! </strong> Something went wrong<br>' + data.responseJSON.message + '!</div>';
+                        var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true">&times;</span></button><strong><i class="fa fa-ban"></i>{{ __('message.whoops') }} </strong> {{ __('message.something_wrong') }}<br>' + data.responseJSON.message + '!</div>';
                         $('#errorpop').html(result);
                         setInterval(function () {
                             $('#errorpop').slideUp(5000);

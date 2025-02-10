@@ -1,6 +1,6 @@
-User Name: {{$email}}
+{{ __('message.email_username') }}{{$email}}
 <br>
-Password: {{$pass}}
+{{ __('message.email_password') }}{{$pass}}
 <br>
 <br>
-To activate your account:  <a href='{{ url('activate/'.$token) }}'>Click Here</a>
+{{ __('message.activate_account') }}  <a href='{{ url('activate/'.$token) }}'>{{ __('message.email_click_here') }}</a>

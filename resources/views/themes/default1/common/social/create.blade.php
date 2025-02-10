@@ -4,14 +4,14 @@ Social Media
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Create New Social Media</h1>
+        <h1>{{ __('message.create_new_social_media') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item"><a href="{{url('social-media')}}"><i class="fa fa-dashboard"></i> Social Media</a></li>
-            <li class="breadcrumb-item active">Create Social Media</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('social-media')}}"><i class="fa fa-dashboard"></i> {{ __('message.social-media') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.create_new_social_media') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop

@@ -10,11 +10,11 @@ Reset Password
 @stop
 @section('breadcrumb')
     @if(Auth::check())
-        <li><a class="text-primary" href="{{url('my-invoices')}}">Home</a></li>
+        <li><a class="text-primary" href="{{url('my-invoices')}}">{{ __('message.home')}}</a></li>
     @else
-         <li><a class="text-primary" href="{{url('login')}}">Home</a></li>
+         <li><a class="text-primary" href="{{url('login')}}">{{ __('message.home')}}</a></li>
     @endif
-     <li class="active text-dark">Reset Password</li>
+     <li class="active text-dark">{{ __('message.reset_password')}}</li>
 @stop 
 @section('main-class') 
 main
@@ -36,9 +36,9 @@ main
 
                             <div class="form-group col {{ $errors->has('password') ? 'has-error' : '' }}">
 
-                                <label class="form-label text-color-dark text-3">New Password <span class="text-color-danger">*</span></label>
+                                <label class="form-label text-color-dark text-3">{{ __('message.new_password')}} <span class="text-color-danger">*</span></label>
                                 <div class="input-group">
-                                <input type="password" id="password" value="" class="form-control form-control-lg text-4" placeholder="Password" name='password'<?php if( count($errors) > 0) {?> style="width: 98%;position: relative;left: 5px;"<?php } ?>>
+                                <input type="password" id="password" value="" class="form-control form-control-lg text-4" placeholder="{{ __('message.password')}}" name='password'<?php if( count($errors) > 0) {?> style="width: 98%;position: relative;left: 5px;"<?php } ?>>
                                     <div class="input-group-append">
                                         <span class="input-group-text" role="button" onclick="togglePasswordVisibility(this)">
                                             <i class="fa fa-eye-slash"></i>
@@ -61,7 +61,7 @@ main
 
                             <div class="form-group col {{ $errors->has('password_confirmation') ? 'has-error' : '' }}">
 
-                                <label class="form-label text-color-dark text-3">Confirm Password <span class="text-color-danger">*</span></label>
+                                <label class="form-label text-color-dark text-3">{{ __('message.confirm_password')}} <span class="text-color-danger">*</span></label>
                                 <div class="input-group">
                                 {!! Form::password('password_confirmation',['placeholder'=>'Retype password','class' => 'form-control form-control-lg text-4' , 'id' => 'confirm_password']) !!}
 
@@ -85,7 +85,7 @@ main
 
                             <div class="form-group col">
 
-                                <button type="submit" class="btn btn-dark btn-modern w-100 text-uppercase font-weight-bold text-3 py-3" data-loading-text="Loading...">Reset Password</button>
+                                <button type="submit" class="btn btn-dark btn-modern w-100 text-uppercase font-weight-bold text-3 py-3" data-loading-text="Loading...">{{ __('message.reset_password')}}</button>
 
                             </div>
                         </div>
@@ -106,7 +106,7 @@ main
         function validateCaptcha() {
                 if(getRecaptchaTokenFromId(reset_recaptcha_id) == ''){
                     $('.loginrobot-verification').empty()
-                    $('.loginrobot-verification').append("<p style='color:red'>Robot verification failed, please try again.</p>")
+                    $('.loginrobot-verification').append("<p style='color:red'>{{ __('message.robot_verification')}}</p>")
                     return false;
                 }
                 else{

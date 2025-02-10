@@ -4,14 +4,19 @@ Edit Product
 @stop
 @section('content-header')
     <div class="col-sm-6">
+<<<<<<< HEAD
         <h1>Edit Product</h1>
 
+=======
+        <h1>{{ __('message.edit_product') }}</h1>
+      
+>>>>>>> d1d255d79 (fixes #3191)
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('products')}}"><i class="fa fa-dashboard"></i> Products</a></li>
-            <li class="breadcrumb-item active">Edit Product</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('products')}}"><i class="fa fa-dashboard"></i> {{ __('message.products') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.edit_product') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -69,10 +74,10 @@ Edit Product
     <div class="card-header p-0 pt-1">
         <ul class="nav nav-tabs" id="custom-tabs-one-tab" role="tablist">
             <li class="nav-item">
-                <a class="nav-link active" id="custom-tabs-detail-tab" data-toggle="pill" href="#custom-tabs-detail" role="tab" aria-controls="custom-tabs-detail" aria-selected="true">Details</a>
+                <a class="nav-link active" id="custom-tabs-detail-tab" data-toggle="pill" href="#custom-tabs-detail" role="tab" aria-controls="custom-tabs-detail" aria-selected="true">{{ __('message.details') }}</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="custom-tabs-plan-tab" data-toggle="pill" href="#custom-tabs-plan" role="tab" aria-controls="custom-tabs-plan" aria-selected="false">Plans</a>
+                <a class="nav-link" id="custom-tabs-plan-tab" data-toggle="pill" href="#custom-tabs-plan" role="tab" aria-controls="custom-tabs-plan" aria-selected="false">{{ __('message.plans') }}</a>
             </li>
         </ul>
     </div>
@@ -102,7 +107,7 @@ Edit Product
                                     <!-- last name -->
                                     {!! Form::label('group',Lang::get('message.group'),['class'=>'required']) !!}
                                         <select name="group"  class="form-control">
-                            <option >Choose</option>
+                            <option >{{ __('message.choose') }}</option>
                             @foreach($groups as $key=>$group)
                                    <option value="{{$key}}" <?php  if (in_array($group, $selectedGroup)) {
                                     echo "selected";
@@ -164,7 +169,7 @@ Edit Product
 
                                             <table class="table">
                                                 <input type="hidden" value="{{$checkowner}}" id="checkowner">
-                                              <span>Where do you want to retrieve your files from?</span>
+                                              <span>{{ __('message.where_retrieve_files') }}</span>
                                              </br>
                                              <input type="hidden" value="{{$githubStatus}}" id="gitstatus">
                                                 <tr>
@@ -172,7 +177,7 @@ Edit Product
                                                     <td>
                                                         <label for="chkYes" style="">
                                                         <input type="radio" id="chkYes" name="chkTax" />
-                                                        Github
+                                                            {{ __('message.github') }}
                                                     </label>
                                                       <div class="col-md-10 gitstatus" id="git" style="display:none">
                                                 <li>
@@ -206,7 +211,7 @@ Edit Product
                                                 <tr>
                                                     <td><label for="chkNo">
                                                         <input type="radio" id="chkNo" name="chkTax" />
-                                                            Filesystem
+                                                            {{ __('message.filesystem') }}
                                                         </label>
                                                     </td>
                                                 </tr>
@@ -273,7 +278,7 @@ Edit Product
 
                                                <div class="form-group {{ $errors->has('add_to_contact') ? 'has-error' : '' }}">
                                                 <!-- first name -->
-                                                {!! Form::label('add_to_contact',Lang::get('Contact to sales')) !!}
+                                                {!! Form::label('add_to_contact',Lang::get('message.contact_to_sales')) !!}
                                                 {!! Form::hidden('add_to_contact', 0) !!}
                                                 <?php
                                                 $value=  "";
@@ -307,7 +312,7 @@ Edit Product
                         <div class="tab-pane fade" id="custom-tabs-plan" role="tabpanel"  aria-labelledby="custom-tabs-plan-tab">
                             <table class="table">
 
-                                <span class="required">Show on Cart Page</span>
+                                <span class="required">{{ __('message.show_cart_page') }}</span>
                                  <tr>
                                     <div class="row">
                                     <td>
@@ -315,7 +320,7 @@ Edit Product
                                         <div><label>
                                              {!! Form::radio('show_agent',1,null,['id'=>'agent']) !!}
                                               <!-- <input type ="radio" id="agent" value="0" name="cartquantity" hidden>   -->
-                                            Agents
+                                                {{ __('message.agents') }}
                                         </label></div>
 
                                     <br/>
@@ -350,8 +355,13 @@ Edit Product
                                             <div class="row">
 
                                                 <div class="col-md-2">
+<<<<<<< HEAD
                                                    <select id="editTax" placeholder="Select Taxes" name="tax[]" style="width:500px;" class="select2" multiple="true">
 
+=======
+                                                   <select id="editTax" placeholder="{{ __('message.select_taxes') }}" name="tax[]" style="width:500px;" class="select2" multiple="true">
+                                                    
+>>>>>>> d1d255d79 (fixes #3191)
                                                        @foreach($taxes as $value)
                                                         <option value={{$value['id']}} <?php echo (in_array($value['id'], $savedTaxes)) ?  "selected" : "" ;  ?>>{{$value['name'].'('.$value['name'].')'}}</option>
 
@@ -372,7 +382,7 @@ Edit Product
 
 
                                             <br>
-                                            <h3>  Plans &nbsp;
+                                            <h3>  {{ __('message.plans') }} &nbsp;
                                                 <!-- <a href="#create-plan-option" data-toggle="modal" data-target="#create-plan-option" class="btn btn-default">Add new</a> -->
                                             </h3>
 
@@ -380,9 +390,9 @@ Edit Product
                                                 <table class="table">
 
                                                     <tr>
-                                                        <th>Name</th>
-                                                        <th>Months</th>
-                                                        <th>Action</th>
+                                                        <th>{{ __('message.name_page') }}</th>
+                                                        <th>{{ __('message.months') }}</th>
+                                                        <th>{{ __('message.action') }}</th>
                                                     </tr>
                                                     @foreach($product->plan()->where('product',$product->id)->get() as $plan)
                                                         <tr>
@@ -402,14 +412,14 @@ Edit Product
                                                      @endforeach
                                                 </table>
                                     @else
-                                        <td>No Plans Created</td>
+                                        <td>{{ __('message.no_plans_created') }}</td>
                             @endif
 
                                         </div>
 
 
        </div>
-        <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fas fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}</button>
+        <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> {{ __('message.saving') }}"><i class="fas fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}</button>
 
           {!! Form::close() !!}
 
@@ -431,7 +441,7 @@ Edit Product
         <div class="col-md-12">
         <div class="card card-secondary card-outline" id="uploads">
             <div class="card-header">
-                <h3 class="card-title">Upload Files</h3>
+                <h3 class="card-title">{{ __('message.upload_files') }}</h3>
 
                 <div class="card-tools">
                     <a href="#create-upload-option" id="create" class="btn btn-default  btn-sm pull-right" data-toggle="modal" data-target="#create-upload-option"><span class="fa fa-plus"></span>&nbsp;&nbsp;{{Lang::get('message.add-file')}}</a>
@@ -449,12 +459,12 @@ Edit Product
                           <button  value="" class="btn btn-secondary btn-sm btn-alldell" id="bulk_delete"><i class="fa fa-trash"></i>&nbsp;&nbsp; {{Lang::get('message.delmultiple')}}</button><br /><br />
                     <thead><tr>
                          <th class="no-sort"><input type="checkbox" name="select_all" onchange="checking(this)"></th>
-                        <th>Title</th>
-                        <th style="width:210px;">Description</th>
-                        <th>Version</th>
-                        <th>ReleaseType</th>
-                        <th>File</th>
-                        <th>Action</th>
+                        <th>{{ __('message.title') }}</th>
+                        <th style="width:210px;">{{ __('message.description') }}</th>
+                        <th>{{ __('message.version') }}</th>
+                        <th>{{ __('message.release_type') }}</th>
+                        <th>{{ __('message.file') }}</th>
+                        <th>{{ __('message.action') }}</th>
                         </tr></thead>
                      </table>
 
@@ -470,17 +480,17 @@ Edit Product
     <div class="modal-dialog modal-dialog-centered"> <!-- Added modal-dialog-centered -->
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <h5 class="modal-title" id="deleteModalLabel">{{ __('message.confirm_deletion') }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="{{ __('message.close') }}">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                Are you sure you want to delete the selected files?
+                {{ __('message.want_delete_selected_files') }}
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <button type="button" id="confirmDelete" class="btn btn-danger">Delete</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('message.cancel') }}</button>
+                <button type="button" id="confirmDelete" class="btn btn-danger">{{ __('message.delete') }}</button>
             </div>
         </div>
     </div>
@@ -530,8 +540,8 @@ Edit Product
                                           toolbar2: 'print preview media | forecolor backcolor emoticons',
                                           image_advtab: true,
                                           templates: [
-                                              {title: 'Test template 1', content: 'Test 1'},
-                                              {title: 'Test template 2', content: 'Test 2'}
+                                              {title: '{{ __('message.test_template_one') }}', content: 'Test 1'},
+                                              {title: '{{ __('message.test_template_two') }}', content: 'Test 2'}
                                           ],
                                           content_css: [
                                               '//fast.fonts.net/cssapi/e6dc9b99-64fe-4292-ad98-6974f93cd2a2.css',
@@ -555,8 +565,8 @@ Edit Product
                                           toolbar2: 'print preview media | forecolor backcolor emoticons',
                                           image_advtab: true,
                                           templates: [
-                                              {title: 'Test template 1', content: 'Test 1'},
-                                              {title: 'Test template 2', content: 'Test 2'}
+                                              {title: '{{ __('message.test_template_one') }}', content: 'Test 1'},
+                                              {title: '{{ __('message.test_template_two') }}', content: 'Test 2'}
                                           ],
                                           content_css: [
                                               '//fast.fonts.net/cssapi/e6dc9b99-64fe-4292-ad98-6974f93cd2a2.css',
@@ -580,8 +590,8 @@ Edit Product
                                           toolbar2: 'print preview media | forecolor backcolor emoticons',
                                           image_advtab: true,
                                           templates: [
-                                              {title: 'Test template 1', content: 'Test 1'},
-                                              {title: 'Test template 2', content: 'Test 2'}
+                                              {title: '{{ __('message.test_template_one') }}', content: 'Test 1'},
+                                              {title: '{{ __('message.test_template_two') }}', content: 'Test 2'}
                                           ],
                                           content_css: [
                                               '//fast.fonts.net/cssapi/e6dc9b99-64fe-4292-ad98-6974f93cd2a2.css',
@@ -600,7 +610,7 @@ Edit Product
                                  $(this).empty().html(newStr);
                                 var removedStr = myStr.substring(maxLength, $.trim(myStr).length);
                                 $(this).append('<span class="more-text">' + removedStr + '</span>');
-                                $(this).append(' <a href="javascript:void(0);" class="read-more">read more...</a>');
+                                $(this).append(' <a href="javascript:void(0);" class="read-more">{{ __('message.read_more') }}</a>');
                             }
                           });
                          }
@@ -617,7 +627,7 @@ Edit Product
             "oLanguage": {
                 "sLengthMenu": "_MENU_ Records per page",
                 "sSearch"    : "Search: ",
-                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>'
+                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
             },
                 columnDefs: [
                 {
@@ -664,7 +674,7 @@ Edit Product
       }
 
          $("#editProductUpload").on('click',function(){
-      $("#editProductUpload").html("<i class='fa fa-circle-o-notch fa-spin fa-1x fa-fw'></i>Please Wait...");
+      $("#editProductUpload").html("<i class='fa fa-circle-o-notch fa-spin fa-1x fa-fw'></i>{{ __('message.please_wait') }}");
     var upload_id = $('#uploadid').val();
     var productname = $('#editName').val();
     var producttitle = $('#product-title').val();
@@ -676,15 +686,15 @@ Edit Product
        data :  {'productname': productname , 'producttitle': producttitle,
        'description': description,'version':version},
        success: function(response) {
-         $("#editProductUpload").html("<i class='fa fa-floppy-o'>&nbsp;&nbsp;</i>Save");
+         $("#editProductUpload").html("<i class='fa fa-floppy-o'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
         $('#alertMessage2').show();
         $('#error1').hide();
-        var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="far fa-check"></i> Success! </strong>'+response.message+'.</div>';
+        var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="far fa-check"></i> {{ __('message.success') }}! </strong>'+response.message+'.</div>';
         $('#alertMessage2').html(result+ ".");
        } ,
        error: function(ex) {
-         $("#editProductUpload").html("<i class='fa fa-floppy-o'>&nbsp;&nbsp;</i>Save");
-        var html = '<div class="alert alert-danger"><strong>Whoops! </strong>Something went wrong<br><br><ul>';
+         $("#editProductUpload").html("<i class='fa fa-floppy-o'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
+        var html = '<div class="alert alert-danger"><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<br><br><ul>';
         for (key in ex.responseJSON.errors) {
            html += '<li>'+ ex.responseJSON.errors[key][0] + '</li>'
         }
@@ -768,7 +778,7 @@ Edit Product
                 const alertClass = isSuccess ? 'alert-success' : 'alert-danger';
 
                 // Extract message and errors
-                const message = response.message || response || 'An error occurred. Please try again.';
+                const message = response.message || response || '{{ __('message.error_occurred') }}';
                 const errors = response.errors || null;
 
                 // Build base HTML
@@ -793,7 +803,7 @@ Edit Product
                 if (selectedIds.length > 0) {
                     $('#deleteModal').modal('show'); // Show Bootstrap modal
                 } else {
-                    alert("Please select at least one checkbox");
+                    alert("{{ __('message.select_checkbox') }}");
                 }
             });
 
@@ -859,8 +869,13 @@ Edit Product
             function name_check(){
                 var name = $('#productname').val();
                 if (name.length == ''){
+<<<<<<< HEAD
                    $('#namecheck').show();
                    $('#namecheck').html('This field is required');
+=======
+                   $('#namecheck').show(); 
+                   $('#namecheck').html('{{ __('message.field_required') }}');
+>>>>>>> d1d255d79 (fixes #3191)
                    $('#namecheck').focus();
                    $('#productname').css("border-color","red");
                    $('#namecheck').css({"color":"red","margin-top":"5px"});
@@ -876,7 +891,7 @@ Edit Product
                 var des = $('#textarea1').val();
                 if (des.length == ''){
                     $('#descheck').show();
-                    $('#descheck').html('This field is required');
+                    $('#descheck').html('{{ __('message.field_required') }}');
                     $('#descheck').focus();
                     $('#textarea1').css("border-color","red");
                     $('#descheck').css({"color":"red","margin-top":"5px"});
@@ -967,7 +982,7 @@ Edit Product
 <script>
     $(document).ready(function() {
     $("#editTax").select2({
-        placeholder: 'Select Taxes',
+        placeholder: '{{ __('message.select_taxes') }}',
         tags:true
     });
 });
@@ -1012,7 +1027,7 @@ if ($fileUpload.length > 0 && $fileUploadDrop.length > 0) {
             $('.resumable-progress .progress-resume-link').hide();
             $('.resumable-progress .progress-pause-link').show();
             // Add the file to the list
-            $uploadList.append('<li class="resumable-file-' + file.uniqueIdentifier + '">Uploading <span class="resumable-file-name"></span> <span class="resumable-file-progress"></span>');
+            $uploadList.append('<li class="resumable-file-' + file.uniqueIdentifier + '">{{ __('message.uploading') }} <span class="resumable-file-name"></span> <span class="resumable-file-progress"></span>');
             $('.resumable-file-' + file.uniqueIdentifier + ' .resumable-file-name').html(file.fileName);
             // Actually start the upload
             resumable.upload();
@@ -1024,7 +1039,7 @@ if ($fileUpload.length > 0 && $fileUploadDrop.length > 0) {
         });
         resumable.on('fileError', function (file, message) {
             // Reflect that the file upload has resulted in error
-            $('.resumable-file-' + file.uniqueIdentifier + ' .resumable-file-progress').html('(file could not be uploaded: ' + message + ')');
+            $('.resumable-file-' + file.uniqueIdentifier + ' .resumable-file-progress').html('({{ __('message.file_not_uploaded') }} ' + message + ')');
         });
         resumable.on('fileProgress', function (file) {
             // Handle progress for both the file and the overall upload
@@ -1069,7 +1084,7 @@ function preRelease()
 
 
  $("#uploadVersion").on('click',function(){
-      $("#uploadVersion").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+      $("#uploadVersion").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
      var filename = $('#file_ids').val();
     var productname = $('#productname').val();
     var producttitle = $('#producttitle').val();
@@ -1085,15 +1100,15 @@ function preRelease()
        data :  {'filename': filename , 'productname': productname , 'producttitle': producttitle,
        'description': description,'dependencies':dependencies,'version':version,'is_private': private,'is_restricted': restricted,'release_type': releaseType,'_token': '{!! csrf_token() !!}'},
        success: function(response) {
-         $("#uploadVersion").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+         $("#uploadVersion").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
         $('#alertMessage1').show();
         $('#error').hide();
-        var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="far fa-check"></i> Success! </strong>'+response.message+'.</div>';
+        var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="far fa-check"></i> {{ __('message.success') }}! </strong>'+response.message+'.</div>';
         $('#alertMessage1').html(result+ ".");
        } ,
        error: function(ex) {
-         $("#uploadVersion").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
-        var html = '<div class="alert alert-danger"><strong>Whoops! </strong>Something went wrong<br><br><ul>';
+         $("#uploadVersion").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
+        var html = '<div class="alert alert-danger"><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<br><br><ul>';
         for (key in ex.responseJSON.errors) {
            html += '<li>'+ ex.responseJSON.errors[key][0] + '</li>'
         }

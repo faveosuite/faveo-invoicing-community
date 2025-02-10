@@ -10,11 +10,11 @@ Contact us
 @stop
 @section('breadcrumb')
 @if(Auth::check())
-        <li><a class="text-primary" href="{{url('my-invoices')}}">Home</a></li>
+        <li><a class="text-primary" href="{{url('my-invoices')}}">{{ __('message.home')}}</a></li>
 @else
-     <li><a class="text-primary" href="{{url('login')}}">Home</a></li>
+     <li><a class="text-primary" href="{{url('login')}}">{{ __('message.home')}}</a></li>
 @endif
- <li class="active text-dark">Contact us</li>
+ <li class="active text-dark">{{ __('message.contact_us')}}</li>
 @stop
 @section('main-class') "main shop" @stop
 @section('content')   
@@ -41,7 +41,7 @@ $country = \DB::table('countries')->where('country_code_char2',$set->country)->v
 
                 <div class="col-lg-6">
 
-                    <p class="mb-4">Feel free to ask for details, don't save any questions!</p>
+                    <p class="mb-4">{{ __('message.feel_free')}}</p>
 
                      <form id="contactForm" method="post">
 
@@ -50,16 +50,16 @@ $country = \DB::table('countries')->where('country_code_char2',$set->country)->v
 
                             <div class="form-group col-lg-6">
 
-                                <label class="form-label mb-1 text-2">Name <span class="text-color-danger">*</span></label>
+                                <label class="form-label mb-1 text-2">{{ __('message.contact_name')}} <span class="text-color-danger">*</span></label>
 
-                                <input type="text" value="" data-msg-required="Please enter your name." maxlength="100" class="form-control text-3 h-auto py-2" name="conName" id="conName">
+                                <input type="text" value="" data-msg-required="{{ __('message.contact_error_name')}}" maxlength="100" class="form-control text-3 h-auto py-2" name="conName" id="conName">
                             </div>
 
                             <div class="form-group col-lg-6">
 
-                                <label class="form-label mb-1 text-2">E-mail Address <span class="text-color-danger">*</span></label>
+                                <label class="form-label mb-1 text-2">{{ __('message.email_address')}} <span class="text-color-danger">*</span></label>
 
-                                <input type="email" value="" data-msg-required="Please enter your email address." data-msg-email="Please enter a valid email address." maxlength="100" class="form-control text-3 h-auto py-2" name="email" id="email" >
+                                <input type="email" value="" data-msg-required="{{ __('message.error_email_address') }}" data-msg-email="{{ __('message.contact_error_email')}}" maxlength="100" class="form-control text-3 h-auto py-2" name="email" id="email" >
                             </div>
                         </div>
 
@@ -67,7 +67,7 @@ $country = \DB::table('countries')->where('country_code_char2',$set->country)->v
 
                             <div class="form-group col">
 
-                                <label class="form-label mb-1 text-2">Mobile <span class="text-color-danger">*</span></label>
+                                <label class="form-label mb-1 text-2">{{ __('message.mobile')}} <span class="text-color-danger">*</span></label>
 
                                 {!! Form::hidden('mobile',null,['id'=>'mobile_code_hiddenco','name'=>'country_code']) !!}
                                 <input class="form-control input-lg" id="mobilenumcon" name="Mobile" type="tel">
@@ -82,14 +82,14 @@ $country = \DB::table('countries')->where('country_code_char2',$set->country)->v
 
                             <div class="form-group col">
 
-                                <label class="form-label mb-1 text-2">Message <span class="text-color-danger">*</span></label>
+                                <label class="form-label mb-1 text-2">{{ __('message.contact_message')}} <span class="text-color-danger">*</span></label>
 
-                                <textarea maxlength="5000" data-msg-required="Please enter your message." rows="8" class="form-control text-3 h-auto py-2" name="conmessage" id="conmessage"></textarea>
+                                <textarea maxlength="5000" data-msg-required="{{ __('message.please_enter_message')}}" rows="8" class="form-control text-3 h-auto py-2" name="conmessage" id="conmessage"></textarea>
                             </div>
                         </div>
                          <!-- Honeypot fields (hidden) -->
                                 <div style="display: none;">
-                                    <label>Leave this field empty</label>
+                                    <label>{{ __('message.contact_leave')}}</label>
                                     <input type="text" name="conatcthoneypot_field" value="">
                                 </div>
 
@@ -105,7 +105,7 @@ $country = \DB::table('countries')->where('country_code_char2',$set->country)->v
 
                             <div class="form-group col">
 
-                                <button type="submit" class="btn btn-dark btn-modern text-3" data-loading-text="Loading..." data-original-text="Send Message" id="contactSubmit">Send Message</button>
+                                <button type="submit" class="btn btn-dark btn-modern text-3" data-loading-text="{{ __('message.loading')}}" data-original-text="{{ __('message.contact_send_msg')}}" id="contactSubmit">{{ __('message.contact_send_msg')}}</button>
                             </div>
                         </div>
                     </form>
@@ -116,15 +116,15 @@ $country = \DB::table('countries')->where('country_code_char2',$set->country)->v
 
                     <div>
 
-                        <h4 class="mt-2 mb-1"><strong>Our Office</strong></h4>
+                        <h4 class="mt-2 mb-1"><strong>{{ __('message.our_office')}}</strong></h4>
 
                         <ul class="list list-icons list-icons-style-2 mt-2">
 
-                            <li><i class="fas fa-map-marker-alt top-6"></i> <strong class="text-dark">Address:</strong> {{ $address }}<br>{{ implode(', ', array_filter([$set->city, $state, $country, $set->zip])) }}</li>
+                            <li><i class="fas fa-map-marker-alt top-6"></i> <strong class="text-dark">{{ __('message.address')}}:</strong> {{ $address }}<br>{{ implode(', ', array_filter([$set->city, $state, $country, $set->zip])) }}</li>
 
-                            <li><i class="fas fa-phone top-6"></i> <strong class="text-dark">Phone:</strong> +</b>{{$set->phone_code}} {{$set->phone}}</li>
+                            <li><i class="fas fa-phone top-6"></i> <strong class="text-dark">{{ __('message.phone')}}:</strong> +</b>{{$set->phone_code}} {{$set->phone}}</li>
 
-                            <li><i class="fas fa-envelope top-6"></i> <strong class="text-dark">Email:</strong> <a href="mailto:{{$set->company_email}}">{{$set->company_email}}</a></li>
+                            <li><i class="fas fa-envelope top-6"></i> <strong class="text-dark">{{ __('message.email')}}:</strong> <a href="mailto:{{$set->company_email}}">{{$set->company_email}}</a></li>
                         </ul>
                     </div>
 
@@ -184,7 +184,7 @@ $(document).ready(function() {
         const alertClass = isSuccess ? 'alert-success' : 'alert-danger';
 
         // Extract message and errors
-        const message = response.message || response || 'An error occurred. Please try again.';
+        const message = response.message || response || '{{ __('message.error_occurred') }}';
         const errors = response.errors || null;
 
         // Build base HTML
@@ -199,12 +199,12 @@ $(document).ready(function() {
     }
     $.validator.addMethod("validPhone", function(value, element) {
         return validatePhoneNumber(element);
-    }, "Please enter a valid phone number.");
+    }, "{{ __('message.error_valid_number') }}");
 
     $.validator.addMethod("regex", function(value, element, regexp) {
         var re = new RegExp(regexp);
         return this.optional(element) || re.test(value);
-    }, "Invalid format.");
+    }, "{{ __('message.invalid_format') }}");
 
     $.validator.addMethod("recaptchaRequired", function(value, element) {
         try {
@@ -215,7 +215,7 @@ $(document).ready(function() {
             return false
         }
         return value.trim() !== "";
-    }, "Please verify that you are not a robot.");
+    }, "{{ __('message.recaptcha_required') }}");
     $('#contactForm').validate({
         ignore: ":hidden:not(.g-recaptcha-response)",
         rules: {
@@ -242,24 +242,24 @@ $(document).ready(function() {
         },
         messages: {
             conName: {
-                required: "Please enter your name."
+                required: "{{ __('message.contact_error_name') }}"
             },
             email: {
-                required: "Please enter your email.",
-                regex: "Please enter a valid email address."
+                required: "{{ __('message.enter_your_email') }}",
+                regex: "{{ __('message.contact_error_email') }}"
             },
             country_code: {
-                required: "Please enter your country code."
+                required: "{{ __('message.enter_your_country_code') }}"
             },
             Mobile: {
-                required: "Please enter your mobile number.",
-                validPhone: "Please enter a valid mobile number."
+                required: "{{ __('message.error_mobile') }}",
+                validPhone: "{{ __('message.enter_your_mobile') }}"
             },
             conmessage: {
-                required: "Please enter your message."
+                required: "{{ __('message.contact_error_message') }}"
             },
             "g-recaptcha-response": {
-                recaptchaRequired: "Please verify that you are not a robot."
+                recaptchaRequired: "{{ __('message.recaptcha_required') }}"
             }
         },
         unhighlight: function (element) {

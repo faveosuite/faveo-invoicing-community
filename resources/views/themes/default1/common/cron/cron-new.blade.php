@@ -60,7 +60,7 @@
                         @foreach($paths as $path)
                             <option>{{$path}}</option>
                         @endforeach
-                        <option value="Other">Other</option>
+                        <option value="Other">{{ __('message.other') }}</option>
                     </select>
                     <div class="has-feedback" id='phpExecutableTextArea' style="display: none;">
                         <div class="has-feedback">
@@ -90,7 +90,7 @@
 
                         <div class="form-group">
 
-                            {!! Form::label('email_fetching', Lang::get('message.expiry_mail') . ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="This cron is to trigger email which are sent out to users before product expiry reminding them to renew the product. This email is send out only to those who have not enabled auto renewal"></i>', [], false) !!}<br>
+                            {!! Form::label('email_fetching', Lang::get('message.expiry_mail') . ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="' . Lang::get('message.cron_trigger') . '"></i>', [], false) !!}<br>
                             {!! Form::checkbox('expiry_cron',1,$condition->checkActiveJob()['expiryMail'],['id'=>'email_fetching']) !!}&nbsp;{{Lang::get('message.enable_expiry-cron')}}
                         </div>
 
@@ -142,7 +142,7 @@
 
                         <div class="form-group">
 
-                            {!! Form::label('sub_fetching', Lang::get('Subscription renewal reminder - Auto payment') . ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="This cron is to trigger email which are sent out to users before product expiry reminding them product will be renewed automatically. This email is send out only to those who have enabled auto renewal"></i>', [], false) !!}<br>
+                            {!! Form::label('sub_fetching', Lang::get('message.subscription_renewal_reminder') . ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="' . Lang::get('message.cron_trigger_enabled') . '"></i>', [], false) !!}<br>
                             {!! Form::checkbox('subs_expirymail',1,$condition->checkActiveJob()['subsExpirymail'],['id'=>'sub_fetching']) !!}&nbsp;{{Lang::get('message.enable_expiry-cron')}}
                             <!-- <input type="checkbox" name="subs_expirymail" value="1"> -->
                         </div>
@@ -178,7 +178,7 @@
 
                         <div class="form-group">
 
-                            {!! Form::label('postsub_fetching', Lang::get('Subscription expired') . ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="This cron is to trigger email which are sent out to users after product expiry reminding them to renew the product. This email is send out to all users using auto renewal or are using manual payment method. For self hosted and cloud both"></i>', [], false) !!}<br>
+                            {!! Form::label('postsub_fetching', Lang::get('message.subscription_expired') . ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="' . Lang::get('message.cron_trigger_cloud_both') . '"></i>', [], false) !!}<br>
                             {!! Form::checkbox('postsubs_expirymail',1,$condition->checkActiveJob()['postExpirymail'],['id'=>'postsub_fetching']) !!}&nbsp;{{Lang::get('message.enable_expiry-cron')}}
                         </div>
 
@@ -206,7 +206,7 @@
 
                         <div class="form-group">
 
-                           {!! Form::label('cloud_fetching', Lang::get('Cloud subscription deletion') . ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="This cron is to trigger email which are sent out to users after product expiry & on cloud instance deletion. This email is send out to all users using auto renewal or are using manual payment method. For cloud instance only"></i>', [], false) !!}<br>
+                            {!! Form::label('cloud_fetching', Lang::get('message.cloud_subscription_deletion') . ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="' . Lang::get('message.cron_trigger_cloud') . '"></i>', [], false) !!}<br>
                             {!! Form::checkbox('cloud_cron',1,$condition->checkActiveJob()['cloud'],['id'=>'cloud_fetching']) !!}&nbsp;{{Lang::get('Enable Faveo Cloud')}}
                         </div>
 
@@ -235,7 +235,7 @@
 
                         <div class="form-group">
 
-                           {!! Form::label('invoice_fetching', Lang::get('Invoice deletion') . ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="This cron is to trigger deletion of the old unpaid invoices that are not linked to any orders."></i>', [], false) !!}<br>
+                            {!! Form::label('invoice_fetching', Lang::get('message.invoice_deletion') . ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="' . Lang::get('message.cron_trigger_deletion_old') . '"></i>', [], false) !!}<br>
                             {!! Form::checkbox('invoice_cron',1,$condition->checkActiveJob()['invoice'],['id'=>'invoice_fetching']) !!}&nbsp;{{Lang::get('Enable Invoice Deletion')}}
                         </div>
 
