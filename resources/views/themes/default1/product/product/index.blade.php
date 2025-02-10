@@ -4,12 +4,12 @@ Products
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>All Products</h1>
+        <h1>{{ __('message.all-products') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item active">All Products</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.all-products') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -18,9 +18,9 @@ Products
     <div class="card card-secondary card-outline">
 
     <div class="card-header">
-        <h3 class="card-title">Products</h3>
+        <h3 class="card-title">{{ __('message.products') }}</h3>
         <div class="card-tools">
-            <a href="{{url('products/create')}}" class="btn btn-default btn-sm pull-right"><span class="fas fa-plus"></span>&nbsp;Add Product</a>
+            <a href="{{url('products/create')}}" class="btn btn-default btn-sm pull-right"><span class="fas fa-plus"></span>&nbsp;{{ __('message.add_product') }}</a>
 
 
         </div>
@@ -38,11 +38,11 @@ Products
                      <button  value="" class="btn btn-secondary btn-sm btn-alldell" id="bulk_delete"><i class="fa fa-trash"></i>&nbsp;&nbsp;{{Lang::get('message.delmultiple')}}</button><br /><br />
                     <thead><tr>
                         <th class="no-sort"><input type="checkbox" name="select_all" onchange="checking(this)"></th>
-                            <th>Name</th>
-                            <th>Image</th>
-                            <th>License Type</th>
-                            <th>Group</th>
-                            <th>Action</th>
+                            <th>{{ __('message.name_page') }}</th>
+                            <th>{{ __('message.image') }}</th>
+                            <th>{{ __('message.license-type') }}</th>
+                            <th>{{ __('message.group') }}</th>
+                            <th>{{ __('message.action') }}</th>
                         </tr></thead>
 
                    </table>
@@ -66,7 +66,7 @@ Products
              "url":  '{!! route('get-products',"value=$data") !!}',
                error: function(xhr) {
                if(xhr.status == 401) {
-                alert('Your session has expired. Please login again to continue.')
+                alert('{{ __('message.session_expired') }}')
                 window.location.href = '/login';
                }
             }
@@ -75,7 +75,7 @@ Products
             "oLanguage": {
                 "sLengthMenu": "_MENU_ Records per page",
                 "sSearch"    : "Search: ",
-                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>'
+                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
             },
             columnDefs: [
                 { 
@@ -154,7 +154,7 @@ Products
             }
             else
             {
-                alert("Please select at least one checkbox");
+                alert("{{ __('message.select_checkbox') }}");
             }
         }  
 

@@ -11,11 +11,11 @@ Forgot Password
 @section('breadcrumb')
 @section('breadcrumb')
     @if(Auth::check())
-        <li><a class="text-primary" href="{{url('my-invoices')}}">Home</a></li>
+        <li><a class="text-primary" href="{{url('my-invoices')}}">{{ __('message.home')}}</a></li>
     @else
-         <li><a class="text-primary" href="{{url('login')}}">Home</a></li>
+         <li><a class="text-primary" href="{{url('login')}}">{{ __('message.home')}}</a></li>
     @endif
-     <li class="active text-dark">Forgot Password? Reset it Now!</li>
+     <li class="active text-dark">{{ __('message.forgot_password')}}</li>
 @stop  
 @stop
 @section('main-class') 
@@ -34,7 +34,7 @@ main
 
                             <div class="form-group col">
 
-                                <label class="form-label text-color-dark text-3">E-mail Address <span class="text-color-danger">*</span></label>
+                                <label class="form-label text-color-dark text-3">{{ __('message.email_address')}}<span class="text-color-danger">*</span></label>
 
                                 <input name="email" value="" id="email" type="email" class="form-control form-control-lg text-4">
                                 <h6 id="resetpasswordcheck"></h6>
@@ -45,7 +45,7 @@ main
 
                             <div class="form-group col-md-auto">
 
-                                <a class="text-decoration-none text-color-primary font-weight-semibold text-2" href="{{url('login')}}">I know my password</a>
+                                <a class="text-decoration-none text-color-primary font-weight-semibold text-2" href="{{url('login')}}">{{ __('message.know_password')}}</a>
                             </div>
                         </div>
                            @if ($status->recaptcha_status == 1)
@@ -59,7 +59,7 @@ main
 
                             <div class="form-group col">
 
-                                <button type="submit" class="btn btn-dark btn-modern w-100 text-uppercase font-weight-bold text-3 py-3" data-loading-text="Sending..." data-original-text="Send Mail" name="sendOtp" id="resetmail">Send Mail</button>
+                                <button type="submit" class="btn btn-dark btn-modern w-100 text-uppercase font-weight-bold text-3 py-3" data-loading-text="{{ __('message.sending')}}" data-original-text="{{ __('message.send_mail')}}" name="sendOtp" id="resetmail">{{ __('message.send_mail')}}</button>
 
                             </div>
                         </div>
@@ -122,7 +122,7 @@ main
             const alertClass = isSuccess ? 'alert-success' : 'alert-danger';
 
             // Extract message and errors
-            const message = response.message || response || 'An error occurred. Please try again.';
+            const message = response.message || response || '{{ __('message.error_occurred') }}';
 
             // Build base HTML
             let html = `<div class="alert ${alertClass} alert-dismissible">` +
@@ -143,11 +143,11 @@ main
                 return false
             }
             return value.trim() !== "";
-        }, "Please verify that you are not a robot.");
+        }, "{{ __('message.recaptcha_required') }}");
         $.validator.addMethod("regex", function(value, element, regexp) {
             var re = new RegExp(regexp);
             return this.optional(element) || re.test(value);
-        }, "Invalid format.");
+        }, "{{ __('message.invalid_format') }}");
 
         $('#resetPasswordForm').validate({
             ignore: ":hidden:not(.g-recaptcha-response)",
@@ -162,11 +162,11 @@ main
             },
             messages: {
                 email: {
-                    required: "Please enter your email.",
-                    regex: "Please enter a valid email address."
+                    required: "{{ __('message.error_email_address') }}",
+                    regex: "{{ __('message.contact_error_email') }}"
                 },
                 "g-recaptcha-response": {
-                    recaptchaRequired: "Please verify that you are not a robot."
+                    recaptchaRequired: "{{ __('message.recaptcha_required') }}"
                 }
             },
             unhighlight: function (element) {

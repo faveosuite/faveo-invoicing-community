@@ -4,13 +4,13 @@ License Types
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>License Types</h1>
+        <h1>{{ __('message.license-type') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item active">License Types</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.license-type') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -40,8 +40,8 @@ License Types
                      <button  value="" class="btn btn-secondary btn-sm btn-alldell" id="bulk_delete"><i class="fa fa-trash"></i>&nbsp;&nbsp;{{Lang::get('message.delmultiple')}}</button><br /><br />
                     <thead><tr>
                         <th class="no-sort" style="width:20px"><input type="checkbox" name="select_all" onchange="checking(this)"></th>
-                            <th>Name</th>
-                            <th>Action</th>
+                            <th>{{ __('message.name_page') }}</th>
+                            <th>{{ __('message.action') }}</th>
                         </tr></thead>
 
                    </table>
@@ -77,7 +77,7 @@ License Types
             "oLanguage": {
                 "sLengthMenu": "_MENU_ Records per page",
                 "sSearch"    : "Search: ",
-                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>'
+                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
             },
             columnDefs: [
              { targets: 'no-sort', 
@@ -144,7 +144,7 @@ License Types
             }
             else
             {
-                alert("Please select at least one checkbox");
+                alert("{{ __('message.select_checkbox') }}");
             }
         }  
 

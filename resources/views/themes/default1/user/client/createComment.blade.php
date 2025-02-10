@@ -3,7 +3,7 @@
         <div class="modal-content">
             <div class="modal-header">
                   <h4 class="modal-title">{{Lang::get('message.add_new_comment')}}</h4>
-                <button type="button" class="close" data-dismiss="modal" id="crossclose" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <button type="button" class="close" data-dismiss="modal" id="crossclose" aria-label="{{ __('message.close') }}"><span aria-hidden="true">&times;</span></button>
               
             </div>
             {!! Form::open(['url'=>'comment']) !!} 
@@ -17,8 +17,8 @@
                 </div>
             </div>
             <div class="modal-footer justify-content-between">
-                 <button type="button" id="commentclose" class="btn btn-default btn-sm" data-dismiss="modal"><i class="fas fa-times">&nbsp;</i>Close</button>
-                <button type="submit" class="btn btn-primary btn-sm" id="submit"><i class="fas fa-save">&nbsp;</i>{!!Lang::get('Save')!!}</button>
+                 <button type="button" id="commentclose" class="btn btn-default btn-sm" data-dismiss="modal"><i class="fas fa-times">&nbsp;</i>{{ __('message.close') }}</button>
+                <button type="submit" class="btn btn-primary btn-sm" id="submit"><i class="fas fa-save">&nbsp;</i>{!!Lang::get('message.save')!!}</button>
             </div>
             {!! Form::close() !!}
         </div>

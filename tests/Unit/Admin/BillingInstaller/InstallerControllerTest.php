@@ -3,14 +3,17 @@
 namespace Tests\Unit\Admin\BillingInstaller;
 
 use App\Http\Controllers\BillingInstaller\InstallerController;
+use App\User;
 use Artisan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Testing\TestResponse;
 use Mockery;
 use Session;
-use Tests\TestCase;
+use Tests\DBTestCase;
 
-class InstallerControllerTest extends TestCase
+class InstallerControllerTest extends DBTestCase
 {
     public function testConfigurationCheck()
     {
@@ -26,8 +29,8 @@ class InstallerControllerTest extends TestCase
         $controller = new InstallerController();
         $response = $controller->configurationcheck($request);
         $response = TestResponse::fromBaseResponse($response); // Wrap the base response
-        $response->assertStatus(200);
-        $this->assertEquals(false, json_decode($response->getContent())->mysqli_ok);
+        $location = $response->headers->get('location');
+        $this->assertEquals('http://localhost/post-check', $location);
     }
 
     public function test_checkPreInstall()
@@ -73,5 +76,59 @@ class InstallerControllerTest extends TestCase
         $this->assertEquals(200, $response->status());
         $data = json_decode($response->getContent(), true);
         $this->assertEquals('Environment configuration file has been created successfully', $data['result']['success']);
+    }
+
+    public function test_language_list_returns_all_languages()
+    {
+        //Before authentication check language list come or not
+        $response = $this->call('GET', url('language/settings'));
+        $response->assertStatus(200);
+    }
+
+    public function test_selected_language_stored_or_not()
+    {
+        //Before authentication the selected language stored or not
+        $response = $this->call('POST', url('update/language'), ['language' => 'ar']);
+        $response->assertStatus(200);
+    }
+
+    public function test_language_list_after_authentication()
+    {
+        //After authentication check language list come or not
+        $this->getLoggedInUser('admin');
+        $response = $this->call('GET', url('language/settings'));
+        $response->assertStatus(200);
+    }
+
+    public function test_selected_language_stored_or_not_after_authentication()
+    {
+        //After authentication the selected language stored or not
+        $this->getLoggedInUser('admin');
+        $response = $this->call('POST', url('update/language'), ['language' => 'ar']);
+        $response->assertStatus(200);
+    }
+
+    public function test_selected_language_stored_in_cache_or_not()
+    {
+        // check the non-authenticated user selected language stored in cache or not
+        Auth::shouldReceive('check')->andReturn(false);
+        $response = $this->call('POST', url('update/language'), ['language' => 'ar']);
+        $response->assertStatus(200);
+
+        // Assert that the language is stored in the cache
+        $this->assertEquals('ar', Cache::get('language'));
+    }
+
+    public function test_selected_language_stored_in_auth_user()
+    {
+        // check the authenticated user selected language stored in auth user or not
+        $user = User::factory()->make();
+        Auth::shouldReceive('check')->andReturn(true);
+        Auth::shouldReceive('user')->andReturn($user);
+        $response = $this->call('POST', url('update/language'), ['language' => 'ar']);
+        $response->assertStatus(200);
+
+        // Assert that the language is stored in the authenticated user's language attribute
+        $this->assertEquals('ar', $user->language);
     }
 }

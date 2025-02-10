@@ -8,9 +8,9 @@ Edit Payment
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('clients')}}"> All Users</a></li>
-            <li class="breadcrumb-item"><a href="{{url('clients/'.$clientid)}}">View User</a></li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('clients')}}"> {{ __('message.all-users') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('clients/'.$clientid)}}">{{ __('message.view_user') }}</a></li>
             <li class="breadcrumb-item active">Edit Payment</li>
         </ol>
     </div><!-- /.col -->
@@ -151,7 +151,7 @@ Edit Payment
                                         @endif
                                         @empty 
                                         <tr>
-                                            <td>No Invoices</td>
+                                            <td>{{ __('message.no_invoices') }}</td>
                                         </tr>
                                         @endforelse
 
@@ -163,7 +163,7 @@ Edit Payment
                             
                         </div>
                         @endif
-                          <h3>Amount To Credit : {{$symbol}} <span class="creditAmount">0</span></h3>
+                          <h3>{{ __('message.amount_to_credit') }} {{$symbol}} <span class="creditAmount">0</span></h3>
                     </div>
     </div>
        <script>
@@ -262,7 +262,7 @@ Edit Payment
     }); 
     
     function multiplePayment(){
-     $("#submit").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+     $("#submit").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
     var invoice = [];
     var invoiceAmount = [];
     $(":checked").each(function() {
@@ -292,14 +292,14 @@ Edit Payment
           success: function (response) {
             $('#alertMessage').show();
             // console.log(response)
-            var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
+            var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+response.message+'.</div>';
             $('#alertMessage').html(result+ ".");
               $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
           },
           error: function (ex) {
                var errors = ex.responseJSON;
                $('#error1').show();
-            var html = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i>Alert! </strong>'+ex.responseJSON.message+' <br><ul>';
+            var html = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i>{{ __('message.alert') }}! </strong>'+ex.responseJSON.message+' <br><ul>';
              $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
             for (var key in ex.responseJSON.errors)
             {

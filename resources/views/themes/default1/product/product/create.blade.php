@@ -4,13 +4,13 @@ Create Product
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Create New Product</h1>
+        <h1>{{ __('message.create_new_product') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('products')}}"><i class="fa fa-dashboard"></i>Products</a></li>
-            <li class="breadcrumb-item active">Create New Product</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('products')}}"><i class="fa fa-dashboard"></i>{{ __('message.products') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.create_new_product') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -51,10 +51,10 @@ Create Product
     <div class="card-header p-0 pt-1">
         <ul class="nav nav-tabs" id="custom-tabs-one-tab" role="tablist">
             <li class="nav-item">
-                <a class="nav-link active" id="custom-tabs-detail-tab" data-toggle="pill" href="#custom-tabs-detail" role="tab" aria-controls="custom-tabs-detail" aria-selected="true">Details</a>
+                <a class="nav-link active" id="custom-tabs-detail-tab" data-toggle="pill" href="#custom-tabs-detail" role="tab" aria-controls="custom-tabs-detail" aria-selected="true">{{ __('message.details') }}</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="custom-tabs-plan-tab" data-toggle="pill" href="#custom-tabs-plan" role="tab" aria-controls="custom-tabs-plan" aria-selected="false">Tax</a>
+                <a class="nav-link" id="custom-tabs-plan-tab" data-toggle="pill" href="#custom-tabs-plan" role="tab" aria-controls="custom-tabs-plan" aria-selected="false">{{ __('message.tax') }}</a>
             </li>
         </ul>
 
@@ -90,7 +90,7 @@ Create Product
                                     <!-- last name -->
                                     {!! Form::label('group',Lang::get('message.group'),['class'=>'required']) !!}
                           <select name="group" value= "Choose" class="form-control">
-                             <option value="">Choose</option>
+                             <option value="">{{ __('message.choose') }}</option>
                            @foreach($group as $key=>$value)
                                @if (Request::old('group') == $key)
                              <option value={{$key}} selected>{{$value}}</option>
@@ -128,10 +128,10 @@ Create Product
                                          toolbar1: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image',
                                           toolbar2: 'print preview media | forecolor backcolor emoticons',
                                           image_advtab: true,
-                                          templates: [
-                                              {title: 'Test template 1', content: 'Test 1'},
-                                              {title: 'Test template 2', content: 'Test 2'}
-                                          ],
+                                        templates: [
+                                            {title: '{{ __('message.test_template_one') }}', content: 'Test 1'},
+                                            {title: '{{ __('message.test_template_two') }}', content: 'Test 2'}
+                                        ],
                                           content_css: [
                                               '//fast.fonts.net/cssapi/e6dc9b99-64fe-4292-ad98-6974f93cd2a2.css',
                                               '//www.tinymce.com/css/codepen.min.css'
@@ -273,7 +273,7 @@ Create Product
                         <div class="tab-pane fade" id="custom-tabs-plan" role="tabpanel"  aria-labelledby="custom-tabs-plan-tab">
 
                         <table class="table">
-                                <span class='required'>Show on Cart Page</span>
+                                <span class='required'>{{ __('message.show_cart_page') }}</span>
                                  <tr>
                                       <div class="row">
                                     <td>
@@ -315,8 +315,13 @@ Create Product
                                         <div class="form-group {{ $errors->has('taxes') ? 'has-error' : '' }}">
                                             <div class="row">
                                                 <div class="col-md-2" >
+<<<<<<< HEAD
 
                                                     <select id="Tax" placeholder="Select Taxes" name="tax[]" style="width:500px;" class="select2" multiple="multiple">
+=======
+                                                     
+                                                    <select id="Tax" placeholder="{{ __('message.select_taxes') }}" name="tax[]" style="width:500px;" class="select2" multiple="multiple">
+>>>>>>> d1d255d79 (fixes #3191)
                                                        <option></option>
                                                        @foreach($taxes as $key => $value)
                                                         <option value={{$key}}>{{$value}}</option>
@@ -344,7 +349,7 @@ Create Product
 
 
                                     </div>
-                        <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button>
+                        <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> {{ __('message.saving') }}"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button>
                     </div>
     </div>
 

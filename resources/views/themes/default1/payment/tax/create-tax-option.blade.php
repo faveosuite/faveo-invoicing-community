@@ -10,7 +10,7 @@
                     @if (count($errors) > 0)
 
                         <div class="alert alert-danger alert-dismissable">
-                            <strong>Whoops!</strong> There were some problems with your input.
+                            <strong>{{ __('message.whoops') }}</strong> {{ __('message.input_problem') }}
                             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
                             <ul>
                                 @foreach ($errors->all() as $error)
@@ -28,11 +28,11 @@
 
                 <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                     <!-- name -->
-                    {!! Form::label('name',Lang::get('Tax Type'),['class'=>'required']) !!}
+                    {!! Form::label('name',Lang::get('message.tax-type'),['class'=>'required']) !!}
 
                     <!-- {!! Form::text('name',null,['class' => 'form-control']) !!} -->
                       <select name="name" id="gst" class="form-control">
-                      <option value="Others">Others</option>
+                      <option value="Others">{{ __('message.others') }}</option>
                        @if($options->tax_enable)
                       <option value="Intra State GST">Intra State GST (Same Indian State)</option>
                       <option value="Inter State GST">Inter State GST (Other Indian  State)</option>
@@ -87,7 +87,7 @@
                  
 
                     <select name="state"  class="form-control" id="statess">
-                        <option name="state" value=''>All States</option>
+                        <option name="state" value=''>{{ __('message.all_states') }}</option>
                     </select>
 
                 </div>
@@ -104,8 +104,8 @@
 
             </div>
             <div class="modal-footer justify-content-between">
-                <button type="button" class="btn btn-default " data-dismiss="modal" id="closeTax"><i class="fa fa-times"></i>&nbsp;Close</button>
-                <button type="submit"  class="btn btn-primary"><i class="fas fa-save"></i>&nbsp;Save</button>
+                <button type="button" class="btn btn-default " data-dismiss="modal" id="closeTax"><i class="fa fa-times"></i>&nbsp;{{ __('message.close') }}</button>
+                <button type="submit"  class="btn btn-primary"><i class="fas fa-save"></i>&nbsp;{{ __('message.save') }}</button>
 
             </div>
             {!! Form::close()  !!}
@@ -189,7 +189,7 @@ $("#closeTax").click(function() {
             var tax_name = $('#taxname').val();
             if (tax_name.length == ''){
                    $('#namecheck').show(); 
-                   $('#namecheck').html('This field is required'); 
+                   $('#namecheck').html('{{ __('message.field_required') }}');
                    $('#namecheck').focus();
                    $('#taxname').css("border-color","red");
                    $('#namecheck').css({"color":"red","margin-top":"5px"});

@@ -5,12 +5,12 @@ Dashboard
 @section('content')
 @section('content-header')
     <div class="col-sm-6">
-        <h1 class="m-0 text-dark">Dashboard</h1>
+        <h1 class="m-0 text-dark">{{ __('message.dashboard') }}</h1>
     </div><!-- /.col -->
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}">Home</a></li>
-            <li class="breadcrumb-item active">Dashboard</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}">{{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.dashboard') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -26,7 +26,7 @@ Dashboard
           <!-- small box -->
           <div class="small-box bg-info">
             <div class="inner">
-              <h4>Total Sales</h4>
+              <h4>{{ __('message.total_sales') }}</h4>
               @if(($allowedCurrencies2) != null)
               <span>{{$allowedCurrencies2}}: &nbsp;  {{currencyFormat($totalSalesCurrency2,$code=$allowedCurrencies2)}}</span><br/>
               @endif
@@ -36,7 +36,7 @@ Dashboard
               <div class="icon">
                   <i class="ion ion-bag"></i>
               </div>
-              <a href="{{url('invoices?status=success')}}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+              <a href="{{url('invoices?status=success')}}" class="small-box-footer">{{ __('message.more_info') }} <i class="fas fa-arrow-circle-right"></i></a>
             </div>
         </div>
         <!-- ./col -->
@@ -44,7 +44,7 @@ Dashboard
           <!-- small box -->
           <div class="small-box bg-green">
             <div class="inner">
-              <h4>Yearly Sales</h4>
+              <h4>{{ __('message.yearly_sales') }}</h4>
                 <?php
               $startingDateOfYear = (date('Y-01-01'));
               
@@ -57,7 +57,7 @@ Dashboard
             <div class="icon">
               <i class="ion ion-stats-bars"></i>
             </div>
-             <a href="{{url('invoices?status=success&from='.$startingDateOfYear)}}" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+             <a href="{{url('invoices?status=success&from='.$startingDateOfYear)}}" class="small-box-footer">{{ __('message.more_info') }} <i class="fa fa-arrow-circle-right"></i></a>
              </div>
         </div>
         <!-- ./col -->
@@ -65,7 +65,7 @@ Dashboard
           <!-- small box -->
           <div class="small-box bg-yellow">
             <div class="inner">
-              <h4>Monthly Sales</h4>
+              <h4>{{ __('message.monthly_sales') }}</h4>
                <?php
               $startMonthDate = date('Y-m-01');
               $endMonthDate = date('Y-m-t');
@@ -79,7 +79,7 @@ Dashboard
             <div class="icon">
               <i class="ion ion-pie-graph"></i>
             </div>
-            <a href="{{url('invoices?status=success&from='.$startMonthDate. '&till='.$endMonthDate)}}" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+            <a href="{{url('invoices?status=success&from='.$startMonthDate. '&till='.$endMonthDate)}}" class="small-box-footer">{{ __('message.more_info') }} <i class="fa fa-arrow-circle-right"></i></a>
              </div>
         </div>
 
@@ -87,7 +87,7 @@ Dashboard
           <!-- small box -->
           <div class="small-box bg-red">
             <div class="inner">
-              <h4>Pending Payments</h4>
+              <h4>{{ __('message.pending_payments') }}</h4>
               @if(($allowedCurrencies2) != null)
               <span>{{$allowedCurrencies2}}: &nbsp;  {{currencyFormat($pendingPaymentCurrency2,$code=$allowedCurrencies2)}}</span><br/>
               @endif
@@ -96,7 +96,7 @@ Dashboard
             <div class="icon">
              <i class="ion ion-ios-pricetag-outline"></i>
             </div>
-             <a href="{{url('invoices?status=pending')}}" class="small-box-footer">More info 
+             <a href="{{url('invoices?status=pending')}}" class="small-box-footer">{{ __('message.more_info') }}
               <i class="fa fa-arrow-circle-right"></i></a>
              </div>
         </div>
@@ -108,14 +108,14 @@ Dashboard
           <!-- small box -->
           <div class="small-box bg-yellow">
             <div class="inner">
-              <h4>Products Installed Rate:&nbsp;{{number_format($getLast30DaysInstallation['rate'], 2, '.', '')}}%</h4>
-              <span>Total Subscription (Last 30 days): &nbsp;  {{$getLast30DaysInstallation['total_subscription']}}</span></br>
-              <span>Not Installed (Last 30 days): &nbsp;  {{$getLast30DaysInstallation['inactive_subscription']}}</span>
+              <h4>{{ __('message.products_installed_rate') }}&nbsp;{{number_format($getLast30DaysInstallation['rate'], 2, '.', '')}}%</h4>
+              <span>{{ __('message.total_subscription') }} &nbsp;  {{$getLast30DaysInstallation['total_subscription']}}</span></br>
+              <span>{{ __('message.not_installed') }} &nbsp;  {{$getLast30DaysInstallation['inactive_subscription']}}</span>
             </div>
             <div class="icon">
              <i class="ion ion-ios-download-outline"></i>
             </div>
-               <a href="{{url('orders?ins_not_ins=not_installed&sub_from='.$startDate.'&sub_till='.$endDate)}}" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+               <a href="{{url('orders?ins_not_ins=not_installed&sub_from='.$startDate.'&sub_till='.$endDate)}}" class="small-box-footer">{{ __('message.more_info') }} <i class="fa fa-arrow-circle-right"></i></a>
              </div>
         </div>
         @php
@@ -127,14 +127,14 @@ Dashboard
           <!-- small box -->
           <div class="small-box bg-info">
             <div class="inner">
-              <h4>Paid Orders Rate:&nbsp;{{number_format($conversionRate['rate'], 2, '.', '')}}%</h4>
-              <span>Total Orders (Last 30 days): &nbsp;  {{$conversionRate['all_orders']}}</span></br>
-              <span>Paid Orders (Last 30 days): &nbsp;  {{$conversionRate['paid_orders']}}</span>
+              <h4>{{ __('message.paid_orders_rate') }}&nbsp;{{number_format($conversionRate['rate'], 2, '.', '')}}%</h4>
+              <span>{{ __('message.total_orders_rate') }} &nbsp;  {{$conversionRate['all_orders']}}</span></br>
+              <span>{{ __('message.paid_orders') }} &nbsp;  {{$conversionRate['paid_orders']}}</span>
             </div>
             <div class="icon">
              <i class="ion ion-ios-cart-outline"></i>
             </div>
-              <a href="{{url('orders?p_un=unpaid&from='.$startDate.'&till='.$endDate)}}" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+              <a href="{{url('orders?p_un=unpaid&from='.$startDate.'&till='.$endDate)}}" class="small-box-footer">{{ __('message.more_info') }} <i class="fa fa-arrow-circle-right"></i></a>
              </div>
         </div>
 </div>
@@ -152,7 +152,7 @@ Dashboard
 
     {{-- Recently Registered Users --}}
     @component('mini_views.card', [
-           'title'=> 'Recently Registered Users with Mobile and Email Activation (Past 30 Days)',
+           'title' => __('message.recently_register_users'),
            'layout' => 'custom',
            'collection'=> $users,
            'linkLeft'=> ['View All' => url($url)],
@@ -183,9 +183,9 @@ Dashboard
                     @if ($displayDate < $mytime)
                         <span class="users-list-date">{{($displayDate)->format('M j')}}</span>
                     @elseif ($displayDate == $yesterday)
-                        <span class="users-list-date">Yesterday</span>
+                        <span class="users-list-date">{{ __('message.yesterday') }}</span>
                     @else
-                        <span class="users-list-date">Today</span>
+                        <span class="users-list-date">{{ __('message.today') }}</span>
                     @endif
                 </li>
             @endforeach
@@ -195,7 +195,7 @@ Dashboard
 
     {{-- Recent Invoices(Past 30 Days) --}}
     @component('mini_views.card', [
-           'title'=> 'Recent Invoices(Past 30 Days)',
+           'title'=> __('message.total_sold_products'),
            'layout' => 'table',
            'collection'=> $invoices,
            'columns'=> ['Invoice No', 'Total', 'User','Date', 'Paid', 'Balance', 'Status'],
@@ -233,7 +233,7 @@ Dashboard
      @endphp
 
      @component('mini_views.card', [
-            'title'=> 'Paid Orders Expired in Last 30 days',
+            'title' => __('message.paid_orders_expired'),
             'layout' => 'table',
             'collection'=> $expiredSubscriptions,
             'columns'=> ['User', 'Order No', 'Expiry', 'Days Passed', 'Product'],
@@ -254,7 +254,7 @@ Dashboard
 
      {{-- Paid Orders Expiring Soon (Next 30 Days) --}}
      @component('mini_views.card', [
-            'title'=> 'Paid Orders Expiring in Next 30 days',
+            'title' => __('message.paid_next_orders_expired'),
             'layout' => 'table',
             'collection'=> $subscriptions,
             'columns'=> ['User', 'Order No', 'Expiry', 'Days Left', 'Product'],
@@ -286,7 +286,7 @@ Dashboard
      @endphp
 
      @component('mini_views.card', [
-            'title'=> 'Clients With outdated Product Version',
+            'title' => __('message.clients_outdated_version'),
             'layout' => 'table',
             'collection'=> $clientsUsingOldVersion,
             'columns'=> ['User', 'Version', 'Product', 'Expiry'],
@@ -310,7 +310,7 @@ Dashboard
 
      {{-- Recent Paid Orders (Last 30 Days) --}}
      @component('mini_views.card', [
-            'title'=> 'Recent Paid Orders (Last 30 Days)',
+            'title' => __('message.recent_paid_orders'),
             'layout' => 'table',
             'collection'=> $recentOrders,
             'columns'=> ['Order No', 'Product', 'Date', 'User'],
@@ -334,7 +334,7 @@ Dashboard
 
     {{-- Products Sold  (Last 30 Days) --}}
     @component('mini_views.card', [
-           'title'=> 'Products Sold  (Last 30 Days)',
+           'title' => __('message.product_sold'),
            'layout' => 'list',
            'collection'=> $productSoldInLast30Days,
            'columns'=> ['Order No', 'Item', 'Date', 'Client'],
@@ -351,7 +351,7 @@ Dashboard
                     <a href="#" class="product-title">{{$element->product_name}}<strong> &nbsp; &nbsp;  <td><span class="label label-success">{{$element->order_count}}</span></td></strong>
                     </a>
                     <span class="product-description">
-                        <strong> Last Purchase: </strong>
+                        <strong> {{ __('message.last_purchase') }} </strong>
                           {{$element->order_created_at}}
                     </span>
 
@@ -363,7 +363,7 @@ Dashboard
 
     {{-- Total Sold Products --}}
     @component('mini_views.card', [
-           'title'=> 'Total Sold Products',
+           'title'=> __('message.total_sold_products'),
            'layout' => 'list',
            'collection'=> $allSoldProducts,
            'linkLeft'=> ['View All Sold Products' => url('products?value=totalSoldProduct')],
@@ -378,7 +378,7 @@ Dashboard
                     <a href="#" class="product-title">{{$element->product_name}}<strong> &nbsp; &nbsp;  <td><span class="label label-success">{{$element->order_count}}</span></td></strong>
                     </a>
                     <span class="product-description">
-                    <strong> Last Purchase: </strong>
+                    <strong> {{ __('message.last_purchase') }} </strong>
                       {{$element->order_created_at}}
                     </span>
                 </div>

@@ -1,4 +1,4 @@
-<a href="#renew" <?php if(\Cart::getContent()->isNotEmpty()) {?> class="btn btn-light-scale-2 btn-sm text-dark" data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="Make sure the cart is empty to Renew your product" onclick="return false" <?php } else {?> class="btn btn-light-scale-2 btn-sm text-dark" <?php } ?> data-toggle="modal" data-target="#renew{{$id}}"><i class="fa fa-refresh" @if( \Cart::getContent()->isEmpty()) data-toggle="tooltip" title="Click here to renew" @endif></i>&nbsp;</a>
+<a href="#renew" <?php if(\Cart::getContent()->isNotEmpty()) {?> class="btn btn-light-scale-2 btn-sm text-dark" data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="{{ __('message.renew_product') }}" onclick="return false" <?php } else {?> class="btn btn-light-scale-2 btn-sm text-dark" <?php } ?> data-toggle="modal" data-target="#renew{{$id}}"><i class="fa fa-refresh" @if( \Cart::getContent()->isEmpty()) data-toggle="tooltip" title="{{ __('message.click_renew') }}" @endif></i>&nbsp;</a>
 <div class="modal fade" id="renew{{$id}}" tabindex="-1" role="dialog" aria-labelledby="renewModalLabel" aria-hidden="true">
 
                             <div class="modal-dialog">
@@ -8,7 +8,7 @@
 
                                     <div class="modal-header">
 
-                                        <h4 class="modal-title" id="renewModalLabel">Renew your order</h4>
+                                        <h4 class="modal-title" id="renewModalLabel">{{ __('message.renew_your_order') }}</h4>
 
                                         <button type="button" class="btn-close" data-dismiss="modal" aria-hidden="true">&times;</button>
                                     </div>
@@ -16,9 +16,9 @@
                                     <div class="modal-body">
 
                                       
-                                         <p class="text-black"><strong>Current number of agents:</strong> {{$agents}}</p>
+                                         <p class="text-black"><strong>{{ __('message.current_no_agents') }}</strong> {{$agents}}</p>
 
-                                            <p class="text-black"><strong>Current plan:</strong> {{$planName}}</p>
+                                            <p class="text-black"><strong>{{ __('message.current_plan') }}</strong> {{$planName}}</p>
                                                     <?php
 
                                           $plans = App\Model\Payment\Plan::join('products', 'plans.product', '=', 'products.id')
@@ -85,7 +85,7 @@
 
                                             <div class="row">
                                                 <div class="form-group col">
-                                                    <label class="form-label">Agents <span class="text-danger"> *</span></label>
+                                                    <label class="form-label">{{ __('message.agents') }} <span class="text-danger"> *</span></label>
                                                     <div class="custom-select-1">
                                                          {!! Form::number('agents', $agents, ['class' => 'form-control agents', 'id' => 'agents','min' => '1', 'placeholder' => '']) !!}
                                                     </div>
@@ -93,7 +93,7 @@
                                             </div>
                                             @endif
 
-                                            <p class="text-black"><strong>Price to be paid:</strong><span id="price" class="price"></span></p>
+                                            <p class="text-black"><strong>{{ __('message.price_to_be_paid') }}</strong><span id="price" class="price"></span></p>
                                             
                                             
 
@@ -107,9 +107,9 @@
 
                                     <div class="modal-footer">
 
-                                        <button type="button" class="btn btn-light closebutton" id="closebutton" data-dismiss="modal">Close</button>
+                                        <button type="button" class="btn btn-light closebutton" id="closebutton" data-dismiss="modal">{{ __('message.close') }}</button>
 
-                                        <button type="submit" class="btn btn-primary" data-bs-dismiss="modal" id="saveRenew">Renew</button>
+                                        <button type="submit" class="btn btn-primary" data-bs-dismiss="modal" id="saveRenew">{{ __('message.renew') }}</button>
                                     </div>
                                  
                                 </div>

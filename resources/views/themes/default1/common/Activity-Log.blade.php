@@ -4,13 +4,13 @@ Activity Log
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>All Users</h1>
+        <h1>{{ __('message.all-users') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item active">Activity Log</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.activity_log') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -103,7 +103,7 @@ Activity Log
                     <!-- {!! Form::submit('Search',['class'=>'btn btn-primary']) !!} -->
                       <button name="Search" type="submit"  class="btn btn-secondary" data-loading-text="<i class='fa fa-search fa-spin fa-1x fa-fw'>&nbsp;</i> updating..."><i class="fa fa-search">&nbsp;</i>{!!Lang::get('message.apply')!!}</button>
                     <!-- {!! Form::submit('Reset',['class'=>'btn btn-danger','id'=>'reset']) !!} -->
-                     <button name="Reset" type="submit" id="reset" class="btn btn-secondary" data-loading-text="<i class='fa fa-refresh fa-spin fa-1x fa-fw'>&nbsp;</i> updating..."><i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('Reset')!!}</button>
+                    <button name="Reset" type="submit" id="reset" class="btn btn-secondary" data-loading-text="<i class='fa fa-refresh fa-spin fa-1x fa-fw'>&nbsp;</i> updating..."><i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('message.reset')!!}</button>
 
 
                 </div>
@@ -139,20 +139,20 @@ Activity Log
   <div class="row">
           <div class="col-md-12">
             <table id="activity-table" class="table display" cellspacing="0"  styleClass="borderless">
-                     <button  value="" class="btn btn-secondary btn-sm btn-alldell" id="bulk_delete"><i class="fa fa-trash">&nbsp;&nbsp;</i> Delete Selected</button><br /><br />
+                     <button  value="" class="btn btn-secondary btn-sm btn-alldell" id="bulk_delete"><i class="fa fa-trash">&nbsp;&nbsp;</i> {{ __('message.delmultiple') }}</button><br /><br />
                      
                     <thead><tr>
                         <th class="no-sort"><input type="checkbox" name="select_all" onchange="checking(this)"></th>
-                            <th>Module</th>
-                            <th>Description/Event</th>
-                             <th>Name</th>
-                              <th>Role</th>
+                            <th>{{ __('message.module') }}</th>
+                            <th>{{ __('message.description_event') }}</th>
+                             <th>{{ __('message.name_page') }}</th>
+                              <th>{{ __('message.role') }}</th>
                             <!-- <th>Subject id</th> -->
                             <!-- <th>Subject type</th> -->
                                                                                                              
-                             <th>Previous</th>
-                             <th>Updated</th>
-                              <th>Date</th>
+                             <th>{{ __('message.previous') }}</th>
+                             <th>{{ __('message.updated') }}</th>
+                              <th>{{ __('message.date') }}</th>
                         </tr></thead>
 
                    </table>
@@ -178,8 +178,7 @@ Activity Log
                                  $(this).empty().html(newStr);
                                 var removedStr = myStr.substring(maxLength, $.trim(myStr).length);
                                 $(this).append('<span class="more-text">' + removedStr + '</span>');
-                                $(this).append(' <a href="javascript:void(0);" class="read-more">read more...</a>');
-                            }
+                                $(this).append(' <a href="javascript:void(0);" class="read-more">{{ __('message.read_more') }}</a>');                            }
                           }); 
                          }
         $('#activity-table').DataTable({
@@ -195,7 +194,7 @@ Activity Log
             "url":  '{!! route('get-activity',"log_from=$from&log_till=$till&delFrom=$delFrom&delTill=$delTill") !!}',
                error: function(xhr) {
                if(xhr.status == 401) {
-                alert('Your session has expired. Please login again to continue.')
+                alert('{{ __('message.session_expired') }}')
                 window.location.href = '/login';
                }
             }
@@ -205,7 +204,7 @@ Activity Log
             "oLanguage": {
                 "sLengthMenu": "_MENU_ Records per page",
                 "sSearch"    : "Search: ",
-                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>'
+                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
             },
             columnDefs: [
                 { 
@@ -285,7 +284,7 @@ Activity Log
                 }
                 else
                 {
-                    alert("Please select at least one checkbox");
+                    alert("{{ __('message.select_checkbox') }}");
                 }
             }  
 
@@ -317,7 +316,6 @@ Activity Log
     }).parentsUntil(".nav-sidebar > .nav-treeview").addClass('menu-open').prev('a').addClass('active');
 </script>
 @stop
-   @stop
   
 
 

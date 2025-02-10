@@ -103,12 +103,12 @@ Invoices
 
 </style>
     <div class="col-sm-6">
-        <h1>All Invoices</h1>
+        <h1>{{ __('message.all-invoices') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item active">All Invoices</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.all-invoices') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -118,10 +118,10 @@ Invoices
         <div class="col-12">
             <div class="card card-secondary card-outline collapsed-card">
             <div class="card-header">
-        <h3 class="card-title">Advance Search</h3>
+        <h3 class="card-title">{{ __('message.advance_search') }}</h3>
 
                 <div class="card-tools">
-                   <button type="button" class="btn btn-tool" id="tip-search" title="Expand"> <i id="search-icon" class="fas fa-plus"></i>
+                   <button type="button" class="btn btn-tool" id="tip-search" title="{{ __('message.expand') }}"> <i id="search-icon" class="fas fa-plus"></i>
                             </button>
                    
                 </div>
@@ -150,10 +150,10 @@ Invoices
     <!-- first name -->
     {!! Form::label('status', 'Status') !!}
     <select name="status" class="form-control" id="status">
-        <option value="">Choose</option>
-        <option value="pending" @if($request->input('status') === 'pending') selected @endif>Unpaid</option>
-        <option value="Partially paid" @if($request->input('status') === 'Partially paid') selected @endif>Partially Paid</option>
-        <option value="success" @if($request->input('status') === 'success') selected @endif>Paid</option>
+        <option value="">{{ __('message.choose') }}</option>
+        <option value="pending" @if($request->input('status') === 'pending') selected @endif>{{ __('message.choose') }}</option>
+        <option value="Partially paid" @if($request->input('status') === 'Partially paid') selected @endif>{{ __('message.partially_paid') }}</option>
+        <option value="success" @if($request->input('status') === 'success') selected @endif>{{ __('message.paid') }}</option>
     </select>
 </div>
 
@@ -161,7 +161,7 @@ Invoices
               <div class="col-md-3 form-group">
             {!! Form::label('currency', 'Currency') !!}
             <select name="currency_id" class="form-control" id="currency">
-                <option value="">Choose</option>
+                <option value="">{{ __('message.choose') }}</option>
                 @foreach($currencies as $currency)
                     @if($currency === $request->input('currency_id'))
                         <option value="{{ $currency }}" selected>{{ $currency }}</option>
@@ -240,54 +240,54 @@ Invoices
 
            <div class="d-flex justify-content-between mb-3">
                 <button value="" class="btn btn-secondary btn-sm btn-alldell" id="bulk_delete">
-                        <i class="fa fa-trash"></i>&nbsp;&nbsp;Delete Selected
+                        <i class="fa fa-trash"></i>&nbsp;&nbsp;{{ __('message.delmultiple') }}
                     </button>
                 <form id="columnForm">
                     <div class="custom-dropdown" id="columnUpdate">
                         <button class="btn btn-default pull-right" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="position: relative;top: 52px;">
-                            <span class="fa fa-columns"></span>&nbsp;&nbsp;Select Columns&nbsp;&nbsp;<span class="fas fa-caret-down"></span>
+                            <span class="fa fa-columns"></span>&nbsp;&nbsp;{{ __('message.selected_columns') }}&nbsp;&nbsp;<span class="fas fa-caret-down"></span>
                         </button>
                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
 
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="user_id" id="nameCheckbox">
-                                <label class="form-check-label" for="nameCheckbox">User</label>
+                                <label class="form-check-label" for="nameCheckbox">{{ __('message.user') }}</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="email" id="inemailCheckbox">
-                                <label class="form-check-label" for="inemailCheckbox">Email</label>
+                                <label class="form-check-label" for="inemailCheckbox">{{ __('message.email') }}</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="mobile" id="inmobileCheckbox">
-                                <label class="form-check-label" for="inmobileCheckbox">Mobile</label>
+                                <label class="form-check-label" for="inmobileCheckbox">{{ __('message.mobile') }}</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="country" id="incountryCheckbox">
-                                <label class="form-check-label" for="incountryCheckbox">Country</label>
+                                <label class="form-check-label" for="incountryCheckbox">{{ __('message.country') }}</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="number" id="numberCheckbox">
-                                <label class="form-check-label" for="numberCheckbox">Invoice No</label>
+                                <label class="form-check-label" for="numberCheckbox">{{ __('message.invoice_no') }}</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="product" id="productCheckbox">
-                                <label class="form-check-label" for="productCheckbox">Product</label>
+                                <label class="form-check-label" for="productCheckbox">{{ __('message.product') }}</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="date" id="dateCheckbox">
-                                <label class="form-check-label" for="dateCheckbox">Date</label>
+                                <label class="form-check-label" for="dateCheckbox">{{ __('message.date') }}</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="grand_total" id="totalCheckbox">
-                                <label class="form-check-label" for="totalCheckbox">Total</label>
+                                <label class="form-check-label" for="totalCheckbox">{{ __('message.total') }}</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="status" id="instatusCheckbox">
-                                <label class="form-check-label" for="instatusCheckbox">Status</label>
+                                <label class="form-check-label" for="instatusCheckbox">{{ __('message.status') }}</label>
                             </div>
 
                             <br>
-                            <button type="button" class="btn btn-primary btn-sm" style="left: 10px; position: relative;" id="insaveColumnsBtn">Apply</button>
+                            <button type="button" class="btn btn-primary btn-sm" style="left: 10px; position: relative;" id="insaveColumnsBtn">{{ __('message.apply') }}</button>
                         </div>
                     </div>
                 </form>
@@ -307,16 +307,16 @@ Invoices
                     <thead>
                         <tr>
                             <th class="no-sort"><input type="checkbox" name="select_all" onchange="checking(this)"></th>
-                            <th>User</th>
-                            <th>Email</th>
-                            <th>Mobile</th>
-                            <th>Country</th>
-                            <th>Invoice No</th>
-                            <th>Product</th>
-                            <th>Date</th>
-                            <th>Total</th>
-                            <th>Status</th>
-                            <th>Action</th>
+                            <th>{{ __('message.user') }}</th>
+                            <th>{{ __('message.email') }}</th>
+                            <th>{{ __('message.mobile') }}</th>
+                            <th>{{ __('message.country') }}</th>
+                            <th>{{ __('message.invoice_no') }}</th>
+                            <th>{{ __('message.product') }}</th>
+                            <th>{{ __('message.date') }}</th>
+                            <th>{{ __('message.total') }}</th>
+                            <th>{{ __('message.status') }}</th>
+                            <th>{{ __('message.action') }}</th>
                         </tr>
                     </thead>
                 </table>
@@ -350,7 +350,7 @@ Invoices
                 "url": '{!! route('get-invoices', "name=$name&invoice_no=$invoice_no&status=$status&currency_id=$currency_id&from=$from&till=$till") !!}',
                 error: function(xhr) {
                     if (xhr.status == 401) {
-                        alert('Your session has expired. Please login again to continue.')
+                        alert('{{ __('message.session_expired') }}')
                         window.location.href = '/login';
                     }
                 },
@@ -366,8 +366,8 @@ Invoices
             },
             "oLanguage": {
                 "sLengthMenu": "_MENU_ Records per page",
-                "sSearch": "<span style='position: relative;right: 180px;'>Search:</span> ",
-                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>'
+                "sSearch": "<span style='position: relative;right: 180px;'>{{ __('message.search') }}:</span> ",
+                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
             },
             columnDefs: [
                 {
@@ -416,7 +416,7 @@ Invoices
             selectedColumns.push($(this).val());
         });
          if (selectedColumns.length === 0) {
-        alert('Please select at least one column.');
+        alert('{{ __('message.select_one_column') }}');
         return;
         }
 
@@ -508,7 +508,7 @@ Invoices
                     var result = '<div class="alert alert-success">' +
                         '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
                         '<span aria-hidden="true">&times;</span></button>' +
-                        '<strong><i class="far fa-thumbs-up"></i> Well Done! </strong>' +
+                        '<strong><i class="far fa-thumbs-up"></i> {{ __('message.well_done') }} </strong>' +
                         response.message + '!</div>';
                     
                     $('#export-message').html(result).removeClass('text-danger').addClass('text-success');
@@ -573,7 +573,7 @@ Invoices
             }
             else
             {
-              alert("Please select at least one checkbox");
+              alert("{{ __('message.select_checkbox') }}");
             }
         }  
 

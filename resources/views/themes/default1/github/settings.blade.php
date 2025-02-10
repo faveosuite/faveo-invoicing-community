@@ -4,13 +4,13 @@ Github Setting
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Github Setting</h1>
+        <h1>{{ __('message.github_setting') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item active">Github Setting</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.github_setting') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -204,25 +204,25 @@ $(document).ready(function (){
              var githubstatus = 1;
            if ($('#git_username').val() == "") { //if value is not entered
             $('#user').show();
-            $('#user').html("Please Enter github Username");
+            $('#user').html("{{ __('message.enter_github_username') }}");
             $('#git_username').css("border-color","red");
             $('#user').css({"color":"red","margin-top":"5px"});
             return false;
           } else if ($('#git_password').val() == "") {
              $('#pass').show();
-            $('#pass').html("Please Enter Github Password");
+            $('#pass').html("{{ __('message.enter_github_password') }}");
             $('#git_password').css("border-color","red");
             $('#pass').css({"color":"red","margin-top":"5px"});
             return false;
           } else if ($('#git_client').val() == "") {
              $('#c_id').show();
-            $('#c_id').html("Please Enter Client Id");
+            $('#c_id').html("{{ __('message.enter_github_clientid') }}");
             $('#git_client').css("border-color","red");
             $('#c_id').css({"color":"red","margin-top":"5px"});
              return false;
           } else if ($('#git_secret').val() == "") {
              $('#c_secret').show();
-            $('#c_secret').html("Please Enter Client Secret Key");
+            $('#c_secret').html("{{ __('message.enter_github_client_secret_key') }}");
             $('#git_secret').css("border-color","red");
             $('#c_secret').css({"color":"red","margin-top":"5px"});
              return false;
@@ -238,7 +238,7 @@ $(document).ready(function (){
        $('#git_secret').css("border-color","");
          var githubstatus = 0;
   }
-    $("#submit").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+    $("#submit").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
     $.ajax ({
       url: '{{url("github-setting")}}',
       type : 'post',
@@ -249,9 +249,9 @@ $(document).ready(function (){
       },
        success: function (data) {
             $('#alertMessage').show();
-            var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
+            var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+data.update+'.</div>';
             $('#alertMessage').html(result+ ".");
-            $("#submit").html("<i class='fa fa-sync-alt'>&nbsp;</i>Update");
+            $("#submit").html("<i class='fa fa-sync-alt'>&nbsp;</i>{{ __('message.update') }}");
               setInterval(function(){ 
                 $('#alertMessage').slideUp(3000); 
             }, 1000);

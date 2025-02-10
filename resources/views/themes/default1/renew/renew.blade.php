@@ -4,13 +4,13 @@ Renew
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Renew Order</h1>
+        <h1>{{ __('message.renew_order') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('orders')}}"><i class="fa fa-dashboard"></i> All Orders</a></li>
-            <li class="breadcrumb-item active">Renew Order</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('orders')}}"><i class="fa fa-dashboard"></i> {{ __('message.all-orders') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.renew_order') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -37,7 +37,7 @@ Renew
                         <!-- first name -->
                         {!! Form::label('plan','Plans',['class'=>'required']) !!}
                           <select name="plan" id="plan" value= "Choose" onchange="fetchPlanCost(this.value)" class="form-control">
-                             <option value="Choose">Choose</option>
+                             <option value="Choose">{{ __('message.choose') }}</option>
                            @foreach($plans as $key=>$plan)
                               <option value={{$key}}>{{$plan}}</option>
                           @endforeach
@@ -76,7 +76,7 @@ Renew
             </div>
 
         </div>
-                    <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fa fa-save">&nbsp;&nbsp;</i>Save</button>
+                    <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> {{ __('message.saving') }}"><i class="fa fa-save">&nbsp;&nbsp;</i>{{ __('message.save') }}</button>
 
     </div>
 

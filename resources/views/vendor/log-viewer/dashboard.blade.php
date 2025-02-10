@@ -4,12 +4,12 @@
 @stop
 @section('content-header')
     <h1>
-        Log-Viewer
+        {{ __('message.logs_viewer') }}
     </h1>
     <ol class="breadcrumb">
-        <li><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-        <li><a href="{{url('settings')}}">Settings</a></li>
-        <li class="active">Error Logs</li>
+        <li><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+        <li><a href="{{url('settings')}}">{{ __('message.settings') }}</a></li>
+        <li class="active">{{ __('message.error_logs') }}</li>
     </ol>
 @stop
 @section('content')

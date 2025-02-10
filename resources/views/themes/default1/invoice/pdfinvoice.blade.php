@@ -57,36 +57,36 @@
                                         <div class="col-xs-12">
                                             <h2 class="page-header">
                                                 {{ucfirst($set->company)}}
-                                                <small class="pull-right">Date: {{$invoice->created_at}}</small>
+                                                <small class="pull-right">{{ __('message.date') }}: {{$invoice->created_at}}</small>
                                             </h2>
                                         </div><!-- /.col -->
                                     </div>
                                     <!-- info row -->
                                     <div class="row invoice-info">
                                         <div class="col-sm-4 invoice-col">
-                                            From
+                                            {{ __('message.from') }}
                                             <address>
 
                                                 <strong>{{$set->company}}</strong><br>
                                                 {{$set->address}}<br>
-                                                Phone: {{$set->phone}}<br/>
-                                                Email: {{$set->email}}
+                                                {{ __('message.phone') }}: {{$set->phone}}<br/>
+                                                {{ __('message.email') }}: {{$set->email}}
                                             </address>
                                         </div><!-- /.col -->
                                         <div class="col-sm-4 invoice-col">
-                                            To
+                                            {{ __('message.to') }}
                                             <address>
                                                 <strong>{{$user->first_name}} {{$user->last_name}}</strong><br>
                                                 {{$user->address}}<br/>
                                                 {{$user->town}}<br/>
                                                 {{$user->state}} {{$user->zip}}<br/>
-                                                Country : {{$user->country}}<br/>
-                                                Mobile: @if($user->mobile_code)<b>+</b>{{$user->mobile_code}}@endif{{$user->mobile}}<br/>
-                                                Email : {{$user->email}}
+                                                {{ __('message.country') }} : {{$user->country}}<br/>
+                                                {{ __('message.mobile') }}: @if($user->mobile_code)<b>+</b>{{$user->mobile_code}}@endif{{$user->mobile}}<br/>
+                                                {{ __('message.email') }} : {{$user->email}}
                                             </address>
                                         </div><!-- /.col -->
                                         <div class="col-sm-4 invoice-col">
-                                            <b>Invoice   #{{$invoice->number}}</b><br/>
+                                            <b>{{ __('message.invoice') }}   #{{$invoice->number}}</b><br/>
                                             <br/>
 
                                         </div><!-- /.col -->
@@ -99,12 +99,12 @@
 
                                                 <tr>
                                                 
-                                                    <td>Product</td>
-                                                    <td>Quantity</td>
-                                                    <td>Price</td>
-                                                    <td>Taxes</td>
-                                                    <td>Tax Rates</td>
-                                                    <td>Subtotal</td>
+                                                    <td>{{ __('message.product') }}</td>
+                                                    <td>{{ __('message.quantity') }}</td>
+                                                    <td>{{ __('message.price') }}</td>
+                                                    <td>{{ __('message.taxes') }}</td>
+                                                    <td>{{ __('message.tax_rates') }}</td>
+                                                    <td>{{ __('message.sub_total') }}</td>
                                                 </tr>
 
                                                 @forelse($invoiceItems as $item)
@@ -128,7 +128,7 @@
                                                             @forelse($taxes as $tax)
                                                             <li>{{$tax}}</li>
                                                             @empty 
-                                                            <li>No Tax Rates</li>
+                                                            <li>{{ __('message.no_tax_rates') }}</li>
                                                             @endif
                                                         </ul>
                                                     </td>
@@ -145,13 +145,13 @@
                                     <div class="row">
 
                                         <div class="col-xs-12">
-                                            <p class="lead">Amount</p>
+                                            <p class="lead">{{ __('message.amount') }}</p>
                                             <div class="table-responsive">
                                                 <table class="table">
                                                      @if($invoice->discount)
                                                     <tr>
                                                           
-                                                    <th>Discount</th>
+                                                    <th>{{ __('message.discount') }}</th>
                                                     <td>{{currencyFormat($invoice->discount,$code=$symbol)}}</td>
                                                     </tr>
                                                      @endif
@@ -189,7 +189,7 @@
                                                     @endfor
                                                     @endif
                                                     <tr>
-                                                        <th style="width:50%">Total:</th>
+                                                        <th style="width:50%">{{ __('message.total') }}:</th>
                                                         <td><small>{!! $invoice->currency !!}</small>&nbsp;{{$invoice->grand_total}}</td>
                                                     </tr>
 

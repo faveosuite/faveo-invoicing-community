@@ -25,14 +25,14 @@ Edit Templates
         }
     </style>
     <div class="col-sm-6">
-        <h1>Edit Template</h1>
+        <h1>{{ __('message.edit_template') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item"><a href="{{url('template')}}"><i class="fa fa-dashboard"></i> Templates</a></li>
-            <li class="breadcrumb-item active">Edit Template</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('template')}}"><i class="fa fa-dashboard"></i> {{ __('message.templates') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.edit_template') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -42,7 +42,7 @@ Edit Templates
 <div class="card card-secondary card-outline">
     <!-- Card Header with explanatory text -->
     <div class="card-header">
-        <h3 class="card-title">Shortcode Information</h3>
+        <h3 class="card-title">{{ __('message.shortcode_information') }}</h3>
         <div class="card-tools">
             <button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
                 <i class="fas fa-minus"></i>
@@ -51,9 +51,9 @@ Edit Templates
     </div>
     <!-- Card Body with shortcode section -->
     <div class="card-body">
-        <p>Below are the available shortcodes that you can use in your template:</p>
+        <p>{{ __('message.below_shortcodes_templates') }}</p>
         <div class="shortcode-box">
-            <h4>Available Shortcodes:</h4>
+            <h4>{{ __('message.available_shortcodes') }}</h4>
             <div class="shortcode-container">
                 @foreach ($codes as $code)
                     <span class="shortcode" data-toggle="tooltip" data-placement="top" title="{{ $tooltips[$code] }}">{{ $code }}</span>
@@ -96,7 +96,7 @@ Edit Templates
 
                      <div class="col-md-6 form-group {{ $errors->has('reply_to') ? 'has-error' : '' }}">
                         <!-- first name -->
-                        {!! Form::label('reply_to',Lang::get('Reply to')) !!}
+                         {!! Form::label('reply_to', Lang::get('message.reply_to')) !!}
                         {!! Form::text('reply_to',null,['class' => 'form-control']) !!}
 
                     </div>
