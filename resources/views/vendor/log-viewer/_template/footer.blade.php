@@ -1,10 +1,10 @@
 <footer class="main-footer">
     <div class="container">
         <p class="text-muted pull-left">
-            LogViewer - <span class="label label-info">version {{ log_viewer()->version() }}</span>
+            {{ __('message.log_viewer') }} <span class="label label-info">{{ __('message.version') }} {{ log_viewer()->version() }}</span>
         </p>
         <p class="text-muted pull-right">
-            Created with <i class="fa fa-heart"></i> by ARCANEDEV <sup>&copy;</sup>
+            {{ __('message.created_with') }} <i class="fa fa-heart"></i> {{ __('message.by_arcanedev') }} <sup>&copy;</sup>
         </p>
     </div>
 </footer>

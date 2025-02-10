@@ -37,4 +37,22 @@ class SettingRequest extends Request
 
         ];
     }
+
+    public function messages()
+    {
+        return [
+            'company.required' => __('validation.settings_form.company.required'),
+            'website.url' => __('validation.settings_form.website.url'),
+            'phone.regex' => __('validation.settings_form.phone.regex'),
+            'address.required' => __('validation.settings_form.address.required'),
+            'address.max' => __('validation.settings_form.address.max'),
+            'logo.mimes' => __('validation.settings_form.logo.mimes'),
+            'driver.required' => __('validation.settings_form.driver.required'),
+            'port.integer' => __('validation.settings_form.port.integer'),
+            'email.required' => __('validation.settings_form.email.required'),
+            'email.email' => __('validation.settings_form.email.email'),
+            'password.required' => __('validation.settings_form.password.required'),
+            'error_email.email' => __('validation.settings_form.error_email.email'),
+        ];
+    }
 }

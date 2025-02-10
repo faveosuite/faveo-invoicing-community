@@ -63,7 +63,7 @@ class AuthController extends BaseAuthController
             if ($activate) {
                 $email = $activate->email;
             } else {
-                throw new NotFoundHttpException('Token mismatch. Account cannot be activated.');
+                throw new NotFoundHttpException(__('message.token_mismatch_account_not_activated'));
             }
             $user = $user->where('email', $email)->first();
             if ($user) {
@@ -78,18 +78,16 @@ class AuthController extends BaseAuthController
                         return redirect($url);
                     }
 
-                    return redirect($url)->with('success', 'Email verification successful.
-                    Please login to access your account !!');
+                    return redirect($url)->with('success', __('message.email_verification_success'));
                 } else {
-                    return redirect($url)->with('warning', 'This email is already verified');
+                    return redirect($url)->with('warning', __('message.email_already_verified'));
                 }
             } else {
-                throw new NotFoundHttpException('User with this email not found.');
+                throw new NotFoundHttpException(__('message.user_email_not_found'));
             }
         } catch (\Exception $ex) {
             if ($ex->getCode() == 400) {
-                return redirect($url)->with('success', 'Email verification successful,
-                 Please login to access your account');
+                return redirect($url)->with('success', __('message.email_verification_success'));
             }
 
             return redirect($url)->with('fails', $ex->getMessage());
@@ -108,7 +106,20 @@ class AuthController extends BaseAuthController
             'name' => 'required|max:255',
             'email' => 'required|email|max:255|unique:users',
             'password' => 'required|confirmed|min:6',
-        ]);
+        ],
+            [
+                'name.required' => __('validation.auth_controller.name_required'),
+                'name.max' => __('validation.auth_controller.name_max'),
+
+                'email.required' => __('validation.auth_controller.email_required'),
+                'email.email' => __('validation.auth_controller.email_email'),
+                'email.max' => __('validation.auth_controller.email_max'),
+                'email.unique' => __('validation.auth_controller.email_unique'),
+
+                'password.required' => __('validation.auth_controller.password_required'),
+                'password.confirmed' => __('validation.auth_controller.password_confirmed'),
+                'password.min' => __('validation.auth_controller.password_min'),
+            ]);
     }
 
     /**
@@ -130,7 +141,11 @@ class AuthController extends BaseAuthController
     {
         $request->validate([
             'eid' => 'required|string',
-        ]);
+        ],
+            [
+                'eid.required' => __('validation.eid_required'),
+                'eid.string' => __('validation.eid_string'),
+            ]);
 
         try {
             // Decrypt the email
@@ -187,6 +202,12 @@ class AuthController extends BaseAuthController
         $request->validate([
             'eid' => 'required|string',
             'type' => 'required|string|in:text,voice',
+        ], [
+            'eid.required' => __('validation.resend_otp.eid_required'),
+            'eid.string' => __('validation.resend_otp.eid_string'),
+            'type.required' => __('validation.resend_otp.type_required'),
+            'type.string' => __('validation.resend_otp.type_string'),
+            'type.in' => __('validation.resend_otp.type_in'),
         ]);
         try {
             $email = Crypt::decrypt($request->eid);
@@ -231,6 +252,9 @@ class AuthController extends BaseAuthController
     {
         $request->validate([
             'eid' => 'required|string',
+        ], [
+            'eid.required' => __('validation.eid_required'),
+            'eid.string' => __('validation.eid_string'),
         ]);
         try {
             $email = Crypt::decrypt($request->eid);
@@ -275,14 +299,21 @@ class AuthController extends BaseAuthController
     public function verifyOtp(Request $request)
     {
         if (rateLimitForKeyIp('verify_mobile_otp', 5, 1, $request->ip())['status']) {
-            return errorResponse('Too Many attempts.');
+            return errorResponse(__('message.too_many_attempts'));
         }
 
         $request->validate([
             'eid' => 'required|string',
             'otp' => 'required|string|size:6',
             'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation()],
-        ]);
+        ],
+            [
+                'eid.required' => __('validation.verify_otp.eid_required'),  // Translating for eid field
+                'eid.string' => __('validation.verify_otp.eid_string'),
+                'otp.required' => __('validation.verify_otp.otp_required'),
+                'otp.size' => __('validation.verify_otp.otp_size'),
+                'g-recaptcha-response.required' => __('validation.verify_otp.recaptcha_required'),
+            ]);
         try {
             // Decrypt the email
             $email = Crypt::decrypt($request->eid);
@@ -328,7 +359,14 @@ class AuthController extends BaseAuthController
             'eid' => 'required|string',
             'otp' => 'required|string|size:6',
             'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation()],
-        ]);
+        ],
+            [
+                'eid.required' => __('validation.verify_otp.eid_required'),  // Translating for eid field
+                'eid.string' => __('validation.verify_otp.eid_string'),
+                'otp.required' => __('validation.verify_otp.otp_required'),
+                'otp.size' => __('validation.verify_otp.otp_size'),
+                'g-recaptcha-response.required' => __('validation.verify_otp.recaptcha_required'),
+            ]);
 
         try {
             $otp = $request->input('otp');
@@ -391,16 +429,16 @@ class AuthController extends BaseAuthController
             ->orderBy('state_subdivision_name', 'asc')->get();
 
             if (count($states) > 0) {
-                echo '<option value="">Choose</option>';
+                echo '<option value="">'.__('message.choose').'</option>';
                 foreach ($states as $stateList) {
                     echo '<option value='.$stateList->state_subdivision_code.'>'
                 .$stateList->state_subdivision_name.'</option>';
                 }
             } else {
-                echo "<option value=''>No States Available</option>";
+                echo "<option value=''>".__('message.no_states_available').'</option>';
             }
         } catch (\Exception $ex) {
-            echo "<option value=''>Problem while loading</option>";
+            echo "<option value=''>".__('message.problem_while_loading').'</option>';
 
             return redirect()->back()->with('fails', $ex->getMessage());
         }

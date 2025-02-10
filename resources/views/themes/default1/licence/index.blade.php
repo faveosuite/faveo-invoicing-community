@@ -1,16 +1,16 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-License Types
+    {{ __('message.license_types') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>License Types</h1>
+        <h1>{{ __('message.license-type') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item active">License Types</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.license-type') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -40,8 +40,8 @@ License Types
                      <button  value="" class="btn btn-secondary btn-sm btn-alldell" id="bulk_delete"><i class="fa fa-trash"></i>&nbsp;&nbsp;{{Lang::get('message.delmultiple')}}</button><br /><br />
                     <thead><tr>
                         <th class="no-sort" style="width:20px"><input type="checkbox" name="select_all" onchange="checking(this)"></th>
-                            <th>Name</th>
-                            <th>Action</th>
+                            <th>{{ __('message.name_page') }}</th>
+                            <th>{{ __('message.action') }}</th>
                         </tr></thead>
 
                    </table>
@@ -61,7 +61,7 @@ License Types
 
         $(document).ready(function() {
             const userRequiredFields = {
-                name:@json(trans('message.license_details.new_license_type')),
+                name:@json(trans('message.lic_details.new_license_type')),
 
 
             };
@@ -127,7 +127,7 @@ License Types
 
         $(document).ready(function() {
             const userRequiredFields = {
-                name:@json(trans('message.license_details.new_license_type')),
+                name:@json(trans('message.lic_details.new_license_type')),
 
 
             };
@@ -201,7 +201,7 @@ License Types
             "url":  '{!! route('get-license-type') !!}',
                error: function(xhr) {
                if(xhr.status == 401) {
-                alert('Your session has expired. Please login again to continue.')
+                alert('{{ __('message.session_expired') }}')
                 window.location.href = '/login';
                }
             }
@@ -210,8 +210,25 @@ License Types
             "oLanguage": {
                 "sLengthMenu": "_MENU_ Records per page",
                 "sSearch"    : "Search: ",
-                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>'
+                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
             },
+            language: {
+                paginate: {
+                    first:      "{{ __('message.paginate_first') }}",
+                    last:       "{{ __('message.paginate_last') }}",
+                    next:       "{{ __('message.paginate_next') }}",
+                    previous:   "{{ __('message.paginate_previous') }}"
+                },
+                emptyTable:     "{{ __('message.empty_table') }}",
+                info:           "{{ __('message.datatable_info') }}",
+                search:         "{{ __('message.datatable_search') }} ",
+                zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
+                infoEmpty:      "{{ __('message.info_empty') }}",
+                infoFiltered:   "{{ __('message.info_filtered') }}",
+                lengthMenu:     "{{ __('message.sLengthMenu') }}",
+                loadingRecords: "{{ __('message.loading_records') }}",
+            },
+
             columnDefs: [
              { targets: 'no-sort', 
                     orderable: false,

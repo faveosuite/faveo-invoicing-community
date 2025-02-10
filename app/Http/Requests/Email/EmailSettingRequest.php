@@ -54,4 +54,22 @@ class EmailSettingRequest extends FormRequest
             ];
         }
     }
+
+    public function messages()
+    {
+        return [
+            'password.required_if' => __('validation.custom.password.required_if'),
+            'port.required_if' => __('validation.custom.port.required_if'),
+            'encryption.required_if' => __('validation.custom.encryption.required_if'),
+            'host.required_if' => __('validation.custom.host.required_if'),
+            'secret.required_if' => __('validation.custom.secret.required_if'),
+            'domain.required_if' => __('validation.custom.domain.required_if'),
+            'key.required_if' => __('validation.custom.key.required_if'),
+            'region.required_if' => __('validation.custom.region.required_if'),
+            'email.required_if' => __('validation.custom.email.required_if'),
+            'driver.required' => __('validation.custom.driver.required'),
+            'email.required' => __('validation.custom.email.required'),
+            'email.email' => __('validation.custom.email.email'),
+        ];
+    }
 }

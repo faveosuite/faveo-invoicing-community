@@ -77,13 +77,13 @@ class OrderSearchController extends Controller
             $id = $productId;
             $options = '';
 
-            $options .= '<option value="">Choose</option>';
+            $options .= '<option value="">'.__('message.choose').'</option>';
 
             $selectedLatest = ($selectedId == 'Latest') ? 'selected' : '';
-            $options .= '<option value="Latest" '.$selectedLatest.'>Latest</option>';
+            $options .= '<option value="Latest" '.$selectedLatest.'>'.__('message.latest').'</option>';
 
             $selectedOutdated = ($selectedId == 'Outdated') ? 'selected' : '';
-            $options .= '<option value="Outdated" '.$selectedOutdated.'>Outdated</option>';
+            $options .= '<option value="Outdated" '.$selectedOutdated.'>'.__('message.outdated').'</option>';
 
             if (($productId !== 'paid') && ($productId !== 'unpaid')) {
                 $allVersions = Subscription::where('product_id', $productId)
@@ -102,7 +102,7 @@ class OrderSearchController extends Controller
 
             return $options;
         } catch (\Exception $ex) {
-            return "<option value=''>Problem while loading</option>";
+            return "<option value=''>".__('messages.problem_while_loading').'</option>';
         }
     }
 

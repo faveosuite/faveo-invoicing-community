@@ -1,16 +1,16 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Edit Page
+    {{ __('message.edit_page')}}
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Edit Page</h1>
+        <h1>{{ __('message.edit_page')}}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('pages')}}"><i class="fa fa-dashboard"></i> Pages</a></li>
-            <li class="breadcrumb-item active">Edit Page</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home')}}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('pages')}}"><i class="fa fa-dashboard"></i> {{ __('message.pages')}}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.edit_page')}}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -81,7 +81,7 @@ Edit Page
                         <!-- parent_page_id -->
                         {!! html()->label(Lang::get('message.parent-page'), 'parent_page_id') !!}
                         <select name="parent_page_id"  class="form-control {{$errors->has('') ? ' is-invalid' : ''}}">
-                            <option value="0">Choose</option>
+                            <option value="0">{{ __('message.choose')}}</option>
                             @foreach($parents as $key=>$parent)
 
                                    <option value="{{$key}}" <?php  if(in_array($parent, $parentName) ) { echo "selected";} ?>>{{$parent}}</option>
@@ -106,7 +106,7 @@ Edit Page
                         <!-- default_page_id -->
                            {!! html()->label(Lang::get('message.default-page'), 'default_page_id')->class('required') !!}
                                    <select name="default_page_id"  class="form-control {{$errors->has('default_page_id') ? ' is-invalid' : ''}}" >
-                                     <option value="">My Invoices</option>
+                                     <option value="">{{ __('message.my_invoices')}}</option>
                          @foreach($defaults as $key=>$value)
                                    <option value="{{$key}}" <?php  if($key == $selectedDefault)  { echo "selected";} ?>>{{$value}}</option>
                            

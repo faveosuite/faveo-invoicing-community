@@ -1,6 +1,6 @@
 <!-- Button to trigger modal -->
 <a onclick="getTable({{$productid}}, {{$clientid}}, {{$invoiceid}})" class="btn btn-light-scale-2 btn-sm text-dark" data-toggle="modal" data-target="#list">
-    <i class='fa fa-download' data-toggle="tooltip" title="Click here to download"></i>&nbsp;
+    <i class='fa fa-download' data-toggle="tooltip" title="{{ __('message.click_to_download') }}"></i>&nbsp;
 </a>
 
 <style>
@@ -38,8 +38,8 @@
     <div class="modal-dialog modal-dialog-centered" role="document" style="max-width:75% !important;">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Product Versions</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <h5 class="modal-title">{{ __('message.product_version')}}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="{{ __('message.close') }}">
                     <span aria-hidden="true">&times;</span>
                 </button>
                 <?php
@@ -57,10 +57,10 @@
                     <table id="version-table" class="table display" cellspacing="0" width="100%">
                         <thead>
                         <tr>
-                            <th>Version</th>
-                            <th>Title</th>
-                            <th>Description</th>
-                            <th>File</th>
+                            <th>{{ __('message.version')}}</th>
+                            <th>{{ __('message.title')}}</th>
+                            <th>{{ __('message.description')}}</th>
+                            <th>{{ __('message.file')}}</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -113,6 +113,22 @@
                 "sSearch": "Search: ",
                 "sProcessing": '<img id="blur-bg" class="backgroundfadein" style="top:50%;left:50%; transform: translate(-50%, -50%); width: 50px; height:50px; display: block; position: fixed;" src="{!! asset("lb-faveo/media/images/gifloader3.gif") !!}">'
             },
+            language: {
+                paginate: {
+                    first:      "{{ __('message.paginate_first') }}",
+                    last:       "{{ __('message.paginate_last') }}",
+                    next:       "{{ __('message.paginate_next') }}",
+                    previous:   "{{ __('message.paginate_previous') }}"
+                },
+                emptyTable:     "{{ __('message.empty_table') }}",
+                info:           "{{ __('message.datatable_info') }}",
+                zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
+                infoEmpty:      "{{ __('message.info_empty') }}",
+                infoFiltered:   "{{ __('message.info_filtered') }}",
+                lengthMenu:     "{{ __('message.length_menu') }}",
+                loadingRecords: "{{ __('message.loading_records') }}",
+            },
+
             columnDefs: [
                 {
                     targets: 'no-sort',

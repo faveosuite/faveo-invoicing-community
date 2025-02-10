@@ -1,16 +1,16 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Create Page
+ {{ __('message.create_page') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Create New Page</h1>
+        <h1>{{ __('message.create_new_page') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('pages')}}"><i class="fa fa-dashboard"></i> All Pages</a></li>
-            <li class="breadcrumb-item active">Create New Page</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home')}}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('pages')}}"><i class="fa fa-dashboard"></i> {{ __('message.all_pages')}}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.create_new_page')}}</li>
         </ol>
     </div><!-- /.col -->
 @stop

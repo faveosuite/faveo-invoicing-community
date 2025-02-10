@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-    Third Party Integrations
+    {{ __('message.third_party_integrations') }}
 @stop
 @section('content-header')
     <style>
@@ -73,13 +73,13 @@
 
 </style>
 <div class="col-sm-6 md-6">
-    <h1>Third Party Integrations</h1>
+    <h1>{{ __('message.third_party_integrations') }}</h1>
 </div>
 <div class="col-sm-6 md-6">
     <ol class="breadcrumb float-sm-right">
-        <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-        <li class="breadcrumb-item"><a href="{{url('settings')}}"> Settings</a></li>
-        <li class="breadcrumb-item active">Third Party Integrations</li>
+        <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home')}}</a></li>
+        <li class="breadcrumb-item"><a href="{{url('settings')}}"> {{ __('message.settings')}}</a></li>
+        <li class="breadcrumb-item active">{{ __('message.third_party_integrations') }}</li>
     </ol>
 </div><!-- /.col -->
 @stop
@@ -97,10 +97,10 @@
                         <table id="custom-table" class="table display" cellspacing="0" width="100%">
                             <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Description</th>
-                                <th>Status</th>
-                                <th>Action</th>
+                                <th>{{ __('message.name_page') }}</th>
+                                <th>{{ __('message.description') }}</th>
+                                <th>{{ __('message.status') }}</th>
+                                <th>{{ __('message.action') }}</th>
                             </tr>
                             </thead>
                         </table>
@@ -114,7 +114,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Msg 91(Mobile Verification)</h4>
+                    <h4 class="modal-title">{{ __('message.msg91_heading') }}</h4>
 
                 </div>
                 <div class="modal-body">
@@ -152,9 +152,9 @@
                     @endphp
 
                     {{-- Third Party App Selector --}}
-                    {{ html()->label('MSG91 Third Party App Key', 'third_party_key')->class('required') }}
+                    {{ html()->label( __('message.msg91_third_party_app_key'), 'third_party_key')->class('required') }}
                     {{ html()->select('third_party_key',
-                                         ['' => 'Select Third Party App'] + $thirdPartyKeys->toArray(),
+                                         ['' => __('message.select_third_party_app')] + $thirdPartyKeys->toArray(),
                                          $msg91ThirdPartyId)
                                          ->class('form-control')
                                          ->id('third_party_key') }}
@@ -163,13 +163,13 @@
 
                     {{-- Webhook Field (Initially Hidden) --}}
                     <div id="webhook_section" style="display: none;">
-                        {{ html()->label('Webhook URL', 'webhook_url') }}
+                        {{ html()->label( __('message.webhook_url'), 'webhook_url') }}
                         <div class="input-group">
                             {{ html()->text('webhook_url')
                                 ->attribute('readonly')
                                 ->class('form-control')
                                 ->id('webhook_url') }}
-                            <div class="input-group-append" data-toggle="tooltip" data-placement="top" title="Copy to clipboard" id="copy_tooltip_div">
+                            <div class="input-group-append" data-toggle="tooltip" data-placement="top" title="{{ __('message.copy_to_clipboard') }}" id="copy_tooltip_div">
                                 <button type="button" class="btn btn-secondary" id="copy_button">
                                     <i class="fas fa-copy"></i>
                                 </button>
@@ -180,7 +180,7 @@
                     </div>
 
                 <div class="modal-footer justify-content-between">
-                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
+                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;{{ __('message.close') }}</button>
                     <button type="submit" class="form-group btn btn-primary"  id="submit3"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button>
 
                 </div>
@@ -193,7 +193,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Github Settings</h4>
+                    <h4 class="modal-title">{{ __('message.github_settings') }}</h4>
 
                 </div>
                 <div class="modal-body">
@@ -245,8 +245,8 @@
                 </div>
 
                 <div class="modal-footer justify-content-between">
-                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
-                    <button type="submit" id="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-save'>&nbsp;</i> Saving..."><i class="fa fa-save">&nbsp;</i>{!!Lang::get('message.save')!!}</button>
+                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;{{ __('message.close') }}</button>
+                    <button type="submit" id="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-save'>&nbsp;</i> {{ __('message.saving') }}"><i class="fa fa-save">&nbsp;</i>{!!Lang::get('message.save')!!}</button>
 
                 </div>
             </div>
@@ -258,7 +258,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Auto Faveo Licenser & Update Manager</h4>
+                    <h4 class="modal-title">{{ __('message.license_heading') }}</h4>
 
                 </div>
                 <div class="modal-body">
@@ -307,7 +307,7 @@
 
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         {!! html()->label(Lang::get('message.lic_grant_type'))->class('required') !!}
-                        {!! html()->select('license_grant_type',['' => 'Select', 'client_credentials' => 'Client_credentials'])
+                        {!! html()->select('license_grant_type',['' => __('message.Select'), 'client_credentials' => 'Client_credentials'])
                                     ->class('form-control')->id('license_grant_type') !!}
 
                         <h6 id="license_grantTypeCheck"></h6>
@@ -317,7 +317,7 @@
                 </div>
 
                 <div class="modal-footer justify-content-between">
-                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
+                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;{{ __('message.close') }}</button>
                     <button type="submit" class="form-group btn btn-primary"  onclick="licenseDetails()" id="submit"><i class="fa fa-save">&nbsp;</i>{!!Lang::get('message.save')!!}</button>
                 </div>
             </div>
@@ -330,7 +330,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Google reCAPTCHA</h4>
+                    <h4 class="modal-title">{{ __('message.google_recaptcha') }}</h4>
 
                 </div>
                 <div class="modal-body">
@@ -378,7 +378,7 @@
                 </div>
 
                 <div class="modal-footer justify-content-between">
-                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
+                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;{{ __('message.close') }}</button>
                     <button type="submit" class="form-group btn btn-primary" onclick="captchaDetails()" id="submit2"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button>
 
                 </div>
@@ -393,7 +393,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Mailchimp</h4>
+                    <h4 class="modal-title">{{ __('message.mailchimp') }}</h4>
 
                 </div>
 
@@ -415,7 +415,7 @@
 
                             {!! html()->label(Lang::get('message.list_id'), 'list_id')->class('required') !!}
                             <select name="list_id" class="form-control" id="list_id" style="width:100%">
-                            <option value="">Choose</option>
+                            <option value="">{{ __('message.choose') }}</option>
                             @foreach($allists as $list)
                                 <option value="{{$list->id}}"<?php  if(in_array($list->id, $selectedList) )
                                 { echo "selected";} ?>>{{$list->name}}</option>
@@ -449,7 +449,7 @@
                     </div>
                 <div id="extraInput1" style="display: none;">
                 <div class="modal-footer justify-content-between">
-                    <button type="button" id="close1" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
+                    <button type="button" id="close1" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;{{ __('message.close') }}</button>
                         <button type="submit" class="btn btn-primary pull-right" id="submit-chimp" ><i class="fa fa-save">&nbsp;</i>{!!Lang::get('message.save')!!}</button>
                     </div>
 
@@ -458,7 +458,7 @@
 
                 <div id="extraInput5" style="display: block;">
                 <div class="modal-footer justify-content-between">
-                    <button type="button" id="close1" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
+                    <button type="button" id="close1" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;{{ __('message.close') }}</button>
 
                     <button type="submit" class="btn btn-primary" id="submit9">
                         <i class="fa fa-save"></i>&nbsp;&nbsp;{!! Lang::get('message.save') !!}
@@ -476,7 +476,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Show Terms on Registration Page</h4>
+                    <h4 class="modal-title">{{ __('message.terms_heading') }}</h4>
                 </div>
                 <div class="modal-body">
                     <div id="alertMessage5"></div>
@@ -488,7 +488,7 @@
                  </div>
                 </div>
                 <div class="modal-footer justify-content-between">
-                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
+                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;{{ __('message.close') }}</button>
                     <button type="submit" class="form-group btn btn-primary"  id="submit10"><i class="fa fa-save">&nbsp;</i>{!!Lang::get('message.save')!!}</button>
 
                 </div>
@@ -502,7 +502,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Twitter</h4>
+                    <h4 class="modal-title">{{ __('message.twitter') }}</h4>
 
                 </div>
                 <div class="modal-body">
@@ -558,7 +558,7 @@
                 </div>
 
                 <div class="modal-footer justify-content-between">
-                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
+                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;{{ __('message.close') }}</button>
                     <button type="submit" class="form-group btn btn-primary"  id="submit5"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button>
 
                 </div>
@@ -571,7 +571,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Zoho CRM</h4>
+                    <h4 class="modal-title">{{ __('message.zoho_crm') }}</h4>
                 </div>
                 <div class="modal-body">
                     <div id="alertMessage7"></div>
@@ -587,7 +587,7 @@
                 </div>
 
                 <div class="modal-footer justify-content-between">
-                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
+                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;{{ __('message.close') }}</button>
                     <button type="submit" class="form-group btn btn-primary"  id="submit7"><i class="fa fa-save">&nbsp;</i>{!!Lang::get('message.save')!!}</button>
 
                 </div>
@@ -600,7 +600,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">pipedrive</h4>
+                    <h4 class="modal-title">{{ __('message.pipedrive') }}</h4>
                 </div>
                 <div class="modal-body">
                     <div id="alertMessage8"></div>
@@ -622,7 +622,7 @@
                 </div>
 
                 <div class="modal-footer justify-content-between">
-                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
+                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;{{ __('message.close') }}</button>
                     <button type="submit" class="form-group btn btn-primary"  id="submit13"><i class="fa fa-save">&nbsp;</i>{!!Lang::get('message.save')!!}</button>
 
                 </div>
@@ -765,7 +765,7 @@
     <script>
         document.getElementById('nocaptcha_sitekey').addEventListener('input', function () {
             resetRecaptchaContainer();
-            var captchaError=document.getElementById('captchaError');
+            var captchaError=document.getElementById('cterms_headingaptchaError');
             if(captchaError !=null) {
                 document.getElementById('captchaError').textContent = '';
             }
@@ -1142,9 +1142,9 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage12').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+response.message+'.</div>';
                     $('#alertMessage12').html(result);
-                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                     setInterval(function(){
                         $('#alertMessage12').slideUp(3000);
                     }, 1000);
@@ -1173,9 +1173,9 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage12').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+response.message+'.</div>';
                     $('#alertMessage12').html(result);
-                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                     setInterval(function(){
                         $('#alertMessage12').slideUp(3000);
                     }, 1000);
@@ -1205,9 +1205,9 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage12').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+response.message+'.</div>';
                     $('#alertMessage12').html(result);
-                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                     setInterval(function(){
                         $('#alertMessage12').slideUp(3000);
                     }, 1000);
@@ -1238,9 +1238,9 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage12').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+response.message+'.</div>';
                     $('#alertMessage12').html(result);
-                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                     setInterval(function(){
                         $('#alertMessage12').slideUp(3000);
                     }, 1000);
@@ -1270,9 +1270,9 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage12').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+response.message+'.</div>';
                     $('#alertMessage12').html(result);
-                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                     setInterval(function(){
                         $('#alertMessage12').slideUp(3000);
                     }, 1000);
@@ -1301,9 +1301,9 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage12').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+response.message+'.</div>';
                     $('#alertMessage12').html(result);
-                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                     setInterval(function(){
                         $('#alertMessage12').slideUp(3000);
                     }, 1000);
@@ -1334,9 +1334,9 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage12').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+response.message+'.</div>';
                     $('#alertMessage12').html(result);
-                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                     setInterval(function(){
                         $('#alertMessage12').slideUp(3000);
                     }, 1000);
@@ -1366,9 +1366,9 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage12').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+response.message+'.</div>';
                     $('#alertMessage12').html(result);
-                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                     setInterval(function(){
                         $('#alertMessage12').slideUp(3000);
                     }, 1000);
@@ -1398,9 +1398,9 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage12').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+response.message+'.</div>';
                     $('#alertMessage12').html(result);
-                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                     setInterval(function(){
                         $('#alertMessage12').slideUp(3000);
                     }, 1000);
@@ -1422,7 +1422,23 @@
                 oLanguage: {
                     sLengthMenu: "_MENU_ Records per page",
                     sSearch: "<span style='right: 180px;'>Search:</span> ",
-                    sProcessing: ' <div class="overlay dataTables_processing"><i class="fas fa-3x fa-sync-alt fa-spin" style=" margin-top: -25px;"></i><div class="text-bold pt-2">Loading...</div></div>'
+                    sProcessing: ' <div class="overlay dataTables_processing"><i class="fas fa-3x fa-sync-alt fa-spin" style=" margin-top: -25px;"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
+                },
+                language: {
+                    paginate: {
+                        first:      "{{ __('message.paginate_first') }}",
+                        last:       "{{ __('message.paginate_last') }}",
+                        next:       "{{ __('message.paginate_next') }}",
+                        previous:   "{{ __('message.paginate_previous') }}"
+                    },
+                    emptyTable:     "{{ __('message.empty_table') }}",
+                    info:           "{{ __('message.datatable_info') }}",
+                    zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
+                    infoEmpty:      "{{ __('message.info_empty') }}",
+                    infoFiltered:   "{{ __('message.info_filtered') }}",
+                    lengthMenu:     "{{ __('message.length_menu') }}",
+                    loadingRecords: "{{ __('message.loading_records') }}",
+                    search:         "{{ __('message.table_search') }}",
                 },
 
                 // Apply 'no-sort' class only to specific targets (3rd and 4th columns)
@@ -1515,7 +1531,7 @@
 
             // Restore the original tooltip text after 3 seconds
             setTimeout(() => {
-                $tooltipDiv.attr('data-original-title', 'Copy to clipboard');
+                $tooltipDiv.attr('data-original-title', @json(trans('message.copy_to_clipboard')));
             }, 3000);
         }
 
@@ -1608,9 +1624,9 @@
                     }
                 });
 
-            if($('#license_api_url').val()!=''){
+            if ($('#license_api_url').val() != '') {
                 if (isValid && !isValidURL(userFields.type.val())) {
-                    showError(userFields.type,'Please enter a valid url(https://example.com).');
+                    showError(userFields.type, @json(__('message.cloud_hub_valid_url')));
                     isValid = false;
                 }
             }
@@ -1623,7 +1639,7 @@
 
 
 
-        $("#submit").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+        $("#submit").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
             $.ajax({
 
                 url : '{{url("licenseDetails")}}',
@@ -1642,16 +1658,16 @@
                             location.reload();
                         }, 3000);
                         $('#alertMessage').show();
-                        var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>' + response.message + '.</div>';
+                        var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>' + response.message + '.</div>';
                         $('#alertMessage').html(result);
-                        $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                        $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                         setInterval(function () {
                             $('#alertMessage').slideUp(3000);
                         }, 1000);
                 },
                 error:function(response){
                     $('#alertMessage').show();
-                    var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> Error! </strong>' + response.responseJSON.message + '</div>';
+                    var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> {{ __('message.error') }} </strong>' + response.responseJSON.message + '</div>';
                     $('#alertMessage').html(result);
                     $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function () {
@@ -1723,7 +1739,7 @@
                 var checkboxvalue = 1;
                 if ($('#update_api_secret').val() == '' ) {
                     $('#update_apiCheck').show();
-                    $('#update_apiCheck').html("Please Enter API Secret Key");
+                    $('#update_apiCheck').html(@json(__('message.enter_api_secret_key')));
                     $('#update_api_secret').css("border-color","red");
                     $('#update_apiCheck').css({"color":"red","margin-top":"5px"});
                     return false;
@@ -1731,7 +1747,7 @@
                 if ($('#update_api_url').val() == '' ) {
                     alert('df');
                     $('#update_urlCheck').show();
-                    $('#update_urlCheck').html("Please Enter API URL");
+                    $('#update_urlCheck').html(@json(__('message.enter_api_url')));
                     $('#update_api_url').css("border-color","red");
                     $('#update_urlCheck').css({"color":"red","margin-top":"5px"});
                     return false;
@@ -1741,7 +1757,7 @@
             else{
                 var checkboxvalue = 0;
             }
-            $("#submitudpate").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+            $("#submitudpate").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
             $.ajax({
 
                 url : '{{url("updateDetails")}}',
@@ -1756,9 +1772,9 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+response.update+'.</div>';
                     $('#alertMessage').html(result);
-                    $("#submitudpate").html("<i class='fa fa-floppy-o'>&nbsp;&nbsp;</i>Save");
+                    $("#submitudpate").html("<i class='fa fa-floppy-o'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                     setInterval(function(){
                         $('#alertMessage').slideUp(3000);
                     }, 1000);
@@ -1845,7 +1861,7 @@
                 e.preventDefault();
             }
 
-            $("#submit2").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+            $("#submit2").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
             $.ajax({
 
                 url : '{{url("captchaDetails")}}',
@@ -1861,9 +1877,9 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage2').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.message+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+data.message+'.</div>';
                     $('#alertMessage2').html(result);
-                    $("#submit2").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    $("#submit2").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                     setInterval(function(){
                         $('#alertMessage2').slideUp(3000);
                     }, 1000);
@@ -1913,14 +1929,14 @@
                 var checkboxvalue = 1;
                 if ($('#captcha_secret').val() =="" ) {
                     $('#v3captcha_secretCheck').show();
-                    $('#v3captcha_secretCheck').html("Please Enter Secret Key");
+                    $('#v3captcha_secretCheck').html(@json(__('message.enter_secret_key')));
                     $('#captcha_secret').css("border-color","red");
                     $('#v3captcha_secretCheck').css({"color":"red","margin-top":"5px"});
                     return false;
                 }
                 if ($('#captcha_sitekey').val() =="" ) {
                     $('#captcha_sitekeyCheck').show();
-                    $('#captcha_sitekeyCheck').html("Please Enter Sitekey");
+                    $('#captcha_sitekeyCheck').html(@json(__('message.enter_secret_key')));
                     $('#captcha_sitekey').css("border-color","red");
                     $('#captcha_sitekeyCheck').css({"color":"red","margin-top":"5px"});
                     return false;
@@ -1943,9 +1959,9 @@
                 },
                 success: function (data) {
                     $('#alertMessage').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+data.update+'.</div>';
                     $('#alertMessage').html(result);
-                    $("#submit3").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    $("#submit3").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                     setInterval(function(){
                         $('#alertMessage').slideUp(3000);
                     }, 1000);
@@ -2040,7 +2056,7 @@
 
 
             // Show loading state
-            $("#submit3").html("<i class='fas fa-circle-notch fa-spin'></i> Please Wait...");
+            $("#submit3").html("<i class='fas fa-circle-notch fa-spin'></i> {{ __('message.please_wait') }}");
 
             // AJAX request
             $.ajax({
@@ -2060,10 +2076,10 @@
                     const result = `
                 <div class="alert alert-success alert-dismissable">
                     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                    <strong><i class="fa fa-check"></i> Success! </strong>${data.message}.
+                    <strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>${data.message}.
                 </div>`;
                     $('#alertMessage3').show().html(result);
-                    $("#submit3").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    $("#submit3").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
 
 
                     setInterval(function(){
@@ -2071,8 +2087,8 @@
                     }, 1000);
                 },
                 error: function () {
-                    $('#alertMessage').html("<div class='alert alert-danger'>An error occurred. Please try again.</div>").show();
-                    $("#submit3").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    $('#alertMessage').html("<div class='alert alert-danger'>{{ __('message.error_occurred') }}</div>").show();
+                    $("#submit3").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                 }
             });
         });
@@ -2092,7 +2108,7 @@
             } else {
                 var emailstatus = 0;
             }
-            $("#submit4").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+            $("#submit4").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
             $.ajax ({
                 url: '{{url("updateemailDetails")}}',
                 type : 'post',
@@ -2104,9 +2120,9 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+data.update+'.</div>';
                     $('#alertMessage').html(result);
-                    $("#submit4").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    $("#submit4").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                     setInterval(function(){
                         $('#alertMessage').slideUp(3000);
                     }, 1000);
@@ -2195,7 +2211,7 @@
 
 
 
-            $("#submit5").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+            $("#submit5").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
             $.ajax ({
                 url: '{{url("updatetwitterDetails")}}',
                 type : 'post',
@@ -2209,9 +2225,9 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage6').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+data.update+'.</div>';
                     $('#alertMessage6').html(result);
-                    $("#submit5").html("<i class='fa fa-save'>&nbsp;</i>Save");
+                    $("#submit5").html("<i class='fa fa-save'>&nbsp;</i>{{ __('message.save') }}");
                     setInterval(function(){
                         $('#alertMessage6').slideUp(3000);
                     }, 1000);
@@ -2290,7 +2306,7 @@
 
 
 
-            $("#submit7").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+            $("#submit7").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
             $.ajax ({
                 url: '{{url("updatezohoDetails")}}',
                 type : 'post',
@@ -2303,9 +2319,9 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage7').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+data.update+'.</div>';
                     $('#alertMessage7').html(result);
-                    $("#submit7").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    $("#submit7").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                     setInterval(function(){
                         $('#alertMessage7').slideUp(3000);
                     }, 1000);
@@ -2366,7 +2382,7 @@
             }
 
 
-            $("#submit9").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+            $("#submit9").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
             $.ajax ({
                 url: '{{url("updateMailchimpDetails")}}',
                 type : 'post',
@@ -2420,18 +2436,18 @@
 
 
                     $('#alertMessage4').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.message+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+data.message+'.</div>';
                     $('#alertMessage4').html(result);
-                    $("#submit9").html("<i class='fa fa-save'>&nbsp;</i>Save");
+                    $("#submit9").html("<i class='fa fa-save'>&nbsp;</i>{{ __('message.save') }}");
                     setInterval(function(){
                         $('#alertMessage4').slideUp(3000);
                     }, 1000);
                 },
                 error: function(data){
                     $('#alertMessage4').show();
-                    var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> error! </strong>'+data.responseJSON.message+'.</div>';
+                    var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> {{ __('message.error') }} </strong>'+data.responseJSON.message+'.</div>';
                     $('#alertMessage4').html(result);
-                    $("#submit9").html("<i class='fa fa-save'>&nbsp;</i>Save");
+                    $("#submit9").html("<i class='fa fa-save'>&nbsp;</i>{{ __('message.save') }}");
                     setInterval(function(){
                         $('#alertMessage4').slideUp(3000);
                     }, 1000);
@@ -2486,7 +2502,7 @@
 
             var list_id=$('#list_id').val();
             var subscribe_status=$('#subscribe_status').val();
-            $("#submit-chimp").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+            $("#submit-chimp").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
             $.ajax ({
                 url: '{{url("mailchimp")}}',
                 type : 'patch',
@@ -2506,17 +2522,17 @@
                     if(data['success']===true){
 
                         $('#alertMessage4').show();
-                        var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.message+'.</div>';
+                        var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+data.message+'.</div>';
                         $('#alertMessage4').html(result);
-                        $("#submit-chimp").html("<i class='fa fa-save'>&nbsp;</i>Save");
+                        $("#submit-chimp").html("<i class='fa fa-save'>&nbsp;</i>{{ __('message.save') }}");
                         setInterval(function(){
                             $('#alertMessage4').slideUp(3000);
                         }, 1000);}
                         else{
                         $('#alertMessage4').show();
-                        var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> error! </strong>'+data.message+'.</div>';
+                        var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> {{ __('message.error') }} </strong>'+data.message+'.</div>';
                         $('#alertMessage4').html(result);
-                        $("#submit-chimp").html("<i class='fa fa-save'>&nbsp;</i>Save");
+                        $("#submit-chimp").html("<i class='fa fa-save'>&nbsp;</i>{{ __('message.save') }}");
                         setInterval(function(){
                             $('#alertMessage4').slideUp(3000);
                         }, 1000);
@@ -2588,7 +2604,7 @@
 
             if($('#term_url').val()!=''){
             if (isValid && !isValidURL(userFields.name.val())) {
-                showError(userFields.name,'Please enter a valid url(https://example.com).');
+                showError(userFields.name, '{{ __("message.cloud_hub_valid_url") }}');
                 isValid = false;
             }
             }
@@ -2602,7 +2618,7 @@
 
 
 
-            $("#submit10").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+            $("#submit10").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
             $.ajax ({
                 url: '{{url("updateTermsDetails")}}',
                 type : 'post',
@@ -2615,9 +2631,9 @@
                             location.reload();
                         }, 3000);
                         $('#alertMessage5').show();
-                        var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>' + data.message + '.</div>';
+                        var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>' + data.message + '.</div>';
                         $('#alertMessage5').html(result);
-                        $("#submit10").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                        $("#submit10").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                         setInterval(function () {
                             $('#alertMessage5').slideUp(3000);
                         }, 1000);
@@ -2625,9 +2641,9 @@
                 },
                 error: function(data){
                     $('#alertMessage5').show();
-                    var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> Error! </strong>' + data.responseJSON.message + '</div>';
+                    var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> {{ __('message.error') }} </strong>' + data.responseJSON.message + '</div>';
                     $('#alertMessage5').html(result);
-                    $("#submit10").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    $("#submit10").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                     setInterval(function () {
                         $('#alertMessage5').slideUp(3000);
                     }, 1000);
@@ -2712,7 +2728,7 @@
 
 
 
-            $("#submit13").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+            $("#submit13").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
             $.ajax ({
                 url: '{{url("updatepipedriveDetails")}}',
                 type : 'post',
@@ -2726,18 +2742,18 @@
                             location.reload();
                         }, 3000);
                         $('#alertMessage8').show();
-                        var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>' + data.message + '.</div>';
+                        var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>' + data.message + '.</div>';
                         $('#alertMessage8').html(result);
-                        $("#submit13").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                        $("#submit13").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                         setInterval(function () {
                             $('#alertMessage8').slideUp(3000);
                         }, 1000);
                 },
                 error: function(data){
                     $('#alertMessage8').show();
-                    var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> Error! </strong>' + data.responseJSON.message + '.</div>';
+                    var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> {{ __('message.error') }} </strong>' + data.responseJSON.message + '.</div>';
                     $('#alertMessage8').html(result);
-                    $("#submit13").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    $("#submit13").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                     setInterval(function () {
                         $('#alertMessage8').slideUp(3000);
                     }, 1000);
@@ -2765,7 +2781,7 @@
             } else {
                 var domainstatus = 0;
             }
-            $("#submit14").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+            $("#submit14").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
             $.ajax ({
                 url: '{{url("updatedomainCheckDetails")}}',
                 type : 'post',
@@ -2774,9 +2790,9 @@
                 },
                 success: function (data) {
                     $('#alertMessage').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+data.update+'.</div>';
                     $('#alertMessage').html(result);
-                    $("#submit14").html("<i class='fa fa-save'>&nbsp;</i>Save");
+                    $("#submit14").html("<i class='fa fa-save'>&nbsp;</i>{{ __('message.save') }}");
                     setInterval(function(){
                         $('#alertMessage').slideUp(3000);
                     }, 1000);
@@ -2855,7 +2871,7 @@
                 preventDefault();
             }
 
-            $("#submit").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+            $("#submit").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
             $.ajax ({
                 url: '{{url("github-setting")}}',
                 type : 'post',
@@ -2869,18 +2885,18 @@
                             location.reload();
                         }, 3000);
                         $('#alertMessage1').show();
-                        var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>' + data.message + '</div>';
+                        var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>' + data.message + '</div>';
                         $('#alertMessage1').html(result);
-                        $("#submit").html("<i class='fa fa-save'>&nbsp;</i>Save");
+                        $("#submit").html("<i class='fa fa-save'>&nbsp;</i>{{ __('message.save') }}");
                         setInterval(function () {
                             $('#alertMessage1').slideUp(3000);
                         }, 1000);
                 },
                 error:function(data){
                     $('#alertMessage1').show();
-                    var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> Error! </strong>' + data.responseJSON.message + '</div>';
+                    var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> {{ __('message.error') }} </strong>' + data.responseJSON.message + '</div>';
                     $('#alertMessage1').html(result);
-                    $("#submit").html("<i class='fa fa-save'>&nbsp;</i>Save");
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;</i>{{ __('message.save') }}");
                     setInterval(function () {
                         $('#alertMessage1').slideUp(2000);
                     }, 6000);

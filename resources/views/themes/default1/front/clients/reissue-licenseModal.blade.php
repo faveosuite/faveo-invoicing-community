@@ -2,7 +2,7 @@
 <div class="modal-dialog">
 	<div class="modal-content">
 		<div class="modal-header">
-			<h4 class="modal-title" id="defaultModalLabel">Enter Domain/IP</h4>
+			<h4 class="modal-title" id="defaultModalLabel">{{ __('message.enter_domain_ip')}}</h4>
 			<!-- <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button> -->
 		</div>
 		<div class="modal-body">
@@ -17,16 +17,16 @@
                   ->class('form-control domainss')
                   ->id('newDomain')
                   ->required()
-                  ->placeholder('Domain Name Should be in the form domain.com or sub.domain.com') !!}
+                  ->placeholder(__('message.enter_domain_name')) !!}
               <h6 id ="domaincheck"></h6>
                 </div>
           <div class="form-group">
-			<span style="color:red;">*&nbsp By changing the domain, license on the current domain will be cancelled and all Installation on the current domain will be aborted. </span>
+			<span style="color:red;">*&nbsp {{ __('message.changing_domain')}} </span>
 		</div>  
 		</div>
 		
 		  <div class="modal-footer justify-content-between">
-                <button type="button" id="close" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" id="close" class="btn btn-default" data-dismiss="modal">{{ __('message.close')}}</button>
               <button type="submit" id="licenseSave"  class="btn btn-primary" value="{{Lang::get('message.save')}}"><i class="fas fa-save"></i></i></button>
             </div>
 	</div>
@@ -47,7 +47,7 @@ function validdomaincheck(){
               }
               else{
                  $('#domaincheck').show();
-               $('#domaincheck').html("Please enter a valid Domain");
+                  $('#domaincheck').html("{{ __('message.enter_valid_domain') }}");
                  $('#domaincheck').focus();
                   $('#newDomain').css("border-color","red");
                  $('#domaincheck').css({"color":"red","margin-top":"5px"});

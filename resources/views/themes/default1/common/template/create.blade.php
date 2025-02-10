@@ -1,13 +1,13 @@
 @extends('themes.default1.layouts.master')
 @section('content-header')
 <h1>
-Create Template
+    {{ __('message.create_template') }}
 </h1>
   <ol class="breadcrumb">
-        <li><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-        <li><a href="{{url('settings')}}">Settings</a></li>
-        <li><a href="{{url('templates')}}">Templates</a></li>
-        <li class="active">Create Template</li>
+        <li><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+        <li><a href="{{url('settings')}}">{{ __('message.settings') }}</a></li>
+        <li><a href="{{url('templates')}}">{{ __('message.template') }}</a></li>
+        <li class="active">{{ __('message.create_template') }}</li>
       </ol>
 @stop
 @section('content')
@@ -16,7 +16,7 @@ Create Template
     <div class="box-header">
         @if (count($errors) > 0)
         <div class="alert alert-danger">
-            <strong>Whoops!</strong> There were some problems with your input.<br><br>
+            <strong>{{ __('message.whoops') }}</strong> {{ __('message.input_problem') }}<br><br>
             <ul>
                 @foreach ($errors->all() as $error)
                 <li>{{ $error }}</li>
@@ -41,7 +41,7 @@ Create Template
         </div>
         @endif
             {!! html()->form('POST', url('template'))->open() !!}
-            <h4>{{Lang::get('message.template')}}	<button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fa fa-floppy-o">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button></h4>
+            <h4>{{Lang::get('message.template')}}	<button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> {{ __('message.saving') }}"><i class="fa fa-floppy-o">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button></h4>
 
     </div>
 
@@ -63,7 +63,7 @@ Create Template
                     <div class="col-md-4 form-group {{ $errors->has('type') ? 'has-error' : '' }}">
                         <!-- last name -->
                         {!! html()->label(Lang::get('message.template-types'))->class('required') !!}
-                        {!! html()->select('type', ['' => 'Select', 'Type' => $type])->class('form-control') !!}
+                        {!! html()->select('type', ['' => __('message.Select'), 'Type' => $type])->class('form-control') !!}
 
                     </div>
 

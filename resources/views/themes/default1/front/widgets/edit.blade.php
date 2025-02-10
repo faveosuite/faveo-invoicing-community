@@ -1,17 +1,17 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Edit Widget
+{{ __('message.edit_widget') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Edit Widget</h1>
+        <h1>{{ __('message.edit_widget')}}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item"><a href="{{url('widgets')}}"><i class="fa fa-dashboard"></i> All Widgets</a></li>
-            <li class="breadcrumb-item active">Edit Widget</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home')}}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings')}}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('widgets')}}"><i class="fa fa-dashboard"></i> {{ __('message.all_widgets')}}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.edit_widget')}}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -49,8 +49,8 @@ Edit Widget
                         </div>
                     </div>
                     <?php
-                $mail = ['class' => 'form-control','disabled' => 'true' , 'title' => 'Cofigure your mailchimp in settings to access'];
-                $twitter = ['class' => 'form-control','disabled' => 'true', 'title' => 'Configure your tweets in settings to access'];
+                $mail = ['class' => 'form-control','disabled' => 'true' , 'title' => Lang::get('message.configure_mailchimp')];
+                $twitter = ['class' => 'form-control','disabled' => 'true', 'title' => Lang::get('message.configure_tweet')];
                 
                 ?>
 
@@ -60,14 +60,14 @@ Edit Widget
                     </div>
 
                     <div class="col-md-4 form-group {{ $errors->has('allow_social_media') ? 'has-error' : '' }}">
-                        {!! html()->label('Allow social media icons')->class('required')->for('allow_social_media') !!}
+                        {!! html()->label(__('message.allow_social_media_icons'))->class('required')->for('allow_social_media') !!}
                         {!! html()->select('allow_social_media', [1 => 'Yes', 0 => 'No'])->class('form-control') !!}
                     </div>
 
                     <div class="col-md-4 form-group {{ $errors->has('type') ? 'has-error' : '' }}">
                         <!-- last name -->
                         {!! html()->label(Lang::get('message.type'))->class('required')->for('type') !!}
-                        {!! html()->select('type', ['' => 'Choose', 'footer1' => 'Footer 1', 'footer2' => 'Footer 2', 'footer3' => 'Footer 3'])->class('form-control'. ($errors->has('type') ? ' is-invalid' : ''))->value($widget->type)->id('type') !!}
+                        {!! html()->select('type', ['' => __('message.choose'), 'footer1' => 'Footer 1', 'footer2' => 'Footer 2', 'footer3' => 'Footer 3'])->class('form-control'. ($errors->has('type') ? ' is-invalid' : ''))->value($widget->type)->id('type') !!}
                         <div class="input-group-append">
                         </div>
                     </div>
@@ -120,7 +120,7 @@ Edit Widget
             </div>
 
         </div>
-        <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fa fa-sync-alt">&nbsp;&nbsp;</i>{!!Lang::get('message.update')!!}</button>
+        <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> {{ __('message.saving') }}"><i class="fa fa-sync-alt">&nbsp;&nbsp;</i>{!!Lang::get('message.update')!!}</button>
 
     </div>
 

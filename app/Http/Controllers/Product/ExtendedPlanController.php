@@ -27,7 +27,9 @@ class ExtendedPlanController extends Controller
             'name' => 'required|integer',
             'days' => 'required|numeric',
         ], [
-            'name.required' => 'Please enter period',
+            'name.required' => __('message.please_enter_period'),
+            'days.required' => __('message.days_required'),
+            'days.numeric' => __('message.days_numeric'),
         ]);
 
         try {

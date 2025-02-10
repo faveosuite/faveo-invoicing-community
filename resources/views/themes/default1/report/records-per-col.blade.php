@@ -1,24 +1,24 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Report settings
+    {{ __('message.report_settings') }}
 @stop
 @section('content-header')
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 
     <div class="col-sm-6">
-        <h1>Report settings</h1>
+        <h1>{{ __('message.report_settings') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item active">Report settings</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.report_settings') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
 @section('content')
     <div class="card card-secondary card-outline">
         <div class="card-header">
-            <h3 class="card-title">Settings</h3>
+            <h3 class="card-title">{{ __('message.settings') }}</h3>
         </div>
         {!! html()->form('POST', url('add_records'))->open() !!}
         <div class="card-body table-responsive">
@@ -26,8 +26,8 @@ Report settings
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group">
-                    {!! html()->label(Lang::get('Records per export'), 'records')->class('required') !!}
-                    <i class="fas fa-question-circle" data-toggle="tooltip" title="Add records per sheet. The maximum limit is 3000."></i>
+                    {!! html()->label(Lang::get('message.records_per_export'), 'records')->class('required') !!}
+                    <i class="fas fa-question-circle" data-toggle="tooltip" title="{{ __('message.report_limit') }}"></i>
 
                     {!! html()->select('records', [
     200 => '200',

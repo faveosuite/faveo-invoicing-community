@@ -6,7 +6,7 @@
 
                     <div class="modal-header">
 
-                        <h4 class="modal-title" id="reissueModalLabel">Are you sure?</h4>
+                        <h4 class="modal-title" id="reissueModalLabel">{{ __('message.are_you_sure')}}</h4>
 
                     </div>
 
@@ -14,14 +14,14 @@
                     	<div id="response1"></div>
 			              <input type="hidden" name="orderId" id="orderId">
 
-                        <p>By reissuing the license, all Installation on the current domain will be aborted.</p>
+                        <p>{{ __('message.reissuing_license')}}</p>
                     </div>
 
                     <div class="modal-footer">
 
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">{{ __('message.close')}}</button>
 
-                        <button type="submit" id="domainSave" class="btn btn-primary">Proceed</button>
+                        <button type="submit" id="domainSave" class="btn btn-primary">{{ __('message.proceed')}}</button>
                     </div>
                 </div>
             </div>

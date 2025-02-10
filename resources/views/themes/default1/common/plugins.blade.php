@@ -1,16 +1,16 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-    Payment Gateway Integrations
+    {{ __('message.payment_gateway_integrations') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Payment Gateway Integrations</h1>
+        <h1>{{ __('message.payment_gateway_integrations') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item active">Payment Gateway Integrations</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.payment_gateway_integrations') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -33,13 +33,13 @@
                  <table id="plugin" class="table display" cellspacing="0" width="100%" styleClass="borderless">
 
                     <thead><tr>
-                         <th>Name</th>
-                          <th>Description</th>
-                          <th>Author</th>
-                          <th>Website</th>
-                          <th>Version</th>
-                        <th>Status</th>
-                          <th>Action</th>
+                         <th>{{ __('message.category_name') }}</th>
+                          <th>{{ __('message.description') }}</th>
+                          <th>{{ __('message.author') }}</th>
+                          <th>{{ __('message.website') }}</th>
+                          <th>{{ __('message.version') }}</th>
+                          <th>{{ __('message.status') }}</th>
+                          <th>{{ __('message.action') }}</th>
                         </tr></thead>
                        
                         @foreach($pay as $key => $item)
@@ -207,7 +207,7 @@
                     location.reload();
                 }, 3000);
                 $('#alertMessage').show();
-                var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.message+'.</div>';
+                var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+data.message+'.</div>';
                 $('#alertMessage').html(result);
                 setInterval(function(){
                     $('#alertMessage').slideUp(3000);
@@ -238,7 +238,7 @@
                     location.reload();
                 }, 3000);
                 $('#alertMessage').show();
-                var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.message+'.</div>';
+                var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+data.message+'.</div>';
                 $('#alertMessage').html(result);
                 setInterval(function(){
                     $('#alertMessage').slideUp(3000);

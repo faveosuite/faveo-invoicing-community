@@ -1,16 +1,16 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Activity Log
+ {{ __('message.activity_log') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Activity Logs</h1>
+        <h1>{{ __('message.activity_logs') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item active">Activity Log</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.activity_log') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -25,7 +25,7 @@ Activity Log
 
                    <div class="card-tools">
 
-            <button type="button" class="btn btn-tool" id="tip-search" title="Expand"> <i id="search-icon" class="fas fa-plus"></i>
+            <button type="button" class="btn btn-tool" id="tip-search" title="{{ __('message.expand') }}"> <i id="search-icon" class="fas fa-plus"></i>
                             </button>
             
         </div>
@@ -40,7 +40,7 @@ Activity Log
            
             <div class="col-md-6 col-sm-6 col-lg-3 form-group">
                 <!-- first name -->
-                {!! html()->label('View Logs From')->for('from') !!}
+                {!! html()->label( __('message.view_logs_from'))->for('from') !!}
                 <div class="input-group date" id="log_from" data-target-input="nearest">
                     <input type="text" name="from" value="{{$from}}" id="from" class="form-control datetimepicker-input" autocomplete="off"  data-target="#log_from"/>
 
@@ -53,7 +53,7 @@ Activity Log
             </div>
             <div class="col-md-6 col-sm-6 col-lg-3 form-group">
                 <!-- first name -->
-                {!! html()->label('View Logs Till')->for('till') !!}
+                {!! html()->label( __('message.view_logs_till'))->for('till') !!}
 
                 <div class="input-group date" id="log_till" data-target-input="nearest">
                     <input type="text" name="till" value="{{$till}}" id="till" class="form-control datetimepicker-input" autocomplete="off"  data-target="#log_till"/>
@@ -70,10 +70,10 @@ Activity Log
 
 
                 <div class="col-md-12">
-                    <!-- {!! html()->submit('Search')->class('btn btn-primary') !!} -->
-                      <button name="Search" type="submit"  class="btn btn-secondary" data-loading-text="<i class='fa fa-search fa-spin fa-1x fa-fw'>&nbsp;</i> updating..."><i class="fa fa-search">&nbsp;</i>{!!Lang::get('message.apply')!!}</button>
-                    <!-- {!! html()->submit('Reset')->class('btn btn-danger')->id('reset') !!} -->
-                     <button name="Reset" type="submit" id="reset" class="btn btn-secondary" data-loading-text="<i class='fa fa-refresh fa-spin fa-1x fa-fw'>&nbsp;</i> updating..."><i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('Reset')!!}</button>
+                    <!-- {!! html()->submit( __('message.search'))->class('btn btn-primary') !!} -->
+                      <button name="Search" type="submit"  class="btn btn-secondary" data-loading-text="<i class='fa fa-search fa-spin fa-1x fa-fw'>&nbsp;</i> {{ __('message.updating') }}"><i class="fa fa-search">&nbsp;</i>{!!Lang::get('message.apply')!!}</button>
+                    <!-- {!! html()->submit( __('message.reset'))->class('btn btn-danger')->id('reset') !!} -->
+                     <button name="Reset" type="submit" id="reset" class="btn btn-secondary" data-loading-text="<i class='fa fa-refresh fa-spin fa-1x fa-fw'>&nbsp;</i> {{ __('message.updating') }}"><i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('message.reset')!!}</button>
 
 
                 </div>
@@ -108,17 +108,17 @@ Activity Log
           <div class="col-md-12">
             <table id="activity-table" class="table display" cellspacing="0"  styleClass="borderless">
                     <thead><tr>
-                            <th>Module</th>
-                            <th>Description/Event</th>
-                             <th>Name</th>
-                              <th>Role</th>
+                            <th>{{ __('message.module') }}</th>
+                            <th>{{ __('message.description_event') }}</th>
+                             <th>{{ __('message.name_page') }}</th>
+                              <th>{{ __('message.role') }}</th>
                             <!-- <th>Subject id</th> -->
                             <!-- <th>Subject type</th> -->
-                                                                                                             
-                             <th>Previous</th>
-                             <th>Updated</th>
-                              <th>Date</th>
-                        </tr></thead>
+
+                            <th>{{ __('message.previous') }}</th>
+                            <th>{{ __('message.updated') }}</th>
+                            <th>{{ __('message.date') }}</th>
+                    </tr></thead>
 
                    </table>
             
@@ -160,8 +160,8 @@ Activity Log
             "url":  '{!! route('get-activity',"log_from=$from&log_till=$till") !!}',
                error: function(xhr) {
                if(xhr.status == 401) {
-                alert('Your session has expired. Please login again to continue.')
-                window.location.href = '/login';
+                   alert("@lang('message.session_expired')");
+                   window.location.href = '/login';
                }
             }
 
@@ -171,6 +171,22 @@ Activity Log
                 "sLengthMenu": "_MENU_ Records per page",
                 "sSearch"    : "Search: ",
                 "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>'
+            },
+            language: {
+                paginate: {
+                    first:      "{{ __('message.paginate_first') }}",
+                    last:       "{{ __('message.paginate_last') }}",
+                    next:       "{{ __('message.paginate_next') }}",
+                    previous:   "{{ __('message.paginate_previous') }}"
+                },
+                emptyTable:     "{{ __('message.empty_table') }}",
+                info:           "{{ __('message.datatable_info') }}",
+                zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
+                infoEmpty:      "{{ __('message.info_empty') }}",
+                infoFiltered:   "{{ __('message.info_filtered') }}",
+                lengthMenu:     "{{ __('message.length_menu') }}",
+                loadingRecords: "{{ __('message.loading_records') }}",
+                search:         "{{ __('message.table_search') }}",
             },
             columnDefs: [
                 { 

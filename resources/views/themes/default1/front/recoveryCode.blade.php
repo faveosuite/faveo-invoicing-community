@@ -1,20 +1,20 @@
 @extends('themes.default1.layouts.front.master')
 @section('title')
-Two-factory recovery
+{{ __('message.two_factory_recovery') }}
 @stop
 @section('page-heading')
-Two-factory recovery
+    {{ __('message.two_factory_recovery') }}
 @stop
 @section('page-header')
-Forgot Password
+{{ __('message.forgot-password') }}
 @stop
 @section('breadcrumb')
     @if(Auth::check())
-        <li><a class="text-primary" href="{{url('my-invoices')}}">Home</a></li>
+        <li><a class="text-primary" href="{{url('my-invoices')}}">{{ __('message.home')}}</a></li>
     @else
-         <li><a class="text-primary" href="{{url('login')}}">Home</a></li>
+         <li><a class="text-primary" href="{{url('login')}}">{{ __('message.home')}}</a></li>
     @endif
-     <li class="active text-dark">Two-factory recovery</li>
+     <li class="active text-dark">{{ __('message.two_factory_recovery')}}</li>
 @stop 
 @section('main-class') 
 main
@@ -33,21 +33,21 @@ main
 
                             <div class="form-group col">
 
-                                <label class="form-label text-color-dark text-3">Enter recovery code <span class="text-color-danger">*</span></label>
+                                <label class="form-label text-color-dark text-3">{{ __('message.enter_recovery_code')}} <span class="text-color-danger">*</span></label>
 
                                 <input type="text" name="rec_code"  value="" class="form-control form-control-lg text-4">
                             </div>
                             <h6 id="codecheck"></h6>
                         </div>
 
-                        <p class="text-2">You recovery code can be used only once. Make sure to generate new recovery code from My Profile section once you successfully sign in using your current recovery code.</p>
+                        <p class="text-2">{{ __('message.recovery_code_used')}}</p>
 
                         <div class="row">
 
                             <div class="form-group">
                                
 
-                                   <a href="{{'verify-2fa'}}" >Login using Authenticator Passcode</a>
+                                   <a href="{{'verify-2fa'}}" >{{ __('message.login_authenticator_passcode')}}</a>
                                
                             </div>
 
@@ -57,7 +57,7 @@ main
 
                             <div class="form-group col">
 
-                                <button type="submit" class="btn btn-dark btn-modern w-100 text-uppercase font-weight-bold text-3 py-3" data-loading-text="Loading...">Verify</button>
+                                <button type="submit" class="btn btn-dark btn-modern w-100 text-uppercase font-weight-bold text-3 py-3" data-loading-text="{{ __('message.loading') }}">{{ __('message.verify')}}</button>
                             </div>
                         </div>
                     {!! html()->form()->close() !!}
@@ -82,7 +82,7 @@ main
                     },
                     messages: {
                         rec_code: {
-                            required: "Please enter the recovery code",
+                            required: "{{ __('message.please_enter_recovery_code') }}",
                         },
                     },
                     unhighlight: function (element) {
