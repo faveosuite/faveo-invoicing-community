@@ -1,16 +1,16 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Github Setting
+    {{ __('message.github_setting') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Github Setting</h1>
+        <h1>{{ __('message.github_setting') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item active">Github Setting</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.github_setting') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -140,7 +140,7 @@ input:checked + .slider:before {
 
                 </div>
 
-                <button type="submit" id="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}</button>
+                <button type="submit" id="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> {{ __('message.saving') }}"><i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}</button>
 
 
             </div>
@@ -210,7 +210,6 @@ $(document).ready(function (){
         //Validate and pass value through ajax
   $("#submit").on('click',function (e){ //When Submit button is clicked
      if ($('#github').prop('checked')) {//if button is on
-
          const userRequiredFields = {
              git_username:@json(trans('message.github_details.name')),
              git_password:@json(trans('message.github_details.password')),
@@ -260,7 +259,7 @@ $(document).ready(function (){
          /////////////////////////////////////////////
 
          if(githubstatus==0) {
-             $("#submit").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+             $("#submit").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
              $.ajax({
                  url: '{{url("github-setting")}}',
                  type: 'post',
@@ -271,9 +270,9 @@ $(document).ready(function (){
                  },
                  success: function (data) {
                      $('#alertMessage').show();
-                     var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>' + data.update + '.</div>';
+                     var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>' + data.update + '.</div>';
                      $('#alertMessage').html(result + ".");
-                     $("#submit").html("<i class='fa fa-sync-alt'>&nbsp;</i>Update");
+                     $("#submit").html("<i class='fa fa-sync-alt'>&nbsp;</i>{{ __('message.update') }}");
                      setInterval(function () {
                          $('#alertMessage').slideUp(7000);
                      }, 1000);

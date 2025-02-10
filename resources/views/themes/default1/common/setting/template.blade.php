@@ -4,13 +4,13 @@
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Template Settings</h1>
+        <h1>{{ __('message.template_settings') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item active">Template</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.template') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -26,7 +26,7 @@
 
                 
                     <tr>
-                        <h4 class="box-title">{{Lang::get('Template List')}}</h4>
+                        <h4 class="box-title">{{Lang::get('template_list')}}</h4>
                     </tr>
 
                     <tr>
@@ -128,7 +128,7 @@
 
 
                                 {!! Form::select('invoice',['Templates'=>$template->where('type',6)->pluck('name','id')->toArray()],null,['class'=>'form-control']) !!}
-                                <p><i> {{Lang::get('Choose invoice Mail Template')}}</i> </p>
+                                <p><i> {{ __('message.invoice_mail_template') }}</i> </p>
 
 
 
@@ -138,13 +138,14 @@
                     </tr>
                      <tr>
 
-                        <td><b>{!! Form::label('invoice',Lang::get('Purchase Confirmation')) !!}</b></td>
-                        <td>
+                         <td><b>{!! Form::label('invoice', __('message.purchase_confirmation')) !!}</b></td>
+
+                         <td>
                             <div class="form-group {{ $errors->has('invoice') ? 'has-error' : '' }}">
 
 
                                 {!! Form::select('invoice',['Templates'=>$template->where('type',7)->pluck('name','id')->toArray()],null,['class'=>'form-control']) !!}
-                                 <p><i> {{Lang::get('Choose Purchase Confirmation Mail Template')}}</i> </p>
+                                 <p><i> {{ __('message.confirmation_mail_template') }}</i> </p>
                                 
 
 
@@ -154,13 +155,13 @@
                     </tr>
                      <tr>
 
-                        <td><b>{!! Form::label('invoice',Lang::get('New Sales Manager')) !!}</b></td>
+                         <td><b>{!! Form::label('invoice', __('message.new_sales_manager')) !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('invoice') ? 'has-error' : '' }}">
 
 
                                 {!! Form::select('invoice',['Templates'=>$template->where('type',9)->pluck('name','id')->toArray()],null,['class'=>'form-control']) !!}
-                                <p><i> {{Lang::get('Choose New Sales Manager Mail Template')}}</i> </p>
+                                <p><i> {{ __('message.choose_manager_template') }}</i> </p>
                                 
 
 
@@ -170,13 +171,13 @@
                     </tr>
                       <tr>
 
-                        <td><b>{!! Form::label('invoice',Lang::get('New Account Manager')) !!}</b></td>
+                          <td><b>{!! Form::label('invoice', __('message.new_account_manager')) !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('invoice') ? 'has-error' : '' }}">
 
 
                                 {!! Form::select('invoice',['Templates'=>$template->where('type',10)->pluck('name','id')->toArray()],null,['class'=>'form-control']) !!}
-                                <p><i> {{Lang::get('Choose New Account Manager Mail Template')}}</i> </p>
+                                <p><i> {{ __('message.choose_new_account_manager') }}</i> </p>
                                 
 
 
@@ -186,13 +187,13 @@
                     </tr>
                      <tr>
 
-                        <td><b>{!! Form::label('invoice',Lang::get('Auto Renewal Reminder')) !!}</b></td>
+                         <td><b>{!! Form::label('invoice', __('message.auto_renewal_reminder')) !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('auto_subscription_going_to_end') ? 'has-error' : '' }}">
 
 
                                 {!! Form::select('invoice',['Templates'=>$template->where('type',12)->pluck('name','id')->toArray()],null,['class'=>'form-control']) !!}
-                                <p><i> {{Lang::get('Choose Auto Renewal Reminder Mail Template')}}</i> </p>
+                                <p><i> {{ __('message.choose_auto_renewal_reminder') }}</i> </p>
 
                                 
 
@@ -203,13 +204,14 @@
                     </tr>
                     <tr>
 
-                        <td><b>{!! Form::label('invoice',Lang::get('Auto Payment Successfull')) !!}</b></td>
+                        <td><b>{!! Form::label('invoice', __('message.auto_payment_success')) !!}</b></td>
+
                         <td>
                             <div class="form-group {{ $errors->has('payment_successfull') ? 'has-error' : '' }}">
 
 
                                 {!! Form::select('invoice',['Templates'=>$template->where('type',13)->pluck('name','id')->toArray()],null,['class'=>'form-control']) !!}
-                                <p><i> {{Lang::get('Choose Auto Payment Successfull Mail Template')}}</i> </p>
+                                <p><i> {{ __('message.choose_auto_payment_success') }}</i> </p>
 
                                 
 
@@ -220,13 +222,13 @@
                     </tr>
                        <tr>
 
-                        <td><b>{!! Form::label('invoice',Lang::get('Auto Payment Failed')) !!}</b></td>
+                           <td><b>{!! Form::label('invoice', __('message.auto_payment_failed')) !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('payment_failed') ? 'has-error' : '' }}">
 
 
                                 {!! Form::select('invoice',['Templates'=>$template->where('type',14)->pluck('name','id')->toArray()],null,['class'=>'form-control']) !!}
-                                <p><i> {{Lang::get('Choose Auto Payment Failed Mail Template')}}</i> </p>
+                                <p><i> {{ __('message.choose_auto_payment_failed') }}</i> </p>
 
                                 
 
@@ -237,13 +239,13 @@
                     </tr>
                         <tr>
 
-                        <td><b>{!! Form::label('invoice',Lang::get('URGENT: Order has been deleted')) !!}</b></td>
+                            <td><b>{!! Form::label('invoice', __('message.urgent_order_deleted')) !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('cloud_deleted') ? 'has-error' : '' }}">
 
 
                                 {!! Form::select('invoice',['Templates'=>$template->where('type',19)->pluck('name','id')->toArray()],null,['class'=>'form-control']) !!}
-                                <p><i> {{Lang::get('Choose Cloud order delete Mail Template')}}</i> </p>
+                                <p><i> {{ __('message.choose_cloud_order') }}</i> </p>
                                 
 
 
@@ -253,13 +255,13 @@
                     </tr>
                         <tr>
 
-                        <td><b>{!! Form::label('invoice',Lang::get('New instance created')) !!}</b></td>
+                            <td><b>{!! Form::label('invoice', __('message.new_instance_created')) !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('cloud_created') ? 'has-error' : '' }}">
 
 
                                 {!! Form::select('invoice',['Templates'=>$template->where('type',20)->pluck('name','id')->toArray()],null,['class'=>'form-control']) !!}
-                                <p><i> {{Lang::get('Choose Cloud order create Mail Template')}}</i> </p>
+                                <p><i> {{ __('message.choose_cloud_order_create') }}</i> </p>
                                 
 
 
@@ -269,13 +271,13 @@
                     </tr>
                          <tr>
 
-                        <td><b>{!! Form::label('contact_us',Lang::get('Contact us')) !!}</b></td>
+                             <td><b>{!! Form::label('contact_us', __('message.contact_us')) !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('cloud_created') ? 'has-error' : '' }}">
 
 
                                 {!! Form::select('contact_us',['Templates'=>$template->where('type',21)->pluck('name','id')->toArray()],null,['class'=>'form-control']) !!}
-                                <p><i> {{Lang::get('Choose Contact us Mail Template')}}</i> </p>
+                                <p><i> {{ __('message.choose_contact_mail_template') }}</i> </p>
                                 
 
 
@@ -285,13 +287,13 @@
                     </tr>
                         <tr>
 
-                        <td><b>{!! Form::label('demo_request',Lang::get('Request a demo')) !!}</b></td>
+                            <td><b>{!! Form::label('demo_request', __('message.request_demo')) !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('cloud_created') ? 'has-error' : '' }}">
 
 
                                 {!! Form::select('demo_request',['Templates'=>$template->where('type',22)->pluck('name','id')->toArray()],null,['class'=>'form-control']) !!}
-                                <p><i> {{Lang::get('Choose Demo request Mail Template')}}</i> </p>
+                                <p><i> {{ __('message.choose_request_mail_template') }}</i> </p>
                                 
 
 
@@ -301,12 +303,12 @@
                     </tr>
                 <tr>
 
-                    <td><b>{!! Form::label('register_mail',Lang::get('Register Mail')) !!}</b></td>
+                    <td><b>{!! Form::label('demo_request', __('message.request_demo')) !!}</b></td>
                     <td>
                         <div class="form-group {{ $errors->has('cloud_created') ? 'has-error' : '' }}">
 
                             {!! Form::select('register_mail',['Templates'=>$template->where('type',24)->pluck('name','id')->toArray()],null,['class'=>'form-control']) !!}
-                            <p><i> {{Lang::get('Choose Register Mail Template')}}</i> </p>
+                            <p><i> {{ __('message.choose_register_mail_template') }}</i> </p>
 
                         </div>
                     </td>

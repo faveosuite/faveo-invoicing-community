@@ -4,13 +4,13 @@ Tax
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Create Tax Options And Tax Classes</h1>
+        <h1>{{ __('message.create_tax_option_class') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item active">Tax</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.tax') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -52,7 +52,7 @@ Tax
       
        <div class="card card-secondary card-outline">
            <div class="card-header">
-               <h3 class="card-title">{{Lang::get('Options')}}</h3>
+               <h3 class="card-title">{{Lang::get('message.options')}}</h3>
                {!! Form::model($options,['url'=>'taxes/option','method'=>'post']) !!}
            </div>
         <div class="card-body">
@@ -76,9 +76,9 @@ Tax
                                  <!-- <input id="toggle-event" type="checkbox" data-toggle="toggle" name="tax_enable"> -->
                                 <div class="btn-group btn-group-toggle"  data-toggle="buttons" >
                                     <label class="btn btn-default btn-on-1 btn-sm ">
-                                    <input type="radio" id="chkYes" value="1" name="tax_enable" >ENABLED</label>
+                                    <input type="radio" id="chkYes" value="1" name="tax_enable" >{{ __('message.caps_enabled') }}</label>
                                     <label class="btn btn-default btn-off-1 btn-sm  ">
-                                    <input type="radio" id="chkNo" value="0" name="tax_enable" >DISABLED</label>
+                                    <input type="radio" id="chkNo" value="0" name="tax_enable" >{{ __('message.caps_disabled') }}</label>
                                     <span class="slider"></span>
                                   </div>
                                     
@@ -95,9 +95,9 @@ Tax
                            
                                       <div class="btn-group btn-group-toggle"  data-toggle="buttons">
                                     <label class="btn btn-default btn-on-2 btn-sm ">
-                                    <input type="radio" id="chkYes" value="1" name="inclusive">INCLUSIVE</label>
+                                    <input type="radio" id="chkYes" value="1" name="inclusive">{{ __('message.caps_inclusive') }}</label>
                                     <label class="btn btn-default btn-off-2 btn-sm">
-                                    <input type="radio" id="chkNo" value="0" name="inclusive">EXCLUSIVE</label>
+                                    <input type="radio" id="chkNo" value="0" name="inclusive">{{ __('message.caps_exclusive') }}</label>
                                     <span class="slider"></span>
                                   </div>
                             </td>
@@ -111,9 +111,9 @@ Tax
                             <td>
                                     <div class="btn-group btn-group-toggle"  data-toggle="buttons">
                                     <label class="btn btn-default btn-on-3 btn-sm ">
-                                    <input type="radio" id="chkYes" value="1" name="rounding">ENABLED</label>
+                                    <input type="radio" id="chkYes" value="1" name="rounding">{{ __('message.caps_enabled') }}</label>
                                     <label class="btn btn-default btn-off-3 btn-sm">
-                                    <input type="radio" id="chkNo" value="0" name="rounding">DISABLED</label>
+                                    <input type="radio" id="chkNo" value="0" name="rounding">{{ __('message.caps_disabled') }}</label>
                                     <span class="slider"></span>
                                   </div>                            </td>
                         </tr>
@@ -145,15 +145,15 @@ Tax
                   <div class="row">
                 <div class="col-md-12">
                     <table id="tax-table" class="table display" cellspacing="0" width="100%" styleClass="borderless">
-                    <button  value="" class="btn btn-secondary btn-sm btn-alldell" id="bulk_delete"><i class="fa fa-trash">&nbsp;&nbsp;</i> Delete Selected</button><br /><br />
+                    <button  value="" class="btn btn-secondary btn-sm btn-alldell" id="bulk_delete"><i class="fa fa-trash">&nbsp;&nbsp;</i> {{ __('message.delmultiple') }}</button><br /><br />
                         <thead><tr>
                             <th class="no-sort"><input type="checkbox" name="select_all" onchange="checking(this)"></th>
-                             <th>Tax Type</th>
-                              <th>Name</th>
-                               <th>Country</th>
-                              <th>State</th>
-                               <th>Rate (%)</th>
-                               <th>Action</th>
+                             <th>{{ __('message.tax-type') }}</th>
+                              <th>{{ __('message.name_page') }}</th>
+                               <th>{{ __('message.country') }}</th>
+                              <th>{{ __('message.state') }}</th>
+                               <th>{{ __('message.rate') }} (%)</th>
+                               <th>{{ __('message.action') }}</th>
                             </tr></thead>
                          </table>
                   
@@ -232,7 +232,7 @@ $('.btn-off-3').css("background-color", "#DA4F49","color", "white");
               "url":  '{!! route('get-tax') !!}',
                  error: function(xhr) {
                  if(xhr.status == 401) {
-                  alert('Your session has expired. Please login again to continue.')
+                  alert('{{ __('message.session_expired') }}')
                   window.location.href = '/login';
                  }
               }
@@ -241,7 +241,7 @@ $('.btn-off-3').css("background-color", "#DA4F49","color", "white");
                 "oLanguage": {
                     "sLengthMenu": "_MENU_ Records per page",
                     "sSearch"    : "Search: ",
-                    "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>'
+                    "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
                 },
                     columnDefs: [
                     { 
@@ -323,7 +323,7 @@ $('.btn-off-3').css("background-color", "#DA4F49","color", "white");
                 }
                 else
                 {
-                    alert("Please select at least one checkbox");
+                    alert("{{ __('message.select_checkbox') }}");
                 }
             }  
 

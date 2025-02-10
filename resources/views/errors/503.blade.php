@@ -34,7 +34,7 @@
 	<body>
 		<div class="container">
 			<div class="content">
-				<div class="title">Be right back.</div>
+				<div class="title">{{ __('message.be_right_back')}}</div>
 			</div>
 		</div>
 	</body>

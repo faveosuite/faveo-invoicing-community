@@ -4,13 +4,13 @@ Settings
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Country List</h1>
+        <h1>{{ __('message.country_list') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-        <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item active">Country List</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+        <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.country_list') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -38,8 +38,8 @@ Settings
 
                 <table id="country-count" class="table display" cellspacing="0" width="100%" styleClass="borderless">
                             <thead><tr>
-                            <th>Country</th>
-                            <th>User Count</th>
+                            <th>{{ __('message.country') }}</th>
+                            <th>{{ __('message.user_count') }}</th>
                             
                         </tr></thead>
 
@@ -72,7 +72,7 @@ Settings
             "url":  '{!! route('country-count') !!}',
                error: function(xhr) {
                if(xhr.status == 401) {
-                alert('Your session has expired. Please login again to continue.')
+                alert('{{ __('message.session_expired') }}')
                 window.location.href = '/login';
                }
             }
@@ -81,7 +81,7 @@ Settings
             "oLanguage": {
                 "sLengthMenu": "_MENU_ Records per page",
                 "sSearch"    : "Search: ",
-                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>'
+                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
             },
     
             columns: [

@@ -7,11 +7,11 @@ Pricing | Faveo Helpdesk
 @stop
 @section('breadcrumb')
 @if(Auth::check())
-        <li><a class="text-primary" href="{{url('my-invoices')}}">Home</a></li>
+        <li><a class="text-primary" href="{{url('my-invoices')}}">{{ __('message.home') }}</a></li>
     @else
-         <li><a class="text-primary" href="{{url('login')}}">Home</a></li>
+         <li><a class="text-primary" href="{{url('login')}}">{{ __('message.home') }}</a></li>
     @endif
-     <li class="active text-dark">Pricing</li>
+     <li class="active text-dark">{{ __('message.pricing') }}</li>
 @stop
 @section('main-class') 
 main
@@ -212,7 +212,7 @@ main
             <div class="row mb-5">
             <div class="col text-center">
               <div class="d-flex justify-content-center align-items-center">
-                <div class="text-3 p-relative bottom-7">Monthly</div>
+                <div class="text-3 p-relative bottom-7">{{ __('message.monthly') }}</div>
                 <div class="px-2">
                   <label class="switch toggle_event_editing">
 
@@ -221,7 +221,7 @@ main
                   </label>
                   
                 </div>
-                <div class="text-3 p-relative bottom-7">Yearly</div>
+                <div class="text-3 p-relative bottom-7">{{ __('message.yearly') }}</div>
               </div>
             </div>
           </div>

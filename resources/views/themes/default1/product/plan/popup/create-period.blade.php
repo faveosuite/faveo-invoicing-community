@@ -2,29 +2,29 @@
   <div class="modal-dialog">
     <div class="modal-content">
         <div class="modal-header">
-            <h4 class="modal-title">Add Periods</h4>
+            <h4 class="modal-title">{{ __('message.add_periods') }}</h4>
 
         </div>
 
       <div class="modal-body">
          <div id="alertMessage"></div>
          <div id="error"></div>
-       <input type="text" name="periods" id="new-period" class="form-control"  placeholder="Enter Period"> <br>
+       <input type="text" name="periods" id="new-period" class="form-control"  placeholder="{{ __('message.enter_period') }}"> <br>
                <select name="select-period"  id="select-period" class="form-control" onchange="calculateAmount(this.value)">
-                <option value="" disabled selected>Choose your option</option>
-                <option value="years">Years</option>
-                <option value="months">Months</option>
+                <option value="" disabled selected>{{ __('message.choose_your_option') }}</option>
+                <option value="years">{{ __('message.years') }}</option>
+                <option value="months">{{ __('message.months') }}</option>
                </select><br>
 
       <!--   <input type="checkbox" id="year" name="checkboxName" value="year">
    <label for="html">Year</label>
         <input type="checkbox" id="month"  name="checkboxName" value="month">
    <label for="html">Month</label> -->
-       <input type="text" name="days" id="new-days" class="form-control" placeholder="Enter Days" >
+       <input type="text" name="days" id="new-days" class="form-control" placeholder="{{ __('message.enter_days') }}" >
       
       </div>
       <div class="modal-footer justify-content-between">
-        <button type="button" class="btn btn-default pull-left close-popup" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
+        <button type="button" class="btn btn-default pull-left close-popup" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;{{ __('message.close') }}</button>
         <button type="button" id="submit1" class="btn btn-primary save-periods"><i class="fa fa-save">&nbsp;</i>{!!Lang::get('Save')!!}</button>
       </div>
     </div>

@@ -4,13 +4,13 @@ Plugins
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Payment Gateway</h1>
+        <h1>{{ __('message.payment_gateway') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item active">Plugins</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.plugins') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -33,12 +33,12 @@ Plugins
                  <table id="plugin" class="table display" cellspacing="0" width="100%" styleClass="borderless">
 
                     <thead><tr>
-                         <th>Name</th>
-                          <th>Description</th>
-                          <th>Author</th>
-                          <th>Website</th>
-                          <th>Version</th>
-                          <th>Action</th>
+                         <th>{{ __('message.category_name') }}</th>
+                          <th>{{ __('message.description') }}</th>
+                          <th>{{ __('message.author') }}</th>
+                          <th>{{ __('message.website') }}</th>
+                          <th>{{ __('message.version') }}</th>
+                          <th>{{ __('message.action') }}</th>
                         </tr></thead>
                        
                         @foreach($pay as $key => $item)
@@ -60,7 +60,7 @@ Plugins
                               @if($item['name'] == $s->name && !$s->status)
                                <td><form method="post" action="{{url('plugin/status/'.$item['name'])}}"><input type="hidden" name="_token" value='.\Session::token().'>
                                    @csrf
-                                    <button type="submit" class="btn btn-secondary btn-sm btn-xs" title = "Activate"><i class="fa fa-tasks" style="color:white;"></i></button></form></td>
+                                    <button type="submit" class="btn btn-secondary btn-sm btn-xs" title = "{{ __('message.activate') }}"><i class="fa fa-tasks" style="color:white;"></i></button></form></td>
                                     @elseif($item['name'] == $s->name && $s->status)
                                      <td>
                                        <a href= "{{url($item['settings'])}}" class="btn btn-secondary btn-sm btn-xs"><i class="nav-icon fa fa-fw fa-cogs" style="color:white;"></i></a> 
@@ -69,7 +69,7 @@ Plugins
                                        ">
                                        @csrf
                                     
-                                       <button type="submit" class="btn btn-secondary btn-sm btn-xs" title="Deactivate"><i class="fa fa-tasks" style="color:white;"></i></button></form>
+                                       <button type="submit" class="btn btn-secondary btn-sm btn-xs" title="{{ __('message.deactivate') }}"><i class="fa fa-tasks" style="color:white;"></i></button></form>
                                     </td>
                                     
                               @endif

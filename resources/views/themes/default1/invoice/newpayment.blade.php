@@ -4,14 +4,14 @@ Payment
 @stop
 @section('content-header')
    <div class="col-sm-6">
-       <h1> Create New Payment</h1>
+       <h1> {{ __('message.create_new_payment') }}</h1>
    </div>
    <div class="col-sm-6">
        <ol class="breadcrumb float-sm-right">
-           <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-           <li class="breadcrumb-item"><a href="{{url('clients')}}"> All Users</a></li>
-           <li class="breadcrumb-item"><a href="{{url('clients/'.$clientid)}}">View User</a></li>
-           <li class="breadcrumb-item active">New Payment</li>
+           <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+           <li class="breadcrumb-item"><a href="{{url('clients')}}"> {{ __('message.all-users') }}</a></li>
+           <li class="breadcrumb-item"><a href="{{url('clients/'.$clientid)}}">{{ __('message.view_user') }}</a></li>
+           <li class="breadcrumb-item active">{{ __('message.new-payment') }}</li>
        </ol>
    </div><!-- /.col -->
 
@@ -23,7 +23,7 @@ Payment
 
           <div id="alertMessage"></div>
           <div id="error1"></div>
-           <h5>New Payment</h5>
+           <h5>{{ __('message.new-payment') }}</h5>
 
        </div>
 
@@ -143,7 +143,7 @@ Payment
                                        @endif
                                        @empty
                                        <tr>
-                                           <td>No Invoices</td>
+                                           <td>{{ __('message.no_invoices') }}</td>
                                        </tr>
                                        @endforelse
 
@@ -154,7 +154,7 @@ Payment
                            </div>
                            @endif
                        </div>
-                         <h3>Amount To Credit : {{$symbol}} <span class="creditAmount">0</span></h3>
+                         <h3>{{ __('message.amount_to_credit') }} {{$symbol}} <span class="creditAmount">0</span></h3>
                    </div>
    </div>
       <script>
@@ -231,7 +231,7 @@ Payment
 
   
    function multiplePayment(){
-    $("#submit").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+    $("#submit").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
    var invoice = [];
    var invoiceAmount = [];
    $(":checked").each(function() {
@@ -259,15 +259,15 @@ Payment
      data: data,
          success: function (response) {
            $('#alertMessage').show();
-           var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
+           var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+response.message+'.</div>';
            $('#alertMessage').html(result+ ".");
-           $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+           $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
          },
          error: function (ex) {
            var errors = ex.responseJSON;
-            $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+            $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
               $('#error1').show();
-           var html = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i>Whoops! </strong>Something went wrong <br><ul>';
+           var html = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }} <br><ul>';
           
            for (var key in ex.responseJSON.errors)
            {

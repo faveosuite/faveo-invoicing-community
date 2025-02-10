@@ -3,14 +3,14 @@
     <div class="modal-content" style="width:700px;">
 
       <div class="modal-header">
-      <h4 class="modal-title">Create Plans</h4>
+      <h4 class="modal-title">{{ __('message.create_plans') }}</h4>
     </div>
       <div class="modal-body">
 
         @if (count($errors) > 0)
 
                         <div class="alert alert-danger alert-dismissable">
-                            <strong>Whoops!</strong> There were some problems with your input.
+                            <strong>{{ __('message.whoops') }}</strong> {{ __('message.input_problem') }}
                             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
                             <ul>
                                 @foreach ($errors->all() as $error)
@@ -48,7 +48,7 @@
                   <!-- value -->
                   {!! Form::label('product',Lang::get('message.product'),['class'=>'required']) !!}
                   <select name="product" value="Choose" class="form-control {{$errors->has('product') ? ' is-invalid' : ''}}" id="planproduct" onchange="myProduct()">
-                    <option value="">Choose</option>
+                    <option value="">{{ __('message.choose') }}</option>
                     @foreach($products as $key=>$product)
                      @if (Request::old('product') == $key)
                      <option value={{$key}} selected>{{$product}}</option>
@@ -72,7 +72,7 @@
                   {!! Form::label('days','Periods',['class'=>'required']) !!}
                   <div class="input-group">
                     <select name="days" value="Choose" class="form-control {{$errors->has('days') ? ' is-invalid' : ''}}" id="plandays">
-                      <option value="">Choose</option>
+                      <option value="">{{ __('message.choose') }}</option>
                       @foreach($periods as $key=>$period)
                        @if (Request::old('days') == $key)
                      <option value={{$key}} selected>{{$period}}</option>
@@ -113,7 +113,7 @@
                       <tr>
                         <td>
                           <select name="country_id[]" class="form-control {{$errors->has('country_id[]') ? ' is-invalid' : ''}}" id="country">
-                            <option value="0">Default</option>
+                            <option value="0">{{ __('message.default') }}</option>
                               <div class="input-group-append">
                               </div>
                           </select>
@@ -121,7 +121,7 @@
                         <td>
                           <select name="currency[]" class="form-control {{$errors->has('currency') ? ' is-invalid' : ''}}" id="currency">
                              <option value="">
-                                Choose
+                                 {{ __('message.choose') }}
                               </option>
                             @foreach ($currency as $code => $name)
                             @if (Request::old('currency') && in_array($code, Request::old('currency')))
@@ -167,7 +167,8 @@
                 <div class="col-md-12 form-group">
                   <!-- description -->
                   {!! Form::label('description','Price Description') !!}
-                  {!! Form::text("price_description",null,['class' => 'form-control'.($errors->has('price_description') ? ' is-invalid' : '') ,'placeholder'=>'Enter Price Description to be Shown on Pricing Page. eg: Yearly,Monthly,One-Time']) !!}
+                  {!! Form::text("price_description",null,['class' => 'form-control'.($errors->has('price_description') ? ' is-invalid' : '') ,'placeholder' => __('message.price_description')]) !!}
+
                   <h6 id="dayscheck"></h6>
 
                   <!-- {!! Form::select('days',[''=>'Select','Periods'=>$periods],null,['class' => 'form-control','id'=>'plandays']) !!} -->
@@ -177,7 +178,7 @@
                   <!-- product_quantity -->
                   {!! Form::label('product_quantity','Product Quantity',['class'=>'required'])!!}
                   {!! Form::number("product_quantity",null,['class' =>
-                  'form-control'.($errors->has('product_quantity') ? ' is-invalid' : ''),'disabled'=>'disabled','id'=>'prodquant','placeholder'=>'Pricing for No. of Products'])
+                  'form-control'.($errors->has('product_quantity') ? ' is-invalid' : ''),'disabled'=>'disabled','id'=>'prodquant','placeholder'=>__('message.price_products')])
                   !!}
                     @error('product_quantity')
                     <span class="error-message"> {{$message}}</span>
@@ -188,12 +189,12 @@
 
                 <div class="col-md-6 form-group">
                   <!-- agents -->
-                  <i class='fa fa-info-circle' style='cursor: help; font-size: small; color: rgb(60, 141, 188)'<label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="If '0' Agents Selected, Plan will be for Unlimited Agents.">
+                  <i class='fa fa-info-circle' style='cursor: help; font-size: small; color: rgb(60, 141, 188)'<label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="{{ __('message.agents_selected') }}">
                         </label></i>
                   
-                    {!! Form::label('agents','No. of Agents',['class'=>'required']) !!}
+                    {!! Form::label('agents',__('message.agent'),['class'=>'required']) !!}
                   {!! Form::number("no_of_agents",null,['class' => 'form-control'.($errors->has('no_of_agents') ? ' is-invalid' : '')
-                  ,'disabled'=>'disabled','id'=>'agentquant','placeholder'=>'Pricing for No. of Agents']) !!}
+                  ,'disabled'=>'disabled','id'=>'agentquant','placeholder'=> __('message.price_agents')]) !!}
                     @error('no_of_agents')
                     <span class="error-message"> {{$message}}</span>
                     @enderror
@@ -207,8 +208,8 @@
 
         </div>
          <div class="modal-footer justify-content-between">
-                <button type="button" class="btn btn-default " data-dismiss="modal" id="close-plan"><i class="fa fa-times"></i>&nbsp;Close</button>
-                <button type="submit" id="planButton" class="btn btn-primary"><i class="fas fa-save"></i>&nbsp;Save</button>
+                <button type="button" class="btn btn-default " data-dismiss="modal" id="close-plan"><i class="fa fa-times"></i>&nbsp;{{ __('message.close') }}</button>
+                <button type="submit" id="planButton" class="btn btn-primary"><i class="fas fa-save"></i>&nbsp;{{ __('message.save') }}</button>
 
             </div>
        
@@ -331,7 +332,7 @@ $("#close-plan").click(function() {
         <tr id="row` + i + `">
           <td>
             <select name="country_id[]" class="form-control" >
-              <option value="" selected disabled>Choose Country</option>
+              <option value="" selected disabled>{{ __('message.choose_country') }}</option>
               @foreach ($countries as $country)
                 <option value="{{$country['country_id']}}">
                   {{ $country['country_name'] }}
@@ -343,7 +344,7 @@ $("#close-plan").click(function() {
           <td>
             <select name="currency[]" class="form-control">
             <option value="">
-                  Choose
+                  {{ __('message.choose') }}
                 </option>
               @foreach ($currency as $code => $name)
                 <option value="{{ $code }}">
@@ -380,7 +381,7 @@ $("#close-plan").click(function() {
       $("#period-modal-show").modal();
     })
     $('.save-periods').on('click', function () {
-      $("#submit1").html("<i class='fa fa-circle-o-notch fa-spin fa-1x fa-fw'></i>Please Wait...");
+      $("#submit1").html("<i class='fa fa-circle-o-notch fa-spin fa-1x fa-fw'></i>{{ __('message.please_wait') }}");
       $.ajax({
         type: 'POST',
         url: "{{ url('postInsertPeriod') }}",
@@ -398,15 +399,15 @@ $("#close-plan").click(function() {
           $('#new-days').val("");
           $('#select-period').val("");
           var result =
-            '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>Period Added Successfully</div>';
+            '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>{{ __('message.period_added_successfully') }}</div>';
           $('#error').hide();
           $('#alertMessage').show();
           $('#alertMessage').html(result + ".");
-          $("#submit1").html("<i class='fa fa-floppy-o'>&nbsp;&nbsp;</i>Save");
+          $("#submit1").html("<i class='fa fa-floppy-o'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
         },
         error: function (error) {
           var html =
-            '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong>Whoops! </strong>Something went wrong<br><br><ul>';
+            '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<br><br><ul>';
           for (key in error.responseJSON.errors) {
             html += '<li>' + error.responseJSON.errors[key][0] + '</li>'
 
@@ -415,7 +416,7 @@ $("#close-plan").click(function() {
           $('#alertMessage').hide();
           $('#error').show();
           document.getElementById('error').innerHTML = html;
-          $("#submit1").html("<i class='fa fa-floppy-o'>&nbsp;&nbsp;</i>Save");
+          $("#submit1").html("<i class='fa fa-floppy-o'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
         }
 
       })

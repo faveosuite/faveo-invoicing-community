@@ -4,14 +4,14 @@ Script
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Create Script Code</h1>
+        <h1>{{ __('message.create_script_code')}}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item"><a href="{{url('chat')}}"><i class="fa fa-dashboard"></i> Script</a></li>
-            <li class="breadcrumb-item active">Create Script</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home')}}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings')}}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('chat')}}"><i class="fa fa-dashboard"></i> {{ __('message.script')}}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.create_script')}}</li>
         </ol>
     </div><!-- /.col -->
 @stop

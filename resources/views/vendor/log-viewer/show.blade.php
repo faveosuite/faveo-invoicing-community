@@ -7,10 +7,10 @@ Log-Viewer
  <h1 class="page-header">Log [{{ $log->date }}]</h1>
 </h1>
 <ol class="breadcrumb">
-        <li><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-        <li><a href="{{url('settings')}}">Settings</a></li>
-        <li><a href="{{url('log-viewer')}}">Dashboard</a></li>
-        <li class="active">View Logs</li>
+        <li><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+        <li><a href="{{url('settings')}}">{{ __('message.settings') }}</a></li>
+        <li><a href="{{url('log-viewer')}}">{{ __('message.dashboard') }}</a></li>
+        <li class="active">{{ __('message.view_logs') }}</li>
       </ol>
       @stop
 @section('content')
@@ -29,10 +29,10 @@ Log-Viewer
 
                     <div class="group-btns pull-right">
                         <a href="{{ route('log-viewer::logs.download', [$log->date]) }}" class="btn btn-xs btn-success">
-                            <i class="fa fa-download"></i> DOWNLOAD
+                            <i class="fa fa-download"></i> {{ __('message.caps_download') }}
                         </a>
                         <a href="#delete-log-modal" class="btn btn-xs btn-danger" data-toggle="modal">
-                            <i class="fa fa-trash-o"></i> DELETE
+                            <i class="fa fa-trash-o"></i> {{ __('message.caps_delete') }}
                         </a>
                     </div>
                 </div>
@@ -40,25 +40,25 @@ Log-Viewer
                     <table class="table table-condensed">
                         <thead>
                             <tr>
-                                <td>File path :</td>
+                                <td>{{ __('message.file_path') }}</td>
                                 <td colspan="5">{{ $log->getPath() }}</td>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td>Log entries : </td>
+                                <td>{{ __('message.log_entries') }} </td>
                                 <td>
                                     <span class="label label-primary">{{ $entries->total() }}</span>
                                 </td>
-                                <td>Size :</td>
+                                <td>{{ __('message.size') }}</td>
                                 <td>
                                     <span class="label label-primary">{{ $log->size() }}</span>
                                 </td>
-                                <td>Created at :</td>
+                                <td>{{ __('message.created_at') }} :</td>
                                 <td>
                                     <span class="label label-primary">{{ $log->createdAt() }}</span>
                                 </td>
-                                <td>Updated at :</td>
+                                <td>{{ __('message.updated_at') }} :</td>
                                 <td>
                                     <span class="label label-primary">{{ $log->updatedAt() }}</span>
                                 </td>
@@ -101,10 +101,10 @@ Log-Viewer
                         <thead>
                             <tr>
                                 <th>ENV</th>
-                                <th style="width: 120px;">Level</th>
-                                <th style="width: 65px;">Time</th>
-                                <th>Header</th>
-                                <th class="text-right">Actions</th>
+                                <th style="width: 120px;">{{ __('message.level') }}</th>
+                                <th style="width: 65px;">{{ __('message.time') }}</th>
+                                <th>{{ __('message.header') }}</th>
+                                <th class="text-right">{{ __('message.actions') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -129,7 +129,7 @@ Log-Viewer
                                     <td class="text-right">
                                         @if ($entry->hasStack())
                                             <a class="btn btn-xs btn-default" role="button" data-toggle="collapse" href="#log-stack-{{ $key }}" aria-expanded="false" aria-controls="log-stack-{{ $key }}">
-                                                <i class="fa fa-toggle-on"></i> Stack
+                                                <i class="fa fa-toggle-on"></i> {{ __('message.stack') }}
                                             </a>
                                         @endif
                                     </td>
@@ -159,7 +159,7 @@ Log-Viewer
                         {!! $entries->appends(compact('query'))->render() !!}
 
                         <span class="label label-info pull-right">
-                            Page {!! $entries->currentPage() !!} of {!! $entries->lastPage() !!}
+                            {{ __('message.page') }} {!! $entries->currentPage() !!} of {!! $entries->lastPage() !!}
                         </span>
                     </div>
                 @endif
@@ -183,14 +183,14 @@ Log-Viewer
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
-                        <h4 class="modal-title">DELETE LOG FILE</h4>
+                        <h4 class="modal-title">{{ __('message.caps_delete_log_file') }}</h4>
                     </div>
                     <div class="modal-body">
-                        <p>Are you sure you want to <span class="label label-danger">DELETE</span> this log file <span class="label label-primary">{{ $log->date }}</span> ?</p>
+                        <p>{{ __('message.are_you_want') }} <span class="label label-danger">{{ __('message.caps_delete') }}</span> {{ __('message.this_log_file') }} <span class="label label-primary">{{ $log->date }}</span> ?</p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-sm btn-default pull-left" data-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-sm btn-danger" data-loading-text="Loading&hellip;">DELETE FILE</button>
+                        <button type="button" class="btn btn-sm btn-default pull-left" data-dismiss="modal">{{ __('message.cancel') }}</button>
+                        <button type="submit" class="btn btn-sm btn-danger" data-loading-text="Loading&hellip;">{{ __('message.caps_delete_file') }}</button>
                     </div>
                 </div>
             </form>
@@ -221,7 +221,7 @@ Log-Viewer
                             location.replace("{{ route('log-viewer::logs.list') }}");
                         }
                         else {
-                            alert('OOPS ! This is a lack of coffee exception !')
+                            alert('{{ __('message.opps_coffee') }}')
                         }
                     },
                     error: function(xhr, textStatus, errorThrown) {

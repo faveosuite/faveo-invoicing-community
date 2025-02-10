@@ -9,8 +9,8 @@ Email/Mobile Verification
 Reset Password
 @stop
 @section('breadcrumb')
-<li><a href="{{url('home')}}">Home</a></li>
-<li class="active">Verify</li>
+<li><a href="{{url('home')}}">{{ __('message.home') }}</a></li>
+<li class="active">{{ __('message.verify') }}</li>
 @stop
 @section('main-class')
 main
@@ -43,29 +43,29 @@ main
     <!--<small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>-->
     <!--aria-describedby="emailHelp" -->
   <div class="form-group">
-    <label for="first_name">First Name</label>
-    <input type="text" class="form-control" id="first_name" placeholder="Enter your First Name" name="first_name">
+    <label for="first_name">{{ __('message.first_name') }}</label>
+    <input type="text" class="form-control" id="first_name" placeholder="{{ __('message.enter_your_firstname') }}" name="first_name">
   </div>
   
     <input type="hidden" class="form-control" value= "{{$user->id}}" name="id">
   
   <div class="form-group">
-    <label for="last_name">Last Name</label>
-    <input type="text" class="form-control" id="last_name" placeholder="Enter your Last Name" name="last_name">
+    <label for="last_name">{{ __('message.last_name') }}</label>
+    <input type="text" class="form-control" id="last_name" placeholder="{{ __('message.enter_your_lastname') }}" name="last_name">
   </div>
     <div class="form-group">
-    <label for="company_name">Company Name</label>
-    <input type="text" class="form-control" id="company_name" placeholder="Enter your Company Name" name="company_name">
+    <label for="company_name">{{ __('message.company-name') }}</label>
+    <input type="text" class="form-control" id="company_name" placeholder="{{ __('message.enter_your_companyname') }}" name="company_name">
   </div>
     <div class="form-group">
-    <label for="country">Last Name</label>
-    <input type="text" class="form-control" id="country" placeholder="Enter your Country Name" name="country">
+    <label for="country">{{ __('message.countryname') }}</label>
+    <input type="text" class="form-control" id="country" placeholder="{{ __('message.enter_your_countryname') }}" name="country">
   </div>
     <div class="form-group">
-    <label for="address">Last Name</label>
-    <input type="text" class="form-control" id="address" placeholder="Enter your Address" name="address">
+    <label for="address">{{ __('message.address') }}</label>
+    <input type="text" class="form-control" id="address" placeholder="{{ __('message.enter_your_addressname') }}" name="address">
   </div>
-  <button type="submit" class="btn btn-primary">Submit</button>
+  <button type="submit" class="btn btn-primary">{{ __('message.submit') }}</button>
 
                             <div class="row">
                                 <!-- Rest of the form fields -->
@@ -97,7 +97,7 @@ main
                             alert('in');
                             window.location.reload();
                         } else {
-                            alert('OOPS! Something Went Wrong.');
+                            alert('{{ __('message.oops') }}');
                         }
                     }).catch(function(error) {
                         console.error(error);

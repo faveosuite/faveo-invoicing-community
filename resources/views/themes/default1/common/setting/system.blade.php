@@ -1,16 +1,16 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-System Setting
+    {{ __('message.system-settings') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Company Details</h1>
+        <h1>{{ __('message.company_details') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item active">System Settings</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.system-settings') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -215,8 +215,8 @@ System Setting
                                 <!-- <p><i> {{Lang::get('message.country')}}</i> </p> -->
                                   <?php $countries = \App\Model\Common\Country::pluck('nicename', 'country_code_char2')->toArray(); ?>
 
-                     <select name="country" value= "Choose" id="country" onChange="getCountryAttr(this.value)" class="form-control selectpicker {{$errors->has('country') ? ' is-invalid' : ''}}" data-live-search="true" data-live-search-placeholder="Search" data-dropup-auto="false" data-size="10">
-                             <option value="">Choose</option>
+                      <select name="country" value= "Choose" id="country" onChange="getCountryAttr(this.value)" class="form-control selectpicker {{$errors->has('country') ? ' is-invalid' : ''}}" data-live-search="true" data-live-search-placeholder="Search" data-dropup-auto="false" data-size="10">
+                             <option value="">{{ __('message.choose') }}</option>
                            @foreach($countries as $key=>$country)
                               <option value="{{$key}}" <?php  if(in_array($country, $selectedCountry) ) { echo "selected";} ?>>{{$country}}</option>
                           @endforeach
@@ -282,7 +282,7 @@ System Setting
                                 @if($set->state)
                              <option value="{{$state['id']}}">{{$state['name']}}</option>
                             @endif
-                            <option value="">Choose</option>
+                            <option value="">{{ __('message.choose') }}</option>
                             @foreach($states as $key=>$value)
                             <option value="{{$key}}">{{$value}}</option>
                             @endforeach
@@ -301,7 +301,7 @@ System Setting
                              <?php $currencies = \App\Model\Payment\Currency::where('status',1)->pluck('name','code')->toArray(); 
                              ?>
                          <select name="default_currency" value= "Choose"  class="form-control selectpicker {{$errors->has('default_currency') ? ' is-invalid' : ''}}" data-live-search="true" data-live-search-placeholder="Search" data-dropup-auto="false" data-size="10">
-                               <option value="">Choose</option>
+                               <option value="">{{ __('message.choose') }}</option>
                            @foreach($currencies as $key=>$currency)
                               <option value="{{$key}}" <?php  if(in_array($currency, $selectedCurrency) ) { echo "selected";} ?>>{{$currency}}</option>
                           @endforeach
@@ -329,7 +329,7 @@ System Setting
 
                                     <div class="custom-file ml-3">
                                         {!! Form::file('admin-logo', ['class' => 'custom-file-input cursor-pointer'.($errors->has('admin-logo') ? ' is-invalid' : ''), 'id' => 'admin-logo' , 'role' => 'button']) !!}
-                                        <label role="button" class="custom-file-label cursor-pointer" for="admin-logo">{{ __('Choose file') }}</label>
+                                        <label role="button" class="custom-file-label cursor-pointer" for="admin-logo">{{ __('message.choose_file') }}</label>
                                         @error('admin_logo')
                                         <span class="error-message"> {{$message}}</span>
                                         @enderror
@@ -416,7 +416,7 @@ System Setting
                         <td><b>{!! Form::label('logo',Lang::get('message.client-logo')) !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('logo') ? 'has-error' : '' }}">
-                                   {{ __('Upload the company logo') }}
+                                   {{ __('message.upload_company_logo') }}
 
                                 <div class="d-flex align-items-center mt-1">
                                     @if($set->logo)
@@ -726,7 +726,7 @@ System Setting
                 data: {id:id,column:column,"_token": "{{ csrf_token() }}"},
                success: function (response) {
                     $('#alertMessage3').show();
-                    var result =  '<div class="alert alert-success"> <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong><i class="far fa-thumbs-up"></i>Well Done! </strong>'+response.message+'!</div>';
+                    var result =  '<div class="alert alert-success"> <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong><i class="far fa-thumbs-up"></i>{{ __('message.well_done') }} </strong>'+response.message+'!</div>';
                     $('#alertMessage3').html(result+ ".");
                     setTimeout(function(){
                        window.location.reload(1);
@@ -736,7 +736,7 @@ System Setting
                error: function (ex) {
         
                     var myJSON = JSON.parse(ex.responseText);
-                    var html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>Oh Snap! </strong>Something went wrong<br><br><ul>';
+                    var html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>{{ __('message.oh_snap') }} </strong>{{ __('message.something_wrong') }}<br><br><ul>';
                     for (var key in myJSON)
                     {
                         html += '<li>' + myJSON[key][0] + '</li>'

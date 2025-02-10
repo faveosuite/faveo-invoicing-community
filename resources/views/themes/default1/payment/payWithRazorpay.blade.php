@@ -9,21 +9,21 @@
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
-                    <strong>Error!</strong> {{ $message }}
+                    <strong>{{ __('message.error') }}</strong> {{ $message }}
                 </div>
             @endif
             {!! Session::forget('error') !!}
             @if($message = Session::get('success'))
                 <div class="alert alert-info alert-dismissible fade in" role="alert">
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}">
                         <span aria-hidden="true">×</span>
                     </button>
-                    <strong>Success!</strong> {{ $message }}
+                    <strong>{{ __('message.success') }}!</strong> {{ $message }}
                 </div>
             @endif
             {!! Session::forget('success') !!}
             <div class="panel panel-default">
-                <div class="panel-heading">Pay With Razorpay</div>
+                <div class="panel-heading">{{ __('message.pay_razorpay') }}</div>
 
                 <div class="panel-body text-center">
                     <form action="{!!route('payment')!!}" method="POST" >
