@@ -166,7 +166,7 @@ class ConcreteExportHandleController extends ExportHandleController
             });
 
             if ($filteredUsers->isEmpty()) {
-                return response()->json(['message' => 'No data available for export.'], 400);
+                return response()->json(['message' => __('message.no_data_available_export')], 400);
             }
 
             // Get the report setting for the record limit
@@ -214,9 +214,9 @@ class ConcreteExportHandleController extends ExportHandleController
 
             $mail->SendEmail($from, $email, $emailContent, 'User report available for download');
 
-            return response()->json(['message' => 'Report successfully generated and email sent.'], 200);
+            return response()->json(['message' => __('message.report_email_generated')], 200);
         } catch (Exception $ex) {
-            return response()->json(['message' => 'Failed to generate report: '.$ex->getMessage()], 500);
+            return response()->json(['message' => __('message.failed_generate_report').$ex->getMessage()], 500);
         }
     }
 
@@ -288,7 +288,7 @@ class ConcreteExportHandleController extends ExportHandleController
             });
 
             if ($filteredInvoices->isEmpty()) {
-                return response()->json(['message' => 'No data available for export.'], 400);
+                return response()->json(['message' => __('message.no_data_available_export')], 400);
             }
 
             // Get user details for email
@@ -336,9 +336,9 @@ class ConcreteExportHandleController extends ExportHandleController
 
             $mail->SendEmail($from, $email, $emailContent, 'Invoice report available for download');
 
-            return response()->json(['message' => 'Report successfully generated and email sent.'], 200);
+            return response()->json(['message' => __('message.report_email_generated')], 200);
         } catch (Exception $ex) {
-            return response()->json(['message' => 'Failed to generate report: '.$ex->getMessage()], 500);
+            return response()->json(['message' => __('message.failed_generate_report').$ex->getMessage()], 500);
         }
     }
 
@@ -410,7 +410,7 @@ class ConcreteExportHandleController extends ExportHandleController
             });
 
             if ($filteredOrders->isEmpty()) {
-                throw new \Exception('No data available for export.');
+                throw new \Exception(__('message.no_data_available_export'));
             }
 
             // Get user details for email
@@ -456,11 +456,11 @@ class ConcreteExportHandleController extends ExportHandleController
                 '<br><br>Please note this link will expire in 6 hours.'.
                 '<br><br>Kind regards,<br>'.$user->first_name;
 
-            $mail->SendEmail($from, $email, $emailContent, 'Order report available for download');
+            $mail->SendEmail($from, $email, $emailContent, __('message.order_report_available_download'));
 
-            return response()->json(['message' => 'Report successfully generated and email sent.'], 200);
+            return response()->json(['message' => __('message.report_email_generated')], 200);
         } catch (Exception $ex) {
-            return response()->json(['message' => 'Failed to generate report: '.$ex->getMessage()], 500);
+            return response()->json(['message' => __('message.failed_generate_report').$ex->getMessage()], 500);
         }
     }
 
@@ -478,7 +478,7 @@ class ConcreteExportHandleController extends ExportHandleController
 
         if (! $keys->app_key) {
             // Validate if the app key to be sent is valid or not
-            throw new \Exception('Invalid App key provided. Please contact admin.');
+            throw new \Exception(__('message.cloud_invalid_message'));
         }
 
         $response = $client->request(
@@ -670,7 +670,7 @@ class ConcreteExportHandleController extends ExportHandleController
         });
 
         if ($filteredTenants->isEmpty()) {
-            throw new \Exception('No data available for export.');
+            throw new \Exception(__('message.no_data_available_export'));
         }
         // Get user details for email
         $id = User::where('email', $email)->value('id');
@@ -713,7 +713,7 @@ class ConcreteExportHandleController extends ExportHandleController
             '<br><br>Please note this link will be expired in 6 hours.'.
             '<br><br>Kind regards,<br>'.$user->first_name;
 
-        $mail->SendEmail($from, $this->email, $emailContent, 'Tenant report available for download');
+        $mail->SendEmail($from, $this->email, $emailContent, __('message.tenant_report_available_download'));
     }
 
     public function getStatus($status)

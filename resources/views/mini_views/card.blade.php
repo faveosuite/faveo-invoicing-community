@@ -9,7 +9,7 @@
                 <div class="card-body table-responsive p-0">
                 @if(!count($collection))
                     <tr>
-                        <td><p class="text-center">No records found</p></td>
+                        <td><p class="text-center">{{ __('message.no_records_found')}}</p></td>
                     </tr>
                 @elseif($layout == 'table')
 

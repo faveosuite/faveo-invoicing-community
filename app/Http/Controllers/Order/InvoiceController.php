@@ -126,7 +126,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             $request->from = '';
             $request->till = '';
 
-            return redirect('invoices')->with('fails', 'Start date should be before end date');
+            return redirect('invoices')->with('fails', __('message.start_date_before_end_date'));
         }
         try {
             $currencies = Currency::where('status', 1)->pluck('code')->toArray();
@@ -216,7 +216,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                             $check = $this->checkExecution($model->id);
                             if ($check == false) {
                                 $action = '<p><form id="execute-form" method="post" action='.url('order/execute?invoiceid='.$model->id).'>'.'<input type="hidden" name="_token" value='.\Session::token().'>'.'
-                    <button type="submit" style="margin-top:-10px;" class="btn btn-sm btn-secondary btn-xs"'.tooltip('Execute Order').'<i class="fa fa-tasks" style="color:white;"></i></button></form></p>';
+                    <button type="submit" style="margin-top:-10px;" class="btn btn-sm btn-secondary btn-xs"'.tooltip(__('message.execute_order')).'<i class="fa fa-tasks" style="color:white;"></i></button></form></p>';
 
                                 $action .= '<script>
                             $("#execute-form").submit(function(event) {
@@ -226,7 +226,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                             }
 
                             return '<a href='.url('invoices/show?invoiceid='.$model->id)
-                            ." class='btn btn-sm btn-secondary btn-xs'".tooltip('View')."<i class='fa fa-eye' 
+                            ." class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.view'))."<i class='fa fa-eye' 
                             style='color:white;'> </i></a>"
                                     ."   $action";
                         })
@@ -273,7 +273,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             ->where('invoices.id', '=', $request->input('invoiceid'))
             ->first();
             if (User::onlyTrashed()->find($invoice->user_id)) {
-                throw new \Exception('This user is suspended from the system. Restore the user to view invoice details.');
+                throw new \Exception(__('message.user_suspended'));
             }
             $invoiceItems = $invoice->invoiceItem()->get();
             $user = $this->user->find($invoice->user_id);
@@ -301,7 +301,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             if ($clientid) {
                 $user = $user->where('id', $clientid)->first();
                 if (! $user) {
-                    return redirect()->back()->with('fails', 'Invalid user');
+                    return redirect()->back()->with('fails', __('message.invalid_user'));
                 }
             } else {
                 $user = '';
@@ -404,7 +404,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
 
             return $invoiceItem;
         } catch (\Exception $ex) {
-            throw new \Exception('Can not create Invoice Items');
+            throw new \Exception(__('message.cannot_create_invoice_item'));
         }
     }
 
@@ -553,7 +553,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             }
             $user = $this->user->find($invoice->user_id);
             if (! $user) {
-                return redirect()->back()->with('fails', 'No User');
+                return redirect()->back()->with('fails', __('message.no_user'));
             }
             $order = $this->order->getOrderLink($invoice->orderRelation()->value('order_id'), 'my-order');
             // $order = Order::getOrderLink($invoice->order_id);
@@ -581,9 +581,9 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 app('queue')->setDefaultDriver($driver->short_name);
                 ReportExport::dispatch('invoices', $selectedColumns, $searchParams, $email)->onQueue('reports');
 
-                return response()->json(['message' => 'System is generating you report. You will be notified once completed'], 200);
+                return response()->json(['message' => __('message.report_generation_in_progress')], 200);
             } else {
-                return response()->json(['message' => 'Cannot use sync queue driver for export'], 400);
+                return response()->json(['message' => __('message.cannot_sync_queue_driver')], 400);
             }
         } catch (\Exception $e) {
             \Log::error('Export failed: '.$e->getMessage());

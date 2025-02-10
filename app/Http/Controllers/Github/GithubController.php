@@ -223,7 +223,7 @@ class GithubController extends Controller
                 'password' => $request->input('git_password'), 'client_id' => $request->input('git_client'),
                 'client_secret' => $request->input('git_secret'), ]);
 
-            return ['message' => 'success', 'update' => 'Github Settings Updated'];
+            return ['message' => 'success', 'update' => __('message.github_settings_updated')];
         } catch (Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }

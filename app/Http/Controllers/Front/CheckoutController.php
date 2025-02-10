@@ -114,7 +114,7 @@ class CheckoutController extends InfoController
             }
             \Session::put('content', $content);
 
-            return redirect('login')->with('fails', 'Please login');
+            return redirect('login')->with('fails', __('message.please_login'));
         }
 
         // if (\Cart::isEmpty()) {//During renewal when payment fails due to some reason
@@ -208,7 +208,7 @@ class CheckoutController extends InfoController
             $paid = 0;
             $invoice = $this->invoice->find($invoiceid);
             if ($invoice->user_id != \Auth::user()->id) {
-                throw new \Exception('Cannot initiate payment. Invalid modification of data');
+                throw new \Exception(__('message.invalid_payment_modification'));
             }
 
             if (count($invoice->payment()->get())) {//If partial payment is made
@@ -246,7 +246,7 @@ class CheckoutController extends InfoController
                     $this->validate($request, [
                         'payment_gateway' => 'required',
                     ], [
-                        'payment_gateway.required' => 'Please Select a Payment Gateway',
+                        'payment_gateway.required' => __('message.please_select_payment'),
                     ]);
                 }
             }
@@ -357,7 +357,7 @@ class CheckoutController extends InfoController
                 return $paymentMethod == 'razorpay' ? 0 : \DB::table(strtolower($paymentMethod))->where('currencies', $currency)->value('processing_fee');
             }
         } catch (\Exception $e) {
-            throw new \Exception('Invalid modification of data');
+            throw new \Exception(__('message.invalid_modification'));
         }
     }
 
@@ -383,7 +383,7 @@ class CheckoutController extends InfoController
 
         if ($invoiceid) {
             if (Invoice::find($invoiceid)->user_id != \Auth::user()->id) {
-                throw new \Exception('Invalid modification of data');
+                throw new \Exception(__('message.invalid_modification'));
             }
             $paynow = true;
         }

@@ -1,14 +1,14 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Product Types
+    {{ __('message.product_types') }}
 @stop
 @section('content-header')
 <h1>
-Product Types
+    {{ __('message.product_types') }}
 </h1>
   <ol class="breadcrumb">
-        <li><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-        <li class="active">All Types</li>
+        <li><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+        <li class="active">{{ __('message.all_types') }}</li>
       </ol>
 @stop
 @section('content')
@@ -19,7 +19,7 @@ Product Types
         @if (count($errors) > 0)
         <div class="alert alert-danger alert-dismissable">
              <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-            <strong>Whoops!</strong> There were some problems with your input.<br><br>
+            <strong>{{ __('message.whoops') }}</strong> {{ __('message.input_problem') }}<br><br>
             <ul>
                 @foreach ($errors->all() as $error)
                 <li>{{ $error }}</li>
@@ -61,8 +61,8 @@ Product Types
                      <button  value="" class="btn btn-danger btn-sm btn-alldell" id="bulk_delete"><i class="fa fa-trash"></i>&nbsp;&nbsp;{{Lang::get('message.delmultiple')}}</button><br /><br />
                     <thead><tr>
                         <th class="no-sort" style="width:20px"><input type="checkbox" name="select_all" onchange="checking(this)"></th>
-                            <th>Name</th>
-                            <th>Action</th>
+                            <th>{{ __('message.name_page') }}</th>
+                            <th>{{ __('message.action') }}</th>
                         </tr></thead>
 
                    </table>
@@ -87,6 +87,23 @@ Product Types
                 "sSearch"    : "Search: ",
                 "sProcessing": '<img id="blur-bg" class="backgroundfadein" style="top:40%;left:50%; width: 50px; height:50 px; display: block; position:    fixed;" src="{!! asset("lb-faveo/media/images/gifloader3.gif") !!}">'
             },
+            language: {
+                paginate: {
+                    first:      "{{ __('message.paginate_first') }}",
+                    last:       "{{ __('message.paginate_last') }}",
+                    next:       "{{ __('message.paginate_next') }}",
+                    previous:   "{{ __('message.paginate_previous') }}"
+                },
+                emptyTable:     "{{ __('message.empty_table') }}",
+                info:           "{{ __('message.datatable_info') }}",
+                zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
+                search:         "{{ __('message.datatable_search') }} ",
+                infoEmpty:      "{{ __('message.info_empty') }}",
+                infoFiltered:   "{{ __('message.info_filtered') }}",
+                lengthMenu:     "{{ __('message.sLengthMenu') }}",
+                loadingRecords: "{{ __('message.loading_records') }}",
+            },
+
             columnDefs: [
                 { 
                     targets: 'no-sort', 
@@ -150,7 +167,7 @@ Product Types
             }
             else
             {
-                alert("Please select at least one checkbox");
+                alert("{{ __('message.select_checkbox') }}");
             }
         }  
 

@@ -171,7 +171,7 @@ class Google2FAController extends Controller
     {
         $user = $request->userId ? User::where('id', $request->userId)->first() : $request->user();
         if (\Auth::user()->role != 'admin' && $user->id != \Auth::user()->id) {
-            return errorResponse('Cannot disable 2FA. Invalid modification of data');
+            return errorResponse(__('message.cannot_disable_2fa'));
         }
         //make secret column blank
         $user->google2fa_secret = null;
@@ -213,13 +213,13 @@ class Google2FAController extends Controller
         $this->validate($request, [
             'rec_code' => 'required',
         ],
-            ['rec_code.required' => 'Plase enter recovery code',
+            ['rec_code.required' => __('validation.please_enter_recovery_code'),
             ]);
         try {
             $userId = $request->session()->pull('2fa:user:id');
             $this->user = User::findorFail($userId);
             if ($this->user->code_usage_count == 1) {//If backup code is used already
-                throw new \Exception('This code is already used once. Please use Authenticator app to enter the code or contact admin for disabling 2FA for your account.');
+                throw new \Exception(__('message.code_authenticator_disable_2fa'));
             }
             $rec_code = $request->input('rec_code');
             if ($rec_code == $this->user->backup_code) {
@@ -231,7 +231,7 @@ class Google2FAController extends Controller
                 return redirect($this->redirectPath());
             } else {
                 \Session::put('2fa:user:id', $userId);
-                throw new \Exception('Invalid recovery code.');
+                throw new \Exception(__('message.invalid_recovery_code'));
             }
         } catch (\Exception $e) {
             \Session::put('2fa:user:id', $userId);

@@ -6,7 +6,7 @@
 {{ucfirst($page->name)}}
 @stop
 @section('breadcrumb')
-<li><a href="{{url('home')}}">Home</a></li>
+<li><a href="{{url('home')}}">{{ __('message.home')}}</a></li>
 <li class="active">{{ucfirst($page->name)}}</li>
 @stop
 @section('main-class') 

@@ -54,8 +54,13 @@ class ForgotPasswordController extends Controller
             $this->validate($request,
                 ['email' => 'required|email|exists:users,email',
                     'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation()],
-                ]
-            );
+                ],
+                [
+                    'email.required' => __('validation.custom_email.required'),
+                    'email.email' => __('validation.custom_email.email'),
+                    'email.exists' => __('validation.custom_email.exists'),
+                    'g-recaptcha-response.required' => __('validation.verify_otp.recaptcha_required'),
+                ]);
             $email = $request->email;
 
             $rateLimit = rateLimitForKeyIp('forgot_password'.$email, 3, 360, $request->ip());
@@ -104,14 +109,14 @@ class ForgotPasswordController extends Controller
                 $mail = new \App\Http\Controllers\Common\PhpMailController();
                 $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $replace, $type);
 
-                return successResponse('Reset instructions have been mailed to '.$user->email.'. Be sure to check your Junk folder if you do not see an email from us in your Inbox within a few minutes.');
+                return successResponse(__('message.reset_instructions', ['email' => $user->email]));
             } else {
-                return errorResponse('System email is not configured. Please contact admin.');
+                return errorResponse(__('message.system_email_not_configured'));
             }
 
-            return successResponse('Reset instructions have been mailed to '.$user->email.'. Be sure to check your Junk folder if you do not see an email from us in your Inbox within a few minutes.');
+            return successResponse(__('message.reset_instructions', ['email' => $user->email]));
         } catch (\Exception $ex) {
-            return successResponse('Reset instructions have been mailed to '.$request->email.'. Be sure to check your Junk folder if you do not see an email from us in your Inbox within a few minutes.');
+            return successResponse(__('message.reset_instructions', ['email' => $user->email]));
         }
     }
 }

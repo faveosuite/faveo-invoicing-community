@@ -1,16 +1,16 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Social Logins
+    {{ __('message.social_logins') }}
 @stop
 @section('content-header')
 <div class="col-sm-6">
-    <h1>Social Logins</h1>
+    <h1>{{ __('message.social_logins') }}</h1>
 </div>
 <div class="col-sm-6">
     <ol class="breadcrumb float-sm-right">
-        <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-        <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-        <li class="breadcrumb-item active">Social Logins</li>
+        <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+        <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings') }}</a></li>
+        <li class="breadcrumb-item active">{{ __('message.social_logins') }}</li>
     </ol>
 </div>
 @stop
@@ -32,8 +32,8 @@ $httpOrigin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : null;
     <div class="col-md-12">
     @if($message = Session::get('error'))
 <div class="alert alert-danger alert-dismissible fade show" role="alert">
-    <strong>Error!</strong> {{ $message }}
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <strong>{{ __('message.error') }}</strong> {{ $message }}
+    <button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}">
         <span aria-hidden="true">&times;</span>
     </button>
 </div>
@@ -41,8 +41,8 @@ $httpOrigin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : null;
         {!! Session::forget('error') !!}
         @if($message = Session::get('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <strong>Success!</strong> {{ $message }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <strong>{{ __('message.success') }}!</strong> {{ $message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
@@ -50,7 +50,7 @@ $httpOrigin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : null;
         {!! Session::forget('success') !!}
         <div class="card card-secondary card-outline">
             <div class="card-header">
-                <h3 class="card-title">Api Keys</h3>
+                <h3 class="card-title">{{ __('message.key') }}</h3>
             </div>
 
             <div class="card-body table-responsive">
@@ -59,7 +59,7 @@ $httpOrigin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : null;
 
                     <div class="mb-3">
                         @if($socialLogins->type == 'Twitter')
-                            <label for="id" class="form-label required" id="id">API Key</label>
+                            <label for="id" class="form-label required" id="id">{{ __('message.key') }}</label>
                         <input type="text" class="form-control {{$errors->has('api_key') ? ' is-invalid' : ''}}" id="api_id"  value="{{old('title', $socialLogins->client_id)}}" name="api_key">
                             @error('api_key')
                             <span class="error-message"> {{$message}}</span>
@@ -69,7 +69,7 @@ $httpOrigin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : null;
                     </div>
                     <input type="hidden" name="type" value="{{old('title', $socialLogins->type)}}">
                     <div class="mb-3">
-                        <label for="pwd" class="form-label required">API Secret</label>
+                        <label for="pwd" class="form-label required">{{ __('message.lic_api_secret') }}</label>
                         <input type="password" class="form-control {{$errors->has('api_secret') ? ' is-invalid' : ''}}" id="api_pwd"  value="{{old('title', $socialLogins->client_secret)}}" name="api_secret">
                         @error('api_secret')
                         <span class="error-message"> {{$message}}</span>
@@ -77,7 +77,7 @@ $httpOrigin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : null;
                         <div class="input-group-append">
                         </div>
                         @else
-                        <label for="id" class="form-label required" id="id">Client Id</label>
+                        <label for="id" class="form-label required" id="id">{{ __('message.lic_client_id') }}</label>
                         <input type="text" class="form-control {{$errors->has('client_id') ? ' is-invalid' : ''}}" id="client_id"  value="{{old('title', $socialLogins->client_id)}}" name="client_id">
                             @error('client_id')
                             <span class="error-message"> {{$message}}</span>
@@ -87,7 +87,7 @@ $httpOrigin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : null;
                     </div>
                     <input type="hidden" name="type" value="{{old('title', $socialLogins->type)}}">
                     <div class="mb-3">
-                        <label for="pwd" class="form-label required">Client Secret</label>
+                        <label for="pwd" class="form-label required">{{ __('message.lic_client_secret') }}</label>
                         <input type="password" class="form-control {{$errors->has('client_secret') ? ' is-invalid' : ''}}" id="pwd"  value="{{old('title', $socialLogins->client_secret)}}" name="client_secret">
                         @error('client_secret')
                         <span class="error-message"> {{$message}}</span>
@@ -97,7 +97,7 @@ $httpOrigin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : null;
                         @endif
                     </div>
                     <div class="mb-3">
-                        <label for="redirect" class="form-label required">Redirect URL</label>
+                        <label for="redirect" class="form-label required">{{ __('message.redirect_url') }}</label>
 
                         <input type="text"
                                class="form-control {{$errors->has('redirect_url') ? ' is-invalid' : ''}}"
@@ -114,25 +114,25 @@ $httpOrigin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : null;
                         </div>
                     </div>
 
-                    <label for="email" class="form-label">Activate Login via {{$socialLogins->type}}</label>
+                    <label for="email" class="form-label">{{ __('message.activate_login') }} {{$socialLogins->type}}</label>
                     <div class="row">
                     @if($socialLogins->status == 1)
                     <div class="form-check col-1" style="padding-left: 2.25rem;">
-                        <input type="radio" class="form-check-input" id="radio1" name="optradio" value="1" name="status" checked>Yes
+                        <input type="radio" class="form-check-input" id="radio1" name="optradio" value="1" name="status" checked>{{ __('message.yes') }}
                         <label class="form-check-label" for="radio1"></label>
                     </div>
                     <div class="form-check col-1">
-                        <input type="radio" class="form-check-input" id="radio2" name="optradio" value="0" name="status">No
+                        <input type="radio" class="form-check-input" id="radio2" name="optradio" value="0" name="status">{{ __('message.no') }}
                         <label class="form-check-label" for="radio2"></label>
                     </div>
                     @endif
                     @if($socialLogins->status == 0)
                     <div class="form-check col-1" style="padding-left: 2.25rem;">
-                        <input type="radio" class="form-check-input" id="radio1" name="optradio" value="1" name="status">Yes
+                        <input type="radio" class="form-check-input" id="radio1" name="optradio" value="1" name="status">{{ __('message.yes') }}
                         <label class="form-check-label" for="radio1"></label>
                     </div>
                     <div class="form-check col-1">
-                        <input type="radio" class="form-check-input" id="radio2" name="optradio" value="0" name="status" checked>No
+                        <input type="radio" class="form-check-input" id="radio2" name="optradio" value="0" name="status" checked>{{ __('message.no') }}
                         <label class="form-check-label" for="radio2"></label>
                     </div>
                     @endif

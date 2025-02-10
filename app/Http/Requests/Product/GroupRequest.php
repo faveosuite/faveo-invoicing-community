@@ -37,14 +37,13 @@ class GroupRequest extends Request
 
     public function messages()
     {
-        return[
-            'name.required' => 'Name is required',
-            'features.*.name.required' => 'All Features Field Required',
-            'price.*.name.required_unless' => 'Price is required',
-            'value.*.name.required_unless' => 'Value is required',
-            'type.required_with' => 'Type is required',
-            'title.required_with' => 'Title is required',
-
+        return [
+            'name.required' => __('validation.group.name.required'),
+            'features.*.name.required' => __('validation.group.features.name.required'),
+            'price.*.name.required_unless' => __('validation.group.price.name.required_unless'),
+            'value.*.name.required_unless' => __('validation.group.value.name.required_unless'),
+            'type.required_with' => __('validation.group.type.required_with'),
+            'title.required_with' => __('validation.group.title.required_with'),
         ];
     }
 }

@@ -1,18 +1,18 @@
 @extends('themes.default1.layouts.master')
 
 @section('title')
-Edit User
+{{ __('message.edit_user') }}
 @stop
 
 
     @section('content-header')
         <div class="col-sm-6">
-            <h1>Edit User</h1>
+            <h1>{{ __('message.edit_user') }}</h1>
         </div>
         <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
-                <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-                <li class="breadcrumb-item active">Edit User</li>
+                <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+                <li class="breadcrumb-item active">{{ __('message.edit_user') }}</li>
             </ol>
         </div><!-- /.col -->
     @stop
@@ -94,9 +94,9 @@ Edit User
                     </div>
                     <div class="col-md-3 form-group {{ $errors->has('bussiness') ? 'has-error' : '' }}">
                         <!-- industry -->
-                        {!! Form::label('bussiness','Industry') !!}
-                        <select name="bussiness"  class="form-control select2" data-live-search="true" data-live-search-placeholder="Search" data-dropup-auto="false">
-                            <option value="">Choose</option>
+                        {!! Form::label('bussiness', __('message.industry')) !!}
+                        <select name="bussiness"  class="form-control select2" data-live-search="true" data-live-search-placeholder="{{ __('message.search') }}" data-dropup-auto="false">
+                            <option value="">{{ __('message.choose') }}</option>
                          @foreach($bussinesses as $key=>$bussiness)
                         <option value="{{$key}}" <?php  if(in_array($bussiness, $selectedIndustry) )
                         { echo "selected";} ?>>{{$bussiness}}</option>
@@ -111,7 +111,7 @@ Edit User
                     <div class="col-md-3 form-group {{ $errors->has('active') ? 'has-error' : '' }}">
                         <!-- email active -->
                         {!! Form::label('active',Lang::get('message.email')) !!}
-                        <p>{!! Form::radio('email_verified',1,true) !!}&nbsp;Active&nbsp;&nbsp;{!! Form::radio('email_verified',0) !!}&nbsp;Inactive</p>
+                        <p>{!! Form::radio('email_verified',1,true) !!}&nbsp;Active&nbsp;&nbsp;{!! Form::radio('email_verified',0) !!}&nbsp;{{ __('message.inactive') }}</p>
 
                         @error('email_verified')
                         <span class="error-message"> {{$message}}</span>
@@ -120,7 +120,7 @@ Edit User
                     <div class="col-md-3 form-group {{ $errors->has('mobile_verified') ? 'has-error' : '' }}">
                         <!-- mobile active -->
                         {!! Form::label('mobile_verified',Lang::get('message.mobile')) !!}
-                        <p>{!! Form::radio('mobile_verified',1,true) !!}&nbsp;Active&nbsp;&nbsp;{!! Form::radio('mobile_verified',0) !!}&nbsp;Inactive</p>
+                        <p>{!! Form::radio('mobile_verified',1,true) !!}&nbsp;{{ __('message.active') }}&nbsp;&nbsp;{!! Form::radio('mobile_verified',0) !!}&nbsp;{{ __('message.inactive') }}</p>
                         @error('mobile_verified')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
@@ -137,8 +137,8 @@ Edit User
                     </div>
                     <div class="col-md-3 form-group {{ $errors->has('position') ? 'has-error' : '' }}">
                         <!-- position -->
-                        {!! Form::label('position','Position') !!}
-                        {!! Form::select('position',['Choose'=>'Choose','manager'=>'Sales Manager','account_manager'=>'Account Manager'],null,
+                        {!! Form::label('position', __('message.position')) !!}
+                        {!! Form::select('position',['Choose'=> __('message.choose'),'manager'=>'Sales Manager','account_manager'=>'Account Manager'],null,
                         ['class' => 'form-control'. ($errors->has('position') ? ' is-invalid' : '')]) !!}
                         @error('position')
                         <span class="error-message"> {{$message}}</span>
@@ -150,9 +150,9 @@ Edit User
                     ?>
                      <div class="col-md-3 form-group {{ $errors->has('company_type') ? 'has-error' : '' }}">
                         <!-- email -->
-                        {!! Form::label('company_type','Company Type') !!}
-                           <select name="company_type"  class="form-control chosen-select select2" data-live-search="true" data-live-search-placeholder="Search" data-dropup-auto="false">
-                            <option value="">Choose</option>
+                        {!! Form::label('company_type', __('message.company_type')) !!}
+                           <select name="company_type"  class="form-control chosen-select select2" data-live-search="true" data-live-search-placeholder={{ __('message.search') }} data-dropup-auto="false">
+                            <option value="">{{ __('message.choose') }}</option>
                          @foreach($types as $key=>$type)
                                    <option value="{{$key}}" <?php  if(in_array($type, $selectedCompany) ) { echo "selected";} ?>>{{$type}}</option>
                            
@@ -164,9 +164,9 @@ Edit User
                     </div>
                      <div class="col-md-3 form-group {{ $errors->has('company_size') ? 'has-error' : '' }}">
                         <!-- email -->
-                        {!! Form::label('company_size','Company Size') !!}
+                        {!! Form::label('company_size', __('message.company_size')) !!}
 
-                        {!! Form::select('company_size', [''=>'Choose','Company Size'=>$sizes],null,['class' => 'form-control chosen-select select2','data-live-search'=>'true','data-live-search-placeholder' => 'Search','data-dropup-auto'=>'false']) !!}
+                        {!! Form::select('company_size', [''=> __('message.choose'),'Company Size'=>$sizes],null,['class' => 'form-control chosen-select select2','data-live-search'=>'true','data-live-search-placeholder' => __('message.search'),'data-dropup-auto'=>'false']) !!}
                          @error('company_size')
                          <span class="error-message"> {{$message}}</span>
                          @enderror
@@ -199,7 +199,7 @@ Edit User
                         {!! Form::label('country',Lang::get('message.country'),['class'=>'required']) !!}
                         <?php $countries = \App\Model\Common\Country::pluck('nicename', 'country_code_char2')->toArray(); ?>
 
-                        {!! Form::select('country',[Lang::get('message.choose')=>$countries],null,['class' => 'form-control select2'. ($errors->has('country') ? ' is-invalid' : ''),'id'=>'country','onChange'=>'getCountryAttr(this.value)','data-live-search'=>'true','required','data-live-search-placeholder' => 'Search','data-dropup-auto'=>'false','data-size'=>'10']) !!}
+                        {!! Form::select('country',[Lang::get('message.choose')=>$countries],null,['class' => 'form-control select2'. ($errors->has('country') ? ' is-invalid' : ''),'id'=>'country','onChange'=>'getCountryAttr(this.value)','data-live-search'=>'true','required','data-live-search-placeholder' => __('message.search'),'data-dropup-auto'=>'false','data-size'=>'10']) !!}
                         @error('country')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
@@ -211,7 +211,7 @@ Edit User
                             @if(count($state)>0)
                             <option value="{{$state['id']}}">{{$state['name']}}</option>
                             @endif
-                            <option value="">Select State</option>
+                            <option value="">{{ __('message.select_state') }}</option>
                             @foreach($states as $key=>$value)
                             <option value="{{$key}}">{{$value}}</option>
                             @endforeach
@@ -234,7 +234,7 @@ Edit User
                         <!-- timezone -->
                         {!! Form::label('timezone_id',Lang::get('message.timezone'),['class'=>'required']) !!}
 
-                         {!! Form::select('timezone_id', ['Timezones'=>$timezones],null,['class' => 'form-control chosen-select select2'. ($errors->has('timezone_id') ? ' is-invalid' : ''),'data-live-search'=>'true','required','data-live-search-placeholder' => 'Search','data-dropup-auto'=>'false']) !!}
+                         {!! Form::select('timezone_id', ['Timezones'=>$timezones],null,['class' => 'form-control chosen-select select2'. ($errors->has('timezone_id') ? ' is-invalid' : ''),'data-live-search'=>'true','required','data-live-search-placeholder' =>  __('message.search'),'data-dropup-auto'=>'false']) !!}
                         @error('timezone_id')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
@@ -242,7 +242,7 @@ Edit User
                     
 
                     <div class="col-md-3 form-group {{ $errors->has('mobile_code') ? 'has-error' : '' }}">
-                        {!! Form::label('mobile',null,['class' => 'required'],Lang::get('message.mobile')) !!}
+                        {!! Form::label('mobile',Lang::get('message.mobile'),['class' => 'required']) !!}
                         {!! Form::hidden('mobile_code',null,['id'=>'mobile_code_hidden']) !!}
                         {!! Form::tel('mobile', $user->mobile, ['class' => 'form-control selected-dial-code'. ($errors->has('mobile') ? ' is-invalid' : ''), 'id' => 'mobile_code']) !!}
                         {!! Form::hidden('mobile_country_iso',null,['id' => 'mobile_country_iso']) !!}
@@ -260,7 +260,7 @@ Edit User
                   
                     <div class="col-md-3 form-group {{ $errors->has('skype') ? 'has-error' : '' }}">
                         <!-- skype -->
-                        {!! Form::label('skype','Skype') !!}
+                        {!! Form::label('skype',__('message.skype')) !!}
                         {!! Form::text('skype',null,['class' => 'form-control']) !!}
                         @error('skype')
                         <span class="error-message"> {{$message}}</span>
@@ -269,8 +269,9 @@ Edit User
                     @if($user->role=='user')
                     <div class="col-md-3 form-group {{ $errors->has('manager') ? 'has-error' : '' }}">
                         <!-- manager -->
-                        {!! Form::label('manager','Sales Manager') !!}
-                        {!! Form::select('manager',[''=>'Choose','Managers'=>$managers],null,['class' => 'form-control']) !!}
+                        {!! Form::label('manager', __('message.sales_manager')) !!}
+
+                        {!! Form::select('manager',[''=> __('message.choose'),'Managers'=>$managers],null,['class' => 'form-control']) !!}
                         @error('manager')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
@@ -278,8 +279,8 @@ Edit User
 
                      <div class="col-md-3 form-group {{ $errors->has('manager') ? 'has-error' : '' }}">
                         <!-- account manager -->
-                        {!! Form::label('account_manager','Account Manager') !!}
-                        {!! Form::select('account_manager',[''=>'Choose','Managers'=>$acc_managers],null,['class' => 'form-control']) !!}
+                        {!! Form::label('account_manager',__('message.account_manager')) !!}
+                        {!! Form::select('account_manager',[''=> __('message.choose'),'Managers'=>$acc_managers],null,['class' => 'form-control']) !!}
                          @error('account_manager')
                          <span class="error-message"> {{$message}}</span>
                          @enderror

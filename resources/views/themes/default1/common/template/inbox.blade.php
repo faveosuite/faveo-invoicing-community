@@ -4,13 +4,13 @@ Templates
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Templates</h1>
+        <h1>{{ __('message.templates') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item active">Template</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.template') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -30,9 +30,9 @@ Templates
             <div class="col-md-12">
                 <table id="templates-table" class="table display" cellspacing="0" width="100%" styleClass="borderless">
                     <thead><tr>
-                         <th>Subject</th>
-                          <th>Type</th>
-                           <th>Action</th>
+                         <th>{{ __('message.sub') }}</th>
+                          <th>{{ __('message.type') }}</th>
+                           <th>{{ __('message.action') }}</th>
                         </tr></thead>
                      </table>
             
@@ -75,7 +75,7 @@ Templates
             "url":  '{!! route('get-templates') !!}',
                error: function(xhr) {
                if(xhr.status == 401) {
-                alert('Your session has expired. Please login again to continue.')
+                alert('{{ __('message.session_expired') }}')
                 window.location.href = '/login';
                }
             }
@@ -84,7 +84,7 @@ Templates
             "oLanguage": {
                 "sLengthMenu": "_MENU_ Records per page",
                 "sSearch"    : "Search: ",
-                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>'
+                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
             },
                 columnDefs: [
                 { 
@@ -157,7 +157,7 @@ Templates
             }
             else
             {
-                alert("Please select at least one checkbox");
+                alert("{{ __('message.select_checkbox') }}");
             }
         }  
 

@@ -171,7 +171,7 @@ class PaymentSettingsController extends Controller
             file_put_contents($app, implode("\n", $lines));
             $plugs->create(['name' => $slug, 'path' => $slug, 'status' => 1]);
 
-            return redirect()->back()->with('success', 'Status has changed');
+            return redirect()->back()->with('success', __('message.status_changed'));
         }
         $status = $plug->status;
 
@@ -199,7 +199,7 @@ class PaymentSettingsController extends Controller
 
         $plug->save();
 
-        return redirect()->back()->with('success', 'Status has changed');
+        return redirect()->back()->with('success', __('message.status_changed'));
     }
 
     public function postPlugins(Request $request)
@@ -246,7 +246,7 @@ class PaymentSettingsController extends Controller
                     file_put_contents($app, implode("\n", $lines));
                     $plug->create(['name' => $filename, 'path' => $filename, 'status' => 1]);
 
-                    return redirect()->back()->with('success', 'Installed SuccessFully');
+                    return redirect()->back()->with('success', __('message.installed_successfully'));
                 } else {
                     /*
                      * delete if the plugin hasn't config.php and ServiceProvider.php
@@ -261,7 +261,7 @@ class PaymentSettingsController extends Controller
                  */
                 $this->deleteDirectory($file);
 
-                return redirect()->back()->with('fails', 'Their is no <b>config.php or ServiceProvider.php</b>  '.$file);
+                return redirect()->back()->with('fails', __('message.file_missing', ['file' => $file]));
             }
         } else {
             /*
@@ -269,7 +269,7 @@ class PaymentSettingsController extends Controller
              */
             $this->deleteDirectory($file);
 
-            return redirect()->back()->with('fails', '<b>Plugin File Path is not exist</b>  '.$file);
+            return redirect()->back()->with('fails', '<b>'.__('messages.plugin_file_path_not_exist').'</b> '.$file);
         }
     }
 
@@ -332,6 +332,6 @@ class PaymentSettingsController extends Controller
             $plugin->delete();
         }
 
-        return redirect()->back()->with('success', 'Deleted Successfully');
+        return redirect()->back()->with('success', __('message.deleted-successfully'));
     }
 }
