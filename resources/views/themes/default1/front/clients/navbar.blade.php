@@ -13,22 +13,22 @@ function redirectOnClick($route) {
         <ul class="nav nav-list flex-column">
             <li class="nav-item">
                 <a class="nav-link {{ isActiveRoute('client-dashboard') }}" href="#dashboard" data-bs-toggle="tab" data-hash data-hash-offset="0" data-hash-offset-lg="120" data-hash-delay="500"
-                   onclick="{{ redirectOnClick('client-dashboard') }}">Dashboard</a>
+                   onclick="{{ redirectOnClick('client-dashboard') }}">{{ __('message.dashboard')}}</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link {{ isActiveRoute('my-orders') }}" href="#orders" data-bs-toggle="tab" data-hash data-hash-offset="0" data-hash-offset-lg="120" data-hash-delay="500"
-                   onclick="{{ redirectOnClick('my-orders') }}">My Orders</a>
+                   onclick="{{ redirectOnClick('my-orders') }}">{{ __('message.my_orders')}}</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link {{ isActiveRoute('my-invoices') }}" href="#invoices" id="invoices-tab"  data-bs-toggle="tab" data-hash data-hash-offset="0" data-hash-offset-lg="120" data-hash-delay="500"
-                   onclick="{{ redirectOnClick('my-invoices') }}">My Invoices</a>
+                   onclick="{{ redirectOnClick('my-invoices') }}">{{ __('message.my_invoices')}}</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link {{ isActiveRoute('my-profile') }}" href="#profile" data-bs-toggle="tab" data-hash data-hash-offset="0" data-hash-offset-lg="120" data-hash-delay="500"
-                   onclick="{{ redirectOnClick('my-profile') }}">My Profile</a>
+                   onclick="{{ redirectOnClick('my-profile') }}">{{ __('message.my_profile')}}</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#logout" onclick="{{ redirectOnClick('auth/logout') }}">Logout</a>
+                <a class="nav-link" href="#logout" onclick="{{ redirectOnClick('auth/logout') }}">{{ __('message.logout')}}</a>
             </li>
         </ul>
     </aside>

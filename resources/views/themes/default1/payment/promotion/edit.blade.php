@@ -4,13 +4,13 @@ Edit Coupon
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Edit Coupon</h1>
+        <h1>{{ __('message.edit_coupon') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('promotions')}}"><i class="fa fa-dashboard"></i> All Coupons</a></li>
-            <li class="breadcrumb-item active">Edit Coupon</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('promotions')}}"><i class="fa fa-dashboard"></i> {{ __('message.all_coupons') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.edit_coupon') }}</li>
         </ol>
     </div><!-- /.col -->
 
@@ -47,7 +47,7 @@ Edit Coupon
                                         {!! Form::text('code',null,['class' => 'form-control','id'=>'code']) !!}
                                     </div>
                                     <div class="col-md-6">
-                                        <a href="#" class="btn btn-primary" onclick="getCode();"><i class="fa fa-refresh"></i>&nbsp;Generate Code</a>
+                                        <a href="#" class="btn btn-primary" onclick="getCode();"><i class="fa fa-refresh"></i>&nbsp;{{ __('message.generate_code') }}</a>
                                     </div>
                                 </div>
 
@@ -72,7 +72,7 @@ Edit Coupon
                     </tr>
                     <tr>
 
-                        <td><b>{!! Form::label('value',Lang::get('message.value'),['class'=>'required']) !!}&nbsp;&nbsp;<i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="Enter the discount amount here"></i></b></td>
+                        <td><b>{!! Form::label('value', __('message.value'), ['class' => 'required']) !!}&nbsp;&nbsp;<i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="{{ __('message.enter_discount_amount') }}"></i></b></td>
                         <td>
                             <div class="form-group col-lg-6 {{ $errors->has('value') ? 'has-error' : '' }}">
 
@@ -86,7 +86,7 @@ Edit Coupon
                     </tr>
                     <tr>
 
-                        <td><b>{!! Form::label('uses',Lang::get('message.uses'),['class'=>'required']) !!}&nbsp;&nbsp;<i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="Enter here how many times that coupon can be used"></i></b></td>
+                        <td><b>{!! Form::label('uses', __('message.uses'), ['class' => 'required']) !!}&nbsp;&nbsp;<i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="{{ __('message.enter_times_coupon') }}"></i></b></td>
                         <td>
                             <div class="form-group col-lg-6{{ $errors->has('uses') ? 'has-error' : '' }}">
 
@@ -104,7 +104,7 @@ Edit Coupon
                         <td>
                             <div class="form-group {{ $errors->has('applied') ? 'has-error' : '' }}" style="width: 53%;">
 
-                                 {!! Form::select('applied',[''=>'Choose','Products'=>$product],$selectedProduct,['class' => 'form-control select2','data-live-search'=>'true','data-live-search-placeholder' => 'Search','data-dropup-auto'=>'false','data-size'=>'10','title'=>'Products for which coupon is Applied']) !!}
+                                {!! Form::select('applied', ['' => 'Choose', 'Products' => $product], $selectedProduct, ['class' => 'form-control select2', 'data-live-search' => 'true', 'data-live-search-placeholder' => 'Search', 'data-dropup-auto' => 'false', 'data-size' => '10', 'title' => __('message.coupon_applied')]) !!}
 
                                 
 
@@ -118,7 +118,7 @@ Edit Coupon
                         <td>
                             <div class="form-group {{ $errors->has('start') ? 'has-error' : '' }}">
                                 <div class="input-group date" id="startDate" data-target-input="nearest" style="width: 50%;">
-                                     {!! Form::text('start',$startDate,['class' => 'form-control datetimepicker-input','title'=>'Date from which Coupon is Valid','data-target'=>'#startDate']) !!}
+                                    {!! Form::text('start', $startDate, ['class' => 'form-control datetimepicker-input', 'title' => __('message.coupon_valid'), 'data-target' => '#startDate']) !!}
 
                                    
                                     <div class="input-group-append" data-target="#startDate" data-toggle="datetimepicker">
@@ -141,7 +141,7 @@ Edit Coupon
 
                                 <div class="input-group date" id="endDate" data-target-input="nearest" style="width: 50%;">
 
-                                     {!! Form::text('expiry',$expiryDate,['class' => 'form-control datetimepicker-input','title'=>'Date on which Coupon Expires','data-target'=>'#endDate']) !!}
+                                    {!! Form::text('expiry', $expiryDate, ['class' => 'form-control datetimepicker-input', 'title' => __('message.coupon_expires'), 'data-target' => '#endDate']) !!}
 
                                     
                                     <div class="input-group-append" data-target="#endDate" data-toggle="datetimepicker">
@@ -163,8 +163,7 @@ Edit Coupon
                 </table>
 
 
-                <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fas fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}</button>
-
+                <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> {{ __('message.saving') }}"><i class="fas fa-sync-alt">&nbsp;</i>{{ __('message.update') }}</button>
             </div>
 
         </div>

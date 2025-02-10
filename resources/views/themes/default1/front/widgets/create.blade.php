@@ -8,10 +8,10 @@ Create Widget
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item"><a href="{{url('widgets')}}"><i class="fa fa-dashboard"></i> All Widgets</a></li>
-            <li class="breadcrumb-item active">Create Widget</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home')}}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings')}}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('widgets')}}"><i class="fa fa-dashboard"></i> {{ __('message.all_widgets')}}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.create_widget')}}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -48,9 +48,9 @@ Create Widget
                     </div>
                      
 
-                <?php 
-                $mail = ['class' => 'form-control','disabled' => 'true' , 'title' => 'Cofigure your mailchimp in settings to access'];
-                $twitter = ['class' => 'form-control','disabled' => 'true', 'title' => 'Configure your tweets in settings to access'];
+                <?php
+                $mail = ['class' => 'form-control', 'disabled' => 'true', 'title' => Lang::get('message.configure_mailchimp')];
+                $twitter = ['class' => 'form-control', 'disabled' => 'true', 'title' => Lang::get('message.configure_tweet')];
                 
                 ?>
 

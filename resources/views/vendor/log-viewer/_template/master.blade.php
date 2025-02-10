@@ -74,7 +74,7 @@ $set = $set->findOrFail(1);
                 <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
             </li>
             <li class="nav-item d-none d-sm-inline-block">
-                <a href="{{url('client-dashboard')}}" class="nav-link">Go to Client Panel</a>
+                <a href="{{url('client-dashboard')}}" class="nav-link">{{ __('message.go_to_client') }}</a>
             </li>
 
         </ul>
@@ -172,7 +172,7 @@ $set = $set->findOrFail(1);
                         <a href="#" class="nav-link">
                             <i class="nav-icon fas fa-user"></i>
                             <p>
-                                Users
+                                {{ __('message.users') }}
                                 <i class="fas fa-angle-left right"></i>
                             </p>
                         </a>
@@ -180,13 +180,13 @@ $set = $set->findOrFail(1);
                             <li class="nav-item">
                                 <a href="{{url('clients')}}" class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>
-                                    <p>All Users</p>
+                                    <p>{{ __('message.all-users') }}</p>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a href="{{url('clients/create')}}" class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>
-                                    <p>Add New</p>
+                                    <p>{{ __('message.add-new') }}</p>
                                 </a>
                             </li>
                         </ul>
@@ -195,7 +195,7 @@ $set = $set->findOrFail(1);
                         <a href="#" class="nav-link">
                             <i class="nav-icon fas fa-chart-pie"></i>
                             <p>
-                                Orders
+                                {{ __('message.orders') }}
                                 <i class="right fas fa-angle-left"></i>
                             </p>
                         </a>
@@ -291,7 +291,7 @@ $set = $set->findOrFail(1);
                             <li class="nav-item">
                                 <a href="{{url('plans')}}" class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>
-                                    <p>Plans</p>
+                                    <p>{{ __('message.plans') }}</p>
                                 </a>
                             </li>
                             <li class="nav-item">
@@ -344,7 +344,7 @@ $set = $set->findOrFail(1);
                 @if (count($errors) > 0)
 
                     <div class="alert alert-danger alert-dismissable">
-                        <strong>Whoops!</strong> There were some problems with your input.
+                        <strong>{{ __('message.whoops') }}</strong> {{ __('message.input_problem') }}
                         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
                         <ul>
                             @foreach ($errors->all() as $error)

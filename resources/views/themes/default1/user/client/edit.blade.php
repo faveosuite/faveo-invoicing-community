@@ -7,12 +7,12 @@ Edit User
 
     @section('content-header')
         <div class="col-sm-6">
-            <h1>Edit User</h1>
+            <h1>{{ __('message.edit_user') }}</h1>
         </div>
         <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
-                <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-                <li class="breadcrumb-item active">Edit User</li>
+                <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+                <li class="breadcrumb-item active">{{ __('message.edit_user') }}</li>
             </ol>
         </div><!-- /.col -->
     @stop
@@ -78,8 +78,8 @@ Edit User
                         <!--{!! Form::select('bussiness', [''=>'Choose','Industries'=>$bussinesses],null,['class' => 'form-control chosen-select select2','data-live-search'=>'true','data-live-search-placeholder' => 'Search','data-dropup-auto'=>'false']) !!}-->
 
 
-                        <select name="bussiness"  class="form-control select2" data-live-search="true" data-live-search-placeholder="Search" data-dropup-auto="false">
-                            <option value="">Choose</option>
+                        <select name="bussiness"  class="form-control select2" data-live-search="true" data-live-search-placeholder="{{ __('message.search') }}" data-dropup-auto="false">
+                            <option value="">{{ __('message.choose') }}</option>
                          @foreach($bussinesses as $key=>$bussiness)
                          
                         <option value="{{$key}}" <?php  if(in_array($bussiness, $selectedIndustry) ) 
@@ -95,13 +95,13 @@ Edit User
                     <div class="col-md-3 form-group {{ $errors->has('active') ? 'has-error' : '' }}">
                         <!-- mobile -->
                         {!! Form::label('active',Lang::get('message.email')) !!}
-                        <p>{!! Form::radio('email_verified',1,true) !!}&nbsp;Active&nbsp;&nbsp;{!! Form::radio('email_verified',0) !!}&nbsp;Inactive</p>
+                        <p>{!! Form::radio('email_verified',1,true) !!}&nbsp;Active&nbsp;&nbsp;{!! Form::radio('email_verified',0) !!}&nbsp;{{ __('message.inactive') }}</p>
 
                     </div>
                     <div class="col-md-3 form-group {{ $errors->has('mobile_verified') ? 'has-error' : '' }}">
                         <!-- mobile -->
                         {!! Form::label('mobile_verified',Lang::get('message.mobile')) !!}
-                        <p>{!! Form::radio('mobile_verified',1,true) !!}&nbsp;Active&nbsp;&nbsp;{!! Form::radio('mobile_verified',0) !!}&nbsp;Inactive</p>
+                        <p>{!! Form::radio('mobile_verified',1,true) !!}&nbsp;{{ __('message.active') }}&nbsp;&nbsp;{!! Form::radio('mobile_verified',0) !!}&nbsp;{{ __('message.inactive') }}</p>
 
                     </div>
                 </div>
@@ -114,7 +114,7 @@ Edit User
                     </div>
                     <div class="col-md-3 form-group {{ $errors->has('position') ? 'has-error' : '' }}">
                         <!-- email -->
-                        {!! Form::label('position','Position') !!}
+                        {!! Form::label('position', __('message.position')) !!}
                         {!! Form::select('position',['Choose'=>'Choose','manager'=>'Sales Manager','account_manager'=>'Account Manager'],null,['class' => 'form-control']) !!}
 
                     </div>
@@ -130,7 +130,7 @@ Edit User
 
 
                            <select name="company_type"  class="form-control chosen-select select2" data-live-search="true" data-live-search-placeholder="Search" data-dropup-auto="false">
-                            <option value="">Choose</option>
+                            <option value="">{{ __('message.choose') }}</option>
                          @foreach($types as $key=>$type)
                                    <option value="{{$key}}" <?php  if(in_array($type, $selectedCompany) ) { echo "selected";} ?>>{{$type}}</option>
                            
@@ -175,7 +175,7 @@ Edit User
                         {!! Form::label('country',Lang::get('message.country'),['class'=>'required']) !!}
                         <?php $countries = \App\Model\Common\Country::pluck('nicename', 'country_code_char2')->toArray(); ?>
 
-                        {!! Form::select('country',[Lang::get('message.choose')=>$countries],null,['class' => 'form-control select2','id'=>'country','onChange'=>'getCountryAttr(this.value)','data-live-search'=>'true','required','data-live-search-placeholder' => 'Search','data-dropup-auto'=>'false','data-size'=>'10']) !!}
+                        {!! Form::select('country',[Lang::get('message.choose')=>$countries],null,['class' => 'form-control select2','id'=>'country','onChange'=>'getCountryAttr(this.value)','data-live-search'=>'true','required','data-live-search-placeholder' => __('message.search'),'data-dropup-auto'=>'false','data-size'=>'10']) !!}
 
                     </div>
                     <div class="col-md-3 form-group {{ $errors->has('state') ? 'has-error' : '' }}">
@@ -190,7 +190,7 @@ Edit User
                             @if(count($state)>0)
                             <option value="{{$state['id']}}">{{$state['name']}}</option>
                             @endif
-                            <option value="">Select State</option>
+                            <option value="">{{ __('message.select_state') }}</option>
                             @foreach($states as $key=>$value)
                             <option value="{{$key}}">{{$value}}</option>
                             @endforeach
@@ -208,7 +208,7 @@ Edit User
                         <!-- mobile -->
                         {!! Form::label('timezone_id',Lang::get('message.timezone'),['class'=>'required']) !!}
 
-                         {!! Form::select('timezone_id', ['Timezones'=>$timezones],null,['class' => 'form-control chosen-select select2','data-live-search'=>'true','required','data-live-search-placeholder' => 'Search','data-dropup-auto'=>'false']) !!}
+                         {!! Form::select('timezone_id', ['Timezones'=>$timezones],null,['class' => 'form-control chosen-select select2','data-live-search'=>'true','required','data-live-search-placeholder' =>  __('message.search'),'data-dropup-auto'=>'false']) !!}
 
                     </div>
                     
@@ -224,21 +224,21 @@ Edit User
                   
                     <div class="col-md-3 form-group {{ $errors->has('skype') ? 'has-error' : '' }}">
                         <!-- mobile -->
-                        {!! Form::label('skype','Skype') !!}
+                        {!! Form::label('skype', __('message.skype')) !!}
                         {!! Form::text('skype',null,['class' => 'form-control']) !!}
 
                     </div>
                     @if($user->role=='user')
                     <div class="col-md-3 form-group {{ $errors->has('manager') ? 'has-error' : '' }}">
                         <!-- mobile -->
-                        {!! Form::label('manager','Sales Manager') !!}
+                        {!! Form::label('manager', __('message.sales_manager')) !!}
                         {!! Form::select('manager',[''=>'Choose','Managers'=>$managers],null,['class' => 'form-control']) !!}
 
                     </div>
 
                      <div class="col-md-3 form-group {{ $errors->has('manager') ? 'has-error' : '' }}">
                         <!-- mobile -->
-                        {!! Form::label('account_manager','Account Manager') !!}
+                         {!! Form::label('account_manager', __('message.account_manager')) !!}
                         {!! Form::select('account_manager',[''=>'Choose','Managers'=>$acc_managers],null,['class' => 'form-control']) !!}
 
                     </div>
@@ -300,7 +300,7 @@ Edit User
               $('#submit').attr('disabled',false);
             } else {
             errorMsg.classList.remove("hide");
-             errorMsg.innerHTML = "Please enter a valid number";
+             errorMsg.innerHTML = "{{ __('message.enter_valid_number') }}";
              $('#mobile_code').css("border-color","red");
              $('#error-msg').css({"color":"red","margin-top":"5px"});
              $('#submit').attr('disabled',true);
@@ -317,7 +317,7 @@ Edit User
               $('#submit').attr('disabled',false);
             } else {
              errorMsg.classList.remove("hide");
-             errorMsg.innerHTML = "Please enter a valid number";
+             errorMsg.innerHTML = "{{ __('message.enter_valid_number') }}";
              $('#mobile_code').css("border-color","red");
              $('#error-msg').css({"color":"red","margin-top":"5px"});
              $('#submit').attr('disabled',true);

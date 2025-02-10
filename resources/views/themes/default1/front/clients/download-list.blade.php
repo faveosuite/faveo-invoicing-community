@@ -38,7 +38,7 @@
     <div class="modal-dialog modal-dialog-centered" role="document" style="max-width:75% !important;">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Product Versions</h5>
+                <h5 class="modal-title">{{ __('message.product_version')}}</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -57,10 +57,10 @@
                     <table id="version-table" class="table display" cellspacing="0" width="100%">
                         <thead>
                         <tr>
-                            <th>Version</th>
-                            <th>Title</th>
-                            <th>Description</th>
-                            <th>File</th>
+                            <th>{{ __('message.version')}}</th>
+                            <th>{{ __('message.title')}}</th>
+                            <th>{{ __('message.description')}}</th>
+                            <th>{{ __('message.file')}}</th>
                         </tr>
                         </thead>
                         <tbody>

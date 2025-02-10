@@ -4,12 +4,12 @@ Reports
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>All Reports</h1>
+        <h1>{{ __('message.all_reports') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item active">All Reports</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.all_reports') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -17,7 +17,7 @@ Reports
 
     <div class="card card-secondary card-outline">
  <div class="card-header">
-            <h3 class="card-title">Reports</h3>
+            <h3 class="card-title">{{ __('message.reports') }}</h3>
         </div>
  
         <div id="response"></div>
@@ -31,12 +31,12 @@ Reports
                      <button  value="" class="btn btn-secondary btn-sm btn-alldell" id="bulk_delete"><i class="fa fa-trash"></i>&nbsp;&nbsp;{{Lang::get('message.delmultiple')}}</button><br /><br />
                     <thead><tr>
                         <th class="no-sort" style="width:20px"><input type="checkbox" name="select_all" onchange="checking(this)"></th>
-                            <th>File name</th>
-                            <th>Format</th>
-                            <th>Type</th>
-                            <th>Contact</th>
-                            <th>Created At</th>
-                            <th>Action</th>
+                            <th>{{ __('message.file_name') }}</th>
+                            <th>{{ __('message.format') }}</th>
+                            <th>{{ __('message.type') }}</th>
+                            <th>{{ __('message.contact') }}</th>
+                            <th>{{ __('message.created_at') }}</th>
+                            <th>{{ __('message.action') }}</th>
                         </tr></thead>
 
                    </table>
@@ -63,7 +63,7 @@ Reports
             "url":  '{!! url('get-reports') !!}',
                error: function(xhr) {
                if(xhr.status == 401) {
-                alert('Your session has expired. Please login again to continue.')
+                alert('{{ __('message.session_expired') }}')
                 window.location.href = '/login';
                }
             }
@@ -72,7 +72,7 @@ Reports
             "oLanguage": {
                 "sLengthMenu": "_MENU_ Records per page",
                 "sSearch"    : "Search: ",
-                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>'
+                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
             },
             columnDefs: [
              { targets: 'no-sort', 
@@ -131,7 +131,7 @@ Reports
             }
             else
             {
-                alert("Please select at least one checkbox");
+                alert("{{ __('message.select_checkbox') }}");
             }
         }  
 

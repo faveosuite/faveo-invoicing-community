@@ -5,7 +5,7 @@
             {!! Form::open(['url'=>'client/renew/'.$id]) !!}
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">Renew</h4>
+                <h4 class="modal-title">{{ __('message.renew') }}</h4>
             </div>
             <div class="modal-body">
                 <!-- Form  -->
@@ -44,7 +44,7 @@
 
             </div>
             <div class="modal-footer">
-                <button type="button" id="close" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                <button type="button" id="close" class="btn btn-default pull-left" data-dismiss="modal">{{ __('message.close') }}</button>
                 <input type="submit" class="btn btn-primary" value="{{Lang::get('message.save')}}">
                 {!! Form::close()  !!}
             </div>

@@ -4,13 +4,13 @@ Third party Apps
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Third party apps</h1>
+        <h1>{{ __('message.third_party_apps') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item active">Third party apps</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.third_party_apps') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -18,7 +18,7 @@ Third party Apps
 
     <div class="card card-secondary card-outline">
         <div class="card-header">
-            <h3 class="card-title">Third party apps</h3>
+            <h3 class="card-title">{{ __('message.third_party_apps') }}</h3>
 
             <div class="card-tools">
                 <a href="#create-third-party-app" data-toggle="modal" data-target="#create-third-party-app" class="btn btn-default btn-sm"><span class="fa fa-plus"></span>&nbsp;&nbsp;{{Lang::get('message.create')}}</a>
@@ -40,10 +40,10 @@ Third party Apps
                      <button  value="" class="btn btn-secondary btn-sm btn-alldell" id="bulk_delete"><i class="fa fa-trash"></i>&nbsp;&nbsp;{{Lang::get('message.delmultiple')}}</button><br /><br />
                     <thead><tr>
                         <th class="no-sort" style="width:20px"><input type="checkbox" name="select_all" onchange="checking(this)"></th>
-                            <th>App name</th>
-                            <th>App key</th>
-                            <th>App secret</th>
-                             <th>Action</th>
+                            <th>{{ __('message.app_name') }}</th>
+                            <th>{{ __('message.app_key') }}</th>
+                            <th>{{ __('message.app_secret') }}</th>
+                             <th>{{ __('message.action') }}</th>
                         </tr></thead>
 
                    </table>
@@ -70,7 +70,7 @@ Third party Apps
             "url":  '{!! route('get-third-party-app') !!}',
                error: function(xhr) {
                if(xhr.status == 401) {
-                alert('Your session has expired. Please login again to continue.')
+                alert('{{ __('message.session_expired') }}')
                 window.location.href = '/login';
                }
             }
@@ -79,7 +79,7 @@ Third party Apps
             "oLanguage": {
                 "sLengthMenu": "_MENU_ Records per page",
                 "sSearch"    : "Search: ",
-                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>'
+                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
             },
             columnDefs: [
              { orderable: false, targets:0 }
@@ -150,7 +150,7 @@ Third party Apps
             }
             else
             {
-                alert("Please select at least one checkbox");
+                alert("{{ __('message.select_checkbox') }}");
             }
         }  
 

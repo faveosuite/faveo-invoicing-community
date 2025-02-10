@@ -5,7 +5,7 @@
         property="stylesheet"
         href="/vendor/visitortracker/css/visitortracker.css">
 
-    <h1>Statistics</h1>
+    <h1>{{ __('message.statistics') }}</h1>
 
     @yield('visitortracker_content')
 @endsection

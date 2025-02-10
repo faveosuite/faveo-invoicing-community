@@ -3,7 +3,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">Create Currency</h4>
+                <h4 class="modal-title">{{ __('message.create_currency') }}</h4>
             </div>
             <div class="modal-body">
                 <!-- Form  -->
@@ -36,8 +36,8 @@
                 
             </div>
             <div class="modal-footer">
-                <button type="button" id="close" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fa fa-floppy-o">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button>
+                <button type="button" id="close" class="btn btn-default pull-left" data-dismiss="modal">{{ __('message.close') }}</button>
+                <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> {{ __('message.saving') }}"><i class="fa fa-floppy-o">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button>
             </div>
             {!! Form::close()  !!}
             <!-- /Form -->
@@ -58,7 +58,7 @@
             var currency_name = $('#name').val();
             if (currency_name.length == ''){
                    $('#namecheck').show(); 
-                   $('#namecheck').html('This field is required'); 
+                   $('#namecheck').html('{{ __('message.field_required') }}');
                    $('#namecheck').focus();
                    $('#name').css("border-color","red");
                    $('#namecheck').css({"color":"red","margin-top":"5px"});
@@ -76,7 +76,7 @@
             var code_name = $('#code').val();
             if (code_name.length == ''){
                    $('#codecheck').show(); 
-                   $('#codecheck').html('This field is required'); 
+                   $('#codecheck').html('{{ __('message.field_required') }}');
                    $('#codecheck').focus();
                    $('#code').css("border-color","red");
                    $('#codecheck').css({"color":"red","margin-top":"5px"});
@@ -94,7 +94,7 @@
             var symbol = $('#symbol').val();
             if (symbol.length == ''){
                    $('#symbolcheck').show(); 
-                   $('#symbolcheck').html('This field is required'); 
+                   $('#symbolcheck').html('{{ __('message.field_required') }}');
                    $('#symbolcheck').focus();
                    $('#symbol').css("border-color","red");
                    $('#symbolcheck').css({"color":"red","margin-top":"5px"});
@@ -112,7 +112,7 @@
             var conversion = $('#conversion').val();
             if (conversion.length == ''){
                    $('#conversioncheck').show(); 
-                   $('#conversioncheck').html('This field is required'); 
+                   $('#conversioncheck').html('{{ __('message.field_required') }}');
                    $('#conversioncheck').focus();
                    $('#conversion').css("border-color","red");
                    $('#conversioncheck').css({"color":"red","margin-top":"5px"});

@@ -74,13 +74,13 @@ input:checked + .slider:before {
 
 
 <div class="col-sm-6">
-    <h1>Order Details</h1>
+    <h1>{{ __('message.order_details') }}</h1>
 </div>
 <div class="col-sm-6">
     <ol class="breadcrumb float-sm-right">
-        <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-        <li class="breadcrumb-item"><a href="{{url('orders')}}"><i class="fa fa-dashboard"></i> All Orders</a></li>
-        <li class="breadcrumb-item active">View Order</li>
+        <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+        <li class="breadcrumb-item"><a href="{{url('orders')}}"><i class="fa fa-dashboard"></i> {{ __('message.all-orders') }}</a></li>
+        <li class="breadcrumb-item active">{{ __('message.view_order') }}</li>
     </ol>
 </div><!-- /.col -->
 
@@ -98,7 +98,7 @@ input:checked + .slider:before {
                     <h4 class="card-title" style="color:black;">
                      
                          <i class="fa fa-users"></i>
-                        Overview
+                        {{ __('message.overview') }}
                      
                     </h4>
                   </div>
@@ -107,14 +107,14 @@ input:checked + .slider:before {
                         <div class="callout callout-info">
                             <div class="row">
                                 <div class="col-md-4">
-                                    <b>Date: </b>{!! getDateHtml($order->created_at) !!}
+                                    <b>{{ __('message.date') }}: </b>{!! getDateHtml($order->created_at) !!}
                                 </div>
                                 <div class="col-md-4">
-                                    <b>Order No: </b>  #{{$order->number}} 
+                                    <b>{{ __('message.order_no') }}: </b>  #{{$order->number}}
 
                                 </div>
                                 <div class="col-md-4">
-                                    <b>Status: </b>{{$order->order_status}}
+                                    <b>{{ __('message.status') }}: </b>{{$order->order_status}}
                                 </div>
                             </div>
                             <br>
@@ -124,8 +124,8 @@ input:checked + .slider:before {
                                ?>
                             @if(!empty($terminatedOrderId))
                                 <p class="order-links">
-                                    This order <b>{{$order->number}}</b>
-                                    has been generated because this order was terminated: <a class="order-link" href="{{$terminatedOrderId}}">{{$terminatedOrderNumber}}</a>.
+                                    {{ __('message.this_order') }} <b>{{$order->number}}</b>
+                                    {{ __('message.has_generated') }}: <a class="order-link" href="{{$terminatedOrderId}}">{{$terminatedOrderNumber}}</a>.
                                 </p>
                             @endif
 
@@ -142,13 +142,13 @@ input:checked + .slider:before {
 
                                 @foreach($newOrders as $newOrder)
                                     <div class="termination-message">
-                                        <p class="termination-notice"><b>Important: Termination Notice</b></p>
+                                        <p class="termination-notice"><b>{{ __('message.termination_notice') }}</b></p>
                                         <p class="termination-description">
-                                            This order has been terminated. Consequently, the features and licenses associated with this order are no longer valid.
+                                            {{ __('message.order_terminated') }}
                                         </p>
                                         <p class="order-links">
-                                            The terminated order: <b>{{$order->number}}</b>
-                                            has been upgraded to the new order: <a class="order-link" href="{{$newOrder[0]->id}}">{{$newOrder[0]->number}}</a>.
+                                            {{ __('message.termination_order') }}: <b>{{$order->number}}</b>
+                                            {{ __('message.has_new_order') }}: <a class="order-link" href="{{$newOrder[0]->id}}">{{$newOrder[0]->number}}</a>.
                                         </p>
                                     </div>
 
@@ -167,7 +167,7 @@ input:checked + .slider:before {
                            <div class="card-body table-responsive">
                                <div class="card-header">
                               <h5 class="card-title" style="position: absolute;left: 7px;bottom: 10px;">
-                              User Details
+                                  {{ __('message.user_details') }}
                              </h5>
                                </div>
 
@@ -175,16 +175,16 @@ input:checked + .slider:before {
                               
                             <table class="table table-hover">
 
-                                <tbody><tr><td><b>Name:</b></td><td><a href="{{url('clients/'.$user->id)}}">{{ucfirst($user->first_name)}}</a></td></tr>
-                                    <tr><td><b>Email:</b></td><td>{{$user->email}}</td></tr>
-                                    <tr><td><b>Mobile:</b></td><td>@if($user->mobile_code)(<b>+</b>{{$user->mobile_code}})@endif&nbsp;{{$user->mobile}}</td></tr>
-                                    <tr><td><b>Address:</b></td><td>{{$user->address}}, 
+                                <tbody><tr><td><b>{{ __('message.name_page') }}:</b></td><td><a href="{{url('clients/'.$user->id)}}">{{ucfirst($user->first_name)}}</a></td></tr>
+                                    <tr><td><b>{{ __('message.email') }}:</b></td><td>{{$user->email}}</td></tr>
+                                    <tr><td><b>{{ __('message.mobile') }}:</b></td><td>@if($user->mobile_code)(<b>+</b>{{$user->mobile_code}})@endif&nbsp;{{$user->mobile}}</td></tr>
+                                    <tr><td><b>{{ __('message.address') }}:</b></td><td>{{$user->address}},
                                             {{ucfirst($user->town)}}, 
                                             @if(key_exists('name',getStateByCode($user->state)))
                                             {{getStateByCode($user->state)['name']}}
                                             @endif
                                         </td></tr>
-                                    <tr><td><b>Country:</b></td><td>{{getCountryByCode($user->country)}}</td></tr>
+                                    <tr><td><b>{{ __('message.country') }}:</b></td><td>{{getCountryByCode($user->country)}}</td></tr>
 
                                 </tbody>
                               </table>
@@ -212,20 +212,20 @@ input:checked + .slider:before {
                                                    <div class="modal-dialog" role="document">
                                                        <div class="modal-content">
                                                            <div class="modal-header">
-                                                               <h5 class="modal-title" id="exampleModalLabel">Please Enter Your Domain That You Wish To Host</h5>
+                                                               <h5 class="modal-title" id="exampleModalLabel">{{ __('message.enter_domain_host') }}</h5>
                                                            </div>
                                                            <div class="modal-body">
                                                                <form method="GET" action="{{url('uploadFile')}}">
                                                                    {!! csrf_field() !!}
                                                                    <div class="form-group">
-                                                                       <label for="recipient-name" class="col-form-label">Domain Name:</label>
+                                                                       <label for="recipient-name" class="col-form-label">{{ __('message.domain_name') }}</label>
                                                                        <input type="text" class="form-control" id="recipient-name" placeholder="https://faveohelpdesk.com/public" name="domain" value="" required>
                                                                        {{Form::hidden('orderNo', $order->number)}}
                                                                        {{Form::hidden('userId',$user->id)}}
                                                                        <br>
                                                                        <div class="modal-footer">
-                                                                           <button type="button" id="close" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
-                                                                           <button type="submit" id="domainSave" class="done btn btn-primary"><i class="fas fa-save"></i>&nbsp;Done</button>
+                                                                           <button type="button" id="close" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;{{ __('message.close') }}</button>
+                                                                           <button type="submit" id="domainSave" class="done btn btn-primary"><i class="fas fa-save"></i>&nbsp;{{ __('message.done') }}</button>
                                                                        </div>
                                                                    </div>
                                                                </form>
@@ -235,7 +235,7 @@ input:checked + .slider:before {
                                                </div>
                                            <div class="card-header">
                                                <h4 class="card-title" style="position: absolute;left: 7px;bottom: 10px;">
-                                                   License Details
+                                                   {{ __('message.license_details') }}
                                                </h4>
                                            </div>
 
@@ -245,7 +245,7 @@ input:checked + .slider:before {
                                                <input type="hidden" name="domainRes" id="domainRes" value={{$allowDomainStatus}}>
                                                <tbody>
                                                <tr>
-                                                   <td><b>License Code:</b></td>
+                                                   <td><b>{{ __('message.license_code') }}</b></td>
                                                    <td id="" data-type="serialkey">{{($order->serial_key)}}</td>
 
                                                    <td> @component('mini_views.copied_flash_text',
@@ -264,7 +264,7 @@ input:checked + .slider:before {
 
                                                   
                                                    <tr>
-                                                       <td><b>Installation Limit:</b></td>
+                                                       <td><b>{{ __('message.installation_limit') }}:</b></td>
                                                        <td>
                                                            {{$noOfAllowedInstallation}}
                                                        </td>
@@ -290,7 +290,7 @@ input:checked + .slider:before {
                                                </tr> -->
                                                @endif
                                                <tr>
-                                                   <td><b>Updates Expiry:</b></td>
+                                                   <td><b>{{ __('message.updates_expiry') }}:</b></td>
                                                    <td class="brtags"> {!! $date !!} </td>
                                                    <td>
                                                        @if($date != '--')
@@ -300,7 +300,7 @@ input:checked + .slider:before {
                                                </tr>
 
                                                <tr>
-                                                   <td><b>License Expiry:</b></td>
+                                                   <td><b>{{ __('message.license_expiry') }}:</b></td>
                                                    <td class="brtags">{!! $licdate !!} </td>
                                                    <td>
                                                        @if($licdate != '--')
@@ -312,7 +312,7 @@ input:checked + .slider:before {
 
                                                
                                                <tr>
-                                                   <td><b>Support Expiry:</b></td>
+                                                   <td><b>{{ __('message.support_expiry') }}:</b></td>
                                                    <td class="brtags">{!! $supdate !!}</td>
                                                    <td>
                                                        @if($supdate != '--')
@@ -322,7 +322,7 @@ input:checked + .slider:before {
                                                    </td>
                                                </tr>  
                                                <tr>
-                                                   <td><b>Switch to localized license?</b></td>
+                                                   <td><b>{{ __('message.switch_localized_license') }}</b></td>
                                                    <td class="brtags"> 
                                                  <label class="switch toggle_event_editing">
                                                      <input data-id="{{$order->number}}" class="localized-slider checkbox" type="checkbox" data-onstyle="success" data-offstyle="danger" data-toggle="toggle" data-on="Active" data-off="InActive" {{$order->license_mode=='File' ? 'checked' : '' }}>
@@ -331,7 +331,7 @@ input:checked + .slider:before {
                                                 </td>
                                                 <td>
                                                 @if($order->license_mode=='File')  
-                                                <button class="btn btn-secondary mb-2 btn-sm" id="defaultModalLabel" data-toggle="modal" data-target="#exampleModal" data-whatever="@mdo"> <span title="Enter client domain and a license file will be downloaded." {!!tooltip('Edit')!!} Enter Domain & Download License File></span></button>
+                                                <button class="btn btn-secondary mb-2 btn-sm" id="defaultModalLabel" data-toggle="modal" data-target="#exampleModal" data-whatever="@mdo"> <span title="{{ __('message.enter_client_domain_license') }}" {!!tooltip('Edit')!!} {{ __('message.enter_domain_license') }}></span></button>
                                                 @endif
                                                </td>
                                                </tr>
@@ -354,7 +354,7 @@ input:checked + .slider:before {
                    <div class="card-header with-border">
                     <h4 class="card-title" style="color:black;">
                       <i class="fa fa-credit-card"></i>
-                        Installation Details
+                        {{ __('message.installation_details') }}
                     </h4>
                   </div>
                 </a>
@@ -362,10 +362,10 @@ input:checked + .slider:before {
                        <div class="col-md-12">
                          <table id="installationDetail-table" class="table display" cellspacing="0" width="100%" styleClass="borderless">
                         <thead><tr>
-                        <th>Installation Path</th>
-                         <th>Installation IP</th>
-                         <th>Version</th>
-                         <th>Last Active</th>
+                        <th>{{ __('message.installation_path') }}</th>
+                         <th>{{ __('message.installation_ip') }}</th>
+                         <th>{{ __('message.version') }}</th>
+                         <th>{{ __('message.last_active') }}</th>
                          </tr>
                     </thead>
                          </table>
@@ -394,7 +394,7 @@ input:checked + .slider:before {
                    <div class="card-header with-border">
                     <h4 class="card-title" style="color:black;margin-left: -8px;">
                       <i class="fa fa-credit-card"></i>
-                        Invoice List
+                        {{ __('message.invoice_list') }}
                     </h4>
                   </div>
                 </a>
@@ -405,15 +405,15 @@ input:checked + .slider:before {
 
                     <thead><tr>
                         
-                         <th >Invoice No</th>
-                          <th>Products</th>
+                         <th >{{ __('message.invoice_no') }}</th>
+                          <th>{{ __('message.products') }}</th>
                            
-                            <th>Date</th>
-                            <th>Total</th>
+                            <th>{{ __('message.date') }}</th>
+                            <th>{{ __('message.total') }}</th>
                             
-                             <th>Status</th>
+                             <th>{{ __('message.status') }}</th>
                              
-                            <th>Action</th>
+                            <th>{{ __('message.action') }}</th>
                         </tr></thead>
                         </table>
 
@@ -453,7 +453,7 @@ input:checked + .slider:before {
                   "url":  "{{Url('get-installation-details/'.$order->id)}}",
                      error: function(xhr) {
                      if(xhr.status == 401) {
-                      alert('Your session has expired. Please login again to continue.')
+                      alert('{{ __('message.session_expired') }}')
                       window.location.href = '/login';
                      }
                   }
@@ -463,7 +463,7 @@ input:checked + .slider:before {
                   "oLanguage": {
                       "sLengthMenu": "_MENU_ Records per page",
                       "sSearch"    : "Search: ",
-                      "sProcessing": '<div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>'
+                      "sProcessing": '<div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
                   },
                       columnDefs: [
                       { 
@@ -502,7 +502,7 @@ input:checked + .slider:before {
             "url":  "{{Url('get-my-invoices/'.$order->id.'/'.$user->id.'/admin')}}",
                error: function(xhr) {
                if(xhr.status == 401) {
-                alert('Your session has expired. Please login again to continue.')
+                alert('{{ __('message.session_expired') }}')
                 window.location.href = '/login';
                }
             }
@@ -512,7 +512,7 @@ input:checked + .slider:before {
             "oLanguage": {
                 "sLengthMenu": "_MENU_ Records per page",
                 "sSearch"    : "Search: ",
-                "sProcessing": '<div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>'
+                "sProcessing": '<div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
             },
                 columnDefs: [
                 { 
@@ -556,23 +556,23 @@ input:checked + .slider:before {
                    <div class="card-header">
                     <h4 class="card-title" style="color:black;">
                        <i class="fa fa-bars"></i>
-                       Payment Receipts
+                        {{ __('message.payment_receipts') }}
                     </h4>
                   </div>
                 </a>
                        <div class="card-body">
                        <div class="col-md-12">
                            <table id="order1-table" class="table display" cellspacing="0" width="100%" styleClass="borderless">
-                 <button  value="" class="btn btn-secondary btn-sm btn-alldell" id="bulk_delete"><i class= "fa fa-trash"></i>&nbsp;&nbsp;Delete Selected</button><br /><br />
+                 <button  value="" class="btn btn-secondary btn-sm btn-alldell" id="bulk_delete"><i class= "fa fa-trash"></i>&nbsp;&nbsp;{{ __('message.delmultiple') }}</button><br /><br />
                     <thead><tr>
                         <th class="no-sort"><input type="checkbox" name="select_all" onchange="checking(this)"></th>
-                         <th>Invoice No</th>
-                          <th>Total</th>
+                         <th>{{ __('message.invoice_no') }}</th>
+                          <th>{{ __('message.total') }}</th>
                            
-                            <th>Method</th>
-                            <th>Status</th>
+                            <th>{{ __('message.method') }}</th>
+                            <th>{{ __('message.status') }}</th>
                             
-                             <th>Payment Date</th>
+                             <th>{{ __('message.payment_date') }}</th>
                              
                         </tr></thead>
                      </table>
@@ -599,7 +599,7 @@ input:checked + .slider:before {
                    <div class="card-header">
                     <h4 class="card-title" style="color:black;">
                        <i class="fa fa-bars"></i>
-                       Auto Renewal
+                        {{ __('message.auto_renewal') }}
                     </h4>
                   </div>
                 </a>
@@ -610,7 +610,7 @@ input:checked + .slider:before {
                             <table class="table table-hover">
 
                                 <tbody>
-                                    <tr><td><b>Auto Renewal for Future Subscription</b></td><td>    
+                                    <tr><td><b>{{ __('message.auto_renewal_subscription') }}</b></td><td>
                                   <label class="switch toggle_event_editing">
                                              <input type="checkbox" value="{{$statusAutorenewal}}"  name="is_subscribed"
                                               class="renewcheckbox" id="renew">
@@ -633,15 +633,15 @@ input:checked + .slider:before {
                                         }
                                         ?>
                                     @if($subscription && $subscription->is_subscribed && $payment_log)
-                                     <tr><td><b>Status:</b></td><td>
-                                     <span class="text-success font-weight-bold">Active</span>
+                                     <tr><td><b>{{ __('message.status') }}:</b></td><td>
+                                     <span class="text-success font-weight-bold">{{ __('message.active') }}</span>
                                      </td></tr>
-                                    <tr><td><b>Payment Method:</b></td><td>{{ucfirst($payment_log->payment_method)}}</td></tr>
+                                    <tr><td><b>{{ __('message.payment-method') }}:</b></td><td>{{ucfirst($payment_log->payment_method)}}</td></tr>
   
-                                    <tr><td><b>Subscription Start Date:</b></td><td>{!! getDateHtml($payment_log->date) !!}</td></tr>
+                                    <tr><td><b>{{ __('message.subscription_start_date') }}:</b></td><td>{!! getDateHtml($payment_log->date) !!}</td></tr>
                                     @else
-                                    <tr><td><b>Status:</b></td><td>
-                                     <span class="text-danger font-weight-bold">Inactive</span>
+                                    <tr><td><b>{{ __('message.status') }}:</b></td><td>
+                                     <span class="text-danger font-weight-bold">{{ __('message.inactive') }}</span>
                                      </td></tr>
                                     @endif
 
@@ -693,9 +693,9 @@ input:checked + .slider:before {
                     },
                     success: function(response){
                     $('#alertMessage').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+response.message+'.</div>';
                     $('#alertMessage').html(result+ ".");
-                    $("#pay").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    $("#pay").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                     setInterval(function(){
                         $('#alertMessage').slideUp(3000);
                     }, 1000);
@@ -715,7 +715,7 @@ input:checked + .slider:before {
             "url":  "{{Url('get-my-payment/'.$order->id.'/'.$user->id)}}",
                error: function(xhr) {
                if(xhr.status == 401) {
-                alert('Your session has expired. Please login again to continue.')
+                alert('{{ __('message.session_expired') }}')
                 window.location.href = '/login';
                }
             }
@@ -725,7 +725,7 @@ input:checked + .slider:before {
             "oLanguage": {
                 "sLengthMenu": "_MENU_ Records per page",
                 "sSearch"    : "Search: ",
-                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>'
+                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
             },
                  columnDefs: [
                 { 
@@ -796,7 +796,7 @@ input:checked + .slider:before {
             }
             else
             {
-                alert("Please select at least one checkbox");
+                alert("{{ __('message.select_checkbox') }}");
             }
         }  
 
@@ -829,13 +829,13 @@ input:checked + .slider:before {
                 url : "{{url('reissue-license')}}",
                 data : {'id':id},
                   beforeSend: function () {
-                 $('#response1').html( '<div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>');
+                 $('#response1').html( '<div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>');
 
                 },
           
                 success: function (data) {
                if (data.message =='success'){
-                 var result =  '<div class="alert alert-success alert-dismissable"><strong><i class="fa fa-check"></i> Success! </strong> '+data.update+' <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button></div>';
+                 var result =  '<div class="alert alert-success alert-dismissable"><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong> '+data.update+' <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button></div>';
                   $('#response1').html(result);
                      $('#response1').css('color', 'green');
                 setTimeout(function(){
@@ -864,13 +864,13 @@ input:checked + .slider:before {
                 url : "{{url('change-domain')}}",
                 data : {'domain':domain,'id':id},
                   beforeSend: function () {
-                 $('#response').html( '<div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>');
+                 $('#response').html( '<div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>');
 
                 },
           
                 success: function (data) {
                if (data.message =='success'){
-                 var result =  '<div class="alert alert-success alert-dismissable"><strong><i class="fa fa-check"></i> Success! </strong> '+data.update+' <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button></div>';
+                 var result =  '<div class="alert alert-success alert-dismissable"><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong> '+data.update+' <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button></div>';
                   $('#response').html(result);
                      $('#response').css('color', 'green');
                 setTimeout(function(){
@@ -905,7 +905,7 @@ input:checked + .slider:before {
  //When Submit Button is Clicked in Modal Popup, passvalue through Ajax
     $("#updatesSave").on('click',function(){
       $('#updatesSave').attr('disabled',true);
-      $('#updatesSave').html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+      $('#updatesSave').html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
         var newdate = $("#newDate").val();
         var orderId = $("#order").val();
         $.ajax({
@@ -917,7 +917,7 @@ input:checked + .slider:before {
               $("#updatesSave").html("Save");
                 if (response.message =='success') {
 
-                var result =  '<div class="alert alert-success alert-dismissable"><strong><i class="fa fa-check"></i> Success! </strong> '+response.update+' <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button></div>';
+                var result =  '<div class="alert alert-success alert-dismissable"><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong> '+response.update+' <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button></div>';
                      $('#response2').html(result);
                      $('#response2').css('color', 'green');
                  setTimeout(function(){
@@ -929,7 +929,7 @@ input:checked + .slider:before {
               $("#updatesSave").attr('disabled',false);
               $("#updatesSave").html("Save");
                 var myJSON = JSON.parse(response.responseText).errors;
-                var html = '<div class="alert alert-danger"><strong>Whoops! </strong>Something went wrong<br><br><ul>';
+                var html = '<div class="alert alert-danger"><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<br><br><ul>';
                   for (var key in myJSON)
                   {
                       html += '<li>' + myJSON[key][0] + '</li>'
@@ -941,7 +941,6 @@ input:checked + .slider:before {
                 }
         });
     });
-<!--------------------------------------------------------------------------------------------------------------------->
 
  /*
 * Update License Expiry date 
@@ -958,7 +957,7 @@ input:checked + .slider:before {
  //When Submit Button is Clicked in Modal Popup, passvalue through Ajax
     $("#licenseExpSave").on('click',function(){
        $('#licenseExpSave').attr('disabled',true);
-      $('#licenseExpSave').html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+      $('#licenseExpSave').html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.success') }}");
         var newdate = $("#newDate2").val();
         var orderId = $("#order2").val();
         $.ajax({
@@ -969,7 +968,7 @@ input:checked + .slider:before {
               $("#licenseExpSave").attr('disabled',false);
               $("#licenseExpSave").html("Save");
                 if (response.message =='success') {
-                var result =  '<div class="alert alert-success alert-dismissable"><strong><i class="fa fa-check"></i> Success! </strong> '+response.update+' <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button></div>';
+                var result =  '<div class="alert alert-success alert-dismissable"><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong> '+response.update+' <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button></div>';
                      $('#response3').html(result);
                      $('#response3').css('color', 'green');
                  setTimeout(function(){
@@ -981,7 +980,7 @@ input:checked + .slider:before {
               $("#licenseExpSave").attr('disabled',false);
               $("#licenseExpSave").html("Save");
                   var myJSON = JSON.parse(response.responseText).errors;
-                       var html = '<div class="alert alert-danger"><strong>Whoops! </strong>Something went wrong<br><br><ul>';
+                       var html = '<div class="alert alert-danger"><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<br><br><ul>';
                           for (var key in myJSON)
                           {
                               html += '<li>' + myJSON[key][0] + '</li>'
@@ -993,7 +992,6 @@ input:checked + .slider:before {
                 }
             })
         });
-  <!-------------------------------------------------------------------------------------------------------------------------->
 
 
 /*
@@ -1011,7 +1009,7 @@ input:checked + .slider:before {
  //When Submit Button is Clicked in Modal Popup, passvalue through Ajax
     $("#supportExpSave").on('click',function(){
        $('#supportExpSave').attr('disabled',true);
-       $('#supportExpSave').html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+       $('#supportExpSave').html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
         var newdate = $("#newDate3").val();
         var orderId = $("#order3").val();
         $.ajax({
@@ -1022,7 +1020,7 @@ input:checked + .slider:before {
                $("#supportExpSave").attr('disabled',false);
               $("#supportExpSave").html("Save");
                 if (response.message =='success') {
-                var result =  '<div class="alert alert-success alert-dismissable"><strong><i class="fa fa-check"></i> Success! </strong> '+response.update+' <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button></div>';
+                var result =  '<div class="alert alert-success alert-dismissable"><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong> '+response.update+' <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button></div>';
                      $('#response4').html(result);
                      $('#response4').css('color', 'green');
                  setTimeout(function(){
@@ -1034,7 +1032,7 @@ input:checked + .slider:before {
                $("#supportExpSave").attr('disabled',false);
               $("#supportExpSave").html("Save");
                   var myJSON = JSON.parse(response.responseText).errors;
-                       var html = '<div class="alert alert-danger"><strong>Whoops! </strong>Something went wrong<br><br><ul>';
+                       var html = '<div class="alert alert-danger"><strong>{{ __('message.whoops') }}! </strong>{{ __('message.something_wrong') }}<br><br><ul>';
                           for (var key in myJSON)
                           {
                               html += '<li>' + myJSON[key][0] + '</li>'
@@ -1047,8 +1045,6 @@ input:checked + .slider:before {
             })
         });
 
-      <!-------------------------------------------------------------------------------------------------------------------------->  
-  
 
 /*
 * Update Support Expiry date 
@@ -1071,12 +1067,12 @@ input:checked + .slider:before {
             data: {'orderid': orderId , 'limit': newlimit},
             url: "{{url('edit-installation-limit')}}",
              beforeSend: function () {
-                 $('#response5').html( '<div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>');
+                 $('#response5').html( '<div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>');
 
             },
             success: function (response) {
                 if (response.message =='success') {
-                var result =  '<div class="alert alert-success alert-dismissable"><strong><i class="fa fa-check"></i> Success! </strong> '+response.update+' <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button></div>';
+                var result =  '<div class="alert alert-success alert-dismissable"><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong> '+response.update+' <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button></div>';
                      $('#response5').html(result);
                      $('#response5').css('color', 'green');
                  setTimeout(function(){
@@ -1086,7 +1082,7 @@ input:checked + .slider:before {
             },
             error: function(response) {
                   var myJSON = JSON.parse(response.responseText).errors;
-                       var html = '<div class="alert alert-danger"><strong>Whoops! </strong>Something went wrong<br><br><ul>';
+                       var html = '<div class="alert alert-danger"><strong>{{ __('message.whoops') }}! </strong>{{ __('message.something_wrong') }}<br><br><ul>';
                           for (var key in myJSON)
                           {
                               html += '<li>' + myJSON[key][0] + '</li>'
@@ -1141,9 +1137,9 @@ input:checked + .slider:before {
                    },
                 success: function (response) {
                     $('#alertMessage').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+response.update+'.</div>';
                     $('#alertMessage').html(result+ ".");
-                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                     setInterval(function(){
                         $('#alertMessage').slideUp(3000);
                     }, 1000);

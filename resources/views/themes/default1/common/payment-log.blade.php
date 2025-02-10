@@ -45,13 +45,13 @@ Payment Logs
     }
 </style>
     <div class="col-sm-6">
-        <h1>Payment Log</h1>
+        <h1>{{ __('message.payment_log') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item active">Payment Log</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.payment_log') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -63,7 +63,7 @@ Payment Logs
     <div class="card-header">
 
         <div id="response"></div>
-        <h5>Search Here
+        <h5>{{ __('message.search_here') }}
           </h5>
     </div>
 
@@ -72,14 +72,14 @@ Payment Logs
     <div class="modal-dialog modal-dialog-scrollable modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title" id="exception-modal-label">Exception Message</h4>
+                <h4 class="modal-title" id="exception-modal-label">{{ __('message.exception_message') }}</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
             </div>
             <div class="modal-body">
                 <p class="exception-message"></p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">{{ __('message.close') }}</button>
             </div>
         </div>
     </div>
@@ -152,19 +152,19 @@ Payment Logs
          
                            
              <table id="payment-table" class="table display" cellspacing="0"  styleClass="borderless">
-                     <button  value="" class="btn btn-secondary btn-sm btn-alldell" id="bulk_delete"><i class="fa fa-trash">&nbsp;&nbsp;</i> Delete Selected</button><br /><br />
+                     <button  value="" class="btn btn-secondary btn-sm btn-alldell" id="bulk_delete"><i class="fa fa-trash">&nbsp;&nbsp;</i> {{ __('message.delete_selected') }}</button><br /><br />
                      
                     <thead><tr>
 
                             <th class="no-sort"><input type="checkbox" name="select_all" onchange="checking(this)"></th>
 
-                            <th>Date</th>
-                             <th>User</th>   
-                               <th>Order No</th> 
-                               <th>Amount</th>
-                               <th>Description</th>
-                               <th>Payment Method</th>   
-                               <th>Status</th>
+                            <th>{{ __('message.date') }}</th>
+                             <th>{{ __('message.user') }}</th>
+                               <th>{{ __('message.order_no') }}</th>
+                               <th>{{ __('message.amount') }}</th>
+                               <th>{{ __('message.description') }}</th>
+                               <th>{{ __('message.payment-method') }}</th>
+                               <th>{{ __('message.status') }}</th>
                                </tr></thead>
 
                    </table>
@@ -202,7 +202,7 @@ Payment Logs
                 "url": '{!! route('get-paymentlog', "from=$from&till=$till") !!}',
                 error: function(xhr) {
                     if (xhr.status == 401) {
-                        alert('Your session has expired. Please login again to continue.');
+                        alert('{{ __('message.session_expired') }}');
                         window.location.href = '/login';
                     }
                 }
@@ -210,7 +210,7 @@ Payment Logs
             "oLanguage": {
                 "sLengthMenu": "_MENU_ Records per page",
                 "sSearch": "Search: ",
-                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>'
+                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
             },
              columnDefs: [
                 { 
@@ -234,7 +234,7 @@ Payment Logs
                     render: function(data, type, row) {
                         // Handle the exception message for the 'Failed' status
                         if (row.status === 'failed') {
-                            return '<a href="#" class="show-exception" data-message="' + row.exception_message + '">Failed</a>';
+                            return '<a href="#" class="show-exception" data-message="' + row.exception_message + '">{{ __('message.failed') }}</a>';
                         }
 
                         return data;
@@ -302,7 +302,7 @@ Payment Logs
                 }
                 else
                 {
-                    alert("Please select at least one checkbox");
+                    alert("{{ __('message.select_checkbox') }}");
                     return false;
                 }
                 

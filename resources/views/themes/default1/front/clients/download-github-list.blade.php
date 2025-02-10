@@ -55,7 +55,7 @@
                     <div class="col-md-12">
                         <div class="box">
                             <div class="box-header with-border">
-                               <h3 class="box-title">Product Versions</h3>
+                               <h3 class="box-title">{{ __('message.product_version')}}</h3>
                             </div>
                             <div class="box-body">
 
@@ -67,10 +67,10 @@
 
                                             <thead><tr>
 
-                                                    <th>Version</th>
-                                                    <th>Title</th>
-                                                    <th>Description</th>
-                                                    <th>File</th>
+                                                    <th>{{ __('message.version')}}</th>
+                                                    <th>{{ __('message.title')}}</th>
+                                                    <th>{{ __('message.description')}}</th>
+                                                    <th>{{ __('message.file')}}</th>
 
                                                 </tr></thead>
 

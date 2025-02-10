@@ -4,14 +4,14 @@ Edit
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Edit Script Code</h1>
+        <h1>{{ __('message.edit_script_code')}}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item"><a href="{{url('chat')}}"><i class="fa fa-dashboard"></i> Script</a></li>
-            <li class="breadcrumb-item active">Edit Script</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home')}}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings')}}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('chat')}}"><i class="fa fa-dashboard"></i> {{ __('message.script')}}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.edit_script')}}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -85,7 +85,7 @@ Edit
 
     {!! Form::textarea('script', null, ['class' => 'form-control', 'id' => 'textarea']) !!}
 </div>
-        <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fa fa-sync-alt">&nbsp;&nbsp;</i>Update</button>
+        <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fa fa-sync-alt">&nbsp;&nbsp;</i>{{ __('message.update')}}</button>
 
     </div>
 

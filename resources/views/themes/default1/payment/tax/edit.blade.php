@@ -4,14 +4,14 @@ Edit Tax
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Edit Tax Class</h1>
+        <h1>{{ __('message.edit_tax_class') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item"><a href="{{url('tax')}}"><i class="fa fa-dashboard"></i> Tax</a></li>
-            <li class="breadcrumb-item active">Edit Tax</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('tax')}}"><i class="fa fa-dashboard"></i> {{ __('message.tax') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.edit_tax') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -45,10 +45,10 @@ Edit Tax
                    
                     <div class="col-md-4 form-group {{ $errors->has('tax_class') ? 'has-error' : '' }}">
                         <!-- name -->
-                        {!! Form::label('tax_class',Lang::get('Tax Type'),['class'=>'required']) !!}
+                        {!! Form::label('tax_class',Lang::get('message.tax-type'),['class'=>'required']) !!}
                          <select name="tax_classes_id" id="editTax" class="form-control">
                       <option value="{{$txClass->name}}">{{$taxClassName}}</option>
-                      <option value="Others">Others</option>
+                      <option value="Others">{{ __('message.others') }}</option>
                        @if($options->tax_enable)
                       <option value="Intra State GST">Intra State GST (Same Indian State)</option>
                       <option value="Inter State GST">Inter State GST (Other Indian State)</option>
@@ -113,7 +113,7 @@ Edit Tax
 
 
                 </div>
-                <button type="submit" id="submit" class="btn btn-primary pull-right" data-loading-text="<i class='fa fa-refresh fa-spin fa-1x fa-fw'>&nbsp;</i> updating..."><i class="fa fa-sync-alt">&nbsp;&nbsp;</i>{!!Lang::get('Update')!!}</button>
+                <button type="submit" id="submit" class="btn btn-primary pull-right" data-loading-text="<i class='fa fa-refresh fa-spin fa-1x fa-fw'>&nbsp;</i> {{ __('message.updating') }}"><i class="fa fa-sync-alt">&nbsp;&nbsp;</i>{!!Lang::get('message.update')!!}</button>
 
 
             </div>
@@ -132,7 +132,7 @@ Edit Tax
                     
                     <thead><tr>
                             <th>Id</th>
-                            <th>State</th>
+                            <th>{{ __('message.state') }}</th>
                             <th>CGST</th>
                             <th>SGST</th>
                             <th>IGST</th>
@@ -157,7 +157,7 @@ Edit Tax
               "url":  '{!! route('get-taxtable') !!}',
                  error: function(xhr) {
                  if(xhr.status == 401) {
-                  alert('Your session has expired. Please login again to continue.')
+                  alert('{{ __('message.session_expired') }}')
                   window.location.href = '/login';
                  }
               }
@@ -166,7 +166,7 @@ Edit Tax
             "oLanguage": {
                 "sLengthMenu": "_MENU_ Records per page",
                 "sSearch"    : "Search: ",
-                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>'
+                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
             },
             columnDefs: [
                 { 

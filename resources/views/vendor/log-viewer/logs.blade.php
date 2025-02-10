@@ -4,19 +4,19 @@ Log-Viewer
 @stop
 @section('content-header')
 <h1>
-Log-Viewer
+    {{ __('message.logs_viewer') }}
 </h1>
 <ol class="breadcrumb">
-        <li><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-        <li><a href="{{url('settings')}}">Settings</a></li>
-        <li><a href="{{url('log-viewer')}}">Dashboard</a></li>
-        <li class="active">Logs</li>
+        <li><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+        <li><a href="{{url('settings')}}">{{ __('message.settings') }}</a></li>
+        <li><a href="{{url('log-viewer')}}">{{ __('message.dashboard') }}</a></li>
+        <li class="active">{{ __('message.logs') }}</li>
       </ol>
       @stop
 @section('content')
 <div class="box box-primary">
     <div class="box-body">
-    <h1 class="page-header">Logs</h1>
+    <h1 class="page-header">{{ __('message.logs') }}</h1>
 
     {!! $rows->render() !!}
 
@@ -35,7 +35,7 @@ Log-Viewer
                         @endif
                     </th>
                     @endforeach
-                    <th class="text-right">Actions</th>
+                    <th class="text-right">{{ __('message.actions') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -97,14 +97,14 @@ Log-Viewer
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
-                        <h4 class="modal-title">DELETE LOG FILE</h4>
+                        <h4 class="modal-title">{{ __('message.caps_delete_log_file') }}</h4>
                     </div>
                     <div class="modal-body">
                         <p></p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-sm btn-default pull-left" data-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-sm btn-danger" data-loading-text="Loading&hellip;">DELETE FILE</button>
+                        <button type="button" class="btn btn-sm btn-default pull-left" data-dismiss="modal">{{ __('message.cancel') }}</button>
+                        <button type="submit" class="btn btn-sm btn-danger" data-loading-text="Loading&hellip;">{{ __('message.caps_delete_file') }}</button>
                     </div>
                 </div>
             </form>

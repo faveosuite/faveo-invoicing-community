@@ -4,13 +4,13 @@ Email
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Configure Mail</h1>
+        <h1>{{ __('message.configure_mail') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item active">Email</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.email') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -303,7 +303,7 @@ Email
 
 
 
-            $("#emailSetting").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+            $("#emailSetting").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
             $("#emailSetting").attr('disabled',true);
             $.ajax({
 
@@ -324,18 +324,18 @@ Email
                 },
                 success: function (response) {
                     $("#emailSetting").attr('disabled',false);
-                    $("#emailSetting").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    $("#emailSetting").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                     $('#alertMessage').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+response.message+'.</div>';
                     $('#alertMessage').html(result+ ".");
-                    $("#submit").html("<i class='fa fa-floppy-o'>&nbsp;&nbsp;</i>Save");
+                    $("#submit").html("<i class='fa fa-floppy-o'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                     setInterval(function(){
                         $('#alertMessage').slideUp(3000);
                     }, 1000);
                 },error: function(response) {
                     $("#emailSetting").attr('disabled',false);
-                    var html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong>Whoops! </strong>Something went wrong<br><br><ul>';
-                    $("#emailSetting").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    var html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<br><br><ul>';
+                    $("#emailSetting").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                     if(response.status == 422) {
                         for (key in response.responseJSON.errors) {
                             html += '<li>' + response.responseJSON.errors[key][0] + '</li>'

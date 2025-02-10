@@ -4,13 +4,13 @@
 @stop
 @section('content-header')
   <div class="col-sm-6">
-        <h1>Edit Plan</h1>
+        <h1>{{ __('message.edit_plan') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('plans')}}"><i class="fa fa-dashboard"></i> All Plans</a></li>
-            <li class="breadcrumb-item active">Edit Plan</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('plans')}}"><i class="fa fa-dashboard"></i> {{ __('message.all_plans') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.edit_plan') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -39,7 +39,7 @@
               <!-- first name -->
               {!! Form::label('product',Lang::get('message.product'),['class'=>'required']) !!}
               <select name="product" id="planproduct" class="form-control" onchange="myProduct()">
-                <option value="">Choose</option>
+                <option value="">{{ __('message.choose') }}</option>
 
                 @foreach($products as $key=>$product)
                   <option value="{{$key}}"  <?php  if(in_array($product, $selectedProduct) ) { echo "selected";} ?>>{{$product}}</option>
@@ -54,7 +54,7 @@
               <!-- last name -->
               {!! Form::label('days','Periods',['class'=>'required']) !!}
               <select name="days" id="plan" class="form-control">
-                <option value="">Choose</option>
+                <option value="">{{ __('message.choose') }}</option>
 
                 @foreach($periods as $key=>$period)
                   <option value="{{$key}}" <?php  if(in_array($period, $selectedPeriods) ) { echo "selected";} ?>>{{$period}}</option>
@@ -89,7 +89,7 @@
                         <td>
                           <select name="country_id[{{ $row['id'] }}]" class="form-control" >
                             @if (0 === $row['country_id'])
-                                <option value="0" selected>Default</option>
+                                <option value="0" selected>{{ __('message.default') }}</option>
                             @endif
                             @if (0 !== $row['country_id'])
                               @foreach ($countries as $country)
@@ -106,7 +106,7 @@
                         <td>
                           <select name="currency[{{ $row['id'] }}]" class="form-control">
                             <option value="">
-                                Choose
+                              {{ __('message.choose') }}
                               </option>
                             @foreach ($currency as $code => $name)
                               <option value="{{ $code }}" @if ($code === $row['currency'])
@@ -149,14 +149,14 @@
             <div class="col-md-4 form-group">
               <!-- last name -->
               {!! Form::label('description','Price Description') !!}
-              {!! Form::text("price_description",$priceDescription,['class' => 'form-control' ,'placeholder'=>'Enter Price Description to be Shown on Pricing Page. eg: Yearly,Monthly,One-Time']) !!}
+              {!! Form::text("price_description",$priceDescription,['class' => 'form-control' ,'placeholder'=> __('message.price_description')]) !!}
               <h6 id="dayscheck"></h6>
 
             </div>
             <div class="col-md-4 form-group">
               <!-- last name -->
               {!! Form::label('product_quantity','Product Quantity',['class'=>'required']) !!}
-              {!! Form::number("product_quantity",$productQuantity,['class' => 'form-control','disabled'=>'disabled','id'=>'prodquant','placeholder'=>'Pricing for No. of Products']) !!}
+              {!! Form::number("product_quantity",$productQuantity,['class' => 'form-control','disabled'=>'disabled','id'=>'prodquant','placeholder'=> __('message.price_products')]) !!}
 
             </div>
 
@@ -165,7 +165,7 @@
                  <i class='fa fa-info-circle' style='cursor: help; font-size: small; color: rgb(60, 141, 188)'<label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="If '0' Agents Selected, Plan will be for Unlimited Agents.">
                         </label></i>
                 {!! Form::label('agents','No. of Agents',['class'=>'required']) !!}
-              {!! Form::number("no_of_agents",$agentQuantity,['class' => 'form-control' ,'disabled'=>'disabled','id'=>'agentquant','placeholder'=>'Pricing for No. of Agents']) !!}
+              {!! Form::number("no_of_agents",$agentQuantity,['class' => 'form-control' ,'disabled'=>'disabled','id'=>'agentquant','placeholder'=> __('message.price_agents')]) !!}
 
             </div>
 

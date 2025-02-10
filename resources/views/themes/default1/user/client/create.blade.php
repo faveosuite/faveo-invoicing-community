@@ -4,13 +4,13 @@ Create User
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Create New User</h1>
+        <h1>{{ __('message.create_new_user') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-             <li class="breadcrumb-item"><a href="{{url('clients')}}"><i class="fa fa-dashboard"></i> Users</a></li>
-            <li class="breadcrumb-item active">Create User</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+             <li class="breadcrumb-item"><a href="{{url('clients')}}"><i class="fa fa-dashboard"></i> {{ __('message.users') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.create_user') }}</li>
         </ol>
     </div><!-- /.col -->
 
@@ -80,9 +80,9 @@ Create User
                     <div class="col-md-3 form-group {{ $errors->has('bussiness') ? 'has-error' : '' }}">
                         <!-- company -->
                         {!! Form::label('bussiness','Industry') !!}
-                         <!-- {!! Form::select('bussiness',['Choose'=>'Choose',''=>$bussinesses],null,['class' => 'form-control selectpicker','data-live-search'=>'true', 'data-live-search-placeholder'=>'Search' ,'data-dropup-auto'=>'false', 'data-size'=>'10']) !!} -->
+                         <!-- {!! Form::select('bussiness',['Choose'=>'Choose',''=>$bussinesses],null,['class' => 'form-control selectpicker','data-live-search'=>'true', 'data-live-search-placeholder' => __('message.search') ,'data-dropup-auto'=>'false', 'data-size'=>'10']) !!} -->
                        <select name="bussiness"  class="form-control select2">
-                             <option value="">Choose</option>
+                             <option value="">{{ __('message.choose') }}</option>
                            @foreach($bussinesses as $key=>$bussines)
                            @if (Request::old('bussiness') == $key)
                              <option value={{$key}} selected>{{$bussines}}</option>
@@ -101,14 +101,14 @@ Create User
                     <div class="col-md-3 form-group {{ $errors->has('active') ? 'has-error' : '' }}">
                         <!-- mobile -->
                         {!! Form::label('active',Lang::get('message.email')) !!}
-                        <p>{!! Form::radio('active',1,true) !!}&nbsp;Active&nbsp;&nbsp;{!! Form::radio('active',0) !!}&nbsp;Inactive</p>
+                        <p>{!! Form::radio('active',1,true) !!}&nbsp;{{ __('message.active') }}&nbsp;&nbsp;{!! Form::radio('active',0) !!}&nbsp;{{ __('message.inactive') }}</p>
 
                     </div>
 
                       <div class="col-md-3 form-group {{ $errors->has('mobile_verified') ? 'has-error' : '' }}">
                         <!-- mobile -->
                         {!! Form::label('mobile_verified',Lang::get('message.mobile')) !!}
-                        <p>{!! Form::radio('mobile_verified',1,true) !!}&nbsp;Active&nbsp;&nbsp;{!! Form::radio('mobile_verified',0) !!}&nbsp;Inactive</p>
+                        <p>{!! Form::radio('mobile_verified',1,true) !!}&nbsp;{{ __('message.active') }}&nbsp;&nbsp;{!! Form::radio('mobile_verified',0) !!}&nbsp;{{ __('message.inactive') }}</p>
 
                     </div>
                 </div>
@@ -121,7 +121,7 @@ Create User
                     </div>
                     <div class="col-md-3 form-group {{ $errors->has('position') ? 'has-error' : '' }}">
                         <!-- email -->
-                        {!! Form::label('position','Position') !!}
+                        {!! Form::label('position', __('message.position')) !!}
                         {!! Form::select('position',[''=>'Choose','manager'=>'Sales Manager','account_manager'=>'Account Manager'],null,['class' => 'form-control']) !!}
 
                     </div>
@@ -131,11 +131,11 @@ Create User
                     ?>
                      <div class="col-md-3 form-group {{ $errors->has('role') ? 'has-error' : '' }}">
                         <!-- email -->
-                        {!! Form::label('company_type','Company Type') !!}
+                         {!! Form::label('company_type', __('message.company_type')) !!}
                         <!-- {!! Form::select('company_type',['choose'=>'Choose',''=>$type],null,['class' => 'form-control']) !!} -->
 
                          <select name="company_type" value= "Choose" class="form-control">
-                             <option value="">Choose</option>
+                             <option value="">{{ __('message.choose') }}</option>
                            @foreach($type as $key=>$types)
                               @if (Request::old('company_type') == $key)
                              <option value={{$key}} selected>{{$types}}</option>
@@ -148,10 +148,10 @@ Create User
                     </div>
                      <div class="col-md-3 form-group {{ $errors->has('role') ? 'has-error' : '' }}">
                         <!-- email -->
-                        {!! Form::label('company_size','Company Size') !!}
+                         {!! Form::label('company_size', __('message.company_size')) !!}
                 <!-- {!! Form::select('company_size',['choose'=>'Choose',''=>$size],null,['class' => 'form-control']) !!} -->
                           <select name="company_size" value= "Choose" class="form-control">
-                             <option value="">Choose</option>
+                             <option value="">{{ __('message.choose') }}</option>
                            @foreach($size as $key=>$sizes)
                               @if (Request::old('company_size') == $key)
                              <option value={{$key}} selected>{{$sizes}}</option>
@@ -190,7 +190,7 @@ Create User
 
 
                           <select name="country" value= "Choose" id="country" onChange="getCountryAttr(this.value)" class="form-control select2">
-                             <option value="">Choose</option>
+                             <option value="">{{ __('message.choose') }}</option>
                            @foreach($countries as $key=>$country)
                             @if (Request::old('country') == strtolower($key) || Request::old('country') == $key)
 
@@ -218,7 +218,7 @@ Create User
                              @endforeach
                              @else
                       
-                            <option value="">Choose A Country</option>
+                            <option value="">{{ __('message.choose_a_country') }}</option>
                             @endif
 
                         </select>
@@ -280,7 +280,7 @@ Create User
                         {!! Form::label('manager','Sales Manager') !!}
                  <!-- {!! Form::select('manager',[''=>'Select','Managers'=>$managers],null,['class' => 'form-control']) !!} -->
                          <select name="manager" value= "Choose" class="form-control">
-                             <option value="">Choose</option>
+                             <option value="">{{ __('message.choose') }}</option>
                            @foreach($managers as $key=>$manager)
                              <option value={{$key}}>{{$manager}}</option>
                           @endforeach
@@ -292,7 +292,7 @@ Create User
                         {!! Form::label('manager','Account Manager') !!}
                  <!-- {!! Form::select('manager',[''=>'Select','Managers'=>$managers],null,['class' => 'form-control']) !!} -->
                          <select name="account_manager" value= "Choose" class="form-control">
-                             <option value="">Choose</option>
+                             <option value="">{{ __('message.choose') }}</option>
                            @foreach($accountManager as $key=>$manager)
                              <option value={{$key}}>{{$manager}}</option>
                           @endforeach
@@ -366,7 +366,7 @@ telInput.on("countrychange", function(e, countryData) {
               $('#submit').attr('disabled',false);
             } else {
               errorMsg.classList.remove("hide");
-              errorMsg.innerHTML = "Please enter a valid number";
+              errorMsg.innerHTML = "{{ __('message.enter_valid_number') }}";
              $('#mobile_code').css("border-color","red");
              $('#error-msg').css({"color":"red","margin-top":"5px"});
              $('#submit').attr('disabled',true);
@@ -383,7 +383,7 @@ addressDropdown.change(function() {
               $('#submit').attr('disabled',false);
             } else {
               errorMsg.classList.remove("hide");
-              errorMsg.innerHTML = "Please enter a valid number";
+              errorMsg.innerHTML = @json(__('message.enter_valid_number'));
              $('#mobile_code').css("border-color","red");
              $('#error-msg').css({"color":"red","margin-top":"5px"});
              $('#submit').attr('disabled',true);

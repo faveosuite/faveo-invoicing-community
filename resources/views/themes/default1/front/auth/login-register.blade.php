@@ -6,15 +6,15 @@
     Login | Register
 @stop
 @section('page-heading')
-Sign in or Register
+    {{ __('message.sign_lr') }}
 @stop
 @section('breadcrumb')
     @if(Auth::check())
-        <li><a class="text-primary" href="{{url('my-invoices')}}">Home</a></li>
+        <li><a class="text-primary" href="{{url('my-invoices')}}">{{ __('message.home') }}</a></li>
     @else
-         <li><a class="text-primary" href="{{url('login')}}">Home</a></li>
+         <li><a class="text-primary" href="{{url('login')}}">{{ __('message.home') }}</a></li>
     @endif
-     <li class="active text-dark">Sign in &nbsp;&nbsp;or&nbsp;&nbsp; Register</li>
+     <li class="active text-dark">{{ __('message.sign-in') }} &nbsp;&nbsp;{{ __('message.or') }}&nbsp;&nbsp; {{ __('message.register') }}</li>
 @stop 
 @section('main-class')
     main
@@ -120,7 +120,7 @@ foreach($scripts as $script) {
                                 <div class="row justify-content-center">
                                           <div class="col-md-6 col-lg-6 mb-5 mb-lg-0 pe-5">
 
-                    <h2 class="font-weight-bold text-5 mb-0">Login</h2>
+                    <h2 class="font-weight-bold text-5 mb-0">{{ __('message.login') }}</h2>
 
                     {!!  Form::open(['url'=>'login', 'method'=>'post','id'=>'formoid']) !!}
 
@@ -128,7 +128,7 @@ foreach($scripts as $script) {
 
                             <div class="form-group col {{ $errors->has('email1') ? 'has-error' : '' }}">
 
-                                <label class="form-label text-color-dark text-3">Username or E-mail Address <span class="text-color-danger">*</span></label>
+                                <label class="form-label text-color-dark text-3">{{ __('message.username_register') }}<span class="text-color-danger">*</span></label>
 
                                  {!! Form::email('email_username',null,['class' => 'form-control form-control-lg text-4','id'=>'username','autocomplete'=>"off", 'style' => 'height: calc(1.5em + 0.75rem + 2px);' ]) !!}
                                 <div id="error-login-email"></div>
@@ -139,7 +139,7 @@ foreach($scripts as $script) {
 
                             <div class="form-group col {{ $errors->has('password1') ? 'has-error' : '' }}">
 
-                                <label class="form-label text-color-dark text-3">Password <span class="text-color-danger">*</span></label>
+                                <label class="form-label text-color-dark text-3">{{ __('message.password') }} <span class="text-color-danger">*</span></label>
 
                                 <div class="input-group">
                                     {!! Form::password('password1', ['class' => 'form-control form-control-lg text-4', 'id' => 'pass', 'style' => 'height: calc(1.5em + 0.75rem + 2px);']) !!}
@@ -161,13 +161,13 @@ foreach($scripts as $script) {
                                 <div class="custom-control custom-checkbox" style="padding-right: 100px;">
 
                                     {!! Form::checkbox('remember', '1', false, ['class' => 'custom-control-input', 'id' => 'rememberme']) !!}
-                                    <label class="form-label custom-control-label cur-pointer text-2" for="rememberme">Remember Me</label>
+                                    <label class="form-label custom-control-label cur-pointer text-2" for="rememberme">{{ __('message.remember-me') }}</label>
                                 </div>
                             </div>
 
                             <div class="form-group col-md-auto {{ $errors->has('password1') ? 'has-error' : '' }}">
 
-                                <a class="text-decoration-none text-color-primary font-weight-semibold text-2" href="{{url('password/reset')}}" style="padding-left: 100px;">({{Lang::get('message.forgot-my-password')}})</a>
+                                <a class="text-decoration-none text-color-primary font-weight-semibold text-2" href="{{url('password/reset')}}" style="padding-left: 100px;">{{ __('message.forgot-my-password')}}</a>
                             </div>
                         </div>
 
@@ -182,40 +182,40 @@ foreach($scripts as $script) {
 
                             <div class="form-group col">
 
-                                <button type="submit" class="btn btn-dark btn-modern w-100 text-uppercase font-weight-bold text-3 py-3" data-loading-text="Loading...">Login</button>
+                                <button type="submit" class="btn btn-dark btn-modern w-100 text-uppercase font-weight-bold text-3 py-3" data-loading-text="Loading...">{{ __('message.login')}}</button>
                                 @if($google_status == 1 || $twitter_status == 1 || $github_status == 1 ||$linkedin_status == 1)
 
                                 <div class="divider">
 
-                                    <span class="bg-light px-4 position-absolute left-50pct top-50pct transform3dxy-n50">or</span>
+                                    <span class="bg-light px-4 position-absolute left-50pct top-50pct transform3dxy-n50">{{ __('message.or')}}</span>
                                 </div>
                                 @endif
                                 @if($google_status == 1)
 
                                 <a href="{{ url('/auth/redirect/google') }}" class="btn btn-primary-scale-2 btn-modern w-100 text-transform-none font-weight-bold align-items-center d-inline-flex justify-content-center text-3 py-3" data-loading-text="Loading...">
 
-                                    <i class="fab fa-google text-5 me-2"></i> Login With Google
+                                    <i class="fab fa-google text-5 me-2"></i> {{ __('message.login_google')}}
                                 </a><br><br>
                                 @endif
                                 @if($twitter_status == 1)
 
                                 <a href="{{ url('/auth/redirect/twitter') }}" class="btn btn-primary-scale-2 btn-modern w-100 text-transform-none font-weight-bold align-items-center d-inline-flex justify-content-center text-3 py-3" data-loading-text="Loading...">
 
-                                    <i class="fab fa-twitter text-5 me-2"></i> Login With Twitter
+                                    <i class="fab fa-twitter text-5 me-2"></i> {{ __('message.login_twitter')}}
                                 </a><br><br>
                                 @endif
                                 @if($github_status == 1 )
 
                                 <a href="{{ url('/auth/redirect/github') }}"  class="btn btn-primary-scale-2 btn-modern w-100 text-transform-none font-weight-bold align-items-center d-inline-flex justify-content-center text-3 py-3" data-loading-text="Loading...">
 
-                                    <i class="fab fa-github text-5 me-2"></i> Login With Github
+                                    <i class="fab fa-github text-5 me-2"></i> {{ __('message.login_github')}}
                                 </a><br><br>
                                 @endif
                                  @if($linkedin_status == 1 )
 
                                 <a href="{{ url('/auth/redirect/linkedin') }}"  class="btn btn-primary-scale-2 btn-modern w-100 text-transform-none font-weight-bold align-items-center d-inline-flex justify-content-center text-3 py-3" data-loading-text="Loading...">
 
-                                    <i class="fab fa-linkedin-in text-5 me-2"></i> Login With Linkedin
+                                    <i class="fab fa-linkedin-in text-5 me-2"></i> {{ __('message.login_linkedin')}}
                                 </a><br><br>
                                 @endif
                             </div>
@@ -226,7 +226,7 @@ foreach($scripts as $script) {
                 <div class="col-md-6 col-lg-6 ps-5">
 
 
-                    <h2 class="font-weight-bold text-5 mb-0">Register</h2>
+                    <h2 class="font-weight-bold text-5 mb-0">{{ __('message.register')}}</h2>
 
                     <form name="registerForm" id="regiser-form">
 
@@ -234,7 +234,7 @@ foreach($scripts as $script) {
 
                             <div class="form-group col {{ $errors->has('first_name') ? 'has-error' : '' }}">
 
-                                <label class="form-label text-color-dark text-3">First Name <span class="text-color-danger">*</span></label>
+                                <label class="form-label text-color-dark text-3">{{ __('message.first_name')}} <span class="text-color-danger">*</span></label>
 
                                  {!! Form::text('first_name',null,['class'=>'form-control form-control-lg text-4', 'id'=>'first_name']) !!}
                                 <span id="first_namecheck"></span>
@@ -242,7 +242,7 @@ foreach($scripts as $script) {
 
                             <div class="form-group col {{ $errors->has('last_name') ? 'has-error' : '' }}">
 
-                                <label class="form-label text-color-dark text-3">Last Name <span class="text-color-danger">*</span></label>
+                                <label class="form-label text-color-dark text-3">{{ __('message.last_name')}} <span class="text-color-danger">*</span></label>
 
                                 {!! Form::text('last_name',null,['class'=>'form-control form-control-lg text-4', 'id'=>'last_name']) !!}
                                 <span id="last_namecheck"></span>
@@ -253,7 +253,7 @@ foreach($scripts as $script) {
 
                             <div class="form-group col {{ $errors->has('email') ? 'has-error' : '' }}">
 
-                                <label class="form-label text-color-dark text-3">E-mail Address <span class="text-color-danger">*</span></label>
+                                <label class="form-label text-color-dark text-3">{{ __('message.email_address')}} <span class="text-color-danger">*</span></label>
 
                                 {!! Form::email('email',null,['class'=>'form-control form-control-lg text-4', 'id'=>'email']) !!}
                                 <span id="emailcheck"></span>
@@ -264,7 +264,7 @@ foreach($scripts as $script) {
 
                             <div class="form-group col {{ $errors->has('company') ? 'has-error' : '' }}">
 
-                                <label class="form-label text-color-dark text-3">Company Name <span class="text-color-danger">*</span></label>
+                                <label class="form-label text-color-dark text-3">{{ __('message.company_name')}} <span class="text-color-danger">*</span></label>
 
                                 {!! Form::text('company',null,['class'=>'form-control form-control-lg text-4', 'id'=>'company']) !!}
                                 <span id="companycheck"></span>
@@ -275,7 +275,7 @@ foreach($scripts as $script) {
 
                             <div class="form-group col {{ $errors->has('address') ? 'has-error' : '' }}">
 
-                                <label class="form-label text-color-dark text-3">Address <span class="text-color-danger">*</span></label>
+                                <label class="form-label text-color-dark text-3">{{ __('message.address')}} <span class="text-color-danger">*</span></label>
 
                                 {!! Form::textarea('address',null,['class'=>'form-control form-control-lg text-4','rows'=>4, 'id'=>'address']) !!}
                                  <span id="addresscheck"></span>
@@ -286,7 +286,7 @@ foreach($scripts as $script) {
 
                             <div class="form-group col {{ $errors->has('country') ? 'has-error' : '' }}">
 
-                                <label class="form-label text-color-dark text-3">Country <span class="text-color-danger">*</span></label>
+                                <label class="form-label text-color-dark text-3">{{ __('message.country')}} <span class="text-color-danger">*</span></label>
 
                                 <?php $countries = \App\Model\Common\Country::pluck('nicename', 'country_code_char2')->toArray(); ?>
                                 {!! Form::select('country',[''=>'','Choose'=>$countries],$country,['class' => 'form-select form-control h-auto py-2 selectpicker con','data-live-search-style'=>"startsWith",'data-live-search'=>'true','data-live-search-placeholder'=>'Search','data-dropup-auto'=>'false','data-size'=>'10', 'onChange' => 'updateToMobile(this.value)','id'=>'country']) !!}
@@ -298,7 +298,7 @@ foreach($scripts as $script) {
 
                             <div class="form-group col {{ $errors->has('mobile_code') ? 'has-error' : '' }}">
 
-                                <label class="form-label text-color-dark text-3">Mobile <span class="text-color-danger">*</span></label>
+                                <label class="form-label text-color-dark text-3">{{ __('message.mobile')}} <span class="text-color-danger">*</span></label>
 
 {{--                                {!! Form::hidden('mobile',null,['id'=>'mobile_code_hidden']) !!}--}}
                                 <input class="form-control form-control-lg text-4" id="mobilenum" name="mobile" type="tel">
@@ -334,7 +334,7 @@ foreach($scripts as $script) {
 
                             <div class="form-group col {{ $errors->has('password') ? 'has-error' : '' }}">
 
-                                <label class="form-label text-color-dark text-3">Password <span class="text-color-danger">*</span></label>
+                                <label class="form-label text-color-dark text-3">{{ __('message.password')}} <span class="text-color-danger">*</span></label>
                                 <div class="input-group">
                                 {!! Form::password('password',['class'=>'form-control form-control-lg text-4', 'id'=>'password']) !!}
                                     <div class="input-group-append">
@@ -348,7 +348,7 @@ foreach($scripts as $script) {
 
                             <div class="form-group col {{ $errors->has('password_confirmation') ? 'has-error' : '' }}">
 
-                                <label class="form-label text-color-dark text-3">Re-enter Password <span class="text-color-danger">*</span></label>
+                                <label class="form-label text-color-dark text-3">{{ __('message.re_enter_password')}} <span class="text-color-danger">*</span></label>
                                 <div class="input-group">
                                {!! Form::password('password_confirmation',['class'=>'form-control form-control-lg text-4', 'id'=>'confirm_pass']) !!}
                                     <div class="input-group-append">
@@ -387,7 +387,7 @@ foreach($scripts as $script) {
                                     <div class="custom-control custom-checkbox" style="padding-right: 100px;">
                                         <input type="checkbox" value="false" name="terms" id="term" class="custom-control-input">
                                         <label class="custom-control-label text-2 cur-pointer" for="term">
-                                            <a href="{{$apiKeys->terms_url}}" target="_blank" class="text-decoration-none">Agree to terms and conditions</a>
+                                            <a href="{{$apiKeys->terms_url}}" target="_blank" class="text-decoration-none">{{ __('message.agree_term')}}</a>
                                         </label>
                                         <br><span id="termscheck"></span>
                                     </div>
@@ -398,8 +398,7 @@ foreach($scripts as $script) {
                         <div class="row">
 
                             <div class="form-group col">
-
-                                <button type="submit" name="register" id="register" class="btn btn-dark btn-modern w-100 text-uppercase font-weight-bold text-3 py-3" data-loading-text="Loading..." data-original-text="Register">Register</button>
+                                <button type="submit" name="register" id="register" class="btn btn-dark btn-modern w-100 text-uppercase font-weight-bold text-3 py-3" data-loading-text="{{ __('message.loading')}}" data-original-text="{{ __('message.register')}}">{{ __('message.register')}}</button>
 
                             </div>
                         </div>
@@ -806,7 +805,7 @@ foreach($scripts as $script) {
                 getState(val);
                 getCode(val);
             } else {
-                $("#state-list").html('<option value="">Please select Country</option>').val('');
+                $("#state-list").html('<option value="">{{ __('message.error_select_country')}}</option>').val('');
             }
 
 //        getCurrency(val);
@@ -820,7 +819,7 @@ foreach($scripts as $script) {
                 data: {'country_id': val, '_token': "{{csrf_token()}}"},//'country_id=' + val,
                 success: function (data) {
 
-                    $("#state-list").html('<option value="">Please select Country</option>').val('');
+                    $("#state-list").html('<option value="">{{ __('message.error_select_country')}}</option>').val('');
 
 
                     $("#state-list").html(data).val(state.id);

@@ -5,14 +5,14 @@ Invoice
 
 @section('content-header')
     <div class="col-sm-6">
-        <h1>View Invoice</h1>
+        <h1>{{ __('message.view_invoice') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('clients')}}"><i class="fa fa-dashboard"></i> All Users</a></li>
-            <li class="breadcrumb-item"><a href="{{url('invoices')}}"><i class="fa fa-dashboard"></i> All Invoices</a></li>
-            <li class="breadcrumb-item active">View Invoice</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('clients')}}"><i class="fa fa-dashboard"></i> {{ __('message.all-users') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('invoices')}}"><i class="fa fa-dashboard"></i> {{ __('message.all-invoices') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.view_invoice') }}</li>
         </ol>
     </div><!-- /.col -->
 
@@ -57,8 +57,8 @@ Invoice
                                     {{ucfirst($set->company)}}
                                 @endif
 
-                                <small class="float-right">Date: {!! $date !!}</small><br>
-                                <small class="float-right">Invoice: #{{$invoice->number}}</small>
+                                <small class="float-right">{{ __('message.date') }}: {!! $date !!}</small><br>
+                                <small class="float-right">{{ __('message.invoice') }}: #{{$invoice->number}}</small>
                                   <!--<b>Invoice   #{{$invoice->number}}</b>-->
                             </h4>
                         </div><!-- /.col -->
@@ -67,7 +67,7 @@ Invoice
                     <!-- info row -->
                     <div class="row invoice-info">
                         <div class="col-sm-4 invoice-col">
-                            From
+                            {{ __('message.from') }}
                             <address>
 
                                 <strong>{{$set->company}}</strong><br>
@@ -77,9 +77,9 @@ Invoice
                                 {{getStateByCode($set->state)['name']}}
                                 @endif
                                 {{$set->zip}}<br/>
-                                Country: {{getCountryByCode($set->country)}}<br/>
-                                Mobile: <b>+</b>{{$set->phone_code}} {{$set->phone}}<br/>
-                                Email: {{$set->company_email}}
+                                {{ __('message.country') }}: {{getCountryByCode($set->country)}}<br/>
+                                {{ __('message.mobile') }}: <b>+</b>{{$set->phone_code}} {{$set->phone}}<br/>
+                                {{ __('message.email') }}: {{$set->company_email}}
                             </address>
                              @if($set->gstin)
                             <b>GSTIN:</b>  &nbsp; #{{$set->gstin}}
@@ -93,7 +93,7 @@ Invoice
 
                         </div><!-- /.col -->
                         <div class="col-sm-4 invoice-col">
-                            To
+                            {{ __('message.to') }}
                             <address>
                                 <strong>{{$user->first_name}} {{$user->last_name}}</strong><br>
                                 {{$user->address}}<br/>
@@ -102,10 +102,10 @@ Invoice
                                 {{getStateByCode($user->state)['name']}}
                                 @endif
                                 {{$user->zip}}<br/>
-                                Country: {{getCountryByCode($user->country)}}<br/>
+                                {{ __('message.country') }}: {{getCountryByCode($user->country)}}<br/>
 
-                                Mobile: @if($user->mobile_code)<b>+</b>{{$user->mobile_code}} @endif{{$user->mobile}}<br/>
-                                Email: {{$user->email}}
+                                {{ __('message.mobile') }}: @if($user->mobile_code)<b>+</b>{{$user->mobile_code}} @endif{{$user->mobile}}<br/>
+                                {{ __('message.email') }}: {{$user->email}}
                             </address>
                              @if($user->gstin)
                             <b>GSTIN:</b>  &nbsp; #{{$user->gstin}}
@@ -120,12 +120,12 @@ Invoice
                             <table class="table table-striped">
                                 <thead>
                                     <tr>
-                                        <th>Order No</th>
-                                        <th>Product</th>
-                                        <th>Price</th>
-                                        <th>Agents</th>
-                                        <th>Quantity</th>
-                                        <th>Subtotal</th>
+                                        <th>{{ __('message.order_no') }}</th>
+                                        <th>{{ __('message.product') }}</th>
+                                        <th>{{ __('message.price') }}</th>
+                                        <th>{{ __('message.agents') }}</th>
+                                        <th>{{ __('message.quantity') }}</th>
+                                        <th>{{ __('message.sub_total') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -143,7 +143,7 @@ Invoice
                                             @elseif($order != '--')
 
                                             <td>{!! $order !!}</td>
-                                            <span>Renewed</span>
+                                            <span>{{ __('message.renewed') }}</span>
                                             @else
                                             <td>--</td>
                                            
@@ -180,17 +180,17 @@ Invoice
                                        
                                  <table class="table">
                                      <tr>
-                                         <th style="border-top: unset !important;">Subtotal</th>
+                                         <th style="border-top: unset !important;">{{ __('message.sub_total') }}</th>
                                          <td class="moveright" style="border-top: unset !important;">{{currencyFormat($itemsSubtotal,$code=$symbol)}}</td>
                                      </tr>
                                      @if($invoice->credits)
                                          <tr>
-                                             <th>Discount</th>
+                                             <th>{{ __('message.discount') }}</th>
                                              <td class="moveright">{{currencyFormat($invoice->credits,$code=$symbol)}} (Credits)</td>
                                          </tr>
                                      @endif
                                       @if($invoice->coupon_code && $invoice->discount)
-                                  <th>Discount</th>
+                                  <th>{{ __('message.discount') }}</th>
                                     <td class="moveright">{{currencyFormat($invoice->discount,$code=$symbol)}} ({{$invoice->coupon_code}})</td>
                                 @endif
 
@@ -239,14 +239,14 @@ Invoice
 
                                 @if($invoice->processing_fee != null && $invoice->processing_fee != '0%')
                                 <tr>
-                                    <th style="font-weight: bold;color: grey;">Processing fee <label style="font-weight: normal;">({{$invoice->processing_fee}})</label></th>
+                                    <th style="font-weight: bold;color: grey;">{{ __('message.processing_fee') }} <label style="font-weight: normal;">({{$invoice->processing_fee}})</label></th>
                                     <td class="text-color-grey moveright">{{currencyFormat($feeAmount,$code = $symbol)}}</td>
                                 </tr>
                                 @endif
                                      
                                        
                                     @endif
-                                    <th>Total</th>
+                                    <th>{{ __('message.total') }}</th>
                                     <td class="moveright" style="font-weight: bold;">{{currencyFormat($invoice->grand_total,$code=$symbol)}}</td>
                                
                             </table>
@@ -258,7 +258,7 @@ Invoice
                     <div class="row no-print">
                         <div class="col-6"></div>
                         <div class="col-6" style="left: 3%;">
-                            <a href="{{url('pdf?invoiceid='.$invoice->id)}}"><button class="btn btn-primary pull-right" style="margin-right: 5px;"><i class="fa fa-download"></i> Generate PDF</button></a>
+                            <a href="{{url('pdf?invoiceid='.$invoice->id)}}"><button class="btn btn-primary pull-right" style="margin-right: 5px;"><i class="fa fa-download"></i> {{ __('message.generate_pdf') }}</button></a>
                         </div>
                     </div>
 

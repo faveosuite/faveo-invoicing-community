@@ -13,7 +13,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Set up Authenticator</h4>
+                    <h4 class="modal-title">{{ __('message.set_up_authenticator') }}</h4>
                     <button type="button" class="close closeandrefresh" data-bs-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -22,7 +22,7 @@
                     <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         {!! Form::label('name', Lang::get('message.varify_password'), ['class' => 'required']) !!}
                         <div class="input-group">
-                            <input type="password" name="password" id="user_password" placeholder="Enter Password" class="form-control" required="required">
+                            <input type="password" name="password" id="user_password" placeholder="{{ __('message.enter_password') }}" class="form-control" required="required">
                             <div class="input-group-append">
                             <span role="button" class="input-group-text" onclick="togglePasswordVisibility(this)">
                                 <i class="fa fa-eye-slash"></i>
@@ -34,7 +34,7 @@
                     <span id="passerror"></span>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" id="verify_password" class="btn btn-primary"><i class="fa fa-check">&nbsp;&nbsp;</i>Validate</button>
+                    <button type="button" id="verify_password" class="btn btn-primary"><i class="fa fa-check">&nbsp;&nbsp;</i>{{ __('message.validate') }}</button>
                 </div>
             </div>
         </div>
@@ -44,7 +44,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Set up Authenticator</h4>
+                    <h4 class="modal-title">{{ __('message.set_up_authenticator') }}</h4>
                     <button type="button" class="close closeandrefresh" data-bs-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -54,11 +54,11 @@
                         <input type="hidden" name="user_password" id="user_password" value="">
                         <input type="hidden" name="login_type" id="login_type" value="social">
                         <h5>Hi {{$user->first_name}},</h5>
-                        <p><b>To continue, please click on Verify to verify it's you</b></p>
+                        <p><b>{{ __('message.continue_verify') }}</b></p>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" id="verify_password" class="btn btn-primary"><i class="fa fa-check">&nbsp;&nbsp;</i>Validate</button>
+                    <button type="button" id="verify_password" class="btn btn-primary"><i class="fa fa-check">&nbsp;&nbsp;</i>{{ __('message.validate') }}</button>
                 </div>
             </div>
         </div>
@@ -69,16 +69,16 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="width:700px;">
             <div class="modal-header">
-                <h4 class="modal-title">Recovery Code</h4>
+                <h4 class="modal-title">{{ __('message.client_recovery_code') }}</h4>
                 <button type="button" class="close closeandrefresh" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <div id="alertMessagecopied"></div>
-                <p>Recovery codes are used to access your account in the event you cannot receive two-factor authentication code. Copy your recovery code before continuing two-factor authentication setup.</p>
+                <p>{{ __('message.recovery_code_account') }}</p>
                 <div class="row align-items-center">
-                    <div><label class="col-form-label"><strong>Recovery Code :</strong></label></div>
+                    <div><label class="col-form-label"><strong>{{ __('message.client_recovery_code') }} :</strong></label></div>
                     <div class="col">
                         <div class="input-group">
                             <input type="text" id="recoverycode" class="form-control" disabled>
@@ -93,12 +93,12 @@
                 </div>
                 <br>
                 <div>
-                    <p>Treat your recovery codes with the same level of attention as you would your password! We recommend saving them with a password manager such as <a href="https://lastpass.com" target="_blank">Lastpass</a>, <a href="https://1Password.com" target="_blank">1Password</a>, or <a href="https://keepersecurity.com.com" target="_blank">Keeper</a>.</p>
+                    <p>{{ __('message.treat_recovery_code') }} <a href="https://lastpass.com" target="_blank">{{ __('message.lastpass') }}</a>, <a href="https://1Password.com" target="_blank">{{ __('message.1_password') }}</a>, {{ __('message.or') }} <a href="https://keepersecurity.com.com" target="_blank">{{ __('message.keeper') }}</a>.</p>
                 </div>
                 <span id="passerror"></span>
             </div>
             <div class="modal-footer">
-                <button type="button" id="next_rec_code" class="btn btn-primary">Next&nbsp;&nbsp;<i class="fa fa-arrow-right"></i></button>
+                <button type="button" id="next_rec_code" class="btn btn-primary">{{ __('message.next') }}&nbsp;&nbsp;<i class="fa fa-arrow-right"></i></button>
             </div>
         </div>
     </div>
@@ -108,7 +108,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="width:700px;">
             <div class="modal-header">
-                <h4 class="modal-title">Set up Authenticator</h4>
+                <h4 class="modal-title">{{ __('message.set_up_authenticator') }}</h4>
                 <button type="button" class="close closeandrefresh" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -116,30 +116,30 @@
             <div class="text-center">
                 <div class="modal-body bar-code">
                     <ul class="col-sm-offset-3 offset-sm-2 text-left">
-                        <li>Get the Authenticator App from the Play Store.</li>
-                        <li>In the App select <b>Set up account.</b></li>
-                        <li>Choose <b>Scan a barcode.</b></li>
+                        <li>{{ __('message.get_authenticator') }}</li>
+                        <li>{{ __('message.app_select') }} <b>{{ __('message.set_up_account') }}</b></li>
+                        <li>{{ __('message.choose') }} <b>{{ __('message.scan_barcode') }}</b></li>
                     </ul>
                     <div id="barcode">
                         <!--<img id="image"/>-->
                         <div id="svgshow"></div>
                     </div>
-                    <a href="javascript:;" id="cantscanit">CAN'T SCAN IT?</a>
+                    <a href="javascript:;" id="cantscanit">{{ __('message.caps_can_not_scan') }}</a>
                 </div>
                 <div class="modal-body secret-key">
                     <div id="alertMessage2"></div>
                     <ul class="col-sm-offset-3 offset-sm-2 text-left">
-                        <li>Tap <b>Menu</b>, then <b>Set up account.</b></li>
-                        <li>Tap <b>Enter provided key.</b></li>
-                        <li>Enter your email address and this key :</li>
+                        <li>{{ __('message.tap') }} <b>{{ __('message.me') }}</b>, {{ __('message.then') }} <b>{{ __('message.set_up_account') }}</b></li>
+                        <li>{{ __('message.tap') }} <b>{{ __('message.enter_provided_key') }}</b></li>
+                        <li>{{ __('message.enter_email_address') }}</li>
                         <br>
                         <div class="col-md-6">
                             <input type="text" id="secretkeyid" readonly="readonly" class="form-control" style="width: auto;">
                         </div>
                         <br><br>
-                        <li>Make sure <b>Time based</b> is turned on, and tap <b>Add</b> to finish.</li>
+                        <li>{{ __('message.make_sure') }} <b>{{ __('message.time_based') }}</b> {{ __('message.is_turned_on') }} <b>{{ __('message.add') }}</b> {{ __('message.to_finish') }}</li>
                     </ul>
-                    <a href="javascript:;" id="scanbarcode">SCAN BARCODE?</a>
+                    <a href="javascript:;" id="scanbarcode">{{ __('message.caps_scan_barcode') }}</a>
                 </div>
             </div>
             <div class="modal-footer">
@@ -153,7 +153,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="width:700px;">
             <div class="modal-header">
-                <h4 class="modal-title">Set up Authenticator</h4>
+                <h4 class="modal-title">{{ __('message.set_up_authenticator') }}</h4>
                 <button type="button" class="close closeandrefresh" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -161,16 +161,16 @@
             <div class="modal-body modal-body-spacing">
                 {!! Form::label('name', Lang::get('message.enter_6_digit_code'), ['class' => 'required']) !!}
                 <div class="form-group form-field-template">
-                    <input type="text" name="password" id="passcode" placeholder="Enter Passcode..." class="form-control" required="required">
+                    <input type="text" name="password" id="passcode" placeholder="{{ __('message.enter_passcode') }}" class="form-control" required="required">
                     <span id="passcodeerror"></span>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" id="prev_button" class="btn btn-default pull-right float-right">
-                    <i class="fa fa-arrow-left"></i>&nbsp;&nbsp;Previous
+                    <i class="fa fa-arrow-left"></i>&nbsp;&nbsp;{{ __('message.previous') }}
                 </button>
                 <button type="button" id="pass_btn" class="btn ml-auto btn-primary pull-right float-right">
-                    <i class="fa fa-check"></i> Verify
+                    <i class="fa fa-check"></i> {{ __('message.verify') }}
                 </button>
             </div>
         </div>
@@ -181,18 +181,18 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="width:700px;">
             <div class="modal-header">
-                <h4 class="modal-title">Set up Authenticator</h4>
+                <h4 class="modal-title">{{ __('message.set_up_authenticator') }}</h4>
                 <button type="button" class="close closeandrefresh" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                    You're all set. From now on, you'll use Authenticator to sign in to your Faveo Billing Account.
+                    {{ __('message.set_auth_billing') }}
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default pull-left closeandrefresh" data-dismiss="modal"><i class="fa fa-times">&nbsp;&nbsp;</i>Close</button>
+                <button type="button" class="btn btn-default pull-left closeandrefresh" data-dismiss="modal"><i class="fa fa-times">&nbsp;&nbsp;</i>{{ __('message.close') }}</button>
             </div>
         </div>
     </div>
@@ -202,7 +202,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="width:700px;">
             <div class="modal-header">
-                <h4 class="modal-title">Turn off Two-Factor-Authentication</h4>
+                <h4 class="modal-title">{{ __('message.two_factor_authentication') }}</h4>
                 <button type="button" class="close closeandrefresh" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -210,11 +210,11 @@
             <div class="modal-body">
                 <div id="alertMessage"></div>
                 <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                    Turning off 2-Step Verification will remove the extra security on your account, and you’ll only use your password to sign in.
+                    {{ __('message.two_factor_verification') }}
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-danger pull-right float-right" id="turnoff2fa"><i class="fa fa-power-off"></i> TURN OFF</button>
+                <button class="btn btn-danger pull-right float-right" id="turnoff2fa"><i class="fa fa-power-off"></i> {{ __('message.caps_turn_off') }}</button>
             </div>
         </div>
     </div>
@@ -225,16 +225,16 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="width:700px;">
             <div class="modal-header">
-                <h4 class="modal-title">Recovery Code</h4>
+                <h4 class="modal-title">{{ __('message.client_recovery_code') }}</h4>
                 <button type="button" class="close closeandrefresh" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <p>Recovery code can be used only once. Make sure to generate a new one each time you use the code to log in.</p>
+                <p>{{ __('message.recovery_code_once') }}</p>
                 <div class="row align-items-center">
                     <div>
-                        <label for="newrecoverycode" class="col-form-label"><strong>Recovery Code :</strong></label>
+                        <label for="newrecoverycode" class="col-form-label"><strong>{{ __('message.client_recovery_code') }} :</strong></label>
                     </div>
                     <div class="col">
                         <div class="input-group">
@@ -251,7 +251,7 @@
                 <span id="passerror"></span>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-dark" id="generateNewCode">Generate New</button>
+                <button class="btn btn-dark" id="generateNewCode">{{ __('message.generate_new') }}</button>
             </div>
         </div>
     </div>

@@ -8,9 +8,9 @@ Create Page
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('pages')}}"><i class="fa fa-dashboard"></i> All Pages</a></li>
-            <li class="breadcrumb-item active">Create New Page</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home')}}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('pages')}}"><i class="fa fa-dashboard"></i> {{ __('message.all_pages')}}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.create_new_page')}}</li>
         </ol>
     </div><!-- /.col -->
 @stop

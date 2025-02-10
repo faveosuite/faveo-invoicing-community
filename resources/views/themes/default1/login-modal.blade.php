@@ -61,21 +61,21 @@ $country = findCountryByGeoip($location['iso_code']);
 
 
                     </a>
-                    <p style="display: none">Contact Information</p>
+                    <p style="display: none">{{ __('message.contact_information') }}</p>
                 </li>
                 <li role="presentation" class="disabled" >
                     <a href="#step2" data-toggle="tab" aria-controls="step2" role="tab" >
 
 
                     </a>
-                    <p style="display: none">Identity Verification</p>
+                    <p style="display: none">{{ __('message.identity_verification') }}</p>
                 </li>
                 <li role="presentation" class="disabled">
                     <a href="#step3" data-toggle="tab" aria-controls="complete" role="tab" title="Confirmation">
 
 
                     </a>
-                    <p style="display: none">Confirmation</p>
+                    <p style="display: none">{{ __('message.confirmation') }}</p>
                 </li>
 
 
@@ -87,8 +87,8 @@ $country = findCountryByGeoip($location['iso_code']);
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header text-center">
-                        <h4 class="modal-title w-100 font-weight-bold">Login</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <h4 class="modal-title w-100 font-weight-bold">{{ __('message.login') }}</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="{{ __('message.close') }}">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
@@ -98,7 +98,7 @@ $country = findCountryByGeoip($location['iso_code']);
                                @if(Session::has('success'))
                 <div class="col-md-12 tab-panel alert alert-success">
                      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                       <strong><i class="far fa-thumbs-up"></i> Well done!</strong>
+                       <strong><i class="far fa-thumbs-up"></i> {{ __('message.well_done') }}</strong>
                    
                     {!!Session::get('success')!!}
                 </div>
@@ -112,8 +112,8 @@ $country = findCountryByGeoip($location['iso_code']);
                     
                     @if(Session::has('fails'))
                  <div class="alert alert-danger alert-dismissable" role="alert">
-                   <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <strong><i class="fas fa-exclamation-triangle"></i>Oh snap!</strong>
+                   <button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true">&times;</span></button>
+                    <strong><i class="fas fa-exclamation-triangle"></i>{{ __('message.oh_snap') }}</strong>
                     {{Session::get('fails')}}
                 </div>
                 @endif
@@ -127,7 +127,7 @@ $country = findCountryByGeoip($location['iso_code']);
                             <div class="form-row">
                                 <div class="form-group col">
 
-                                    <label class="required" >E-mail Address</label>
+                                    <label class="required" >{{ __('message.email_address') }}</label>
                                     <div class="input-group">
                                         {!! Form::text('email1',null,['class' => 'form-control input-lg','id'=>'username','autocomplete'=>"off" ]) !!}
                                         <div class="input-group-append">
@@ -146,7 +146,7 @@ $country = findCountryByGeoip($location['iso_code']);
                                 <div class="form-group col">
 
                                     <a class="pull-right" href="{{url('password/reset')}}">({{Lang::get('message.forgot-my-password')}})</a>
-                                    <label class="required" >Password</label>
+                                    <label class="required" >{{ __('message.password') }}</label>
                                     <div class="input-group">
                                         {!! Form::password('password1',['class' => 'form-control input-lg' ,'id'=>'pass']) !!}
                                         <div class="input-group-append">
@@ -170,14 +170,14 @@ $country = findCountryByGeoip($location['iso_code']);
                                 <div class="form-check form-check-inline">
 
                                     <label class="form-check-label">
-                                        <input class="form-check-input" type="checkbox" id="rememberme" name="remember" >Remember Me
+                                        <input class="form-check-input" type="checkbox" id="rememberme" name="remember" >{{ __('message.remember-me') }}
                                     </label>
 
                                 </div>
                             </div>
                             <hr style="width: 100%;">
                             <div class="form-group pull-right">
-                                <button type="button" class="btn btn-default closebutton" id="closebutton" data-dismiss="modal"><i class="fa fa-times">&nbsp;&nbsp;</i>Close</button>
+                                <button type="button" class="btn btn-default closebutton" id="closebutton" data-dismiss="modal"><i class="fa fa-times">&nbsp;&nbsp;</i>{{ __('message.close') }}</button>
 
                                 <input type="submit" name="popup" value="Login" id="submitbtn" class="btn btn-primary" data-loading-text="Loading...">
                                 <!-- <button type="button" class="btn btn-primary mb-xl next-step float-right" name="logsendOtp" id="login" onclick="loginUser()">
@@ -186,7 +186,7 @@ $country = findCountryByGeoip($location['iso_code']);
 
                             </div>
 
-                             <span >Not a user? <a data-dismiss="modal" data-toggle="modal" href="#register-modal">Signup</a></span>
+                             <span >{{ __('message.not_user') }} <a data-dismiss="modal" data-toggle="modal" href="#register-modal">{{ __('message.sign-up') }}</a></span>
 
                             {!! Form::close() !!}
                         </div>
@@ -202,8 +202,8 @@ $country = findCountryByGeoip($location['iso_code']);
             <div class="modal-dialog" role="document" style=" overflow-y: initial !important;">
                 <div class="modal-content">
                     <div class="modal-header text-center">
-                        <h4 class="modal-title w-100 font-weight-bold">Register</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <h4 class="modal-title w-100 font-weight-bold">{{ __('message.register') }}</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="{{ __('message.close') }}">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
@@ -230,7 +230,7 @@ $country = findCountryByGeoip($location['iso_code']);
 
                              <div class="form-group col-lg-6 {{ $errors->has('first_name') ? 'has-error' : '' }}">
                                                     
-                                    <label class="required">First Name</label>
+                                    <label class="required">{{ __('message.first_name') }}</label>
 
                                     {!! Form::text('first_name',null,['class'=>'form-control input-lg', 'id'=>'first_name']) !!}
                                     <span id="first_namecheck"></span>
@@ -239,7 +239,7 @@ $country = findCountryByGeoip($location['iso_code']);
 
 
                                     <div class="form-group col-lg-6 {{ $errors->has('last_name') ? 'has-error' : '' }}">
-                                        <label class="required">Last Name</label>
+                                        <label class="required">{{ __('message.last_name') }}</label>
                                         {!! Form::text('last_name',null,['class'=>'form-control input-lg', 'id'=>'last_name']) !!}
                                         <span id="last_namecheck"></span>
 
@@ -250,7 +250,7 @@ $country = findCountryByGeoip($location['iso_code']);
 
                             <div class="form-row">
                                 <div class="form-group col {{ $errors->has('email') ? 'has-error' : '' }}">
-                                    <label class="required">Email Address</label>
+                                    <label class="required">{{ __('message.email_address') }}</label>
                                     {!! Form::email('email',null,['class'=>'form-control input-lg', 'id'=>'mail']) !!}
                                     <span id="emailcheck"></span>
                                 </div>
@@ -260,13 +260,13 @@ $country = findCountryByGeoip($location['iso_code']);
                                 <div class="form-group col col-lg-6 {{ $errors->has('country') ? 'has-error' : '' }}">
                                     {!! Form::label('country',Lang::get('message.country'),['class'=>'required']) !!}
                                     <?php $countries = \App\Model\Common\Country::pluck('nicename', 'country_code_char2')->toArray(); ?>
-                                    {!! Form::select('country',[''=>'','Choose'=>$countries],$country,['class' => 'form-control selectpicker','data-live-search-style'=>"startsWith",'data-live-search'=>'true','data-live-search-placeholder'=>'Search','data-dropup-auto'=>'false','data-size'=>'10','onChange'=>'getCountryAttr(this.value);','id'=>'country']) !!}
+                                    {!! Form::select('country',[''=>'','Choose'=>$countries],$country,['class' => 'form-control selectpicker','data-live-search-style'=>"startsWith",'data-live-search'=>'true','data-live-search-placeholder' => __('message.search'),'data-dropup-auto'=>'false','data-size'=>'10','onChange'=>'getCountryAttr(this.value);','id'=>'country']) !!}
                                     <span id="countrycheck"></span>
                                 </div>
 
                           
                                 <div class="col-lg-6 form-group {{ $errors->has('mobile_code') ? 'has-error' : '' }}">
-                                    <label class="required">Mobile</label>
+                                    <label class="required">{{ __('message.mobile') }}</label>
                                     {!! Form::hidden('mobile',null,['id'=>'phone_code_hidden']) !!}
                                     <input class="form-control input-lg" id="phonenum" name="mobile" type="tel">
                                     {!! Form::hidden('mobile_code',null,['class'=>'form-control input-lg','disabled','id'=>'mobile_code']) !!}
@@ -302,9 +302,9 @@ $country = findCountryByGeoip($location['iso_code']);
                             @endif
                             <hr style="width: 100%;">
                             <div class="form-group pull-right">
-                                <button type="button" class="btn btn-default closebutton" id="closebutton" data-dismiss="modal"><i class="fa fa-times">&nbsp;&nbsp;</i>Close</button>
+                                <button type="button" class="btn btn-default closebutton" id="closebutton" data-dismiss="modal"><i class="fa fa-times">&nbsp;&nbsp;</i>{{ __('message.close') }}</button>
 
-                                <button type="button"  class="btn btn-primary" value="0" name="register" id="register" onclick="registerUser()">Register</button>
+                                <button type="button"  class="btn btn-primary" value="0" name="register" id="register" onclick="registerUser()">{{ __('message.register') }}</button>
                                 <!-- <button type="button" class="btn btn-primary mb-xl next-step float-right" name="logsendOtp" id="login" onclick="loginUser()">
                                             Send Email
                                 </button> -->
@@ -312,7 +312,7 @@ $country = findCountryByGeoip($location['iso_code']);
                             </div>
 
 
-                                    <span>Already user?<a data-dismiss="modal" data-toggle="modal" href="#login-modal">Sign in</a></span>
+                                    <span>Already user?<a data-dismiss="modal" data-toggle="modal" href="#login-modal">{{ __('message.sign-in') }}</a></span>
 
 
 
@@ -341,23 +341,23 @@ $country = findCountryByGeoip($location['iso_code']);
 
                                                 <form class="form-horizontal" novalidate="novalidate" name="verifyForm">
 
-                                                    <h4 class="heading-primary text-uppercase mb-md">Confirm Email/Mobile</h4>
+                                                    <h4 class="heading-primary text-uppercase mb-md">{{ __('message.confirm_email_mobile') }}</h4>
 
                                                     <input type="hidden" name="user_id" id="user_id"/>
                                                   
-                                                    <p>Please enter your password which already you received via email</p>
-                                                       <label  for="mobile" class="required">Password</label>
+                                                    <p>{{ __('message.received_password_enter') }}</p>
+                                                       <label  for="mobile" class="required">{{ __('message.password') }}</label>
                                                                  <div class="input-group">
-                                                                     <input type="password" value="" name="email_password" id="email_password"" class="form-control form-control input-lg">
+                                                                     <input type="password" value="" name="email_password" id="email_password" class="form-control form-control input-lg">
                                                                      </div>
                                         <span id="conpass"></span>
                                                     <input type="hidden" id="checkEmailStatus" value="{{$status->emailverification_status}}">
                                                     @if($status->emailverification_status == 1)
-                                                        <p>You will be sent a verification email by an automated system, Please click on the verification link in the email. Click next to continue</p>
+                                                        <p>{{ __('message.verification_email_continue') }}</p>
                                                         <div class="form-row">
                                                             <div class="form-group col">
                                                               
-                                                                <label  for="mobile" class="required">Email</label>
+                                                                <label  for="mobile" class="required">{{ __('message.email') }}</label>
                                                                 <div class="input-group">
                                                                     <input type="hidden" id="emailstatusConfirm" value="{{$status->emailverification_status}}">
                                                                     <input type="email" value="" name="verify_email" id="verify_email" class="form-control form-control input-lg">
@@ -375,12 +375,12 @@ $country = findCountryByGeoip($location['iso_code']);
 
 
                                                     @if($status->msg91_status == 1)
-                                                        <p>You will be sent an OTP on your mobile immediately by an automated system, Please enter the OTP in the next step. Click next to continue</p>
+                                                        <p>{{ __('message.otp_mobile_continue') }}</p>
                                                         <div class="form-row">
                                                             <div class="form-group col">
                                                                 <input id="mobile_code_hidden" name="mobile_code" type="hidden">
                                                                 <input class="form-control form-control input-lg"  id="verify_country_code" name="verify_country_code" type="hidden">
-                                                                <label for="mobile" class="required">Mobile</label><br/>
+                                                                <label for="mobile" class="required">{{ __('message.mobile') }}</label><br/>
                                                                 <input type="hidden" id="mobstatusConfirm" value="{{$status->msg91_status}}">
                                                                 <input class="form-control input-lg phone"  name="verify_number" type="text" id="verify_number">
                                                                 <span id="valid-msg1" class="hide"></span>
@@ -396,7 +396,7 @@ $country = findCountryByGeoip($location['iso_code']);
                                                         <div class="form-group col">
 
                                                             <button type="button" class="btn btn-primary mb-xl next-step float-right" name="sendOtp" id="sendOtp" onclick="sendOTP()">
-                                                                Next
+                                                                {{ __('message.next') }}
                                                             </button>
                                                         </div>
                                                     </div>
@@ -425,7 +425,7 @@ $country = findCountryByGeoip($location['iso_code']);
                                         <div class="featured-box featured-box-primary text-left mt-5">
                                             <input type="hidden" id="checkOtpStatus" value="{{$status->msg91_status}}">
                                             <div class="box-content" id="showOtpBox">
-                                                <h4 class="heading-primary text-uppercase mb-md">OTP Confirmation</h4>
+                                                <h4 class="heading-primary text-uppercase mb-md">{{ __('message.otp_confirmation') }}</h4>
                                                 <!-- <div class="row verify">
                                                     <div class="col-md-12">
                                                         <label>
@@ -434,7 +434,7 @@ $country = findCountryByGeoip($location['iso_code']);
                                                     </div>
                                                 </div> -->
                                                 <form name="verify_otp_form">
-                                                    <label for="mobile" class="required">Enter OTP</label><br/>
+                                                    <label for="mobile" class="required">{{ __('message.otp_placeholder') }}</label><br/>
                                                     <div class="row ">
                                                         <div class="col-md-6" >
 
@@ -446,14 +446,14 @@ $country = findCountryByGeoip($location['iso_code']);
 
                                                         <div class="col-md-3">
                                                             <button type="button" style="position: absolute;width: max-content;right: 10%;" class="btn btn-primary float-right mb-5" name="verifyOtp"  id="verifyOtp" value="Verify OTP" onclick="verifyBySendOtp()" >
-                                                                Verify OTP
+                                                                {{ __('message.verify_otp') }}
                                                             </button>
                                                         </div>
 
 
                                                         <div class="col-md-3">
                                                             <button type="button" class="btn btn-danger float-right mb-5" style="position: absolute;width: max-content;right: -7%;" name="resendOTP" id="resendOTP" >
-                                                                Resend OTP
+                                                                {{ __('message.resend_otp') }}
                                                             </button>
 
 
@@ -464,14 +464,14 @@ $country = findCountryByGeoip($location['iso_code']);
                                                     <div class="row">
 
                                                         <div class="col-sm-6">
-                                                            <p>Did not receive OTP via SMS?</p>&nbsp;&nbsp;
+                                                            <p>{{ __('message.not_receive_otp') }}</p>&nbsp;&nbsp;
                                                             <button type="button" class="btn btn-secondary" name="voiceOTP" id="voiceOTP" value="Verify OTP" style= "margin-top:-15px;"><i class="fa fa-phone"></i>
-                                                                Receive OTP via Voice call
+                                                                {{ __('message.receive_otp_voice_call') }}
                                                             </button>
                                                         
                                                      
                                                           
-                                                                    <button type="button"style="position: absolute; left: 150%;width: max-content;" class="btn btn-default closebutton" id="closebutton" data-dismiss="modal"><i class="fa fa-times">&nbsp;&nbsp;</i>Close</button>
+                                                                    <button type="button"style="position: absolute; left: 150%;width: max-content;" class="btn btn-default closebutton" id="closebutton" data-dismiss="modal"><i class="fa fa-times">&nbsp;&nbsp;</i>{{ __('message.close') }}</button>
                                 
                             
                                                     

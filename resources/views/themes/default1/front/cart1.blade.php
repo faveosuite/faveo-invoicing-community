@@ -6,8 +6,8 @@ Cart
 Cart
 @stop
 @section('breadcrumb')
-<li><a href="{{url('home')}}">Home</a></li>
-<li class="active">Cart</li>
+<li><a href="{{url('home')}}">{{ __('message.home')}}</a></li>
+<li class="active">{{ __('message.cart')}}</li>
 @stop
 @section('main-class') "main shop" @stop
 @section('content')
@@ -26,7 +26,7 @@ if (count($attributes) > 0) {
     <div class="col-md-12">
         @if (count($errors) > 0)
         <div class="alert alert-danger">
-            <strong>Whoops!</strong> There were some problems with your input.<br><br>
+            <strong>{{ __('message.whoops')}}</strong> {{ __('message.input_problem')}}<br><br>
             <ul>
                 @foreach ($errors->all() as $error)
                 <li>{{ $error }}</li>
@@ -67,22 +67,22 @@ if (count($attributes) > 0) {
                                                 &nbsp;
                                             </th>
                                             <th class="product-price">
-                                                Product
+                                                {{ __('message.product')}}
                                             </th>
                                             <th class="product-price">
-                                                Tax
+                                                {{ __('message.tax')}}
                                             </th>
                                             <th class="product-price">
-                                                Price
+                                                {{ __('message.price')}}
                                             </th>
                                             <th class="product-quantity">
-                                                Quantity
+                                                {{ __('message.quantity')}}
                                             </th>
                                             <th class="product-subtotal">
-                                                Subtotal
+                                                {{ __('message.sub_total')}}
                                             </th>
                                             <th class="product-subtotal">
-                                                Total
+                                                {{ __('message.total')}}
                                             </th>
                                         </tr>
                                     </thead>
@@ -156,13 +156,13 @@ if (count($attributes) > 0) {
                 <div class="col-sm-4">
                     <div class="featured-box featured-box-primary align-left mt-sm">
                         <div class="box-content">
-                            <h4 class="heading-primary text-uppercase mb-md">Cart Total</h4>
+                            <h4 class="heading-primary text-uppercase mb-md">{{ __('message.cart_total')}}</h4>
                             <table class="cart-totals">
                                 <tbody>
 
                                     <tr class="total">
                                         <th>
-                                            <strong>Order Total</strong>
+                                            <strong>{{ __('message.order_total')}}</strong>
                                         </th>
                                         <td>
 
@@ -186,16 +186,16 @@ if (count($attributes) > 0) {
                             </div>
                         </div>
                         <div class=" col-md-6"><br><br><br><br>
-                            <a href="{{url('cart/clear')}}"><button class="btn btn-danger btn-lg">Clear My Cart<i class="fa fa-angle-right ml-xs"></i></button></a>
+                            <a href="{{url('cart/clear')}}"><button class="btn btn-danger btn-lg">{{ __('message.clear_my_cart')}}<i class="fa fa-angle-right ml-xs"></i></button></a>
                         </div>
                         <div class="col-md-6"><br><br><br><br>
 
                             @if(count($domain)>0)
 
-                            <a href="#domain" data-toggle="modal" data-target="#domain"><button class="btn btn-primary btn-lg">Proceed to Checkout<i class="fa fa-angle-right ml-xs"></i></button></a>
+                            <a href="#domain" data-toggle="modal" data-target="#domain"><button class="btn btn-primary btn-lg">{{ __('message.proceed_checkout')}}<i class="fa fa-angle-right ml-xs"></i></button></a>
 
                             @else
-                            <a href="{{url('checkout')}}"><button class="btn btn-primary btn-lg">Proceed to Checkout<i class="fa fa-angle-right ml-xs"></i></button></a>
+                            <a href="{{url('checkout')}}"><button class="btn btn-primary btn-lg">{{ __('message.proceed_checkout')}}<i class="fa fa-angle-right ml-xs"></i></button></a>
                             @endif
                         </div>
                     </div>
@@ -210,8 +210,8 @@ if (count($attributes) > 0) {
                     <div class="featured-box featured-box-primary align-left mt-sm">
                         <div class="box-content">
                             <div class="col-md-offset-5">
-                            <p>There are no items in this cart.</p>
-                            <a href="{{url('home')}}" class="btn btn-primary">CONTINUE SHOPPING</a>
+                            <p>{{ __('message.no_item_cart')}}</p>
+                            <a href="{{url('home')}}" class="btn btn-primary">{{ __('message.continue_shopping')}}</a>
                             </div>
                         </div>
                     </div>

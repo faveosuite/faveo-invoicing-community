@@ -60,6 +60,9 @@ foreach($scripts as $script) {
 
 }
 ?>
+
+
+
             <!-- Basic -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -92,6 +95,7 @@ foreach($scripts as $script) {
     <link rel="stylesheet" href="{{asset('client/porto/css-2/owl.carousel.min.css')}}">
     <link rel="stylesheet" href="{{asset('client/porto/css-2/owl.theme.default.min.css')}}">
     <link rel="stylesheet" href="{{asset('client/porto/css-2/magnific-popup.min.css')}}">
+    <link rel="stylesheet" href="{{asset('admin/css-1/flag-icons.min.css')}}">
 
     <!-- Theme CSS -->
     <link id="default-styles" rel="stylesheet" href="{{asset('client/porto/css-2/theme.css')}}">
@@ -167,7 +171,39 @@ $days = $pay->where('product','117')->value('days');
     $social = App\Model\Common\SocialMedia::get();
 @endphp
 
-<div class="body p-relative bottom-1">
+<?php
+function getBaseUrl() {
+    $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
+    $host = $_SERVER['HTTP_HOST'];
+    $path = dirname($_SERVER['SCRIPT_NAME']);
+    return $protocol . '://' . $host . $path;
+}
+function fetchLang() {
+    //$baseUrl = getBaseUrl();
+    $langUrl = getBaseUrl() . "/lang";
+    $options = [
+        'http' => [
+            'method' => 'POST',
+            'header' => "Content-Type: application/json;charset=UTF-8\r\n",
+            'content' => ''
+        ]
+    ];
+    $context = stream_context_create($options);
+    $response = file_get_contents($langUrl, false, $context);
+
+    if ($response === false) {
+        return null;
+    }
+
+    $langData = json_decode($response, true);
+
+    return $langData['data'];
+}
+
+$lang = fetchLang();
+?>
+
+<div class="body p-relative bottom-1" dir="{{ app()->getLocale() == 'ar' ? 'rtl' : 'ltr' }}" >
 
     <header id="header" class="header-effect-reveal" data-plugin-options="{'stickyEnabled': true, 'stickyEffect': 'reveal', 'stickyEnableOnBoxed': true, 'stickyEnableOnMobile': false, 'stickyChangeLogo': false, 'stickyStartAt': 200, 'stickySetTop': '-44px'}">
 
@@ -275,7 +311,7 @@ $days = $pay->where('product','117')->value('days');
                                                     <li class="dropdown">
 
                                                         <a class="nav-link dropdown-toggle {{ strpos(request()->url(), 'group') !== false ? 'active' : '' }}" href="javascript:;">
-                                                            &nbsp;Store&nbsp;
+                                                            &nbsp;{{ __('message.store') }}&nbsp;
                                                         </a>
 
                                                         <ul class="dropdown-menu border-light mt-n1">
@@ -327,39 +363,39 @@ $days = $pay->where('product','117')->value('days');
                                                         <li class="dropdown">
 
                                                             <a class="nav-link dropdown-toggle {{ Request::is('client-dashboard', 'my-orders', 'my-invoices', 'my-profile') ? 'active' : '' }}" href="javascript:;">
-                                                                &nbsp;My Account&nbsp;
+                                                                &nbsp;{{ __('message.my_account') }}&nbsp;
                                                             </a>
 
                                                             <ul class="dropdown-menu border-light mt-n1">
                                                                 @if(Auth::user()->role == 'admin')
                                                                     <li>
-                                                                        <a href="{{url('/')}}" class="dropdown-item">Admin Dashboard</a>
+                                                                        <a href="{{url('/')}}" class="dropdown-item">{{ __('message.admin_dashboard') }}</a>
                                                                     </li>
                                                                 @endif
                                                                 <li>
-                                                                    <a href="{{url('client-dashboard')}}" class="dropdown-item">Dashboard</a>
+                                                                    <a href="{{url('client-dashboard')}}" class="dropdown-item">{{ __('message.dashboard') }}</a>
                                                                 </li>
                                                                 <li>
-                                                                    <a href="{{url('my-orders')}}" class="dropdown-item">My Orders</a>
-                                                                </li>
-
-                                                                <li>
-                                                                    <a href="{{url('my-invoices')}}" class="dropdown-item">My Invoices</a>
+                                                                    <a href="{{url('my-orders')}}" class="dropdown-item">{{ __('message.my_orders') }}</a>
                                                                 </li>
 
                                                                 <li>
-                                                                    <a href="{{url('my-profile')}}" class="dropdown-item">My Profile</a>
+                                                                    <a href="{{url('my-invoices')}}" class="dropdown-item">{{ __('message.my_invoices') }}</a>
                                                                 </li>
 
                                                                 <li>
-                                                                    <a href="{{url('auth/logout')}}" class="dropdown-item">Logout</a>
+                                                                    <a href="{{url('my-profile')}}" class="dropdown-item">{{ __('message.my_profile') }}</a>
+                                                                </li>
+
+                                                                <li>
+                                                                    <a href="{{url('auth/logout')}}" class="dropdown-item">{{ __('message.logout') }}</a>
                                                                 </li>
                                                             </ul>
                                                         </li>
                                                     @else
 
                                                         <li>
-                                                            <a class="nav-link {{ Request::is('login') ? 'active' : '' }}" href="{{url('login')}}">Sign Up</a>
+                                                            <a class="nav-link {{ Request::is('login') ? 'active' : '' }}" href="{{url('login')}}">{{ __('message.sign-up') }}</a>
                                                         </li>
                                                     @endif
                                                     <?php
@@ -368,13 +404,13 @@ $days = $pay->where('product','117')->value('days');
                                                     ?>
                                                     @if($cloud == 1)
                                                         <li class="demo-icons">
-                                                            <a class="nav-link open-createTenantDialog startFreeTrialBtn">START FREE TRIAL</a>
+                                                            <a class="nav-link open-createTenantDialog startFreeTrialBtn">{{ __('message.start_free_trial') }}</a>
                                                         </li>
                                                         @endif
                                                         </li>
                                                         @if($Demo_page->status)
                                                             <li class="demo-icons">
-                                                                <a class="nav-link" id="demo-req">REQUEST FOR DEMO</a>
+                                                                <a class="nav-link" id="demo-req">{{ __('message.request_for_demo') }}</a>
                                                             </li>
                                                         @endif
                                                 </ul>
@@ -384,7 +420,7 @@ $days = $pay->where('product','117')->value('days');
                                         <div class="header-nav-features header-nav-features-no-border header-nav-features-lg-show-border order-1 order-lg-2 me-2 me-lg-0">
                                             <div class="header-nav-feature header-nav-features-cart d-inline-flex ms-2 mx-3">
                                                 <a href="{{ url('show/cart') }}" class="header-nav-features-toggle text-decoration-none">
-                                                    <span class="text-dark opacity-8 font-weight-bold text-color-hover-primary"> Cart</span>
+                                                    <span class="text-dark opacity-8 font-weight-bold text-color-hover-primary"> {{ __('message.cart') }}</span>
                                                     <img src="{{asset('client/porto/fonts/icon-cart.svg')}}" width="14" alt="" class="header-nav-top-icon-img">
                                                     <span class="cart-info">
                                                 <span class="cart-qty">{{ Cart::getTotalQuantity() }}</span>
@@ -410,7 +446,7 @@ $days = $pay->where('product','117')->value('days');
                                                                         <a href="#">{{ $item->name }}</a><br>
                                                                         <span class="amount"><strong>{{ currencyFormat($total, $code = $currency) }}</strong></span>
                                                                     </p>
-                                                                    <a onclick="removeItem('{{$item->id}}');"data-bs-toggle="tooltip" title="Remove This Item" class="btn-remove">
+                                                                    <a onclick="removeItem('{{$item->id}}');"data-bs-toggle="tooltip" title="{{ __('message.remove_this_item') }}" class="btn-remove">
                                                                         <i class="fas fa-times"></i>
                                                                     </a>
                                                                 </div>
@@ -425,33 +461,33 @@ $days = $pay->where('product','117')->value('days');
                                                            <div class="product-details d-flex justify-content-between align-items-center" style="margin-bottom: 20px;font-weight: 500;font-size: 13px;font-family: Poppins,sans-serif;letter-spacing: -0.12px;">
                                                             <span class="text-muted">0 ITEMS</span>
                                                             @if (Auth::check() && $data)
-                                                            <a class="text-v-dark text-uppercase" style="color: black;font-family: Poppins,sans-serif;font-weight: 700;font-size: 13px;letter-spacing: -0.12px;" href="{{url("show/cart")}}">View Cart</a>
+                                                            <a class="text-v-dark text-uppercase" style="color: black;font-family: Poppins,sans-serif;font-weight: 700;font-size: 13px;letter-spacing: -0.12px;" href="{{url("show/cart")}}">{{ __('message.view_cart') }}</a>
                                                             @else
-                                                             <a class="text-v-dark text-uppercase" href="{{ url('login') }}">View Cart</a>
+                                                             <a class="text-v-dark text-uppercase" href="{{ url('login') }}">{{ __('message.view_cart') }}</a>
                                                             @endif
                                                         </div>
 
                                                         <hr style="border-top: 0.5px solid #ccc;">
 
-                                                        <span  style="display: block; text-align: center;">No products in the cart.</span>
+                                                        <span  style="display: block; text-align: center;">{{ __('message.no_products_cart') }}</span>
 
                                                           
                                                         @endforelse
                                                         @if (!Cart::isEmpty())
                                                             <div class="totals">
-                                                                <span class="label">Total:</span>
+                                                                <span class="label">{{ __('message.total') }}:</span>
                                                                 <span class="price-total"><span class="price">{{ currencyFormat(Cart::getTotal(), $code = $currency) }}</span></span>
                                                             </div>
 
                                                             <li>
                                                                 <div class="actions">
                                                                     <a class="btn btn-dark btn-modern text-uppercase font-weight-semi-bold"
-                                                                       href="{{ url('show/cart') }}">View Cart</a>
+                                                                       href="{{ url('show/cart') }}">{{ __('message.view_cart') }}</a>
                                                                     @if (count($domain) > 0)
                                                                         <a href="#domain" data-toggle="modal" data-target="#domain"
-                                                                           class="btn btn-primary">Proceed to Checkout</a>
+                                                                           class="btn btn-primary">{{ __('message.proceed_checkout') }}</a>
                                                                     @else
-                                                                        <a href="{{ url('checkout') }}" class="btn btn-primary">Checkout</a>
+                                                                        <a href="{{ url('checkout') }}" class="btn btn-primary">{{ __('message.checkout') }}</a>
                                                                     @endif
                                                                 </div>
                                                             </li>
@@ -461,6 +497,27 @@ $days = $pay->where('product','117')->value('days');
                                                 </div>
                                             </div>
                                         </div>
+
+                                        {{--<li class="nav-item dropdown">
+                                            <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="false">
+                                                <i id="flagIcon" class="flag-icon flag-icon-us"></i>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-right p-0" style="left: inherit; right: 0px;" >
+                                                <!-- Language options will be populated here -->
+                                            </div>
+                                        </li>--}}
+
+                                        <div class="header-nav-features header-nav-features-no-border header-nav-features-lg-show-border order-1 order-lg-2 me-2 me-lg-0">
+                                            <div class="header-nav-feature header-nav-features-cart d-inline-flex ms-2 mx-3">
+                                                <a href="#" class="header-nav-features-toggle text-decoration-none">
+                                                    <i id="flagIcon" class="flag-icon flag-icon-us"></i>
+                                                </a>
+                                                <div class="header-nav-features-dropdown right-15" id="language-dropdown">
+
+                                                </div>
+                                            </div>
+                                        </div>
+
 
 
                                         <button class="btn header-btn-collapse-nav" data-bs-toggle="collapse" data-bs-target=".header-nav-main nav">
@@ -475,10 +532,10 @@ $days = $pay->where('product','117')->value('days');
 
                                 <div class="px-4 d-none d-lg-inline-block ws-nowrap">
                                     @if($cloud == 1)
-                                        <a class="btn border-0 px-4 py-2 line-height-9 btn-tertiary me-2 open-createTenantDialog startFreeTrialBtn" style="color: white;">START FREE TRIAL</a>
+                                        <a class="btn border-0 px-4 py-2 line-height-9 btn-tertiary me-2 open-createTenantDialog startFreeTrialBtn" style="color: white;">{{ __('message.start_free_trial') }}</a>
                                     @endif
                                     @if($Demo_page->status)
-                                        <a id="demo-req" class="btn border-0 px-4 py-2 line-height-9 btn-primary" style="color: white;">REQUEST FOR DEMO</a>
+                                        <a id="demo-req" class="btn border-0 px-4 py-2 line-height-9 btn-primary" style="color: white;">{{ __('message.request_for_demo') }}</a>
                                     @endif
                                 </div>
                             </div>
@@ -538,7 +595,7 @@ $days = $pay->where('product','117')->value('days');
 
                     <div class="alert alert-success">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span></button>
-                        <strong><i class="far fa-thumbs-up"></i> Well done!</strong>
+                        <strong><i class="far fa-thumbs-up"></i> {{ __('message.well_done') }}</strong>
 
                         {!!Session::get('success')!!}
                     </div>
@@ -612,7 +669,7 @@ $days = $pay->where('product','117')->value('days');
 
                                     <div class="input-group mb-2">
 
-                                        <input type="text" name="domain" autocomplete="off" id="userdomain" class="form-control col col-7 rounded-0" placeholder="Domain" required>
+                                        <input type="text" name="domain" autocomplete="off" id="userdomain" class="form-control col col-7 rounded-0" placeholder="{{ __('message.admin_domain') }}" required>
                                         <input type="text" class="form-control col col-5 rounded-0" value=".{{cloudSubDomain()}}" disabled="true" style="background-color: #4081B5; color:white; border-color: #0088CC">
                                         <p id="validationMessage"></p>
                                     </div>
@@ -642,10 +699,10 @@ $days = $pay->where('product','117')->value('days');
                             <hr>
                             @if($dataCenters->count()==1)
                                 <div class="text-center">
-                                    <p>Your data center location is <b data-nearest-center="">{!! array_first($dataCenters)->cloud_countries !!} </b><!--<a role="button" href="javascript:void(0)" data-center-link="" aria-labelledby="data-center-text-label-dataCenter119678097062480"><b>Change</b></a>--></p>
+                                    <p>{{ __('message.data_center_location') }} <b data-nearest-center="">{!! array_first($dataCenters)->cloud_countries !!} </b><!--<a role="button" href="javascript:void(0)" data-center-link="" aria-labelledby="data-center-text-label-dataCenter119678097062480"><b>Change</b></a>--></p>
                                 </div>
                             @else
-                                <label style="margin-top: 2px; text-align: left;"><b>Choose your data center</b></label>
+                                <label style="margin-top: 2px; text-align: left;"><b>{{ __('message.choose_data_center') }}</b></label>
                                 <div class="row">
                                     <div class="col col-12">
                                         <div class="input-group"> <!-- Wrap select and icon within input-group -->
@@ -684,8 +741,8 @@ $days = $pay->where('product','117')->value('days');
 
                     <div class="modal-footer">
 
-                        <button type="button" class="btn btn-default pull-left closebutton" id="closebutton" data-dismiss="modal"><i class="fa fa-times">&nbsp;&nbsp;</i>Close</button>
-                        <button type="submit"  class="btn btn-primary createTenant" id="createTenant" onclick="firstlogin({{Auth::user()->id}})"><i class="fa fa-check">&nbsp;&nbsp;</i>Submit</button>
+                        <button type="button" class="btn btn-default pull-left closebutton" id="closebutton" data-dismiss="modal"><i class="fa fa-times">&nbsp;&nbsp;</i>{{ __('message.close') }}</button>
+                        <button type="submit"  class="btn btn-primary createTenant" id="createTenant" onclick="firstlogin({{Auth::user()->id}})"><i class="fa fa-check">&nbsp;&nbsp;</i>{{ __('message.submit') }}</button>
 
                         {!! Form::close()  !!}
                     </div>
@@ -716,7 +773,7 @@ $days = $pay->where('product','117')->value('days');
                                 <label><b>{!! optional(cloudPopUpDetails())->cloud_label_field !!}</b></label>
                                 <div class="input-group mb-2">
                                     <input type="hidden"  name="order" id="orderId"/>
-                                    <input type="text" name="domain" autocomplete="off" id="userdomainPurchase" class="form-control col col-7 rounded-0" placeholder="Domain" required>
+                                    <input type="text" name="domain" autocomplete="off" id="userdomainPurchase" class="form-control col col-7 rounded-0" placeholder="{{ __('message.admin_domain') }}" required>
                                     <input type="text" class="form-control col col-5 rounded-0" value=".{{cloudSubDomain()}}" disabled="true" style="background-color: #4081B5; color:white; border-color: #0088CC">
 
                                 </div>
@@ -726,10 +783,10 @@ $days = $pay->where('product','117')->value('days');
                                     <div class="col col-12">
                                         @if($dataCenters->count()==1)
                                             <div class="text-center">
-                                                <p>Your data center location is <b data-nearest-center="">{!! array_first($dataCenters)->cloud_countries !!} </b><!--<a role="button" href="javascript:void(0)" data-center-link="" aria-labelledby="data-center-text-label-dataCenter119678097062480"><b>Change</b></a>--></p>
+                                                <p>{{ __('message.data_center_location') }} <b data-nearest-center="">{!! array_first($dataCenters)->cloud_countries !!} </b><!--<a role="button" href="javascript:void(0)" data-center-link="" aria-labelledby="data-center-text-label-dataCenter119678097062480"><b>Change</b></a>--></p>
                                             </div>
                                         @else
-                                            <label style="margin-top: 2px; text-align: left;"><b>Choose your data center</b></label>
+                                            <label style="margin-top: 2px; text-align: left;"><b>{{ __('message.choose_data_center') }}</b></label>
                                             <div class="row">
                                                 <div class="col col-12">
                                                     <div class="input-group"> <!-- Wrap select and icon within input-group -->
@@ -779,8 +836,8 @@ $days = $pay->where('product','117')->value('days');
                     });
                 </script>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default pull-left closebutton" id="closebutton" data-dismiss="modal"><i class="fa fa-times">&nbsp;&nbsp;</i>Close</button>
-                    <button type="submit"  class="btn btn-primary createtenancy" id="createtenancy" onclick="createtenancy()"><i class="fa fa-check">&nbsp;&nbsp;</i>Submit</button>
+                    <button type="button" class="btn btn-default pull-left closebutton" id="closebutton" data-dismiss="modal"><i class="fa fa-times">&nbsp;&nbsp;</i>{{ __('message.close') }}</button>
+                    <button type="submit"  class="btn btn-primary createtenancy" id="createtenancy" onclick="createtenancy()"><i class="fa fa-check">&nbsp;&nbsp;</i>{{ __('message.submit') }}</button>
                     {!! Form::close()  !!}
                 </div>
                 <!-- /Form -->
@@ -1110,7 +1167,7 @@ setTimeout(function() {
                     // Extract an error message if available
                     var errorMsg = (jqXHR.responseJSON && jqXHR.responseJSON.message) ?
                         jqXHR.responseJSON.message :
-                        'An error occurred. Please try again.';
+                        '{{ __('message.error_occurred') }}';
                     showAlert('error', errorMsg);
                 },
                 complete: function() {
@@ -1149,7 +1206,7 @@ setTimeout(function() {
     function firstlogin(id)
     {
         $('#createTenant').attr('disabled',true)
-        $("#createTenant").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+        $("#createTenant").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
         var domain = $('#userdomain').val();
         var password = $('#password').val();
         var product = $('input[name="option"]:checked').val();
@@ -1160,10 +1217,10 @@ setTimeout(function() {
             url: "{{url('first-login')}}",
             success: function (data) {
                 $('#createTenant').attr('disabled',false)
-                $("#createTenant").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>Submit");
+                $("#createTenant").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>{{ __('message.submit') }}");
                 if(data.status == 'validationFailure') {
 
-                    var html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong>Whoops! </strong>Something went wrong<ul>';
+                    var html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<ul>';
                     for (var key in data.message)
                     {
                         html += '<li>' + data.message[key][0] + '</li>'
@@ -1175,22 +1232,23 @@ setTimeout(function() {
                 } else if(data.status == 'false') {
                     $('#clouderror').show();
                     $('#cloudsuccess').hide();
-                    var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>Whoops! </strong>Something went wrong!!<br><ul><li>'+data.message+'</li></ul></div>';
+                    var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true">&times;</span></button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}!!<br><ul><li>'+data.message+'</li></ul></div>';
                     $('#clouderror').html(result);
                 } else if(data.status == 'success_with_warning') {
                     console.log('here');
                     $('#clouderror').show();
                     $('#cloudsuccess').hide();
-                    var result =  '<div class="alert alert-warning alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>Whoops! </strong><br><ul><li>'+data.message+'</li></ul></div>';
+                    var result =  '<div class="alert alert-warning alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true">&times;</span></button><strong>{{ __('message.whoops') }} </strong><br><ul><li>'+data.message+'</li></ul></div>';
                     $('#clouderror').html(result);
                 } else {
                     $('#clouderror').hide();
                     $('#cloudsuccess').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>Success! </strong>'+data.message+'!</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true">&times;</span></button><strong>{{ __('message.success') }}! </strong>'+data.message+'!</div>';
                     $('#cloudsuccess').html(result);
                 }
             },error: function (response) {
                 $('#createTenant').attr('disabled',false)
+<<<<<<< HEAD
                 $("#createTenant").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>Submit");
                 $("#generate").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>Submit");
 
@@ -1205,6 +1263,21 @@ setTimeout(function() {
 
                 } else {
                     html += '<li>' + response.responseJSON.message + '</li>';
+=======
+                $("#createTenant").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>{{ __('message.submit') }}");
+                $("#generate").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>{{ __('message.submit') }}");
+                if(response.status == 422) {
+
+                    var html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<ul>';
+                    for (var key in response.responseJSON.errors)
+                    {
+                        html += '<li>' + response.responseJSON.errors[key][0] + '</li>'
+                    }
+
+                } else {
+                    var html = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong>{{ __('message.whoops') }} </strong> {{ __('message.something_wrong') }}<ul>';
+                    html += '<li>' + response.responseJSON.message + '</li>'
+>>>>>>> 74aaff522 (Fixes #3191)
                 }
 
                 html += '</ul></div>';
@@ -1246,7 +1319,7 @@ setTimeout(function() {
         const domain = domainInput.value;
 
         if (domain.length > 28) {
-            validationMessage.textContent = "Domain must be 28 characters or less.";
+            validationMessage.textContent = "{{ __('message.domain_characters') }}";
             validationMessage.style.color = "red";
         } else {
             validationMessage.textContent = "";
@@ -1301,7 +1374,7 @@ setTimeout(function() {
                     $('#demoregister').attr('disabled',false);
                 } else {
                     errorMsgdemo.classList.remove("hide");
-                    errorMsgdemo.innerHTML = "Please enter a valid number";
+                    errorMsgdemo.innerHTML = "{{ __('message.error_valid_number') }}";
                     $('#mobilenumdemo').css("border-color","red");
                     $('#error-msgdemo').css({"color":"red","margin-top":"5px"});
                     $('#demoregister').attr('disabled',true);
@@ -1320,7 +1393,7 @@ setTimeout(function() {
                     $('#demoregister').attr('disabled',false);
                 } else {
                     errorMsgdemo.classList.remove("hide");
-                    errorMsgdemo.innerHTML = "Please enter a valid number";
+                    errorMsgdemo.innerHTML = "{{ __('message.error_valid_number') }}";
                     $('#mobilenumdemo').css("border-color","red");
                     $('#error-msgdemo').css({"color":"red","margin-top":"5px"});
                     $('#demoregister').attr('disabled',true);
@@ -1342,7 +1415,7 @@ setTimeout(function() {
             const domainName = domainInputPurchase.value;
 
             if (domainName.length > 28) {
-                validationMessagePurchase.textContent = "Domain must be 28 characters or less.";
+                validationMessagePurchase.textContent = "{{ __('message.domain_characters') }}";
                 validationMessagePurchase.style.color = "red";
             } else {
                 validationMessagePurchase.textContent = "";
@@ -1361,7 +1434,7 @@ setTimeout(function() {
 
         function createtenancy(){
             $('#createtenancy').attr('disabled',true)
-            $("#createtenancy").html("<i class='fas fa-circle-notch fa-spin'></i> Please Wait...");
+            $("#createtenancy").html("<i class='fas fa-circle-notch fa-spin'></i> {{ __('message.please_wait') }}");
             var domain = $('#userdomainPurchase').val();
             var order = $('#orderId').val();
             $.ajax({
@@ -1370,10 +1443,10 @@ setTimeout(function() {
                 data: {'domain': domain, 'id': order},
                 success: function (data) {
                     $('#createtenancy').attr('disabled',false)
-                    $("#createtenancy").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>Submit");
+                    $("#createtenancy").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>{{ __('message.submit') }}");
                     if(data.status == 'validationFailure') {
 
-                        var html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong>Whoops! </strong>Something went wrong<ul>';
+                        var html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<ul>';
                         for (var key in data.message)
                         {
                             html += '<li>' + data.message[key][0] + '</li>'
@@ -1385,7 +1458,7 @@ setTimeout(function() {
                     } else if(data.status == 'false') {
                         $('#error').show();
                         $('#success').hide();
-                        var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>Whoops! </strong>Something went wrong!!<br><ul><li>'+data.message+'</li></ul></div>';
+                        var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}!<br><ul><li>'+data.message+'</li></ul></div>';
                         $('#error').html(result);
                     } else if(data.status == 'success_with_warning') {
                         console.log('here');
@@ -1398,18 +1471,18 @@ setTimeout(function() {
                     }
                 },error: function (response) {
                     $('#createtenancy').attr('disabled',false)
-                    $("#createtenancy").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>Submit");
-                    $("#generate").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>Submit");
+                    $("#createtenancy").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>{{ __('message.submit') }}");
+                    $("#generate").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>{{ __('message.submit') }}");
                     if(response.status == 422) {
 
-                        var html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong>Whoops! </strong>Something went wrong<ul>';
+                        var html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<ul>';
                         for (var key in response.responseJSON.errors)
                         {
                             html += '<li>' + response.responseJSON.errors[key][0] + '</li>'
                         }
 
                     } else {
-                        var html = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong>Whoops! </strong>Something went wrong<ul>';
+                        var html = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<ul>';
                         html += '<li>' + response.responseJSON.message + '</li>'
                     }
 
@@ -1446,7 +1519,7 @@ setTimeout(function() {
             $('.startFreeTrialBtn').on('click', function () {
                 // If not authenticated, remember that the button was clicked
                 localStorage.setItem('freeTrialClicked', 'true');
-                var message = "Please log in to start your free trial. If you don't have an account, you can register here!";
+                var message = "{{ __('message.log_free_trial') }}";
                 var baseUrl = "{{ env('APP_URL') }}";
 
                 // Redirect to the login/register page
@@ -1473,6 +1546,78 @@ setTimeout(function() {
     $(document).ready(function() {
         $.fn.modal.Constructor.Default.backdrop = 'static';
     });
+
+    var body = document.body;
+
+    const flagIcon = document.getElementById('flagIcon');
+    const languageDropdown = document.getElementById('language-dropdown');
+
+    $(document).ready(function() {
+        const localeMap = { 'ar': 'ae', 'bsn': 'bs', 'de': 'de', 'en': 'us', 'en-gb': 'gb', 'es': 'es', 'fr': 'fr', 'id': 'id', 'it': 'it', 'kr': 'kr', 'mt': 'mt', 'nl': 'nl', 'no': 'no', 'pt': 'pt', 'ru': 'ru', 'vi': 'vn', 'zh-hans': 'cn', 'zh-hant': 'cn' };
+        const currentLocale = '{{ app()->getLocale() }}';
+        const mappedLocale = localeMap[currentLocale] || 'us';
+        $('#flagIcon').addClass('flag-icon flag-icon-' + mappedLocale);
+
+        $.ajax({
+            url: '<?php echo getBaseUrl(); ?>/language/settings',
+            type: 'GET',
+            dataType: 'JSON',
+            success: function(response) {
+                $.each(response.data, function(key, value) {
+
+                    const mappedLocale = localeMap[value.locale] || value.locale;
+                    const isSelected = value.locale === currentLocale ? 'selected' : 'us';
+                    $('#language-dropdown').append(
+                        '<a href="javascript:;" class="dropdown-item ' + isSelected + '" data-locale="' + value.locale + '">' +
+                        '<i class="flag-icon flag-icon-' + (mappedLocale || 'us') + ' mr-2"></i> ' + value.name +
+                        '</a>'
+                    );
+                });
+
+                // Add event listeners for the dynamically added language options
+                $(document).on('click', '.dropdown-item', function() {
+                    const selectedLanguage = $(this).data('locale');
+                    const mappedLocale = localeMap[selectedLanguage] || selectedLanguage;
+                    const flagClass = 'flag-icon flag-icon-' + mappedLocale;
+                    const dir = selectedLanguage === 'ar' ? 'rtl' : 'ltr';
+
+                    updateLanguage(selectedLanguage, flagClass, dir);
+                });
+            },
+            error: function(error) {
+                console.error('Error fetching languages:', error);
+            }
+        });
+
+        $.ajax({
+            url: '<?php echo getBaseUrl() ?>/current-language',
+            type: 'GET',
+            dataType: 'JSON',
+            success: function(response) {
+                const currentLanguage = response.data.language;
+                const flagClass = 'flag-icon flag-icon-' + (localeMap[currentLanguage] || 'us');
+                $('#flagIcon').attr('class', flagClass);
+            },
+            error: function(error) {
+                console.error('Error fetching current language:', error);
+            }
+        });
+    });
+
+    function updateLanguage(language, flagClass, dir) {
+        $('#flagIcon').attr('class', flagClass);
+        $.ajax({
+            url: '<?php echo getBaseUrl(); ?>/update/language',
+            type: 'POST',
+            data: { language: language },
+            success: function(response) {
+                window.location.reload();
+            },
+            error: function(xhr, status, error) {
+                console.error('Error updating language:', xhr.responseText);
+            }
+        });
+    }
 </script>
 
 <style>
@@ -1488,8 +1633,6 @@ setTimeout(function() {
         font-size: 12px;
         color: red;
     }
-
-
 
 </style>
 </body>
