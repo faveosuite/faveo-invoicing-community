@@ -60,10 +60,22 @@ class ClientRequest extends Request
 
     public function messages()
     {
-        return[
-            'state.required_if' => 'The state field is required when country is India.',
-            'zip.regex' => 'The zip/postal code in invalid',
-
+        return [
+            'first_name.required' => __('validation.users.first_name.required'),
+            'last_name.required' => __('validation.users.last_name.required'),
+            'company.required' => __('validation.users.company.required'),
+            'email.required' => __('validation.users.email.required'),
+            'email.email' => __('validation.users.email.email'),
+            'email.unique' => __('validation.users.email.unique'),
+            'address.required' => __('validation.users.address.required'),
+            'mobile.required' => __('validation.users.mobile.required'),
+            'country.required' => __('validation.users.country.required'),
+            'country.exists' => __('validation.users.country.exists'),
+            'state.required_if' => __('validation.users.state.required_if'),
+            'timezone_id.required' => __('validation.users.timezone_id.required'),
+            'user_name.required' => __('validation.users.user_name.required'),
+            'user_name.unique' => __('validation.users.user_name.unique'),
+            'zip.regex' => __('validation.users.zip.regex'),
         ];
     }
 

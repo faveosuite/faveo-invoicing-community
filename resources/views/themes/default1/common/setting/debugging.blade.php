@@ -4,13 +4,13 @@ Debugging Settings
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Debugging Settings</h1>
+        <h1>{{ __('message.debugging_settings') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item active">Debugging Settings</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.debugging_settings') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -20,7 +20,7 @@ Debugging Settings
     <div class="card-header">
 
         <div id="response"></div>
-        <h5>Set Debugg Option
+        <h5>{{ __('message.set_debugg_option') }}
           </h5>
     </div>
     <?php
@@ -45,7 +45,7 @@ Debugging Settings
 
     </div>
     <div>
-    <button type="submit" class="btn btn-primary">save</button>
+    <button type="submit" class="btn btn-primary">{{ __('message.save') }}</button>
     </div>
 
 </div>

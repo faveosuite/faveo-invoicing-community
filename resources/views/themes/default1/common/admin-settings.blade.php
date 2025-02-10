@@ -4,12 +4,12 @@ Settings
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Application Settings</h1>
+        <h1>{{ __('message.application_settings') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item active">Settings</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.settings') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -58,7 +58,7 @@ Settings
 
     <!-- /.box-header -->
         <div class="card-header">
-            <h3 class="card-title">Settings</h3>
+            <h3 class="card-title">{{ __('message.settings') }}</h3>
         </div>
     <div class="card-body">
         <div class="row">
@@ -72,7 +72,7 @@ Settings
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">System Settings</div>
+                        <div class="text-center text-sm fw_400">{{ __('message.system-settings') }}</div>
                     </div>
                 </div>
 
@@ -101,7 +101,7 @@ Settings
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">License Type</div>
+                        <div class="text-center text-sm fw_400">{{ __('message.lic_type') }}</div>
                     </div>
                 </div>
 
@@ -114,7 +114,7 @@ Settings
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">License Permissions</div>
+                        <div class="text-center text-sm fw_400">{{ __('message.license_permission') }}</div>
                     </div>
                 </div>
 
@@ -127,7 +127,7 @@ Settings
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">File Storage</div>
+                        <div class="text-center text-sm fw_400">{{ __('message.file_storage') }}</div>
                     </div>
                 </div>
 
@@ -140,7 +140,7 @@ Settings
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">Payment Gateways</div>
+                        <div class="text-center text-sm fw_400">{{ __('message.payment_gateway') }}</div>
                     </div>
                 </div>
 
@@ -153,7 +153,7 @@ Settings
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">System Managers</div>
+                        <div class="text-center text-sm fw_400">{{ __('message.system_manager') }}</div>
                     </div>
                 </div>
 
@@ -166,7 +166,7 @@ Settings
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">Third party apps</div>
+                        <div class="text-center text-sm fw_400">{{ __('message.third_party_apps') }}</div>
                     </div>
                 </div>
 
@@ -179,7 +179,7 @@ Settings
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">Cloud Hub</div>
+                        <div class="text-center text-sm fw_400">{{ __('message.cloud_hub') }}</div>
                     </div>
                 </div>
 
@@ -193,7 +193,7 @@ Settings
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">Localized License</div>
+                        <div class="text-center text-sm fw_400">{{ __('message.localized_license') }}</div>
                     </div>
                 </div>
 
@@ -208,7 +208,7 @@ Settings
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">Debug</div>
+                        <div class="text-center text-sm fw_400">{{ __('message.debug') }}</div>
                     </div>
                 </div>
              @if(env('APP_DEBUG') == 'true')
@@ -221,7 +221,7 @@ Settings
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">ClockWork</div>
+                        <div class="text-center text-sm fw_400">{{ __('message.clockwork') }}</div>
                     </div>
                 </div>
                 @endif
@@ -235,7 +235,20 @@ Settings
                             </span>
                         </a>
                     </div>
-                    <div class="text-center text-sm fw_400">Social Logins</div>
+                    <div class="text-center text-sm fw_400">{{ __('message.social_logins') }}</div>
+                </div>
+            </div>
+
+            <div class="col-md-2 col-sm-6">
+                <div class="settingiconblue">
+                    <div class="settingdivblue">
+                        <a class="icons-color" href="{{url('languages')}}">
+                            <span class="fa-stack fa-2x">
+                                <i class="fas fa-language fa-stack-1x"></i>
+                            </span>
+                        </a>
+                    </div>
+                    <div class="text-center text-sm fw_400">{{ __('message.language') }}</div>
                 </div>
             </div>
 
@@ -267,7 +280,7 @@ Settings
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">Error Log</div>
+                        <div class="text-center text-sm fw_400">{{ __('message.err_log') }}</div>
                     </div>
                 </div>
 
@@ -280,7 +293,7 @@ Settings
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">Activity Log</div>
+                        <div class="text-center text-sm fw_400">{{ __('message.activity_log') }}</div>
                     </div>
                 </div>
 
@@ -293,7 +306,7 @@ Settings
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">Email Log</div>
+                        <div class="text-center text-sm fw_400">{{ __('message.email_log') }}</div>
                     </div>
                 </div>
 
@@ -306,7 +319,7 @@ Settings
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">Payment Log</div>
+                        <div class="text-center text-sm fw_400">{{ __('message.payment_log') }}</div>
                     </div>
                 </div>
 
@@ -356,7 +369,7 @@ Settings
 
 <div class="card card-secondary card-outline">
     <div class="card-header">
-        <h3 class="card-title">Email</h3>
+        <h3 class="card-title">{{ __('message.email') }}</h3>
     </div>
     <!-- /.box-header -->
     <div class="card-body">
@@ -371,7 +384,7 @@ Settings
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">Email Settings</div>
+                        <div class="text-center text-sm fw_400">{{ __('message.email_settings') }}</div>
                     </div>
                 </div>
                 <!--/.col-md-2-->
@@ -385,7 +398,7 @@ Settings
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">Template Settings</div>
+                        <div class="text-center text-sm fw_400">{{ __('message.template_settings') }}</div>
                     </div>
                 </div>
                 <!--/.col-md-2-->
@@ -399,7 +412,7 @@ Settings
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">Templates</div>
+                        <div class="text-center text-sm fw_400">{{ __('message.templates') }}</div>
                     </div>
                 </div>
                 <!--/.col-md-2-->
@@ -413,7 +426,7 @@ Settings
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">Queues</div>
+                        <div class="text-center text-sm fw_400">{{ __('message.queues') }}</div>
                     </div>
                 </div>
 
@@ -427,7 +440,7 @@ Settings
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">Queue Monitoring</div>
+                        <div class="text-center text-sm fw_400">{{ __('message.queue_monitoring') }}</div>
                     </div>
                 </div>
                 @endif
@@ -440,7 +453,7 @@ Settings
 
 <div class="card card-secondary card-outline">
     <div class="card-header">
-        <h3 class="card-title">Api</h3>
+        <h3 class="card-title">{{ __('message.api') }}</h3>
     </div>
     <!-- /.box-header -->
     <div class="card-body">
@@ -455,7 +468,7 @@ Settings
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">Github</div>
+                        <div class="text-center text-sm fw_400">{{ __('message.github') }}</div>
                     </div>
                 </div>
                 <!--/.col-md-2-->
@@ -473,7 +486,7 @@ Settings
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">Mail Chimp</div>
+                        <div class="text-center text-sm fw_400">{{ __('message.mail_chimp') }}</div>
                     </div>
                 </div>
                 @endif
@@ -487,7 +500,7 @@ Settings
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">Api Keys</div>
+                        <div class="text-center text-sm fw_400">{{ __('message.key') }}</div>
                     </div>
                 </div>
         </div>
@@ -498,7 +511,7 @@ Settings
 
 <div class="card card-secondary card-outline">
     <div class="card-header">
-        <h3 class="card-title">Common</h3>
+        <h3 class="card-title">{{ __('message.common') }}</h3>
     </div>
     <!-- /.box-header -->
     <div class="card-body">
@@ -513,7 +526,7 @@ Settings
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">Tax</div>
+                        <div class="text-center text-sm fw_400">{{ __('message.tax') }}</div>
                     </div>
                 </div>
                 <!--/.col-md-2-->
@@ -527,7 +540,7 @@ Settings
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">Currency</div>
+                        <div class="text-center text-sm fw_400">{{ __('message.currency') }}</div>
                     </div>
                 </div>
                 <!--/.col-md-2-->
@@ -540,7 +553,7 @@ Settings
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">Country List</div>
+                        <div class="text-center text-sm fw_400">{{ __('message.country_list') }}</div>
                     </div>
                 </div>
 
@@ -552,7 +565,7 @@ Settings
 </div>
 <div class="card card-secondary card-outline">
     <div class="card-header">
-        <h3 class="card-title">Widgets</h3>
+        <h3 class="card-title">{{ __('message.widgets') }}</h3>
     </div>
     <!-- /.box-header -->
     <div class="card-body">
@@ -567,7 +580,7 @@ Settings
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">Footer</div>
+                        <div class="text-center text-sm fw_400">{{ __('message.footer') }}</div>
                     </div>
                 </div>
                 <!--/.col-md-2-->
@@ -581,7 +594,7 @@ Settings
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">Social Media</div>
+                        <div class="text-center text-sm fw_400">{{ __('message.social-media') }}</div>
                     </div>
                 </div>
                 <!--/.col-md-2-->
@@ -595,7 +608,7 @@ Settings
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">Analytics/Custom Code</div>
+                        <div class="text-center text-sm fw_400">{{ __('message.analytics_custom_code') }}</div>
                     </div>
                 </div>
         </div>

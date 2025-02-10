@@ -7,15 +7,15 @@
     active
 @stop
 @section('page-heading')
-    My Invoices
+    {{ __('message.my_invoices')}}
 @stop
 @section('breadcrumb')
     @if(Auth::check())
-        <li><a class="text-primary" href="{{url('my-invoices')}}">Home</a></li>
+        <li><a class="text-primary" href="{{url('my-invoices')}}">{{ __('message.home')}}</a></li>
     @else
-         <li><a class="text-primary" href="{{url('login')}}">Home</a></li>
+         <li><a class="text-primary" href="{{url('login')}}">{{ __('message.home')}}</a></li>
     @endif
-     <li class="active text-dark">My Invoices</li>
+     <li class="active text-dark">{{ __('message.my_invoices')}}</li>
 @stop 
 <?php $check = App\User::where('id', Auth::id())->value('company');
 
@@ -62,7 +62,7 @@
 
         @endphp
         <button class="btn-credit open-createCreditDialog" style="background-color: white; border: none; margin-left: 960px; margin-bottom: 10px;">
-            <i class="fas fa-credit-card"></i> Credits: {!! $formattedValue !!}
+            <i class="fas fa-credit-card"></i> {{ __('message.credits')}} {!! $formattedValue !!}
         </button>
         <script>
             $(document).ready(function () {
@@ -80,14 +80,14 @@
                 <div class="modal-dialog credit-dialog">
                     <div class="modal-content credit-content">
                         <div class="modal-header credit-header">
-                            <h4 class="modal-title credit-title">Credit Balance: {!! $formattedValue !!}</h4>
+                            <h4 class="modal-title credit-title">{{ __('message.credit_balance')}} {!! $formattedValue !!}</h4>
                             <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                         <div class="modal-body credit-body">
                             <ul class="list-group">
-                                <h6 class="modal-title">Credit Balance History</h6>
+                                <h6 class="modal-title">{{ __('message.credit_balance_history')}}</h6>
                                 <br>
                                 @php
                                     $payment_id = \DB::table('payments')->where('user_id',\Auth::user()->id)->where('payment_method','Credit Balance')->where('payment_status','success')->value('id');
@@ -103,7 +103,7 @@
                                         </li>
                                     @endforeach
                                 @else
-                                    <li class="list-group-item" style="text-align: center">No activity has been recorded for this credit so far.</li>
+                                    <li class="list-group-item" style="text-align: center">{{ __('message.activity_recorded')}}</li>
                                 @endif
                             </ul>
                         </div>
@@ -132,14 +132,14 @@
                                                 <table id="invoice-table" class="table table-striped table-bordered">
                                                 <thead>
                                                 <tr>
-                                                    <th>Invoice No</th>
-                                                    <th>Date</th>
-                                                    <th>Order No</th>
-                                                    <th>Total</th>
-                                                    <th>Paid</th>
-                                                    <th>Balance</th>
-                                                    <th>Status</th>
-                                                    <th style="width: 122px;">Action</th>
+                                                    <th>{{ __('message.invoice_no')}}</th>
+                                                    <th>{{ __('message.date')}}</th>
+                                                    <th>{{ __('message.order_no')}}</th>
+                                                    <th>{{ __('message.total')}}</th>
+                                                    <th>{{ __('message.paid')}}</th>
+                                                    <th>{{ __('message.balance')}}</th>
+                                                    <th>{{ __('message.status')}}</th>
+                                                    <th style="width: 122px;">{{ __('message.action')}}</th>
 
                                                 </tr> </thead>
                                             </table>
@@ -158,18 +158,18 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Required Details</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">{{ __('message.required_details')}}</h5>
                 </div>
                 <div class="modal-body">
                     <form method="POST" action="{{ url('store-basic-details') }}">
                         @csrf
                         <div class="form-group">
-                            <label for="recipient-name" class="col-form-label"><b>Company Name</b><span style="color: red;">*</span></label>
+                            <label for="recipient-name" class="col-form-label"><b>{{ __('message.company')}}</b><span style="color: red;">*</span></label>
                             <input type="text" class="form-control required" id="company" name="company">
 
                         </div>
                         <div class="form-group">
-                            <label for="message-text" class="col-form-label"><b>Address</b><span style="color: red;">*</span></label>
+                            <label for="message-text" class="col-form-label"><b>{{ __('message.address')}}</b><span style="color: red;">*</span></label>
                             <textarea class="form-control required" id="address" name="address"></textarea>
 
 
@@ -179,7 +179,7 @@
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-primary" id="submit">
                         <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-                        <span class="button-text"> <i class="fa fa-save">&nbsp;&nbsp;</i>Save</span>
+                        <span class="button-text"> <i class="fa fa-save">&nbsp;&nbsp;</i>{{ __('message.save')}}</span>
                     </button>
                 </div>
 
@@ -192,17 +192,17 @@
        <div class="modal-dialog">
            <div class="modal-content">
                <div class="modal-header">
-                   <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                   <h5 class="modal-title" id="deleteModalLabel">{{ __('message.confirm_deletion') }}</h5>
                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                        <span aria-hidden="true">&times;</span>
                    </button>
                </div>
                <div class="modal-body">
-                   Are you sure you want to delete this invoice?
+                   {{ __('message.delete_invoice') }}
                </div>
                <div class="modal-footer">
-                   <button type="button" class="btn btn-light" data-bs-dismiss="modal" id="cancelBtn">Cancel</button>
-                   <button type="button" class="btn btn-primary" id="confirmDeleteBtn">Delete</button>
+                   <button type="button" class="btn btn-light" data-bs-dismiss="modal" id="cancelBtn">{{ __('message.cancel') }}</button>
+                   <button type="button" class="btn btn-primary" id="confirmDeleteBtn">{{ __('message.delete') }}</button>
                </div>
            </div>
        </div>
@@ -232,9 +232,9 @@
                     success: function (response) {
                         // Display success message
                         var successMessage = '<div class="alert alert-success">' +
-                            '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
+                            '<button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}">' +
                             '<span aria-hidden="true">&times;</span></button>' +
-                            '<strong><i class="far fa-thumbs-up"></i> Well Done! </strong>' +
+                            '<strong><i class="far fa-thumbs-up"></i> {{ __('message.well_done') }} </strong>' +
                             response.message + '!</div>';
                         messageContainer.html(successMessage);
 
@@ -248,9 +248,9 @@
 
                         // Display error message
                         var errorMessage = '<div class="alert alert-danger">' +
-                            '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
+                            '<button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}">' +
                             '<span aria-hidden="true">&times;</span></button>' +
-                            '<strong>Oh Snap! </strong>Something went wrong<br><br><ul>';
+                            '<strong>{{ __('message.oh_snap') }} </strong>{{ __('message.something_wrong') }}<br><br><ul>';
                         var errors = xhr.responseJSON.errors;
                         $.each(errors, function (key, value) {
                             errorMessage += '<li>' + value + '</li>';
@@ -287,7 +287,7 @@
                 // Check if the fields are empty
                 if (company.trim() === '' || address.trim() === '') {
                     // Display an error message or take appropriate action
-                    alert('Company name and address are required.');
+                    alert(@json(__('message.company_details_required')));
                 } else {
                     // If fields are not empty, proceed with the form submission
                     var btn = $(this);
@@ -331,7 +331,7 @@
 
                 error: function(xhr) {
                     if(xhr.status == 401) {
-                        alert('Your session has expired. Please login again to continue.')
+                        alert(@json(__('message.session_expired')));
                         window.location.href = '/login';
                     }
                 }

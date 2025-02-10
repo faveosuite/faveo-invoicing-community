@@ -3,25 +3,32 @@
 use App\Http\Controllers\BillingInstaller\InstallerController;
 use Illuminate\Support\Facades\Route;
 
-Route::post('db-setup', [InstallerController::class, 'configuration'])->name('db-setup');
+Route::middleware(['installer'])->group(function () {
+    Route::get('db-setup', [InstallerController::class, 'databasePage'])->name('db-setup');
 
-Route::post('posting', [InstallerController::class, 'configurationcheck',
-])->name('posting');
+    Route::get('post-check', [InstallerController::class, 'database'])->name('database');
 
-Route::get('config-check', [InstallerController::class, 'database',
-])->name('config-check');
+    Route::get('get-start/{timezone?}', [InstallerController::class, 'account'])->name('get-start');
 
-Route::post('create/env', [InstallerController::class, 'createEnv',
-])->name('create.env');
+    Route::post('posting', [InstallerController::class, 'configurationcheck'])->name('posting');
 
-Route::post('preinstall/check', [InstallerController::class, 'checkPreInstall',
-])->name('preinstall.check');
+    Route::post('config-check', [InstallerController::class, 'dbsetup'])->name('config-check');
 
-Route::post('migrate', [InstallerController::class, 'migrate',
-])->name('migrate');
+    Route::post('create/env', [InstallerController::class, 'createEnv'])->name('create.env');
 
-Route::get('getTimeZone', [InstallerController::class, 'getTimeZoneDropDown']);
+    Route::get('preinstall/check', [InstallerController::class, 'checkPreInstall'])->name('preinstall.check');
 
-Route::post('accountcheck', [InstallerController::class, 'accountcheck']);
+    Route::get('migrate', [InstallerController::class, 'migrate'])->name('migrate');
 
-Route::post('lang', [InstallerController::class, 'getLang'])->withoutMiddleware(['isInstalled']);
+    Route::get('getTimeZone', [InstallerController::class, 'getTimeZoneDropDown']);
+
+    Route::post('accountcheck', [InstallerController::class, 'accountcheck'])->name('accountcheck');
+
+    Route::post('lang', [InstallerController::class, 'getLang'])->withoutMiddleware(['isInstalled']);
+
+    Route::get('language/settings', [InstallerController::class, 'languageList'])->withoutMiddleware(['isInstalled']);
+    Route::post('/update/language', [InstallerController::class, 'storeLanguage'])->withoutMiddleware(['isInstalled']);
+    Route::get('/current-language', [InstallerController::class, 'getCurrentLang'])->withoutMiddleware(['isInstalled']);
+    Route::get('final', [InstallerController::class, 'finalize'])->name('final')->withoutMiddleware(['isInstalled']);
+    Route::post('/lang/update', [InstallerController::class, 'storeLanguageForUsers'])->withoutMiddleware(['isInstalled']);
+});

@@ -54,7 +54,7 @@ class WidgetController extends Controller
                         })
                         ->addColumn('action', function ($model) {
                             return '<a href='.url('widgets/'.$model->id.'/edit')."
-                             class='btn btn-sm btn-secondary btn-xs'".tooltip('Edit')."<i class='fa fa-edit'
+                             class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.edit'))."<i class='fa fa-edit'
                                  style='color:white;'> </i></a>";
                         })
                          ->filterColumn('name', function ($query, $keyword) {
@@ -105,16 +105,23 @@ class WidgetController extends Controller
             'publish' => 'required',
             // 'content' => 'required',
             'type' => 'required|unique:widgets',
-        ]);
+        ],
+            [
+                'name.required' => __('validation.widget.name_required'),
+                'name.max' => __('validation.widget.name_max'),
+                'publish.required' => __('validation.widget.publish_required'),
+                'type.required' => __('validation.widget.type_required'),
+                'type.unique' => __('validation.widget.type_unique'),
+            ]);
 
         try {
             $mailchimpTextBox = Widgets::where('allow_mailchimp', 1)->count();
             $allowsocialIcon = Widgets::where('allow_social_media', 1)->count();
             if ($mailchimpTextBox && $request->allow_mailchimp == 1) {
-                throw new \Exception('Allow Mailchimp textbox can be selected as Yes only for one of the footers. It has alrerady been selected for a footer. Please change it to No to activate mailchimp for this footer.');
+                throw new \Exception(__('message.mailchimp_footer_error'));
             }
             if ($allowsocialIcon && $request->allow_social_media == 1) {
-                throw new \Exception('Allow Social icon  can be selected as Yes only for one of the footers. It has alrerady been selected for a footer. Please change it to No to activate social icon for this footer.');
+                throw new \Exception(__('message.social_icon_footer_warning'));
             }
             $this->widget->fill($request->input())->save();
 
@@ -131,16 +138,23 @@ class WidgetController extends Controller
             'publish' => 'required',
             // 'content' => 'required',
             'type' => 'required|unique:widgets,type,'.$id,
-        ]);
+        ],
+            [
+                'name.required' => __('validation.widget.name_required'),
+                'name.max' => __('validation.widget.name_max'),
+                'publish.required' => __('validation.widget.publish_required'),
+                'type.required' => __('validation.widget.type_required'),
+                'type.unique' => __('validation.widget.type_unique'),
+            ]);
 
         try {
             $mailchimpTextBox = Widgets::where('allow_mailchimp', 1)->where('id', '!=', $id)->count();
             $allowsocialIcon = Widgets::where('allow_social_media', 1)->where('id', '!=', $id)->count();
             if ($mailchimpTextBox && $request->input('allow_mailchimp')) {
-                throw new \Exception('Allow Mailchimp textbox can be selected as Yes only for one of the footers. It has alrerady been selected for a footer. Please change it to No to activate mailchimp for this footer.');
+                throw new \Exception(__('message.mailchimp_footer_error'));
             }
             if ($allowsocialIcon && $request->allow_social_media == 1) {
-                throw new \Exception('Allow Social icon  can be selected as Yes only for one of the footers. It has alrerady been selected for a footer. Please change it to No to activate social icon for this footer.');
+                throw new \Exception(__('message.social_icon_footer_warning'));
             }
             $widget = $this->widget->where('id', $id)->first();
             $widget->fill($request->input());

@@ -4,20 +4,20 @@ Social Media
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Social Media</h1>
+        <h1>{{ __('message.edit_social_media') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item active">Social Media</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.social_media') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
 @section('content')
 <div class="card card-secondary card-outline">
     <div class="card-header">
-        <h3 class="card-title">Social Media</h3>
+        <h3 class="card-title">{{ __('message.social_media') }}</h3>
 
         <div class="card-tools">
             <a href="{{url('social-media/create')}}" class="btn btn-default btn-sm pull-right"><span class="fa fa-plus"></span>&nbsp;&nbsp;{{Lang::get('message.create')}}</a>
@@ -39,9 +39,9 @@ Social Media
                     <thead><tr>
                         <th class="no-sort"><input type="checkbox" name="select_all" onchange="checking(this)"></th>
 
-                        <th>Name</th>
-                           <th>Content</th>
-                          <th>Action</th>
+                        <th>{{ __('message.name_page') }}</th>
+                        <th>{{ __('message.content') }}</th>
+                        <th>{{ __('message.action') }}</th>
                         </tr></thead>
                      </table>
               
@@ -64,7 +64,7 @@ Social Media
             "url":  '{!! route('get-social-media') !!}',
                error: function(xhr) {
                if(xhr.status == 401) {
-                alert('Your session has expired. Please login again to continue.')
+                alert('{{ __('message.session_expired') }}')
                 window.location.href = '/login';
                }
             }
@@ -73,7 +73,7 @@ Social Media
             "oLanguage": {
                 "sLengthMenu": "_MENU_ Records per page",
                 "sSearch"    : "Search: ",
-                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>'
+                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
             },
                 "columnDefs": [{
                 "defaultContent": "-",

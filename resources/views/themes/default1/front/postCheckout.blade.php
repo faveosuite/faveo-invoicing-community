@@ -10,12 +10,12 @@
 @stop
 @section('breadcrumb')
  @if(Auth::check())
-     <li><a href="{{url('my-invoices')}}">Home</a></li>
+     <li><a href="{{url('my-invoices')}}">{{ __('message.home')}}</a></li>
  @else
-     <li><a href="{{url('login')}}">Home</a></li>
+     <li><a href="{{url('login')}}">{{ __('message.home')}}</a></li>
  @endif
- <li><a href="{{url('checkout')}}">Checkout</a></li>
- <li class="active">Razorpay</li>
+ <li><a href="{{url('checkout')}}">{{ __('message.checkout')}}</a></li>
+ <li class="active">{{ __('message.razorpay')}}</li>
 @stop
 @section('main-class') "main shop" @stop
 @section('content')
@@ -138,7 +138,7 @@ $json = json_encode($data);
          <div class="card card-default" style="margin-bottom: 40px;">
             <div class="card-header">
                 <h4 class="card-title m-0">
-                        Payment
+                    {{ __('message.payment')}}
                 </h4>
             </div>
 
@@ -157,20 +157,20 @@ $json = json_encode($data);
                                 </th>
 
                                 <th class="product-name">
-                                    Product
+                                    {{ __('message.product')}}
                                 </th>
                                 <th class="product-invoice">
-                                    Invoice No.
+                                    {{ __('message.invoice_no')}}.
                                 </th>
                                 <th class="product-version">
-                                    Version
+                                    {{ __('message.version')}}
                                 </th>
 
                                 <th class="product-quantity">
-                                    Quantity
+                                    {{ __('message.quantity')}}
                                 </th>
                                 <th class="product-total">
-                                    Total
+                                    {{ __('message.total')}}
                                 </th>
                             </tr>
                         </thead>
@@ -197,7 +197,7 @@ $json = json_encode($data);
                                     @if($item->associatedModel->version)
                                     {{$item->associatedModel->version}}
                                     @else
-                                    Not available
+                                        {{ __('message.not_available')}}
                                     @endif
                                 </td>
                                  
@@ -210,7 +210,7 @@ $json = json_encode($data);
                                 </td>
                             </tr>
                             @empty 
-                        <p>Your Cart is void</p>
+                        <p>{{ __('message.cart_void')}}</p>
                         @endforelse
                         
 
@@ -225,13 +225,13 @@ $json = json_encode($data);
     </div>
     <div class="col-md-4">
          
-        <h4 class="heading-primary">Cart Total</h4>
+        <h4 class="heading-primary">{{ __('message.cart_total')}}</h4>
         <table class="cart-totals">
             <tbody>
                 <tr class="cart-subtotal">
                   
                     <th>
-                        <strong>Cart Subtotal</strong>
+                        <strong>{{ __('message.cart_subtotal')}}</strong>
                     </th>
                     <td>
                         <span class="amount">{{currencyFormat($cartSubtotalWithoutCondition,$code = $currency)}}</span>
@@ -241,7 +241,7 @@ $json = json_encode($data);
                   <tr class="cart-subtotal">
 
                     <th>
-                        <strong>Discount</strong>
+                        <strong>{{ __('message.discount')}}</strong>
                     </th>
                     <td>
                          {{currencyFormat(\Session::get('codevalue'),$code = $item->attributes->currency)}}
@@ -298,7 +298,7 @@ $json = json_encode($data);
                      
                 <tr class="total">
                     <th>
-                        <strong>Order Total</strong>
+                        <strong>{{ __('message.order_total')}}</strong>
                     </th>
                     <td>
                     <strong><span class="amount">{{currencyFormat(\Cart::getTotal(),$code = $item->attributes->currency)}} </span></strong>

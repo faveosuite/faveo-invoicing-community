@@ -28,4 +28,12 @@ class BundleRequest extends Request
             'items.*' => 'required',
         ];
     }
+
+    public function messages()
+    {
+        return [
+            'name.required' => __('validation.bundle.name.required'),
+            'items.*.required' => __('validation.bundle.items.required'),
+        ];
+    }
 }

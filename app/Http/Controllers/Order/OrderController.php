@@ -97,7 +97,7 @@ class OrderController extends BaseOrderController
             $request->from = '';
             $request->till = '';
 
-            return redirect('orders')->with('fails', 'Start date should be before end date');
+            return redirect('orders')->with('fails', __('message.start_date_before_end_date'));
         }
         try {
             $products = $this->product->where('id', '!=', 1)->pluck('name', 'id')->toArray();
@@ -197,7 +197,7 @@ class OrderController extends BaseOrderController
                     if ($model->order_status == 'Terminated') {
                         $badge = 'badge';
 
-                        return  '<a href='.url('orders/'.$model->id).'>'.$model->number.'</a>'.'&nbsp;<span class="'.$badge.' '.$badge.'-danger"  <label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="Order has been Terminated">
+                        return  '<a href='.url('orders/'.$model->id).'>'.$model->number.'</a>'.'&nbsp;<span class="'.$badge.' '.$badge.'-danger"  <label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="'.__('message.order_has_been_terminated').'">
 
                          </label>
             Terminated</span>';
@@ -392,7 +392,7 @@ class OrderController extends BaseOrderController
         try {
             $order = $this->order->findOrFail($id);
             if (User::onlyTrashed()->find($order->client)) {//If User is soft deleted for this order
-                throw new \Exception('The user for this order is suspended from the system. Restore the user to view order details.');
+                throw new \Exception(__('message.user_suspended_restore_to_view'));
             }
             $subscription = $order->subscription()->first();
 
@@ -410,7 +410,7 @@ class OrderController extends BaseOrderController
             $invoice = $this->invoice->where('id', $order->invoice_id)->first();
 
             if (! $invoice) {
-                return redirect()->back()->with('fails', 'no orders');
+                return redirect()->back()->with('fails', __('message.no_orders'));
             }
             $user = $this->user->find($invoice->user_id);
             $licenseStatus = StatusSetting::pluck('license_status')->first();
@@ -629,9 +629,9 @@ class OrderController extends BaseOrderController
                 app('queue')->setDefaultDriver($driver->short_name);
                 ReportExport::dispatch('orders', $selectedColumns, $searchParams, $email)->onQueue('reports');
 
-                return response()->json(['message' => 'System is generating you report. You will be notified once completed'], 200);
+                return response()->json(['message' => __('message.report_generation_in_progress')], 200);
             } else {
-                return response()->json(['message' => 'Cannot use sync queue driver for export'], 400);
+                return response()->json(['message' => __('message.cannot_sync_queue_driver')], 400);
             }
         } catch (\Exception $e) {
             \Log::error('Export failed: '.$e->getMessage());

@@ -31,4 +31,17 @@ class AddonRequest extends Request
             'products' => 'required',
         ];
     }
+
+    public function messages()
+    {
+        return [
+            'name.required' => __('validation.subscription_form.name.required'),
+            'subscription.required' => __('validation.subscription_form.subscription.required'),
+            'regular_price.required' => __('validation.subscription_form.regular_price.required'),
+            'regular_price.numeric' => __('validation.subscription_form.regular_price.numeric'),
+            'selling_price.required' => __('validation.subscription_form.selling_price.required'),
+            'selling_price.numeric' => __('validation.subscription_form.selling_price.numeric'),
+            'products.required' => __('validation.subscription_form.products.required'),
+        ];
+    }
 }

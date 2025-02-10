@@ -12,6 +12,7 @@ use App\Http\Controllers\Github;
 use App\Http\Controllers\Google2FAController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Jobs;
+use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\License;
 use App\Http\Controllers\License\LocalizedLicenseController;
 use App\Http\Controllers\Order;
@@ -650,4 +651,10 @@ Route::get('404', function () {
 })->name('error404');
 Route::get('/api/download/agents', [Product\BaseProductController::class, 'agentProductDownload']);
 Route::get('/product/detail', [Product\BaseProductController::class, 'getProductUsingLicenseCode']);
+
+//language
+Route::get('languages', [LanguageController::class, 'viewLanguage'])->middleware('auth');
+Route::post('language-toggle', [LanguageController::class, 'toggleLanguageStatus']);
+Route::get('language/control', [LanguageController::class, 'fetchLangDropdownUsers']);
+
 // });

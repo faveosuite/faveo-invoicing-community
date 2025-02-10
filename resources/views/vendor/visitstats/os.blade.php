@@ -8,9 +8,9 @@
 		<table class="visitortracker-table table table-sm table-striped fs-1">
 			<thead>
 				<th>OS</th>
-				<th>Unique Visitors</th>
-				<th>Visits</th>
-				<th>Last Visit</th>
+				<th>{{ __('message.unique_visitors') }}</th>
+				<th>{{ __('message.visits') }}</th>
+				<th>{{ __('message.last_visit') }}</th>
 			</thead>
 
 			<tbody>
@@ -27,7 +27,7 @@
 
 								{{ ucwords(str_replace('-', ' ', $visit->os_family)) }}
                             @else
-                                <span>Unknown</span>
+                                <span>{{ __('message.unknown') }}</span>
                             @endif
 						</td>
 							

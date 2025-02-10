@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Enter Domain</h4>
+                <h4 class="modal-title">{{ __('message.enter_domain_new')}}</h4>
                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                 
             </div>
@@ -18,7 +18,7 @@
                     <!-- name -->
                     <b>{{$name}}</b>
                     {!! Form::label('domain',Lang::get('message.domain'),['class'=>'required']) !!}
-                    {!! Form::text('domain['.$product.']',null,['class' => 'form-control' ,'id'=>'validDomain', 'required'=>'required   ','placeholder'=>'Domain Name Should be in the form domain.com or sub.domain.com']) !!}
+                    {!! Form::text('domain['.$product.']', null, ['class' => 'form-control', 'id' => 'validDomain', 'required' => 'required', 'placeholder' => __('message.enter_domain_name')]) !!}
                            <h6 id ="domaincheck"></h6>
                 </div>
                 
@@ -28,7 +28,7 @@
               
             </div>
             <div class="modal-footer">
-                <button type="button" id="close" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                <button type="button" id="close" class="btn btn-default pull-left" data-dismiss="modal">{{ __('message.close')}}</button>
                 <input type="submit" class="btn btn-primary" value="{{Lang::get('message.save')}}">
             </div>
              {!! Form::close()  !!}
@@ -58,7 +58,7 @@
               }
               else{
                  $('#domaincheck').show();
-               $('#domaincheck').html("Please enter a valid Domain in the form domain.com or sub.domain.com or enter a valid IP");
+               $('#domaincheck').html("{{ __('message.enter_domain_form')}}");
                  $('#domaincheck').focus();
                   $('#validDomain').css("border-color","red");
                  $('#domaincheck').css({"color":"red","margin-top":"5px"});

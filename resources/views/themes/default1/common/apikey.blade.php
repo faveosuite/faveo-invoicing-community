@@ -77,9 +77,9 @@
 </div>
 <div class="col-sm-6 md-6">
     <ol class="breadcrumb float-sm-right">
-        <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-        <li class="breadcrumb-item"><a href="{{url('settings')}}"> Settings</a></li>
-        <li class="breadcrumb-item active">Api Key</li>
+        <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+        <li class="breadcrumb-item"><a href="{{url('settings')}}"> {{ __('message.settings') }}</a></li>
+        <li class="breadcrumb-item active">{{ __('message.api_key') }}</li>
     </ol>
 </div><!-- /.col -->
 @stop
@@ -99,16 +99,16 @@
                             <thead>
                             <tr>
 
-                                <th>Options</th>
-                                <th>Status</th>
-                                <th>Fields</th>
-                                <th>Action</th>
+                                <th>{{ __('message.options') }}</th>
+                                <th>{{ __('message.status') }}</th>
+                                <th>{{ __('message.fields') }}</th>
+                                <th>{{ __('message.action') }}</th>
                             </tr>
                             </thead>
                             <tbody>
                             <tr>
 
-                                <td class="col-md-2">Auto Faveo Licenser & Update Manager</td>
+                                <td class="col-md-2">{{ __('message.auto_faveo_licenser') }}</td>
                                 <td class="col-md-2">
                                     <label class="switch toggle_event_editing">
 
@@ -177,7 +177,7 @@
 
                             <tr>
 
-                                <td class="col-md-2">Don't Allow Domin/Ip based Restriction</td>
+                                <td class="col-md-2">{{ __('message.do_not_allow_domain') }}</td>
                                 <td class="col-md-2">
                                     <label class="switch toggle_event_editing">
 
@@ -189,7 +189,7 @@
                                 </td>
                                 <td class="col-md-4 domainverify">
 
-                                    <b>Not Available</b>
+                                    <b>{{ __('message.not_available') }}</b>
 
 
                                 </td>
@@ -242,7 +242,7 @@
                 
 
                             <tr>
-                                <td class="col-md-2">Google reCAPTCHA</td>
+                                <td class="col-md-2">{{ __('message.google_recaptcha') }}</td>
                                 <td class="col-md-2">
                                     <label class="switch toggle_event_editing">
 
@@ -292,7 +292,7 @@
                             </tr>
                          <tr>
 
-                                <td class="col-md-2">Msg 91(Mobile Verification)</td>
+                                <td class="col-md-2">{{ __('message.msg_mobile_verification') }}</td>
                                 <td class="col-md-2">
                                     <label class="switch toggle_event_editing">
 
@@ -362,7 +362,7 @@
 
                             <tr>
 
-                                <td class="col-md-2">Mailchimp</td>
+                                <td class="col-md-2">{{ __('message.mailchimp') }}</td>
                                 <td class="col-md-2">
                                     <label class="switch toggle_event_editing">
 
@@ -388,7 +388,7 @@
 
                             <tr>
 
-                                <td class="col-md-2">Show Terms on Registration Page</td>
+                                <td class="col-md-2">{{ __('message.show_terms_registration') }}</td>
                                 <td class="col-md-2">
                                     <label class="switch toggle_event_editing">
 
@@ -417,7 +417,7 @@
 
                                 <tr>
 
-                                    <td class="col-md-2">Email Verification</td>
+                                    <td class="col-md-2">{{ __('message.email_verification_api') }}</td>
                                     <td class="col-md-2">
                                         <label class="switch toggle_event_editing">
 
@@ -429,7 +429,7 @@
                                     </td>
                                     <td class="col-md-4 mobileverify">
 
-                                        <b>Not Available</b>
+                                        <b>{{ __('message.not_available') }}</b>
 
 
                                     </td>
@@ -440,7 +440,7 @@
 
                             <tr>
 
-                                <td class="col-md-2">Twitter</td>
+                                <td class="col-md-2">{{ __('message.twitter') }}</td>
                                 <td class="col-md-2">
                                     <label class="switch toggle_event_editing">
 
@@ -486,7 +486,7 @@
 
                             <tr>
 
-                                <td class="col-md-2">Zoho CRM</td>
+                                <td class="col-md-2">{{ __('message.zoho_crm') }}</td>
                                 <td class="col-md-2">
                                     <label class="switch toggle_event_editing">
 
@@ -512,7 +512,7 @@
 
                             <tr>
 
-                                <td class="col-md-2">Pipedrive</td>
+                                <td class="col-md-2">{{ __('message.pipedrive') }}</td>
                                 <td class="col-md-2">
                                     <label class="switch toggle_event_editing">
 
@@ -687,7 +687,7 @@
 
                 if ($('#license_api_secret').val() =="" ) {
                     $('#license_apiCheck').show();
-                    $('#license_apiCheck').html("Please Enter API Secret Key");
+                    $('#license_apiCheck').html("{{ __('message.enter_api_secret_key') }}");
                     $('#license_api_secret').css("border-color","red");
                     $('#license_apiCheck').css({"color":"red","margin-top":"5px"});
                     setTimeout(function(){
@@ -699,7 +699,7 @@
          
                 if ($('#license_api_url').val() =="" ) {
                     $('#license_urlCheck').show();
-                    $('#license_urlCheck').html("Please Enter API URL");
+                    $('#license_urlCheck').html("{{ __('message.enter_api_url') }}");
                     $('#license_api_url').css("border-color","red");
                     $('#license_urlCheck').css({"color":"red","margin-top":"5px"});
                     setTimeout(function(){
@@ -711,7 +711,7 @@
 
                 if ($('#license_client_id').val() =="" ) {
                     $('#license_clientIdCheck').show();
-                    $('#license_clientIdCheck').html("Please Enter Client Id For License Manager");
+                    $('#license_clientIdCheck').html("{{ __('message.enter_client_id') }}");
                     $('#license_client_id').css("border-color","red");
                     $('#license_clientIdCheck').css({"color":"red","margin-top":"5px"});
                     setTimeout(function(){
@@ -722,7 +722,7 @@
                 }
                 if ($('#license_client_secret').val() =="" ) {
                     $('#license_clientSecretCheck').show();
-                    $('#license_clientSecretCheck').html("Please Enter Your Client Secret For License Manager");
+                    $('#license_clientSecretCheck').html("{{ __('message.enter_client_secret') }}");
                     $('#license_client_secret').css("border-color","red");
                     $('#license_clientSecretCheck').css({"color":"red","margin-top":"5px"});
                     setTimeout(function(){
@@ -733,7 +733,7 @@
                 }
                 if ($('#license_grant_type').val() =="" ) {
                     $('#license_grantTypeCheck').show();
-                    $('#license_grantTypeCheck').html("Please Enter Your Grant Type For License Manager");
+                    $('#license_grantTypeCheck').html("{{ __('message.enter_grant_type') }}");
                     $('#license_grant_type').css("border-color","red");
                     $('#license_grantTypeCheck').css({"color":"red","margin-top":"5px"});
                     setTimeout(function(){
@@ -746,7 +746,7 @@
             else{
                 var checkboxvalue = 0;
             }
-            $("#submit").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+            $("#submit").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
             $.ajax({
 
                 url : '{{url("licenseDetails")}}',
@@ -762,7 +762,7 @@
                 },
                 success: function (response) {
                     $('#alertMessage').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+response.update+'.</div>';
                     $('#alertMessage').html(result+ ".");
                     $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
@@ -814,7 +814,7 @@
                 var checkboxvalue = 1;
                 if ($('#update_api_secret').val() == '' ) {
                     $('#update_apiCheck').show();
-                    $('#update_apiCheck').html("Please Enter API Secret Key");
+                    $('#update_apiCheck').html("{{ __('message.enter_api_secret_key') }}");
                     $('#update_api_secret').css("border-color","red");
                     $('#update_apiCheck').css({"color":"red","margin-top":"5px"});
                     return false;
@@ -822,7 +822,7 @@
                 if ($('#update_api_url').val() == '' ) {
                     alert('df');
                     $('#update_urlCheck').show();
-                    $('#update_urlCheck').html("Please Enter API URL");
+                    $('#update_urlCheck').html("{{ __('message.enter_api_url') }}");
                     $('#update_api_url').css("border-color","red");
                     $('#update_urlCheck').css({"color":"red","margin-top":"5px"});
                     return false;
@@ -832,7 +832,7 @@
             else{
                 var checkboxvalue = 0;
             }
-            $("#submitudpate").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+            $("#submitudpate").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
             $.ajax({
 
                 url : '{{url("updateDetails")}}',
@@ -844,9 +844,9 @@
                 },
                 success: function (response) {
                     $('#alertMessage').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+response.update+'.</div>';
                     $('#alertMessage').html(result+ ".");
-                    $("#submitudpate").html("<i class='fa fa-floppy-o'>&nbsp;&nbsp;</i>Save");
+                    $("#submitudpate").html("<i class='fa fa-floppy-o'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                     setInterval(function(){
                         $('#alertMessage').slideUp(3000);
                     }, 1000);
@@ -902,14 +902,14 @@
                 var checkboxvalue = 1;
                 if ($('#nocaptcha_secret').val() =="" ) {
                     $('#captcha_secretCheck').show();
-                    $('#captcha_secretCheck').html("Please Enter Secret Key");
+                    $('#captcha_secretCheck').html("{{ __('message.enter_secret_key') }}");
                     $('#captcha_secret').css("border-color","red");
                     $('#captcha_secretCheck').css({"color":"red","margin-top":"5px"});
                     return false;
                 }
                 if ($('#nocaptcha_sitekey').val() =="" ) {
                     $('#captcha_sitekeyCheck').show();
-                    $('#captcha_sitekeyCheck').html("Please Enter Sitekey");
+                    $('#captcha_sitekeyCheck').html("{{ __('message.enter_site_key') }}");
                     $('#nocaptcha_sitekey').css("border-color","red");
                     $('#captcha_sitekeyCheck').css({"color":"red","margin-top":"5px"});
                     return false;
@@ -919,7 +919,7 @@
             else{
                 var checkboxvalue = 0;
             }
-            $("#submit2").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+            $("#submit2").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
             $.ajax({
 
                 url : '{{url("captchaDetails")}}',
@@ -932,9 +932,9 @@
                 },
                 success: function (data) {
                     $('#alertMessage').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+data.update+'.</div>';
                     $('#alertMessage').html(result+ ".");
-                    $("#submit2").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    $("#submit2").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                     setInterval(function(){
                         $('#alertMessage').slideUp(3000);
                     }, 1000);
@@ -984,14 +984,14 @@
                 var checkboxvalue = 1;
                 if ($('#captcha_secret').val() =="" ) {
                     $('#v3captcha_secretCheck').show();
-                    $('#v3captcha_secretCheck').html("Please Enter Secret Key");
+                    $('#v3captcha_secretCheck').html("{{ __('message.enter_secret_key') }}");
                     $('#captcha_secret').css("border-color","red");
                     $('#v3captcha_secretCheck').css({"color":"red","margin-top":"5px"});
                     return false;
                 }
                 if ($('#captcha_sitekey').val() =="" ) {
                     $('#captcha_sitekeyCheck').show();
-                    $('#captcha_sitekeyCheck').html("Please Enter Sitekey");
+                    $('#captcha_sitekeyCheck').html("{{ __('message.enter_site_key') }}");
                     $('#captcha_sitekey').css("border-color","red");
                     $('#captcha_sitekeyCheck').css({"color":"red","margin-top":"5px"});
                     return false;
@@ -1014,18 +1014,17 @@
                 },
                 success: function (data) {
                     $('#alertMessage').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+data.update+'.</div>';
                     $('#alertMessage').html(result+ ".");
-                    $("#submit3").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    $("#submit3").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                     setInterval(function(){
                         $('#alertMessage').slideUp(3000);
                     }, 1000);
                 },
 
             });
-        };
+        }
 
- <!--------------------------------------------------------------------------------------------->
         /*
        *MSG 91
         */
@@ -1074,7 +1073,7 @@
 
                 // Validate Auth Key
                 if ($('#mobile_authkey').val() === "") {
-                    $('#mobile_check').show().text("Please Enter Auth Key").css({ "color": "red", "margin-top": "5px" });
+                    $('#mobile_check').show().text("{{ __('message.enter_auth_key') }}").css({ "color": "red", "margin-top": "5px" });
                     $('#mobile_authkey').addClass('error-border');
                     return false;
                 } else {
@@ -1089,7 +1088,7 @@
                         $('#sender_check').hide();
                         $('#sender').removeClass('error-border');
                     } else {
-                        $('#sender_check').show().text("Sender can only be alphabets and maximum 6 characters").css({ "color": "red", "margin-top": "5px" });
+                        $('#sender_check').show().text("{{ __('message.check_characters') }}").css({ "color": "red", "margin-top": "5px" });
                         $('#sender').addClass('error-border');
                         return false;
                     }
@@ -1098,7 +1097,7 @@
                 // Validate Template ID
                 if ($('#template_id').val() === "") {
                     $('#template_id').addClass('error-border');
-                    $('#template_check').show().text("Please Enter Template ID").css({ "color": "red", "margin-top": "5px" });
+                    $('#template_check').show().text("{{ __('message.enter_template_id') }}").css({ "color": "red", "margin-top": "5px" });
                     return false;
                 } else {
                     $('#template_id').removeClass('error-border');
@@ -1122,7 +1121,7 @@
             }
 
             // Show loading state
-            $("#submit3").html("<i class='fas fa-circle-notch fa-spin'></i> Please Wait...");
+            $("#submit3").html("<i class='fas fa-circle-notch fa-spin'></i> {{ __('message.please_wait') }}");
 
             // AJAX request
             $.ajax({
@@ -1139,10 +1138,10 @@
                     const result = `
                 <div class="alert alert-success alert-dismissable">
                     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                    <strong><i class="fa fa-check"></i> Success! </strong>${data.update}.
+                    <strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>${data.update}.
                 </div>`;
                     $('#alertMessage').show().html(result);
-                    $("#submit3").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    $("#submit3").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
 
                     console.log("in");
 
@@ -1151,8 +1150,8 @@
                     }, 1000);
                 },
                 error: function () {
-                    $('#alertMessage').html("<div class='alert alert-danger'>An error occurred. Please try again.</div>").show();
-                    $("#submit3").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    $('#alertMessage').html("<div class='alert alert-danger'>{{ __('message.error_occurred') }}</div>").show();
+                    $("#submit3").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                 }
             });
         });
@@ -1180,7 +1179,7 @@
             } else {
                 var emailstatus = 0;
             }
-            $("#submit4").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+            $("#submit4").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
             $.ajax ({
                 url: '{{url("updateemailDetails")}}',
                 type : 'post',
@@ -1189,7 +1188,7 @@
                 },
                 success: function (data) {
                     $('#alertMessage').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+data.update+'.</div>';
                     $('#alertMessage').html(result+ ".");
                     $("#submit4").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
@@ -1257,25 +1256,25 @@
                 var twitterstatus = 1;
                 if ($('#consumer_key').val() == "") { //if value is not entered
                     $('#consumer_keycheck').show();
-                    $('#consumer_keycheck').html("Please Enter Twitter Consumer Key");
+                    $('#consumer_keycheck').html("{{ __('message.enter_twitter_key') }}");
                     $('#consumer_key').css("border-color","red");
                     $('#consumer_keycheck').css({"color":"red","margin-top":"5px"});
                     return false;
                 } else if ($('#consumer_secret').val() == "") {
                     $('#consumer_secretcheck').show();
-                    $('#consumer_secretcheck').html("Please Enter Twitter Consumer Secret");
+                    $('#consumer_secretcheck').html("{{ __('message.enter_twitter_secret') }}");
                     $('#consumer_secret').css("border-color","red");
                     $('#consumer_secretcheck').css({"color":"red","margin-top":"5px"});
                     return false;
                 } else if ($('#access_token').val() == "") {
                     $('#access_tokencheck').show();
-                    $('#access_tokencheck').html("Please Enter Twitter Access Token");
+                    $('#access_tokencheck').html("{{ __('message.enter_twitter_access_token') }}");
                     $('#access_token').css("border-color","red");
                     $('#access_tokencheck').css({"color":"red","margin-top":"5px"});
                     return false;
                 } else if ($('#token_secret').val() == "") {
                     $('#token_secretcheck').show();
-                    $('#token_secretcheck').html("Please Enter Twitter Token Secret");
+                    $('#token_secretcheck').html("{{ __('message.enter_twitter_token_secret') }}");
                     $('#token_secret').css("border-color","red");
                     $('#token_secretcheck').css({"color":"red","margin-top":"5px"});
                     return false;
@@ -1291,7 +1290,7 @@
                 $('#token_secret').css("border-color","");
                 var twitterstatus = 0;
             }
-            $("#submit5").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+            $("#submit5").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
             $.ajax ({
                 url: '{{url("updatetwitterDetails")}}',
                 type : 'post',
@@ -1302,9 +1301,9 @@
                 },
                 success: function (data) {
                     $('#alertMessage').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+data.update+'.</div>';
                     $('#alertMessage').html(result+ ".");
-                    $("#submit5").html("<i class='fa fa-save'>&nbsp;</i>Save");
+                    $("#submit5").html("<i class='fa fa-save'>&nbsp;</i>{{ __('message.save') }}");
                     setInterval(function(){
                         $('#alertMessage').slideUp(3000);
                     }, 1000);
@@ -1349,7 +1348,7 @@
                 var zohostatus = 1;
                 if ($('#zoho_key').val() == "") { //if value is not entered
                     $('#zoho_keycheck').show();
-                    $('#zoho_keycheck').html("Please Enter Zoho Key");
+                    $('#zoho_keycheck').html("{{ __('message.enter_zoho_key') }}");
                     $('#zoho_key').css("border-color","red");
                     $('#zoho_keycheck').css({"color":"red","margin-top":"5px"});
                     return false;
@@ -1360,7 +1359,7 @@
                 var zohostatus = 0;
 
             }
-            $("#submit7").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+            $("#submit7").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
             $.ajax ({
                 url: '{{url("updatezohoDetails")}}',
                 type : 'post',
@@ -1370,16 +1369,16 @@
                 },
                 success: function (data) {
                     $('#alertMessage').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+data.update+'.</div>';
                     $('#alertMessage').html(result+ ".");
-                    $("#submit7").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    $("#submit7").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                     setInterval(function(){
                         $('#alertMessage').slideUp(3000);
                     }, 1000);
                 },
             })
         });
- <!--------------------------------------------------------------------------------------------->
+
         /*
        *Mailchimp
         */
@@ -1413,7 +1412,7 @@
                 var chimpstatus = 1;
                 if ($('#mailchimp_authkey').val() == "") { //if value is not entered
                     $('#mailchimp_check').show();
-                    $('#mailchimp_check').html("Please Enter Mailchimp Api Key");
+                    $('#mailchimp_check').html("{{ __('message.enter_mailchimp_key') }}");
                     $('#mailchimp_authkey').css("border-color","red");
                     $('#mailchimp_check').css({"color":"red","margin-top":"5px"});
                     return false;
@@ -1424,7 +1423,7 @@
                 var chimpstatus = 0;
 
             }
-            $("#submit9").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+            $("#submit9").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
             $.ajax ({
                 url: '{{url("updateMailchimpDetails")}}',
                 type : 'post',
@@ -1434,9 +1433,9 @@
                 },
                 success: function (data) {
                     $('#alertMessage').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+data.update+'.</div>';
                     $('#alertMessage').html(result+ ".");
-                    $("#submit9").html("<i class='fa fa-save'>&nbsp;</i>Save");
+                    $("#submit9").html("<i class='fa fa-save'>&nbsp;</i>{{ __('message.save') }}");
                     setInterval(function(){
                         $('#alertMessage').slideUp(3000);
                     }, 1000);
@@ -1444,7 +1443,6 @@
             })
         });
 
-   <!--------------------------------------------------------------------------------------------->
         /*
        *Terms
         */
@@ -1478,7 +1476,7 @@
                 var termsstatus = 1;
                 if ($('#terms_url').val() == "") { //if value is not entered
                     $('#terms_check').show();
-                    $('#terms_check').html("Please Enter Terms Url");
+                    $('#terms_check').html("{{ __('message.enter_terms_url') }}");
                     $('#terms_url').css("border-color","red");
                     $('#terms_check').css({"color":"red","margin-top":"5px"});
                     return false;
@@ -1489,7 +1487,7 @@
                 var termsstatus = 0;
 
             }
-            $("#submit10").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+            $("#submit10").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
             $.ajax ({
                 url: '{{url("updateTermsDetails")}}',
                 type : 'post',
@@ -1499,7 +1497,7 @@
                 },
                 success: function (data) {
                     $('#alertMessage').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+data.update+'.</div>';
                     $('#alertMessage').html(result+ ".");
                     $("#submit10").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
@@ -1543,7 +1541,7 @@
                 var pipedrivestatus = 1;
                 if ($('#pipedrive_key').val() == "") { //if value is not entered
                     $('#pipedrive_keycheck').show();
-                    $('#pipedrive_keycheck').html("Please Enter Pipedrive API Key");
+                    $('#pipedrive_keycheck').html("{{ __('message.enter_pipedrive_api') }}");
                     $('#pipedrive_key').css("border-color","red");
                     $('#pipedrive_keycheck').css({"color":"red","margin-top":"5px"});
                     return false;
@@ -1554,7 +1552,7 @@
                 var pipedrivestatus = 0;
 
             }
-            $("#submit13").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+            $("#submit13").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
             $.ajax ({
                 url: '{{url("updatepipedriveDetails")}}',
                 type : 'post',
@@ -1564,16 +1562,15 @@
                 },
                 success: function (data) {
                     $('#alertMessage').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+data.update+'.</div>';
                     $('#alertMessage').html(result+ ".");
-                    $("#submit13").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    $("#submit13").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                     setInterval(function(){
                         $('#alertMessage').slideUp(3000);
                     }, 1000);
                 },
             })
         });
- <!--------------------------------------------------------------------------------------------->
 
         /*
         * Domain Check Setting
@@ -1594,7 +1591,7 @@
             } else {
                 var domainstatus = 0;
             }
-            $("#submit14").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+            $("#submit14").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
             $.ajax ({
                 url: '{{url("updatedomainCheckDetails")}}',
                 type : 'post',
@@ -1603,9 +1600,9 @@
                 },
                 success: function (data) {
                     $('#alertMessage').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+data.update+'.</div>';
                     $('#alertMessage').html(result+ ".");
-                    $("#submit14").html("<i class='fa fa-save'>&nbsp;</i>Save");
+                    $("#submit14").html("<i class='fa fa-save'>&nbsp;</i>{{ __('message.save') }}");
                     setInterval(function(){
                         $('#alertMessage').slideUp(3000);
                     }, 1000);

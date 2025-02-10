@@ -45,17 +45,17 @@ class ContactRequest extends FormRequest
 
     public function messages()
     {
-        return[
-            'conName' => 'The name field is required',
-            'email' => 'The email field is required',
-            'conmessage' => 'The message field is required',
-            'Mobile' => 'The Mobile field is required',
-            'country_code' => 'The Mobile field is required',
-            'demoname' => 'The name field is required',
-            'demomessage' => 'The message field is required',
-            'demoemail' => 'The email field is required',
-            'congg-recaptcha-response-1.required' => 'Robot Verification Failed. Please Try Again.',
-            'demo-recaptcha-response-1.required' => 'Robot Verification Failed. Please Try Again.',
+        return [
+            'conName.required' => __('validation.contact_request.conName'),
+            'email.required' => __('validation.contact_request.email'),
+            'conmessage.required' => __('validation.contact_request.conmessage'),
+            'Mobile.required' => __('validation.contact_request.Mobile'),
+            'country_code.required' => __('validation.contact_request.country_code'),
+            'demoname.required' => __('validation.contact_request.demoname'),
+            'demomessage.required' => __('validation.contact_request.demomessage'),
+            'demoemail.required' => __('validation.contact_request.demoemail'),
+            'congg-recaptcha-response-1.required' => __('validation.contact_request.congg-recaptcha-response-1.required'),
+            'demo-recaptcha-response-1.required' => __('validation.contact_request.demo-recaptcha-response-1.required'),
         ];
     }
 }

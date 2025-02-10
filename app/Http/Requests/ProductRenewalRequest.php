@@ -31,8 +31,9 @@ class ProductRenewalRequest extends FormRequest
 
     public function messages()
     {
-        return[
-            'domain.no_http' => 'The :attribute must not contain "http/https".',
+        return [
+            'domain.required' => __('validation.product_renewal.domain.required'),
+            'domain.no_http' => __('validation.product_renewal.domain.no_http'),
         ];
     }
 }

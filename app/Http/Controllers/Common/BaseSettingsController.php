@@ -362,7 +362,7 @@ class BaseSettingsController extends PaymentSettingsController
         ApiKey::where('id', 1)->update(['nocaptcha_sitekey' => $nocaptcha_sitekey,
             'captcha_secretCheck' => $captcha_secretCheck, ]);
 
-        return ['message' => 'success', 'update' => 'Recaptcha Settings Updated'];
+        return ['message' => 'success', 'update' => __('message.recaptcha_settings_updated')];
     }
 
     //Save Google recaptch site key and secret in Database
@@ -412,6 +412,6 @@ class BaseSettingsController extends PaymentSettingsController
             'v3captcha_secretCheck' => $captcha_secretCheck,
         ]);
 
-        return ['message' => 'success', 'update' => 'Recaptcha Settings Updated'];
+        return ['message' => 'success', 'update' => __('message.recaptcha_settings_updated')];
     }
 }

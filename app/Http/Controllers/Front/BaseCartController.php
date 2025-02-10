@@ -30,7 +30,7 @@ class BaseCartController extends Controller
                 ]);
             }
 
-            return successResponse('Cart updated successfully');
+            return successResponse(__('message.cart_updated_successfully'));
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
@@ -56,7 +56,7 @@ class BaseCartController extends Controller
                 ]);
             }
 
-            return successResponse('Cart updated successfully');
+            return successResponse(__('message.cart_updated_successfully'));
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
@@ -71,7 +71,7 @@ class BaseCartController extends Controller
             $currency = $cart->attributes->currency;
             $symbol = $cart->attributes->currency;
         } else {
-            throw new \Exception('Product not present in cart.');
+            throw new \Exception(__('message.product_not_in_cart'));
         }
 
         if ($canReduceAgent) {
@@ -110,7 +110,7 @@ class BaseCartController extends Controller
                     'price' => $price,
                 ]);
             } else {
-                throw new \Exception('Cannot Modify Quantity');
+                throw new \Exception(__('message.cannot_modify_quantity'));
             }
         } catch (\Exception $ex) {
             throw new \Exception($ex->getMessage());
@@ -141,7 +141,7 @@ class BaseCartController extends Controller
                     'price' => $price,
                 ]);
             } else {
-                throw new \Exception('Cannot Modify Quantity');
+                throw new \Exception(__('message.cannot_modify_quantity'));
             }
         } catch (\Exception $ex) {
             throw new \Exception($ex->getMessage());

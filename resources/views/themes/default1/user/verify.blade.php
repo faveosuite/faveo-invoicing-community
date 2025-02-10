@@ -5,20 +5,20 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
 ?>
 @section('title')
     @if(!$isMobileVerified && !$isEmailVerified)
-        Email/Mobile Verification | Faveo Helpdesk
+        {{ __('message.email_mobile_faveo') }}
     @elseif(!$isEmailVerified)
-        Email Verification | Faveo Helpdesk
+        {{ __('message.email_mobile_faveo') }}
     @elseif(!$isMobileVerified)
-        Mobile Verification | Faveo Helpdesk
+        {{ __('message.mobile_faveo') }}
     @endif
 @stop
 @section('page-heading')
     @if(!$isMobileVerified && !$isEmailVerified)
-        Email/Mobile Verification
+        {{ __('message.email_mobile') }}
     @elseif(!$isEmailVerified)
-        Email Verification
+        {{ __('message.email_verification_api') }}
     @elseif(!$isMobileVerified)
-        Mobile Verification
+        {{ __('message.mobile_verification') }}
     @endif
 @stop
 @section('breadcrumb')
