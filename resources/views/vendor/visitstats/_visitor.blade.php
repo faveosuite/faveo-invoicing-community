@@ -8,13 +8,13 @@
     @if ($visit->user_id)
         <img class="visitortracker-icon"
             src="{{ asset('/vendor/visitortracker/icons/user.png') }}"
-            title="Authenticated user: {{ $visit->user_email }}">
+            title="{{ __('message.authenticated_user') }} {{ $visit->user_email }}">
     @endif
 
     @if ($visit->is_bot)
         <img class="visitortracker-icon"
             src="{{ asset('/vendor/visitortracker/icons/spider.png') }}"
-            title="{{ $visit->bot ?: 'Bot' }}">
+             title="{{ $visit->bot ?: __('message.bot') }}"
     @endif
 
     {{ $visit->ip }}
@@ -51,13 +51,13 @@
 @if ($visit->is_desktop)
     <img class="visitortracker-icon"
         src="{{ asset('/vendor/visitortracker/icons/desktop.png') }}"
-        title="Desktop">
+        title="{{ __('message.desktop') }}">
 @endif
 
 @if ($visit->is_mobile)
     <img class="visitortracker-icon"
         src="{{ asset('/vendor/visitortracker/icons/mobile.png') }}"
-        title="Mobile device">
+        title="{{ __('message.mobile_device') }}">
 @endif
 
 {{ $visit->browser_language ?: '' }}
@@ -72,7 +72,7 @@
     @else
         <img class="visitortracker-icon"
             src="{{ asset('/vendor/visitortracker/icons/flags/unknown.png') }}"
-            title="Unknown">
+            title="{{ __('message.unknown') }}">
     @endif
 @endif
 

@@ -106,7 +106,11 @@ class CloudExtraActivities extends Controller
             $this->validate($request, [
                 'currentDomain' => 'required',
                 'newDomain' => 'required',
-            ]);
+            ],
+                [
+                    'currentDomain.required' => __('validation.current_domain_required'),
+                    'newDomain.required' => __('validation.new_domain_required'),
+                ]);
             $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
             $token = str_random(32);
             $newDomain = $request->get('newDomain');
@@ -663,7 +667,7 @@ class CloudExtraActivities extends Controller
                 \DB::table('users')->where('id', \Auth::user()->id)->update(['billing_pay_balance' => 0]);
         }
 
-        return response()->json(['message' => 'Your a developer that\'s why you\'re checking this']);
+        return response()->json(['message' => __('message.developer_why_checking')]);
     }
 
     public function formatCurrency(Request $request)
@@ -971,7 +975,7 @@ class CloudExtraActivities extends Controller
             ->addColumn('action', function ($model) {
                 return "<p><button data-toggle='modal'
                 data-id='".$model->id."' data-name='' onclick=\"popProduct('".$model->id."')\" id='delpop".$model->id."'
-                class='btn btn-sm btn-dark btn-xs delTenant' ".tooltip('Delete')."<i class='fa fa-trash'
+                class='btn btn-sm btn-dark btn-xs delTenant' ".tooltip(__('message.delete'))."<i class='fa fa-trash'
                 style='color:white;'> </i></button>&nbsp;</p>";
             })
             ->rawColumns(['Cloud Product', 'Cloud free plan', 'Cloud product key', 'action'])

@@ -10,7 +10,7 @@
                     @if (count($errors) > 0)
 
                         <div class="alert alert-danger alert-dismissable">
-                            <strong>Whoops!</strong> There were some problems with your input.
+                            <strong>{{ __('message.whoops') }}</strong> {{ __('message.input_problem') }}
                             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
                             <ul>
                                 @foreach ($errors->all() as $error)
@@ -28,9 +28,9 @@
 
                 <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                     <!-- Tax Type -->
-                    {!! html()->label(Lang::get('Tax Type'))->for('name')->class('required') !!}
+                    {!! html()->label(Lang::get('message.tax-type'))->for('name')->class('required') !!}
                     <select name="name" id="gst" class="form-control {{ $errors->has('name') ? ' is-invalid' : '' }}">
-                        <option value="Others">Others</option>
+                        <option value="Others">{{ __('message.others') }}</option>
                         <option value="Intra State GST">Intra State GST (Same Indian State)</option>
                         <option value="Inter State GST">Inter State GST (Other Indian State)</option>
                         <option value="Union Territory GST">Union Territory GST (Indian Union Territory)</option>
@@ -42,7 +42,7 @@
 
                 <div class="form-group {{ $errors->has('tax-name') ? 'has-error' : '' }}">
                     <!-- Tax Name -->
-                    {{ html()->label(Lang::get('Tax Name'))->class('required')->for('tax-name') }}
+                    {{ html()->label(Lang::get('message.tax_name'))->class('required')->for('tax-name') }}
                     {{ html()->text('tax-name')->class('form-control' . ($errors->has('tax-name') ? ' is-invalid' : ''))->id('taxname') }}
                     @error('tax-name')
                     <span class="error-message">{{ $message }}</span>
@@ -74,7 +74,7 @@
                     <!-- Country -->
                     {{ html()->label(Lang::get('message.country'))->for('countryvisible') }}
                     <br>
-                    {{ html()->select('country', ['' => 'All Countries'] + $countries)
+                    {{ html()->select('country', ['' =>  __('message.all_countries')] + $countries)
                         ->class('form-control select2' . ($errors->has('country') ? ' is-invalid' : ''))
                         ->style('width:460px')
                         ->id('countryvisible')
@@ -89,7 +89,7 @@
                 <div class="form-group showwhengst {{ $errors->has('state') ? 'has-error' : '' }}" style="display:block">
                     <!-- State -->
                     {{ html()->label(Lang::get('message.state'))->for('state') }}
-                    {{ html()->select('state', ['' => 'All States'])
+                    {{ html()->select('state', ['' => __('message.all_states')])
                         ->class('form-control' . ($errors->has('state') ? ' is-invalid' : ''))
                         ->id('statess') }}
                     @error('state')
@@ -109,10 +109,10 @@
 
                 <div class="modal-footer justify-content-between">
                     <button type="button" class="btn btn-default" data-dismiss="modal" id="closeTax">
-                        <i class="fa fa-times"></i>&nbsp;Close
+                        <i class="fa fa-times"></i>&nbsp;{{ __('message.close') }}
                     </button>
                     <button type="submit" id="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i>&nbsp;Save
+                        <i class="fas fa-save"></i>&nbsp;{{ __('message.save') }}
                     </button>
                 </div>
 
@@ -198,12 +198,12 @@ $("#closeTax").click(function() {
             var tax_name = $('#taxname').val();
             if (tax_name.length == ''){
                    $('#namecheck').show();
-                   $('#namecheck').html('This field is required');
+                   $('#namecheck').html('{{ __('message.field_required') }}');
                    $('#namecheck').focus();
                    $('#taxname').css("border-color","red");
                    $('#namecheck').css({"color":"red","margin-top":"5px"});
                 $('#ratecheck').show();
-                $('#ratecheck').html('This field is required');
+                $('#ratecheck').html('{{ __('message.field_required') }}');
                 $('#ratecheck').focus();
                 $('#rate').css("border-color","red");
                 $('#ratecheck').css({"color":"red","margin-top":"5px"});

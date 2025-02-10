@@ -1,17 +1,17 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Edit Tax
+    {{ __('message.edit_tax') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Edit Tax Class</h1>
+        <h1>{{ __('message.edit_tax_class') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item"><a href="{{url('tax')}}"><i class="fa fa-dashboard"></i> Tax</a></li>
-            <li class="breadcrumb-item active">Edit Tax</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('tax')}}"><i class="fa fa-dashboard"></i> {{ __('message.tax') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.edit_tax') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -46,10 +46,10 @@ Edit Tax
                    
                     <div class="col-md-4 form-group {{ $errors->has('tax_class') ? 'has-error' : '' }}">
                         <!-- name -->
-                        {{ html()->label(Lang::get('Tax Type'), 'tax_class')->class('required') }}
+                        {{ html()->label(Lang::get('message.tax-type'), 'tax_class')->class('required') }}
                          <select name="tax_classes_id" id="editTax" class="form-control {{$errors->has('tax_classes_id') ? ' is-invalid' : ''}}">
                       <option value="{{$txClass->name}}">{{$taxClassName}}</option>
-                      <option value="Others">Others</option>
+                      <option value="Others">{{ __('message.others') }}</option>
                       <option value="Intra State GST">Intra State GST (Same Indian State)</option>
                       <option value="Inter State GST">Inter State GST (Other Indian State)</option>
                       <option value="Union Territory GST">Union Territory GST (Indian Union Territory)</option>
@@ -86,13 +86,13 @@ Edit Tax
                   
                         <!-- name -->
                         {{ html()->label(Lang::get('message.country'), 'country') }}
-                        {{ html()->select('country', ['' => 'All Countries'] + $countries)
+                        {{ html()->select('country', ['' =>  __('message.all_countries')] + $countries)
                             ->class('form-control country') }}
                     </div>
 
                     <div class="col-md-4 form-group changegststate">
                         {{ html()->label(Lang::get('message.state'), 'state') }}
-                        {{ html()->select('state', ['' => 'All States'] + $states)
+                        {{ html()->select('state', ['' =>  __('message.all_states')] + $states)
                             ->class('form-control'. ($errors->has('state') ? ' is-invalid' : ''))
                             ->id('state-list') }}
                     </div>
@@ -108,7 +108,7 @@ Edit Tax
 
 
                 </div>
-                <button type="submit" id="submit" class="btn btn-primary pull-right" data-loading-text="<i class='fa fa-refresh fa-spin fa-1x fa-fw'>&nbsp;</i> updating..."><i class="fa fa-sync-alt">&nbsp;&nbsp;</i>{!!Lang::get('Update')!!}</button>
+                <button type="submit" id="submit" class="btn btn-primary pull-right" data-loading-text="<i class='fa fa-refresh fa-spin fa-1x fa-fw'>&nbsp;</i> {{ __('message.updating') }}"><i class="fa fa-sync-alt">&nbsp;&nbsp;</i>{!!Lang::get('message.update')!!}</button>
 
 
             </div>
@@ -127,7 +127,7 @@ Edit Tax
                     
                     <thead><tr>
                             <th>Id</th>
-                            <th>State</th>
+                            <th>{{ __('message.state') }}</th>
                             <th>CGST</th>
                             <th>SGST</th>
                             <th>IGST</th>
@@ -152,7 +152,7 @@ Edit Tax
               "url":  '{!! route('get-taxtable') !!}',
                  error: function(xhr) {
                  if(xhr.status == 401) {
-                  alert('Your session has expired. Please login again to continue.')
+                  alert('{{ __('message.session_expired') }}')
                   window.location.href = '/login';
                  }
               }
@@ -160,9 +160,27 @@ Edit Tax
               },
             "oLanguage": {
                 "sLengthMenu": "_MENU_ Records per page",
-                "sSearch"    : "Search: ",
-                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>'
+                "sSearch"    : "{{ __('message.search') }}: ",
+                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
             },
+            language: {
+                paginate: {
+                    first:      "{{ __('message.paginate_first') }}",
+                    last:       "{{ __('message.paginate_last') }}",
+                    next:       "{{ __('message.paginate_next') }}",
+                    previous:   "{{ __('message.paginate_previous') }}"
+                },
+                emptyTable:     "{{ __('message.empty_table') }}",
+                info:           "{{ __('message.datatable_info') }}",
+                search:         "{{ __('message.datatable_search') }} ",
+                zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
+                infoEmpty:      "{{ __('message.info_empty') }}",
+                infoFiltered:   "{{ __('message.info_filtered') }}",
+                lengthMenu:     "{{ __('message.sLengthMenu') }}",
+                loadingRecords: "{{ __('message.loading_records') }}",
+            },
+
+
             columnDefs: [
                 { 
                     targets: 'no-sort', 

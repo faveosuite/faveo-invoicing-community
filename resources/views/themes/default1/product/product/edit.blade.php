@@ -1,17 +1,17 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-    Edit Product
+    {{ __('message.edit_product') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Edit Product</h1>
+        <h1>{{ __('message.edit_product') }}</h1>
 
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('products')}}"><i class="fa fa-dashboard"></i> Products</a></li>
-            <li class="breadcrumb-item active">Edit Product</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('products')}}"><i class="fa fa-dashboard"></i> {{ __('message.products') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.edit_product') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -69,10 +69,10 @@
         <div class="card-header p-0 pt-1">
             <ul class="nav nav-tabs" id="custom-tabs-one-tab" role="tablist">
                 <li class="nav-item">
-                    <a class="nav-link active" id="custom-tabs-detail-tab" data-toggle="pill" href="#custom-tabs-detail" role="tab" aria-controls="custom-tabs-detail" aria-selected="true">Details</a>
+                    <a class="nav-link active" id="custom-tabs-detail-tab" data-toggle="pill" href="#custom-tabs-detail" role="tab" aria-controls="custom-tabs-detail" aria-selected="true">{{ __('message.details') }}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="custom-tabs-plan-tab" data-toggle="pill" href="#custom-tabs-plan" role="tab" aria-controls="custom-tabs-plan" aria-selected="false">Plans</a>
+                    <a class="nav-link" id="custom-tabs-plan-tab" data-toggle="pill" href="#custom-tabs-plan" role="tab" aria-controls="custom-tabs-plan" aria-selected="false">{{ __('message.plans') }}</a>
                 </li>
             </ul>
         </div>
@@ -94,7 +94,7 @@
                         <div class="col-md-4 form-group {{ $errors->has('type') ? 'has-error' : '' }}">
                             <!-- last name -->
                             {!! html()->label(trans('message.lic_type'), 'type')->class('required') !!}
-                            {!! html()->select('type', ['' => 'Choose', 'Types' => $type])->class('form-control'.($errors->has('type') ? ' is-invalid' : '')) !!}
+                            {!! html()->select('type', ['' => __('message.choose'), 'Types' => $type])->class('form-control'.($errors->has('type') ? ' is-invalid' : '')) !!}
                             <div class="input-group-append"></div>
                             @error('type')
                             <span class="error-message"> {{$message}}</span>
@@ -107,7 +107,7 @@
                             <!-- last name -->
                             {!! html()->label(Lang::get('message.group'), 'group')->class('required') !!}
                             <select name="group"  class="form-control {{$errors->has('group') ? ' is-invalid' : ''}}" id="groups">
-                                <option value="">Choose</option>
+                                <option value="">{{ __('message.choose') }}</option>
                                 @foreach($groups as $key=>$group)
                                     <option value="{{$key}}" <?php  if (in_array($group, $selectedGroup)) {
                                         echo "selected";
@@ -157,7 +157,7 @@
                                     <div class="form-group {{ $errors->has('parent') ? 'has-error' : '' }}">
                                         <!-- last name -->
                                         {!! html()->label(trans('message.parent'), 'parent') !!}
-                                        {!! html()->select('parent[]', ['' => 'Choose', 'Products' => $products])->class('form-control'.($errors->has('parent[]') ? ' is-invalid' : '')) !!}
+                                        {!! html()->select('parent[]', ['' => __('message.choose'), 'Products' => $products])->class('form-control'.($errors->has('parent[]') ? ' is-invalid' : '')) !!}
 
                                     </div>
                                 </li>
@@ -179,7 +179,7 @@
 
                                 <table class="table">
                                     <input type="hidden" value="{{$checkowner}}" id="checkowner">
-                                    <span>Where do you want to retrieve your files from?</span>
+                                    <span>{{ __('message.where_retrieve_files') }}</span>
                                     </br>
                                     <input type="hidden" value="{{$githubStatus}}" id="gitstatus">
                                     <tr>
@@ -187,7 +187,7 @@
                                         <td>
                                             <label for="chkYes" style="">
                                                 <input type="radio" id="chkYes" name="chkTax" />
-                                                Github
+                                                {{ __('message.github') }}
                                             </label>
                                             <div class="col-md-10 gitstatus" id="git" style="display:none">
                                                 <li>
@@ -227,7 +227,7 @@
                                     <tr>
                                         <td><label for="chkNo">
                                                 <input type="radio" id="chkNo" name="chkTax" />
-                                                Filesystem
+                                                {{ __('message.filesystem') }}
                                             </label>
                                         </td>
                                     </tr>
@@ -294,7 +294,7 @@
 
                                         <div class="form-group {{ $errors->has('add_to_contact') ? 'has-error' : '' }}">
                                             <!-- first name -->
-                                            {!! html()->label(trans('Contact to sales'))->for('add_to_contact') !!}
+                                            {!! html()->label(trans('message.contact_to_sales'))->for('add_to_contact') !!}
                                             {!! html()->hidden('add_to_contact', 0) !!}
                                             <?php
                                             $value=  "";
@@ -332,7 +332,7 @@
                 <div class="tab-pane fade" id="custom-tabs-plan" role="tabpanel"  aria-labelledby="custom-tabs-plan-tab">
                     <table class="table">
 
-                        <span class="required">Show on Cart Page</span>
+                        <span class="required">{{ __('message.show_cart_page') }}</span>
                         <tr>
                             <div class="row">
                                 <td>
@@ -340,7 +340,7 @@
                                     <div><label>
                                             {!! html()->radio('show_agent', null, 1)->id('agent') !!}
                                             <!-- <input type ="radio" id="agent" value="0" name="cartquantity" hidden>   -->
-                                            Agents
+                                            {{ __('message.agents') }}
                                         </label></div>
 
                                     <br/>
@@ -356,7 +356,7 @@
                                 <div>
                                     <label>
                                         {!! html()->radio('show_agent', false, null)->id('quantity') !!}
-                                        Product Quantity
+                                        {{ __('message.product_quantity') }}
                                     </label>
                                 </div>
                                 <br/>
@@ -375,7 +375,7 @@
                                 <div class="row">
 
                                     <div class="col-md-2">
-                                        <select id="editTax" placeholder="Select Taxes" name="tax[]" style="width:500px;" class="select2" multiple="true">
+                                        <select id="editTax" placeholder="{{ __('message.select_taxes') }}" name="tax[]" style="width:500px;" class="select2" multiple="true">
 
                                             @foreach($taxes as $value)
                                                 <option value={{$value['id']}} <?php echo (in_array($value['id'], $savedTaxes)) ?  "selected" : "" ;  ?>>{{$value['name'].'('.$value['name'].')'}}</option>
@@ -397,7 +397,7 @@
 
 
                     <br>
-                    <h3>  Plans &nbsp;
+                    <h3>  {{ __('message.plans') }} &nbsp;
                         <!-- <a href="#create-plan-option" data-toggle="modal" data-target="#create-plan-option" class="btn btn-default">Add new</a> -->
                     </h3>
 
@@ -405,9 +405,9 @@
                         <table class="table">
 
                             <tr>
-                                <th>Name</th>
-                                <th>Months</th>
-                                <th>Action</th>
+                                <th>{{ __('message.name_page') }}</th>
+                                <th>{{ __('message.months') }}</th>
+                                <th>{{ __('message.action') }}</th>
                             </tr>
                             @foreach($product->plan()->where('product',$product->id)->get() as $plan)
                                 <tr>
@@ -422,19 +422,19 @@
 
                                         ?>
                                     <td>{{round((int) $months)}}</td>
-                                    <td><a href="{{url('plans/'.$plan->id.'/edit')}}" class="btn btn-secondary btn-xs".{!! tooltip('Edit') !!}<i class='fa fa-edit' style='color:white;'></i></a></td>
+                                    <td><a href="{{url('plans/'.$plan->id.'/edit')}}" class="btn btn-secondary btn-xs"{!! tooltip('Edit') !!}><i class='fa fa-edit' style='color:white;'></i></a></td>
                                 </tr>
                             @endforeach
                         </table>
                     @else
-                        <td>No Plans Created</td>
+                        <td>{{ __('message.no_plans_created') }}</td>
                     @endif
 
                 </div>
 
 
             </div>
-            <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fas fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}</button>
+            <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> {{ __('message.saving') }}"><i class="fas fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}</button>
 
             {!! html()->form()->close() !!}
 
@@ -456,7 +456,7 @@
         <div class="col-md-12">
             <div class="card card-secondary card-outline" id="uploads">
                 <div class="card-header">
-                    <h3 class="card-title">Upload Files</h3>
+                    <h3 class="card-title">{{ __('message.upload_files') }}</h3>
 
                     <div class="card-tools">
                         <a href="#create-upload-option" id="create" class="btn btn-default  btn-sm pull-right" data-toggle="modal" data-target="#create-upload-option"><span class="fa fa-plus"></span>&nbsp;&nbsp;{{Lang::get('message.add-file')}}</a>
@@ -474,12 +474,12 @@
                                 <button  value="" class="btn btn-secondary btn-sm btn-alldell" id="bulk_delete"><i class="fa fa-trash"></i>&nbsp;&nbsp; {{Lang::get('message.delmultiple')}}</button><br /><br />
                                 <thead><tr>
                                     <th class="no-sort"><input type="checkbox" name="select_all" onchange="checking(this)"></th>
-                                    <th>Title</th>
-                                    <th style="width:210px;">Description</th>
-                                    <th>Version</th>
-                                    <th>ReleaseType</th>
-                                    <th>File</th>
-                                    <th>Action</th>
+                                    <th>{{ __('message.title') }}</th>
+                                    <th style="width:210px;">{{ __('message.description') }}</th>
+                                    <th>{{ __('message.version') }}</th>
+                                    <th>{{ __('message.release_type') }}</th>
+                                    <th>{{ __('message.file') }}</th>
+                                    <th>{{ __('message.action') }}</th>
                                 </tr></thead>
                             </table>
 
@@ -495,17 +495,17 @@
         <div class="modal-dialog modal-dialog-centered"> <!-- Added modal-dialog-centered -->
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                    <h5 class="modal-title" id="deleteModalLabel">{{ __('message.confirm_deletion') }}</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    Are you sure you want to delete the selected files?
+                    {{ __('message.want_delete_selected_files') }}
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="button" id="confirmDelete" class="btn btn-danger">Delete</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('message.cancel') }}</button>
+                    <button type="button" id="confirmDelete" class="btn btn-danger">{{ __('message.delete') }}</button>
                 </div>
             </div>
         </div>
@@ -639,8 +639,9 @@
     </script>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
 
-    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script> -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    {{--<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script> -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>--}}
+    <script src="{{asset('https://code.jquery.com/jquery-3.5.1.min.js')}}"></script>
     <script src="//cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.tiny.cloud/1/oiio010oipuw2n6qyq3li1h993tyg25lu28kgt1trxnjczpn/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
 
@@ -748,7 +749,7 @@
                     $(this).empty().html(newStr);
                     var removedStr = myStr.substring(maxLength, $.trim(myStr).length);
                     $(this).append('<span class="more-text">' + removedStr + '</span>');
-                    $(this).append(' <a href="javascript:void(0);" class="read-more">read more...</a>');
+                    $(this).append(' <a href="javascript:void(0);" class="read-more">{{ __('message.read_more') }}</a>');
                 }
             });
         }
@@ -764,8 +765,23 @@
             ajax: '{!! route('get-upload',$product->id) !!}',
             "oLanguage": {
                 "sLengthMenu": "_MENU_ Records per page",
-                "sSearch"    : "Search: ",
-                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>'
+                "sSearch"    : "{{ __('message.table_search') }} ",
+                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
+            },
+            language: {
+                paginate: {
+                    first:      "{{ __('message.paginate_first') }}",
+                    last:       "{{ __('message.paginate_last') }}",
+                    next:       "{{ __('message.paginate_next') }}",
+                    previous:   "{{ __('message.paginate_previous') }}"
+                },
+                emptyTable:     "{{ __('message.empty_table') }}",
+                info:           "{{ __('message.datatable_info') }}",
+                zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
+                infoEmpty:      "{{ __('message.info_empty') }}",
+                infoFiltered:   "{{ __('message.info_filtered') }}",
+                lengthMenu:     "{{ __('message.sLengthMenu') }}",
+                loadingRecords: "{{ __('message.loading_records') }}",
             },
             columnDefs: [
                 {
@@ -812,7 +828,7 @@
         }
 
         $("#editProductUpload").on('click',function(){
-            $("#editProductUpload").html("<i class='fa fa-circle-o-notch fa-spin fa-1x fa-fw'></i>Please Wait...");
+            $("#editProductUpload").html("<i class='fa fa-circle-o-notch fa-spin fa-1x fa-fw'></i>{{ __('message.please_wait') }}");
             var upload_id = $('#uploadid').val();
             var productname = $('#editName').val();
             var producttitle = $('#product-title').val();
@@ -824,15 +840,15 @@
                 data :  {'productname': productname , 'producttitle': producttitle,
                     'description': description,'version':version},
                 success: function(response) {
-                    $("#editProductUpload").html("<i class='fa fa-floppy-o'>&nbsp;&nbsp;</i>Save");
+                    $("#editProductUpload").html("<i class='fa fa-floppy-o'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                     $('#alertMessage2').show();
                     $('#error1').hide();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="far fa-check"></i> Success! </strong>'+response.message+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="far fa-check"></i> {{ __('message.success') }}! </strong>'+response.message+'.</div>';
                     $('#alertMessage2').html(result+ ".");
                 } ,
                 error: function(ex) {
                     $("#editProductUpload").html("<i class='fa fa-floppy-o'>&nbsp;&nbsp;</i>Save");
-                    var html = '<div class="alert alert-danger"><strong>Whoops! </strong>Something went wrong<br><br><ul>';
+                    var html = '<div class="alert alert-danger"><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<br><br><ul>';
                     for (key in ex.responseJSON.errors) {
                         html += '<li>'+ ex.responseJSON.errors[key][0] + '</li>'
                     }
@@ -1128,7 +1144,7 @@
     <script>
         $(document).ready(function() {
             $("#editTax").select2({
-                placeholder: 'Select Taxes',
+                placeholder: '{{ __('message.select_taxes') }}',
                 tags:true
             });
         });
@@ -1173,7 +1189,7 @@
                         $('.resumable-progress .progress-resume-link').hide();
                         $('.resumable-progress .progress-pause-link').show();
                         // Add the file to the list
-                        $uploadList.append('<li class="resumable-file-' + file.uniqueIdentifier + '">Uploading <span class="resumable-file-name"></span> <span class="resumable-file-progress"></span>');
+                        $uploadList.append('<li class="resumable-file-' + file.uniqueIdentifier + '">{{ __('message.uploading') }} <span class="resumable-file-name"></span> <span class="resumable-file-progress"></span>');
                         $('.resumable-file-' + file.uniqueIdentifier + ' .resumable-file-name').html(file.fileName);
                         // Actually start the upload
                         resumable.upload();
@@ -1288,7 +1304,7 @@
                 if (!isValid) {
                     e.preventDefault();
                 }else{
-                    $("#uploadVersion").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+                    $("#uploadVersion").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
                     var filename = $('#file_ids').val();
                     var productname = $('#productname').val();
                     var producttitle = $('#producttitle').val();
@@ -1304,18 +1320,18 @@
                         data :  {'filename': filename , 'productname': productname , 'producttitle': producttitle,
                             'description': description,'dependencies':dependencies,'version':version,'is_private': private,'is_restricted': restricted,'release_type': releaseType,'_token': '{!! csrf_token() !!}'},
                         success: function(response) {
-                            $("#uploadVersion").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                            $("#uploadVersion").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                             $('#alertMessage1').show();
                             $('#error').hide();
-                            var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="far fa-check"></i> Success! </strong>'+response.message+'.</div>';
+                            var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="far fa-check"></i> {{ __('message.success') }}! </strong>'+response.message+'.</div>';
                             $('#alertMessage1').html(result+ ".");
                             setTimeout(function() {
                                 location.reload();
                             }, 5000);
                         } ,
                         error: function(ex) {
-                            $("#uploadVersion").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
-                            var html = '<div class="alert alert-danger"><strong>Whoops! </strong>Something went wrong<br><br><ul>';
+                            $("#uploadVersion").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
+                            var html = '<div class="alert alert-danger"><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<br><br><ul>';
                             for (key in ex.responseJSON.errors) {
                                 html += '<li>'+ ex.responseJSON.errors[key][0] + '</li>'
                             }

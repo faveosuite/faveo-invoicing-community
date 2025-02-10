@@ -48,7 +48,21 @@ class PageRequest extends FormRequest
     public function messages()
     {
         return[
-            'created_at.required' => 'Publish Date is required',
+            'created_at.required' => __('validation.publish_date_required'),
+            'name.required' => __('validation.frontend_pages.name.required'),
+            'name.unique' => __('validation.frontend_pages.name.unique'),
+            'name.max' => __('validation.frontend_pages.name.max'),
+            'name.regex' => __('validation.frontend_pages.name.regex'),
+
+            'publish.required' => __('validation.frontend_pages.publish.required'),
+
+            'slug.required' => __('validation.frontend_pages.slug.required'),
+
+            'url.required' => __('validation.frontend_pages.url.required'),
+            'url.url' => __('validation.frontend_pages.url.url'),
+            'url.regex' => __('validation.frontend_pages.url.regex'),
+
+            'content.required' => __('validation.frontend_pages.content.required'),
         ];
     }
 }

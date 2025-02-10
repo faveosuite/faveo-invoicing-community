@@ -1,16 +1,16 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Renew
+    {{ __('message.renew') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Renew Order</h1>
+        <h1>{{ __('message.renew_order') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('orders')}}"><i class="fa fa-dashboard"></i> All Orders</a></li>
-            <li class="breadcrumb-item active">Renew Order</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('orders')}}"><i class="fa fa-dashboard"></i> {{ __('message.all-orders') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.renew_order') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -35,9 +35,9 @@ Renew
 
                     <div class="col-md-4 form-group {{ $errors->has('plan') ? 'has-error' : '' }}">
                         <!-- first name -->
-                        {!! html()->label('Plans', 'plan')->class('required') !!}
+                        {!! html()->label( __('message.plans'), 'plan')->class('required') !!}
                           <select name="plan" id="plans" onchange="fetchPlanCost(this.value)" class="form-control" >
-                             <option value=''>Choose</option>
+                             <option value=''>{{ __('message.choose') }}</option>
                            @foreach($plans as $key=>$plan)
                               <option value={{$key}}>{{$plan}}</option>
                           @endforeach
@@ -51,7 +51,7 @@ Renew
 
                     <div class="col-md-4 form-group {{ $errors->has('payment_method') ? 'has-error' : '' }}">
                         {!! html()->label(Lang::get('message.payment-method'))->class('required')->for('payment_method') !!}
-                        {!! html()->select('payment_method', ['' => 'Choose', 'cash' => 'Cash', 'check' => 'Check', 'online payment' => 'Online Payment', 'razorpay' => 'Razorpay', 'stripe' => 'Stripe'])->class('form-control')->id('payment_method') !!}
+                        {!! html()->select('payment_method', ['' => __('message.choose'), 'cash' => 'Cash', 'check' => 'Check', 'online payment' => 'Online Payment', 'razorpay' => 'Razorpay', 'stripe' => 'Stripe'])->class('form-control')->id('payment_method') !!}
                     </div>
 
                     <div class="col-md-4 form-group {{ $errors->has('cost') ? 'has-error' : '' }}">
@@ -62,7 +62,7 @@ Renew
                 @if(in_array($productid,cloudPopupProducts()))
                 <div class="row">
                     <div class="col-md-4 form-group">
-                        {!! html()->label('Agents')->class('col-form-label required')->for('agents') !!}
+                        {!! html()->label( __('message.agents'))->class('col-form-label required')->for('agents') !!}
                         {!! html()->number('agents', $agents)->class('form-control')->id('agents')->min(1)->placeholder('')->required() !!}
                     </div>
                 </div>
@@ -74,7 +74,7 @@ Renew
             </div>
 
         </div>
-                    <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fa fa-save">&nbsp;&nbsp;</i>Save</button>
+                    <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> {{ __('message.saving') }}"><i class="fa fa-save">&nbsp;&nbsp;</i>{{ __('message.save') }}</button>
 
     </div>
 

@@ -23,6 +23,7 @@ class Kernel extends HttpKernel
         // \Voerro\Laravel\VisitorTracker\Middleware\RecordVisits::class,
         // \Torann\Currency\Middleware\CurrencyMiddleware::class,
         // \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+        // \App\Http\Middleware\LanguageMiddleware::class,
         SecurityEnforcer::class,
     ];
 
@@ -42,8 +43,11 @@ class Kernel extends HttpKernel
             // \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            // \App\Http\Middleware\IsInstalled::class,
+            \App\Http\Middleware\LanguageMiddleware::class,
 
+        ],
+        'installer' => [
+            \App\Http\Middleware\LanguageMiddleware::class,
         ],
         'admin' => [\App\Http\Middleware\Admin::class],
         'guest' => [\App\Http\Middleware\RedirectIfAuthenticated::class],

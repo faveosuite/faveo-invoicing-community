@@ -1,13 +1,13 @@
 @extends('themes.default1.layouts.front.master')
 @section('title')
-Cart
+{{ __('message.cart') }}
 @stop
 @section('page-heading')
-Faveo Download
+Faveo {{ __('message.download') }}
 @stop
 @section('breadcrumb')
-<li><a href="{{url('home')}}">Home</a></li>
-<li class="active">Download</li>
+<li><a href="{{url('home')}}">{{ __('message.home')}}</a></li>
+<li class="active">{{ __('message.download')}}</li>
 @stop
 @section('main-class') "main shop" @stop
 @section('content')
@@ -17,8 +17,8 @@ Faveo Download
         <div class="col-md-10 col-md-offset-2">
             <div class="page-Download-main">
                 
-                <h2><span >Download</span>&nbsp;<i class="fa fa fa-download "></i></h2>
-                <p>&nbsp;&nbsp;&nbsp;Your download will begin in a moment. If it doesn't, Click <a href="{{$release}}">here</a> to download.</p>
+                <h2><span >{{ __('message.download')}}</span>&nbsp;<i class="fa fa fa-download "></i></h2>
+                <p>&nbsp;&nbsp;&nbsp;{{ __('message.download_begin')}} <a href="{{$release}}">{{ __('message.here')}}</a> {{ __('message.to_download')}}</p>
             </div>
         </div>
 

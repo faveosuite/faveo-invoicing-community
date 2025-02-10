@@ -1,11 +1,11 @@
-<a href="#renew" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#renew{{$id}}">Download</a>
+<a href="#renew" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#renew{{$id}}">{{ __('message.download') }}</a>
 <div class="modal fade" id="renew{{$id}}">
     <div class="modal-dialog">
         <div class="modal-content">
             {!! html()->form('POST', url('client/renew/' . $id))->open() !!}
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">Renew</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="{{ __('message.close') }}"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">{{ __('message.renew') }}</h4>
             </div>
             <div class="modal-body">
                 <!-- Form  -->
@@ -21,15 +21,15 @@
                 ?>
                 <div class="form-group {{ $errors->has('plan') ? 'has-error' : '' }}">
                     <!-- Plan -->
-                    {!! html()->label('Plans', 'plan')->class('required') !!}
-                    {!! html()->select('plan', ['' => 'Select', 'Plans' => $plans], null)->class('form-control')->attribute('onchange', 'getPrice(this.value)') !!}
+                    {!! html()->label(__('message.plans'), 'plan')->class('required') !!}
+                    {!! html()->select('plan', ['' => __('message.select'), 'Plans' => $plans], null)->class('form-control')->attribute('onchange', 'getPrice(this.value)') !!}
                     {!! html()->hidden('user', $userid) !!}
                 </div>
 
                 <div class="form-group {{ $errors->has('payment_method') ? 'has-error' : '' }}">
                     <!-- Payment method -->
                     {!! html()->label(Lang::get('message.payment-method'), 'payment_method')->class('required') !!}
-                    {!! html()->select('payment_method', ['' => 'Select', 'cash' => 'Cash', 'check' => 'Check', 'online payment' => 'Online Payment', 'razorpay' => 'Razorpay'], null)->class('form-control') !!}
+                    {!! html()->select('payment_method', ['' =>  __('message.select'), 'cash' => 'Cash', 'check' => 'Check', 'online payment' => 'Online Payment', 'razorpay' => 'Razorpay'], null)->class('form-control') !!}
                 </div>
 
                 <div class="form-group {{ $errors->has('cost') ? 'has-error' : '' }}">
@@ -41,7 +41,7 @@
 
             </div>
             <div class="modal-footer">
-                <button type="button" id="close" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                <button type="button" id="close" class="btn btn-default pull-left" data-dismiss="modal">{{ __('message.close') }}</button>
                 <input type="submit" class="btn btn-primary" value="{{Lang::get('message.save')}}">
                 {!! html()->form()->close()  !!}
             </div>

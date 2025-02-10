@@ -35,9 +35,14 @@ class InvoiceRequest extends FormRequest
 
     public function messages()
     {
-        return[
-            'plan.required_if' => 'The subscription field is required',
-            'user.required' => 'The clients field is required',
+        return [
+            'user.required' => __('validation.invoice.user.required'),
+            'date.required' => __('validation.invoice.date.required'),
+            'date.date' => __('validation.invoice.date.date'),
+            'domain.regex' => __('validation.invoice.domain.regex'),
+            'plan.required_if' => __('validation.invoice.plan.required_if'),
+            'price.required' => __('validation.invoice.price.required'),
+            'product.required' => __('validation.invoice.product.required'),
         ];
     }
 }

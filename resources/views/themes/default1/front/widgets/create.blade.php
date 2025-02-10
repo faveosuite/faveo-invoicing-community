@@ -1,17 +1,17 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Create Widget
+ {{ __('message.create_widget') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Create New Widget</h1>
+        <h1>{{ __('message.create_new_widget') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item"><a href="{{url('widgets')}}"><i class="fa fa-dashboard"></i> All Widgets</a></li>
-            <li class="breadcrumb-item active">Create Widget</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home')}}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings')}}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('widgets')}}"><i class="fa fa-dashboard"></i> {{ __('message.all_widgets')}}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.create_widget')}}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -57,8 +57,8 @@ Create Widget
 
 
                     <?php
-                $mail = ['class' => 'form-control','disabled' => 'true' , 'title' => 'Cofigure your mailchimp in settings to access'];
-                $twitter = ['class' => 'form-control','disabled' => 'true', 'title' => 'Configure your tweets in settings to access'];
+                $mail = ['class' => 'form-control','disabled' => 'true' , 'title' => Lang::get('message.configure_mailchimp')];
+                $twitter = ['class' => 'form-control','disabled' => 'true', 'title' => Lang::get('message.configure_tweet')];
                 
                 ?>
 
@@ -90,7 +90,7 @@ Create Widget
 
                     <div class="col-md-4 form-group {{ $errors->has('allow_mailchimp') ? 'has-error' : '' }}">
                         <!-- last name -->
-                        {!! html()->label('Allow social media icons')->class('required')->for('allow_social_media') !!}
+                        {!! html()->label(__('message.allow_social_media_icons'))->class('required')->for('allow_social_media') !!}
                         {!! html()->select('allow_social_media', [1 => 'Yes', 0 => 'No'])->class('form-control'. ($errors->has('allow_social_media') ? ' is-invalid' : '')) !!}
                         @error('allow_social_media')
                         <span class="error-message"> {{$message}}</span>
@@ -100,7 +100,7 @@ Create Widget
                     <div class="col-md-4 form-group {{ $errors->has('type') ? 'has-error' : '' }}">
                         <!-- last name -->
                         {!! html()->label(Lang::get('message.type'))->class('required')->for('type') !!}
-                        {!! html()->select('type', ['' => 'Choose', 'footer1' => 'Footer 1', 'footer2' => 'Footer 2', 'footer3' => 'Footer 3'])->class('form-control'. ($errors->has('type') ? ' is-invalid' : ''))->id('type') !!}
+                        {!! html()->select('type', ['' => __('message.choose'), 'footer1' => 'Footer 1', 'footer2' => 'Footer 2', 'footer3' => 'Footer 3'])->class('form-control'. ($errors->has('type') ? ' is-invalid' : ''))->id('type') !!}
                         @error('type')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
@@ -161,7 +161,7 @@ Create Widget
             </div>
 
         </div>
-       <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button>
+       <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> {{ __('message.saving') }}"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button>
 
     </div>
 

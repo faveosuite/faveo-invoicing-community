@@ -1,16 +1,16 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Email Logs
+     {{ __('message.email_logs') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Email Log</h1>
+        <h1>{{ __('message.email_log') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item active">Email Log</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.email_log') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -21,7 +21,7 @@ Email Logs
     <div class="card-header">
 
         <div id="response"></div>
-        <h5>Search Here
+        <h5>{{ __('message.search_here') }}
           </h5>
     </div>
  
@@ -33,7 +33,7 @@ Email Logs
             <div class="row">
                          <div class="col-md-3 form-group">
                             <!-- first name -->
-                             {!! html()->label('From', 'from') !!}
+                             {!! html()->label( __('message.from'), 'from') !!}
                              <div class="input-group date" id="maillogreservationdate_from" data-target-input="nearest">
                                 <input type="text" name="mailfrom" class="form-control datetimepicker-input" autocomplete="off" value="" data-target="#maillogreservationdate_from"/>
 
@@ -46,7 +46,7 @@ Email Logs
 
                         <div class="col-md-3 form-group">
                             <!-- first name -->
-                            {!! html()->label('Till', 'till') !!}
+                            {!! html()->label( __('message.till'), 'till') !!}
                             <div class="input-group date" id="mailligreservationdate" data-target-input="nearest">
                                 <input type="text" name="mailtill" class="form-control datetimepicker-input" autocomplete="off" value="" data-target="#mailligreservationdate"/>
 
@@ -63,9 +63,9 @@ Email Logs
 
                           </div>
                 <!-- /.card-body -->
-                    <button name="Search" type="submit"  class="btn btn-secondary"><i class="fa fa-search"></i>&nbsp;{!!Lang::get('Search')!!}</button>
+                    <button name="Search" type="submit"  class="btn btn-secondary"><i class="fa fa-search"></i>&nbsp;{!!Lang::get('message.search')!!}</button>
                     &nbsp;
-                    <a href="{!! url('settings/maillog') !!}" id="reset" class="btn btn-secondary"><i class="fas fa-sync-alt"></i>&nbsp;{!!Lang::get('Reset')!!}</a>
+                    <a href="{!! url('settings/maillog') !!}" id="reset" class="btn btn-secondary"><i class="fas fa-sync-alt"></i>&nbsp;{!!Lang::get('message.reset')!!}</a>
             
 
 
@@ -87,18 +87,18 @@ Email Logs
          
                            
              <table id="email-table" class="table display" cellspacing="0"  styleClass="borderless">
-                     <button  value="" class="btn btn-secondary btn-sm btn-alldell" id="bulk_delete"><i class="fa fa-trash">&nbsp;&nbsp;</i> Delete Selected</button><br /><br />
+                     <button  value="" class="btn btn-secondary btn-sm btn-alldell" id="bulk_delete"><i class="fa fa-trash">&nbsp;&nbsp;</i> {{ __('message.delmultiple') }}</button><br /><br />
                      
                     <thead><tr>
 
                             <th class="no-sort"><input type="checkbox" name="select_all" onchange="checking(this)"></th>
 
-                            <th>Date</th>
-                            <th>From</th>
-                             <th>To</th>   
-                               <th>Subject</th>      
+                            <th>{{ __('message.date') }}</th>
+                            <th>{{ __('message.from') }}</th>
+                             <th>{{ __('message.to') }}</th>
+                               <th>{{ __('message.sub') }}</th>
                            
-                             <th>Status</th>
+                             <th>{{ __('message.status') }}</th>
                                </tr></thead>
 
                    </table>
@@ -132,7 +132,7 @@ Email Logs
                error: function(xhr) {
                    
                if(xhr.status == 401) {
-                alert('Your session has expired. Please login again to continue.')
+                alert('{{ __('message.session_expired') }}')
                 window.location.href = '/login';
                }
             }
@@ -141,8 +141,24 @@ Email Logs
             "oLanguage": {
                 "sLengthMenu": "_MENU_ Records per page",
                 "sSearch"    : "Search: ",
-                       "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>'
+                       "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
             },
+            language: {
+                paginate: {
+                    first:      "{{ __('message.paginate_first') }}",
+                    last:       "{{ __('message.paginate_last') }}",
+                    next:       "{{ __('message.paginate_next') }}",
+                    previous:   "{{ __('message.paginate_previous') }}"
+                },
+                emptyTable:     "{{ __('message.empty_table') }}",
+                info:           "{{ __('message.datatable_info') }}",
+                zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
+                infoEmpty:      "{{ __('message.info_empty') }}",
+                infoFiltered:   "{{ __('message.info_filtered') }}",
+                lengthMenu:     "{{ __('message.length_menu') }}",
+                search:         "{{ __('message.table_search') }}",
+            },
+
             columnDefs: [
                 { 
                     targets: 'no-sort', 

@@ -1,16 +1,16 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-License Permission
+    {{ __('message.license_permission') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>License Permissions</h1>
+        <h1>{{ __('message.license_permission') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-             <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item active">License Permissions</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+             <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.license_permission') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -28,9 +28,9 @@ License Permission
                
                  <table id="permissions-table" class="table display" cellspacing="0" width="100%" styleClass="borderless">
                     <thead><tr>
-                            <th>License Type</th>
-                            <th>License Permissions</th>
-                            <th>Action</th>
+                            <th>{{ __('message.license-type') }}</th>
+                            <th>{{ __('message.license_permission') }}</th>
+                            <th>{{ __('message.action') }}</th>
                         </tr></thead>
 
                    </table>
@@ -65,7 +65,7 @@ License Permission
             "url":  '{!! route('get-license-permission') !!}',
                error: function(xhr) {
                if(xhr.status == 401) {
-                alert('Your session has expired. Please login again to continue.')
+                alert('{{ __('message.session_expired') }}')
                 window.location.href = '/login';
                }
             }
@@ -74,8 +74,26 @@ License Permission
             "oLanguage": {
                 "sLengthMenu": "_MENU_ Records per page",
                 "sSearch"    : "Search: ",
-                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>'
+                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
             },
+            language: {
+                paginate: {
+                    first:      "{{ __('message.paginate_first') }}",
+                    last:       "{{ __('message.paginate_last') }}",
+                    next:       "{{ __('message.paginate_next') }}",
+                    previous:   "{{ __('message.paginate_previous') }}"
+                },
+                emptyTable:     "{{ __('message.empty_table') }}",
+                info:           "{{ __('message.datatable_info') }}",
+                search:         "{{ __('message.datatable_search') }} ",
+                zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
+                infoEmpty:      "{{ __('message.info_empty') }}",
+                infoFiltered:   "{{ __('message.info_filtered') }}",
+                lengthMenu:     "{{ __('message.sLengthMenu') }}",
+                loadingRecords: "{{ __('message.loading_records') }}",
+                search:         "{{ __('message.table_search') }}"
+            },
+
             columnDefs: [
                 { 
                      targets: 'no-sort', 
@@ -150,7 +168,7 @@ License Permission
                           method: "delete",
                           data: { 'licenseId': licenseTypeId, 'permissionid': permissionid },
                           beforeSend: function() {
-                              $('#permissionresponse').html('<div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>');
+                              $('#permissionresponse').html('<div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>');
                           },
                           success: function(data) {
                               showAlert('success', data);
@@ -163,7 +181,7 @@ License Permission
                           }
                       });
                   } else {
-                      showAlert('error', 'Please select at least one permission');
+                      showAlert('error', '{{ __("message.select_at_least_one_permission") }}'));
                   }
               });
           });
