@@ -1,4 +1,4 @@
-<a data-id="{{$paymentId}}" href="#credit" class="btn btn-sm btn-secondary btn-xs open-createtenancyDialog" data-toggle="tooltip" title="Credit Activity">
+<a data-id="{{$paymentId}}" href="#credit" class="btn btn-sm btn-secondary btn-xs open-createtenancyDialog" data-toggle="tooltip" title="{{ __('message.credit_activity')}}">
     <i class="fa fa-history" style='color:white;'></i>
 </a>
 
@@ -6,7 +6,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Credit Balance History</h5>
+                <h5 class="modal-title">{{ __('message.credit_balance_history')}}</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -26,7 +26,7 @@
                         </li>
                     @endforeach
                     @else
-                        <li class="list-group-item" style="text-align: center">No activity has been recorded for this credit so far.</li>
+                        <li class="list-group-item" style="text-align: center">{{ __('message.no_activity_credit')}}</li>
                     @endif
                 </ul>
             </div>

@@ -1,63 +1,101 @@
-
 .install-img {
     margin-top: 5px !important;
     height: 50px !important;
 }
+a {
+    text-decoration: none !important;
+}
 
-.steps {
+.cursor-normal{
+    cursor: default;
+}
+.wrapper {
+    --circle-size: clamp(1.5rem, 5vw, 3rem);
+    --spacing: clamp(0.25rem, 2vw, 0.5rem);
+}
+
+.wrapper .c-stepper {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
+    align-items: flex-start;
+    padding: 0;
     position: relative;
+    list-style: none;
 }
-.step-button {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: none;
-    background-color: #aaaeb1;
-    transition: .4s;
-    color: #fff;
-}
-.step-button[aria-expanded="true"] {
-    width: 45px;
-    height: 45px;
-    background-color: #007bff;
-    color: #fff;
-}
-.done {
-    background-color: #aaaeb1 !important;
-    color: #fff !important;
-}
-.step-item {
-    z-index: 10;
+
+.wrapper .c-stepper__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    flex: 1;
     text-align: center;
 }
-#progress {
-    -webkit-appearance:none;
+
+.wrapper .c-stepper__icon {
+    width: var(--circle-size);
+    height: var(--circle-size);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: #aaaeb1;
+    margin-bottom: 1rem;
+    color: white;
+    font-size: clamp(1rem, 2vw, 1.0rem);
+    position: relative;
+    z-index: 2;
+}
+
+/* Connector line between steps */
+.wrapper .c-stepper__item:not(:last-child)::after {
+    content: "";
     position: absolute;
-    width: 90%;
-    z-index: 5;
+    top: calc(var(--circle-size) / 2);
+    right: 50%;
+    width: 100%;
     height: 4px;
-    margin-right: 76px;
-    margin-bottom: 25px;
-}
-#progress::-webkit-progress-value {
-    background-color: darkgrey;
-    transition: .5s ease;
-}
-#progress::-webkit-progress-bar {
-    background-color: #dee2e6;
+    background-color: #e0e0e0;
+    transform: translateY(-50%);
+    z-index: 0;
 }
 
-@media only screen and (max-width: 767px) {
-    .step-title {
-        display: none;
-    }
+.wrapper .c-stepper__item.completed .c-stepper__icon {
+    background-color: #3AA7D9; /* Change icon color when completed */
+}
 
-    #progress {
-        margin-bottom: 0 !important;
-        margin-right: 0 !important;
-    }
+/* Completed connector line */
+.wrapper .c-stepper__item.completed:not(:last-child)::after {
+    background-color: #3AA7D9; /* Change line color for completed steps */
+}
+
+.wrapper .c-stepper__item.active .c-stepper__icon {
+    background-color: #3AA7D9; /* Blue for active step */
+}
+
+/* Step Title */
+.wrapper .c-stepper__title {
+    font-size: clamp(0.75rem, 3vw, 1.1rem);
+    margin-bottom: 0.5rem;
+}
+
+/* Step Description */
+.wrapper .c-stepper__desc {
+    color: #aaaeb1;
+    font-size: clamp(0.85rem, 2vw, 1rem);
+    padding-right: var(--spacing);
+    padding-left: var(--spacing);
+}
+
+/* Make Active Step Title & Description Bold */
+.wrapper .c-stepper__item.active .c-stepper__title {
+    font-weight: bold;
+}
+
+.wrapper .c-stepper__item.active .c-stepper__desc {
+    font-weight: bold;
+}
+
+.custom-timeline::before {
+    bottom: 30px !important;
 }

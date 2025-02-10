@@ -58,7 +58,7 @@
                         @foreach($paths as $path)
                             <option>{{$path}}</option>
                         @endforeach
-                        <option value="Other">Other</option>
+                        <option value="Other">{{ __('message.other') }}</option>
                     </select>
                     <div class="has-feedback" id='phpExecutableTextArea' style="display: none;">
                         <div class="has-feedback">
@@ -91,9 +91,7 @@
                             {!! html()->label()->for('email_fetching')->html(
     Lang::get('message.expiry_mail') .
     ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top"
-    title="This cron is to trigger email which are sent out to users before product expiry
-    reminding them to renew the product. This email is sent out only to those who have not
-    enabled auto-renewal"></i>'
+    title="' . Lang::get('message.expiry_mail_tooltip') . '"></i>'
 ) !!}
                             <br>
                             {!! html()->checkbox('expiry_cron', $condition->checkActiveJob()['expiryMail'])->id('email_fetching') ,1 !!}
@@ -165,11 +163,9 @@
                             {!! html()->label()
      ->for('sub_fetching')
      ->html(
-         Lang::get('Subscription renewal reminder - Auto payment') .
+         Lang::get('message.subscription_renewal_reminder_autopayment') .
          ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top"
-         title="This cron is to trigger email which are sent out to users before product expiry
-         reminding them the product will be renewed automatically. This email is sent out only to those
-         who have enabled auto renewal"></i>'
+         title="' . Lang::get('message.auto_renewal_reminder_tooltip') . '"></i>'
      )
  !!}
                             <br>
@@ -213,11 +209,9 @@
 
                         <div class="form-group">
                             {!! html()->label()->for('postsub_fetching')->html(
-        Lang::get('Subscription expired') .
+        Lang::get('message.subscription_expired') .
         ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top"
-        title="This cron is to trigger email which are sent out to users after product expiry
-        reminding them to renew the product. This email is sent out to all users using auto renewal
-        or manual payment method. For self-hosted and cloud both"></i>'
+        title="' . Lang::get('message.auto_renewal_reminder_tooltip') . '"></i>'
     )
 !!}
                             <br>
@@ -257,11 +251,9 @@
 
                         <div class="form-group">
                             {!! html()->label()->for('cloud_fetching')->class('form-label')->html(
-        Lang::get('Cloud subscription deletion') .
+        Lang::get('message.cloud_subscription_deletion') .
         ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top"
-        title="This cron is to trigger email which are sent out to users after product expiry & on cloud instance
-        deletion. This email is sent out to all users using auto renewal or manual payment method.
-        For cloud instance only"></i>'
+        title="' . Lang::get('message.cron_trigger_cloud_new') . '"></i>'
     )
 !!}
 
@@ -270,7 +262,7 @@
                             {!! html()->checkbox('cloud_cron', $condition->checkActiveJob()['cloud'] ,1)
                                 ->id('cloud_fetching')
                             !!}
-                            &nbsp;{{ Lang::get('Enable Faveo Cloud') }}
+                            &nbsp;{{ Lang::get('message.enable_faveo_cloud') }}
                         </div>
 
 
@@ -308,8 +300,8 @@
 
                             <div class="form-group">
                                 {!! html()->label(
-                                    Lang::get('Invoice deletion') .
-                                    ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="This cron is to trigger deletion of the old unpaid invoices that are not linked to any orders."></i>'
+                                    Lang::get('message.invoice_deletion') .
+                                    ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="' . Lang::get('message.cron_trigger_deletion_old') . '"></i>'
                                 )->for('invoice_fetching')->class('required') !!}
 
                                 <br>
@@ -317,7 +309,7 @@
                                 {!! html()->checkbox('invoice_cron', $condition->checkActiveJob()['invoice'], 1)
                                     ->id('invoice_fetching')
                                 !!}
-                                &nbsp; {{ Lang::get('Enable Invoice Deletion') }}
+                                &nbsp; {{ Lang::get('message.enable_invoice_deletion') }}
                             </div>
                         </div>
 
@@ -350,7 +342,7 @@
                         <div class="form-group">
                             {!! html()
                                 ->label(
-                                    'Msg 91 Reports Deletion <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="This cron is to trigger deletion of the old Msg91 Reports."></i>'
+                                    __('message.msg91_reports_deletion').'<i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="' . Lang::get('message.cron_trigger_deletion_msg91_reports') . '"></i>'
                                 )
                                 ->for('msg91_fetching')
                                 ->toHtml()
@@ -392,7 +384,7 @@
     </div>
     </div>
 <div class="card-footer">
-    <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fa fa-sync-alt">&nbsp;&nbsp;</i>{!!Lang::get('message.update')!!}</button>
+    <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> {{ __('message.saving') }}"><i class="fa fa-sync-alt">&nbsp;&nbsp;</i>{!!Lang::get('message.update')!!}</button>
 </div>
     </div>
 

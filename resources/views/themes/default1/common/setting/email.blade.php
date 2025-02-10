@@ -1,16 +1,16 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Email
+    {{ __('message.email') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Configure Mail</h1>
+        <h1>{{ __('message.configure_mail') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item active">Email</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.email') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -32,7 +32,7 @@ Email
 
 
 
-                                {!! html()->select('driver', ['' => 'Choose','smtp' => 'SMTP','mail' => 'Php mail','mailgun' => 'Mailgun','mandrill' => 'Mandrill','ses' => 'SES','sparkpost' => 'Sparkpost'], $set->driver)->class('form-control'. ($errors->has('driver') ? ' is-invalid' : ''))->id('driver') !!}
+                                {!! html()->select('driver', ['' => __('message.choose'),'smtp' => 'SMTP','mail' => 'Php mail','mailgun' => 'Mailgun','mandrill' => 'Mandrill','ses' => 'SES','sparkpost' => 'Sparkpost'], $set->driver)->class('form-control'. ($errors->has('driver') ? ' is-invalid' : ''))->id('driver') !!}
                                 <i> {{Lang::get('message.select-email-driver')}}</i>
                             @error('driver')
                             <span class="error-message"> {{$message}}</span>
@@ -81,7 +81,7 @@ Email
                             <td>
 
 
-                                {!! html()->select('encryption', ['' => 'Choose','ssl' => 'SSL','tls' => 'TLS','starttls' => 'STARTTLS'], $set->encryption)->class('form-control'. ($errors->has('encryption') ? ' is-invalid' : ''))->id('encryption') !!}
+                                {!! html()->select('encryption', ['' => __('message.choose'),'ssl' => 'SSL','tls' => 'TLS','starttls' => 'STARTTLS'], $set->encryption)->class('form-control'. ($errors->has('encryption') ? ' is-invalid' : ''))->id('encryption') !!}
                                 <i> {{Lang::get('message.select-email-encryption-method')}}</i>
                             @error('encryption')
                             <span class="error-message"> {{$message}}</span>
@@ -96,7 +96,7 @@ Email
 
                       <tr>
                           <div class="form-group secret" >
-                          <td><b>{!! html()->label('Secret')->class('required')->for('secret') !!}</b></td>
+                          <td><b>{!! html()->label( __('message.secret'))->class('required')->for('secret') !!}</b></td>
                           <td>
                               {!! html()->text('secret', $set->secret)->class('form-control'. ($errors->has('secret') ? ' is-invalid' : ''))->id('secret') !!}
                               @error('secret')
@@ -110,7 +110,7 @@ Email
 
                     <tr>
                         <div class="form-group showWhenMailGunSelected">
-                            <td><b>{!! html()->label('Domain')->class('required')->for('domain') !!}</b></td>
+                            <td><b>{!! html()->label( __('message.domain2'))->class('required')->for('domain') !!}</b></td>
                         <td>
                             {!! html()->text('domain', $set->domain)->class('form-control'. ($errors->has('domain') ? ' is-invalid' : ''))->id('domain') !!}
                             @error('domain')
@@ -126,7 +126,7 @@ Email
 
                       <tr>
                         <div class="form-group showWhenSesSelected">
-                            <td><b>{!! html()->label('API Key')->class('required')->for('api_key') !!}</b></td>
+                            <td><b>{!! html()->label( __('message.api_key'))->class('required')->for('api_key') !!}</b></td>
                         <td>
                             {!! html()->text('key', $set->key)->class('form-control'. ($errors->has('key') ? ' is-invalid' : ''))->id('api_key') !!}
                             @error('key')
@@ -140,7 +140,7 @@ Email
 
                       <tr>
                         <div class="form-group showWhenSesSelected">
-                            <td><b>{!! html()->label('Region')->class('required')->for('region') !!}</b></td>
+                            <td><b>{!! html()->label( __('message.region'))->class('required')->for('region') !!}</b></td>
                         <td>
                             {!! html()->text('region', $set->region)->class('form-control'. ($errors->has('region') ? ' is-invalid' : ''))->id('region') !!}
                             @error('region')
@@ -176,12 +176,12 @@ Email
 
                       <tr>
                         <div class="form-group {{ $errors->has('from_name') ? 'has-error' : '' }}">
-                            <td><b>{!! html()->label(__('From Name'))->class('required')->for('from_name') !!}</b></td>
+                            <td><b>{!! html()->label(__('message.from_name'))->class('required')->for('from_name') !!}</b></td>
                             <td>
 
 
                                 {!! html()->text('from_name', $set->from_name)->class('form-control'. ($errors->has('from_name') ? ' is-invalid' : ''))->id('from_name') !!}
-                                <i> {{Lang::get('Enter From Name')}} </i>
+                                <i> {{Lang::get('message.enter_from_name')}} </i>
                             @error('from_name')
                             <span class="error-message"> {{$message}}</span>
                             @enderror
@@ -216,7 +216,7 @@ Email
 
         $(document).ready(function() {
             function emailOperation(){
-                $("#emailSetting").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+                $("#emailSetting").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
                 $("#emailSetting").attr('disabled', true);
                 $.ajax({
                     url: '{{url("settings/email")}}',
@@ -236,10 +236,10 @@ Email
                     },
                     success: function (response) {
                         $("#emailSetting").attr('disabled', false);
-                        $("#emailSetting").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                        $("#emailSetting").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save')}}");
                         const result = `<div class="alert alert-success alert-dismissable">
                     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                    <strong><i class="fa fa-check"></i> Success! </strong> ${response.message}.
+                    <strong><i class="fa fa-check"></i> {{ __('message.success')  }}! </strong> ${response.message}.
                 </div>`;
                         $('#alertMessage').html(result).show();
                         setTimeout(function () {
@@ -248,10 +248,10 @@ Email
                     },
                     error: function (response) {
                         $("#emailSetting").attr('disabled', false);
-                        $("#emailSetting").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                        $("#emailSetting").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                         let html = `<div class="alert alert-danger">
                     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                    <strong>Whoops! </strong>Something went wrong<br><br><ul>`;
+                    <strong>{{ __('message.whoops')}} </strong>{{ __('message.something_wrong') }}<br><br><ul>`;
                         if (response.status === 422) {
                             $.each(response.responseJSON.errors, function (key, errors) {
                                 html += `<li>${errors[0]}</li>`;

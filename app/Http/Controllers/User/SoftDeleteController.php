@@ -64,7 +64,7 @@ class SoftDeleteController extends ClientController
                         })
                         ->addColumn('action', function ($model) {
                             return '<a href='.url('clients/'.$model->id.'/restore')
-                            ." class='btn btn-sm btn-secondary btn-xs'".tooltip('Restore')."
+                            ." class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.restore'))."
                             <i class='fas fa-sync-alt' style='color:white;'> </i></a>";
                         })
 
@@ -97,7 +97,7 @@ class SoftDeleteController extends ClientController
             $user->restore();
         }
 
-        return redirect()->back()->with('success', 'User restored successfully');
+        return redirect()->back()->with('success', __('message.user_restored_successfully'));
     }
 
     public function permanentDeleteUser(Request $request)

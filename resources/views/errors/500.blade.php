@@ -6,7 +6,7 @@
 500
 @stop
 @section('breadcrumb')
-<li><a href="{{url('home')}}">Home</a></li>
+<li><a href="{{url('home')}}">{{ __('message.home')}}</a></li>
 <li class="active">500</li>
 @stop
 @section('main-class') "main shop" @stop
@@ -15,9 +15,9 @@
     <div class="row">
         <div style="text-align:center;">
             <div class="page-not-found-main">
-                <h3>Sorry, Something went wrong <i class="fa fa-bug"></i></h3>
-                <p>We're working on it and we'll get it fixed as soon as we can.</p>
-                <p><a href="{{url('home')}}">Go Back</a></p>
+                <h3>{{ __('message.sorry_something_wrong')}} <i class="fa fa-bug"></i></h3>
+                <p>{{ __('message.error_fixed')}}</p>
+                <p><a href="{{url('home')}}">{{ __('message.go_back')}}</a></p>
             </div>
         </div>
 

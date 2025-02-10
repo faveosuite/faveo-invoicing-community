@@ -1,17 +1,17 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Mailchimp
+{{ __('message.mailchimp') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Templates</h1>
+        <h1>{{ __('message.templates') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item"><a href="{{url('third-party-integration')}}"><i class="fa fa-dashboard"></i> Third Party Integration</a></li>
-            <li class="breadcrumb-item active">Mailchimp Mapping</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('third-party-integration')}}"><i class="fa fa-dashboard"></i> {{ __('message.third_party_integration') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.mailchimp_mapping') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -103,7 +103,7 @@ input:checked + .slider:before {
                         <tr>
                             <td>{{ __('message.' . $field) }}</td>
                             <td>
-                                {!! html()->select($field, ['' => 'Select', 'Fields' => $mailchimp_fields])
+                                {!! html()->select($field, ['' => __('message.Select'), 'Fields' => $mailchimp_fields])
                                     ->class('form-control') !!}
                             </td>
                         </tr>
@@ -136,7 +136,7 @@ input:checked + .slider:before {
                     <h3 class="card-title" >{{Lang::get('message.group-fields')}}</h3><br>
 {{--                    <h4>Map Products</h4>--}}
             <div class="form-group">
-            <span style="color:red;">*&nbsp Map all your Products with the group fields created in Mailchimp. After purchase of the product, the mailchimp group field mapped with that Product will show in Mailchimp account groups's section </span>
+            <span style="color:red;">*&nbsp {{ __('message.map_mailchimp_products') }} </span>
         </div>  
                <label class="switch toggle_event_editing">
                           
@@ -151,9 +151,9 @@ input:checked + .slider:before {
         ->acceptsFiles()
         ->open() !!}
               
-                        <h5>Select A Group</h5>
+                        <h5>{{ __('message.select_a_group') }}</h5>
                          <select name="group"  class="form-control col-md-2"  id="group" onChange="getGroup(this.value)">
-                            <option value="">Choose</option>
+                            <option value="">{{ __('message.choose') }}</option>
                 @foreach ($display as $key=>$value)
                <option value="{{$value['id']}}">{{$value['title']}}</option>
                  
@@ -163,7 +163,7 @@ input:checked + .slider:before {
                 <table class="table table-hover">
                     <tr>
                         <th>{{Lang::get('message.products')}}</th>
-                        <th>{{Lang::get('Mapped With')}}</th>
+                        <th>{{Lang::get('message.mapped_with')}}</th>
                         <th>{{Lang::get('message.mailchimp-product')}}</th>
                     </tr>
 
@@ -173,7 +173,7 @@ input:checked + .slider:before {
                                 @if(count($productList)>0)
                                 <option value="">{{$productList[0]}}</option>
                                 @endif
-                                  <option value="">Choose</option>
+                                  <option value="">{{ __('message.choose') }}</option>
                               @foreach($agoraProducts as $key=>$product)
 
                                    <option value="{{$key}}">{{$product}}</option>
@@ -201,7 +201,7 @@ input:checked + .slider:before {
                                 @if(count($productList)>0)
                                 <option value="">{{$productList[1]}}</option>
                                 @endif
-                                  <option value="">Choose</option>
+                                  <option value="">{{ __('message.choose') }}</option>
                               @foreach($agoraProducts as $key=>$product)
                              
                                    <option value="{{$key}}">{{$product}}</option>
@@ -231,7 +231,7 @@ input:checked + .slider:before {
                                 @if(count($productList)>0)
                                 <option value="">{{$productList[2]}}</option>
                                 @endif
-                                  <option value="">Choose</option>
+                                  <option value="">{{ __('message.choose') }}</option>
                               @foreach($agoraProducts as $key=>$product)
                              
                                    <option value="{{$key}}">{{$product}}</option>
@@ -262,7 +262,7 @@ input:checked + .slider:before {
                                 @if(count($productList)>0)
                                 <option value="">{{$productList[3]}}</option>
                                 @endif
-                                  <option value="">Choose</option>
+                                  <option value="">{{ __('message.choose') }}</option>
                               @foreach($agoraProducts as $key=>$product)
                              
                                    <option value="{{$key}}">{{$product}}</option>
@@ -291,7 +291,7 @@ input:checked + .slider:before {
                                 @if(count($productList)>0)
                                 <option value="">{{$productList[4]}}</option>
                                 @endif
-                                  <option value="">Choose</option>
+                                  <option value="">{{ __('message.choose') }}</option>
                               @foreach($agoraProducts as $key=>$product)
                              
                                    <option value="{{$key}}">{{$product}}</option>
@@ -322,7 +322,7 @@ input:checked + .slider:before {
                                 @if(count($productList)>0)
                                 <option value="">{{$productList[5]}}</option>
                                 @endif
-                                  <option value="">Choose</option>
+                                  <option value="">{{ __('message.choose') }}</option>
                               @foreach($agoraProducts as $key=>$product)
                              
                                    <option value="{{$key}}">{{$product}}</option>
@@ -351,7 +351,7 @@ input:checked + .slider:before {
                                 @if(count($productList)>0)
                                 <option value="">{{$productList[6]}}</option>
                                 @endif
-                                  <option value="">Choose</option>
+                                  <option value="">{{ __('message.choose') }}</option>
                               @foreach($agoraProducts as $key=>$product)
                                    <option value="{{$key}}">{{$product}}</option>
                            
@@ -378,7 +378,7 @@ input:checked + .slider:before {
                                 @if(count($productList)>0)
                                 <option value="">{{$productList[7]}}</option>
                                 @endif
-                                  <option value="">Choose</option>
+                                  <option value="">{{ __('message.choose') }}</option>
                               @foreach($agoraProducts as $key=>$product)
                                    <option value="{{$key}}">{{$product}}</option>
                            
@@ -405,7 +405,7 @@ input:checked + .slider:before {
                                 @if(count($productList)>0)
                                 <option value="">{{$productList[8]}}</option>
                                 @endif
-                                  <option value="">Choose</option>
+                                  <option value="">{{ __('message.choose') }}</option>
                               @foreach($agoraProducts as $key=>$product)
                                    <option value="{{$key}}">{{$product}}</option>
                            
@@ -432,7 +432,7 @@ input:checked + .slider:before {
                                 @if(count($productList)>0)
                                 <option value="">{{$productList[9]}}</option>
                                 @endif
-                                  <option value="">Choose</option>
+                                  <option value="">{{ __('message.choose') }}</option>
                               @foreach($agoraProducts as $key=>$product)
                                    <option value="{{$key}}">{{$product}}</option>
                            
@@ -470,10 +470,10 @@ input:checked + .slider:before {
         <div class="card card-secondary card-outline">
            <div id="alertMessage1"></div>
              <div class="card-body">
-                  <h3 class="card-title">Map Is Paid Group</h3><br>
+                  <h3 class="card-title">{{ __('message.map_paid_group') }}</h3><br>
             <div class="card-header">
                 <div class="form-group">
-                <span style="color:red;">*&nbsp This Setting defines whether the Product is charged or a free Product. Create a group in Mailchimp with dropdown values which should either be YES/NO or TRUE/FALSE.<br> Once the settings is saved here, after every Product purchase, its status will reflect in your Mailchimp account group's Section. </span>
+                    <span style="color:red;">*&nbsp;{{ __('message.mailchimp_dropdown_true_false') }}<br> {{ __('message.mailchimp_account_group') }}</span>
             </div>  
                 <label class="switch">
                           
@@ -498,9 +498,9 @@ input:checked + .slider:before {
 
 
                  <br>
-                        <h5>Select A Group</h5>
+                        <h5>{{ __('message.select_a_group') }}</h5>
                          <select name="group"  class="form-control col-md-2"  id="group" onChange="getGroup(this.value)">
-                            <option value="">Choose</option>
+                            <option value="">{{ __('message.choose') }}</option>
                 @foreach ($display as $key=>$value)
                <option value="{{$value['id']}}"<?php  if(in_array($value['id'], $selectedIsPaid) ) 
                         { echo "selected";} ?>>{{$value['title']}}</option>
@@ -511,7 +511,7 @@ input:checked + .slider:before {
 
 
                  <br>
-                 <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fa fa-sync-alt">&nbsp;&nbsp;</i>{!!Lang::get('message.update')!!}</button>
+                 <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i>  {{ __('message.saving') }}"><i class="fa fa-sync-alt">&nbsp;&nbsp;</i>{!!Lang::get('message.update')!!}</button>
                  {!! html()->closeModelForm() !!}
 
             </div>
@@ -547,7 +547,7 @@ input:checked + .slider:before {
      getInterestGroup(val)
     }
       else{
-        $(".field").html('<option value=>Please select a Group</option>').val('');
+        $(".field").html('<option value=>{{ __('message.please_select_a_group') }}</option>').val('');
     }
    }
 
@@ -563,7 +563,7 @@ input:checked + .slider:before {
             }
         });
      }
-<!------------------------------------------//Update Mailchimp product status----------------------------------------------------------------------------->
+    //Update Mailchimp product status
  $(document).ready(function (){
   var productstatus =  $('.checkbox1').val();
     if(productstatus ==1)
@@ -594,7 +594,7 @@ input:checked + .slider:before {
       },
        success: function (data) {
             $('#alertMessage').show();
-            var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
+            var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> ' + @json(__('message.success')) + '! </strong>' + data.update + '.</div>';
             $('#alertMessage').html(result+ ".");
               setInterval(function(){ 
                 $('#alertMessage').slideUp(3000); 
@@ -605,8 +605,7 @@ input:checked + .slider:before {
 
      })
 
-<!-------------------------------------------//Update Is Paid Status//------------------------------------------------------>
-
+    //Update Is Paid Status
  $(document).ready(function (){
   var ispaidstatus =  $('.checkbox2').val();
     if(ispaidstatus ==1)
@@ -637,7 +636,7 @@ input:checked + .slider:before {
       },
        success: function (data) {
             $('#alertMessage1').show();
-            var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
+           var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> ' + '{{ __("message.success") }}' + '! </strong>' + data.update + '.</div>';
             $('#alertMessage1').html(result+ ".");
               setInterval(function(){ 
                 $('#alertMessage1').slideUp(3000); 

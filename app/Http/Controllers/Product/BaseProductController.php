@@ -132,7 +132,7 @@ class BaseProductController extends ExtendedBaseProductController
                             html()->label()
                                 ->class('required')
                                 ->text(__('message.subscription')), // Translated label
-                            html()->select('plan', ['' => 'Select', 'Plans' => $plans])
+                            html()->select('plan', ['' => __('message.select'), 'Plans' => $plans])
                                 ->class('form-control')
                                 ->id('plan')
                                 ->attribute('onchange', 'getPrice(this.value)'),
@@ -161,7 +161,7 @@ class BaseProductController extends ExtendedBaseProductController
         try {
             if (\Auth::user()->role != 'admin') {
                 if (\Auth::user()->id != $userid) {
-                    throw new \Exception('This user has no permission for this action');
+                    throw new \Exception(__('message.no_permission_for_action'));
                 }
             }
             $user = new \App\User();
@@ -467,6 +467,6 @@ class BaseProductController extends ExtendedBaseProductController
             'product_id' => $product[0]['product_id'],
         ];
 
-        return successResponse('Product details retrieved successfully', $data);
+        return successResponse(__('message.product_retrieved_successfully'), $data);
     }
 }

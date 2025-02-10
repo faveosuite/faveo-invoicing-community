@@ -147,7 +147,7 @@ class BaseClientController extends Controller
 
             return successResponse(__('message.updated-successfully'));
         } catch (Exception $ex) {
-            return errorResponse('Failed to update profile');
+            return errorResponse(__('message.failed_to_update_profile'));
         }
     }
 
@@ -162,7 +162,7 @@ class BaseClientController extends Controller
             $newPassword = $request->input('new_password');
 
             if (! \Hash::check($oldPassword, $user->getAuthPassword())) {
-                return errorResponse('Incorrect old password');
+                return errorResponse(__('message.incorrect_old_password'));
             }
 
             $user->password = \Hash::make($newPassword);
@@ -178,7 +178,7 @@ class BaseClientController extends Controller
         } catch (\Exception $e) {
             app('log')->error($e->getMessage());
 
-            return errorResponse('Failed to update password');
+            return errorResponse(__('message.failed_to_update_password'));
         }
     }
 
@@ -236,7 +236,7 @@ class BaseClientController extends Controller
                 }
 
                 return '<p><a href='.url($url)." 
-                class='btn btn-light-scale-2 btn-sm text-dark'".tooltip('View')."<i class='fa fa-eye' 
+                class='btn btn-light-scale-2 btn-sm text-dark'".tooltip(__('message.view'))."<i class='fa fa-eye' 
                 > </i></a>".$payment.'</p>';
             })
               ->filterColumn('number', function ($query, $keyword) {

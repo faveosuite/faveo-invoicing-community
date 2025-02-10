@@ -1,13 +1,13 @@
 @extends('themes.default1.layouts.front.master')
 @section('title')
-Search Result
+{{ __('message.search_result') }}
 @stop
 @section('page-header')
-Search Result
+    {{ __('message.search_result') }}
 @stop
 @section('breadcrumb')
-<li><a href="{{url('home')}}">Home</a></li>
-<li class="active">Search Result</li>
+<li><a href="{{url('home')}}">{{ __('message.home')}}</a></li>
+<li class="active">{{ __('message.search_result')}}</li>
 @stop
 @section('main-class') 
 main

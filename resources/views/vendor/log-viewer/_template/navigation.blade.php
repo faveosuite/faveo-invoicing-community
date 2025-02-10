@@ -29,7 +29,7 @@
                 <nav class="navbar navbar-static-top" role="navigation">
                     <!-- Sidebar toggle button-->
                     <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
-                        <span class="sr-only">Toggle navigation</span>
+                        <span class="sr-only">{{ __('message.toggle_navigation') }}</span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
@@ -70,12 +70,12 @@
             <ul class="nav navbar-nav">
                 <li class="{{ Route::is('log-viewer::dashboard') ? 'active' : '' }}">
                     <a href="{{ route('log-viewer::dashboard') }}">
-                        <i class="fa fa-dashboard"></i> Dashboard
+                        <i class="fa fa-dashboard"></i> {{ __('message.dashboard') }}
                     </a>
                 </li>
                 <li class="{{ Route::is('log-viewer::logs.list') ? 'active' : '' }}">
                     <a href="{{ route('log-viewer::logs.list') }}">
-                        <i class="fa fa-archive"></i> Logs
+                        <i class="fa fa-archive"></i> {{ __('message.logs') }}
                     </a>
                 </li>
             </ul>

@@ -1,15 +1,15 @@
 @extends('log-viewer::_template.master')
 @section('title')
-    Log-Viewer
+    {{ __('message.logs_viewer') }}
 @stop
 @section('content-header')
     <h1>
-        Log-Viewer
+        {{ __('message.logs_viewer') }}
     </h1>
     <ol class="breadcrumb">
-        <li><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-        <li><a href="{{url('settings')}}">Settings</a></li>
-        <li class="active">Error Logs</li>
+        <li><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+        <li><a href="{{url('settings')}}">{{ __('message.settings') }}</a></li>
+        <li class="active">{{ __('message.error_logs') }}</li>
     </ol>
 @stop
 @section('content')
@@ -33,7 +33,7 @@
                                         <div class="info-box-content">
                                             <span class="info-box-text">{{ $item['name'] }}</span>
                                             <span class="info-box-number">
-                                        {{ $item['count'] }} entries - {!! $item['percent'] !!} %
+                                        {{ $item['count'] }} {{ __('message.entries') }} - {!! $item['percent'] !!} %
                                     </span>
                                             <div class="progress">
                                                 <div class="progress-bar" style="width: {{ $item['percent'] }}%"></div>

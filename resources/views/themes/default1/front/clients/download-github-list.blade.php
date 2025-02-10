@@ -1,4 +1,4 @@
-<a onclick="getTables({{$productid}},{{$clientid}},{{$invoiceid}})" class="btn btn-light-scale-2 btn-sm text-dark" data-toggle="modal" data-target="#lists">  <i class='fa fa-download' data-toggle="tooltip"  title="Click here to download"></i>&nbsp;</a>
+<a onclick="getTables({{$productid}},{{$clientid}},{{$invoiceid}})" class="btn btn-light-scale-2 btn-sm text-dark" data-toggle="modal" data-target="#lists">  <i class='fa fa-download' data-toggle="tooltip"  title="{{ __('message.click_to_download') }}"></i>&nbsp;</a>
 <style>
 .tooltip:hover .tooltiptext {
     visibility: visible;
@@ -55,7 +55,7 @@
                     <div class="col-md-12">
                         <div class="box">
                             <div class="box-header with-border">
-                               <h3 class="box-title">Product Versions</h3>
+                               <h3 class="box-title">{{ __('message.product_version')}}</h3>
                             </div>
                             <div class="box-body">
 
@@ -67,10 +67,10 @@
 
                                             <thead><tr>
 
-                                                    <th>Version</th>
-                                                    <th>Title</th>
-                                                    <th>Description</th>
-                                                    <th>File</th>
+                                                    <th>{{ __('message.version')}}</th>
+                                                    <th>{{ __('message.title')}}</th>
+                                                    <th>{{ __('message.description')}}</th>
+                                                    <th>{{ __('message.file')}}</th>
 
                                                 </tr></thead>
 
@@ -120,6 +120,21 @@
                     "sSearch"    : "Search: ",
                     "sProcessing": '<img id="blur-bg" class="backgroundfadein" style="top:40%;left:50%; width: 50px; height:50 px; display: block; position:    fixed;" src="{!! asset("lb-faveo/media/images/gifloader3.gif") !!}">'
             },
+        language: {
+            paginate: {
+                first:      "{{ __('message.paginate_first') }}",
+                last:       "{{ __('message.paginate_last') }}",
+                next:       "{{ __('message.paginate_next') }}",
+                previous:   "{{ __('message.paginate_previous') }}"
+            },
+            emptyTable:     "{{ __('message.empty_table') }}",
+            info:           "{{ __('message.datatable_info') }}",
+            zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
+            infoEmpty:      "{{ __('message.info_empty') }}",
+            infoFiltered:   "{{ __('message.info_filtered') }}",
+            lengthMenu:     "{{ __('message.length_menu') }}",
+            loadingRecords: "{{ __('message.loading_records') }}",
+        },
             columnDefs: [
             {
                 

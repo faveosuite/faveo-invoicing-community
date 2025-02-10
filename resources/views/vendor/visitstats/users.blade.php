@@ -7,9 +7,9 @@
 
 		<table class="visitortracker-table table table-sm table-striped fs-1">
 			<thead>
-				<th>User</th>
-				<th>Visits</th>
-				<th>Last Visit</th>
+				<th>{{ __('message.user') }}</th>
+				<th>{{ __('message.visits') }}</th>
+				<th>{{ __('message.last_visit') }}</th>
 			</thead>
 
 			<tbody>
@@ -19,7 +19,7 @@
 							@if ($visit->user_id)
                                 <img class="visitortracker-icon"
                                     src="{{ asset('/vendor/visitortracker/icons/user.png') }}"
-                                    title="Authenticated user: {{ $visit->user_email }}">
+                                    title="{{ __('message.authenticated_user') }} {{ $visit->user_email }}">
                                 
                                 {{ $visit->user_email }}
                             @endif

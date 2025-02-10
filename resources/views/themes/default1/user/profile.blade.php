@@ -1,6 +1,6 @@
     @extends('themes.default1.layouts.master')
 @section('title')
-View Profile
+{{ __('message.view_profile') }}
 @stop
 
 @section('content-header')
@@ -74,13 +74,13 @@ input:checked + .slider:before {
 </style>
 
     <div class="col-sm-6">
-        <h1>View Profile</h1>
+        <h1>{{ __('message.view_profile') }}</h1>
     </div>
     <div class="col-sm-6">
 
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item active">Edit Profile</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.edit_profile') }}</li>
         </ol>
     </div><!-- /.col -->
 
@@ -113,7 +113,7 @@ input:checked + .slider:before {
 
         <div class="card card-secondary card-outline">
             <div class="card-header">
-                <h3 class="card-title">Edit Profile</h3>
+                <h3 class="card-title">{{ __('message.edit_profile') }}</h3>
 
 
             </div>
@@ -247,7 +247,7 @@ input:checked + .slider:before {
                             @if(count($state)>0)
                             <option value="{{$state['id']}}">{{$state['name']}}</option>
                             @endif
-                            <option value="">Select State</option>
+                            <option value="">{{ __('message.select_state') }}</option>
                             @foreach($states as $key=>$value)
                             <option value="{{$key}}">{{$value}}</option>
                             @endforeach
@@ -301,7 +301,7 @@ input:checked + .slider:before {
 
                 </div>
 
-                <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Updating..."><i class="fas fa-sync">&nbsp;&nbsp;</i>{!!Lang::get('message.update')!!}</button></h4>
+                <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> {{ __('message.updating') }}"><i class="fas fa-sync">&nbsp;&nbsp;</i>{!!Lang::get('message.update')!!}</button></h4>
 
                 {!! html()->token() !!}
                 {!! html()->form()->close() !!}
@@ -344,7 +344,7 @@ input:checked + .slider:before {
                 <div class="form-group has-feedback {{ $errors->has('old_password') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('message.old_password'))->class('required')->for('old_password') !!}
                     <div class="input-group">
-                        {!! html()->password('old_password')->placeholder('Password')->class('form-control'. ($errors->has('old_password') ? ' is-invalid' : '')) !!}
+                        {!! html()->password('old_password')->placeholder( __('message.password'))->class('form-control'. ($errors->has('old_password') ? ' is-invalid' : '')) !!}
                         <div class="input-group-append">
                                         <span class="input-group-text" role="button" onclick="togglePasswordVisibility(this)">
                                             <i class="fa fa-eye-slash"></i>
@@ -360,7 +360,7 @@ input:checked + .slider:before {
                 <div class="form-group has-feedback {{ $errors->has('new_password') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('message.new_password'))->class('required')->for('new_password') !!}
                     <div class="input-group has-validation">
-                        {!! html()->password('new_password')->placeholder('New Password')->class('form-control'. ($errors->has('new_password') ? ' is-invalid' : '')) !!}
+                        {!! html()->password('new_password')->placeholder( __('message.new_password'))->class('form-control'. ($errors->has('new_password') ? ' is-invalid' : '')) !!}
                     <div class="input-group-append">
                                         <span class="input-group-text" role="button" onclick="togglePasswordVisibility(this)">
                                             <i class="fa fa-eye-slash"></i>
@@ -385,7 +385,7 @@ input:checked + .slider:before {
                 <div class="form-group has-feedback {{ $errors->has('confirm_password') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('message.confirm_password'))->class('required')->for('confirm_password') !!}
                     <div class="input-group">
-                        {!! html()->password('confirm_password')->placeholder('Confirm Password')->class('form-control'. ($errors->has('confirm_password') ? ' is-invalid' : '')) !!}
+                        {!! html()->password('confirm_password')->placeholder( __('message.confirm_password'))->class('form-control'. ($errors->has('confirm_password') ? ' is-invalid' : '')) !!}
                     <div class="input-group-append">
                                         <span class="input-group-text" role="button" onclick="togglePasswordVisibility(this)">
                                             <i class="fa fa-eye-slash"></i>
@@ -398,7 +398,7 @@ input:checked + .slider:before {
                     <span class="error-message"> {{$message}}</span>
                     @enderror
                 </div>
-                    <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Updating..."><i class="fas fa-sync">&nbsp;&nbsp;</i>{!!Lang::get('message.update')!!}</button>
+                    <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> {{ __('message.updating') }}"><i class="fas fa-sync">&nbsp;&nbsp;</i>{!!Lang::get('message.update')!!}</button>
                     {!! html()->form()->close() !!}
             </div>
         </div>
@@ -424,13 +424,13 @@ input:checked + .slider:before {
                 <h5>
                     @if($is2faEnabled ==0)
                     
-                    <img src="{{asset('common/images/authenticator.png')}}" alt="Authenticator" style="margin-top: -6px!important;" class="img-responsive img-circle img-sm">&nbsp;Authenticator App
+                    <img src="{{asset('common/images/authenticator.png')}}" alt="Authenticator" style="margin-top: -6px!important;" class="img-responsive img-circle img-sm">&nbsp;{{ __('message.authenticator_app') }}
                     @else
-                    <img src="{{asset('common/images/authenticator.png')}}" alt="Authenticator" style="margin-top: -6px!important;" class="img-responsive img-circle img-sm">&nbsp;2-Step Verification is ON since {{getTimeInLoggedInUserTimeZone($dateSinceEnabled)}}
+                    <img src="{{asset('common/images/authenticator.png')}}" alt="Authenticator" style="margin-top: -6px!important;" class="img-responsive img-circle img-sm">&nbsp;{{ __('message.2_step_verification') }} {{getTimeInLoggedInUserTimeZone($dateSinceEnabled)}}
                     <br><br><br>
                     <div class="row">
                  <div class="col-md-6">
-                     <button class="btn btn-primary" id="viewRecCode">View Recovery Code</button>
+                     <button class="btn btn-primary" id="viewRecCode">{{ __('message.recovery_code') }}</button>
                  </div>
              </div>
                     @endif
@@ -803,7 +803,7 @@ input:checked + .slider:before {
               validMsg.classList.remove("hide");
             } else {
             errorMsg.classList.remove("hide");
-            errorMsg.innerHTML = "Please enter a valid number";
+            errorMsg.innerHTML =  @json(trans('message.enter_valid_number'));
              $('#mobile_code').css("border-color", "#dc3545");
              $('#error-msg').css({"width": "100%", "margin-top": ".25rem", "font-size": "80%", "color": "#dc3545"});
             }

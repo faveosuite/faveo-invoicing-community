@@ -36,10 +36,26 @@ class verifyOtp extends FormRequest
 
                 function ($attribute, $value, $fail) use ($pass) {
                     if (! Hash::check($value, $pass)) {
-                        return $fail('Invalid Password');
+                        return $fail(__('validation.password_otp.invalid'));
                     }
                 },
             ],
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'verify_email.required' => __('validation.verify_email.required'),
+            'verify_email.email' => __('validation.verify_email.email'),
+            'verify_email.verify_email' => __('validation.verify_email.verify_email'), // Custom validation rule message
+            'verify_country_code.required' => __('validation.verify_country_code.required'),
+            'verify_country_code.numeric' => __('validation.verify_country_code.numeric'),
+            'verify_country_code.verify_country_code' => __('validation.verify_country_code.verify_country_code'), // Custom validation rule message
+            'verify_number.required' => __('validation.verify_number.required'),
+            'verify_number.numeric' => __('validation.verify_number.numeric'),
+            'verify_number.verify_number' => __('validation.verify_number.verify_number'), // Custom validation rule message
+            'password.required' => __('validation.password_otp.required'),
         ];
     }
 }

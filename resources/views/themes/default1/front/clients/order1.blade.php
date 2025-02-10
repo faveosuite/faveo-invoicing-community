@@ -1,24 +1,24 @@
 @extends('themes.default1.layouts.front.master')
 @section('title')
-Orders
+ {{ __('message.orders') }}
 @stop
 @section('page-header')
 <br>
-Cart
+{{ __('message.cart') }}
 @stop
 @section('nav-orders')
 active
 @stop
 @section('page-heading')
- My Orders
+    {{ __('message.my_orders')}}
 @stop
 @section('breadcrumb')
     @if(Auth::check())
-        <li><a class="text-primary" href="{{url('my-invoices')}}">Home</a></li>
+        <li><a class="text-primary" href="{{url('my-invoices')}}">{{ __('message.home')}}</a></li>
     @else
-         <li><a class="text-primary" href="{{url('login')}}">Home</a></li>
+         <li><a class="text-primary" href="{{url('login')}}">{{ __('message.home')}}</a></li>
     @endif
-     <li class="active text-dark">My Orders</li>
+     <li class="active text-dark">{{ __('message.my_orders')}}</li>
 @stop 
 
 @section('content')
@@ -49,12 +49,12 @@ active
                                     <div class="table-responsive">
                                     <table id="order-table" class="table table-striped table-bordered mw-auto">
                                                  <thead><tr>
-                                                <th>Product Name</th>
-                                                <th>Purchase Date</th>
-                                                <th>Order No</th>
-                                                <th>Agents</th>
-                                                <th>Expiry Date</th>
-                                                <th>Action</th>
+                                                <th>{{ __('message.product_name')}}</th>
+                                                <th>{{ __('message.purchase_date')}}</th>
+                                                <th>{{ __('message.order_no')}}</th>
+                                                <th>{{ __('message.agents')}}</th>
+                                                <th>{{ __('message.expiry_date')}}</th>
+                                                <th>{{ __('message.action')}}</th>
                                             </tr></thead>
                                             </table>
                                             </div>
@@ -91,7 +91,7 @@ active
             "url": '{!! route('get-my-orders', "updated_ends_at=$request->updated_ends_at") !!}',
                error: function(xhr) {
                if(xhr.status == 401) {
-                alert('Your session has expired. Please login again to continue.')
+                   alert(@json(__('message.session_expired')));
                 window.location.href = '/login';
                }
             }
@@ -101,6 +101,21 @@ active
                 "sLengthMenu": "_MENU_ Records per page",
                 "sSearch"    : "Search: ",
                 "sProcessing": '<img id="blur-bg" class="backgroundfadein" style="top:40%;left:50%; width: 50px; height:50 px; display: block; position:    fixed;" src="{!! asset("lb-faveo/media/images/gifloader3.gif") !!}">'
+            },
+            language: {
+                paginate: {
+                    first:      "{{ __('message.paginate_first') }}",
+                    last:       "{{ __('message.paginate_last') }}",
+                    next:       "{{ __('message.paginate_next') }}",
+                    previous:   "{{ __('message.paginate_previous') }}"
+                },
+                emptyTable:     "{{ __('message.empty_table') }}",
+                info:           "{{ __('message.datatable_info') }}",
+                zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
+                infoEmpty:      "{{ __('message.info_empty') }}",
+                infoFiltered:   "{{ __('message.info_filtered') }}",
+                lengthMenu:     "{{ __('message.length_menu') }}",
+                loadingRecords: "{{ __('message.loading_records') }}",
             },
            
         

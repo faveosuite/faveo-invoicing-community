@@ -1,21 +1,21 @@
 @extends('themes.default1.layouts.front.master')
 @section('title')
-    Cart
+    {{ __('message.cart') }}
 @stop
 @section('page-header')
     <br>
-    Cart
+    {{ __('message.cart') }}
 @stop
 @section('page-heading')
-Cart
+{{ __('message.cart') }}
 @stop
 @section('breadcrumb')
 @if(Auth::check())
-        <li><a class="text-primary" href="{{url('my-invoices')}}">Home</a></li>
+        <li><a class="text-primary" href="{{url('my-invoices')}}">{{ __('message.home')}}</a></li>
 @else
-     <li><a class="text-primary" href="{{url('login')}}">Home</a></li>
+     <li><a class="text-primary" href="{{url('login')}}">{{ __('message.home')}}</a></li>
 @endif
- <li class="active text-dark">Cart</li>
+ <li class="active text-dark">{{ __('message.cart')}}</li>
 @stop
 @section('main-class') "main shop" @stop
 
@@ -113,28 +113,28 @@ Cart
 
                                             <th class="product-name text-uppercase" width="" style="font-family: Arial;">
 
-                                                Product
+                                                {{ __('message.product')}}
 
                                             </th>
 
                                             <th class="product-price text-uppercase" width="">
 
-                                                Price
+                                                {{ __('message.price')}}
                                             </th>
 
                                             <th class="product-quantity text-uppercase" width="">
 
-                                                Quantity
+                                                {{ __('message.quantity')}}
                                             </th>
                                             <th class="product-agents text-uppercase" width="">
 
-                                                Agents
+                                                {{ __('message.agents')}}
                                             </th>
 
 
                                             <th class="product-subtotal text-uppercase" width="">
 
-                                                Subtotal
+                                                {{ __('message.sub_total')}}
                                             </th>
                                         </tr>
                                     </thead>
@@ -177,7 +177,7 @@ Cart
 
                                                 <div class="product-thumbnail-wrapper" style="width: 100px;">
 
-                                                    <a onclick="removeItem('{{$item->id}}');"class="product-thumbnail-remove"  data-bs-toggle="tooltip" title="Remove Product" style="top: -15px;">
+                                                    <a onclick="removeItem('{{$item->id}}');" class="product-thumbnail-remove" data-bs-toggle="tooltip" title="{{ __('message.remove_product')}}" style="top: -15px;">
 
                                                         <i class="fas fa-times"></i>
                                                     </a>
@@ -230,7 +230,7 @@ Cart
 
                                                     @if (!$item->attributes->agents)
 
-                                                        {{'Unlimited Agents'}}
+                                                            {{ __('message.unlimited_agents') }}
                                                     @else
                                                         @if($isAllowedtoEdit['agent'])
                                                             <div class="quantity">
@@ -275,7 +275,7 @@ Cart
 
                             <div class="card-body">
 
-                                <h4 class="font-weight-bold text-uppercase text-4 mb-3">Cart Totals</h4>
+                                <h4 class="font-weight-bold text-uppercase text-4 mb-3">{{ __('message.cart_totals')}}</h4>
 
 
                                 <div class="table-responsive">
@@ -287,7 +287,7 @@ Cart
                                             <tr class="total">
 
                                                 <td>
-                                                    <strong class="text-color-dark text-3-5" style="font-family: Arial;">Total</strong>
+                                                    <strong class="text-color-dark text-3-5" style="font-family: Arial;">{{ __('message.total')}}</strong>
                                                 </td>
 
                                                 <td class="text-end">
@@ -306,7 +306,7 @@ Cart
                                             <form action="{{url('cart/clear')}}" method="post">
                                             {{ csrf_field() }}
 
-                                             <a href="{{url('cart/clear')}}"><button class="btn btn-light btn-modern text-2 text-uppercase" style="background: #F4F4F4;">Clear Cart</button></a>
+                                             <a href="{{url('cart/clear')}}"><button class="btn btn-light btn-modern text-2 text-uppercase" style="background: #F4F4F4;">{{ __('message.clear_cart')}}</button></a>
                                             </form>
                                         </div>
                                     </div>
@@ -314,9 +314,9 @@ Cart
                                     <div class="col-md-auto px-0">
                                         @if(count($domain)>0)
 
-                                       <a href="#domain" data-toggle="modal" data-target="#domain" class="btn btn-dark btn-modern text-2 text-uppercase checkout">Checkout <i class="fas fa-arrow-right ms-2"></i></a>
+                                       <a href="#domain" data-toggle="modal" data-target="#domain" class="btn btn-dark btn-modern text-2 text-uppercase checkout">{{ __('message.checkout') }} <i class="fas fa-arrow-right ms-2"></i></a>
                                          @else
-                                         <a href="{{url('checkout')}}" class="btn btn-dark btn-modern text-2 text-uppercase checkout">Checkout <i class="fas fa-arrow-right ms-2"></i></a>
+                                         <a href="{{url('checkout')}}" class="btn btn-dark btn-modern text-2 text-uppercase checkout">{{ __('message.checkout') }} <i class="fas fa-arrow-right ms-2"></i></a>
                                           @endif
                                     </div>
                                 </div>
@@ -331,7 +331,7 @@ Cart
                         <div class="col-md-12" style="text-align: center;">
 
                                     <div class="col-md-offset-5">
-                                        <p class="text-black">There are no items in this cart.</p>
+                                        <p class="text-black">{{ __('message.no_item_cart')}}</p>
                                         @if(Auth::check())
 
                                             @php
@@ -339,11 +339,11 @@ Cart
                                             @endphp
                                         
                                            @if(!is_null($data))
-                                            <a href="{{url("group/$data->pricing_templates_id/$data->id")}}" class="btn border-0 px-4 py-2 line-height-9 btn-tertiary me-2">CONTINUE SHOPPING
+                                            <a href="{{url("group/$data->pricing_templates_id/$data->id")}}" class="btn border-0 px-4 py-2 line-height-9 btn-tertiary me-2">{{ __('message.continue_shopping')}}
                                                 @endif
 
                                                 @else
-                                                    <a href="{{url('login')}}" class="btn border-0 px-4 py-2 line-height-9 btn-tertiary me-2">CONTINUE SHOPPING
+                                                    <a href="{{url('login')}}" class="btn border-0 px-4 py-2 line-height-9 btn-tertiary me-2">{{ __('message.continue_shopping')}}
                                                         @endif
                                                     </a>
                                 </div>
