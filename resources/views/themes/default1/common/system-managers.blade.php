@@ -41,8 +41,8 @@ System Managers
             <div id="error"></div>
                 <div class ="row">
                 <div class="col-md-4 form-group">
-                    {!! Form::label('user',Lang::get('message.system_account_manager'),['class'=>'required']) !!}
-                       <select name="manager" value= "Choose" id="existingManager" class="form-control">
+                    {!! html()->label(Lang::get('message.system_account_manager'), 'user')->class('required') !!}
+                    <select name="manager" value= "Choose" id="existingManager" class="form-control">
                              <option value="">Choose</option>
                            @foreach($accountManagers as $key=>$manager)
                              <option value={{$key}}>{{$manager}}</option>
@@ -53,12 +53,17 @@ System Managers
                
                 <div class="col-md-4 form-group {{ $errors->has('account_manager') ? 'has-error' : '' }}">
                             <!-- first name -->
-                            {!! Form::label('replace_with',Lang::get('message.replace_with'),['class'=>'required']) !!}
-                        
-                           
-                            {!! Form::select('account_manager', [Lang::get('User')=>$users],null,['multiple'=>true,'class'=>"form-control select2" ,'id'=>"users",'required','style'=>"width:100%!important;",'oninvalid'=>"setCustomValidity('Please Select Client')", 
-                  'onchange'=>"setCustomValidity('')"]) !!}
-                       
+                    {!! html()->label(Lang::get('message.replace_with'), 'replace_with')->class('required') !!}
+
+                    {!! html()->select('account_manager', [Lang::get('User') => $users])
+                        ->multiple()
+                        ->class('form-control select2')
+                        ->id('users')
+                        ->required()
+                        ->style('width:100%!important;')
+                        ->attribute('oninvalid', "setCustomValidity('Please Select Client')")
+                        ->attribute('onchange', "setCustomValidity('')") !!}
+
 
                 </div>
 
@@ -75,7 +80,7 @@ System Managers
                   <div id="error1"></div>
                    <div class="row">
                    <div class="col-md-4 form-group">
-                    {!! Form::label('user',Lang::get('message.system_sales_manager'),['class'=>'required']) !!}
+                       {!! html()->label(Lang::get('message.system_sales_manager'), 'user')->class('required') !!}
                        <select name="sales_manager" value= "Choose" id="existingSalesManager" class="form-control">
                              <option value="">Choose</option>
                            @foreach($salesManager as $key=>$manager)
@@ -87,12 +92,17 @@ System Managers
 
                 <div class="col-md-4 form-group {{ $errors->has('sales_manager') ? 'has-error' : '' }}">
                             <!-- first name -->
-                            {!! Form::label('replace_with',Lang::get('message.replace_with'),['class'=>'required']) !!}
-                        
-                           
-                            {!! Form::select('sales_manager', [Lang::get('User')=>$users],null,['multiple'=>true,'class'=>"form-control select2" ,'id'=>"sales",'required','style'=>"width:100%!important",'oninvalid'=>"setCustomValidity('Please Select Client')", 
-                  'onchange'=>"setCustomValidity('')"]) !!}
-                       
+                    {!! html()->label(Lang::get('message.replace_with'), 'replace_with')->class('required') !!}
+
+                    {!! html()->select('sales_manager', [Lang::get('User') => $users])
+                        ->multiple()
+                        ->class('form-control select2')
+                        ->id('sales')
+                        ->required()
+                        ->style('width:100%!important')
+                        ->attribute('oninvalid', "setCustomValidity('Please Select Client')")
+                        ->attribute('onchange', "setCustomValidity('')") !!}
+
 
                 </div>
 
@@ -103,7 +113,7 @@ System Managers
 
                    </div>
             </div>
-            {!! Form::close() !!}
+            {!! html()->form()->close() !!}
 
         </div>
     </div>

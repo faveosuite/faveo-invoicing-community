@@ -220,7 +220,7 @@ return [
         Laravel\Socialite\SocialiteServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
         \App\Providers\AttachmentHelperServiceProvider::class,
-
+        Spatie\Html\HtmlServiceProvider::class,
     ],
 
     /*
@@ -240,7 +240,6 @@ return [
         'Cart' => Darryldecode\Cart\Facades\CartFacade::class,
         'Currency' => \Torann\Currency\Facades\Currency::class,
         'DataTables' => Yajra\DataTables\Facades\DataTables::class,
-        'Form' => Collective\Html\FormFacade::class,
         'GeoIP' => \Torann\GeoIP\Facades\GeoIP::class,
         'Google2FA' => PragmaRX\Google2FALaravel\Facade::class,
         'Html' => Spatie\Html\Facades\Html::class,

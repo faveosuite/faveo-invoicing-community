@@ -18,7 +18,7 @@ Renew
 @section('content')
 <div class="card card-secondary card-outline">
 
-        {!! Form::open(['url'=>'renew/'.$id,'method'=>'post']) !!}
+    {!! html()->form('POST', 'renew/' . $id)->open() !!}
 
 
     <div class="card-body">
@@ -35,37 +35,34 @@ Renew
 
                     <div class="col-md-4 form-group {{ $errors->has('plan') ? 'has-error' : '' }}">
                         <!-- first name -->
-                        {!! Form::label('plan','Plans',['class'=>'required']) !!}
-                          <select name="plan" id="plan" value= "Choose" onchange="fetchPlanCost(this.value)" class="form-control">
+                        {!! html()->label('Plans', 'plan')->class('required') !!}
+                        <select name="plan" id="plan" value= "Choose" onchange="fetchPlanCost(this.value)" class="form-control">
                              <option value="Choose">Choose</option>
                            @foreach($plans as $key=>$plan)
                               <option value={{$key}}>{{$plan}}</option>
                           @endforeach
                           </select>
-                        <!-- {!! Form::select('plan',[''=>'Select','Plans'=>$plans],null,['class' => 'form-control','onchange'=>'fetchPlanCost(this.value)']) !!} -->
-                        {!! Form::hidden('user',$userid) !!}
+                        <!-- {!! html()->select('plan', ['' => 'Select'] + $plans)->class('form-control')->attribute('onchange', 'fetchPlanCost(this.value)') !!} -->
+                        {!! html()->hidden('user', $userid) !!}
                     </div>
 
-                   
 
-                   <div class="col-md-4 form-group {{ $errors->has('payment_method') ? 'has-error' : '' }}">
-                        <!-- last name -->
-                        {!! Form::label('payment_method',Lang::get('message.payment-method'),['class'=>'required']) !!}
-                        {!! Form::select('payment_method',[''=>'Choose','cash'=>'Cash','check'=>'Check','online payment'=>'Online Payment','razorpay'=>'Razorpay','stripe'=>'Stripe'],null,['class' => 'form-control']) !!}
 
+                    <div class="col-md-4 form-group {{ $errors->has('payment_method') ? 'has-error' : '' }}">
+                        {!! html()->label(Lang::get('message.payment-method'))->class('required')->for('payment_method') !!}
+                        {!! html()->select('payment_method', ['' => 'Choose', 'cash' => 'Cash', 'check' => 'Check', 'online payment' => 'Online Payment', 'razorpay' => 'Razorpay', 'stripe' => 'Stripe'])->class('form-control') !!}
                     </div>
-                     <div class="col-md-4 form-group {{ $errors->has('cost') ? 'has-error' : '' }}">
-                        <!-- last name -->
-                        {!! Form::label('cost',Lang::get('message.price'),['class'=>'required']) !!}
-                        {!! Form::text('cost',null,['class' => 'form-control','id'=>'price']) !!}
 
+                    <div class="col-md-4 form-group {{ $errors->has('cost') ? 'has-error' : '' }}">
+                        {!! html()->label(Lang::get('message.price'))->class('required')->for('cost') !!}
+                        {!! html()->text('cost')->class('form-control')->id('price') !!}
                     </div>
                 </div>
                 @if(in_array($productid,cloudPopupProducts()))
                 <div class="row">
                     <div class="col-md-4 form-group">
-                        {!! Form::label('agents', 'Agents', ['class' => 'col-form-label required']) !!}
-                        {!! Form::number('agents', $agents, ['class' => 'form-control', 'id' => 'agents', 'min' => '1', 'placeholder' => '', 'required']) !!}
+                        {!! html()->label('Agents')->class('col-form-label required')->for('agents') !!}
+                        {!! html()->number('agents', $agents)->class('form-control')->id('agents')->min(1)->placeholder('')->required() !!}
                     </div>
                 </div>
                 @endif
@@ -83,7 +80,7 @@ Renew
 </div>
 
 
-{!! Form::close() !!}
+{!! html()->form()->close() !!}
  <script>
      $('ul.nav-sidebar a').filter(function() {
         return this.id == 'all_order';

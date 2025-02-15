@@ -353,8 +353,8 @@ $price = $order->price_override;
                                 <div class="form-group">
                                     <label for="recipient-name" class="col-form-label">Domain Name:</label>
                                     <input type="text" class="form-control" id="recipient-name" placeholder="https://faveohelpdesk.com/public" name="domain" value="" onkeydown="return event.key != 'Enter';">
-                                    {{Form::hidden('orderNo', $order->number)}}
-                                    {{Form::hidden('userId',$user->id)}}
+                                    {!! html()->hidden('orderNo', $order->number) !!}
+                                    {!! html()->hidden('userId', $user->id) !!}
                                     <br>
                                     <div class="modal-footer">
                                         <button type="button" id="close" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
@@ -1079,7 +1079,11 @@ $price = $order->price_override;
                         <label class="text-black"><strong>Choose your desired number of agents <span class="text-danger"></strong> *</span></label>
 
                         <div class="quantity">
-                            {!! Form::number('number', null, ['class' => 'form-control', 'id' => 'numberAGt', 'min' => '1', 'placeholder' => '']) !!}
+                            {!! html()->number('number')
+    ->class('form-control')
+    ->id('numberAGt')
+    ->min(1)
+    ->placeholder('') !!}
                         </div>
                         <br><br>
 
@@ -1181,7 +1185,9 @@ $price = $order->price_override;
 
                             <div class="custom-select-1">
 
-                                {!! Form::select('plan', ['' => 'Select'] + $plans, null, ['class' => 'form-control upgrade-select', 'onchange' => 'getPrice(this.value)']) !!}
+                                {!! html()->select('plan', ['' => 'Select'] + $plans)
+    ->class('form-control upgrade-select')
+    ->attribute('onchange', 'getPrice(this.value)') !!}
 
                             </div>
                         </div>

@@ -20,7 +20,7 @@ Edit
 <div class="card card-secondary card-outline">
 
 
-        {!! Form::model($chat,['url'=>'chat/'.$chat->id,'method'=>'patch']) !!}
+    {!! html()->modelForm($chat, 'PATCH', url('chat/' . $chat->id))->open() !!}
 
 
 
@@ -36,8 +36,8 @@ Edit
 
                     <div class="col-md-12 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         <!-- first name -->
-                        {!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}
-                        {!! Form::text('name',null,['class' => 'form-control']) !!}
+                        {!! html()->label(Lang::get('message.name'), 'name')->class('required') !!}
+                        {!! html()->text('name')->class('form-control') !!}
 
                     </div>
 
@@ -51,40 +51,40 @@ Edit
 
                     <div class="col-md-6 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         <!-- first name -->
-                        {!! Form::label('script','Show script',['class'=>'required']) !!}
+                        {!! html()->label('Show script', 'script')->class('required') !!}
                         <br>
-                        {!! Form::label('on_registration','On registration') !!}
-                        {!! Form::radio('on_registration',1,true) !!}
-                        &nbsp; &nbsp; &nbsp; 
-                        {!! Form::label('on_every_page','On every page') !!}
-                        {!! Form::radio('on_registration',0,false) !!}
+                        {!! html()->label('On registration', 'on_registration') !!}
+                        {!! html()->radio('on_registration', 1)->checked() !!}
+                        &nbsp; &nbsp; &nbsp;
+                        {!! html()->label('On every page', 'on_every_page') !!}
+                        {!! html()->radio('on_registration', 0) !!}
 
                     </div>
 
                      <div class="col-md-3 form-group">
-                        <!-- first name -->
-                        {!! Form::label('analytics','Google analytics') !!}
-                        {{Form::hidden('google_analytics',0,['id'=>'hidden_analytic'])}}
-                        {!! Form::checkbox('google_analytics',$chat->google_analytics,null, array('id'=>'analytics')) !!}
-                        <!-- <input type="checkbox" name="google_analytics" id="analytics"> -->
-                    </div>
-                        <br>
-                    <div class="col-md-3 form-group analytics_tag" hidden>
-                        {!! Form::label('tag','Google analytics tag',['class'=>'required']) !!}
-                        {!! Form::text('google_analytics_tag',null,['class' => 'form-control']) !!}
-                    </div>
+                         <!-- first name -->
+                         {!! html()->label('Google analytics', 'analytics') !!}
+                         {!! html()->hidden('google_analytics', 0)->id('hidden_analytic') !!}
+                         {!! html()->checkbox('google_analytics', $chat->google_analytics)->id('analytics') !!}
+                         <!-- <input type="checkbox" name="google_analytics" id="analytics"> -->
+                     </div>
+                     <br>
+                     <div class="col-md-3 form-group analytics_tag" hidden>
+                         {!! html()->label('Google analytics tag', 'tag')->class('required') !!}
+                         {!! html()->text('google_analytics_tag')->class('form-control') !!}
+                     </div>
 
                     </div>
                     <div class="col-md-12 form-group ">
-    {!! Form::label('data', Lang::get('message.content'), ['class' => 'required']) !!}
+                        {!! html()->label(Lang::get('message.content'), 'data')->class('required') !!}
 
 
     <span class="tooltip-icon" style="color: #007bff;" data-toggle="tooltip" data-placement="top" title="{{ trans('message.tooltip_js_code') }}">
   <i class="fas fa-question-circle"></i>
 </span>
 
-    {!! Form::textarea('script', null, ['class' => 'form-control', 'id' => 'textarea']) !!}
-</div>
+                        {!! html()->textarea('script')->class('form-control')->id('textarea') !!}
+                    </div>
         <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fa fa-sync-alt">&nbsp;&nbsp;</i>Update</button>
 
     </div>
@@ -92,7 +92,7 @@ Edit
 </div>
 
 
-{!! Form::close() !!}
+        {!! html()->form()->close() !!}
 
 <script>
     /*when the admin lte and bootstrap gets upgrade the below code for tooltip-inner code need to be removed*/

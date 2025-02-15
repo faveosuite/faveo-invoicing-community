@@ -40,8 +40,8 @@ Create Template
             {{Session::get('fails')}}
         </div>
         @endif
-        {!! Form::open(['url'=>'template','method'=>'post']) !!}
-        <h4>{{Lang::get('message.template')}}	<button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fa fa-floppy-o">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button></h4>
+            {!! html()->form('POST', 'template')->open() !!}
+            <h4>{{Lang::get('message.template')}}	<button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fa fa-floppy-o">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button></h4>
 
     </div>
 
@@ -57,22 +57,22 @@ Create Template
 
                     <div class="col-md-4 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         <!-- first name -->
-                        {!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}
-                        {!! Form::text('name',null,['class' => 'form-control']) !!}
+                        {!! html()->label(Lang::get('message.name'))->class('required') !!}
+                        {!! html()->text('name')->class('form-control') !!}
 
                     </div>
 
                     <div class="col-md-4 form-group {{ $errors->has('type') ? 'has-error' : '' }}">
                         <!-- last name -->
-                        {!! Form::label('type',Lang::get('message.template-types'),['class'=>'required']) !!}
-                        {!! Form::select('type',[''=>'Select','Type'=>$type],null,['class' => 'form-control']) !!}
+                        {!! html()->label(Lang::get('message.template-types'))->class('required') !!}
+                        {!! html()->select('type', ['' => 'Select', 'Type' => $type])->class('form-control') !!}
 
                     </div>
 
                     <div class="col-md-4 form-group {{ $errors->has('url') ? 'has-error' : '' }}">
                         <!-- first name -->
-                        {!! Form::label('url',Lang::get('message.url')) !!}
-                        {!! Form::text('url',$cartUrl,['class' => 'form-control']) !!}
+                        {!! html()->label(Lang::get('message.url')) !!}
+                        {!! html()->text('url', $cartUrl)->class('form-control') !!}
 
                     </div>
 
@@ -111,8 +111,8 @@ Create Template
                       });
                         </script>
 
-                        {!! Form::label('data',Lang::get('message.content'),['class'=>'required']) !!}
-                        {!! Form::textarea('data',null,['class'=>'form-control','id'=>'textarea']) !!}
+                        {!! html()->label(Lang::get('message.content'))->class('required') !!}
+                        {!! html()->textarea('data')->class('form-control')->id('textarea') !!}
 
                     </div>
 
@@ -128,7 +128,7 @@ Create Template
 </div>
 
 
-{!! Form::close() !!}
+{!! html()->form()->close() !!}
 <script>
      $('ul.nav-sidebar a').filter(function() {
         return this.id == 'setting';

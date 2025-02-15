@@ -58,9 +58,9 @@ Cron Setting
      <div class="card card-secondary card-outline">
         
         <!-- /.box-header -->
-       
-              {!! Form::open(['url' => 'cron-days', 'method' => 'PATCH','id' => 'cronForm']) !!}
-              <?php 
+
+         {!! html()->form('PATCH', url('cron-days'))->id('cronForm')->open() !!}
+         <?php
                    $mailStatus = \App\Model\Common\StatusSetting::pluck('expiry_mail')->first();
                    $activityStatus =\App\Model\Common\StatusSetting::pluck('activity_log_delete')->first();
                    $Autorenewal_status = \App\Model\Common\StatusSetting::pluck('subs_expirymail')->first();
@@ -237,8 +237,8 @@ Cron Setting
           @else
               <button type="submit" class="btn btn-primary pull-right disabled" id="submit"><i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}</button>
           @endif
-            {!! Form::close() !!}
-        </div>
+         {!! html()->form()->close() !!}
+     </div>
         <!-- /.box-body -->
        
       </div>

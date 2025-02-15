@@ -8,18 +8,23 @@
             </div>
             <div class="modal-body">
                 <!-- Form  -->
-                {!! Form::open(['url'=>'checkout','method'=>'get','id'=>'domain1']) !!}
-                
-                @foreach($domain as $product)
+                {!! html()->form('GET', 'checkout')->id('domain1') !!}
+
+            @foreach($domain as $product)
                 <?php
                 $name =  App\Model\Product\Product::where('id', $product)->first()->name;
                 ?>
                 <div class="form-group {{ $errors->has('domain') ? 'has-error' : '' }}">
                     <!-- name -->
                     <b>{{$name}}</b>
-                    {!! Form::label('domain',Lang::get('message.domain'),['class'=>'required']) !!}
-                    {!! Form::text('domain['.$product.']',null,['class' => 'form-control' ,'id'=>'validDomain', 'required'=>'required   ','placeholder'=>'Domain Name Should be in the form domain.com or sub.domain.com']) !!}
-                           <h6 id ="domaincheck"></h6>
+                    {!! html()->label(Lang::get('message.domain'), 'domain['.$product.']')
+    ->class('required') !!}
+                    {!! html()->text('domain['.$product.']')
+                        ->id('validDomain')
+                        ->class('form-control')
+                        ->required()
+                        ->placeholder('Domain Name Should be in the form domain.com or sub.domain.com') !!}
+                    <h6 id ="domaincheck"></h6>
                 </div>
                 
                 
@@ -31,7 +36,7 @@
                 <button type="button" id="close" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
                 <input type="submit" class="btn btn-primary" value="{{Lang::get('message.save')}}">
             </div>
-             {!! Form::close()  !!}
+             {!! html()->form()->close()  !!}
         
 
             <!-- /Form -->

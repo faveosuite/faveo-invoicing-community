@@ -18,7 +18,7 @@ Edit Page
 @section('content')
 <div class="card card-secondary card-outline">
 
-      {!! Form::model($page,['url'=>'pages/'.$page->id,'method'=>'patch']) !!}
+    {!! html()->model($page)->method('patch')->route('pages.update', $page->id) !!}
 
 
     <div class="card-body table-responsive">
@@ -32,24 +32,18 @@ Edit Page
                 <div class="row">
 
                     <div class="col-md-4 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                        <!-- first name -->
-                        {!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}
-                        {!! Form::text('name',null,['class' => 'form-control','id'=>'name']) !!}
-
+                        {!! html()->label(Lang::get('message.name'), 'name')->class('required') !!}
+                        {!! html()->text('name')->class('form-control')->id('name') !!}
                     </div>
 
                     <div class="col-md-4 form-group {{ $errors->has('publish') ? 'has-error' : '' }}">
-                        <!-- last name -->
-                        {!! Form::label('publish',Lang::get('message.publish'),['class'=>'required']) !!}
-                        {!! Form::select('publish',[1=>'Yes',0=>'No'],null,['class' => 'form-control']) !!}
-
+                        {!! html()->label(Lang::get('message.publish'), 'publish')->class('required') !!}
+                        {!! html()->select('publish')->options([1 => 'Yes', 0 => 'No'])->class('form-control') !!}
                     </div>
 
                     <div class="col-md-4 form-group {{ $errors->has('slug') ? 'has-error' : '' }}">
-                        <!-- first name -->
-                        {!! Form::label('slug',Lang::get('message.slug'),['class'=>'required']) !!}
-                        {!! Form::text('slug',null,['class' => 'form-control','id'=>'slug']) !!}
-
+                        {!! html()->label(Lang::get('message.slug'), 'slug')->class('required') !!}
+                        {!! html()->text('slug')->class('form-control')->id('slug') !!}
                     </div>
 
 
@@ -57,15 +51,13 @@ Edit Page
                 <div class="row">
 
                     <div class="col-md-4 form-group {{ $errors->has('url') ? 'has-error' : '' }}">
-                        <!-- first name -->
-                        {!! Form::label('url',Lang::get('message.url'),['class'=>'required']) !!}
-                        {!! Form::text('url',null,['class' => 'form-control','id'=>'url']) !!}
-
+                        {!! html()->label(Lang::get('message.url'), 'url')->class('required') !!}
+                        {!! html()->text('url')->class('form-control')->id('url') !!}
                     </div>
 
                     <div class="col-md-4 form-group {{ $errors->has('parent_page_id') ? 'has-error' : '' }}">
                         <!-- last name -->
-                        {!! Form::label('parent_page_id',Lang::get('message.parent-page')) !!}
+                        {!! html()->label(Lang::get('message.parent-page'), 'parent_page_id') !!}
                         <select name="parent_page_id"  class="form-control">
                             <option value="0">Choose</option>
                             @foreach($parents as $key=>$parent)
@@ -78,18 +70,18 @@ Edit Page
 
                      <div class="col-md-4 form-group {{ $errors->has('parent_page_id') ? 'has-error' : '' }}">
                         <!-- last name -->
-                        {!! Form::label('type',Lang::get('message.page_type')) !!}
-                          {!! Form::select('type',['none'=>'None','contactus'=>'Contact Us'],null,['class' => 'form-control']) !!} 
+                         {!! html()->label(Lang::get('message.page_type'), 'type') !!}
+                         {!! html()->select('type', ['none' => 'None', 'contactus' => 'Contact Us'])->class('form-control') !!}
 
-                    </div>
+                     </div>
                     <?php
                          $defaults = DB::table('frontend_pages')->pluck('name','id')->toArray();
                          ?>
                        <div class="col-md-6 form-group {{ $errors->has('parent_page_id') ? 'has-error' : '' }}">
                         <!-- last name -->
-                        {!! Form::label('default_page_id',Lang::get('message.default-page'),['class'=>'required']) !!}
+                           {!! html()->label(Lang::get('message.default-page'), 'default_page_id')->class('required') !!}
 
-                                   <select name="default_page_id"  class="form-control">
+                           <select name="default_page_id"  class="form-control">
                                      <option value="">My Invoices</option>
                          @foreach($defaults as $key=>$value)
                                    <option value="{{$key}}" <?php  if($key == $selectedDefault)  { echo "selected";} ?>>{{$value}}</option>
@@ -100,7 +92,7 @@ Edit Page
                     </div>
                     <div class="col-md-6 form-group {{ $errors->has('parent_page_id') ? 'has-error' : '' }}">
                         <!-- last name -->
-                        {!! Form::label('publish_date',Lang::get('message.publish-date'),['class'=>'required']) !!}
+                        {!! html()->label(Lang::get('message.publish-date'), 'publish_date')->class('required') !!}
 
                         <div class="input-group date" id="publishing_date" data-target-input="nearest">
                         <input type="text" name="created_at" value="{{$publishingDate}}" class="form-control datetimepicker-input" autocomplete="off"  data-target="#publishing_date"/>
@@ -174,8 +166,8 @@ Edit Page
                         </script>
 
 
-                        {!! Form::label('content',Lang::get('message.content'),['class'=>'required']) !!}
-                        {!! Form::textarea('content',null,['class'=>'form-control','id'=>'textarea']) !!}
+                        {!! html()->label(Lang::get('message.content'), 'content')->class('required') !!}
+                        {!! html()->textarea('content')->class('form-control')->id('textarea') !!}
 
                     </div>
 
@@ -200,7 +192,7 @@ Edit Page
     }).parentsUntil(".nav-sidebar > .nav-treeview").addClass('menu-open').prev('a').addClass('active');
 </script>
 
-{!! Form::close() !!}
+{!! html()->closeModelForm() !!}
 
   <script>
     $(document).on('input', '#name', function () {

@@ -85,73 +85,33 @@ input:checked + .slider:before {
 
             <div class="card-header">
                 <h3 class="card-title">{{Lang::get('message.list-fields')}}</h3>
-                {!! Form::model($model,['url'=>'mail-chimp/mapping','method'=>'patch','files'=>true]) !!}
-               
-                       
-                    
-              
-               </div>   
+                {!! html()->modelForm($model, 'PATCH', url('mail-chimp/mapping'))
+    ->attribute('enctype', 'multipart/form-data') !!}
+
+
+
+
+            </div>
             <div class="card-body">
 
                 <table class="table table-hover">
                     <tr>
-                        <th>{{Lang::get('message.agora-fields')}}</th>
-                        <th>{{Lang::get('message.mailchimp-fields')}}</th>
+                        <th>{{ __('message.agora-fields') }}</th>
+                        <th>{{ __('message.mailchimp-fields') }}</th>
                     </tr>
-                    <tr>
-                        <td>{{Lang::get('message.first_name')}}</td>
-                        <td>{!! Form::select('first_name',[''=>'Select','Fields'=>$mailchimp_fields],null,['class'=>'form-control']) !!}</td>
-                    </tr>
-                    <tr>
-                        <td>{{Lang::get('message.last_name')}}</td>
-                        <td>{!! Form::select('last_name',[''=>'Select','Fields'=>$mailchimp_fields],null,['class'=>'form-control']) !!}</td>
-                    </tr>
-                    <tr>
-                        <td>{{Lang::get('message.company')}}</td>
-                        <td>{!! Form::select('company',[''=>'Select','Fields'=>$mailchimp_fields],null,['class'=>'form-control']) !!}</td>
-                    </tr>
-                    <tr>
-                        <td>{{Lang::get('message.mobile')}}</td>
-                        <td>{!! Form::select('mobile',[''=>'Select','Fields'=>$mailchimp_fields],null,['class'=>'form-control']) !!}</td>
-                    </tr>
-                    <tr>
-                        <td>{{Lang::get('message.address')}}</td>
-                        <td>{!! Form::select('address',[''=>'Select','Fields'=>$mailchimp_fields],null,['class'=>'form-control']) !!}</td>
-                    </tr>
-                     <tr>
-                        <td>{{Lang::get('message.country')}}</td>
-                        <td>{!! Form::select('country',[''=>'Select','Fields'=>$mailchimp_fields],null,['class'=>'form-control']) !!}</td>
-                    </tr>
-                    <tr>
-                        <td>{{Lang::get('message.town')}}</td>
-                        <td>{!! Form::select('town',[''=>'Select','Fields'=>$mailchimp_fields],null,['class'=>'form-control']) !!}</td>
-                    </tr>
-                    <tr>
-                        <td>{{Lang::get('message.state')}}</td>
-                        <td>{!! Form::select('state',[''=>'Select','Fields'=>$mailchimp_fields],null,['class'=>'form-control']) !!}</td>
-                    </tr>
-                    <tr>
-                        <td>{{Lang::get('message.zip')}}</td>
-                        <td>{!! Form::select('zip',[''=>'Select','Fields'=>$mailchimp_fields],null,['class'=>'form-control']) !!}</td>
-                    </tr>
-                    <tr>
-                        <td>{{Lang::get('message.active')}}</td>
-                        <td>{!! Form::select('active',[''=>'Select','Fields'=>$mailchimp_fields],null,['class'=>'form-control']) !!}</td>
-                    </tr>
-                    <tr>
-                        <td>{{Lang::get('message.role')}}</td>
-                        <td>{!! Form::select('role',[''=>'Select','Fields'=>$mailchimp_fields],null,['class'=>'form-control']) !!}</td>
-                    </tr>
-                    <tr>
-                        <td>{{Lang::get('message.app-title')}}</td>
-                        <td>{!! Form::select('source',[''=>'Select','Fields'=>$mailchimp_fields],null,['class'=>'form-control']) !!}</td>
-                    </tr>
-
-
+                    @foreach (['first_name', 'last_name', 'company', 'mobile', 'address', 'country', 'town', 'state', 'zip', 'active', 'role', 'source'] as $field)
+                        <tr>
+                            <td>{{ __('message.' . $field) }}</td>
+                            <td>
+                                {!! html()->select($field, ['' => 'Select', 'Fields' => $mailchimp_fields])
+                                    ->class('form-control') !!}
+                            </td>
+                        </tr>
+                    @endforeach
                 </table>
                 <button type="submit" class="btn btn-primary pull-right" id="submit" ><i class="fa fa-sync-alt">&nbsp;&nbsp;</i>{!!Lang::get('message.update')!!}</button>
 
-                {!! Form::close() !!}
+                {!! html()->closeModelForm() !!}
 
             </div>
 
@@ -184,10 +144,12 @@ input:checked + .slider:before {
                           class="checkbox1" id="updateProductStatus">
                           <span class="slider round"></span>
                     </label>
-               </div>   
+               </div>
 
-            {!! Form::model($model2,['url'=>'mailchimp-group/mapping','id'=>'mapproducts','method'=>'patch','files'=>true]) !!}
-               
+                {!! html()->modelForm($model2, 'PATCH', url('mailchimp-group/mapping'))
+        ->id('mapproducts')
+        ->acceptsFiles()
+        ->open() !!}
               
                         <h5>Select A Group</h5>
                          <select name="group"  class="form-control col-md-2"  id="group" onChange="getGroup(this.value)">
@@ -494,7 +456,7 @@ input:checked + .slider:before {
                  </table>
                 <button type="submit" class="btn btn-primary pull-right" id="submit" ><i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}</button>
 
-                {!! Form::close() !!}
+                {!! html()->closeModelForm() !!}
 
 
             </div>
@@ -523,15 +485,19 @@ input:checked + .slider:before {
               
                </div>
 
-               
-                 
-                 
-                        
-          
-                
-            {!! Form::model($model2,['url'=>'mailchimp-ispaid/mapping','method'=>'patch','id'=>'mapispaid','files'=>true]) !!}
-               
-                          <br>
+
+
+
+
+
+
+                 {!! html()->modelForm($model2, 'PATCH', url('mailchimp-ispaid/mapping'))
+         ->id('mapispaid')
+         ->acceptsFiles()
+         ->open() !!}
+
+
+                 <br>
                         <h5>Select A Group</h5>
                          <select name="group"  class="form-control col-md-2"  id="group" onChange="getGroup(this.value)">
                             <option value="">Choose</option>
@@ -546,7 +512,7 @@ input:checked + .slider:before {
 
                  <br>
                  <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fa fa-sync-alt">&nbsp;&nbsp;</i>{!!Lang::get('message.update')!!}</button>
-                 {!! Form::close() !!}
+                 {!! html()->closeModelForm() !!}
 
             </div>
 

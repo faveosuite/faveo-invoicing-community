@@ -141,28 +141,30 @@ Orders
     </div>
     <!-- /.box-header -->
       <div class="card-body" id="advance-search" style="display:none;">
-        {!! Form::open(['method'=>'get']) !!}
+          {!! html()->form('get')->open() !!}
 
-        <div class="row">
+          <div class="row">
 
-            <div class="col-md-3 form-group">
+              <div class="col-md-3 form-group">
+                  {!! html()->label('Order No:')->for('order_no') !!}
+                  {!! html()->text('order_no', $request->order_no)->class('form-control')->id('order_no') !!}
+              </div>
+
+              <div class="col-md-3 form-group">
+                  {!! html()->label('Product')->for('product_id') !!} <br>
+                  {!! html()->select('product_id', [null => 'Choose'] + $paidUnpaidOptions + $products, $request->product_id)
+                      ->class('form-control select2')
+                      ->style('width:100%')
+                      ->id('product_id')
+                      ->attribute('onChange', 'getProductVersion(this.value)') !!}
+              </div>
+
+
+
+              <div class="col-md-3 form-group">
                 <!-- first name -->
-                {!! Form::label('order_no','Order No:') !!}
-                {!! Form::text('order_no',$request->order_no,['class' => 'form-control','id'=>'order_no']) !!}
-
-            </div>
-            <div class="col-md-3 form-group">
-                <!-- first name -->
-                {!! Form::label('product_id','Product') !!} <br>
-                {!! Form::select('product_id',[null => 'Choose']+ $paidUnpaidOptions + $products, $request->product_id, ['class' => 'form-control select2','style'=>'width:100%','id'=>'product_id','onChange'=>'getProductVersion(this.value)']) !!}
-            </div>
-            
-
-            
-            <div class="col-md-3 form-group">
-                <!-- first name -->
-                {!! Form::label('from','From') !!}
-                <div class="input-group date" id="order_from" data-target-input="nearest">
+                  {!! html()->label('From')->for('from') !!}
+                  <div class="input-group date" id="order_from" data-target-input="nearest">
                     <input type="text" name="from" class="form-control datetimepicker-input" autocomplete="off" value="{!! $request->from !!}" data-target="#order_from"/>
 
 
@@ -176,7 +178,7 @@ Orders
             </div>
             <div class="col-md-3 form-group">
                 <!-- first name -->
-                {!! Form::label('till','To') !!}
+                {!! html()->label('To')->for('till') !!}
                 <div class="input-group date" id="order_till" data-target-input="nearest">
                     <input type="text" name="till" class="form-control datetimepicker-input" autocomplete="off" value="{!! $request->till !!}" data-target="#order_till"/>
 
@@ -189,34 +191,32 @@ Orders
 
 
             </div>
-            <div class="col-md-3 form-group">
-                <!-- first name -->
-                {!! Form::label('domain','Domain') !!}
-                {!! Form::text('domain',$request->domain,['class' => 'form-control','id'=>'domain']) !!}
+              <div class="col-md-3 form-group">
+                  {!! html()->label('Domain')->for('domain') !!}
+                  {!! html()->text('domain', $request->domain)->class('form-control')->id('domain') !!}
+              </div>
 
-            </div>
+              <div class="col-md-3 form-group">
+                  {!! html()->label('Installations')->for('act_inst') !!}
+                  {!! html()->select('act_inst', [null => 'Choose'] + $insNotIns + $activeInstallationOptions + $inactiveInstallationOptions, $request->act_inst)
+                      ->class('form-control')
+                      ->id('act_inst') !!}
+              </div>
 
-            <div class="col-md-3 form-group">
-                <!-- first name -->
-                {!! Form::label('act_inst','Installations') !!}
-                {!! Form::select('act_inst',[null => 'Choose']+ $insNotIns + $activeInstallationOptions + $inactiveInstallationOptions, $request->act_inst, ['class' => 'form-control','id'=>'act_inst']) !!}
-            </div>
-
-           
-
-            <div class="col-md-3 form-group">
-                <!-- first name -->
-                {!! Form::label('renewal','Subscriptions') !!}
-                {!! Form::select('renewal',[null => 'Choose']+ $renewal, $request->renewal, ['class' => 'form-control','id'=>'renewal']) !!}
-            </div>
+              <div class="col-md-3 form-group">
+                  {!! html()->label('Subscriptions')->for('renewal') !!}
+                  {!! html()->select('renewal', [null => 'Choose'] + $renewal, $request->renewal)
+                      ->class('form-control')
+                      ->id('renewal') !!}
+              </div>
 
 
 
-        {!! Form::hidden('select', $request->version, ['class' => 'form-control', 'id' => 'select']) !!}
-        <div class="col-md-3 form-group {{ $errors->has('state') ? 'has-error' : '' }}">
+              {!! html()->hidden('select', $request->version)->class('form-control')->id('select') !!}
+              <div class="col-md-3 form-group {{ $errors->has('state') ? 'has-error' : '' }}">
             <!-- name -->
-            {!! Form::label('version', 'Version') !!}
-            <select name="version" id="version-list" class="form-control">
+                  {!! html()->label('Version', 'version') !!}
+                  <select name="version" id="version-list" class="form-control">
         
                     <option value="">Choose A Product</option>
             </select>
@@ -229,7 +229,7 @@ Orders
                       <button name="Search" type="submit"  class="btn btn-secondary"><i class="fa fa-search"></i>&nbsp;{!!Lang::get('Search')!!}</button>
                       &nbsp;
                     <!-- <a class="btn btn-secondary" href="{!! url('/orders') !!}"><i class="fas fa-sync-alt"></i>&nbsp;{!!Lang::get('Reset')!!}</a> -->
-                    {!! Form::submit('Reset',['class'=>'btn btn-secondary','id'=>'reset']) !!}
+                    {!! html()->button('Reset')->type('submit')->class('btn btn-secondary')->id('reset') !!}
                 </div>
         </div>
     </div>

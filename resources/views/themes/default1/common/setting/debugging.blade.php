@@ -27,11 +27,11 @@ Debugging Settings
     $de = env('APP_DEBUG');
     ?>
         <div class="card-body">
-        {!! Form::open(['url' => 'save/debugg', 'method' => 'POST']) !!}
-        <div class="row">
+            {!! html()->form('POST', url('save/debugg'))->open() !!}
+            <div class="row">
             <div class="col-md-4">
                 <div class="form-group">
-                    {!! Form::label('debug',Lang::get('Debugging')) !!}
+                    {!! html()->label(Lang::get('Debugging'), 'debug') !!}
                     <div class="row">
                         <div class="col-sm-3">
                             <input type="radio" name="debug" value="true" @if($de == true) checked="true" @endif > {{Lang::get('Enable')}}

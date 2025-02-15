@@ -146,18 +146,18 @@
             <h3 class="card-title">Cloud server</h3>
         </div>
         <div class="card-body table-responsive">
-            {!! Form::model($cloud, ['route'=> 'cloud-details']) !!}
+            {!! html()->model($cloud)->route('cloud-details') !!}
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
-                        {!! Form::label('cloud_central_domain', Lang::get('message.cloud_central_domain'), ['class' => 'required']) !!}
-                        {!! Form::text('cloud_central_domain', null, ['class' => 'form-control']) !!}
+                        {!! html()->label(Lang::get('message.cloud_central_domain'))->for('cloud_central_domain')->class('required') !!}
+                        {!! html()->text('cloud_central_domain')->class('form-control') !!}
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        {!! Form::label('cloud_cname', Lang::get('message.cloud_cname'),['class' => 'required']) !!}
-                        {!! Form::text('cloud_cname', null, ['class' => 'form-control']) !!}
+                        {!! html()->label(Lang::get('message.cloud_cname'))->for('cloud_cname')->class('required') !!}
+                        {!! html()->text('cloud_cname')->class('form-control') !!}
                     </div>
                 </div>
             </div>
@@ -168,7 +168,7 @@
                     </button>
                 </div>
             </div>
-            {!! Form::close() !!}
+            {!! html()->form()->close() !!}
         </div>
     </div>
     <div class="card card-secondary card-outline">
@@ -177,24 +177,24 @@
         </div>
 
         <div class="card-body table-responsive">
-            {!! Form::model($cloudPopUp, ['route'=> 'cloud-pop-up']) !!}
+            {!! html()->model($cloudPopUp)->route('cloud-pop-up') !!}
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
-                        {!! Form::label('cloud_top_message', Lang::get('message.cloud_top_message'), ['class' => 'required']) !!}
-                        {!! Form::text('cloud_top_message', null, ['class' => 'form-control']) !!}
+                        {!! html()->label(Lang::get('message.cloud_top_message'), 'cloud_top_message')->class('required') !!}
+                        {!! html()->text('cloud_top_message')->class('form-control') !!}
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        {!! Form::label('cloud_label_field', Lang::get('message.cloud_label_field'),['class' => 'required']) !!}
-                        {!! Form::text('cloud_label_field', null, ['class' => 'form-control']) !!}
+                        {!! html()->label(Lang::get('message.cloud_label_field'), 'cloud_label_field')->class('required') !!}
+                        {!! html()->text('cloud_label_field')->class('form-control') !!}
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        {!! Form::label('cloud_label_radio', Lang::get('message.cloud_label_radio'),['class' => 'required']) !!}
-                        {!! Form::text('cloud_label_radio', null, ['class' => 'form-control']) !!}
+                        {!! html()->label(Lang::get('message.cloud_label_radio'), 'cloud_label_radio')->class('required') !!}
+                        {!! html()->text('cloud_label_radio')->class('form-control') !!}
                     </div>
                 </div>
             </div>
@@ -205,7 +205,7 @@
                     </button>
                 </div>
             </div>
-            {!! Form::close() !!}
+            {!! html()->form()->close() !!}
         </div>
     </div>
     <?php
@@ -216,10 +216,10 @@
             <h3 class="card-title">Cloud Product Configuration</h3>
         </div>
         <div class="card-body">
-            {!! Form::model('',['route' => 'cloud-product-store']) !!}
+            {!! html()->form('POST', route('cloud-product-store')) !!}
             <div class="row original-fields">
                 <div class="col-md-4">
-                    {!! Form::label('cloud_product', Lang::get('message.cloud_product'), ['class' => 'required']) !!}
+                    {!! html()->label(Lang::get('message.cloud_product'))->class('required') !!}
                     <div class="form-group">
                         <!-- Select Field 1 -->
                         <select name="cloud_product" class="form-control">
@@ -234,7 +234,7 @@
                     <?php
                       $plans = \DB::table('plans')->get();
                     ?>
-                    {!! Form::label('cloud_free_plan', Lang::get('message.cloud_free_plan'), ['class' => 'required']) !!}
+                    {!! html()->label(Lang::get('message.cloud_free_plan'))->class('required') !!}
                     <div class="form-group">
                         <select name="cloud_free_plan" class="form-control">
                             @foreach($plans as $plan)
@@ -245,7 +245,7 @@
                     </div>
                 </div>
                 <div class="col-md-4">
-                    {!! Form::label('cloud_product_key', Lang::get('message.cloud_product_key'), ['class' => 'required']) !!}
+                    {!! html()->label(Lang::get('message.cloud_product_key'))->class('required') !!}
                     <div class="form-group">
                         <input type="text" name="cloud_product_key" class="form-control">
                     </div>
@@ -260,7 +260,7 @@
                     </button>
                 </div>
             </div>
-            {!! Form::close() !!}
+            {!! html()->form()->close() !!}
         </div>
             <div id="loading" style="display: none;">
                 <div class="spinner"></div>
@@ -302,11 +302,11 @@
             </div>
 
           <div class="card-body">
-            {!! Form::model('',['route' => 'cloud-data-center-store']) !!}
-                  <div class="row">
+              {!! html()->form('POST', route('cloud-data-center-store'))->open() !!}
+              <div class="row">
                       <div class="col-md-4">
                           <?php $countries = \App\Model\Common\Country::cursor(); ?>
-                          {!! Form::label('cloud_country', Lang::get('message.cloud_country'), ['class' => 'required']) !!}
+                          {!! html()->label(Lang::get('message.cloud_country'))->class('required') !!}
                           <div class="form-group">
                               <!-- Select Field 1 -->
                               <select id="cloud_countries" name="cloud_countries" class="form-control select2">
@@ -322,7 +322,7 @@
                           <?php
                           $states = \App\Model\Common\State::get();
                           ?>
-                          {!! Form::label('cloud_state', Lang::get('message.cloud_state'), ['class' => 'required']) !!}
+                          {!! html()->label(Lang::get('message.cloud_state'))->class('required') !!}
                           <div class="form-group">
 
                               <select id="cloud_state" name="cloud_state" class="form-control">
@@ -331,7 +331,7 @@
                       </div>
 
                       <div class="col-md-4">
-                          {!! Form::label('cloud_city', Lang::get('message.cloud_city')) !!}
+                          {!! html()->label(Lang::get('message.cloud_city')) !!}
                           <div class="form-group">
                               <input type="text" name="cloud_city" class="form-control">
                           </div>
@@ -349,7 +349,7 @@
 
                            </div>
                        </div>
-                  {!! Form::close() !!}
+                  {!! html()->form()->close() !!}
 
 
             <div id="map" style="height: 450px;"></div>
@@ -361,11 +361,11 @@
                 <h5>Set Cloud Free Trial Button Display Option</h5>
             </div>
             <div class="card-body">
-                {!! Form::open(['url' => 'enable/cloud', 'method' => 'POST']) !!}
-            <div class="row">
+                {!! html()->form('POST', 'enable/cloud')->open() !!}
+                <div class="row">
                 <div class="col-md-4">
                     <div class="form-group">
-                        {!! Form::label('debug', Lang::get('Cloud Free Trial')) !!}
+                        {!! html()->label(Lang::get('Cloud Free Trial'), 'debug') !!}
                         <div class="row">
                             <div class="col-sm-3">
                                 <input type="radio" name="debug" value="true" @if($cloudButton == 1) checked="true" @endif > {{Lang::get('Enable')}}

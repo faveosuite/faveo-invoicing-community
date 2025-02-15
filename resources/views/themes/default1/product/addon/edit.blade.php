@@ -3,8 +3,8 @@
 <div class="box box-primary">
 
     <div class="content-header">
-        {!! Form::model($addon,['url'=>'addons/'.$addon->id,'method'=>'patch']) !!}
-        <h4>{{Lang::get('message.addon')}}	{!! Form::submit(Lang::get('message.save'),['class'=>'form-group btn btn-primary pull-right'])!!}</h4>
+        {!! html()->model($addon)->method('patch')->url('addons/'.$addon->id) !!}
+        <h4>{{ Lang::get('message.addon') }} {!! html()->submit(Lang::get('message.save'))->class('form-group btn btn-primary pull-right') !!}</h4>
 
     </div>
 
@@ -46,31 +46,23 @@
                 <div class="row">
 
                     <div class="col-md-3 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                        <!-- first name -->
-                        {!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}
-                        {!! Form::text('name',null,['class' => 'form-control']) !!}
-
+                        {!! html()->label(Lang::get('message.name'), 'name')->class('required') !!}
+                        {!! html()->text('name')->class('form-control') !!}
                     </div>
 
                     <div class="col-md-3 form-group {{ $errors->has('subscription') ? 'has-error' : '' }}">
-                        <!-- last name -->
-                        {!! Form::label('subscription',Lang::get('message.subscription'),['class'=>'required']) !!}
-                        {!! Form::select('subscription',[''=>'Select','Subscription'=>$subscription],null,['class' => 'form-control']) !!}
-
+                        {!! html()->label(Lang::get('message.subscription'), 'subscription')->class('required') !!}
+                        {!! html()->select('subscription', ['' => 'Select', 'Subscription' => $subscription])->class('form-control') !!}
                     </div>
 
                     <div class="col-md-3 form-group {{ $errors->has('regular_price') ? 'has-error' : '' }}">
-                        <!-- first name -->
-                        {!! Form::label('regular_price',Lang::get('message.regular-price'),['class'=>'required']) !!}
-                        {!! Form::text('regular_price',null,['class' => 'form-control']) !!}
-
+                        {!! html()->label(Lang::get('message.regular-price'), 'regular_price')->class('required') !!}
+                        {!! html()->text('regular_price')->class('form-control') !!}
                     </div>
 
                     <div class="col-md-3 form-group {{ $errors->has('selling_price') ? 'has-error' : '' }}">
-                        <!-- first name -->
-                        {!! Form::label('selling_price',Lang::get('message.selling-price'),['class'=>'required']) !!}
-                        {!! Form::text('selling_price',null,['class' => 'form-control']) !!}
-
+                        {!! html()->label(Lang::get('message.selling-price'), 'selling_price')->class('required') !!}
+                        {!! html()->text('selling_price')->class('form-control') !!}
                     </div>
 
 
@@ -81,48 +73,38 @@
 
 
                     <div class="col-md-3 form-group {{ $errors->has('tax_addon') ? 'has-error' : '' }}">
-                        <!-- first name -->
-                        {!! Form::label('tax_addon',Lang::get('message.tax-addon')) !!}
-                        <p>{!! Form::checkbox('tax_addon',1) !!}  {{Lang::get('message.charge-tax-on-this-addon')}}</p>
-
+                        {!! html()->label(Lang::get('message.tax-addon'), 'tax_addon') !!}
+                        <p>{!! html()->checkbox('tax_addon', 1) !!} {{ Lang::get('message.charge-tax-on-this-addon') }}</p>
                     </div>
 
                     <div class="col-md-3 form-group {{ $errors->has('show_on_order') ? 'has-error' : '' }}">
-                        <!-- first name -->
-                        {!! Form::label('show_on_order',Lang::get('message.show-on-order')) !!}
-                        <p>{!! Form::checkbox('show_on_order',1) !!}  {{Lang::get('message.show-addon-during-initial-product-order-process')}}</p>
-
+                        {!! html()->label(Lang::get('message.show-on-order'), 'show_on_order') !!}
+                        <p>{!! html()->checkbox('show_on_order', 1) !!} {{ Lang::get('message.show-addon-during-initial-product-order-process') }}</p>
                     </div>
 
                     <div class="col-md-3 form-group {{ $errors->has('auto_active_payment') ? 'has-error' : '' }}">
-                        <!-- first name -->
-                        {!! Form::label('auto_active_payment',Lang::get('message.auto-active-payment')) !!}
-                        <p>{!! Form::checkbox('auto_active_payment',1) !!}  {{Lang::get('message.auto-activate-on-payment')}}</p>
-
+                        {!! html()->label(Lang::get('message.auto-active-payment'), 'auto_active_payment') !!}
+                        <p>{!! html()->checkbox('auto_active_payment', 1) !!} {{ Lang::get('message.auto-activate-on-payment') }}</p>
                     </div>
 
                     <div class="col-md-3 form-group {{ $errors->has('suspend_parent') ? 'has-error' : '' }}">
-                        <!-- first name -->
-                        {!! Form::label('suspend_parent',Lang::get('message.suspend-parent-product')) !!}
-                        <p>{!! Form::checkbox('suspend_parent',1) !!}  {{Lang::get('message.tick-to-suspend-the-parent-product-as-well-when-instances-of-this-addon-are-overdue')}}</p>
-
+                        {!! html()->label(Lang::get('message.suspend-parent-product'), 'suspend_parent') !!}
+                        <p>{!! html()->checkbox('suspend_parent', 1) !!} {{ Lang::get('message.tick-to-suspend-the-parent-product-as-well-when-instances-of-this-addon-are-overdue') }}</p>
                     </div>
 
                 </div>
                 <div class="row">
 
                     <div class="col-md-6 form-group {{ $errors->has('description') ? 'has-error' : '' }}">
-                        <!-- last name -->
-                        {!! Form::label('description',Lang::get('message.description')) !!}
-                        {!! Form::textarea('description',null,['class' => 'form-control']) !!}
-
+                        {!! html()->label(Lang::get('message.description'), 'description') !!}
+                        {!! html()->textarea('description')->class('form-control') !!}
                     </div>
 
                     <div class="col-md-6 form-group {{ $errors->has('products') ? 'has-error' : '' }}">
-                        <!-- last name -->
-                        {!! Form::label('products',Lang::get('message.applicable-products')) !!}
-                        {!! Form::select('products[]',[''=>'Select','Products'=>$product],$relation,['class' => 'form-control','multiple'=>true]) !!}
-
+                        {!! html()->label(Lang::get('message.applicable-products'), 'products') !!}
+                        {!! html()->select('products[]', ['' => 'Select', 'Products' => $product], $relation)
+                            ->class('form-control')
+                            ->multiple() !!}
                     </div>
 
                 </div>
@@ -136,5 +118,5 @@
 </div>
 
 
-{!! Form::close() !!}
+{!! html()->form()->close() !!}
 @stop

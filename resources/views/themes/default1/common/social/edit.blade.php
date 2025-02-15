@@ -26,7 +26,7 @@ Social Media
 
 
             <div class="card-body">
-                {!! Form::model($social,['url'=>'social-media/'.$social->id,'method'=>'patch']) !!}
+                {!! html()->modelForm($social, 'PATCH', 'social-media/' . $social->id)->open() !!}
 
                 <table class="table table-condensed">
 
@@ -34,12 +34,12 @@ Social Media
 
                     <tr>
 
-                        <td><b>{!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.name'))->class('required') !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
 
 
-                                {!! Form::text('name',null,['class' => 'form-control']) !!}
+                                {!! html()->text('name')->class('form-control') !!}
                                 <p><i> {{Lang::get('message.enter-the-name-of-the-social-media')}}</i> </p>
 
 
@@ -50,12 +50,12 @@ Social Media
                    
                     <tr>
 
-                        <td><b>{!! Form::label('link',Lang::get('message.link'),['class'=>'required']) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.link'))->for('link')->class('required') !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('link') ? 'has-error' : '' }}">
 
 
-                                {!! Form::text('link',null,['class' => 'form-control']) !!}
+                                {!! html()->text('link')->class('form-control') !!}
                                 <p><i> {{Lang::get('message.enter-the-link-of-the-social-media')}}</i> </p>
 
 
@@ -66,7 +66,7 @@ Social Media
 
 
 
-                    {!! Form::close() !!}
+                    {!! html()->form()->close() !!}
 
                 </table>
                 <button type="submit" class="btn btn-primary pull-right" style="margin-top:-40px;"><i class="fa fa-sync-alt">&nbsp;&nbsp;</i>{!!Lang::get('message.update')!!}</button>

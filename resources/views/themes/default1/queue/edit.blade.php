@@ -23,13 +23,13 @@ Configure Queue
        
             <div class="card-body">
 
-                 {!! Form::open(['url'=>'queue/'.$queue->id,'method'=>'post','id'=>'form']) !!}
-                    <div id="response">
+                {!! html()->form('POST', 'queue/'.$queue->id)->id('form') !!}
+                <div id="response">
 
                     </div>
                       <button type="submit" class="form-group btn btn-primary pull-right"  id="submitButton"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button>
-                    <!-- {!! Form::submit('save',['class'=>'btn btn-primary', 'id'=>'submitButton', 'disabled'=>true]) !!} -->
-                    {!! Form::close() !!}
+                    <!-- {!! html()->submit('save')->class('btn btn-primary')->id('submitButton')->disabled() !!} -->
+                    {!! html()->form()->close() !!}
              
                  
 </div>

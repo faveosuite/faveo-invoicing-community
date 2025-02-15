@@ -104,14 +104,14 @@ Users
                     </div>
                 </div>
                 <div class="card-body" id="advance-search" style="display:none;">
-                    {!! Form::open(['method'=>'get']) !!}
+                    {!! html()->form('get')->open() !!}
 
                     <div class="row">
 
                         <div class="col-md-3 form-group">
                             <!-- first name -->
-                            {!! Form::label('company','Company Name') !!}
-                            {!! Form::text('company',$request->company,['class' => 'form-control','id'=>'company']) !!}
+                            {!! html()->label('Company Name', 'company') !!}
+                            {!! html()->text('company', $request->company)->class('form-control')->id('company') !!}
 
                         </div>
                         <?php
@@ -119,7 +119,7 @@ Users
                         ?>
                         <div class="col-md-3 form-group">
                             <!-- first name -->
-                            {!! Form::label('country','Country') !!}<br>
+                            {!! html()->label('Country', 'country') !!}<br>
                             <select style="width:100%;" name="country" value= "Choose" id="country"  class="form-control select2" data-live-search="true" data-live-search-placeholder="Search" data-dropup-auto="false" data-size="10">
                                 <option value="" style="">Choose</option>
                                 @foreach($countries as $key=> $country)
@@ -134,7 +134,7 @@ Users
 
                         <div class="col-md-3 form-group">
                             <!-- first name -->
-                        {!! Form::label('industry','Industries') !!}<br>
+                            {!! html()->label('Industries', 'industry') !!}<br>
 
                         <?php $old = ['agriculture_forestry'=>'Agriculture Forestry','safety_security_legal'=>'Safety Security Legal','business_information'=>'Business Information','finance_insurance'=>'Finance Insurance','gaming'=>'Gaming','real_estate_housing'=>'Real Estate Housing','health_services'=>'Health Services','education'=>'Education','food_hospitality'=>'Food Hospitality','personal_services'=>'Personal Services','transportation'=>'Transportation','construction_utilities_contracting'=>'Construction Utilities Contracting','motor_vehicle'=>'Motor Vehicle','animals_pets'=>'Animals & Pets','art_design'=>'Art & Design','auto_transport'=>'Auto & Transport','food_beverage'=>'Food & Beverage','beauty_fashion'=>'Beauty & Fashion','education_childcare'=>'Education & Childcare','environment_green_tech'=>'Environment & Green Tech','events_weddings'=>'Events & Weddings','finance_legal_consulting'=>'Finance, Legal & Consulting','government_municipal'=>'Government & Municipal','home_garden'=>'Home & Garden','internet_technology'=>'Internet & Technology','local_service_providers'=>'Local Service Providers','manufacturing_wholesale'=>'Manufacturing & Wholesale','marketing_advertising'=>'Marketing & Advertising','media_communication'=>'Media & Communication','medical_dental'=>'Medical & Dental','music_bands'=>'Music & Bands','non_profit_charity'=>'Non-Profit & Charity','real_estate'=>'Real Estate','religion'=>'Religion','retail_e-Commerce'=>'Retail & E-Commerce','sports_recreation'=>'Sports & Recreation','travel_hospitality'=>'Travel & Hospitality','other'=>'Other',];
                         $bussinesses =DB::table('bussinesses')->pluck('name','short')->toarray();
@@ -144,7 +144,7 @@ Users
                         $salesManagers = DB::table('users')->where('position', 'manager')
                             ->pluck('first_name', 'id')->toArray();
                         ?>
-                        <!-- {!! Form::select('industry',['Choose',''=>DB::table('bussinesses')->pluck('name','short')->toarray(),'old'=>$old],null,['class' => 'form-control','data-live-search'=>'true','data-live-search-placeholder'=>'Search','data-dropup-auto'=>'false','data-size'=>'10','id'=>'industry']) !!} -->
+                        <!-- {!! html()->select('industry', array_merge(['Choose'], ['' => DB::table('bussinesses')->pluck('name', 'short')->toArray()], ['old' => $old]))->class('form-control')->id('industry')->attribute('data-live-search', 'true')->attribute('data-live-search-placeholder', 'Search')->attribute('data-dropup-auto', 'false')->attribute('data-size', '10') !!} -->
 
                             <select name="industry"  style="width:100%;" class="form-control select2" data-live-search="true",data-live-search-placeholder="Search" data-dropup-auto="false"  data-size="10" id="industry">
                                 <option value="">Choose</option>
@@ -161,20 +161,24 @@ Users
 
                         <div class="col-md-3 form-group">
                             <!-- first name -->
-                            {!! Form::label('Role','Role') !!}
-                            {!! Form::select('role',[null => 'Choose']+ ['admin'=>'Admin', 'user'=>'user'], $request->role, ['class' => 'form-control','id'=>'role']) !!}
+                            {!! html()->label('Role', 'role') !!}
+                            {!! html()->select('role', ['' => 'Choose'] + ['admin' => 'Admin', 'user' => 'User'], $request->role)
+                                ->class('form-control')
+                                ->id('role') !!}
                         </div>
 
                         <div class="col-md-3 form-group">
                             <!-- first name -->
-                            {!! Form::label('Position','Position') !!}
-                            {!! Form::select('position',[null => 'Choose']+ ['manager'=>'Sales Manager', 'account_manager'=>'Account Manager'], $request->position, ['class' => 'form-control','id'=>'position']) !!}
+                            {!! html()->label('Position', 'position') !!}
+                            {!! html()->select('position', ['' => 'Choose'] + ['manager' => 'Sales Manager', 'account_manager' => 'Account Manager'], $request->position)
+                                ->class('form-control')
+                                ->id('position') !!}
                         </div>
 
                         <div class="col-md-3 form-group">
                             <!-- first name -->
-                            {!! Form::label('reg_from','Registered From') !!}
-                               <div class="input-group date" id="reservationdate_from" data-target-input="nearest">
+                            {!! html()->label('Registered From', 'reg_from') !!}
+                            <div class="input-group date" id="reservationdate_from" data-target-input="nearest">
                               <input type="text" name="reg_from" class="form-control datetimepicker-input" autocomplete="off" value="{!! $request->reg_from !!}" data-target="#reservationdate_from"/>                            
                               <div class="input-group-append" data-target="#reservationdate_from" data-toggle="datetimepicker">
                                     <div class="input-group-text"><i class="fa fa-calendar"></i></div>
@@ -186,7 +190,7 @@ Users
 
                         <div class="col-md-3 form-group">
                             <!-- first name -->
-                            {!! Form::label('from','Registered Till') !!}
+                            {!! html()->label('Registered Till', 'from') !!}
                             <div class="input-group date" id="reservationdate" data-target-input="nearest">
                                 <input type="text" name="reg_till" class="form-control datetimepicker-input" autocomplete="off" value="{!! $request->reg_till !!}" data-target="#reservationdate"/>
 
@@ -201,7 +205,7 @@ Users
 
                         <div class="col-md-3 form-group">
                             <!-- first name -->
-                            {!! Form::label('from','Users for Account Manager') !!}
+                            {!! html()->label('Users for Account Manager', 'from') !!}
                             <select name="actmanager"  class="form-control selectpicker" data-live-search="true",data-live-search-placeholder="Search" data-dropup-auto="false"  data-size="10" id="actmanager" >
                                 <option value="">Choose</option>
                                 @foreach($acctManagers as $key=>$acct)
@@ -216,7 +220,7 @@ Users
 
                         <div class="col-md-3 form-group">
                             <!-- first name -->
-                            {!! Form::label('from','Users for Sales Manager') !!}
+                            {!! html()->label('Users for Sales Manager', 'from') !!}
                             <select name="salesmanager"  class="form-control selectpicker" data-live-search="true",data-live-search-placeholder="Search" data-dropup-auto="false"  data-size="10" id="salesmanager" >
                                 <option value="">Choose</option>
                                 @foreach($salesManagers as $key=>$sales)
@@ -227,32 +231,41 @@ Users
                                     @endif
                                 @endforeach
                             </select>
-                        </div>  
-
-                         <div class="col-md-3 form-group">
-                            <!-- first name -->
-                            {!! Form::label('Mobile Status','Mobile Status') !!}
-                            {!! Form::select('mobile_verified',[null => 'Choose']+ ['1'=>'Active', '0'=>'Inactive'], $request->mobile_verified, ['class' => 'form-control','id'=>'mobile_verified']) !!}
-                        </div> 
-
-                         <div class="col-md-3 form-group">
-                            <!-- first name -->
-                            {!! Form::label('Email Status','Email Status') !!}
-                            {!! Form::select('active',[null => 'Choose']+ ['1'=>'Active', '0'=>'Inactive'], $request->active, ['class' => 'form-control','id'=>'active']) !!}
-                        </div> 
-                         <div class="col-md-3 form-group">
-                            <!-- first name -->
-                            {!! Form::label('2faStatus','2FA Status') !!}
-                            {!! Form::select('is_2fa_enabled',[null => 'Choose']+ ['1'=>'Enabled', '0'=>'Disabled'], $request->is_2fa_enabled, ['class' => 'form-control','id'=>'is_2fa_enabled']) !!}
-                        </div>   
                         </div>
+
+                        <div class="col-md-3 form-group">
+                            <!-- Mobile Status -->
+                            {!! html()->label('Mobile Status', 'mobile_verified') !!}
+                            {!! html()->select('mobile_verified', ['' => 'Choose'] + ['1' => 'Active', '0' => 'Inactive'], $request->mobile_verified)
+                                ->class('form-control')
+                                ->id('mobile_verified') !!}
+                        </div>
+
+                        <div class="col-md-3 form-group">
+                            <!-- Email Status -->
+                            {!! html()->label('Email Status', 'active') !!}
+                            {!! html()->select('active', ['' => 'Choose'] + ['1' => 'Active', '0' => 'Inactive'], $request->active)
+                                ->class('form-control')
+                                ->id('active') !!}
+                        </div>
+
+                        <div class="col-md-3 form-group">
+                            <!-- 2FA Status -->
+                            {!! html()->label('2FA Status', 'is_2fa_enabled') !!}
+                            {!! html()->select('is_2fa_enabled', ['' => 'Choose'] + ['1' => 'Enabled', '0' => 'Disabled'], $request->is_2fa_enabled)
+                                ->class('form-control')
+                                ->id('is_2fa_enabled') !!}
+                        </div>
+                    </div>
                 <!-- /.card-body -->
                     <button name="Search" type="submit" id="search"  class="btn btn-secondary"><i class="fa fa-search"></i>&nbsp;{!!Lang::get('Search')!!}</button>
                     &nbsp;
                     <!-- <a href="{!! url('clients') !!}" id="reset" class="btn btn-secondary"><i class="fas fa-sync-alt"></i>&nbsp;{!!Lang::get('Reset')!!}</a> -->
-                    {!! Form::submit('Reset',['class'=>'btn btn-secondary','id'=>'reset']) !!}
+                    {!! html()->submit('Reset')
+    ->class('btn btn-secondary')
+    ->id('reset') !!}
 
-            </div>
+                </div>
             <!-- /.card -->
         </div>
     </div>

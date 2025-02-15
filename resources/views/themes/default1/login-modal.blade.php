@@ -119,17 +119,17 @@ $country = findCountryByGeoip($location['iso_code']);
                 @endif
                         <div class="box-content">
 
-                            @if ($status->recaptcha_status==1 && $apiKeys->nocaptcha_sitekey != '00' && $apiKeys->captcha_secretCheck != '00')
-                                {!!  Form::open(['url'=>'login', 'method'=>'post','id'=>'formoid','onsubmit'=>'return validateform()']) !!}
+                            @if ($status->recaptcha_status == 1 && $apiKeys->nocaptcha_sitekey != '00' && $apiKeys->captcha_secretCheck != '00')
+                                {!! html()->form('POST', 'login')->id('formoid')->attribute('onsubmit', 'return validateform()')->open() !!}
                             @else
-                                {!!  Form::open(['url'=>'login', 'method'=>'post','id'=>'formoid']) !!}
+                                {!! html()->form('POST', 'login')->id('formoid')->open() !!}
                             @endif
                             <div class="form-row">
                                 <div class="form-group col">
 
                                     <label class="required" >E-mail Address</label>
                                     <div class="input-group">
-                                        {!! Form::text('email1',null,['class' => 'form-control input-lg','id'=>'username','autocomplete'=>"off" ]) !!}
+                                        {!! html()->text('email1')->class('form-control input-lg')->id('username')->attribute('autocomplete', 'off') !!}
                                         <div class="input-group-append">
                                                                               
                                         </div>
@@ -148,7 +148,7 @@ $country = findCountryByGeoip($location['iso_code']);
                                     <a class="pull-right" href="{{url('password/reset')}}">({{Lang::get('message.forgot-my-password')}})</a>
                                     <label class="required" >Password</label>
                                     <div class="input-group">
-                                        {!! Form::password('password1',['class' => 'form-control input-lg' ,'id'=>'pass']) !!}
+                                        {!! html()->password('password1')->class('form-control input-lg')->id('pass') !!}
                                         <div class="input-group-append">
                                         </div>
 
@@ -188,7 +188,7 @@ $country = findCountryByGeoip($location['iso_code']);
 
                              <span >Not a user? <a data-dismiss="modal" data-toggle="modal" href="#register-modal">Signup</a></span>
 
-                            {!! Form::close() !!}
+                            {!! html()->form()->close() !!}
                         </div>
                     </div>
 
@@ -232,15 +232,15 @@ $country = findCountryByGeoip($location['iso_code']);
                                                     
                                     <label class="required">First Name</label>
 
-                                    {!! Form::text('first_name',null,['class'=>'form-control input-lg', 'id'=>'first_name']) !!}
-                                    <span id="first_namecheck"></span>
+                                 {!! html()->text('first_name')->class('form-control input-lg')->id('first_name') !!}
+                                 <span id="first_namecheck"></span>
                                     </div>
 
 
 
                                     <div class="form-group col-lg-6 {{ $errors->has('last_name') ? 'has-error' : '' }}">
                                         <label class="required">Last Name</label>
-                                        {!! Form::text('last_name',null,['class'=>'form-control input-lg', 'id'=>'last_name']) !!}
+                                        {!! html()->text('last_name')->class('form-control input-lg')->id('last_name') !!}
                                         <span id="last_namecheck"></span>
 
                                                         </div>
@@ -251,25 +251,33 @@ $country = findCountryByGeoip($location['iso_code']);
                             <div class="form-row">
                                 <div class="form-group col {{ $errors->has('email') ? 'has-error' : '' }}">
                                     <label class="required">Email Address</label>
-                                    {!! Form::email('email',null,['class'=>'form-control input-lg', 'id'=>'mail']) !!}
+                                    {!! html()->email('email')->class('form-control input-lg')->id('mail') !!}
                                     <span id="emailcheck"></span>
                                 </div>
                             </div>
 
                             <div class="form-row">
                                 <div class="form-group col col-lg-6 {{ $errors->has('country') ? 'has-error' : '' }}">
-                                    {!! Form::label('country',Lang::get('message.country'),['class'=>'required']) !!}
+                                    {!! html()->label(__('message.country'), 'country')->class('required') !!}
                                     <?php $countries = \App\Model\Common\Country::pluck('nicename', 'country_code_char2')->toArray(); ?>
-                                    {!! Form::select('country',[''=>'','Choose'=>$countries],$country,['class' => 'form-control selectpicker','data-live-search-style'=>"startsWith",'data-live-search'=>'true','data-live-search-placeholder'=>'Search','data-dropup-auto'=>'false','data-size'=>'10','onChange'=>'getCountryAttr(this.value);','id'=>'country']) !!}
+                                    {!! html()->select('country', ['' => '', 'Choose' => $countries], $country)
+                                        ->class('form-control selectpicker')
+                                        ->attribute('data-live-search-style', 'startsWith')
+                                        ->attribute('data-live-search', 'true')
+                                        ->attribute('data-live-search-placeholder', 'Search')
+                                        ->attribute('data-dropup-auto', 'false')
+                                        ->attribute('data-size', '10')
+                                        ->attribute('onChange', 'getCountryAttr(this.value);')
+                                        ->id('country') !!}
                                     <span id="countrycheck"></span>
                                 </div>
 
                           
                                 <div class="col-lg-6 form-group {{ $errors->has('mobile_code') ? 'has-error' : '' }}">
                                     <label class="required">Mobile</label>
-                                    {!! Form::hidden('mobile',null,['id'=>'phone_code_hidden']) !!}
+                                    {!! html()->hidden('mobile')->id('phone_code_hidden') !!}
                                     <input class="form-control input-lg" id="phonenum" name="mobile" type="tel">
-                                    {!! Form::hidden('mobile_code',null,['class'=>'form-control input-lg','disabled','id'=>'mobile_code']) !!}
+                                    {!! html()->hidden('mobile_code')->class('form-control input-lg')->attribute('disabled', 'disabled')->id('mobile_code') !!}
                                     <span id="valid-msg2" class="hide"></span>
                                     <span id="error-msg2" class="hide"></span>
                                     <span id="mobile_codecheck"></span>

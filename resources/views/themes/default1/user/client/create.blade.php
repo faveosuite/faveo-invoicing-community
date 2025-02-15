@@ -26,7 +26,7 @@ Create User
 
 
         <div class="card-body">
-            {!! Form::open(['url'=>'clients','method'=>'post']) !!}
+            {!! html()->form('POST', 'clients')->open() !!}
 
 
 
@@ -40,32 +40,27 @@ Create User
 
                     <div class="col-md-3 form-group {{ $errors->has('first_name') ? 'has-error' : '' }}">
                         <!-- first name -->
-                        {!! Form::label('first_name',Lang::get('message.first_name'),['class'=>'required']) !!}
-                        {!! Form::text('first_name',null,['class' => 'form-control']) !!}
-
+                        {!! html()->label(Lang::get('message.first_name'))->class('required') !!}
+                        {!! html()->text('first_name')->class('form-control') !!}
                     </div>
 
                     <div class="col-md-3 form-group {{ $errors->has('last_name') ? 'has-error' : '' }}">
                         <!-- last name -->
-                        {!! Form::label('last_name',Lang::get('message.last_name'),['class'=>'required']) !!}
-                        {!! Form::text('last_name',null,['class' => 'form-control']) !!}
-
+                        {!! html()->label(Lang::get('message.last_name'))->class('required') !!}
+                        {!! html()->text('last_name')->class('form-control') !!}
                     </div>
-
 
                     <div class="col-md-3 form-group {{ $errors->has('email') ? 'has-error' : '' }}">
                         <!-- email -->
-                        {!! Form::label('email',Lang::get('message.email'),['class'=>'required']) !!}
-                        {!! Form::text('email',null,['class' => 'form-control']) !!}
-
+                        {!! html()->label(Lang::get('message.email'))->class('required') !!}
+                        {!! html()->text('email')->class('form-control') !!}
                     </div>
+
                     <div class="col-md-3 form-group {{ $errors->has('user_name') ? 'has-error' : '' }}">
                         <!-- mobile -->
-                        {!! Form::label('user_name',Lang::get('message.user_name')) !!}
-                        {!! Form::text('user_name',null,['class' => 'form-control']) !!}
-
+                        {!! html()->label(Lang::get('message.user_name')) !!}
+                        {!! html()->text('user_name')->class('form-control') !!}
                     </div>
-
 
                 </div>
 
@@ -73,14 +68,14 @@ Create User
 
                     <div class="col-md-3 form-group {{ $errors->has('company') ? 'has-error' : '' }}">
                         <!-- company -->
-                        {!! Form::label('company',Lang::get('message.company'),['class'=>'required']) !!}
-                        {!! Form::text('company',null,['class' => 'form-control']) !!}
+                        {!! html()->label(Lang::get('message.company'))->class('required') !!}
+                        {!! html()->text('company')->class('form-control') !!}
 
                     </div>
                     <div class="col-md-3 form-group {{ $errors->has('bussiness') ? 'has-error' : '' }}">
                         <!-- company -->
-                        {!! Form::label('bussiness','Industry') !!}
-                         <!-- {!! Form::select('bussiness',['Choose'=>'Choose',''=>$bussinesses],null,['class' => 'form-control selectpicker','data-live-search'=>'true', 'data-live-search-placeholder'=>'Search' ,'data-dropup-auto'=>'false', 'data-size'=>'10']) !!} -->
+                        {!! html()->label('Industry')->for('bussiness') !!}
+                        <!-- {!! html()->select('bussiness')->options(['Choose' => 'Choose', '' => $bussinesses])->class('form-control selectpicker')->attribute('data-live-search', 'true')->attribute('data-live-search-placeholder', 'Search')->attribute('data-dropup-auto', 'false')->attribute('data-size', '10') !!} -->
                        <select name="bussiness"  class="form-control select2">
                              <option value="">Choose</option>
                            @foreach($bussinesses as $key=>$bussines)
@@ -100,30 +95,37 @@ Create User
 
                     <div class="col-md-3 form-group {{ $errors->has('active') ? 'has-error' : '' }}">
                         <!-- mobile -->
-                        {!! Form::label('active',Lang::get('message.email')) !!}
-                        <p>{!! Form::radio('active',1,true) !!}&nbsp;Active&nbsp;&nbsp;{!! Form::radio('active',0) !!}&nbsp;Inactive</p>
-
+                        {!! html()->label(Lang::get('message.email'), 'active') !!}
+                        <p>
+                            {!! html()->radio('active', true, 1) !!}
+                            &nbsp;Active&nbsp;&nbsp;
+                            {!! html()->radio('active', false, 0) !!}
+                            &nbsp;Inactive
+                        </p>
                     </div>
 
-                      <div class="col-md-3 form-group {{ $errors->has('mobile_verified') ? 'has-error' : '' }}">
+                    <div class="col-md-3 form-group {{ $errors->has('mobile_verified') ? 'has-error' : '' }}">
                         <!-- mobile -->
-                        {!! Form::label('mobile_verified',Lang::get('message.mobile')) !!}
-                        <p>{!! Form::radio('mobile_verified',1,true) !!}&nbsp;Active&nbsp;&nbsp;{!! Form::radio('mobile_verified',0) !!}&nbsp;Inactive</p>
-
+                        {!! html()->label(Lang::get('message.mobile'), 'mobile_verified') !!}
+                        <p>
+                            {!! html()->radio('mobile_verified', true, 1) !!}
+                            &nbsp;Active&nbsp;&nbsp;
+                            {!! html()->radio('mobile_verified', false, 0) !!}
+                            &nbsp;Inactive
+                        </p>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-3 form-group {{ $errors->has('role') ? 'has-error' : '' }}">
                         <!-- email -->
-                        {!! Form::label('role',Lang::get('message.role')) !!}
-                        {!! Form::select('role',['user'=>'User','admin'=>'Admin'],null,['class' => 'form-control']) !!}
-
+                        {!! html()->label(Lang::get('message.role'), 'role') !!}
+                        {!! html()->select('role', ['user' => 'User', 'admin' => 'Admin'])->class('form-control') !!}
                     </div>
+
                     <div class="col-md-3 form-group {{ $errors->has('position') ? 'has-error' : '' }}">
                         <!-- email -->
-                        {!! Form::label('position','Position') !!}
-                        {!! Form::select('position',[''=>'Choose','manager'=>'Sales Manager','account_manager'=>'Account Manager'],null,['class' => 'form-control']) !!}
-
+                        {!! html()->label('Position', 'position') !!}
+                        {!! html()->select('position', ['' => 'Choose', 'manager' => 'Sales Manager', 'account_manager' => 'Account Manager'])->class('form-control') !!}
                     </div>
                     <?php
                     $type = DB::table('company_types')->pluck('name','short')->toarray();
@@ -131,8 +133,8 @@ Create User
                     ?>
                      <div class="col-md-3 form-group {{ $errors->has('role') ? 'has-error' : '' }}">
                         <!-- email -->
-                        {!! Form::label('company_type','Company Type') !!}
-                        <!-- {!! Form::select('company_type',['choose'=>'Choose',''=>$type],null,['class' => 'form-control']) !!} -->
+                         {!! html()->label('Company Type', 'company_type') !!}
+                         <!-- {!! html()->select('company_type')->options(['choose' => 'Choose', '' => $type])->class('form-control') !!} -->
 
                          <select name="company_type" value= "Choose" class="form-control">
                              <option value="">Choose</option>
@@ -148,8 +150,8 @@ Create User
                     </div>
                      <div class="col-md-3 form-group {{ $errors->has('role') ? 'has-error' : '' }}">
                         <!-- email -->
-                        {!! Form::label('company_size','Company Size') !!}
-                <!-- {!! Form::select('company_size',['choose'=>'Choose',''=>$size],null,['class' => 'form-control']) !!} -->
+                         {!! html()->label('Company Size', 'company_size') !!}
+                         <!-- {!! html()->select('company_size', ['choose' => 'Choose', '' => $size])->class('form-control') !!} -->
                           <select name="company_size" value= "Choose" class="form-control">
                              <option value="">Choose</option>
                            @foreach($size as $key=>$sizes)
@@ -167,8 +169,8 @@ Create User
 
                 <div class="form-group {{ $errors->has('address') ? 'has-error' : '' }}">
                     <!-- phone number -->
-                    {!! Form::label('address',Lang::get('message.address'),['class'=>'required']) !!}
-                    {!! Form::textarea('address',null,['class' => 'form-control']) !!}
+                    {!! html()->label(Lang::get('message.address'))->class('required') !!}
+                    {!! html()->textarea('address')->class('form-control') !!}
 
                 </div>
 
@@ -176,8 +178,8 @@ Create User
 
                     <div class="col-md-3 form-group {{ $errors->has('town') ? 'has-error' : '' }}">
                         <!-- mobile -->
-                        {!! Form::label('town',Lang::get('message.town')) !!}
-                        {!! Form::text('town',null,['class' => 'form-control']) !!}
+                        {!! html()->label(Lang::get('message.town')) !!}
+                        {!! html()->text('town')->class('form-control') !!}
 
                     </div>
 
@@ -185,11 +187,11 @@ Create User
                      ?>
                     <div class="col-md-3 form-group{{ $errors->has('country') ? 'has-error' : '' }}">
                         <!-- name -->
-                        {!! Form::label('country',Lang::get('message.country'),['class'=>'required']) !!}
+                        {!! html()->label(Lang::get('message.country'))->class('required') !!}
 
 
 
-                          <select name="country" value= "Choose" id="country" onChange="getCountryAttr(this.value)" class="form-control select2">
+                        <select name="country" value= "Choose" id="country" onChange="getCountryAttr(this.value)" class="form-control select2">
                              <option value="">Choose</option>
                            @foreach($countries as $key=>$country)
                             @if (Request::old('country') == strtolower($key) || Request::old('country') == $key)
@@ -207,8 +209,8 @@ Create User
                     ?>
                     <div class="col-md-3 form-group {{ $errors->has('state') ? 'has-error' : '' }}">
                         <!-- name -->
-                        {!! Form::label('state',Lang::get('message.state')) !!}
-                        <!--{!! Form::select('state',[],null,['class' => 'form-control','id'=>'state-list']) !!}-->
+                        {!! html()->label(Lang::get('message.state')) !!}
+                        <!--{!! html()->select('state', [], null)->class('form-control')->id('state-list') !!}-->
                           <select name="state" id="state-list" class="form-control">
                         @if(old('state') != null)
                              @foreach($selectedstate as $key=>$state)
@@ -226,17 +228,22 @@ Create User
                     </div>
                     <div class="col-md-3 form-group {{ $errors->has('zip') ? 'has-error' : '' }}">
                         <!-- mobile -->
-                        {!! Form::label('zip',Lang::get('message.zip')) !!}
-                        {!! Form::text('zip',null,['class' => 'form-control']) !!}
+                        {!! html()->label(Lang::get('message.zip')) !!}
+                        {!! html()->text('zip')->class('form-control') !!}
 
                     </div>
                     <div class="col-md-3 form-group {{ $errors->has('timezone_id') ? 'has-error' : '' }}">
                         <!-- mobile -->
-                        {!! Form::label('timezone_id',Lang::get('message.timezone'),['class'=>'required']) !!}
-                         {!! Form::select('timezone_id', [''=>'Choose','Timezones'=>$timezones],null,['class' => 'form-control select2','data-live-search'=>'true','data-live-search-placeholder' => 'Search','data-dropup-auto'=>'false','data-size'=>'10']) !!}
+                        {!! html()->label(Lang::get('message.timezone'))->class('required') !!}
+                        {!! html()->select('timezone_id', ['' => 'Choose', 'Timezones' => $timezones])
+                            ->class('form-control select2')
+                            ->attribute('data-live-search', 'true')
+                            ->attribute('data-live-search-placeholder', 'Search')
+                            ->attribute('data-dropup-auto', 'false')
+                            ->attribute('data-size', '10') !!}
 
 
-                       <!--   <select name="timezone_id" value= "Choose" class="form-control selectpicker" data-live-search="true" data-live-search-placeholder="Search" data-dropup-auto="false" data-size="10"">
+                        <!--   <select name="timezone_id" value= "Choose" class="form-control selectpicker" data-live-search="true" data-live-search-placeholder="Search" data-dropup-auto="false" data-size="10"">
                              <option value="">Choose</option>
                            @foreach($timezones as $key=>$timezone)
 
@@ -248,10 +255,10 @@ Create User
                    
                    <!--  <div class="col-md-4 form-group {{ $errors->has('mobile_code') ? 'has-error' : '' }}">
                         <label class="required">Country code</label>
-                        {!! Form::hidden('mobile_code',null,['id'=>'mobile_code_hidden']) !!}
-                        {!! Form::text('mobil',null,['class'=>'form-control','disabled','id'=>'mobile_code']) !!}
+                        {!! html()->hidden('mobile_code')->id('mobile_code_hidden') !!}
+                    {!! html()->text('mobil')->class('form-control')->disabled()->id('mobile_code') !!}
 
-                         
+
                     </div> -->
                    
 
@@ -259,26 +266,26 @@ Create User
                     <div class="col-md-3 form-group {{ $errors->has('mobile') ? 'has-error' : '' }}">
                         <!-- mobile -->
 
-                        {!! Form::label('mobile',Lang::get('message.mobile'),['class'=>'required']) !!}
-                        {!! Form::hidden('mobile_code',null,['id'=>'mobile_code_hidden']) !!}
-                         <input class="form-control"  id="mobile_code" name="mobile" value="{{ old('mobile') }}" type="tel">
-                        {!! Form::hidden('mobile_country_iso',null,['id' => 'mobile_country_iso']) !!}
-                         <span id="valid-msg" class="hide"></span>
+                        {!! html()->label(Lang::get('message.mobile'))->class('required') !!}
+                        {!! html()->hidden('mobile_code')->id('mobile_code_hidden') !!}
+                        <input class="form-control"  id="mobile_code" name="mobile" value="{{ old('mobile') }}" type="tel">
+                        {!! html()->hidden('mobile_country_iso')->id('mobile_country_iso') !!}
+                        <span id="valid-msg" class="hide"></span>
                           <span id="error-msg" class="hide"></span>
                     </div>
 
 
                     <div class="col-md-3 form-group {{ $errors->has('skype') ? 'has-error' : '' }}">
                         <!-- mobile -->
-                        {!! Form::label('skype','Skype') !!}
-                        {!! Form::text('skype',null,['class' => 'form-control']) !!}
+                        {!! html()->label('Skype', 'Skype') !!}
+                        {!! html()->text('skype')->class('form-control') !!}
 
                     </div>
                     
                     <div class="col-md-3 form-group {{ $errors->has('manager') ? 'has-error' : '' }}">
                         <!-- mobile -->
-                        {!! Form::label('manager','Sales Manager') !!}
-                 <!-- {!! Form::select('manager',[''=>'Select','Managers'=>$managers],null,['class' => 'form-control']) !!} -->
+                        {!! html()->label('manager', 'Sales Manager') !!}
+                        <!-- {!! html()->select('manager', ['' => 'Select', 'Managers' => $managers])->class('form-control') !!} -->
                          <select name="manager" value= "Choose" class="form-control">
                              <option value="">Choose</option>
                            @foreach($managers as $key=>$manager)
@@ -289,8 +296,8 @@ Create User
 
                       <div class="col-md-3 form-group {{ $errors->has('manager') ? 'has-error' : '' }}">
                         <!-- mobile -->
-                        {!! Form::label('manager','Account Manager') !!}
-                 <!-- {!! Form::select('manager',[''=>'Select','Managers'=>$managers],null,['class' => 'form-control']) !!} -->
+                          {!! html()->label('Account Manager', 'manager') !!}
+                          <!-- {!! html()->select('manager')->options(['' => 'Select'] + $managers)->class('form-control') !!} -->
                          <select name="account_manager" value= "Choose" class="form-control">
                              <option value="">Choose</option>
                            @foreach($accountManager as $key=>$manager)
@@ -305,7 +312,7 @@ Create User
         </div>
             <h4><button type="submit" class="btn btn-primary pull-right" id="submit"><i class="fas fa-save">&nbsp;</i>{!!Lang::get('message.save')!!}</button></h4>
 
-            {!! Form::close() !!}
+            {!! html()->form()->close()!!}
     </div>
 </div>
 

@@ -22,8 +22,8 @@ Edit Invoice
 <div class="card card-secondary card-outline">
 
     <div class="card-header">
-       
-        {!! Form::open(['url'=>'invoice/edit/'.$invoiceid,'method'=>'post']) !!}
+
+        {!! html()->form('POST', 'invoice/edit/'.$invoiceid)->open() !!}
 
         <h5>Invoice Number:#{{$invoice->number}}	</h5>
 
@@ -41,8 +41,8 @@ Edit Invoice
 
                    <div class="col-md-6 form-group {{ $errors->has('date') ? 'has-error' : '' }}">
                         <!-- last name -->
-                        {!! Form::label('date',Lang::get('message.date'),['class'=>'required']) !!}
-                         <div class="input-group date" id="payment" data-target-input="nearest">
+                       {!! html()->label(Lang::get('message.date'))->class('required') !!}
+                       <div class="input-group date" id="payment" data-target-input="nearest">
                                  <input type="text" id="payment_date" name="date" value="{{$date}}" class="form-control datetimepicker-input" autocomplete="off"  data-target="#payment"/>
                                 <div class="input-group-append" data-target="#payment" data-toggle="datetimepicker">
                                     <div class="input-group-text"><i class="fa fa-calendar"></i></div>
@@ -58,8 +58,8 @@ Edit Invoice
 
                     <div class="col-md-6 form-group {{ $errors->has('total') ? 'has-error' : '' }}">
                         <!-- first name -->
-                        {!! Form::label('total',Lang::get('message.invoice-total'),['class'=>'required']) !!}
-                        <!-- {!! Form::text('total',null,['class' => 'form-control']) !!} -->
+                        {!! html()->label(Lang::get('message.invoice-total'))->class('required') !!}
+                        <!-- {!! html()->text('total')->class('form-control') !!} -->
                         <input type="text" name="total" class="form-control" value="{{$invoice->grand_total}}">
 
                     </div>
@@ -67,7 +67,7 @@ Edit Invoice
 
                      <div class="col-md-6 form-group {{ $errors->has('amount') ? 'has-error' : '' }}">
                         <!-- first name -->
-                        {!! Form::label('status',Lang::get('message.status')) !!}
+                         {!! html()->label(Lang::get('message.status'))->for('status') !!}
                          <select name="status"  class="form-control">
                             <option selected="selected">{{$invoice->status}}</option>
                              <option value="">Choose</option>
@@ -92,7 +92,7 @@ Edit Invoice
 </div>
 
  
-{!! Form::close() !!}
+{!! html()->form()->close() !!}
 <script>
      $('ul.nav-sidebar a').filter(function() {
         return this.id == 'all_invoice';

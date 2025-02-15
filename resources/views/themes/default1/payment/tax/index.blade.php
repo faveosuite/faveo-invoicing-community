@@ -53,7 +53,7 @@ Tax
        <div class="card card-secondary card-outline">
            <div class="card-header">
                <h3 class="card-title">{{Lang::get('Options')}}</h3>
-               {!! Form::model($options,['url'=>'taxes/option','method'=>'post']) !!}
+               {{ html()->form('POST', 'taxes/option')->model($options) }}
            </div>
         <div class="card-body">
             <div class="row">
@@ -67,12 +67,12 @@ Tax
 
                        
                             <td>
-                                {!! Form::label('tax_enable',Lang::get('message.tax-enable')) !!}
+                                {{ html()->label(Lang::get('message.tax-enable'), 'tax_enable') }}
                             </td>
                             <td>
                                 <label class="switch">
-                                     <!-- {!! Form::hidden('tax_enable',0) !!} -->
-                                 <!-- {!! Form::checkbox('tax_enable',1) !!} -->
+                                     <!-- {{ html()->hidden('tax_enable', 0) }} -->
+                                 <!-- {{ html()->checkbox('tax_enable', 1) }} !!} -->
                                  <!-- <input id="toggle-event" type="checkbox" data-toggle="toggle" name="tax_enable"> -->
                                 <div class="btn-group btn-group-toggle"  data-toggle="buttons" >
                                     <label class="btn btn-default btn-on-1 btn-sm ">
@@ -89,7 +89,7 @@ Tax
 
                         <tr>
                             <td>
-                                {!! Form::label('inclusive',Lang::get('message.prices-entered-with-tax')) !!}
+                                {{ html()->label(Lang::get('message.prices-entered-with-tax'), 'inclusive') }}
                             </td>
                             <td>
                            
@@ -106,7 +106,7 @@ Tax
                        
                         <tr>
                             <td>
-                                {!! Form::label('rounding',Lang::get('message.rounding')) !!}
+                                {{ html()->label(Lang::get('message.rounding'), 'rounding') }}
                             </td>
                             <td>
                                     <div class="btn-group btn-group-toggle"  data-toggle="buttons">
@@ -123,8 +123,8 @@ Tax
 
                        <button type="submit" class="btn btn-default pull-right" id="submit" ><i class="fa fa-save"></i>&nbsp;{!!Lang::get('message.save')!!}</button>
 
-                       {!! Form::close() !!}
-              </div>
+                    {{ html()->form()->close() }}
+                </div>
                 </div>
               </div>
             </div>

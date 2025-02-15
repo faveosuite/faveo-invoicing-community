@@ -18,7 +18,7 @@ Edit Product Uploads
 <div class="card card-secondary card-outline">
     <div class="card-header">
 
-         {!! Form::model($model,['url'=>'upload/'.$model->id,'method'=>'patch']) !!}
+        {!! html()->form('PATCH', 'upload/' . $model->id)->model($model) !!}
         <h4>Edit Product </h4>
 
     </div>
@@ -29,74 +29,65 @@ Edit Product Uploads
 
             <div class="col-md-12">
 
-            {!! Form::hidden('title',$model->id,['class' => 'form-control','disabled'=>'disabled']) !!}
+                {!! html()->hidden('title', $model->id)->class('form-control')->disabled() !!}
 
-                    <div class="row">
-                         <div class="col-md-4 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                <div class="row">
+                    <div class="col-md-4 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         <!-- first name -->
-                        {!! Form::label('product',Lang::get('message.product'),['class'=>'required']) !!}
-                        {!! Form::text('product',$selectedProduct,['class' => 'form-control','disabled'=>'disabled']) !!}
-
+                        {!! html()->label(Lang::get('message.product'))->class('required')->for('product') !!}
+                        {!! html()->text('product', $selectedProduct)->class('form-control')->disabled() !!}
                     </div>
 
-                  
-                         <div class="col-md-4 form-group {{ $errors->has('title') ? 'has-error' : '' }}">
+                    <div class="col-md-4 form-group {{ $errors->has('title') ? 'has-error' : '' }}">
                         <!-- first name -->
-                        {!! Form::label('title',Lang::get('message.title'),['class'=>'required']) !!}
-                        {!! Form::text('title',null,['class' => 'form-control']) !!}
-
+                        {!! html()->label(Lang::get('message.title'))->class('required')->for('title') !!}
+                        {!! html()->text('title')->class('form-control') !!}
                     </div>
 
                     <div class="col-md-4 form-group {{ $errors->has('version') ? 'has-error' : '' }}">
                         <!-- first name -->
-                        {!! Form::label('version',Lang::get('message.version'),['class'=>'required']) !!}
-                        {!! Form::text('version',null,['class' => 'form-control','readonly'=>'readonly']) !!}
-
+                        {!! html()->label(Lang::get('message.version'))->class('required')->for('version') !!}
+                        {!! html()->text('version')->class('form-control')->readonly() !!}
                     </div>
 
                     <div class="col-md-12 form-group {{ $errors->has('description') ? 'has-error' : '' }}">
-                                    
-                    {!! Form::label('description',Lang::get('message.description'),['class'=>'required']) !!}
-                    {!! Form::textarea('description',null,['class' => 'form-control','id'=>'desc-textarea']) !!}
-                     <h6 id= "descheck"></h6>
-                     </div>
+                        {!! html()->label(Lang::get('message.description'))->class('required')->for('description') !!}
+                        {!! html()->textarea('description')->class('form-control')->id('desc-textarea') !!}
+                        <h6 id="descheck"></h6>
+                    </div>
 
-                   <div class="col-md-12 form-group {{ $errors->has('description') ? 'has-error' : '' }}">
-                    <i class='fa fa-info-circle' style='cursor: help; font-size: small; color: rgb(60, 141, 188);' <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title="Enter JSON format.">
-                        </label></i>                
-                    {!! Form::label('dependencies',Lang::get('message.dependencies'),['class'=>'required']) !!}
-                    {!! Form::textarea('dependencies',null,['class' => 'form-control','rows'=>'5']) !!}
-                     <h6 id= "descheck"></h6>
-                     </div>
+                    <div class="col-md-12 form-group {{ $errors->has('description') ? 'has-error' : '' }}">
+                        <i class="fa fa-info-circle" style="cursor: help; font-size: small; color: rgb(60, 141, 188);">
+                            <label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="Enter JSON format."></label>
+                        </i>
+                        {!! html()->label(Lang::get('message.dependencies'))->class('required')->for('dependencies') !!}
+                        {!! html()->textarea('dependencies')->class('form-control')->rows(5) !!}
+                        <h6 id="descheck"></h6>
+                    </div>
 
                     <div class="col-md-4 form-group {{ $errors->has('is_private') ? 'has-error' : '' }}">
-                      <i class='fa fa-info-circle' style='cursor: help; font-size: small; color: rgb(60, 141, 188);' <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title="If the release is kept private, product users won't receive notification for this release.">
-                        </label></i>
-                                    
-                    {!! Form::label('is_private','Private Release') !!}
-                    {!! Form::checkbox('is_private',1) !!}
-                     </div>
+                        <i class="fa fa-info-circle" style="cursor: help; font-size: small; color: rgb(60, 141, 188);">
+                            <label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="If the release is kept private, product users won't receive notification for this release."></label>
+                        </i>
+                        {!! html()->label('Private Release')->for('is_private') !!}
+                        {!! html()->checkbox('is_private', 1) !!}
+                    </div>
 
-                     <div class="col-md-4 form-group {{ $errors->has('release_type') ? 'has-error' : '' }}">
-                      <i class='fa fa-info-circle' style='cursor: help; font-size: small; color: rgb(60, 141, 188);' <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title="If the release is kept as Pre release, product users won't receive notification for this release.">
-                        </label></i>
-                                    
-                    {!! Form::label('release_type','Releases') !!}
-                    {!! Form::select('release_type', ['official' => 'Official', 'pre_release' => 'Pre Release', 'beta' => 'Beta'], $model->release_type) !!}
-                     </div>
+                    <div class="col-md-4 form-group {{ $errors->has('release_type') ? 'has-error' : '' }}">
+                        <i class="fa fa-info-circle" style="cursor: help; font-size: small; color: rgb(60, 141, 188);">
+                            <label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="If the release is kept as Pre release, product users won't receive notification for this release."></label>
+                        </i>
+                        {!! html()->label('Releases')->for('release_type') !!}
+                        {!! html()->select('release_type', ['official' => 'Official', 'pre_release' => 'Pre Release', 'beta' => 'Beta'], $model->release_type) !!}
+                    </div>
 
                     <div class="col-md-4 form-group {{ $errors->has('is_restricted') ? 'has-error' : '' }}">
-                     <i class="fa fa-info-circle" style="cursor: help; font-size: small; color: rgb(60, 141, 188);" <label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="If update is kept restricted for this release, product users need to update their versions upto this release first before updating to further releases.">
-                        </label></i>
-
-                    {!! Form::label('is_restricted','Restrict update') !!}
-                    {!! Form::checkbox('is_restricted',1) !!}
-                     </div>
-
-
-        
-
-
+                        <i class="fa fa-info-circle" style="cursor: help; font-size: small; color: rgb(60, 141, 188);">
+                            <label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="If update is kept restricted for this release, product users need to update their versions upto this release first before updating to further releases."></label>
+                        </i>
+                        {!! html()->label('Restrict update')->for('is_restricted') !!}
+                        {!! html()->checkbox('is_restricted', 1) !!}
+                    </div>
                 </div>
 
                 <button type="submit" class="btn btn-primary pull-right"><i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}</button>

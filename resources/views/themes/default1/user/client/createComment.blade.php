@@ -6,11 +6,11 @@
                 <button type="button" class="close" data-dismiss="modal" id="crossclose" aria-label="Close"><span aria-hidden="true">&times;</span></button>
               
             </div>
-            {!! Form::open(['url'=>'comment']) !!} 
+            {!! html()->form('POST', 'comment') !!}
             <div class="modal-body">
                 
                 <div class= "form-group">
-                    {!! Form::label('name',Lang::get('message.comment'),['class'=>'required']) !!}
+                    {!! html()->label(Lang::get('message.comment'))->class('required') !!}
                     <textarea name="description" class="form-control" required="required" rows="6" cols="50"></textarea>
                     <input type="hidden" name="user_id" value="{{$client->id}}"> 
                     <input type="hidden" name="updated_by_user_id" value="{{\Auth::user()->id}}"> 
@@ -20,7 +20,7 @@
                  <button type="button" id="commentclose" class="btn btn-default btn-sm" data-dismiss="modal"><i class="fas fa-times">&nbsp;</i>Close</button>
                 <button type="submit" class="btn btn-primary btn-sm" id="submit"><i class="fas fa-save">&nbsp;</i>{!!Lang::get('Save')!!}</button>
             </div>
-            {!! Form::close() !!}
+            {!! html()->form()->close() !!}
         </div>
     </div>
 </div>

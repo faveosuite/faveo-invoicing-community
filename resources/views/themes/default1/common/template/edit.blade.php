@@ -67,7 +67,7 @@ Edit Templates
 <div class="card card-secondary card-outline">
 
 
-        {!! Form::model($template,['url'=>'template/'.$template->id,'method'=>'patch']) !!}
+    {!! html()->model($template)->patch('template/'.$template->id) !!}
 
 
     <div class="card-body">
@@ -82,24 +82,24 @@ Edit Templates
 
                     <div class="col-md-6 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         <!-- first name -->
-                        {!! Form::label('name',Lang::get('Subject'),['class'=>'required']) !!}
-                        {!! Form::text('name',null,['class' => 'form-control']) !!}
+                        {!! html()->label(Lang::get('Subject'))->class('required') !!}
+                        {!! html()->text('name')->class('form-control') !!}
 
                     </div>
 
                     <div class="col-md-6 form-group {{ $errors->has('type') ? 'has-error' : '' }}">
                         <!-- last name -->
-                        {!! Form::label('type',Lang::get('message.template-types'),['class'=>'required']) !!}
-                        {!! Form::select('type',[''=>'Select','Type'=>$type],null,['class' => 'form-control']) !!}
+                        {!! html()->label(Lang::get('message.template-types'))->class('required') !!}
+                        {!! html()->select('type', ['' => 'Select', 'Type' => $type])->class('form-control') !!}
 
                     </div>
 
                      <div class="col-md-6 form-group {{ $errors->has('reply_to') ? 'has-error' : '' }}">
                         <!-- first name -->
-                        {!! Form::label('reply_to',Lang::get('Reply to')) !!}
-                        {!! Form::text('reply_to',null,['class' => 'form-control']) !!}
+                         {!! html()->label(Lang::get('Reply to')) !!}
+                         {!! html()->text('reply_to')->class('form-control') !!}
 
-                    </div>
+                     </div>
                     
 
                 </div>
@@ -137,8 +137,8 @@ Edit Templates
                       });
                         </script>
 
-                        {!! Form::label('data',Lang::get('message.content'),['class'=>'required']) !!}
-                        {!! Form::textarea('data',null,['class'=>'form-control','id'=>'textarea']) !!}
+                        {!! html()->label(Lang::get('message.content'))->class('required') !!}
+                        {!! html()->textarea('data')->class('form-control')->id('textarea') !!}
 
                     </div>
 
@@ -155,7 +155,7 @@ Edit Templates
 </div>
 
 
-{!! Form::close() !!}
+{!! html()->form()->close() !!}
 <script>
      $('ul.nav-sidebar a').filter(function() {
         return this.id == 'setting';

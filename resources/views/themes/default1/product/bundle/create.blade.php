@@ -3,8 +3,10 @@
 <div class="box box-primary">
 
     <div class="content-header">
-        {!! Form::open(['url'=>'bundles','method'=>'post']) !!}
-        <h4>{{Lang::get('message.bundles')}}	{!! Form::submit(Lang::get('message.save'),['class'=>'form-group btn btn-primary pull-right'])!!}</h4>
+        {!! html()->form('POST', url('bundles'))->open() !!}
+        <h4>{{ Lang::get('message.bundles') }}
+            {!! html()->submit(Lang::get('message.save'))->class('form-group btn btn-primary pull-right') !!}
+        </h4>
 
     </div>
 
@@ -46,24 +48,18 @@
                 <div class="row">
 
                     <div class="col-md-4 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                        <!-- first name -->
-                        {!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}
-                        {!! Form::text('name',null,['class' => 'form-control']) !!}
-
+                        {!! html()->label(Lang::get('message.name'), 'name')->class('required') !!}
+                        {!! html()->text('name')->class('form-control') !!}
                     </div>
 
                     <div class="col-md-4 form-group {{ $errors->has('valid_from') ? 'has-error' : '' }}">
-                        <!-- last name -->
-                        {!! Form::label('valid_from',Lang::get('message.valid-from')) !!}
-                        {!! Form::date('valid_from',\Carbon\Carbon::now(),['class' => 'form-control']) !!}
-
+                        {!! html()->label(Lang::get('message.valid-from'), 'valid_from') !!}
+                        {!! html()->date('valid_from', \Carbon\Carbon::now())->class('form-control') !!}
                     </div>
 
                     <div class="col-md-4 form-group {{ $errors->has('valid_till') ? 'has-error' : '' }}">
-                        <!-- first name -->
-                        {!! Form::label('valid_till',Lang::get('message.valid-till')) !!}
-                        {!! Form::date('valid_till',null,['class' => 'form-control']) !!}
-
+                        {!! html()->label(Lang::get('message.valid-till'), 'valid_till') !!}
+                        {!! html()->date('valid_till')->class('form-control') !!}
                     </div>
 
 
@@ -73,8 +69,10 @@
 
                     <div class="col-md-6 form-group {{ $errors->has('items.0') ? 'has-error' : '' }}">
 
-                        {!! Form::label('items',Lang::get('message.bundle-items'),['class'=>'required']) !!}
-                        {!! Form::select('items[]',[''=>'Select','Products'=>$products],null,['class'=>'form-control','multiple'=>true]) !!}
+                        {!! html()->label(Lang::get('message.bundle-items'), 'items')->class('required') !!}
+                        {!! html()->select('items[]', ['' => 'Select', 'Products' => $products])
+                            ->class('form-control')
+                            ->multiple() !!}
 
                     </div>
 
@@ -84,20 +82,20 @@
 
                             <li>
                                 <div class="form-group {{ $errors->has('allow_promotion') ? 'has-error' : '' }}">
-                                    {!! Form::label('allow_promotion',Lang::get('message.allow-promotion')) !!}
-                                    <p>{!! Form::checkbox('allow_promotion',1) !!}  {{Lang::get('message.tick-to-allow-promotion-codes-to-be-used-in-conjunction-with-this-bundle')}}</p>
+                                    {!! html()->label(Lang::get('message.allow-promotion'), 'allow_promotion') !!}
+                                    <p>{!! html()->checkbox('allow_promotion', 1) !!} {{ Lang::get('message.tick-to-allow-promotion-codes-to-be-used-in-conjunction-with-this-bundle') }}</p>
                                 </div>
                             </li>
 
                             <li>
                                 <div class="row">
                                     <div class="col-md-6 form-group {{ $errors->has('uses') ? 'has-error' : '' }}">
-                                        {!! Form::label('uses',Lang::get('message.uses')) !!}
-                                        {!! Form::text('uses',null,['class'=>'form-control']) !!}
+                                        {!! html()->label(Lang::get('message.uses'), 'uses') !!}
+                                        {!! html()->text('uses')->class('form-control') !!}
                                     </div>
                                     <div class="col-md-6 form-group {{ $errors->has('maximum_use') ? 'has-error' : '' }}">
-                                        {!! Form::label('maximum_uses',Lang::get('message.maximum-use')) !!}
-                                        {!! Form::text('maximum_uses',null,['class'=>'form-control']) !!}
+                                        {!! html()->label(Lang::get('message.maximum-use'), 'maximum_uses') !!}
+                                        {!! html()->text('maximum_uses')->class('form-control') !!}
                                     </div>
                                 </div>
                             </li>
@@ -119,5 +117,5 @@
 </div>
 
 
-{!! Form::close() !!}
+{!! html()->form()->close() !!}
 @stop

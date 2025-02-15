@@ -22,12 +22,12 @@ Create Invoice
 
     <div class="card-header">
          @if($user!='')
-            {!! Form::open(['url'=>'generate/invoice/'.$user->id,'id'=>'formoid']) !!}
+            {!! html()->openForm('generate/invoice/'.$user->id)->id('formoid') !!}
             <input type="hidden" name="user" value="{{$user->id}}">
             <h5>{{ucfirst($user->first_name)}} {{ucfirst($user->last_name)}}, ({{$user->email}}) </h5>
-            @else 
-            {!! Form::open(['url'=>'generate/invoice','id'=>'formoid']) !!}
-            @endif
+            @else
+            {!! html()->openForm('generate/invoice')->id('formoid') !!}
+        @endif
         <div id="error">
         </div>
         <div id="successs">
@@ -50,26 +50,31 @@ Create Invoice
                     </style>
 
                 <div class="col-sm-4 form-group">
-                    {!! Form::label('user',Lang::get('message.clients'),['class'=>'required']) !!}
-                     {!! Form::select('user', [Lang::get('User')=>$users],null,['multiple'=>true,'class'=>"form-control select2" ,'id'=>"users"]) !!}
-                 
+                    {!! html()->label(Lang::get('message.clients'))->class('required') !!}
+
+                    {!! html()->select('user')
+                        ->options([Lang::get('User') => $users])
+                        ->multiple()
+                        ->class('form-control select2')
+                        ->id('users') !!}
+
                 </div>
                 @endif
                 <div class="col-md-4 lg-4 form-group {{ $errors->has('invoice_status') ? 'has-error' : '' }}">
                             <!-- first name -->
-                            {!! Form::label('date',Lang::get('message.date'),['class'=>'required']) !!}
-                           
-                         <div class="input-group date" id="invoice_date" data-target-input="nearest">
-                            {!! Form::text('date',null,['class' => 'form-control','id'=>'datepicker','autocomplete'=>'off']) !!}
-                            <div class="input-group-append" data-target="#invoice_date" data-toggle="datetimepicker">
+                    {!! html()->label(Lang::get('message.date'))->class('required') !!}
+
+                    <div class="input-group date" id="invoice_date" data-target-input="nearest">
+                        {!! html()->text('date')->class('form-control')->id('datepicker')->attribute('autocomplete', 'off') !!}
+                        <div class="input-group-append" data-target="#invoice_date" data-toggle="datetimepicker">
                                     <div class="input-group-text"><i class="fa fa-calendar"></i></div>                           
                             </div>
                         </div>
                     </div>
 
                 <div class="col-md-4 lg-4 form-group">
-                    {!! Form::label('product',Lang::get('message.product'),['class'=>'required']) !!}
-                     <select name="product" value= "Choose" id="product" class="form-control">
+                    {!! html()->label(Lang::get('message.product'))->for('product')->class('required') !!}
+                    <select name="product" value= "Choose" id="product" class="form-control">
                              <option value="">Choose</option>
                            @foreach($products as $key=>$product)
                               <option value={{$key}}>{{$product}}</option>
@@ -81,13 +86,17 @@ Create Invoice
                 </div>
 
                 <div class="col-md-4 form-group">
-                    {!! Form::label('price',Lang::get('message.price'),['class'=>'required']) !!}
-                    {!! Form::text('price',null,['class'=>'form-control','id'=>'price']) !!}
-                      <h6 id ="pricecheck"></h6>
+                    {!! html()->label(Lang::get('message.price'))->for('price')->class('required') !!}
+
+                    {!! html()->text('price')
+                        ->class('form-control')
+                        ->id('price') !!}
+                    <h6 id ="pricecheck"></h6>
                 </div>
                 <div class="col-md-4 form-group">
-                    {!! Form::label('code','Coupon code') !!}
-                    {!! Form::text('code',null,['class'=>'form-control']) !!}
+                    {!! html()->label('Coupon code')->for('code') !!}
+
+                    {!! html()->text('code')->class('form-control') !!}
                 </div>
 
                     <div id="agents" class="col-md-4">
@@ -104,14 +113,14 @@ Create Invoice
 
 
                 <!-- <div class="col-md-6 form-group">
-                    {!! Form::label('send_mail',Lang::get('message.send-mail')) !!}
-                    <p>{!! Form::checkbox('client',1) !!} To Client&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{!! Form::checkbox('agent',1) !!} To Agent</p>
+                    {!! html()->label(Lang::get('message.send-mail'))->for('send_mail') !!}
+                    <p>{!! html()->checkbox('client', false, 1) !!}To Client&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{!! html()->checkbox('agent', false, 1) !!}To Agent</p>
                 </div> -->
             </div>
             <br>
              <h4> <button name="generate" type="submit" id="generate" class="btn btn-primary pull-right" ><i class="fas fa-sync-alt">&nbsp;</i>{!!Lang::get('message.generate')!!}</button></h4>
              
-            {!! Form::close() !!}
+            {!! html()->form()->close() !!}
 
         </div>
     </div>

@@ -120,52 +120,48 @@
                                 </td>
 
                                 <td class="col-md-4 licenseEmptyField">
-                                    {!! Form::label('lic_api_secret',Lang::get('message.lic_api_secret')) !!}
-                                    {!! Form::text('license_api',null,['class' => 'form-control secretHide','disabled'=>'disabled'
-                                    ]) !!}
+                                    {!! html()->label(Lang::get('message.lic_api_secret')) !!}
+                                    {!! html()->text('license_api')->class('form-control secretHide')->attribute('disabled', 'disabled') !!}
 
-                                    <!-- last name -->
-                                    {!! Form::label('lic_api_url',Lang::get('message.lic_api_url')) !!} :
-                                    {!! Form::text('license_api',null,['class' => 'form-control urlHide','disabled'=>'disabled']) !!}
+                                    {!! html()->label(Lang::get('message.lic_api_url')) !!}
+                                    {!! html()->text('license_api')->class('form-control urlHide')->attribute('disabled', 'disabled') !!}
 
-                                    {!! Form::label('lic_client_id',Lang::get('message.lic_client_id')) !!} :
-                                    {!! Form::text('license_client_id',null,['class' => 'form-control urlHide','disabled'=>'disabled']) !!}
+                                    {!! html()->label(Lang::get('message.lic_client_id')) !!}
+                                    {!! html()->text('license_client_id')->class('form-control urlHide')->attribute('disabled', 'disabled') !!}
 
-                                    {!! Form::label('lic_client_secret',Lang::get('message.lic_client_secret')) !!} :
-                                    {!! Form::text('license_client_secret',null,['class' => 'form-control urlHide','disabled'=>'disabled']) !!}
+                                    {!! html()->label(Lang::get('message.lic_client_secret')) !!}
+                                    {!! html()->text('license_client_secret')->class('form-control urlHide')->attribute('disabled', 'disabled') !!}
 
-                                    {!! Form::label('lic_grant_type',Lang::get('message.lic_grant_type')) !!} :
-                                    {!! Form::text('license_grant_type',null,['class' => 'form-control urlHide','disabled'=>'disabled']) !!}
+                                    {!! html()->label(Lang::get('message.lic_grant_type')) !!}
+                                    {!! html()->text('license_grant_type')->class('form-control urlHide')->attribute('disabled', 'disabled') !!}
 
                                 </td>
                                 <td class="col-md-4 LicenseField hide">
 
 
                                     <!-- last name -->
-                                    {!! Form::label('lic_api_secret',Lang::get('message.lic_api_secret')) !!}
-                                    {!! Form::text('license_api_secret',$licenseSecret,['class' => 'form-control','id'=>'license_api_secret']) !!}
+                                    {!! html()->label(Lang::get('message.lic_api_secret')) !!}
+                                    {!! html()->text('license_api_secret', $licenseSecret)->class('form-control')->id('license_api_secret') !!}
                                     <h6 id="license_apiCheck"></h6>
                                     <br/>
 
-                                    <!-- last name -->
-                                    {!! Form::label('lic_api_url',Lang::get('message.lic_api_url')) !!} :
-                                    {!! Form::text('license_api_url',$licenseUrl,['class' => 'form-control','id'=>'license_api_url']) !!}
+                                    {!! html()->label(Lang::get('message.lic_api_url')) !!}
+                                    {!! html()->text('license_api_url', $licenseUrl)->class('form-control')->id('license_api_url') !!}
                                     <h6 id="license_urlCheck"></h6>
                                     <br/>
 
-                                    {!! Form::label('lic_client_id',Lang::get('message.lic_client_id')) !!} :
-                                    {!! Form::text('license_client_id',$licenseClientId,['class' => 'form-control','id'=>'license_client_id']) !!}
+                                    {!! html()->label(Lang::get('message.lic_client_id')) !!}
+                                    {!! html()->text('license_client_id', $licenseClientId)->class('form-control')->id('license_client_id') !!}
                                     <h6 id="license_clientIdCheck"></h6>
                                     <br/>
 
-                                    {!! Form::label('lic_client_secret',Lang::get('message.lic_client_secret')) !!} :
-                                    {!! Form::text('license_client_secret',$licenseClientSecret,['class' => 'form-control','id'=>'license_client_secret']) !!}
+                                    {!! html()->label(Lang::get('message.lic_client_secret')) !!}
+                                    {!! html()->text('license_client_secret', $licenseClientSecret)->class('form-control')->id('license_client_secret') !!}
                                     <h6 id="license_clientSecretCheck"></h6>
                                     <br/>
 
-
-                                    {!! Form::label('lic_grant_type',Lang::get('message.lic_grant_type')) !!} :
-                                    {!! Form::text('license_grant_type',$licenseGrantType,['class' => 'form-control','id'=>'license_grant_type']) !!}
+                                    {!! html()->label(Lang::get('message.lic_grant_type')) !!}
+                                    {!! html()->text('license_grant_type', $licenseGrantType)->class('form-control')->id('license_grant_type') !!}
                                     <h6 id="license_grantTypeCheck"></h6>
 
 
@@ -211,28 +207,28 @@
                   </td>
 
                   <td class="col-md-4 updateEmptyField">
-                  {!! Form::label('update_api_secret',Lang::get('message.lic_api_secret')) !!}
-                            {!! Form::text('update_api',null,['class' => 'form-control updatesecretHide','disabled'=>'disabled']) !!}-->
+                  {!! html()->label(Lang::get('message.lic_api_secret')) !!}
+                            {!! html()->text('update_api')->class('form-control updatesecretHide')->attribute('disabled', 'disabled') !!}-->
 
 
 
                             <!-- last name -->
-                            <!-- {!! Form::label('update_api_url',Lang::get('message.lic_api_url')) !!} :
-                        {!! Form::text('update_api',null,['class' => 'form-control updateurlHide','disabled'=>'disabled']) !!}
+                            <!-- {!! html()->label(Lang::get('message.lic_api_url')) !!}
+                            {!! html()->text('update_api_url')->class('form-control updateurlHide')->attribute('disabled', 'disabled') !!}
 
                             </td>
                             <td class="col-md-4 updateField hide">-->
 
 
                             <!-- last name -->
-                            <!--{!! Form::label('update_api_secret',Lang::get('message.lic_api_secret')) !!}
-                            {!! Form::text('update_api_secret',$updateSecret,['class' => 'form-control','id'=>'update_api_secret']) !!}
+                            <!--{!! html()->label(__('message.lic_api_secret'), 'update_api_secret') !!}
+                            {!! html()->text('update_api_secret', $updateSecret)->class('form-control')->id('update_api_secret') !!}
                             <h6 id="update_apiCheck"></h6>
                             <br/>-->
 
                             <!-- last name -->
-                            <!--{!! Form::label('update_api_url',Lang::get('message.lic_api_url')) !!} :
-                        {!! Form::text('update_api_url',$updateUrl,['class' => 'form-control','id'=>'update_api_url']) !!}
+                            <!--{!! html()->label(__('message.lic_api_url'), 'update_api_url') !!} :
+{!! html()->text('update_api_url', $updateUrl)->class('form-control')->id('update_api_url') !!}
                             <h6 id="update_urlCheck"></h6>
 
                    </td>
@@ -254,14 +250,12 @@
                                 </td>
 
                                 <td class="col-md-4 captchaEmptyField">
-                                    {!! Form::label('nocaptcha_secret',Lang::get('message.nocaptcha_secret')) !!}
-                                    {!! Form::text('nocaptcha_secret1',null,['class' => 'form-control nocapsecretHide','disabled'=>'disabled']) !!}
+                                    {!! html()->label(__('message.nocaptcha_secret'), 'nocaptcha_secret') !!}
+                                    {!! html()->text('nocaptcha_secret1')->class('form-control nocapsecretHide')->attribute('disabled', 'disabled') !!}
                                     <h6 id=""></h6>
 
-
-                                    <!-- last name -->
-                                    {!! Form::label('nocaptcha_sitekey',Lang::get('message.nocaptcha_sitekey')) !!} :
-                                    {!! Form::text('nocaptcha_sitekey1',null,['class' => 'form-control siteKeyHide','disabled'=>'disabled']) !!}
+                                    {!! html()->label(__('message.nocaptcha_sitekey'), 'nocaptcha_sitekey') !!} :
+                                    {!! html()->text('nocaptcha_sitekey1')->class('form-control siteKeyHide')->attribute('disabled', 'disabled') !!}
                                     <h6 id=""></h6>
                                 </td>
                                 <td class="col-md-4 captchaField hide">
@@ -277,13 +271,12 @@
                                     </div>
 
                                     <!-- last name -->
-                                    {!! Form::label('nocaptcha_sitekey',Lang::get('message.nocaptcha_sitekey')) !!}
-                                    {!! Form::text('nocaptcha_sitekey',$siteKey,['class' => 'form-control','id'=>'nocaptcha_sitekey']) !!}
+                                    {!! html()->label(__('message.nocaptcha_sitekey'), 'nocaptcha_sitekey') !!}
+                                    {!! html()->text('nocaptcha_sitekey', $siteKey)->class('form-control')->id('nocaptcha_sitekey') !!}
                                     <h6 id="captcha_sitekeyCheck"></h6>
 
-                                    <!-- last name -->
-                                    {!! Form::label('nocaptcha_secret',Lang::get('message.nocaptcha_secret')) !!}
-                                    {!! Form::text('nocaptcha_secret',$secretKey,['class' => 'form-control','id'=>'nocaptcha_secret']) !!}
+                                    {!! html()->label(__('message.nocaptcha_secret'), 'nocaptcha_secret') !!}
+                                    {!! html()->text('nocaptcha_secret', $secretKey)->class('form-control')->id('nocaptcha_secret') !!}
                                     <h6 id="captcha_secretCheck"></h6>
                                     <br/>
 
@@ -306,18 +299,19 @@
 
                                     <input type ="hidden" id="hiddenMobValue" value="{{$mobileauthkey}}">
                                     <!-- last name -->
-                                    {!! Form::label('mobile',Lang::get('message.msg91_key')) !!}
-                                    {!! Form::text('msg91_auth_key',$mobileauthkey,['class' => 'form-control mobile_authkey','id'=>'mobile_authkey']) !!}
+                                    {!! html()->label(__('message.msg91_key'), 'msg91_auth_key') !!}
+                                    {!! html()->text('msg91_auth_key', $mobileauthkey)->class('form-control mobile_authkey')->id('mobile_authkey') !!}
                                     <h6 id="mobile_check"></h6>
                                     <br/>
-                                    <input type ="hidden" id="hiddenSender" value="{{$msg91Sender}}">
-                                    {!! Form::label('mobile',Lang::get('message.msg91_sender')) !!}
-                                    {!! Form::text('msg91_sender',$msg91Sender,['class' => 'form-control sender','id'=>'sender']) !!}
+
+                                    {!! html()->hidden('hiddenSender', $msg91Sender)->id('hiddenSender') !!}
+                                    {!! html()->label(__('message.msg91_sender'), 'msg91_sender') !!}
+                                    {!! html()->text('msg91_sender', $msg91Sender)->class('form-control sender')->id('sender') !!}
                                     <h6 id="sender_check"></h6>
 
-                                    <input type ="hidden" id="hiddenTemplate" value="{{$msg91TemplateId}}">
-                                    {!! Form::label('mobile',Lang::get('message.msg91_template_id')) !!}
-                                    {!! Form::text('msg91_template_id',$msg91TemplateId,['class' => 'form-control template_id','id'=>'template_id']) !!}
+                                    {!! html()->hidden('hiddenTemplate', $msg91TemplateId)->id('hiddenTemplate') !!}
+                                    {!! html()->label(__('message.msg91_template_id'), 'msg91_template_id') !!}
+                                    {!! html()->text('msg91_template_id', $msg91TemplateId)->class('form-control template_id')->id('template_id') !!}
                                     <h6 id="template_check"></h6>
                                 </td>
                                 <td class="col-md-2"><button type="submit" class="form-group btn btn-primary"  id="submit3"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button></td>
@@ -340,8 +334,8 @@
 
                                     <input type ="hidden" id="hiddenMailChimpValue" value="{{$mailchimpKey}}">
                                     <!-- last name -->
-                                    {!! Form::label('mailchimp',Lang::get('message.mailchimp_key')) !!}
-                                    {!! Form::text('mailchimp',$mailchimpKey,['class' => 'form-control mailchimp_authkey','id'=>'mailchimp_authkey']) !!}
+                                    {!! html()->label(__('message.mailchimp_key'), 'mailchimp') !!}
+                                    {!! html()->text('mailchimp', $mailchimpKey)->class('form-control mailchimp_authkey')->id('mailchimp_authkey') !!}
                                     <h6 id="mailchimp_check"></h6>
                                     <br/>
 
@@ -366,8 +360,8 @@
 
                                     <input type ="hidden" id="hiddenTermsValue" value="{{$termsUrl}}">
                                     <!-- last name -->
-                                    {!! Form::label('terms',Lang::get('message.terms_url')) !!}
-                                    {!! Form::text('terms',$termsUrl,['class' => 'form-control terms_url','id'=>'terms_url']) !!}
+                                    {!! html()->label(__('message.terms_url'), 'terms') !!}
+                                    {!! html()->text('terms', $termsUrl)->class('form-control terms_url')->id('terms_url') !!}
                                     <h6 id="terms_check"></h6>
                                     <br/>
 
@@ -420,26 +414,20 @@
                                     <input type ="hidden" id="hidden_consumer_secret" value="{{$twitterKeys->twitter_consumer_secret}}">
                                     <input type ="hidden" id="hidden_access_token" value="{{$twitterKeys->twitter_access_token}}">
                                     <input type ="hidden" id="hidden_token_secret" value="{{$twitterKeys->access_tooken_secret}}">
-                                    {!! Form::label('consumer_key',Lang::get('message.consumer_key')) !!}
-                                    {!! Form::text('consumer_key',$twitterKeys->twitter_consumer_key,['class' => 'form-control consumer_key','id'=>'consumer_key']) !!}
+                                    {!! html()->label(__('message.consumer_key'), 'consumer_key') !!}
+                                    {!! html()->text('consumer_key', $twitterKeys->twitter_consumer_key)->class('form-control consumer_key')->id('consumer_key') !!}
                                     <h6 id="consumer_keycheck"></h6>
 
-
-                                    <!-- last name -->
-                                    {!! Form::label('consumer_secret',Lang::get('message.consumer_secret')) !!}
-                                    {!! Form::text('consumer_secret',$twitterKeys->twitter_consumer_secret,['class' => 'form-control consumer_secret','id'=>'consumer_secret']) !!}
+                                    {!! html()->label(__('message.consumer_secret'), 'consumer_secret') !!}
+                                    {!! html()->text('consumer_secret', $twitterKeys->twitter_consumer_secret)->class('form-control consumer_secret')->id('consumer_secret') !!}
                                     <h6 id="consumer_secretcheck"></h6>
 
-
-
-                                    {!! Form::label('access_token',Lang::get('message.access_token')) !!}
-                                    {!! Form::text('access_token',$twitterKeys->twitter_access_token,['class' => 'form-control access_token','id'=>'access_token']) !!}
+                                    {!! html()->label(__('message.access_token'), 'access_token') !!}
+                                    {!! html()->text('access_token', $twitterKeys->twitter_access_token)->class('form-control access_token')->id('access_token') !!}
                                     <h6 id="access_tokencheck"></h6>
 
-
-
-                                    {!! Form::label('token_secret',Lang::get('message.token_secret')) !!}
-                                    {!! Form::text('token_secret',$twitterKeys->access_tooken_secret,['class' => 'form-control token_secret','id'=>'token_secret']) !!}
+                                    {!! html()->label(__('message.token_secret'), 'token_secret') !!}
+                                    {!! html()->text('token_secret', $twitterKeys->access_tooken_secret)->class('form-control token_secret')->id('token_secret') !!}
                                     <h6 id="token_secretcheck"></h6>
 
 
@@ -464,8 +452,8 @@
 
                                     <input type ="hidden" id="hidden_zoho_key" value="{{$zohoKey}}">
                                     <!-- last name -->
-                                    {!! Form::label('zoho_key',Lang::get('message.zoho_crm')) !!}
-                                    {!! Form::text('zoho_key',$zohoKey,['class' => 'form-control zoho_key','id'=>'zoho_key']) !!}
+                                    {!! html()->label(__('message.zoho_crm'), 'zoho_key') !!}
+                                    {!! html()->text('zoho_key', $zohoKey)->class('form-control zoho_key')->id('zoho_key') !!}
                                     <h6 id="zoho_keycheck"></h6>
                                     <br/>
 
@@ -490,8 +478,8 @@
 
                                     <input type ="hidden" id="hidden_pipedrive_key" value="{{$pipedriveKey}}">
                                     <!-- last name -->
-                                    {!! Form::label('pipedrive_key',Lang::get('message.pipedrive_key')) !!}
-                                    {!! Form::text('pipedrive_key',$pipedriveKey,['class' => 'form-control pipedrive_key','id'=>'pipedrive_key']) !!}
+                                    {!! html()->label(__('message.pipedrive_key'), 'pipedrive_key') !!}
+                                    {!! html()->text('pipedrive_key', $pipedriveKey)->class('form-control pipedrive_key')->id('pipedrive_key') !!}
                                     <h6 id="pipedrive_keycheck"></h6>
                                     <br/>
 
@@ -512,7 +500,7 @@
     </div>
 
 
-    {!! Form::close() !!}
+    {!! html()->form()->close() !!}
     <script>
         $('ul.nav-sidebar a').filter(function() {
             return this.id == 'setting';

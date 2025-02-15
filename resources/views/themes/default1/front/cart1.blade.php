@@ -172,7 +172,7 @@ if (count($attributes) > 0) {
                                 </tbody>
                             </table>
                             <div class="row">
-                                {!! Form::open(['url'=>'pricing/update','method'=>'post']) !!}
+                                {!! html()->form('POST', 'pricing/update') !!}
                                 <div class="form-group col-md-8">
 
                                     <label for="coupon"><b>{{Lang::get('message.coupon-code')}}</b></label>
@@ -182,7 +182,7 @@ if (count($attributes) > 0) {
                                 <div class="form-group col-md-4-5">
                                     <input type="submit" value="Update">
                                 </div>
-                                {!! Form::close() !!}
+                                {!! html()->form()->close() !!}
                             </div>
                         </div>
                         <div class=" col-md-6"><br><br><br><br>

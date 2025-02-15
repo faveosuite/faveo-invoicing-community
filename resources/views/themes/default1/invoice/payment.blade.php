@@ -46,9 +46,9 @@ Generate Payment
                     {{Session::get('fails')}}
                 </div>
                 @endif
-        {!! Form::open(['url'=>'payment/receive/'.$invoice_id,'method'=>'post']) !!}
+            {!! html()->form('post', 'payment/receive/' . $invoice_id)->open() !!}
 
-        <h4>{{Lang::get('message.payment')}}  (Invoice Number: {{$invoice->number}})	 <button type="submit" class="form-group btn btn-primary pull-right" id="submit"><i class="fa fa-floppy-o">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button></h4>
+            <h4>{{Lang::get('message.payment')}}  (Invoice Number: {{$invoice->number}})	 <button type="submit" class="form-group btn btn-primary pull-right" id="submit"><i class="fa fa-floppy-o">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button></h4>
 
     </div>
 
@@ -63,28 +63,30 @@ Generate Payment
                 <div class="row">
 
                     <div class="col-md-4 form-group {{ $errors->has('invoice_status') ? 'has-error' : '' }}">
-                        <!-- first name -->
-                        {!! Form::label('payment_date',Lang::get('message.date-of-payment'),['class'=>'required']) !!}
-                        {!! Form::text('payment_date',null,['class' => 'form-control']) !!}
-
+                        <!-- payment date -->
+                        {!! html()->label(Lang::get('message.date-of-payment'), 'payment_date')->class('required') !!}
+                        {!! html()->text('payment_date', null)->class('form-control') !!}
                     </div>
 
                     <div class="col-md-4 form-group {{ $errors->has('payment_method') ? 'has-error' : '' }}">
-                        <!-- last name -->
-                        {!! Form::label('payment_method',Lang::get('message.payment-method')) !!}
-                        {!! Form::select('payment_method',[''=>'Choose','cash'=>'Cash','check'=>'Check','online payment'=>'Online Payment','razorpay'=>'Razorpay'],$payment_method,['class' => 'form-control']) !!}
-
+                        <!-- payment method -->
+                        {!! html()->label(Lang::get('message.payment-method'), 'payment_method') !!}
+                        {!! html()->select('payment_method', [
+                            '' => 'Choose',
+                            'cash' => 'Cash',
+                            'check' => 'Check',
+                            'online payment' => 'Online Payment',
+                            'razorpay' => 'Razorpay',
+                        ], $payment_method)->class('form-control') !!}
                     </div>
 
-                    
                     <div class="col-md-4 form-group {{ $errors->has('amount') ? 'has-error' : '' }}">
-                        <!-- first name -->
-                        {!! Form::label('amount',Lang::get('message.amount')) !!}
-                        {!! Form::text('amount',null,['class' => 'form-control']) !!}
-
+                        <!-- amount -->
+                        {!! html()->label(Lang::get('message.amount'), 'amount') !!}
+                        {!! html()->text('amount', null)->class('form-control') !!}
                     </div>
 
-                    
+
 
 
                 </div>
@@ -99,7 +101,7 @@ Generate Payment
 </div>
 
 
-{!! Form::close() !!}
+{!! html()->form()->close() !!}
 @stop
 @section('datepicker')
 <script type="text/javascript">

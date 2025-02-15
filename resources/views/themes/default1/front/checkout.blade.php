@@ -219,7 +219,7 @@ $cartSubtotalWithoutCondition = 0;
 
 
                                 <div class="col-md-auto px-0 mb-3 mb-md-0">
-                                    {!! Form::open(['url'=>'pricing/update','method'=>'post']) !!}
+                                    {!! html()->form('POST', 'pricing/update') !!}
 
                                     <div class="d-flex align-items-center">
 
@@ -227,7 +227,7 @@ $cartSubtotalWithoutCondition = 0;
 
                                         <button type="submit" class="btn btn-light btn-modern text-color-dark bg-color-light-scale-2 text-color-hover-light bg-color-hover-dark text-uppercase text-3 font-weight-bold border-0 ws-nowrap btn-px-4 py-3 ms-2">Apply</button>
                                     </div>
-                                    {!! Form::close() !!}
+                                    {!! html()->form()->close() !!}
                                 </div>
                         </td>
                     </tr>
@@ -409,9 +409,9 @@ $cartSubtotalWithoutCondition = 0;
                                             </span></strong>
                                         </td>
                                     </tr>
-                                {!! Form::open(['url'=>'checkout-and-pay','method'=>'post','id' => 'checkoutsubmitform' ]) !!}
-                                
-                                 @if(\Session::has('priceRemaining'))
+                                    {!! html()->form('POST', 'checkout-and-pay')->id('checkoutsubmitform') !!}
+
+                                    @if(\Session::has('priceRemaining'))
                                     <tr>
                                         <td class="border-top-0">
                                         <strong class="d-block text-color-dark line-height-1 font-weight-semibold">
@@ -485,7 +485,10 @@ $cartSubtotalWithoutCondition = 0;
 
                                                 <label class="align-items-center text-color-grey mb-0" for="payment_method1">
 
-                                                    {!! Form::radio('payment_gateway',$gateway,false,['id'=>'allow_gateway','onchange' => 'getGateway(this)','processfee'=>$processingFee]) !!}
+                                                    {!! html()->radio('payment_gateway', false, $gateway)
+     ->id('allow_gateway')
+     ->attribute('onchange', 'getGateway(this)')
+     ->attribute('processfee', $processingFee) !!}
 
                                                     <img alt="{{$gateway}}" width="111" src="{{asset('images/logo/'.$gateway.'.png')}}">
 
@@ -505,7 +508,7 @@ $cartSubtotalWithoutCondition = 0;
                             </div>
                             <button type="submit" id="proceed" class="btn btn-dark btn-modern w-100 text-uppercase text-3 py-3">Proceed <i class="fas fa-arrow-right ms-2"></i></button>
                      
-                             {!! Form::close() !!}
+                             {!! html()->form()->close() !!}
 
 
                         </div>

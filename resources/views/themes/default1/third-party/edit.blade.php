@@ -6,17 +6,17 @@
               
             </div>
 
-           {!! Form::open(['method' => 'patch','id' =>  'app-edit-form'])!!}
+            {!! html()->form('PATCH', null)->id('app-edit-form') !!}
             <div class="modal-body">
                 
                 <div class= "form-group">
-                    {!! Form::label('name','App name',['class'=>'required']) !!}
+                    {!! html()->label(Lang::get('App name'))->class('required') !!}
                     <input type="text" name="app_name" id="name" class="form-control app-name">
                     <span class="appnamecheck"></span>
                 </div>
                  <div class= "form-group">
-                    {!! Form::label('key','App key',['class'=>'required']) !!}
-                    <div class="row">
+                     {!! html()->label(Lang::get('App key'))->for('key')->class('required') !!}
+                     <div class="row">
                      <div class="col-md-8">
                     
                     <input type="text" name="app_key" id="key" class="form-control app-key" required='required' readonly>
@@ -28,8 +28,8 @@
                     </div>
                 </div>
                  <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                      {!! Form::label('name','App Secret',['class'=>'required']) !!}
-                    <div class="row">
+                     {!! html()->label(Lang::get('App Secret'))->for('name')->class('required') !!}
+                     <div class="row">
                      <div class="col-md-12">
                     <input type="text" name="app_secret" id="secret" class="form-control" required='required'>
                     <span class="appkeycheck"></span>
@@ -42,7 +42,7 @@
                  <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
                 <button type="submit" class="btn btn-primary" id="submit" data-loading-text="<i class='fa fa-save'>&nbsp;</i> Saving..."><i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}</button>
             </div>
-            {!! Form::close() !!}
+            {!! html()->form()->close() !!}
         </div>
     </div>
 </div>

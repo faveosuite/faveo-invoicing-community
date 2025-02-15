@@ -22,11 +22,11 @@ Demo Page Settings
     </div>
 
     <div class="card-body">
-        {!! Form::open(['url' => 'save/demo', 'method' => 'POST']) !!}
+        {!! html()->form('POST', url('save/demo')) !!}
         <div class="row">
                        <div class="col-md-4">
                 <div class="form-group">
-                    {!! Form::label('Demopage',Lang::get('Enable/Disable')) . ' <span class="required"></span>' !!}
+                    {!! html()->label(Lang::get('Enable/Disable'))->for('Demopage')->rawAppend(' <span class="required"></span>') !!}
                     <div class="row">
                         <div class="col-sm-3">
                             <input type="radio" name="status" value="true"  @if($Demo_page->status == true) checked="true" @endif > {{Lang::get('Enable')}}
@@ -42,7 +42,7 @@ Demo Page Settings
         <div class="text-center">
             <button type="submit" class="btn btn-primary float-left">Save</button>
         </div>
-        {!! Form::close() !!}
+        {!! html()->form()->close() !!}
     </div>
 </div>
 

@@ -32,8 +32,8 @@ Create Order
             {{Session::get('fails')}}
         </div>
         @endif
-        {!! Form::open(['url'=>'orders','method'=>'post']) !!}
-        <h4>{{Lang::get('message.orders')}}	{!! Form::submit(Lang::get('message.save'),['class'=>'form-group btn btn-primary pull-right'])!!}</h4>
+            {!! html()->form('POST', 'orders')->open() !!}
+            <h4>{{Lang::get('message.orders')}}	{!! html()->submit(Lang::get('message.save'))->class('form-group btn btn-primary pull-right') !!}</h4>
 
     </div>
 
@@ -48,31 +48,23 @@ Create Order
                 <div class="row">
 
                     <div class="col-md-3 form-group {{ $errors->has('client') ? 'has-error' : '' }}">
-                        <!-- first name -->
-                        {!! Form::label('client',Lang::get('message.client'),['class'=>'required']) !!}
-                        {!! Form::select('client',[''=>'Select','Clients'=>$clients],null,['class' => 'form-control']) !!}
-
+                        {!! html()->label(Lang::get('message.client'), 'client')->class('required') !!}
+                        {!! html()->select('client', ['' => 'Select'] + $clients)->class('form-control') !!}
                     </div>
 
                     <div class="col-md-3 form-group {{ $errors->has('payment_method') ? 'has-error' : '' }}">
-                        <!-- last name -->
-                        {!! Form::label('payment_method',Lang::get('message.payment-method')) !!}
-                        {!! Form::select('payment_method',['paypal'=>'payapal'],null,['class' => 'form-control']) !!}
-
+                        {!! html()->label(Lang::get('message.payment-method'), 'payment_method') !!}
+                        {!! html()->select('payment_method', ['paypal' => 'PayPal'])->class('form-control') !!}
                     </div>
 
                     <div class="col-md-3 form-group {{ $errors->has('promotion_code') ? 'has-error' : '' }}">
-                        <!-- first name -->
-                        {!! Form::label('promotion_code',Lang::get('message.promotion-code')) !!}
-                        {!! Form::select('promotion_code',[''=>'Select','Promotions'=>$promotion],null,['class' => 'form-control']) !!}
-
+                        {!! html()->label(Lang::get('message.promotion-code'), 'promotion_code') !!}
+                        {!! html()->select('promotion_code', ['' => 'Select'] + $promotion)->class('form-control') !!}
                     </div>
 
                     <div class="col-md-3 form-group {{ $errors->has('order_status') ? 'has-error' : '' }}">
-                        <!-- first name -->
-                        {!! Form::label('order_status',Lang::get('message.order-status')) !!}
-                        {!! Form::select('order_status',['Pending'=>'pending','Active'=>'active'],null,['class' => 'form-control']) !!}
-
+                        {!! html()->label(Lang::get('message.order-status'), 'order_status') !!}
+                        {!! html()->select('order_status', ['Pending' => 'pending', 'Active' => 'active'])->class('form-control') !!}
                     </div>
 
 
@@ -81,18 +73,15 @@ Create Order
                 <div class="row">
 
                     <div class="col-md-4 form-group">
-
-                        <p>{!! Form::checkbox('confirmation',1) !!}  {{Lang::get('message.order-confirmation')}}</p>
+                        <p>{!! html()->checkbox('confirmation', 1) !!} {{ Lang::get('message.order-confirmation') }}</p>
                     </div>
 
                     <div class="col-md-4 form-group {{ $errors->has('invoice') ? 'has-error' : '' }}">
-
-                        <p>{!! Form::checkbox('invoice',1) !!}  {{Lang::get('message.generate-invoice')}}</p>
+                        <p>{!! html()->checkbox('invoice', 1) !!} {{ Lang::get('message.generate-invoice') }}</p>
                     </div>
 
                     <div class="col-md-4 form-group {{ $errors->has('email') ? 'has-error' : '' }}">
-
-                        <p>{!! Form::checkbox('email',1) !!}  {{Lang::get('message.send-email')}}</p>
+                        <p>{!! html()->checkbox('email', 1) !!} {{ Lang::get('message.send-email') }}</p>
                     </div>
 
                 </div>
@@ -100,17 +89,13 @@ Create Order
                 <div class="row">
 
                     <div class="col-md-6 form-group {{ $errors->has('product') ? 'has-error' : '' }}">
-                        <!-- first name -->
-                        {!! Form::label('product',Lang::get('message.product'),['class'=>'required']) !!}
-                        {!! Form::select('product',[''=>'Select','Product'=>$product],null,['class' => 'form-control']) !!}
-
+                        {!! html()->label(Lang::get('message.product'), 'product')->class('required') !!}
+                        {!! html()->select('product', ['' => 'Select'] + $product)->class('form-control') !!}
                     </div>
 
                     <div class="col-md-6 form-group {{ $errors->has('domain') ? 'has-error' : '' }}">
-                        <!-- last name -->
-                        {!! Form::label('domain',Lang::get('message.domain')) !!}
-                        {!! Form::text('domain',null,['class' => 'form-control']) !!}
-
+                        {!! html()->label(Lang::get('message.domain'), 'domain') !!}
+                        {!! html()->text('domain', null)->class('form-control') !!}
                     </div>
 
                 </div>
@@ -118,24 +103,18 @@ Create Order
                 <div class="row">
 
                     <div class="col-md-4 form-group {{ $errors->has('subscription') ? 'has-error' : '' }}">
-                        <!-- first name -->
-                        {!! Form::label('subscription',Lang::get('message.subscription')) !!}
-                        {!! Form::select('subscription',[''=>'Select','Subscription'=>$subscription],null,['class' => 'form-control']) !!}
-
+                        {!! html()->label(Lang::get('message.subscription'), 'subscription') !!}
+                        {!! html()->select('subscription', ['' => 'Select'] + $subscription)->class('form-control') !!}
                     </div>
 
                     <div class="col-md-4 form-group {{ $errors->has('price_override') ? 'has-error' : '' }}">
-                        <!-- first name -->
-                        {!! Form::label('price_override',Lang::get('message.price-override')) !!}
-                        {!! Form::text('price_override',null,['class' => 'form-control']) !!}
-
+                        {!! html()->label(Lang::get('message.price-override'), 'price_override') !!}
+                        {!! html()->text('price_override')->class('form-control') !!}
                     </div>
 
                     <div class="col-md-4 form-group {{ $errors->has('qty') ? 'has-error' : '' }}">
-                        <!-- first name -->
-                        {!! Form::label('qty',Lang::get('message.quantity')) !!}
-                        {!! Form::text('qty',null,['class' => 'form-control']) !!}
-
+                        {!! html()->label(Lang::get('message.quantity'), 'qty') !!}
+                        {!! html()->text('qty')->class('form-control') !!}
                     </div>
 
 
@@ -150,5 +129,5 @@ Create Order
 </div>
 
 
-{!! Form::close() !!}
+{!! html()->form()->close() !!}
 @stop

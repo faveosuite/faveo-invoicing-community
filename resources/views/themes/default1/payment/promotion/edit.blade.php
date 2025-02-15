@@ -27,7 +27,7 @@ Edit Coupon
                         
 
             <div class="card-body table-responsive">
-                {!! Form::model($promotion,['url'=>'promotions/'.$promotion->id,'method'=>'patch']) !!}
+                {!! html()->modelForm($promotion, 'PATCH', url('promotions/' . $promotion->id)) !!}
 
 
 
@@ -38,13 +38,13 @@ Edit Coupon
 
                     <tr>
 
-                        <td><b>{!! Form::label('code',Lang::get('message.code'),['class'=>'required']) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.code'), 'code')->class('required') !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('code') ? 'has-error' : '' }}">
 
                                 <div class='row'>
                                     <div class="col-md-6">
-                                        {!! Form::text('code',null,['class' => 'form-control','id'=>'code']) !!}
+                                        {!! html()->text('code')->class('form-control')->id('code') !!}
                                     </div>
                                     <div class="col-md-6">
                                         <a href="#" class="btn btn-primary" onclick="getCode();"><i class="fa fa-refresh"></i>&nbsp;Generate Code</a>
@@ -58,12 +58,12 @@ Edit Coupon
                     </tr>
                     <tr>
 
-                        <td><b>{!! Form::label('type',Lang::get('message.type'),['class'=>'required']) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.type'), 'type')->class('required') !!}</b></td>
                         <td>
                             <div class="form-group col-lg-6 {{ $errors->has('type') ? 'has-error' : '' }}">
 
 
-                                {!! Form::select('type',[''=>'Select','Types'=>$type],null,['class' => 'form-control']) !!}
+                                {!! html()->select('type', ['' => 'Select', 'Types' => $type])->class('form-control') !!}
 
 
                             </div>
@@ -72,12 +72,12 @@ Edit Coupon
                     </tr>
                     <tr>
 
-                        <td><b>{!! Form::label('value',Lang::get('message.value'),['class'=>'required']) !!}&nbsp;&nbsp;<i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="Enter the discount amount here"></i></b></td>
+                        <td><b>{!! html()->label(Lang::get('message.value'), 'value')->class('required') !!}&nbsp;&nbsp;<i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="Enter the discount amount here"></i></b></td>
                         <td>
                             <div class="form-group col-lg-6 {{ $errors->has('value') ? 'has-error' : '' }}">
 
                                  <?php $valueWithoutPercentage = rtrim($promotion->value, '%'); ?>
-                                {!! Form::text('value',$valueWithoutPercentage,['class' => 'form-control']) !!}
+                                {!! html()->text('value', $valueWithoutPercentage)->class('form-control') !!}
 
 
                             </div>
@@ -86,12 +86,12 @@ Edit Coupon
                     </tr>
                     <tr>
 
-                        <td><b>{!! Form::label('uses',Lang::get('message.uses'),['class'=>'required']) !!}&nbsp;&nbsp;<i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="Enter here how many times that coupon can be used"></i></b></td>
+                        <td><b>{!! html()->label(Lang::get('message.uses'), 'uses')->class('required') !!}&nbsp;&nbsp;<i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="Enter here how many times that coupon can be used"></i></b></td>
                         <td>
                             <div class="form-group col-lg-6{{ $errors->has('uses') ? 'has-error' : '' }}">
 
 
-                                {!! Form::text('uses',null,['class' => 'form-control']) !!}
+                                {!! html()->text('uses')->class('form-control') !!}
 
 
                             </div>
@@ -100,13 +100,18 @@ Edit Coupon
                     </tr>
                     <tr>
 
-                        <td><b>{!! Form::label('applied',Lang::get('message.applied'),['class'=>'required']) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.applied'), 'applied')->class('required') !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('applied') ? 'has-error' : '' }}" style="width: 53%;">
 
-                                 {!! Form::select('applied',[''=>'Choose','Products'=>$product],$selectedProduct,['class' => 'form-control select2','data-live-search'=>'true','data-live-search-placeholder' => 'Search','data-dropup-auto'=>'false','data-size'=>'10','title'=>'Products for which coupon is Applied']) !!}
+                                {!! html()->select('applied', ['' => 'Choose', 'Products' => $product], $selectedProduct)
+   ->class('form-control select2')
+   ->attribute('data-live-search', 'true')
+   ->attribute('data-live-search-placeholder', 'Search')
+   ->attribute('data-dropup-auto', 'false')
+   ->attribute('data-size', '10')
+   ->attribute('title','Products for which coupon is Applied') !!}
 
-                                
 
                             </div>
                         </td>
@@ -114,13 +119,15 @@ Edit Coupon
                     </tr>
                     <tr>    
 
-                        <td><b>{!! Form::label('start',Lang::get('message.start'),['class'=>'required']) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.start'), 'start')->class('required') !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('start') ? 'has-error' : '' }}">
                                 <div class="input-group date" id="startDate" data-target-input="nearest" style="width: 50%;">
-                                     {!! Form::text('start',$startDate,['class' => 'form-control datetimepicker-input','title'=>'Date from which Coupon is Valid','data-target'=>'#startDate']) !!}
+                                    {!! html()->text('start', $startDate)
+   ->class('form-control datetimepicker-input')
+   ->attribute('title', 'Date from which Coupon is Valid')
+   ->attribute('data-target', '#startDate') !!}
 
-                                   
                                     <div class="input-group-append" data-target="#startDate" data-toggle="datetimepicker">
                                         <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                     </div>
@@ -135,15 +142,18 @@ Edit Coupon
 
                     <tr>
 
-                        <td><b>{!! Form::label('expiry',Lang::get('message.expiry'),['class'=>'required']) !!}</b></td>
+                        <td><b>{!! html()->label(Lang::get('message.expiry'), 'expiry')->class('required') !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('expiry') ? 'has-error' : '' }}">
 
                                 <div class="input-group date" id="endDate" data-target-input="nearest" style="width: 50%;">
 
-                                     {!! Form::text('expiry',$expiryDate,['class' => 'form-control datetimepicker-input','title'=>'Date on which Coupon Expires','data-target'=>'#endDate']) !!}
+                                    {!! html()->text('expiry', $expiryDate)
+   ->class('form-control datetimepicker-input')
+   ->attribute('title','Date on which Coupon Expires')
+   ->attribute('data-target', '#endDate') !!}
 
-                                    
+
                                     <div class="input-group-append" data-target="#endDate" data-toggle="datetimepicker">
                                         <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                     </div>
@@ -158,7 +168,7 @@ Edit Coupon
                    
                     
 
-                    {!! Form::close() !!}
+                    {!! html()->form()->close() !!}
 
                 </table>
 

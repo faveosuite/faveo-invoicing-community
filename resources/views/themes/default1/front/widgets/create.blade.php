@@ -19,7 +19,7 @@ Create Widget
 <div class="card card-secondary card-outline">
 
 
-        {!! Form::open(['url'=>'widgets','method'=>'post']) !!}
+    {!! html()->form('POST', 'widgets')->open() !!}
 
 
 
@@ -34,67 +34,53 @@ Create Widget
                 <div class="row">
 
                     <div class="col-md-4 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                        <!-- first name -->
-                        {!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}
-                        {!! Form::text('name',null,['class' => 'form-control','id'=>'name']) !!}
-
+                        {!! html()->label(Lang::get('message.name'))->class('required')->for('name') !!}
+                        {!! html()->text('name')->class('form-control')->id('name') !!}
                     </div>
 
                     <div class="col-md-4 form-group {{ $errors->has('publish') ? 'has-error' : '' }}">
-                        <!-- last name -->
-                        {!! Form::label('publish',Lang::get('message.publish'),['class'=>'required']) !!}
-                        {!! Form::select('publish',[1=>'Yes',0=>'No'],null,['class' => 'form-control']) !!}
-
+                        {!! html()->label(Lang::get('message.publish'))->class('required')->for('publish') !!}
+                        {!! html()->select('publish', [1 => 'Yes', 0 => 'No'])->class('form-control') !!}
                     </div>
-                     
 
-                <?php 
+
+                    <?php
                 $mail = ['class' => 'form-control','disabled' => 'true' , 'title' => 'Cofigure your mailchimp in settings to access'];
                 $twitter = ['class' => 'form-control','disabled' => 'true', 'title' => 'Configure your tweets in settings to access'];
                 
                 ?>
 
-                    
-                  
+
+
                     <div class="col-md-4 form-group {{ $errors->has('allow_tweets') ? 'has-error' : '' }}">
-                        <!-- last name -->
-                        {!! Form::label('allow_tweets',Lang::get('message.allow_tweets'),['class'=>'required']) !!}
-                        {!! Form::select('allow_tweets',[1=>'Yes',0=>'No'],null,($twitterStatus) ? ['class' => 'form-control'] : $twitter) !!}
-
+                        {!! html()->label(Lang::get('message.allow_tweets'))->class('required')->for('allow_tweets') !!}
+                        {!! html()->select('allow_tweets', [1 => 'Yes', 0 => 'No'])
+                            ->class('form-control')
+                            ->attributes(($twitterStatus) ? [] : $twitter)
+                        !!}
                     </div>
-                  
-        
-
-                   
-                   
-                   <div class="col-md-4 form-group {{ $errors->has('allow_mailchimp') ? 'has-error' : '' }}">
-                        <!-- last name -->
-                        {!! Form::label('allow_mailchimp',Lang::get('message.allow_mailchimp'),['class'=>'required']) !!}
-                        {!! Form::select('allow_mailchimp',[1=>'Yes',0=>'No'],null,($mailchimpStatus) ? ['class' => 'form-control'] : $mail) !!}
-
-                    </div>
-                 
-                   
 
                     <div class="col-md-4 form-group {{ $errors->has('allow_mailchimp') ? 'has-error' : '' }}">
-                        <!-- last name -->
-                        {!! Form::label('allow_social_media','Allow social media icons',['class'=>'required']) !!}
-                        {!! Form::select('allow_social_media',[1=>'Yes',0=>'No'],null,['class' => 'form-control']) !!}
-
+                        {!! html()->label(Lang::get('message.allow_mailchimp'))->class('required')->for('allow_mailchimp') !!}
+                        {!! html()->select('allow_mailchimp', [1 => 'Yes', 0 => 'No'])
+                            ->class('form-control')
+                            ->attributes(($mailchimpStatus) ? [] : $mail)
+                        !!}
                     </div>
 
-                    
+
+
+                    <div class="col-md-4 form-group {{ $errors->has('allow_social_media') ? 'has-error' : '' }}">
+                        {!! html()->label('Allow social media icons')->class('required')->for('allow_social_media') !!}
+                        {!! html()->select('allow_social_media', [1 => 'Yes', 0 => 'No'])->class('form-control') !!}
+                    </div>
+
                     <div class="col-md-4 form-group {{ $errors->has('type') ? 'has-error' : '' }}">
-                        <!-- last name -->
-                        {!! Form::label('type',Lang::get('message.type'),['class'=>'required']) !!}
-                        {!! Form::select('type', [''=>'Choose','footer1'=>'Footer 1','footer2'=>'Footer 2','footer3'=>'Footer 3'],null,['class' => 'form-control']) !!}
-
-                        
-
-
+                        {!! html()->label(Lang::get('message.type'))->class('required')->for('type') !!}
+                        {!! html()->select('type', ['' => 'Choose', 'footer1' => 'Footer 1', 'footer2' => 'Footer 2', 'footer3' => 'Footer 3'])->class('form-control') !!}
                     </div>
 
-                   
+
 
 
                 </div>
@@ -132,8 +118,8 @@ Create Widget
 </script>
 
 
-                        {!! Form::label('content',Lang::get('message.content')) !!}
-                        {!! Form::textarea('content',null,['class'=>'form-control','id'=>'textarea']) !!}
+                        {!! html()->label(Lang::get('message.content'))->for('content') !!}
+                        {!! html()->textarea('content')->class('form-control')->id('textarea') !!}
 
                     </div>
 
@@ -150,7 +136,7 @@ Create Widget
 </div>
 
 
-{!! Form::close() !!}
+{!! html()->form()->close() !!}
 <script>
      $('ul.nav-sidebar a').filter(function() {
         return this.id == 'setting';

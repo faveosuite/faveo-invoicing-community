@@ -296,8 +296,8 @@ Checkout
                                             <strong><span class="amount text-color-grey text-5">{{ currencyFormat($cartTotal, $code = $currency) }}</span></strong>
                                         </td>
                                     </tr>
-                                    {!! Form::open(['url'=>'checkout-and-pay','method'=>'post','id' => 'checkoutsubmitform']) !!}
-                                    @if($invoice->grand_total > 0)
+                                {!! html()->form('post', 'checkout-and-pay')->id('checkoutsubmitform') !!}
+                                @if($invoice->grand_total > 0)
                                      <?php $gateways = \App\Http\Controllers\Common\SettingsController::checkPaymentGateway($invoice->currency);
                        ?>
                           @if(count($gateways))
@@ -353,7 +353,7 @@ Checkout
 
                                                 <label class="align-items-center text-color-grey mb-0" for="payment_method1">
 
-                                                 {!! Form::radio('payment_gateway',$gateway,false,['id'=>'allow_gateway','onchange' => 'getGateway(this)','processfee'=>$processingFee]) !!}
+                                                    {!! html()->radio('payment_gateway', false, $gateway)->id('allow_gateway')->attribute('onchange', 'getGateway(this)')->attribute('processfee', $processingFee) !!}
 
 
                                                     <img alt="{{$gateway}}" width="111" src="{{asset('images/logo/'.$gateway.'.png')}}">
@@ -368,14 +368,14 @@ Checkout
                                     </tr>
                                       @endif
                                         @endif
-                                             {!! Form::hidden('invoice_id',$invoice->id) !!}
-                                             {!! Form::hidden('cost',$invoice->grand_total) !!}
+                                {!! html()->hidden('invoice_id', $invoice->id) !!}
+                                {!! html()->hidden('cost', $invoice->grand_total) !!}
                                     </tbody>
                                 </table>
                             </div>
                             <button type="submit" id="proceed" class="btn btn-dark btn-modern w-100 text-uppercase text-3 py-3">Proceed <i class="fas fa-arrow-right ms-2"></i></button>
                          
-                             {!! Form::close() !!}
+                             {!! html()->form()->close() !!}
                         </div>
                     </div>
                 </div>

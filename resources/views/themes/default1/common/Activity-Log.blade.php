@@ -33,14 +33,14 @@ Activity Log
 
     <!-- /.box-header -->
     <div class="card-body" table-responsive" id="advance-search" style="display:none;">
-        {!! Form::open(['method'=>'get']) !!}
+                {!! html()->form('GET') !!}
 
-        <div class="row">
+                <div class="row">
 
            
             <div class="col-md-3 form-group">
                 <!-- first name -->
-                {!! Form::label('from','View Logs From') !!}
+                {!! html()->label('View Logs From')->for('from') !!}
                 <div class="input-group date" id="log_from" data-target-input="nearest">
                     <input type="text" name="from" value="{{$from}}" id="from" class="form-control datetimepicker-input" autocomplete="off"  data-target="#log_from"/>
 
@@ -53,7 +53,7 @@ Activity Log
             </div>
             <div class="col-md-3 form-group">
                 <!-- first name -->
-                {!! Form::label('till','View Logs Till') !!}
+                {!! html()->label('View Logs Till')->for('till') !!}
 
                 <div class="input-group date" id="log_till" data-target-input="nearest">
                     <input type="text" name="till" value="{{$till}}" id="till" class="form-control datetimepicker-input" autocomplete="off"  data-target="#log_till"/>
@@ -68,7 +68,7 @@ Activity Log
             </div>
             <div class="col-md-3 form-group">
                 <!-- first name -->
-                {!! Form::label('delFrom','Delete Logs From') !!}
+                {!! html()->label('Delete Logs From')->for('delFrom') !!}
                 <div class="input-group date" id="del_from" data-target-input="nearest">
                     <input type="text" name="delFrom" id="delfrom" class="form-control datetimepicker-input" autocomplete="off"  data-target="#del_from"/>
 
@@ -84,7 +84,7 @@ Activity Log
             </div>
               <div class="col-md-3 form-group">
                 <!-- first name -->
-                {!! Form::label('delTill','Delete Logs Till') !!}
+                  {!! html()->label('Delete Logs Till')->for('delTill') !!}
                   <div class="input-group date" id="del_till" data-target-input="nearest">
                       <input type="text" name="delTill" id="deltill" class="form-control datetimepicker-input" autocomplete="off"  data-target="#del_till"/>
 
@@ -100,9 +100,9 @@ Activity Log
 
           
                 <div class="col-md-6">
-                    <!-- {!! Form::submit('Search',['class'=>'btn btn-primary']) !!} -->
+                    <!-- {!! html()->submit('Search')->class('btn btn-primary') !!} -->
                       <button name="Search" type="submit"  class="btn btn-secondary" data-loading-text="<i class='fa fa-search fa-spin fa-1x fa-fw'>&nbsp;</i> updating..."><i class="fa fa-search">&nbsp;</i>{!!Lang::get('message.apply')!!}</button>
-                    <!-- {!! Form::submit('Reset',['class'=>'btn btn-danger','id'=>'reset']) !!} -->
+                    <!-- {!! html()->submit('Reset')->class('btn btn-danger')->id('reset') !!} -->
                      <button name="Reset" type="submit" id="reset" class="btn btn-secondary" data-loading-text="<i class='fa fa-refresh fa-spin fa-1x fa-fw'>&nbsp;</i> updating..."><i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('Reset')!!}</button>
 
 
@@ -124,8 +124,8 @@ Activity Log
                 </script>
 
 
-        {!! Form::close() !!}
-    </div>
+                {!! html()->form()->close() !!}
+            </div>
 </div>
 
         </div>

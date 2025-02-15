@@ -20,7 +20,7 @@ Create Page
 
 
 
-        {!! Form::open(['url'=>'pages','method'=>'post']) !!}
+    {!! html()->form('post', 'pages') !!}
 
 
 
@@ -37,23 +37,19 @@ Create Page
 
                     <div class="col-md-4 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         <!-- first name -->
-                        {!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}
-                        {!! Form::text('name',null,['class' => 'form-control','id'=>'name']) !!}
+                        {!! html()->label(Lang::get('message.name'), 'name')->class('required') !!}
+                        {!! html()->text('name')->class('form-control')->id('name') !!}
 
                     </div>
 
                     <div class="col-md-4 form-group {{ $errors->has('publish') ? 'has-error' : '' }}">
-                        <!-- last name -->
-                        {!! Form::label('publish',Lang::get('message.publish'),['class'=>'required']) !!}
-                        {!! Form::select('publish',[1=>'Yes',0=>'No'],null,['class' => 'form-control']) !!}
-
+                        {!! html()->label(Lang::get('message.publish'), 'publish')->class('required') !!}
+                        {!! html()->select('publish', [1 => 'Yes', 0 => 'No'])->class('form-control') !!}
                     </div>
 
                     <div class="col-md-4 form-group {{ $errors->has('slug') ? 'has-error' : '' }}">
-                        <!-- first name -->
-                        {!! Form::label('slug',Lang::get('message.slug'),['class'=>'required']) !!}
-                        {!! Form::text('slug',null,['class' => 'form-control','id'=>'slug']) !!}
-
+                        {!! html()->label(Lang::get('message.slug'), 'slug')->class('required') !!}
+                        {!! html()->text('slug')->class('form-control')->id('slug') !!}
                     </div>
 
 
@@ -61,27 +57,21 @@ Create Page
                 <div class="row">
 
                     <div class="col-md-4 form-group {{ $errors->has('url') ? 'has-error' : '' }}">
-                        <!-- first name -->
-                        {!! Form::label('url',Lang::get('message.url'),['class'=>'required']) !!}
-                        {!! Form::text('url',null,['class' => 'form-control','id'=>'url']) !!}
-
+                        {!! html()->label(Lang::get('message.url'), 'url')->class('required') !!}
+                        {!! html()->text('url')->class('form-control')->id('url') !!}
                     </div>
 
                     <div class="col-md-4 form-group {{ $errors->has('parent_page_id') ? 'has-error' : '' }}">
-                        <!-- last name -->
-                        {!! Form::label('parent_page_id',Lang::get('message.parent-page')) !!}
-                        {!! Form::select('parent_page_id',['0'=>'Choose','Parent Pages'=>$parents],null,['class' => 'form-control']) !!}
-
+                        {!! html()->label(Lang::get('message.parent-page'), 'parent_page_id') !!}
+                        {!! html()->select('parent_page_id', ['0' => 'Choose', 'Parent Pages' => $parents])->class('form-control') !!}
                     </div>
-                   
+
                     <div class="col-md-4 form-group {{ $errors->has('parent_page_id') ? 'has-error' : '' }}">
-                        <!-- last name -->
-                        {!! Form::label('type',Lang::get('message.page_type')) !!}
-                          {!! Form::select('type',['none'=>'None','contactus'=>'Contact Us'],null,['class' => 'form-control']) !!} 
-
+                        {!! html()->label(Lang::get('message.page_type'), 'type') !!}
+                        {!! html()->select('type', ['none' => 'None', 'contactus' => 'Contact Us'])->class('form-control') !!}
                     </div>
 
-                 </div>
+                </div>
 
                 <div class="row">
                     <div class="col-md-12 form-group">
@@ -116,8 +106,8 @@ Create Page
 </script>
 
 
-                        {!! Form::label('content',Lang::get('message.content'),['class'=>'required']) !!}
-                        {!! Form::textarea('content',null,['class'=>'form-control','id'=>'textarea']) !!}
+                        {!! html()->label(Lang::get('message.content'), 'content')->class('required') !!}
+                        {!! html()->textarea('content')->class('form-control')->id('textarea') !!}
 
                     </div>
 
@@ -143,7 +133,7 @@ Create Page
     }).parentsUntil(".nav-sidebar > .nav-treeview").addClass('menu-open').prev('a').addClass('active');
 </script>
 
-{!! Form::close() !!}
+{!! html()->closeModelForm() !!}
 
 <script>
 

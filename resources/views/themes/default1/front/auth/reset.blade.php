@@ -28,7 +28,9 @@ main
 
                 <div class="col-md-6 col-lg-6 mb-5 mb-lg-0 pe-5">
 
-                    {!! Form::open(['url' => '/password/reset','method' => 'post','id' => 'changePasswordForm', 'onsubmit' => $status->recaptcha_status === 1 ? 'return validateCaptcha()' : null]) !!}
+                    {!! html()->form('POST', '/password/reset')
+    ->id('changePasswordForm')
+    ->attribute('onsubmit', $status->recaptcha_status === 1 ? 'return validateCaptcha()' : null) !!}
                     <input type="hidden" name="token" value="{{ $reset_token }}">
                             <input type="hidden" name="email" value="{{ $email }}">
 
@@ -63,9 +65,12 @@ main
 
                                 <label class="form-label text-color-dark text-3">Confirm Password <span class="text-color-danger">*</span></label>
                                 <div class="input-group">
-                                {!! Form::password('password_confirmation',['placeholder'=>'Retype password','class' => 'form-control form-control-lg text-4' , 'id' => 'confirm_password']) !!}
+                                    {!! html()->password('password_confirmation')
+        ->attribute('placeholder', 'Retype password')
+        ->class('form-control form-control-lg text-4')
+        ->id('confirm_password') !!}
 
-                                <div class="input-group-append">
+                                    <div class="input-group-append">
                                         <span class="input-group-text" role="button" onclick="togglePasswordVisibility(this)">
                                             <i class="fa fa-eye-slash"></i>
                                         </span>
@@ -89,7 +94,7 @@ main
 
                             </div>
                         </div>
-                    {!! Form::close() !!}
+                    {!! html()->form()->close() !!}
                 </div>
             </div>
         </div>

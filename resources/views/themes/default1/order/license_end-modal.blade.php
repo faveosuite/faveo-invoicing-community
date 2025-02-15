@@ -12,10 +12,10 @@
 			   <input type="hidden" name="orderId" value="" id="order2">
 		        <div class="form-group">
                     <!-- name -->
-                    {!! Form::label('license',Lang::get('message.license_end'),['class'=>'required']) !!}
-                   
+                    {!! html()->label(Lang::get('message.license_end'))->class('required')->for('license') !!}
 
-                         </div>
+
+                </div>
                           <div id="response3"></div>
 
                     <div class="input-group date" id="licenseEnds" data-target-input="nearest">

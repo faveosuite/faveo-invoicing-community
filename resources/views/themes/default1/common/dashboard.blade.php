@@ -20,8 +20,8 @@ Dashboard
     height:300px;
 }
 </style>
- {!! Form::open(['url'=>'my-profile,"status=$status' ,'method'=>'get']) !!}
-   <div class="row">
+{!! html()->form('GET', url("my-profile?status=$status"))->open() !!}
+<div class="row">
         <div class="col-lg-4 col-xs-6">
           <!-- small box -->
           <div class="small-box bg-info">
@@ -138,7 +138,7 @@ Dashboard
              </div>
         </div>
 </div>
- {!! Form::close() !!}
+{!! html()->form()->close() !!}
 
 
 
