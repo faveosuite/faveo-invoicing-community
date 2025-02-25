@@ -13,7 +13,9 @@
                 
                 <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                     {!! Form::label('name',Lang::get('message.license-type-name'),['class'=>'required']) !!}
-                    <input type="text" name="name" id="tname" class="form-control" required="required">
+                    <input type="text" name="name" id="tname" class="form-control">
+                    <div class="input-group-append">
+                    </div>
                 </div>
             </div>
             <div class="modal-footer justify-content-between">

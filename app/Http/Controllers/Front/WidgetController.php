@@ -101,7 +101,7 @@ class WidgetController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'name' => 'required',
+            'name' => 'required|max:50',
             'publish' => 'required',
             // 'content' => 'required',
             'type' => 'required|unique:widgets',
@@ -127,7 +127,7 @@ class WidgetController extends Controller
     public function update($id, Request $request)
     {
         $this->validate($request, [
-            'name' => 'required',
+            'name' => 'required|max:50',
             'publish' => 'required',
             // 'content' => 'required',
             'type' => 'required|unique:widgets,type,'.$id,

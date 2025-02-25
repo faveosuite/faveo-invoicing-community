@@ -33,12 +33,13 @@
                     <!-- {!! Form::text('name',null,['class' => 'form-control']) !!} -->
                       <select name="name" id="gst" class="form-control">
                       <option value="Others">Others</option>
-                       @if($options->tax_enable)
                       <option value="Intra State GST">Intra State GST (Same Indian State)</option>
                       <option value="Inter State GST">Inter State GST (Other Indian  State)</option>
                       <option value="Union Territory GST">Union Territory GST (Indian Union Territory)</option>
-                        @endif
                       </select>
+                    @error('name')
+                    <span class="error-message"> {{$message}}</span>
+                    @enderror
                 </div>
                 
                 {!! Form::open(['url'=>'tax']) !!}
@@ -47,6 +48,9 @@
                     
                     {!! Form::label('tax-name',Lang::get('Tax Name'),['class'=>'required']) !!}
                     {!! Form::text('tax-name',null,['class' => 'form-control','id'=>'taxname']) !!}
+                     @error('tax-name')
+                     <span class="error-message"> {{$message}}</span>
+                     @enderror
                    <h6 id ="namecheck"></h6>
                 </div>
            
@@ -69,13 +73,18 @@
                         {!! Form::radio('active',0) !!}
 
                     </div>
+                     @error('active')
+                     <span class="error-message"> {{$message}}</span>
+                     @enderror
                 </div>
                   <div class="form-group {{ $errors->has('country') ? 'has-error' : '' }}">
                     <!-- name -->
                     {!! Form::label('country',Lang::get('message.country')) !!}
                     <br>
                       {!! Form::select('country',[''=>'All Countries','Choose'=>$countries],null,['class' => 'form-control select2','style'=>'width:460px','onChange'=>'getState(this.value);','id'=>'countryvisible']) !!}
-
+                      @error('country')
+                      <span class="error-message"> {{$message}}</span>
+                      @enderror
                      
                      <input type='text' name="country1" id= "countrynotvisible" class="form-control hide" value="India" readonly>
                    
@@ -89,13 +98,18 @@
                     <select name="state"  class="form-control" id="statess">
                         <option name="state" value=''>All States</option>
                     </select>
-
+                      @error('state')
+                      <span class="error-message"> {{$message}}</span>
+                      @enderror
                 </div>
                  <div class="form-group showwhengst{{ $errors->has('rate') ? 'has-error' : '' }}" style="display:block" >
                     <!-- name -->
                     {!! Form::label('rate',Lang::get('message.rate').' (%)',['class'=>'required']) !!}
                     {!! Form::number('rate',null,['class' => 'form-control','id'=>'rate']) !!}
-                  
+                     @error('rate')
+                     <span class="error-message"> {{$message}}</span>
+                     @enderror
+                     <h6 id ="ratecheck"></h6>
 
                 </div>
                   
@@ -105,7 +119,7 @@
             </div>
             <div class="modal-footer justify-content-between">
                 <button type="button" class="btn btn-default " data-dismiss="modal" id="closeTax"><i class="fa fa-times"></i>&nbsp;Close</button>
-                <button type="submit"  class="btn btn-primary"><i class="fas fa-save"></i>&nbsp;Save</button>
+                <button type="submit" id="submit" class="btn btn-primary"><i class="fas fa-save"></i>&nbsp;Saves</button>
 
             </div>
             {!! Form::close()  !!}
@@ -182,17 +196,22 @@ $("#closeTax").click(function() {
                 $('.select2').select2()
             });
         $('#namecheck').hide();
-      
-      $('#taxClass').submit(function(){
+
+      $('#taxClas').submit(function(){
         function tax_nameCheck()
         {
             var tax_name = $('#taxname').val();
             if (tax_name.length == ''){
-                   $('#namecheck').show(); 
-                   $('#namecheck').html('This field is required'); 
+                   $('#namecheck').show();
+                   $('#namecheck').html('This field is required');
                    $('#namecheck').focus();
                    $('#taxname').css("border-color","red");
                    $('#namecheck').css({"color":"red","margin-top":"5px"});
+                $('#ratecheck').show();
+                $('#ratecheck').html('This field is required');
+                $('#ratecheck').focus();
+                $('#rate').css("border-color","red");
+                $('#ratecheck').css({"color":"red","margin-top":"5px"});
             }
             else{
                  $('#namecheck').hide();
@@ -201,10 +220,10 @@ $("#closeTax").click(function() {
             }
         }
 
-        
+
         tax_nameCheck();
-       
-       
+
+
         if(tax_nameCheck()){
                 return true;
              }
@@ -214,5 +233,82 @@ $("#closeTax").click(function() {
       });
 
     });
+</script>
+
+<script>
+    $(document).ready(function() {
+        function Check_error() {
+            const userRequiredFields = {
+                taxname:@json(trans('message.tax_details.tax_name')),
+                rate:@json(trans('message.tax_details.rate')),
+
+
+            };
+
+
+            $('#submit').on('click', function (e) {
+                if($('#gst').val() == 'Others') {
+                    const userFields = {
+                        taxname: $('#taxname'),
+                        rate: $('#rate'),
+                    };
+
+
+                    // Clear previous errors
+                    Object.values(userFields).forEach(field => {
+                        field.removeClass('is-invalid');
+                        field.next().next('.error').remove();
+
+                    });
+
+                    let isValid = true;
+
+                    const showError = (field, message) => {
+                        field.addClass('is-invalid');
+                        field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+                    };
+
+                    // Validate required fields
+                    Object.keys(userFields).forEach(field => {
+                        if (!userFields[field].val()) {
+                            showError(userFields[field], userRequiredFields[field]);
+                            isValid = false;
+                        }
+                    });
+
+
+                    // If validation fails, prevent form submission
+                    if (!isValid) {
+                        e.preventDefault();
+                    }
+                }
+
+            });
+            // Function to remove error when input'id' => 'changePasswordForm'ng data
+            const removeErrorMessage = (field) => {
+                field.classList.remove('is-invalid');
+                const error = field.nextElementSibling;
+                if (error && error.classList.contains('error')) {
+                    error.remove();
+                }
+            };
+
+            // Add input event listeners for all fields
+            ['taxname','rate'].forEach(id => {
+
+                document.getElementById(id).addEventListener('input', function () {
+                    removeErrorMessage(this);
+
+                });
+            });
+        }
+
+
+       const tax_value=$('#gst').val();
+        if (tax_value == 'Others') {
+            Check_error();
+        }
+    });
+
 </script>
 {!! Form::close()  !!}

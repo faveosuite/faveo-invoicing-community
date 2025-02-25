@@ -6,12 +6,15 @@
               
             </div>
 
-           {!! Form::open(['method' => 'patch','id' =>  'app-edit-form'])!!}
+           {!! Form::open(['method' => 'patch','id' => 'app-edit-form'])!!}
             <div class="modal-body">
                 
                 <div class= "form-group">
                     {!! Form::label('name','App name',['class'=>'required']) !!}
                     <input type="text" name="app_name" id="name" class="form-control app-name">
+                    @error('name')
+                    <span class="error-message"> {{$message}}</span>
+                    @enderror
                     <span class="appnamecheck"></span>
                 </div>
                  <div class= "form-group">
@@ -19,7 +22,10 @@
                     <div class="row">
                      <div class="col-md-8">
                     
-                    <input type="text" name="app_key" id="key" class="form-control app-key" required='required' readonly>
+                    <input type="text" name="app_key" id="key" class="form-control app-key" readonly>
+                         @error('app_key')
+                         <span class="error-message"> {{$message}}</span>
+                         @enderror
                     <span class="appkeycheck"></span>
                    </div>
                    <div class="col-md-4">
@@ -31,7 +37,10 @@
                       {!! Form::label('name','App Secret',['class'=>'required']) !!}
                     <div class="row">
                      <div class="col-md-12">
-                    <input type="text" name="app_secret" id="secret" class="form-control" required='required'>
+                    <input type="text" name="app_secret" id="secret" class="form-control">
+                         @error('app_secret')
+                         <span class="error-message"> {{$message}}</span>
+                         @enderror
                     <span class="appkeycheck"></span>
                    </div>
                    

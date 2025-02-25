@@ -18,7 +18,7 @@ Script
 @section('content')
 <div class="card card-secondary card-outline">
 
-        {!! Form::open(['url'=>'chat','method'=>'post']) !!}
+        {!! Form::open(['url'=>'chat','method'=>'post','id'=>'scriptForm']) !!}
 
 
 
@@ -35,8 +35,12 @@ Script
                     <div class="col-md-12 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         <!-- first name -->
                         {!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}
-                        {!! Form::text('name',null,['class' => 'form-control']) !!}
-
+                        {!! Form::text('name',null,['class' => 'form-control','id'=>'name']) !!}
+                        @error('name')
+                        <span class="error-message"> {{$message}}</span>
+                        @enderror
+                        <div class="input-group-append">
+                        </div>
                     </div>
 
                    
@@ -52,19 +56,20 @@ Script
                         <!-- first name -->
                         {!! Form::label('script','Show script',['class'=>'required']) !!}
                         <br>
-                        {!! Form::label('on_registration','On registration') !!}
                         {!! Form::radio('on_registration',1,true) !!}
-                        &nbsp; &nbsp; &nbsp; 
-                        {!! Form::label('on_every_page','On every page') !!}
-                        {!! Form::radio('on_registration',0,false) !!}
-
+                        <label for="on_registration" style="font-weight: normal !important;">On registration</label>
+                        &nbsp;{!! Form::radio('on_registration',0,false) !!}
+                        <label for="on_every_page" style="font-weight: normal !important;">On every page</label>
+                        @error('on_registration')
+                        <span class="error-message"> {{$message}}</span>
+                        @enderror
                     </div>
 
                      <div class="col-md-3 form-group">
                         <!-- first name -->
-                        {!! Form::label('analytics','Google analytics') !!}
+                         {!! Form::checkbox('google_analytics',null,null, array('id'=>'analytics')) !!}
+                         {!! Form::label('google_analytics','Google analytics') !!}
                         {{Form::hidden('google_analytics',0,['id'=>'hidden_analytic'])}}
-                        {!! Form::checkbox('google_analytics',null,null, array('id'=>'analytics')) !!}
                         <!-- <input type="checkbox" name="google_analytics" id="analytics"> -->
                     </div>
                         <br>
@@ -87,7 +92,11 @@ Script
 
                         {!! Form::label('data',Lang::get('message.content'),['class'=>'required']) !!}
                         {!! Form::textarea('script',null,['class'=>'form-control','id'=>'textarea']) !!}
-
+                        @error('script')
+                        <span class="error-message"> {{$message}}</span>
+                        @enderror
+                        <div class="input-group-append">
+                        </div>
                     </div>
 
 
@@ -104,6 +113,78 @@ Script
 
 
 {!! Form::close() !!}
+
+<script>
+
+    $(document).ready(function() {
+        const userRequiredFields = {
+            name:@json(trans('message.script_details.name')),
+            content:@json(trans('message.script_details.content')),
+
+        };
+
+        $('#scriptForm').on('submit', function (e) {
+            const userFields = {
+                name:$('#name'),
+                content:$('#textarea'),
+
+            };
+
+
+            // Clear previous errors
+            Object.values(userFields).forEach(field => {
+                field.removeClass('is-invalid');
+                field.next().next('.error').remove();
+
+            });
+
+            let isValid = true;
+
+            const showError = (field, message) => {
+                field.addClass('is-invalid');
+                field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+            };
+
+            if(isValid && userFields.name.val().length>50){
+                showError(userFields.name,@json(trans('message.valid_widget_name')));
+                isValid=false;
+            }
+
+            // Validate required fields
+            Object.keys(userFields).forEach(field => {
+                if (!userFields[field].val()) {
+                    showError(userFields[field], userRequiredFields[field]);
+                    isValid = false;
+                }
+            });
+
+
+            // If validation fails, prevent form submission
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+        // Function to remove error when input'id' => 'changePasswordForm'ng data
+        const removeErrorMessage = (field) => {
+            field.classList.remove('is-invalid');
+            const error = field.nextElementSibling;
+            if (error && error.classList.contains('error')) {
+                error.remove();
+            }
+        };
+
+        // Add input event listeners for all fields
+        ['name','publish','type'].forEach(id => {
+
+            document.getElementById(id).addEventListener('input', function () {
+                removeErrorMessage(this);
+
+            });
+        });
+    });
+
+</script>
+
 <script>
 
      $('ul.nav-sidebar a').filter(function() {

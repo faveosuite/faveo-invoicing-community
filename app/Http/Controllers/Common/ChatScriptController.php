@@ -76,7 +76,7 @@ class ChatScriptController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'name' => 'required',
+            'name' => 'required|max:50',
             'script' => 'required',
             'google_analytics_tag' => 'required_if:google_analytics,1',
 
@@ -121,7 +121,7 @@ class ChatScriptController extends Controller
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'name' => 'required',
+            'name' => 'required|max:50',
             'script' => 'required',
             'google_analytics_tag' => 'required_if:google_analytics,1',
 

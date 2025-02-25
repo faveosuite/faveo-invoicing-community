@@ -101,7 +101,7 @@ input:checked + .slider:before {
     <div class="col-md-6">
 
 
-        {!! Form::model($user,['url'=>'profile', 'method' => 'PATCH','files'=>true]) !!}
+        {!! Form::model($user,['id' => 'userUpdateForm','url'=>'profile', 'method' => 'PATCH','files'=>true]) !!}
 
 
         <div class="card card-secondary card-outline">
@@ -116,19 +116,26 @@ input:checked + .slider:before {
                     <!-- first name -->
                     {!! Form::label('first_name',null,['class' => 'required'],Lang::get('message.first_name')) !!}
                     {!! Form::text('first_name',null,['class' => 'form-control']) !!}
+                    <div class="input-group-append">
 
+                    </div>
                 </div>
 
                 <div class="form-group {{ $errors->has('last_name') ? 'has-error' : '' }}">
                     <!-- last name -->
                     {!! Form::label('last_name',null,['class' => 'required'],Lang::get('message.last_name')) !!}
                     {!! Form::text('last_name',null,['class' => 'form-control']) !!}
+                    <div class="input-group-append">
 
+                    </div>
                 </div>
                 <div class="form-group {{ $errors->has('user_name') ? 'has-error' : '' }}">
                     <!-- mobile -->
                     {!! Form::label('user_name',null,['class' => 'required'],Lang::get('message.user_name')) !!}
                     {!! Form::text('user_name',null,['class' => 'form-control']) !!}
+                    <div class="input-group-append">
+
+                    </div>
                 </div>
 
 
@@ -136,26 +143,35 @@ input:checked + .slider:before {
                     <!-- email -->
                     {!! Form::label('email',null,['class' => 'required'],Lang::get('message.email')) !!}
                      {!! Form::text('email',null,['class' => 'form-control']) !!}
+                    <div class="input-group-append">
 
+                    </div>
                 </div>
 
                 <div class="form-group {{ $errors->has('company') ? 'has-error' : '' }}">
                     <!-- company -->
                     {!! Form::label('company',null,['class' => 'required'],Lang::get('message.company')) !!}
                     {!! Form::text('company',null,['class' => 'form-control']) !!}
+                    <div class="input-group-append">
 
+                    </div>
                 </div>
 
 
                 <div class="form-group {{ $errors->has('mobile_code') ? 'has-error' : '' }}">
                   {!! Form::label('mobile',null,['class' => 'required'],Lang::get('message.mobile')) !!}
                      {!! Form::hidden('mobile_code',null,['id'=>'mobile_code_hidden']) !!}
-                     <!--  <input class="form-control selected-dial-code"  id="mobile_code" value="{{$user->mobile}}" name="mobile" type="tel"> -->
 
                     {!! Form::input('tel', 'mobile', $user->mobile, ['class' => 'form-control selected-dial-code', 'id' => 'mobile_code']) !!}
+
                     {!! Form::hidden('mobile_country_iso',null,['id' => 'mobile_country_iso']) !!}
+
+                    <span id="error-msg" class="hide"></span>
                     <span id="valid-msg" class="hide"></span>
-                       <span id="error-msg" class="hide"></span>
+                    <div class="input-group-append">
+                    </div>
+
+
                 </div>
 
 
@@ -163,7 +179,9 @@ input:checked + .slider:before {
                     <!-- phone number -->
                     {!! Form::label('address',null,['class' => 'required'],Lang::get('message.address')) !!}
                     {!! Form::textarea('address',null,['class' => 'form-control']) !!}
+                    <div class="input-group-append">
 
+                    </div>
                 </div>
 
                 <div class="row">
@@ -318,7 +336,7 @@ input:checked + .slider:before {
                     </small>
                     <span class="glyphicon glyphicon-lock form-control-feedback"></span>
                 </div>
-                <!-- cofirm password -->
+                <!-- confirm password -->
                 <div class="form-group has-feedback {{ $errors->has('confirm_password') ? 'has-error' : '' }}">
                     {!! Form::label('confirm_password',null,['class' => 'required'],Lang::get('message.confirm_password')) !!}
                     <div class="input-group">
@@ -389,6 +407,106 @@ input:checked + .slider:before {
 <script src="{{asset('common/js/2fa.js')}}"></script>
 <script>
     $(document).ready(function() {
+        const userRequiredFields = {
+            first_name:@json(trans('message.user_edit_details.add_first_name')),
+            last_name:@json(trans('message.user_edit_details.add_last_name')),
+            email:@json(trans('message.user_edit_details.add_email')),
+            company:@json(trans('message.user_edit_details.add_company')),
+            address:@json(trans('message.user_edit_details.add_address')),
+            mobile_code:@json(trans('message.user_edit_details.add_mobile')),
+            user_name:@json(trans('message.user_edit_details.add_user_name')),
+        };
+
+        $('#userUpdateForm').on('submit', function (e) {
+            const userFields = {
+                first_name: $('#first_name'),
+                last_name: $('#last_name'),
+                email: $('#email'),
+                company: $('#company'),
+                address: $('#address'),
+                user_name: $('#user_name'),
+            };
+
+
+            // Clear previous errors
+            Object.values(userFields).forEach(field => {
+                field.removeClass('is-invalid');
+                field.next().next('.error').remove();
+
+            });
+
+            let isValid = true;
+
+            const showError = (field, message) => {
+                field.addClass('is-invalid');
+                field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+            };
+
+            // Validate required fields
+            Object.keys(userFields).forEach(field => {
+                if (!userFields[field].val()) {
+                    showError(userFields[field], userRequiredFields[field]);
+                    isValid = false;
+                }
+            });
+
+            if (isValid && !validateEmail(userFields.email.val())) {
+                showError(userFields.email, @json(trans('message.user_edit_details.add_valid_email')));
+                isValid = false;
+            }
+
+
+            if (isValid && !validName(userFields.first_name.val())) {
+                showError(userFields.first_name, @json(trans('message.user_edit_details.add_valid_name')));
+                isValid = false;
+            }
+
+            if (isValid && !validName(userFields.last_name.val())) {
+                showError(userFields.last_name, @json(trans('message.user_edit_details.add_valid_lastname')));
+
+                isValid = false;
+            }
+
+            // If validation fails, prevent form submission
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+            // Function to remove error when input'id' => 'changePasswordForm'ng data
+            const removeErrorMessage = (field) => {
+                field.classList.remove('is-invalid');
+                const error = field.nextElementSibling;
+                if (error && error.classList.contains('error')) {
+                    error.remove();
+                }
+            };
+
+            // Add input event listeners for all fields
+            ['first_name','last_name','email','company','user_name','address','mobile'].forEach(id => {
+                document.getElementById(id).addEventListener('input', function () {
+                    removeErrorMessage(this);
+
+            });
+        });
+
+
+        function validName(string){
+            const nameRegex=/^[A-Za-z][A-Za-z-\s]+$/;
+            return nameRegex.test(string);
+        }
+
+        function validateEmail(email) {
+
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            return emailPattern.test(email);
+
+        }
+
+    });
+
+
+    $(document).ready(function() {
         const requiredFields = {
             old_password: @json(trans('message.old_pass_required')),
             new_password: @json(trans('message.new_pass_required')),
@@ -403,6 +521,7 @@ input:checked + .slider:before {
                 new_password: $('#new_password'),
                 confirm_password: $('#confirm_password'),
             };
+
 
             // Clear previous errors
             Object.values(fields).forEach(field => {
@@ -448,7 +567,7 @@ input:checked + .slider:before {
             }
         });
 
-        // Function to remove error when inputting data
+        // Function to remove error when input'id' => 'changePasswordForm'ng data
         const removeErrorMessage = (field) => {
             field.classList.remove('is-invalid');
             const error = field.nextElementSibling;
@@ -533,6 +652,20 @@ input:checked + .slider:before {
       errorMsg.classList.add("hide");
       validMsg.classList.add("hide");
     };
+
+         $('#submit').on('click',function(e) {
+             console.log(44);
+             if(telInput.val()===''){
+                 e.preventDefault();
+                 console.log(55);
+                 errorMsg.classList.remove("hide");
+                 errorMsg.innerHTML = @json(trans('message.user_edit_details.add_phone_number'));
+                 $('#mobile_code').addClass('is-invalid');
+                 $('#mobile_code').css("border-color", "#dc3545");
+                 $('#error-msg').css({"width": "100%", "margin-top": ".25rem", "font-size": "80%", "color": "#dc3545"});
+             }
+         });
+
      $('.intl-tel-input').css('width', '100%');
     telInput.on('input blur', function () {
       reset();
@@ -540,13 +673,11 @@ input:checked + .slider:before {
             if (validatePhoneNumber(telInput.get(0))) {
               $('#mobile_code').css("border-color","");
               validMsg.classList.remove("hide");
-              $('#submit').attr('disabled',false);
             } else {
             errorMsg.classList.remove("hide");
             errorMsg.innerHTML = "Please enter a valid number";
-             $('#mobile_code').css("border-color","red");
-             $('#error-msg').css({"color":"red","margin-top":"5px"});
-             $('#submit').attr('disabled',true);
+             $('#mobile_code').css("border-color", "#dc3545");
+             $('#error-msg').css({"width": "100%", "margin-top": ".25rem", "font-size": "80%", "color": "#dc3545"});
             }
         }
     });
