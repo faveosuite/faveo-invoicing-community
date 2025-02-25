@@ -57,7 +57,141 @@ Third party Apps
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
 
     <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript">
+
+
+    <script>
+
+        $(document).ready(function() {
+            const userRequiredFields = {
+                app_key:@json(trans('message.app_details.app_key')),
+                app_name:@json(trans('message.app_details.app_name')),
+                app_secret:@json(trans('message.app_details.app_secret')),
+
+
+            };
+
+            $('#appForm').on('submit', function (e) {
+                const userFields = {
+                    app_name:$('#app-name'),
+                    app_key:$('#app-key'),
+                    app_secret:$('#app-secret'),
+                };
+
+
+                // Clear previous errors
+                Object.values(userFields).forEach(field => {
+                    field.removeClass('is-invalid');
+                    field.next().next('.error').remove();
+
+                });
+
+                let isValid = true;
+
+                const showError = (field, message) => {
+                    field.addClass('is-invalid');
+                    field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+                };
+
+                // Validate required fields
+                Object.keys(userFields).forEach(field => {
+                    if (!userFields[field].val()) {
+                        showError(userFields[field], userRequiredFields[field]);
+                        isValid = false;
+                    }
+                });
+
+
+                // If validation fails, prevent form submission
+                if (!isValid) {
+                    e.preventDefault();
+                }
+            });
+            // Function to remove error when input'id' => 'changePasswordForm'ng data
+            const removeErrorMessage = (field) => {
+                field.classList.remove('is-invalid');
+                const error = field.nextElementSibling;
+                if (error && error.classList.contains('error')) {
+                    error.remove();
+                }
+            };
+
+            // Add input event listeners for all fields
+            ['app-name','app-key','app-secret'].forEach(id => {
+
+                document.getElementById(id).addEventListener('input', function () {
+                    removeErrorMessage(this);
+
+                });
+            });
+        });
+
+
+
+        $(document).ready(function() {
+            const userRequiredFields = {
+                app_key:@json(trans('message.app_details.app_key')),
+                app_name:@json(trans('message.app_details.app_name')),
+                app_secret:@json(trans('message.app_details.app_secret')),
+
+
+            };
+
+            $('#app-edit-form').on('submit', function (e) {
+                const userFields = {
+                    app_name:$('#name'),
+                    app_key:$('#key'),
+                    app_secret:$('#secret'),
+                };
+
+
+                // Clear previous errors
+                Object.values(userFields).forEach(field => {
+                    field.removeClass('is-invalid');
+                    field.next().next('.error').remove();
+
+                });
+
+                let isValid = true;
+
+                const showError = (field, message) => {
+                    field.addClass('is-invalid');
+                    field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+                };
+
+                // Validate required fields
+                Object.keys(userFields).forEach(field => {
+                    if (!userFields[field].val()) {
+                        showError(userFields[field], userRequiredFields[field]);
+                        isValid = false;
+                    }
+                });
+
+
+                // If validation fails, prevent form submission
+                if (!isValid) {
+                    e.preventDefault();
+                }
+            });
+            // Function to remove error when input'id' => 'changePasswordForm'ng data
+            const removeErrorMessage = (field) => {
+                field.classList.remove('is-invalid');
+                const error = field.nextElementSibling;
+                if (error && error.classList.contains('error')) {
+                    error.remove();
+                }
+            };
+
+            // Add input event listeners for all fields
+            ['name','key','secret'].forEach(id => {
+
+                document.getElementById(id).addEventListener('input', function () {
+                    removeErrorMessage(this);
+
+                });
+            });
+        });
+
+
         $('#third-party-app-table').DataTable({
             processing: true,
             serverSide: true,
@@ -99,8 +233,7 @@ Third party Apps
                 $('.loader').css('display', 'block');
             },
         });
-    </script>
- <script>
+
     function checking(e){
       $('#third-party-app-table').find("td input[type='checkbox']").prop('checked',$(e).prop('checked'));
     }
@@ -171,11 +304,7 @@ Third party Apps
         location.reload();
       })
 
-    
-      
-      
- </script>
-<script>
+
      $('ul.nav-sidebar a').filter(function() {
         return this.id == 'setting';
     }).addClass('active');

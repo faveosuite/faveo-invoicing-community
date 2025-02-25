@@ -4,6 +4,7 @@
 
 @section('content-header')
     <div class="col-sm-6">
+
         <h1>Stripe</h1>
     </div>
     <div class="col-sm-6">
@@ -17,6 +18,13 @@
 @stop
 
 @section('content')
+    <style>
+        .custom-error{
+            font-size: 100%;
+            font-weight:normal !important;
+            color:#dc3545;
+        }
+    </style>
     <div class="col-md-12">
         <div class="card card-secondary card-outline">
             <div class="card-header">
@@ -25,7 +33,7 @@
             <div class="card-body">
                 <div id="alertMessage"></div>
                 <form id="stripeForm">
-                    <div class="form-group">
+                    <div class="form-group col-lg-5">
                         <label for="stripe_key" class="required">Stripe Publishable Key</label>
                         <input
                                 type="text"
@@ -39,15 +47,22 @@
                         @enderror
                         <small id="stripe_keycheck" class="text-danger"></small>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group col-lg-5">
                         <label for="stripe_secret" class="required">Stripe Secret Key</label>
+                        <div class="input-group">
                         <input
-                                type="text"
+                                type="password"
                                 id="stripe_secret"
                                 name="stripe_secret"
                                 value="{{ $stripeKeys->stripe_secret }}"
                                 class="form-control"
                                 placeholder="Enter Stripe Secret Key">
+                        <div class="input-group-append">
+                                        <span class="input-group-text" role="button" onclick="togglePasswordVisibility(this)">
+                                            <i class="fa fa-eye-slash"></i>
+                                        </span>
+                        </div>
+                        </div>
                         @error('stripe_secret')
                         <small class="text-danger">{{ $message }}</small>
                         @enderror
@@ -73,6 +88,7 @@
                 }
             }
             $("#stripeForm").validate({
+                errorClass:"custom-error",
                 rules: {
                     stripe_key: {
                         required: true,
@@ -157,4 +173,5 @@
             });
         });
     </script>
+
 @stop

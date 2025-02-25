@@ -15,7 +15,7 @@ Create Group
     </div><!-- /.col -->
 
 
-@endsection
+@stop
 
 @section('content')
 
@@ -27,7 +27,7 @@ Create Group
           
 
             <div class="card-body">
-                {!! Form::open(['url'=>'groups']) !!}
+                {!! Form::open(['url'=>'groups','id'=>'groupForm']) !!}
         
 
 
@@ -37,13 +37,18 @@ Create Group
 
                     <tr>
 
-                        <td><b>{!! Form::label('company',Lang::get('message.name'),['class'=>'required']) !!}</b></td>
+                        <td><b>{!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
 
                                 <div class='row'>
                                     <div class="col-md-10">
                                         {!! Form::text('name',null,['class' => 'form-control','id'=>'name']) !!}
+                                        @error('name')
+                                        <span class="error-message"> {{$message}}</span>
+                                        @enderror
+                                        <div class="input-group-append">
+                                        </div>
                                     </div>
 
                                 </div>
@@ -62,6 +67,9 @@ Create Group
                                 <div class='row'>
                                     <div class="col-md-10">
                                         {!! Form::text('headline',null,['class' => 'form-control']) !!}
+                                        @error('headline')
+                                        <span class="error-message"> {{$message}}</span>
+                                        @enderror
                                     </div>
 
                                 </div>
@@ -79,6 +87,9 @@ Create Group
                                 <div class='row'>
                                     <div class="col-md-10">
                                         {!! Form::text('tagline',null,['class' => 'form-control']) !!}
+                                        @error('tagline')
+                                        <span class="error-message"> {{$message}}</span>
+                                        @enderror
                                     </div>
 
                                 </div>
@@ -116,124 +127,24 @@ Create Group
                            <div class="form-group">
                             
                             <div class="col-md-4">
-                             <img src='{{ asset("images/$template->image")}}' class="img-thumbnail" style="height: 150;">
+                             <img src='{{ asset("storage/$template->image")}}' alt="Porto Theme" class="img-thumbnail" >
                              <br/>
-                            <input type="radio" name= 'pricing_templates_id' value='{{$template->id}}' style="text-align: center;">
+                            <input type="radio" name='pricing_templates_id' value='{{$template->id}}' id='template' style="text-align: center;">
                             {{$template->name}}
 
                              <br/><br/>
-                        </div>
+                                <span id="error-message"></span>
+                                @error('pricing_templates_id')
+                                <span class="error-message"> {{$message}}</span>
+                                @enderror
+                            </div>
                    
                             
-                            </div> 
-                        </td>
-
-                    </tr>
-
-                   <!--        <tr>
-
-                        <td><b>{!! Form::label('status',Lang::get('message.toggle_status')) !!}</b></td>
-                        <td>
-                             <p>{!! Form::hidden('status',0) !!}</p>
-                            <div class="form-group {{ $errors->has('status') ? 'has-error' : '' }}">
-
-                               
-                                <p>{!! Form::checkbox('status',1) !!}  {{Lang::get('message.check-this-box_to_toggle_status')}}</p>
-
-
-                            </div>
-                        </td>
-
-                    </tr> -->
-
-
-
-                   <!--  <tr>
-
-                        <td>
-
-                            <div class="box-header">
-                                <h3 class="box-title">{{Lang::get('message.configurable-options')}}</h3>
-                            </div>
-
-                        </td>
-
-                        <td>
-
-                        </td>
-
-                    </tr>
-
-                    <tr>
-
-                        <td><b>{!! Form::label('hidden',Lang::get('message.title'),['class'=>'required']) !!}</b></td>
-
-                        <td>
-                            <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
-
-                                <div class='row'>
-                                    <div class="col-md-6">
-                                        {!! Form::text('title',null,['class' => 'form-control']) !!}
-                                    </div>
-
-                                </div>
-
                             </div>
                         </td>
 
                     </tr>
 
-                    <tr>
-
-                        <td><b>{!! Form::label('hidden',Lang::get('message.type'),['class'=>'required']) !!}</b></td>
-
-                        <td>
-                            <div class="form-group {{ $errors->has('type') ? 'has-error' : '' }}">
-
-                                <div class='row'>
-                                    <div class="col-md-6">
-                                        {!! Form::select('type',[''=>'select a type','1'=>'dropdown','2'=>'radio'],null,['class' => 'form-control','id'=>'type']) !!}
-                                    </div>
-
-                                </div>
-
-                            </div>
-                        </td>
-
-                    </tr>
-
-                    <tr>
-
-                        <td><b>{!! Form::label('hidden',Lang::get('message.options')) !!}</b></td>
-
-                        <td>
-                            <div class="input_fields_wrap2">
-                            
-                                    
-                                    
-                                        <div class='row form-group'>
-                                            
-                                            <div class="col-md-4 {{ $errors->has('value.0.name') ? 'has-error' : '' }}">
-                                                <b>{!! Form::label('hidden',Lang::get('message.value'),['class'=>'required']) !!}</b>
-                                                <input type="text" name="value[][name]" class="form-control" value="{{ old('value.0.name') }}">
-                                            </div>
-                                            <div class="col-md-4 {{ $errors->has('price.0.name') ? 'has-error' : '' }}">
-                                                <b>{!! Form::label('hidden',Lang::get('message.price'),['class'=>'required']) !!}</b>
-                                                <input type="text" name="price[][name]" class="form-control" value="{{ old('price.0.name') }}">
-                                            </div>
-                                            <div class="col-md-4">
-                                                <br>
-                                                <a href="#" class="add_field_button2 btn btn-primary">Add More Options</a>
-                                            </div>
-                                            
-
-
-                                        </div>
-                            </div>
-
-                        </td>
-
-                    </tr> -->
 
                     {!! Form::close() !!}
                 </table>
@@ -250,7 +161,82 @@ Create Group
 
 
 </div>
+
 <script>
+
+    $(document).ready(function() {
+        const userRequiredFields = {
+            name:@json(trans('message.group_details.group_name')),
+            template:@json(trans('message.group_details.template')),
+        };
+
+        $('#groupForm').on('submit', function (e) {
+            const userFields = {
+                name:$('#name'),
+                template:$('#template'),
+            };
+
+
+            // Clear previous errors
+            Object.values(userFields).forEach(field => {
+                field.removeClass('is-invalid');
+                field.next().next('.error').remove();
+
+            });
+
+            let isValid = true;
+
+            const showError = (field, message) => {
+                field.addClass('is-invalid');
+                field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+            };
+
+            // Validate required fields
+            Object.keys(userFields).forEach(field => {
+                if (!userFields[field].val()) {
+                    showError(userFields[field], userRequiredFields[field]);
+                    isValid = false;
+                }
+            });
+
+            if(!document.querySelector('input[name="pricing_templates_id"]:checked')){
+                $('#error-message').css({"color": "#dc3545", "margin-top": "5px", "font-size": "80%"});
+
+                document.getElementById("error-message").textContent = @json(trans('message.group_details.template'));
+                document.getElementById("error-message").textContent = "Please select the template";
+
+                isValid=false;
+            }else{
+
+                document.getElementById("error-message").textContent = "";
+
+            }
+
+            // If validation fails, prevent form submission
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+        // Function to remove error when input'id' => 'changePasswordForm'ng data
+        const removeErrorMessage = (field) => {
+            field.classList.remove('is-invalid');
+            const error = field.nextElementSibling;
+            if (error && error.classList.contains('error')) {
+                error.remove();
+            }
+        };
+
+        // Add input event listeners for all fields
+        ['name'].forEach(id => {
+
+            document.getElementById(id).addEventListener('input', function () {
+                removeErrorMessage(this);
+
+            });
+        });
+    });
+
+
      $('ul.nav-sidebar a').filter(function() {
         return this.id == 'group';
     }).addClass('active');
@@ -275,12 +261,10 @@ Create Group
                 $('#groupslug').val(data);
             }
          })
-        });
+        }); 
     })
 
-</script>
 
-<script>
 $(document).ready(function () {
     var max_fields = 10; //maximum input boxes allowed
     var wrapper = $(".input_fields_wrap2"); //Fields wrapper
@@ -302,5 +286,5 @@ $(document).ready(function () {
     })
 });
 </script>
-
 @stop
+

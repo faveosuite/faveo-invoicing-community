@@ -89,6 +89,10 @@
         input[type="password"]::-ms-reveal {
             display: none !important;
         }
+        .error-message{
+            color: #dc3545;
+            font-size: 80%;
+        }
 
         .dropdown-menu-arrow:before {
             content: ""!important;
@@ -497,7 +501,11 @@
     </div>
     <!-- ./wrapper -->
 
-
+    <script>
+        setTimeout(function() {
+            $(".alert").slideUp(1000);
+        },10000);
+    </script>
     <!-- Bootstrap 3.3.2 JS -->
     <script src="{{asset('admin/plugins/iCheck/icheck.min.js')}}" type="text/javascript"></script>
 
@@ -597,8 +605,8 @@
 
 $("document").ready(function(){
     setTimeout(function(){
-        $("#success").remove();
-    }, 3000 );
+        $("#success").slideUp(1000);
+    }, 5000 );
 });
 
 
@@ -628,7 +636,21 @@ $("document").ready(function(){
                 icon.classList.toggle('fa-eye', isPassword);
             }
           </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let fields = document.querySelectorAll("input, textarea, select");
 
+            fields.forEach(function (field) {
+                field.addEventListener(field.tagName === "SELECT" ? "change" : "input", function () {
+                    let errorMessage = this.closest('.form-group').querySelector(".error-message");
+
+                    if (errorMessage) {
+                        errorMessage.style.display = "none";
+                    }
+                });
+            });
+        });
+    </script>
 
 
         </div><!-- ./wrapper -->

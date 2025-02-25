@@ -17,7 +17,6 @@ Groups
 @section('content')
 
 
-
 <div class="card card-secondary card-outline">
 
     <div class="card-header">
@@ -28,7 +27,6 @@ Groups
 
         </div>
     </div>
-
 
 
     <div id="response"></div>
@@ -107,8 +105,7 @@ Groups
                 $('.loader').css('display', 'block');
             },
         });
-    </script>
-    <script>
+
      $('ul.nav-sidebar a').filter(function() {
         return this.id == 'group';
     }).addClass('active');
@@ -159,13 +156,7 @@ Groups
         }  
 
      });
-                </script>
 
-
-
-
-
-<script>
     $(function () {
 
 

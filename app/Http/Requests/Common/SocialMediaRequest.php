@@ -23,11 +23,11 @@ class SocialMediaRequest extends FormRequest
      */
     public function rules()
     {
-        $regex = '/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/';
+        $regex = '/^(https?:\/\/)?([\w-]+\.)+([a-z]{2,6})(\/[\w-]*)*(\?.*)?(#.*)?$/i';
 
         if ($this->method() == 'POST') {
             return [
-                'name' => 'required|unique:social_media',
+                'name' => 'required|unique:social_media|max:50',
                 'link' => 'required|url|regex:'.$regex,
             ];
         } elseif ($this->method() == 'PATCH') {
