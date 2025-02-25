@@ -40,7 +40,8 @@ Edit Tax
                         <!-- name -->
                         {!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}
                         {!! Form::text('name',null,['class' => 'form-control','id'=>'tax-name']) !!}
-
+                        <div class="input-group-append">
+                        </div>
                     </div>
                    
                     <div class="col-md-4 form-group {{ $errors->has('tax_class') ? 'has-error' : '' }}">
@@ -49,11 +50,9 @@ Edit Tax
                          <select name="tax_classes_id" id="editTax" class="form-control">
                       <option value="{{$txClass->name}}">{{$taxClassName}}</option>
                       <option value="Others">Others</option>
-                       @if($options->tax_enable)
                       <option value="Intra State GST">Intra State GST (Same Indian State)</option>
                       <option value="Inter State GST">Inter State GST (Other Indian State)</option>
                       <option value="Union Territory GST">Union Territory GST (Indian Union Territory)</option>
-                        @endif
                       </select>
 
                        
@@ -107,7 +106,8 @@ Edit Tax
                         <!-- name -->
                         {!! Form::label('rate',Lang::get('message.rate').' (%)',['class'=>'required']) !!}
                         {!! Form::number('rate',null,['class' => 'form-control']) !!}
-
+                        <div class="input-group-append">
+                        </div>
                     </div>
                
 
@@ -294,6 +294,78 @@ $(document).find('.changegststate').hide();
     $('ul.nav-treeview a').filter(function() {
         return this.id == 'setting';
     }).parentsUntil(".nav-sidebar > .nav-treeview").addClass('menu-open').prev('a').addClass('active');
+</script>
+
+<script>
+    $(document).ready(function() {
+
+            const userRequiredFields = {
+                taxname:@json(trans('message.tax_details.tax_name')),
+                rate:@json(trans('message.tax_details.rate')),
+
+
+            };
+
+
+            $('#submit').on('click', function (e) {
+                if($('#editTax').val() == 'Others') {
+                    const userFields = {
+                        taxname: $('#tax-name'),
+                        rate: $('#rate'),
+                    };
+
+
+                    // Clear previous errors
+                    Object.values(userFields).forEach(field => {
+                        field.removeClass('is-invalid');
+                        field.next().next('.error').remove();
+
+                    });
+
+                    let isValid = true;
+
+                    const showError = (field, message) => {
+                        field.addClass('is-invalid');
+                        field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+                    };
+
+                    // Validate required fields
+                    Object.keys(userFields).forEach(field => {
+                        if (!userFields[field].val()) {
+                            showError(userFields[field], userRequiredFields[field]);
+                            isValid = false;
+                        }
+                    });
+
+
+                    // If validation fails, prevent form submission
+                    if (!isValid) {
+                        e.preventDefault();
+                    }
+                }
+
+            });
+            // Function to remove error when input'id' => 'changePasswordForm'ng data
+            const removeErrorMessage = (field) => {
+                field.classList.remove('is-invalid');
+                const error = field.nextElementSibling;
+                if (error && error.classList.contains('error')) {
+                    error.remove();
+                }
+            };
+
+            // Add input event listeners for all fields
+            ['taxname','rate'].forEach(id => {
+
+                document.getElementById(id).addEventListener('input', function () {
+                    removeErrorMessage(this);
+
+                });
+            });
+
+
+    });
+
 </script>
 @stop
 

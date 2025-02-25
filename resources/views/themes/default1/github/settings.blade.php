@@ -151,18 +151,22 @@ input:checked + .slider:before {
 
 </div>
 
+
+
 <script>
 $(document).ready(function (){
-  var githubstatus =  $('.checkbox').val();
-    if(githubstatus ==1)
+    var githubstatus=0;
+  githubstatus =  $('.checkbox').val();
+    if(githubstatus ===1)
      {
+         console.log(1);
         $('#github').prop('checked',true);
        $('#git_username').attr('enabled', true);
        $('#git_password').attr('enabled', true);
        $('#git_client').attr('enabled', true);
        $('#git_secret').attr('enabled', true);
 
-     } else if(githubstatus ==0){
+     } else if(githubstatus ===0){
       $('#github').prop('checked',false);
         $('.git_username').attr('disabled', true);
        $('.git_password').attr('disabled', true);
@@ -198,66 +202,105 @@ $(document).ready(function (){
      }
   });
 
+
+
+
+
+
         //Validate and pass value through ajax
-  $("#submit").on('click',function (){ //When Submit button is clicked
+  $("#submit").on('click',function (e){ //When Submit button is clicked
      if ($('#github').prop('checked')) {//if button is on
-             var githubstatus = 1;
-           if ($('#git_username').val() == "") { //if value is not entered
-            $('#user').show();
-            $('#user').html("Please Enter github Username");
-            $('#git_username').css("border-color","red");
-            $('#user').css({"color":"red","margin-top":"5px"});
-            return false;
-          } else if ($('#git_password').val() == "") {
-             $('#pass').show();
-            $('#pass').html("Please Enter Github Password");
-            $('#git_password').css("border-color","red");
-            $('#pass').css({"color":"red","margin-top":"5px"});
-            return false;
-          } else if ($('#git_client').val() == "") {
-             $('#c_id').show();
-            $('#c_id').html("Please Enter Client Id");
-            $('#git_client').css("border-color","red");
-            $('#c_id').css({"color":"red","margin-top":"5px"});
-             return false;
-          } else if ($('#git_secret').val() == "") {
-             $('#c_secret').show();
-            $('#c_secret').html("Please Enter Client Secret Key");
-            $('#git_secret').css("border-color","red");
-            $('#c_secret').css({"color":"red","margin-top":"5px"});
-             return false;
-          }
-    } else {
-       $('#user').html("");
-       $('#git_username').css("border-color","");
-       $('#pass').html("");
-       $('#git_password').css("border-color","");
-        $('#c_id').html("");
-       $('#git_client').css("border-color","");
-       $('#c_secret').html("");
-       $('#git_secret').css("border-color","");
-         var githubstatus = 0;
+
+         const userRequiredFields = {
+             git_username:@json(trans('message.github_details.name')),
+             git_password:@json(trans('message.github_details.password')),
+             git_client:@json(trans('message.github_details.client')),
+             git_secret:@json(trans('message.github_details.secret')),
+
+         };
+                 const userFields = {
+                     git_username: $('#git_username'),
+                     git_password: $('#git_password'),
+                     git_client: $('#git_client'),
+                     git_secret: $('#git_secret'),
+                 };
+
+
+                 // Clear previous errors
+                 Object.values(userFields).forEach(field => {
+                     field.removeClass('is-invalid');
+                     field.next().next('.error').remove();
+
+                 });
+
+                 let isValid = true;
+
+                 const showError = (field, message) => {
+                     field.addClass('is-invalid');
+                     field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+                 };
+
+                 // Validate required fields
+                 Object.keys(userFields).forEach(field => {
+                     if (!userFields[field].val()) {
+                         showError(userFields[field], userRequiredFields[field]);
+                         isValid = false;
+                     }
+                 });
+
+
+                 // If validation fails, prevent form submission
+                 if (!isValid) {
+                     githubstatus = 1;
+                     e.preventDefault();
+                 }else{
+                     githubstatus=0;
+                 }
+
+         /////////////////////////////////////////////
+
+         if(githubstatus==0) {
+             $("#submit").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+             $.ajax({
+                 url: '{{url("github-setting")}}',
+                 type: 'post',
+                 data: {
+                     "status": githubstatus,
+                     "git_username": $('#git_username').val(), "git_password": $('#git_password').val(),
+                     "git_client": $('#git_client').val(), "git_secret": $('#git_secret').val()
+                 },
+                 success: function (data) {
+                     $('#alertMessage').show();
+                     var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>' + data.update + '.</div>';
+                     $('#alertMessage').html(result + ".");
+                     $("#submit").html("<i class='fa fa-sync-alt'>&nbsp;</i>Update");
+                     setInterval(function () {
+                         $('#alertMessage').slideUp(7000);
+                     }, 1000);
+                 },
+             })
+         }
   }
-    $("#submit").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
-    $.ajax ({
-      url: '{{url("github-setting")}}',
-      type : 'post',
-      data: {
-       "status": githubstatus,
-       "git_username": $('#git_username').val(),"git_password" : $('#git_password').val() ,
-        "git_client":$('#git_client').val() ,  "git_secret" : $('#git_secret').val()
-      },
-       success: function (data) {
-            $('#alertMessage').show();
-            var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
-            $('#alertMessage').html(result+ ".");
-            $("#submit").html("<i class='fa fa-sync-alt'>&nbsp;</i>Update");
-              setInterval(function(){ 
-                $('#alertMessage').slideUp(3000); 
-            }, 1000);
-          },
-    })
   });
+
+// Function to remove error when input'id' => 'changePasswordForm'ng data
+const removeErrorMessage = (field) => {
+    field.classList.remove('is-invalid');
+    const error = field.nextElementSibling;
+    if (error && error.classList.contains('error')) {
+        error.remove();
+    }
+};
+
+// Add input event listeners for all fields
+['git_username', 'git_password', 'git_client','git_secret'].forEach(id => {
+
+    document.getElementById(id).addEventListener('input', function () {
+        removeErrorMessage(this);
+
+    });
+
+});
 </script>
 <script>
      $('ul.nav-sidebar a').filter(function() {
@@ -269,4 +312,78 @@ $(document).ready(function (){
         return this.id == 'setting';
     }).parentsUntil(".nav-sidebar > .nav-treeview").addClass('menu-open').prev('a').addClass('active');
 </script>
+
+<script>
+
+    const userRequiredFields = {
+        git_username:@json(trans('message.templateEdit_details.subject')),
+        git_password:@json(trans('message.templateEdit_details.template_type')),
+        git_client:@json(trans('message.templateEdit_details.content')),
+        git_secret:@json(trans('message.templateEdit_details.content')),
+
+    };
+    if ($('#github').prop('checked')) {//if button is on
+        $('#submi').on('click', function (e) {
+            const userFields = {
+                git_username: $('#git_username'),
+                git_password: $('#git_password'),
+                git_client: $('#git_client'),
+                git_secret: $('#git_secret'),
+            };
+
+
+            // Clear previous errors
+            Object.values(userFields).forEach(field => {
+                field.removeClass('is-invalid');
+                field.next().next('.error').remove();
+
+            });
+
+            let isValid = true;
+
+            const showError = (field, message) => {
+                field.addClass('is-invalid');
+                field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+            };
+
+            // Validate required fields
+            Object.keys(userFields).forEach(field => {
+                if (!userFields[field].val()) {
+                    showError(userFields[field], userRequiredFields[field]);
+                    isValid = false;
+                }
+            });
+
+
+            // If validation fails, prevent form submission
+            if (!isValid) {
+                var githubstatus = 1;
+                console.log(3);
+                e.preventDefault();
+            }
+        });
+    }
+        // Function to remove error when input'id' => 'changePasswordForm'ng data
+        const removeErrorMessage = (field) => {
+            field.classList.remove('is-invalid');
+            const error = field.nextElementSibling;
+            if (error && error.classList.contains('error')) {
+                error.remove();
+            }
+        };
+
+        // Add input event listeners for all fields
+        ['name', 'type', 'textarea'].forEach(id => {
+
+            document.getElementById(id).addEventListener('input', function () {
+                removeErrorMessage(this);
+
+            });
+
+        });
+
+
+</script>
+
+
 @stop

@@ -125,7 +125,7 @@ class BaseProductController extends ExtendedBaseProductController
             $plans = $plan->where('product', $productid)->pluck('name', 'id')->toArray();
             if (count($plans) > 0) {//If Plan Exist For A product, Display Dropdown for Plans
                 $field = "<div>
-                        <label class='required'>"./* @scrutinizer ignore-type */
+                        <label for='plan' class='required'>"./* @scrutinizer ignore-type */
                         \Lang::get('message.subscription').'</label>
                        '.\Form::select(
                             'plan',

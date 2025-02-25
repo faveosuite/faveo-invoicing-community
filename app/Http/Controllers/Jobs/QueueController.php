@@ -175,6 +175,10 @@ class QueueController extends Controller
 
     public function getFormById($id)
     {
+        $errors = session('errors');
+        $driverErrorMessage = $errors ? $errors->first('driver') : '';
+        $hostErrorMessage = $errors ? $errors->first('host') : '';
+        $queueErrorMessage = $errors ? $errors->first('queue') : '';
         try {
             $short = $this->getShortNameById($id);
             $form = '';

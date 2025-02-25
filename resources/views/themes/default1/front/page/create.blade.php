@@ -20,7 +20,7 @@ Create Page
 
 
 
-        {!! Form::open(['url'=>'pages','method'=>'post']) !!}
+        {!! Form::open(['url'=>'pages','method'=>'post','id'=>'createPage']) !!}
 
 
 
@@ -36,24 +36,36 @@ Create Page
                 <div class="row">
 
                     <div class="col-md-4 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                        <!-- first name -->
+                        <!-- name -->
                         {!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}
                         {!! Form::text('name',null,['class' => 'form-control','id'=>'name']) !!}
-
+                        @error('name')
+                        <span class="error-message"> {{$message}}</span>
+                        @enderror
+                        <div class="input-group-append">
+                        </div>
                     </div>
 
                     <div class="col-md-4 form-group {{ $errors->has('publish') ? 'has-error' : '' }}">
-                        <!-- last name -->
+                        <!-- publish -->
                         {!! Form::label('publish',Lang::get('message.publish'),['class'=>'required']) !!}
                         {!! Form::select('publish',[1=>'Yes',0=>'No'],null,['class' => 'form-control']) !!}
-
+                        @error('publish')
+                        <span class="error-message"> {{$message}}</span>
+                        @enderror
+                        <div class="input-group-append">
+                        </div>
                     </div>
 
                     <div class="col-md-4 form-group {{ $errors->has('slug') ? 'has-error' : '' }}">
-                        <!-- first name -->
+                        <!-- slug -->
                         {!! Form::label('slug',Lang::get('message.slug'),['class'=>'required']) !!}
                         {!! Form::text('slug',null,['class' => 'form-control','id'=>'slug']) !!}
-
+                        @error('slug')
+                        <span class="error-message"> {{$message}}</span>
+                        @enderror
+                        <div class="input-group-append">
+                        </div>
                     </div>
 
 
@@ -61,24 +73,34 @@ Create Page
                 <div class="row">
 
                     <div class="col-md-4 form-group {{ $errors->has('url') ? 'has-error' : '' }}">
-                        <!-- first name -->
+                        <!-- url -->
                         {!! Form::label('url',Lang::get('message.url'),['class'=>'required']) !!}
-                        {!! Form::text('url',null,['class' => 'form-control','id'=>'url']) !!}
 
+                        {!! Form::text('url',null,['class' => 'form-control','id'=>'url','placeholder'=>'https://example.com']) !!}
+
+                        @error('url')
+                        <span class="error-message"> {{$message}}</span>
+                        @enderror
+                        <div class="input-group-append">
+                        </div>
                     </div>
 
                     <div class="col-md-4 form-group {{ $errors->has('parent_page_id') ? 'has-error' : '' }}">
-                        <!-- last name -->
+                        <!-- parent_page_id -->
                         {!! Form::label('parent_page_id',Lang::get('message.parent-page')) !!}
                         {!! Form::select('parent_page_id',['0'=>'Choose','Parent Pages'=>$parents],null,['class' => 'form-control']) !!}
-
+                        @error('parent_page_id')
+                        <span class="error-message"> {{$message}}</span>
+                        @enderror
                     </div>
                    
                     <div class="col-md-4 form-group {{ $errors->has('parent_page_id') ? 'has-error' : '' }}">
-                        <!-- last name -->
+                        <!-- type -->
                         {!! Form::label('type',Lang::get('message.page_type')) !!}
-                          {!! Form::select('type',['none'=>'None','contactus'=>'Contact Us'],null,['class' => 'form-control']) !!} 
-
+                          {!! Form::select('type',['none'=>'None','contactus'=>'Contact Us'],null,['class' => 'form-control']) !!}
+                        @error('type')
+                        <span class="error-message"> {{$message}}</span>
+                        @enderror
                     </div>
 
                  </div>
@@ -118,7 +140,11 @@ Create Page
 
                         {!! Form::label('content',Lang::get('message.content'),['class'=>'required']) !!}
                         {!! Form::textarea('content',null,['class'=>'form-control','id'=>'textarea']) !!}
-
+                        @error('content')
+                        <span class="error-message"> {{$message}}</span>
+                        @enderror
+                        <div class="input-group-append">
+                        </div>
                     </div>
 
 
@@ -132,6 +158,8 @@ Create Page
     </div>
 
 </div>
+{!! Form::close() !!}
+
 <script>
      $('ul.nav-sidebar a').filter(function() {
         return this.id == 'all_new_page';
@@ -141,11 +169,84 @@ Create Page
     $('ul.nav-treeview a').filter(function() {
         return this.id == 'all_new_page';
     }).parentsUntil(".nav-sidebar > .nav-treeview").addClass('menu-open').prev('a').addClass('active');
-</script>
 
-{!! Form::close() !!}
+        $(document).ready(function() {
+        const userRequiredFields = {
+            name:@json(trans('message.page_details.add_name')),
+            publish:@json(trans('message.page_details.add_publish')),
+            slug:@json(trans('message.page_details.add_slug')),
+            url:@json(trans('message.page_details.add_url')),
+            content:@json(trans('message.page_details.add_content')),
+        };
 
-<script>
+        $('#createPage').on('submit', function (e) {
+            const userFields = {
+                name:$('#name'),
+                publish:$('#publish'),
+                slug:$('#slug'),
+                url:$('#url'),
+                content:$('#textarea'),
+
+            };
+
+
+            // Clear previous errors
+            Object.values(userFields).forEach(field => {
+                field.removeClass('is-invalid');
+                field.next().next('.error').remove();
+
+            });
+
+            let isValid = true;
+
+            const showError = (field, message) => {
+                field.addClass('is-invalid');
+                field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+            };
+
+            // Validate required fields
+            Object.keys(userFields).forEach(field => {
+                if (!userFields[field].val()) {
+                    showError(userFields[field], userRequiredFields[field]);
+                    isValid = false;
+                }
+            });
+
+            if(isValid && !isValidURL(userFields.url.val())){
+                showError(userFields.url,@json(trans('message.page_details.valid_url')),);
+                isValid=false;
+            }
+
+            // If validation fails, prevent form submission
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+        // Function to remove error when input'id' => 'changePasswordForm'ng data
+        const removeErrorMessage = (field) => {
+            field.classList.remove('is-invalid');
+            const error = field.nextElementSibling;
+            if (error && error.classList.contains('error')) {
+                error.remove();
+            }
+        };
+
+        // Add input event listeners for all fields
+        ['name','publish','url','slug','textarea'].forEach(id => {
+
+            document.getElementById(id).addEventListener('input', function () {
+                removeErrorMessage(this);
+
+            });
+        });
+
+            function isValidURL(url) {
+                const pattern = /^(https?:\/\/)?([\w-]+\.)+([a-z]{2,6})(\/[\w-]*)*(\?.*)?(#.*)?$/i;
+                return pattern.test(url);
+            }
+    });
+
+
 
     $(document).on('input', '#name', function () {
         

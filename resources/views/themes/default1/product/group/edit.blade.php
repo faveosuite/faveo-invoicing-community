@@ -22,28 +22,27 @@ Edit Group
     <div class="col-md-12">
         <div class="card card-secondary card-outline">
 
-
-            {!! Form::model($group,['url'=>'groups/'.$group->id,'method'=>'patch']) !!}
+            {!! Form::model($group,['url'=>'groups/'.$group->id,'method'=>'patch','id'=>'groupForm']) !!}
             <div class="card-body">
-
 
                 <table class="table table-condensed">
 
-
-
                     <tr>
-
-                        <td><b>{!! Form::label('company',Lang::get('message.name'),['class'=>'required']) !!}</b></td>
+                        <td><b>{!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
 
                                 <div class='row'>
                                     <div class="col-md-10">
                                         {!! Form::text('name',null,['class' => 'form-control']) !!}
+                                        @error('name')
+                                        <span class="error-message"> {{$message}}</span>
+                                        @enderror
+                                        <div class="input-group-append">
+                                        </div>
                                     </div>
 
                                 </div>
-
 
                             </div>
                         </td>
@@ -75,6 +74,9 @@ Edit Group
                                 <div class='row'>
                                     <div class="col-md-10">
                                         {!! Form::text('tagline',null,['class' => 'form-control']) !!}
+                                        @error('tagline')
+                                        <span class="error-message"> {{$message}}</span>
+                                        @enderror
                                     </div>
 
                                 </div>
@@ -101,9 +103,6 @@ Edit Group
                                                 ?>
                                                 <p>{!! Form::checkbox('hidden',1,$value) !!}  {{Lang::get('message.check-this-box-if-this-is-a-hidden-group')}}</p>
 
-                               
-
-
                             </div>
                         </td>
 
@@ -117,7 +116,7 @@ Edit Group
 
                            <div class="form-group">
                             <div class="col-md-4">
-                             <img src='{{ asset("images/$template->image")}}' class="img-thumbnail" style="height: 150;">
+                             <img src='{{ asset("storage/images/$template->image")}}' alt="Porto theme" class="img-thumbnail">
                              <br/>
                              @if($template->id == $selectedTemplate)
                              <input type="radio" id="template" name= 'pricing_templates_id' value="{{$template->id}}" checked style="text-align: center;">
@@ -127,14 +126,15 @@ Edit Group
                             {{$template->name}}
 
                              <br/><br/>
+                                @error('pricing_template_id')
+                                <span class="error-message"> {{$message}}</span>
+                                @enderror
                         </div>
-                   
-                          
+
                             </div> 
                         </td>
 
                     </tr>
-
                            <tr>
 
                         <td><b>{!! Form::label('status',Lang::get('message.toggle_status')) !!}</b></td>
@@ -149,10 +149,6 @@ Edit Group
                                                 }
                                                 ?>
                                                 <p>{!! Form::checkbox('status',1,$value) !!}  {{Lang::get('message.check-this-box_to_toggle_status')}}</p>
-
-                               
-
-
                             </div>
                         </td>
 
@@ -175,7 +171,71 @@ Edit Group
 
 
 </div>
+
 <script>
+
+    $(document).ready(function() {
+        const userRequiredFields = {
+            name:@json(trans('message.group_details.group_name')),
+
+
+        };
+
+        $('#groupForm').on('submit', function (e) {
+            const userFields = {
+                name:$('#name'),
+
+            };
+
+
+            // Clear previous errors
+            Object.values(userFields).forEach(field => {
+                field.removeClass('is-invalid');
+                field.next().next('.error').remove();
+
+            });
+
+            let isValid = true;
+
+            const showError = (field, message) => {
+                field.addClass('is-invalid');
+                field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+            };
+
+            // Validate required fields
+            Object.keys(userFields).forEach(field => {
+                if (!userFields[field].val()) {
+                    showError(userFields[field], userRequiredFields[field]);
+                    isValid = false;
+                }
+            });
+
+
+            // If validation fails, prevent form submission
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+        // Function to remove error when input'id' => 'changePasswordForm'ng data
+        const removeErrorMessage = (field) => {
+            field.classList.remove('is-invalid');
+            const error = field.nextElementSibling;
+            if (error && error.classList.contains('error')) {
+                error.remove();
+            }
+        };
+
+        // Add input event listeners for all fields
+        ['name'].forEach(id => {
+
+            document.getElementById(id).addEventListener('input', function () {
+                removeErrorMessage(this);
+
+            });
+        });
+    });
+
+
      $('ul.nav-sidebar a').filter(function() {
         return this.id == 'group';
     }).addClass('active');
@@ -211,9 +271,6 @@ $(document).ready(function () {
 });
 
 
-</script>
-
-<script>
     $(document).ready(function () {
         var max_fields = 10; //maximum input boxes allowed
         var wrapper = $(".input_fields_wrap2"); //Fields wrapper
@@ -235,5 +292,5 @@ $(document).ready(function () {
         })
     });
 </script>
-
 @stop
+

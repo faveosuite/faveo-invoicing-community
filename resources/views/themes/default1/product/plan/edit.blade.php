@@ -17,12 +17,8 @@
 @section('content')
   <div class="card card-secondary card-outline">
 
-  
-
-    
-    {!! Form::model($plan,['url'=>'plans/'.$plan->id,'method'=>'patch']) !!}
+    {!! Form::model($plan,['url'=>'plans/'.$plan->id,'method'=>'patch','id'=>'editPlan']) !!}
     <div class="card-body">
-
 
       <div class="row">
 
@@ -30,30 +26,36 @@
 
           <div class="row">
             <div class="col-md-4 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-              <!-- first name -->
+              <!-- name -->
               {!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}
-              {!! Form::text('name',null,['class' => 'form-control']) !!}
-
+              {!! Form::text('name',null,['class' => 'form-control','id'=>'planname']) !!}
+              @error('name')
+              <span class="error-message"> {{$message}}</span>
+              @enderror
+              <div class="input-group-append">
+              </div>
             </div>
             <div class="col-md-4 form-group {{ $errors->has('product') ? 'has-error' : '' }}">
-              <!-- first name -->
+              <!-- product -->
               {!! Form::label('product',Lang::get('message.product'),['class'=>'required']) !!}
               <select name="product" id="planproduct" class="form-control" onchange="myProduct()">
                 <option value="">Choose</option>
 
                 @foreach($products as $key=>$product)
                   <option value="{{$key}}"  <?php  if(in_array($product, $selectedProduct) ) { echo "selected";} ?>>{{$product}}</option>
-
                 @endforeach
               </select>
-
-
+              @error('product')
+              <span class="error-message"> {{$message}}</span>
+              @enderror
+              <div class="input-group-append">
+              </div>
 
             </div>
             <div class="col-md-4 form-group plandays {{ $errors->has('days') ? 'has-error' : '' }}">
-              <!-- last name -->
+              <!-- days-->
               {!! Form::label('days','Periods',['class'=>'required']) !!}
-              <select name="days" id="plan" class="form-control">
+              <select name="days" id="plandays" class="form-control">
                 <option value="">Choose</option>
 
                 @foreach($periods as $key=>$period)
@@ -61,7 +63,11 @@
 
                 @endforeach
               </select>
-
+              @error('days')
+              <span class="error-message"> {{$message}}</span>
+              @enderror
+              <div class="input-group-append">
+              </div>
             </div>
 
             <div class="col-md-12">
@@ -72,7 +78,7 @@
                     <tr>
                       <th class="col-sm-6" style="width:10%">{{ Lang::get('message.country') }} <span class="text-red">*</span> </th>
                       <th class="col-sm-6" style="width:10%">{{ Lang::get('message.currency') }} <span class="text-red">*</span> </th>
-                      <th class="col-sm-6" style="width:10%">{{ Lang::get('message.regular-price') }} <span class="text-red">*</span> </th>
+                      <th class="col-sm-6" style="width:10%">{{ Lang::get('message.price') }} <span class="text-red">*</span> </th>
                       <th class="col-sm-3" style="width:10%">
                         {{ Lang::get('Offer Price') }} <span class="text-bold">(%)</span>
                       </th>
@@ -87,7 +93,7 @@
                       <tr id="row{{$loop->iteration}}" class="form-group {{ $errors->has('add_price.'.$key) ? 'has-error' : '' }}">
 
                         <td>
-                          <select name="country_id[{{ $row['id'] }}]" class="form-control" >
+                          <select name="country_id[{{ $row['id'] }}]" class="form-control" id="country">
                             @if (0 === $row['country_id'])
                                 <option value="0" selected>Default</option>
                             @endif
@@ -101,10 +107,16 @@
                               @endforeach
                             @endif
                           </select>
+                          @error('country_id')
+                          <span class="error-message"> {{$message}}</span>
+                          @enderror
+
+                          <div class="input-group-append">
+                          </div>
                         </td>
 
                         <td>
-                          <select name="currency[{{ $row['id'] }}]" class="form-control">
+                          <select name="currency[{{ $row['id'] }}]" class="form-control" id="currency">
                             <option value="">
                                 Choose
                               </option>
@@ -116,23 +128,45 @@
                               </option>
                             @endforeach
                           </select>
+                          @error('currency')
+                          <span class="error-message"> {{$message}}</span>
+                          @enderror
+                          <div class="input-group-append">
+                          </div>
                         </td>
 
                         <td>
-                          <input type="text" class="form-control" name="add_price[{{ $row['id'] }}]" value="{{ $row['add_price'] }}">
-
+                          <input type="number" class="form-control" name="add_price[{{ $row['id'] }}]" value="{{ $row['add_price'] }}" id="regular_price">
+                          @error('add_price')
+                          <span class="error-message"> {{$message}}</span>
+                          @enderror
+                          <div class="input-group-append">
+                          </div>
                           <td>
-                          <input type="text" class="form-control" name="offer_price[{{ $row['id'] }}]" value="{{ $row['offer_price'] }}">
+                          <input type="number" class="form-control" name="offer_price[{{ $row['id'] }}]" value="{{ $row['offer_price'] }}">
+                          @error('offer_price')
+                          <span class="error-message"> {{$message}}</span>
+                          @enderror
+                          <div class="input-group-append">
+                          </div>
                         </td>
                         </td>
 
                         <td>
                           <div class="{{ ($row['country_id'] != 0) ? 'input-group' : '' }}">
-                            <input type="text" class="form-control" name="renew_price[{{ $row['id'] }}]" value="{{ $row['renew_price'] }}"> &nbsp;&nbsp;
+                            <input type="number" class="form-control" name="renew_price[{{ $row['id'] }}]" value="{{ $row['renew_price'] }}" id="renew_price"> &nbsp;&nbsp;
+                            @error('renew_price')
+                            <span class="error-message"> {{$message}}</span>
+                            @enderror
+                            <div class="input-group-append">
+                            </div>
                             @if($row['country_id'] != 0)
                               <span class="input-group-text btn_remove" id="{{$loop->iteration}}"><i class="fa fa-minus"></i></span>
+
                             @endif
+
                           </div>
+
                         </td>
 
                       </tr>
@@ -150,6 +184,9 @@
               <!-- last name -->
               {!! Form::label('description','Price Description') !!}
               {!! Form::text("price_description",$priceDescription,['class' => 'form-control' ,'placeholder'=>'Enter Price Description to be Shown on Pricing Page. eg: Yearly,Monthly,One-Time']) !!}
+              @error('description')
+              <span class="error-message"> {{$message}}</span>
+              @enderror
               <h6 id="dayscheck"></h6>
 
             </div>
@@ -157,7 +194,11 @@
               <!-- last name -->
               {!! Form::label('product_quantity','Product Quantity',['class'=>'required']) !!}
               {!! Form::number("product_quantity",$productQuantity,['class' => 'form-control','disabled'=>'disabled','id'=>'prodquant','placeholder'=>'Pricing for No. of Products']) !!}
-
+              @error('product_quantity')
+              <span class="error-message"> {{$message}}</span>
+              @enderror
+              <div class="input-group-append">
+              </div>
             </div>
 
             <div class="col-md-4 form-group">
@@ -166,23 +207,23 @@
                         </label></i>
                 {!! Form::label('agents','No. of Agents',['class'=>'required']) !!}
               {!! Form::number("no_of_agents",$agentQuantity,['class' => 'form-control' ,'disabled'=>'disabled','id'=>'agentquant','placeholder'=>'Pricing for No. of Agents']) !!}
-
+              @error('no_of_agents')
+              <span class="error-message"> {{$message}}</span>
+              @enderror
+              <div class="input-group-append">
+              </div>
             </div>
 
           </div>
 
         </div>
-
-
       </div>
       <div class="box-footer">
-      <button type="submit" class="btn btn-primary pull-left"><i class="fas fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}</button>
+      <button type="submit" class="btn btn-primary pull-left" id="planButtons"><i class="fas fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}</button>
 
     </div>
 
     </div>
-
-    
 
   </div>
 
@@ -191,6 +232,76 @@
   {!! Form::close() !!}
 
   <script>
+
+    $(document).ready(function() {
+      const userRequiredFields = {
+        planname:@json(trans('message.plan_details.planname')),
+        planproduct:@json(trans('message.plan_details.planproduct')),
+        agentquant:@json(trans('message.plan_details.agentquant')),
+        regular_price:@json(trans('message.plan_details.regular_price')),
+        renew_price:@json(trans('message.plan_details.renewal_price')),
+        currency:@json(trans('message.plan_details.currency')),
+        country:@json(trans('message.plan_details.country')),
+
+      };
+
+      $('#editPlan').on('submit', function (e) {
+        const userFields = {
+          planname:$('#planname'),
+          planproduct:$('#planproduct'),
+          regular_price:$('#regular_price'),
+          renew_price:$('#renew_price'),
+          currency:$('#currency'),
+          country:$('#country'),
+        };
+
+
+        // Clear previous errors
+        Object.values(userFields).forEach(field => {
+          field.removeClass('is-invalid');
+          field.next().next('.error').remove();
+
+        });
+
+        let isValid = true;
+
+        const showError = (field, message) => {
+          field.addClass('is-invalid');
+          field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+        };
+
+        // Validate required fields
+        Object.keys(userFields).forEach(field => {
+          if (!userFields[field].val()) {
+            showError(userFields[field], userRequiredFields[field]);
+            isValid = false;
+          }
+        });
+
+        // If validation fails, prevent form submission
+        if (!isValid) {
+          e.preventDefault();
+        }
+      });
+      // Function to remove error when input'id' => 'changePasswordForm'ng data
+      const removeErrorMessage = (field) => {
+        field.classList.remove('is-invalid');
+        const error = field.nextElementSibling;
+        if (error && error.classList.contains('error')) {
+          error.remove();
+        }
+      };
+
+      // Add input event listeners for all fields
+      ['planname','planproduct','country','currency','agentquant','renew_price','regular_price'].forEach(id => {
+
+        document.getElementById(id).addEventListener('input', function () {
+          removeErrorMessage(this);
+
+        });
+      });
+    });
+
     $(function () {
         $('[data-toggle="tooltip"]').tooltip({
             container : 'body'
