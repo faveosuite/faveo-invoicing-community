@@ -1,4 +1,5 @@
 <?php
+
 return [
 
     'password' => 'Le password devono essere almeno sei caratteri e corrispondere alla conferma.',

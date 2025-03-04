@@ -1,4 +1,5 @@
 <?php
+
 return [
 
     'accepted' => '必须接受 :attribute。',
@@ -129,8 +130,6 @@ return [
             'rule-name' => '自定义消息',
         ],
     ],
-
-
 
     'attributes' => [],
 

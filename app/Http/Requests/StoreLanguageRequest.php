@@ -29,7 +29,7 @@ class StoreLanguageRequest extends FormRequest
                 if (! in_array($value, $availableLanguages)) {
                     return $fail(__('lang.invalid_language'));
                 }
-            }]
+            }],
         ];
     }
 }

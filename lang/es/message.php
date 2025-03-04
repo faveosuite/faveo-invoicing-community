@@ -2,7 +2,6 @@
 
 return [
 
-
     'free-login' => 'Inicia sesión para comenzar tu sesión',
     'false' => 'La prueba gratuita ha expirado',
     'succs_fre' => 'La factura y el pedido se han generado con éxito',
@@ -700,70 +699,70 @@ return [
     'cloud_heading' => '¡Vamos a crear juntos su instancia de nube Faveo!',
     'cloud_field_label' => 'Ingrese el nombre de dominio deseado para su nube',
     'cloud_price' => 'Precio por agente',
-        //Delete message
-        'confirm' => '¿Está seguro de que desea eliminar esto?',
+    //Delete message
+    'confirm' => '¿Está seguro de que desea eliminar esto?',
 
-        //Delete message
-        'cloud_domain_change' => '¡Buenas noticias! Su dominio en la nube ha sido cambiado con éxito. Tenga en cuenta que habrá un breve tiempo de inactividad de aproximadamente 5 minutos para aplicar estos cambios. ¡Gracias por su paciencia!',
-        'limit_is_up' => 'Nos hemos dado cuenta de que ha superado el límite de prueba gratuita, por favor elimine sus instancias existentes para continuar.',
-        'too_long' => 'Parece ser un dominio largo, intente crear uno con un menor número de caracteres.',
-        'cloud_created_successfully' => 'Recibirá las credenciales de inicio de sesión en su correo electrónico registrado.',
-        'add-demo' => 'Página de demostración',
-        'remove_coupon' => 'El código de cupón ha sido eliminado con éxito.',
-        'no_product' => 'No se aplicó ningún cupón. No se puede eliminar el código de cupón.',
-        'oops' => '¡Ups! Algo salió mal.',
-        'err_msg' => '¡Ups! Algo salió mal.',
-        'mail_verify' => 'Número de intentos de verificación de correo electrónico',
-        'mobile_verify' => 'Número de intentos de verificación de móvil',
+    //Delete message
+    'cloud_domain_change' => '¡Buenas noticias! Su dominio en la nube ha sido cambiado con éxito. Tenga en cuenta que habrá un breve tiempo de inactividad de aproximadamente 5 minutos para aplicar estos cambios. ¡Gracias por su paciencia!',
+    'limit_is_up' => 'Nos hemos dado cuenta de que ha superado el límite de prueba gratuita, por favor elimine sus instancias existentes para continuar.',
+    'too_long' => 'Parece ser un dominio largo, intente crear uno con un menor número de caracteres.',
+    'cloud_created_successfully' => 'Recibirá las credenciales de inicio de sesión en su correo electrónico registrado.',
+    'add-demo' => 'Página de demostración',
+    'remove_coupon' => 'El código de cupón ha sido eliminado con éxito.',
+    'no_product' => 'No se aplicó ningún cupón. No se puede eliminar el código de cupón.',
+    'oops' => '¡Ups! Algo salió mal.',
+    'err_msg' => '¡Ups! Algo salió mal.',
+    'mail_verify' => 'Número de intentos de verificación de correo electrónico',
+    'mobile_verify' => 'Número de intentos de verificación de móvil',
 
-        'toggle_status' => 'Frecuencia de precios',
-        'check-this-box_to_toggle_status' => 'Marque esta casilla si desea ver el precio mensual/anual en las plantillas',
-        'highlight' => 'Destacar',
-        'tick-to-highlight-product' => 'Marque para destacar el producto',
-        'tick-to-add_to_contact-product' => 'Marque si desea agregar el botón de Contactar con Ventas',
-        'cloud_domain' => 'Ingrese el dominio en la nube',
-        'cloud_domain_empty' => "¡Ups! No puede generar una factura para este plan sin proporcionar un dominio.",
-        'domain_taken' => '¡Ups! Parece que este dominio ya está en uso por otro usuario. Intente con un dominio diferente.',
+    'toggle_status' => 'Frecuencia de precios',
+    'check-this-box_to_toggle_status' => 'Marque esta casilla si desea ver el precio mensual/anual en las plantillas',
+    'highlight' => 'Destacar',
+    'tick-to-highlight-product' => 'Marque para destacar el producto',
+    'tick-to-add_to_contact-product' => 'Marque si desea agregar el botón de Contactar con Ventas',
+    'cloud_domain' => 'Ingrese el dominio en la nube',
+    'cloud_domain_empty' => '¡Ups! No puede generar una factura para este plan sin proporcionar un dominio.',
+    'domain_taken' => '¡Ups! Parece que este dominio ya está en uso por otro usuario. Intente con un dominio diferente.',
 
-        'without_installation_found' => '¡Ups! Parece que no puede realizar cambios en los agentes si no podemos localizar su dominio en la nube. Renueve su suscripción primero y luego realice las modificaciones necesarias en los agentes. Puede ajustar los agentes en la configuración de su nube bajo su pedido. ¡Gracias!',
-        'nothing_changed' => '¡No se preocupe! Parece que no ha habido cambios. Su dominio actual y el nuevo parecen ser los mismos. No dude en ponerse en contacto si tiene alguna pregunta o necesita más ayuda.',
-        'cloud_not_allowed' => '¡Atención! No se le permite actualizar el subdominio asociado con faveocloud.com. Si desea cambiar su dominio, utilice su propio dominio personalizado. Si necesita ayuda o tiene preguntas, ¡no dude en preguntar!',
-        'installation_path_not_found' => 'Parece que no puede realizar cambios en este pedido si no podemos localizar su dominio en la nube. ¡Gracias!',
-        'wrong_agents' => '¡Oh no, parece que ocurrió un pequeño problema! Nuestro equipo está trabajando para solucionarlo rápidamente. Una vez resuelto, podrá modificar sus agentes. ¡Gracias por su paciencia!',
-        'wrong_upgrade' => '¡Oh no, parece que ocurrió un pequeño problema! Nuestro equipo está trabajando para solucionarlo rápidamente. Una vez resuelto, podrá actualizar o reducir su plan actual. ¡Gracias por su paciencia!',
-        'wrong_domain' => '¡Oh no, parece que ocurrió un pequeño problema! Nuestro equipo está trabajando para solucionarlo rápidamente. Una vez resuelto, podrá personalizar su dominio. ¡Gracias por su paciencia!',
-        'agent_updated' => '¡Hurra! Hemos actualizado los agentes en su plan actual. ¡Todo listo para continuar!',
-        'change_agents_failed' => '¡Ups! Mientras intentaba modificar sus agentes, algo salió mal en el servidor en la nube. No se preocupe, nuestro increíble equipo ya está trabajando para solucionarlo.',
-        'agent_reduce' => "¡Ups! No puede reducir el número de agentes en este plan en este momento. Parece que tiene algunos agentes activos en su cuenta. Le recomendamos desactivar agentes adicionales antes de intentar ajustar la cantidad de agentes en su plan.",
-        'not_allowed_domain' => '¡Ups! Parece que ingresó un formato de dominio no permitido en Internet. Por favor, ingrese un nombre de dominio válido para continuar.',
-        'agent_zero' => 'Parece que ha seleccionado cero agentes. Por favor, elija un número válido de agentes para continuar.',
-        'cloud_cname' => 'Registro Cname de la nube',
-        'pop_delete' => 'La configuración del producto fue eliminada.',
-        'saved_products' => 'La configuración del producto fue guardada y aplicada con éxito.',
-        'saved_data_center' => 'Los detalles del centro de datos fueron guardados con éxito.',
-        'no_lat_or_long' => 'No se encontró latitud y longitud para esta ubicación.',
-        'removed_datacenter' => 'El centro de datos fue eliminado.',
-        'something_went_wrong' => 'Algo salió mal. Le recomendamos intentar más tarde.',
-        'cloud_country' => 'País',
-        'cloud_state' => 'Estado/Provincia',
-        'cloud_city' => 'Ciudad',
-        'cloud_product' => 'Producto SaaS',
-        'cloud_free_plan' => 'Plan de prueba gratuito de SaaS',
-        'cloud_product_key' => 'Clave del producto SaaS',
-        'cloud_label_radio' => 'Etiqueta para el botón de opción',
-        'cloud_label_field' => 'Etiqueta para el campo de dominio',
-        'cloud_top_message' => 'Encabezado para el popup',
+    'without_installation_found' => '¡Ups! Parece que no puede realizar cambios en los agentes si no podemos localizar su dominio en la nube. Renueve su suscripción primero y luego realice las modificaciones necesarias en los agentes. Puede ajustar los agentes en la configuración de su nube bajo su pedido. ¡Gracias!',
+    'nothing_changed' => '¡No se preocupe! Parece que no ha habido cambios. Su dominio actual y el nuevo parecen ser los mismos. No dude en ponerse en contacto si tiene alguna pregunta o necesita más ayuda.',
+    'cloud_not_allowed' => '¡Atención! No se le permite actualizar el subdominio asociado con faveocloud.com. Si desea cambiar su dominio, utilice su propio dominio personalizado. Si necesita ayuda o tiene preguntas, ¡no dude en preguntar!',
+    'installation_path_not_found' => 'Parece que no puede realizar cambios en este pedido si no podemos localizar su dominio en la nube. ¡Gracias!',
+    'wrong_agents' => '¡Oh no, parece que ocurrió un pequeño problema! Nuestro equipo está trabajando para solucionarlo rápidamente. Una vez resuelto, podrá modificar sus agentes. ¡Gracias por su paciencia!',
+    'wrong_upgrade' => '¡Oh no, parece que ocurrió un pequeño problema! Nuestro equipo está trabajando para solucionarlo rápidamente. Una vez resuelto, podrá actualizar o reducir su plan actual. ¡Gracias por su paciencia!',
+    'wrong_domain' => '¡Oh no, parece que ocurrió un pequeño problema! Nuestro equipo está trabajando para solucionarlo rápidamente. Una vez resuelto, podrá personalizar su dominio. ¡Gracias por su paciencia!',
+    'agent_updated' => '¡Hurra! Hemos actualizado los agentes en su plan actual. ¡Todo listo para continuar!',
+    'change_agents_failed' => '¡Ups! Mientras intentaba modificar sus agentes, algo salió mal en el servidor en la nube. No se preocupe, nuestro increíble equipo ya está trabajando para solucionarlo.',
+    'agent_reduce' => '¡Ups! No puede reducir el número de agentes en este plan en este momento. Parece que tiene algunos agentes activos en su cuenta. Le recomendamos desactivar agentes adicionales antes de intentar ajustar la cantidad de agentes en su plan.',
+    'not_allowed_domain' => '¡Ups! Parece que ingresó un formato de dominio no permitido en Internet. Por favor, ingrese un nombre de dominio válido para continuar.',
+    'agent_zero' => 'Parece que ha seleccionado cero agentes. Por favor, elija un número válido de agentes para continuar.',
+    'cloud_cname' => 'Registro Cname de la nube',
+    'pop_delete' => 'La configuración del producto fue eliminada.',
+    'saved_products' => 'La configuración del producto fue guardada y aplicada con éxito.',
+    'saved_data_center' => 'Los detalles del centro de datos fueron guardados con éxito.',
+    'no_lat_or_long' => 'No se encontró latitud y longitud para esta ubicación.',
+    'removed_datacenter' => 'El centro de datos fue eliminado.',
+    'something_went_wrong' => 'Algo salió mal. Le recomendamos intentar más tarde.',
+    'cloud_country' => 'País',
+    'cloud_state' => 'Estado/Provincia',
+    'cloud_city' => 'Ciudad',
+    'cloud_product' => 'Producto SaaS',
+    'cloud_free_plan' => 'Plan de prueba gratuito de SaaS',
+    'cloud_product_key' => 'Clave del producto SaaS',
+    'cloud_label_radio' => 'Etiqueta para el botón de opción',
+    'cloud_label_field' => 'Etiqueta para el campo de dominio',
+    'cloud_top_message' => 'Encabezado para el popup',
 
-        'tooltip_js_code' => 'Ingrese su código JavaScript en el cuadro a continuación. Recuerde, puede incluir <script> al principio y </script> al final, o omitarlos por completo. El sistema se encargará del formato correctamente. Elija una de las opciones para evitar problemas.',
-        'existings_invoice' => 'Tiene una factura pendiente para este producto. Por favor, proceda con el pago o elimine la factura e intente nuevamente.',
-        'user_suspend' => 'Este usuario está suspendido en el sistema. Restaure el usuario para ver los detalles.',
-        'country_notfound' => 'No se pudo determinar el país.',
+    'tooltip_js_code' => 'Ingrese su código JavaScript en el cuadro a continuación. Recuerde, puede incluir <script> al principio y </script> al final, o omitarlos por completo. El sistema se encargará del formato correctamente. Elija una de las opciones para evitar problemas.',
+    'existings_invoice' => 'Tiene una factura pendiente para este producto. Por favor, proceda con el pago o elimine la factura e intente nuevamente.',
+    'user_suspend' => 'Este usuario está suspendido en el sistema. Restaure el usuario para ver los detalles.',
+    'country_notfound' => 'No se pudo determinar el país.',
 
-        //Strong Password
-        'strong_password' => 'La contraseña debe contener al menos 8 caracteres, una letra mayúscula, una letra minúscula, un número y un carácter especial.',
+    //Strong Password
+    'strong_password' => 'La contraseña debe contener al menos 8 caracteres, una letra mayúscula, una letra minúscula, un número y un carácter especial.',
 
-        'password_requirements' => 'Su contraseña debe tener:',
-        'password_requirements_list' => [
+    'password_requirements' => 'Su contraseña debe tener:',
+    'password_requirements_list' => [
         ['id' => 'length', 'text' => 'Entre 8 y 16 caracteres'],
         ['id' => 'letter', 'text' => 'Caracteres en minúsculas (a-z)'],
         ['id' => 'capital', 'text' => 'Caracteres en mayúsculas (A-Z)'],
@@ -771,55 +770,55 @@ return [
         ['id' => 'space', 'text' => 'Caracteres especiales (~*!@$#%_+.?:,{ })'],
     ],
 
-        'old_pass_required' => 'Se requiere la contraseña anterior.',
-        'new_pass_required' => 'Se requiere la nueva contraseña.',
-        'confirm_pass_required' => 'Se requiere confirmar la contraseña.',
-        'password_mismatch' => 'La contraseña confirmada no coincide.',
-        'password_required' => 'Se requiere una contraseña.',
-        'new_password_different' => 'La nueva contraseña debe ser diferente de la contraseña anterior.',
-        'reset_link_expired' => 'El enlace de restablecimiento de la contraseña ha expirado o no se encontró. Por favor, intente restablecer la contraseña nuevamente.',
+    'old_pass_required' => 'Se requiere la contraseña anterior.',
+    'new_pass_required' => 'Se requiere la nueva contraseña.',
+    'confirm_pass_required' => 'Se requiere confirmar la contraseña.',
+    'password_mismatch' => 'La contraseña confirmada no coincide.',
+    'password_required' => 'Se requiere una contraseña.',
+    'new_password_different' => 'La nueva contraseña debe ser diferente de la contraseña anterior.',
+    'reset_link_expired' => 'El enlace de restablecimiento de la contraseña ha expirado o no se encontró. Por favor, intente restablecer la contraseña nuevamente.',
 
-        //file storage
+    //file storage
 
-        'file_storage' => 'Almacenamiento de archivos',
-        'set_file_storage' => 'Establecer la ruta de almacenamiento de archivos',
-        'storage_disk' => 'Disco de almacenamiento',
-        'storage_path' => 'Ruta de almacenamiento',
-        's3_bucket' => 'Cubo S3',
-        's3_region' => 'Región S3',
-        's3_access_key' => 'Clave de acceso S3',
-        's3_secret_key' => 'Clave secreta S3',
-        's3_endpoint_url' => 'URL de endpoint S3',
-        's3_path_style_endpoint' => 'Endpoint S3 estilo ruta',
-        's3_url' => 'URL S3',
-        'product_storage' => 'Almacenamiento de productos',
-        'product_storage_required' => 'El almacenamiento de productos es requerido',
-        'disk_required' => 'El disco de almacenamiento es requerido',
-        'path_required' => 'La ruta de almacenamiento es requerida',
-        's3_bucket_required' => 'El cubo S3 es requerido',
-        's3_region_required' => 'La región S3 es requerida',
-        's3_access_key_required' => 'La clave de acceso S3 es requerida',
-        's3_secret_key_required' => 'La clave secreta S3 es requerida',
-        's3_endpoint_url_required' => 'La URL de endpoint S3 es requerida',
-        'setting_updated' => 'Configuración de almacenamiento actualizada con éxito.',
-        'file_not_exist' => 'El archivo solicitado no existe.',
-        's3_error' => 'Se proporcionaron detalles inválidos de S3.',
-        'disk_tooltip' => 'Seleccione el disco de almacenamiento que desea usar. "Sistema" significa almacenamiento local en el servidor, mientras que "S3" se refiere a almacenamiento en la nube de Amazon S3.',
-        'path_tooltip' => 'Especifique la ruta para almacenar todos los archivos (accesibles por la aplicación y siguiendo la estructura de directorios del servidor).',
-        'error_occured_while_downloading' => 'Ocurrió un error al descargar el archivo.',
-        'file_exist' => 'El archivo existe',
+    'file_storage' => 'Almacenamiento de archivos',
+    'set_file_storage' => 'Establecer la ruta de almacenamiento de archivos',
+    'storage_disk' => 'Disco de almacenamiento',
+    'storage_path' => 'Ruta de almacenamiento',
+    's3_bucket' => 'Cubo S3',
+    's3_region' => 'Región S3',
+    's3_access_key' => 'Clave de acceso S3',
+    's3_secret_key' => 'Clave secreta S3',
+    's3_endpoint_url' => 'URL de endpoint S3',
+    's3_path_style_endpoint' => 'Endpoint S3 estilo ruta',
+    's3_url' => 'URL S3',
+    'product_storage' => 'Almacenamiento de productos',
+    'product_storage_required' => 'El almacenamiento de productos es requerido',
+    'disk_required' => 'El disco de almacenamiento es requerido',
+    'path_required' => 'La ruta de almacenamiento es requerida',
+    's3_bucket_required' => 'El cubo S3 es requerido',
+    's3_region_required' => 'La región S3 es requerida',
+    's3_access_key_required' => 'La clave de acceso S3 es requerida',
+    's3_secret_key_required' => 'La clave secreta S3 es requerida',
+    's3_endpoint_url_required' => 'La URL de endpoint S3 es requerida',
+    'setting_updated' => 'Configuración de almacenamiento actualizada con éxito.',
+    'file_not_exist' => 'El archivo solicitado no existe.',
+    's3_error' => 'Se proporcionaron detalles inválidos de S3.',
+    'disk_tooltip' => 'Seleccione el disco de almacenamiento que desea usar. "Sistema" significa almacenamiento local en el servidor, mientras que "S3" se refiere a almacenamiento en la nube de Amazon S3.',
+    'path_tooltip' => 'Especifique la ruta para almacenar todos los archivos (accesibles por la aplicación y siguiendo la estructura de directorios del servidor).',
+    'error_occured_while_downloading' => 'Ocurrió un error al descargar el archivo.',
+    'file_exist' => 'El archivo existe',
 
-        'verify_mobile' => 'Verificar móvil',
-        'verify_email' => 'Verificar correo electrónico',
-        'all_set' => 'Todo listo',
+    'verify_mobile' => 'Verificar móvil',
+    'verify_email' => 'Verificar correo electrónico',
+    'all_set' => 'Todo listo',
 
-        'enter_code' => 'Ingresar código',
-        'otp_placeholder' => 'Ingresar OTP',
-        'otp_description' => 'Ingrese el código OTP para la verificación que ha recibido en su móvil registrado.',
-        'email_otp_description' => 'Ingrese el código OTP para la verificación que ha recibido en su correo electrónico registrado. Por favor, revise su bandeja de entrada y la carpeta de spam.',
-        'resend_otp' => 'Reenviar OTP',
-        'otp_call' => 'Obtener OTP por llamada',
-        'verify' => 'Verificar',
+    'enter_code' => 'Ingresar código',
+    'otp_placeholder' => 'Ingresar OTP',
+    'otp_description' => 'Ingrese el código OTP para la verificación que ha recibido en su móvil registrado.',
+    'email_otp_description' => 'Ingrese el código OTP para la verificación que ha recibido en su correo electrónico registrado. Por favor, revise su bandeja de entrada y la carpeta de spam.',
+    'resend_otp' => 'Reenviar OTP',
+    'otp_call' => 'Obtener OTP por llamada',
+    'verify' => 'Verificar',
     'email_verification_sent' => 'Se ha enviado el enlace de verificación a su correo electrónico. Por favor, revise su bandeja de entrada y la carpeta de spam.',
     'resend_email' => 'Reenviar correo electrónico',
     'all_success' => '¡ÉXITO!',
@@ -1280,7 +1279,7 @@ return [
     'analytics_custom_code' => 'Código personalizado de Analytics',
     'fields' => 'Campos de Analytics/Código Personalizado',
     'auto_faveo_licenser' => 'Licenciador Automático Faveo & Gestor de Actualizaciones',
-    'do_not_allow_domain' => "No permitir restricción basada en dominio/IP",
+    'do_not_allow_domain' => 'No permitir restricción basada en dominio/IP',
     'google_recaptcha' => 'Google reCAPTCHA',
     'msg_mobile_verification' => 'Msg 91 (Verificación Móvil)',
     'show_terms_registration' => 'Mostrar términos en la página de registro',
@@ -1391,7 +1390,7 @@ return [
     'no_tax_rates' => 'No hay tasas de impuestos',
     'store' => 'Tienda',
 
-//Master both client and admin panels
+    //Master both client and admin panels
     'admin_dashboard' => 'Panel de administración',
     'my_account' => 'Mi cuenta',
     'start_free_trial' => 'INICIAR PRUEBA GRATUITA',
@@ -1432,7 +1431,7 @@ return [
     'enter_domain_license' => 'Ingrese dominio y descargue el archivo de licencia',
     'installation_details' => 'Detalles de instalación',
 
-//payement panel
+    //payement panel
     'payment_date' => 'Fecha de pago',
     'auto_renewal_subscription' => 'Renovación automática para suscripción futura',
     'subscription_start_date' => 'Fecha de inicio de suscripción',
@@ -1458,7 +1457,7 @@ return [
     'coupon' => 'Cupón',
     'actions' => 'Acciones',
 
-//Tax panel
+    //Tax panel
     'create_tax' => 'Crear impuesto',
     'caps_others' => 'OTROS',
     'others' => 'Otros',
@@ -1497,7 +1496,7 @@ return [
     'show_cart_page' => 'Mostrar en la página de carrito',
     'select_taxes' => 'Seleccionar impuestos',
 
-//Product panel
+    //Product panel
     'all_product_details' => 'Agregar detalles del producto',
     'enter_json_format' => 'Ingrese en formato JSON.',
     'upload' => 'Subir',
@@ -1526,21 +1525,21 @@ return [
     'all_types' => 'Todos los Tipos',
     'configure_queue' => 'Configurar Cola',
 
-//renew panel
+    //renew panel
     'renew_product' => 'Asegúrate de que el carrito esté vacío para renovar tu producto',
     'click_renew' => 'Haz clic aquí para renovar',
     'renew_your_order' => 'Renueva tu pedido',
     'renew_order' => 'Renovar Pedido',
     'renewal_price_per_agent' => 'Precio de renovación por agente: ',
 
-//report panel
+    //report panel
     'file_name' => 'Nombre del archivo',
     'format' => 'Formato',
     'contact' => 'Contacto',
     'report_settings' => 'Configuración de informe',
     'report_limit' => 'Añadir registros por hoja. El límite máximo es 3000.',
 
-//tenanat panel
+    //tenanat panel
     'cloud_details' => 'Detalles de la Nube',
     'cloud_server' => 'Servidor en la Nube',
     'customise_cloud_popup' => 'Personalizar ventana emergente de la Nube',
@@ -1568,7 +1567,7 @@ return [
     'app_key' => 'Clave de la aplicación',
     'app_secret' => 'Secreto de la aplicación',
 
-//user-client panel
+    //user-client panel
     'create_new_user' => 'Crear nuevo usuario',
     'create_user' => 'Crear usuario',
     'position' => 'Posición',
@@ -1682,7 +1681,7 @@ return [
     'error_logs' => 'Registros de errores',
     'view_logs' => 'Ver registros',
 
-//visitstats
+    //visitstats
     'request' => 'Solicitud',
     'visitor' => 'Visitante',
     'browser' => 'Navegador',
@@ -1697,4 +1696,4 @@ return [
     'last_10_requests' => 'Últimas 10 solicitudes',
     'caps_orders' => 'PEDIDOS',
 
- ];
+];

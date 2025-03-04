@@ -140,6 +140,6 @@ return [
     'sign_up_as_admin' => 'Đăng ký làm Quản trị viên',
     'system_information' => 'Thông tin hệ thống',
     'close' => 'Đóng',
-    'username_info' => 'Tên người dùng chỉ có thể chứa các ký tự chữ cái và số, dấu cách, dấu gạch dưới, dấu gạch ngang, dấu chấm và ký tự @.'
+    'username_info' => 'Tên người dùng chỉ có thể chứa các ký tự chữ cái và số, dấu cách, dấu gạch dưới, dấu gạch ngang, dấu chấm và ký tự @.',
 
 ];

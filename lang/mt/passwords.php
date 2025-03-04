@@ -1,4 +1,5 @@
 <?php
+
 return [
 
     'password' => 'Il-password irid tkun ta\' mill-inqas 6 karattri u għandu jkollha korrispondenza mal-konferma.',

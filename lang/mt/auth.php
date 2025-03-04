@@ -1,4 +1,5 @@
 <?php
+
 return [
 
     'failed' => 'Dawn il-kredenzjali ma jikkorrispondux.',

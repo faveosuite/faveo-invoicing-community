@@ -1,4 +1,5 @@
 <?php
+
 return [
 
     'accepted' => 'Irid jiġi aċċettat il-kamp :attribute.',

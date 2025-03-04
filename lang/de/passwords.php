@@ -1,4 +1,5 @@
 <?php
+
 return [
 
     'password' => 'Passwörter müssen mindestens sechs Zeichen lang sein und mit der Bestätigung übereinstimmen.',

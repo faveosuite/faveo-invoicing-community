@@ -117,7 +117,7 @@ return [
     'user_name' => 'Nome utente',
     'user_email' => 'Email utente',
     'password_not_match' => 'Le password non corrispondono',
-//new
+    //new
     'installation_check' => 'Questo test controllerà i prerequisiti necessari per installare Agora Invoice Community',
     'db_setup_error_1' => 'Ciò significa che le informazioni su nome utente e password sono errate oppure il tuo host non è raggiungibile.',
     'db_setup_error_2' => 'Sei sicuro di avere già un database con il nome fornito?',
@@ -132,8 +132,8 @@ return [
     'all_ok' => 'Tutto ok',
     'warning' => 'Attenzione',
     'error' => 'Errore',
-    'instruction_2' => "Non è un impedimento, ma è consigliato avere questa installazione per far funzionare alcune funzionalità",
-    'instruction_3' => "Agora Invoice Community richiede questa funzionalità e non può funzionare senza di essa",
+    'instruction_2' => 'Non è un impedimento, ma è consigliato avere questa installazione per far funzionare alcune funzionalità',
+    'instruction_3' => 'Agora Invoice Community richiede questa funzionalità e non può funzionare senza di essa',
     'click_here' => 'Clicca qui',
     'continue_installation_process' => 'per continuare il processo di installazione.',
     'database_details' => 'Inserisci i dettagli di connessione del database.',

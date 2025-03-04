@@ -1,6 +1,6 @@
 <?php
-return [
 
+return [
 
     'accepted' => ':attribute må godtas.',
     'accepted_if' => ':attribute må godtas når :other er :value.',

@@ -39,11 +39,11 @@ class LanguageMiddleware
         $lang = match (true) {
             Session::has('language') => Session::get('language'),
             Cache::has('language') => Cache::get('language'),
-            !Cache::has('language') && isInstall() => Setting::select('content')->where('id', 1)->first()->content,
+            ! Cache::has('language') && isInstall() => Setting::select('content')->where('id', 1)->first()->content,
             default => 'en',
         };
 
-        if (!Cache::has('language') && isInstall()) {
+        if (! Cache::has('language') && isInstall()) {
             Cache::forever('language', $lang);
         }
 

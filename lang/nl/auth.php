@@ -1,4 +1,5 @@
 <?php
+
 return [
 
     'failed' => 'Deze inloggegevens komen niet overeen met onze gegevens.',
