@@ -1,4 +1,5 @@
 <?php
+
 return [
 
     'accepted' => ':attribute phải được chấp nhận.',

@@ -1,4 +1,5 @@
 <?php
+
 return [
 
     'accepted' => ':attribute mora biti prihvaćen.',

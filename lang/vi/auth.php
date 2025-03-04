@@ -1,4 +1,5 @@
 <?php
+
 return [
 
     'failed' => 'Những thông tin đăng nhập này không khớp với hồ sơ của chúng tôi.',

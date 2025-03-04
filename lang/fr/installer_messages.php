@@ -115,7 +115,7 @@ return [
     'user_email' => "E-mail de l'utilisateur",
     'password_not_match' => 'Les mots de passe ne correspondent pas',
 
-//nouveau
+    //nouveau
     'installation_check' => 'Ce test vérifiera les prérequis nécessaires pour installer Agora Invoice Community',
     'db_setup_error_1' => "Cela signifie soit que les informations de nom d'utilisateur et de mot de passe sont incorrectes, soit que votre hôte n'est pas accessible.",
     'db_setup_error_2' => 'Êtes-vous sûr d’avoir déjà une base de données existante avec le nom de base de données fourni ?',
@@ -131,7 +131,7 @@ return [
     'warning' => 'Avertissement',
     'error' => 'Erreur',
     'instruction_2' => "Ce n'est pas un problème majeur, mais il est recommandé d'avoir cette fonctionnalité installée pour que certaines fonctionnalités fonctionnent correctement.",
-    'instruction_3' => "Agora Invoice Community nécessite cette fonctionnalité et ne peut pas fonctionner sans elle.",
+    'instruction_3' => 'Agora Invoice Community nécessite cette fonctionnalité et ne peut pas fonctionner sans elle.',
     'click_here' => 'Cliquez ici',
     'continue_installation_process' => 'pour continuer le processus d’installation.',
     'database_details' => 'Entrez les détails de connexion à votre base de données.',
@@ -140,7 +140,7 @@ return [
     'database_name' => 'Nom de la base de données',
     'finishing_setup' => 'Veuillez patienter, finalisation de l’installation...',
     'lic_agreement_1' => 'Veuillez lire attentivement cet accord de licence logiciel avant de poursuivre ou d’utiliser le logiciel. En cliquant sur le bouton "Accepter", vous acceptez d’être lié par cet accord. Si vous n’acceptez pas tous les termes de cet accord, arrêtez le processus d’installation et quittez.',
-    'lic_agreement_2' => "CONTRAT DE LICENCE UTILISATEUR FINAL",
+    'lic_agreement_2' => 'CONTRAT DE LICENCE UTILISATEUR FINAL',
     'lic_agreement_3' => "CE « CONTRAT DE LICENCE UTILISATEUR FINAL » (LE « CLUF ») EST UN CONTRAT JURIDIQUE ENTRE L'INDIVIDU OU L'ENTITÉ LÉGALE OU L'ASSOCIATION PRÉVOYANT D'UTILISER LE LOGICIEL (« VOUS » OU « CLIENT ») ET FAVEO. EN VOUS INSCRIVANT POUR LE LOGICIEL OU EN UTILISANT LE LOGICIEL, VOUS DÉCLAREZ, GARANTISSEZ ET ACCEPTEZ AVOIR LU, COMPRIS ET ACCEPTÉ D'ÊTRE LIÉ PAR LES TERMES DU CLUF. SI VOUS N’ACCEPTEZ PAS D’ÊTRE LIÉ PAR LE CLUF, OU SI VOUS N’AVEZ PAS L’AUTORITÉ POUR ENGAGER LE CLIENT AU CLUF, VOUS NE POUVEZ PAS UTILISER LE LOGICIEL.",
     'definition' => 'Définitions',
     'i_accept' => "J'accepte les",

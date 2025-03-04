@@ -583,7 +583,7 @@ return [
     'active' => 'نشط',
     'inactive' => 'غير نشط',
     'activate' => 'تنشيط',
-    'extension_required_error' => "الإضافة :extension في PHP مطلوبة لهذه الوظيفة.",
+    'extension_required_error' => 'الإضافة :extension في PHP مطلوبة لهذه الوظيفة.',
     'unknown_error_occured' => 'حدث خطأ غير معروف',
     'dependencies' => 'التبعيات',
 
@@ -775,7 +775,6 @@ return [
     'email_click_here' => 'انقر هنا',
     'activate_account' => 'لتفعيل حسابك: ',
 
-
     'page_not_found' => 'الصفحة غير موجودة',
     'sorry' => 'نأسف، ولكن الصفحة التي كنت تبحث عنها غير موجودة.',
     'useful_links' => 'إليك بعض الروابط المفيدة',
@@ -783,7 +782,6 @@ return [
     'my_orders' => 'طلباتي',
     'my_profile' => 'ملفي الشخصي',
     'contact_us' => 'اتصل بنا',
-
 
     'login_lr' => 'تسجيل الدخول | التسجيل',
     'sign_lr' => 'تسجيل الدخول أو التسجيل',
@@ -815,7 +813,6 @@ return [
     'well_done' => 'أحسنت!',
     'error_select_country' => 'يرجى اختيار الدولة',
 
-
     'error_valid_number' => 'يرجى إدخال رقم هاتف صالح',
     'error_occurred' => 'حدث خطأ. يرجى المحاولة مرة أخرى.',
     'error_one_country' => 'يرجى اختيار دولة واحدة',
@@ -831,7 +828,6 @@ return [
     'contact_send_msg' => 'إرسال الرسالة',
     'our_office' => 'مكتبنا',
 
-
     'forgot_password' => 'نسيت كلمة المرور؟ قم بإعادة تعيينها الآن!',
     'lost_password' => 'فقدت كلمة المرور الخاصة بك؟',
     'know_password' => 'أعرف كلمة المرور الخاصة بي',
@@ -840,7 +836,6 @@ return [
     'sending' => 'إرسال...',
     'error_occurs' => 'حدث خطأ.',
     'reset_password' => 'إعادة تعيين كلمة المرور',
-
 
     'change_faveo' => 'هل تريد تغيير نطاق faveo السحابي الحالي؟',
     'current_domain' => 'أدخل النطاق الحالي',
@@ -1000,7 +995,6 @@ return [
     'subscriptions_table' => 'جدول الاشتراكات',
     'invalid_format' => 'تنسيق غير صالح.',
 
-
     'all_pages' => 'جميع الصفحات',
     'create_new_page' => 'إنشاء صفحة جديدة',
     'edit_page' => 'تحرير الصفحة',
@@ -1010,13 +1004,11 @@ return [
     'select_checkbox' => 'يرجى تحديد خانة اختيار واحدة على الأقل',
     'search_result' => 'نتيجة البحث',
 
-
     'all_widgets' => 'جميع الأدوات',
     'create_widget' => 'إنشاء أداة',
     'configure_mailchimp' => 'قم بتكوين حساب Mailchimp الخاص بك في الإعدادات للوصول',
     'configure_tweet' => 'قم بتكوين حساب تويتر الخاص بك في الإعدادات للوصول',
     'edit_widget' => 'تحرير الأداة',
-
 
     'remove_product' => 'إزالة المنتج',
     'cart_totals' => 'إجمالي السلة',
@@ -1067,12 +1059,10 @@ return [
     'paid_with' => 'دفع بواسطة',
     'no_records_found' => 'لم يتم العثور على سجلات',
 
-
     'sorry_something_wrong' => 'عذرًا، حدث خطأ ما',
     'error_fixed' => 'نحن نعمل على ذلك وسنقوم بإصلاحه في أقرب وقت ممكن.',
     'go_back' => 'الرجوع',
     'be_right_back' => 'سنعود قريبًا.',
-
 
     'all_categories' => 'جميع الفئات',
     'category_name' => 'الاسم',
@@ -1238,13 +1228,11 @@ return [
     'deactivate' => 'إلغاء التفعيل',
     'provider' => 'مزود',
 
-
     'github_setting' => 'إعدادات جيثب',
     'enter_github_username' => 'الرجاء إدخال اسم المستخدم في جيثب',
     'enter_github_password' => 'الرجاء إدخال كلمة مرور جيثب',
     'enter_github_clientid' => 'الرجاء إدخال معرّف العميل',
     'enter_github_client_secret_key' => 'الرجاء إدخال مفتاح السر العميل',
-
 
     'edit_invoice' => 'تعديل الفاتورة',
     'view_user' => 'عرض المستخدم',
@@ -1271,7 +1259,7 @@ return [
     'reissue_license' => 'إعادة إصدار الترخيص',
     'validate' => 'التحقق',
     'generating_pdf' => 'جارٍ إنشاء PDF',
-    'please_enter_message' => 'الرجاء إدخال رسالتك','advance_search' => 'بحث متقدم',
+    'please_enter_message' => 'الرجاء إدخال رسالتك', 'advance_search' => 'بحث متقدم',
     'expand' => 'توسيع',
     'unpaid' => 'غير مدفوع',
     'partially_paid' => 'مدفوع جزئياً',
@@ -1285,7 +1273,7 @@ return [
     'no_tax_rates' => 'لا توجد معدلات ضريبة',
     'store' => 'المتجر',
 
-//لوحة الإدارة والعميل
+    //لوحة الإدارة والعميل
     'admin_dashboard' => 'لوحة تحكم المشرف',
     'my_account' => 'حسابي',
     'start_free_trial' => 'ابدأ التجربة المجانية',
@@ -1326,7 +1314,7 @@ return [
     'enter_domain_license' => 'أدخل النطاق وقم بتنزيل ملف الرخصة',
     'installation_details' => 'تفاصيل التثبيت',
 
-//لوحة الدفع
+    //لوحة الدفع
     'payment_date' => 'تاريخ الدفع',
     'auto_renewal_subscription' => 'التجديد التلقائي للاشتراكات المستقبلية',
     'subscription_start_date' => 'تاريخ بدء الاشتراك',
@@ -1513,7 +1501,7 @@ return [
     'error_logs' => 'سجلات الأخطاء',
     'view_logs' => 'عرض السجلات',
 
-//visitstats
+    //visitstats
     'request' => 'طلب',
     'visitor' => 'زائر',
     'browser' => 'متصفح',

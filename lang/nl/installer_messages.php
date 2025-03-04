@@ -146,5 +146,4 @@ return [
     'close' => 'Sluiten',
     'username_info' => 'Gebruikersnaam kan alleen alfanumerieke tekens, spaties, onderstrepingen, koppelteken, punten en het @-symbool bevatten.',
 
-
 ];

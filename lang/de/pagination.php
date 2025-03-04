@@ -1,4 +1,5 @@
 <?php
+
 return [
 
     'previous' => '&laquo; Zurück',

@@ -1,4 +1,5 @@
 <?php
+
 return [
 
     'accepted' => 'يجب قبول :attribute.',

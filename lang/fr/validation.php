@@ -1,4 +1,5 @@
 <?php
+
 return [
 
     'accepted' => 'Le :attribute doit être accepté.',
@@ -125,14 +126,14 @@ return [
     'url' => 'Le :attribute doit être une URL valide.',
     'uuid' => 'Le :attribute doit être un UUID valide.',
 
-// Custom Validation Language Lines
+    // Custom Validation Language Lines
     'custom' => [
         'attribute-name' => [
             'rule-name' => 'custom-message',
         ],
     ],
 
-// Custom Validation Attributes
+    // Custom Validation Attributes
     'attributes' => [],
 
 ];

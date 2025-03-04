@@ -1,4 +1,5 @@
 <?php
+
 return [
 
     'failed' => 'Ovi podaci se ne poklapaju sa našim zapisima.',

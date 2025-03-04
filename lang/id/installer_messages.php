@@ -114,7 +114,7 @@ return [
     'user_name' => 'Nama pengguna',
     'user_email' => 'Email pengguna',
     'password_not_match' => 'Kata sandi tidak cocok',
-//new
+    //new
     'installation_check' => 'Tes ini akan memeriksa prasyarat yang diperlukan untuk menginstal Agora Invoice Community',
     'db_setup_error_1' => 'Ini berarti informasi nama pengguna dan kata sandi salah atau host Anda tidak dapat dijangkau.',
     'db_setup_error_2' => 'Apakah Anda yakin memiliki database yang sudah ada dengan nama database yang diberikan?',
@@ -129,8 +129,8 @@ return [
     'all_ok' => 'Semua Oke',
     'warning' => 'Peringatan',
     'error' => 'Kesalahan',
-    'instruction_2' =>"Ini bukan hal yang menghalangi, tetapi disarankan untuk memasang ini agar beberapa fitur dapat berfungsi.",
-    'instruction_3' =>"Agora Invoice Community membutuhkan fitur ini dan tidak dapat berfungsi tanpanya.",
+    'instruction_2' => 'Ini bukan hal yang menghalangi, tetapi disarankan untuk memasang ini agar beberapa fitur dapat berfungsi.',
+    'instruction_3' => 'Agora Invoice Community membutuhkan fitur ini dan tidak dapat berfungsi tanpanya.',
     'click_here' => 'Klik di sini',
     'continue_installation_process' => 'untuk melanjutkan proses instalasi.',
     'database_details' => 'Masukkan detail koneksi database Anda.',

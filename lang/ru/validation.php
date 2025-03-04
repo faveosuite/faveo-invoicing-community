@@ -1,4 +1,5 @@
 <?php
+
 return [
 
     'accepted' => 'Поле :attribute должно быть принято.',

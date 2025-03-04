@@ -1,4 +1,5 @@
 <?php
+
 return [
 
     'failed' => 'Disse legitimasjonene samsvarer ikke med våre poster.',

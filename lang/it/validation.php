@@ -1,4 +1,5 @@
 <?php
+
 return [
 
     'accepted' => 'Il :attribute deve essere accettato.',

@@ -1,4 +1,5 @@
 <?php
+
 return [
 
     'free-login' => '登錄以開始您的會話',
@@ -1378,7 +1379,7 @@ return [
     'no_tax_rates' => '無稅率',
     'store' => '商店',
 
-//Master both client and admin panels
+    //Master both client and admin panels
     'admin_dashboard' => '管理員儀表板',
     'my_account' => '我的帳戶',
     'start_free_trial' => '開始免費試用',
@@ -1419,7 +1420,7 @@ return [
     'enter_domain_license' => '輸入域名並下載許可證文件',
     'installation_details' => '安裝詳情',
 
-//payment panel
+    //payment panel
     'payment_date' => '付款日期',
     'auto_renewal_subscription' => '自動續訂未來訂閱',
     'subscription_start_date' => '訂閱開始日期',
@@ -1445,7 +1446,7 @@ return [
     'coupon' => '優惠券',
     'actions' => '操作',
 
-//Tax panel
+    //Tax panel
     'create_tax' => '創建稅務',
     'caps_others' => '其他',
     'others' => '其他',
@@ -1484,7 +1485,7 @@ return [
     'show_cart_page' => '顯示在購物車頁面',
     'select_taxes' => '選擇稅收',
 
-//Product panel
+    //Product panel
     'all_product_details' => '添加產品詳情',
     'enter_json_format' => '輸入 JSON 格式。',
     'upload' => '上傳',
@@ -1513,21 +1514,21 @@ return [
     'all_types' => '所有類型',
     'configure_queue' => '配置隊列',
 
-//renew panel
+    //renew panel
     'renew_product' => '請確保購物車為空以便續訂您的產品',
     'click_renew' => '點擊此處以續訂',
     'renew_your_order' => '續訂您的訂單',
     'renew_order' => '續訂訂單',
     'renewal_price_per_agent' => '每位代理續訂價格：',
 
-//report panel
+    //report panel
     'file_name' => '檔案名稱',
     'format' => '格式',
     'contact' => '聯繫方式',
     'report_settings' => '報告設置',
     'report_limit' => '每個工作表添加記錄的數量。最大限制是 3000。',
 
-//tenanat panel
+    //tenanat panel
     'cloud_details' => '雲端詳情',
     'cloud_server' => '雲端伺服器',
     'customise_cloud_popup' => '自訂雲端彈出窗口',
@@ -1555,7 +1556,7 @@ return [
     'app_key' => '應用金鑰',
     'app_secret' => '應用密鑰',
 
-//user-client panel
+    //user-client panel
     'create_new_user' => '創建新用戶',
     'create_user' => '創建用戶',
     'position' => '職位',
@@ -1670,7 +1671,7 @@ return [
     'error_logs' => '錯誤日誌',
     'view_logs' => '查看日誌',
 
-//visitstats
+    //visitstats
     'request' => '請求',
     'visitor' => '訪客',
     'browser' => '瀏覽器',

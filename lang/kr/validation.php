@@ -1,4 +1,5 @@
 <?php
+
 return [
 
     'accepted' => ':attribute는 반드시 동의해야 합니다.',
