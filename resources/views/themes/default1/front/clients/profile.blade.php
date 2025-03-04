@@ -146,7 +146,8 @@ input:checked + .slider:before {
                     <div class="tab-pane tab-pane-navigation active" id="profile" role="tabpanel">
 
                            <div class="row">
-                             {!! Form::model($user,['method' => 'PATCH','files'=>true , 'id' => 'client_form']) !!}
+                               {!! html()->modelForm($user)->patch()->acceptsFiles()->id('client_form') !!}
+
                                <div class="d-flex justify-content-center mb-4" id="profile_img">
                                    <div class="profile-image-outer-container">
                                        <?php
@@ -168,32 +169,33 @@ input:checked + .slider:before {
                                     <div class="form-group row {{ $errors->has('first_name') ? 'has-error' : '' }}">
                                         <label class="col-lg-3 col-form-label form-control-label line-height-9 pt-2 text-2 required">First name</label>
                                         <div class="col-lg-9">
-                                        {!! Form::text('first_name',null,['class' => 'form-control text-3 h-auto py-2 ','id'=>'firstName']) !!}
-                                        <h6 id="firstNameCheck"></h6>
+                                            {!! html()->text('first_name')->class('form-control text-3 h-auto py-2')->id('firstName') !!}
+
+                                            <h6 id="firstNameCheck"></h6>
                                         </div>
                                     </div>
                                     <div class="form-group row {{ $errors->has('last_name') ? 'has-error' : '' }}">
                                         <label class="col-lg-3 col-form-label form-control-label line-height-9 pt-2 text-2 required">Last name</label>
                                         <div class="col-lg-9">
-                                         {!! Form::text('last_name',null,['class' => 'form-control text-3 h-auto py-2','id'=>'lastName']) !!}
-                                         <h6 id="lastNameCheck"></h6>
+                                            {!! html()->text('last_name')->class('form-control text-3 h-auto py-2')->id('lastName') !!}
+                                            <h6 id="lastNameCheck"></h6>
                                         </div>
                                     </div>
                                     <div class="form-group row {{ $errors->has('email') ? 'has-error' : '' }}">
                                         <label class="col-lg-3 col-form-label form-control-label line-height-9 pt-2 text-2 required">Email</label>
                                         <div class="col-lg-9">
-                                             {!! Form::text('email',null,['class' => 'form-control text-3 h-auto py-2','id'=>'Email']) !!}
-                                             <h6 id="emailCheck"></h6>
+                                            {!! html()->email('email')->class('form-control text-3 h-auto py-2')->id('Email') !!}
+                                            <h6 id="emailCheck"></h6>
                                         </div>
                                     </div>
                                     <div class="form-group row {{ $errors->has('mobile_code') ? 'has-error' : '' }}">
                                         <label class="col-lg-3 col-form-label form-control-label line-height-9 pt-2 text-2 required">Mobile</label>
                                         <div class="col-lg-9">
-                                              {!! Form::hidden('mobile_code',null,['id'=>'code_hidden']) !!}
-                                               <!--<input class="form-control selected-dial-code"  id="mobile_code" value="{{$user->mobile}}" name="mobile" type="tel"> -->
+                                            {!! html()->hidden('mobile_code')->id('code_hidden') !!}
+                                            <!--<input class="form-control selected-dial-code"  id="mobile_code" value="{{$user->mobile}}" name="mobile" type="tel"> -->
 
-                                            {!! Form::input('tel', 'mobile', $user->mobile, ['class' => 'form-control selected-dial-code', 'id' => 'incode' ]) !!}
-                                            {!! Form::hidden('mobile_country_iso',null,['id' => 'mobile_country_iso']) !!}
+                                            {!! html()->tel('mobile', $user->mobile)->class('form-control selected-dial-code')->id('incode') !!}
+                                            {!! html()->hidden('mobile_country_iso')->id('mobile_country_iso') !!}
                                             <span id="invalid-msg" class="hide"></span>
                                                <span id="inerror-msg"></span>
                                         </div>
@@ -201,22 +203,22 @@ input:checked + .slider:before {
                                     <div class="form-group row {{ $errors->has('company') ? 'has-error' : '' }}">
                                         <label class="col-lg-3 col-form-label form-control-label line-height-9 pt-2 text-2 required">Company</label>
                                         <div class="col-lg-9">
-                                            {!! Form::text('company',null,['class' => 'form-control text-3 h-auto py-2','id'=>'Company']) !!}
-                                             <h6 id="companyCheck"></h6>
+                                            {!! html()->text('company')->class('form-control text-3 h-auto py-2')->id('Company') !!}
+                                            <h6 id="companyCheck"></h6>
                                         </div>
                                     </div>
                                     <div class="form-group row {{ $errors->has('address') ? 'has-error' : '' }}">
                                         <label class="col-lg-3 col-form-label form-control-label line-height-9 pt-2 text-2 required">Address</label>
                                         <div class="col-lg-9">
-                                        {!! Form::textarea('address',null,['class' => 'form-control text-3 h-auto py-2','id'=>'Address']) !!}
-                                           <h6 id="addressCheck"></h6>
+                                            {!! html()->textarea('address')->class('form-control text-3 h-auto py-2')->id('Address') !!}
+                                            <h6 id="addressCheck"></h6>
 
                                         </div>
                                     </div>
                                     <div class="form-group row {{ $errors->has('town') ? 'has-error' : '' }}">
                                         <label class="col-lg-3 col-form-label form-control-label line-height-9 pt-2 text-2"></label>
                                         <div class="col-lg-6">
-                                            {!! Form::text('town',null,['class' => 'form-control text-3 h-auto py-2','id'=>'Town', 'placeholder' => 'Enter your town']) !!}
+                                            {!! html()->text('town')->class('form-control text-3 h-auto py-2')->id('Town')->placeholder('Enter your town') !!}
 
                                         </div>
                                         <div class="col-lg-3 {{ $errors->has('state') ? 'has-error' : '' }}">
@@ -238,12 +240,10 @@ input:checked + .slider:before {
                                      <div class="form-group row {{ $errors->has('=country') ? 'has-error' : '' }}">
                                         <label class="col-lg-3 col-form-label form-control-label line-height-9 pt-2 text-2">Country</label>
                                         <div class="col-lg-9">
-                                            {!! Form::text('country', $selectedCountry, [ 'class' => 'form-control input-lg','onChange' => 'getCountryAttr(this.value);','readonly' => 'readonly','title' => 'Contact admin to update your country','data-toggle' => 'tooltip',
-                                             'data-placement' => 'top'
-                                             ]) !!}
+                                            {!! html()->text('country', $selectedCountry)->class('form-control input-lg')->attribute('onChange', 'getCountryAttr(this.value);')->readonly()->title('Contact admin to update your country')->attribute('data-toggle', 'tooltip')->attribute('data-placement', 'top') !!}
 
-                                            {!! Form::hidden('country',null,['class' => 'form-control input-lg', 'id'=>'country']) !!}
-                                         <h6 id="countryCheck"></h6>
+                                            {!! html()->hidden('country')->id('country') !!}
+                                            <h6 id="countryCheck"></h6>
 
                                         </div>
                                     </div>
@@ -251,7 +251,7 @@ input:checked + .slider:before {
                                         <label class="col-lg-3 col-form-label form-control-label line-height-9 pt-2 text-2">Time Zone</label>
                                         <div class="col-lg-9">
                                             <div class="custom-select-1">
-                                            {!! Form::select('timezone_id',[Lang::get('message.choose')=>$timezones],null,['class' => 'form-control input-lg','id'=>'timezone']) !!}
+                                                {!! html()->select('timezone_id', [Lang::get('message.choose') => $timezones])->class('form-control input-lg')->id('timezone') !!}
 
                                             </div>
                                         </div>
@@ -267,8 +267,8 @@ input:checked + .slider:before {
 
 
                             </div>
-                            {!! Form::close() !!}
-                        </div>
+                               {!! html()->closeModelForm() !!}
+                           </div>
 
 
                     </div>
@@ -279,13 +279,13 @@ input:checked + .slider:before {
 
                             <div class="col-lg-12 order-1 order-lg-2">
 
-                                {!! Form::model($user,['url'=>'my-password' , 'method' => 'PATCH' , 'id' => 'changePasswordForm']) !!}
+                                {!! html()->modelForm($user, 'my-password')->patch()->id('changePasswordForm') !!}
 
-                                    <div class="form-group row {{ $errors->has('old_password') ? 'has-error' : '' }}">
+                                <div class="form-group row {{ $errors->has('old_password') ? 'has-error' : '' }}">
                                         <label class="col-lg-3 col-form-label form-control-label line-height-9 pt-2 text-2 required">Old Password</label>
                                         <div class="col-lg-9">
                                             <div class="input-group">
-                                            {!! Form::password('old_password',['class' => 'form-control text-3 h-auto py-2','id'=>'old_password']) !!}
+                                                {!! html()->password('old_password')->class('form-control text-3 h-auto py-2')->id('old_password') !!}
                                                 <div class="input-group-append">
                                         <span class="input-group-text" role="button" onclick="togglePasswordVisibility(this)">
                                             <i class="fa fa-eye-slash"></i>
@@ -300,7 +300,7 @@ input:checked + .slider:before {
                                         <label class="col-lg-3 col-form-label form-control-label line-height-9 pt-2 text-2 required">New Password</label>
                                         <div class="col-lg-9">
                                             <div class="input-group">
-                                            {!! Form::password('new_password',['class' => 'form-control text-3 h-auto py-2','id'=>'new_password']) !!}
+                                                {!! html()->password('new_password')->class('form-control text-3 h-auto py-2')->id('new_password') !!}
                                                 <div class="input-group-append">
                                         <span class="input-group-text" role="button" onclick="togglePasswordVisibility(this)">
                                             <i class="fa fa-eye-slash"></i>
@@ -323,7 +323,7 @@ input:checked + .slider:before {
                                         <label class="col-lg-3 col-form-label form-control-label line-height-9 pt-2 text-2 required">Confirm password</label>
                                         <div class="col-lg-9">
                                             <div class="input-group">
-                                            {!! Form::password('confirm_password',['class' => 'form-control text-3 h-auto py-2','id'=>'confirm_password']) !!}
+                                                {!! html()->password('confirm_password')->class('form-control text-3 h-auto py-2')->id('confirm_password') !!}
                                                 <div class="input-group-append">
                                         <span class="input-group-text" role="button" onclick="togglePasswordVisibility(this)">
                                             <i class="fa fa-eye-slash"></i>
@@ -341,7 +341,7 @@ input:checked + .slider:before {
                                             <button type="submit" class="btn btn-dark font-weight-bold text-3 btn-modern float-end" data-loading-text="Loading..." id="password">Update</button>
                                         </div>
                                     </div>
-                               {!! Form::close() !!}
+                                {!! html()->closeModelForm() !!}
                             </div>
                         </div>
                     </div>

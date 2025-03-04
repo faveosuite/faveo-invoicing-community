@@ -20,7 +20,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                        {!! Form::label('name', Lang::get('message.varify_password'), ['class' => 'required']) !!}
+                        {!! html()->label('name', trans('message.varify_password'))->class('required') !!}
                         <div class="input-group">
                             <input type="password" name="password" id="user_password" placeholder="Enter Password" class="form-control" required="required">
                             <div class="input-group-append">
@@ -159,7 +159,7 @@
                 </button>
             </div>
             <div class="modal-body modal-body-spacing">
-                {!! Form::label('name', Lang::get('message.enter_6_digit_code'), ['class' => 'required']) !!}
+                {!! html()->label('name', trans('message.enter_6_digit_code'))->class('required') !!}
                 <div class="form-group form-field-template">
                     <input type="text" name="password" id="passcode" placeholder="Enter Passcode..." class="form-control" required="required">
                     <span id="passcodeerror"></span>

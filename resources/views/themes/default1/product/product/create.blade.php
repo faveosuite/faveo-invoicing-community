@@ -46,7 +46,7 @@ Create Product
 
 </head>
 <div class="card card-secondary card-tabs">
-    {!! Form::open(['url'=>'products','method'=>'post','files' => true,'id'=>'createproduct']) !!}
+    {!! html()->form('POST', 'products')->acceptsFiles()->id('createproduct')->open() !!}
 
     <div class="card-header p-0 pt-1">
         <ul class="nav nav-tabs" id="custom-tabs-one-tab" role="tablist">
@@ -72,24 +72,24 @@ Create Product
 
                                 <div class="col-md-4 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                                     <!-- first name -->
-                                    {!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}
-                                    {!! Form::text('name',null,['class' => 'form-control', 'id' =>'productname']) !!}
-                                <h6 id = "namecheck"></h6>
+                                    {!! html()->label(Lang::get('message.name'), 'name')->class('required') !!}
+                                    {!! html()->text('name')->class('form-control')->id('productname') !!}
+                                    <h6 id = "namecheck"></h6>
 
                                 </div>
 
                                  <div class="col-md-4 form-group {{ $errors->has('type') ? 'has-error' : '' }}">
                                     <!-- last name -->
-                                    {!! Form::label('type',Lang::get('message.lic_type'),['class'=>'required']) !!}
-                                    {!! Form::select('type',[''=>'Choose','Types'=>$type],null,['class' => 'form-control']) !!}
+                                     {!! html()->label(Lang::get('message.lic_type'), 'type')->class('required') !!}
+                                     {!! html()->select('type', ['' => 'Choose', 'Types' => $type])->class('form-control') !!}
 
-                                </div>
+                                 </div>
 
 
                                 <div class="col-md-4 form-group {{ $errors->has('group') ? 'has-error' : '' }}">
                                     <!-- last name -->
-                                    {!! Form::label('group',Lang::get('message.group'),['class'=>'required']) !!}
-                          <select name="group" value= "Choose" class="form-control">
+                                    {!! html()->label(Lang::get('message.group'), 'group')->class('required') !!}
+                                    <select name="group" value= "Choose" class="form-control">
                              <option value="">Choose</option>
                            @foreach($group as $key=>$value)
                                @if (Request::old('group') == $key)
@@ -139,9 +139,9 @@ Create Product
                                     });
                                     </script>
 
-                                    {!! Form::label('price_description', trans('message.price_description'), ['class' => 'required']) !!}
-                                    {!! Form::textarea('description', null, ['class' => 'form-control', 'id' => 'textarea']) !!}
-                                <h6 id= "descheck"></h6>
+                                    {!! html()->label(trans('message.price_description'), 'price_description')->class('required') !!}
+                                    {!! html()->textarea('description')->class('form-control')->id('textarea') !!}
+                                    <h6 id= "descheck"></h6>
                                 </div>
                                 <div class="col-md-6">
 
@@ -152,8 +152,8 @@ Create Product
                                           <li>
                                             <div class="form-group {{ $errors->has('parent') ? 'has-error' : '' }}">
                                                 <!-- last name -->
-                                                {!! Form::label('sku',Lang::get('message.sku'),['class'=>'required']) !!}
-                                                {!! Form::text('product_sku',null,['class' => 'form-control']) !!}
+                                                {!! html()->label(trans('message.sku'), 'sku')->class('required') !!}
+                                                {!! html()->text('product_sku')->class('form-control') !!}
 
                                             </div>
                                         </li>
@@ -161,16 +161,16 @@ Create Product
                                         <li>
                                             <div class="form-group {{ $errors->has('parent') ? 'has-error' : '' }}">
                                                 <!-- last name -->
-                                                {!! Form::label('parent',Lang::get('message.parent')) !!}
-                                                {!! Form::select('parent[]',[''=>'Choose','Products'=>$products],null,['class' => 'form-control']) !!}
+                                                {!! html()->label(trans('message.parent'), 'parent') !!}
+                                                {!! html()->select('parent[]', ['' => 'Choose', 'Products' => $products])->class('form-control') !!}
 
                                             </div>
                                         </li>
                                         <li>
                                         <div class="form-group {{ $errors->has('image') ? 'has-error' : '' }}">
                                             <!-- last name -->
-                                            {!! Form::label('image',Lang::get('message.image')) !!}
-                                            {!! Form::file('image') !!}
+                                            {!! html()->label(trans('message.image'), 'image') !!}
+                                            {!! html()->file('image')->class('form-control') !!}
 
                                         </div>
                                         </li>
@@ -178,8 +178,11 @@ Create Product
                                         <li>
                                             <div class="form-group {{ $errors->has('require_domain') ? 'has-error' : '' }}">
                                                 <!-- last name -->
-                                                {!! Form::label('require_domain',Lang::get('message.require_domain')) !!}
-                                                <p>{!! Form::checkbox('require_domain',1) !!} {{Lang::get('message.tick-to-show-domain-registration-options')}}</p>
+                                                {!! html()->label(trans('message.require_domain'), 'require_domain') !!}
+                                                <p>
+                                                    {!! html()->checkbox('require_domain', 1) !!}
+                                                    {{ trans('message.tick-to-show-domain-registration-options') }}
+                                                </p>
 
                                             </div>
                                         </li>
@@ -187,8 +190,8 @@ Create Product
                                         <li>
                                             <div class="form-group {{ $errors->has('shoping_cart_link') ? 'has-error' : '' }}">
                                                 <!-- last name -->
-                                                {!! Form::label('shoping_cart_link',Lang::get('message.shoping-cart-link')) !!}
-                                                {!! Form::text('shoping_cart_link',$cartUrl,['class'=>'form-control']) !!}
+                                                {!! html()->label(trans('message.shoping-cart-link'), 'shoping_cart_link') !!}
+                                                {!! html()->text('shoping_cart_link', $cartUrl)->class('form-control') !!}
 
                                             </div>
                                         </li>
@@ -199,7 +202,7 @@ Create Product
                                                <!--  <button type="button" class="" data-toggle="tooltip" data-placement="top" title="Tooltip on top"></button> -->
                                                 <label data-toggle="tooltip" data-placement="top" title="">Hidden</label>
 
-                                                <p>{!! Form::checkbox('hidden',1) !!}  {{Lang::get('message.tick-to-hide-from-order-form')}}</p>
+                                                <p>{!! html()->checkbox('hidden', 1) !!}  {{Lang::get('message.tick-to-hide-from-order-form')}}</p>
 
                                             </div>
                                         </li>
@@ -209,7 +212,7 @@ Create Product
                                                <!--  <button type="button" class="" data-toggle="tooltip" data-placement="top" title="Tooltip on top"></button> -->
                                                 <label data-toggle="tooltip" data-placement="top" title="">Highlight</label>
 
-                                                <p>{!! Form::checkbox('highlight') !!}  {{Lang::get('message.tick-to-highlight-product')}}</p>
+                                                <p>{!! html()->checkbox('highlight') !!} {{Lang::get('message.tick-to-highlight-product')}}</p>
 
                                             </div>
                                         </li>
@@ -219,7 +222,7 @@ Create Product
                                                <!--  <button type="button" class="" data-toggle="tooltip" data-placement="top" title="Tooltip on top"></button> -->
                                                 <label data-toggle="tooltip" data-placement="top" title="">Contact to sales</label>
 
-                                                <p>{!! Form::checkbox('add_to_contact') !!}  {{Lang::get('message.tick-to-add_to_contact-product')}}</p>
+                                                <p>{!! html()->checkbox('add_to_contact') !!} {{Lang::get('message.tick-to-add_to_contact-product')}}</p>
 
                                             </div>
                                         </li>
@@ -261,8 +264,8 @@ Create Product
                                     </script>
 
 
-                                    {!! Form::label('product_description', trans('message.product_description'), ['class' => 'required']) !!}
-                                    {!! Form::textarea('product_description', null, ['class' => 'form-control', 'id' => 'product-description']) !!}
+                                    {!! html()->label(trans('message.product_description'), 'product-description')->class('required') !!}
+                                    {!! html()->textarea('product_description')->class('form-control')->id('product-description') !!}
                                     <h6 id= "descheck"></h6>
                                 </div>
                             </div>
@@ -279,30 +282,30 @@ Create Product
                                     <td>
                                         <div>
                                         <label>
-                                            {!! Form::radio('show_agent',1,false,['id'=>'agent']) !!}
-                                           <!-- <input type ="radio" id="agent" value="1" name="cartquantity">   -->
-                                           {!! Form::hidden('can_modify_agent',0) !!}
+                                            {!! html()->radio('show_agent', 1)->id('agent') !!}
+                                            <!-- <input type ="radio" id="agent" value="1" name="cartquantity">   -->
+                                            {!! html()->hidden('can_modify_agent', 0) !!}
                                             <!-- <input type ="radio" id="agent" value="0" name="cartquantity" hidden>   -->
                                             Agents
                                         </label>
                                         </div>
                                     <br/>
                                     <div class="col-md-10" id="allowmulagent" style="display:none">
-                                       <p>{!! Form::checkbox('can_modify_agent',1) !!}  {{Lang::get('message.allow_multiple_agents_quantity')}} </p>
+                                       <p>{!! html()->checkbox('can_modify_agent', 1) !!}{{Lang::get('message.allow_multiple_agents_quantity')}} </p>
                                     </div>
                                    </td>
                                  </div>
                                 </tr>
                                 <tr>
                                     <td><label>
-                                         {!! Form::radio('show_agent',0,false,['id'=>'quantity']) !!}
-                                        <!-- <input type="radio" id="quantity" value="0" name="cartquantity"> -->
-                                        {!! Form::hidden('can_modify_quantity',0) !!}
+                                            {!! html()->radio('show_agent', 0)->id('quantity') !!}
+                                            <!-- <input type="radio" id="quantity" value="0" name="cartquantity"> -->
+                                            {!! html()->hidden('can_modify_quantity', 0) !!}
                                             Product Quantity
                                          </label>
                                          <br/>
                                      <div class="col-md-10" id="allowmulproduct" style="display:none">
-                                       <p>{!! Form::checkbox('can_modify_quantity',1) !!}  {{Lang::get('message.allow_multiple_product_quantity')}} </p>
+                                       <p>{!! html()->checkbox('can_modify_quantity', 1) !!}{{Lang::get('message.allow_multiple_product_quantity')}} </p>
                                     </div>
 
                                     </td>
@@ -310,7 +313,7 @@ Create Product
                               </table>
 
                                 <tr>
-                                    <td><b>{!! Form::label('tax',Lang::get('message.taxes')) !!}</b></td>
+                                    <td><b>{!! html()->label(trans('message.taxes'), 'tax') !!}</b></td>
                                     <td>
                                         <div class="form-group {{ $errors->has('taxes') ? 'has-error' : '' }}">
                                             <div class="row">
@@ -337,13 +340,13 @@ Create Product
 
 
 
-        {!! Form::close() !!}
+                            {!! html()->closeModelForm() !!}
 
 
 
 
 
-                                    </div>
+                        </div>
                         <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button>
                     </div>
     </div>
