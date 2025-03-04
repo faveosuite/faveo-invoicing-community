@@ -146,18 +146,20 @@
             <h3 class="card-title">Cloud server</h3>
         </div>
         <div class="card-body table-responsive">
-            {!! Form::model($cloud, ['route'=> 'cloud-details']) !!}
+            {!! Form::model($cloud, ['route'=> 'cloud-details','id'=>'cloud-details']) !!}
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
                         {!! Form::label('cloud_central_domain', Lang::get('message.cloud_central_domain'), ['class' => 'required']) !!}
-                        {!! Form::text('cloud_central_domain', null, ['class' => 'form-control']) !!}
+                        {!! Form::text('cloud_central_domain', null, ['class' => 'form-control','id'=>'cloud_central_domain','placeholder'=>'https://example.com']) !!}
+                        <div class="input-group-append"></div>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
                         {!! Form::label('cloud_cname', Lang::get('message.cloud_cname'),['class' => 'required']) !!}
-                        {!! Form::text('cloud_cname', null, ['class' => 'form-control']) !!}
+                        {!! Form::text('cloud_cname', null, ['class' => 'form-control','cloud_cname','placeholder'=>'example.com']) !!}
+                        <div class="input-group-append"></div>
                     </div>
                 </div>
             </div>
@@ -177,24 +179,27 @@
         </div>
 
         <div class="card-body table-responsive">
-            {!! Form::model($cloudPopUp, ['route'=> 'cloud-pop-up']) !!}
+            {!! Form::model($cloudPopUp, ['route'=> 'cloud-pop-up','id'=>'cloud-pop-up']) !!}
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
                         {!! Form::label('cloud_top_message', Lang::get('message.cloud_top_message'), ['class' => 'required']) !!}
-                        {!! Form::text('cloud_top_message', null, ['class' => 'form-control']) !!}
+                        {!! Form::text('cloud_top_message', null, ['class' => 'form-control','id'=>'cloud_top_message']) !!}
+                        <div class="input-group-append"></div>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
                         {!! Form::label('cloud_label_field', Lang::get('message.cloud_label_field'),['class' => 'required']) !!}
-                        {!! Form::text('cloud_label_field', null, ['class' => 'form-control']) !!}
+                        {!! Form::text('cloud_label_field', null, ['class' => 'form-control','id'=>'cloud_label_field']) !!}
+                        <div class="input-group-append"></div>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
                         {!! Form::label('cloud_label_radio', Lang::get('message.cloud_label_radio'),['class' => 'required']) !!}
-                        {!! Form::text('cloud_label_radio', null, ['class' => 'form-control']) !!}
+                        {!! Form::text('cloud_label_radio', null, ['class' => 'form-control','id'=>'cloud_label_radio']) !!}
+                        <div class="input-group-append"></div>
                     </div>
                 </div>
             </div>
@@ -216,18 +221,19 @@
             <h3 class="card-title">Cloud Product Configuration</h3>
         </div>
         <div class="card-body">
-            {!! Form::model('',['route' => 'cloud-product-store']) !!}
+            {!! Form::model('',['route' => 'cloud-product-store','id'=>'product-configuration']) !!}
             <div class="row original-fields">
                 <div class="col-md-4">
                     {!! Form::label('cloud_product', Lang::get('message.cloud_product'), ['class' => 'required']) !!}
                     <div class="form-group">
                         <!-- Select Field 1 -->
-                        <select name="cloud_product" class="form-control">
+                        <select name="cloud_product" class="form-control" id="saas-product">
                             @foreach($products as $product)
                             <option value="{!! $product->id !!}">{{$product->name}}</option>
                             @endforeach
                             <!-- Add more options as needed -->
                         </select>
+                        <div class="input-group-append"></div>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -236,18 +242,19 @@
                     ?>
                     {!! Form::label('cloud_free_plan', Lang::get('message.cloud_free_plan'), ['class' => 'required']) !!}
                     <div class="form-group">
-                        <select name="cloud_free_plan" class="form-control">
+                        <select name="cloud_free_plan" class="form-control" id="saas-free-product">
                             @foreach($plans as $plan)
                             <option value="{!! $plan->id !!}">{!! $plan->name !!}</option>
                             @endforeach
-
                         </select>
+                        <div class="input-group-append"></div>
                     </div>
                 </div>
                 <div class="col-md-4">
                     {!! Form::label('cloud_product_key', Lang::get('message.cloud_product_key'), ['class' => 'required']) !!}
                     <div class="form-group">
-                        <input type="text" name="cloud_product_key" class="form-control">
+                        <input type="text" name="cloud_product_key" class="form-control" id="saas-product-key">
+                        <div class="input-group-append"></div>
                     </div>
                 </div>
 
@@ -302,7 +309,7 @@
             </div>
 
           <div class="card-body">
-            {!! Form::model('',['route' => 'cloud-data-center-store']) !!}
+            {!! Form::model('',['route' => 'cloud-data-center-store','id'=>'cloud-data-center']) !!}
                   <div class="row">
                       <div class="col-md-4">
                           <?php $countries = \App\Model\Common\Country::cursor(); ?>
@@ -316,6 +323,7 @@
                                   @endforeach
                                   <!-- Add more options as needed -->
                               </select>
+                              <div class="input-group-append"></div>
                           </div>
                       </div>
                       <div class="col-md-4">
@@ -327,6 +335,8 @@
 
                               <select id="cloud_state" name="cloud_state" class="form-control">
                               </select>
+                              <div class="input-group-append"></div>
+
                           </div>
                       </div>
 
@@ -914,6 +924,229 @@
         });
 
 
+    </script>
+    <script>
+        $(document).ready(function () {
+            function isValidURL(url) {
+                const pattern = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w-]*)*$/;
+                return pattern.test(url);
+            }
+            const userRequiredFields = {
+                cloud_central_domain:@json(trans('message.central_domain')),
+                cloud_cname:@json(trans('message.cloud_name')),
+                cloud_top_message:@json(trans('message.cloud_popup')),
+                cloud_label_field:@json(trans('message.cloud_label')),
+                cloud_label_radio:@json(trans('message.cloud_radio')),
+                saas_product:@json(trans('message.saas_product')),
+                saas_free_product:@json(trans('message.saas_free_product')),
+                saas_product_key:@json(trans('message.saas_product_key')),
+                cloud_state:@json(trans('message.cloud_hub_state')),
+                cloud_countries:@json(trans('message.cloud_hub_countries')),
+
+            };
+
+        $('#cloud-details').on('submit', function (e) {
+
+            const userFields = {
+                cloud_central_domain:$('#cloud_central_domain'),
+                cloud_cname:$('#cloud_cname'),
+            };
+
+
+            // Clear previous errors
+            Object.values(userFields).forEach(field => {
+                field.removeClass('is-invalid');
+                field.next().next('.error').remove();
+
+            });
+
+            let isValid = true;
+
+            const showError = (field, message) => {
+                field.addClass('is-invalid');
+                field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+            };
+
+            // Validate required fields
+            Object.keys(userFields).forEach(field => {
+                if (!userFields[field].val()) {
+                    showError(userFields[field], userRequiredFields[field]);
+                    isValid = false;
+                }
+            });
+
+            if(isValid && !isValidURL(userFields.cloud_central_domain.val())){
+                showError(userFields.cloud_central_domain,@json(trans('message.cloud_hub_valid_url')));
+                isValid=false;
+            }
+
+            // If validation fails, prevent form submission
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+
+            $('#cloud-pop-up').on('submit', function (e) {
+
+                const userFields = {
+                    cloud_top_message:$('#cloud_top_message'),
+                    cloud_label_field:$('#cloud_label_field'),
+                    cloud_label_radio:$('#cloud_label_radio'),
+                };
+
+
+                // Clear previous errors
+                Object.values(userFields).forEach(field => {
+                    field.removeClass('is-invalid');
+                    field.next().next('.error').remove();
+
+                });
+
+                let isValid = true;
+
+                const showError = (field, message) => {
+                    field.addClass('is-invalid');
+                    field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+                };
+
+                // Validate required fields
+                Object.keys(userFields).forEach(field => {
+                    if (!userFields[field].val()) {
+                        showError(userFields[field], userRequiredFields[field]);
+                        isValid = false;
+                    }
+                });
+
+
+                // If validation fails, prevent form submission
+                if (!isValid) {
+                    e.preventDefault();
+                }
+            })
+            $('#cloud_countries').on('change', function () {
+                if ($(this).val() !== '') {
+                    document.querySelector('.select2-selection').style.cssText = `
+                        border: 1px solid silver;
+                        background-image:null;
+                        background-repeat: no-repeat;
+                        background-position: right 10px center;
+                        background-size: 16px 16px;`;
+                    removeErrorMessage(this);
+                }
+            });
+            $('#cloud-data-center').on('submit', function (e) {
+
+                const userFields = {
+                    cloud_state:$('#cloud_state'),
+                    cloud_countries:$('#cloud_countries'),
+                };
+
+                if($('#cloud_countries').val()==''){
+                    document.querySelector('.select2-selection').style.cssText = `
+                        border: 1px solid #dc3545;
+                        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23dc3545' viewBox='0 0 12 12'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+                        background-repeat: no-repeat;
+                        background-position: right 10px center;
+                        background-size: 16px 16px;`;
+                }else{
+                    document.querySelector('.select2-selection').style.border='1px solid silver';
+
+                }
+                // Clear previous errors
+                Object.values(userFields).forEach(field => {
+                    field.removeClass('is-invalid');
+                    field.next().next('.error').remove();
+
+                });
+
+                let isValid = true;
+
+                const showError = (field, message) => {
+                    field.addClass('is-invalid');
+                    field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+                };
+
+                // Validate required fields
+                Object.keys(userFields).forEach(field => {
+                    if (!userFields[field].val()) {
+                        showError(userFields[field], userRequiredFields[field]);
+                        isValid = false;
+                    }
+                });
+
+
+                // If validation fails, prevent form submission
+                if (!isValid) {
+                    e.preventDefault();
+                }
+            })
+
+            $('#product-configuration').on('submit', function (e) {
+
+                const userFields = {
+                    saas_product:$('#saas-product'),
+                    saas_free_product:$('#saas-free-product'),
+                    saas_product_key:$('#saas-product-key'),
+                };
+
+
+                // Clear previous errors
+                Object.values(userFields).forEach(field => {
+                    field.removeClass('is-invalid');
+                    field.next().next('.error').remove();
+
+                });
+
+                let isValid = true;
+
+                const showError = (field, message) => {
+                    field.addClass('is-invalid');
+                    field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+                };
+
+                // Validate required fields
+                Object.keys(userFields).forEach(field => {
+                    if (!userFields[field].val()) {
+                        showError(userFields[field], userRequiredFields[field]);
+                        isValid = false;
+                    }
+                });
+
+
+                // If validation fails, prevent form submission
+                if (!isValid) {
+                    e.preventDefault();
+                }
+            })
+
+
+        // Function to remove error when input'id' => 'changePasswordForm'ng data
+        const removeErrorMessage = (field) => {
+            field.classList.remove('is-invalid');
+            const error = field.nextElementSibling;
+            if (error && error.classList.contains('error')) {
+                error.remove();
+            }
+        };
+
+        // Add input event listeners for all fields
+        ['cloud_central_domain',
+            'cloud_cname',
+            'saas-product',
+            'saas-free-product',
+            'saas-product-key',
+            'cloud_countries',
+            'cloud_state',
+            'cloud_top_message',
+            'cloud_label_field',
+            'cloud_label_radio'].forEach(id => {
+
+            document.getElementById(id).addEventListener('input', function () {
+                removeErrorMessage(this);
+
+            });
+        });
+        });
     </script>
     <script>
         $('ul.nav-sidebar a').filter(function() {
