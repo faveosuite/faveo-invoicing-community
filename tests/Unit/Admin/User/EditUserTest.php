@@ -19,4 +19,6 @@ class EditUserTest extends TestCase
             'manager' => 'Ashutosh', 'timezone_id' => $user->timezone_id, ]);
         $this->assertDatabaseHas('users', ['id' => $user->id]);
     }
+
+
 }

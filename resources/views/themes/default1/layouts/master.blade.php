@@ -434,8 +434,9 @@
             <section class="content">
                 <div class="container-fluid">
                     @if(Route::current()->getName() !== 'plans.index' && Route::current()->getName() !== 'tax.index' )
+                        @if(isset($errors) && $errors->any())
 
-                    @if (count($errors) > 0)
+                        @if (is_countable($errors) && count($errors) > 0)
 
                         <div class="alert alert-danger alert-dismissable" id="fail">
                             <strong>Whoops!</strong> There were some problems with your input.
@@ -448,7 +449,7 @@
                         </div>
 
 
-
+@endif
                     @endif
                     @endif
 
