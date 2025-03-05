@@ -6,17 +6,12 @@ use App\Http\Controllers\BillingInstaller\InstallerController;
 use App\User;
 use Artisan;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Testing\TestResponse;
 use Mockery;
 use Session;
-use Tests\TestCase;
 use Tests\DBTestCase;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-
-
 
 class InstallerControllerTest extends DBTestCase
 {
@@ -35,7 +30,7 @@ class InstallerControllerTest extends DBTestCase
         $response = $controller->configurationcheck($request);
         $response = TestResponse::fromBaseResponse($response); // Wrap the base response
         $location = $response->headers->get('location');
-        $this->assertEquals('http://localhost/post-check',$location);
+        $this->assertEquals('http://localhost/post-check', $location);
     }
 
     public function test_checkPreInstall()
@@ -90,20 +85,23 @@ class InstallerControllerTest extends DBTestCase
         $response->assertStatus(200);
     }
 
-    public function test_selected_language_stored_or_not(){
+    public function test_selected_language_stored_or_not()
+    {
         //Before authentication the selected language stored or not
         $response = $this->call('POST', url('update/language'), ['language' => 'ar']);
         $response->assertStatus(200);
     }
 
-    public function test_language_list_after_authentication(){
+    public function test_language_list_after_authentication()
+    {
         //After authentication check language list come or not
         $this->getLoggedInUser('admin');
         $response = $this->call('GET', url('language/settings'));
         $response->assertStatus(200);
     }
 
-    public function test_selected_language_stored_or_not_after_authentication(){
+    public function test_selected_language_stored_or_not_after_authentication()
+    {
         //After authentication the selected language stored or not
         $this->getLoggedInUser('admin');
         $response = $this->call('POST', url('update/language'), ['language' => 'ar']);
@@ -133,5 +131,4 @@ class InstallerControllerTest extends DBTestCase
         // Assert that the language is stored in the authenticated user's language attribute
         $this->assertEquals('ar', $user->language);
     }
-
 }

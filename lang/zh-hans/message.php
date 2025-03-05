@@ -1666,7 +1666,7 @@ return [
     'logs_viewer' => '日志查看器',
     'error_logs' => '错误日志',
     'view_logs' => '查看日志',
-    
+
     // Visit Stats
     'request' => '请求',
     'visitor' => '访客',
