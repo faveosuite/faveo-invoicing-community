@@ -71,39 +71,40 @@ class Install extends Command
 
             \Cache::put('search-driver', 'database');
 
-            $response = $this->install->configurationcheck(new Request([
-                'host' => $host,
-                'databasename' => $database,
-                'username' => $dbusername,
-                'password' => $dbpassword,
-                'port' => $port,
-            ]));
-
-            $responseData = json_decode($response->getContent(), true);
-
-            foreach ($responseData['results'] as $result) {
-                if ($result['status'] === 'Error') {
-                    if ($result['message'] === \Lang::get('installer_messages.database_not_empty')) {
-                        if ($this->confirm("This {$database} database contains data. Do you want to drop the tables?")) {
-                            $this->call('droptables');
-                        } else {
-                            $this->error("Installation aborted. The {$database} database contains existing data, and the tables were not dropped.");
-
-                            return;
-                        }
-                    } else {
-                        $this->error($result['message']);
-
-                        return;
-                    }
-                } else {
-                    $this->info($result['message']);
-                }
-                $this->info('');
-            }
+//            $response = $this->install->configurationcheck(new Request([
+//                'host' => $host,
+//                'databasename' => $database,
+//                'username' => $dbusername,
+//                'password' => $dbpassword,
+//                'port' => $port,
+//            ]));
+//
+//            $responseData = json_decode($response->getContent(), true);
+//
+//            foreach ($responseData['results'] as $result) {
+//                if ($result['status'] === 'Error') {
+//                    if ($result['message'] === \Lang::get('installer_messages.database_not_empty')) {
+//                        if ($this->confirm("This {$database} database contains data. Do you want to drop the tables?")) {
+//                            $this->call('droptables');
+//                        } else {
+//                            $this->error("Installation aborted. The {$database} database contains existing data, and the tables were not dropped.");
+//
+//                            return;
+//                        }
+//                    } else {
+//                        $this->error($result['message']);
+//
+//                        return;
+//                    }
+//                } else {
+//                    $this->info($result['message']);
+//                }
+//                $this->info('');
+//            }
 
             $this->install->env($defaultSqlEngine, $host, $port, $database, $dbusername, $dbpassword, $formattedAppUrl);
             $this->info('.env file has been created');
+            $this->call('preinstall:check');
             $this->info('');
             $this->alert("Please run 'php artisan install:db'");
         } catch (\Exception $ex) {

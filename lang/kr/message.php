@@ -1721,5 +1721,7 @@ return [
     'period' => '기간',
     'last_10_requests' => '최근 10개의 요청',
     'caps_orders' => '주문',
+    'enter_valid_firstname' => '올바른 이름을 입력하세요',
+    'enter_valid_lastname' => '올바른 성을 입력하세요',
 
 ];

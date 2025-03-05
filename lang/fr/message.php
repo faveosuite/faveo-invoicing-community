@@ -1691,5 +1691,7 @@ return [
     'period' => 'Période',
     'last_10_requests' => 'Dernières 10 demandes',
     'caps_orders' => 'COMMANDES',
+    'enter_valid_firstname' => 'Veuillez entrer un prénom valide',
+    'enter_valid_lastname' => 'Veuillez entrer un nom de famille valide',
 
 ];

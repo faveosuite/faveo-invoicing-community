@@ -1628,5 +1628,7 @@
      'period' => 'Perjodu',
      'last_10_requests' => 'L-aħħar 10 Talbiet',
      'caps_orders' => 'Ordini',
+     'enter_valid_firstname' => 'Jekk jogħġbok daħħal isem validu',
+     'enter_valid_lastname' => 'Jekk jogħġbok daħħal kunjom validu',
 
  ];

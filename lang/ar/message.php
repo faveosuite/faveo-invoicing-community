@@ -1515,5 +1515,7 @@ return [
     'period' => 'الفترة',
     'last_10_requests' => 'آخر 10 طلبات',
     'caps_orders' => 'الطلبات',
+    'enter_valid_firstname' => 'الرجاء إدخال اسم أول صالح',
+    'enter_valid_lastname' => 'الرجاء إدخال اسم عائلة صالح',
 
 ];

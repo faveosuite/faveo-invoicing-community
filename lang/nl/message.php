@@ -1678,5 +1678,7 @@ return [
     'period' => 'Periode',
     'last_10_requests' => 'Laatste 10 verzoeken',
     'caps_orders' => 'BESTELLINGEN',
+    'enter_valid_firstname' => 'Voer een geldige voornaam in',
+    'enter_valid_lastname' => 'Voer een geldige achternaam in',
 
 ];

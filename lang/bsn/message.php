@@ -1609,7 +1609,6 @@ return [
     'logs_viewer' => 'Pregledač logova',
     'error_logs' => 'Greške u logovima',
     'view_logs' => 'Pogledaj logove',
-
     //visitstats
     'request' => 'Zahtjev',
     'visitor' => 'Posjetilac',
@@ -1624,5 +1623,7 @@ return [
     'period' => 'Period',
     'last_10_requests' => 'Posljednjih 10 zahtjeva',
     'caps_orders' => 'NARUDŽBE',
+    'enter_valid_firstname' => 'Molimo unesite važeće ime',
+    'enter_valid_lastname' => 'Molimo unesite važeće prezime',
 
 ];
