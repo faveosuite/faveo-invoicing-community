@@ -1681,7 +1681,6 @@ return [
     'view_logs' => 'Visualizza log',
 
     //visitstats
-<<<<<<< HEAD
     'request' => 'Richiesta',
     'visitor' => 'Visitatore',
     'browser' => 'Browser',
@@ -1695,22 +1694,7 @@ return [
     'period' => 'Periodo',
     'last_10_requests' => 'Ultime 10 richieste',
     'caps_orders' => 'ORDINI',
-=======
-        'request' => 'Richiesta',
-        'visitor' => 'Visitatore',
-        'browser' => 'Browser',
-        'unique_visitors' => 'Visitatori unici',
-        'visits' => 'Visite',
-        'last_visit' => 'Ultima visita',
-        'unknown' => 'Sconosciuto',
-        'language' => 'Lingua',
-        'statistics' => 'Statistiche',
-        'summary' => 'Riepilogo',
-        'period' => 'Periodo',
-        'last_10_requests' => 'Ultime 10 richieste',
-        'caps_orders' => 'ORDINI',
-        'enter_valid_firstname' => 'Inserisci un nome valido',
-        'enter_valid_lastname' => 'Inserisci un cognome valido',
->>>>>>> a69e137bb (testcase_fix)
+    'enter_valid_firstname' => 'Inserisci un nome valido',
+    'enter_valid_lastname' => 'Inserisci un cognome valido',
 
 ];
