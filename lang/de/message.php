@@ -1691,5 +1691,7 @@ return [
     'period' => 'Zeitraum',
     'last_10_requests' => 'Letzte 10 Anfragen',
     'caps_orders' => 'BESTELLUNGEN',
+    'enter_valid_firstname' => 'Bitte geben Sie einen gültigen Vornamen ein',
+    'enter_valid_lastname' => 'Bitte geben Sie einen gültigen Nachnamen ein',
 
 ];

@@ -1699,5 +1699,7 @@ return [
     'period' => 'Thời gian',
     'last_10_requests' => '10 yêu cầu cuối',
     'caps_orders' => 'ĐƠN HÀNG',
+    'enter_valid_firstname' => 'Vui lòng nhập tên hợp lệ',
+    'enter_valid_lastname' => 'Vui lòng nhập họ hợp lệ',
 
 ];

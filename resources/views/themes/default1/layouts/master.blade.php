@@ -157,7 +157,6 @@
             display: none !important;
         }
 
-<<<<<<< HEAD
         .dropdown-menu-arrow:before {
             content: ""!important;
             position: absolute!important;

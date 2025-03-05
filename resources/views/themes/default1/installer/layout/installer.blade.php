@@ -260,10 +260,10 @@
                         progressElement.style.marginRight = '25px !important';
                         progressElement.style.width = '95%';
                     } else if (currentLanguage === 'zh-hant' || currentLanguage === 'zh-hans' || currentLanguage === 'kr') {
-                        progressElement.style.marginLeft = '18px';
+                        progressElement.style.marginLeft = '28px';
                         progressElement.style.width = '96%';
                     } else if (currentLanguage === 'no') {
-                        progressElement.style.marginLeft = '20px';
+                        progressElement.style.marginLeft = '60px';
                         progressElement.style.width = '96%';
                     }else{
                         progressElement.style.width = '91%';

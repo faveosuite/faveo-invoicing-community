@@ -1685,5 +1685,7 @@ return [
     'period' => '期間',
     'last_10_requests' => '最後 10 個請求',
     'caps_orders' => '訂單',
+    'enter_valid_firstname' => '請輸入有效的名字',
+    'enter_valid_lastname' => '請輸入有效的姓氏',
 
 ];

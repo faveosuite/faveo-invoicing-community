@@ -1666,7 +1666,7 @@ return [
     'logs_viewer' => '日志查看器',
     'error_logs' => '错误日志',
     'view_logs' => '查看日志',
-
+    
     // Visit Stats
     'request' => '请求',
     'visitor' => '访客',
@@ -1681,5 +1681,7 @@ return [
     'period' => '期间',
     'last_10_requests' => '最后10个请求',
     'caps_orders' => '订单',
+    'enter_valid_firstname' => '请输入有效的名字',
+    'enter_valid_lastname' => '请输入有效的姓氏',
 
 ];

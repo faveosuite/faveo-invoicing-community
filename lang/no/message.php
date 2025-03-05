@@ -1704,5 +1704,7 @@ return [
     'period' => 'Periode',
     'last_10_requests' => 'Siste 10 forespørsler',
     'caps_orders' => 'BESTILLINGER',
+    'enter_valid_firstname' => 'Vennligst skriv inn et gyldig fornavn',
+    'enter_valid_lastname' => 'Vennligst skriv inn et gyldig etternavn',
 
 ];

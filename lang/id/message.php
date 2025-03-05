@@ -1694,5 +1694,7 @@ return [
     'period' => 'Periode',
     'last_10_requests' => '10 Permintaan Terakhir',
     'caps_orders' => 'PESANAN',
+    'enter_valid_firstname' => 'Silakan masukkan nama depan yang valid',
+    'enter_valid_lastname' => 'Silakan masukkan nama belakang yang valid',
 
 ];

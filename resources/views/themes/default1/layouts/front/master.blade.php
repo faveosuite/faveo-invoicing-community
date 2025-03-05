@@ -497,16 +497,6 @@ $lang = fetchLang();
                                                 </div>
                                             </div>
                                         </div>
-
-                                        {{--<li class="nav-item dropdown">
-                                            <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="false">
-                                                <i id="flagIcon" class="flag-icon flag-icon-us"></i>
-                                            </a>
-                                            <div class="dropdown-menu dropdown-menu-right p-0" style="left: inherit; right: 0px;" >
-                                                <!-- Language options will be populated here -->
-                                            </div>
-                                        </li>--}}
-
                                         <div class="header-nav-features header-nav-features-no-border header-nav-features-lg-show-border order-1 order-lg-2 me-2 me-lg-0">
                                             <div class="header-nav-feature header-nav-features-cart d-inline-flex ms-2 mx-3">
                                                 <a href="#" class="header-nav-features-toggle text-decoration-none">
@@ -1248,7 +1238,6 @@ setTimeout(function() {
                 }
             },error: function (response) {
                 $('#createTenant').attr('disabled',false)
-<<<<<<< HEAD
                 $("#createTenant").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>Submit");
                 $("#generate").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>Submit");
 
@@ -1263,21 +1252,6 @@ setTimeout(function() {
 
                 } else {
                     html += '<li>' + response.responseJSON.message + '</li>';
-=======
-                $("#createTenant").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>{{ __('message.submit') }}");
-                $("#generate").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>{{ __('message.submit') }}");
-                if(response.status == 422) {
-
-                    var html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<ul>';
-                    for (var key in response.responseJSON.errors)
-                    {
-                        html += '<li>' + response.responseJSON.errors[key][0] + '</li>'
-                    }
-
-                } else {
-                    var html = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong>{{ __('message.whoops') }} </strong> {{ __('message.something_wrong') }}<ul>';
-                    html += '<li>' + response.responseJSON.message + '</li>'
->>>>>>> 74aaff522 (Fixes #3191)
                 }
 
                 html += '</ul></div>';
@@ -1546,8 +1520,6 @@ setTimeout(function() {
     $(document).ready(function() {
         $.fn.modal.Constructor.Default.backdrop = 'static';
     });
-
-    var body = document.body;
 
     const flagIcon = document.getElementById('flagIcon');
     const languageDropdown = document.getElementById('language-dropdown');
