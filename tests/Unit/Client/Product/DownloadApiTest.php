@@ -2,16 +2,28 @@
 
 namespace Tests\Unit\Client\Product;
 
+use App\Model\License\LicensePermission;
+use App\Model\License\LicenseType;
 use App\Model\Order\Invoice;
+use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
+use App\Model\Payment\Plan;
+use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
+use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use App\User;
+use Mockery;
 use Tests\DBTestCase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Route;
 
 class DownloadApiTest extends DBTestCase
 {
     use DatabaseTransactions;
+
+
+
 
     #[Group('product-download')]
     public function test_downloadValidation_whenValidParamasPassed_returnstrue()
@@ -83,4 +95,5 @@ class DownloadApiTest extends DBTestCase
         $response = $this->getPrivateMethod($cont, 'downloadValidation', ['true', $product->id, $invoice->number, false]);
         $this->assertEquals($response, true);
     }
+
 }

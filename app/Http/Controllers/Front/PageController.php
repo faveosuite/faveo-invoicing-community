@@ -17,6 +17,7 @@ use App\Model\Front\FrontendPage;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
+use App\Model\Common\Setting;
 use App\Model\Product\ProductGroup;
 use Illuminate\Http\Request;
 
@@ -194,7 +195,6 @@ class PageController extends Controller
 
     public function generate(Request $request)
     {
-        // dd($request->all());
         if ($request->has('slug')) {
             $slug = $request->input('slug');
 
@@ -461,7 +461,7 @@ class PageController extends Controller
      *
      * @param  int  $groupid  Group id
      * @param  int  $templateid  Id of the Template
-     * @return longtext The Template to be displayed
+     * @return
      */
     public function pageTemplates(?int $templateid = null, int $groupid)
     {
@@ -480,22 +480,39 @@ class PageController extends Controller
             }
             if (\Auth::user()) {
                 $country = \DB::table('users')->where('id', \Auth::user()->id)->value('country');
-
                 $countryids = \App\Model\Common\Country::where('country_code_char2', $country)->value('country_id');
-
                 $currencyAndSymbol = getCurrencyForClient($country);
             }
-            $productsRelatedToGroup = \App\Model\Product\Product::where('group', $groupid)
-            ->where('hidden', '!=', 1)
-            ->join('plans', 'products.id', '=', 'plans.product')
-            ->join('plan_prices', 'plans.id', '=', 'plan_prices.plan_id')
-            ->where('plan_prices.currency', '=', $currencyAndSymbol)
-            ->orderByRaw('CAST(plan_prices.add_price AS DECIMAL(10, 2)) ASC')
-            ->orderBy('created_at', 'ASC')
-            ->select('products.*', 'plan_prices.add_price')
-            ->get();
+
+            $defaultCurrency = Setting::first()->default_currency;
+            $productsRelatedToGroup = \App\Model\Product\Product::where('products.group', $groupid)
+                ->where('products.hidden', '!=', 1)
+                ->join('plans', 'products.id', '=', 'plans.product')
+                ->join('plan_prices', 'plans.id', '=', 'plan_prices.plan_id')
+                ->select(
+                    'products.*',
+                    'plan_prices.add_price',
+                    \DB::raw("
+            CASE
+                WHEN plan_prices.currency = '$currencyAndSymbol' THEN 1
+                WHEN plan_prices.currency = '$defaultCurrency' THEN 2
+                WHEN plan_prices.currency != '' THEN 3
+                ELSE 4
+            END as currency_priority
+        ")
+                )
+                ->orderBy('products.id')
+                ->orderBy('currency_priority')
+                ->orderByRaw('CAST(plan_prices.add_price AS DECIMAL(10, 2)) ASC')
+                ->orderBy('plans.created_at', 'ASC')
+                ->get()
+                ->unique('id');
+
             $trasform = [];
             $templates = $this->getTemplateOne($productsRelatedToGroup, $trasform);
+            if(empty($templates)){
+                $templates=\Lang::get('message.empty_group');
+            }
             $products = Product::all();
             $plan = '';
             $description = '';
@@ -505,7 +522,6 @@ class PageController extends Controller
                 $description = self::getPriceDescription($product->id);
                 $status = Product::find($product->id);
             }
-
             return view('themes.default1.common.template.shoppingcart', compact('templates', 'headline', 'tagline', 'description', 'status'));
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
@@ -545,7 +561,6 @@ class PageController extends Controller
             $highlightedProducts = Product::whereIn('name', $helpdesk_products->pluck('name'))
                 ->pluck('highlight', 'name')
                 ->toArray();
-
             foreach ($helpdesk_products as $product) {
                 $productId = $product->id;
                 $productName = $product->name;
@@ -565,9 +580,7 @@ class PageController extends Controller
                     'url' => $this->generateProductUrl($product, $orderButton, $highlight),
                 ];
             }
-
             $data = PricingTemplate::findOrFail(1)->data;
-
             return $this->transformTemplate('cart', $data, $trasform);
         } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());

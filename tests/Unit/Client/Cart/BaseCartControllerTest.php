@@ -3,13 +3,25 @@
 namespace Tests\Unit\Client\Cart;
 
 use App\Http\Controllers\Front\BaseCartController;
+use App\Http\Controllers\Front\ClientController;
+use App\Model\Product\ProductGroup;
+use App\Http\Controllers\Order\OrderSearchController;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Request;
+use App\Model\License\LicensePermission;
+use App\Model\License\LicenseType;
+use App\Model\Order\Invoice;
+use App\Model\Order\InvoiceItem;
+use App\Model\Order\Order;
+use App\Model\Product\ProductUpload;
+use App\Model\Product\Subscription;
+use App\User;
+use Mockery;
 use Tests\DBTestCase;
-
+use Spatie\Html\Html;
 class BaseCartControllerTest extends DBTestCase
 {
     use DatabaseTransactions;
@@ -18,6 +30,12 @@ class BaseCartControllerTest extends DBTestCase
     {
         parent::setUp();
         $this->classObject = new BaseCartController();
+        $this->classObject1=new ClientController();
+        $this->request = app(Request::class);
+//        $this->html1 = new Html($this->request);
+        $this->html = Mockery::mock(Html::class, [$this->request])->makePartial();
+        $this->html->shouldReceive('token')->andReturn('mocked-token');
+        $this->app->instance(Html::class, $this->html);
     }
 
     #[Group('quantity')]
@@ -215,4 +233,62 @@ class BaseCartControllerTest extends DBTestCase
         ]);
         $this->classObject->reduceProductQty(new Request(['productid' => $product->id]));
     }
+
+
+    /** @group order  */
+    public function test_successful_when_license_mocked()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        $product = Product::factory()->create();
+        $invoice = Invoice::factory()->create(['user_id' => $user->id]);
+        $invoiceItem = InvoiceItem::create([
+            'invoice_id' => $invoice->id,
+            'product_name' => 'Helpdesk Advance',
+            'regular_price' => 10000,
+            'quantity' => 1,
+            'tax_name' => 'CGST+SGST',
+            'tax_percentage' => 18,
+            'subtotal' => 11800,
+            'domain' => 'faveo.com',
+            'plan_id' => 1,
+        ]);
+        $order = Order::factory()->create(['invoice_id' => $invoice->id,
+            'invoice_item_id' => $invoiceItem->id, 'client' => $user->id, 'product' => $product->id]);
+        $subscription = Subscription::create(['user_id' => $user->id, 'order_id' => $order->id, 'product_id' => $product->id, 'version' => 'v3.0.0', 'is_subscribed' => '1', 'autoRenew_status' => '1']);
+        $serialKey = 'eertrertyuhgbvfdrgtyujhnbvfdrethgbf';
+        $productId = 1;
+        $mock = Mockery::mock(\App\Http\Controllers\License\LicenseController::class);
+        $mock->shouldReceive('searchInstallationPath')
+            ->withAnyArgs()
+            ->once()
+            ->andReturn(['path' => '/mocked']);
+
+        $this->app->instance(\App\Http\Controllers\License\LicenseController::class, $mock);
+
+        $response=$this->getPrivateMethod($this->classObject1,'getOrder',[$order->id]);
+        $this->assertEquals('themes.default1.front.clients.show-order', $response->getName());
+    }
+
+
+
+    /** @group store */
+    public function test_store_has_groups()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        $group = ProductGroup::create(['name' => 'consumer-products', 'hidden' => 0, 'pricing_templates_id' => 1]);
+        $product = Product::factory()->create(['group' => $group->id]);
+        $plan = Plan::factory()->create(['product' => $product->id]);
+        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id]);
+        $response = $this->withSession(['store'=>1])->get( 'group/'.$group->pricing_templates_id.'/'.$group->id.'/');
+        $data=$response->original->gatherData();
+        $this->assertStringContainsString('<input type="submit" value="Order Now" class="btn btn-dark btn-modern buttonsale">', $data['templates']);
+        $response->assertStatus(200);
+        $response->assertViewHas('templates');
+        $response->assertViewIs('themes.default1.common.template.shoppingcart');
+    }
+
 }

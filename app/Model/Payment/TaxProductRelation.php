@@ -19,4 +19,5 @@ class TaxProductRelation extends BaseModel
     {
         return $this->hasMany(\App\Model\Product\Product::class, 'product_id');
     }
+
 }

@@ -114,6 +114,9 @@ class SoftDeleteController extends ClientController
                         $user->order()->delete();
                         $user->subscription()->delete();
                         $user->comments()->delete();
+                        $user->auto_renewal()->delete();
+                        $user->export_details()->delete();
+                        $user->userLinkReports()->delete();
                         $user->forceDelete();
                     } else {
                         echo "<div class='alert alert-success alert-dismissable'>

@@ -17,6 +17,7 @@ use App\Model\Payment\Currency;
 use App\Model\Plugin;
 use App\Payment_log;
 use App\User;
+use File;
 use Illuminate\Http\Request;
 use Spatie\Activitylog\Models\Activity;
 use Yajra\DataTables\DataTables;
@@ -223,6 +224,7 @@ class SettingsController extends BaseSettingsController
     public function getKeys(ApiKey $apikeys)
     {
         try {
+
             $licenseSecret = $apikeys->pluck('license_api_secret')->first();
             $licenseUrl = $apikeys->pluck('license_api_url')->first();
             $licenseClientId = $apikeys->pluck('license_client_id')->first();
@@ -249,14 +251,12 @@ class SettingsController extends BaseSettingsController
             $rzpKeys = $apikeys->select('rzp_key', 'rzp_secret', 'apilayer_key')->first();
             $mailchimpSetting = StatusSetting::pluck('mailchimp_status')->first();
             $mailchimpKey = MailchimpSetting::pluck('api_key')->first();
-
             $termsStatus = StatusSetting::pluck('terms')->first();
             $termsUrl = $apikeys->pluck('terms_url')->first();
             $pipedriveKey = $apikeys->pluck('pipedrive_api_key')->first();
             $pipedriveStatus = StatusSetting::pluck('pipedrive_status')->first();
             $domainCheckStatus = StatusSetting::pluck('domain_check')->first();
             $mailSendingStatus = Setting::value('sending_status');
-            $emailStatus = StatusSetting::pluck('emailverification_status')->first();
             $model = $apikeys->find(1);
             $mailchimp_set = new MailchimpSetting();
             $set = $mailchimp_set->firstOrFail();
@@ -275,7 +275,7 @@ class SettingsController extends BaseSettingsController
             $githubStatus = StatusSetting::first()->github_status;
             $msg91ThirdPartyId = $apikeys->pluck('msg91_third_party_id')->first();
 
-            return view('themes.default1.common.apikey', compact('model', 'status', 'licenseSecret', 'licenseUrl', 'siteKey', 'secretKey', 'captchaStatus', 'v3CaptchaStatus', 'updateStatus', 'updateSecret', 'updateUrl', 'mobileStatus', 'mobileauthkey', 'msg91Sender', 'msg91TemplateId', 'emailStatus', 'twitterStatus', 'twitterKeys', 'zohoStatus', 'zohoKey', 'rzpStatus', 'rzpKeys', 'mailchimpSetting', 'mailchimpKey', 'termsStatus', 'termsUrl', 'pipedriveKey', 'pipedriveStatus', 'domainCheckStatus', 'mailSendingStatus',
+            return view('themes.default1.common.apikey', compact('model', 'status', 'licenseSecret', 'licenseUrl', 'siteKey', 'secretKey', 'captchaStatus', 'v3CaptchaStatus', 'updateStatus', 'updateSecret', 'updateUrl', 'mobileStatus', 'mobileauthkey', 'msg91Sender', 'msg91TemplateId', 'twitterStatus', 'twitterKeys', 'zohoStatus', 'zohoKey', 'rzpStatus', 'rzpKeys', 'mailchimpSetting', 'mailchimpKey', 'termsStatus', 'termsUrl', 'pipedriveKey', 'pipedriveStatus', 'domainCheckStatus', 'mailSendingStatus',
                 'licenseClientId', 'licenseClientSecret', 'licenseGrantType', 'allists', 'selectedList', 'set', 'githubStatus', 'msg91ThirdPartyId'));
         } catch (\Exception $ex) {
             return redirect('/')->with('fails', $ex->getMessage());

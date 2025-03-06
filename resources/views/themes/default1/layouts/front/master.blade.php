@@ -59,7 +59,7 @@
 <?php 
  $dataCenters = \App\Model\CloudDataCenters::all();
 ?>
-<?php 
+<?php
 $setting = \App\Model\Common\Setting::where('id', 1)->first();
 $everyPageScripts = ''; 
 $scripts = \App\Model\Common\ChatScript::where('on_every_page', 1)->get();
@@ -529,6 +529,7 @@ $days = $pay->where('product','117')->value('days');
                     </button>
                 </div>
             @endif
+
             @if(Session::has('warning'))
 
                 <div class="alert alert-warning alert-dismissable">
@@ -566,7 +567,7 @@ $days = $pay->where('product','117')->value('days');
                 </div>
 
             @endif
-            @if ($errors->any())
+            @if (isset($errors) && $errors->any())
                 <div class="alert alert-danger alert-dismissable" role="alert">
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 
@@ -938,7 +939,6 @@ $days = $pay->where('product','117')->value('days');
         </div>
     </footer>
 </div>
-
 
 <!-- Vendor -->
 <script src="{{asset('client/porto/js-2/plugins.min.js')}}"></script>

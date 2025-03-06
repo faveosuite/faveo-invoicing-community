@@ -66,8 +66,7 @@
 
 
                 </div>
-                <div
-                  class="col-md-4 form-group plandays {{ $errors->has('days') ? 'has-error' : '' }}">
+                <div class="col-md-4 form-group plandays {{ $errors->has('days') ? 'has-error' : '' }}">
                   <!-- days -->
                     {!! html()->label('Periods', 'days')->class('required') !!}
                   <div class="input-group">

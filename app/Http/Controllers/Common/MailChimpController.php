@@ -177,6 +177,7 @@ class MailChimpController extends BaseMailChimpController
             foreach ($allGroups['categories']  as $key => $value) {
                 $display[] = ['id' => $value->id, 'title' => $value->title];
             }
+
             $this->addProductInterestFieldsToAgora(); //add all the fields in Product Section of Groups to the db
             $group_fields = $this->groups->where('list_id', $this->list_id)
           ->select('category_name', 'category_option_id', 'category_id')->get()->toArray();
