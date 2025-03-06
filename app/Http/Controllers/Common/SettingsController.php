@@ -17,6 +17,7 @@ use App\Model\Payment\Currency;
 use App\Model\Plugin;
 use App\Payment_log;
 use App\User;
+use File;
 use Illuminate\Http\Request;
 use Spatie\Activitylog\Models\Activity;
 use Yajra\DataTables\DataTables;
@@ -223,6 +224,9 @@ class SettingsController extends BaseSettingsController
     public function getKeys(ApiKey $apikeys)
     {
         try {
+            $licenseClientId = ApiKey::pluck('license_client_id')->first();
+            $licenseClientSecret = ApiKey::pluck('license_client_secret')->first();
+            $licenseGrantType = ApiKey::pluck('license_grant_type')->first();
             $licenseSecret = $apikeys->pluck('license_api_secret')->first();
             $licenseUrl = $apikeys->pluck('license_api_url')->first();
             $licenseClientId = $apikeys->pluck('license_client_id')->first();
@@ -240,6 +244,7 @@ class SettingsController extends BaseSettingsController
             $msg91Sender = $apikeys->pluck('msg91_sender')->first();
             $msg91TemplateId = $apikeys->pluck('msg91_template_id')->first();
             $updateUrl = $apikeys->pluck('update_api_url')->first();
+            $emailStatus = StatusSetting::pluck('emailverification_status')->first();
             $twitterKeys = $apikeys->select('twitter_consumer_key', 'twitter_consumer_secret',
                 'twitter_access_token', 'access_tooken_secret')->first();
             $twitterStatus = $this->statusSetting->pluck('twitter_status')->first();
@@ -249,14 +254,12 @@ class SettingsController extends BaseSettingsController
             $rzpKeys = $apikeys->select('rzp_key', 'rzp_secret', 'apilayer_key')->first();
             $mailchimpSetting = StatusSetting::pluck('mailchimp_status')->first();
             $mailchimpKey = MailchimpSetting::pluck('api_key')->first();
-
             $termsStatus = StatusSetting::pluck('terms')->first();
             $termsUrl = $apikeys->pluck('terms_url')->first();
             $pipedriveKey = $apikeys->pluck('pipedrive_api_key')->first();
             $pipedriveStatus = StatusSetting::pluck('pipedrive_status')->first();
             $domainCheckStatus = StatusSetting::pluck('domain_check')->first();
             $mailSendingStatus = Setting::value('sending_status');
-            $emailStatus = StatusSetting::pluck('emailverification_status')->first();
             $model = $apikeys->find(1);
             $mailchimp_set = new MailchimpSetting();
             $set = $mailchimp_set->firstOrFail();

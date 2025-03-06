@@ -11,6 +11,7 @@ use App\Model\Mailjob\ExpiryMailDay;
 use App\Traits\ApiKeySettings;
 use Illuminate\Http\Request;
 use Spatie\Activitylog\Models\Activity;
+use Illuminate\Support\Facades\Http;
 
 class BaseSettingsController extends PaymentSettingsController
 {
@@ -296,6 +297,16 @@ class BaseSettingsController extends PaymentSettingsController
         ActivityLogDay::findOrFail(1)->update(['days' => $request->logdelday]);
 
         return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
+    }
+
+    public function verifyToken($token,$secretkey)
+    {
+        $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+            'secret' => $secretkey,
+            'response' => $token,
+        ]);
+
+        return $response->json();
     }
 
     //Save Google recaptch site key and secret in Database

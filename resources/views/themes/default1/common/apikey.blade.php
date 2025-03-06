@@ -2058,6 +2058,7 @@
                     $('#alertMessage3').show().html(result);
                     $("#submit3").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
 
+                    console.log("in");
 
                     setInterval(function(){
                         $('#alertMessage3').slideUp(3000);

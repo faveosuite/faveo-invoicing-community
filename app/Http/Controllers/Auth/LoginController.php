@@ -140,7 +140,6 @@ class LoginController extends Controller
                 'login' => 'Authentication failed. Please try again.',
             ]);
         }
-
         $this->convertCart();
 
         activity()->log('Logged In');
@@ -210,7 +209,7 @@ class LoginController extends Controller
             $user = User::create([
                 'email' => $githubUser->getEmail(),
                 'user_name' => $githubUser->getEmail(),
-                'first_name' => $githubUser->getName(),
+                'first_name' => $githubUser->getEmail(),
                 'active' => '1',
                 'role' => 'user',
                 'ip' => $location['ip'],

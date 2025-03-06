@@ -152,6 +152,7 @@ input:checked + .slider:before {
                     </div>
                 </div>
 
+
                 <div class="form-group">
                     <!-- email -->
                     {!! html()->label(Lang::get('message.email'))->class('required')->for('email') !!}
@@ -209,7 +210,7 @@ input:checked + .slider:before {
                     <div class="col-md-6 form-group {{ $errors->has('town') ? 'has-error' : '' }}">
                         <!-- mobile -->
                         {!! html()->label(Lang::get('message.town'))->for('town') !!}
-                        {!! html()->text('town')->class('form-control'. ($errors->has('town') ? ' is-invalid' : '')) !!}
+                        {!! html()->text('town')->class('form-control'. ($errors->has('town') ? ' is-invalid' : ''))->id('town') !!}
 
                     </div>
 
@@ -804,22 +805,25 @@ input:checked + .slider:before {
         }
     });
 
-     addressDropdown.change(function() {
-     telInput.intlTelInput("setCountry", $(this).val());
+         addressDropdown.change(function() {
+             document.getElementById('town').value='';
+             updateCountryCodeAndFlag(telInput.get(0), addressDropdown.val());
              if ($.trim(telInput.val())) {
-            if (validatePhoneNumber(telInput.get(0))) {
-              $('#mobile_code').css("border-color","");
-              errorMsg.classList.add("hide");
-              $('#submit').attr('disabled',false);
-            } else {
-            errorMsg.classList.remove("hide");
-             errorMsg.innerHTML = "Please enter a valid number";
-             $('#mobile_code').css("border-color","red");
-             $('#error-msg').css({"color":"red","margin-top":"5px"});
-             $('#submit').attr('disabled',true);
-            }
-        }
-    });
+                 if (validatePhoneNumber(telInput.get(0))) {
+                     $('#mobile_code').css("border-color","");
+                     errorMsg.classList.add("hide");
+                     $('#submit').attr('disabled',false);
+                 } else {
+                     errorMsg.classList.remove("hide");
+                     errorMsg.innerHTML = @json(trans('message.user_edit_details.add_valid_phone'));
+                     $('#mobile_code').css("border-color", "#dc3545");
+                     $('#error-msg').css({"color": "#dc3545", "margin-top": "5px", "font-size": "80%"});
+                 }
+             }
+         });
+
+
+
     $('input').on('focus', function () {
         $(this).parent().removeClass('has-error');
     });
