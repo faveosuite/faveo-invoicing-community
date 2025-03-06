@@ -79,7 +79,6 @@ class BasePromotionController extends Controller
 
             return $updated_price;
         } catch (\Exception $ex) {
-            dd($ex);
             throw new \Exception($ex->getMessage());
         }
     }

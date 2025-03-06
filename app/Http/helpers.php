@@ -309,7 +309,6 @@ function userCurrencyAndPrice($userid, $plan, $productid = '')
             echo "localStorage.setItem('plan', '".json_encode($currencyAndSymbol['userPlan'])."');";
             echo '</script>';
         }
-
         return [
             'currency' => $currencyAndSymbol['currency'],
             'symbol' => $currencyAndSymbol['currency_symbol'],
@@ -351,7 +350,6 @@ function getCurrencySymbolAndPriceForPlans($countryCode, $plan)
     $userPlan = $plan->planPrice->where('country_id', $country->country_id)->first() ?: $plan->planPrice->where('country_id', 0)->first();
     $currency = $userPlan->currency;
     $currency_symbol = Currency::where('code', $currency)->value('symbol');
-
     return compact('currency', 'currency_symbol', 'userPlan');
 }
 
@@ -368,10 +366,8 @@ function getCurrencyForClient($countryCode)
     $currencyStatus = $country->currency->status;
     if ($currencyStatus) {
         $currency = Currency::where('id', $country->currency_id)->first();
-
         return $currency->code;
     }
-
     return $defaultCurrency;
 }
 
@@ -784,8 +780,7 @@ function handleArrayStoreRateLimit($IpKey, $maxAttempts, $decaySeconds)
 function isCaptchaRequired()
 {
     $settings = StatusSetting::find(1);
-    $status = ($settings->v3_recaptcha_status === 1 || $settings->recaptcha_status === 1) && ! Auth::check();
-
+    $status = ($settings->v3_recaptcha_status === 1 || $settings->recaptcha_status === 1 && $settings->v3_v2_recaptcha_status) && ! Auth::check();
     return $status ? ['status' => 1, 'is_required' => 'required'] : ['status' => 0, 'is_required' => 'sometimes'];
 }
 

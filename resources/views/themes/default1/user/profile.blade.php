@@ -210,7 +210,7 @@ input:checked + .slider:before {
                     <div class="col-md-6 form-group {{ $errors->has('town') ? 'has-error' : '' }}">
                         <!-- mobile -->
                         {!! Form::label('town',Lang::get('message.town')) !!}
-                        {!! Form::text('town',null,['class' => 'form-control'. ($errors->has('town') ? ' is-invalid' : '')]) !!}
+                        {!! Form::text('town',null,['class' => 'form-control'. ($errors->has('town') ? ' is-invalid' : ''),'id'=>'town']) !!}
 
                     </div>
 
@@ -234,7 +234,7 @@ input:checked + .slider:before {
 
 
 
-                        {!! Form::select('country',[Lang::get('message.choose')=>$countries],null,['class' => 'form-control select2'. ($errors->has('country') ? ' is-invalid' : ''),'id'=>'country','onChange'=>'getCountryAttr(this.value)','data-live-search'=>'true','required','data-live-search-placeholder' => 'Search','data-dropup-auto'=>'false','data-size'=>'10','disabled'=>'disabled']) !!}
+                        {!! Form::select('country',[Lang::get('message.choose')=>$countries],null,['class' => 'form-control select2'. ($errors->has('country') ? ' is-invalid' : ''),'id'=>'country','onChange'=>'getCountryAttr(this.value)','data-live-search'=>'true','required','data-live-search-placeholder' => 'Search','data-dropup-auto'=>'false','data-size'=>'10']) !!}
                         <!-- name -->
                         @error('country')
                         <span class="error-message"> {{$message}}</span>
@@ -242,7 +242,7 @@ input:checked + .slider:before {
                     </div>
                     <div class="col-md-6 form-group {{ $errors->has('state') ? 'has-error' : '' }}">
                         <!-- name -->
-                        {!! Form::label('state',Lang::get('message.state'),['class' => 'required']) !!}
+                        {!! Form::label('state',Lang::get('message.state'),['class' => 'requir']) !!}
                         <!--{!! Form::select('state',[],null,['class' => 'form-control'. ($errors->has('state') ? ' is-invalid' : ''),'id'=>'state-list']) !!}-->
                         <select name="state" id="state-list" class="form-control">
                             @if(count($state)>0)
@@ -407,13 +407,9 @@ input:checked + .slider:before {
 
 
  @include('themes.default1.user.2faModals')
-
-
         <div class="card card-secondary card-outline">
             <div class="card-header">
                 <h3 class="card-title">{{Lang::get('message.setup_2fa')}}</h3>
-
-
             </div>
 
         <div class="card-body">
@@ -451,7 +447,7 @@ input:checked + .slider:before {
 
 
 {!! Form::close() !!}
-<script src="{{asset('common/js/2fa.js')}}"></script>
+<script src="{{asset('common/js/2fa1.js')}}"></script>
 <script>
     $('#submit').on('click',function(e) {
         var gstin = $('#gstin1');
@@ -807,22 +803,25 @@ input:checked + .slider:before {
         }
     });
 
-     addressDropdown.change(function() {
-     telInput.intlTelInput("setCountry", $(this).val());
+         addressDropdown.change(function() {
+             document.getElementById('town').value='';
+             updateCountryCodeAndFlag(telInput.get(0), addressDropdown.val());
              if ($.trim(telInput.val())) {
-            if (validatePhoneNumber(telInput.get(0))) {
-              $('#mobile_code').css("border-color","");
-              errorMsg.classList.add("hide");
-              $('#submit').attr('disabled',false);
-            } else {
-            errorMsg.classList.remove("hide");
-             errorMsg.innerHTML = "Please enter a valid number";
-             $('#mobile_code').css("border-color","red");
-             $('#error-msg').css({"color":"red","margin-top":"5px"});
-             $('#submit').attr('disabled',true);
-            }
-        }
-    });
+                 if (validatePhoneNumber(telInput.get(0))) {
+                     $('#mobile_code').css("border-color","");
+                     errorMsg.classList.add("hide");
+                     $('#submit').attr('disabled',false);
+                 } else {
+                     errorMsg.classList.remove("hide");
+                     errorMsg.innerHTML = @json(trans('message.user_edit_details.add_valid_phone'));
+                     $('#mobile_code').css("border-color", "#dc3545");
+                     $('#error-msg').css({"color": "#dc3545", "margin-top": "5px", "font-size": "80%"});
+                 }
+             }
+         });
+
+
+
     $('input').on('focus', function () {
         $(this).parent().removeClass('has-error');
     });

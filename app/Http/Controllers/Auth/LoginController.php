@@ -82,7 +82,6 @@ class LoginController extends Controller
             'email_username.required' => 'Please Enter an Email',
             'password1.required' => 'Please Enter Password',
         ]);
-
         $loginInput = $request->input('email_username');
         $password = $request->input('password1');
 
@@ -141,7 +140,6 @@ class LoginController extends Controller
                 'login' => 'Authentication failed. Please try again.',
             ]);
         }
-
         $this->convertCart();
 
         activity()->log('Logged In');
@@ -162,6 +160,7 @@ class LoginController extends Controller
     public function redirectToGithub($provider)//redirect to twitter ,github,google and linkedin
     {
         $details = SocialLogin::where('type', $provider)->first();
+
         \Config::set("services.$provider.redirect", $details->redirect_url);
         \Config::set("services.$provider.client_id", $details->client_id);
         \Config::set("services.$provider.client_secret", $details->client_secret);
@@ -200,7 +199,7 @@ class LoginController extends Controller
             $user = User::create([
                 'email' => $githubUser->getEmail(),
                 'user_name' => $githubUser->getEmail(),
-                'first_name' => $githubUser->getName(),
+                'first_name' => $githubUser->getEmail(),
                 'active' => '1',
                 'role' => 'user',
                 'ip' => $location['ip'],
@@ -210,6 +209,7 @@ class LoginController extends Controller
                 'country' => Country::where('country_name', strtoupper($location['country']))->value('country_code_char2'),
             ]);
         }
+
         if ($user && ($user->active == 1 && $user->mobile_verified !== 1)) {//check for mobile verification
             return redirect('verify')->with('user', $user);
         }

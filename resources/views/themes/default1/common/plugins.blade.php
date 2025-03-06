@@ -24,7 +24,7 @@ Plugins
 
 
     <div class="card-body table-responsive">
-
+        <div id="alertMessage"></div>
         
 
 
@@ -38,42 +38,39 @@ Plugins
                           <th>Author</th>
                           <th>Website</th>
                           <th>Version</th>
+                        <th>Status</th>
                           <th>Action</th>
                         </tr></thead>
                        
                         @foreach($pay as $key => $item)
-                       
-                         
-                       
                         <tbody>
-                            <tr>
                                 <td>{{$item['name']}}</td>
                                 <td>{{$item['description']}}</td>
                                  <td>{{$item['author']}}</td>
                                  
                                  <td><a href={{$item['website']}}>{{$item['website']}}</a></td>
                                   <td>{{$item['version']}}</td>
-                             
-                            
+
                         
                               @foreach($status as $s)
-                              @if($item['name'] == $s->name && !$s->status)
-                               <td><form method="post" action="{{url('plugin/status/'.$item['name'])}}"><input type="hidden" name="_token" value='.\Session::token().'>
-                                   @csrf
-                                    <button type="submit" class="btn btn-secondary btn-sm btn-xs" title = "Activate"><i class="fa fa-tasks" style="color:white;"></i></button></form></td>
-                                    @elseif($item['name'] == $s->name && $s->status)
+                              @if($item['name'] == $s->name)
+
+                                       <td>
+                                            <label class="switch toggle_event_editing">
+                                                <input type="checkbox" value="{{$s->status}}" name="{{$item['name']}}"
+                                                       class="{{$item['name']}}" id="{{$item['name']}}">
+                                                <span class="slider round"></span>
+                                            </label>
+                                       </td>
+
+
+                                    @if($item['name'] == $s->name && $s->status)
                                      <td>
-                                       <a href= "{{url($item['settings'])}}" class="btn btn-secondary btn-sm btn-xs"><i class="nav-icon fa fa-fw fa-cogs" style="color:white;"></i></a> 
-                                     
-                                       <form method="post" action="{{ url('plugin/status/'.$item['name']) }}"><input type="hidden" name="_token" value="\Session::token()
-                                       ">
-                                       @csrf
-                                    
-                                       <button type="submit" class="btn btn-secondary btn-sm btn-xs" title="Deactivate"><i class="fa fa-tasks" style="color:white;"></i></button></form>
+                                       <a href= "{{url($item['settings'])}}" class="btn btn-secondary btn-sm btn-xs"><i class="nav-icon fa fa-fw fa-edit" style="color:white;"></i></a>
                                     </td>
-                                    
-                              @endif
-                              
+                                     @endif
+
+                                     @endif
                               @endforeach
                                  
                                      
@@ -103,9 +100,155 @@ Plugins
 
 
 </div>
+
+<style>
+    .col-2, .col-lg-2, .col-lg-4, .col-md-2, .col-md-4,.col-sm-2 {
+        width: 0px;
+    }
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+    }
+
+    .switch input {display:none;}
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+    input:checked + .slider {
+        background-color: #2196F3;
+    }
+
+    input:focus + .slider {
+        box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked + .slider:before {
+        -webkit-transform: translateX(26px);
+        -ms-transform: translateX(26px);
+        transform: translateX(26px);
+    }
+
+    /* Rounded sliders */
+    .slider.round {
+        border-radius: 34px;
+    }
+
+    .slider.round:before {
+        border-radius: 50%;
+    }
+    .scrollit {
+        overflow:scroll;
+        height:600px;
+    }
+    .error-border {
+        border-color: red;
+    }
+
+
+</style>
 <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
 <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
 
+<script>
 
+    $(document).ready(function() {
+
+        var status1 = $('.Razorpay').val();
+        if (status1 == 1) {
+            $('#Razorpay').prop('checked', true);
+        }
+
+        var status2 = $('.Stripe').val();
+        if (status2 == 1) {
+            $('#Stripe').prop('checked', true);
+        }
+    });
+
+    $('#Razorpay').on('change',function(){
+        var checkstatus=0;
+        if ($('#Razorpay').prop("checked")) {
+            checkstatus=1;
+        }else{
+           checkstatus=0;
+        }
+        $.ajax({
+            url : '{{url("updatePaymentStatus")}}',
+            type : 'post',
+            data: {
+                "status": checkstatus,
+                "name":"Razorpay",
+            },
+            success: function (data) {
+                setTimeout(function() {
+                    location.reload();
+                }, 3000);
+                $('#alertMessage').show();
+                var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
+                $('#alertMessage').html(result+ ".");
+                setInterval(function(){
+                    $('#alertMessage').slideUp(3000);
+                }, 1000);
+            },
+
+        });
+
+    });
+
+
+    $('#Stripe').on('change',function(){
+        var checkstatus=0;
+        if ($('#Razorpay').prop("checked")) {
+            checkstatus=1;
+        }else{
+            checkstatus=0;
+        }
+        $.ajax({
+            url : '{{url("updatePaymentStatus")}}',
+            type : 'post',
+            data: {
+                "status": checkstatus,
+                "name":"Stripe",
+            },
+            success: function (data) {
+                setTimeout(function() {
+                    location.reload();
+                }, 3000);
+                $('#alertMessage').show();
+                var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
+                $('#alertMessage').html(result+ ".");
+                setInterval(function(){
+                    $('#alertMessage').slideUp(3000);
+                }, 1000);
+            },
+
+        });
+
+    });
+
+</script>
 
 @stop
