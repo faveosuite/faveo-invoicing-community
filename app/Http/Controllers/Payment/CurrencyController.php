@@ -44,7 +44,9 @@ class CurrencyController extends Controller
                     ->whereNotNull('name')
                     ->where('code', '!=', $defaultCurrency)
                     ->groupBy('name', 'code');
-            });
+            })
+            ->orderBy('status', 'desc')
+            ->orderBy('id', 'desc');
 
         return \DataTables::of($model)
                         ->orderColumn('name', '-id $1')
@@ -104,6 +106,7 @@ class CurrencyController extends Controller
                                $query->whereRaw($sql, ["%{$keyword}%"]);
                            })
                         ->rawColumns(['name', 'code', 'symbol', 'dashboard', 'status'])
+
                         ->make(true);
     }
 

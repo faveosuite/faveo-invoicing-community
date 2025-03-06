@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Front;
 
 use App\ApiKey;
+use Illuminate\Http\JsonResponse;
+use Razorpay\Api\Api;
 use App\Auto_renewal;
 use App\Http\Controllers\Github\GithubApiController;
 use App\Http\Controllers\License\LicensePermissionsController;
@@ -26,7 +28,6 @@ use App\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Razorpay\Api\Api;
 
 class ClientController extends BaseClientController
 {
@@ -583,6 +584,7 @@ class ClientController extends BaseClientController
             Terminated</span>';
                                 }
                             })
+
                             ->addColumn('agents', function ($model) {
                                 $license = substr($model->serial_key, 12, 16);
                                 if ($license == '0000') {
@@ -591,7 +593,6 @@ class ClientController extends BaseClientController
 
                                 return intval($license, 10);
                             })
-
                             ->addColumn('expiry', function ($model) {
                                 return getExpiryLabel($model->update_ends_at, 'badge');
                             })
@@ -702,6 +703,10 @@ class ClientController extends BaseClientController
             return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
+    public function generateMerchantRandomString($length = 10) {
+        return substr(bin2hex(random_bytes($length)), 0, $length);
+    }
+
 
     public function getOrder($id)
     {
@@ -709,9 +714,8 @@ class ClientController extends BaseClientController
             $user = \Auth::user();
             $order = $this->order->findOrFail($id);
             if ($order->client != $user->id) {
-                throw new \Exception('Cannot view order. Invalid modification of data.');
+                throw new \Exception(trans('message.order_error_modification'));
             }
-
             $invoice = $order->invoice()->first();
             $items = $order->invoice()->first()->invoiceItem()->get();
             $subscription = $order->subscription()->first();
@@ -721,24 +725,14 @@ class ClientController extends BaseClientController
             if ($subscription) {
                 $date = strtotime($subscription->update_ends_at) > 1 ? getExpiryLabel($subscription->update_ends_at, 'badge') : '--';
                 $licdate = strtotime($subscription->ends_at) > 1 ? getExpiryLabel($subscription->ends_at, 'badge') : '--';
-                // $versionLabel = getVersionAndLabel($subscription->version, $order->product, 'badge');
-            }
-
-            $installationDetails = [];
-            $licenseStatus = StatusSetting::pluck('license_status')->first();
-            if ($licenseStatus == 1) {
-                // $cont = new \App\Http\Controllers\License\LicenseController();
-                // $installationDetails = $cont->searchInstallationPath($order->serial_key, $order->product);
             }
             $product = $order->product()->first();
             $price = $product->price()->first();
-            $licenseStatus = StatusSetting::pluck('license_status')->first();
-            $allowDomainStatus = StatusSetting::pluck('domain_check')->first();
 
-            $licenseStatus = StatusSetting::pluck('license_status')->first();
+            [$allowDomainStatus,$licenseStatus]=array_values(StatusSetting::select('domain_check','license_status')->first()->toArray());
             $installationDetails = [];
 
-            $cont = new \App\Http\Controllers\License\LicenseController();
+            $cont = app(\App\Http\Controllers\License\LicenseController::class);
             $installationDetails = $cont->searchInstallationPath($order->serial_key, $order->product);
 
             $statusAutorenewal = Subscription::where('order_id', $id)->value('is_subscribed');
@@ -764,14 +758,211 @@ class ClientController extends BaseClientController
                 ->orderByDesc('created_at')
                 ->first();
 
+            $merchant_orderid= $this->generateMerchantRandomString();
+
+            [$rzp_key, $rzp_secret,$apilayer_key,$stripe_key] = array_values(ApiKey::select('rzp_key', 'rzp_secret','apilayer_key','stripe_key')->first()->toArray());
+            $api = new Api($rzp_key, $rzp_secret);
+            $userCountry=\Auth::user()->country;
+            $displayCurrency = getCurrencyForClient($userCountry);
+
+                $exchangeRate= '';
+                $orderData = [
+                    'receipt'         => '3456',
+                    'amount'          => round(1.00*100), // 2000 rupees in paise
+                    'currency'        => $displayCurrency,
+                    'payment_capture' => 0 // auto capture
+                ];
+
+            $razorpayOrder=($rzp_key && $rzp_secret )?$api->order->create($orderData):"";
+
+            $razorpayOrderId=($razorpayOrder != null)?$razorpayOrder['id']:"";
+            \Session::put('razorpay_order_id', $razorpayOrderId);
+            $displayAmount = $amount = $orderData['amount'];
+
+            $json = $this->dataToOrder($user,$rzp_key,$invoice,$userCountry,$exchangeRate,$merchant_orderid,$razorpayOrderId,$displayCurrency);
+            $currency = $user->currency;
+            $gateways = \App\Http\Controllers\Common\SettingsController::checkPaymentGateway($displayCurrency);
+            $planid = \App\Model\Payment\Plan::where('product',$product->id)->value('id');
+            $price = $order->price_override;
+
+            $installation_path=\App\Model\Order\InstallationDetail::where('order_id',$id)
+                ->where('installation_path','!=',cloudCentralDomain())->latest()->value('installation_path');
+            $latestAgents   = ltrim(substr($order->serial_key, 12),'0');
+            $terminatedOrderId = \DB::table('terminated_order_upgrade')->where('upgraded_order_id',$order->id)->value('terminated_order_id');
+            $terminatedOrderNumber = \App\Model\Order\Order::where('id',$terminatedOrderId)->value('number');
+            if($statusAutorenewal == 1 && $payment_log == null && !empty($terminatedOrderId)){
+                $payment_log = $this->paymentLogGet($terminatedOrderNumber);
+            }
+
+            $plans= $this->planPriceProductRelation($product);
+            $planIds=array_keys($plans);
+            $countryids = \App\Model\Common\Country::where('country_code_char2', $userCountry)->first();
+            $plans=$this->planDetails($planIds,$countryids,$userCountry,$plans,$product);
+
+
+            $planIdOld = \App\Model\Product\Subscription::where('order_id',$id)->value('plan_id');
+            $planNameReal = \App\Model\Payment\Plan::where('id',$planIdOld)->value('name');
+
             return view(
                 'themes.default1.front.clients.show-order',
-                compact('invoice', 'order', 'user', 'product', 'subscription', 'licenseStatus', 'installationDetails', 'allowDomainStatus', 'date', 'licdate', 'versionLabel', 'installationDetails', 'id', 'statusAutorenewal', 'status', 'payment_log', 'recentPayment')
+                compact('invoice', 'order', 'user', 'product', 'subscription', 'licenseStatus', 'installationDetails', 'allowDomainStatus', 'date',
+                    'licdate', 'versionLabel', 'installationDetails', 'id', 'statusAutorenewal', 'status', 'payment_log', 'recentPayment','stripe_key','json','gateways',
+                    'price','installation_path','latestAgents','terminatedOrderId','terminatedOrderNumber','payment_log','plans','planNameReal'
+                )
             );
+
         } catch (Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
+
+    /**
+     * Get payment log for the order terminated.
+     *
+     * @param $terminatedOrderNumber
+
+     * @return array
+     *
+     */
+    private function paymentLogGet($terminatedOrderNumber){
+        $payment_log = \App\Payment_log::where('order',  $terminatedOrderNumber)
+            ->where('payment_type', 'Payment method updated')
+            ->orderBy('id', 'desc')
+            ->first();
+        if(!$payment_log){
+            $payment_log = \App\Payment_log::where('order',  $terminatedOrderNumber)
+                ->orderBy('id', 'desc')
+                ->first();
+        }
+
+        return $payment_log;
+    }
+
+    /**
+     * Get plan name and id ,options for upgrading or downgrading the cloud plan.
+     *
+     * @param $product
+
+     * @return array
+     *
+     */
+    private function planPriceProductRelation($product){
+    $plans = Plan::where('product', '!=', $product->id)
+        ->whereHas('product', function ($query) {
+        $query->where('type', 4)
+              ->where('can_modify_agent', 1);
+        })
+        ->whereHas('planPrice', function ($query) {
+        $query->where('renew_price', '!=', 0);
+        })
+        ->pluck('name', 'id')
+        ->toArray();
+
+
+        return $plans;
+    }
+
+    /**
+     * Get renewal price for related plans
+     *
+     * @param $product
+     * @param $planIds
+     * @param $countryids
+     * @param $userCountry
+     * @param $plans
+     * @return array
+     *
+     */
+    private function planDetails($planIds,$countryids,$userCountry,$plans,$product){
+
+
+        $renewalPrices = \App\Model\Payment\PlanPrice::whereIn('plan_id', $planIds)
+            ->where('country_id',$countryids->country_id)
+            ->where('currency',getCurrencyForClient($userCountry))
+            ->latest()
+            ->pluck('renew_price', 'plan_id')
+            ->toArray();
+
+        if(empty($renewalPrices)){
+            $renewalPrices = \App\Model\Payment\PlanPrice::whereIn('plan_id', $planIds)
+                ->where('country_id',0)
+                ->where('currency',getCurrencyForClient($userCountry))
+                ->latest()
+                ->pluck('renew_price', 'plan_id')
+                ->toArray();
+        }
+
+
+        foreach ($plans as $planId => $planName) {
+            if (isset($renewalPrices[$planId])) {
+                if(in_array($product->id,cloudPopupProducts())) {
+                    $plans[$planId] .= " (Plan price-per agent: " . currencyFormat($renewalPrices[$planId], getCurrencyForClient($userCountry), true) . ")";
+                }
+            }
+        }
+        // Add more cloud IDs until we have a generic way to differentiate
+        if(in_array($product->id,cloudPopupProducts())){
+            $plans = array_filter($plans, function ($value) {
+                return stripos($value, 'free') === false;
+            });
+        }
+        return $plans;
+    }
+
+    /**
+     * It returns the user details
+     *
+     * @param $user
+     * @param $rzp_key
+     * @param $invoice
+     * @param $userCountry
+     * @param $exchangeRate
+     * @param $merchant_orderid
+     * @param $razorpayOrderId
+     * @param $displayCurrency
+     * @return string
+     *
+     */
+    private function dataToOrder($user,$rzp_key,$invoice,$userCountry,$exchangeRate,$merchant_orderid,$razorpayOrderId,$displayCurrency){
+        $data = [
+            "key"               => $rzp_key,
+            "name"              => 'Faveo Helpdesk',
+            "currency"          => 'INR',
+            "prefill"=> [
+                "contact"=>    $user->mobile_code .$user->mobile,
+                "email"=>      $user->email,
+            ],
+            "description"       =>  'Order for Invoice No' .-$invoice->number,
+            "notes"             => [
+                "First Name"         => $user->first_name,
+                "Last Name"         =>  $user->last_name,
+                "Company Name"      =>  $user->company,
+                "Address"           =>  $user->address,
+                "Email"             =>  $user->email,
+                "Country"           =>  $userCountry,
+                "State"             => $user->state,
+                "City"              => $user->town,
+                "Zip"               => $user->zip,
+                "Currency"          => $user->currency,
+                "Amount Paid"   => '1',
+                "Exchange Rate"   =>  $exchangeRate,
+                "merchant_order_id" =>  $merchant_orderid,
+            ],
+            "theme"             => [
+                "color"             => "#F37254"
+            ],
+            "order_id"          => $razorpayOrderId,
+        ];
+        if ($displayCurrency !== 'INR')
+        {
+            $data['display_currency']  = 'USD';
+            $data['display_amount']    ='1';
+
+        }
+        return json_encode($data);
+    }
+
+
 
     public function getPaymentByOrderId($orderid, $userid)
     {

@@ -29,7 +29,7 @@ Social Media
     
 
     <div class="card-body table-responsive">
-
+        <div id="response"></div>
         <div class="row">
 
             <div class="col-md-12">
@@ -196,9 +196,15 @@ Social Media
                                 $('#gif').show();
                             },
                             success: function (data) {
+                                console.log(data);
                                 $('#gif').hide();
                                 $('#response').html(data);
-                                location.reload();
+                                setTimeout(function() {
+                                    location.reload();
+                                }, 4000);
+                                setInterval(function(){
+                                    $('#response').slideUp(3000);
+                                }, 1000);
                             }
                         })
                     } else {

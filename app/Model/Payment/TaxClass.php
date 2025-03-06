@@ -42,6 +42,10 @@ class TaxClass extends BaseModel
         return $this->hasMany(\App\Model\Payment\Tax::class, 'tax_classes_id');
     }
 
+    public function tax_product_relation(){
+        return $this->hasMany(\App\Model\Payment\TaxProductRelation::class, 'tax_class_id');
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults();

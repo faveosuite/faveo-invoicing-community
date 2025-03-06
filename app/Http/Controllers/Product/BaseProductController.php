@@ -301,7 +301,6 @@ class BaseProductController extends ExtendedBaseProductController
             $quantity = $this->getProductQtyCheck($id, $plan);
             $agents = $this->getAgentQtyCheck($id, $plan);
             $result = ['price' => $price, 'field' => $field, 'quantity' => $quantity, 'agents' => $agents];
-
             return response()->json($result);
         } catch (\Exception $ex) {
             $result = ['price' => $ex->getMessage(), 'field' => ''];

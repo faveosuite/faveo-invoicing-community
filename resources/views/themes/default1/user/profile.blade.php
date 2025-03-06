@@ -152,6 +152,7 @@ input:checked + .slider:before {
                     </div>
                 </div>
 
+
                 <div class="form-group">
                     <!-- email -->
                     {!! html()->label(Lang::get('message.email'))->class('required')->for('email') !!}
@@ -209,7 +210,7 @@ input:checked + .slider:before {
                     <div class="col-md-6 form-group {{ $errors->has('town') ? 'has-error' : '' }}">
                         <!-- mobile -->
                         {!! html()->label(Lang::get('message.town'))->for('town') !!}
-                        {!! html()->text('town')->class('form-control'. ($errors->has('town') ? ' is-invalid' : '')) !!}
+                        {!! html()->text('town')->class('form-control'. ($errors->has('town') ? ' is-invalid' : ''))->id('town') !!}
 
                     </div>
 
@@ -230,15 +231,17 @@ input:checked + .slider:before {
                     <?php $countries = \App\Model\Common\Country::pluck('nicename', 'country_code_char2')->toArray(); ?>
                     <div class="col-md-6 form-group {{ $errors->has('country') ? 'has-error' : '' }}">
                         {!! html()->label(Lang::get('message.country'), 'country')->class('required') !!}
-                        {!! html()->select('country')->options([Lang::get('message.choose') => $countries])->class('form-control select2'. ($errors->has('country') ? ' is-invalid' : ''))->id('country')->attribute('onChange', 'getCountryAttr(this.value)')->attribute('data-live-search', 'true')->attribute('required', 'required')->attribute('data-live-search-placeholder', 'Search')->attribute('data-dropup-auto', 'false')->attribute('data-size', '10')->attribute('disabled', 'disabled') !!}
+                        {!! html()->select('country')->options([Lang::get('message.choose') => $countries])->class('form-control select2'. ($errors->has('country') ? ' is-invalid' : ''))->id('country')->attribute('onChange', 'getCountryAttr(this.value)')->attribute('data-live-search', 'true')->attribute('required', 'required')->attribute('data-live-search-placeholder', 'Search')->attribute('data-dropup-auto', 'false')->attribute('data-size', '10') !!}
                         <!-- name -->
                         @error('country')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
+                        <div class="input-group-append">
+                        </div>
                     </div>
                     <div class="col-md-6 form-group {{ $errors->has('state') ? 'has-error' : '' }}">
                         <!-- name -->
-                        {!! html()->label(Lang::get('message.state'))->class('required') !!}
+                        {!! html()->label(Lang::get('message.state')) !!}
                         <!--{!! html()->select('state', [])->class('form-control'. ($errors->has('state') ? ' is-invalid' : ''))->id('state-list') !!} -->
                         <select name="state" id="state-list" class="form-control">
                             @if(count($state)>0)
@@ -252,6 +255,8 @@ input:checked + .slider:before {
                         @error('state')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
+                        <div class="input-group-append">
+                        </div>
                     </div>
 
 
@@ -448,7 +453,7 @@ input:checked + .slider:before {
 
 
 {!! html()->form()->close() !!}
-<script src="{{asset('common/js/2fa.js')}}"></script>
+<script src="{{asset('common/js/2fa1.js')}}"></script>
 <script>
     $('#submit').on('click',function(e) {
         var gstin = $('#gstin1');
@@ -535,6 +540,9 @@ input:checked + .slider:before {
             address:@json(trans('message.user_edit_details.add_address')),
             mobile_code:@json(trans('message.user_edit_details.add_mobile')),
             user_name:@json(trans('message.user_edit_details.add_user_name')),
+            country:@json(trans('message.user_edit_details.add_country')),
+            state:@json(trans('message.user_edit_details.add_state')),
+
         };
 
         $('#submit').on('click', function (e) {
@@ -545,6 +553,7 @@ input:checked + .slider:before {
                 company: $('#company'),
                 address: $('#address'),
                 user_name: $('#user_name'),
+                country:$('#country'),
             };
 
 
@@ -602,15 +611,12 @@ input:checked + .slider:before {
             };
 
             // Add input event listeners for all fields
-            ['first_name','last_name','email','company','user_name','address','mobile','zip1'].forEach(id => {
+            ['first_name','last_name','email','company','user_name','address','mobile','zip1','country','state-list'].forEach(id => {
                 document.getElementById(id).addEventListener('input', function () {
                     removeErrorMessage(this);
 
             });
         });
-
-
-
 
         function validName(string){
             const nameRegex=/^[A-Za-z][A-Za-z-\s]+$/;
@@ -804,22 +810,25 @@ input:checked + .slider:before {
         }
     });
 
-     addressDropdown.change(function() {
-     telInput.intlTelInput("setCountry", $(this).val());
+         addressDropdown.change(function() {
+             document.getElementById('town').value='';
+             updateCountryCodeAndFlag(telInput.get(0), addressDropdown.val());
              if ($.trim(telInput.val())) {
-            if (validatePhoneNumber(telInput.get(0))) {
-              $('#mobile_code').css("border-color","");
-              errorMsg.classList.add("hide");
-              $('#submit').attr('disabled',false);
-            } else {
-            errorMsg.classList.remove("hide");
-             errorMsg.innerHTML = "Please enter a valid number";
-             $('#mobile_code').css("border-color","red");
-             $('#error-msg').css({"color":"red","margin-top":"5px"});
-             $('#submit').attr('disabled',true);
-            }
-        }
-    });
+                 if (validatePhoneNumber(telInput.get(0))) {
+                     $('#mobile_code').css("border-color","");
+                     errorMsg.classList.add("hide");
+                     $('#submit').attr('disabled',false);
+                 } else {
+                     errorMsg.classList.remove("hide");
+                     errorMsg.innerHTML = @json(trans('message.user_edit_details.add_valid_phone'));
+                     $('#mobile_code').css("border-color", "#dc3545");
+                     $('#error-msg').css({"color": "#dc3545", "margin-top": "5px", "font-size": "80%"});
+                 }
+             }
+         });
+
+
+
     $('input').on('focus', function () {
         $(this).parent().removeClass('has-error');
     });
