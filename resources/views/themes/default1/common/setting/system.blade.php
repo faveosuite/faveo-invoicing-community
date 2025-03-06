@@ -31,9 +31,9 @@ System Setting
                 {!! Form::model($set,['url'=>'settings/system','method'=>'patch','files'=>true, 'enctype' => 'multipart/form-data']) !!}
                 <div class="row">
                  <div class="col-md-6">
-              
 
-                  
+
+
 
                     <tr>
 
@@ -43,7 +43,7 @@ System Setting
 
 
                                 {!! Form::text('company',null,['class' => 'form-control']) !!}
-                                
+
 
 
                             </div>
