@@ -994,6 +994,7 @@ return [
 
     'image_allowed' => 'Only PNG, JPG, and JPEG files are allowed.',
     'image_max' => 'The image may not be greater than 2 MB.',
+    'image_invalid_message'=>'Please upload only jpeg,jpg,png type of files',
     'central_domain' => 'Please enter domain name(https://example.com).',
     'cloud_name' => 'Please enter cloud cname(example.com)',
     'cloud_popup' => 'Please provide cloud popup heading.',
