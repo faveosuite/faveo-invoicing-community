@@ -147,7 +147,7 @@ class SocialMediaController extends Controller
                     }
                 }
                 echo "<div class='alert alert-success alert-dismissable'>
-                    <i class='fa fa-ban'></i>
+                    <i class='fa fa-check'></i>
 
                     <b>"./* @scrutinizer ignore-type */  \Lang::get('message.alert').
                     '!</b> './* @scrutinizer ignore-type */ \Lang::get('message.success').'

@@ -67,7 +67,7 @@ Edit User
                     
                     <div class="col-md-3 form-group {{ $errors->has('user_name') ? 'has-error' : '' }}">
                         <!-- username -->
-                        {!! html()->label(trans('message.user_name'))->for('user_name') !!}
+                        {!! html()->label(trans('message.user_name'))->for('user_name')->class('required') !!}
                         {!! html()->text('user_name')->class('form-control'. ($errors->has('user_name') ? ' is-invalid' : '')) !!}
                         @error('user_name')
                         <span class="error-message"> {{$message}}</span>

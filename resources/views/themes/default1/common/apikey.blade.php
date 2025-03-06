@@ -341,10 +341,12 @@
                             <div class="custom-control custom-radio m-2">
                                 <input class="custom-control-input" type="radio" id="captchaRadioV2" name="customRadio" {{ $captchaStatus === 1 ? 'checked' : '' }}>
                                 <label for="captchaRadioV2" class="custom-control-label">{{ __('message.recaptcha_v2') }}</label>
+                                <i class="fas fa-question-circle  custom-tooltip" data-toggle="tooltip" data-placement="top" style="margin-left: 2px" title="{{Lang::get('message.v2_tooltip')}}"></i>
                             </div>
                             <div class="custom-control custom-radio m-2">
                                 <input class="custom-control-input" type="radio" id="captchaRadioV3" name="customRadio" {{ $v3CaptchaStatus === 1 ? 'checked' : '' }}>
                                 <label for="captchaRadioV3" class="custom-control-label">{{ __('message.recaptcha_v3') }}</label>
+                                <i class="fas fa-question-circle  custom-tooltip" data-toggle="tooltip" data-placement="top" style="margin-left: 2px" title="{{Lang::get('message.v3_tooltip')}}"></i>
                             </div>
                         </div>
                         <span class="system-error text-danger ml-3" id="checkboxerror"></span>
@@ -600,7 +602,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">pipedrive</h4>
+                    <h4 class="modal-title">Pipedrive</h4>
                 </div>
                 <div class="modal-body">
                     <div id="alertMessage8"></div>
@@ -833,7 +835,6 @@
                 document.head.appendChild(script);
                 clearError();
             } catch (err) {
-                console.error('Unexpected error appending script:', err);
                 showError(); // Show error if there is an issue with appending the script tag
             }
         }

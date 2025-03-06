@@ -119,6 +119,7 @@
                         <div class="col-md-6 form-group {{ $errors->has('price_description') ? 'has-error' : '' }}">
                             <!-- last name -->
                             <script src="https://cdn.tiny.cloud/1/oiio010oipuw2n6qyq3li1h993tyg25lu28kgt1trxnjczpn/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+
                             <script>
                                 tinymce.init({
                                     selector: 'textarea',
@@ -252,6 +253,7 @@
                         <div class="col-md-12 form-group {{ $errors->has('product_description') ? 'has-error' : '' }}">
                             <!-- last name -->
                             <script src="https://cdn.tiny.cloud/1/oiio010oipuw2n6qyq3li1h993tyg25lu28kgt1trxnjczpn/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+
                             <script>
                                 tinymce.init({
                                     selector: 'textarea',

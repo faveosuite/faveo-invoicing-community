@@ -175,6 +175,7 @@ class LicenseController extends Controller
    */
     public function searchProductId($product_sku)
     {
+
         try {
             $productId = '';
             $url = $this->url;
@@ -187,7 +188,6 @@ class LicenseController extends Controller
             if ($details->api_error_detected == 0 && is_array($details->page_message)) {//This is not true if Product_sku is updated
                 $productId = $details->page_message[0]->product_id;
             }
-
             return $productId;
         } catch (\Exception $ex) {
             throw new \Exception('Please configure the valid license details in Apikey settings.');

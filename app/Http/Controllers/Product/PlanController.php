@@ -258,11 +258,16 @@ class PlanController extends ExtendedPlanController
      */
     public function update(Plan $plan, PlanRequest $request)
     {
+
         $add_prices = $request->add_price;
         $renew_prices = $request->renew_price;
         $offer_prices = $request->input('offer_price');
-
         $plan->fill($request->input())->save();
+        //To change the plan days,whenever we update plan
+        if ($request->input('days') != '') {
+            $period = Period::where('days', $request->input('days'))->first()->id;
+            $plan->periods()->sync($period);
+        }
 
         if (count($add_prices) > 0) {
             $dataForCreating = [];

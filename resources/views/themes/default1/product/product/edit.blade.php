@@ -182,13 +182,16 @@
                                     <span>Where do you want to retrieve your files from?</span>
                                     </br>
                                     <input type="hidden" value="{{$githubStatus}}" id="gitstatus">
+                                    @if($githubStatus==1)
                                     <tr>
 
                                         <td>
+
                                             <label for="chkYes" style="">
                                                 <input type="radio" id="chkYes" name="chkTax" />
                                                 Github
                                             </label>
+
                                             <div class="col-md-10 gitstatus" id="git" style="display:none">
                                                 <li>
                                                     <div class="form-group {{ $errors->has('github_owner') ? 'has-error' : '' }}">
@@ -224,6 +227,7 @@
                                             </div>
                                         </td>
                                     </tr>
+                                    @endif
                                     <tr>
                                         <td><label for="chkNo">
                                                 <input type="radio" id="chkNo" name="chkTax" />

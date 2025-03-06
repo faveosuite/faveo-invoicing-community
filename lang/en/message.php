@@ -1010,6 +1010,7 @@ return [
     'agents-error-message' => 'Please enter number of agents.',
     'quantity-error-message' => 'Please enter quantity.',
 
+    'email_not_matching' => 'The email domain does not match the URL domain.',
     'user_edit_details' => [
         'add_first_name' => 'Please enter a first name.',
         'add_last_name' => 'Please enter a last name.',
@@ -1167,6 +1168,15 @@ return [
     'please_enable_cron_deletion' => 'Please Enable Msg Reports Deletion Cron',
     'pipedrive_third_party_tootip' => 'Generate third party key from Settings >> Third party apps to use MSG91 webhook.',
     'source' => 'Source',
+
+    'github_settings' => 'Enable/Disable GitHub Integration',
+    'modules_settings' => 'Enable/Disable Auto Faveo Licenser & Update Manager',
+    'captcha' => 'Enable/Disable Google Captcha',
+    'mobile_settings' => 'Enable/Disable Mobile Verification',
+    'mailchimp_settings' => 'Enable/Disable Mailchimp Integration',
+    'terms_settings' => 'Enable/Disable Terms on Registration Page',
+    'twitter_settings' => 'Enable/Disable Twitter Integration',
+    'zoho_settings' => 'Enable/Disable Zoho Integration',
     'check' => 'Check',
 
     'verify_email_tooltip' => 'Enable this setting to prevent users from logging in until they verify their email address. If no checkbox is selected, users will be allowed to log in without email verification.',
@@ -1266,4 +1276,9 @@ return [
     'pipedrive_verification_updated' => 'Pipedrive verification status updated successfully',
     'sync_pipedrive_fields' => 'This will sync the new fields created in Pipedrive and remove the old fields that are no longer available.',
     'deal_title_required' => 'The Pipedrive title field is required to update deals in Pipedrive. Make sure to map the title field.',
+    'empty_group'=>"No items are available in this Group at the moment, Check out other Groups.",
+    'order_error_modification'=>'Cannot view order. Invalid modification of data.',
+    'v2_tooltip'=>'Validate Requests with checkbox.',
+    'v3_tooltip'=>'Validate Requests with score.',
+    'user-suspend-successfully'=>'User Suspended Successfully',
 ];

@@ -11,6 +11,7 @@ use App\Model\Mailjob\ExpiryMailDay;
 use App\Traits\ApiKeySettings;
 use Illuminate\Http\Request;
 use Spatie\Activitylog\Models\Activity;
+use Illuminate\Support\Facades\Http;
 
 class BaseSettingsController extends PaymentSettingsController
 {
@@ -297,6 +298,7 @@ class BaseSettingsController extends PaymentSettingsController
 
         return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
     }
+
 
     //Save Google recaptch site key and secret in Database
     public function captchaDetails(Request $request)

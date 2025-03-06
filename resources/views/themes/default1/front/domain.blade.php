@@ -37,12 +37,12 @@
                 <input type="submit" class="btn btn-primary" value="{{Lang::get('message.save')}}">
             </div>
              {!! html()->form()->close()  !!}
-        
+
 
             <!-- /Form -->
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->  
+</div><!-- /.modal -->
 @section('script')
   <script type="text/javascript">
 

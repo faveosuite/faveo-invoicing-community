@@ -359,7 +359,12 @@ $('.btn-off-3').css("background-color", "#DA4F49","color", "white");
                                  success: function (data) {
                                      $('#gif').show();
                                      $('#response').html(data);
-                                     location.reload();
+                                     setTimeout(function() {
+                                         location.reload();
+                                     }, 4000);
+                                     setInterval(function(){
+                                         $('#response').slideUp(3000);
+                                     }, 1000);
                                  }
                              })
                          } else {
