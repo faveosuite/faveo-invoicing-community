@@ -30,8 +30,8 @@
                             </div>
                         </div>
                         <input type="hidden" name="login_type" id="login_type" value="login">
+                        <span id="passerror"></span>
                     </div>
-                    <span id="passerror"></span>
                 </div>
                 <div class="modal-footer">
                     <button type="button" id="verify_password" class="btn btn-primary"><i class="fa fa-check">&nbsp;&nbsp;</i>Validate</button>
@@ -58,7 +58,7 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" id="verify_password" class="btn btn-primary"><i class="fa fa-check">&nbsp;&nbsp;</i>Validate</button>
+                    <button type="submit" id="verify_password" class="btn btn-primary"><i class="fa fa-check">&nbsp;&nbsp;</i>Validate</button>
                 </div>
             </div>
         </div>
@@ -256,3 +256,17 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('keydown', function(e) {
+
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('verify_password').click();
+            document.getElementById('copyNewCodeBtn').click();
+            document.getElementById('pass_btn').click();
+            document.getElementById('scan_complete').click();
+
+        }
+    });
+</script>

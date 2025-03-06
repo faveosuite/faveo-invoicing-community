@@ -826,7 +826,6 @@
                 document.head.appendChild(script);
                 clearError();
             } catch (err) {
-                console.error('Unexpected error appending script:', err);
                 showError(); // Show error if there is an issue with appending the script tag
             }
         }

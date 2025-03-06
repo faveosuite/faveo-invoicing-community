@@ -172,6 +172,7 @@ class CartController extends BaseCartController
                 $cart_currency = $item->attributes->currency;
                 \Session::put('currency', $cart_currency);
                 $unpaidInvoice = $this->checkUnpaidInvoices($item);
+
                 if ($unpaidInvoice) {
                     Cart::clear($item->id);
 
