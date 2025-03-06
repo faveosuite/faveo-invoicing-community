@@ -54,7 +54,6 @@ class Handler extends ExceptionHandler
      */
     protected function reportToBugsnag(Throwable $exception)
     {
-        dd($exception);
         // Check bugsnag reporting is active
         if (config('app.bugsnag_reporting')) {
             Bugsnag::notifyException($exception);
