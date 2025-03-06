@@ -207,7 +207,7 @@ Create User
                     ?>
                     <div class="col-md-3 form-group {{ $errors->has('state') ? 'has-error' : '' }}">
                         <!-- name -->
-                        {!! Form::label('state',Lang::get('message.state')) !!}
+                        {!! Form::label('state',Lang::get('message.state'),['class'=>'state_label']) !!}
                         <!--{!! Form::select('state',[],null,['class' => 'form-control','id'=>'state-list']) !!}-->
                           <select name="state" id="state-list" class="form-control">
                         @if(old('state') != null)
@@ -222,7 +222,7 @@ Create User
                             @endif
 
                         </select>
-
+                        <span class="hide system-error" id="state-error"></span>
                     </div>
                     <div class="col-md-3 form-group {{ $errors->has('zip') ? 'has-error' : '' }}">
                         <!-- mobile -->
@@ -436,5 +436,9 @@ addressDropdown.change(function() {
             }
         });
     }
+
+     var state_error= document.getElementById('state-error');
+
+
 </script>
 @stop

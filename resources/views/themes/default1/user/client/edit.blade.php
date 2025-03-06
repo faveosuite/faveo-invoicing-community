@@ -180,7 +180,7 @@ Edit User
                     </div>
                     <div class="col-md-3 form-group {{ $errors->has('state') ? 'has-error' : '' }}">
                         <!-- name -->
-                        {!! Form::label('state',Lang::get('message.state')) !!}
+                        {!! Form::label('state',Lang::get('message.state'),['class'=>'state_label']) !!}
                         <!--{!! Form::select('state',[],null,['class' => 'form-control','id'=>'state-list']) !!}-->
 
 
@@ -195,6 +195,7 @@ Edit User
                             <option value="{{$key}}">{{$value}}</option>
                             @endforeach
                         </select>
+                        <span class="hide system-error" id="state-error"></span>
 
                     </div>
 
@@ -381,6 +382,9 @@ Edit User
             }
         });
     }
+
+    var state_error= document.getElementById('state-error');
+
 </script>
 
 

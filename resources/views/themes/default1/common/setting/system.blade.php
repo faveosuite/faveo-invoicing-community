@@ -13,6 +13,12 @@ System Setting
             <li class="breadcrumb-item active">System Settings</li>
         </ol>
     </div><!-- /.col -->
+    <style>
+        .system-error{
+            font-size:80%;
+            color:#dc3545;
+        }
+    </style>
 @stop
 @section('content')
 
@@ -31,9 +37,9 @@ System Setting
                 {!! Form::model($set,['url'=>'settings/system','method'=>'patch','files'=>true, 'enctype' => 'multipart/form-data']) !!}
                 <div class="row">
                  <div class="col-md-6">
-              
 
-                  
+
+
 
                     <tr>
 
@@ -43,7 +49,7 @@ System Setting
 
 
                                 {!! Form::text('company',null,['class' => 'form-control']) !!}
-                                
+
 
 
                             </div>
@@ -286,7 +292,7 @@ System Setting
                                         <label role="button" class="custom-file-label cursor-pointer" for="admin-logo">{{ __('Choose file') }}</label>
                                     </div>
                                 </div>
-
+                                <span class="hide system-error" id="admin-err-Msg"></span>
                                 @if($errors->has('admin-logo'))
                                     <small class="form-text text-danger mt-1">
                                         <i class="fas fa-exclamation-circle"></i> {{ $errors->first('admin-logo') }}
@@ -315,7 +321,7 @@ System Setting
                                         <label role="button" class="custom-file-label" for="fav-icon">{{ __('Choose file') }}</label>
                                     </div>
                                 </div>
-
+                                <span class="hide system-error" id="favicon-err-Msg"></span>
                                 @if($errors->has('fav-icon'))
                                     <small class="form-text text-danger mt-1">
                                         <i class="fas fa-exclamation-circle"></i> {{ $errors->first('fav-icon') }}
@@ -326,6 +332,36 @@ System Setting
                        
                     </tr>
 
+                <tr>
+
+                    <td><b>{!! Form::label('logo',Lang::get('message.client-logo')) !!}</b></td>
+                    <td>
+                        <div class="form-group {{ $errors->has('logo') ? 'has-error' : '' }}">
+                            {{ __('Upload the company logo') }}
+
+                            <div class="d-flex align-items-center mt-1">
+                                @if($set->logo)
+                                    <img src="{{ $set->logo }}" class="img-thumbnail shadow-sm border"
+                                         style="height: 50px; width: 100px;" alt="Company Logo" id="preview-logo">
+                                @endif
+
+                                <div class="custom-file ml-3">
+                                    {!! Form::file('logo', ['class' => 'custom-file-input', 'id' => 'logo', 'role' => 'button', 'onchange' => 'previewImage("preview-logo", "logo")']) !!}
+                                    <label role="button" class="custom-file-label" for="logo">{{ __('Choose file') }}</label>
+                                </div>
+                            </div>
+                            <span class="hide system-error" id="errMsg"></span>
+                        @if($errors->has('logo'))
+                                <small class="form-text text-danger mt-1">
+                                    <i class="fas fa-exclamation-circle"></i> {{ $errors->first('logo') }}
+                                </small>
+                            @endif
+                        </div>
+                    </td>
+
+                </tr>
+
+
                      <tr>
 
                         <td><b>{!! Form::label('favicon_title',Lang::get('message.fav-title-admin')) !!}</b></td>
@@ -335,7 +371,6 @@ System Setting
 
                                 {!! Form::text('favicon_title',null,['class' => 'form-control']) !!}
                                 
-
 
                             </div>
                         </td>
@@ -358,35 +393,6 @@ System Setting
 
                     </tr>
 
-                    <tr>
-
-                        <td><b>{!! Form::label('logo',Lang::get('message.client-logo')) !!}</b></td>
-                        <td>
-                            <div class="form-group {{ $errors->has('logo') ? 'has-error' : '' }}">
-                                   {{ __('Upload the company logo') }}
-
-                                <div class="d-flex align-items-center mt-1">
-                                    @if($set->logo)
-                                        <img src="{{ $set->logo }}" class="img-thumbnail shadow-sm border"
-                                             style="height: 50px; width: 100px;" alt="Company Logo" id="preview-logo">
-                                    @endif
-
-                                    <div class="custom-file ml-3">
-                                        {!! Form::file('logo', ['class' => 'custom-file-input', 'id' => 'logo', 'role' => 'button', 'onchange' => 'previewImage("preview-logo", "logo")']) !!}
-                                        <label role="button" class="custom-file-label" for="logo">{{ __('Choose file') }}</label>
-                                    </div>
-                                </div>
-
-                                @if($errors->has('logo'))
-                                    <small class="form-text text-danger mt-1">
-                                        <i class="fas fa-exclamation-circle"></i> {{ $errors->first('logo') }}
-                                    </small>
-                                @endif
-                            </div>
-                        </td>
-
-                    </tr>
-
 
             </div>
 
@@ -402,6 +408,59 @@ System Setting
 <script type="text/javascript">
 
     $(document).ready(function () {
+
+            var fup = document.getElementById('logo');
+            var errMsg=document.getElementById('errMsg');
+            $('#logo').on('change',function(e){
+                var fileName = fup.value;
+            var ext = fileName.substring(fileName.lastIndexOf('.') + 1);
+
+            if(ext ==="jpeg" || ext==="jpg" || ext==='png') {
+                errMsg.innerText='';
+                fup.classList.remove('is-invalid');
+                return true;
+        } else {
+            fup.classList.add('is-invalid');
+            errMsg.innerText=@json(trans('message.image_invalid_message'));
+            e.preventDefault();
+            return false;
+        }});
+
+        var fup1 = document.getElementById('admin-logo');
+        var errMsg1=document.getElementById('admin-err-Msg');
+        $('#admin-logo').on('change',function(e){
+            var fileName = fup1.value;
+            var ext = fileName.substring(fileName.lastIndexOf('.') + 1);
+
+            if(ext ==="jpeg" || ext==="jpg" || ext==='png') {
+                errMsg1.innerText='';
+                fup1.classList.remove('is-invalid');
+                return true;
+            } else {
+                fup1.classList.add('is-invalid');
+                errMsg1.innerText=@json(trans('message.image_invalid_message'));
+                e.preventDefault();
+                return false;
+            }});
+
+        var fup2 = document.getElementById('fav-icon');
+        var errMsg2=document.getElementById('favicon-err-Msg');
+        $('#fav-icon').on('change',function(e){
+            var fileName = fup2.value;
+            var ext = fileName.substring(fileName.lastIndexOf('.') + 1);
+
+            if(ext ==="jpeg" || ext==="jpg" || ext==='png') {
+                errMsg2.innerText='';
+                fup2.classList.remove('is-invalid');
+                return true;
+            } else {
+                fup2.classList.add('is-invalid');
+                errMsg2.innerText=@json(trans('message.image_invalid_message'));
+                e.preventDefault();
+                return false;
+            }});
+
+
         $('.custom-file-input').on('change', function() {
             let fileName = $(this).val().split('\\').pop();
             $(this).next('.custom-file-label').addClass('selected').html(fileName);
@@ -597,14 +656,15 @@ System Setting
     ['logo', 'admin-logo', 'fav-icon'].forEach((id) => {
         const input = document.getElementById(id);
         const preview = document.getElementById(`preview-${id}`);
-
         if (input && preview) {
+
             input.addEventListener('change', () => {
                 // Clear previous preview if file selection is canceled
                 if (!input.files.length) {
                     preview.src = '';
                     return;
                 }
+
                 previewImage(input, preview);
             });
         }
@@ -612,20 +672,28 @@ System Setting
 
     function previewImage(input, preview) {
         const file = input.files?.[0];
+        const originalSrc=preview.src;
+        if (!file){
+            return
+        }
+        const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
 
-        if (!file) return;
+        if (allowedTypes.includes(file.type)) {
+            const reader = new FileReader();
 
-        const reader = new FileReader();
+            reader.onload = (e) => {
+                preview.src = e.target.result;
+            };
 
-        reader.onload = (e) => {
-            preview.src = e.target.result;
-        };
+            reader.onerror = () => {
+                input.value = '';
+            };
 
-        reader.onerror = () => {
+            reader.readAsDataURL(file);
+        }else {
             input.value = '';
-        };
-
-        reader.readAsDataURL(file);
+            preview.src = originalSrc;
+        }
     }
 </script>
 

@@ -69,6 +69,38 @@
 
     </head>
     <style>
+        .swal2-popup {
+            margin:0 !important;
+        }
+        .swal2-title{
+            padding-left:0 !important;
+            padding-bottom:0 !important;
+        }
+
+
+        .swal2-html-container{
+            padding-left:0 !important;
+            padding-right:0 !important;
+        }
+
+        .swal2-actions {
+            display: flex !important;
+            justify-content: flex-end !important; /* Align buttons to the right */
+            width: 100% !important; /* Ensure full width */
+            padding-right:10px !important;
+            padding-top:5px !important;
+            margin-top: 0 !important;
+        }
+
+        .swal2-cancel {
+            position: absolute !important;
+            bottom: 23px !important;
+            left: 10px !important; /* Moves it to the left */
+            right: auto !important; /* Removes default right-side positioning */
+            padding: 10px;
+            font-size: 15px ;
+            margin-top:20px;
+        }
         .required:after {
             content:'*';
             color:red;
@@ -78,8 +110,12 @@
         outline-offset: 0px;
         -webkit-appearance: none;
     }
-    
-   
+
+         .system-error{
+             font-size:80%;
+             color:#dc3545;
+         }
+
     .table.dataTable thead th
     {
         padding: 8px 10px ;
