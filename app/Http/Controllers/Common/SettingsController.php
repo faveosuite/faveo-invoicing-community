@@ -193,6 +193,7 @@ class SettingsController extends BaseSettingsController
     public function postSettingsSystem(Setting $settings, SettingsRequest $request)
     {
         try {
+            dd($request->all());
             $setting = $settings->find(1);
 
             if ($request->hasFile('logo')) {
