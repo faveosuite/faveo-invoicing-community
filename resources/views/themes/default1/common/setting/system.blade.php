@@ -597,7 +597,7 @@ System Setting
                 return true;
         } else {
             fup.classList.add('is-invalid');
-            errMsg.innerText='Please upload only jpeg,jpg,png type of files';
+            errMsg.innerText=@json(trans('message.image_invalid_message'));
             e.preventDefault();
             fup.value='';
             return false;
@@ -615,7 +615,7 @@ System Setting
                 return true;
             } else {
                 fup1.classList.add('is-invalid');
-                errMsg1.innerText='Please upload only jpeg,jpg,png type of files';
+                errMsg1.innerText=@json(trans('message.image_invalid_message'));
                 e.preventDefault();
                 fup1.value='';
                 return false;
@@ -633,7 +633,7 @@ System Setting
                 return true;
             } else {
                 fup2.classList.add('is-invalid');
-                errMsg2.innerText='Please upload only jpeg,jpg,png type of files';
+                errMsg2.innerText=@json(trans('message.image_invalid_message'));
                 e.preventDefault();
                 fup2.value='';
                 return false;
