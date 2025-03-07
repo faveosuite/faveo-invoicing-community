@@ -217,11 +217,23 @@ Settings
                         <div class="settingdivblue">
                             <a class="icons-color" href="{{url('clockwork/app')}}">
                                 <span class="fa-stack fa-2x">
-                                   <i class="fa fa-clock fa-lg fa-stack-1x"></i>
+                                   <i class="fa fa-clock fa-stack-1x"></i>
                                 </span>
                             </a>
                         </div>
                         <div class="text-center text-sm fw_400">ClockWork</div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-6">
+                    <div class="settingiconblue">
+                        <div class="settingdivblue">
+                            <a class="icons-color" href="{{url('pulse')}}">
+                                <span class="fa-stack fa-2x">
+                                    <i class="fas fa-heartbeat fa-stack-1x"></i>
+                                </span>
+                            </a>
+                        </div>
+                        <div class="text-center text-sm fw_400">Pulse</div>
                     </div>
                 </div>
                 @endif
