@@ -118,6 +118,7 @@ Groups
     @stop
 
 @section('icheck')
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <script>
     function checking(e){
@@ -128,32 +129,48 @@ Groups
 
      $(document).on('click','#bulk_delete',function(){
       var id=[];
-      if (confirm("Are you sure you want to delete this?"))
-        {
-            $('.group_checkbox:checked').each(function(){
-              id.push($(this).val())
-            });
-            if(id.length >0)
-            {
-               $.ajax({
-                      url:"{!! route('groups-delete') !!}",
-                      method:"delete",
-                      data: $('#check:checked').serialize(),
-                      beforeSend: function () {
-                $('#gif').show();
-                },
-                success: function (data) {
-                $('#gif').hide();
-                $('#response').html(data);
-                location.reload();
-                }
-               })
-            }
-            else
-            {
-                alert("Please select at least one checkbox");
-            }
-        }  
+
+         var swl=swal.fire({
+             title: @json(trans('message.Delete')),
+             text: @json(trans('message.group_delete')),
+             icon: "warning",
+             showCancelButton: true,
+             confirmButtonText: @json(trans('message.Yes')),
+             cancelButtonText: @json(trans('message.No')),
+         }).then((result)=> {
+             if (result.isConfirmed) {
+                 $('.group_checkbox:checked').each(function(){
+                     id.push($(this).val())
+                 });
+                 if(id.length >0)
+                 {
+                     $.ajax({
+                         url:"{!! route('groups-delete') !!}",
+                         method:"delete",
+                         data: $('#check:checked').serialize(),
+                         beforeSend: function () {
+                             $('#gif').show();
+                         },
+                         success: function (data) {
+                             $('#gif').hide();
+                             $('#response').html(data);
+                             location.reload();
+                         }
+                     })
+                 }
+                 else {
+                     swal.fire({
+                         title: @json(trans('message.Select')),
+                         text: @json(trans('message.sweet_checkbox')),
+                         icon: "warning",
+                         button: "OK",
+
+                     })
+                 }
+             }else if (result.dismiss === Swal.DismissReason.cancel) {
+                 Swal.fire(@json(trans('message.Cancelled')), @json(trans('message.sweet_clicked_no')), "error");
+             }
+         })
 
      });
 

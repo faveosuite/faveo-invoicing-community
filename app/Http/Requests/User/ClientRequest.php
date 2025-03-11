@@ -33,7 +33,7 @@ class ClientRequest extends Request
                     'address' => 'required',
                     'mobile' => 'required',
                     'country' => 'required|exists:countries,country_code_char2',
-                    'state' => 'required_if:country,in',
+                    'state' => 'required_if:country,IN',
                     'timezone_id' => 'required',
                     'user_name' => 'required|unique:users,user_name',
                 ];

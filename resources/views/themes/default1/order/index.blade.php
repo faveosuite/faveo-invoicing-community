@@ -628,7 +628,9 @@ Orders
 @stop
 
 @section('icheck')
-<script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
     function checking(e){
           
           $('#order-table').find("td input[type='checkbox']").prop('checked', $(e).prop('checked'));
@@ -637,33 +639,52 @@ Orders
 
      $(document).on('click','#bulk_delete',function(){
       var id=[];
-      if (confirm("Are you sure you want to delete this?"))
-        {
-            $('.order_checkbox:checked').each(function(){
-              id.push($(this).val())
-            });
-            if(id.length >0)
-            {
-               $.ajax({
-                      url:"{!! route('orders-delete') !!}",
-                      method:"delete",
-                      data: $('#check:checked').serialize(),
-                      beforeSend: function () {
-                $('#gif').show();
-                },
-                success: function (data) {
-                $('#gif').hide();
-                $('#response').html(data);
-                location.reload();
-                }
-               })
-            }
-            else
-            {
-                alert("Please select at least one checkbox");
-                return false;
-            }
-        } 
+
+
+         var swl=swal.fire({
+             title: @json(trans('message.Delete')),
+             text: @json(trans('message.order_delete')),
+             icon: "warning",
+             showCancelButton: true,
+             confirmButtonText: @json(trans('message.Yes')),
+             cancelButtonText: @json(trans('message.No')),
+         }).then((result)=> {
+             if (result.isConfirmed) {
+
+                 $('.order_checkbox:checked').each(function(){
+                     id.push($(this).val())
+                 });
+                 if(id.length >0)
+                 {
+                     $.ajax({
+                         url:"{!! route('orders-delete') !!}",
+                         method:"delete",
+                         data: $('#check:checked').serialize(),
+                         beforeSend: function () {
+                             $('#gif').show();
+                         },
+                         success: function (data) {
+                             $('#gif').hide();
+                             $('#response').html(data);
+                             location.reload();
+                         }
+                     })
+                 }
+                 else {
+                     swal.fire({
+                         title: "Select",
+                         text: @json(trans('message.sweet_checkbox')),
+                         icon: "warning",
+                         button: "OK",
+
+                     })
+                 }
+             }else if (result.dismiss === Swal.DismissReason.cancel) {
+                 // Action if "No" is clicked
+                 Swal.fire(@json(trans('message.Cancelled')),@json(trans('message.sweet_clicked_no')), "error");
+                 console.log("User clicked No");
+             }
+         })
                 return false;
 
 

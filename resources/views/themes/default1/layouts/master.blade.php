@@ -88,8 +88,12 @@
         outline-offset: 0px;
         -webkit-appearance: none;
     }
-    
-   
+
+         .system-error{
+             font-size:80%;
+             color:#dc3545;
+         }
+
     .table.dataTable thead th
     {
         padding: 8px 10px ;
