@@ -3,7 +3,7 @@
 <div class="box box-primary">
 
     <div class="content-header">
-        {!! html()->form('POST', 'addons')->open() !!}
+        {!! html()->form('POST', url('addons'))->open() !!}
         <h4>{{ Lang::get('message.addon') }} {!! html()->submit(Lang::get('message.save'))->class('form-group btn btn-primary pull-right') !!}</h4>
     </div>
 

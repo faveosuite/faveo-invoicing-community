@@ -8,7 +8,7 @@
             </div>
             <div class="modal-body">
                 <!-- Form  -->
-                {!! html()->form('GET', 'checkout')->id('domain1') !!}
+                {!! html()->form('GET', url('checkout'))->id('domain1')->open() !!}
 
             @foreach($domain as $product)
                 <?php

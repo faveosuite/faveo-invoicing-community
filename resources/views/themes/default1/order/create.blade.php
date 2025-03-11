@@ -32,7 +32,7 @@ Create Order
             {{Session::get('fails')}}
         </div>
         @endif
-            {!! html()->form('POST', 'orders')->open() !!}
+            {!! html()->form('POST', url('orders'))->open() !!}
             <h4>{{Lang::get('message.orders')}}	{!! html()->submit(Lang::get('message.save'))->class('form-group btn btn-primary pull-right') !!}</h4>
 
     </div>

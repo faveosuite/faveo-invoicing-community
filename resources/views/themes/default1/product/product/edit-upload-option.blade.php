@@ -18,7 +18,7 @@ Edit Product Uploads
 <div class="card card-secondary card-outline">
     <div class="card-header">
 
-        {!! html()->form('PATCH', 'upload/' . $model->id)->model($model) !!}
+        {!! html()->modelForm($model,'PATCH', url('upload/' . $model->id))->open() !!}
         <h4>Edit Product </h4>
 
     </div>

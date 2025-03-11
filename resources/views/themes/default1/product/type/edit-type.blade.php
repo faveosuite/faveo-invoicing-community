@@ -5,7 +5,7 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title">{{Lang::get('message.edit-type')}}</h4>
             </div>
-            {!! html()->form('PATCH', route('your.route.name'))->id('type-edit-form') !!}
+            {!! html()->form('PATCH')->id('type-edit-form')->open() !!}
             <div class="modal-body">
                 
                 <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">

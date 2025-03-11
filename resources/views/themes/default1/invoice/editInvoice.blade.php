@@ -23,7 +23,7 @@ Edit Invoice
 
     <div class="card-header">
 
-        {!! html()->form('POST', 'invoice/edit/'.$invoiceid)->open() !!}
+        {!! html()->form('POST', url('invoice/edit/'.$invoiceid))->open() !!}
 
         <h5>Invoice Number:#{{$invoice->number}}	</h5>
 

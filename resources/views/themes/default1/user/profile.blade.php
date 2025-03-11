@@ -101,7 +101,7 @@ input:checked + .slider:before {
     <div class="col-md-6">
 
 
-        {!! html()->form('PATCH', 'profile')->files()->model($user) !!}
+    {!! html()->modelForm($user, 'PATCH', url('profile'))->attribute('enctype', 'multipart/form-data')->open() !!}
 
 
         <div class="card card-secondary card-outline">
@@ -241,7 +241,7 @@ input:checked + .slider:before {
         </div>
     </div>
     <div class="col-md-6">
-        {!! html()->model($user)->patch('password')->id('changePasswordForm') !!}
+        {!! html()->modelForm($user,'PATCH',url('password'))->id('changePasswordForm')->open() !!}
 
         <div class="card card-secondary card-outline">
             <div class="card-header">

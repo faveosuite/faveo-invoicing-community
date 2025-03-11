@@ -120,9 +120,9 @@ $country = findCountryByGeoip($location['iso_code']);
                         <div class="box-content">
 
                             @if ($status->recaptcha_status == 1 && $apiKeys->nocaptcha_sitekey != '00' && $apiKeys->captcha_secretCheck != '00')
-                                {!! html()->form('POST', 'login')->id('formoid')->attribute('onsubmit', 'return validateform()')->open() !!}
+                                {!! html()->form('POST', url('login'))->id('formoid')->attribute('onsubmit', 'return validateform()')->open() !!}
                             @else
-                                {!! html()->form('POST', 'login')->id('formoid')->open() !!}
+                                {!! html()->form('POST', url('login'))->id('formoid')->open() !!}
                             @endif
                             <div class="form-row">
                                 <div class="form-group col">

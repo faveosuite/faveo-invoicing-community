@@ -33,7 +33,7 @@ Edit Order
         </div>
         @endif
 
-            {!! html()->model($order)->method('patch')->action('orders/'.$order->id) !!}
+            {!! html()->modelForm($order,'PATCH',url('orders/'.$order->id))->open() !!}
             <h4>{{Lang::get('message.orders')}}	{!! html()->submit(Lang::get('message.save'))->class('form-group btn btn-primary pull-right') !!}</h4>
 
     </div>

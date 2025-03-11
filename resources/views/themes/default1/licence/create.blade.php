@@ -7,7 +7,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            {!! html()->form('POST', 'license-type')->open() !!}
+            {!! html()->form('POST', url('license-type'))->open() !!}
             <div class="modal-body">
                 
                 <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">

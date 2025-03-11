@@ -86,7 +86,7 @@ input:checked + .slider:before {
             <div class="card-header">
                 <h3 class="card-title">{{Lang::get('message.list-fields')}}</h3>
                 {!! html()->modelForm($model, 'PATCH', url('mail-chimp/mapping'))
-    ->attribute('enctype', 'multipart/form-data') !!}
+    ->attribute('enctype', 'multipart/form-data')->open() !!}
 
 
 

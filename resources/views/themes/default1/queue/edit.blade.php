@@ -23,7 +23,7 @@ Configure Queue
        
             <div class="card-body">
 
-                {!! html()->form('POST', 'queue/'.$queue->id)->id('form') !!}
+                {!! html()->form('POST', url('queue/'.$queue->id))->id('form')->open() !!}
                 <div id="response">
 
                     </div>

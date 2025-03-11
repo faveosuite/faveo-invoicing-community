@@ -26,7 +26,7 @@ main
 
                 <div class="col-md-6 col-lg-6 mb-5 mb-lg-0 pe-5">
 
-                    {!! html()->form('get', route('2fa/loginValidate'))->id('2fa_form') !!}
+                    {!! html()->form('get', route('2fa/loginValidate'))->id('2fa_form')->open() !!}
 
 
                     <div class="row">

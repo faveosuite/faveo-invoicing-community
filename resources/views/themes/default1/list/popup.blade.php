@@ -2,7 +2,7 @@
 <div class="modal fade" id="renew{{$id}}">
     <div class="modal-dialog">
         <div class="modal-content">
-            {!! html()->form('POST', 'client/renew/' . $id)->open() !!}
+            {!! html()->form('POST', url('client/renew/' . $id))->open() !!}
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title">Renew</h4>
