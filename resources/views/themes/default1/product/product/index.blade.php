@@ -121,7 +121,7 @@ Products
 
 
 @section('icheck')
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
      function checking(e){
           
@@ -131,32 +131,49 @@ Products
 
      $(document).on('click','#bulk_delete',function(){
       var id=[];
-      if (confirm("Are you sure you want to delete this?"))
-        {
-            $('.product_checkbox:checked').each(function(){
-              id.push($(this).val())
-            });
-            if(id.length >0)
-            {
-               $.ajax({
-                      url:"{!! route('products-delete') !!}",
-                      method:"delete",
-                      data: $('#check:checked').serialize(),
-                      beforeSend: function () {
-                  $('#gif').html( "<img id='blur-bg' class='backgroundfadein' style='top:40%;left:50%; width: 50px; height:50 px; display: block; position:    fixed;' src='{!! asset('lb-faveo/media/images/gifloader3.gif') !!}'>");
-                },
-                success: function (data) {
-                $('#gif').html('');
-                $('#response').html(data);
-                location.reload();
-                }
-               })
-            }
-            else
-            {
-                alert("Please select at least one checkbox");
-            }
-        }  
+
+         var swl=swal.fire({
+             title: @json(trans('message.Delete')),
+             text: "Are you sure you want to delete this product?",
+             icon: "warning",
+             showCancelButton: true,
+             confirmButtonText: @json(trans('message.Yes')),
+             cancelButtonText: @json(trans('message.No')),
+         }).then((result)=> {
+             if (result.isConfirmed) {
+                 $('.product_checkbox:checked').each(function(){
+                     id.push($(this).val())
+                 });
+                 if(id.length >0)
+                 {
+                     $.ajax({
+                         url:"{!! route('products-delete') !!}",
+                         method:"delete",
+                         data: $('#check:checked').serialize(),
+                         beforeSend: function () {
+                             $('#gif').html( "<img id='blur-bg' class='backgroundfadein' style='top:40%;left:50%; width: 50px; height:50 px; display: block; position:    fixed;' src='{!! asset('lb-faveo/media/images/gifloader3.gif') !!}'>");
+                         },
+                         success: function (data) {
+                             $('#gif').html('');
+                             $('#response').html(data);
+                             location.reload();
+                         }
+                     })
+                 }
+
+                 else {
+                     swal.fire({
+                         title: @json(trans('message.Select')),
+                         text: @json(trans('message.sweet_checkbox')),
+                         icon: "warning",
+                         button: "OK",
+
+                     })
+                 }
+             }else if (result.dismiss === Swal.DismissReason.cancel) {
+                 Swal.fire(@json(trans('message.Cancelled')), @json(trans('message.sweet_clicked_no')), "error");
+             }
+         })
 
      });
    

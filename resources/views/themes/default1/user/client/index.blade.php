@@ -553,7 +553,8 @@ $(document).ready(function() {
 @stop
 
 @section('icheck')
-<script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
     $(document).ready(function() {
         $(function () {
             //Initialize Select2 Elements
@@ -568,35 +569,46 @@ $(document).ready(function() {
 
      $(document).on('click','#bulk_delete',function(){
       var id=[];
-      if (confirm("Are you sure you want to suspend this user?"))
-        {
-            $('.user_checkbox:checked').each(function(){
-              id.push($(this).val())
-            });
-            if(id.length >0)
-            {
-               $.ajax({
-                      url:"{!! Url('clients-delete') !!}",
-                      method:"delete",
-                      data: $('#check:checked').serialize(),
-                      beforeSend: function () {
-                     '<div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>'
-                },
-                success: function (data) {
-                $('#gif').html('');
-                $('#response').html(data);
-                 setTimeout(function(){
-                    window.location.reload();
-                },5000);
-                }
-               })
-            }
-            else
-            {
-                alert("Please select at least one checkbox");
-                return false;
-            }
-        }
+     var swl=swal.fire({
+             title: @json(trans('message.Suspend')),
+             text: @json(trans('message.user_sweet_suspend')),
+             icon: "warning",
+         showCancelButton: true,
+         confirmButtonText: @json(trans('message.Yes')),
+            cancelButtonText: @json(trans('message.No')),
+         }).then((result)=> {
+             if (result.isConfirmed) {
+                 $('.user_checkbox:checked').each(function () {
+                     id.push($(this).val())
+                 });
+                 if (id.length > 0) {
+                     $.ajax({
+                         url: "{!! Url('clients-delete') !!}",
+                         method: "delete",
+                         data: $('#check:checked').serialize(),
+                         beforeSend: function () {
+                             '<div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>'
+                         },
+                         success: function (data) {
+                             $('#gif').html('');
+                             $('#response').html(data);
+                             location.reload();
+                         }
+                     })
+                 } else {
+                     swal.fire({
+                         title: "Select",
+                         text: @json(trans('message.sweet_checkbox')),
+                         icon: "warning",
+                         button: "OK",
+
+                     })
+                 }
+             }else if (result.dismiss === Swal.DismissReason.cancel) {
+                 // Action if "No" is clicked
+                 Swal.fire(@json(trans('message.Cancelled')), @json(trans('message.sweet_clicked_no')), "error");
+             }
+         })
         return false;
 
      });

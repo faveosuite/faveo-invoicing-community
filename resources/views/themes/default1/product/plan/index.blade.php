@@ -128,7 +128,9 @@ Plans
 @stop
 
 @section('icheck')
-<script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
      function checking(e){
           
           $('#plan-table').find("td input[type='checkbox']").prop('checked', $(e).prop('checked'));
@@ -137,33 +139,48 @@ Plans
 
      $(document).on('click','#bulk_delete',function(){
       var id=[];
-      if (confirm("Are you sure you want to delete this?"))
-        {
-            $('.plan_checkbox:checked').each(function(){
-              id.push($(this).val())
-            });
-            if(id.length >0)
-            {
-               $.ajax({
-                      url:"{!! route('plans-delete') !!}",
-                      method:"delete",
-                      data: $('#check:checked').serialize(),
-                      beforeSend: function () {
-                $('#gif').show();
-                },
-                success: function (data) {
-                $('#gif').hide();
-                $('#response').html(data);
-                location.reload();
-                }
-               })
-            }
-            else
-            {
-                alert("Please select at least one checkbox");
-            }
-        }  
+         var swl=swal.fire({
+             title: @json(trans('message.Delete')),
+             text: @json(trans('message.plan_delete')),
+             icon: "warning",
+             showCancelButton: true,
+             confirmButtonText: @json(trans('message.Yes')),
+             cancelButtonText: @json(trans('message.No')),
+         }).then((result)=> {
+             if (result.isConfirmed) {
+                 $('.plan_checkbox:checked').each(function(){
+                     id.push($(this).val())
+                 });
+                 if(id.length >0)
+                 {
+                     $.ajax({
+                         url:"{!! route('plans-delete') !!}",
+                         method:"delete",
+                         data: $('#check:checked').serialize(),
+                         beforeSend: function () {
+                             $('#gif').show();
+                         },
+                         success: function (data) {
+                             $('#gif').hide();
+                             $('#response').html(data);
+                             location.reload();
+                         }
+                     })
+                 }
 
+                 else {
+                     swal.fire({
+                         title: @json(trans('message.Select')),
+                         text: @json(trans('message.sweet_checkbox')),
+                         icon: "warning",
+                         button: "OK",
+
+                     })
+                 }
+             }else if (result.dismiss === Swal.DismissReason.cancel) {
+                 Swal.fire(@json(trans('message.Cancelled')), @json(trans('message.sweet_clicked_no')), "error");
+             }
+         })
      });
    
 </script>
