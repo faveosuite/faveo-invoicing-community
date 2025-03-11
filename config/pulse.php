@@ -123,6 +123,7 @@ return [
         'web',
         'auth',
         'admin',
+        'pulse.enabled'
     ],
 
     /*

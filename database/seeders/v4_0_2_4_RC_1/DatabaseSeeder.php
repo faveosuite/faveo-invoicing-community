@@ -17,6 +17,6 @@ class DatabaseSeeder extends Seeder
 
     private function updateAppKey()
     {
-        setEnvValue('APP_PREVIOUS_KEYS', 'SomeRandomString');
+        setEnvValue(['APP_PREVIOUS_KEYS' => 'SomeRandomString']);
     }
 }

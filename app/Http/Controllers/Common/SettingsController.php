@@ -577,8 +577,11 @@ class SettingsController extends BaseSettingsController
     public function postdebugSettings(Request $request)
     {
         $enable = $request->get('debug') === 'true';
-        setEnvValue('APP_DEBUG', $enable ? 'true' : 'false');
-        setEnvValue('PULSE_ENABLED', $enable ? 'true' : 'false');
+        setEnvValue([
+            'APP_DEBUG' => $enable ? 'true' : 'false',
+            'PULSE_ENABLED' => $enable ? 'true' : 'false',
+            'CLOCKWORK_ENABLE' => $enable ? 'true' : 'false',
+        ]);
 
         return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
     }
