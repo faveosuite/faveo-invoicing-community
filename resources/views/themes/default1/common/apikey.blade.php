@@ -120,21 +120,20 @@
                                 </td>
 
                                 <td class="col-md-4 licenseEmptyField">
-                                    {!! html()->label(Lang::get('message.lic_api_secret')) !!}
-                                    {!! html()->text('license_api')->class('form-control secretHide')->attribute('disabled', 'disabled') !!}
+                                    {!! html()->label(Lang::get('message.lic_api_secret'))->for('lic_api_secret') !!}
+                                    {!! html()->text('license_api')->id(null)->class('form-control secretHide')->attribute('disabled', 'disabled') !!}
 
-                                    {!! html()->label(Lang::get('message.lic_api_url')) !!}
-                                    {!! html()->text('license_api')->class('form-control urlHide')->attribute('disabled', 'disabled') !!}
+                                    {!! html()->label(Lang::get('message.lic_api_url'))->for('lic_api_url') !!}
+                                    {!! html()->text('license_api')->id(null)->class('form-control urlHide')->attribute('disabled', 'disabled') !!}
 
-                                    {!! html()->label(Lang::get('message.lic_client_id')) !!}
-                                    {!! html()->text('license_client_id')->class('form-control urlHide')->attribute('disabled', 'disabled') !!}
+                                    {!! html()->label(Lang::get('message.lic_client_id'))->for('lic_client_id') !!}
+                                    {!! html()->text('license_client_id')->id(null)->class('form-control urlHide')->attribute('disabled', 'disabled') !!}
 
-                                    {!! html()->label(Lang::get('message.lic_client_secret')) !!}
-                                    {!! html()->text('license_client_secret')->class('form-control urlHide')->attribute('disabled', 'disabled') !!}
+                                    {!! html()->label(Lang::get('message.lic_client_secret'))->for('lic_client_secret') !!}
+                                    {!! html()->text('license_client_secret')->id(null)->class('form-control urlHide')->attribute('disabled', 'disabled') !!}
 
-                                    {!! html()->label(Lang::get('message.lic_grant_type')) !!}
-                                    {!! html()->text('license_grant_type')->class('form-control urlHide')->attribute('disabled', 'disabled') !!}
-
+                                    {!! html()->label(Lang::get('message.lic_grant_type'))->for('lic_grant_type') !!}
+                                    {!! html()->text('license_grant_type')->id(null)->class('form-control urlHide')->attribute('disabled', 'disabled') !!}
                                 </td>
                                 <td class="col-md-4 LicenseField hide">
 

@@ -27,7 +27,7 @@ Social Media
 
 
             <div class="card-body">
-                {!! html()->form('POST', 'social-media')->open() !!}
+                {!! html()->form('POST', url('social-media'))->open() !!}
 
                 <table class="table table-condensed">
 
@@ -53,7 +53,7 @@ Social Media
 
                     <tr>
 
-                        {!! html()->label(Lang::get('message.link'))->for('link')->class('required') !!}
+                        <td><b>{!! html()->label(Lang::get('message.link'))->for('link')->class('required') !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('link') ? 'has-error' : '' }}">
 

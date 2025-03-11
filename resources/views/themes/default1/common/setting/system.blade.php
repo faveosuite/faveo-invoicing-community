@@ -28,7 +28,7 @@ System Setting
             </div>
 
             <div class="card-body">
-                {!! html()->modelForm($set, url('settings/system'))->patch()->enctype('multipart/form-data')->acceptsFiles()->open() !!}
+                {!! html()->modelForm($set, 'PATCH' ,url('settings/system'))->attribute('enctype', 'multipart/form-data')->acceptsFiles()->open() !!}
                 <div class="row">
                  <div class="col-md-6">
               

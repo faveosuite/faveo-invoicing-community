@@ -18,7 +18,7 @@ Edit Page
 @section('content')
 <div class="card card-secondary card-outline">
 
-    {!! html()->model($page)->method('patch')->route('pages.update', $page->id) !!}
+    {!! html()->modelForm($page, 'PATCH', route('pages.update', $page->id))->open() !!}
 
 
     <div class="card-body table-responsive">

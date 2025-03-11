@@ -20,7 +20,7 @@ Create Page
 
 
 
-    {!! html()->form('post', 'pages') !!}
+    {!! html()->form('POST', url('pages'))->open() !!}
 
 
 

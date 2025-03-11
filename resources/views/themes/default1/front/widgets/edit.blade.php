@@ -20,7 +20,7 @@ Edit Widget
 
 
 
-    {!! html()->model($widget)->route('widgets.update', $widget->id)->method('patch') !!}
+    {!! html()->modelForm($widget,'PATCH',route('widgets.update', $widget->id))->open() !!}
 
 
     <div class="card-body">

@@ -32,8 +32,8 @@ Activity Log
                 </div>
 
     <!-- /.box-header -->
-    <div class="card-body" table-responsive" id="advance-search" style="display:none;">
-                {!! html()->form('GET') !!}
+    <div class="card-body table-responsive" id="advance-search" style="display:none;">
+                {!! html()->form('GET')->open() !!}
 
                 <div class="row">
 

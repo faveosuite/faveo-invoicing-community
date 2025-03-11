@@ -22,10 +22,7 @@
 
 
             <div class="card-body table-responsive">
-                {!! html()->model($set)
-     ->route('settings.template')
-     ->method('patch')
-     ->files() !!}
+                {!! html()->modelForm($set, 'PATCH', url('settings/template'))->attribute('enctype', 'multipart/form-data')->open() !!}
 
 
                 <tr>
@@ -39,8 +36,7 @@
                             <div class="form-group {{ $errors->has('welcome_mail') ? 'has-error' : '' }}">
 
 
-                                {!! html()->select('welcome_mail', ['Templates' => $template->where('type', 1)->pluck('name', 'id')->toArray()])
-    ->class('form-control') !!}
+                                {!! html()->select('welcome_mail', ['Templates' => $template->where('type', 1)->pluck('name', 'id')->toArray()])->class('form-control') !!}
                                 <p><i> {{Lang::get('message.choose-welcome-mail-template')}}</i> </p>
 
 

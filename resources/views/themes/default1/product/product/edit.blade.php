@@ -65,7 +65,7 @@ Edit Product
 </style>
 <div class="card card-secondary card-tabs">
 
-    {!! html()->modelForm($product, 'PATCH', 'products/'.$product->id)->acceptsFiles()->id('editproduct')->open() !!}
+    {!! html()->modelForm($product, 'PATCH', url('products/'.$product->id))->acceptsFiles()->id('editproduct')->open() !!}
     <div class="card-header p-0 pt-1">
         <ul class="nav nav-tabs" id="custom-tabs-one-tab" role="tablist">
             <li class="nav-item">
@@ -256,7 +256,7 @@ Edit Product
 
                                                <div class="form-group {{ $errors->has('highlight') ? 'has-error' : '' }}">
                                                 <!-- first name -->
-                                                   {!! html()->label(trans('message.highlight')) !!}
+                                                   {!! html()->label(trans('message.highlight'))->for('highlight') !!}
                                                    {!! html()->hidden('highlight', 0) !!}
                                                    <?php
                                                 $value=  "";
@@ -264,7 +264,10 @@ Edit Product
                                                     $value = 'true';
                                                 }
                                                 ?>
-                                                   {!! html()->checkbox('highlight', $value)->label(trans('message.tick-to-highlight-product')) !!}
+                                                   <p>
+                                                       {!! html()->checkbox('highlight', $value) !!}
+                                                       <span>{{ trans('message.tick-to-highlight-product') }}</span>
+                                                   </p>
 
                                                </div>
 
@@ -274,19 +277,20 @@ Edit Product
                                             <li>
                                             <div class="row">
 
-                                               <div class="form-group {{ $errors->has('add_to_contact') ? 'has-error' : '' }}">
-                                                <!-- first name -->
-                                                   {!! html()->label(Lang::get('Contact to sales'))->for('add_to_contact') !!}
-                                                   {!! html()->checkbox('add_to_contact', $value) !!}
-                                                   <?php
-                                                $value=  "";
-                                                if ($product->add_to_contact==1) {
-                                                    $value = 'true';
-                                                }
-                                                ?>
-                                                <p>{!! html()->checkbox('add_to_contact', $value) !!}{{Lang::get('message.tick-to-add_to_contact-product')}}</p>
+                                                <div class="form-group {{ $errors->has('add_to_contact') ? 'has-error' : '' }}">
+                                                    {!! html()->label(trans('Contact to sales'))->for('add_to_contact') !!}
 
-                                            </div>
+                                                    {!! html()->hidden('add_to_contact', 0) !!}
+
+                                                    @php
+                                                        $checked = $product->add_to_contact == 1; // Set checked if value is 1
+                                                    @endphp
+
+                                                    <p>
+                                                        {!! html()->checkbox('add_to_contact', $checked) !!}
+                                                        <span>{{ trans('message.tick-to-add_to_contact-product') }}</span>
+                                                    </p>
+                                                </div>
 
                                             </div>
                                         </li>

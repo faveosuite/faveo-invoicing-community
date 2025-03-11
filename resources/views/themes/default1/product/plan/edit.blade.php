@@ -22,7 +22,7 @@
 
     {!! html()->modelForm($plan, 'PATCH', url('plans/' . $plan->id))
     ->id('plan-form')
-    ->class('form-class') !!}
+    ->class('form-class')->open() !!}
     <div class="card-body">
 
 

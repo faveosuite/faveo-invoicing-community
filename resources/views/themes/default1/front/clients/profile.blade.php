@@ -146,7 +146,7 @@ input:checked + .slider:before {
                     <div class="tab-pane tab-pane-navigation active" id="profile" role="tabpanel">
 
                            <div class="row">
-                               {!! html()->modelForm($user)->patch()->acceptsFiles()->id('client_form') !!}
+                               {!! html()->modelForm($user,'PATCH')->acceptsFiles()->id('client_form')->open() !!}
 
                                <div class="d-flex justify-content-center mb-4" id="profile_img">
                                    <div class="profile-image-outer-container">
@@ -194,7 +194,7 @@ input:checked + .slider:before {
                                             {!! html()->hidden('mobile_code')->id('code_hidden') !!}
                                             <!--<input class="form-control selected-dial-code"  id="mobile_code" value="{{$user->mobile}}" name="mobile" type="tel"> -->
 
-                                            {!! html()->tel('mobile', $user->mobile)->class('form-control selected-dial-code')->id('incode') !!}
+                                            {!! html()->input('tel', 'mobile', $user->mobile)->class('form-control selected-dial-code')->id('incode') !!}
                                             {!! html()->hidden('mobile_country_iso')->id('mobile_country_iso') !!}
                                             <span id="invalid-msg" class="hide"></span>
                                                <span id="inerror-msg"></span>
@@ -240,7 +240,7 @@ input:checked + .slider:before {
                                      <div class="form-group row {{ $errors->has('=country') ? 'has-error' : '' }}">
                                         <label class="col-lg-3 col-form-label form-control-label line-height-9 pt-2 text-2">Country</label>
                                         <div class="col-lg-9">
-                                            {!! html()->text('country', $selectedCountry)->class('form-control input-lg')->attribute('onChange', 'getCountryAttr(this.value);')->readonly()->title('Contact admin to update your country')->attribute('data-toggle', 'tooltip')->attribute('data-placement', 'top') !!}
+                                            {!! html()->text('country', $selectedCountry)->class('form-control input-lg')->attribute('onChange', 'getCountryAttr(this.value);')->attribute('title','Contact admin to update your country')->attribute('readonly', 'readonly')->attribute('data-toggle', 'tooltip')->attribute('data-placement', 'top') !!}
 
                                             {!! html()->hidden('country')->id('country') !!}
                                             <h6 id="countryCheck"></h6>
@@ -279,7 +279,7 @@ input:checked + .slider:before {
 
                             <div class="col-lg-12 order-1 order-lg-2">
 
-                                {!! html()->modelForm($user, 'my-password')->patch()->id('changePasswordForm') !!}
+                                {!! html()->modelForm($user, 'PATCH',url('my-password'))->id('changePasswordForm')->open() !!}
 
                                 <div class="form-group row {{ $errors->has('old_password') ? 'has-error' : '' }}">
                                         <label class="col-lg-3 col-form-label form-control-label line-height-9 pt-2 text-2 required">Old Password</label>

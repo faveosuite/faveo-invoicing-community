@@ -219,7 +219,7 @@ $cartSubtotalWithoutCondition = 0;
 
 
                                 <div class="col-md-auto px-0 mb-3 mb-md-0">
-                                    {!! html()->form('POST', 'pricing/update') !!}
+                                    {!! html()->form('POST', url('pricing/update'))->open() !!}
 
                                     <div class="d-flex align-items-center">
 
@@ -409,7 +409,7 @@ $cartSubtotalWithoutCondition = 0;
                                             </span></strong>
                                         </td>
                                     </tr>
-                                    {!! html()->form('POST', 'checkout-and-pay')->id('checkoutsubmitform') !!}
+                                    {!! html()->form('POST', url('checkout-and-pay'))->id('checkoutsubmitform')->open() !!}
 
                                     @if(\Session::has('priceRemaining'))
                                     <tr>

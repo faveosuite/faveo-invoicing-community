@@ -91,7 +91,7 @@ Create Coupon
                             <div class="form-group col-lg-6 {{ $errors->has('uses') ? 'has-error' : '' }}">
 
 
-                                {!! html()->text('uses')->class('form-control')->title('No. Of times the coupon can be Used') !!}
+                                {!! html()->text('uses')->class('form-control')->attribute('title', 'No. Of times the coupon can be Used') !!}
 
 
                             </div>

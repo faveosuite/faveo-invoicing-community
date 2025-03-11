@@ -48,7 +48,7 @@
                 </div>
         </div>
 
-        
+
          <div class="alert  alert-dismissable" style="background: #F3F3F3">
             <div class="row">
             <div class="col-md-2 copy-command1">
@@ -70,7 +70,7 @@
                     </div>
                 </div>
                   <div class="col-md-5 copy-command2">
-                   <span style="font-size: 15px">-q {{$cronPath}} schedule:run 2>&1 </span> 
+                   <span style="font-size: 15px">-q {{$cronPath}} schedule:run 2>&1 </span>
                 </div>
                 <div class="col-md-1">
                     <span style="font-size: 20px" id="copyBtn" title="{{Lang::get('message.verify-and-copy-command')}}" onclick="verifyPHPExecutableAndCopyCommand()"><i class="fa fa-clipboard"></i></span>
@@ -78,21 +78,25 @@
                 </div>
             </div>
         </div>
-        
+
      <div class="row">
         <div class="col-md-6">
             <div class="info-box">
                 <span class="info-box-icon bg-info" style="height: 70px;"><i class="fa fa-envelope"></i></span>
                 <!-- Apply any bg-* class to to the icon to color it -->
                 <div class="info-box-content" style="display: block;">
-               
+
                     <div class="col-md-6">
 
                         <div class="form-group">
 
-                            {!! html()->label(
-     Lang::get('message.expiry_mail') . ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="This cron is to trigger email which are sent out to users before product expiry reminding them to renew the product. This email is sent out only to those who have not enabled auto-renewal"></i>'
- )->for('email_fetching')->raw() !!}
+                            {!! html()->label()->for('email_fetching')->html(
+    Lang::get('message.expiry_mail') .
+    ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top"
+    title="This cron is to trigger email which are sent out to users before product expiry
+    reminding them to renew the product. This email is sent out only to those who have not
+    enabled auto-renewal"></i>'
+) !!}
                             <br>
                             {!! html()->checkbox('expiry_cron', 1, $condition->checkActiveJob()['expiryMail'])->id('email_fetching') !!}
                             &nbsp;{{ Lang::get('message.enable_expiry-cron') }}
@@ -113,7 +117,7 @@
                             !!}
 
                     </div>
-                      
+
                     </div>
                 </div>
             </div><!-- /.info-box-content -->
@@ -156,16 +160,21 @@
                 <span class="info-box-icon bg-info" style="height: 70px;"><i class="fa fa-cloud"></i></span>
                 <!-- Apply any bg-* class to to the icon to color it -->
                 <div class="info-box-content" style="display: block;">
-               
+
                     <div class="col-md-6">
 
                         <div class="form-group">
 
-                            {!! html()->label(
-    Lang::get('Subscription renewal reminder - Auto payment') .
-    ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top"
-    title="This cron is to trigger email which are sent out to users before product expiry reminding them product will be renewed automatically. This email is sent out only to those who have enabled auto renewal"></i>'
-)->for('sub_fetching')->raw() !!}
+                            {!! html()->label()
+     ->for('sub_fetching')
+     ->html(
+         Lang::get('Subscription renewal reminder - Auto payment') .
+         ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top"
+         title="This cron is to trigger email which are sent out to users before product expiry
+         reminding them the product will be renewed automatically. This email is sent out only to those
+         who have enabled auto renewal"></i>'
+     )
+ !!}
                             <br>
                             {!! html()->checkbox('subs_expirymail', 1, $condition->checkActiveJob()['subsExpirymail'])
                                 ->id('sub_fetching')
@@ -206,13 +215,18 @@
                 <span class="info-box-icon bg-info" style="height: 70px;"><i class="fa fa-envelope"></i></span>
                 <!-- Apply any bg-* class to to the icon to color it -->
                 <div class="info-box-content" style="display: block;">
-               
+
                     <div class="col-md-6">
 
                         <div class="form-group">
-                            {!! html()->label(Lang::get('Subscription expired') .
-                                ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="This cron is to trigger email which are sent out to users after product expiry reminding them to renew the product. This email is sent out to all users using auto renewal or manual payment method. For self-hosted and cloud both"></i>'
-                            )->for('postsub_fetching')->raw() !!}
+                            {!! html()->label()->for('postsub_fetching')->html(
+        Lang::get('Subscription expired') .
+        ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top"
+        title="This cron is to trigger email which are sent out to users after product expiry
+        reminding them to renew the product. This email is sent out to all users using auto renewal
+        or manual payment method. For self-hosted and cloud both"></i>'
+    )
+!!}
                             <br>
                             {!! html()->checkbox('postsubs_expirymail', $condition->checkActiveJob()['postExpirymail'], 1)
                                 ->id('postsub_fetching')
@@ -245,15 +259,18 @@
                 <span class="info-box-icon bg-info" style="height: 70px;"><i class="fa fa-cloud"></i></span>
                 <!-- Apply any bg-* class to to the icon to color it -->
                 <div class="info-box-content" style="display: block;">
-               
+
                     <div class="col-md-6">
 
                         <div class="form-group">
-                            {!! html()->label(
-                                Lang::get('Cloud subscription deletion') .
-                                ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="This cron is to trigger email which are sent out to users after product expiry & on cloud instance deletion. This email is sent out to all users using auto renewal or manual payment method. For cloud instance only"></i>',
-                                'cloud_fetching'
-                            )->class('form-label')->raw() !!}
+                            {!! html()->label()->for('cloud_fetching')->class('form-label')->html(
+        Lang::get('Cloud subscription deletion') .
+        ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top"
+        title="This cron is to trigger email which are sent out to users after product expiry & on cloud instance
+        deletion. This email is sent out to all users using auto renewal or manual payment method.
+        For cloud instance only"></i>'
+    )
+!!}
 
                             <br>
 
@@ -280,7 +297,7 @@
                     </div>
 
 
-                   
+
                 </div>
             </div><!-- /.info-box-content -->
 
@@ -291,7 +308,7 @@
                 <span class="info-box-icon bg-info" style="height: 70px;"><i class="fas fa-file-invoice"></i></span>
                 <!-- Apply any bg-* class to to the icon to color it -->
                 <div class="info-box-content" style="display: block;">
-               
+
                     <div class="col-md-6">
 
                         <div class="form-group">
@@ -381,7 +398,7 @@ $('#tab2url').click(function(){
             }
         }
 
-      
+
 
 
 
@@ -423,7 +440,7 @@ $(".time-picker").datetimepicker({
             }
         }
 
-      
+
 
 
 
@@ -556,7 +573,7 @@ $(".time-picker").datetimepicker({
             }
         }
 
-      
+
 
 
 
@@ -601,7 +618,7 @@ $(".time-picker").datetimepicker({
             }
         }
 
-      
+
 
 
 
@@ -644,7 +661,7 @@ $(".time-picker").datetimepicker({
             }
         }
 
-      
+
 
 
 

@@ -53,7 +53,7 @@ Tax
        <div class="card card-secondary card-outline">
            <div class="card-header">
                <h3 class="card-title">{{Lang::get('Options')}}</h3>
-               {{ html()->form('POST', 'taxes/option')->model($options) }}
+               {{ html()->modelForm($options, 'POST', url('taxes/option'))->open() }}
            </div>
         <div class="card-body">
             <div class="row">

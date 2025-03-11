@@ -19,7 +19,7 @@ Create Widget
 <div class="card card-secondary card-outline">
 
 
-    {!! html()->form('POST', 'widgets')->open() !!}
+    {!! html()->form('POST', url('widgets'))->open() !!}
 
 
 

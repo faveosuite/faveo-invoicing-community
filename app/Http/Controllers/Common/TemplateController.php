@@ -228,9 +228,9 @@ class TemplateController extends Controller
             $plan_class = ($plans && $status->status != 1) ? 'stylePlan' : 'planhide';
             $plan_form = '<select name="subscription" class="'.$plan_class.'">'.$plan_options.'</select>';
 
-            $form = \Form::open(['method' => 'get', 'url' => $url]).
+            $form = html()->form('GET', $url)->open().
             $plan_form.
-            \Form::hidden('id', $id);
+            html()->input('hidden', 'id')->value($id);
 
             return $product['add_to_contact'] == 1 ? '' : $form;
         } catch (\Exception $ex) {

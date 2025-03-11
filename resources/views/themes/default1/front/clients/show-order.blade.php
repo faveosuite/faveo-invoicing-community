@@ -1079,11 +1079,7 @@ $price = $order->price_override;
                         <label class="text-black"><strong>Choose your desired number of agents <span class="text-danger"></strong> *</span></label>
 
                         <div class="quantity">
-                            {!! html()->number('number')
-    ->class('form-control')
-    ->id('numberAGt')
-    ->min(1)
-    ->placeholder('') !!}
+                            {!! html()->number('number')->class('form-control')->id('numberAGt')->attribute('min', 1)->placeholder('') !!}
                         </div>
                         <br><br>
 
