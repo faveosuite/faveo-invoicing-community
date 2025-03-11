@@ -4,7 +4,6 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 class CheckPulseEnabled
 {
@@ -17,7 +16,7 @@ class CheckPulseEnabled
      */
     public function handle(Request $request, Closure $next): mixed
     {
-        if (!config('pulse.enabled')) {
+        if (! config('pulse.enabled')) {
             return redirect('404');
         }
 
