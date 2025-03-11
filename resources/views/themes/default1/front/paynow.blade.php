@@ -296,7 +296,7 @@ Checkout
                                             <strong><span class="amount text-color-grey text-5">{{ currencyFormat($cartTotal, $code = $currency) }}</span></strong>
                                         </td>
                                     </tr>
-                                {!! html()->form('post', 'checkout-and-pay')->id('checkoutsubmitform') !!}
+                                {!! html()->form('post', url('checkout-and-pay'))->id('checkoutsubmitform')->open() !!}
                                 @if($invoice->grand_total > 0)
                                      <?php $gateways = \App\Http\Controllers\Common\SettingsController::checkPaymentGateway($invoice->currency);
                        ?>

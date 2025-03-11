@@ -67,7 +67,7 @@ Edit Templates
 <div class="card card-secondary card-outline">
 
 
-    {!! html()->model($template)->patch('template/'.$template->id) !!}
+    {!! html()->modelForm($template, 'PATCH', url('template/'.$template->id))->open() !!}
 
 
     <div class="card-body">

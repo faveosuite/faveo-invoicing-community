@@ -27,7 +27,7 @@ Edit Coupon
                         
 
             <div class="card-body table-responsive">
-                {!! html()->modelForm($promotion, 'PATCH', url('promotions/' . $promotion->id)) !!}
+                {!! html()->modelForm($promotion, 'PATCH', url('promotions/' . $promotion->id))->open() !!}
 
 
 

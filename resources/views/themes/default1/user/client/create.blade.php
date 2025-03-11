@@ -26,7 +26,7 @@ Create User
 
 
         <div class="card-body">
-            {!! html()->form('POST', 'clients')->open() !!}
+            {!! html()->form('POST', url('clients'))->open() !!}
 
 
 

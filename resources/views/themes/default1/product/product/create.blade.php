@@ -46,7 +46,7 @@ Create Product
 
 </head>
 <div class="card card-secondary card-tabs">
-    {!! html()->form('POST', 'products')->acceptsFiles()->id('createproduct')->open() !!}
+    {!! html()->form('POST', url('products'))->acceptsFiles()->id('createproduct')->open() !!}
 
     <div class="card-header p-0 pt-1">
         <ul class="nav nav-tabs" id="custom-tabs-one-tab" role="tablist">
@@ -170,7 +170,7 @@ Create Product
                                         <div class="form-group {{ $errors->has('image') ? 'has-error' : '' }}">
                                             <!-- last name -->
                                             {!! html()->label(trans('message.image'), 'image') !!}
-                                            {!! html()->file('image')->class('form-control') !!}
+                                            {!! html()->file('image') !!}
 
                                         </div>
                                         </li>

@@ -26,7 +26,7 @@ Social Media
 
 
             <div class="card-body">
-                {!! html()->modelForm($social, 'PATCH', 'social-media/' . $social->id)->open() !!}
+                {!! html()->modelForm($social, 'PATCH', url('social-media/' . $social->id))->open() !!}
 
                 <table class="table table-condensed">
 

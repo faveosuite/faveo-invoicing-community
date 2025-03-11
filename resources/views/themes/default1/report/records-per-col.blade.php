@@ -20,7 +20,7 @@ Report settings
         <div class="card-header">
             <h3 class="card-title">Settings</h3>
         </div>
-        {!! html()->form('POST', 'add_records') !!}
+        {!! html()->form('POST', url('add_records'))->open() !!}
         <div class="card-body table-responsive">
 
         <div class="row">

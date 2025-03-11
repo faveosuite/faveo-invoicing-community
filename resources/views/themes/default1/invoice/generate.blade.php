@@ -22,11 +22,11 @@ Create Invoice
 
     <div class="card-header">
          @if($user!='')
-            {!! html()->openForm('generate/invoice/'.$user->id)->id('formoid') !!}
+            {!! html()->form('POST', url('generate/invoice/' . $user->id))->id('formoid')->open() !!}
             <input type="hidden" name="user" value="{{$user->id}}">
             <h5>{{ucfirst($user->first_name)}} {{ucfirst($user->last_name)}}, ({{$user->email}}) </h5>
             @else
-            {!! html()->openForm('generate/invoice')->id('formoid') !!}
+            {!! html()->form('POST', url('generate/invoice'))->id('formoid')->open() !!}
         @endif
         <div id="error">
         </div>
@@ -52,11 +52,7 @@ Create Invoice
                 <div class="col-sm-4 form-group">
                     {!! html()->label(Lang::get('message.clients'))->class('required') !!}
 
-                    {!! html()->select('user')
-                        ->options([Lang::get('User') => $users])
-                        ->multiple()
-                        ->class('form-control select2')
-                        ->id('users') !!}
+                    {!! html()->select('user', [Lang::get('User') => $users])->multiple()->class('form-control select2')->id('users')->attribute('name', 'user') !!}
 
                 </div>
                 @endif

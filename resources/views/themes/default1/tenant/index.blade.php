@@ -146,7 +146,7 @@
             <h3 class="card-title">Cloud server</h3>
         </div>
         <div class="card-body table-responsive">
-            {!! html()->model($cloud)->route('cloud-details') !!}
+            {!! html()->modelForm($cloud,'POST', route('cloud-details'))->id('cloud-form')->open() !!}
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
@@ -177,7 +177,7 @@
         </div>
 
         <div class="card-body table-responsive">
-            {!! html()->model($cloudPopUp)->route('cloud-pop-up') !!}
+            {!! html()->modelForm($cloudPopUp,'POST' ,route('cloud-pop-up'))->id('cloud-popup-form')->open() !!}
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
@@ -216,7 +216,7 @@
             <h3 class="card-title">Cloud Product Configuration</h3>
         </div>
         <div class="card-body">
-            {!! html()->form('POST', route('cloud-product-store')) !!}
+            {!! html()->form('POST', route('cloud-product-store'))->open() !!}
             <div class="row original-fields">
                 <div class="col-md-4">
                     {!! html()->label(Lang::get('message.cloud_product'))->class('required') !!}
@@ -361,7 +361,7 @@
                 <h5>Set Cloud Free Trial Button Display Option</h5>
             </div>
             <div class="card-body">
-                {!! html()->form('POST', 'enable/cloud')->open() !!}
+                {!! html()->form('POST', url('enable/cloud'))->open() !!}
                 <div class="row">
                 <div class="col-md-4">
                     <div class="form-group">

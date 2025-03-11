@@ -20,7 +20,7 @@ Edit User
 <div class="card card-secondary card-outline">
     <div class="card-body">
 
-        {!! html()->form('PATCH', 'clients/'.$user->id)->model($user)->open() !!}
+        {!! html()->modelForm($user, 'PATCH', url('clients/' . $user->id))->open() !!}
 
         <div class="row">
 
@@ -223,7 +223,7 @@ Edit User
                        <div class="col-md-3 form-group {{ $errors->has('mobile_code') ? 'has-error' : '' }}">
                            {!! html()->label(Lang::get('message.mobile'))->for('mobile')->class('required') !!}
                            {!! html()->hidden('mobile_code')->id('mobile_code_hidden') !!}
-                           {!! html()->tel('mobile', $user->mobile)->class('form-control selected-dial-code')->id('mobile_code') !!}
+                           {!! html()->input('tel', 'mobile', $user->mobile)->class('form-control selected-dial-code')->id('mobile_code') !!}
                            {!! html()->hidden('mobile_country_iso')->id('mobile_country_iso') !!}
                            <span id="valid-msg" class="hide"></span>
                        <span id="error-msg" class="hide"></span>

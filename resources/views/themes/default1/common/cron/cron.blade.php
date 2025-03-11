@@ -228,15 +228,14 @@ Cron Setting
 
               <!-- /.form-group -->
             </div>
-
-          
-          </div>
-          <!-- /.row -->
           @if ( $mailStatus || $activityStatus || $cloudStatus ==1)
               <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}</button>
           @else
               <button type="submit" class="btn btn-primary pull-right disabled" id="submit"><i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}</button>
           @endif
+          
+          </div>
+          <!-- /.row -->
          {!! html()->form()->close() !!}
      </div>
         <!-- /.box-body -->

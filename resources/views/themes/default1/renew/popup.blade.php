@@ -2,7 +2,7 @@
 <div class="modal fade" id="renew{{$id}}" tabindex="-1" role="dialog" aria-labelledby="renewModalLabel" aria-hidden="true">
 
                             <div class="modal-dialog">
-                                {!! html()->form('POST', 'client/renew/'.$id)->open() !!}
+                                {!! html()->form('POST', url('client/renew/'.$id))->open() !!}
 
                                 <div class="modal-content">
 
@@ -114,7 +114,7 @@
                                     </div>
                                  
                                 </div>
-                                 {!! Form::close()  !!} 
+                                 {!! html()->form()->close()  !!}
                             </div>
                         </div>
   
