@@ -76,6 +76,6 @@ class Kernel extends HttpKernel
         'isInstalled' => \App\Http\Middleware\IsInstalled::class,
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         '2fa' => \PragmaRX\Google2FALaravel\Middleware::class,
-
+        'pulse.enabled' => \App\Http\Middleware\CheckPulseEnabled::class,
     ];
 }
