@@ -40,7 +40,7 @@ Create Template
             {{Session::get('fails')}}
         </div>
         @endif
-            {!! html()->form('POST', 'template')->open() !!}
+            {!! html()->form('POST', url('template'))->open() !!}
             <h4>{{Lang::get('message.template')}}	<button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fa fa-floppy-o">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button></h4>
 
     </div>

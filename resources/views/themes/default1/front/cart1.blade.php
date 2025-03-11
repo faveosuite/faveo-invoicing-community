@@ -172,7 +172,7 @@ if (count($attributes) > 0) {
                                 </tbody>
                             </table>
                             <div class="row">
-                                {!! html()->form('POST', 'pricing/update') !!}
+                                {!! html()->form('POST', url('pricing/update'))->open() !!}
                                 <div class="form-group col-md-8">
 
                                     <label for="coupon"><b>{{Lang::get('message.coupon-code')}}</b></label>

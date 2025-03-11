@@ -18,7 +18,7 @@ Renew
 @section('content')
 <div class="card card-secondary card-outline">
 
-    {!! html()->form('POST', 'renew/' . $id)->open() !!}
+    {!! html()->form('POST', url('renew/' . $id))->open() !!}
 
 
     <div class="card-body">

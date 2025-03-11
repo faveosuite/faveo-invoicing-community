@@ -28,9 +28,9 @@ main
 
                 <div class="col-md-6 col-lg-6 mb-5 mb-lg-0 pe-5">
 
-                    {!! html()->form('POST', '/password/reset')
+                    {!! html()->form('POST', url('/password/reset'))
     ->id('changePasswordForm')
-    ->attribute('onsubmit', $status->recaptcha_status === 1 ? 'return validateCaptcha()' : null) !!}
+    ->attribute('onsubmit', $status->recaptcha_status === 1 ? 'return validateCaptcha()' : null)->open() !!}
                     <input type="hidden" name="token" value="{{ $reset_token }}">
                             <input type="hidden" name="email" value="{{ $email }}">
 

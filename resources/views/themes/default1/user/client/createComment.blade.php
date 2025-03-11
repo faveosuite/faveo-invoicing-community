@@ -6,7 +6,7 @@
                 <button type="button" class="close" data-dismiss="modal" id="crossclose" aria-label="Close"><span aria-hidden="true">&times;</span></button>
               
             </div>
-            {!! html()->form('POST', 'comment') !!}
+            {!! html()->form('POST', url('comment'))->open() !!}
             <div class="modal-body">
                 
                 <div class= "form-group">

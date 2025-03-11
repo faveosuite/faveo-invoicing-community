@@ -46,7 +46,7 @@ Generate Payment
                     {{Session::get('fails')}}
                 </div>
                 @endif
-            {!! html()->form('post', 'payment/receive/' . $invoice_id)->open() !!}
+            {!! html()->form('post', url('payment/receive/' . $invoice_id))->open() !!}
 
             <h4>{{Lang::get('message.payment')}}  (Invoice Number: {{$invoice->number}})	 <button type="submit" class="form-group btn btn-primary pull-right" id="submit"><i class="fa fa-floppy-o">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button></h4>
 

@@ -3,7 +3,7 @@
 <div class="box box-primary">
 
     <div class="content-header">
-        {!! html()->model($addon)->method('patch')->url('addons/'.$addon->id) !!}
+        {!! html()->modelForm($addon,'PATCH',url('addons/'.$addon->id))->open() !!}
         <h4>{{ Lang::get('message.addon') }} {!! html()->submit(Lang::get('message.save'))->class('form-group btn btn-primary pull-right') !!}</h4>
 
     </div>
