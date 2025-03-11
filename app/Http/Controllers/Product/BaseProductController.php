@@ -136,8 +136,7 @@ class BaseProductController extends ExtendedBaseProductController
                                 ->attribute('onchange', 'getPrice(this.value)'),
                         ])
                         ->toHtml();
-            }
-            else {//If No Plan Exist For A Product
+            } else {//If No Plan Exist For A Product
                 $userid = $request->input('user');
                 $price = $controller->cost($productid, $userid);
             }
