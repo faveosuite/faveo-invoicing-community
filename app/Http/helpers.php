@@ -687,9 +687,8 @@ function isS3Enabled()
  * This function reads the current environment file, updates existing keys,
  * or appends new ones if they do not exist.
  *
- * @param array $data An associative array where the key is the environment
- *                    variable name, and the value is the new value to set.
- *
+ * @param  array  $data  An associative array where the key is the environment
+ *                       variable name, and the value is the new value to set.
  * @return void
  *
  * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException If the .env file is not found.
