@@ -43,7 +43,7 @@ return [
      |  You can make your own theme by adding a folder to the views directory and specifying it here.
      */
 
-    'theme'         => 'bootstrap-5',
+    'theme' => 'bootstrap-5',
 
     /* -----------------------------------------------------------------
      |  Route settings
@@ -104,10 +104,10 @@ return [
      | -----------------------------------------------------------------
      */
 
-    'icons' =>  [
+    'icons' => [
         /**
          * Font awesome >= 4.3
-         * http://fontawesome.io/icons/
+         * http://fontawesome.io/icons/.
          */
         'all' => 'fa fa-fw fa-list',                 // http://fontawesome.io/icon/list/
         'emergency' => 'fa fa-fw fa-bug',                  // http://fontawesome.io/icon/bug/
