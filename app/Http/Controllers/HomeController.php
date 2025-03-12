@@ -685,6 +685,7 @@ class HomeController extends BaseHomeController
                 $dependency = \DB::table('product_uploads')
                     ->where('product_id', $real['product_id'])
                     ->where('version', $real['version'])
+                    ->latest()
                     ->value('dependencies');
 
                 $real['dependency'] = $dependency ?? null;
