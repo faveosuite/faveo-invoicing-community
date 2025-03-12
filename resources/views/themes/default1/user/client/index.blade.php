@@ -597,7 +597,7 @@ $(document).ready(function() {
                      })
                  } else {
                      swal.fire({
-                         title: "Select",
+                         title: @json(trans('message.Select')),
                          text: @json(trans('message.sweet_checkbox')),
                          icon: "warning",
                          button: "OK",

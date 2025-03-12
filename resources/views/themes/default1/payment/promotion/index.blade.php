@@ -166,7 +166,7 @@ Promotions
                  else {
                      swal.fire({
                          title: @json(trans('message.Select')),
-                         text: @json(trans('message.sweet_checkbox')),
+                         text: @json(trans('message.sweet_coupon')),
                          icon: "warning",
                          button: "OK",
 

@@ -672,8 +672,8 @@ Orders
                  }
                  else {
                      swal.fire({
-                         title: "Select",
-                         text: @json(trans('message.sweet_checkbox')),
+                         title: @json(trans('message.Select')),
+                         text: @json(trans('message.sweet_order')),
                          icon: "warning",
                          button: "OK",
 
