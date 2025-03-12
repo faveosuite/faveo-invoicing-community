@@ -1,6 +1,7 @@
 <?php
 
 namespace Tests\Unit;
+
 use App\User;
 use Tests\TestCase;
 
@@ -9,7 +10,6 @@ class TenantControllerTest extends TestCase
     /**
      * A basic unit test example.
      */
-
     public function test_view_tenant_returns_null_when_cloud_is_missing()
     {
         $user = User::factory()->create();
@@ -22,5 +22,4 @@ class TenantControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertViewHas('de', null);
     }
-
 }
