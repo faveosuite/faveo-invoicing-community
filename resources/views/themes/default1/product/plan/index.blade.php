@@ -22,9 +22,7 @@ Plans
         @include('themes.default1.product.plan.create')
         <h3 class="card-title">Plans</h3>
         <div class="card-tools">
-            <a href="#create-plan-option" data-toggle="modal" data-target="#create-plan-option" class="btn btn-default btn-sm pull-right"><span class="fa fa-plus"></span>&nbsp;{{Lang::get('message.create')}}</a></h4>
-
-
+            <a href="#create-plan-option" data-toggle="modal" data-target="#create-plan-option" class="btn btn-default btn-sm pull-right"><span class="fa fa-plus"></span>&nbsp;{{Lang::get('message.create')}}</a>
         </div>
 
 
@@ -171,7 +169,7 @@ Plans
                  else {
                      swal.fire({
                          title: @json(trans('message.Select')),
-                         text: @json(trans('message.sweet_checkbox')),
+                         text: @json(trans('message.sweet_plan')),
                          icon: "warning",
                          button: "OK",
 

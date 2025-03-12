@@ -404,6 +404,11 @@ Edit User
             state_error.innerText = '';
         }
         });
+    $('#submit').on('click',function(e){
+        if($('#state-list').val()===''){
+            e.preventDefault();
+        }
+    });
 
 </script>
 
