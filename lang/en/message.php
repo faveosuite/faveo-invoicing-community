@@ -873,7 +873,7 @@ return [
     'required_stripe_secret' => 'Please Enter Stripe Secret',
     'max_stripe_secret' => 'Stripe Secret cannot exceed 200 characters',
 
-    'email_not_matching'=>'The email domain does not match the URL domain.',
+    'email_not_matching' => 'The email domain does not match the URL domain.',
     'price_description' => 'Price description',
     'product_description' => 'Product description',
 
@@ -1048,8 +1048,8 @@ return [
         'dependencies' => 'Please enter dependencies.',
     ],
 
-    'valid_name'=>'The company name must be fewer than 50 characters.',
-    'valid_gst_number'=>'Please enter a valid GST number.',
-    'url_tooltip'=>'The URL offers comprehensive guidance for installation.',
-    'valid_widget_name'=>'The name must be fewer than 50 characters and cannot consist only of special characters.',
+    'valid_name' => 'The company name must be fewer than 50 characters.',
+    'valid_gst_number' => 'Please enter a valid GST number.',
+    'url_tooltip' => 'The URL offers comprehensive guidance for installation.',
+    'valid_widget_name' => 'The name must be fewer than 50 characters and cannot consist only of special characters.',
 ];
