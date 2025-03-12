@@ -17,6 +17,12 @@ class DatabaseSeeder extends Seeder
 
     private function updateAppKey()
     {
-        setEnvValue(['APP_PREVIOUS_KEYS' => 'SomeRandomString']);
+        $env = base_path().DIRECTORY_SEPARATOR.'.env';
+
+        if (is_file($env)) {
+
+            setEnvValue(['APP_PREVIOUS_KEYS' => 'SomeRandomString']);
+
+        }
     }
 }
