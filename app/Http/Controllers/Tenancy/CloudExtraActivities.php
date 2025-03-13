@@ -1013,16 +1013,15 @@ class CloudExtraActivities extends Controller
 
     private function getStateCoordinates($stateName)
     {
-
         $stateName = str_replace(' ', '+', $stateName);
-        $url="https://nominatim.openstreetmap.org/search?q={$stateName}&format=json&limit=1";
+        $url = "https://nominatim.openstreetmap.org/search?q={$stateName}&format=json&limit=1";
         $client = new Client([
             'verify' => true,
         ]);
         $response = $client->get($url, [
             'headers' => [
                 'Referer' => $url,
-            ]
+            ],
         ]);
 
         $data = json_decode($response->getBody(), true);
@@ -1031,6 +1030,7 @@ class CloudExtraActivities extends Controller
         }
         $latitude = $data[0]['lat'];
         $longitude = $data[0]['lon'];
+
         return ['latitude' => $latitude, 'longitude' => $longitude];
     }
 

@@ -39,12 +39,12 @@ class TenantController extends Controller
     public function viewTenant()
     {
         if ($this->cloud && $this->cloud->cloud_central_domain) {
-            $app_key=null;
+            $app_key = null;
             $cloud = $this->cloud;
             $cloudPopUp = CloudPopUp::find(1);
             $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
 
-            throw_if($keys && !$keys->app_key, new Exception(Lang::get('message.cloud_invalid_message')));
+            throw_if($keys && ! $keys->app_key, new Exception(Lang::get('message.cloud_invalid_message')));
 
             $app_key = optional($keys)->app_key;
 
@@ -82,10 +82,6 @@ class TenantController extends Controller
 
         return view('themes.default1.tenant.index', compact('de', 'cloudButton', 'cloud', 'regions', 'cloudPopUp'));
     }
-
-
-
-
 
     public function enableCloud(Request $request)
     {
