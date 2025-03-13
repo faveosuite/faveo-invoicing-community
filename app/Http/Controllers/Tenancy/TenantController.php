@@ -43,13 +43,11 @@ class TenantController extends Controller
             $cloud = $this->cloud;
             $cloudPopUp = CloudPopUp::find(1);
             $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
-            if($keys !== null){
-            if (! $keys->app_key) {//Valdidate if the app key to be sent is valid or not
-                throw new Exception(Lang::get('message.cloud_invalid_message'));
-            }else{
-                $app_key = $keys->app_key;
-            }
-            }
+
+            throw_if($keys && !$keys->app_key, new Exception(Lang::get('message.cloud_invalid_message')));
+
+            $app_key = optional($keys)->app_key;
+
             $response = $this->client->request(
                 'GET',
                 $this->cloud->cloud_central_domain.'/tenants',
