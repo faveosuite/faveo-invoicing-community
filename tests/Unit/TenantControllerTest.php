@@ -22,5 +22,4 @@ class TenantControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertViewHas('de', null);
     }
-
 }
