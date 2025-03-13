@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
 
             setEnvValue(['APP_PREVIOUS_KEYS' => 'SomeRandomString']);
 
-            \Artisan::call('key:generate');
+            \Artisan::call('key:generate', ['--force' => true]);
 
         }
     }
