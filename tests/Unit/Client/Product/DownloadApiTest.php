@@ -13,7 +13,7 @@ class DownloadApiTest extends DBTestCase
 {
     use DatabaseTransactions;
 
-   #[Group('product-download')]
+    #[Group('product-download')]
     public function test_downloadValidation_whenValidParamasPassed_returnstrue()
     {
         $this->withoutMiddleware();
@@ -28,7 +28,7 @@ class DownloadApiTest extends DBTestCase
         $this->assertEquals($response, true);
     }
 
-   #[Group('product-download')]
+    #[Group('product-download')]
     public function test_downloadValidation_whenInValidProductIdPassed_returnsFalse()
     {
         $this->withoutMiddleware();
@@ -43,7 +43,7 @@ class DownloadApiTest extends DBTestCase
         $this->assertEquals($response, false);
     }
 
-   #[Group('product-download')]
+    #[Group('product-download')]
     public function test_downloadValidation_whenInValidInvoiceNoPassed_returnsFalse()
     {
         $this->expectException(\Exception::class);
@@ -58,7 +58,7 @@ class DownloadApiTest extends DBTestCase
         $response = $this->getPrivateMethod($cont, 'downloadValidation', ['true', $product->id, '2222', false]);
     }
 
-   #[Group('product-download')]
+    #[Group('product-download')]
     public function test_downloadValidation_whenNoOrdersAttachedToAnInvoice_returnsFalse()
     {
         $this->expectException(\Exception::class);
@@ -71,7 +71,7 @@ class DownloadApiTest extends DBTestCase
         $response = $this->getPrivateMethod($cont, 'downloadValidation', ['true', $product->id, $invoice->number, false]);
     }
 
-   #[Group('product-download')]
+    #[Group('product-download')]
     public function test_downloadValidation_whenUserRoleIsAdmin_returnsTrue()
     {
         $this->withoutMiddleware();
