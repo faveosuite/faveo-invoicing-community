@@ -26,7 +26,7 @@ class DashboardControllerTest extends DBTestCase
         $this->classObject = new DashboardController();
     }
 
-    /** @group Dashboard */
+    #[Group('Dashboard')]
     public function test_getTotalSalesInInr_gettingTotalSalesInr()
     {
         $this->withoutMiddleware();
@@ -40,7 +40,7 @@ class DashboardControllerTest extends DBTestCase
         $this->assertEquals($response, '10000');
     }
 
-    /** @group Dashboard */
+      #[Group('Dashboard')]
     public function test_getYearlySalesInInr_gettingYearlySalesInr()
     {
         $this->withoutMiddleware();
@@ -57,7 +57,7 @@ class DashboardControllerTest extends DBTestCase
         // dd($response);
     }
 
-    /** @group Dashboard */
+      #[Group('Dashboard')]
     public function test_getYearlySalesInInr_whenInvoiceTotalIsFromPreviousYear()
     {
         $this->withoutMiddleware();
@@ -71,7 +71,7 @@ class DashboardControllerTest extends DBTestCase
         $this->assertEquals($response, '0');
     }
 
-    /** @group Dashboard */
+      #[Group('Dashboard')]
     public function test_getAllUsers_getListOfRecentUsers()
     {
         $user = User::factory()->count(3)->create();
@@ -80,7 +80,7 @@ class DashboardControllerTest extends DBTestCase
         $this->assertCount(1, [$user]);
     }
 
-    /** @group Dashboard */
+      #[Group('Dashboard')]
     public function test_getRecentOrders_getsRecentlySoldProductInLast30DaysWithCorrespondingCount()
     {
         $this->getLoggedInUser('admin');
@@ -109,7 +109,7 @@ class DashboardControllerTest extends DBTestCase
         $this->assertEquals($this->user->first_name.' '.$this->user->last_name, $response[2]->client_name);
     }
 
-    /** @group Dashboard */
+      #[Group('Dashboard')]
     public function test_getSoldProducts_whenNumberOfDaysIsPassed_shouldGetOrdersForPassedNumberOfDays()
     {
         $this->getLoggedInUser('admin');
@@ -132,7 +132,7 @@ class DashboardControllerTest extends DBTestCase
         $this->assertEquals($productTwo->name, $response[1]->product_name);
     }
 
-    /** @group Dashboard */
+      #[Group('Dashboard')]
     public function test_getSoldProducts_whenNumberOfDaysIsNotPassed_shouldGiveAllRecords()
     {
         $this->getLoggedInUser('admin');
@@ -156,7 +156,7 @@ class DashboardControllerTest extends DBTestCase
         $this->assertEquals($productTwo->name, $response[1]->product_name);
     }
 
-    /** @group Dashboard */
+      #[Group('Dashboard')]
     public function test_getExpiringSubscriptions_whenLast30DaysIsFalse_shouldGiveSubscriptionsWhichAreExpiringIn30Days()
     {
         $this->getLoggedInUser('admin');
@@ -184,7 +184,7 @@ class DashboardControllerTest extends DBTestCase
         $this->assertEquals($this->user->first_name.' '.$this->user->last_name, $response[3]->client_name);
     }
 
-    /** @group Dashboard */
+      #[Group('Dashboard')]
     public function test_getExpiringSubscriptions_whenLast30DaysIsTrue_shouldGiveSubscriptionsWhichHasExpiredInLast30Days()
     {
         $this->getLoggedInUser('admin');
@@ -213,7 +213,7 @@ class DashboardControllerTest extends DBTestCase
         $this->assertEquals($this->user->first_name.' '.$this->user->last_name, $response[3]->client_name);
     }
 
-    /** @group Dashboard */
+      #[Group('Dashboard')]
     public function test_getRecentOrders_shouldGiveOrdersInLast30DaysOrderedByDescCreatedAt()
     {
         $this->getLoggedInUser('admin');
@@ -232,7 +232,7 @@ class DashboardControllerTest extends DBTestCase
         $this->assertEquals($this->user->first_name.' '.$this->user->last_name, $response[1]->client_name);
     }
 
-    /** @group Dashboard */
+      #[Group('Dashboard')]
     public function test_getClientsUsingOldVersions_whenNoSubscriptionIsPresentInTheDB_shouldGiveEmptyArray()
     {
         $this->getLoggedInUser('admin');
@@ -242,7 +242,7 @@ class DashboardControllerTest extends DBTestCase
         $this->assertCount(0, $methodResponse);
     }
 
-    /** @group Dashboard */
+      #[Group('Dashboard')]
     public function test_getClientsUsingOldVersions_shouldShowClientsWhichAreUsingOlderVersionInOrderOfTheirVersion()
     {
         $this->getLoggedInUser('admin');
@@ -265,7 +265,7 @@ class DashboardControllerTest extends DBTestCase
         // $this->assertEquals('Helpdesk v2.9.0', $methodResponse[2]->product_name);
     }
 
-    /** @group Dashboard */
+      #[Group('Dashboard')]
     public function test_getClientsUsingOldVersions_whenUnpaidOrderArePresent_shouldExcludeThoseOrders()
     {
         $this->getLoggedInUser('admin');
@@ -279,7 +279,7 @@ class DashboardControllerTest extends DBTestCase
         $this->assertCount(2, $methodResponse);
     }
 
-    /** @group Dashboard */
+      #[Group('Dashboard')]
     public function test_getClientsUsingOldVersions_whenSubscriptionUpdateOlderThan30DaysArePresent_shouldExcludeThoseOrders()
     {
         $this->getLoggedInUser('admin');
@@ -293,7 +293,7 @@ class DashboardControllerTest extends DBTestCase
         $this->assertCount(3, $methodResponse);
     }
 
-    /** @group Dashboard */
+      #[Group('Dashboard')]
     private function createOrder($version = 'v3.0.0', $price = 1000, $subscriptionUpdatedAt = null)
     {
         $product = Product::create(['name' => "Helpdesk $version"]);

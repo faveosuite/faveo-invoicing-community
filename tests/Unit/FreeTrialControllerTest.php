@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Tests\DBTestCase;
 
-class FreeTrailControllerTest extends DBTestCase
+class FreeTrialControllerTest extends DBTestCase
 {
     public function test_firstLoginAttempt_return_exception_when_not_first_time_register_users()
     {

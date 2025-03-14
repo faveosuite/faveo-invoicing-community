@@ -20,7 +20,7 @@ class BaseCartControllerTest extends DBTestCase
         $this->classObject = new BaseCartController();
     }
 
-    /** @group quantity */
+    #[Group('quantity')]
     public function test_getCartValues_calculatesAgentQtyPriceOfCartWhenReducingAgtAllowed_returnArrayToBeAdded()
     {
         $this->getLoggedInUser();
@@ -39,7 +39,7 @@ class BaseCartControllerTest extends DBTestCase
         $this->assertEquals($response['price'], 900); //Reduced to half
     }
 
-    /** @group quantity */
+    #[Group('quantity')]
     public function test_getCartValues_calculateAgentQtyPriceOfCartWhenIncreasinAgtAllowed_returnArrayToBeAdded()
     {
         $this->getLoggedInUser();
@@ -58,7 +58,7 @@ class BaseCartControllerTest extends DBTestCase
         $this->assertEquals($response['price'], 1100); //Doubled
     }
 
-    /** @group quantity */
+    #[Group('quantity')]
     public function test_getCartValues_calculateAgentQtyPriceOfCartWhenInvalidProductPassed_throwsException()
     {
         $this->expectException(\Exception::class);
@@ -78,7 +78,7 @@ class BaseCartControllerTest extends DBTestCase
         $response = $this->getPrivateMethod($this->classObject, 'getCartValues', [$product2->id]);
     }
 
-    /** @group quantity */
+    #[Group('quantity')]
     //re think this case
 //    public function test_updateAgentQty_updatesCart_returnsUpdatedCart()
 //    {
@@ -102,7 +102,7 @@ class BaseCartControllerTest extends DBTestCase
 //        }
 //    }
 
-    /** @group quantity */
+    #[Group('quantity')]
     public function test_updateAgentQty_updatesCartWhenModifyingAgentNotAllowed_returnsSameCartValues()
     {
         $this->getLoggedInUser();
@@ -125,7 +125,7 @@ class BaseCartControllerTest extends DBTestCase
         }
     }
 
-    /** @group quantity */
+    #[Group('quantity')]
     public function test_updateProductQty_updatesCartWhenModifyingQtyAllowed_returnsUpdatedCart()
     {
         $this->getLoggedInUser();
@@ -149,7 +149,7 @@ class BaseCartControllerTest extends DBTestCase
         }
     }
 
-    /** @group quantity */
+    #[Group('quantity')]
     public function test_updateProductQty_updatesCartWhenModifyingQtyNotAllowed_throwsException()
     {
         $this->expectException(\Exception::class);
@@ -170,7 +170,7 @@ class BaseCartControllerTest extends DBTestCase
         $this->classObject->updateProductQty(new Request(['productid' => $product->id]));
     }
 
-    /** @group quantity */
+    #[Group('quantity')]
     public function test_reduceProductQty_reduceCartQtyWhenModifyingQtyAllowed_returnsUpdatedCart()
     {
         $this->getLoggedInUser();
@@ -194,7 +194,7 @@ class BaseCartControllerTest extends DBTestCase
         }
     }
 
-    /** @group quantity */
+    #[Group('quantity')]
     public function test_reduceProductQty_updatesCartWhenModifyingQtyNotAllowed_throwsException()
     {
         $this->expectException(\Exception::class);

@@ -19,7 +19,7 @@ class PaymentsAndInvoicesTest extends DBTestCase
         $this->classObject = new InvoiceController();
     }
 
-    /** @group paymentandinvoice */
+    #[Group('paymentandinvoice')]
     public function test_getAgents_whenAgentsIsPassed_returnsNoOfAgents()
     {
         $this->getLoggedInUser();
@@ -31,7 +31,7 @@ class PaymentsAndInvoicesTest extends DBTestCase
         $this->assertEquals($agents, 5);
     }
 
-    /** @group paymentandinvoice */
+    #[Group('paymentandinvoice')]
     public function test_getAgents_whenAgentsIsPassedIsNull_returnsNoOfAgents()
     {
         $this->getLoggedInUser();
@@ -43,7 +43,7 @@ class PaymentsAndInvoicesTest extends DBTestCase
         $this->assertEquals($agents, 5);
     }
 
-    /** @group paymentandinvoice */
+    #[Group('paymentandinvoice')]
     public function test_getAgents_whenAgentsIsPassedIsNullWhenPlanDoesNotExistForProduct_returnsNoOfAgents()
     {
         $this->getLoggedInUser();
@@ -53,7 +53,7 @@ class PaymentsAndInvoicesTest extends DBTestCase
         $this->assertEquals($agents, 0);
     }
 
-    /** @group paymentandinvoice */
+    #[Group('paymentandinvoice')]
     public function test_getQuantity_whenQuantityIsPassed_returnsProductQuantity()
     {
         $this->getLoggedInUser();
@@ -65,7 +65,7 @@ class PaymentsAndInvoicesTest extends DBTestCase
         $this->assertEquals($qty, 1);
     }
 
-    /** @group paymentandinvoice */
+    #[Group('paymentandinvoice')]
     public function test_getAgents_whenQtyIsPassedIsNull_returnsProductQuantity()
     {
         $this->getLoggedInUser();
@@ -77,7 +77,7 @@ class PaymentsAndInvoicesTest extends DBTestCase
         $this->assertEquals($qty, 2);
     }
 
-    /** @group paymentandinvoice */
+    #[Group('paymentandinvoice')]
     public function test_getAgents_whenQtyIsPassedIsNullWhenPlanDoesNotExistForProduct_returnsProductQuantity()
     {
         $this->getLoggedInUser();
