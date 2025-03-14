@@ -13,7 +13,6 @@ class InvoiceTest extends DBTestCase
      *
      * @return void
      */
-
     #[Group('ClientController')]
     public function test_Invoices()
     {

@@ -16,7 +16,7 @@ class BaseInvoiceControllerTest extends DBTestCase
         $this->classObject = new BaseInvoiceController();
     }
 
-     #[Group('baseinvoicecontroller')]
+    #[Group('baseinvoicecontroller')]
     public function test_calculateTotal_calculateTotalAfterApplyingRateWhenInclusiveOfTax_returnsPriceAfterAddingTax()
     {
         $this->getLoggedInUser();
@@ -25,7 +25,7 @@ class BaseInvoiceControllerTest extends DBTestCase
         $this->assertEquals($price, '1100');
     }
 
-     #[Group('baseinvoicecontroller')]
+    #[Group('baseinvoicecontroller')]
     public function test_calculateTotal_calculateTotalAfterApplyingRateWhenExclusiveOfTax_returnsPriceWithoutTax()
     {
         $this->getLoggedInUser();
