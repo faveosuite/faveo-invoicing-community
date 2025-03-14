@@ -14,7 +14,7 @@ class CouponTest extends DBTestCase
 {
     use DatabaseTransactions;
 
-    /** @group coupon */
+    #[Group('coupon')]
     // public function test_addCouponUpdate_whenCouponProvided()
     // {
     //     $this->withoutMiddleware();
@@ -44,7 +44,7 @@ class CouponTest extends DBTestCase
     //     $response->assertStatus(302);
     // }
 
-    /** @group coupon */
+    #[Group('coupon')]
     // public function test_checkCode_whenValidCouponProvided()
     // {
     //     $this->withoutMiddleware();
@@ -78,9 +78,7 @@ class CouponTest extends DBTestCase
     //     $this->assertEquals($response, 'success');
     // }
 
-    /** @group coupon
-     * @expectedException
-     */
+    #[Group('coupon')]
     public function test_checkCode_whenExpiredCouponProvided()
     {
         $this->expectException(\Exception::class);
@@ -117,9 +115,7 @@ class CouponTest extends DBTestCase
         $response = $controller->checkCode('FAVEOCOUPON', $product->id);
     }
 
-    /** @group coupon
-     * @expectedException
-     */
+    #[Group('coupon')]
     public function test_checkCode_whenInvalidCouponProvided()
     {
         $this->expectException(\Exception::class);

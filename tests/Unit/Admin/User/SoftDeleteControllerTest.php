@@ -11,7 +11,7 @@ use Tests\DBTestCase;
 
 class SoftDeleteControllerTest extends DBTestCase
 {
-    /** @group softDelete */
+    #[Group('softDelete')]
     public function test_softDeletedUsers_checkUserIsSoftDeleted()
     {
         $this->withoutMiddleware();
@@ -22,7 +22,7 @@ class SoftDeleteControllerTest extends DBTestCase
         $this->assertSoftDeleted('users', ['id' => $user->id, 'email' => $user->email]);
     }
 
-    /** @group softDelete */
+    #[Group('softDelete')]
     public function test_restoreUser_checkSoftDeletedUserIsRestored()
     {
         $this->withoutMiddleware();
@@ -32,7 +32,7 @@ class SoftDeleteControllerTest extends DBTestCase
         $data->assertSessionHas('success');
     }
 
-    /** @group softDelete */
+    #[Group('softDelete')]
     public function test_permanentDeleteUser_deleteUserPermanently()
     {
         $this->withoutMiddleware();
@@ -42,7 +42,7 @@ class SoftDeleteControllerTest extends DBTestCase
         $this->assertDatabaseMissing('users', ['id' => $user->id]);
     }
 
-    /** @group softDelete */
+    #[Group('softDelete')]
     public function test_permanentDeleteUser_deleteInvoiceOrderCommnetPermanently()
     {
         $this->withoutMiddleware();

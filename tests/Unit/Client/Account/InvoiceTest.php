@@ -14,7 +14,7 @@ class InvoiceTest extends DBTestCase
      * @return void
      */
 
-    /** @group ClientController */
+    #[Group('ClientController')]
     public function test_Invoices()
     {
         $this->expectException(\Exception::class);
