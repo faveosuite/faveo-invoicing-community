@@ -213,32 +213,19 @@ class LoginController extends Controller
             ]);
         }
 
-//        $user = User::updateOrCreate(
-//            ['email' => $githubUser->getEmail(),
-//                'user_name' => $githubUser->getEmail(),
-//                'first_name' => $githubUser->getName(),
-//                'active' => '1',
-//                'role' => 'user',
-//                'ip' => $location['ip'],
-//                'timezone_id' => getTimezoneByName($location['timezone']),
-//                'state' => $state['id'],
-//                'town' => $location['city'],
-//                'country' => Country::where('country_name', strtoupper($location['country']))->value('country_code_char2'),
-//            ]
-//        );
 //        if ($user && ($user->active == 1 && $user->mobile_verified !== 1)) {//check for mobile verification
 //            return redirect('verify')->with('user', $user);
 //        }
 
         Auth::login($user);
 
-//        if (\Auth::user()->is_2fa_enabled == 1) {//check for 2fa
-//            $userId = \Auth::user()->id;
-//            Session::put('2fa:user:id', $userId);
-//            \Auth::logout();
-//
-//            return redirect('2fa/validate');
-//        } 
+        if (\Auth::user()->is_2fa_enabled == 1) {//check for 2fa
+            $userId = \Auth::user()->id;
+            Session::put('2fa:user:id', $userId);
+            \Auth::logout();
+
+            return redirect('2fa/validate');
+        }
         if (Auth::check()) {
             $this->convertCart();
 
