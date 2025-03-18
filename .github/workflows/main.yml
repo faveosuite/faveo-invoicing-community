@@ -21,7 +21,7 @@ jobs:
             exit 0
           fi
 
-          if git diff --name-only HEAD^ HEAD | grep -q "protected_file.txt"; then
+          if git diff --name-only HEAD^ HEAD | grep -q "Jenkinsfile"; then
             echo "ERROR: The protected file has been modified outside of development. Reverting changes..."
             git reset --hard HEAD^
             git push --force origin ${{ github.ref_name }}
