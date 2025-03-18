@@ -170,14 +170,20 @@ foreach($scripts as $script) {
                                 <a class="text-decoration-none text-color-primary font-weight-semibold text-2" href="{{url('password/reset')}}" style="padding-left: 100px;">({{Lang::get('message.forgot-my-password')}})</a>
                             </div>
                         </div>
+                         <?php
+                         use App\Model\Common\StatusSetting;
+                         $gcaptcha = StatusSetting::pluck('v3_v2_recaptcha_status')->first();
+                         ?>
 
+                                              @if($gcaptcha===1)
                         @if ($status->recaptcha_status === 1)
                               <div id="login_recaptcha"></div>
                               <div id="loginrobot-verification"></div><br>
                         @elseif($status->v3_recaptcha_status === 1)
+
                               <input type="hidden" class="g-recaptcha-token" name="g-recaptcha-response">
                         @endif
-
+                        @endif
                         <div class="row">
 
                             <div class="form-group col">

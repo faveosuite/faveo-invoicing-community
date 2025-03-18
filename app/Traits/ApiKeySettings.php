@@ -10,7 +10,9 @@ use App\Model\Common\StatusSetting;
 use Aws\Exception\AwsException;
 use Aws\S3\S3Client;
 use DateTime;
+use DrewM\MailChimp\MailChimp;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 //////////////////////////////////////////////////////////////
 //TRAIT FOR SAVING API STATUS AND API KEYS //
@@ -18,6 +20,73 @@ use Illuminate\Http\Request;
 
 trait ApiKeySettings
 {
+    private function postCurl($post_url, $post_info, $token = null)
+    {
+        if (! empty($token)) {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $post_url);
+            curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BEARER);
+            curl_setopt($ch, CURLOPT_XOAUTH2_BEARER, $token);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $post_info);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+            $result = curl_exec($ch);
+            curl_close($ch);
+
+            return $result;
+        } else {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $post_url);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $post_info);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+            $result = curl_exec($ch);
+            curl_close($ch);
+
+            return $result;
+        }
+    }
+
+
+    private function getCurl($get_url, $token = null)
+    {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $get_url);
+        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BEARER);
+        curl_setopt($ch, CURLOPT_XOAUTH2_BEARER, $token);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 90);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // For testing, set to true in production
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        if (curl_exec($ch) === false) {
+            echo 'Curl error: '.curl_error($ch);
+        }
+        $content = curl_exec($ch);
+        curl_close($ch);
+
+        return json_decode($content, true);
+    }
+    private function oauthAuthorization()
+    {
+        $url = $this->url;
+        $data = [
+            'client_id' => $this->client_id,
+            'client_secret' => $this->client_secret,
+            'grant_type' => $this->grant_type,
+        ];
+
+        $response = $this->postCurl($url.'oauth/token', $data);
+
+        $response = json_decode($response);
+
+        return $response;
+    }
     public function licenseDetails(Request $request)
     {
         $status = $request->input('status');
@@ -26,12 +95,105 @@ trait ApiKeySettings
         $licenseApiClientId = $request->input('license_client_id');
         $licenseApiClientSecret = $request->input('license_client_secret');
         $licenseApiGrantType = $request->input('license_grant_type');
+
+        $data = [
+            'api_key_secret' => $licenseApiSecret,
+            'client_id' => $licenseApiClientId,
+            'client_secret' => $licenseApiClientSecret,
+            'grant_type' => $licenseApiGrantType,
+        ];
+
+
+        try {
+            $response = $this->postCurl($licenseApiUrl . 'oauth/token', $data);
+            $response = json_decode($response);
+
+            $token = $response->access_token;
+            $getkey = $this->getCurl($licenseApiUrl . 'api/admin/viewApiKeys', $token);
+        }catch(\Exception $e){
+            return ['message' => 'error', 'update' => 'Please enter valid details.'];
+        }
+
+
+
         StatusSetting::where('id', 1)->update(['license_status' => $status]);
         ApiKey::where('id', 1)->update(['license_api_secret' => $licenseApiSecret, 'license_api_url' => $licenseApiUrl,
             'license_client_id' => $licenseApiClientId, 'license_client_secret' => $licenseApiClientSecret,
             'license_grant_type' => $licenseApiGrantType, ]);
 
-        return ['message' => 'success', 'update' => 'Licensing settings saved'];
+        return ['message' => 'success', 'update' => \Lang::get('message.license_setting')];
+    }
+
+    public function licenseStatus(Request $request)
+    {
+        $status = $request->input();
+        if (is_array($status) && key_exists('status', $status)) {
+            $lstatus = $request->input('status');
+            StatusSetting::where('id', 1)->update(['license_status' => $lstatus]);
+
+            return ['message' => 'success', 'update' => \Lang::get('message.license_status')];
+        }
+
+        if (is_array($status) && key_exists('mstatus', $status)) {
+            $mstatus = $request->input('mstatus');
+            StatusSetting::find(1)->update(['msg91_status' => $mstatus]);
+
+            return ['message' => 'success', 'update' => \Lang::get('message.mobile_status')];
+        }
+
+        if (is_array($status) && key_exists('mailchimpstatus', $status)) {
+            $mailchimpstatus = $request->input('mailchimpstatus');
+            StatusSetting::find(1)->update(['mailchimp_status' => $mailchimpstatus]);
+
+            return ['message' => 'success', 'update' => \Lang::get('message.mailchimp_status')];
+        }
+
+        if (is_array($status) && key_exists('termsStatus', $status)) {
+            $termsStatus = $request->input('termsStatus');
+            StatusSetting::find(1)->update(['terms' => $termsStatus]);
+
+            return ['message' => 'success', 'update' => \Lang::get('message.terms_status')];
+        }
+
+        if (is_array($status) && key_exists('twitterstatus', $status)) {
+            $twitterstatus = $request->input('twitterstatus');
+            StatusSetting::find(1)->update(['twitter_status' => $twitterstatus]);
+
+            return ['message' => 'success', 'update' => \Lang::get('message.twitter_status')];
+        }
+
+        if (is_array($status) && key_exists('zohostatus', $status)) {
+            $twitterstatus = $request->input('zohostatus');
+            StatusSetting::find(1)->update(['zoho_status' => $twitterstatus]);
+
+            return ['message' => 'success', 'update' => \Lang::get('message.zoho_status')];
+        }
+
+        if (is_array($status) && key_exists('pipedrivestatus', $status)) {
+            $twitterstatus = $request->input('pipedrivestatus');
+            StatusSetting::find(1)->update(['pipedrive_status' => $twitterstatus]);
+
+            return ['message' => 'success', 'update' => \Lang::get('message.pipedrive_status')];
+        }
+
+        if (is_array($status) && key_exists('githubstatus', $status)) {
+            $twitterstatus = $request->input('githubstatus');
+            StatusSetting::find(1)->update(['github_status' => $twitterstatus]);
+
+            return ['message' => 'success', 'update' => \Lang::get('message.github_status')];
+        }
+
+        if (is_array($status) && key_exists('gcaptchastatus', $status)) {
+            $twitterstatus = $request->input('gcaptchastatus');
+            StatusSetting::find(1)->update(['v3_v2_recaptcha_status' => $twitterstatus]);
+
+            return ['message' => 'success', 'update' => \Lang::get('message.google_status')];
+        }
+    }
+
+    public function mobileStatus(Request $request)
+    {
+        $status = $request->input('status');
     }
 
     //Save Auto Update status in Database
@@ -51,10 +213,13 @@ trait ApiKeySettings
      */
     public function updatemobileDetails(Request $request)
     {
+        $authKey = $request->input('msg91_auth_key');
+        $templateId = $request->input('msg91_template_id');
         $status = $request->input('status');
         $key = $request->input('msg91_auth_key');
         $thirdPartyId = $request->input('thirdPartyId');
         StatusSetting::find(1)->update(['msg91_status' => $status]);
+
         ApiKey::find(1)->update(['msg91_auth_key' => $key, 'msg91_sender' => $request->input('msg91_sender'), 'msg91_template_id' => $request->input('msg91_template_id'), 'msg91_third_party_id' => $thirdPartyId]);
 
         return ['message' => 'success', 'update' => 'Msg91 settings saved'];
@@ -70,7 +235,7 @@ trait ApiKeySettings
         StatusSetting::find(1)->update(['zoho_status' => $status]);
         ApiKey::find(1)->update(['zoho_api_key' => $key]);
 
-        return ['message' => 'success', 'update' => 'Zoho settings saved'];
+        return ['message' => 'success', 'update' => \Lang::get('message.zoho_status')];
     }
 
     /*
@@ -81,7 +246,7 @@ trait ApiKeySettings
         $status = $request->input('status');
         StatusSetting::find(1)->update(['emailverification_status' => $status]);
 
-        return ['message' => 'success', 'update' => 'Email verification status saved'];
+        return ['message' => 'success', 'update' => \Lang::get('message.email_setting')];
     }
 
     /*
@@ -108,15 +273,37 @@ trait ApiKeySettings
         StatusSetting::find(1)->update(['twitter_status' => $status]);
         ApiKey::find(1)->update(['twitter_consumer_key' => $consumer_key, 'twitter_consumer_secret' => $consumer_secret, 'twitter_access_token' => $access_token, 'access_tooken_secret' => $token_secret]);
 
-        return ['message' => 'success', 'update' => 'Twitter settings saved'];
+        return ['message' => 'success', 'update' => \Lang::get('message.twitter_setting')];
     }
 
     public function updatepipedriveDetails(Request $request)
     {
         $pipedriveKey = $request->input('pipedrive_key');
+
+        $url = "https://api.pipedrive.com/v1/users/me?api_token=" . urlencode($pipedriveKey);
+
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false); // For testing, set to true in production
+
+        $response = curl_exec($curl);
+        $error = curl_error($curl);
+        curl_close($curl);
+
+        if ($error) {
+            return ['message' => 'error', 'update' => "$error"];
+        }
+
+        $result = json_decode($response, true);
+        if (isset($result['success']) && $result['success'] !== true) {
+            return ['message' => 'fails', 'update' => \Lang::get('message.pipedrive_error')];
+        }
         $status = $request->input('status');
         StatusSetting::find(1)->update(['pipedrive_status' => $status]);
         ApiKey::find(1)->update(['pipedrive_api_key' => $pipedriveKey]);
+
+        return ['message' => 'success', 'update' => \Lang::get('message.pipedrive_setting')];
     }
 
     public function updateMailchimpProductStatus(Request $request)
@@ -135,22 +322,73 @@ trait ApiKeySettings
 
     public function updateMailchimpDetails(Request $request)
     {
-        $chimp_auth_key = $request->input('mailchimp_auth_key');
-        $status = $request->input('status');
-        StatusSetting::find(1)->update(['mailchimp_status' => $status]);
-        MailchimpSetting::find(1)->update(['api_key' => $chimp_auth_key]);
+        try {
+            $chimp_auth_key = $request->input('mailchimp_auth_key');
 
-        return ['message' => 'success', 'update' => 'Mailchimp settings saved'];
+            $dc = substr($chimp_auth_key, strpos($chimp_auth_key, '-') + 1);
+            // Mailchimp API URL
+            $url = "https://{$dc}.api.mailchimp.com/3.0/";
+            // Make an API request
+            $response = Http::withBasicAuth('anystring', $chimp_auth_key)->get($url);
+            if ($response->successful()) {
+                $status = $request->input('status');
+                StatusSetting::find(1)->update(['mailchimp_status' => $status]);
+                MailchimpSetting::find(1)->update(['api_key' => $chimp_auth_key]);
+                $mailchimpverifiedStatus = 1;
+
+                $mailchimp_set = new MailchimpSetting();
+                $set = $mailchimp_set->firstOrFail();
+                $mail_api_key = $set->api_key;
+                $mailchimp = new \Mailchimp\Mailchimp($mail_api_key);
+                $allists = $mailchimp->get('lists?count=20')['lists'];
+                $selectedList[] = $set->list_id;
+                $subscribe_status = MailchimpSetting::pluck('subscribe_status')->first();
+
+                return [
+                    'message' => 'success',
+                    'update' => \Lang::get('message.mailchimp_setting'),
+                    'mailchimpverifiedStatus' => $mailchimpverifiedStatus,
+                    'status' => $status,
+                    'allLists' => $allists,
+                    'selectedList' => $selectedList,
+                    'subscribe_status' => $subscribe_status,
+                ];
+            } else {
+                $status = $request->input('status');
+
+                return [
+                    'message' => 'error',
+                    'update' => \Lang::get('message.mailchimp_apikey_error'),
+                    //                    'mailchimpverifiedStatus' => $mailchimpverifiedStatus
+                ];
+            }
+        } catch(\Exception $e) {
+            $mailchimpStatus = 0;
+            $status = $request->input('status');
+
+            return [
+                'message' => 'error',
+                'update' => \Lang::get('message.mailchimp_apikey_error'),
+                //                'mailchimpStatus' => $mailchimpStatus
+            ];
+        }
     }
 
     public function updateTermsDetails(Request $request)
     {
         $terms_url = $request->input('terms_url');
+        $ch = curl_init($terms_url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($ch);
+        curl_close($ch);
+        if($response==false){
+            return ['message' => 'error', 'update' => \Lang::get('message.terms_error')];
+        }
         $status = (int) $request->input('status');
         StatusSetting::find(1)->update(['terms' => $status]);
         ApiKey::find(1)->update(['terms_url' => $terms_url]);
 
-        return ['message' => 'success', 'update' => 'Terms url saved'];
+        return ['message' => 'success', 'update' => \Lang::get('message.terms_setting')];
     }
 
     /**

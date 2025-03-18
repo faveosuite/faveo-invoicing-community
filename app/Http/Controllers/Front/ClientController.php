@@ -439,7 +439,6 @@ class ClientController extends BaseClientController
                 ->first();
 
             $downloadPermission = LicensePermissionsController::getPermissionsForProduct($productid);
-
             return \DataTables::of($versions)
                 ->addColumn('id', function ($version) {
                     return ucfirst($version->id);
@@ -478,6 +477,7 @@ class ClientController extends BaseClientController
      */
     public function getGithubVersionList($productid, $clientid, $invoiceid)
     {
+
         try {
             $products = $this->product::where('id', $productid)
             ->select('name', 'version', 'github_owner', 'github_repository')->get();
@@ -504,7 +504,6 @@ class ClientController extends BaseClientController
                     }
                 }
             }
-
             return \DataTables::of($link)
                             ->addColumn('version', function ($link) {
                                 return ucfirst($link['tag_name']);
@@ -513,8 +512,8 @@ class ClientController extends BaseClientController
                                 return ucfirst($link['name']);
                             })
                             ->addColumn('description', function ($link) {
-                                $markdown = Markdown::convertToHtml(ucfirst($link['body']));
-
+//                                $markdown = Markdown::convertToHtml(ucfirst($link['body']));
+                                  $markdown=$link['body'];
                                 return $markdown;
                             })
                             ->addColumn('file', function ($link) use ($countExpiry, $countVersions, $invoiceid, $productid) {
@@ -583,7 +582,6 @@ class ClientController extends BaseClientController
             Terminated</span>';
                                 }
                             })
-
                             ->addColumn('agents', function ($model) {
                                 $license = substr($model->serial_key, 12, 16);
                                 if ($license == '0000') {
@@ -592,6 +590,7 @@ class ClientController extends BaseClientController
 
                                 return intval($license, 10);
                             })
+
                             ->addColumn('expiry', function ($model) {
                                 return getExpiryLabel($model->update_ends_at, 'badge');
                             })
@@ -611,9 +610,8 @@ class ClientController extends BaseClientController
                                 $url = '';
                                 $deleteCloud = '';
                                 $listUrl = '';
-                                if ($status == 'success' && $model->price != '0' && $model->type == '4') {
+                                if ($status == 'success' && $model->price != '0' && $model->type=='4') {
                                     $deleteCloud = $this->getCloudDeletePopup($model, $model->product_id);
-                                    $listUrl = $this->getPopup($model, $model->product_id);
                                     $listUrl = $this->getPopup($model, $model->product_id);
                                 } elseif ($status == 'success' && $model->price == '0' && $model->type != '4') {
                                     $listUrl = $this->getPopup($model, $model->product_id);
@@ -712,6 +710,7 @@ class ClientController extends BaseClientController
             if ($order->client != $user->id) {
                 throw new \Exception('Cannot view order. Invalid modification of data.');
             }
+
             $invoice = $order->invoice()->first();
             $items = $order->invoice()->first()->invoiceItem()->get();
             $subscription = $order->subscription()->first();
@@ -763,11 +762,11 @@ class ClientController extends BaseClientController
                 ->select('id', 'invoice_id', 'user_id', 'amount', 'payment_method', 'payment_status', 'created_at')
                 ->orderByDesc('created_at')
                 ->first();
-
             return view(
                 'themes.default1.front.clients.show-order',
                 compact('invoice', 'order', 'user', 'product', 'subscription', 'licenseStatus', 'installationDetails', 'allowDomainStatus', 'date', 'licdate', 'versionLabel', 'installationDetails', 'id', 'statusAutorenewal', 'status', 'payment_log', 'recentPayment')
             );
+
         } catch (Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }

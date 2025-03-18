@@ -45,7 +45,6 @@ class CaptchaValidation implements ValidationRule
             ]);
 
             $responseBody = json_decode($response->getBody(), true);
-
             // Validate response
             if (! $responseBody['success']) {
                 $fail($this->message);
