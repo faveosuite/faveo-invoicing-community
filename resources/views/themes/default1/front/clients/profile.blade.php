@@ -191,12 +191,7 @@ input:checked + .slider:before {
                                         <div class="col-lg-9">
                                               {!! Form::hidden('mobile_code',null,['id'=>'code_hidden']) !!}
                                                <!--<input class="form-control selected-dial-code"  id="mobile_code" value="{{$user->mobile}}" name="mobile" type="tel"> -->
-
-<<<<<<< HEAD
-                                            {!! Form::input('tel', 'mobile', $user->mobile, ['class' => 'form-control selected-dial-code', 'id' => 'incode' ]) !!}
-=======
-                                            {!! Form::input('tel', 'mobile', $user->mobile, ['class' => 'form-control selected-dial-code', 'dir'=> app()->getLocale() == 'ar' ? 'rtl' : 'ltr', 'id' => 'incode' , 'data-country-iso' => $user->mobile_country_iso]) !!}
->>>>>>> 74aaff522 (Fixes #3191)
+                                            {!! Form::input('tel', 'mobile', $user->mobile, ['class' => 'form-control selected-dial-code', 'dir'=> app()->getLocale() == 'ar' ? 'rtl' : 'ltr', 'id' => 'incode']) !!}
                                             {!! Form::hidden('mobile_country_iso',null,['id' => 'mobile_country_iso']) !!}
                                             <span id="invalid-msg" class="hide"></span>
                                                <span id="inerror-msg"></span>

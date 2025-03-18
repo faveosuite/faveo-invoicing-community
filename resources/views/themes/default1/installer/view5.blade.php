@@ -16,6 +16,9 @@
         .form-control.is-invalid{
             background-image: none !important;
         }
+        .tooltip-inner{
+            text-align: left;
+        }
     </style>
 
     <div class="card">
@@ -46,7 +49,7 @@
                     <div class="form-group row">
                         <div class="col-sm-6">
                             <label class="col-form-label">{{trans('installer_messages.username')}} <span style="color: red;">*</span>
-                                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="top" title="{{trans('installer_messages.username_info')}}"></i>
+                                <i class="fas fa-question-circle text-primary" data-toggle="tooltip" data-placement="top" title="{{trans('installer_messages.username_info')}}"></i>
                             </label>
                             <input type="text" id="admin_username" class="form-control" placeholder="{{trans('installer_messages.username')}}">
                         </div>
@@ -262,17 +265,17 @@
             // Validate fields
             let isValid = true;
             const requiredFields = {
-                firstName: 'Firstname',
-                lastName: 'Lastname',
-                username: 'Username',
-                email: 'Email',
-                password: 'Password',
-                confirmPassword: 'Confirm Password'
+                firstName: '{{__('installer_messages.firstname')}}',
+                lastName: '{{__('installer_messages.lastname')}}',
+                username: '{{__('installer_messages.username')}}',
+                email: '{{__('installer_messages.email')}}',
+                password: '{{__('installer_messages.password')}}',
+                confirmPassword: '{{__('installer_messages.confirm_password')}}'
             };
 
             Object.keys(requiredFields).forEach(field => {
                 if (!fields[field].val()) {
-                    showError(fields[field], `${requiredFields[field]} is required`);
+                    showError(fields[field], `${requiredFields[field]} {{__('installer_messages.is_required')}}`);
                     isValid = false;
                 }
             });
@@ -299,7 +302,7 @@
 
                 Object.keys(redisFields).forEach(field => {
                     if (!fields[field].val()) {
-                        showError(fields[field], `${redisFields[field]} is required`);
+                        showError(fields[field], `${redisFields[field]} {{__('installer_messages.is_required')}}`);
                         isValid = false;
                     }
                 });

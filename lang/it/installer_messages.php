@@ -16,11 +16,10 @@ return [
     'php_extensions' => 'Estensioni PHP',
     'not_enabled' => 'Non abilitato',
     'extension_not_enabled' => 'Non abilitato: per abilitare questa funzionalità, installa l\'estensione sul tuo server e aggiorna :php_ini_file per abilitare :extensionName. <a href=":url" target="_blank">Come installare le estensioni PHP sul mio server?</a>',
-    'mod_rewrite' => 'Mod Rewrite',
+    'mod_rewrite' => 'Mod Riscrittura',
     'off_apache' => 'OFF (Se stai usando Apache, assicurati che <var><strong>AllowOverride</strong></var> sia impostato su <var><strong>All</strong></var> nella configurazione di Apache)',
     'rewrite_engine' => 'Motore di riscrittura',
     'user_url' => 'URL amichevole per l\'utente',
-
     'host' => 'Host',
     'host_tooltip' => 'Se MySQL è installato sullo stesso server di Agora Invoicing, lascialo su localhost',
     'database_name_label' => 'Nome del database',
@@ -151,5 +150,13 @@ return [
     'sign_up_as_admin' => 'Registrati come amministratore',
     'system_information' => 'Informazioni sul sistema',
     'close' => 'Chiudi',
+    'port_number' => 'Numero di porta',
+    'is_required' => 'è richiesto',
+    'firstname' => 'Nome',
+    'lastname' => 'Cognome',
+    'username' => 'Nome utente',
+    'email' => 'E-mail',
+    'password' => 'Password',
+    'confirm_password' => 'Conferma password',
 
 ];

@@ -16,7 +16,7 @@ return [
     'php_extensions' => 'PHP-extensies',
     'not_enabled' => 'Niet Ingeschakeld',
     'extension_not_enabled' => 'Niet Ingeschakeld: Om dit in te schakelen, installeer de extensie op uw server en werk :php_ini_file bij om :extensionName in te schakelen. <a href=":url" target="_blank">Hoe installeer ik PHP-extensies op mijn server?</a>',
-    'mod_rewrite' => 'Mod Rewrite',
+    'mod_rewrite' => 'Mod herschrijven',
     'off_apache' => 'UIT (Als u Apache gebruikt, zorg ervoor dat <var><strong>AllowOverride</strong></var> is ingesteld op <var><strong>All</strong></var> in de Apache-configuratie)',
     'rewrite_engine' => 'Herschrijf Engine',
     'user_url' => 'Gebruiksvriendelijke URL',
@@ -145,5 +145,13 @@ return [
     'system_information' => 'Systeeminformatie',
     'close' => 'Sluiten',
     'username_info' => 'Gebruikersnaam kan alleen alfanumerieke tekens, spaties, onderstrepingen, koppelteken, punten en het @-symbool bevatten.',
+    'port_number' => 'Poortnummer',
+    'is_required' => 'is verplicht',
+    'firstname' => 'Voornaam',
+    'lastname' => 'Achternaam',
+    'username' => 'Gebruikersnaam',
+    'email' => 'E-mail',
+    'password' => 'Wachtwoord',
+    'confirm_password' => 'Bevestig wachtwoord',
 
 ];

@@ -16,7 +16,7 @@ return [
     'php_extensions' => 'PHP扩展',
     'not_enabled' => '未启用',
     'extension_not_enabled' => '未启用：要启用此功能，请在您的服务器上安装该扩展并更新 :php_ini_file 启用 :extensionName。<a href=":url" target="_blank">如何在我的服务器上安装PHP扩展？</a>',
-    'mod_rewrite' => 'Mod Rewrite',
+    'mod_rewrite' => '模组重写',
     'off_apache' => '关闭（如果您使用的是Apache，请确保在Apache配置中将<var><strong>AllowOverride</strong></var>设置为<var><strong>All</strong></var>）',
     'rewrite_engine' => '重写引擎',
     'user_url' => '用户友好的URL',
@@ -144,5 +144,13 @@ return [
     'sign_up_as_admin' => '注册为管理员',
     'system_information' => '系统信息',
     'close' => '关闭',
+    'port_number' => '端口号',
+    'is_required' => '是必填项',
+    'firstname' => '名字',
+    'lastname' => '姓氏',
+    'username' => '用户名',
+    'email' => '电子邮件',
+    'password' => '密码',
+    'confirm_password' => '确认密码',
 
 ];

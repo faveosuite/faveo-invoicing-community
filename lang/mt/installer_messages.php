@@ -140,5 +140,13 @@ return [
     'sign_up_as_admin' => 'Irreġistra bħala amministratur',
     'system_information' => 'Informazzjoni tas-Sistema',
     'close' => 'Ibgħat',
+    'port_number' => 'Numru tal-Port',
+    'is_required' => 'huwa meħtieġ',
+    'firstname' => 'Isem',
+    'lastname' => 'Kunjom',
+    'username' => 'Isem tal-utent',
+    'email' => 'Email',
+    'password' => 'Password',
+    'confirm_password' => 'Ikkonferma l-Password',
 
 ];

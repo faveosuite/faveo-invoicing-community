@@ -16,7 +16,7 @@ return [
     'php_extensions' => 'PHP расширения',
     'not_enabled' => 'Не включено',
     'extension_not_enabled' => 'Не включено: чтобы включить это, установите расширение на вашем сервере и обновите :php_ini_file, чтобы включить :extensionName. <a href=":url" target="_blank">Как установить PHP расширения на мой сервер?</a>',
-    'mod_rewrite' => 'Mod Rewrite',
+    'mod_rewrite' => 'Мод переписать',
     'off_apache' => 'ВЫКЛЮЧЕНО (Если вы используете Apache, убедитесь, что <var><strong>AllowOverride</strong></var> установлено в <var><strong>All</strong></var> в конфигурации Apache)',
     'rewrite_engine' => 'Механизм переписывания',
     'user_url' => 'Дружелюбный URL',
@@ -144,5 +144,13 @@ return [
     'sign_up_as_admin' => 'Зарегистрироваться как администратор',
     'system_information' => 'Информация о системе',
     'close' => 'Закрыть',
+    'port_number' => 'Номер порта',
+    'is_required' => 'обязательно для заполнения',
+    'firstname' => 'Имя',
+    'lastname' => 'Фамилия',
+    'username' => 'Имя пользователя',
+    'email' => 'Электронная почта',
+    'password' => 'Пароль',
+    'confirm_password' => 'Подтвердите пароль',
 
 ];

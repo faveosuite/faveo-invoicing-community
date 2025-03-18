@@ -8,6 +8,9 @@
         .form-control.is-invalid{
             background-image: none !important;
         }
+        .tooltip-inner{
+            text-align: left;
+        }
     </style>
     <div class="card">
         <div class="card-body pb-0">
@@ -20,7 +23,7 @@
                         <div class="col-sm-6">
                             <label for="host" class="col-form-label">
                                 {{ __('installer_messages.host')}} <span style="color: red;">*</span>
-                                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="top" title="{{ __('installer_messages.host_tooltip')}}"></i>
+                                <i class="fas fa-question-circle text-primary" data-toggle="tooltip" data-placement="top" title="{{ __('installer_messages.host_tooltip')}}"></i>
                             </label>
                             <input type="text" class="form-control" id="host" placeholder="{{ __('installer_messages.host')}}" value="localhost">
                         </div>
@@ -34,9 +37,9 @@
                         <div class="col-sm-6">
                             <label for="mysql_port" class="col-form-label">
                                 {{ __('installer_messages.mysql_port_label')}}
-                                <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="top" title="{{ __('installer_messages.mysql_port_tooltip')}}"></i>
+                                <i class="fas fa-question-circle text-primary" data-toggle="tooltip" data-placement="top" title="{{ __('installer_messages.mysql_port_tooltip')}}"></i>
                             </label>
-                            <input type="text" class="form-control" id="mysql_port" placeholder="Port Number">
+                            <input type="text" class="form-control" id="mysql_port" placeholder="{{__('installer_messages.port_number')}}">
                         </div>
                         <div class="col-sm-6">
                             <label for="username" class="col-form-label">{{ __('installer_messages.username')}} <span style="color: red;">*</span></label>
@@ -121,14 +124,14 @@
             // Validate required fields
             let isValid = true;
             const requiredFields = {
-                host: 'Host',
-                databaseName: 'Database Name',
-                username: 'Username',
+                host: '{{__('installer_messages.host')}}',
+                databaseName: '{{__('installer_messages.database_name')}}',
+                username: '{{__('installer_messages.username')}}',
             };
 
             Object.keys(requiredFields).forEach(field => {
                 if (!fields[field].value.trim()) {
-                    showError(fields[field], `${requiredFields[field]} is required`);
+                    showError(fields[field], `${requiredFields[field]} {{__('installer_messages.is_required')}}`);
                     isValid = false;
                 }
             });

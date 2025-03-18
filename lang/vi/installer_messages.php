@@ -15,7 +15,7 @@ return [
     'php_extensions' => 'Estensioni PHP',
     'not_enabled' => 'Non Abilitato',
     'extension_not_enabled' => 'Non Abilitato: Per abilitare questo, si prega di installare l\'estensione sul server e aggiornare :php_ini_file per abilitare :extensionName. <a href=":url" target="_blank">Come installare le estensioni PHP sul mio server?</a>',
-    'mod_rewrite' => 'Mod Rewrite',
+    'mod_rewrite' => 'Viết lại mod',
     'off_apache' => 'SPENTO (Se stai usando Apache, assicurati che <var><strong>AllowOverride</strong></var> sia impostato su <var><strong>All</strong></var> nella configurazione di Apache)',
     'rewrite_engine' => 'Motore di riscrittura',
     'user_url' => 'URL amichevole per l\'utente',
@@ -141,5 +141,13 @@ return [
     'system_information' => 'Thông tin hệ thống',
     'close' => 'Đóng',
     'username_info' => 'Tên người dùng chỉ có thể chứa các ký tự chữ cái và số, dấu cách, dấu gạch dưới, dấu gạch ngang, dấu chấm và ký tự @.',
+    'port_number' => 'Số cổng',
+    'is_required' => 'là bắt buộc',
+    'firstname' => 'Tên',
+    'lastname' => 'Họ',
+    'username' => 'Tên người dùng',
+    'email' => 'Email',
+    'password' => 'Mật khẩu',
+    'confirm_password' => 'Xác nhận mật khẩu',
 
 ];

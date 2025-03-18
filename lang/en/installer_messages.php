@@ -148,5 +148,15 @@ return [
     'sign_up_as_admin' => 'Sign up as Admin',
     'system_information' => 'System Information',
     'close' => 'Close',
+    'port_number' => 'Port Number',
+    'is_required' => 'is required',
+    'firstname' => 'Firstname',
+    'lastname' => 'Lastname',
+    'lastname' => 'Lastname',
+    'username' => 'Username',
+    'username' => 'Username',
+    'email' => 'Email',
+    'password' => 'Password',
+    'confirm_password' => 'Confirm Password',
 
 ];

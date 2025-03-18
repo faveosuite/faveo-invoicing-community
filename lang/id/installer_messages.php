@@ -16,7 +16,7 @@ return [
     'php_extensions' => 'Estensioni PHP',
     'not_enabled' => 'Non Abilitato',
     'extension_not_enabled' => 'Non Abilitato: Per abilitare questo, si prega di installare l\'estensione sul server e aggiornare :php_ini_file per abilitare :extensionName. <a href=":url" target="_blank">Come installare le estensioni PHP sul mio server?</a>',
-    'mod_rewrite' => 'Mod Rewrite',
+    'mod_rewrite' => 'Penulisan Ulang Mod',
     'off_apache' => 'SPENTO (Se stai usando Apache, assicurati che <var><strong>AllowOverride</strong></var> sia impostato su <var><strong>All</strong></var> nella configurazione di Apache)',
     'rewrite_engine' => 'Motore di riscrittura',
     'user_url' => 'URL amichevole per l\'utente',
@@ -148,5 +148,13 @@ return [
     'sign_up_as_admin' => 'Daftar sebagai Admin',
     'system_information' => 'Informasi Sistem',
     'close' => 'Tutup',
+    'port_number' => 'Nomor port',
+    'is_required' => 'diperlukan',
+    'firstname' => 'Nama depan',
+    'lastname' => 'Nama belakang',
+    'username' => 'Nama pengguna',
+    'email' => 'Email',
+    'password' => 'Kata sandi',
+    'confirm_password' => 'Konfirmasi kata sandi',
 
 ];
