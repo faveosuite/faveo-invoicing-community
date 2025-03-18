@@ -2,8 +2,10 @@
 
 namespace Database\Seeders\v4_0_2_4_RC_1;
 
+use App\ApiKey;
 use App\Model\Common\Msg91Status;
 use App\Model\Common\PipedriveLocalFields;
+use App\Model\Github\Github;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -14,6 +16,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->addMsgStatus();
+        $this->removeOldGitPassword();
     }
 
     public function addMsgStatus()
@@ -35,4 +38,9 @@ class DatabaseSeeder extends Seeder
             );
         }
     }
+
+    public function removeOldGitPassword(){
+        Github::where('id',1)->update(['password' => null]);
+    }
 }
+

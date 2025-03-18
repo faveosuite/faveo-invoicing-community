@@ -4,7 +4,6 @@ use App\Http\Controllers\Api;
 use App\Http\Controllers\Auth;
 use App\Http\Controllers\Common;
 use App\Http\Controllers\Common\FileManagerController;
-use App\Http\Controllers\Common\MSG91Controller;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FreeTrailController;
 use App\Http\Controllers\Front;
@@ -16,6 +15,7 @@ use App\Http\Controllers\License;
 use App\Http\Controllers\License\LocalizedLicenseController;
 use App\Http\Controllers\Order;
 use App\Http\Controllers\Payment;
+//use App\Http\Controllers\PhoneVerificationController;
 use App\Http\Controllers\Product;
 use App\Http\Controllers\RazorpayController;
 use App\Http\Controllers\Report\ReportController;
@@ -26,7 +26,7 @@ use App\Http\Controllers\User;
 use App\Http\Controllers\WelcomeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\Common\MSG91Controller;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -50,6 +50,7 @@ Route::post('otp2/send', [Auth\AuthController::class, 'otp']);
 Route::get('social-logins', [SocialLoginsController::class, 'view'])->middleware('auth');
 Route::get('edit/SocialLogins/{id}', [SocialLoginsController::class, 'edit'])->middleware('auth');
 Route::post('update-social-login', [SocialLoginsController::class, 'update'])->name('update-social-login');
+//Route::post('verifying/phone', [PhoneVerificationController::class, 'create']);
 Route::post('store-basic-details', [Auth\LoginController::class, 'storeBasicDetailsss'])->name('store-basic-details');
 
 // !social logins rotes end
@@ -171,6 +172,9 @@ Route::middleware('installAgora')->group(function () {
      * Client
      */
 
+    //contact-option
+    Route::get('contact-option', [Common\SettingsController::class, 'contactOption'])->name('contact-option');
+
     /*
      * Profile Process
      */
@@ -185,6 +189,17 @@ Route::middleware('installAgora')->group(function () {
     Route::post('changeLogo', [Common\SettingsController::class, 'delete']);
 
     Route::get('settings', [Common\SettingsController::class, 'settings']);
+    Route::get('/datatable/data', [Common\SettingsController::class, 'getDataTableData'])->name('datatable.data');
+    Route::post('licensekeys', [Common\SettingsController::class, 'licensekeys']);
+    Route::post('googleCaptcha', [Common\SettingsController::class, 'googleCaptcha']);
+    Route::post('mobileVerification', [Common\SettingsController::class, 'mobileVerification']);
+    Route::post('termsUrl', [Common\SettingsController::class, 'termsUrl']);
+    Route::post('zohokeys', [Common\SettingsController::class, 'zohokeys']);
+    Route::post('pipedrivekeys', [Common\SettingsController::class, 'pipedrivekeys']);
+    Route::post('twitterkeys', [Common\SettingsController::class, 'twitterkeys']);
+    Route::post('githubkeys', [Common\SettingsController::class, 'githubkeys']);
+    Route::post('mailchimpkeys', [Common\SettingsController::class, 'mailchimpKeys']);
+
     Route::get('settings/system', [Common\SettingsController::class, 'settingsSystem']);
     Route::patch('settings/system', [Common\SettingsController::class, 'postSettingsSystem']);
     Route::get('settings/email', [Common\EmailSettingsController::class, 'settingsEmail'])->middleware('auth');
@@ -199,6 +214,7 @@ Route::middleware('installAgora')->group(function () {
     Route::delete('activity-delete', [Common\SettingsController::class, 'destroy'])->name('activity-delete');
     Route::delete('email-delete', [Common\SettingsController::class, 'destroyEmail'])->name('email-delete');
     Route::post('licenseDetails', [Common\BaseSettingsController::class, 'licenseDetails'])->name('licenseDetails');
+    Route::post('licenseStatus', [Common\BaseSettingsController::class, 'licenseStatus'])->name('licenseStatus');
     Route::post('updateDetails', [Common\BaseSettingsController::class, 'updateDetails'])->name('updateDetails');
     Route::post('captchaDetails', [Common\BaseSettingsController::class, 'captchaDetails'])->name('captchaDetails');
     Route::post('updatemobileDetails', [Common\BaseSettingsController::class, 'updateMobileDetails'])->name('updatemobileDetails');
@@ -476,7 +492,8 @@ Route::middleware('installAgora')->group(function () {
     /*
      * plugins
      */
-    Route::get('plugin', [Common\SettingsController::class, 'plugins']);
+    Route::get('payment-gateway-integration', [Common\SettingsController::class, 'plugins']);
+    Route::post('updatePaymentStatus', [Common\PaymentSettingsController::class, 'updatePaymentStatus']);
 
     // Route::get('get-plugin', [Common\PaymentSettingsController::class, 'getPlugin'])->name('get-plugin');
     // Route::get('getplugin', [Common\SettingsController::class, 'getPlugin']);
@@ -596,7 +613,7 @@ Route::middleware('installAgora')->group(function () {
     /*
      * Api Keys
      */
-    Route::get('apikeys', [Common\SettingsController::class, 'getKeys']);
+    Route::get('third-party-integration', [Common\SettingsController::class, 'getKeys']);
     Route::patch('apikeys', [Common\SettingsController::class, 'postKeys']);
     Route::post('login', [Auth\LoginController::class, 'login'])->name('login');
     // Route::post('login', [Auth\LoginController::class, 'login'])->name('login');

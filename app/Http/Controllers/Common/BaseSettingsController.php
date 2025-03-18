@@ -315,6 +315,8 @@ class BaseSettingsController extends PaymentSettingsController
     {
         $status = $request->input('status');
         $recaptchaType = $request->input('recaptcha_type');
+        $siteKey = $request->input('nocaptcha_sitekey');
+
         if ($status == 1) {
             $nocaptcha_sitekey = $request->input('nocaptcha_sitekey');
             $captcha_secretCheck = $request->input('nocaptcha_secret');
@@ -322,7 +324,7 @@ class BaseSettingsController extends PaymentSettingsController
 
             $envFile = app()->environmentFilePath();
             $str = file_get_contents($envFile);
-
+            $resultJson = json_decode($str);
             if (count($values) > 0) {
                 foreach ($values as $envKey => $envValue) {
                     $str .= "\n"; // In case the searched variable is in the last line without \n
@@ -344,28 +346,29 @@ class BaseSettingsController extends PaymentSettingsController
                 return false;
             }
         } else {
-            $nocaptcha_sitekey = '00';
-            $captcha_secretCheck = '00';
+            $nocaptcha_sitekey = $request->input('nocaptcha_sitekey');
+            $captcha_secretCheck = $request->input('nocaptcha_secret');
             $path_to_file = base_path('.env');
             $file_contents = file_get_contents($path_to_file);
             $file_contents_secretchek = str_replace([env('NOCAPTCHA_SECRET'), env('NOCAPTCHA_SITEKEY')], [$captcha_secretCheck, $nocaptcha_sitekey], $file_contents);
             file_put_contents($path_to_file, $file_contents_secretchek);
         }
-        $recaptchaStatus = ! $status ? 0 : ($recaptchaType === 'v2' ? 1 : 0);
-        $v3RecaptchaStatus = ! $status ? 0 : ($recaptchaType === 'v3' ? 1 : 0);
+        $recaptchaStatus = ($recaptchaType === 'v2' ? 1 : 0);
+        $v3RecaptchaStatus =($recaptchaType === 'v3' ? 1 : 0);
 
         // Update StatusSetting
         StatusSetting::where('id', 1)->update([
             'recaptcha_status' => $recaptchaStatus,
             'v3_recaptcha_status' => $v3RecaptchaStatus,
+            'v3_v2_recaptcha_status' => $status,
         ]);
         ApiKey::where('id', 1)->update(['nocaptcha_sitekey' => $nocaptcha_sitekey,
             'captcha_secretCheck' => $captcha_secretCheck, ]);
+        return successResponse(\Lang::get('message.recaptcha_settings'));
 
-        return ['message' => 'success', 'update' => 'Recaptcha Settings Updated'];
     }
 
-    //Save Google recaptch site key and secret in Database
+    //Save Google recaptcha site key and secret in Database
     public function v3captchaDetails(Request $request)
     {
         $status = $request->input('status');
@@ -398,8 +401,8 @@ class BaseSettingsController extends PaymentSettingsController
                 return false;
             }
         } else {
-            $nocaptcha_sitekey = '00';
-            $captcha_secretCheck = '00';
+            $nocaptcha_sitekey = '';
+            $captcha_secretCheck = '';
             $path_to_file = base_path('.env');
             $file_contents = file_get_contents($path_to_file);
             $file_contents_secretchek = str_replace([env('RECAPTCHA_SITE_KEY'), env('RECAPTCHA_SITE_KEY')], [$captcha_secretCheck, $nocaptcha_sitekey], $file_contents);
