@@ -38,7 +38,7 @@ Edit Invoice
                         <!-- date -->
                         {!! Form::label('date',Lang::get('message.date'),['class'=>'required']) !!}
                          <div class="input-group date" id="payment" data-target-input="nearest">
-                                 <input type="text" id="payment_date" name="date" value="{{$date}}" class="form-control datetimepicker-input" autocomplete="off"  data-target="#payment" />
+                                 <input type="text" id="payment_date" name="date" value="{{$date}}" class="form-control datetimepicker-input {{$errors->has('date') ? ' is-invalid' : ''}}" autocomplete="off"  data-target="#payment" />
                              @error('date')
                              <span class="error-message"> {{$message}}</span>
                              @enderror
@@ -52,7 +52,7 @@ Edit Invoice
                     <div class="col-md-6 form-group {{ $errors->has('total') ? 'has-error' : '' }}">
                         <!-- total -->
                         {!! Form::label('total',Lang::get('message.invoice-total'),['class'=>'required']) !!}
-                        <input type="text" name="total" class="form-control" value="{{$invoice->grand_total}}" id="total">
+                        <input type="text" name="total" class="form-control {{$errors->has('total') ? ' is-invalid' : ''}}" value="{{$invoice->grand_total}}" id="total">
                         @error('total')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
@@ -64,7 +64,7 @@ Edit Invoice
                      <div class="col-md-6 form-group {{ $errors->has('amount') ? 'has-error' : '' }}">
                         <!-- status -->
                         {!! Form::label('status',Lang::get('message.status')) !!}
-                         <select name="status"  class="form-control" id="status">
+                         <select name="status"  class="form-control {{$errors->has('status') ? ' is-invalid' : ''}}" id="status">
                             <option selected="selected">{{$invoice->status}}</option>
                              <option value="">Choose</option>
                           <option value="success">Success</option>

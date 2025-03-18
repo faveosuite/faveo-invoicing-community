@@ -40,7 +40,7 @@
                                 id="stripe_key"
                                 name="stripe_key"
                                 value="{{ $stripeKeys->stripe_key }}"
-                                class="form-control"
+                                class="form-control {{$errors->has('stripe_key') ? ' is-invalid' : ''}}"
                                 placeholder="Enter Stripe Key">
                         @error('stripe_key')
                         <small class="text-danger">{{ $message }}</small>
@@ -55,7 +55,7 @@
                                 id="stripe_secret"
                                 name="stripe_secret"
                                 value="{{ $stripeKeys->stripe_secret }}"
-                                class="form-control"
+                                class="form-control {{$errors->has('stripe_secret') ? ' is-invalid' : ''}}"
                                 placeholder="Enter Stripe Secret Key">
                         <div class="input-group-append">
                                         <span class="input-group-text" role="button" onclick="togglePasswordVisibility(this)">

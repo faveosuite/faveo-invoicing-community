@@ -44,7 +44,7 @@ Edit Coupon
 
                                 <div class='d-flex'>
                                     <div class="col-md-6 col-lg-6">
-                                        {!! Form::text('code',null,['class' => 'form-control','id'=>'code']) !!}
+                                        {!! Form::text('code',null,['class' => 'form-control'.($errors->has('code') ? ' is-invalid' : ''),'id'=>'code']) !!}
                                         @error('code')
                                         <span class="error-message"> {{$message}}</span>
                                         @enderror
@@ -68,7 +68,7 @@ Edit Coupon
                             <div class="form-group col-lg-6 {{ $errors->has('type') ? 'has-error' : '' }}">
 
 
-                                {!! Form::select('type',[''=>'Select','Types'=>$type],null,['class' => 'form-control']) !!}
+                                {!! Form::select('type',[''=>'Select','Types'=>$type],null,['class' => 'form-control'.($errors->has('type') ? ' is-invalid' : '')]) !!}
                                 @error('type')
                                 <span class="error-message"> {{$message}}</span>
                                 @enderror
@@ -87,7 +87,7 @@ Edit Coupon
 
                                  <?php $valueWithoutPercentage = rtrim($promotion->value, '%'); ?>
 
-                                {!! Form::number('value',$valueWithoutPercentage,['class' => 'form-control']) !!}
+                                {!! Form::number('value',$valueWithoutPercentage,['class' => 'form-control'.($errors->has('value') ? ' is-invalid' : '')]) !!}
                                 @error('value')
                                 <span class="error-message"> {{$message}}</span>
                                 @enderror
@@ -102,7 +102,7 @@ Edit Coupon
                         <td><b>{!! Form::label('uses',Lang::get('message.uses'),['class'=>'required']) !!}&nbsp;&nbsp;<i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="Enter here how many times that coupon can be used"></i></b></td>
                         <td>
                             <div class="form-group col-lg-6{{ $errors->has('uses') ? 'has-error' : '' }}">
-                                {!! Form::number('uses',null,['class' => 'form-control']) !!}
+                                {!! Form::number('uses',null,['class' => 'form-control'.($errors->has('uses') ? ' is-invalid' : '')]) !!}
                                 @error('uses')
                                 <span class="error-message"> {{$message}}</span>
                                 @enderror
@@ -120,7 +120,7 @@ Edit Coupon
 
                             <div class="form-group col-lg-6{{ $errors->has('applied') ? 'has-error' : '' }}">
 
-                                 {!! Form::select('applied',[''=>'Choose','Products'=>$product],$selectedProduct,['class' => 'form-control','data-live-search'=>'true','data-live-search-placeholder' => 'Search','data-dropup-auto'=>'false','data-size'=>'10','title'=>'Products for which coupon is Applied']) !!}
+                                 {!! Form::select('applied',[''=>'Choose','Products'=>$product],$selectedProduct,['class' => 'form-control'.($errors->has('applied') ? ' is-invalid' : ''),'data-live-search'=>'true','data-live-search-placeholder' => 'Search','data-dropup-auto'=>'false','data-size'=>'10','title'=>'Products for which coupon is Applied']) !!}
                                 @error('applied')
                                 <span class="error-message"> {{$message}}</span>
                                 @enderror
@@ -138,17 +138,20 @@ Edit Coupon
                         <td>
                             <div class="form-group {{ $errors->has('start') ? 'has-error' : '' }}">
                                 <div class="input-group date col-lg-6" id="startDate" data-target-input="nearest">
-                                     {!! Form::text('start',$startDate,['class' => 'form-control datetimepicker-input','title'=>'Date from which Coupon is Valid','data-target'=>'#startDate']) !!}
+                                     {!! Form::text('start',$startDate,['class' => 'form-control datetimepicker-input'.($errors->has('start') ? ' is-invalid' : ''),'title'=>'Date from which Coupon is Valid','data-target'=>'#startDate']) !!}
                                     <div class="input-group-append" data-target="#startDate" data-toggle="datetimepicker">
                                         <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                     </div>
-                                    @error('start')
-                                    <span class="error-message"> {{$message}}</span>
-                                    @enderror
+
                                     <div class="input-group-append">
                                     </div>
-                                </div>
 
+                                </div>
+                                @error('start')
+                                <div class="input-group date col-lg-6">
+                                    <span class="error-message"> {{$message}}</span>
+                                </div>
+                                @enderror
                             </div>
                         </td>
 
@@ -163,17 +166,20 @@ Edit Coupon
 
                                 <div class="input-group date col-lg-6" id="endDate" data-target-input="nearest">
 
-                                     {!! Form::text('expiry',$expiryDate,['class' => 'form-control datetimepicker-input','title'=>'Date on which Coupon Expires','data-target'=>'#endDate']) !!}
+                                     {!! Form::text('expiry',$expiryDate,['class' => 'form-control datetimepicker-input'.($errors->has('expiry') ? ' is-invalid' : ''),'title'=>'Date on which Coupon Expires','data-target'=>'#endDate']) !!}
                                     <div class="input-group-append" data-target="#endDate" data-toggle="datetimepicker">
                                         <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                     </div>
-                                    @error('expiry')
-                                    <span class="error-message"> {{$message}}</span>
-                                    @enderror
+
                                     <div class="input-group-append">
                                     </div>
-                                </div>
 
+                                </div>
+                                @error('expiry')
+                                <div class="input-group date col-lg-6">
+                                    <span class="error-message"> {{$message}}</span>
+                                </div>
+                                @enderror
                             </div>
                         </td>
 

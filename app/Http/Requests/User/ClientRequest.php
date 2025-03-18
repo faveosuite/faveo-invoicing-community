@@ -35,8 +35,7 @@ class ClientRequest extends Request
                     'country' => 'required|exists:countries,country_code_char2',
                     'state' => 'required_if:country,in',
                     'timezone_id' => 'required',
-                    'user_name' => 'unique:users,user_name',
-                    'zip' => 'regex:/^[0-9]{3,6}$/',
+                    'user_name' => 'required|unique:users,user_name',
                 ];
 
             case 'PATCH':
@@ -50,10 +49,8 @@ class ClientRequest extends Request
                     'address' => 'required',
                     'mobile' => 'required',
                     'timezone_id' => 'required',
-                    'timezone_id' => 'required',
                     'state' => 'required_if:country,IN',
-                    'user_name' => 'unique:users,user_name,'.$id,
-                    'zip' => 'regex:/^[0-9]{3,6}$/',
+                    'user_name' => 'required|unique:users,user_name,'.$id,
                 ];
 
             default:

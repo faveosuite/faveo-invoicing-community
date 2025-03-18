@@ -34,7 +34,6 @@ System Managers
 
     <div class="card-body table-responsive">
 
-        <div class="row">
 
             <div class="col-md-12">
 
@@ -44,7 +43,7 @@ System Managers
                 <div class="col-md-4 form-group">
 
                     {!! Form::label('manager',Lang::get('message.system_account_manager'),['class'=>'required']) !!}
-                       <select name="manager" value= "Choose" id="existingManager" class="form-control">
+                       <select name="manager" value= "Choose" id="existingManager" class="form-control {{$errors->has('manager') ? ' is-invalid' : ''}}">
                              <option value="">Choose</option>
                            @foreach($accountManagers as $key=>$manager)
                              <option value={{$key}}>{{$manager}}</option>
@@ -60,7 +59,7 @@ System Managers
                             {!! Form::label('account_manager',Lang::get('message.replace_with'),['class'=>'required']) !!}
                         
                            
-                            {!! Form::select('account_manager', [Lang::get('User')=>$users],null,['multiple'=>true,'class'=>"form-control select2" ,'id'=>"users",
+                            {!! Form::select('account_manager', [Lang::get('User')=>$users],null,['multiple'=>true,'class'=>"form-control select2".($errors->has('account_manager') ? ' is-invalid' : '') ,'id'=>"users",
                   'onchange'=>"setCustomValidity('')"]) !!}
                     <div class="input-group-append">
                     </div>
@@ -75,7 +74,6 @@ System Managers
                 </div>
                </div>
 
-        </div>
 
 
                <div class="col-md-12">
@@ -85,7 +83,7 @@ System Managers
 
                    <div class="col-md-4 form-group">
                     {!! Form::label('user',Lang::get('message.system_sales_manager'),['class'=>'required']) !!}
-                       <select name="sales_manager" value= "Choose" id="existingSalesManager" class="form-control">
+                       <select name="sales_manager" value= "Choose" id="existingSalesManager" class="form-control {{$errors->has('sales_manager') ? ' is-invalid' : ''}}">
                              <option value="">Choose</option>
                            @foreach($salesManager as $key=>$manager)
                              <option value={{$key}}>{{$manager}}</option>
@@ -100,7 +98,7 @@ System Managers
                             {!! Form::label('replace_with',Lang::get('message.replace_with'),['class'=>'required']) !!}
                         
                            
-                            {!! Form::select('sales_manager', [Lang::get('User')=>$users],null,['multiple'=>true,'class'=>"form-control select2" ,'id'=>"sales",'required','style'=>"width:100%!important",'oninvalid'=>"setCustomValidity('Please Select Client')", 
+                            {!! Form::select('sales_manager', [Lang::get('User')=>$users],null,['multiple'=>true,'class'=>"form-control select2".($errors->has('sales_manager') ? ' is-invalid' : '') ,'id'=>"sales",'required','style'=>"width:100%!important",'oninvalid'=>"setCustomValidity('Please Select Client')",
                   'onchange'=>"setCustomValidity('')"]) !!}
                     <div class="input-group-append">
                     </div>

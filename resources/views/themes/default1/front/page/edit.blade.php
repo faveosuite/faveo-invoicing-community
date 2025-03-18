@@ -32,7 +32,7 @@ Edit Page
                     <div class="col-md-4 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         <!-- name -->
                         {!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}
-                        {!! Form::text('name',null,['class' => 'form-control','id'=>'name']) !!}
+                        {!! Form::text('name',null,['class' => 'form-control'.($errors->has('name') ? ' is-invalid' : ''),'id'=>'name']) !!}
                         @error('name')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
@@ -43,7 +43,7 @@ Edit Page
                     <div class="col-md-4 form-group {{ $errors->has('publish') ? 'has-error' : '' }}">
                         <!-- publish -->
                         {!! Form::label('publish',Lang::get('message.publish'),['class'=>'required']) !!}
-                        {!! Form::select('publish',[1=>'Yes',0=>'No'],null,['class' => 'form-control']) !!}
+                        {!! Form::select('publish',[1=>'Yes',0=>'No'],null,['class' => 'form-control'.($errors->has('publish') ? ' is-invalid' : '')]) !!}
                         @error('publish')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
@@ -54,7 +54,7 @@ Edit Page
                     <div class="col-md-4 form-group {{ $errors->has('slug') ? 'has-error' : '' }}">
                         <!-- slug -->
                         {!! Form::label('slug',Lang::get('message.slug'),['class'=>'required']) !!}
-                        {!! Form::text('slug',null,['class' => 'form-control','id'=>'slug']) !!}
+                        {!! Form::text('slug',null,['class' => 'form-control'.($errors->has('slug') ? ' is-invalid' : ''),'id'=>'slug']) !!}
                         @error('slug')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
@@ -70,7 +70,7 @@ Edit Page
                         <!-- url -->
                         {!! Form::label('url',Lang::get('message.url'),['class'=>'required']) !!}
 
-                        {!! Form::text('url',null,['class' => 'form-control','id'=>'url','placeholder'=>'https://example.com']) !!}
+                        {!! Form::text('url',null,['class' => 'form-control'.($errors->has('url') ? ' is-invalid' : ''),'id'=>'url','placeholder'=>'https://example.com']) !!}
                         @error('url')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
@@ -81,7 +81,7 @@ Edit Page
                     <div class="col-md-4 form-group {{ $errors->has('parent_page_id') ? 'has-error' : '' }}">
                         <!-- parent_page_id -->
                         {!! Form::label('parent_page_id',Lang::get('message.parent-page')) !!}
-                        <select name="parent_page_id"  class="form-control">
+                        <select name="parent_page_id"  class="form-control {{$errors->has('') ? ' is-invalid' : ''}}">
                             <option value="0">Choose</option>
                             @foreach($parents as $key=>$parent)
 
@@ -97,7 +97,7 @@ Edit Page
                      <div class="col-md-4 form-group {{ $errors->has('parent_page_id') ? 'has-error' : '' }}">
                         <!-- type -->
                         {!! Form::label('type',Lang::get('message.page_type')) !!}
-                          {!! Form::select('type',['none'=>'None','contactus'=>'Contact Us'],null,['class' => 'form-control']) !!} 
+                          {!! Form::select('type',['none'=>'None','contactus'=>'Contact Us'],null,['class' => 'form-control'.($errors->has('type') ? ' is-invalid' : '')]) !!}
 
                     </div>
                     <?php
@@ -106,7 +106,7 @@ Edit Page
                        <div class="col-md-6 form-group {{ $errors->has('parent_page_id') ? 'has-error' : '' }}">
                         <!-- default_page_id -->
                         {!! Form::label('default_page_id',Lang::get('message.default-page'),['class'=>'required']) !!}
-                                   <select name="default_page_id"  class="form-control">
+                                   <select name="default_page_id"  class="form-control {{$errors->has('default_page_id') ? ' is-invalid' : ''}}" >
                                      <option value="">My Invoices</option>
                          @foreach($defaults as $key=>$value)
                                    <option value="{{$key}}" <?php  if($key == $selectedDefault)  { echo "selected";} ?>>{{$value}}</option>
@@ -122,16 +122,16 @@ Edit Page
                         {!! Form::label('publish_date',Lang::get('message.publish-date'),['class'=>'required']) !!}
 
                         <div class="input-group date" id="publishing_date" data-target-input="nearest">
-                        <input type="text" name="created_at" value="{{$publishingDate}}" class="form-control datetimepicker-input" autocomplete="off"  data-target="#publishing_date" id="created_at"/>
-                            @error('created_at')
-                            <span class="error-message"> {{$message}}</span>
-                            @enderror
+                        <input type="text" name="created_at" value="{{$publishingDate}}" class="form-control datetimepicker-input {{$errors->has('created_at') ? ' is-invalid' : ''}}" autocomplete="off"  data-target="#publishing_date" id="created_at"/>
+
                         <div class="input-group-append" data-target="#publishing_date"  data-toggle="datetimepicker">
                             <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                         </div>
 
                         </div>
-
+                        @error('created_at')
+                        <span class="error-message"> {{$message}}</span>
+                        @enderror
                     </div>
 
                 </div>
@@ -170,7 +170,7 @@ Edit Page
 
 
                         {!! Form::label('content',Lang::get('message.content'),['class'=>'required']) !!}
-                        {!! Form::textarea('content',null,['class'=>'form-control','id'=>'textarea']) !!}
+                        {!! Form::textarea('content',null,['class'=>'form-control'.($errors->has('content') ? ' is-invalid' : ''),'id'=>'textarea']) !!}
                         @error('content')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
@@ -220,7 +220,6 @@ Edit Page
                   url:$('#url'),
                   content:$('#textarea'),
                   created_at:$('#created_at'),
-                  default_page:$('#default_page_id'),
 
               };
 
@@ -247,10 +246,7 @@ Edit Page
                   }
               });
 
-              if (isValid && userRequiredFields.default_page.val()==null) {
-                  showError(userFields.email, @json(trans('message.page_details.default_page')));
-                  isValid = false;
-              }
+
 
               if(isValid && !isValidURL(userFields.url.val())){
                   showError(userFields.url,@json(trans('message.page_details.valid_url')),);
@@ -259,6 +255,7 @@ Edit Page
 
               // If validation fails, prevent form submission
               if (!isValid) {
+                  console.log(3);
                   e.preventDefault();
               }
           });
@@ -281,9 +278,14 @@ Edit Page
           });
 
 
-          function isValidURL(url) {
-              const pattern = /^(https?:\/\/)?([\w-]+\.)+([a-z]{2,6})(\/[\w-]*)*(\?.*)?(#.*)?$/i;
-              return pattern.test(url);
+
+          function isValidURL(string) {
+              try {
+                  new URL(string);
+                  return true;
+              } catch (err) {
+                  return false;
+              }
           }
       });
 
