@@ -253,6 +253,7 @@ Activity Log
     $('[data-toggle="popover"]').popover()
     })
 </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
 
        function checking(e){
@@ -262,34 +263,62 @@ Activity Log
 
          $(document).on('click','#bulk_delete',function(){
           var id=[];
-          if (confirm("Are you sure you want to delete this?"))
-            {
-                $('.activity:checked').each(function(){
-                  id.push($(this).val())
-                });
-                if(id.length >0)
-                { 
-                   $.ajax({
-                          url:"{!! route('activity-delete') !!}",
-                          method:"delete",
-                          data: $('#check:checked').serialize(),
-                          beforeSend: function () {
-                    $('#gif').show();
-                    },
-                    success: function (data) {
-                    $('#gif').hide();
-                    $('#response').html(data);
-                    location.reload();
-                    }
-                   })
-                }
-                else
-                {
-                    alert("Please select at least one checkbox");
-                }
-            }  
+             var swl = swal.fire({
+                 title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Delete')}}</h2>",
+                 html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
+                     "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
+                     "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.activity_log_delete')}}</p>" + "</div>" +
+                     "</div>",
+                 showCancelButton: true,
+                 showCloseButton: true,
+                 position: "top",
+                 width: "600px",
 
-         });
+                 confirmButtonText: @json(trans('message.Delete')),
+                 confirmButtonColor: "#007bff",
+
+             }).then((result) => {
+                 if (result.isConfirmed) {
+                 $('.activity:checked').each(function(){
+                     id.push($(this).val())
+                 });
+                 if(id.length >0)
+                 {
+                     $.ajax({
+                         url:"{!! route('activity-delete') !!}",
+                         method:"delete",
+                         data: $('#check:checked').serialize(),
+                         beforeSend: function () {
+                             $('#gif').show();
+                         },
+                         success: function (data) {
+                             $('#gif').hide();
+                             $('#response').html(data);
+                             location.reload();
+                         }
+                     })
+
+                     } else {
+                         swal.fire({
+                             title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
+                             html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
+                                 "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
+                                 "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_activity_log')}}</p>" + "</div>" +
+                                 "</div>",
+                             position: 'top',
+                             confirmButtonText: "OK",
+                             showCloseButton: true,
+                             confirmButtonColor: "#007bff",
+                             width: "600px",
+                         })
+                     }
+                 } else if (result.dismiss === Swal.DismissReason.cancel) {
+                     window.close();
+                 }
+             return false;
+             });
+
+       });
    </script>
    @section('datepicker')
 <script type="text/javascript">
