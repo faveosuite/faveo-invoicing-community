@@ -39,7 +39,7 @@ Edit Tax
                     <div class="col-md-4 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         <!-- name -->
                         {!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}
-                        {!! Form::text('name',null,['class' => 'form-control','id'=>'tax-name']) !!}
+                        {!! Form::text('name',null,['class' => 'form-control'. ($errors->has('name') ? ' is-invalid' : ''),'id'=>'tax-name']) !!}
                         <div class="input-group-append">
                         </div>
                     </div>
@@ -47,7 +47,7 @@ Edit Tax
                     <div class="col-md-4 form-group {{ $errors->has('tax_class') ? 'has-error' : '' }}">
                         <!-- name -->
                         {!! Form::label('tax_class',Lang::get('Tax Type'),['class'=>'required']) !!}
-                         <select name="tax_classes_id" id="editTax" class="form-control">
+                         <select name="tax_classes_id" id="editTax" class="form-control {{$errors->has('tax_classes_id') ? ' is-invalid' : ''}}">
                       <option value="{{$txClass->name}}">{{$taxClassName}}</option>
                       <option value="Others">Others</option>
                       <option value="Intra State GST">Intra State GST (Same Indian State)</option>
@@ -96,7 +96,7 @@ Edit Tax
                     <div class="col-md-4 form-group changegststate">
                         <!-- name -->
                         {!! Form::label('state',Lang::get('message.state')) !!}
-                         {!! Form::select('state',[''=>'All States','state'=>$states],null,['class' => 'form-control','id'=>'state-list']) !!}
+                         {!! Form::select('state',[''=>'All States','state'=>$states],null,['class' => 'form-control'. ($errors->has('state') ? ' is-invalid' : ''),'id'=>'state-list']) !!}
                       
 
                     </div>
@@ -105,7 +105,7 @@ Edit Tax
                     <div class="col-md-4 form-group changegstrate">
                         <!-- name -->
                         {!! Form::label('rate',Lang::get('message.rate').' (%)',['class'=>'required']) !!}
-                        {!! Form::number('rate',null,['class' => 'form-control']) !!}
+                        {!! Form::number('rate',null,['class' => 'form-control'. ($errors->has('rate') ? ' is-invalid' : '')]) !!}
                         <div class="input-group-append">
                         </div>
                     </div>

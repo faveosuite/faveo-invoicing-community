@@ -40,13 +40,13 @@ Social Media
 
                                 <p><i> {{Lang::get('message.enter-the-name-of-the-social-media')}}</i> </p>
 
-                                {!! Form::text('name',null,['class' => 'form-control','id'=>'name']) !!}
+                                {!! Form::text('name',null,['class' => 'form-control'. ($errors->has('name') ? ' is-invalid' : ''),'id'=>'name']) !!}
+
+                                <div class="input-group-append">
+                                </div>
                                 @error('name')
                                 <span class="error-message"> {{$message}}</span>
                                 @enderror
-                                <div class="input-group-append">
-                                </div>
-
                             </div>
                         </td>
 
@@ -59,13 +59,13 @@ Social Media
                             <div class="form-group {{ $errors->has('link') ? 'has-error' : '' }}">
                                 <p><i> {{Lang::get('message.enter-the-link-of-the-social-media')}}</i> </p>
 
-                                {!! Form::text('link',null,['class' => 'form-control','id'=>'link','placeholder'=>'https://example.com']) !!}
+                                {!! Form::text('link',null,['class' => 'form-control'. ($errors->has('link') ? ' is-invalid' : ''),'id'=>'link','placeholder'=>'https://example.com']) !!}
+
+                                <div class="input-group-append">
+                                </div>
                                 @error('link')
                                 <span class="error-message"> {{$message}}</span>
                                 @enderror
-                                <div class="input-group-append">
-                                </div>
-
                             </div>
                         </td>
 

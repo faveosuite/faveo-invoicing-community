@@ -132,7 +132,7 @@ class BaseProductController extends ExtendedBaseProductController
                             ['' => 'Select', 'Plans' => $plans],
                             null,
                             ['class' => 'form-control required', 'id' => 'plan', 'onchange' => 'getPrice(this.value)']
-                        ).'
+                        ).'<div class="error-message" id="subscription-msg"></div>
                 </div>';
             } else {//If No Plan Exist For A Product
                 $userid = $request->input('user');

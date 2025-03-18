@@ -36,7 +36,7 @@
                         <label>{{ trans('message.storage_disk') }} </label>
                         <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="top"
                            title="{{ trans('message.disk_tooltip') }}"></i>
-                        <select class="form-control" name="disk" id="disk">
+                        <select class="form-control {{$errors->has('disk') ? ' is-invalid' : ''}}" name="disk" id="disk">
                             <option value="system" {{ $fileStorage->disk == 'system' ? 'selected' : '' }}>System
                             </option>
                             <option value="s3" {{ $fileStorage->disk == 's3' ? 'selected' : '' }}>S3</option>
@@ -47,7 +47,7 @@
                         <label class="required">{{ trans('message.storage_path') }}</label>
                         <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="top"
                            title="{{ trans('message.path_tooltip') }}"></i>
-                        <input class="form-control" name="path" type="text" id="path"
+                        <input class="form-control {{$errors->has('path') ? ' is-invalid' : ''}}" name="path" type="text" id="path"
                                value="{{ $fileStorage->local_file_storage_path }}"
                                placeholder="Storage Path">
                     </div>
@@ -56,41 +56,41 @@
                     <!-- S3 Configuration Fields -->
                     <div class="form-group col-sm-6 s3_config">
                         <label>{{ trans('message.s3_path_style_endpoint') }}</label>
-                        <select class="form-control" name="s3_path_style_endpoint" id="s3_path_style_endpoint">
+                        <select class="form-control {{$errors->has('s3_path_style_endpoint') ? ' is-invalid' : ''}}" name="s3_path_style_endpoint" id="s3_path_style_endpoint">
                             <option value="true" {{ $fileStorage->s3_path_style_endpoint === true ? 'selected' : '' }}>Yes</option>
                             <option value="false" {{ $fileStorage->s3_path_style_endpoint !== true ? 'selected' : '' }}>No</option>
                         </select>
                     </div>
                     <div class="form-group col-sm-6 s3_config">
                         <label class="required">{{ trans('message.s3_bucket') }}</label>
-                        <input class="form-control" name="s3_bucket" type="text" id="s3_bucket"
+                        <input class="form-control {{$errors->has('s3_bucket') ? ' is-invalid' : ''}}" name="s3_bucket" type="text" id="s3_bucket"
                                placeholder="Enter S3 Bucket Name" value="{{ $fileStorage->s3_bucket }}">
                     </div>
                     <div class="form-group col-sm-6 s3_config">
                         <label class="required">{{ trans('message.s3_region') }}</label>
-                        <input class="form-control" name="s3_region" type="text" id="s3_region"
+                        <input class="form-control {{$errors->has('s3_region') ? ' is-invalid' : ''}}" name="s3_region" type="text" id="s3_region"
                                placeholder="Enter S3 Region" value="{{ $fileStorage->s3_region }}">
                     </div>
                     <div class="form-group col-sm-6 s3_config">
                         <label class="required">{{ trans('message.s3_access_key') }}</label>
-                        <input class="form-control" name="s3_access_key" type="password" id="s3_access_key"
+                        <input class="form-control {{$errors->has('s3_access_key') ? ' is-invalid' : ''}}" name="s3_access_key" type="password" id="s3_access_key"
                                placeholder="Enter S3 Access Key" value="{{ $fileStorage->s3_access_key }}">
                     </div>
                     <div class="form-group col-sm-6 s3_config">
                         <label class="required">{{ trans('message.s3_secret_key') }}</label>
-                        <input class="form-control" name="s3_secret_key" type="password" id="s3_secret_key"
+                        <input class="form-control {{$errors->has('s3_secret_key') ? ' is-invalid' : ''}}" name="s3_secret_key" type="password" id="s3_secret_key"
                                placeholder="Enter S3 Secret Key" value="{{ $fileStorage->s3_secret_key }}">
                     </div>
 
                     <div class="form-group col-sm-6 s3_config">
                         <label class="required">{{ trans('message.s3_endpoint_url') }}</label>
-                        <input class="form-control" name="s3_endpoint_url" type="text" id="s3_endpoint_url"
+                        <input class="form-control {{$errors->has('s3_endpoint_url') ? ' is-invalid' : ''}}" name="s3_endpoint_url" type="text" id="s3_endpoint_url"
                                placeholder="Enter S3 Endpoint URL" value="{{ $fileStorage->s3_endpoint_url }}">
                     </div>
 
                     <div class="form-group col-sm-6 s3_config">
                         <label>{{ trans('message.s3_url') }}</label>
-                        <input class="form-control" name="s3_url" type="text" id="s3_url"
+                        <input class="form-control {{$errors->has('s3_url') ? ' is-invalid' : ''}}" name="s3_url" type="text" id="s3_url"
                                placeholder="Enter S3 URL" value="{{ $fileStorage->s3_url }}">
                     </div>
 

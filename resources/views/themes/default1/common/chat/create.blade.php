@@ -35,7 +35,7 @@ Script
                     <div class="col-md-12 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         <!-- first name -->
                         {!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}
-                        {!! Form::text('name',null,['class' => 'form-control','id'=>'name']) !!}
+                        {!! Form::text('name',null,['class' => 'form-control'. ($errors->has('name') ? ' is-invalid' : ''),'id'=>'name']) !!}
                         @error('name')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
@@ -91,7 +91,7 @@ Script
        
 
                         {!! Form::label('data',Lang::get('message.content'),['class'=>'required']) !!}
-                        {!! Form::textarea('script',null,['class'=>'form-control','id'=>'textarea']) !!}
+                        {!! Form::textarea('script',null,['class'=>'form-control'. ($errors->has('script') ? ' is-invalid' : ''),'id'=>'textarea']) !!}
                         @error('script')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
@@ -174,7 +174,7 @@ Script
         };
 
         // Add input event listeners for all fields
-        ['name','publish','type'].forEach(id => {
+        ['name','textarea'].forEach(id => {
 
             document.getElementById(id).addEventListener('input', function () {
                 removeErrorMessage(this);

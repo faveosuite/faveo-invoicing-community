@@ -43,7 +43,7 @@ Create Group
 
                                 <div class='row'>
                                     <div class="col-md-10">
-                                        {!! Form::text('name',null,['class' => 'form-control','id'=>'name']) !!}
+                                        {!! Form::text('name',null,['class' => 'form-control'.($errors->has('name') ? ' is-invalid' : ''),'id'=>'name']) !!}
                                         @error('name')
                                         <span class="error-message"> {{$message}}</span>
                                         @enderror
@@ -66,7 +66,7 @@ Create Group
 
                                 <div class='row'>
                                     <div class="col-md-10">
-                                        {!! Form::text('headline',null,['class' => 'form-control']) !!}
+                                        {!! Form::text('headline',null,['class' => 'form-control'.($errors->has('headline') ? ' is-invalid' : '')]) !!}
                                         @error('headline')
                                         <span class="error-message"> {{$message}}</span>
                                         @enderror
@@ -86,7 +86,7 @@ Create Group
 
                                 <div class='row'>
                                     <div class="col-md-10">
-                                        {!! Form::text('tagline',null,['class' => 'form-control']) !!}
+                                        {!! Form::text('tagline',null,['class' => 'form-control'.($errors->has('tagline') ? ' is-invalid' : '')]) !!}
                                         @error('tagline')
                                         <span class="error-message"> {{$message}}</span>
                                         @enderror
@@ -132,7 +132,7 @@ Create Group
                             <input type="radio" name='pricing_templates_id' value='{{$template->id}}' id='template' style="text-align: center;">
                             {{$template->name}}
 
-                             <br/><br/>
+                             <br/>
                                 <span id="error-message"></span>
                                 @error('pricing_templates_id')
                                 <span class="error-message"> {{$message}}</span>

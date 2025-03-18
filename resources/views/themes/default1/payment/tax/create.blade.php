@@ -25,7 +25,7 @@
                 <div class="form-group {{ $errors->has('level') ? 'has-error' : '' }}">
                     <!-- name -->
                     {!! Form::label('level',Lang::get('message.level'),['class'=>'required']) !!}
-                    {!! Form::text('level',null,['class' => 'form-control']) !!}
+                    {!! Form::text('level',null,['class' => 'form-control'. ($errors->has('level') ? ' is-invalid' : '')]) !!}
 
                 </div>
                 <div class="form-group">
@@ -52,7 +52,7 @@
                     <!-- name -->
                     {!! Form::label('country',Lang::get('message.country')) !!}
                     <?php $countries = \App\Model\Common\Country::pluck('country_name', 'country_code_char2')->toArray(); ?>
-                    {!! Form::select('country',[''=>'Select a Country','Countries'=>$countries],null,['class' => 'form-control','onChange'=>'getState(this.value);']) !!}
+                    {!! Form::select('country',[''=>'Select a Country','Countries'=>$countries],null,['class' => 'form-control'. ($errors->has('country') ? ' is-invalid' : ''),'onChange'=>'getState(this.value);']) !!}
 
                 </div>
                  <div class="form-group {{ $errors->has('state') ? 'has-error' : '' }}">
@@ -60,7 +60,7 @@
                     {!! Form::label('state',Lang::get('message.state')) !!}
                  
 
-                    <select name="state"  class="form-control" id="statess">
+                    <select name="state"  class="form-control {{$errors->has('state') ? ' is-invalid' : ''}}" id="statess">
                         <option name="state">Please Select Country</option>
                     </select>
 
@@ -69,7 +69,7 @@
                 <div class="form-group {{ $errors->has('rate') ? 'has-error' : '' }}">
                     <!-- name -->
                     {!! Form::label('rate',Lang::get('message.rate').' (%)',['class'=>'required']) !!}
-                    {!! Form::text('rate',null,['class' => 'form-control']) !!}
+                    {!! Form::text('rate',null,['class' => 'form-control'. ($errors->has('rate') ? ' is-invalid' : '')]) !!}
 
                 </div>
 

@@ -23,16 +23,10 @@ Social Media
     <div class="col-md-12">
         <div class="card card-secondary card-outline">
 
-
-
-
             <div class="card-body">
                 {!! Form::open(['url'=>'social-media','method'=>'post','id'=>'socialForm']) !!}
 
                 <table class="table table-condensed">
-
-
-
                     <tr>
 
                         <td><b>{!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}</b></td>
@@ -40,14 +34,14 @@ Social Media
                             <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
 
 
-                                {!! Form::text('name',null,['class' => 'form-control','id'=>'name']) !!}
+                                {!! Form::text('name',null,['class' => 'form-control'. ($errors->has('name') ? ' is-invalid' : ''),'id'=>'name']) !!}
                                 <i> {{Lang::get('message.enter-the-name-of-the-social-media')}}</i>
+
+                                <div class="input-group-append">
+                                </div>
                                 @error('name')
                                 <span class="error-message"> {{$message}}</span>
                                 @enderror
-                                <div class="input-group-append">
-                                </div>
-
                             </div>
                         </td>
 
@@ -61,14 +55,16 @@ Social Media
                         <td>
                             <div class="form-group {{ $errors->has('link') ? 'has-error' : '' }}">
 
-                                {!! Form::text('link',null,['class' => 'form-control','id'=>'link','placeholder'=>'https://example.com']) !!}
+                                {!! Form::text('link',null,['class' => 'form-control'. ($errors->has('link') ? ' is-invalid' : ''),'id'=>'link','placeholder'=>'https://example.com']) !!}
                                 <i> {{Lang::get('message.enter-the-link-of-the-social-media')}}</i>
+
+                                <div class="input-group-append">
+                                </div>
                                 @error('link')
                                 <span class="error-message"> {{$message}}</span>
                                 @enderror
-                                <div class="input-group-append">
-                                </div>
                             </div>
+
                         </td>
 
                     </tr>

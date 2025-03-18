@@ -73,17 +73,18 @@
                         <div class="col-md-4 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                             <!-- first name -->
                             {!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}
-                            {!! Form::text('name',null,['class' => 'form-control', 'id' =>'productname']) !!}
-                            <h6 id = "namecheck"></h6>
+                            {!! Form::text('name',null,['class' => 'form-control'.($errors->has('name') ? ' is-invalid' : ''), 'id' =>'productname']) !!}
                             @error('name')
                             <span class="error-message"> {{$message}}</span>
                             @enderror
+                            <h6 id = "namecheck"></h6>
+
                         </div>
 
                         <div class="col-md-4 form-group {{ $errors->has('type') ? 'has-error' : '' }}">
                             <!-- last name -->
                             {!! Form::label('type',Lang::get('message.lic_type'),['class'=>'required']) !!}
-                            {!! Form::select('type',[''=>'Choose','Types'=>$type],null,['class' => 'form-control','id'=>'type']) !!}
+                            {!! Form::select('type',[''=>'Choose','Types'=>$type],null,['class' => 'form-control'.($errors->has('type') ? ' is-invalid' : ''),'id'=>'type']) !!}
                             <div class="input-group-append"></div>
                             @error('type')
                             <span class="error-message"> {{$message}}</span>
@@ -94,7 +95,7 @@
                         <div class="col-md-4 form-group {{ $errors->has('group') ? 'has-error' : '' }}">
                             <!-- last name -->
                             {!! Form::label('group',Lang::get('message.group'),['class'=>'required']) !!}
-                            <select name="group" value= "Choose" class="form-control" id="groups">
+                            <select name="group" value= "Choose" class="form-control {{$errors->has('group') ? ' is-invalid' : ''}}" id="groups">
                                 <option value="">Choose</option>
                                 @foreach($group as $key=>$value)
                                     @if (Request::old('group') == $key)
@@ -147,7 +148,7 @@
                             </script>
 
                             {!! Form::label('price_description', trans('message.price_description'), ['class' => 'required']) !!}
-                            {!! Form::textarea('description', null, ['class' => 'form-control', 'id' => 'textarea1']) !!}
+                            {!! Form::textarea('description', null, ['class' => 'form-control'.($errors->has('description') ? ' is-invalid' : ''), 'id' => 'textarea1']) !!}
                             <h6 id= "descheck"></h6>
                             @error('description')
                             <span class="error-message"> {{$message}}</span>
@@ -163,7 +164,7 @@
                                     <div class="form-group {{ $errors->has('parent') ? 'has-error' : '' }}">
                                         <!-- last name -->
                                         {!! Form::label('sku',Lang::get('message.sku'),['class'=>'required']) !!}
-                                        {!! Form::text('product_sku',null,['class' => 'form-control editor_1','id'=>'product_sku']) !!}
+                                        {!! Form::text('product_sku',null,['class' => 'form-control editor_1'.($errors->has('product_sku') ? ' is-invalid' : ''),'id'=>'product_sku']) !!}
                                         <div class="input-group-append"></div>
                                         @error('product_sku')
                                         <span class="error-message"> {{$message}}</span>
@@ -175,7 +176,7 @@
                                     <div class="form-group {{ $errors->has('parent') ? 'has-error' : '' }}">
                                         <!-- last name -->
                                         {!! Form::label('parent',Lang::get('message.parent')) !!}
-                                        {!! Form::select('parent[]',[''=>'Choose','Products'=>$products],null,['class' => 'form-control']) !!}
+                                        {!! Form::select('parent[]',[''=>'Choose','Products'=>$products],null,['class' => 'form-control'.($errors->has('parent[]') ? ' is-invalid' : '')]) !!}
 
                                     </div>
                                 </li>
@@ -288,9 +289,9 @@
 
 
                             {!! Form::label('product_description', trans('message.product_description'), ['class' => 'required']) !!}
-                            {!! Form::textarea('product_description', null, ['class' => 'form-control', 'id' => 'textarea2']) !!}
+                            {!! Form::textarea('product_description', null, ['class' => 'form-control'.($errors->has('product_description') ? ' is-invalid' : ''), 'id' => 'textarea2']) !!}
                             <h6 id= "descheck"></h6>
-                            @error('producty_description')
+                            @error('product_description')
                             <span class="error-message"> {{$message}}</span>
                             @enderror
                         </div>
@@ -336,8 +337,9 @@
 
                             </td>
                         </tr>
-                        <span id="error-message"></span>
+
                     </table>
+                    <span id="error-message"></span><br/><br/>
 
                     <tr>
                         <td><b>{!! Form::label('tax',Lang::get('message.taxes')) !!}</b></td>
@@ -346,7 +348,7 @@
                                 <div class="row">
                                     <div class="col-md-2" >
 
-                                        <select id="Tax" placeholder="Select Taxes" name="tax[]" style="width:500px;" class="select2" multiple="multiple">
+                                        <select id="Tax" placeholder="Select Taxes" name="tax[]" style="width:500px;" class="select2 " multiple="multiple">
                                             <option></option>
                                             @foreach($taxes as $key => $value)
                                                 <option value={{$key}}>{{$value}}</option>
@@ -462,13 +464,18 @@
                             confirmButtonColor: '#286090'
                         });
                         //alert('Please check the tax page as well.')
-                        $('#error-message').css({"color": "#dc3545", "margin-top": "5px", "font-size": "80%"});
-                        document.getElementById("error-message").textContent = "Please enter type of cart page";
+
                         isValid=false;
                     }else{
 
                         document.getElementById("error-message").textContent = "";
 
+                    }
+
+                    if(!document.querySelector('input[name="show_agent"]:checked')){
+                        $('#error-message').css({"color": "#dc3545", "margin-top": "5px", "font-size": "80%"});
+                        document.getElementById("error-message").textContent = "Please enter type of cart page";
+                        isValid=false;
                     }
 
                     // If validation fails, prevent form submission
