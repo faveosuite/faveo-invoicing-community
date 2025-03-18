@@ -12,8 +12,7 @@ pipeline {
                 // Checkout the code from the pull request branch
 
 
-
-
+                
                 checkout scm
             }
         }
