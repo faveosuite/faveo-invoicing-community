@@ -168,13 +168,15 @@ class MailChimpController extends BaseMailChimpController
             $agoraProducts = Product::pluck('name', 'id')->toArray();
 
             $mailchimpProducts = $this->mailchimp->get("lists/$this->list_id/interest-categories");
+            if (empty($mailchimpProducts['categories'])) {
+                return redirect()->back()->with('fails', \Lang::get('message.mailchimp_group_error'));
+            }
             $selectedProducts = MailchimpGroupAgoraRelation::select('agora_product_id', 'mailchimp_group_cat_id')->orderBy('id', 'asc')->get()->toArray();
             $allGroups = $this->mailchimp->get("lists/$this->list_id/interest-categories"); //Get all the groups(interest-categories for a list)
             $display = [];
             foreach ($allGroups['categories']  as $key => $value) {
                 $display[] = ['id' => $value->id, 'title' => $value->title];
             }
-
             $this->addProductInterestFieldsToAgora(); //add all the fields in Product Section of Groups to the db
             $group_fields = $this->groups->where('list_id', $this->list_id)
           ->select('category_name', 'category_option_id', 'category_id')->get()->toArray();

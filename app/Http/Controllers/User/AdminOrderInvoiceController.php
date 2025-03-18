@@ -188,6 +188,7 @@ class AdminOrderInvoiceController extends Controller
                             return $orderLink;
                         })
                          ->addColumn('version', function ($model) {
+                             return $model->product_version;
                              $installedVersions = InstallationDetail::where('order_id', $model->id)->pluck('version')->toArray();
                              if (count($installedVersions)) {
                                  $latest = max($installedVersions);

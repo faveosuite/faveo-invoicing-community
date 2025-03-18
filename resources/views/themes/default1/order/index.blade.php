@@ -401,6 +401,7 @@ Orders
               },
                 dataFilter: function(data) {
                     var json = jQuery.parseJSON(data);
+
                     if (json.data.length === 0) {
                         $('#order_export-report-btn').hide(); // Hide export button
                     } else {
