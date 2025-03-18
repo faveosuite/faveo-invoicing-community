@@ -334,4 +334,33 @@ class PaymentSettingsController extends Controller
 
         return redirect()->back()->with('success', 'Deleted Successfully');
     }
+
+    public function updatePaymentStatus(Request $request)
+    {
+        $plugs=new Plugin();
+        $name = $request->input('name');
+        $status = $request->input('status');
+        $plug = $plugs->where('name', $name)->first();
+        $app = base_path().DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'app.php';
+        $str = "\n'App\\Plugins\\$name"."\\ServiceProvider',";
+        $line_i_am_looking_for = 102;
+        $lines = file($app, FILE_IGNORE_NEW_LINES);
+        $lines[$line_i_am_looking_for] = $str;
+        if (! $plug) {
+            file_put_contents($app, implode("\n", $lines));
+            $plugs->create(['name' => $name, 'path' => $name, 'status' => 1]);
+            return successResponse(\Lang::get('message.status_change'));
+        }
+            if ($status) {
+                $plug->status = 1;
+                file_put_contents($app, implode("\n", $lines));
+            } else {
+                $plug->status = 0;
+                $file_contents = file_get_contents($app);
+                $file_contents = str_replace($str, '//', $file_contents);
+                file_put_contents($app, $file_contents);
+            }
+        $plug->save();
+        return successResponse(\Lang::get('message.status_change'));
+    }
 }

@@ -299,10 +299,12 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
 
                                 <input class="form-control h-100" type="text" id="email_otp" name="email_otp" placeholder="{{ __('message.otp_placeholder') }}"/>
                                 <p class="mt-3">{{ __('message.email_otp_description') }}</p>
+                                @if($setting->v3_v2_recaptcha_status)
                                 @if ($setting->recaptcha_status === 1)
                                     <div id="recaptchaEmail"></div>
                                 @elseif($setting->v3_recaptcha_status === 1)
                                     <input type="hidden" id="g-recaptcha-email" class="g-recaptcha-token" name="g-recaptcha-response">
+                                @endif
                                 @endif
                                 <div class="col-12 mt-4">
                                     <div class="row">

@@ -70,6 +70,9 @@ class ThirdPartyAppController extends Controller
                 $sql = 'app_secret like ?';
                 $query->whereRaw($sql, ["%{$keyword}%"]);
             })
+                ->editColumn('app_secret', function ($user) {
+                    return '*****';
+                })
             ->rawColumns(['checkbox', 'app_name', 'app_key', 'app_secret', 'action'])
             ->make(true);
         } catch (\Exception $ex) {

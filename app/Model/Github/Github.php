@@ -18,6 +18,7 @@ class Github extends BaseModel
 
     public function getPasswordAttribute($value)
     {
+
         if ($value) {
             $value = \Crypt::decrypt($value);
         }

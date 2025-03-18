@@ -10,7 +10,9 @@ use App\Model\Common\StatusSetting;
 use Aws\Exception\AwsException;
 use Aws\S3\S3Client;
 use DateTime;
+use DrewM\MailChimp\MailChimp;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 //////////////////////////////////////////////////////////////
 //TRAIT FOR SAVING API STATUS AND API KEYS //
@@ -18,6 +20,7 @@ use Illuminate\Http\Request;
 
 trait ApiKeySettings
 {
+
     public function licenseDetails(Request $request)
     {
         $status = $request->input('status');
@@ -26,12 +29,75 @@ trait ApiKeySettings
         $licenseApiClientId = $request->input('license_client_id');
         $licenseApiClientSecret = $request->input('license_client_secret');
         $licenseApiGrantType = $request->input('license_grant_type');
+
+        $data = [
+            'api_key_secret' => $licenseApiSecret,
+            'client_id' => $licenseApiClientId,
+            'client_secret' => $licenseApiClientSecret,
+            'grant_type' => $licenseApiGrantType,
+        ];
+
+
+        try {
+            $response = Http::withoutVerifying()->asForm()->post($licenseApiUrl.'oauth/token', $data);
+            $response = json_decode($response);
+            $token = $response->access_token;
+        }catch(\Exception $e){
+            return errorResponse(\Lang::get('message.license_invalid'));
+
+        }
         StatusSetting::where('id', 1)->update(['license_status' => $status]);
         ApiKey::where('id', 1)->update(['license_api_secret' => $licenseApiSecret, 'license_api_url' => $licenseApiUrl,
             'license_client_id' => $licenseApiClientId, 'license_client_secret' => $licenseApiClientSecret,
             'license_grant_type' => $licenseApiGrantType, ]);
+        return successResponse(\Lang::get('message.license_setting'));
 
-        return ['message' => 'success', 'update' => 'Licensing settings saved'];
+    }
+
+
+    public function licenseStatus(Request $request)
+    {
+        $statusData = collect([
+            'status'             => ['key' => 'license_status',       'lang' => __('message.license_status')],
+            'mstatus'            => ['key' => 'msg91_status',         'lang' => __('message.mobile_status')],
+            'mailchimpstatus'    => ['key' => 'mailchimp_status',     'lang' => __('message.mailchimp_status')],
+            'gcaptchastatus'     => ['key' => 'v3_v2_recaptcha_status','lang' => __('message.google_status')],
+            'termsStatus'         => ['key' => 'terms',                'lang' => __('message.terms_status')],
+            'pipedrivestatus'   => ['key' => 'pipedrive_status',     'lang' => __('message.pipedrive_status')],
+            'githubstatus'       => ['key' => 'github_status',        'lang' => __('message.github_status')],
+        ]);
+
+        try {
+            $input = $request->all();
+
+            // Find the first matching status key
+            $statusEntry = $statusData->first(function ($value, $inputKey) use ($input) {
+                return array_key_exists($inputKey, $input);
+            });
+
+            if (!$statusEntry) {
+                return errorResponse(\Lang::get('message.invalid_key'));
+            }
+
+
+            $inputKey = array_key_first(array_intersect_key($input, $statusData->toArray()));
+            $statusValue = $input[$inputKey];
+
+            StatusSetting::where('id', 1)->update([
+                $statusEntry['key'] => $statusValue
+            ]);
+
+            return successResponse($statusEntry['lang']);
+
+        } catch (\Exception $e) {
+            return errorResponse(\Lang::get('message.invalid_key'));
+        }
+    }
+
+
+    public function mobileStatus(Request $request)
+    {
+        $status = $request->input('status');
     }
 
     //Save Auto Update status in Database
@@ -51,13 +117,15 @@ trait ApiKeySettings
      */
     public function updatemobileDetails(Request $request)
     {
+        $authKey = $request->input('msg91_auth_key');
+        $templateId = $request->input('msg91_template_id');
         $status = $request->input('status');
         $key = $request->input('msg91_auth_key');
         $thirdPartyId = $request->input('thirdPartyId');
         StatusSetting::find(1)->update(['msg91_status' => $status]);
-        ApiKey::find(1)->update(['msg91_auth_key' => $key, 'msg91_sender' => $request->input('msg91_sender'), 'msg91_template_id' => $request->input('msg91_template_id'), 'msg91_third_party_id' => $thirdPartyId]);
 
-        return ['message' => 'success', 'update' => 'Msg91 settings saved'];
+        ApiKey::find(1)->update(['msg91_auth_key' => $key, 'msg91_sender' => $request->input('msg91_sender'), 'msg91_template_id' => $request->input('msg91_template_id'), 'msg91_third_party_id' => $thirdPartyId]);
+        return successResponse(\Lang::get('message.mobile_setting'));
     }
 
     /*
@@ -70,7 +138,7 @@ trait ApiKeySettings
         StatusSetting::find(1)->update(['zoho_status' => $status]);
         ApiKey::find(1)->update(['zoho_api_key' => $key]);
 
-        return ['message' => 'success', 'update' => 'Zoho settings saved'];
+        return ['message' => 'success', 'update' => \Lang::get('message.zoho_status')];
     }
 
     /*
@@ -81,7 +149,7 @@ trait ApiKeySettings
         $status = $request->input('status');
         StatusSetting::find(1)->update(['emailverification_status' => $status]);
 
-        return ['message' => 'success', 'update' => 'Email verification status saved'];
+        return ['message' => 'success', 'update' => \Lang::get('message.email_setting')];
     }
 
     /*
@@ -108,15 +176,37 @@ trait ApiKeySettings
         StatusSetting::find(1)->update(['twitter_status' => $status]);
         ApiKey::find(1)->update(['twitter_consumer_key' => $consumer_key, 'twitter_consumer_secret' => $consumer_secret, 'twitter_access_token' => $access_token, 'access_tooken_secret' => $token_secret]);
 
-        return ['message' => 'success', 'update' => 'Twitter settings saved'];
+        return ['message' => 'success', 'update' => \Lang::get('message.twitter_setting')];
     }
 
     public function updatepipedriveDetails(Request $request)
     {
-        $pipedriveKey = $request->input('pipedrive_key');
-        $status = $request->input('status');
-        StatusSetting::find(1)->update(['pipedrive_status' => $status]);
-        ApiKey::find(1)->update(['pipedrive_api_key' => $pipedriveKey]);
+        try {
+            $pipedriveKey = $request->input('pipedrive_key');
+
+            $response = Http::get("https://api.pipedrive.com/v1/users/me", [
+                'api_token' => $pipedriveKey
+            ]);
+            if (!$response->successful()) {
+                return errorResponse(\Lang::get('message.pipedrive_error'));
+
+            }
+
+            $result = json_decode($response, true);
+            if (isset($result['success']) && $result['success'] !== true) {
+                return errorResponse(\Lang::get('message.pipedrive_error'));
+
+            }
+            $status = $request->input('status');
+            StatusSetting::find(1)->update(['pipedrive_status' => $status]);
+            ApiKey::find(1)->update(['pipedrive_api_key' => $pipedriveKey]);
+
+            return successResponse(\Lang::get('message.pipedrive_setting'));
+
+        }catch (\Exception $exception){
+            return errorResponse(\Lang::get('message.pipedrive_error'));
+
+        }
     }
 
     public function updateMailchimpProductStatus(Request $request)
@@ -135,22 +225,58 @@ trait ApiKeySettings
 
     public function updateMailchimpDetails(Request $request)
     {
-        $chimp_auth_key = $request->input('mailchimp_auth_key');
-        $status = $request->input('status');
-        StatusSetting::find(1)->update(['mailchimp_status' => $status]);
-        MailchimpSetting::find(1)->update(['api_key' => $chimp_auth_key]);
+        try {
+            $chimp_auth_key = $request->input('mailchimp_auth_key');
 
-        return ['message' => 'success', 'update' => 'Mailchimp settings saved'];
+            $dc = substr($chimp_auth_key, strpos($chimp_auth_key, '-') + 1);
+            // Mailchimp API URL
+            $url = "https://{$dc}.api.mailchimp.com/3.0/";
+            // Make an API request
+            $response = Http::withBasicAuth('anystring', $chimp_auth_key)->get($url);
+            if ($response->successful()) {
+                $status = $request->input('status');
+                StatusSetting::find(1)->update(['mailchimp_status' => $status]);
+                MailchimpSetting::find(1)->update(['api_key' => $chimp_auth_key]);
+                $mailchimpverifiedStatus = 1;
+
+                $mailchimp_set = new MailchimpSetting();
+                $set = $mailchimp_set->firstOrFail();
+                $mail_api_key = $set->api_key;
+                $mailchimp = new \Mailchimp\Mailchimp($mail_api_key);
+                $allists = $mailchimp->get('lists?count=20')['lists'];
+                $selectedList[] = $set->list_id;
+                $subscribe_status = MailchimpSetting::pluck('subscribe_status')->first();
+                $data=['mailchimpverifiedStatus' => $mailchimpverifiedStatus,
+                    'status' => $status,
+                    'allLists' => $allists,
+                    'selectedList' => $selectedList,
+                    'subscribe_status' => $subscribe_status,];
+                return successResponse(\Lang::get('message.mailchimp_setting'),$data);
+
+            }
+                return errorResponse(\Lang::get('message.mailchimp_apikey_error'));
+
+        } catch(\Exception $e) {
+            return errorResponse(\Lang::get('message.mailchimp_apikey_error'));
+        }
     }
 
     public function updateTermsDetails(Request $request)
     {
         $terms_url = $request->input('terms_url');
-        $status = (int) $request->input('status');
-        StatusSetting::find(1)->update(['terms' => $status]);
-        ApiKey::find(1)->update(['terms_url' => $terms_url]);
+        try {
+            $response = Http::get($terms_url);
 
-        return ['message' => 'success', 'update' => 'Terms url saved'];
+            if ($response == false) {
+                return errorResponse(\Lang::get('message.terms_error'));
+            }
+            $status = (int)$request->input('status');
+            StatusSetting::find(1)->update(['terms' => $status]);
+            ApiKey::find(1)->update(['terms_url' => $terms_url]);
+            return successResponse(\Lang::get('message.terms_setting'));
+        }catch (\Exception $e) {
+            return errorResponse(\Lang::get('message.terms_error'));
+        }
     }
 
     /**

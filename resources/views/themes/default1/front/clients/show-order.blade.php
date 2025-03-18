@@ -175,7 +175,6 @@
 <?php
 
 $cartSubtotalWithoutCondition = 0;
-
 use Razorpay\Api\Api;
 $merchant_orderid= generateMerchantRandomString();
 
@@ -195,6 +194,7 @@ $stripe_key = app\ApiKey::where('id', 1)->value('stripe_key');
 $api = new Api($rzp_key, $rzp_secret);
 $displayCurrency = getCurrencyForClient(\Auth::user()->country);
 $symbol = getCurrencyForClient(\Auth::user()->country);
+
 if ($symbol == 'INR'){
 
 
@@ -223,16 +223,13 @@ if ($symbol == 'INR'){
 
     ];
 }
+
 $razorpayOrder = $api->order->create($orderData);
 $razorpayOrderId = $razorpayOrder['id'];
 $_SESSION['razorpay_order_id'] = $razorpayOrderId;
 $displayAmount = $amount = $orderData['amount'];
 
-
-
 $data = [
-
-
     "key"               => $rzp_key,
     "name"              => 'Faveo Helpdesk',
     "currency"          => 'INR',
@@ -254,9 +251,6 @@ $data = [
         "Currency"          => \Auth::user()->currency,
         "Amount Paid"   => '1',
         "Exchange Rate"   =>  $exchangeRate,
-
-
-
         "merchant_order_id" =>  $merchant_orderid,
     ],
     "theme"             => [
@@ -264,7 +258,6 @@ $data = [
     ],
     "order_id"          => $razorpayOrderId,
 ];
-
 if ($displayCurrency !== 'INR')
 {
     $data['display_currency']  = 'USD';
@@ -277,10 +270,8 @@ $json = json_encode($data);
 $currency = \Auth::user()->currency;
 
 
-
 $gateways = \App\Http\Controllers\Common\SettingsController::checkPaymentGateway(getCurrencyForClient(\Auth::user()->country));
 // $processingFee = \DB::table(strtolower($gateways))->where('currencies',\Auth::user()->currency)->value('processing_fee');
-
 $planid = \App\Model\Payment\Plan::where('product',$product->id)->value('id');
 $price = $order->price_override;
 

@@ -62,16 +62,16 @@ Create Widget
                 
                 ?>
 
-
-
-                    <div class="col-md-4 form-group {{ $errors->has('allow_tweets') ? 'has-error' : '' }}">
-                        <!-- last name -->
-                        {!! html()->label(Lang::get('message.allow_tweets'))->class('required')->for('allow_tweets') !!}
-                        {!! html()->select('allow_tweets', [1 => 'Yes', 0 => 'No'])->class('form-control'. ($errors->has('allow_tweets') ? ' is-invalid' : ''))->attributes(($twitterStatus) ? [] : $twitter) !!}
-                        @error('allow_tweets')
-                        <span class="error-message"> {{$message}}</span>
-                        @enderror
-                    </div>
+                    
+                  
+{{--                    <div class="col-md-4 form-group {{ $errors->has('allow_tweets') ? 'has-error' : '' }}">--}}
+{{--                        <!-- last name -->--}}
+{{--                        {!! Form::label('allow_tweets',Lang::get('message.allow_tweets'),['class'=>'required']) !!}--}}
+{{--                        {!! Form::select('allow_tweets',[1=>'Yes',0=>'No'],null,($twitterStatus) ? ['class' => 'form-control'. ($errors->has('allow_tweets') ? ' is-invalid' : '')] : $twitter) !!}--}}
+{{--                        @error('allow_tweets')--}}
+{{--                        <span class="error-message"> {{$message}}</span>--}}
+{{--                        @enderror--}}
+{{--                    </div>--}}
                   
         
 
@@ -110,7 +110,7 @@ Create Widget
 
                     </div>
 
-
+                   
 
 
                 </div>
@@ -149,6 +149,7 @@ Create Widget
 
 
                         {!! html()->label(Lang::get('message.content'))->for('content') !!}
+                        {!! html()->textarea('content')->class('form-control'. ($errors->has('content') ? ' is-invalid' : ''))->id('textarea') !!}
                         @error('content')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
