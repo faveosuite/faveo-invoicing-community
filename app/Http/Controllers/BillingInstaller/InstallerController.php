@@ -14,6 +14,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
@@ -36,7 +37,6 @@ class InstallerController extends Controller
         ]);
         Session::put(array_merge($inputs, ['default' => 'mysql', 'db_ssl_key' => $inputs['db_ssl_key'] ?? null, 'db_ssl_cert' => $inputs['db_ssl_cert'] ?? null, 'db_ssl_ca' => $inputs['db_ssl_ca'] ?? null, 'db_ssl_verify' => $inputs['db_ssl_verify'] ?? null]));
 
-//        return response()->json((new DatabaseSetupController())->testResult());
         return Redirect::route('database');
     }
 
@@ -351,15 +351,18 @@ class InstallerController extends Controller
     public function getLang()
     {
         $language = Cache::get('language', config('app.locale'));
-        $lang = Lang::get('installer_messages', [], $language);
-
-        return successResponse('', $lang);
+        $lang = Lang::get("installer_messages", [], $language);
+        $currentLang = $language;
+        return successResponse('', [
+            'lang' => $lang,
+            'currentLang' => $currentLang,
+        ]);
     }
 
     public function languageList(Request $request)
     {
         try {
-            $languageList = array_map('basename', \Illuminate\Support\Facades\File::directories(lang_path()));
+            $languageList = array_map('basename', File::directories(lang_path()));
             $languages = [];
 
             foreach ($languageList as $key => $langLocale) {
@@ -386,7 +389,7 @@ class InstallerController extends Controller
             $language = $request->input('language');
             if (! Auth::check()) {
                 Session::put('language', $language);
-                Cache::put('language', $language);
+                Cache::forever('language', $language);
 
                 return successResponse('Language set successfully');
             }
@@ -401,19 +404,6 @@ class InstallerController extends Controller
 
             return errorResponse('error could not change the language');
         }
-    }
-
-    public function getCurrentLang()
-    {
-        if (Auth::check() && Auth::user()->language) {
-            $language = Auth::user()->language;
-        } elseif (Session::has('language')) {
-            $language = Session::get('language');
-        } else {
-            $language = 'en';
-        }
-
-        return successResponse('', ['language' => $language]);
     }
 
     public function dbsetup(Request $request)

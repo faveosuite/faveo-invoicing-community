@@ -145,5 +145,15 @@ return [
     'enter_license' => 'Please enter your License Code for',
     'find_license_in_billing' => 'You can find your license code in our billing portal  ',
     'close' => 'Close',
+    'port_number' => 'Port Number',
+    'is_required' => 'is required',
+    'firstname' => 'Firstname',
+    'lastname' => 'Lastname',
+    'lastname' => 'Lastname',
+    'username' => 'Username',
+    'username' => 'Username',
+    'email' => 'Email',
+    'password' => 'Password',
+    'confirm_password' => 'Confirm Password',
 
 ];

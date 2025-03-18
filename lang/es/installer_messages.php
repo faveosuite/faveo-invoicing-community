@@ -16,7 +16,7 @@ return [
     'php_extensions' => 'Extensiones de PHP',
     'not_enabled' => 'No habilitado',
     'extension_not_enabled' => 'No habilitado: Para habilitar esto, instale la extensión en su servidor y actualice :php_ini_file para habilitar :extensionName. <a href=":url" target="_blank">¿Cómo instalar extensiones de PHP en mi servidor?</a>',
-    'mod_rewrite' => 'Mod Rewrite',
+    'mod_rewrite' => 'Reescritura de mods',
     'off_apache' => 'APAGADO (Si está usando Apache, asegúrese de que <var><strong>AllowOverride</strong></var> esté configurado como <var><strong>All</strong></var> en la configuración de Apache)',
     'rewrite_engine' => 'Motor de Reescritura',
     'user_url' => 'URL amigable para el usuario',
@@ -149,4 +149,13 @@ return [
     'sign_up_as_admin' => 'Regístrate como Administrador',
     'system_information' => 'Información del sistema',
     'close' => 'Cerrar',
+    'port_number' => 'Número de puerto',
+    'is_required' => 'es obligatorio',
+    'firstname' => 'Nombre',
+    'lastname' => 'Apellido',
+    'username' => 'Nombre de usuario',
+    'email' => 'Correo electrónico',
+    'password' => 'Contraseña',
+    'confirm_password' => 'Confirmar contraseña',
+
 ];

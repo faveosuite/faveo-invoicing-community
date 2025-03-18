@@ -8,18 +8,37 @@
     <title>{{ __('installer_messages.title') }}</title>
 
     <link rel="shortcut icon" href="{{ asset('images/faveo.png') }}" type="image/x-icon" />
-    <link href="{{ asset('admin/css-1/all.min.css') }}" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('admin/css-1/flag-icons.min.css') }}" rel="stylesheet" type="text/css" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link href="client/css/._fontawesome-all.min.css" rel="stylesheet" type="text/css" />
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
 
-    @if(app()->getLocale()=='ar')
-        <link href="{{ asset('admin/css-1/probe-rtl.css') }}" rel="stylesheet" type="text/css" />
-        <link href="{{ asset('admin/css-1/adminlte-rtl.css') }}" rel="stylesheet" type="text/css" />
-        <link href="{{ asset('admin/css-1/bs-stepper-rtl.css') }}" rel="stylesheet" type="text/css" />
-    @else
-        <link href="{{ asset('admin/css-1/adminlte.min.css') }}" rel="stylesheet" type="text/css" />
-        <link href="{{ asset('admin/css-1/bs-stepper.css') }}" rel="stylesheet" type="text/css" />
-        <link href="{{ asset('admin/css-1/probe.css') }}" rel="stylesheet" type="text/css" />
-    @endif
+    <?php
+    $css_files = [
+        ['file' => './admin/css-1/all.min.css'],
+        ['file' => './admin/css-1/flag-icons.min.css'],
+        ['file' => './admin/css-1/probe.css', 'id' => 'default-styles-1'],
+    ];
+
+    $rtl = [
+        ['file' => './admin/css-1/adminlte-rtl.css', 'id' => 'rtl-styles'],
+        ['file' => './admin/css-1/bs-stepper-rtl.css', 'id' => 'rtl-styles-2'],
+        ['file' => './admin/css-1/probe-rtl.css', 'id' => 'rtl-styles-1'],
+    ];
+
+    $ltr = [
+        ['file' => './admin/css-1/adminlte.min.css', 'id' => 'default-styles'],
+        ['file' => './admin/css-1/bs-stepper-rtl.css', 'id' => 'rtl-styles-2'], // Seems incorrect (should be 'bs-stepper.css'?)
+        ['file' => './admin/css-1/probe.css', 'id' => 'default-styles-1'],
+    ];
+    $locale = app()->getLocale();
+    $selected_files = ($locale == 'ar') ? array_merge($css_files, $rtl) : array_merge($css_files, $ltr);
+
+    // Output styles
+    foreach ($selected_files as $css) {
+        $id = isset($css['id']) ? ' id="' . $css['id'] . '"' : '';
+        echo '<link rel="stylesheet" href="' . $css['file'] . '"' . $id . '>' . PHP_EOL;
+    }
+    ?>
 
 </head>
 
@@ -42,8 +61,34 @@
             <ul class="order-1 order-md-3 navbar-nav navbar-no-expand ml-auto">
                 <li class="nav-item dropdown">
                     <a class="nav-link" id="languageButton" data-bs-toggle="dropdown" href="#" aria-expanded="false">
-                        <i id="flagIcon" class="flag-icon flag-icon-us"></i>
-                    </a>
+                        <a class="nav-link" id="languageButton" data-bs-toggle="dropdown" href="#" aria-expanded="false">
+                            <?php
+                            $localeMap = [
+                                'ar' => 'ae',
+                                'bsn' => 'bs',
+                                'de' => 'de',
+                                'en' => 'us',
+                                'en-gb' => 'gb',
+                                'es' => 'es',
+                                'fr' => 'fr',
+                                'id' => 'id',
+                                'it' => 'it',
+                                'kr' => 'kr',
+                                'mt' => 'mt',
+                                'nl' => 'nl',
+                                'no' => 'no',
+                                'pt' => 'pt',
+                                'ru' => 'ru',
+                                'vi' => 'vn',
+                                'zh-hans' => 'cn',
+                                'zh-hant' => 'cn'
+                            ];
+
+                            $currentLanguage = app()->getLocale();
+                            $flagClass = 'flag-icon flag-icon-' . $localeMap[$currentLanguage];
+                            ?>
+                            <i id="flagIcon" class="<?= $flagClass ?>"></i>
+                        </a>
                     <div class="dropdown-menu dropdown-menu-right p-0" style="left: inherit; right: 0px;" id="language-dropdown">
                         <!-- Language options will be populated here -->
                     </div>
@@ -52,7 +97,6 @@
         </div>
     </nav>
 
-{{--    Steppers--}}
     <div class="content-wrapper" style="min-height: 950px !important;">
 
         <div class="container pt-3 pb-3">
@@ -127,8 +171,6 @@
 
 {{--handle api--}}
 <script type="module">
-    // var body = document.body;
-    // var currentDir = body.getAttribute('dir');
 
     function mapEndpointToValue(endpoint) {
         const manualMappings = {
@@ -190,7 +232,7 @@
                     const isSelected = value.locale === '{{ app()->getLocale() }}' ? 'selected' : '';
                     $('#language-dropdown').append(
                         '<a href="javascript:;" class="dropdown-item" data-locale="' + value.locale + '" ' + isSelected + '>' +
-                        '<i class="flag-icon flag-icon-' + mappedLocale + ' mr-2"></i> ' + value.name +
+                        '<i class="flag-icon flag-icon-' + mappedLocale + ' mr-2"></i> ' + value.name + ' (' + value.translation + ')' +
                         '</a>'
                     );
                 });
@@ -202,7 +244,7 @@
                     const flagClass = 'flag-icon flag-icon-' + mappedLocale;
                     const dir = selectedLanguage === 'ar' ? 'rtl' : 'ltr';
 
-                    updateLanguage(selectedLanguage, flagClass, dir);
+                    updateLanguage(selectedLanguage, flagClass);
                 });
             },
             error: function(error) {
@@ -210,24 +252,8 @@
             }
         });
 
-        $.ajax({
-            url: '<?php echo getUrl() ?>/current-language',
-            type: 'GET',
-            dataType: 'JSON',
-            success: function(response) {
-                const localeMap = { 'ar': 'ae', 'bsn': 'bs', 'de': 'de', 'en': 'us', 'en-gb': 'gb', 'es': 'es', 'fr': 'fr', 'id': 'id', 'it': 'it', 'kr': 'kr', 'mt': 'mt', 'nl': 'nl', 'no': 'no', 'pt': 'pt', 'ru': 'ru', 'vi': 'vn', 'zh-hans': 'cn', 'zh-hant': 'cn' };
-                const currentLanguage = response.data.language;
-                const flagClass = 'flag-icon flag-icon-' + localeMap[currentLanguage];
-                $('#flagIcon').attr('class', flagClass);
-                const dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
-
-                document.body.setAttribute('dir', dir);
-
-                $('head').append('<meta name="csrf-token" content="{{ csrf_token() }}">');
-                if (currentLanguage === 'ar') {
-                    {{--$('head').append('<link href="{{ asset('admin/css-1/probe-rtl.css') }}" rel="stylesheet" type="text/css" />');--}}
-                    {{--$('head').append('<link href="{{ asset('admin/css-1/adminlte-rtl.css') }}" rel="stylesheet" type="text/css" />');--}}
-                    {{--$('head').append('<link href="{{ asset('admin/css-1/bs-stepper-rtl.css') }}" rel="stylesheet" type="text/css" />');--}}
+        const currentLanguage = '{{ app()->getLocale() }}';
+        if (currentLanguage === 'ar') {
                     const arrowElements = document.getElementsByClassName('fas fa-arrow-right');
                     for (let i = 0; i < arrowElements.length; i++) {
                         arrowElements[i].className = 'fas fa-arrow-left';
@@ -241,9 +267,6 @@
                     setClassName(document.getElementsByClassName('continue'), 'fas fa-arrow-left');
                     setClassName(document.getElementsByClassName('previous'), 'fas fa-arrow-right');
                 } else {
-                    {{--$('head').append('<link href="{{ asset('admin/css-1/adminlte.min.css') }}" rel="stylesheet" type="text/css" />');--}}
-                    {{--$('head').append('<link href="{{ asset('admin/css-1/bs-stepper.css') }}" rel="stylesheet" type="text/css" />');--}}
-                    {{--$('head').append('<link href="{{ asset('admin/css-1/probe.css') }}" rel="stylesheet" type="text/css" />');--}}
                     const arrowElements = document.getElementsByClassName('fas fa-arrow-left');
                     for (let i = 0; i < arrowElements.length; i++) {
                         arrowElements[i].className = 'fas fa-arrow-right';
@@ -260,11 +283,11 @@
                         progressElement.style.marginRight = '25px !important';
                         progressElement.style.width = '95%';
                     } else if (currentLanguage === 'zh-hant' || currentLanguage === 'zh-hans' || currentLanguage === 'kr') {
-                        progressElement.style.marginLeft = '28px';
-                        progressElement.style.width = '96%';
+                        progressElement.style.marginLeft = '54px';
+                        progressElement.style.width = '93%';
                     } else if (currentLanguage === 'no') {
                         progressElement.style.marginLeft = '60px';
-                        progressElement.style.width = '96%';
+                        progressElement.style.width = '94%';
                     }else{
                         progressElement.style.width = '91%';
                     }
@@ -273,16 +296,10 @@
                     setClassName(document.getElementsByClassName('previous'), 'fas fa-arrow-left');
 
                 }
-            },
-            error: function(error) {
-                console.error('Error fetching current language:', error);
-            }
-        });
     });
 
-    function updateLanguage(language, flagClass, dir) {
+    function updateLanguage(language, flagClass) {
         $('#flagIcon').attr('class', flagClass);
-        // $('body').attr('dir', dir);
         $.ajax({
             url: '<?php echo getUrl() ?>/update/language',
             type: 'POST',

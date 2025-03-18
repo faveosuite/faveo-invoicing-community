@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('language')->after('timezone_id');
+            $table->string('language')->after('timezone_id')->default('en');
         });
     }
 

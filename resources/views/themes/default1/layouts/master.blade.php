@@ -65,70 +65,6 @@
                 }
             });
 
-            const languageDropdown = document.getElementById('language-dropdown');
-
-            $.ajax({
-                url: '{{url('/current-language')}}',
-                type: 'GET',
-                dataType: 'JSON',
-                success: function(response) {
-                    const localeMap = { 'ar': 'ae', 'bsn': 'bs', 'de': 'de', 'en': 'us', 'en-gb': 'gb', 'es': 'es', 'fr': 'fr', 'id': 'id', 'it': 'it', 'kr': 'kr', 'mt': 'mt', 'nl': 'nl', 'no': 'no', 'pt': 'pt', 'ru': 'ru', 'vi': 'vn', 'zh-hans': 'cn', 'zh-hant': 'cn' };
-                    const currentLanguage = response.data.language;
-                    const flagClass = 'flag-icon flag-icon-' + localeMap[currentLanguage];
-                    $('#flagIcon').attr('class', flagClass);
-                },
-                error: function(error) {
-                    console.error('Error fetching current language:', error);
-                }
-            });
-
-            $.ajax({
-                url: '{{url('/language/settings')}}',
-                type: 'GET',
-                success: function(response) {
-                    const localeMap = { 'ar': 'ae', 'bsn': 'bs', 'de': 'de', 'en': 'us', 'en-gb': 'gb', 'es': 'es', 'fr': 'fr', 'id': 'id', 'it': 'it', 'kr': 'kr', 'mt': 'mt', 'nl': 'nl', 'no': 'no', 'pt': 'pt', 'ru': 'ru', 'vi': 'vn', 'zh-hans': 'cn', 'zh-hant': 'cn' };
-                    $.each(response.data, function(key, value) {
-                        const mappedLocale = localeMap[value.locale] || value.locale;
-                        const isSelected = value.locale === '{{ app()->getLocale() }}' ? 'selected' : '';
-                        $('#language-dropdown').append(
-                            '<a href="javascript:;" class="dropdown-item" onclick="updateLanguage(\'' + value.locale + '\')" data-locale="' + value.locale + '" ' + isSelected + '>' +
-                            '<i class="flag-icon flag-icon-' + (mappedLocale || 'us') + ' mr-2"></i> ' + value.name +
-                            '</a>'
-                        );
-                    });
-
-                    // // Add event listeners for the dynamically added language options
-                    // $(document).on('click', '.dropdown-item', function() {
-                    //     const selectedLanguage = $(this).data('locale');
-                    //     const mappedLocale = localeMap[selectedLanguage] || selectedLanguage;
-                    //     const flagClass = 'flag-icon flag-icon-' + mappedLocale;
-                    //
-                    //     updateLanguage(selectedLanguage, flagClass);
-                    // });
-                },
-                error: function(error) {
-                    console.error('Error fetching languages:', error);
-                }
-            });
-
-            // const flagIcon = document.getElementById('flagIcon');
-
-            function updateLanguage(language, flagClass = '') {
-                $.ajax({
-                    url: '{{ url('/update/language') }}',
-                    type: 'POST',
-                    data: { language: language },
-                    success: function(response) {
-                        window.location.reload();
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Error updating language:', xhr.responseText);
-                    }
-                });
-            }
-
-
-
         </script>
         <!-- AdminLTE Skins. Choose a skin from the css/skins
              folder instead of downloading all of them to reduce the load. -->
@@ -226,7 +162,32 @@
 
                 <li class="nav-item dropdown">
                     <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="false">
-                        <i id="flagIcon" class="flag-icon flag-icon-us"></i>
+                        <?php
+                        $localeMap = [
+                            'ar' => 'ae',
+                            'bsn' => 'bs',
+                            'de' => 'de',
+                            'en' => 'us',
+                            'en-gb' => 'gb',
+                            'es' => 'es',
+                            'fr' => 'fr',
+                            'id' => 'id',
+                            'it' => 'it',
+                            'kr' => 'kr',
+                            'mt' => 'mt',
+                            'nl' => 'nl',
+                            'no' => 'no',
+                            'pt' => 'pt',
+                            'ru' => 'ru',
+                            'vi' => 'vn',
+                            'zh-hans' => 'cn',
+                            'zh-hant' => 'cn'
+                        ];
+
+                        $currentLanguage = app()->getLocale();
+                        $flagClass = 'flag-icon flag-icon-' . $localeMap[$currentLanguage];
+                        ?>
+                        <i id="flagIcon" class="<?= $flagClass ?>"></i>
                     </a>
                     <div class="dropdown-menu dropdown-menu-right p-0" style="left: inherit; right: 0px;" id="language-dropdown">
                         <!-- Language options will be populated here -->
@@ -708,7 +669,57 @@ $("document").ready(function(){
                 icon.classList.toggle('fa-eye', isPassword);
             }
             //handle language api
-            // var body = document.body;
+            const flagIcon = document.getElementById('flagIcon');
+            const languageDropdown = document.getElementById('language-dropdown');
+
+            $(document).ready(function() {
+                $.ajax({
+                    url: '{{ url('/language/settings') }}',
+                    type: 'GET',
+                    dataType: 'JSON',
+                    success: function(response) {
+                        const localeMap = { 'ar': 'ae', 'bsn': 'bs', 'de': 'de', 'en': 'us', 'en-gb': 'gb', 'es': 'es', 'fr': 'fr', 'id': 'id', 'it': 'it', 'kr': 'kr', 'mt': 'mt', 'nl': 'nl', 'no': 'no', 'pt': 'pt', 'ru': 'ru', 'vi': 'vn', 'zh-hans': 'cn', 'zh-hant': 'cn' };
+                        $.each(response.data, function(key, value) {
+                            const mappedLocale = localeMap[value.locale] || value.locale;
+                            const isSelected = value.locale === '{{ app()->getLocale() }}' ? 'selected' : '';
+                            $('#language-dropdown').append(
+                                '<a href="javascript:;" class="dropdown-item" data-locale="' + value.locale + '" ' + isSelected + '>' +
+                                '<i class="flag-icon flag-icon-' + mappedLocale + ' mr-2"></i> ' + value.name + ' (' + value.translation + ')' +
+                                '</a>'
+                            );
+                        });
+
+                        // Add event listeners for the dynamically added language options
+                        $(document).on('click', '.dropdown-item', function() {
+                            const selectedLanguage = $(this).data('locale');
+                            const mappedLocale = localeMap[selectedLanguage] || selectedLanguage;
+                            const flagClass = 'flag-icon flag-icon-' + mappedLocale;
+                            const dir = selectedLanguage === 'ar' ? 'rtl' : 'ltr';
+
+                            updateLanguage(selectedLanguage, flagClass);
+                        });
+                    },
+                    error: function(error) {
+                        console.error('Error fetching languages:', error);
+                    }
+                });
+
+                function updateLanguage(language, flagClass) {
+                    $('#flagIcon').attr('class', flagClass);
+                    $.ajax({
+                        url: '{{ url('/update/language') }}',
+                        type: 'POST',
+                        data: { language: language },
+                        success: function(response) {
+                            window.location.reload();
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Error updating language:', xhr.responseText);
+                        }
+                    });
+                }
+            });
+
           </script>
 
 

@@ -16,7 +16,7 @@ return [
     'php_extensions' => 'PHP 擴展',
     'not_enabled' => '未啟用',
     'extension_not_enabled' => '未啟用：請安裝此擴展並更新 :php_ini_file 以啟用 :extensionName。<a href=":url" target="_blank">如何在伺服器上安裝 PHP 擴展？</a>',
-    'mod_rewrite' => 'Mod 重寫',
+    'mod_rewrite' => '模組重寫',
     'off_apache' => '關閉（如果您使用的是 Apache，請確保在 Apache 配置中設置 <var><strong>AllowOverride</strong></var> 為 <var><strong>All</strong></var>）',
     'rewrite_engine' => '重寫引擎',
     'user_url' => '用戶友好 URL',
@@ -144,5 +144,13 @@ return [
     'sign_up_as_admin' => '以管理員身份註冊',
     'system_information' => '系統資訊',
     'close' => '關閉',
+    'port_number' => '端口號',
+    'is_required' => '是必填項',
+    'firstname' => '名字',
+    'lastname' => '姓氏',
+    'username' => '用戶名',
+    'email' => '電子郵件',
+    'password' => '密碼',
+    'confirm_password' => '確認密碼',
 
 ];

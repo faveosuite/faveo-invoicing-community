@@ -18,9 +18,9 @@ return [
     'php_extensions' => 'PHP 확장 기능',
     'not_enabled' => '활성화되지 않음',
     'extension_not_enabled' => '활성화되지 않음: 이를 활성화하려면 서버에 확장 기능을 설치하고 :php_ini_file을 업데이트하여 :extensionName을 활성화하세요. <a href=":url" target="_blank">서버에서 PHP 확장 기능을 설치하는 방법?</a>',
-    'mod_rewrite' => 'Mod Rewrite',
+    'mod_rewrite' => '모드 재작성',
     'off_apache' => 'OFF (Apache를 사용하는 경우, <var><strong>AllowOverride</strong></var>를 <var><strong>All</strong></var>로 설정하세요)',
-    'rewrite_engine' => 'Rewrite Engine',
+    'rewrite_engine' => '재작성 엔진',
     'user_url' => '사용자 친화적인 URL',
 
     'host' => '호스트',
@@ -144,5 +144,13 @@ return [
     'sign_up_as_admin' => '관리자로 가입하기',
     'system_information' => '시스템 정보',
     'close' => '닫기',
+    'port_number' => '포트 번호',
+    'is_required' => '필수 입력 사항입니다',
+    'firstname' => '이름',
+    'lastname' => '성',
+    'username' => '사용자 이름',
+    'email' => '이메일',
+    'password' => '비밀번호',
+    'confirm_password' => '비밀번호 확인',
 
 ];

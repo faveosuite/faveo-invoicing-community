@@ -15,7 +15,7 @@ return [
     'php_extensions' => 'Estensioni PHP',
     'not_enabled' => 'Non Abilitato',
     'extension_not_enabled' => 'Non Abilitato: Per abilitare questo, si prega di installare l\'estensione sul server e aggiornare :php_ini_file per abilitare :extensionName. <a href=":url" target="_blank">Come installare le estensioni PHP sul mio server?</a>',
-    'mod_rewrite' => 'Mod Rewrite',
+    'mod_rewrite' => 'Mod omskriv',
     'off_apache' => 'SPENTO (Se stai usando Apache, assicurati che <var><strong>AllowOverride</strong></var> sia impostato su <var><strong>All</strong></var> nella configurazione di Apache)',
     'rewrite_engine' => 'Motore di riscrittura',
     'user_url' => 'URL amichevole per l\'utente',
@@ -43,11 +43,11 @@ return [
     'confirm_password_required' => 'La conferma della password è richiesta',
     'password_requirements' => 'La tua password deve avere:',
     'password_requirements_list' => [
-        'Tra 8-16 caratteri',
-        'Caratteri maiuscoli (A-Z)',
-        'Caratteri minuscoli (a-z)',
-        'Numeri (0-9)',
-        'Caratteri speciali (~*!@$#%_+.?:,{ })',
+        ['id' => 'length', 'text' => 'Mellom 8-16 tegn'],
+        ['id' => 'letter', 'text' => 'Små bokstaver (a-z)'],
+        ['id' => 'capital', 'text' => 'Store bokstaver (A-Z)'],
+        ['id' => 'number', 'text' => 'Tall (0-9)'],
+        ['id' => 'space', 'text' => 'Spesialtegn (~*!@$#%_+.?:,{ })'],
     ],
 
     // Informazioni di sistema
@@ -140,5 +140,13 @@ return [
     'sign_up_as_admin' => 'Registrer deg som Admin',
     'system_information' => 'Systeminformasjon',
     'close' => 'Lukk',
+    'port_number' => 'Portnummer',
+    'is_required' => 'er påkrevd',
+    'firstname' => 'Fornavn',
+    'lastname' => 'Etternavn',
+    'username' => 'Brukernavn',
+    'email' => 'E-post',
+    'password' => 'Passord',
+    'confirm_password' => 'Bekreft passord',
 
 ];

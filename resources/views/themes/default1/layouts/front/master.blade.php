@@ -172,35 +172,35 @@ $days = $pay->where('product','117')->value('days');
 @endphp
 
 <?php
-function getBaseUrl() {
-    $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
-    $host = $_SERVER['HTTP_HOST'];
-    $path = dirname($_SERVER['SCRIPT_NAME']);
-    return $protocol . '://' . $host . $path;
-}
-function fetchLang() {
-    //$baseUrl = getBaseUrl();
-    $langUrl = getBaseUrl() . "/lang";
-    $options = [
-        'http' => [
-            'method' => 'POST',
-            'header' => "Content-Type: application/json;charset=UTF-8\r\n",
-            'content' => ''
-        ]
-    ];
-    $context = stream_context_create($options);
-    $response = file_get_contents($langUrl, false, $context);
-
-    if ($response === false) {
-        return null;
-    }
-
-    $langData = json_decode($response, true);
-
-    return $langData['data'];
-}
-
-$lang = fetchLang();
+//function getBaseUrl() {
+//    $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
+//    $host = $_SERVER['HTTP_HOST'];
+//    $path = dirname($_SERVER['SCRIPT_NAME']);
+//    return $protocol . '://' . $host . $path;
+//}
+//function fetchLang() {
+//    //$baseUrl = getBaseUrl();
+//    $langUrl = getBaseUrl() . "/lang";
+//    $options = [
+//        'http' => [
+//            'method' => 'POST',
+//            'header' => "Content-Type: application/json;charset=UTF-8\r\n",
+//            'content' => ''
+//        ]
+//    ];
+//    $context = stream_context_create($options);
+//    $response = file_get_contents($langUrl, false, $context);
+//
+//    if ($response === false) {
+//        return null;
+//    }
+//
+//    $langData = json_decode($response, true);
+//
+//    return $langData['data'];
+//}
+//
+//$lang = fetchLang();
 ?>
 
 <div class="body p-relative bottom-1" dir="{{ app()->getLocale() == 'ar' ? 'rtl' : 'ltr' }}" >
@@ -500,7 +500,32 @@ $lang = fetchLang();
                                         <div class="header-nav-features header-nav-features-no-border header-nav-features-lg-show-border order-1 order-lg-2 me-2 me-lg-0">
                                             <div class="header-nav-feature header-nav-features-cart d-inline-flex ms-2 mx-3">
                                                 <a href="#" class="header-nav-features-toggle text-decoration-none">
-                                                    <i id="flagIcon" class="flag-icon flag-icon-us"></i>
+                                                    <?php
+                                                    $localeMap = [
+                                                        'ar' => 'ae',
+                                                        'bsn' => 'bs',
+                                                        'de' => 'de',
+                                                        'en' => 'us',
+                                                        'en-gb' => 'gb',
+                                                        'es' => 'es',
+                                                        'fr' => 'fr',
+                                                        'id' => 'id',
+                                                        'it' => 'it',
+                                                        'kr' => 'kr',
+                                                        'mt' => 'mt',
+                                                        'nl' => 'nl',
+                                                        'no' => 'no',
+                                                        'pt' => 'pt',
+                                                        'ru' => 'ru',
+                                                        'vi' => 'vn',
+                                                        'zh-hans' => 'cn',
+                                                        'zh-hant' => 'cn'
+                                                    ];
+
+                                                    $currentLanguage = app()->getLocale();
+                                                    $flagClass = 'flag-icon flag-icon-' . $localeMap[$currentLanguage];
+                                                    ?>
+                                                    <i id="flagIcon" class="<?= $flagClass ?>"></i>
                                                 </a>
                                                 <div class="header-nav-features-dropdown right-15" id="language-dropdown">
 
@@ -1128,7 +1153,7 @@ setTimeout(function() {
 
             // Validate email field
             if (!$emailField.val()) {
-                placeErrorMessage("Please enter a valid email address.", $emailField);
+                placeErrorMessage("{{ __('message.contact_error_email') }}", $emailField);
                 return;
             }
 
@@ -1523,6 +1548,7 @@ setTimeout(function() {
 
     const flagIcon = document.getElementById('flagIcon');
     const languageDropdown = document.getElementById('language-dropdown');
+    const curLang = '{{ app()->getLocale() }}';
 
     $(document).ready(function() {
         const localeMap = { 'ar': 'ae', 'bsn': 'bs', 'de': 'de', 'en': 'us', 'en-gb': 'gb', 'es': 'es', 'fr': 'fr', 'id': 'id', 'it': 'it', 'kr': 'kr', 'mt': 'mt', 'nl': 'nl', 'no': 'no', 'pt': 'pt', 'ru': 'ru', 'vi': 'vn', 'zh-hans': 'cn', 'zh-hant': 'cn' };
@@ -1531,7 +1557,7 @@ setTimeout(function() {
         $('#flagIcon').addClass('flag-icon flag-icon-' + mappedLocale);
 
         $.ajax({
-            url: '<?php echo getBaseUrl(); ?>/language/settings',
+            url: '<?php echo getUrl(); ?>/language/settings',
             type: 'GET',
             dataType: 'JSON',
             success: function(response) {
@@ -1540,8 +1566,8 @@ setTimeout(function() {
                     const mappedLocale = localeMap[value.locale] || value.locale;
                     const isSelected = value.locale === currentLocale ? 'selected' : 'us';
                     $('#language-dropdown').append(
-                        '<a href="javascript:;" class="dropdown-item ' + isSelected + '" data-locale="' + value.locale + '">' +
-                        '<i class="flag-icon flag-icon-' + (mappedLocale || 'us') + ' mr-2"></i> ' + value.name +
+                        '<a href="javascript:;" class="dropdown-item" data-locale="' + value.locale + '" ' + isSelected + '>' +
+                        '<i class="flag-icon flag-icon-' + mappedLocale + ' ' + (curLang === 'ar' ? 'ml-2' : 'mr-2') + '"></i> ' + value.name + ' (' + value.translation + ')' +
                         '</a>'
                     );
                 });
@@ -1553,33 +1579,19 @@ setTimeout(function() {
                     const flagClass = 'flag-icon flag-icon-' + mappedLocale;
                     const dir = selectedLanguage === 'ar' ? 'rtl' : 'ltr';
 
-                    updateLanguage(selectedLanguage, flagClass, dir);
+                    updateLanguage(selectedLanguage, flagClass);
                 });
             },
             error: function(error) {
                 console.error('Error fetching languages:', error);
             }
         });
-
-        $.ajax({
-            url: '<?php echo getBaseUrl() ?>/current-language',
-            type: 'GET',
-            dataType: 'JSON',
-            success: function(response) {
-                const currentLanguage = response.data.language;
-                const flagClass = 'flag-icon flag-icon-' + (localeMap[currentLanguage] || 'us');
-                $('#flagIcon').attr('class', flagClass);
-            },
-            error: function(error) {
-                console.error('Error fetching current language:', error);
-            }
-        });
     });
 
-    function updateLanguage(language, flagClass, dir) {
+    function updateLanguage(language, flagClass) {
         $('#flagIcon').attr('class', flagClass);
         $.ajax({
-            url: '<?php echo getBaseUrl(); ?>/update/language',
+            url: '<?php echo getUrl(); ?>/update/language',
             type: 'POST',
             data: { language: language },
             success: function(response) {

@@ -16,7 +16,7 @@ return [
     'php_extensions' => 'Extensions PHP',
     'not_enabled' => 'Non activé',
     'extension_not_enabled' => 'Non activé : Pour l\'activer, veuillez installer l\'extension sur votre serveur et mettre à jour :php_ini_file pour activer :extensionName. <a href=":url" target="_blank">Comment installer les extensions PHP sur mon serveur ?</a>',
-    'mod_rewrite' => 'Mod Rewrite',
+    'mod_rewrite' => 'Réécriture du module',
     'off_apache' => 'Désactivé (Si vous utilisez Apache, assurez-vous que <var><strong>AllowOverride</strong></var> est défini sur <var><strong>All</strong></var> dans la configuration Apache)',
     'rewrite_engine' => 'Moteur de réécriture',
     'user_url' => 'URL conviviale pour l\'utilisateur',
@@ -149,5 +149,13 @@ return [
     'sign_up_as_admin' => "S'inscrire en tant qu'administrateur",
     'system_information' => 'Informations système',
     'close' => 'Fermer',
+    'port_number' => 'Numéro de port',
+    'is_required' => 'est requis',
+    'firstname' => 'Prénom',
+    'lastname' => 'Nom de famille',
+    'username' => 'Nom d\'utilisateur',
+    'email' => 'E-mail',
+    'password' => 'Mot de passe',
+    'confirm_password' => 'Confirmer le mot de passe',
 
 ];
