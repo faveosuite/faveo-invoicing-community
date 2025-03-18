@@ -47,6 +47,8 @@ Third party Apps
                         </tr></thead>
 
                    </table>
+
+
             </div>
         </div>
 
@@ -57,7 +59,141 @@ Third party Apps
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
 
     <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript">
+
+
+    <script>
+
+        $(document).ready(function() {
+            const userRequiredFields = {
+                app_key:@json(trans('message.app_details.app_key')),
+                app_name:@json(trans('message.app_details.app_name')),
+                app_secret:@json(trans('message.app_details.app_secret')),
+
+
+            };
+
+            $('#appForm').on('submit', function (e) {
+                const userFields = {
+                    app_name:$('#app-name'),
+                    app_key:$('#app-key'),
+                    app_secret:$('#app-secret'),
+                };
+
+
+                // Clear previous errors
+                Object.values(userFields).forEach(field => {
+                    field.removeClass('is-invalid');
+                    field.next().next('.error').remove();
+
+                });
+
+                let isValid = true;
+
+                const showError = (field, message) => {
+                    field.addClass('is-invalid');
+                    field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+                };
+
+                // Validate required fields
+                Object.keys(userFields).forEach(field => {
+                    if (!userFields[field].val()) {
+                        showError(userFields[field], userRequiredFields[field]);
+                        isValid = false;
+                    }
+                });
+
+
+                // If validation fails, prevent form submission
+                if (!isValid) {
+                    e.preventDefault();
+                }
+            });
+            // Function to remove error when input'id' => 'changePasswordForm'ng data
+            const removeErrorMessage = (field) => {
+                field.classList.remove('is-invalid');
+                const error = field.nextElementSibling;
+                if (error && error.classList.contains('error')) {
+                    error.remove();
+                }
+            };
+
+            // Add input event listeners for all fields
+            ['app-name','app-key','app-secret'].forEach(id => {
+
+                document.getElementById(id).addEventListener('input', function () {
+                    removeErrorMessage(this);
+
+                });
+            });
+        });
+
+
+
+        $(document).ready(function() {
+            const userRequiredFields = {
+                app_key:@json(trans('message.app_details.app_key')),
+                app_name:@json(trans('message.app_details.app_name')),
+                app_secret:@json(trans('message.app_details.app_secret')),
+
+
+            };
+
+            $('#app-edit-form').on('submit', function (e) {
+                const userFields = {
+                    app_name:$('#name'),
+                    app_key:$('#key'),
+                    app_secret:$('#secret'),
+                };
+
+
+                // Clear previous errors
+                Object.values(userFields).forEach(field => {
+                    field.removeClass('is-invalid');
+                    field.next().next('.error').remove();
+
+                });
+
+                let isValid = true;
+
+                const showError = (field, message) => {
+                    field.addClass('is-invalid');
+                    field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+                };
+
+                // Validate required fields
+                Object.keys(userFields).forEach(field => {
+                    if (!userFields[field].val()) {
+                        showError(userFields[field], userRequiredFields[field]);
+                        isValid = false;
+                    }
+                });
+
+
+                // If validation fails, prevent form submission
+                if (!isValid) {
+                    e.preventDefault();
+                }
+            });
+            // Function to remove error when input'id' => 'changePasswordForm'ng data
+            const removeErrorMessage = (field) => {
+                field.classList.remove('is-invalid');
+                const error = field.nextElementSibling;
+                if (error && error.classList.contains('error')) {
+                    error.remove();
+                }
+            };
+
+            // Add input event listeners for all fields
+            ['name','key','secret'].forEach(id => {
+
+                document.getElementById(id).addEventListener('input', function () {
+                    removeErrorMessage(this);
+
+                });
+            });
+        });
+
+
         $('#third-party-app-table').DataTable({
             processing: true,
             serverSide: true,
@@ -100,7 +236,9 @@ Third party Apps
             },
         });
     </script>
- <script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
     function checking(e){
       $('#third-party-app-table').find("td input[type='checkbox']").prop('checked',$(e).prop('checked'));
     }
@@ -125,54 +263,109 @@ Third party Apps
         })
     }
 
-      $(document).on('click','#bulk_delete',function(){
-      var id=[];
-      if (confirm("Are you sure you want to delete this?"))
-        {
-            $('.type_checkbox:checked').each(function(){
+      $(document).on('click','#bulk_delete',function() {
+          var id = [];
+          $('.type_checkbox:checked').each(function () {
               id.push($(this).val())
-            });
-            if(id.length >0)
-            {
-               $.ajax({
-                      url:"{!! route('third-party-delete') !!}",
-                      method:"delete",
-                      data: $('#check:checked').serialize(),
-                      beforeSend: function () {
-                $('#gif').show();
-                },
-                success: function (data) {
-                $('#gif').hide();
-                $('#response').html(data);
-                location.reload();
-                }
-               })
-            }
-            else
-            {
-                alert("Please select at least one checkbox");
-            }
-        }  
+          });
+          if(id.length<=0){
+              swal.fire({
+                  title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
+                  html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
+                      "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
+                      "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_app')}}</p>" + "</div>" +
+                      "</div>",
+                  position: 'top',
+                  confirmButtonText: "OK",
+                  showCloseButton: true,
+                  confirmButtonColor: "#007bff",
+                  width: "600px",
+                  buttonsStyling: false,
+                  customClass: {
+                      confirmButton: 'btn btn-primary btn-sm custom-confirm',
+                  }
+              })
+          }
+          else {
+              var swl = swal.fire({
+                  title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Delete')}}</h2>",
+                  html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
+                      "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
+                      "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.app_delete')}}</p>" + "</div>" +
+                      "</div>",
+                  showCancelButton: true,
+                  showCloseButton: true,
+                  position: "top",
+                  width: "600px",
 
-     });
+                  confirmButtonText: @json(trans('message.Delete')),
+                  confirmButtonColor: "#007bff",
+                  buttonsStyling: false,
+                  reverseButtons: true,
+                  customClass: {
+                      actions: 'swal2-actions-custom-fix',
+                      confirmButton: 'btn btn-primary btn-sm custom-confirm',
+                      cancelButton: 'btn btn-secondary btn-sm custom-cancel'
+                  }
+              }).then((result) => {
+                  if (result.isConfirmed) {
+                      $('.type_checkbox:checked').each(function () {
+                          id.push($(this).val())
+                      });
+                      if (id.length > 0) {
+                          $.ajax({
+                              url: "{!! route('third-party-delete') !!}",
+                              method: "delete",
+                              data: $('#check:checked').serialize(),
+                              beforeSend: function () {
+                                  $('#gif').show();
+                              },
+                              success: function (data) {
+                                  $('#gif').hide();
+                                  $('#response').html(data);
+                                  location.reload();
+                              }
+                          })
 
-      $('.get-app-key').on('click',function(){
-            $.ajax({
-            type: "GET",
-            url: "{{url('get-app-key')}}",
-            success: function (data) {
-                $(".app-key").val(data)
-            }
-        });
+                      } else {
+                          swal.fire({
+                              title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
+                              html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
+                                  "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
+                                  "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_app')}}</p>" + "</div>" +
+                                  "</div>",
+                              position: 'top',
+                              confirmButtonText: "OK",
+                              showCloseButton: true,
+                              confirmButtonColor: "#007bff",
+                              width: "600px",
+                          })
+                      }
+                  } else if (result.dismiss === Swal.DismissReason.cancel) {
+                      window.close();
+                  }
 
-        })
+                  return false;
+              });
+          }
+              $('.get-app-key').on('click', function () {
+                  $.ajax({
+                      type: "GET",
+                      url: "{{url('get-app-key')}}",
+                      success: function (data) {
+                          $(".app-key").val(data)
+                      }
+                  });
 
-      $('.closebutton').on('click',function(){
-        location.reload();
-      })
+              })
 
-    
-      
+              $('.closebutton').on('click', function () {
+                  location.reload();
+              })
+
+      });
+
+
       
  </script>
 <script>

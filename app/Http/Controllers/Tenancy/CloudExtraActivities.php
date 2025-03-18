@@ -941,6 +941,7 @@ class CloudExtraActivities extends Controller
     {
         $client = new Client([]);
         $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
+
         $data = ['domain' => $domain, 'key' => $keys->app_key];
         $response = $client->request(
             'POST',
@@ -1014,13 +1015,17 @@ class CloudExtraActivities extends Controller
     private function getStateCoordinates($stateName)
     {
         $stateName = str_replace(' ', '+', $stateName);
-
-        $url = "https://nominatim.openstreetmap.org/search?format=json&q={$stateName}";
-
-        $response = $this->client->get($url);
+        $url = "https://nominatim.openstreetmap.org/search?q={$stateName}&format=json&limit=1";
+        $client = new Client([
+            'verify' => true,
+        ]);
+        $response = $client->get($url, [
+            'headers' => [
+                'Referer' => $url,
+            ],
+        ]);
 
         $data = json_decode($response->getBody(), true);
-
         if (empty($data)) {
             return null;
         }

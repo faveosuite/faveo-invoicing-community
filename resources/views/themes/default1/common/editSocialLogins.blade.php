@@ -19,7 +19,7 @@ Social Logins
      .required:after {
   content: "*";
     color: red;
-    font-weight: 100;
+    font-weight: 700 !important;
 }
 </style>
 
@@ -54,31 +54,64 @@ $httpOrigin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : null;
             </div>
 
             <div class="card-body table-responsive">
-                <form method="POST" action="{{ url('update-social-login') }}">
+                <form method="POST" action="{{ url('update-social-login') }}" id="socialLoginForm">
                     @csrf
 
                     <div class="mb-3">
                         @if($socialLogins->type == 'Twitter')
-                            <label for="id" class="form-label required">API Key</label>
-                        <input type="text" class="form-control" id="id"  value="{{old('title', $socialLogins->client_id)}}" name="client_id">
+                            <label for="id" class="form-label required" id="id">API Key</label>
+                        <input type="text" class="form-control {{$errors->has('api_key') ? ' is-invalid' : ''}}" id="api_id"  value="{{old('title', $socialLogins->client_id)}}" name="api_key">
+                            @error('api_key')
+                            <span class="error-message"> {{$message}}</span>
+                            @enderror
+                            <div class="input-group-append">
+                            </div>
                     </div>
                     <input type="hidden" name="type" value="{{old('title', $socialLogins->type)}}">
                     <div class="mb-3">
                         <label for="pwd" class="form-label required">API Secret</label>
-                        <input type="password" class="form-control" id="pwd"  value="{{old('title', $socialLogins->client_secret)}}" name="client_secret">
+                        <input type="password" class="form-control {{$errors->has('api_secret') ? ' is-invalid' : ''}}" id="api_pwd"  value="{{old('title', $socialLogins->client_secret)}}" name="api_secret">
+                        @error('api_secret')
+                        <span class="error-message"> {{$message}}</span>
+                        @enderror
+                        <div class="input-group-append">
+                        </div>
                         @else
-                        <label for="id" class="form-label required">Client Id</label>
-                        <input type="text" class="form-control" id="id"  value="{{old('title', $socialLogins->client_id)}}" name="client_id">
+                        <label for="id" class="form-label required" id="id">Client Id</label>
+                        <input type="text" class="form-control {{$errors->has('client_id') ? ' is-invalid' : ''}}" id="client_id"  value="{{old('title', $socialLogins->client_id)}}" name="client_id">
+                            @error('client_id')
+                            <span class="error-message"> {{$message}}</span>
+                            @enderror
+                            <div class="input-group-append">
+                            </div>
                     </div>
                     <input type="hidden" name="type" value="{{old('title', $socialLogins->type)}}">
                     <div class="mb-3">
                         <label for="pwd" class="form-label required">Client Secret</label>
-                        <input type="password" class="form-control" id="pwd"  value="{{old('title', $socialLogins->client_secret)}}" name="client_secret">
+                        <input type="password" class="form-control {{$errors->has('client_secret') ? ' is-invalid' : ''}}" id="pwd"  value="{{old('title', $socialLogins->client_secret)}}" name="client_secret">
+                        @error('client_secret')
+                        <span class="error-message"> {{$message}}</span>
+                        @enderror
+                        <div class="input-group-append">
+                        </div>
                         @endif
                     </div>
                     <div class="mb-3">
-                        <label for="pwd" class="form-label required">Redirect URL</label>
-                        <input type="text" class="form-control" id="pwd"  value="{{ url('/auth/callback/' . lcfirst($socialLogins->type)) }}" name="redirect_url">
+                        <label for="redirect" class="form-label required">Redirect URL</label>
+
+                        <input type="text"
+                               class="form-control {{$errors->has('redirect_url') ? ' is-invalid' : ''}}"
+                               id="redirect"
+                               value="{{ url('/auth/callback/' . lcfirst($socialLogins->type)) }}"
+                               name="redirect_url"
+                               placeholder='https://example.com'
+                        >
+
+                        @error('redirect_url')
+                        <span class="error-message"> {{$message}}</span>
+                        @enderror
+                        <div class="input-group-append">
+                        </div>
                     </div>
 
                     <label for="email" class="form-label">Activate Login via {{$socialLogins->type}}</label>
@@ -103,6 +136,9 @@ $httpOrigin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : null;
                         <label class="form-check-label" for="radio2"></label>
                     </div>
                     @endif
+                        @error('optradio')
+                        <span class="error-message"> {{$message}}</span>
+                        @enderror
                     </div>
 
                     <button type="submit" class="btn btn-primary btn-sm mt-3">
@@ -115,4 +151,151 @@ $httpOrigin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : null;
 </div>
 <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
 <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+
+
+<script>
+
+    $(document).ready(function() {
+        var id=document.getElementById('id');
+         let text = (id.innerText || id.textContent);
+
+        const userRequiredFields = {
+            id:@json(trans('message.socialLogin_details.client_id')),
+            pwd:@json(trans('message.socialLogin_details.client_secret')),
+            redirect_url:@json(trans('message.socialLogin_details.redirect_url')),
+            api_id:@json(trans('message.socialLogin_details.api_id')),
+            api_pwd:@json(trans('message.socialLogin_details.api_secret')),
+        };
+        if(text==='API Key') {
+            $('#socialLoginForm').on('submit', function (e) {
+                const userFields = {
+                    redirect_url: $('#redirect'),
+                    api_id: $('#api_id'),
+                    api_pwd: $('#api_pwd'),
+                };
+
+
+                // Clear previous errors
+                Object.values(userFields).forEach(field => {
+                    field.removeClass('is-invalid');
+                    field.next().next('.error').remove();
+
+                });
+
+                let isValid = true;
+
+                const showError = (field, message) => {
+                    field.addClass('is-invalid');
+                    field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+                };
+
+                // Validate required fields
+                Object.keys(userFields).forEach(field => {
+                    if (!userFields[field].val()) {
+                        showError(userFields[field], userRequiredFields[field]);
+                        isValid = false;
+                    }
+                });
+
+                if(isValid  && !isValidURL(userFields.redirect_url.val())){
+                    showError(userFields.redirect_url,@json(trans('message.page_details.valid_url')),);
+                    isValid=false;
+                }
+
+                // If validation fails, prevent form submission
+                if (!isValid) {
+                    e.preventDefault();
+                }
+            });
+            // Function to remove error when input'id' => 'changePasswordForm'ng data
+            const removeErrorMessage = (field) => {
+                field.classList.remove('is-invalid');
+                const error = field.nextElementSibling;
+                if (error && error.classList.contains('error')) {
+                    error.remove();
+                }
+            };
+
+            // Add input event listeners for all fields
+            ['id', 'pwd', 'redirect', 'api_id', 'api_pwd'].forEach(id => {
+
+                document.getElementById(id).addEventListener('input', function () {
+                    removeErrorMessage(this);
+
+                });
+            });
+        }else{
+            $('#socialLoginForm').on('submit', function (e) {
+                const userFields = {
+                    id: $('#client_id'),
+                    pwd: $('#pwd'),
+                    redirect_url: $('#redirect'),
+
+                };
+
+
+                // Clear previous errors
+                Object.values(userFields).forEach(field => {
+                    field.removeClass('is-invalid');
+                    field.next().next('.error').remove();
+
+                });
+
+                let isValid = true;
+
+                const showError = (field, message) => {
+                    field.addClass('is-invalid');
+                    field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+                };
+
+                // Validate required fields
+                Object.keys(userFields).forEach(field => {
+                    if (!userFields[field].val()) {
+                        showError(userFields[field], userRequiredFields[field]);
+                        isValid = false;
+                    }
+                });
+
+                if(isValid  && !isValidURL(userFields.redirect_url.val())){
+                    showError(userFields.redirect_url,@json(trans('message.page_details.valid_url')),);
+                    isValid=false;
+                }
+
+                // If validation fails, prevent form submission
+                if (!isValid) {
+                    e.preventDefault();
+                }
+            });
+            // Function to remove error when input'id' => 'changePasswordForm'ng data
+            const removeErrorMessage = (field) => {
+                field.classList.remove('is-invalid');
+                const error = field.nextElementSibling;
+                if (error && error.classList.contains('error')) {
+                    error.remove();
+                }
+            };
+
+            // Add input event listeners for all fields
+            ['client_id', 'pwd', 'redirect', 'api_id', 'api_pwd'].forEach(id => {
+
+                document.getElementById(id).addEventListener('input', function () {
+                    removeErrorMessage(this);
+
+                });
+            });
+        }
+
+        function isValidURL(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (err) {
+                return false;
+            }
+        }
+    });
+
+
+</script>
+
 @stop

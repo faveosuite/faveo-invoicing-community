@@ -1,4 +1,4 @@
-@extends('themes.default1.layouts.master')
+    @extends('themes.default1.layouts.master')
 @section('title')
 User Profile
 @stop
@@ -64,6 +64,13 @@ input:checked + .slider:before {
     overflow:scroll;
     height:600px;
 }
+
+.system-error {
+    display: block;
+    margin-top: 5px; /* Adds spacing between file input and error message */
+    color: #dc3545; /* Bootstrap's danger color for errors */
+    font-size: 0.875em; /* Slightly smaller font size */
+}
 </style>
 
     <div class="col-sm-6">
@@ -101,7 +108,7 @@ input:checked + .slider:before {
     <div class="col-md-6">
 
 
-        {!! Form::model($user,['url'=>'profile', 'method' => 'PATCH','files'=>true]) !!}
+        {!! Form::model($user,['id' => 'userUpdateForm','url'=>'profile', 'method' => 'PATCH','files'=>true]) !!}
 
 
         <div class="card card-secondary card-outline">
@@ -115,55 +122,87 @@ input:checked + .slider:before {
                 <div class="form-group {{ $errors->has('first_name') ? 'has-error' : '' }}">
                     <!-- first name -->
                     {!! Form::label('first_name',null,['class' => 'required'],Lang::get('message.first_name')) !!}
-                    {!! Form::text('first_name',null,['class' => 'form-control']) !!}
-
+                    {!! Form::text('first_name',null,['class' => 'form-control'. ($errors->has('first_name') ? ' is-invalid' : '')]) !!}
+                    @error('first_name')
+                    <span class="error-message"> {{$message}}</span>
+                    @enderror
+                    <div class="input-group-append">
+                    </div>
                 </div>
 
                 <div class="form-group {{ $errors->has('last_name') ? 'has-error' : '' }}">
                     <!-- last name -->
                     {!! Form::label('last_name',null,['class' => 'required'],Lang::get('message.last_name')) !!}
-                    {!! Form::text('last_name',null,['class' => 'form-control']) !!}
-
+                    {!! Form::text('last_name',null,['class' => 'form-control'. ($errors->has('last_name') ? ' is-invalid' : '')]) !!}
+                    @error('last_name')
+                    <span class="error-message"> {{$message}}</span>
+                    @enderror
+                    <div class="input-group-append">
+                    </div>
                 </div>
                 <div class="form-group {{ $errors->has('user_name') ? 'has-error' : '' }}">
                     <!-- mobile -->
                     {!! Form::label('user_name',null,['class' => 'required'],Lang::get('message.user_name')) !!}
-                    {!! Form::text('user_name',null,['class' => 'form-control']) !!}
+                    {!! Form::text('user_name',null,['class' => 'form-control'. ($errors->has('user_name') ? ' is-invalid' : '')]) !!}
+                    @error('user_name')
+                    <span class="error-message"> {{$message}}</span>
+                    @enderror
+                    <div class="input-group-append">
+                    </div>
                 </div>
 
 
                 <div class="form-group">
                     <!-- email -->
                     {!! Form::label('email',null,['class' => 'required'],Lang::get('message.email')) !!}
-                     {!! Form::text('email',null,['class' => 'form-control']) !!}
-
+                     {!! Form::text('email',null,['class' => 'form-control'. ($errors->has('email') ? ' is-invalid' : '')]) !!}
+                    @error('email')
+                    <span class="error-message"> {{$message}}</span>
+                    @enderror
+                    <div class="input-group-append">
+                    </div>
                 </div>
 
                 <div class="form-group {{ $errors->has('company') ? 'has-error' : '' }}">
                     <!-- company -->
                     {!! Form::label('company',null,['class' => 'required'],Lang::get('message.company')) !!}
-                    {!! Form::text('company',null,['class' => 'form-control']) !!}
-
+                    {!! Form::text('company',null,['class' => 'form-control'. ($errors->has('company') ? ' is-invalid' : '')]) !!}
+                    @error('company')
+                    <span class="error-message"> {{$message}}</span>
+                    @enderror
+                    <div class="input-group-append">
+                    </div>
                 </div>
 
 
                 <div class="form-group {{ $errors->has('mobile_code') ? 'has-error' : '' }}">
                   {!! Form::label('mobile',null,['class' => 'required'],Lang::get('message.mobile')) !!}
                      {!! Form::hidden('mobile_code',null,['id'=>'mobile_code_hidden']) !!}
-                     <!--  <input class="form-control selected-dial-code"  id="mobile_code" value="{{$user->mobile}}" name="mobile" type="tel"> -->
 
-                    {!! Form::input('tel', 'mobile', $user->mobile, ['class' => 'form-control selected-dial-code', 'id' => 'mobile_code']) !!}
+                    {!! Form::input('tel', 'mobile', $user->mobile, ['class' => 'form-control selected-dial-code'. ($errors->has('mobile') ? ' is-invalid' : ''), 'id' => 'mobile_code']) !!}
+
                     {!! Form::hidden('mobile_country_iso',null,['id' => 'mobile_country_iso']) !!}
+                    @error('mobile')
+                    <span class="error-message"> {{$message}}</span>
+                    @enderror
+                    <span id="error-msg" class="hide"></span>
                     <span id="valid-msg" class="hide"></span>
-                       <span id="error-msg" class="hide"></span>
+                    <div class="input-group-append">
+                    </div>
+
+
                 </div>
 
 
                 <div class="form-group {{ $errors->has('address') ? 'has-error' : '' }}">
                     <!-- phone number -->
                     {!! Form::label('address',null,['class' => 'required'],Lang::get('message.address')) !!}
-                    {!! Form::textarea('address',null,['class' => 'form-control']) !!}
-
+                    {!! Form::textarea('address',null,['class' => 'form-control'. ($errors->has('address') ? ' is-invalid' : '')]) !!}
+                    @error('address')
+                    <span class="error-message"> {{$message}}</span>
+                    @enderror
+                    <div class="input-group-append">
+                    </div>
                 </div>
 
                 <div class="row">
@@ -171,7 +210,7 @@ input:checked + .slider:before {
                     <div class="col-md-6 form-group {{ $errors->has('town') ? 'has-error' : '' }}">
                         <!-- mobile -->
                         {!! Form::label('town',Lang::get('message.town')) !!}
-                        {!! Form::text('town',null,['class' => 'form-control']) !!}
+                        {!! Form::text('town',null,['class' => 'form-control'. ($errors->has('town') ? ' is-invalid' : '')]) !!}
 
                     </div>
 
@@ -179,8 +218,10 @@ input:checked + .slider:before {
                         <!-- mobile -->
                         {!! Form::label('timezone_id',Lang::get('message.timezone'),['class' => 'required']) !!}
                         <!-- {!! Form::select('timezone_id',[''=>'Select','Timezones'=>$timezones],null,['class' => 'form-control']) !!} -->
-                        {!! Form::select('timezone_id', [Lang::get('message.choose')=>$timezones],null,['class' => 'form-control selectpicker','data-live-search'=>'true','required','data-live-search-placeholder' => 'Search','data-dropup-auto'=>'false','data-size'=>'10']) !!}
-
+                        {!! Form::select('timezone_id', [Lang::get('message.choose')=>$timezones],null,['class' => 'form-control select2 selectpicker'. ($errors->has('timezone_id') ? ' is-invalid' : ''),'data-live-search'=>'true','required','data-live-search-placeholder' => 'Search','data-dropup-auto'=>'false','data-size'=>'10']) !!}
+                        @error('timezone_id')
+                        <span class="error-message"> {{$message}}</span>
+                        @enderror
 
                     </div>
 
@@ -193,17 +234,16 @@ input:checked + .slider:before {
 
 
 
-                        {!! Form::select('country',[Lang::get('message.choose')=>$countries],null,['class' => 'form-control select2','id'=>'country','onChange'=>'getCountryAttr(this.value)','data-live-search'=>'true','required','data-live-search-placeholder' => 'Search','data-dropup-auto'=>'false','data-size'=>'10','disabled'=>'disabled']) !!}
+                        {!! Form::select('country',[Lang::get('message.choose')=>$countries],null,['class' => 'form-control select2'. ($errors->has('country') ? ' is-invalid' : ''),'id'=>'country','onChange'=>'getCountryAttr(this.value)','data-live-search'=>'true','required','data-live-search-placeholder' => 'Search','data-dropup-auto'=>'false','data-size'=>'10','disabled'=>'disabled']) !!}
                         <!-- name -->
-
-
-
-
+                        @error('country')
+                        <span class="error-message"> {{$message}}</span>
+                        @enderror
                     </div>
                     <div class="col-md-6 form-group {{ $errors->has('state') ? 'has-error' : '' }}">
                         <!-- name -->
                         {!! Form::label('state',Lang::get('message.state'),['class' => 'required']) !!}
-                        <!--{!! Form::select('state',[],null,['class' => 'form-control','id'=>'state-list']) !!}-->
+                        <!--{!! Form::select('state',[],null,['class' => 'form-control'. ($errors->has('state') ? ' is-invalid' : ''),'id'=>'state-list']) !!}-->
                         <select name="state" id="state-list" class="form-control">
                             @if(count($state)>0)
                             <option value="{{$state['id']}}">{{$state['name']}}</option>
@@ -213,7 +253,9 @@ input:checked + .slider:before {
                             <option value="{{$key}}">{{$value}}</option>
                             @endforeach
                         </select>
-
+                        @error('state')
+                        <span class="error-message"> {{$message}}</span>
+                        @enderror
                     </div>
 
 
@@ -222,22 +264,33 @@ input:checked + .slider:before {
                 <div class="col-md-6 form-group {{ $errors->has('zip') ? 'has-error' : '' }}">
                     <!-- mobile -->
                     {!! Form::label('zip',null,Lang::get('message.zip')) !!}
-                    {!! Form::text('zip',null,['class' => 'form-control']) !!}
-
+                    {!! Form::text('zip',null,['class' => 'form-control'. ($errors->has('zip') ? ' is-invalid' : ''),'id'=>'zip1']) !!}
+                    <span id="zip-error-msg"></span>
+                    @error('zip')
+                    <span class="error-message"> {{$message}}</span>
+                    @enderror
                 </div>
 
                 <div class="col-md-6 form-group" id= "gstin">
                     <!-- mobile -->
                     {!! Form::label('GSTIN',null,'GSTIN') !!}
-                    {!! Form::text('gstin',null,['class' => 'form-control']) !!}
-
+                    {!! Form::number('gstin',null,['class' => 'form-control'. ($errors->has('gstin') ? ' is-invalid' : ''),'id'=>'gstin1']) !!}
+                    <span id="gst-error-msg"></span>
+                    @error('gstin')
+                    <span class="error-message"> {{$message}}</span>
+                    @enderror
                 </div>
               </div>
 
                 <div class="form-group {{ $errors->has('profile_pic') ? 'has-error' : '' }}">
                     <!-- profile pic -->
                     {!! Form::label('profile_pic',Lang::get('message.profile-picture')) !!}
-                    {!! Form::file('profile_pic') !!}
+
+                    <div class="input-group">
+                    {!! Form::file('profile_pic',['id'=>'profile_pic']) !!}
+                    </div>
+                    <span class="system-error" id="profilepic-err-Msg"></span>
+
                     <br>
 
                        <?php
@@ -246,6 +299,7 @@ input:checked + .slider:before {
                         <img src="{{ Auth::user()->profile_pic }}" class="img-thumbnail" style="height: 50px;">
 
                 </div>
+
                 <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Updating..."><i class="fas fa-sync">&nbsp;&nbsp;</i>{!!Lang::get('message.update')!!}</button></h4>
 
                 {!! Form::token() !!}
@@ -288,25 +342,29 @@ input:checked + .slider:before {
                 <div class="form-group has-feedback {{ $errors->has('old_password') ? 'has-error' : '' }}">
                     {!! Form::label('old_password',null,['class' => 'required'],Lang::get('message.old_password')) !!}
                     <div class="input-group">
-                    {!! Form::password('old_password',['placeholder'=>'Password','class' => 'form-control']) !!}
+                    {!! Form::password('old_password',['placeholder'=>'Password','class' => 'form-control'. ($errors->has('old_password') ? ' is-invalid' : '')]) !!}
                         <div class="input-group-append">
                                         <span class="input-group-text" role="button" onclick="togglePasswordVisibility(this)">
                                             <i class="fa fa-eye-slash"></i>
                                         </span>
                         </div>
                     </div>
+                    @error('old_password')
+                    <span class="error-message"> {{$message}}</span>
+                    @enderror
                     <span class="glyphicon glyphicon-lock form-control-feedback"></span>
                 </div>
                 <!-- new password -->
                 <div class="form-group has-feedback {{ $errors->has('new_password') ? 'has-error' : '' }}">
                     {!! Form::label('new_password',null,['class' => 'required'],Lang::get('message.new_password')) !!}
                     <div class="input-group has-validation">
-                    {!! Form::password('new_password',['placeholder'=>'New Password','class' => 'form-control']) !!}
+                    {!! Form::password('new_password',['placeholder'=>'New Password','class' => 'form-control'. ($errors->has('new_password') ? ' is-invalid' : '')]) !!}
                     <div class="input-group-append">
                                         <span class="input-group-text" role="button" onclick="togglePasswordVisibility(this)">
                                             <i class="fa fa-eye-slash"></i>
                                         </span>
                     </div>
+
                 </div>
                     <small class="text-sm text-muted" id="pswd_info" style="display: none;">
                        <span class="font-weight-bold">{{ \Lang::get('message.password_requirements') }}</span>
@@ -316,20 +374,27 @@ input:checked + .slider:before {
                             @endforeach
                         </ul>
                     </small>
+                    @error('new_password')
+                    <span class="error-message"> {{$message}}</span>
+                    @enderror
                     <span class="glyphicon glyphicon-lock form-control-feedback"></span>
                 </div>
-                <!-- cofirm password -->
+                <!-- confirm password -->
                 <div class="form-group has-feedback {{ $errors->has('confirm_password') ? 'has-error' : '' }}">
                     {!! Form::label('confirm_password',null,['class' => 'required'],Lang::get('message.confirm_password')) !!}
                     <div class="input-group">
-                    {!! Form::password('confirm_password',['placeholder'=>'Confirm Password','class' => 'form-control']) !!}
+                    {!! Form::password('confirm_password',['placeholder'=>'Confirm Password','class' => 'form-control'. ($errors->has('confirm_password') ? ' is-invalid' : '')]) !!}
                     <div class="input-group-append">
                                         <span class="input-group-text" role="button" onclick="togglePasswordVisibility(this)">
                                             <i class="fa fa-eye-slash"></i>
                                         </span>
                     </div>
+
                 </div>
                     <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+                    @error('confirm_password')
+                    <span class="error-message"> {{$message}}</span>
+                    @enderror
                 </div>
                     <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Updating..."><i class="fas fa-sync">&nbsp;&nbsp;</i>{!!Lang::get('message.update')!!}</button>
                 {!! Form::close() !!}
@@ -388,6 +453,184 @@ input:checked + .slider:before {
 {!! Form::close() !!}
 <script src="{{asset('common/js/2fa.js')}}"></script>
 <script>
+    $('#submit').on('click',function(e) {
+        var gstin = $('#gstin1');
+        gstinerrorMsg = document.querySelector("#gst-error-msg");
+        if (gstin.val() !== '') {
+            if (gstin.val().length != 15) {
+                e.preventDefault();
+                gstinerrorMsg.innerHTML = @json(trans('message.valid_gst_number'));
+                $('#gstin1').addClass('is-invalid');
+                $('#gstin1').css("border-color", "#dc3545");
+                $('#gst-error-msg').css({
+                    "width": "100%",
+                    "margin-top": ".25rem",
+                    "font-size": "80%",
+                    "color": "#dc3545"
+                });
+            }
+        }
+
+        var zip=$('#zip1');
+        ziperrorMsg = document.querySelector("#zip-error-msg");
+
+        if(zip.val()!=''){
+            if(!zipRegex(zip.val())){
+                ziperrorMsg.innerHTML = @json(trans('message.valid_zip'));
+                e.preventDefault();
+                $('#zip1').addClass('is-invalid');
+                $('#zip1').css("border-color", "#dc3545");
+                $('#zip-error-msg').css({
+                    "width": "100%",
+                    "margin-top": ".25rem",
+                    "font-size": "80%",
+                    "color": "#dc3545"
+                });
+            }
+        }
+    })
+
+    document.getElementById("zip1").addEventListener('input',function(){
+        ziperrorMsg = document.querySelector("#zip-error-msg");
+        $('#zip1').removeClass('is-invalid');
+        $('#zip1').css("border-color", "silver");
+        ziperrorMsg.innerHTML = '';
+    });
+
+    function zipRegex(val) {
+        var re = /^[a-zA-Z0-9]+$/;
+        return re.test(val);
+    }
+    $(document).ready(function() {
+        var fup = document.getElementById('profile_pic');
+        var errMsg=document.getElementById('profilepic-err-Msg');
+        $('#profile_pic').on('change',function(e){
+
+            var fileName = fup.value;
+            var filesize=e.target.files[0];
+            var ext = fileName.substring(fileName.lastIndexOf('.') + 1);
+            const maxSize = 2 * 1024 * 1024;
+            if(filesize.size>maxSize){
+                errMsg.innerText=@json(trans('message.image_invalid_size'));
+                document.getElementById('submit').disabled = true;
+                return false;
+            }
+            if(ext !=="jpeg" && ext!=="jpg" && ext!=='png') {
+                errMsg.innerText=@json(trans('message.image_invalid_message'));
+                document.getElementById('submit').disabled = true;
+                return false;
+            }else if(filesize.size>maxSize){
+                errMsg.innerText=@json(trans('message.image_invalid_size'));
+                document.getElementById('submit').disabled = true;
+                return false;
+            }else {
+                errMsg.innerText='';
+                document.getElementById('submit').disabled = false;
+                return true;
+            }
+        });
+
+        const userRequiredFields = {
+            first_name:@json(trans('message.user_edit_details.add_first_name')),
+            last_name:@json(trans('message.user_edit_details.add_last_name')),
+            email:@json(trans('message.user_edit_details.add_email')),
+            company:@json(trans('message.user_edit_details.add_company')),
+            address:@json(trans('message.user_edit_details.add_address')),
+            mobile_code:@json(trans('message.user_edit_details.add_mobile')),
+            user_name:@json(trans('message.user_edit_details.add_user_name')),
+        };
+
+        $('#submit').on('click', function (e) {
+            const userFields = {
+                first_name: $('#first_name'),
+                last_name: $('#last_name'),
+                email: $('#email'),
+                company: $('#company'),
+                address: $('#address'),
+                user_name: $('#user_name'),
+            };
+
+
+            // Clear previous errors
+            Object.values(userFields).forEach(field => {
+                field.removeClass('is-invalid');
+                field.next().next('.error').remove();
+
+            });
+
+            let isValid = true;
+
+            const showError = (field, message) => {
+                field.addClass('is-invalid');
+                field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+            };
+
+            // Validate required fields
+            Object.keys(userFields).forEach(field => {
+                if (!userFields[field].val()) {
+                    showError(userFields[field], userRequiredFields[field]);
+                    isValid = false;
+                }
+            });
+
+            if (isValid && !validateEmail(userFields.email.val())) {
+                showError(userFields.email, @json(trans('message.user_edit_details.add_valid_email')));
+                isValid = false;
+            }
+
+
+            if (isValid && !validName(userFields.first_name.val())) {
+                showError(userFields.first_name, @json(trans('message.user_edit_details.add_valid_name')));
+                isValid = false;
+            }
+
+            if (isValid && !validName(userFields.last_name.val())) {
+                showError(userFields.last_name, @json(trans('message.user_edit_details.add_valid_lastname')));
+
+                isValid = false;
+            }
+
+            // If validation fails, prevent form submission
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+            // Function to remove error when input'id' => 'changePasswordForm'ng data
+            const removeErrorMessage = (field) => {
+                field.classList.remove('is-invalid');
+                const error = field.nextElementSibling;
+                if (error && error.classList.contains('error')) {
+                    error.remove();
+                }
+            };
+
+            // Add input event listeners for all fields
+            ['first_name','last_name','email','company','user_name','address','mobile','zip1'].forEach(id => {
+                document.getElementById(id).addEventListener('input', function () {
+                    removeErrorMessage(this);
+
+            });
+        });
+
+
+
+
+        function validName(string){
+            const nameRegex=/^[A-Za-z][A-Za-z-\s]+$/;
+            return nameRegex.test(string);
+        }
+
+        function validateEmail(email) {
+
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            return emailPattern.test(email);
+
+        }
+
+    });
+
+
     $(document).ready(function() {
         const requiredFields = {
             old_password: @json(trans('message.old_pass_required')),
@@ -403,6 +646,7 @@ input:checked + .slider:before {
                 new_password: $('#new_password'),
                 confirm_password: $('#confirm_password'),
             };
+
 
             // Clear previous errors
             Object.values(fields).forEach(field => {
@@ -448,7 +692,7 @@ input:checked + .slider:before {
             }
         });
 
-        // Function to remove error when inputting data
+        // Function to remove error when input'id' => 'changePasswordForm'ng data
         const removeErrorMessage = (field) => {
             field.classList.remove('is-invalid');
             const error = field.nextElementSibling;
@@ -518,11 +762,13 @@ input:checked + .slider:before {
              $('.select2').select2()
          });
     var country = $('#country').val();
-    if(country == 'IN') {
-        $('#gstin').show()
-    } else {
-        $('#gstin').hide();
-    }
+    window.onload = function () {
+             if (country === 'IN') {
+                 $('#gstin').show();
+             } else {
+                 $('#gstin').hide();
+             }
+         };
     getCode(country);
     var telInput = $('#mobile_code');
     addressDropdown = $("#country");
@@ -533,6 +779,18 @@ input:checked + .slider:before {
       errorMsg.classList.add("hide");
       validMsg.classList.add("hide");
     };
+
+         $('#submit').on('click',function(e) {
+             if(telInput.val()===''){
+                 e.preventDefault();
+                 errorMsg.classList.remove("hide");
+                 errorMsg.innerHTML = @json(trans('message.user_edit_details.add_phone_number'));
+                 $('#mobile_code').addClass('is-invalid');
+                 $('#mobile_code').css("border-color", "#dc3545");
+                 $('#error-msg').css({"width": "100%", "margin-top": ".25rem", "font-size": "80%", "color": "#dc3545"});
+             }
+         });
+
      $('.intl-tel-input').css('width', '100%');
     telInput.on('input blur', function () {
       reset();
@@ -540,13 +798,11 @@ input:checked + .slider:before {
             if (validatePhoneNumber(telInput.get(0))) {
               $('#mobile_code').css("border-color","");
               validMsg.classList.remove("hide");
-              $('#submit').attr('disabled',false);
             } else {
             errorMsg.classList.remove("hide");
             errorMsg.innerHTML = "Please enter a valid number";
-             $('#mobile_code').css("border-color","red");
-             $('#error-msg').css({"color":"red","margin-top":"5px"});
-             $('#submit').attr('disabled',true);
+             $('#mobile_code').css("border-color", "#dc3545");
+             $('#error-msg').css({"width": "100%", "margin-top": ".25rem", "font-size": "80%", "color": "#dc3545"});
             }
         }
     });

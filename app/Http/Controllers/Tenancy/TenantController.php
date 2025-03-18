@@ -22,6 +22,8 @@ use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Facades\Log;
 
 class TenantController extends Controller
 {
@@ -37,46 +39,69 @@ class TenantController extends Controller
 
     public function viewTenant()
     {
-        if ($this->cloud && $this->cloud->cloud_central_domain) {
+        try {
+            if ($this->cloud && $this->cloud->cloud_central_domain) {
+                $app_key = null;
+                $cloud = $this->cloud;
+                $cloudPopUp = CloudPopUp::find(1);
+                $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
+
+                throw_if($keys && ! $keys->app_key, new Exception(Lang::get('message.cloud_invalid_message')));
+
+                $app_key = optional($keys)->app_key;
+
+                if ($response = $this->client->request(
+                    'GET',
+                    $this->cloud->cloud_central_domain.'/tenants',
+                    [
+                        'query' => [
+                            'key' => $app_key,
+                        ],
+                    ]
+                )) {
+                    $responseBody = (string) $response->getBody();
+                    $responseData = json_decode($responseBody, true);
+                    $de = collect($responseData['message'])->paginate(5);
+                }
+            } else {
+                $de = null;
+                $cloudButton = null;
+                $cloud = null;
+                $cloudPopUp = null;
+            }
+            $cloudButton = StatusSetting::value('cloud_button');
+            $cloudDataCenters = CloudDataCenters::all();
+
+            // Format the results as per the specified format
+            $regions = $cloudDataCenters->map(function ($center) {
+                return [
+                    'name' => ! empty($center->cloud_city) ? $center->cloud_city.', '.$center->cloud_countries : $center->cloud_state.', '.$center->cloud_countries,
+                    'latitude' => $center->latitude,
+                    'longitude' => $center->longitude,
+                ];
+            });
+
+            return view('themes.default1.tenant.index', compact('de', 'cloudButton', 'cloud', 'regions', 'cloudPopUp'));
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
             $cloud = $this->cloud;
             $cloudPopUp = CloudPopUp::find(1);
-            $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
+            $cloudButton = StatusSetting::value('cloud_button');
+            $cloudDataCenters = CloudDataCenters::all();
 
-            if (! $keys->app_key) {//Valdidate if the app key to be sent is valid or not
-                throw new Exception('Invalid App key provided. Please contact admin.');
-            }
-            $response = $this->client->request(
-                'GET',
-                $this->cloud->cloud_central_domain.'/tenants',
-                [
-                    'query' => [
-                        'key' => $keys->app_key,
-                    ],
-                ]
-            );
+            // Format the results as per the specified format
+            $regions = $cloudDataCenters->map(function ($center) {
+                return [
+                    'name' => ! empty($center->cloud_city) ? $center->cloud_city.', '.$center->cloud_countries : $center->cloud_state.', '.$center->cloud_countries,
+                    'latitude' => $center->latitude,
+                    'longitude' => $center->longitude,
+                ];
+            });
 
-            $responseBody = (string) $response->getBody();
-            $responseData = json_decode($responseBody, true);
-
-            $de = collect($responseData['message'])->paginate(5);
-        } else {
             $de = null;
-            $cloudButton = null;
-            $cloud = null;
+
+            return view('themes.default1.tenant.index', compact('de', 'cloudButton', 'cloud', 'regions', 'cloudPopUp'))->withErrors(Lang::get('message.cloud_error_message'));
         }
-        $cloudButton = StatusSetting::value('cloud_button');
-        $cloudDataCenters = CloudDataCenters::all();
-
-        // Format the results as per the specified format
-        $regions = $cloudDataCenters->map(function ($center) {
-            return [
-                'name' => ! empty($center->cloud_city) ? $center->cloud_city.', '.$center->cloud_countries : $center->cloud_state.', '.$center->cloud_countries,
-                'latitude' => $center->latitude,
-                'longitude' => $center->longitude,
-            ];
-        });
-
-        return view('themes.default1.tenant.index', compact('de', 'cloudButton', 'cloud', 'regions', 'cloudPopUp'));
     }
 
     public function enableCloud(Request $request)
@@ -353,11 +378,13 @@ class TenantController extends Controller
                     return ['status' => 'false', 'message' => trans('message.cname')];
                 }
             }
+
             $licCode = Order::where('number', $request->input('orderNo'))->first()->serial_key;
             $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
-            if (! $keys->app_key) {//Valdidate if the app key to be sent is valid or not
-                throw new Exception('Invalid App key provided. Please contact admin.');
+            if (! optional($keys)->app_key) {//Validate if the app key to be sent is valid or not
+                return ['status' => 'false', 'message' => trans('message.something_bad')];
             }
+
             $token = str_random(32);
             \DB::table('third_party_tokens')->insert(['user_id' => $userId, 'token' => $token]);
             $client = new Client([]);
@@ -368,7 +395,6 @@ class TenantController extends Controller
                 'POST',
                 $this->cloud->cloud_central_domain.'/tenants', ['form_params' => $data, 'headers' => ['signature' => $hashedSignature]]
             );
-
             $response = explode('{', (string) $response->getBody());
 
             $response = '{'.$response[1];

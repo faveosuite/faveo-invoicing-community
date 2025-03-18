@@ -92,6 +92,7 @@ return  [
         87 => 'App\\Providers\\ImageUploadHelperServiceProvider',
         88 => 'Laravel\\Socialite\\SocialiteServiceProvider',
         89 => 'Maatwebsite\\Excel\\ExcelServiceProvider',
+        90 => 'App\\Providers\\AttachmentHelperServiceProvider',
     ],
     'eager' => [
         0 => 'Illuminate\\Auth\\AuthServiceProvider',
@@ -165,6 +166,7 @@ return  [
         68 => 'GrahamCampbell\\Markdown\\MarkdownServiceProvider',
         69 => 'App\\Providers\\ImageUploadHelperServiceProvider',
         70 => 'Maatwebsite\\Excel\\ExcelServiceProvider',
+        71 => 'App\\Providers\\AttachmentHelperServiceProvider',
     ],
     'deferred' => [
         'Illuminate\\Broadcasting\\BroadcastManager' => 'Illuminate\\Broadcasting\\BroadcastServiceProvider',

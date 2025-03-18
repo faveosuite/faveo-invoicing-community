@@ -5,12 +5,15 @@
                 <h4 class="modal-title">Create third-party-app</h4>
                 
             </div>
-          {!! Form::open(['url'=>'third-party-keys']) !!}
+          {!! Form::open(['url'=>'third-party-keys','id'=>'appForm']) !!}
             <div class="modal-body">
                 
                 <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                     {!! Form::label('name','App name',['class'=>'required']) !!}
-                    {!! Form::text('app_name',null,['class' => 'form-control app-name', 'id'=>'app-name']) !!}
+                    {!! Form::text('app_name',null,['class' => 'form-control app-name'.($errors->has('app_name') ? ' is-invalid' : ''), 'id'=>'app-name']) !!}
+                    @error('app_name')
+                    <span class="error-message"> {{$message}}</span>
+                    @enderror
                     <span class="appnamecheck"></span>
                 </div>
                 
@@ -19,7 +22,10 @@
                     {!! Form::label('name','App key',['class'=>'required']) !!}
                     <div class="row">
                      <div class="col-md-8">
-                    {!! Form::text('app_key',null,['class' => 'form-control app-key', 'id'=>'app-key', 'readonly'=>'readonly']) !!}
+                    {!! Form::text('app_key',null,['class' => 'form-control app-key'.($errors->has('app_key') ? ' is-invalid' : ''), 'id'=>'app-key', 'readonly'=>'readonly']) !!}
+                         @error('app_key')
+                         <span class="error-message"> {{$message}}</span>
+                         @enderror
                     <span class="appkeycheck"></span>
                    </div>
                    <div class="col-md-4">
@@ -31,7 +37,10 @@
                       {!! Form::label('name','App Secret',['class'=>'required']) !!}
                     <div class="row">
                      <div class="col-md-12">
-                    {!! Form::text('app_secret',null,['class' => 'form-control app-secret', 'id'=>'app-secret']) !!}
+                    {!! Form::text('app_secret',null,['class' => 'form-control app-secret'.($errors->has('app_secret') ? ' is-invalid' : ''), 'id'=>'app-secret']) !!}
+                         @error('app_secret')
+                         <span class="error-message"> {{$message}}</span>
+                         @enderror
                     <span class="appkeycheck"></span>
                    </div>
                    
@@ -47,4 +56,4 @@
             {!! Form::close() !!}
         </div>
     </div>
-</div>
+

@@ -11,14 +11,14 @@
                 
                 <div class= "form-group">
                     {!! Form::label('name',Lang::get('message.comment'),['class'=>'required']) !!}
-                    <textarea name="description" class="form-control" required="required" rows="6" cols="50"></textarea>
+                    <textarea name="description" class="form-control" rows="6" cols="50" id="comment_description"></textarea>
                     <input type="hidden" name="user_id" value="{{$client->id}}"> 
                     <input type="hidden" name="updated_by_user_id" value="{{\Auth::user()->id}}"> 
                 </div>
             </div>
             <div class="modal-footer justify-content-between">
                  <button type="button" id="commentclose" class="btn btn-default btn-sm" data-dismiss="modal"><i class="fas fa-times">&nbsp;</i>Close</button>
-                <button type="submit" class="btn btn-primary btn-sm" id="submit"><i class="fas fa-save">&nbsp;</i>{!!Lang::get('Save')!!}</button>
+                <button type="submit" class="btn btn-primary btn-sm" id="create_submit"><i class="fas fa-save">&nbsp;</i>{!!Lang::get('Save')!!}</button>
             </div>
             {!! Form::close() !!}
         </div>

@@ -124,7 +124,7 @@ function getTimeInLoggedInUserTimeZone(string $dateTimeString, $format = 'M j, Y
  * @param  string|null  $dateTimeString
  * @return string
  */
-function getDateHtml(string $dateTimeString = null)
+function getDateHtml(?string $dateTimeString = null)
 {
     try {
         if (! $dateTimeString) {
@@ -138,7 +138,7 @@ function getDateHtml(string $dateTimeString = null)
         return '--';
     }
 }
-function getDateHtmlcopy(string $dateTimeString = null)
+function getDateHtmlcopy(?string $dateTimeString = null)
 {
     try {
         if (! $dateTimeString) {
@@ -784,8 +784,7 @@ function handleArrayStoreRateLimit($IpKey, $maxAttempts, $decaySeconds)
 function isCaptchaRequired()
 {
     $settings = StatusSetting::find(1);
-    $status = ($settings->v3_recaptcha_status === 1 || $settings->recaptcha_status === 1) && ! Auth::check();
-
+    $status = ($settings->v3_recaptcha_status === 1 || $settings->recaptcha_status === 1 && $settings->v3_v2_recaptcha_status) && ! Auth::check();
     return $status ? ['status' => 1, 'is_required' => 'required'] : ['status' => 0, 'is_required' => 'sometimes'];
 }
 

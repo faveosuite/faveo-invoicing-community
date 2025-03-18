@@ -26,7 +26,7 @@ Social Media
 
 
             <div class="card-body">
-                {!! Form::model($social,['url'=>'social-media/'.$social->id,'method'=>'patch']) !!}
+                {!! Form::model($social,['url'=>'social-media/'.$social->id,'method'=>'patch','id'=>'socialForm']) !!}
 
                 <table class="table table-condensed">
 
@@ -38,11 +38,15 @@ Social Media
                         <td>
                             <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
 
-
-                                {!! Form::text('name',null,['class' => 'form-control']) !!}
                                 <p><i> {{Lang::get('message.enter-the-name-of-the-social-media')}}</i> </p>
 
+                                {!! Form::text('name',null,['class' => 'form-control'. ($errors->has('name') ? ' is-invalid' : ''),'id'=>'name']) !!}
 
+                                <div class="input-group-append">
+                                </div>
+                                @error('name')
+                                <span class="error-message"> {{$message}}</span>
+                                @enderror
                             </div>
                         </td>
 
@@ -53,12 +57,15 @@ Social Media
                         <td><b>{!! Form::label('link',Lang::get('message.link'),['class'=>'required']) !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('link') ? 'has-error' : '' }}">
-
-
-                                {!! Form::text('link',null,['class' => 'form-control']) !!}
                                 <p><i> {{Lang::get('message.enter-the-link-of-the-social-media')}}</i> </p>
 
+                                {!! Form::text('link',null,['class' => 'form-control'. ($errors->has('link') ? ' is-invalid' : ''),'id'=>'link','placeholder'=>'https://example.com']) !!}
 
+                                <div class="input-group-append">
+                                </div>
+                                @error('link')
+                                <span class="error-message"> {{$message}}</span>
+                                @enderror
                             </div>
                         </td>
 
@@ -82,6 +89,91 @@ Social Media
 
 
 </div>
+
+<script>
+
+    $(document).ready(function() {
+        const userRequiredFields = {
+            name:@json(trans('message.social_details.name')),
+            link:@json(trans('message.social_details.link')),
+
+        };
+
+        $('#socialForm').on('submit', function (e) {
+            const userFields = {
+                name:$('#name'),
+                link:$('#link'),
+
+            };
+
+
+            // Clear previous errors
+            Object.values(userFields).forEach(field => {
+                field.removeClass('is-invalid');
+                field.next().next('.error').remove();
+
+            });
+
+            let isValid = true;
+
+            const showError = (field, message) => {
+                field.addClass('is-invalid');
+                field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+            };
+
+            // Validate required fields
+            Object.keys(userFields).forEach(field => {
+                if (!userFields[field].val()) {
+                    showError(userFields[field], userRequiredFields[field]);
+                    isValid = false;
+                }
+            });
+
+            if(isValid  && !isValidURL(userFields.link.val())){
+                showError(userFields.link,@json(trans('message.page_details.valid_url')),);
+                isValid=false;
+            }
+
+            if(isValid && userFields.name.val().length>50 || !isValidName(userFields.name.val())){
+                showError(userFields.name,@json(trans('message.valid_widget_name')));
+                isValid=false;
+            }
+
+            // If validation fails, prevent form submission
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+        // Function to remove error when input'id' => 'changePasswordForm'ng data
+        const removeErrorMessage = (field) => {
+            field.classList.remove('is-invalid');
+            const error = field.nextElementSibling;
+            if (error && error.classList.contains('error')) {
+                error.remove();
+            }
+        };
+
+        // Add input event listeners for all fields
+        ['name','publish','type'].forEach(id => {
+
+            document.getElementById(id).addEventListener('input', function () {
+                removeErrorMessage(this);
+
+            });
+        });
+        function isValidURL(url) {
+            const pattern = /^(https?:\/\/)?([\w-]+\.)+([a-z]{2,6})(\/[\w-]*)*(\?.*)?(#.*)?$/i;
+            return pattern.test(url);
+        }
+
+        function isValidName(name) {
+            const pattern = /^(?=.*[a-zA-Z])[a-zA-Z0-9\s!@#\$%\^&\*\(\)_\+\-=\[\]{};':"\\|,.<>\/?`~]*$/;
+            return pattern.test(name);
+        }
+    });
+
+</script>
+
 <script>
      $('ul.nav-sidebar a').filter(function() {
         return this.id == 'setting';

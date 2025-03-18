@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Common;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Lang;
 
 class SocialMediaRequest extends FormRequest
 {
@@ -23,12 +24,12 @@ class SocialMediaRequest extends FormRequest
      */
     public function rules()
     {
-        $regex = '/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/';
+        $regex = '/^(https?:\/\/)?([\w-]+\.)+([a-z]{2,6})(\/[\w-]*)*(\?.*)?(#.*)?$/i';
 
         if ($this->method() == 'POST') {
             return [
-                'name' => 'required|unique:social_media',
-                'link' => 'required|url|regex:'.$regex,
+                'name' => 'required|unique:social_media|max:50',
+                'link' => 'required|regex:'.$regex,
             ];
         } elseif ($this->method() == 'PATCH') {
             return [
@@ -36,5 +37,12 @@ class SocialMediaRequest extends FormRequest
                 'link' => 'required|url|regex:'.$regex,
             ];
         }
+    }
+
+    public function messages()
+    {
+        return[
+            'link.regex' => Lang::get('message.social_details.link'),
+        ];
     }
 }

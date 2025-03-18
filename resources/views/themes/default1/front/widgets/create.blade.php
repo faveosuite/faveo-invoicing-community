@@ -19,7 +19,7 @@ Create Widget
 <div class="card card-secondary card-outline">
 
 
-        {!! Form::open(['url'=>'widgets','method'=>'post']) !!}
+        {!! Form::open(['url'=>'widgets','method'=>'post','id'=>'widgetForm']) !!}
 
 
 
@@ -36,15 +36,23 @@ Create Widget
                     <div class="col-md-4 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         <!-- first name -->
                         {!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}
-                        {!! Form::text('name',null,['class' => 'form-control','id'=>'name']) !!}
-
+                        {!! Form::text('name',null,['class' => 'form-control'. ($errors->has('name') ? ' is-invalid' : ''),'id'=>'name']) !!}
+                        @error('name')
+                        <span class="error-message"> {{$message}}</span>
+                        @enderror
+                        <div class="input-group-append">
+                        </div>
                     </div>
 
                     <div class="col-md-4 form-group {{ $errors->has('publish') ? 'has-error' : '' }}">
                         <!-- last name -->
                         {!! Form::label('publish',Lang::get('message.publish'),['class'=>'required']) !!}
-                        {!! Form::select('publish',[1=>'Yes',0=>'No'],null,['class' => 'form-control']) !!}
-
+                        {!! Form::select('publish',[1=>'Yes',0=>'No'],null,['class' => 'form-control'. ($errors->has('publish') ? ' is-invalid' : ''),'id'=>'publish']) !!}
+                        @error('publish')
+                        <span class="error-message"> {{$message}}</span>
+                        @enderror
+                        <div class="input-group-append">
+                        </div>
                     </div>
                      
 
@@ -56,12 +64,14 @@ Create Widget
 
                     
                   
-                    <div class="col-md-4 form-group {{ $errors->has('allow_tweets') ? 'has-error' : '' }}">
-                        <!-- last name -->
-                        {!! Form::label('allow_tweets',Lang::get('message.allow_tweets'),['class'=>'required']) !!}
-                        {!! Form::select('allow_tweets',[1=>'Yes',0=>'No'],null,($twitterStatus) ? ['class' => 'form-control'] : $twitter) !!}
-
-                    </div>
+{{--                    <div class="col-md-4 form-group {{ $errors->has('allow_tweets') ? 'has-error' : '' }}">--}}
+{{--                        <!-- last name -->--}}
+{{--                        {!! Form::label('allow_tweets',Lang::get('message.allow_tweets'),['class'=>'required']) !!}--}}
+{{--                        {!! Form::select('allow_tweets',[1=>'Yes',0=>'No'],null,($twitterStatus) ? ['class' => 'form-control'. ($errors->has('allow_tweets') ? ' is-invalid' : '')] : $twitter) !!}--}}
+{{--                        @error('allow_tweets')--}}
+{{--                        <span class="error-message"> {{$message}}</span>--}}
+{{--                        @enderror--}}
+{{--                    </div>--}}
                   
         
 
@@ -70,8 +80,10 @@ Create Widget
                    <div class="col-md-4 form-group {{ $errors->has('allow_mailchimp') ? 'has-error' : '' }}">
                         <!-- last name -->
                         {!! Form::label('allow_mailchimp',Lang::get('message.allow_mailchimp'),['class'=>'required']) !!}
-                        {!! Form::select('allow_mailchimp',[1=>'Yes',0=>'No'],null,($mailchimpStatus) ? ['class' => 'form-control'] : $mail) !!}
-
+                        {!! Form::select('allow_mailchimp',[1=>'Yes',0=>'No'],null,($mailchimpStatus) ? ['class' => 'form-control'. ($errors->has('allow_mailchimp') ? ' is-invalid' : '')] : $mail) !!}
+                       @error('allow_mailchimp')
+                       <span class="error-message"> {{$message}}</span>
+                       @enderror
                     </div>
                  
                    
@@ -79,17 +91,22 @@ Create Widget
                     <div class="col-md-4 form-group {{ $errors->has('allow_mailchimp') ? 'has-error' : '' }}">
                         <!-- last name -->
                         {!! Form::label('allow_social_media','Allow social media icons',['class'=>'required']) !!}
-                        {!! Form::select('allow_social_media',[1=>'Yes',0=>'No'],null,['class' => 'form-control']) !!}
-
+                        {!! Form::select('allow_social_media',[1=>'Yes',0=>'No'],null,['class' => 'form-control'. ($errors->has('allow_social_media') ? ' is-invalid' : '')]) !!}
+                        @error('allow_social_media')
+                        <span class="error-message"> {{$message}}</span>
+                        @enderror
                     </div>
 
                     
                     <div class="col-md-4 form-group {{ $errors->has('type') ? 'has-error' : '' }}">
                         <!-- last name -->
                         {!! Form::label('type',Lang::get('message.type'),['class'=>'required']) !!}
-                        {!! Form::select('type', [''=>'Choose','footer1'=>'Footer 1','footer2'=>'Footer 2','footer3'=>'Footer 3'],null,['class' => 'form-control']) !!}
-
-                        
+                        {!! Form::select('type', [''=>'Choose','footer1'=>'Footer 1','footer2'=>'Footer 2','footer3'=>'Footer 3'],null,['class' => 'form-control'. ($errors->has('type') ? ' is-invalid' : ''),'id'=>'type']) !!}
+                        @error('type')
+                        <span class="error-message"> {{$message}}</span>
+                        @enderror
+                        <div class="input-group-append">
+                        </div>
 
 
                     </div>
@@ -133,8 +150,10 @@ Create Widget
 
 
                         {!! Form::label('content',Lang::get('message.content')) !!}
-                        {!! Form::textarea('content',null,['class'=>'form-control','id'=>'textarea']) !!}
-
+                        {!! Form::textarea('content',null,['class'=>'form-control'. ($errors->has('content') ? ' is-invalid' : ''),'id'=>'textarea']) !!}
+                        @error('content')
+                        <span class="error-message"> {{$message}}</span>
+                        @enderror
                     </div>
 
 
@@ -151,6 +170,77 @@ Create Widget
 
 
 {!! Form::close() !!}
+<script>
+
+    $(document).ready(function() {
+        const userRequiredFields = {
+            name:@json(trans('message.widget_details.name')),
+            publish:@json(trans('message.widget_details.publish')),
+            type:@json(trans('message.widget_details.type')),
+
+        };
+
+        $('#widgetForm').on('submit', function (e) {
+            const userFields = {
+                name:$('#name'),
+                publish:$('#publish'),
+                type:$('#type'),
+
+            };
+
+
+            // Clear previous errors
+            Object.values(userFields).forEach(field => {
+                field.removeClass('is-invalid');
+                field.next().next('.error').remove();
+
+            });
+
+            let isValid = true;
+
+            const showError = (field, message) => {
+                field.addClass('is-invalid');
+                field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+            };
+
+            // Validate required fields
+            Object.keys(userFields).forEach(field => {
+                if (!userFields[field].val()) {
+                    showError(userFields[field], userRequiredFields[field]);
+                    isValid = false;
+                }
+            });
+
+            if(isValid && userFields.name.val().length>50){
+                showError(userFields.name,@json(trans('message.valid_widget_name')));
+               isValid=false;
+            }
+
+            // If validation fails, prevent form submission
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+        // Function to remove error when input'id' => 'changePasswordForm'ng data
+        const removeErrorMessage = (field) => {
+            field.classList.remove('is-invalid');
+            const error = field.nextElementSibling;
+            if (error && error.classList.contains('error')) {
+                error.remove();
+            }
+        };
+
+        // Add input event listeners for all fields
+        ['name','publish','type'].forEach(id => {
+
+            document.getElementById(id).addEventListener('input', function () {
+                removeErrorMessage(this);
+
+            });
+        });
+    });
+
+</script>
 <script>
      $('ul.nav-sidebar a').filter(function() {
         return this.id == 'setting';

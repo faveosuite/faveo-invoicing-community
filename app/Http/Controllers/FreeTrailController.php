@@ -73,7 +73,6 @@ class FreeTrailController extends Controller
                     $serial_key = $this->executeFreetrailOrder();
 
                     $isSuccess = (new TenantController(new Client, new FaveoCloud()))->createTenant(new Request(['orderNo' => $this->orderNo, 'domain' => $request->domain]));
-
                     if ($isSuccess['status'] == 'false') {
                         (new LicenseController())->deActivateTheLicense($serial_key);
 
@@ -125,7 +124,6 @@ class FreeTrailController extends Controller
             return $invoice;
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
-
             throw new \Exception('Can not Generate Invoice');
         }
     }
@@ -171,7 +169,6 @@ class FreeTrailController extends Controller
             }
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
-
             throw new \Exception('Can not Generate Invoice items');
         }
     }
@@ -281,7 +278,6 @@ class FreeTrailController extends Controller
             return $licCode;
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
-
             throw new \Exception('Can not Generate Free trail serialkey');
         }
     }

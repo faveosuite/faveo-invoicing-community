@@ -25,14 +25,17 @@ class SocialLoginsController extends Controller
     public function update(Request $request)
     {
         $request->validate([
-            'client_id' => 'required',
-            'client_secret' => 'required',
+            'client_id' => 'required_if:type,Google,Github,Linkedin',
+            'client_secret' => 'required_if:type,Google,Github,Linkedin',
+            'api_key' => 'required_if:type,Twitter',
+            'api_secret' => 'required_if:type,Twitter',
+            'redirect_url' => 'required',
         ]);
 
         try {
             SocialLogin::where('type', $request->type)->update([
-                'client_id' => $request->client_id,
-                'client_secret' => $request->client_secret,
+                'client_id' => $request->type === 'Twitter' ? $request->api_key : $request->client_id,
+                'client_secret' => $request->type === 'Twitter' ? $request->api_secret : $request->client_secret,
                 'redirect_url' => $request->redirect_url,
                 'status' => $request->optradio,
             ]);

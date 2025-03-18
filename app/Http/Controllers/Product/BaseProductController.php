@@ -43,6 +43,7 @@ class BaseProductController extends ExtendedBaseProductController
 	                        <label class='required'>"./* @scrutinizer ignore-type */
                             \Lang::get('message.quantity')."</label>
 	                        <input type='text' name='quantity' class='form-control' id='quantity' value='$value'>
+	                        <span class='error-message' id='quantity-msg'></span>
 	                </div>";
             }
         } catch (\Exception $ex) {
@@ -81,6 +82,7 @@ class BaseProductController extends ExtendedBaseProductController
                             <label class='required'>"./* @scrutinizer ignore-type */
                             \Lang::get('message.agent')."</label>
                             <input type='text' name='agents' class='form-control' id='agents' value='$value'>
+                            <span class='error-message' id='agents-msg'></span>
                     </div>";
             }
         } catch (\Exception $ex) {
@@ -125,14 +127,14 @@ class BaseProductController extends ExtendedBaseProductController
             $plans = $plan->where('product', $productid)->pluck('name', 'id')->toArray();
             if (count($plans) > 0) {//If Plan Exist For A product, Display Dropdown for Plans
                 $field = "<div>
-                        <label class='required'>"./* @scrutinizer ignore-type */
+                        <label for='plan' class='required'>"./* @scrutinizer ignore-type */
                         \Lang::get('message.subscription').'</label>
                        '.\Form::select(
                             'plan',
                             ['' => 'Select', 'Plans' => $plans],
                             null,
                             ['class' => 'form-control required', 'id' => 'plan', 'onchange' => 'getPrice(this.value)']
-                        ).'
+                        ).'<div class="error-message" id="subscription-msg"></div>
                 </div>';
             } else {//If No Plan Exist For A Product
                 $userid = $request->input('user');

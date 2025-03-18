@@ -166,6 +166,7 @@ class ExtendedBaseProductController extends Controller
             <input type="text" name="cloud_domain" class="form-control" id="cloud_domain" placeholder="Domain" required >
             <input type="text" class="form-control" value=".'.cloudSubDomain().'" disabled="true" style="background-color: #4081B5; color:white; border-color: #0088CC">
         </div>
+            <span class="error-message" id="cloud-msg"></span>
     </div>
 </div>';
             }

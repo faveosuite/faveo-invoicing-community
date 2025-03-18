@@ -6,6 +6,7 @@ use App\ApiKey;
 use App\Http\Controllers\Controller;
 use App\Model\Order\Order;
 use App\Model\Product\Product;
+use Illuminate\Support\Facades\Log;
 
 class LicenseController extends Controller
 {
@@ -174,6 +175,7 @@ class LicenseController extends Controller
    */
     public function searchProductId($product_sku)
     {
+
         try {
             $productId = '';
             $url = $this->url;
@@ -186,7 +188,6 @@ class LicenseController extends Controller
             if ($details->api_error_detected == 0 && is_array($details->page_message)) {//This is not true if Product_sku is updated
                 $productId = $details->page_message[0]->product_id;
             }
-
             return $productId;
         } catch (\Exception $ex) {
             throw new \Exception('Please configure the valid license details in Apikey settings.');
@@ -277,6 +278,7 @@ class LicenseController extends Controller
             $token = $OauthDetails->access_token;
 
             $addLicense = $this->postCurl($url.'api/admin/license/add', "api_key_secret=$api_key_secret&product_id=$productId&license_code=$serial_key&license_require_domain=1&license_status=1&license_order_number=$orderNo&license_domain=$domain&license_ip=$ip&license_require_domain=$requireDomain&license_limit=6&license_expire_date=$licenseExpiry&license_updates_date=$updatesExpiry&license_support_date=$supportExpiry&license_disable_ip_verification=0&license_limit=1", $token);
+            \Log::info($addLicense);
         } catch (\Exception $ex) {
             throw new \Exception('Please configure the valid license details in Apikey settings.');
         }
@@ -483,13 +485,19 @@ class LicenseController extends Controller
 
     public function deActivateTheLicense($licenseCode)
     {
-        $url = $this->url;
-        $api_key_secret = $this->api_key_secret;
+        try {
+            $url = $this->url;
+            $api_key_secret = $this->api_key_secret;
 
-        $OauthDetails = $this->oauthAuthorization();
-        $token = $OauthDetails->access_token;
+            $OauthDetails = $this->oauthAuthorization();
+            $token = $OauthDetails->access_token;
 
-        $this->postCurl($url.'api/admin/license/deactivate', "api_key_secret=$api_key_secret&license_code=$licenseCode", $token);
+            $this->postCurl($url.'api/admin/license/deactivate', "api_key_secret=$api_key_secret&license_code=$licenseCode", $token);
+        } catch (\Exception $ex) {
+            Log::error($ex->getMessage());
+
+            return;
+        }
     }
 
     public function reissueDomain($installationPath)

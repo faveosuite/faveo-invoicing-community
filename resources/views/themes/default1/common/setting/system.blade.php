@@ -13,6 +13,12 @@ System Setting
             <li class="breadcrumb-item active">System Settings</li>
         </ol>
     </div><!-- /.col -->
+    <style>
+        .system-error{
+            font-size:80%;
+            color:#dc3545;
+        }
+    </style>
 @stop
 @section('content')
 
@@ -28,7 +34,7 @@ System Setting
             </div>
 
             <div class="card-body">
-                {!! Form::model($set,['url'=>'settings/system','method'=>'patch','files'=>true, 'enctype' => 'multipart/form-data']) !!}
+                {!! Form::model($set,['url'=>'settings/system','method'=>'patch','files'=>true, 'enctype' => 'multipart/form-data','id'=>'companyDetailsForm']) !!}
                 <div class="row">
                  <div class="col-md-6">
               
@@ -42,8 +48,12 @@ System Setting
                             <div class="form-group {{ $errors->has('company') ? 'has-error' : '' }}">
 
 
-                                {!! Form::text('company',null,['class' => 'form-control']) !!}
-                                
+                                {!! Form::text('company',null,['class' => 'form-control'.($errors->has('company') ? ' is-invalid' : '')]) !!}
+                                @error('company')
+                                <span class="error-message"> {{$message}}</span>
+                                @enderror
+                                <div class="input-group-append">
+                                </div>
 
 
                             </div>
@@ -59,8 +69,13 @@ System Setting
                             <div class="form-group {{ $errors->has('company_email') ? 'has-error' : '' }}">
 
 
-                                {!! Form::email('company_email', null, ['class' => 'form-control']) !!}
-                                
+                                {!! Form::email('company_email', null, ['class' => 'form-control'.($errors->has('company_email') ? ' is-invalid' : '')]) !!}
+                                @error('company_email')
+                                <span class="error-message"> {{$message}}</span>
+                                @enderror
+                                <span id="email-error-msg" class="hide"></span>
+                                <div class="input-group-append">
+                                </div>
 
 
                             </div>
@@ -74,9 +89,10 @@ System Setting
                             <div class="form-group {{ $errors->has('company') ? 'has-error' : '' }}">
 
 
-                                {!! Form::text('title',null,['class' => 'form-control']) !!}
-                                
-
+                                {!! Form::text('title',null,['class' => 'form-control'.($errors->has('title') ? ' is-invalid' : '')]) !!}
+                                @error('title')
+                                <span class="error-message"> {{$message}}</span>
+                                @enderror
 
                             </div>
                         </td>
@@ -88,9 +104,12 @@ System Setting
                         <td>
                             <div class="form-group {{ $errors->has('website') ? 'has-error' : '' }}">
 
-
-                                {!! Form::text('website',null,['class' => 'form-control']) !!}
-                               
+                                {!! Form::text('website',null,['class' => 'form-control'.($errors->has('website') ? ' is-invalid' : ''),'placeholder'=>'https://example.com']) !!}
+                                @error('website')
+                                <span class="error-message"> {{$message}}</span>
+                                @enderror
+                                <div class="input-group-append">
+                                </div>
 
                             </div>
                         </td>
@@ -103,13 +122,17 @@ System Setting
                             <div class="form-group {{ $errors->has('phone') ? 'has-error' : '' }}">
 
 
-                                {!! Form::input('tel', 'phone', null, ['class' => 'form-control selected-dial-code', 'id' => 'phone']) !!}
+                                {!! Form::input('tel', 'phone', null, ['class' => 'form-control selected-dial-code'.($errors->has('phone') ? ' is-invalid' : ''), 'id' => 'phone']) !!}
 
                                 {!! Form::hidden('phone_code',null,['id'=>'phone_code_hidden']) !!}
                                 {!! Form::hidden('phone_country_iso',null,['id' => 'phone_country_iso']) !!}
+                                @error('phone')
+                                <span class="error-message"> {{$message}}</span>
+                                @enderror
                                 <span id="valid-msg" class="hide"></span>
                                 <span id="error-msg" class="hide"></span>
-                               
+                                <div class="input-group-append">
+                                </div>
 
                             </div>
                         </td>
@@ -121,8 +144,12 @@ System Setting
                         <td>
                             <div class="form-group {{ $errors->has('address') ? 'has-error' : '' }}">
 
-                                {!! Form::textarea('address',null,['class' => 'form-control','size' => '128x10','id'=>'address']) !!}
-                               
+                                {!! Form::textarea('address',null,['class' => 'form-control'.($errors->has('address') ? ' is-invalid' : ''),'size' => '128x10','id'=>'address']) !!}
+                                @error('address')
+                                <span class="error-message"> {{$message}}</span>
+                                @enderror
+                                <div class="input-group-append">
+                                </div>
                             </div>
                         </td>
 
@@ -134,8 +161,10 @@ System Setting
                             <div class="form-group {{ $errors->has('city') ? 'has-error' : '' }}">
 
 
-                                {!! Form::text('city',null,['class' => 'form-control']) !!}
-                                
+                                {!! Form::text('city',null,['class' => 'form-control'.($errors->has('city') ? ' is-invalid' : '')]) !!}
+                                @error('city')
+                                <span class="error-message"> {{$message}}</span>
+                                @enderror
 
                             </div>
                         </td>
@@ -149,8 +178,11 @@ System Setting
                             <div class="form-group {{ $errors->has('zip') ? 'has-error' : '' }}">
 
 
-                                {!! Form::text('zip',null,['class' => 'form-control']) !!}
-                                
+                                {!! Form::text('zip',null,['class' => 'form-control'.($errors->has('zip') ? ' is-invalid' : ''),'id'=>'zip1']) !!}
+                                <span id="zip-error-msg"></span>
+                                @error('zip')
+                                <span class="error-message"> {{$message}}</span>
+                                @enderror
 
                             </div>
                         </td>
@@ -160,13 +192,17 @@ System Setting
                     <tr>
 
                         <td><b>{!! Form::label('knowledge_base_url','Knowledge Base URL') !!}</b></td>
-                        <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="" data-original-title="The URL provides detailed assistance for installation"></i>
+                        <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{Lang::get('message.url_tooltip')}}"></i>
                         <td>
                             <div class="form-group {{ $errors->has('knowledge_base_url') ? 'has-error' : '' }}">
 
+                                {!! Form::text('knowledge_base_url',null,['class' => 'form-control'.($errors->has('knowledge_base_url') ? ' is-invalid' : ''),'id'=>'knowledge_base_url','placeholder'=>'https://example.com']) !!}
+                                @error('knowledge_base_url')
+                                <span class="error-message"> {{$message}}</span>
+                                @enderror
+                                <span id="url-error-msg" class="hide"></span>
 
-                                {!! Form::text('knowledge_base_url',null,['class' => 'form-control']) !!}
-                                
+
 
                             </div>
                         </td>
@@ -187,13 +223,17 @@ System Setting
                                 <!-- <p><i> {{Lang::get('message.country')}}</i> </p> -->
                                   <?php $countries = \App\Model\Common\Country::pluck('nicename', 'country_code_char2')->toArray(); ?>
 
-                     <select name="country" value= "Choose" id="country" onChange="getCountryAttr(this.value)" class="form-control selectpicker" data-live-search="true" data-live-search-placeholder="Search" data-dropup-auto="false" data-size="10">
+                     <select name="country" value= "Choose" id="country" onChange="getCountryAttr(this.value)" class="form-control selectpicker {{$errors->has('country') ? ' is-invalid' : ''}}" data-live-search="true" data-live-search-placeholder="Search" data-dropup-auto="false" data-size="10">
                              <option value="">Choose</option>
                            @foreach($countries as $key=>$country)
                               <option value="{{$key}}" <?php  if(in_array($country, $selectedCountry) ) { echo "selected";} ?>>{{$country}}</option>
                           @endforeach
                           </select>
-
+                                @error('country')
+                                <span class="error-message"> {{$message}}</span>
+                                @enderror
+                                <div class="input-group-append">
+                                </div>
 
                     </div>
 
@@ -212,8 +252,10 @@ System Setting
                                 </td>
 
                                  <td>
-                                {!! Form::text('cin_no',null,['class' => 'form-control','id'=>'cin']) !!}
-
+                                {!! Form::text('cin_no',null,['class' => 'form-control'.($errors->has('cin_no') ? ' is-invalid' : ''),'id'=>'cin']) !!}
+                                     @error('cin_no')
+                                     <span class="error-message"> {{$message}}</span>
+                                 @enderror
                             </div>
                                      
                                  </td>
@@ -228,7 +270,11 @@ System Setting
 
                                  <td>
                                      
-                                    {!! Form::text('gstin',null,['class' => 'form-control','id'=>'gstin']) !!}
+                                    {!! Form::number('gstin',null,['class' => 'form-control'.($errors->has('gstin') ? ' is-invalid' : ''),'id'=>'gstin']) !!}
+                                     <span class="hide" id="gst-error-msg"></span>
+                                     @error('gstin')
+                                     <span class="error-message"> {{$message}}</span>
+                                  @enderror
                                  </div>
                                  </td>
                           
@@ -240,7 +286,7 @@ System Setting
 
                         <td><b>{!! Form::label('state',Lang::get('message.state') ,['class'=>'required']) !!}</b></td>
                         <td>
-                        <select name="state" id="state-list" class="form-control">
+                        <select name="state" id="state-list" class="form-control {{$errors->has('state') ? ' is-invalid' : ''}}">
                                 @if($set->state)
                              <option value="{{$state['id']}}">{{$state['name']}}</option>
                             @endif
@@ -250,6 +296,9 @@ System Setting
                             @endforeach
 
                         </select>
+                            @error('state')
+                            <span class="error-message"> {{$message}}</span>
+                            @enderror
                         </td>
                     </tr>
                     <br>
@@ -259,13 +308,18 @@ System Setting
                         <td>
                              <?php $currencies = \App\Model\Payment\Currency::where('status',1)->pluck('name','code')->toArray(); 
                              ?>
-                         <select name="default_currency" value= "Choose"  class="form-control selectpicker" data-live-search="true" data-live-search-placeholder="Search" data-dropup-auto="false" data-size="10">
+                         <select name="default_currency" value= "Choose"  class="form-control selectpicker {{$errors->has('default_currency') ? ' is-invalid' : ''}}" data-live-search="true" data-live-search-placeholder="Search" data-dropup-auto="false" data-size="10">
                                <option value="">Choose</option>
                            @foreach($currencies as $key=>$currency)
                               <option value="{{$key}}" <?php  if(in_array($currency, $selectedCurrency) ) { echo "selected";} ?>>{{$currency}}</option>
                           @endforeach
 
                         </select>
+                            @error('default_currency')
+                            <span class="error-message"> {{$message}}</span>
+                            @enderror
+                            <div class="input-group-append">
+                            </div>
                         </td>
                     </tr>
                     <br>
@@ -282,11 +336,14 @@ System Setting
                                     @endif
 
                                     <div class="custom-file ml-3">
-                                        {!! Form::file('admin-logo', ['class' => 'custom-file-input cursor-pointer', 'id' => 'admin-logo' , 'role' => 'button']) !!}
+                                        {!! Form::file('admin-logo', ['class' => 'custom-file-input cursor-pointer'.($errors->has('admin-logo') ? ' is-invalid' : ''), 'id' => 'admin-logo' , 'role' => 'button']) !!}
                                         <label role="button" class="custom-file-label cursor-pointer" for="admin-logo">{{ __('Choose file') }}</label>
+                                        @error('admin_logo')
+                                        <span class="error-message"> {{$message}}</span>
+                                        @enderror
                                     </div>
                                 </div>
-
+                                <span class="hide system-error" id="admin-err-Msg"></span>
                                 @if($errors->has('admin-logo'))
                                     <small class="form-text text-danger mt-1">
                                         <i class="fas fa-exclamation-circle"></i> {{ $errors->first('admin-logo') }}
@@ -311,11 +368,11 @@ System Setting
                                     @endif
 
                                     <div class="custom-file ml-3">
-                                        {!! Form::file('fav-icon', ['class' => 'custom-file-input', 'id' => 'fav-icon' ,'role' => 'button']) !!}
+                                        {!! Form::file('fav-icon', ['class' => 'custom-file-input'.($errors->has('fav-icon') ? ' is-invalid' : ''), 'id' => 'fav-icon' ,'role' => 'button']) !!}
                                         <label role="button" class="custom-file-label" for="fav-icon">{{ __('Choose file') }}</label>
                                     </div>
                                 </div>
-
+                                <span class="hide system-error" id="favicon-err-Msg"></span>
                                 @if($errors->has('fav-icon'))
                                     <small class="form-text text-danger mt-1">
                                         <i class="fas fa-exclamation-circle"></i> {{ $errors->first('fav-icon') }}
@@ -333,8 +390,10 @@ System Setting
                             <div class="form-group {{ $errors->has('favicon_title') ? 'has-error' : '' }}">
 
 
-                                {!! Form::text('favicon_title',null,['class' => 'form-control']) !!}
-                                
+                                {!! Form::text('favicon_title',null,['class' => 'form-control'.($errors->has('favicon_title') ? ' is-invalid' : '')]) !!}
+                                @error('favicon_title')
+                                <span class="error-message"> {{$message}}</span>
+                                @enderror
 
 
                             </div>
@@ -349,43 +408,47 @@ System Setting
                             <div class="form-group {{ $errors->has('favicon_title_client') ? 'has-error' : '' }}">
 
 
-                                {!! Form::text('favicon_title_client',null,['class' => 'form-control']) !!}
-                                
+                                {!! Form::text('favicon_title_client',null,['class' => 'form-control'.($errors->has('favicon_title_client') ? ' is-invalid' : '')]) !!}
 
+                                @error('favicon_title_client')
+                                <span class="error-message"> {{$message}}</span>
+                                @enderror
 
                             </div>
                         </td>
 
                     </tr>
 
-                    <tr>
+                <tr>
 
-                        <td><b>{!! Form::label('logo',Lang::get('message.client-logo')) !!}</b></td>
-                        <td>
-                            <div class="form-group {{ $errors->has('logo') ? 'has-error' : '' }}">
-                                   {{ __('Upload the company logo') }}
+                    <td><b>{!! Form::label('logo',Lang::get('message.client-logo')) !!}</b></td>
+                    <td>
+                        <div class="form-group {{ $errors->has('logo') ? 'has-error' : '' }}">
+                            {{ __('Upload the company logo') }}
 
-                                <div class="d-flex align-items-center mt-1">
-                                    @if($set->logo)
-                                        <img src="{{ $set->logo }}" class="img-thumbnail shadow-sm border"
-                                             style="height: 50px; width: 100px;" alt="Company Logo" id="preview-logo">
-                                    @endif
-
-                                    <div class="custom-file ml-3">
-                                        {!! Form::file('logo', ['class' => 'custom-file-input', 'id' => 'logo', 'role' => 'button', 'onchange' => 'previewImage("preview-logo", "logo")']) !!}
-                                        <label role="button" class="custom-file-label" for="logo">{{ __('Choose file') }}</label>
-                                    </div>
-                                </div>
-
-                                @if($errors->has('logo'))
-                                    <small class="form-text text-danger mt-1">
-                                        <i class="fas fa-exclamation-circle"></i> {{ $errors->first('logo') }}
-                                    </small>
+                            <div class="d-flex align-items-center mt-1">
+                                @if($set->logo)
+                                    <img src="{{ $set->logo }}" class="img-thumbnail shadow-sm border"
+                                         style="height: 50px; width: 100px;" alt="Company Logo" id="preview-logo">
                                 @endif
-                            </div>
-                        </td>
 
-                    </tr>
+                                <div class="custom-file ml-3">
+                                    {!! Form::file('logo', ['class' => 'custom-file-input', 'id' => 'logo', 'role' => 'button', 'onchange' => 'previewImage("preview-logo", "logo")']) !!}
+                                    <label role="button" class="custom-file-label" for="logo">{{ __('Choose file') }}</label>
+                                </div>
+                            </div>
+                            <span class="hide system-error" id="logo-err-Msg"></span>
+                        @if($errors->has('logo'))
+                                <small class="form-text text-danger mt-1">
+                                    <i class="fas fa-exclamation-circle"></i> {{ $errors->first('logo') }}
+                                </small>
+                            @endif
+                        </div>
+                    </td>
+
+                </tr>
+
+
 
 
             </div>
@@ -399,14 +462,191 @@ System Setting
     </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.0/sweetalert.min.js"></script>
-<script type="text/javascript">
 
-    $(document).ready(function () {
-        $('.custom-file-input').on('change', function() {
-            let fileName = $(this).val().split('\\').pop();
-            $(this).next('.custom-file-label').addClass('selected').html(fileName);
+
+    <script>
+        $(document).ready(function () {
+
+            var fup = document.getElementById('logo');
+            var errMsg=document.getElementById('logo-err-Msg');
+            $('#logo').on('change',function(e){
+                const input = document.getElementById('logo');
+                const file = input.files?.[0];
+                var fileName = fup.value;
+                var ext = fileName.substring(fileName.lastIndexOf('.') + 1);
+
+                const maxSize = 2 * 1024 * 1024;
+                if(ext !=="jpeg" && ext !=="jpg" && ext !=='png') {
+                    fup.classList.add('is-invalid');
+                    errMsg.innerText=@json(trans('message.image_invalid_message'));
+                    document.getElementById('submit').disabled = true;
+                    return false;
+                }else if(file.size>maxSize){
+                    fup.classList.add('is-invalid');
+                    errMsg.innerText=@json(trans('message.image_invalid_size'));
+                    document.getElementById('submit').disabled = true;
+                    return false;
+                }
+                else {
+                    errMsg.innerText='';
+                    fup.classList.remove('is-invalid');
+                    document.getElementById('submit').disabled = false;
+                    return true;
+                }
+            });
+
+            var fup1 = document.getElementById('admin-logo');
+            var errMsg1=document.getElementById('admin-err-Msg');
+            $('#admin-logo').on('change',function(e){
+
+                const input = document.getElementById('admin-logo');
+                const file = input.files?.[0];
+                var fileName = fup1.value;
+                var ext = fileName.substring(fileName.lastIndexOf('.') + 1);
+
+                const maxSize = 2 * 1024 * 1024;
+
+
+                if(ext !=="jpeg" && ext !=="jpg" && ext !=='png') {
+                    fup1.classList.add('is-invalid');
+                    errMsg1.innerText=@json(trans('message.image_invalid_message'));
+                    document.getElementById('submit').disabled = true;
+                    return false;
+                }else if(file.size>maxSize){
+                    fup1.classList.add('is-invalid');
+                    errMsg1.innerText=@json(trans('message.image_invalid_size'));
+                    document.getElementById('submit').disabled = true;
+                    return false;
+                }
+                else {
+                    errMsg1.innerText='';
+                    fup1.classList.remove('is-invalid');
+                    document.getElementById('submit').disabled = false;
+                    return true;
+                }});
+
+            var fup2 = document.getElementById('fav-icon');
+            var errMsg2=document.getElementById('favicon-err-Msg');
+            $('#fav-icon').on('change',function(e){
+                const input = document.getElementById('fav-icon');
+                const file = input.files?.[0];
+                var fileName = fup2.value;
+                var ext = fileName.substring(fileName.lastIndexOf('.') + 1);
+
+                const maxSize = 2 * 1024 * 1024;
+                if(ext !=="jpeg" && ext !=="jpg" && ext !=='png') {
+                    fup2.classList.add('is-invalid');
+                    errMsg2.innerText=@json(trans('message.image_invalid_message'));
+                    document.getElementById('submit').disabled = true;
+                    return false;
+                }else if(file.size>maxSize){
+                    fup2.classList.add('is-invalid');
+                    errMsg2.innerText=@json(trans('message.image_invalid_size'));
+                    document.getElementById('submit').disabled = true;
+                    return false;
+                }
+                else {
+                    errMsg2.innerText='';
+                    fup2.classList.remove('is-invalid');
+                    document.getElementById('submit').disabled = false;
+                    return true;
+                }
+                });
+
+
+            $('.custom-file-input').on('change', function() {
+                let fileName = $(this).val().split('\\').pop();
+                $(this).next('.custom-file-label').addClass('selected').html(fileName);
+            });
         });
-    });
+        $(document).ready(function() {
+            const userRequiredFields = {
+                company:@json(trans('message.company_details.company_name')),
+                company_email:@json(trans('message.company_details.company_email')),
+                website:@json(trans('message.company_details.add_website')),
+                phone_code:@json(trans('message.company_details.add_phone')),
+                address:@json(trans('message.company_details.add_address')),
+                country:@json(trans('message.company_details.add_country')),
+                default_currency:@json(trans('message.company_details.default_currency')),
+                state:@json(trans('message.company_details.add_state')),
+
+            };
+
+            $('#submit').on('click', function (e) {
+
+                const userFields = {
+                    company:$('#company'),
+                    company_email:$('#company_email'),
+                    website:$('#website'),
+                    address:$('#address'),
+                    state:$('#state-list'),
+                    country:$('#country'),
+                };
+
+
+                // Clear previous errors
+                Object.values(userFields).forEach(field => {
+                    field.removeClass('is-invalid');
+                    field.next('.error').remove();
+
+                });
+
+                let isValid = true;
+                const showError = (field, message) => {
+                    field.addClass('is-invalid');
+                    field.after(`<span class='error invalid-feedback'>${message}</span>`);
+                };
+
+                // Validate required fields
+                Object.keys(userFields).forEach(field => {
+                    if (!userFields[field].val()) {
+                        showError(userFields[field], userRequiredFields[field]);
+                        isValid = false;
+                    }
+                });
+
+                if(isValid  && !isValidURL(userFields.website.val())){
+                    showError(userFields.website,@json(trans('message.page_details.valid_url')),);
+                    isValid=false;
+                }
+
+                if(isValid && userFields.company.val().length>50){
+                    showError(userFields.company,@json(trans('message.valid_name')),);
+                    isValid=false;
+                }
+                // If validation fails, prevent form submission
+                if (!isValid) {
+                    e.preventDefault();
+                }
+            });
+            // Function to remove error when input'id' => 'changePasswordForm'ng data
+            const removeErrorMessage = (field) => {
+                field.classList.remove('is-invalid');
+                const error = field.nextElementSibling;
+                if (error && error.classList.contains('error')) {
+                    error.remove();
+                }
+            };
+
+            // Add input event listeners for all fields
+            ['company','company_email','website','phone','address','country','default_currency','state-list'].forEach(id => {
+
+                document.getElementById(id).addEventListener('input', function () {
+                    removeErrorMessage(this);
+
+                });
+            });
+
+            function isValidURL(url) {
+                const pattern = /^(https?:\/\/)?([\w-]+\.)+([a-z]{2,6})(\/[\w-]*)*(\?.*)?(#.*)?$/i;
+                return pattern.test(url);
+            }
+
+        });
+
+
+
+
 
     $(document).ready(function(){
          $(function () {
@@ -422,14 +662,91 @@ System Setting
     getCode(country);
     var telInput = $('#phone');
     addressDropdown = $("#country");
-     errorMsg = document.querySelector("#error-msg"),
+     errorMsg = document.querySelector("#error-msg");
     validMsg = document.querySelector("#valid-msg");
-     var reset = function() {
+
+    var url=$('#knowledge_base_url');
+    urlerrorMsg = document.querySelector("#url-error-msg");
+        var reset = function() {
       errorMsg.innerHTML = "";
       errorMsg.classList.add("hide");
       validMsg.classList.add("hide");
     };
      $('.intl-tel-input').css('width', '100%');
+
+        function isValidURL(url) {
+            const pattern = /^(https?:\/\/)?([\w-]+\.)+([a-z]{2,6})(\/[\w-]*)*(\?.*)?(#.*)?$/i;
+            return pattern.test(url);
+        }
+
+        $('#submit').on('click',function(e) {
+            if(telInput.val()===''){
+                e.preventDefault();
+                errorMsg.classList.remove("hide");
+                errorMsg.innerHTML = @json(trans('message.user_edit_details.add_phone_number'));
+                $('#phone').addClass('is-invalid');
+                $('#phone').css("border-color", "#dc3545");
+                $('#error-msg').css({"width": "100%", "margin-top": ".25rem", "font-size": "80%", "color": "#dc3545"});
+            }
+
+            if(url.val()!== '') {
+                if (!isValidURL(url.val())) {
+                    e.preventDefault();
+                    urlerrorMsg.classList.remove("hide");
+                    urlerrorMsg.innerHTML = @json(trans('message.page_details.valid_url'));
+                    $('#knowledge_base_url').addClass('is-invalid');
+                    $('#knowledge_base_url').css("border-color", "#dc3545");
+                    $('#url-error-msg').css({
+                        "width": "100%",
+                        "margin-top": ".25rem",
+                        "font-size": "80%",
+                        "color": "#dc3545"
+                    });
+
+                }
+            }
+            gstinerrorMsg=document.querySelector("#gst-error-msg");
+            var gstin=$('#gstin');
+
+            if(gstin.val()!==''){
+                if(gstin.val().length!=15 ){
+                    e.preventDefault();
+                    gstinerrorMsg.innerHTML = @json(trans('message.valid_gst_number'));
+                    $('#gstin').addClass('is-invalid');
+                    $('#gstin').css("border-color", "#dc3545");
+                    $('#gst-error-msg').css({
+                        "width": "100%",
+                        "margin-top": ".25rem",
+                        "font-size": "80%",
+                        "color": "#dc3545"
+                    });
+                }
+            }
+
+
+            var zip=$('#zip1');
+            ziperrorMsg = document.querySelector("#zip-error-msg");
+
+            if(zip.val()!==''){
+                if(!zipRegex(zip.val())){
+                    e.preventDefault();
+                    ziperrorMsg.innerHTML = @json(trans('message.valid_zip'));
+
+                    $('#zip1').addClass('is-invalid');
+                    $('#zip1').css("border-color", "#dc3545");
+                    $('#zip-error-msg').css({
+                        "width": "100%",
+                        "margin-top": ".25rem",
+                        "font-size": "80%",
+                        "color": "#dc3545"
+                    });
+                }
+            }
+        });
+        function zipRegex(val) {
+            var re = /^[a-zA-Z0-9]+$/;
+            return re.test(val);
+        }
     telInput.on('input blur submit', function () {
       reset();
         if ($.trim(telInput.val())) {
@@ -439,13 +756,46 @@ System Setting
               $('#submit').attr('disabled',false);
             } else {
              errorMsg.innerHTML = "Please enter a valid number";
-             $('#phone').css("border-color","red");
-             $('#error-msg').css({"color":"red","margin-top":"5px"});
-             errorMsg.classList.remove("hide");
-             $('#submit').attr('disabled',true);
+                errorMsg.classList.remove("hide");
+                errorMsg.innerHTML = "Please enter a valid number";
+                $('#phone').css("border-color", "#dc3545");
+                $('#error-msg').css({"color": "#dc3545", "margin-top": "5px", "font-size": "80%"});
             }
         }
     });
+
+
+
+        function validateEmail(email) {
+            const emailPattern = /^(?!.*\.\.)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|org|net|edu|gov|mil|co|io|biz|info|dev|xyz)$/;
+            return emailPattern.test(email);
+
+        }
+
+        emailErrorMsg = document.querySelector("#email-error-msg");
+        var emailReset = function() {
+            emailErrorMsg.innerHTML = "";
+            emailErrorMsg.classList.add("hide");
+        };
+
+
+        var email=$('#company_email');
+        email.on('input blur', function () {
+            emailReset();
+            if ($.trim(email.val())) {
+                if (validateEmail(email.val())) {
+                    $('#company_email').css("border-color","");
+                    $('#submit').attr('disabled',false);
+                } else {
+                    emailErrorMsg.classList.remove("hide");
+                    emailErrorMsg.innerHTML = "Please enter a valid email address";
+                    $('#company_email').css("border-color","#dc3545");
+                    $('#email-error-msg').css({"color":"#dc3545","margin-top":"5px","font-size":"80%"});
+                }
+            }
+        });
+
+
 
      addressDropdown.change(function() {
          updateCountryCodeAndFlag(telInput.get(0), addressDropdown.val());
@@ -457,8 +807,8 @@ System Setting
               $('#submit').attr('disabled',false);
             } else {
                 errorMsg.innerHTML = "Please enter a valid number";
-             $('#phone').css("border-color","red");
-             $('#error-msg').css({"color":"red","margin-top":"5px"});
+             $('#phone').css("border-color","#dc3545");
+             $('#error-msg').css({"color":"#dc3545","margin-top":"5px","font-size":"80%"});
              errorMsg.classList.remove("hide");
              $('#submit').attr('disabled',true);
             }
@@ -523,8 +873,7 @@ System Setting
             return false;
       });
   
-</script>
-<script>
+
      $('ul.nav-sidebar a').filter(function() {
         return this.id == 'setting';
     }).addClass('active');
@@ -533,8 +882,7 @@ System Setting
     $('ul.nav-treeview a').filter(function() {
         return this.id == 'setting';
     }).parentsUntil(".nav-sidebar > .nav-treeview").addClass('menu-open').prev('a').addClass('active');
-</script>
-<script>
+
     $(document).ready(function(){
         var country = $('#country').val();
         if (country == 'IN')
@@ -597,9 +945,9 @@ System Setting
     ['logo', 'admin-logo', 'fav-icon'].forEach((id) => {
         const input = document.getElementById(id);
         const preview = document.getElementById(`preview-${id}`);
-
         if (input && preview) {
             input.addEventListener('change', () => {
+
                 // Clear previous preview if file selection is canceled
                 if (!input.files.length) {
                     preview.src = '';
@@ -612,21 +960,39 @@ System Setting
 
     function previewImage(input, preview) {
         const file = input.files?.[0];
+        const originalSrc=preview.src;
+        if (!file){
+            return
+        }
 
-        if (!file) return;
 
-        const reader = new FileReader();
+            const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
 
-        reader.onload = (e) => {
-            preview.src = e.target.result;
-        };
+            if (allowedTypes.includes(file.type)) {
+                const reader = new FileReader();
 
-        reader.onerror = () => {
-            input.value = '';
-        };
+                reader.onload = (e) => {
+                    preview.src = e.target.result;
+                };
 
-        reader.readAsDataURL(file);
+                reader.onerror = () => {
+                    input.value = '';
+                };
+
+                reader.readAsDataURL(file);
+            } else {
+                input.value = '';
+                preview.src = originalSrc;
+            }
+
     }
+
+        document.getElementById("zip1").addEventListener('input',function(){
+            ziperrorMsg = document.querySelector("#zip-error-msg");
+            $('#zip1').removeClass('is-invalid');
+            $('#zip1').css("border-color", "silver");
+            ziperrorMsg.innerHTML = '';
+        });
 </script>
 
 

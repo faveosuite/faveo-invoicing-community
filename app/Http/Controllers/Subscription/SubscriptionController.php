@@ -193,7 +193,7 @@ class SubscriptionController extends Controller
                     $processingFee = (float) $processingFee / 100;
                     $price += ($price * $processingFee);
                 }
-                $cost = in_array($subscription->product_id, cloudPopupProducts()) ? $this->getPriceforCloud($order, $price) : $price;
+                $cost = in_array($subscription->product_id, cloudPopupProducts()) || $product_details->can_modify_agent ? $this->getPriceforCloud($order, $price) : $price;
 
                 if ($this->shouldCancelSubscription($product_details, $price)) {
                     Subscription::where('id', $subscription->id)->update(['is_subscribed' => 0]);

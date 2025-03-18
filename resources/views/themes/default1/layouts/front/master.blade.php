@@ -368,7 +368,7 @@ $days = $pay->where('product','117')->value('days');
                                                     ?>
                                                     @if($cloud == 1)
                                                         <li class="demo-icons">
-                                                            <a class="nav-link open-createTenantDialog startFreeTrialBtn">START FREE TRIAL</a>
+                                                            <a class="nav-link btn open-createTenantDialog startFreeTrialBtn">START FREE TRIAL</a>
                                                         </li>
                                                         @endif
                                                         </li>
@@ -1033,7 +1033,6 @@ setTimeout(function() {
     $(document).ready(function() {
         $('#mailchimp-subscription').on('click', function(e) {
             e.preventDefault();
-            console.log("in");
 
             // Select elements using jQuery
             var $form = $('#newsletterForm');

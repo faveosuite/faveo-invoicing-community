@@ -11,10 +11,18 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 2  # Ensures we get history for reverts
 
       - name: Check if restricted file was modified
         run: |
-          if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q "Jenkinsfile"; then
-            echo "The protected file has been modified. Rejecting push!"
-            exit 1
+          if [ "${{ github.ref }}" = "refs/heads/development" ]; then
+            echo "Push to development branch detected. No restrictions applied."
+            exit 0
+          fi
+
+          if git diff --name-only HEAD^ HEAD | grep -q "Jenkinsfile"; then
+            echo "ERROR: The protected file has been modified outside of development. Reverting changes..."
+            git reset --hard HEAD^
+            git push --force origin ${{ github.ref_name }}
           fi

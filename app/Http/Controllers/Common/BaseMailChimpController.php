@@ -53,12 +53,12 @@ class BaseMailChimpController extends Controller
                 $result = $this->mailchimp->patch("lists/$this->list_id/members/$hash", [
                     'interests' => [$interestGroupIdForNo => true, $interestGroupIdForYes => false, $productGroupId => true],
                 ]);
-            //refer to https://us7.api.mailchimp.com/playground
+                //refer to https://us7.api.mailchimp.com/playground
             } elseif ($interestGroupIdForNo && $productGroupId == null) {
                 $result = $this->mailchimp->patch("lists/$this->list_id/members/$hash", [
                     'interests' => [$interestGroupIdForNo => true, $interestGroupIdForYes => false],
                 ]);
-            //refer to https://us7.api.mailchimp.com/playground
+                //refer to https://us7.api.mailchimp.com/playground
             } elseif ($productGroupId && $interestGroupIdForNo == null || $interestGroupIdForYes == null) {
                 $result = $this->mailchimp->patch("lists/$this->list_id/members/$hash", [
                     'interests' => [$productGroupId => true],
@@ -93,7 +93,7 @@ class BaseMailChimpController extends Controller
                 $result = $this->mailchimp->patch("lists/$this->list_id/members/$hash", [
                     'interests' => [$interestGroupIdForNo => false, $interestGroupIdForYes => true],
                 ]);
-            //refer to https://us7.api.mailchimp.com/playground
+                //refer to https://us7.api.mailchimp.com/playground
             } elseif ($productGroupId && $interestGroupIdForNo == null || $interestGroupIdForYes == null) {
                 $result = $this->mailchimp->patch("lists/$this->list_id/members/$hash", [
                     'interests' => [$productGroupId => true],
@@ -131,18 +131,24 @@ class BaseMailChimpController extends Controller
     public function postMailChimpSettings(Request $request)
     {
         $this->validate($request, [
-            //            'api_key' => 'required',
             'list_id' => 'required',
         ]);
-
         try {
             $this->mailchimp_set->first()->update(['subscribe_status' => $request->input('subscribe_status'),
                 'list_id' => $request->input('list_id'), ]);
             $this->addListsToAgora();
 
-            return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
+            return [
+                'message' => 'success',
+                'update' => \Lang::get('message.mailchimp_setting'),
+                'list_id' => 1,
+            ];
         } catch (Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return [
+                'message' => 'error',
+                'update' => \Lang::get('message.mailchimp_apikey_error'),
+                'list_id' => 0,
+            ];
         }
     }
 

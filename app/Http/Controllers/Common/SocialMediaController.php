@@ -36,6 +36,10 @@ class SocialMediaController extends Controller
             $social = $this->social->select('id', 'name', 'link');
 
             return \DataTables::of($social)
+                ->addColumn('checkbox', function ($model) {
+                    return "<input type='checkbox' class='chat_checkbox' 
+                            value=".$model->id.' name=select[] id=check>';
+                })
                             ->orderColumn('name', '-created_at $1')
                             ->orderColumn('link', '-created_at $1')
                             ->addColumn('#', function ($model) {
@@ -62,7 +66,7 @@ class SocialMediaController extends Controller
                                  $sql = 'link like ?';
                                  $query->whereRaw($sql, ["%{$keyword}%"]);
                              })
-                            ->rawColumns(['name', 'link', 'action'])
+                            ->rawColumns(['checkbox', 'name', 'link', 'action'])
                             ->make(true);
             // ->searchColumns('name')
             // ->orderColumns('class')

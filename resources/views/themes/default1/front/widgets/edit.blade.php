@@ -20,7 +20,7 @@ Edit Widget
 
 
 
-        {!! Form::model($widget,['url'=>'widgets/'.$widget->id,'method'=>'patch']) !!}
+        {!! Form::model($widget,['url'=>'widgets/'.$widget->id,'method'=>'patch','id'=>'widgetForm']) !!}
 
 
     <div class="card-body">
@@ -36,15 +36,17 @@ Edit Widget
                     <div class="col-md-4 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         <!-- first name -->
                         {!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}
-                        {!! Form::text('name',null,['class' => 'form-control','id'=>'name']) !!}
-
+                        {!! Form::text('name',null,['class' => 'form-control'. ($errors->has('name') ? ' is-invalid' : ''),'id'=>'name']) !!}
+                        <div class="input-group-append">
+                        </div>
                     </div>
 
                     <div class="col-md-4 form-group {{ $errors->has('publish') ? 'has-error' : '' }}">
                         <!-- last name -->
                         {!! Form::label('publish',Lang::get('message.publish'),['class'=>'required']) !!}
-                        {!! Form::select('publish',[1=>'Yes',0=>'No'],null,['class' => 'form-control']) !!}
-
+                        {!! Form::select('publish',[1=>'Yes',0=>'No'],null,['class' => 'form-control'. ($errors->has('publish') ? ' is-invalid' : ''),'id'=>'publish']) !!}
+                        <div class="input-group-append">
+                        </div>
                     </div>
                    <?php 
                 $mail = ['class' => 'form-control','disabled' => 'true' , 'title' => 'Cofigure your mailchimp in settings to access'];
@@ -70,8 +72,9 @@ Edit Widget
                     <div class="col-md-4 form-group {{ $errors->has('type') ? 'has-error' : '' }}">
                         <!-- last name -->
                         {!! Form::label('type',Lang::get('message.type'),['class'=>'required']) !!}
-                        {!! Form::select('type', [''=>'Choose','footer1'=>'Footer 1','footer2'=>'Footer 2','footer3'=>'Footer 3'],$widget->type,['class' => 'form-control']) !!}
-
+                        {!! Form::select('type', [''=>'Choose','footer1'=>'Footer 1','footer2'=>'Footer 2','footer3'=>'Footer 3'],$widget->type,['class' => 'form-control'. ($errors->has('type') ? ' is-invalid' : ''),'id'=>'type']) !!}
+                        <div class="input-group-append">
+                        </div>
                     </div>
 
 
@@ -112,7 +115,7 @@ Edit Widget
                         </script>
 
                         {!! Form::label('content',Lang::get('message.content')) !!}
-                        {!! Form::textarea('content',null,['class'=>'form-control','id'=>'textarea']) !!}
+                        {!! Form::textarea('content',null,['class'=>'form-control'. ($errors->has('content') ? ' is-invalid' : ''),'id'=>'textarea']) !!}
 
                     </div>
 
@@ -130,6 +133,80 @@ Edit Widget
 
 
 {!! Form::close() !!}
+
+<script>
+
+    $(document).ready(function() {
+        const userRequiredFields = {
+            name:@json(trans('message.widget_details.name')),
+            publish:@json(trans('message.widget_details.publish')),
+            type:@json(trans('message.widget_details.type')),
+
+        };
+
+        $('#widgetForm').on('submit', function (e) {
+            const userFields = {
+                name:$('#name'),
+                publish:$('#publish'),
+                type:$('#type'),
+
+            };
+
+
+            // Clear previous errors
+            Object.values(userFields).forEach(field => {
+                field.removeClass('is-invalid');
+                field.next().next('.error').remove();
+
+            });
+
+            let isValid = true;
+
+            const showError = (field, message) => {
+                field.addClass('is-invalid');
+                field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+            };
+
+            // Validate required fields
+            Object.keys(userFields).forEach(field => {
+                if (!userFields[field].val()) {
+                    showError(userFields[field], userRequiredFields[field]);
+                    isValid = false;
+                }
+            });
+
+
+            if(isValid && userFields.name.val().length>50){
+                showError(userFields.name,@json(trans('message.valid_widget_name')));
+                    isValid=false;
+            }
+
+
+            // If validation fails, prevent form submission
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+        // Function to remove error when input'id' => 'changePasswordForm'ng data
+        const removeErrorMessage = (field) => {
+            field.classList.remove('is-invalid');
+            const error = field.nextElementSibling;
+            if (error && error.classList.contains('error')) {
+                error.remove();
+            }
+        };
+
+        // Add input event listeners for all fields
+        ['name','publish','type'].forEach(id => {
+
+            document.getElementById(id).addEventListener('input', function () {
+                removeErrorMessage(this);
+
+            });
+        });
+    });
+
+</script>
 <script>
      $('ul.nav-sidebar a').filter(function() {
         return this.id == 'setting';

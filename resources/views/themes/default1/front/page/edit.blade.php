@@ -18,7 +18,7 @@ Edit Page
 @section('content')
 <div class="card card-secondary card-outline">
 
-      {!! Form::model($page,['url'=>'pages/'.$page->id,'method'=>'patch']) !!}
+      {!! Form::model($page,['url'=>'pages/'.$page->id,'method'=>'patch','id'=>'createPage']) !!}
 
 
     <div class="card-body table-responsive">
@@ -27,29 +27,39 @@ Edit Page
 
             <div class="col-md-12">
 
-
-
                 <div class="row">
 
                     <div class="col-md-4 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                        <!-- first name -->
+                        <!-- name -->
                         {!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}
-                        {!! Form::text('name',null,['class' => 'form-control','id'=>'name']) !!}
-
+                        {!! Form::text('name',null,['class' => 'form-control'.($errors->has('name') ? ' is-invalid' : ''),'id'=>'name']) !!}
+                        @error('name')
+                        <span class="error-message"> {{$message}}</span>
+                        @enderror
+                        <div class="input-group-append">
+                        </div>
                     </div>
 
                     <div class="col-md-4 form-group {{ $errors->has('publish') ? 'has-error' : '' }}">
-                        <!-- last name -->
+                        <!-- publish -->
                         {!! Form::label('publish',Lang::get('message.publish'),['class'=>'required']) !!}
-                        {!! Form::select('publish',[1=>'Yes',0=>'No'],null,['class' => 'form-control']) !!}
-
+                        {!! Form::select('publish',[1=>'Yes',0=>'No'],null,['class' => 'form-control'.($errors->has('publish') ? ' is-invalid' : '')]) !!}
+                        @error('publish')
+                        <span class="error-message"> {{$message}}</span>
+                        @enderror
+                        <div class="input-group-append">
+                        </div>
                     </div>
 
                     <div class="col-md-4 form-group {{ $errors->has('slug') ? 'has-error' : '' }}">
-                        <!-- first name -->
+                        <!-- slug -->
                         {!! Form::label('slug',Lang::get('message.slug'),['class'=>'required']) !!}
-                        {!! Form::text('slug',null,['class' => 'form-control','id'=>'slug']) !!}
-
+                        {!! Form::text('slug',null,['class' => 'form-control'.($errors->has('slug') ? ' is-invalid' : ''),'id'=>'slug']) !!}
+                        @error('slug')
+                        <span class="error-message"> {{$message}}</span>
+                        @enderror
+                        <div class="input-group-append">
+                        </div>
                     </div>
 
 
@@ -57,16 +67,21 @@ Edit Page
                 <div class="row">
 
                     <div class="col-md-4 form-group {{ $errors->has('url') ? 'has-error' : '' }}">
-                        <!-- first name -->
+                        <!-- url -->
                         {!! Form::label('url',Lang::get('message.url'),['class'=>'required']) !!}
-                        {!! Form::text('url',null,['class' => 'form-control','id'=>'url']) !!}
 
+                        {!! Form::text('url',null,['class' => 'form-control'.($errors->has('url') ? ' is-invalid' : ''),'id'=>'url','placeholder'=>'https://example.com']) !!}
+                        @error('url')
+                        <span class="error-message"> {{$message}}</span>
+                        @enderror
+                        <div class="input-group-append">
+                        </div>
                     </div>
 
                     <div class="col-md-4 form-group {{ $errors->has('parent_page_id') ? 'has-error' : '' }}">
-                        <!-- last name -->
+                        <!-- parent_page_id -->
                         {!! Form::label('parent_page_id',Lang::get('message.parent-page')) !!}
-                        <select name="parent_page_id"  class="form-control">
+                        <select name="parent_page_id"  class="form-control {{$errors->has('') ? ' is-invalid' : ''}}">
                             <option value="0">Choose</option>
                             @foreach($parents as $key=>$parent)
 
@@ -74,70 +89,50 @@ Edit Page
                            
                              @endforeach
                         </select>
+                        @error('parent_page_id')
+                        <span class="error-message"> {{$message}}</span>
+                        @enderror
                     </div>
 
                      <div class="col-md-4 form-group {{ $errors->has('parent_page_id') ? 'has-error' : '' }}">
-                        <!-- last name -->
+                        <!-- type -->
                         {!! Form::label('type',Lang::get('message.page_type')) !!}
-                          {!! Form::select('type',['none'=>'None','contactus'=>'Contact Us'],null,['class' => 'form-control']) !!} 
+                          {!! Form::select('type',['none'=>'None','contactus'=>'Contact Us'],null,['class' => 'form-control'.($errors->has('type') ? ' is-invalid' : '')]) !!}
 
                     </div>
                     <?php
                          $defaults = DB::table('frontend_pages')->pluck('name','id')->toArray();
                          ?>
                        <div class="col-md-6 form-group {{ $errors->has('parent_page_id') ? 'has-error' : '' }}">
-                        <!-- last name -->
+                        <!-- default_page_id -->
                         {!! Form::label('default_page_id',Lang::get('message.default-page'),['class'=>'required']) !!}
-
-                                   <select name="default_page_id"  class="form-control">
+                                   <select name="default_page_id"  class="form-control {{$errors->has('default_page_id') ? ' is-invalid' : ''}}" >
                                      <option value="">My Invoices</option>
                          @foreach($defaults as $key=>$value)
                                    <option value="{{$key}}" <?php  if($key == $selectedDefault)  { echo "selected";} ?>>{{$value}}</option>
                            
                              @endforeach
                               </select>
-
+                           @error('default_page_id')
+                           <span class="error-message"> {{$message}}</span>
+                           @enderror
                     </div>
                     <div class="col-md-6 form-group {{ $errors->has('parent_page_id') ? 'has-error' : '' }}">
-                        <!-- last name -->
+                        <!-- publish_date -->
                         {!! Form::label('publish_date',Lang::get('message.publish-date'),['class'=>'required']) !!}
 
                         <div class="input-group date" id="publishing_date" data-target-input="nearest">
-                        <input type="text" name="created_at" value="{{$publishingDate}}" class="form-control datetimepicker-input" autocomplete="off"  data-target="#publishing_date"/>
+                        <input type="text" name="created_at" value="{{$publishingDate}}" class="form-control datetimepicker-input {{$errors->has('created_at') ? ' is-invalid' : ''}}" autocomplete="off"  data-target="#publishing_date" id="created_at"/>
 
                         <div class="input-group-append" data-target="#publishing_date"  data-toggle="datetimepicker">
                             <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                         </div>
 
                         </div>
-
-                         <!--  <div class="input-group">
-                    <div class="input-group-prepend">
-                      <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                        @error('created_at')
+                        <span class="error-message"> {{$message}}</span>
+                        @enderror
                     </div>
-                    <input type="text" class="form-control" data-inputmask-alias="datetime" data-inputmask-inputformat="dd/mm/yyyy" data-mask>
-                  </div> -->
-                       <!--  <div class="form-group">
-                         <div class="input-group">
-                             <div class="input-group-prepend">
-                      <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
-                         </div>
-                     <input name="created_at" type="text" value="{{$publishingDate}}" class="form-control" data-inputmask-alias="datetime" data-inputmask-inputformat="dd/mm/yyyy" data-mask>
-                        </div>
-                      </div> -->
-
-                          <!-- <div class="form-group">
-                                    <div class='input-group date' id='datetimepicker1'>
-                                        <input type='text' name="valid_from" id="valid_from" class="form-control" />
-                                        <span class="input-group-addon">
-                                            <span class="glyphicon glyphicon-calendar"></span>
-                                        </span>
-                                    </div>
-                                </div> -->
-
-                    </div>
-
-
 
                 </div>
 
@@ -175,8 +170,12 @@ Edit Page
 
 
                         {!! Form::label('content',Lang::get('message.content'),['class'=>'required']) !!}
-                        {!! Form::textarea('content',null,['class'=>'form-control','id'=>'textarea']) !!}
-
+                        {!! Form::textarea('content',null,['class'=>'form-control'.($errors->has('content') ? ' is-invalid' : ''),'id'=>'textarea']) !!}
+                        @error('content')
+                        <span class="error-message"> {{$message}}</span>
+                        @enderror
+                        <div class="input-group-append">
+                        </div>
                     </div>
 
 
@@ -189,6 +188,8 @@ Edit Page
     </div>
 
 </div>
+{!! Form::close() !!}
+
 <script>
      $('ul.nav-sidebar a').filter(function() {
         return this.id == 'all_page';
@@ -198,12 +199,101 @@ Edit Page
     $('ul.nav-treeview a').filter(function() {
         return this.id == 'all_page';
     }).parentsUntil(".nav-sidebar > .nav-treeview").addClass('menu-open').prev('a').addClass('active');
-</script>
 
-{!! Form::close() !!}
 
-  <script>
-    $(document).on('input', '#name', function () {
+      $(document).ready(function() {
+          const userRequiredFields = {
+              name:@json(trans('message.page_details.add_name')),
+              publish:@json(trans('message.page_details.add_publish')),
+              slug:@json(trans('message.page_details.add_slug')),
+              url:@json(trans('message.page_details.add_url')),
+              content:@json(trans('message.page_details.add_content')),
+              created_at:@json(trans('message.page_details.publish_date')),
+
+          };
+
+          $('#createPage').on('submit', function (e) {
+              const userFields = {
+                  name:$('#name'),
+                  publish:$('#publish'),
+                  slug:$('#slug'),
+                  url:$('#url'),
+                  content:$('#textarea'),
+                  created_at:$('#created_at'),
+
+              };
+
+
+              // Clear previous errors
+              Object.values(userFields).forEach(field => {
+                  field.removeClass('is-invalid');
+                  field.next().next('.error').remove();
+
+              });
+
+              let isValid = true;
+
+              const showError = (field, message) => {
+                  field.addClass('is-invalid');
+                  field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+              };
+
+              // Validate required fields
+              Object.keys(userFields).forEach(field => {
+                  if (!userFields[field].val()) {
+                      showError(userFields[field], userRequiredFields[field]);
+                      isValid = false;
+                  }
+              });
+
+
+
+              if(userFields.url.val()!=='') {
+                  if (!isValidURL(userFields.url.val())) {
+                      showError(userFields.url,@json(trans('message.page_details.valid_url')),);
+                      isValid = false;
+                  }
+              }
+
+              // If validation fails, prevent form submission
+              if (!isValid) {
+                  console.log(3);
+                  e.preventDefault();
+              }
+          });
+          // Function to remove error when input'id' => 'changePasswordForm'ng data
+          const removeErrorMessage = (field) => {
+              field.classList.remove('is-invalid');
+              const error = field.nextElementSibling;
+              if (error && error.classList.contains('error')) {
+                  error.remove();
+              }
+          };
+
+          // Add input event listeners for all fields
+          ['name','publish','url','slug','content'].forEach(id => {
+
+              document.getElementById(id).addEventListener('input', function () {
+                  removeErrorMessage(this);
+
+              });
+          });
+
+
+
+          function isValidURL(string) {
+              try {
+                  new URL(string);
+                  return true;
+              } catch (err) {
+                  return false;
+              }
+          }
+      });
+
+
+
+      $(document).on('input', '#name', function () {
 
         $.ajax({
             type: "get",

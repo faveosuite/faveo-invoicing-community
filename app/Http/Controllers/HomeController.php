@@ -367,7 +367,9 @@ class HomeController extends BaseHomeController
 
             $id = $request->input('id');
 
-            $product = $product->whereRaw('LOWER(`name`) LIKE ? ', strtolower($title))->orWhere('id', $id)->select('id')->first();
+            $product = ($id) ?
+                $product->where('id', $id)->select('id')->first() :
+                $product->whereRaw('LOWER(`name`) LIKE ? ', strtolower($this->mapOldBoys($title)))->orWhere('id', $id)->select('id')->first();
 
             if ($request->has('version')) {
                 if ($product) {
@@ -452,7 +454,10 @@ class HomeController extends BaseHomeController
 
             $id = $request->input('id');
 
-            $product = $product->whereRaw('LOWER(`name`) LIKE ? ', strtolower($title))->orWhere('id', $id)->select('id')->first();
+            $product = ($id) ?
+                $product->where('id', $id)->select('id')->first() :
+                $product->whereRaw('LOWER(`name`) LIKE ? ', strtolower($this->mapOldBoys($title)))->orWhere('id', $id)->select('id')->first();
+
             /**
              * PLEASE NOTE (documenting updates in the logic change).
              *
@@ -518,7 +523,7 @@ class HomeController extends BaseHomeController
      *
      * @author  Manish Verma <manish.verma@ladybirdweb.com>
      */
-    private function getPHPCompatibleVersionString(string $version = null): string
+    private function getPHPCompatibleVersionString(?string $version = null): string
     {
         return preg_replace('#v\.|v#', '', str_replace('_', '.', $version));
     }
@@ -713,5 +718,20 @@ class HomeController extends BaseHomeController
         $product = Product::where('id', $product_id)->select('name', 'description', 'shoping_cart_link', 'product_description')->first();
 
         return ['product' => $product, 'release' => $product_upload];
+    }
+
+    private function mapOldBoys($title)
+    {
+        return match ($title) {
+            'Helpdesk Startup (5 Agents)' => 'Helpdesk Startup',
+            'Helpdesk SME (10 Agents)' => 'Helpdesk SME',
+            'Helpdesk Startup (Recurring) (5 Agents)' => 'Helpdesk Startup (Recurring)',
+            'Helpdesk SME (Recurring) (10 Agents)' => 'Helpdesk SME (Recurring)',
+            'ServiceDesk Startup (5 Agents)' => 'ServiceDesk Startup',
+            'ServiceDesk SME (10 Agents)' => 'ServiceDesk SME',
+            'ServiceDesk Startup (Recurring) (5 Agents)' => 'ServiceDesk Startup (Recurring)',
+            'ServiceDesk SME (Recurring) (10 Agents)' => 'ServiceDesk SME (Recurring)',
+            default => $title
+        };
     }
 }

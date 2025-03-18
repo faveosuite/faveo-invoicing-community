@@ -69,6 +69,51 @@
 
     </head>
     <style>
+        .swal2-popup {
+            margin:0 !important;
+        }
+        .swal2-title{
+            padding-left:0 !important;
+            padding-bottom:0 !important;
+        }
+
+
+        .swal2-html-container{
+            padding-left:0 !important;
+            padding-right:0 !important;
+        }
+
+        .swal2-actions {
+            display: flex !important;
+            justify-content: flex-end !important; /* Align buttons to the right */
+            width: 100% !important; /* Ensure full width */
+            padding-right:10px !important;
+            padding-top:5px !important;
+            margin-top: 0 !important;
+        }
+
+        .swal2-actions-custom-fix {
+            display: flex !important;
+            justify-content: space-between !important;
+            width: 100% !important;
+            padding: 0 1rem;
+        }
+
+        .custom-confirm,
+        .custom-cancel {
+            min-width: 100px;
+        }
+
+
+        .is-invalid + .select2-container .select2-selection {
+            border: 1px solid #dc3545 !important;
+        }
+
+        .is-invalid + .tox-tinymce{
+            border: 1px solid #dc3545 !important;
+        }
+
+
         .required:after {
             content:'*';
             color:red;
@@ -78,8 +123,12 @@
         outline-offset: 0px;
         -webkit-appearance: none;
     }
-    
-   
+
+         .system-error{
+             font-size:80%;
+             color:#dc3545;
+         }
+
     .table.dataTable thead th
     {
         padding: 8px 10px ;
@@ -88,6 +137,10 @@
         /*This is added because of the eye icon is automatically added in edge browser*/
         input[type="password"]::-ms-reveal {
             display: none !important;
+        }
+        .error-message{
+            color: #dc3545;
+            font-size: 80%;
         }
 
         .dropdown-menu-arrow:before {
@@ -121,6 +174,13 @@
         .dropdown-profile{
             right: 0;
             left: auto !important;
+        }
+
+        /* Centering the 'No results found' message */
+        .select2-results .select2-results__message {
+            text-align: center;
+            padding: 10px;
+            font-size: 14px;
         }
 
     </style>
@@ -434,8 +494,9 @@
             <section class="content">
                 <div class="container-fluid">
                     @if(Route::current()->getName() !== 'plans.index' && Route::current()->getName() !== 'tax.index' )
+                        @if(isset($errors) && $errors->any())
 
-                    @if (count($errors) > 0)
+                        @if (is_countable($errors) && count($errors) > 0)
 
                         <div class="alert alert-danger alert-dismissable" id="fail">
                             <strong>Whoops!</strong> There were some problems with your input.
@@ -448,7 +509,7 @@
                         </div>
 
 
-
+@endif
                     @endif
                     @endif
 
@@ -497,7 +558,11 @@
     </div>
     <!-- ./wrapper -->
 
-
+    <script>
+        setTimeout(function() {
+            $(".alert").slideUp(1000);
+        },10000);
+    </script>
     <!-- Bootstrap 3.3.2 JS -->
     <script src="{{asset('admin/plugins/iCheck/icheck.min.js')}}" type="text/javascript"></script>
 
@@ -597,8 +662,8 @@
 
 $("document").ready(function(){
     setTimeout(function(){
-        $("#success").remove();
-    }, 3000 );
+        $("#success").slideUp(1000);
+    }, 5000 );
 });
 
 
@@ -628,10 +693,43 @@ $("document").ready(function(){
                 icon.classList.toggle('fa-eye', isPassword);
             }
           </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let fields = document.querySelectorAll("input, textarea, select");
+
+            fields.forEach(function (field) {
+                field.addEventListener(field.tagName === "SELECT" || field.type === "date" ? "change" : "input", function () {
+                    let errorMessage = this.closest('.form-group')?.querySelector(".error-message");
+
+                    if (errorMessage) {
+                        errorMessage.style.display = "none";
+                    }
+                });
+            });
+
+            // Fix for Select2 dropdowns
+            $('.select2').on('select2:select', function () {
+                let errorMessage = $(this).closest('.form-group').find(".error-message");
+
+                if (errorMessage.length) {
+                    errorMessage.hide();
+                }
+            });
+
+            $('.datetimepicker-input').on("change blur", function () {
+                let errorMessage = $(this).closest('.form-group').find(".error-message");
+                if (errorMessage.length) {
+                    errorMessage.hide();
+                    $(this).removeClass('is-invalid');
+                }
+            });
+        });
+
+    </script>
 
 
 
-        </div><!-- ./wrapper -->
+    </div><!-- ./wrapper -->
        
         <!-- Bootstrap 3.3.2 JS -->
        
