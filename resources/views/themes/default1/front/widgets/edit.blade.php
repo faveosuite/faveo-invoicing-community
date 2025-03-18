@@ -36,7 +36,7 @@ Edit Widget
                     <div class="col-md-4 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         <!-- first name -->
                         {!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}
-                        {!! Form::text('name',null,['class' => 'form-control','id'=>'name']) !!}
+                        {!! Form::text('name',null,['class' => 'form-control'. ($errors->has('name') ? ' is-invalid' : ''),'id'=>'name']) !!}
                         <div class="input-group-append">
                         </div>
                     </div>
@@ -44,7 +44,7 @@ Edit Widget
                     <div class="col-md-4 form-group {{ $errors->has('publish') ? 'has-error' : '' }}">
                         <!-- last name -->
                         {!! Form::label('publish',Lang::get('message.publish'),['class'=>'required']) !!}
-                        {!! Form::select('publish',[1=>'Yes',0=>'No'],null,['class' => 'form-control','id'=>'publish']) !!}
+                        {!! Form::select('publish',[1=>'Yes',0=>'No'],null,['class' => 'form-control'. ($errors->has('publish') ? ' is-invalid' : ''),'id'=>'publish']) !!}
                         <div class="input-group-append">
                         </div>
                     </div>
@@ -72,7 +72,7 @@ Edit Widget
                     <div class="col-md-4 form-group {{ $errors->has('type') ? 'has-error' : '' }}">
                         <!-- last name -->
                         {!! Form::label('type',Lang::get('message.type'),['class'=>'required']) !!}
-                        {!! Form::select('type', [''=>'Choose','footer1'=>'Footer 1','footer2'=>'Footer 2','footer3'=>'Footer 3'],$widget->type,['class' => 'form-control','id'=>'type']) !!}
+                        {!! Form::select('type', [''=>'Choose','footer1'=>'Footer 1','footer2'=>'Footer 2','footer3'=>'Footer 3'],$widget->type,['class' => 'form-control'. ($errors->has('type') ? ' is-invalid' : ''),'id'=>'type']) !!}
                         <div class="input-group-append">
                         </div>
                     </div>
@@ -115,7 +115,7 @@ Edit Widget
                         </script>
 
                         {!! Form::label('content',Lang::get('message.content')) !!}
-                        {!! Form::textarea('content',null,['class'=>'form-control','id'=>'textarea']) !!}
+                        {!! Form::textarea('content',null,['class'=>'form-control'. ($errors->has('content') ? ' is-invalid' : ''),'id'=>'textarea']) !!}
 
                     </div>
 

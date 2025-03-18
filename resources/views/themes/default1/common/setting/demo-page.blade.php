@@ -26,7 +26,7 @@ Demo Page Settings
         <div class="row">
                        <div class="col-md-4">
                 <div class="form-group">
-                    {!! Form::label('Demopage',Lang::get('Enable/Disable')) . ' <span class="required"></span>' !!}
+                    {!! Form::label('Demopage',Lang::get('Enable/Disable'),['class'=>'required'])!!}
                     <div class="row">
                         <div class="col-sm-3">
                             <input type="radio" name="status" value="true"  @if($Demo_page->status == true) checked="true" @endif > {{Lang::get('Enable')}}

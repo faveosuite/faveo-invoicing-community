@@ -28,7 +28,7 @@
             <div class="col-md-4 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
               <!-- name -->
               {!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}
-              {!! Form::text('name',null,['class' => 'form-control','id'=>'planname']) !!}
+              {!! Form::text('name',null,['class' => 'form-control'.($errors->has('name') ? ' is-invalid' : ''),'id'=>'planname']) !!}
               @error('name')
               <span class="error-message"> {{$message}}</span>
               @enderror
@@ -38,7 +38,7 @@
             <div class="col-md-4 form-group {{ $errors->has('product') ? 'has-error' : '' }}">
               <!-- product -->
               {!! Form::label('product',Lang::get('message.product'),['class'=>'required']) !!}
-              <select name="product" id="planproduct" class="form-control" onchange="myProduct()">
+              <select name="product" id="planproduct" class="form-control {{$errors->has('product') ? ' is-invalid' : ''}}" onchange="myProduct()">
                 <option value="">Choose</option>
 
                 @foreach($products as $key=>$product)
@@ -55,7 +55,7 @@
             <div class="col-md-4 form-group plandays {{ $errors->has('days') ? 'has-error' : '' }}">
               <!-- days-->
               {!! Form::label('days','Periods',['class'=>'required']) !!}
-              <select name="days" id="plandays" class="form-control">
+              <select name="days" id="plandays" class="form-control {{$errors->has('days') ? ' is-invalid' : ''}}">
                 <option value="">Choose</option>
 
                 @foreach($periods as $key=>$period)
@@ -93,7 +93,7 @@
                       <tr id="row{{$loop->iteration}}" class="form-group {{ $errors->has('add_price.'.$key) ? 'has-error' : '' }}">
 
                         <td>
-                          <select name="country_id[{{ $row['id'] }}]" class="form-control" id="country">
+                          <select name="country_id[{{ $row['id'] }}]" class="form-control {{$errors->has('country_id') ? ' is-invalid' : ''}}" id="country">
                             @if (0 === $row['country_id'])
                                 <option value="0" selected>Default</option>
                             @endif
@@ -116,7 +116,7 @@
                         </td>
 
                         <td>
-                          <select name="currency[{{ $row['id'] }}]" class="form-control" id="currency">
+                          <select name="currency[{{ $row['id'] }}]" class="form-control {{$errors->has('currency') ? ' is-invalid' : ''}}" id="currency">
                             <option value="">
                                 Choose
                               </option>
@@ -136,7 +136,7 @@
                         </td>
 
                         <td>
-                          <input type="number" class="form-control" name="add_price[{{ $row['id'] }}]" value="{{ $row['add_price'] }}" id="regular_price">
+                          <input type="number" class="form-control {{$errors->has('add_price') ? ' is-invalid' : ''}}" name="add_price[{{ $row['id'] }}]" value="{{ $row['add_price'] }}" id="regular_price">
                           @error('add_price')
                           <span class="error-message"> {{$message}}</span>
                           @enderror
@@ -154,7 +154,7 @@
 
                         <td>
                           <div class="{{ ($row['country_id'] != 0) ? 'input-group' : '' }}">
-                            <input type="number" class="form-control" name="renew_price[{{ $row['id'] }}]" value="{{ $row['renew_price'] }}" id="renew_price"> &nbsp;&nbsp;
+                            <input type="number" class="form-control {{$errors->has('renew_price') ? ' is-invalid' : ''}}" name="renew_price[{{ $row['id'] }}]" value="{{ $row['renew_price'] }}" id="renew_price"> &nbsp;&nbsp;
                             @error('renew_price')
                             <span class="error-message"> {{$message}}</span>
                             @enderror
@@ -183,7 +183,7 @@
             <div class="col-md-4 form-group">
               <!-- last name -->
               {!! Form::label('description','Price Description') !!}
-              {!! Form::text("price_description",$priceDescription,['class' => 'form-control' ,'placeholder'=>'Enter Price Description to be Shown on Pricing Page. eg: Yearly,Monthly,One-Time']) !!}
+              {!! Form::text("price_description",$priceDescription,['class' => 'form-control'.($errors->has('price_description') ? ' is-invalid' : '') ,'placeholder'=>'Enter Price Description to be Shown on Pricing Page. eg: Yearly,Monthly,One-Time']) !!}
               @error('description')
               <span class="error-message"> {{$message}}</span>
               @enderror
@@ -193,7 +193,7 @@
             <div class="col-md-4 form-group">
               <!-- last name -->
               {!! Form::label('product_quantity','Product Quantity',['class'=>'required']) !!}
-              {!! Form::number("product_quantity",$productQuantity,['class' => 'form-control','disabled'=>'disabled','id'=>'prodquant','placeholder'=>'Pricing for No. of Products']) !!}
+              {!! Form::number("product_quantity",$productQuantity,['class' => 'form-control'.($errors->has('product_quantity') ? ' is-invalid' : ''),'disabled'=>'disabled','id'=>'prodquant','placeholder'=>'Pricing for No. of Products']) !!}
               @error('product_quantity')
               <span class="error-message"> {{$message}}</span>
               @enderror
@@ -206,7 +206,7 @@
                  <i class='fa fa-info-circle' style='cursor: help; font-size: small; color: rgb(60, 141, 188)'<label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="If '0' Agents Selected, Plan will be for Unlimited Agents.">
                         </label></i>
                 {!! Form::label('agents','No. of Agents',['class'=>'required']) !!}
-              {!! Form::number("no_of_agents",$agentQuantity,['class' => 'form-control' ,'disabled'=>'disabled','id'=>'agentquant','placeholder'=>'Pricing for No. of Agents']) !!}
+              {!! Form::number("no_of_agents",$agentQuantity,['class' => 'form-control'.($errors->has('no_of_agents') ? ' is-invalid' : '') ,'disabled'=>'disabled','id'=>'agentquant','placeholder'=>'Pricing for No. of Agents']) !!}
               @error('no_of_agents')
               <span class="error-message"> {{$message}}</span>
               @enderror

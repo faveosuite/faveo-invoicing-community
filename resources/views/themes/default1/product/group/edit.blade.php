@@ -34,7 +34,7 @@ Edit Group
 
                                 <div class='row'>
                                     <div class="col-md-10">
-                                        {!! Form::text('name',null,['class' => 'form-control']) !!}
+                                        {!! Form::text('name',null,['class' => 'form-control'.($errors->has('name') ? ' is-invalid' : '')]) !!}
                                         @error('name')
                                         <span class="error-message"> {{$message}}</span>
                                         @enderror
@@ -56,7 +56,7 @@ Edit Group
 
                                 <div class='row'>
                                     <div class="col-md-10">
-                                        {!! Form::text('headline',null,['class' => 'form-control']) !!}
+                                        {!! Form::text('headline',null,['class' => 'form-control'.($errors->has('headline') ? ' is-invalid' : '')]) !!}
                                     </div>
 
                                 </div>
@@ -73,7 +73,7 @@ Edit Group
 
                                 <div class='row'>
                                     <div class="col-md-10">
-                                        {!! Form::text('tagline',null,['class' => 'form-control']) !!}
+                                        {!! Form::text('tagline',null,['class' => 'form-control'.($errors->has('tagline') ? ' is-invalid' : '')]) !!}
                                         @error('tagline')
                                         <span class="error-message"> {{$message}}</span>
                                         @enderror
@@ -125,7 +125,7 @@ Edit Group
                              @endif
                             {{$template->name}}
 
-                             <br/><br/>
+                             <br/>
                                 @error('pricing_template_id')
                                 <span class="error-message"> {{$message}}</span>
                                 @enderror

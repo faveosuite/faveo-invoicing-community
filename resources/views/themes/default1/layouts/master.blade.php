@@ -69,6 +69,16 @@
 
     </head>
     <style>
+
+        .is-invalid + .select2-container .select2-selection {
+            border: 1px solid #dc3545 !important;
+        }
+
+        .is-invalid + .tox-tinymce{
+            border: 1px solid #dc3545 !important;
+        }
+
+
         .required:after {
             content:'*';
             color:red;
@@ -642,18 +652,28 @@ $("document").ready(function(){
 
             fields.forEach(function (field) {
                 field.addEventListener(field.tagName === "SELECT" ? "change" : "input", function () {
-                    let errorMessage = this.closest('.form-group').querySelector(".error-message");
+                    let errorMessage = this.closest('.form-group')?.querySelector(".error-message");
 
                     if (errorMessage) {
                         errorMessage.style.display = "none";
                     }
                 });
             });
+
+            // Fix for Select2 dropdowns
+            $('.select2').on('select2:select', function () {
+                let errorMessage = $(this).closest('.form-group').find(".error-message");
+
+                if (errorMessage.length) {
+                    errorMessage.hide();
+                }
+            });
         });
     </script>
 
 
-        </div><!-- ./wrapper -->
+
+    </div><!-- ./wrapper -->
        
         <!-- Bootstrap 3.3.2 JS -->
        

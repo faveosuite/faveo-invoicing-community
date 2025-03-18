@@ -44,7 +44,7 @@ Razorpay
 
                                 {!! Form::label('rzp_key','Razorpay key',['class'=>'required']) !!}
                             <div class="form-group col-lg-5 pl-0">
-                            {!! Form::text('rzp_key',$rzpKeys->rzp_key,['class' => 'form-control rzp_key','id'=>'rzp_key']) !!}
+                            {!! Form::text('rzp_key',$rzpKeys->rzp_key,['class' => 'form-control rzp_key '.($errors->has('rzp_key') ? ' is-invalid' : ''),'id'=>'rzp_key']) !!}
                                    <span id="rzp_keycheck"></span>
                             </div>
 
@@ -61,7 +61,7 @@ Razorpay
                             <div class="input-group">
 {{--                        {!! Form::text('rzp_secret',$rzpKeys->rzp_secret,['class' => 'form-control rzp_secret','id'=>'rzp_secret']) !!}--}}
 {{--                            {!! Form::password('rzp_secret',['class' => 'form-control rzp_secret','id'=>'rzp_secret']) !!}--}}
-                             <input type="password" name="rzp_secret" value="{{$rzpKeys->rzp_secret}}"  class="form-control rzp_secret" id="rzp_secret">
+                             <input type="password" name="rzp_secret" value="{{$rzpKeys->rzp_secret}}"  class="form-control rzp_secret {{$errors->has('rzp_secret') ? ' is-invalid' : ''}}" id="rzp_secret">
 
 
                                 <div class="input-group-append">

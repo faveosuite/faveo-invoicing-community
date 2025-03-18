@@ -32,7 +32,7 @@ Email
 
 
 
-                                {!! Form::select('driver',[''=>'Choose','smtp'=>'SMTP','mail'=>'Php mail','mailgun'=>'Mailgun','mandrill'=>'Mandrill','ses'=>'SES','sparkpost'=>'Sparkpost'],$set->driver,['class' => 'form-control', 'id'=>'driver']) !!}
+                                {!! Form::select('driver',[''=>'Choose','smtp'=>'SMTP','mail'=>'Php mail','mailgun'=>'Mailgun','mandrill'=>'Mandrill','ses'=>'SES','sparkpost'=>'Sparkpost'],$set->driver,['class' => 'form-control'. ($errors->has('driver') ? ' is-invalid' : ''), 'id'=>'driver']) !!}
                                 <i> {{Lang::get('message.select-email-driver')}}</i>
                             @error('driver')
                             <span class="error-message"> {{$message}}</span>
@@ -49,7 +49,7 @@ Email
 
 
 
-                                {!! Form::text('port',$set->port,['class' => 'form-control','id'=>'port']) !!}
+                                {!! Form::text('port',$set->port,['class' => 'form-control'. ($errors->has('port') ? ' is-invalid' : ''),'id'=>'port']) !!}
                                 <i> {{Lang::get('message.enter-email-port')}}</i>
                             @error('port')
                             <span class="error-message"> {{$message}}</span>
@@ -65,7 +65,7 @@ Email
 
 
 
-                                {!! Form::text('host',$set->host,['class' => 'form-control','id'=>'host']) !!}
+                                {!! Form::text('host',$set->host,['class' => 'form-control'. ($errors->has('host') ? ' is-invalid' : ''),'id'=>'host']) !!}
                                 <i> {{Lang::get('message.enter-email-host')}}</i>
                             @error('host')
                             <span class="error-message"> {{$message}}</span>
@@ -81,7 +81,7 @@ Email
                         <td>
 
 
-                                {!! Form::select('encryption',[''=>'Choose','ssl'=>'SSL','tls'=>'TLS','starttls'=>'STARTTLS'],$set->encryption,['class' => 'form-control','id'=>'encryption']) !!}
+                                {!! Form::select('encryption',[''=>'Choose','ssl'=>'SSL','tls'=>'TLS','starttls'=>'STARTTLS'],$set->encryption,['class' => 'form-control'. ($errors->has('encryption') ? ' is-invalid' : ''),'id'=>'encryption']) !!}
                                 <i> {{Lang::get('message.select-email-encryption-method')}}</i>
                             @error('encryption')
                             <span class="error-message"> {{$message}}</span>
@@ -100,7 +100,7 @@ Email
                         <td>
 
 
-                                {!! Form::text('secret',$set->secret,['class' => 'form-control','id'=>'secret']) !!}
+                                {!! Form::text('secret',$set->secret,['class' => 'form-control'. ($errors->has('secret') ? ' is-invalid' : ''),'id'=>'secret']) !!}
                             @error('secret')
                             <span class="error-message"> {{$message}}</span>
                             @enderror
@@ -115,7 +115,7 @@ Email
                         <div class="form-group showWhenMailGunSelected">
                         <td><b>{!! Form::label('domain','Domain',['class'=>'required']) !!}</b></td>
                         <td>
-                             {!! Form::text('domain',$set->domain,['class' => 'form-control','id'=>'domain']) !!}
+                             {!! Form::text('domain',$set->domain,['class' => 'form-control'. ($errors->has('domain') ? ' is-invalid' : ''),'id'=>'domain']) !!}
                             @error('domain')
                             <span class="error-message"> {{$message}}</span>
                             @enderror
@@ -131,7 +131,7 @@ Email
                         <div class="form-group showWhenSesSelected">
                         <td><b>{!! Form::label('key','API Key',['class'=>'required']) !!}</b></td>
                         <td>
-                             {!! Form::text('key',$set->key,['class' => 'form-control','id'=>'api_key']) !!}
+                             {!! Form::text('key',$set->key,['class' => 'form-control'. ($errors->has('key') ? ' is-invalid' : ''),'id'=>'api_key']) !!}
                             @error('key')
                             <span class="error-message"> {{$message}}</span>
                             @enderror
@@ -145,7 +145,7 @@ Email
                         <div class="form-group showWhenSesSelected">
                         <td><b>{!! Form::label('region','Region',['class'=>'required']) !!}</b></td>
                         <td>
-                             {!! Form::text('region',$set->region,['class' => 'form-control','id'=>'region']) !!}
+                             {!! Form::text('region',$set->region,['class' => 'form-control'. ($errors->has('region') ? ' is-invalid' : ''),'id'=>'region']) !!}
                             @error('region')
                             <span class="error-message"> {{$message}}</span>
                             @enderror
@@ -166,7 +166,7 @@ Email
                         <td>
 
 
-                                {!! Form::text('email',$set->email,['class' => 'form-control','id'=>'email']) !!}
+                                {!! Form::text('email',$set->email,['class' => 'form-control'. ($errors->has('email') ? ' is-invalid' : ''),'id'=>'email']) !!}
                                 <i> {{Lang::get('message.enter-email')}} ({{Lang::get('message.enter-email-message')}})</i>
                             @error('email')
                             <span class="error-message"> {{$message}}</span>
@@ -183,7 +183,7 @@ Email
                         <td>
 
 
-                                {!! Form::text('from_name',$set->from_name,['class' => 'form-control','id'=>'from_name']) !!}
+                                {!! Form::text('from_name',$set->from_name,['class' => 'form-control'. ($errors->has('from_name') ? ' is-invalid' : ''),'id'=>'from_name']) !!}
                                 <i> {{Lang::get('Enter From Name')}} </i>
                             @error('from_name')
                             <span class="error-message"> {{$message}}</span>
@@ -199,7 +199,7 @@ Email
                         <td>
 
 
-                                {!! Form::password('password',['class' => 'form-control', 'id'=>'password']) !!}
+                                {!! Form::password('password',['class' => 'form-control'. ($errors->has('password') ? ' is-invalid' : ''), 'id'=>'password']) !!}
                                 <i> {{Lang::get('message.enter-email-password')}}</i>
                             @error('password')
                             <span class="error-message"> {{$message}}</span>
@@ -264,7 +264,9 @@ Email
                         $('#alertMessage').show();
 
                         document.getElementById('alertMessage').innerHTML = html;
-                        // location.reload();
+                        setTimeout(function(){
+                           $('#alertMessage').slideUp(1000);
+                        },10000);
                     }
 
 

@@ -37,8 +37,9 @@ Create User
                     <div class="col-md-3 form-group {{ $errors->has('first_name') ? 'has-error' : '' }}">
                         <!-- first name -->
                         {!! Form::label('first_name',Lang::get('message.first_name'),['class'=>'required']) !!}
-                        {!! Form::text('first_name',null,['class' => 'form-control']) !!}
-
+                        {!! Form::text('first_name', null, [
+                            'class' => 'form-control' . ($errors->has('first_name') ? ' is-invalid' : '')
+                        ]) !!}
                         @error('first_name')
                         <span class="error-message"> {{$message}}</span>
                             @enderror
@@ -51,7 +52,7 @@ Create User
                     <div class="col-md-3 form-group {{ $errors->has('last_name') ? 'has-error' : '' }}">
                         <!-- last name -->
                         {!! Form::label('last_name',Lang::get('message.last_name'),['class'=>'required']) !!}
-                        {!! Form::text('last_name',null,['class' => 'form-control']) !!}
+                        {!! Form::text('last_name',null,['class' => 'form-control'.($errors->has('last_name') ? ' is-invalid' : '')]) !!}
                         @error('last_name')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
@@ -63,7 +64,7 @@ Create User
                     <div class="col-md-3 form-group {{ $errors->has('email') ? 'has-error' : '' }}">
                         <!-- email -->
                         {!! Form::label('email',Lang::get('message.email'),['class'=>'required']) !!}
-                        {!! Form::text('email',null,['class' => 'form-control']) !!}
+                        {!! Form::text('email',null,['class' => 'form-control'.($errors->has('email') ? ' is-invalid' : '')]) !!}
                         @error('email')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
@@ -74,7 +75,7 @@ Create User
                     <div class="col-md-3 form-group {{ $errors->has('user_name') ? 'has-error' : '' }}">
                         <!-- mobile -->
                         {!! Form::label('user_name',Lang::get('message.user_name'),['class'=>'required']) !!}
-                        {!! Form::text('user_name',null,['class' => 'form-control']) !!}
+                        {!! Form::text('user_name',null,['class' => 'form-control'.($errors->has('user_name') ? ' is-invalid' : '')]) !!}
                         @error('user_name')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
@@ -90,7 +91,7 @@ Create User
                     <div class="col-md-3 form-group {{ $errors->has('company') ? 'has-error' : '' }}">
                         <!-- company -->
                         {!! Form::label('company',Lang::get('message.company'),['class'=>'required']) !!}
-                        {!! Form::text('company',null,['class' => 'form-control']) !!}
+                        {!! Form::text('company',null,['class' => 'form-control'.($errors->has('company') ? ' is-invalid' : '')]) !!}
                         @error('company')
                         <span class="error-message error invalid-feedback"> {{$message}}</span>
                         @enderror
@@ -101,7 +102,7 @@ Create User
                         <!-- company -->
                         {!! Form::label('bussiness','Industry') !!}
                          <!-- {!! Form::select('bussiness',['Choose'=>'Choose',''=>$bussinesses],null,['class' => 'form-control selectpicker','data-live-search'=>'true', 'data-live-search-placeholder'=>'Search' ,'data-dropup-auto'=>'false', 'data-size'=>'10']) !!} -->
-                       <select name="bussiness"  class="form-control select2">
+                       <select name="bussiness"  class="form-control select2 {{$errors->has('bussiness') ? ' is-invalid' : ''}}">
                              <option value="">Choose</option>
                            @foreach($bussinesses as $key=>$bussines)
                            @if (Request::old('bussiness') == $key)
@@ -112,7 +113,7 @@ Create User
 
                           @endforeach
                           </select>
-                        @error('business')
+                        @error('bussiness')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
                        
@@ -138,7 +139,7 @@ Create User
                     <div class="col-md-3 form-group {{ $errors->has('role') ? 'has-error' : '' }}">
                         <!-- email -->
                         {!! Form::label('role',Lang::get('message.role')) !!}
-                        {!! Form::select('role',['user'=>'User','admin'=>'Admin'],null,['class' => 'form-control']) !!}
+                        {!! Form::select('role',['user'=>'User','admin'=>'Admin'],null,['class' => 'form-control'.($errors->has('role') ? ' is-invalid' : '')]) !!}
                         @error('role')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
@@ -146,7 +147,7 @@ Create User
                     <div class="col-md-3 form-group {{ $errors->has('position') ? 'has-error' : '' }}">
                         <!-- email -->
                         {!! Form::label('position','Position') !!}
-                        {!! Form::select('position',[''=>'Choose','manager'=>'Sales Manager','account_manager'=>'Account Manager'],null,['class' => 'form-control']) !!}
+                        {!! Form::select('position',[''=>'Choose','manager'=>'Sales Manager','account_manager'=>'Account Manager'],null,['class' => 'form-control'.($errors->has('position') ? ' is-invalid' : '')]) !!}
                         @error('position')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
@@ -160,7 +161,7 @@ Create User
                         {!! Form::label('company_type','Company Type') !!}
                         <!-- {!! Form::select('company_type',['choose'=>'Choose',''=>$type],null,['class' => 'form-control']) !!} -->
 
-                         <select name="company_type" value= "Choose" class="form-control">
+                         <select name="company_type" value= "Choose" class="form-control ($errors->has('company_type') ? ' is-invalid' : '')">
                              <option value="">Choose</option>
                            @foreach($type as $key=>$types)
                               @if (Request::old('company_type') == $key)
@@ -177,7 +178,7 @@ Create User
                      <div class="col-md-3 form-group {{ $errors->has('role') ? 'has-error' : '' }}">
                         <!-- email -->
                         {!! Form::label('company_size','Company Size') !!}
-                          <select name="company_size" value= "Choose" class="form-control">
+                          <select name="company_size" value= "Choose" class="form-control ($errors->has('email') ? ' is-invalid' : '')">
                              <option value="">Choose</option>
                            @foreach($size as $key=>$sizes)
                               @if (Request::old('company_size') == $key)
@@ -197,7 +198,7 @@ Create User
                 <div class="form-group {{ $errors->has('address') ? 'has-error' : '' }}">
                     <!-- phone number -->
                     {!! Form::label('address',Lang::get('message.address'),['class'=>'required']) !!}
-                    {!! Form::textarea('address',null,['class' => 'form-control']) !!}
+                    {!! Form::textarea('address',null,['class' => 'form-control'.($errors->has('address') ? ' is-invalid' : '')]) !!}
                     @error('address')
                     <span class="error-message"> {{$message}}</span>
                     @enderror
@@ -210,7 +211,7 @@ Create User
                     <div class="col-md-3 form-group {{ $errors->has('town') ? 'has-error' : '' }}">
                         <!-- mobile -->
                         {!! Form::label('town',Lang::get('message.town')) !!}
-                        {!! Form::text('town',null,['class' => 'form-control','id'=>'town']) !!}
+                        {!! Form::text('town',null,['class' => 'form-control'.($errors->has('town') ? ' is-invalid' : ''),'id'=>'town']) !!}
 
                         @error('town')
                         <span class="error-message"> {{$message}}</span>
@@ -225,7 +226,7 @@ Create User
 
 
 
-                          <select name="country" value= "Choose" id="country" onChange="getCountryAttr(this.value)" class="form-control">
+                          <select name="country" value= "Choose" id="country" onChange="getCountryAttr(this.value)" class="form-control select2 {{$errors->has('country') ? ' is-invalid' : ''}}">
                              <option value="">Choose</option>
                            @foreach($countries as $key=>$country)
                             @if (Request::old('country') == strtolower($key) || Request::old('country') == $key)
@@ -249,7 +250,7 @@ Create User
                         <!-- name -->
                         {!! Form::label('state',Lang::get('message.state')) !!}
                         <!--{!! Form::select('state',[],null,['class' => 'form-control','id'=>'state-list']) !!}-->
-                          <select name="state" id="state-list" class="form-control">
+                          <select name="state" id="state-list" class="form-control ($errors->has('state') ? ' is-invalid' : '')">
                         @if(old('state') != null)
                              @foreach($selectedstate as $key=>$state)
                              @if (Request::old('state') == $state->state_subdivision_code)
@@ -269,13 +270,13 @@ Create User
                     <div class="col-md-3 form-group {{ $errors->has('zip') ? 'has-error' : '' }}">
                         <!-- mobile -->
                         {!! Form::label('zip',Lang::get('message.zip')) !!}
-                        {!! Form::text('zip',null,['class' => 'form-control']) !!}
+                        {!! Form::text('zip',null,['class' => 'form-control'.($errors->has('zip') ? ' is-invalid' : '')]) !!}
 
                     </div>
                     <div class="col-md-3 form-group {{ $errors->has('timezone_id') ? 'has-error' : '' }}">
                         <!-- mobile -->
                         {!! Form::label('timezone_id',Lang::get('message.timezone'),['class'=>'required']) !!}
-                         {!! Form::select('timezone_id', [''=>'Choose','Timezones'=>$timezones],null,['class' => 'form-control','data-live-search'=>'true','data-live-search-placeholder' => 'Search','data-dropup-auto'=>'false','data-size'=>'10']) !!}
+                         {!! Form::select('timezone_id', [''=>'Choose','Timezones'=>$timezones],null,['class' => 'form-control select2'.($errors->has('timezone_id') ? ' is-invalid' : ''),'data-live-search'=>'true','data-live-search-placeholder' => 'Search','data-dropup-auto'=>'false','data-size'=>'10']) !!}
                         @error('timezone_id')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
@@ -288,7 +289,7 @@ Create User
 
                         {!! Form::label('mobile',Lang::get('message.mobile'),['class'=>'required']) !!}
                         {!! Form::hidden('mobile_code',null,['id'=>'mobile_code_hidden']) !!}
-                         <input type="tel" class="form-control"  id="mobile_code" name="mobile" value="{{ old('mobile') }}" >
+                         <input type="tel" class="form-control {{$errors->has('mobile') ? ' is-invalid' : ''}}"  id="mobile_code" name="mobile" value="{{ old('mobile') }}" >
                         <div class="input-group-append">
                         </div>
                         {!! Form::hidden('mobile_country_iso',null,['id' => 'mobile_country_iso']) !!}
@@ -353,6 +354,37 @@ Create User
         $('#country').on('change',function(){
             document.getElementById('town').value='';
         });
+
+        $('#timezone_id').on('change', function () {
+            const removeErrorMessage = (field) => {
+                field.classList.remove('is-invalid');
+                const error = field.nextElementSibling;
+                if (error && error.classList.contains('error')) {
+                    error.remove();
+                }
+            };
+
+            if ($(this).val() !== '') {
+                $(this).next('.select2-container').find('.select2-selection').css('border', '1px solid silver');
+                removeErrorMessage(this);
+            }
+        });
+
+        $('#country').on('change', function () {
+            const removeErrorMessage = (field) => {
+                field.classList.remove('is-invalid');
+                const error = field.nextElementSibling;
+                if (error && error.classList.contains('error')) {
+                    error.remove();
+                }
+            };
+
+            if ($(this).val() !== '') {
+                $(this).next('.select2-container').find('.select2-selection').css('border', '1px solid silver');
+                removeErrorMessage(this);
+            }
+        });
+
         const userRequiredFields = {
             first_name:@json(trans('message.user_edit_details.add_first_name')),
             last_name:@json(trans('message.user_edit_details.add_last_name')),
@@ -376,6 +408,20 @@ Create User
                 country:$('#country'),
                 timezone:$('#timezone_id'),
             };
+
+            if($('#country').val()===''){
+                $('#country').next('.select2-container').find('.select2-selection').css('border', '1px solid #dc3545');
+
+            }else{
+                $('#country').next('.select2-container').find('.select2-selection').css('border', '1px solid silver');
+            }
+
+            if($('#timezone_id').val()===''){
+                $('#timezone_id').next('.select2-container').find('.select2-selection').css('border', '1px solid #dc3545');
+
+            }else{
+                $('#timezone_id').next('.select2-container').find('.select2-selection').css('border', '1px solid silver');
+            }
 
 
             // Clear previous errors
@@ -405,13 +451,18 @@ Create User
                 isValid = false;
             }
 
-            if (isValid && !validName(userFields.last_name.val())) {
+            if (isValid && !validLastName(userFields.last_name.val())) {
                 showError(userFields.last_name, @json(trans('message.user_edit_details.add_valid_lastname')));
                 isValid = false;
             }
 
             if (isValid && !validName(userFields.company.val())) {
                 showError(userFields.company,@json(trans('message.user_edit_details.add_valid_company')));
+                isValid = false;
+            }
+
+            if (isValid && !validateEmail(userFields.email.val())) {
+                showError(userFields.email, @json(trans('message.user_edit_details.add_valid_email')));
                 isValid = false;
             }
 
@@ -443,6 +494,19 @@ Create User
         nameRegex=/^[A-Za-z][A-Za-z-\s]+$/;
         return nameRegex.test(string);
     }
+
+        function validLastName(string){
+            nameRegex=/^[A-Za-z]+(?:\s[A-Za-z]+)*$/;
+            return nameRegex.test(string);
+        }
+
+        function validateEmail(email) {
+
+            const emailPattern = /^(?!.*\.\.)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|org|net|edu|gov|mil|co|io|biz|info|dev|xyz)$/;
+
+            return emailPattern.test(email);
+
+        }
 
     });
 
@@ -516,35 +580,6 @@ $('#submit').on('click',function() {
         }
     });
 
-            emailErrorMsg = document.querySelector("#email-error-msg");
-            var emailReset = function() {
-                emailErrorMsg.innerHTML = "";
-                emailErrorMsg.classList.add("hide");
-            };
-
-            function validateEmail(email) {
-
-                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-                return emailPattern.test(email);
-
-            }
-
-            var email=$('#email');
-            email.on('input blur', function () {
-                emailReset();
-                if ($.trim(email.val())) {
-                    if (validateEmail(email.val())) {
-                        $('#email').css("border-color","");
-                        $('#submit').attr('disabled',false);
-                    } else {
-                        emailErrorMsg.classList.remove("hide");
-                        emailErrorMsg.innerHTML = @json(trans('message.user_edit_details.add_valid_email'));
-                        $('#email').css("border-color","#dc3545");
-                        $('#email-error-msg').css({"color":"#dc3545","margin-top":"5px","font-size":"80%"});
-                    }
-                }
-            });
 
 addressDropdown.change(function() {
     updateCountryCodeAndFlag(telInput.get(0), addressDropdown.val());

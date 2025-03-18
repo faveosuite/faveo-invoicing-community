@@ -42,7 +42,7 @@ System Setting
                             <div class="form-group {{ $errors->has('company') ? 'has-error' : '' }}">
 
 
-                                {!! Form::text('company',null,['class' => 'form-control']) !!}
+                                {!! Form::text('company',null,['class' => 'form-control'.($errors->has('company') ? ' is-invalid' : '')]) !!}
                                 @error('company')
                                 <span class="error-message"> {{$message}}</span>
                                 @enderror
@@ -63,7 +63,7 @@ System Setting
                             <div class="form-group {{ $errors->has('company_email') ? 'has-error' : '' }}">
 
 
-                                {!! Form::email('company_email', null, ['class' => 'form-control']) !!}
+                                {!! Form::email('company_email', null, ['class' => 'form-control'.($errors->has('company_email') ? ' is-invalid' : '')]) !!}
                                 @error('company_email')
                                 <span class="error-message"> {{$message}}</span>
                                 @enderror
@@ -83,7 +83,7 @@ System Setting
                             <div class="form-group {{ $errors->has('company') ? 'has-error' : '' }}">
 
 
-                                {!! Form::text('title',null,['class' => 'form-control']) !!}
+                                {!! Form::text('title',null,['class' => 'form-control'.($errors->has('title') ? ' is-invalid' : '')]) !!}
                                 @error('title')
                                 <span class="error-message"> {{$message}}</span>
                                 @enderror
@@ -98,7 +98,7 @@ System Setting
                         <td>
                             <div class="form-group {{ $errors->has('website') ? 'has-error' : '' }}">
 
-                                {!! Form::text('website',null,['class' => 'form-control','placeholder'=>'https://example.com']) !!}
+                                {!! Form::text('website',null,['class' => 'form-control'.($errors->has('website') ? ' is-invalid' : ''),'placeholder'=>'https://example.com']) !!}
                                 @error('website')
                                 <span class="error-message"> {{$message}}</span>
                                 @enderror
@@ -116,7 +116,7 @@ System Setting
                             <div class="form-group {{ $errors->has('phone') ? 'has-error' : '' }}">
 
 
-                                {!! Form::input('tel', 'phone', null, ['class' => 'form-control selected-dial-code', 'id' => 'phone']) !!}
+                                {!! Form::input('tel', 'phone', null, ['class' => 'form-control selected-dial-code'.($errors->has('phone') ? ' is-invalid' : ''), 'id' => 'phone']) !!}
 
                                 {!! Form::hidden('phone_code',null,['id'=>'phone_code_hidden']) !!}
                                 {!! Form::hidden('phone_country_iso',null,['id' => 'phone_country_iso']) !!}
@@ -138,7 +138,7 @@ System Setting
                         <td>
                             <div class="form-group {{ $errors->has('address') ? 'has-error' : '' }}">
 
-                                {!! Form::textarea('address',null,['class' => 'form-control','size' => '128x10','id'=>'address']) !!}
+                                {!! Form::textarea('address',null,['class' => 'form-control'.($errors->has('address') ? ' is-invalid' : ''),'size' => '128x10','id'=>'address']) !!}
                                 @error('address')
                                 <span class="error-message"> {{$message}}</span>
                                 @enderror
@@ -155,7 +155,7 @@ System Setting
                             <div class="form-group {{ $errors->has('city') ? 'has-error' : '' }}">
 
 
-                                {!! Form::text('city',null,['class' => 'form-control']) !!}
+                                {!! Form::text('city',null,['class' => 'form-control'.($errors->has('city') ? ' is-invalid' : '')]) !!}
                                 @error('city')
                                 <span class="error-message"> {{$message}}</span>
                                 @enderror
@@ -172,7 +172,7 @@ System Setting
                             <div class="form-group {{ $errors->has('zip') ? 'has-error' : '' }}">
 
 
-                                {!! Form::text('zip',null,['class' => 'form-control']) !!}
+                                {!! Form::text('zip',null,['class' => 'form-control'.($errors->has('zip') ? ' is-invalid' : '')]) !!}
                                 @error('zip')
                                 <span class="error-message"> {{$message}}</span>
                                 @enderror
@@ -189,7 +189,7 @@ System Setting
                         <td>
                             <div class="form-group {{ $errors->has('knowledge_base_url') ? 'has-error' : '' }}">
 
-                                {!! Form::text('knowledge_base_url',null,['class' => 'form-control','id'=>'knowledge_base_url','placeholder'=>'https://example.com']) !!}
+                                {!! Form::text('knowledge_base_url',null,['class' => 'form-control'.($errors->has('knowledge_base_url') ? ' is-invalid' : ''),'id'=>'knowledge_base_url','placeholder'=>'https://example.com']) !!}
                                 @error('knowledge_base_url')
                                 <span class="error-message"> {{$message}}</span>
                                 @enderror
@@ -215,7 +215,7 @@ System Setting
                                 <!-- <p><i> {{Lang::get('message.country')}}</i> </p> -->
                                   <?php $countries = \App\Model\Common\Country::pluck('nicename', 'country_code_char2')->toArray(); ?>
 
-                     <select name="country" value= "Choose" id="country" onChange="getCountryAttr(this.value)" class="form-control selectpicker" data-live-search="true" data-live-search-placeholder="Search" data-dropup-auto="false" data-size="10">
+                     <select name="country" value= "Choose" id="country" onChange="getCountryAttr(this.value)" class="form-control selectpicker {{$errors->has('country') ? ' is-invalid' : ''}}" data-live-search="true" data-live-search-placeholder="Search" data-dropup-auto="false" data-size="10">
                              <option value="">Choose</option>
                            @foreach($countries as $key=>$country)
                               <option value="{{$key}}" <?php  if(in_array($country, $selectedCountry) ) { echo "selected";} ?>>{{$country}}</option>
@@ -244,7 +244,7 @@ System Setting
                                 </td>
 
                                  <td>
-                                {!! Form::text('cin_no',null,['class' => 'form-control','id'=>'cin']) !!}
+                                {!! Form::text('cin_no',null,['class' => 'form-control'.($errors->has('cin_no') ? ' is-invalid' : ''),'id'=>'cin']) !!}
                                      @error('cin_no')
                                      <span class="error-message"> {{$message}}</span>
                                  @enderror
@@ -262,7 +262,7 @@ System Setting
 
                                  <td>
                                      
-                                    {!! Form::text('gstin',null,['class' => 'form-control','id'=>'gstin']) !!}
+                                    {!! Form::text('gstin',null,['class' => 'form-control'.($errors->has('gstin') ? ' is-invalid' : ''),'id'=>'gstin']) !!}
                                      <span class="hide" id="gst-error-msg"></span>
                                      @error('gstin')
                                      <span class="error-message"> {{$message}}</span>
@@ -278,7 +278,7 @@ System Setting
 
                         <td><b>{!! Form::label('state',Lang::get('message.state') ,['class'=>'required']) !!}</b></td>
                         <td>
-                        <select name="state" id="state-list" class="form-control">
+                        <select name="state" id="state-list" class="form-control {{$errors->has('state') ? ' is-invalid' : ''}}">
                                 @if($set->state)
                              <option value="{{$state['id']}}">{{$state['name']}}</option>
                             @endif
@@ -300,7 +300,7 @@ System Setting
                         <td>
                              <?php $currencies = \App\Model\Payment\Currency::where('status',1)->pluck('name','code')->toArray(); 
                              ?>
-                         <select name="default_currency" value= "Choose"  class="form-control selectpicker" data-live-search="true" data-live-search-placeholder="Search" data-dropup-auto="false" data-size="10">
+                         <select name="default_currency" value= "Choose"  class="form-control selectpicker {{$errors->has('default_currency') ? ' is-invalid' : ''}}" data-live-search="true" data-live-search-placeholder="Search" data-dropup-auto="false" data-size="10">
                                <option value="">Choose</option>
                            @foreach($currencies as $key=>$currency)
                               <option value="{{$key}}" <?php  if(in_array($currency, $selectedCurrency) ) { echo "selected";} ?>>{{$currency}}</option>
@@ -328,7 +328,7 @@ System Setting
                                     @endif
 
                                     <div class="custom-file ml-3">
-                                        {!! Form::file('admin-logo', ['class' => 'custom-file-input cursor-pointer', 'id' => 'admin-logo' , 'role' => 'button']) !!}
+                                        {!! Form::file('admin-logo', ['class' => 'custom-file-input cursor-pointer'.($errors->has('admin-logo') ? ' is-invalid' : ''), 'id' => 'admin-logo' , 'role' => 'button']) !!}
                                         <label role="button" class="custom-file-label cursor-pointer" for="admin-logo">{{ __('Choose file') }}</label>
                                         @error('admin_logo')
                                         <span class="error-message"> {{$message}}</span>
@@ -360,7 +360,7 @@ System Setting
                                     @endif
 
                                     <div class="custom-file ml-3">
-                                        {!! Form::file('fav-icon', ['class' => 'custom-file-input', 'id' => 'fav-icon' ,'role' => 'button']) !!}
+                                        {!! Form::file('fav-icon', ['class' => 'custom-file-input'.($errors->has('fav-icon') ? ' is-invalid' : ''), 'id' => 'fav-icon' ,'role' => 'button']) !!}
                                         <label role="button" class="custom-file-label" for="fav-icon">{{ __('Choose file') }}</label>
                                     </div>
                                 </div>
@@ -382,7 +382,7 @@ System Setting
                             <div class="form-group {{ $errors->has('favicon_title') ? 'has-error' : '' }}">
 
 
-                                {!! Form::text('favicon_title',null,['class' => 'form-control']) !!}
+                                {!! Form::text('favicon_title',null,['class' => 'form-control'.($errors->has('favicon_title') ? ' is-invalid' : '')]) !!}
                                 @error('favicon_title')
                                 <span class="error-message"> {{$message}}</span>
                                 @enderror
@@ -400,7 +400,7 @@ System Setting
                             <div class="form-group {{ $errors->has('favicon_title_client') ? 'has-error' : '' }}">
 
 
-                                {!! Form::text('favicon_title_client',null,['class' => 'form-control']) !!}
+                                {!! Form::text('favicon_title_client',null,['class' => 'form-control'.($errors->has('favicon_title_client') ? ' is-invalid' : '')]) !!}
 
                                 @error('favicon_title_client')
                                 <span class="error-message"> {{$message}}</span>
@@ -425,7 +425,7 @@ System Setting
                                     @endif
 
                                     <div class="custom-file ml-3">
-                                        {!! Form::file('logo', ['class' => 'custom-file-input', 'id' => 'logo', 'role' => 'button', 'onchange' => 'previewImage("preview-logo", "logo")']) !!}
+                                        {!! Form::file('logo', ['class' => 'custom-file-input'.($errors->has('logo') ? ' is-invalid' : ''), 'id' => 'logo', 'role' => 'button', 'onchange' => 'previewImage("preview-logo", "logo")']) !!}
                                         <label role="button" class="custom-file-label" for="logo">{{ __('Choose file') }}</label>
                                     </div>
                                 </div>
@@ -469,28 +469,29 @@ System Setting
 
             };
 
-            $('#companyDetailsForm').on('submit', function (e) {
+            $('#submit').on('click', function (e) {
 
                 const userFields = {
                     company:$('#company'),
                     company_email:$('#company_email'),
                     website:$('#website'),
                     address:$('#address'),
-
+                    state:$('#state-list'),
+                    country:$('#country'),
                 };
 
 
                 // Clear previous errors
                 Object.values(userFields).forEach(field => {
                     field.removeClass('is-invalid');
-                    field.next().next('.error').remove();
+                    field.next('.error').remove();
 
                 });
 
                 let isValid = true;
                 const showError = (field, message) => {
                     field.addClass('is-invalid');
-                    field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+                    field.after(`<span class='error invalid-feedback'>${message}</span>`);
                 };
 
                 // Validate required fields
@@ -525,7 +526,7 @@ System Setting
             };
 
             // Add input event listeners for all fields
-            ['company','company_email','website','phone','address','country','default_currency','state'].forEach(id => {
+            ['company','company_email','website','phone','address','country','default_currency','state-list'].forEach(id => {
 
                 document.getElementById(id).addEventListener('input', function () {
                     removeErrorMessage(this);
@@ -643,9 +644,11 @@ System Setting
     });
 
 
+
         function validateEmail(email) {
-            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const emailPattern = /^(?!.*\.\.)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|org|net|edu|gov|mil|co|io|biz|info|dev|xyz)$/;
             return emailPattern.test(email);
+
         }
 
         emailErrorMsg = document.querySelector("#email-error-msg");
@@ -683,8 +686,8 @@ System Setting
               $('#submit').attr('disabled',false);
             } else {
                 errorMsg.innerHTML = "Please enter a valid number";
-             $('#phone').css("border-color","red");
-             $('#error-msg').css({"color":"red","margin-top":"5px"});
+             $('#phone').css("border-color","#dc3545");
+             $('#error-msg').css({"color":"#dc3545","margin-top":"5px","font-size":"80%"});
              errorMsg.classList.remove("hide");
              $('#submit').attr('disabled',true);
             }

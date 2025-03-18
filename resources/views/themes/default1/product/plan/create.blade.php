@@ -35,7 +35,7 @@
                   class="col-md-4 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                   <!-- name -->
                   {!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}
-                  {!! Form::text('name',null,['class' => 'form-control','id'=>'planname']) !!}
+                  {!! Form::text('name',null,['class' => 'form-control'.($errors->has('name') ? ' is-invalid' : ''),'id'=>'planname']) !!}
                     @error('name')
                     <span class="error-message"> {{$message}}</span>
                     @enderror
@@ -47,7 +47,7 @@
                   class="col-md-4 form-group {{ $errors->has('product') ? 'has-error' : '' }}">
                   <!-- value -->
                   {!! Form::label('product',Lang::get('message.product'),['class'=>'required']) !!}
-                  <select name="product" value="Choose" class="form-control" id="planproduct" onchange="myProduct()">
+                  <select name="product" value="Choose" class="form-control {{$errors->has('product') ? ' is-invalid' : ''}}" id="planproduct" onchange="myProduct()">
                     <option value="">Choose</option>
                     @foreach($products as $key=>$product)
                      @if (Request::old('product') == $key)
@@ -71,7 +71,7 @@
                   <!-- days -->
                   {!! Form::label('days','Periods',['class'=>'required']) !!}
                   <div class="input-group">
-                    <select name="days" value="Choose" class="form-control" id="plandays">
+                    <select name="days" value="Choose" class="form-control {{$errors->has('days') ? ' is-invalid' : ''}}" id="plandays">
                       <option value="">Choose</option>
                       @foreach($periods as $key=>$period)
                        @if (Request::old('days') == $key)
@@ -112,14 +112,14 @@
                     <tbody>
                       <tr>
                         <td>
-                          <select name="country_id[]" class="form-control" id="country">
+                          <select name="country_id[]" class="form-control {{$errors->has('country_id[]') ? ' is-invalid' : ''}}" id="country">
                             <option value="0">Default</option>
                               <div class="input-group-append">
                               </div>
                           </select>
                         </td>
                         <td>
-                          <select name="currency[]" class="form-control" id="currency">
+                          <select name="currency[]" class="form-control {{$errors->has('currency') ? ' is-invalid' : ''}}" id="currency">
                              <option value="">
                                 Choose
                               </option>
@@ -137,7 +137,7 @@
 
                         </td>
                         <td>
-                          <input type="number" class="form-control" name="add_price[]" class="{{ $errors->has('add_prices') ? 'has-error' : '' }}" value="{{old('add_price.0')}}" id="regular_prices">
+                          <input type="number" class="form-control" name="add_price[]" class="{{ $errors->has('add_price') ? 'is-invalid' : '' }}" value="{{old('add_price.0')}}" id="regular_prices">
 
                         </td>
 
@@ -167,7 +167,7 @@
                 <div class="col-md-12 form-group">
                   <!-- description -->
                   {!! Form::label('description','Price Description') !!}
-                  {!! Form::text("price_description",null,['class' => 'form-control' ,'placeholder'=>'Enter Price Description to be Shown on Pricing Page. eg: Yearly,Monthly,One-Time']) !!}
+                  {!! Form::text("price_description",null,['class' => 'form-control'.($errors->has('price_description') ? ' is-invalid' : '') ,'placeholder'=>'Enter Price Description to be Shown on Pricing Page. eg: Yearly,Monthly,One-Time']) !!}
                   <h6 id="dayscheck"></h6>
 
                   <!-- {!! Form::select('days',[''=>'Select','Periods'=>$periods],null,['class' => 'form-control','id'=>'plandays']) !!} -->
@@ -177,7 +177,7 @@
                   <!-- product_quantity -->
                   {!! Form::label('product_quantity','Product Quantity',['class'=>'required'])!!}
                   {!! Form::number("product_quantity",null,['class' =>
-                  'form-control','disabled'=>'disabled','id'=>'prodquant','placeholder'=>'Pricing for No. of Products'])
+                  'form-control'.($errors->has('product_quantity') ? ' is-invalid' : ''),'disabled'=>'disabled','id'=>'prodquant','placeholder'=>'Pricing for No. of Products'])
                   !!}
                     @error('product_quantity')
                     <span class="error-message"> {{$message}}</span>
@@ -192,7 +192,7 @@
                         </label></i>
                   
                     {!! Form::label('agents','No. of Agents',['class'=>'required']) !!}
-                  {!! Form::number("no_of_agents",null,['class' => 'form-control'
+                  {!! Form::number("no_of_agents",null,['class' => 'form-control'.($errors->has('no_of_agents') ? ' is-invalid' : '')
                   ,'disabled'=>'disabled','id'=>'agentquant','placeholder'=>'Pricing for No. of Agents']) !!}
                     @error('no_of_agents')
                     <span class="error-message"> {{$message}}</span>
@@ -231,8 +231,6 @@
             planproduct:@json(trans('message.plan_details.planproduct')),
             productquant:@json(trans('message.plan_details.productquant')),
             agentquant:@json(trans('message.plan_details.agentquant')),
-
-
         };
 
         $('#planButton').on('click', function (e) {

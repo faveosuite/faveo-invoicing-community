@@ -51,7 +51,7 @@ Create Invoice
 
                 <div class="col-sm-4 form-group">
                     {!! Form::label('user',Lang::get('message.clients'),['class'=>'required']) !!}
-                     {!! Form::select('user', [Lang::get('User')=>$users],null,['multiple'=>true,'class'=>"form-control select2",'id'=>"users"]) !!}
+                     {!! Form::select('user', [Lang::get('User')=>$users],null,['multiple'=>true,'class'=>"form-control select2". ($errors->has('user') ? ' is-invalid' : ''),'id'=>"users"]) !!}
 
                     <span class="error-message" id="user-msg"></span>
                     <h6 id ="productusercheck"></h6>
@@ -60,19 +60,25 @@ Create Invoice
                 <div class="col-md-4 lg-4 form-group {{ $errors->has('invoice_status') ? 'has-error' : '' }}">
                             <!-- first name -->
                             {!! Form::label('date',Lang::get('message.date'),['class'=>'required']) !!}
-                           
-                         <div class="input-group date" id="invoice_date" data-target-input="nearest">
-                            {!! Form::text('date',null,['class' => 'form-control','id'=>'datepicker','autocomplete'=>'off']) !!}
+
+
+                         <div class="input-group date" id="invoice_date" data-target-input="nearest" >
+                            {!! Form::text('date',null,['class' => 'form-control datetimepicker-input'. ($errors->has('date') ? ' is-invalid' : ''),'id'=>'datepicker','data-target'=>'#invoice_date']) !!}
+
                             <div class="input-group-append" data-target="#invoice_date" data-toggle="datetimepicker">
-                                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>                           
+                                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+
                             </div>
                              <span class="error-message" id="invoice-msg"></span>
+                             @error('date')
+                             <span class="error-message"> {{$message}}</span>
+                             @enderror
                          </div>
                     </div>
 
                 <div class="col-md-4 lg-4 form-group">
                     {!! Form::label('product',Lang::get('message.product'),['class'=>'required']) !!}
-                     <select name="product" value= "Choose" id="product" class="form-control">
+                     <select name="product" value= "Choose" id="product" class="form-control {{$errors->has('product') ? ' is-invalid' : ''}}">
                              <option value="">Choose</option>
                            @foreach($products as $key=>$product)
                               <option value={{$key}}>{{$product}}</option>
@@ -83,19 +89,24 @@ Create Invoice
 
                     <span id="user-error-msg" class="hide"></span>
                     <h6 id ="productnamecheck"></h6>
+                    @error('product')
+                    <span class="error-message"> {{$message}}</span>
+                    @enderror
                 </div>
                 <div id="fields1" class="col-md-4">
                 </div>
-
                 <div class="col-md-4 form-group">
                     {!! Form::label('price',Lang::get('message.price'),['class'=>'required']) !!}
-                    {!! Form::number('price',null,['class'=>'form-control','id'=>'price']) !!}
+                    {!! Form::number('price',null,['class'=>'form-control'. ($errors->has('price') ? ' is-invalid' : ''),'id'=>'price']) !!}
                     <span class="error-message" id="price-msg"></span>
                       <h6 id ="pricecheck"></h6>
+                    @error('price')
+                    <span class="error-message"> {{$message}}</span>
+                    @enderror
                 </div>
                 <div class="col-md-4 form-group">
                     {!! Form::label('code','Coupon code') !!}
-                    {!! Form::text('code',null,['class'=>'form-control']) !!}
+                    {!! Form::text('code',null,['class'=>'form-control'. ($errors->has('code') ? ' is-invalid' : '')]) !!}
                     <span class="error-message" id="code-msg"></span>
                 </div>
                     <div id="agents" class="col-md-4">
@@ -259,7 +270,6 @@ Create Invoice
                 var field = data['field'];
                 var qty = data['quantity'];
                 var agents = data['agents'];
-                //console.log(field);
                 $("#price").val(price);
                 const elementFields = document.getElementById('fields');
                 // Check if the 'fields' element is now empty
@@ -291,7 +301,9 @@ Create Invoice
                     html += '<li>' + 'Add a plan for the product' + '</li>'
                     html += '</ul></div>';
                  $('#error').show();
+
                   document.getElementById('error').innerHTML = html;
+
                   $('#generate').attr('disabled',true)
                 } else {
                     $('#generate').attr('disabled',false)
@@ -307,6 +319,7 @@ Create Invoice
                 
                 }
             }
+
         });
         })
 
@@ -329,9 +342,9 @@ Create Invoice
         var isoTime = currentDate.toISOString().split('T')[1].substring(0, 8);
         var selectedDate = new Date($("#datepicker").val());
         var combinedDateTime = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate(), currentDate.getHours(), currentDate.getMinutes(), currentDate.getSeconds());
+        var dateFormat=$("#datepicker").val();
         $("#datepicker").val(combinedDateTime.toISOString().split('T')[0] + 'T' + isoTime);
 
-       
         if (product != '') {
             var plan = document.getElementsByName('plan')[0].value;
             subscription = 'true';
@@ -382,6 +395,9 @@ Create Invoice
                         $('#successs').show();
                     var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong><i class="fa fa-check"></i>Success! </strong>'+data.message.success+'!</div>';
                     $('#successs').html(result);
+                    setTimeout(function(){
+                        $("#successs").slideUp(1000);
+                    },10000);
                      $('#formoid').trigger("reset");
                      $('select').prop('selectedIndex', 0);
                      $("#users").val("");
@@ -389,7 +405,9 @@ Create Invoice
                 }
             },
             error: function (response) {
-                console.log(response.responseJSON.errors['user']);
+                $('#datepicker').val('');
+                $('#datepicker').val(dateFormat);
+
                 $("#generate").html("<i class='fas fa-sync-alt'>&nbsp;&nbsp;</i>Generate");
                 if(response.responseJSON.success == false) {
                     var html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong>Whoops! </strong>Something went wrong<ul>';
@@ -406,10 +424,15 @@ Create Invoice
                  $('#error').show();
 
                   document.getElementById('error').innerHTML = html;
+                document.getElementById('subscription-msg').innerHTML = response.responseJSON.message;
+
                 document.getElementById('price-msg').innerHTML = response.responseJSON.errors['price'];
                 document.getElementById('product-msg').innerHTML = response.responseJSON.errors['product'];
                 document.getElementById('user-msg').innerHTML = response.responseJSON.errors['user'];
-
+                setTimeout(function(){
+                    $("#error").slideUp(1000);
+                    $("#success").slideUp(1000);
+                },10000);
             }
         });
 
@@ -420,7 +443,7 @@ Create Invoice
 <script>
      $('#invoice_date').datetimepicker({
       format: 'L'
-    })   
+    })
 
         $('#users').select2({
         placeholder: "Search",

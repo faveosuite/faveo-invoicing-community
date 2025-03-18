@@ -31,7 +31,7 @@
                     {!! Form::label('name',Lang::get('Tax Type'),['class'=>'required']) !!}
 
                     <!-- {!! Form::text('name',null,['class' => 'form-control']) !!} -->
-                      <select name="name" id="gst" class="form-control">
+                      <select name="name" id="gst" class="form-control {{$errors->has('name') ? ' is-invalid' : ''}}">
                       <option value="Others">Others</option>
                       <option value="Intra State GST">Intra State GST (Same Indian State)</option>
                       <option value="Inter State GST">Inter State GST (Other Indian  State)</option>
@@ -47,7 +47,7 @@
                     <!-- name -->
                     
                     {!! Form::label('tax-name',Lang::get('Tax Name'),['class'=>'required']) !!}
-                    {!! Form::text('tax-name',null,['class' => 'form-control','id'=>'taxname']) !!}
+                    {!! Form::text('tax-name',null,['class' => 'form-control'. ($errors->has('tax-name') ? ' is-invalid' : ''),'id'=>'taxname']) !!}
                      @error('tax-name')
                      <span class="error-message"> {{$message}}</span>
                      @enderror
@@ -81,7 +81,7 @@
                     <!-- name -->
                     {!! Form::label('country',Lang::get('message.country')) !!}
                     <br>
-                      {!! Form::select('country',[''=>'All Countries','Choose'=>$countries],null,['class' => 'form-control select2','style'=>'width:460px','onChange'=>'getState(this.value);','id'=>'countryvisible']) !!}
+                      {!! Form::select('country',[''=>'All Countries','Choose'=>$countries],null,['class' => 'form-control select2'. ($errors->has('country') ? ' is-invalid' : ''),'style'=>'width:460px','onChange'=>'getState(this.value);','id'=>'countryvisible']) !!}
                       @error('country')
                       <span class="error-message"> {{$message}}</span>
                       @enderror
@@ -95,7 +95,7 @@
                     {!! Form::label('state',Lang::get('message.state')) !!}
                  
 
-                    <select name="state"  class="form-control" id="statess">
+                    <select name="state"  class="form-control {{$errors->has('state') ? ' is-invalid' : ''}}" id="statess">
                         <option name="state" value=''>All States</option>
                     </select>
                       @error('state')
@@ -105,7 +105,7 @@
                  <div class="form-group showwhengst{{ $errors->has('rate') ? 'has-error' : '' }}" style="display:block" >
                     <!-- name -->
                     {!! Form::label('rate',Lang::get('message.rate').' (%)',['class'=>'required']) !!}
-                    {!! Form::number('rate',null,['class' => 'form-control','id'=>'rate']) !!}
+                    {!! Form::number('rate',null,['class' => 'form-control'. ($errors->has('rate') ? ' is-invalid' : ''),'id'=>'rate']) !!}
                      @error('rate')
                      <span class="error-message"> {{$message}}</span>
                      @enderror
@@ -131,7 +131,7 @@
 @if (count($errors) > 0)
     <script type="text/javascript">
         $( document ).ready(function() {
-             $('#create-tax-option"').modal('show');
+             $('#create-tax-option').modal('show');
         });
     </script>
   @endif

@@ -60,7 +60,7 @@ $httpOrigin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : null;
                     <div class="mb-3">
                         @if($socialLogins->type == 'Twitter')
                             <label for="id" class="form-label required" id="id">API Key</label>
-                        <input type="text" class="form-control" id="api_id"  value="{{old('title', $socialLogins->client_id)}}" name="api_key">
+                        <input type="text" class="form-control {{$errors->has('api_key') ? ' is-invalid' : ''}}" id="api_id"  value="{{old('title', $socialLogins->client_id)}}" name="api_key">
                             @error('api_key')
                             <span class="error-message"> {{$message}}</span>
                             @enderror
@@ -70,7 +70,7 @@ $httpOrigin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : null;
                     <input type="hidden" name="type" value="{{old('title', $socialLogins->type)}}">
                     <div class="mb-3">
                         <label for="pwd" class="form-label required">API Secret</label>
-                        <input type="password" class="form-control" id="api_pwd"  value="{{old('title', $socialLogins->client_secret)}}" name="api_secret">
+                        <input type="password" class="form-control {{$errors->has('api_secret') ? ' is-invalid' : ''}}" id="api_pwd"  value="{{old('title', $socialLogins->client_secret)}}" name="api_secret">
                         @error('api_secret')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
@@ -78,7 +78,7 @@ $httpOrigin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : null;
                         </div>
                         @else
                         <label for="id" class="form-label required" id="id">Client Id</label>
-                        <input type="text" class="form-control" id="client_id"  value="{{old('title', $socialLogins->client_id)}}" name="client_id">
+                        <input type="text" class="form-control {{$errors->has('client_id') ? ' is-invalid' : ''}}" id="client_id"  value="{{old('title', $socialLogins->client_id)}}" name="client_id">
                             @error('client_id')
                             <span class="error-message"> {{$message}}</span>
                             @enderror
@@ -88,7 +88,7 @@ $httpOrigin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : null;
                     <input type="hidden" name="type" value="{{old('title', $socialLogins->type)}}">
                     <div class="mb-3">
                         <label for="pwd" class="form-label required">Client Secret</label>
-                        <input type="password" class="form-control" id="pwd"  value="{{old('title', $socialLogins->client_secret)}}" name="client_secret">
+                        <input type="password" class="form-control {{$errors->has('client_secret') ? ' is-invalid' : ''}}" id="pwd"  value="{{old('title', $socialLogins->client_secret)}}" name="client_secret">
                         @error('client_secret')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
@@ -100,7 +100,7 @@ $httpOrigin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : null;
                         <label for="redirect" class="form-label required">Redirect URL</label>
 
                         <input type="text"
-                               class="form-control"
+                               class="form-control {{$errors->has('redirect_url') ? ' is-invalid' : ''}}"
                                id="redirect"
                                value="{{ url('/auth/callback/' . lcfirst($socialLogins->type)) }}"
                                name="redirect_url"
@@ -276,7 +276,7 @@ $httpOrigin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : null;
             };
 
             // Add input event listeners for all fields
-            ['id', 'pwd', 'redirect', 'api_id', 'api_pwd'].forEach(id => {
+            ['client_id', 'pwd', 'redirect', 'api_id', 'api_pwd'].forEach(id => {
 
                 document.getElementById(id).addEventListener('input', function () {
                     removeErrorMessage(this);
@@ -285,9 +285,13 @@ $httpOrigin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : null;
             });
         }
 
-        function isValidURL(url) {
-            const pattern = /^(https?:\/\/)?([\w-]+\.)+([a-z]{2,6})(\/[\w-]*)*(\?.*)?(#.*)?$/i;
-            return pattern.test(url);
+        function isValidURL(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (err) {
+                return false;
+            }
         }
     });
 

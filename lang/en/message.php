@@ -1050,6 +1050,6 @@ return [
 
     'valid_name'=>'The company name must be fewer than 50 characters.',
     'valid_gst_number'=>'Please enter a valid GST number.',
-    'url_tooltip'=>'The URL offers comprehensive guidance for installation.',
+    'url_tooltip'=>'Enter the installation guide URL to assist users with Application setup.',
     'valid_widget_name'=>'The name must be fewer than 50 characters and cannot consist only of special characters.',
 ];

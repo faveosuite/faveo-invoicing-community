@@ -84,7 +84,7 @@
                         <div class="col-md-4 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                             <!-- first name -->
                             {!! Form::label('name',Lang::get('message.name'),['class'=>'required']) !!}
-                            {!! Form::text('name',null,['class' => 'form-control', 'id'=>'productname']) !!}
+                            {!! Form::text('name',null,['class' => 'form-control'.($errors->has('name') ? ' is-invalid' : ''), 'id'=>'productname']) !!}
                             <h6 id= "namecheck"></h6>
                             @error('name')
                             <span class="error-message"> {{$message}}</span>
@@ -94,7 +94,7 @@
                         <div class="col-md-4 form-group {{ $errors->has('type') ? 'has-error' : '' }}">
                             <!-- last name -->
                             {!! Form::label('type',Lang::get('message.lic_type'),['class'=>'required']) !!}
-                            {!! Form::select('type',[''=>'Choose','Types'=>$type],null,['class' => 'form-control']) !!}
+                            {!! Form::select('type',[''=>'Choose','Types'=>$type],null,['class' => 'form-control'.($errors->has('type') ? ' is-invalid' : '')]) !!}
                             <div class="input-group-append"></div>
                             @error('type')
                             <span class="error-message"> {{$message}}</span>
@@ -106,7 +106,7 @@
                         <div class="col-md-4 form-group {{ $errors->has('group') ? 'has-error' : '' }}">
                             <!-- last name -->
                             {!! Form::label('group',Lang::get('message.group'),['class'=>'required']) !!}
-                            <select name="group"  class="form-control" id="groups">
+                            <select name="group"  class="form-control {{$errors->has('group') ? ' is-invalid' : ''}}" id="groups">
                                 <option value="">Choose</option>
                                 @foreach($groups as $key=>$group)
                                     <option value="{{$key}}" <?php  if (in_array($group, $selectedGroup)) {
@@ -130,7 +130,7 @@
                         <div class="col-md-6 form-group {{ $errors->has('description') ? 'has-error' : '' }}">
 
                             {!! Form::label('description',Lang::get('message.price_description'),['class'=>'required']) !!}
-                            <!--{!! Form::text('description',null,['class' => 'form-control','id'=>'textarea1']) !!}-->
+                            <!--{!! Form::text('description',null,['class' => 'form-control'.($errors->has('description') ? ' is-invalid' : ''),'id'=>'textarea1']) !!}-->
                             <textarea hidden class="form-control"  name="description" id='textarea1'>{!! $product->description !!}</textarea>
 
                             @error('description')
@@ -146,7 +146,7 @@
                                     <div class="form-group {{ $errors->has('parent') ? 'has-error' : '' }}">
                                         <!-- last name -->
                                         {!! Form::label('sku',Lang::get('message.sku'),['class'=>'required']) !!}
-                                        {!! Form::text('product_sku',null,['class' => 'form-control','id'=>'product_sku']) !!}
+                                        {!! Form::text('product_sku',null,['class' => 'form-control'.($errors->has('product_sku') ? ' is-invalid' : ''),'id'=>'product_sku']) !!}
                                         <div class="input-group-append"></div>
                                         @error('product_sku')
                                         <span class="error-message"> {{$message}}</span>
@@ -157,7 +157,7 @@
                                     <div class="form-group {{ $errors->has('parent') ? 'has-error' : '' }}">
                                         <!-- last name -->
                                         {!! Form::label('parent',Lang::get('message.parent')) !!}
-                                        {!! Form::select('parent[]',[''=>'Choose','Products'=>$products],null,['class' => 'form-control']) !!}
+                                        {!! Form::select('parent[]',[''=>'Choose','Products'=>$products],null,['class' => 'form-control'.($errors->has('parent[]') ? ' is-invalid' : '')]) !!}
 
                                     </div>
                                 </li>
@@ -193,7 +193,7 @@
                                                     <div class="form-group {{ $errors->has('github_owner') ? 'has-error' : '' }}">
                                                         <!-- first name -->
                                                         {!! Form::label('github_owner',Lang::get('message.github-owner')) !!}
-                                                        {!! Form::text('github_owner',null,['class'=>'form-control','id'=>'owner']) !!}
+                                                        {!! Form::text('github_owner',null,['class'=>'form-control'.($errors->has('github_owner') ? ' is-invalid' : ''),'id'=>'owner']) !!}
                                                         @error('github_owner')
                                                         <span class="error-message"> {{$message}}</span>
                                                         @enderror
@@ -201,7 +201,7 @@
                                                     <div class="form-group {{ $errors->has('github_repository') ? 'has-error' : '' }}">
                                                         <!-- last name -->
                                                         {!! Form::label('github_repository',Lang::get('message.github-repository-name')) !!}
-                                                        {!! Form::text('github_repository',null,['class'=>'form-control','id'=>'repo']) !!}
+                                                        {!! Form::text('github_repository',null,['class'=>'form-control'.($errors->has('github_repository') ? ' is-invalid' : ''),'id'=>'repo']) !!}
                                                         @error('github_repository')
                                                         <span class="error-message"> {{$message}}</span>
                                                         @enderror
@@ -213,7 +213,7 @@
                                                     <div class="form-group {{ $errors->has('version') ? 'has-error' : '' }}">
                                                         <!-- last name -->
                                                         {!! Form::label('version',Lang::get('message.version')) !!}
-                                                        {!! Form::text('version',null,['class'=>'form-control','id'=>'version']) !!}
+                                                        {!! Form::text('version',null,['class'=>'form-control'.($errors->has('version') ? ' is-invalid' : ''),'id'=>'version']) !!}
                                                         @error('version')
                                                         <span class="error-message"> {{$message}}</span>
                                                         @enderror
@@ -315,7 +315,7 @@
 
                         <div class="col-md-12 form-group {{ $errors->has('product_description') ? 'has-error' : '' }}">
                             {!! Form::label('product_description', Lang::get('message.product_description'), ['class' => 'required']) !!}
-                            {!! Form::textarea('product_description', $product->product_description, ['class' => 'form-control', 'id' => 'product-description']) !!}
+                            {!! Form::textarea('product_description', $product->product_description, ['class' => 'form-control'.($errors->has('product_description') ? ' is-invalid' : ''), 'id' => 'product-description']) !!}
                             <div class="input-group-append"></div>
                             @error('product_description')
                             <span class="error-message"> {{$message}}</span>
