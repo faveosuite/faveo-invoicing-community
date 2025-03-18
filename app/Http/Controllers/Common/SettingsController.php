@@ -6,7 +6,9 @@ use App\ApiKey;
 use App\Email_log;
 use App\Facades\Attach;
 use App\Http\Requests\Common\SettingsRequest;
+use App\ThirdPartyApp;
 use App\Model\Common\Mailchimp\MailchimpSetting;
+use App\Model\Github\Github;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;
@@ -44,9 +46,9 @@ class SettingsController extends BaseSettingsController
             $settings->create(['company' => '']);
         }
         $isRedisConfigured = QueueService::where('short_name', 'redis')->value('status');
+        $mailSendingStatus = Setting::value('sending_status');
 
-        return view('themes.default1.common.admin-settings', compact('isRedisConfigured'));
-        //return view('themes.default1.common.settings', compact('setting', 'template'));
+        return view('themes.default1.common.admin-settings', compact('isRedisConfigured', 'mailSendingStatus'));
     }
 
     public function plugins()
@@ -68,12 +70,160 @@ class SettingsController extends BaseSettingsController
      *
      * @param  ApiKey  $apikeys
      */
+    public function licensekeys(ApiKey $apikeys)
+    {
+        [$licenseSecret, $licenseUrl,$licenseClientId,$licenseClientSecret,$licenseGrantType] = array_values($apikeys->select( 'license_api_secret',
+            'license_api_url','license_client_id','license_client_secret','license_grant_type')->first()->toArray());
+        $data=[
+            'licenseGrantType' => $licenseGrantType,
+            'licenseSecret' => $licenseSecret,
+            'licenseClientId' => $licenseClientId,
+            'licenseClientSecret' => $licenseClientSecret,
+            'licenseUrl' => $licenseUrl,
+        ];
+        return successResponse('',$data);
+
+    }
+
+    public function googleCaptcha(ApiKey $apikeys)
+    {
+        [$captchaStatus, $v3CaptchaStatus] = array_values(StatusSetting::select( 'recaptcha_status', 'v3_recaptcha_status')->first()->toArray());
+        [$siteKey, $secretKey] = array_values($apikeys->select( 'nocaptcha_sitekey', 'captcha_secretCheck')->first()->toArray());
+        $data=[
+            'captchaStatus' => $captchaStatus,
+            'v3CaptchaStatus' => $v3CaptchaStatus,
+            'siteKey' => $siteKey,
+            'secretKey' => $secretKey,
+        ];
+        return successResponse('',$data);
+
+    }
+
+    public function mobileVerification(ApiKey $apikeys)
+    {
+        [$mobileauthkey,$msg91Sender,$msg91TemplateId,$msg91ThirdPartyId] = array_values($apikeys->select( 'msg91_auth_key', 'msg91_sender','msg91_template_id','msg91_third_party_id')->first()->toArray());
+
+        $data=[
+            'mobileauthkey' => $mobileauthkey,
+            'msg91Sender' => $msg91Sender,
+            'msg91TemplateId' => $msg91TemplateId,
+            'selectedApp'=>$msg91ThirdPartyId,
+        ];
+        return successResponse('',$data);
+
+    }
+
+    public function mailchimpKeys(ApiKey $apikeys)
+    {
+        $mailchimpSetting = StatusSetting::pluck('mailchimp_status')->first();
+
+        [$mailchimpKey, $subscribe_status] = array_values(MailchimpSetting::select( 'api_key','subscribe_status')->first()->toArray());
+
+        $mailchimp_set = new MailchimpSetting();
+        $set = $mailchimp_set->firstOrFail();
+        $mail_api_key = $set->api_key;
+        try {
+            $mailchimp_set = new MailchimpSetting();
+            $set = $mailchimp_set->firstOrFail();
+            $mail_api_key = $set->api_key;
+            $mailchimp = new \Mailchimp\Mailchimp($mail_api_key);
+            $allists = $mailchimp->get('lists?count=20')['lists'];
+            $selectedList[] = $set->list_id;
+        } catch (\Exception $e) {
+            // Log the error if needed
+            \Log::error('Mailchimp Initialization Failed: '.$e->getMessage());
+
+            // Return null when it fails
+            $mailchimp = '';
+            $allists = [];
+            $selectedList = [];
+        }
+
+       $data=[
+            'mailchimpSetting' => $mailchimpSetting,
+            'mailchimpKey' => $mailchimpKey,
+            'allLists' => $allists,
+            'selectedList' => $selectedList,
+            'subscribe_status' => $subscribe_status,
+        ];
+        return successResponse('',$data);
+
+    }
+
+    public function termsUrl(ApiKey $apikeys)
+    {
+        $termsUrl = $apikeys->value('terms_url');
+
+     $data=[
+            'termsUrl' => $termsUrl,
+        ];
+        return successResponse('',$data);
+
+    }
+
+    public function twitterkeys(ApiKey $apikeys)
+    {
+        $twitterKeys = $apikeys->select('twitter_consumer_key', 'twitter_consumer_secret',
+            'twitter_access_token', 'access_tooken_secret')->first();
+
+        $data=[
+            'twitterkeys' => $twitterKeys,
+
+        ];
+        return successResponse('',$data);
+
+    }
+
+    public function zohokeys(ApiKey $apikeys)
+    {
+        $zohoKey =  $apikeys->value('zoho_api_key');
+
+        $data=[
+            'zohoKey' => $zohoKey,
+
+        ];
+        return successResponse('',$data);
+
+    }
+
+    public function pipedrivekeys(ApiKey $apikeys)
+    {
+        $pipedriveKey = $apikeys->value('pipedrive_api_key');
+
+        $data=[
+            'pipedriveKey' => $pipedriveKey,
+
+        ];
+        return successResponse('',$data);
+
+    }
+
+    public function githubkeys(ApiKey $apikeys)
+    {
+        $model = new Github();
+        try {
+            $github = $model->firstOrFail();
+            $githubStatus = StatusSetting::first()->github_status;
+            $githubFileds = $github->select('client_id', 'client_secret', 'username', 'password')->first();
+            $data=[
+                'githubFileds' => $githubFileds,
+
+            ];
+            return successResponse('',$data);
+
+        }catch (\Exception $e){
+            $data=[
+                'githubFileds' => '',
+
+            ];
+            return successResponse('',$data);
+
+        }
+    }
+
     public function getKeys(ApiKey $apikeys)
     {
         try {
-            $licenseClientId = ApiKey::pluck('license_client_id')->first();
-            $licenseClientSecret = ApiKey::pluck('license_client_secret')->first();
-            $licenseGrantType = ApiKey::pluck('license_grant_type')->first();
             $licenseSecret = $apikeys->pluck('license_api_secret')->first();
             $licenseUrl = $apikeys->pluck('license_api_url')->first();
             $licenseClientId = $apikeys->pluck('license_client_id')->first();
@@ -90,9 +240,7 @@ class SettingsController extends BaseSettingsController
             $mobileauthkey = $apikeys->pluck('msg91_auth_key')->first();
             $msg91Sender = $apikeys->pluck('msg91_sender')->first();
             $msg91TemplateId = $apikeys->pluck('msg91_template_id')->first();
-            $msg91ThirdPartyId = $apikeys->pluck('msg91_third_party_id')->first();
             $updateUrl = $apikeys->pluck('update_api_url')->first();
-            $emailStatus = StatusSetting::pluck('emailverification_status')->first();
             $twitterKeys = $apikeys->select('twitter_consumer_key', 'twitter_consumer_secret',
                 'twitter_access_token', 'access_tooken_secret')->first();
             $twitterStatus = $this->statusSetting->pluck('twitter_status')->first();
@@ -102,20 +250,137 @@ class SettingsController extends BaseSettingsController
             $rzpKeys = $apikeys->select('rzp_key', 'rzp_secret', 'apilayer_key')->first();
             $mailchimpSetting = StatusSetting::pluck('mailchimp_status')->first();
             $mailchimpKey = MailchimpSetting::pluck('api_key')->first();
+
             $termsStatus = StatusSetting::pluck('terms')->first();
             $termsUrl = $apikeys->pluck('terms_url')->first();
             $pipedriveKey = $apikeys->pluck('pipedrive_api_key')->first();
             $pipedriveStatus = StatusSetting::pluck('pipedrive_status')->first();
             $domainCheckStatus = StatusSetting::pluck('domain_check')->first();
             $mailSendingStatus = Setting::value('sending_status');
+            $emailStatus = StatusSetting::pluck('emailverification_status')->first();
             $model = $apikeys->find(1);
-            // $v3captchaStatus = StatusSetting::pluck('v3recaptcha_status')->first();
-            // $v3siteKey = $apikeys->pluck('v3captcha_sitekey')->first();
-            // $v3secretKey = $apikeys->pluck('v3captcha_secretCheck')->first();
+            $mailchimp_set = new MailchimpSetting();
+            $set = $mailchimp_set->firstOrFail();
+            $mail_api_key = $set->api_key;
+            try {
+                $mailchimp = new \Mailchimp\Mailchimp($mail_api_key);
+                $allists = $mailchimp->get('lists?count=20')['lists'];
+                $selectedList[] = $set->list_id;
+            } catch (\Exception $e) {
+                \Log::error('Mailchimp Initialization Failed: '.$e->getMessage());
+                $allists = [];
+                $selectedList = [];
+            }
+            $model = new Github();
+            $github = $model->firstOrFail();
+            $githubStatus = StatusSetting::first()->github_status;
+            $msg91ThirdPartyId = $apikeys->pluck('msg91_third_party_id')->first();
 
-            return view('themes.default1.common.apikey', compact('model', 'status', 'licenseSecret', 'licenseUrl', 'siteKey', 'secretKey', 'captchaStatus', 'v3CaptchaStatus', 'updateStatus', 'updateSecret', 'updateUrl', 'mobileStatus', 'mobileauthkey', 'msg91Sender', 'msg91TemplateId', 'emailStatus', 'twitterStatus', 'twitterKeys', 'zohoStatus', 'zohoKey', 'rzpStatus', 'rzpKeys', 'mailchimpSetting', 'mailchimpKey', 'termsStatus', 'termsUrl', 'pipedriveKey', 'pipedriveStatus', 'domainCheckStatus', 'mailSendingStatus', 'licenseClientId', 'licenseClientSecret', 'licenseGrantType', 'msg91ThirdPartyId'));
+            return view('themes.default1.common.apikey', compact('model', 'status', 'licenseSecret', 'licenseUrl', 'siteKey', 'secretKey', 'captchaStatus', 'v3CaptchaStatus', 'updateStatus', 'updateSecret', 'updateUrl', 'mobileStatus', 'mobileauthkey', 'msg91Sender', 'msg91TemplateId', 'emailStatus', 'twitterStatus', 'twitterKeys', 'zohoStatus', 'zohoKey', 'rzpStatus', 'rzpKeys', 'mailchimpSetting', 'mailchimpKey', 'termsStatus', 'termsUrl', 'pipedriveKey', 'pipedriveStatus', 'domainCheckStatus', 'mailSendingStatus',
+                'licenseClientId', 'licenseClientSecret', 'licenseGrantType','allists', 'selectedList','set','githubStatus','msg91ThirdPartyId'));
         } catch (\Exception $ex) {
             return redirect('/')->with('fails', $ex->getMessage());
+        }
+    }
+
+
+    public function getDataTableData(Request $request){
+        $status = $this->statusSetting->value('license_status');
+        $mobileStatus =$this->statusSetting->value('msg91_status');
+        $captchaStatus = $this->statusSetting->value('recaptcha_status');
+        $v3CaptchaStatus = $this->statusSetting->value('v3_recaptcha_status');
+        $twitterStatus = $this->statusSetting->value('twitter_status');
+        $zohoStatus = $this->statusSetting->value('zoho_status');
+        $pipedriveStatus = $this->statusSetting->value('pipedrive_status');
+        $domainCheckStatus = $this->statusSetting->value('domain_check');
+        $githubStatus = $this->statusSetting->first()->github_status;
+        $mailchimpSetting = $this->statusSetting->value('mailchimp_status');
+        $termsStatus = $this->statusSetting->value('terms');
+        $v3_v2_recaptcha_status = $this->statusSetting->value('v3_v2_recaptcha_status');
+        $checkboxValue = $v3_v2_recaptcha_status ? '1' : '0';
+        $checked = $v3_v2_recaptcha_status ? 'checked' : '';
+
+        $toggleSwitch = '
+        <label class="switch toggle_event_editing gcaptcha">
+            <input type="checkbox" value="'.$checkboxValue.'"  
+                   name="modules_settings"
+                   class="checkbox2" id="captcha" '.$checked.'>
+            <span class="slider round"></span>
+        </label>
+    ';
+        $mobileAction=$mobileStatus? '<button id="msg91-edit-button" class="btn btn-sm btn-secondary btn-xs"><span class="nav-icon fa fa-fw fa-edit"></span></button>':'';
+        $licenseAction=$status?'<button id="license-edit-button" class="btn btn-sm btn-secondary btn-xs" ><span class="nav-icon fa fa-fw fa-edit"></span></button>':'';
+        $mailchimpAction=$mailchimpSetting?'<button id="mailchimp-edit-button" class="btn btn-sm btn-secondary btn-xs"><span class="nav-icon fa fa-fw fa-edit"></span></button>':'';
+        $termsAction=$termsStatus?'<button id="termsUrl-edit-button" class="btn btn-sm btn-secondary btn-xs"><span class="nav-icon fa fa-fw fa-edit"></span></button>':'';
+        $pipedriveAction=$pipedriveStatus?'<button id="pipedrive-edit-button" class="btn btn-sm btn-secondary btn-xs"><span class="nav-icon fa fa-fw fa-edit"></span></button>':'';
+        $githubAction=$githubStatus?'<button id="github-edit-button" class="btn btn-sm btn-secondary btn-xs"><span class="nav-icon fa fa-fw fa-edit"></span></button>':'';
+        $recaptchaAction=$v3_v2_recaptcha_status?'<button id="captcha-edit-button" class="btn btn-sm btn-secondary btn-xs" ><span class="nav-icon fa fa-fw fa-edit"></span></button>':'';
+        if ($request->ajax()) {
+            $dataTable = collect([
+                ['options' => \Lang::get('message.license_heading'), 'description' => \Lang::get('message.license_description'), 'status' => '
+        <label class="switch toggle_event_editing licenser">
+            <input type="checkbox" value="'.($status ? '1' : '0').'"  
+                   name="modules_settings"
+                   class="checkbox" id="License" '.($status ? 'checked' : '').'>
+            <span class="slider round"></span>
+        </label>
+    ', 'action' => $licenseAction,
+                ],
+                ['options' => \Lang::get('message.recaptcha_heading'), 'description' => \Lang::get('message.google_description'), 'status' => $toggleSwitch, 'action' => $recaptchaAction,
+                ],
+                ['options' => \Lang::get('message.msg91_heading'), 'description' => \Lang::get('message.msg91_description'), 'status' => '<label class="switch toggle_event_editing mstatus">
+                    <input type="checkbox" value="'.($mobileStatus ? '1' : '0').'"  name="mobile_settings"
+                           class="checkbox4" id="mobile"'.($mobileStatus ? 'checked' : '').'>
+                    <span class="slider round"></span>
+                    </label>','action'=>$mobileAction,
+                ],
+                ['options' => \Lang::get('message.mailchimp_heading'), 'description' => \Lang::get('message.mailchimp_description'), 'status' => '<label class="switch toggle_event_editing mailchimpstatus">
+                        <input type="checkbox" value="'.($mailchimpSetting ? '1' : '0').'"  name="mobile_settings"
+                               class="checkbox9" id="mailchimp"'.($mailchimpSetting ? 'checked' : '').'>
+                        <span class="slider round"></span>
+                    </label>', 'action' => $mailchimpAction,
+                ],
+                ['options' => \Lang::get('message.terms_heading'), 'description' => \Lang::get('message.terms_description'), 'status' => '<label class="switch toggle_event_editing termstatus1">
+
+                        <input type="checkbox" value="'.($termsStatus ? '1' : '0').'"  name="terms_settings"
+                               class="checkbox10" id="terms"'.($termsStatus ? 'checked' : '').'>
+                        <span class="slider round"></span>
+                    </label>', 'action' => $termsAction,
+                ],
+                ['options' => \Lang::get('message.pipedrive_heading'), 'description' => \Lang::get('message.pipedrive_description'), 'status' => '<label class="switch toggle_event_editing pipedrivestatus">
+                        <input type="checkbox" value="'.($pipedriveStatus ? '1' : '0').'"  name="pipedrive_settings"
+                           class="checkbox13" id="pipedrive"'.($pipedriveStatus ? 'checked' : '').'>
+                        <span class="slider round"></span>
+                    </label>', 'action' =>$pipedriveAction,
+                ],
+                ['options' => \Lang::get('message.github_heading'), 'description' => \Lang::get('message.github_description'), 'status' => '<label class="switch toggle_event_editing githubstatus">
+                            <input type="checkbox" value="'.($githubStatus ? '1' : '0').'" name="github_settings" class="checkbox" id="github"'.($githubStatus ? 'checked' : '').'>
+                            <span class="slider round"></span>
+                        </label>', 'action' => $githubAction,
+                ],
+            ]);
+
+            return DataTables::of($dataTable)
+                ->rawColumns(['status', 'action'])
+                ->make(true);
+        }
+    }
+
+    private function getStatus($value)
+    {
+        if ($value == 1) {
+            return 'Active';
+        } else {
+            return 'Inactive';
+        }
+    }
+
+    private function getStatus2($value, $value2)
+    {
+        if (! $value && ! $value2) {
+            return 'Inactive';
+        } else {
+            return 'Active';
         }
     }
 
@@ -761,5 +1026,13 @@ class SettingsController extends BaseSettingsController
                             '.$e->getMessage().'
                     </div>';
         }
+    }
+
+    public function contactOption()
+    {
+        $mailSendingStatus = Setting::value('sending_status');
+        $emailStatus = StatusSetting::pluck('emailverification_status')->first();
+
+        return view('themes.default1.common.setting.contact-options', compact('mailSendingStatus', 'emailStatus'));
     }
 }
