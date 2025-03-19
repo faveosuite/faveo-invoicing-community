@@ -108,18 +108,22 @@ class RequestPayloadValueResolver implements ValueResolverInterface, EventSubscr
                 } catch (PartialDenormalizationException $e) {
                     $trans = $this->translator ? $this->translator->trans(...) : fn ($m, $p) => strtr($m, $p);
                     foreach ($e->getErrors() as $error) {
-                        $parameters = ['{{ type }}' => implode('|', $error->getExpectedTypes())];
+                        $parameters = [];
+                        $template = 'This value was of an unexpected type.';
+                        if ($expectedTypes = $error->getExpectedTypes()) {
+                            $template = 'This value should be of type {{ type }}.';
+                            $parameters['{{ type }}'] = implode('|', $expectedTypes);
+                        }
                         if ($error->canUseMessageForUser()) {
                             $parameters['hint'] = $error->getMessage();
                         }
-                        $template = 'This value should be of type {{ type }}.';
                         $message = $trans($template, $parameters, 'validators');
                         $violations->add(new ConstraintViolation($message, $template, $parameters, null, $error->getPath(), null));
                     }
                     $payload = $e->getData();
                 }
 
-                if (null !== $payload) {
+                if (null !== $payload && !\count($violations)) {
                     $violations->addAll($this->validator->validate($payload, null, $argument->validationGroups ?? null));
                 }
 

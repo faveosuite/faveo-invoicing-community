@@ -12,6 +12,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Support\MessageBag;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 use Illuminate\Support\ViewErrorBag;
 use Livewire\Form;
 
@@ -254,7 +255,8 @@ trait HandlesValidation
         $this->shortenModelAttributesInsideValidator($ruleKeysToShorten, $validator);
 
         $customValues = $this->getValidationCustomValues();
-        if (!empty($customValues)) {
+
+        if (! empty($customValues)) {
             $validator->addCustomValues($customValues);
         }
 
@@ -284,7 +286,10 @@ trait HandlesValidation
         // First, run sub-validators...
         foreach ($this->getFormObjects() as $form) {
             try {
-                $cumulativeData = array_merge($validateForm($form));
+                // Only run sub-validator if the sub-validator has rules...
+                if (filled($form->getRules())) {
+                    $cumulativeData = array_merge($cumulativeData, $validateForm($form));
+                }
             } catch (ValidationException $e) {
                 $cumulativeErrors->merge($e->validator->errors());
 
@@ -294,7 +299,7 @@ trait HandlesValidation
 
         // Now run main validator...
         try {
-            $cumulativeData = array_merge($validateSelf());
+            $cumulativeData = array_merge($cumulativeData, $validateSelf());
         } catch (ValidationException $e) {
             // If the main validator has errors, merge them with subs and rethrow...
             $e->validator->errors()->merge($cumulativeErrors);
@@ -305,7 +310,9 @@ trait HandlesValidation
         // If main validation passed, go through other sub-validation exceptions
         // and throw the first one with the cumulative messages...
         foreach ($formExceptions as $e) {
-            $e->validator->errors()->merge($cumulativeErrors);
+            $exceptionErrorKeys = $e->validator->errors()->keys();
+            $remainingErrors = Arr::except($cumulativeErrors->messages(), $exceptionErrorKeys);
+            $e->validator->errors()->merge($remainingErrors);
 
             throw $e;
         }
@@ -479,7 +486,7 @@ trait HandlesValidation
 
         if ($this->isRootComponent()) {
             foreach ($this->getFormObjects() as $form) {
-                $allRules = array_merge($form->getRules());
+                $allRules = array_merge($allRules, $form->getRules());
             }
         }
 

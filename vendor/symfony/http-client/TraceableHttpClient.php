@@ -30,7 +30,7 @@ final class TraceableHttpClient implements HttpClientInterface, ResetInterface, 
     private ?Stopwatch $stopwatch;
     private \ArrayObject $tracedRequests;
 
-    public function __construct(HttpClientInterface $client, Stopwatch $stopwatch = null)
+    public function __construct(HttpClientInterface $client, ?Stopwatch $stopwatch = null)
     {
         $this->client = $client;
         $this->stopwatch = $stopwatch;
@@ -55,18 +55,18 @@ final class TraceableHttpClient implements HttpClientInterface, ResetInterface, 
             $content = false;
         }
 
-        $options['on_progress'] = function (int $dlNow, int $dlSize, array $info) use (&$traceInfo, $onProgress) {
+        $options['on_progress'] = function (int $dlNow, int $dlSize, array $info, ?\Closure $resolve = null) use (&$traceInfo, $onProgress) {
             $traceInfo = $info;
 
             if (null !== $onProgress) {
-                $onProgress($dlNow, $dlSize, $info);
+                $onProgress($dlNow, $dlSize, $info, $resolve);
             }
         };
 
         return new TraceableResponse($this->client, $this->client->request($method, $url, $options), $content, $this->stopwatch?->start("$method $url", 'http_client'));
     }
 
-    public function stream(ResponseInterface|iterable $responses, float $timeout = null): ResponseStreamInterface
+    public function stream(ResponseInterface|iterable $responses, ?float $timeout = null): ResponseStreamInterface
     {
         if ($responses instanceof TraceableResponse) {
             $responses = [$responses];

@@ -1,0 +1,44 @@
+{
+    "name": "pipedrive/pipedrive",
+    "type": "library",
+    "description": "Pipedrive REST client for PHP",
+    "keywords": [
+        "pipedrive",
+        "CRM",
+        "sales",
+        "contacts",
+        "customers",
+        "deals",
+        "pipeline",
+        "sales pipeline"
+    ],
+    "homepage": "https://github.com/pipedrive/client-php",
+    "license": "MIT",
+    "require": {
+        "php": "^7.4 || ^8.0",
+        "ext-curl": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*",
+        "guzzlehttp/guzzle": "^7.3",
+        "guzzlehttp/psr7": "^2.0"
+    },
+    "require-dev": {
+        "pestphp/pest": "^1.23",
+        "phpstan/phpstan": "^1.10"
+    },
+    "autoload": {
+        "psr-4": { "Pipedrive\\" : "lib/" }
+    },
+    "autoload-dev": {
+        "psr-4": { "Pipedrive\\Tests\\Unit\\" : "test/" }
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "scripts": {
+        "test": "./vendor/bin/pest",
+        "analyse": "./vendor/bin/phpstan analyse"
+    }
+}
