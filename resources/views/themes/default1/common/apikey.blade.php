@@ -86,12 +86,12 @@
 @section('content')
 
 
-    <div class="card card-secondary card-outline">
+    <div class="card card-secondary card-outline" >
 
         <!-- /.box-header -->
         <div class="card-body">
             <div id="alertMessage"></div>
-            <div class="scrollit">
+            <div class="scrollit" style="height:800px">
                 <div class="row">
                     <div class="col-md-12">
 
@@ -119,59 +119,66 @@
 
                                 </td>
 
-                                <td class="col-md-4 licenseEmptyField">
-                                    {!! Form::label('lic_api_secret',Lang::get('message.lic_api_secret')) !!}
-                                    {!! Form::text('license_api',null,['class' => 'form-control secretHide','disabled'=>'disabled'
-                                    ]) !!}
+{{--                                <td class="col-md-4 licenseEmptyField">--}}
+{{--                                    {!! Form::label('lic_api_secret',Lang::get('message.lic_api_secret')) !!}--}}
+{{--                                    {!! Form::text('license_api',null,['class' => 'form-control secretHide','disabled'=>'disabled'--}}
+{{--                                    ]) !!}--}}
+{{--                                    <h6 id="license_apiCheck"></h6>--}}
+{{--                                    <br/>--}}
+{{--                                    <!-- last name -->--}}
+{{--                                    {!! Form::label('lic_api_url',Lang::get('message.lic_api_url')) !!} :--}}
+{{--                                    {!! Form::text('license_api',null,['class' => 'form-control urlHide','disabled'=>'disabled']) !!}--}}
+{{--                                    <h6 id="license_urlCheck"></h6>--}}
+{{--                                    <br/>--}}
+{{--                                    {!! Form::label('lic_client_id',Lang::get('message.lic_client_id')) !!} :--}}
+{{--                                    {!! Form::text('license_client_id',null,['class' => 'form-control urlHide','disabled'=>'disabled']) !!}--}}
+{{--                                    <h6 id="license_clientIdCheck"></h6>--}}
+{{--                                    <br/>--}}
+{{--                                    {!! Form::label('lic_client_secret',Lang::get('message.lic_client_secret')) !!} :--}}
+{{--                                    {!! Form::text('license_client_secret',null,['class' => 'form-control urlHide','disabled'=>'disabled']) !!}--}}
+{{--                                    <h6 id="license_clientSecretCheck"></h6>--}}
+{{--                                    <br/>--}}
+{{--                                    {!! Form::label('lic_grant_type',Lang::get('message.lic_grant_type')) !!} :--}}
+{{--                                    {!! Form::text('license_grant_type',null,['class' => 'form-control urlHide','disabled'=>'disabled']) !!}--}}
+{{--                                    <h6 id="license_grantTypeCheck"></h6>--}}
 
-                                    <!-- last name -->
-                                    {!! Form::label('lic_api_url',Lang::get('message.lic_api_url')) !!} :
-                                    {!! Form::text('license_api',null,['class' => 'form-control urlHide','disabled'=>'disabled']) !!}
+{{--                                </td>--}}
 
-                                    {!! Form::label('lic_client_id',Lang::get('message.lic_client_id')) !!} :
-                                    {!! Form::text('license_client_id',null,['class' => 'form-control urlHide','disabled'=>'disabled']) !!}
-
-                                    {!! Form::label('lic_client_secret',Lang::get('message.lic_client_secret')) !!} :
-                                    {!! Form::text('license_client_secret',null,['class' => 'form-control urlHide','disabled'=>'disabled']) !!}
-
-                                    {!! Form::label('lic_grant_type',Lang::get('message.lic_grant_type')) !!} :
-                                    {!! Form::text('license_grant_type',null,['class' => 'form-control urlHide','disabled'=>'disabled']) !!}
-
-                                </td>
-                                <td class="col-md-4 LicenseField hide">
-
-
-                                    <!-- last name -->
-                                    {!! Form::label('lic_api_secret',Lang::get('message.lic_api_secret')) !!}
-                                    {!! Form::text('license_api_secret',$licenseSecret,['class' => 'form-control','id'=>'license_api_secret']) !!}
-                                    <h6 id="license_apiCheck"></h6>
-                                    <br/>
-
-                                    <!-- last name -->
-                                    {!! Form::label('lic_api_url',Lang::get('message.lic_api_url')) !!} :
-                                    {!! Form::text('license_api_url',$licenseUrl,['class' => 'form-control','id'=>'license_api_url']) !!}
-                                    <h6 id="license_urlCheck"></h6>
-                                    <br/>
-
-                                    {!! Form::label('lic_client_id',Lang::get('message.lic_client_id')) !!} :
-                                    {!! Form::text('license_client_id',$licenseClientId,['class' => 'form-control','id'=>'license_client_id']) !!}
-                                    <h6 id="license_clientIdCheck"></h6>
-                                    <br/>
-
-                                    {!! Form::label('lic_client_secret',Lang::get('message.lic_client_secret')) !!} :
-                                    {!! Form::text('license_client_secret',$licenseClientSecret,['class' => 'form-control','id'=>'license_client_secret']) !!}
-                                    <h6 id="license_clientSecretCheck"></h6>
-                                    <br/>
+{{--                                <td class="col-md-4 LicenseField hide">--}}
 
 
-                                    {!! Form::label('lic_grant_type',Lang::get('message.lic_grant_type')) !!} :
-                                    {!! Form::text('license_grant_type',$licenseGrantType,['class' => 'form-control','id'=>'license_grant_type']) !!}
-                                    <h6 id="license_grantTypeCheck"></h6>
+{{--                                    <!-- last name -->--}}
+{{--                                    {!! Form::label('lic_api_secret',Lang::get('message.lic_api_secret')) !!}--}}
+{{--                                    {!! Form::text('license_api_secret',$licenseSecret,['class' => 'form-control','id'=>'license_api_secret']) !!}--}}
+{{--                                    <h6 id="license_apiCheck"></h6>--}}
+{{--                                    <br/>--}}
+
+{{--                                    <!-- last name -->--}}
+{{--                                    {!! Form::label('lic_api_url',Lang::get('message.lic_api_url')) !!} :--}}
+{{--                                    {!! Form::text('license_api_url',$licenseUrl,['class' => 'form-control','id'=>'license_api_url']) !!}--}}
+{{--                                    <h6 id="license_urlCheck"></h6>--}}
+{{--                                    <br/>--}}
+
+{{--                                    {!! Form::label('lic_client_id',Lang::get('message.lic_client_id')) !!} :--}}
+{{--                                    {!! Form::text('license_client_id',$licenseClientId,['class' => 'form-control','id'=>'license_client_id']) !!}--}}
+{{--                                    <h6 id="license_clientIdCheck"></h6>--}}
+{{--                                    <br/>--}}
+
+{{--                                    {!! Form::label('lic_client_secret',Lang::get('message.lic_client_secret')) !!} :--}}
+{{--                                    {!! Form::text('license_client_secret',$licenseClientSecret,['class' => 'form-control','id'=>'license_client_secret']) !!}--}}
+{{--                                    <h6 id="license_clientSecretCheck"></h6>--}}
+{{--                                    <br/>--}}
 
 
-                                </td>
+{{--                                    {!! Form::label('lic_grant_type',Lang::get('message.lic_grant_type')) !!} :--}}
+{{--                                    {!! Form::text('license_grant_type',$licenseGrantType,['class' => 'form-control','id'=>'license_grant_type']) !!}--}}
+{{--                                    <h6 id="license_grantTypeCheck"></h6>--}}
+
+
+{{--                                </td>--}}
                             
-                                <td class="col-md-2"><button type="submit" class="form-group btn btn-primary"  onclick="licenseDetails()" id="submit"><i class="fa fa-save">&nbsp;</i>{!!Lang::get('message.save')!!}</button></td>
+{{--                                <td class="col-md-2"><button type="submit" class="form-group btn btn-primary"  onclick="licenseDetails()" id="submit"><i class="fa fa-save">&nbsp;</i>{!!Lang::get('message.save')!!}</button></td>--}}
+                                <td class="col-md-2"><a href="#create-third-party-app" data-toggle="modal" data-target="#create-third-party-app" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a></td>
 
                             </tr>
 
@@ -187,13 +194,14 @@
                                     </label>
 
                                 </td>
-                                <td class="col-md-4 domainverify">
+{{--                                <td class="col-md-4 domainverify">--}}
 
-                                    <b>Not Available</b>
+{{--                                    <b>Not Available</b>--}}
 
 
-                                </td>
-                                <td class="col-md-2"><button type="submit" class="form-group btn btn-primary"  id="submit14"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button></td>
+{{--                                </td>--}}
+{{--                                <td class="col-md-2"><button type="submit" class="form-group btn btn-primary"  id="submit14"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button></td>--}}
+                                <td class="col-md-2"><b>Not Available</b></td>
                             </tr>
 
 
@@ -266,29 +274,31 @@
                                 </td>
                                 <td class="col-md-4 captchaField hide">
                                     <div class="form-group m-1 d-flex">
-                                        <div class="custom-control custom-radio m-2">
-                                            <input class="custom-control-input" type="radio" id="captchaRadioV2" name="customRadio" {{ $captchaStatus === 1 ? 'checked' : '' }}>
-                                            <label for="captchaRadioV2" class="custom-control-label">{{ __('message.recaptcha_v2') }}</label>
-                                        </div>
-                                        <div class="custom-control custom-radio m-2">
-                                            <input class="custom-control-input" type="radio" id="captchaRadioV3" name="customRadio" {{ $v3CaptchaStatus === 1 ? 'checked' : '' }}>
-                                            <label for="captchaRadioV3" class="custom-control-label">{{ __('message.recaptcha_v3') }}</label>
-                                        </div>
-                                    </div>
+{{--                                        <div class="custom-control custom-radio m-2">--}}
+{{--                                            <input class="custom-control-input" type="radio" id="captchaRadioV2" name="customRadio" {{ $captchaStatus === 1 ? 'checked' : '' }}>--}}
+{{--                                            <label for="captchaRadioV2" class="custom-control-label">{{ __('message.recaptcha_v2') }}</label>--}}
+{{--                                        </div>--}}
+{{--                                        <div class="custom-control custom-radio m-2">--}}
+{{--                                            <input class="custom-control-input" type="radio" id="captchaRadioV3" name="customRadio" {{ $v3CaptchaStatus === 1 ? 'checked' : '' }}>--}}
+{{--                                            <label for="captchaRadioV3" class="custom-control-label">{{ __('message.recaptcha_v3') }}</label>--}}
+{{--                                        </div>--}}
+{{--                                    </div>--}}
 
-                                    <!-- last name -->
-                                    {!! Form::label('nocaptcha_sitekey',Lang::get('message.nocaptcha_sitekey')) !!}
-                                    {!! Form::text('nocaptcha_sitekey',$siteKey,['class' => 'form-control','id'=>'nocaptcha_sitekey']) !!}
-                                    <h6 id="captcha_sitekeyCheck"></h6>
+{{--                                    <!-- last name -->--}}
+{{--                                    {!! Form::label('nocaptcha_sitekey',Lang::get('message.nocaptcha_sitekey')) !!}--}}
+{{--                                    {!! Form::text('nocaptcha_sitekey',$siteKey,['class' => 'form-control','id'=>'nocaptcha_sitekey']) !!}--}}
+{{--                                    <h6 id="captcha_sitekeyCheck"></h6>--}}
 
-                                    <!-- last name -->
-                                    {!! Form::label('nocaptcha_secret',Lang::get('message.nocaptcha_secret')) !!}
-                                    {!! Form::text('nocaptcha_secret',$secretKey,['class' => 'form-control','id'=>'nocaptcha_secret']) !!}
-                                    <h6 id="captcha_secretCheck"></h6>
-                                    <br/>
+{{--                                    <!-- last name -->--}}
+{{--                                    {!! Form::label('nocaptcha_secret',Lang::get('message.nocaptcha_secret')) !!}--}}
+{{--                                    {!! Form::text('nocaptcha_secret',$secretKey,['class' => 'form-control','id'=>'nocaptcha_secret']) !!}--}}
+{{--                                    <h6 id="captcha_secretCheck"></h6>--}}
+{{--                                    <br/>--}}
 
                                 </td>
-                                <td class="col-md-2"><button type="submit" class="form-group btn btn-primary" onclick="captchaDetails()" id="submit2"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button></td>
+{{--                                <td class="col-md-2"><button type="submit" class="form-group btn btn-primary" onclick="captchaDetails()" id="submit2"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button></td>--}}
+                                <td class="col-md-2"><a href="#google-recaptcha" data-toggle="modal" data-target="#google-recaptcha" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a></td>
+
                             </tr>
                          <tr>
 
@@ -302,26 +312,28 @@
                                     </label>
 
                                 </td>
-                                <td class="col-md-4 mobileverify">
+{{--                                <td class="col-md-4 mobileverify">--}}
 
-                                    <input type ="hidden" id="hiddenMobValue" value="{{$mobileauthkey}}">
-                                    <!-- last name -->
-                                    {!! Form::label('mobile',Lang::get('message.msg91_key')) !!}
-                                    {!! Form::text('msg91_auth_key',$mobileauthkey,['class' => 'form-control mobile_authkey','id'=>'mobile_authkey']) !!}
-                                    <h6 id="mobile_check"></h6>
-                                    <br/>
-                                    <input type ="hidden" id="hiddenSender" value="{{$msg91Sender}}">
-                                    {!! Form::label('mobile',Lang::get('message.msg91_sender')) !!}
-                                    {!! Form::text('msg91_sender',$msg91Sender,['class' => 'form-control sender','id'=>'sender']) !!}
-                                    <h6 id="sender_check"></h6>
+{{--                                    <input type ="hidden" id="hiddenMobValue" value="{{$mobileauthkey}}">--}}
+{{--                                    <!-- last name -->--}}
+{{--                                    {!! Form::label('mobile',Lang::get('message.msg91_key')) !!}--}}
+{{--                                    {!! Form::text('msg91_auth_key',$mobileauthkey,['class' => 'form-control mobile_authkey','id'=>'mobile_authkey']) !!}--}}
+{{--                                    <h6 id="mobile_check"></h6>--}}
+{{--                                    <br/>--}}
+{{--                                    <input type ="hidden" id="hiddenSender" value="{{$msg91Sender}}">--}}
+{{--                                    {!! Form::label('mobile',Lang::get('message.msg91_sender')) !!}--}}
+{{--                                    {!! Form::text('msg91_sender',$msg91Sender,['class' => 'form-control sender','id'=>'sender']) !!}--}}
+{{--                                    <h6 id="sender_check"></h6>--}}
 
-                                    <input type ="hidden" id="hiddenTemplate" value="{{$msg91TemplateId}}">
-                                    {!! Form::label('mobile',Lang::get('message.msg91_template_id')) !!}
-                                    {!! Form::text('msg91_template_id',$msg91TemplateId,['class' => 'form-control template_id','id'=>'template_id']) !!}
-                                    <h6 id="template_check"></h6>
-                                </td>
-                                <td class="col-md-2"><button type="submit" class="form-group btn btn-primary"  id="submit3"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button></td>
-                            </tr>
+{{--                                    <input type ="hidden" id="hiddenTemplate" value="{{$msg91TemplateId}}">--}}
+{{--                                    {!! Form::label('mobile',Lang::get('message.msg91_template_id')) !!}--}}
+{{--                                    {!! Form::text('msg91_template_id',$msg91TemplateId,['class' => 'form-control template_id','id'=>'template_id']) !!}--}}
+{{--                                    <h6 id="template_check"></h6>--}}
+{{--                                </td>--}}
+{{--                                <td class="col-md-2"><button type="submit" class="form-group btn btn-primary"  id="submit3"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button></td>--}}
+                             <td class="col-md-2"><a href="#msg-91" data-toggle="modal" data-target="#msg-91" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a></td>
+
+                         </tr>
 
 
                             <tr>
@@ -336,18 +348,19 @@
                                     </label>
 
                                 </td>
-                                <td class="col-md-4 mailchimpverify">
+{{--                                <td class="col-md-4 mailchimpverify">--}}
 
-                                    <input type ="hidden" id="hiddenMailChimpValue" value="{{$mailchimpKey}}">
-                                    <!-- last name -->
-                                    {!! Form::label('mailchimp',Lang::get('message.mailchimp_key')) !!}
-                                    {!! Form::text('mailchimp',$mailchimpKey,['class' => 'form-control mailchimp_authkey','id'=>'mailchimp_authkey']) !!}
-                                    <h6 id="mailchimp_check"></h6>
-                                    <br/>
+{{--                                    <input type ="hidden" id="hiddenMailChimpValue" value="{{$mailchimpKey}}">--}}
+{{--                                    <!-- last name -->--}}
+{{--                                    {!! Form::label('mailchimp',Lang::get('message.mailchimp_key')) !!}--}}
+{{--                                    {!! Form::text('mailchimp',$mailchimpKey,['class' => 'form-control mailchimp_authkey','id'=>'mailchimp_authkey']) !!}--}}
+{{--                                    <h6 id="mailchimp_check"></h6>--}}
+{{--                                    <br/>--}}
 
 
-                                </td>
-                                <td class="col-md-2"><button type="submit" class="form-group btn btn-primary"  id="submit9"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button></td>
+{{--                                </td>--}}
+                                <td class="col-md-2"><a href="#mailchimps" data-toggle="modal" data-target="#mailchimps" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a></td>
+
                             </tr>
 
                             <tr>
@@ -362,18 +375,20 @@
                                     </label>
 
                                 </td>
-                                <td class="col-md-4 termsverify">
+{{--                                <td class="col-md-4 termsverify">--}}
 
-                                    <input type ="hidden" id="hiddenTermsValue" value="{{$termsUrl}}">
+{{--                                    <input type ="hidden" id="hiddenTermsValue" value="{{$termsUrl}}">
                                     <!-- last name -->
                                     {!! Form::label('terms',Lang::get('message.terms_url')) !!}
                                     {!! Form::text('terms',$termsUrl,['class' => 'form-control terms_url','id'=>'terms_url']) !!}
-                                    <h6 id="terms_check"></h6>
-                                    <br/>
+                                    <h6 id="terms_check"></h6>--}}
+{{--                                    <br/>--}}
 
 
-                                </td>
-                                <td class="col-md-2"><button type="submit" class="form-group btn btn-primary"  id="submit10"><i class="fa fa-save">&nbsp;</i>{!!Lang::get('message.save')!!}</button></td>
+{{--                                </td>--}}
+{{--                                <td class="col-md-2"><button type="submit" class="form-group btn btn-primary"  id="submit10"><i class="fa fa-save">&nbsp;</i>{!!Lang::get('message.save')!!}</button></td>--}}
+                                <td class="col-md-2"><a href="#showTerms" data-toggle="modal" data-target="#showTerms" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a></td>
+
                             </tr>
 
 
@@ -415,37 +430,39 @@
 
                                 </td>
 
-                                <td class="col-md-2 twitterverify">
-                                    <input type ="hidden" id="hidden_consumer_key" value="{{$twitterKeys->twitter_consumer_key}}">
-                                    <input type ="hidden" id="hidden_consumer_secret" value="{{$twitterKeys->twitter_consumer_secret}}">
-                                    <input type ="hidden" id="hidden_access_token" value="{{$twitterKeys->twitter_access_token}}">
-                                    <input type ="hidden" id="hidden_token_secret" value="{{$twitterKeys->access_tooken_secret}}">
-                                    {!! Form::label('consumer_key',Lang::get('message.consumer_key')) !!}
-                                    {!! Form::text('consumer_key',$twitterKeys->twitter_consumer_key,['class' => 'form-control consumer_key','id'=>'consumer_key']) !!}
-                                    <h6 id="consumer_keycheck"></h6>
+{{--                                <td class="col-md-2 twitterverify">--}}
+{{--                                    <input type ="hidden" id="hidden_consumer_key" value="{{$twitterKeys->twitter_consumer_key}}">--}}
+{{--                                    <input type ="hidden" id="hidden_consumer_secret" value="{{$twitterKeys->twitter_consumer_secret}}">--}}
+{{--                                    <input type ="hidden" id="hidden_access_token" value="{{$twitterKeys->twitter_access_token}}">--}}
+{{--                                    <input type ="hidden" id="hidden_token_secret" value="{{$twitterKeys->access_tooken_secret}}">--}}
+{{--                                    {!! Form::label('consumer_key',Lang::get('message.consumer_key')) !!}--}}
+{{--                                    {!! Form::text('consumer_key',$twitterKeys->twitter_consumer_key,['class' => 'form-control consumer_key','id'=>'consumer_key']) !!}--}}
+{{--                                    <h6 id="consumer_keycheck"></h6>--}}
 
 
-                                    <!-- last name -->
-                                    {!! Form::label('consumer_secret',Lang::get('message.consumer_secret')) !!}
-                                    {!! Form::text('consumer_secret',$twitterKeys->twitter_consumer_secret,['class' => 'form-control consumer_secret','id'=>'consumer_secret']) !!}
-                                    <h6 id="consumer_secretcheck"></h6>
-
-
-
-                                    {!! Form::label('access_token',Lang::get('message.access_token')) !!}
-                                    {!! Form::text('access_token',$twitterKeys->twitter_access_token,['class' => 'form-control access_token','id'=>'access_token']) !!}
-                                    <h6 id="access_tokencheck"></h6>
+{{--                                    <!-- last name -->--}}
+{{--                                    {!! Form::label('consumer_secret',Lang::get('message.consumer_secret')) !!}--}}
+{{--                                    {!! Form::text('consumer_secret',$twitterKeys->twitter_consumer_secret,['class' => 'form-control consumer_secret','id'=>'consumer_secret']) !!}--}}
+{{--                                    <h6 id="consumer_secretcheck"></h6>--}}
 
 
 
-                                    {!! Form::label('token_secret',Lang::get('message.token_secret')) !!}
-                                    {!! Form::text('token_secret',$twitterKeys->access_tooken_secret,['class' => 'form-control token_secret','id'=>'token_secret']) !!}
-                                    <h6 id="token_secretcheck"></h6>
+{{--                                    {!! Form::label('access_token',Lang::get('message.access_token')) !!}--}}
+{{--                                    {!! Form::text('access_token',$twitterKeys->twitter_access_token,['class' => 'form-control access_token','id'=>'access_token']) !!}--}}
+{{--                                    <h6 id="access_tokencheck"></h6>--}}
 
 
-                                </td>
 
-                                <td class="col-md-2" ><button type="submit" class="form-group btn btn-primary"  id="submit5"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button></td>
+{{--                                    {!! Form::label('token_secret',Lang::get('message.token_secret')) !!}--}}
+{{--                                    {!! Form::text('token_secret',$twitterKeys->access_tooken_secret,['class' => 'form-control token_secret','id'=>'token_secret']) !!}--}}
+{{--                                    <h6 id="token_secretcheck"></h6>--}}
+
+
+{{--                                </td>--}}
+
+{{--                                <td class="col-md-2" ><button type="submit" class="form-group btn btn-primary"  id="submit5"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button></td>--}}
+                                <td class="col-md-2"><a href="#twitters" data-toggle="modal" data-target="#twitters" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a></td>
+
                             </tr>
 
                             <tr>
@@ -460,18 +477,20 @@
                                     </label>
 
                                 </td>
-                                <td class="col-md-4 zohoverify">
+{{--                                <td class="col-md-4 zohoverify">--}}
 
-                                    <input type ="hidden" id="hidden_zoho_key" value="{{$zohoKey}}">
-                                    <!-- last name -->
-                                    {!! Form::label('zoho_key',Lang::get('message.zoho_crm')) !!}
-                                    {!! Form::text('zoho_key',$zohoKey,['class' => 'form-control zoho_key','id'=>'zoho_key']) !!}
-                                    <h6 id="zoho_keycheck"></h6>
-                                    <br/>
+{{--                                    <input type ="hidden" id="hidden_zoho_key" value="{{$zohoKey}}">--}}
+{{--                                    <!-- last name -->--}}
+{{--                                    {!! Form::label('zoho_key',Lang::get('message.zoho_crm')) !!}--}}
+{{--                                    {!! Form::text('zoho_key',$zohoKey,['class' => 'form-control zoho_key','id'=>'zoho_key']) !!}--}}
+{{--                                    <h6 id="zoho_keycheck"></h6>--}}
+{{--                                    <br/>--}}
 
 
-                                </td>
-                                <td class="col-md-2"><button type="submit" class="form-group btn btn-primary"  id="submit7"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button></td>
+{{--                                </td>--}}
+{{--                                <td class="col-md-2"><button type="submit" class="form-group btn btn-primary"  id="submit7"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button></td>--}}
+                                <td class="col-md-2"><a href="#zohoCrm" data-toggle="modal" data-target="#zohoCrm" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a></td>
+
                             </tr>
 
                             <tr>
@@ -486,18 +505,20 @@
                                     </label>
 
                                 </td>
-                                <td class="col-md-4 pipedriveverify">
+{{--                                <td class="col-md-4 pipedriveverify">--}}
 
-                                    <input type ="hidden" id="hidden_pipedrive_key" value="{{$pipedriveKey}}">
-                                    <!-- last name -->
-                                    {!! Form::label('pipedrive_key',Lang::get('message.pipedrive_key')) !!}
-                                    {!! Form::text('pipedrive_key',$pipedriveKey,['class' => 'form-control pipedrive_key','id'=>'pipedrive_key']) !!}
-                                    <h6 id="pipedrive_keycheck"></h6>
-                                    <br/>
+{{--                                    <input type ="hidden" id="hidden_pipedrive_key" value="{{$pipedriveKey}}">--}}
+{{--                                    <!-- last name -->--}}
+{{--                                    {!! Form::label('pipedrive_key',Lang::get('message.pipedrive_key')) !!}--}}
+{{--                                    {!! Form::text('pipedrive_key',$pipedriveKey,['class' => 'form-control pipedrive_key','id'=>'pipedrive_key']) !!}--}}
+{{--                                    <h6 id="pipedrive_keycheck"></h6>--}}
+{{--                                    <br/>--}}
 
 
-                                </td>
-                                <td class="col-md-2"><button type="submit" class="form-group btn btn-primary"  id="submit13"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button></td>
+{{--                                </td>--}}
+{{--                                <td class="col-md-2"><button type="submit" class="form-group btn btn-primary"  id="submit13"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button></td>--}}
+                                <td class="col-md-2"><a href="#pipedrv" data-toggle="modal" data-target="#pipedrv" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a></td>
+
                             </tr>
 
                             </tbody>
@@ -512,6 +533,302 @@
     </div>
 
 
+    <div class="modal fade" id="create-third-party-app" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Auto Faveo Licenser & Update Manager</h4>
+
+                </div>
+                <div class="modal-body">
+
+                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                        {!! Form::label('lic_api_secret',Lang::get('message.lic_api_secret')) !!}
+                        {!! Form::text('license_api_secret',$licenseSecret,['class' => 'form-control','id'=>'license_api_secret']) !!}
+                        <h6 id="license_apiCheck"></h6>
+                    </div>
+
+                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                        <!-- last name -->
+                        {!! Form::label('lic_api_url',Lang::get('message.lic_api_url')) !!} :
+                        {!! Form::text('license_api_url',$licenseUrl,['class' => 'form-control','id'=>'license_api_url']) !!}
+                        <h6 id="license_urlCheck"></h6>
+                    </div>
+
+                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                        {!! Form::label('lic_client_id',Lang::get('message.lic_client_id')) !!} :
+                        {!! Form::text('license_client_id',$licenseClientId,['class' => 'form-control','id'=>'license_client_id']) !!}
+                        <h6 id="license_clientIdCheck"></h6>
+                    </div>
+
+                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                        {!! Form::label('lic_client_secret',Lang::get('message.lic_client_secret')) !!} :
+                        {!! Form::text('license_client_secret',$licenseClientSecret,['class' => 'form-control','id'=>'license_client_secret']) !!}
+                        <h6 id="license_clientSecretCheck"></h6>
+                    </div>
+
+                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                        {!! Form::label('lic_grant_type',Lang::get('message.lic_grant_type')) !!} :
+                        {!! Form::text('license_grant_type',$licenseGrantType,['class' => 'form-control','id'=>'license_grant_type']) !!}
+                        <h6 id="license_grantTypeCheck"></h6>
+                    </div>
+                </div>
+
+                <div class="modal-footer justify-content-between">
+                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
+                    <button type="submit" class="form-group btn btn-primary"  onclick="licenseDetails()" id="submit"><i class="fa fa-save">&nbsp;</i>{!!Lang::get('message.save')!!}</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="modal fade" id="google-recaptcha" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Google reCAPTCHA</h4>
+
+                </div>
+                <div class="modal-body">
+                    <div class="form-group m-1 d-flex">
+                        <div class="custom-control custom-radio m-2">
+                            <input class="custom-control-input" type="radio" id="captchaRadioV2" name="customRadio" {{ $captchaStatus === 1 ? 'checked' : '' }}>
+                            <label for="captchaRadioV2" class="custom-control-label">{{ __('message.recaptcha_v2') }}</label>
+                        </div>
+                        <div class="custom-control custom-radio m-2">
+                            <input class="custom-control-input" type="radio" id="captchaRadioV3" name="customRadio" {{ $v3CaptchaStatus === 1 ? 'checked' : '' }}>
+                            <label for="captchaRadioV3" class="custom-control-label">{{ __('message.recaptcha_v3') }}</label>
+                        </div>
+                    </div>
+                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                        {!! Form::label('nocaptcha_sitekey',Lang::get('message.nocaptcha_sitekey')) !!}
+                        {!! Form::text('nocaptcha_sitekey',$siteKey,['class' => 'form-control','id'=>'nocaptcha_sitekey']) !!}
+                        <h6 id="captcha_sitekeyCheck"></h6>
+                    </div>
+
+                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                        <!-- last name -->
+                        {!! Form::label('nocaptcha_secret',Lang::get('message.nocaptcha_secret')) !!}
+                        {!! Form::text('nocaptcha_secret',$secretKey,['class' => 'form-control','id'=>'nocaptcha_secret']) !!}
+                        <h6 id="captcha_secretCheck"></h6>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer justify-content-between">
+                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
+                    <button type="submit" class="form-group btn btn-primary" onclick="captchaDetails()" id="submit2"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="msg-91" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Msg 91(Mobile Verification)</h4>
+
+                </div>
+                <div class="modal-body">
+                    <input type ="hidden" id="hiddenMobValue" value="{{$mobileauthkey}}">
+
+                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                        {!! Form::label('mobile',Lang::get('message.msg91_key')) !!}
+                        {!! Form::text('msg91_auth_key',$mobileauthkey,['class' => 'form-control mobile_authkey','id'=>'mobile_authkey']) !!}
+                        <h6 id="mobile_check"></h6>
+                    </div>
+
+                    <input type ="hidden" id="hiddenSender" value="{{$msg91Sender}}">
+
+                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                        {!! Form::label('mobile',Lang::get('message.msg91_sender')) !!}
+                        {!! Form::text('msg91_sender',$msg91Sender,['class' => 'form-control sender','id'=>'sender']) !!}
+                        <h6 id="sender_check"></h6>
+                    </div>
+
+                    <input type ="hidden" id="hiddenTemplate" value="{{$msg91TemplateId}}">
+
+                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                        {!! Form::label('mobile',Lang::get('message.msg91_template_id')) !!}
+                        {!! Form::text('msg91_template_id',$msg91TemplateId,['class' => 'form-control template_id','id'=>'template_id']) !!}
+                        <h6 id="template_check"></h6>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer justify-content-between">
+                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
+{{--                    <button type="submit" class="form-group btn btn-primary" onclick="captchaDetails()" id="submit2"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button>--}}
+                    <button type="submit" class="form-group btn btn-primary"  id="submit3"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="mailchimps" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Mailchimp</h4>
+                </div>
+                <div class="modal-body">
+                    <input type ="hidden" id="hiddenMailChimpValue" value="{{$mailchimpKey}}">
+                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                        {!! Form::label('mailchimp',Lang::get('message.mailchimp_key')) !!}
+                        {!! Form::text('mailchimp',$mailchimpKey,['class' => 'form-control mailchimp_authkey','id'=>'mailchimp_authkey']) !!}
+                        <h6 id="mailchimp_check"></h6>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer justify-content-between">
+                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
+                   <button type="submit" class="form-group btn btn-primary"  id="submit9"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="showTerms" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Show Terms on Registration Page</h4>
+                </div>
+                <div class="modal-body">
+                    <input type ="hidden" id="hiddenTermsValue" value="{{$termsUrl}}">
+                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                        {!! Form::label('terms',Lang::get('message.terms_url')) !!}
+                        {!! Form::text('terms',$termsUrl,['class' => 'form-control terms_url','id'=>'terms_url']) !!}
+                        <h6 id="terms_check"></h6>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer justify-content-between">
+                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
+{{--                    <button type="submit" class="form-group btn btn-primary"  id="submit9"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button>--}}
+                    <button type="submit" class="form-group btn btn-primary"  id="submit10"><i class="fa fa-save">&nbsp;</i>{!!Lang::get('message.save')!!}</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="modal fade" id="twitters" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Twitter</h4>
+
+                </div>
+                <div class="modal-body">
+                    <input type ="hidden" id="hidden_consumer_key" value="{{$twitterKeys->twitter_consumer_key}}">
+                    <input type ="hidden" id="hidden_consumer_secret" value="{{$twitterKeys->twitter_consumer_secret}}">
+                    <input type ="hidden" id="hidden_access_token" value="{{$twitterKeys->twitter_access_token}}">
+                    <input type ="hidden" id="hidden_token_secret" value="{{$twitterKeys->access_tooken_secret}}">
+
+                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                        {!! Form::label('consumer_key',Lang::get('message.consumer_key')) !!}
+                        {!! Form::text('consumer_key',$twitterKeys->twitter_consumer_key,['class' => 'form-control consumer_key','id'=>'consumer_key']) !!}
+                        <h6 id="consumer_keycheck"></h6>
+                    </div>
+
+                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                        <!-- last name -->
+                        {!! Form::label('consumer_secret',Lang::get('message.consumer_secret')) !!}
+                        {!! Form::text('consumer_secret',$twitterKeys->twitter_consumer_secret,['class' => 'form-control consumer_secret','id'=>'consumer_secret']) !!}
+                        <h6 id="consumer_secretcheck"></h6>
+                    </div>
+
+                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                        {!! Form::label('access_token',Lang::get('message.access_token')) !!}
+                        {!! Form::text('access_token',$twitterKeys->twitter_access_token,['class' => 'form-control access_token','id'=>'access_token']) !!}
+                        <h6 id="access_tokencheck"></h6>
+                    </div>
+
+
+                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                        {!! Form::label('token_secret',Lang::get('message.token_secret')) !!}
+                        {!! Form::text('token_secret',$twitterKeys->access_tooken_secret,['class' => 'form-control token_secret','id'=>'token_secret']) !!}
+                        <h6 id="token_secretcheck"></h6>
+                    </div>
+                </div>
+
+                <div class="modal-footer justify-content-between">
+                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
+                    <button type="submit" class="form-group btn btn-primary"  id="submit5"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="zohoCrm" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Zoho CRM</h4>
+                </div>
+                <div class="modal-body">
+
+                    <input type ="hidden" id="hidden_zoho_key" value="{{$zohoKey}}">
+
+                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                        {!! Form::label('zoho_key',Lang::get('message.zoho_crm')) !!}
+                        {!! Form::text('zoho_key',$zohoKey,['class' => 'form-control zoho_key','id'=>'zoho_key']) !!}
+                        <h6 id="zoho_keycheck"></h6>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer justify-content-between">
+                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
+                    <button type="submit" class="form-group btn btn-primary"  id="submit7"><i class="fa fa-save">&nbsp;</i>{!!Lang::get('message.save')!!}</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="pipedrv" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">pipedrive</h4>
+                </div>
+                <div class="modal-body">
+                    <input type ="hidden" id="hidden_pipedrive_key" value="{{$pipedriveKey}}">
+                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                        {!! Form::label('pipedrive_key',Lang::get('message.pipedrive_key')) !!}
+                        {!! Form::text('pipedrive_key',$pipedriveKey,['class' => 'form-control pipedrive_key','id'=>'pipedrive_key']) !!}
+                        <h6 id="pipedrive_keycheck"></h6>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer justify-content-between">
+                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
+                    <button type="submit" class="form-group btn btn-primary"  id="submit13"><i class="fa fa-save">&nbsp;</i>{!!Lang::get('message.save')!!}</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
     {!! Form::close() !!}
     <script>
         $('ul.nav-sidebar a').filter(function() {
@@ -529,11 +846,22 @@
             var status = $('.checkbox').val();
             if(status ==1) {
                 $('#License').prop('checked', true);
-                $('.LicenseField').show();
-                $('.licenseEmptyField').hide();
+                // $('.LicenseField').show();
+                // $('.licenseEmptyField').hide();
+                $('#license_api_secret').attr('enabled', true);
+                $('#license_api_url').attr('enabled', true);
+                $('#license_client_secret').attr('enabled',true);
+                $('#license_client_id').attr('enabled',true);
+                $('#license_grant_type').attr('enabled',true);
+
             } else if(status ==0) {
-                $('.LicenseField').addClass("hide");
-                $('.licenseEmptyField').show();
+                // $('.LicenseField').hide();
+                // $('.licenseEmptyField').show();
+                $('#license_api_secret').attr('disabled', true);
+                $('#license_api_url').attr('disabled', true);
+                $('#license_client_secret').attr('disabled',true);
+                $('#license_client_id').attr('disabled',true);
+                $('#license_grant_type').attr('disabled',true)
 
             }
         });
@@ -545,18 +873,26 @@
                 $('#license_api_url').val();
                 $('#license_client_id').val();
                 $('#license_client_secret').val();
-                $('#license_grant_type').val();
-                $('.LicenseField').show();
-                $('.licenseEmptyField').hide();
+                // $('.LicenseField').show();
+                // $('.licenseEmptyField').hide();
+                $('#license_api_secret').attr('disabled', true);
+                $('#license_api_url').attr('disabled', true);
+                $('#license_client_secret').attr('disabled',true);
+                $('#license_client_id').attr('disabled',true);
+                $('#license_grant_type').attr('disabled',true)
             }
             else{
-                $('.LicenseField').hide();
+                // $('.LicenseField').hide();
                 $('.nocapsecretHide').val('');
                 $('.siteKeyHide').val('');
-                $('.licenseEmptyField').show();
-
-               $('.licenseEmptyField').show();
-               
+                // $('.licenseEmptyField').show();
+               //
+               // $('.licenseEmptyField').show();
+                $('#license_api_secret').attr('disabled', true);
+                $('#license_api_url').attr('disabled', true);
+                $('#license_client_secret').attr('disabled',true);
+                $('#license_client_id').attr('disabled',true);
+                $('#license_grant_type').attr('disabled',true)
                
         }
     });
