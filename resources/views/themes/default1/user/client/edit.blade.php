@@ -363,24 +363,32 @@ Edit User
                 }
             });
 
-            if (isValid && !validName(userFields.first_name.val())) {
-                showError(userFields.first_name, @json(trans('message.user_edit_details.add_valid_name')));
-                isValid = false;
+            if(userFields.first_name.val()!=='') {
+                if (!validName(userFields.first_name.val())) {
+                    showError(userFields.first_name, @json(trans('message.user_edit_details.add_valid_name')));
+                    isValid = false;
+                }
             }
 
-            if (isValid && !validLastName(userFields.last_name.val())) {
-                showError(userFields.last_name, @json(trans('message.user_edit_details.add_valid_lastname')));
-                isValid = false;
+            if(userFields.last_name.val()!=='') {
+                if (!validLastName(userFields.last_name.val())) {
+                    showError(userFields.last_name, @json(trans('message.user_edit_details.add_valid_lastname')));
+                    isValid = false;
+                }
             }
 
-            if (isValid && !validName(userFields.company.val())) {
-                showError(userFields.company,@json(trans('message.user_edit_details.add_valid_lastname')));
-                isValid = false;
+            if(userFields.company.val()!=='') {
+                if (!validName(userFields.company.val())) {
+                    showError(userFields.company,@json(trans('message.user_edit_details.add_valid_company')));
+                    isValid = false;
+                }
             }
 
-            if (isValid && !validateEmail(userFields.email.val())) {
-                showError(userFields.email, @json(trans('message.user_edit_details.add_valid_email')));
-                isValid = false;
+            if(userFields.email.val()!=='') {
+                if (!validateEmail(userFields.email.val())) {
+                    showError(userFields.email, @json(trans('message.user_edit_details.add_valid_email')));
+                    isValid = false;
+                }
             }
 
             // If validation fails, prevent form submission
@@ -417,7 +425,7 @@ Edit User
         }
 
         function validateEmail(email) {
-            const emailPattern = /^(?!.*\.\.)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|org|net|edu|gov|mil|co|io|biz|info|dev|xyz)$/;
+            const emailPattern = /^(?!.*\.\.)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|org|net|edu|gov|mil|co|io|biz|info|dev|xyz|in)$/;
 
             return emailPattern.test(email);
         }

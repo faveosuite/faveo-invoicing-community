@@ -989,7 +989,7 @@ return [
 
     'social_details' => [
         'name' => 'Please enter a valid name.',
-        'link' => 'Please enter a valid link(https://example.com)..',
+        'link' => 'Please enter a valid link(https://example.com).',
     ],
 
     'script_details' => [

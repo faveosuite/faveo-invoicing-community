@@ -139,7 +139,7 @@ Create Invoice
     }).parentsUntil(".nav-sidebar > .nav-treeview").addClass('menu-open').prev('a').addClass('active');
 
 
-    $(document).ready(function() {
+         $(document).ready(function() {
 
         $('#users').on('change', function () {
             if ($(this).val() !== '') {
@@ -213,6 +213,16 @@ Create Invoice
                 isValid = false;
             }
 
+            if(!document.getElementsByName('plan')[0].value){
+                plan=document.getElementsByName('plan');
+                plan[0].classList.add('is-invalid');
+                document.getElementById('subscription-msg').innerHTML ='Please select the subscription.';
+                isValid=false;
+            }else{
+                plan[0].classList.remove('is-invalid');
+
+            }
+
             // If validation fails, prevent form submission
             if (!isValid) {
                 e.preventDefault();
@@ -227,9 +237,9 @@ Create Invoice
             }
         };
 
+
         // Add input event listeners for all fields
         ['users','product','price','datepicker'].forEach(id => {
-
             document.getElementById(id).addEventListener('input', function () {
                 removeErrorMessage(this);
 
@@ -252,7 +262,9 @@ Create Invoice
         var plan = "";
         var product = "";
         if ($('#plan').length > 0) {
-            var plan = document.getElementsByName('plan')[0].value;
+            var plan = document.getElementsByName('plan');
+            plan[0].classList.remove('is-invalid');
+            document.getElementById('subscription-msg').innerHTML ='';
         }
         if ($('#product').length > 0) {
             var product = document.getElementsByName('product')[0].value;
@@ -301,7 +313,9 @@ Create Invoice
                     html += '<li>' + 'Add a plan for the product' + '</li>'
                     html += '</ul></div>';
                  $('#error').show();
-
+                    setTimeout(function(){
+                        $("#error").slideUp(1000);
+                    },10000);
                   document.getElementById('error').innerHTML = html;
 
                   $('#generate').attr('disabled',true)
@@ -386,8 +400,8 @@ Create Invoice
             url: url,
             data: data,
             success: function (data) {
-                 
-               $("#generate").html("<i class='fas fa-sync-alt'>&nbsp;&nbsp;</i>Generate");
+
+                $("#generate").html("<i class='fas fa-sync-alt'>&nbsp;&nbsp;</i>Generate");
                 // $('#formoid')[0].reset();             
                 if(data.success == true) {
                     $('#fails').hide();
@@ -424,8 +438,8 @@ Create Invoice
                  $('#error').show();
 
                   document.getElementById('error').innerHTML = html;
-                document.getElementById('subscription-msg').innerHTML = response.responseJSON.message;
-
+                  $('#plan').addClass('is-invalid');
+                document.getElementById('subscription-msg').innerHTML = response.responseJSON.errors['plan'];
                 document.getElementById('price-msg').innerHTML = response.responseJSON.errors['price'];
                 document.getElementById('product-msg').innerHTML = response.responseJSON.errors['product'];
                 document.getElementById('user-msg').innerHTML = response.responseJSON.errors['user'];
