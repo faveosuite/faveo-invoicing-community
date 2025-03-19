@@ -22,7 +22,7 @@ class PipedriveController extends Controller
     protected Client $client;
 
     /**
-     * Initialize Pipedrive API clients
+     * Initialize Pipedrive API clients.
      *
      * @throws \Exception If API key is missing
      */
@@ -30,8 +30,8 @@ class PipedriveController extends Controller
     {
         $token = ApiKey::value('pipedrive_api_key');
 
-        if (!$token) {
-            throw new \Exception("Pipedrive API key is missing.");
+        if (! $token) {
+            throw new \Exception('Pipedrive API key is missing.');
         }
 
         $config = new PipedriveConfiguration();
@@ -70,7 +70,7 @@ class PipedriveController extends Controller
             foreach ($requiredFields as $field) {
                 $existingField = collect($fields)->firstWhere('name', $field->field_name);
 
-                if (!$existingField) {
+                if (! $existingField) {
                     $fieldData = $this->getFieldMappingFromDb($field->field_name);
 
                     if ($fieldData) {
@@ -86,14 +86,14 @@ class PipedriveController extends Controller
 
             return successResponse('Fields synchronized successfully');
         } catch (\Exception $e) {
-            return errorResponse('Failed to add Pipedrive fields: ' . $e->getMessage());
+            return errorResponse('Failed to add Pipedrive fields: '.$e->getMessage());
         }
     }
 
     /**
      * Retrieve field mapping configuration from the database.
      *
-     * @param string $fieldKey
+     * @param  string  $fieldKey
      * @return array|null
      */
     protected function getFieldMappingFromDb(string $fieldKey): ?array
@@ -111,7 +111,7 @@ class PipedriveController extends Controller
     /**
      * Build the person data array using DB-driven field mappings.
      *
-     * @param User $user
+     * @param  User  $user
      * @return array
      */
     protected function getPersonDataFromUser(User $user): array
@@ -120,7 +120,7 @@ class PipedriveController extends Controller
         $data = [];
 
         foreach ($mappings as $mapping) {
-            if (!$mapping->field_key) {
+            if (! $mapping->field_key) {
                 continue; // Skip mappings without field_key
             }
 
@@ -133,7 +133,7 @@ class PipedriveController extends Controller
                     break;
                 case 'Phone':
                     if ($user->mobile_code && $user->mobile) {
-                        $data[$mapping->field_key] = '+' . $user->mobile_code . ' ' . $user->mobile;
+                        $data[$mapping->field_key] = '+'.$user->mobile_code.' '.$user->mobile;
                     }
                     break;
                 case 'Country':
@@ -149,22 +149,22 @@ class PipedriveController extends Controller
                     }
             }
         }
+
         return $data;
     }
 
     /**
      * Create a new Pipedrive person, organization, and deal.
      *
-     * @param User $user
+     * @param  User  $user
      */
     public function addUserToPipedrive($user)
     {
         try {
-
             // Check if user already exists in Pipedrive
             $searchResult = $this->personsApi->searchPersons($user->email, 'email')->getRawData();
 
-            if (!empty($searchResult->items)) {
+            if (! empty($searchResult->items)) {
                 return null;
             }
 
@@ -175,7 +175,7 @@ class PipedriveController extends Controller
                 if ($orgResponse && isset($orgResponse->getRawData()->id)) {
                     $orgId = $orgResponse->getRawData()->id;
                 } else {
-                    throw new \Exception("Failed to create organization.");
+                    throw new \Exception('Failed to create organization.');
                 }
             }
 
@@ -183,8 +183,8 @@ class PipedriveController extends Controller
             $personData = $this->getPersonDataFromUser($user);
             $personResponse = $this->personsApi->addPerson($personData);
 
-            if (!$personResponse || !isset($personResponse->getRawData()->id)) {
-                throw new \Exception("Failed to create person.");
+            if (! $personResponse || ! isset($personResponse->getRawData()->id)) {
+                throw new \Exception('Failed to create person.');
             }
 
             $personId = $personResponse->getRawData()->id;
@@ -192,7 +192,7 @@ class PipedriveController extends Controller
             // Create Deal if organization was created
             if ($orgId) {
                 $dealData = [
-                    'title' => $user->company . ' deal',
+                    'title' => $user->company.' deal',
                     'person_id' => $personId,
                     'org_id' => $orgId,
                 ];
@@ -202,7 +202,7 @@ class PipedriveController extends Controller
 
             return true;
         } catch (\Exception $e) {
-            throw new \Exception("Error adding user to Pipedrive: " . $e->getMessage());
+            throw new \Exception('Error adding user to Pipedrive: '.$e->getMessage());
         }
     }
 }
