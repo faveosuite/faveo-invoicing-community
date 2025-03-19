@@ -1034,6 +1034,19 @@ class Connection implements ConnectionInterface
     }
 
     /**
+     * Register a hook to be run just before a database transaction is started.
+     *
+     * @param  \Closure  $callback
+     * @return $this
+     */
+    public function beforeStartingTransaction(Closure $callback)
+    {
+        $this->beforeStartingTransaction[] = $callback;
+
+        return $this;
+    }
+
+    /**
      * Register a hook to be run just before a database query is executed.
      *
      * @param  \Closure  $callback

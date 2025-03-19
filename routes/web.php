@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth;
 use App\Http\Controllers\Common;
 use App\Http\Controllers\Common\FileManagerController;
 use App\Http\Controllers\Common\MSG91Controller;
+use App\Http\Controllers\Common\PipedriveController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FreeTrailController;
 use App\Http\Controllers\Front;
@@ -641,6 +642,12 @@ Route::middleware('installAgora')->group(function () {
 
     //preview image
     Route::get('preview-file', [FileManagerController::class, 'previewFile']);
+
+    Route::get('getPipedriveFields/{group_id}', [PipedriveController::class, 'getLocalFields']);
+    Route::get('pipedrive/mapping/{group_id}', [PipedriveController::class, 'getMapFields']);
+    Route::post('sync/pipedrive', [PipedriveController::class, 'mappingFields']);
+    Route::get('syncing/pipedriveFields', [PipedriveController::class, 'syncFields']);
+    Route::post('pipedrive/get-dropdown', [PipedriveController::class, 'getDropdown']);
 });
 /*
 * Faveo APIs

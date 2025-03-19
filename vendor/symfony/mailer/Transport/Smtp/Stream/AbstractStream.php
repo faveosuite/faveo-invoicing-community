@@ -91,6 +91,9 @@ abstract class AbstractStream
             if (false === $line) {
                 throw new TransportException(\sprintf('Unable to read from connection to "%s": ', $this->getReadConnectionDescription()).error_get_last()['message']);
             }
+            if (false === $line) {
+                throw new TransportException(sprintf('Unable to read from connection to "%s": ', $this->getReadConnectionDescription()).error_get_last()['message']);
+            }
         }
 
         $this->debug .= \sprintf('[%s] < %s', (new \DateTimeImmutable())->format('Y-m-d\TH:i:s.up'), $line);

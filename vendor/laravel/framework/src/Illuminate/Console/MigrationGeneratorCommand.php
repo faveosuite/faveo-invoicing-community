@@ -6,6 +6,8 @@ use Illuminate\Filesystem\Filesystem;
 
 use function Illuminate\Filesystem\join_paths;
 
+use function Illuminate\Filesystem\join_paths;
+
 abstract class MigrationGeneratorCommand extends Command
 {
     /**
