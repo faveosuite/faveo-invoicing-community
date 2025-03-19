@@ -2,18 +2,30 @@
 
 namespace Livewire\Features\SupportLazyLoading;
 
-use function Livewire\{ store, wrap };
 use Livewire\Features\SupportLifecycleHooks\SupportLifecycleHooks;
-use Livewire\Drawer\Utils;
-use Livewire\ComponentHook;
-use Livewire\Component;
+use Livewire\Mechanisms\HandleComponents\ViewContext;
+use function Livewire\{ on, store, trigger, wrap };
 use Illuminate\Routing\Route;
+use Livewire\ComponentHook;
+use Livewire\Drawer\Utils;
+use Livewire\Component;
 
 class SupportLazyLoading extends ComponentHook
 {
+    static $disableWhileTesting = false;
+
+    static function disableWhileTesting()
+    {
+        static::$disableWhileTesting = true;
+    }
+
     static function provide()
     {
         static::registerRouteMacro();
+
+        on('flush-state', function () {
+            static::$disableWhileTesting = false;
+        });
     }
 
     static function registerRouteMacro()
@@ -34,6 +46,8 @@ class SupportLazyLoading extends ComponentHook
         $reflectionClass = new \ReflectionClass($this->component);
         $lazyAttribute = $reflectionClass->getAttributes(\Livewire\Attributes\Lazy::class)[0] ?? null;
 
+        // If Livewire::withoutLazyLoading()...
+        if (static::$disableWhileTesting) return;
         // If `:lazy="false"` disable lazy loading...
         if ($hasLazyParam && ! $lazyProperty) return;
         // If no lazy loading is included at all...
@@ -100,21 +114,45 @@ class SupportLazyLoading extends ComponentHook
 
         $encoded = base64_encode(json_encode($snapshot));
 
+        $placeholder = $this->getPlaceholderView($this->component, $params);
+
+        $finish = trigger('render.placeholder', $this->component, $placeholder, $params);
+
+        $viewContext = new ViewContext;
+
+        $html = $placeholder->render(function ($view) use ($viewContext) {
+            // Extract leftover slots, sections, and pushes before they get flushed...
+            $viewContext->extractFromEnvironment($view->getFactory());
+        });
+
+        $html = Utils::insertAttributesIntoHtmlRoot($html, [
+            ((isset($params['lazy']) and $params['lazy'] === 'on-load') ? 'x-init' : 'x-intersect') => '$wire.__lazyLoad(\''.$encoded.'\')',
+        ]);
+
+        $replaceHtml = function ($newHtml) use (&$html) {
+            $html = $newHtml;
+        };
+
+        $html = $finish($html, $replaceHtml, $viewContext);
+
+        return $html;
+    }
+
+    protected function getPlaceholderView($component, $params)
+    {
         $globalPlaceholder = config('livewire.lazy_placeholder');
 
         $placeholderHtml = $globalPlaceholder
             ? view($globalPlaceholder)->render()
             : '<div></div>';
 
-        $placeholder = wrap($this->component)
-            ->withFallback($placeholderHtml)
-            ->placeholder($params);
+        $viewOrString = wrap($component)->withFallback($placeholderHtml)->placeholder($params);
 
-        $html = Utils::insertAttributesIntoHtmlRoot($placeholder, [
-            ((isset($params['lazy']) and $params['lazy'] === 'on-load') ? 'x-init' : 'x-intersect') => '$wire.__lazyLoad(\''.$encoded.'\')',
-        ]);
+        $properties = Utils::getPublicPropertiesDefinedOnSubclass($component);
 
-        return $html;
+        $view = Utils::generateBladeView($viewOrString, $properties);
+
+        return $view;
     }
 
     function resurrectMountParams($encoded)

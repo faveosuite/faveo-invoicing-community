@@ -75,7 +75,7 @@ class HtmlDumper extends CliDumper
     ];
     private array $extraDisplayOptions = [];
 
-    public function __construct($output = null, string $charset = null, int $flags = 0)
+    public function __construct($output = null, ?string $charset = null, int $flags = 0)
     {
         AbstractDumper::__construct($output, $charset, $flags);
         $this->dumpId = 'sf-dump-'.mt_rand();
@@ -664,7 +664,7 @@ pre.sf-dump:after {
    clear: both;
 }
 pre.sf-dump span {
-    display: inline;
+    display: inline-flex;
 }
 pre.sf-dump a {
     text-decoration: none;

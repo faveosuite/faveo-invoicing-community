@@ -1247,4 +1247,26 @@ return [
     'delete_msg_reports' => 'Delete Msg91 Reports Older than..',
     'please_enable_cron_deletion' => 'Please Enable Msg Reports Deletion Cron',
     'pipedrive_third_party_tootip' => 'Generate third party key from Settings >> Third party apps to use MSG91 webhook.',
+
+    'contact_mapping' => 'Contact Mapping',
+    'organization_mapping' => 'Organization Mapping',
+    'deal_mapping' => 'Deal Mapping',
+
+    //    pipedrive fields
+    'pipedrive' => 'Pipedrive',
+    'pipedrive_settings' => 'Pipedrive Settings',
+    'field_mapping' => 'Field Mapping',
+    'pipedrive_user_verification_tooltip' => 'Enable this if the user is allowed to add to Pipedrive only after completing verification.',
+    'user_verification' => 'User Verification',
+    'pipedrive_config_info' => 'Choose the fields you want to map to keep your contacts, organizations, and deals in sync between Faveo Invoicing and Pipedrive.',
+    'faveo_fields' => 'Faveo Invoicing Fields',
+    'person_fields' => 'Person Fields',
+    'deal_fields' => 'Deal Fields',
+    'organization_fields' => 'Organization Fields',
+    'pipedrive_mapping' => 'Pipedrive Mapping',
+    'faveo_invoicing_attributes' => 'Faveo Invoicing Attributes',
+    'pipedrive_attributes' => 'Pipedrive Attributes',
+    'system_attributes_available' => 'Attributes available in the system',
+    'pipedrive_attribute_available' => 'Attributes of the pipedrive app',
+    'pipedrive_verification_updated' => 'Pipedrive verification status updated successfully',
 ];

@@ -11,25 +11,20 @@ class AssertTagMethodValueNode implements PhpDocTagValueNode
 
 	use NodeAttributes;
 
-	/** @var TypeNode */
-	public $type;
+	public TypeNode $type;
 
-	/** @var string */
-	public $parameter;
+	public string $parameter;
 
-	/** @var string */
-	public $method;
+	public string $method;
 
-	/** @var bool */
-	public $isNegated;
+	public bool $isNegated;
 
-	/** @var bool */
-	public $isEquality;
+	public bool $isEquality;
 
 	/** @var string (may be empty) */
-	public $description;
+	public string $description;
 
-	public function __construct(TypeNode $type, string $parameter, string $method, bool $isNegated, string $description, bool $isEquality = false)
+	public function __construct(TypeNode $type, string $parameter, string $method, bool $isNegated, string $description, bool $isEquality)
 	{
 		$this->type = $type;
 		$this->parameter = $parameter;

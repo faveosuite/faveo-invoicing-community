@@ -57,7 +57,7 @@ class SendGridHandler extends MailHandler
      */
     public function __construct(string $apiUser, string $apiKey, string $from, string|array $to, string $subject, int|string|Level $level = Level::Error, bool $bubble = true)
     {
-        if (!extension_loaded('curl')) {
+        if (!\extension_loaded('curl')) {
             throw new MissingExtensionException('The curl extension is needed to use the SendGridHandler');
         }
 
@@ -92,8 +92,8 @@ class SendGridHandler extends MailHandler
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, 'https://api.sendgrid.com/api/mail.send.json');
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($message));
         Curl\Util::execute($ch, 2);
     }

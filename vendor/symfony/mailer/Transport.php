@@ -21,6 +21,7 @@ use Symfony\Component\Mailer\Bridge\Mailchimp\Transport\MandrillTransportFactory
 use Symfony\Component\Mailer\Bridge\MailerSend\Transport\MailerSendTransportFactory;
 use Symfony\Component\Mailer\Bridge\Mailgun\Transport\MailgunTransportFactory;
 use Symfony\Component\Mailer\Bridge\Mailjet\Transport\MailjetTransportFactory;
+use Symfony\Component\Mailer\Bridge\MailPace\Transport\MailPaceTransportFactory;
 use Symfony\Component\Mailer\Bridge\OhMySmtp\Transport\OhMySmtpTransportFactory;
 use Symfony\Component\Mailer\Bridge\Postmark\Transport\PostmarkTransportFactory;
 use Symfony\Component\Mailer\Bridge\Scaleway\Transport\ScalewayTransportFactory;
@@ -53,6 +54,7 @@ final class Transport
         MailerSendTransportFactory::class,
         MailgunTransportFactory::class,
         MailjetTransportFactory::class,
+        MailPaceTransportFactory::class,
         MandrillTransportFactory::class,
         OhMySmtpTransportFactory::class,
         PostmarkTransportFactory::class,
@@ -64,14 +66,14 @@ final class Transport
 
     private iterable $factories;
 
-    public static function fromDsn(#[\SensitiveParameter] string $dsn, EventDispatcherInterface $dispatcher = null, HttpClientInterface $client = null, LoggerInterface $logger = null): TransportInterface
+    public static function fromDsn(#[\SensitiveParameter] string $dsn, ?EventDispatcherInterface $dispatcher = null, ?HttpClientInterface $client = null, ?LoggerInterface $logger = null): TransportInterface
     {
         $factory = new self(iterator_to_array(self::getDefaultFactories($dispatcher, $client, $logger)));
 
         return $factory->fromString($dsn);
     }
 
-    public static function fromDsns(#[\SensitiveParameter] array $dsns, EventDispatcherInterface $dispatcher = null, HttpClientInterface $client = null, LoggerInterface $logger = null): TransportInterface
+    public static function fromDsns(#[\SensitiveParameter] array $dsns, ?EventDispatcherInterface $dispatcher = null, ?HttpClientInterface $client = null, ?LoggerInterface $logger = null): TransportInterface
     {
         $factory = new self(iterator_to_array(self::getDefaultFactories($dispatcher, $client, $logger)));
 
@@ -167,7 +169,7 @@ final class Transport
     /**
      * @return \Traversable<int, TransportFactoryInterface>
      */
-    public static function getDefaultFactories(EventDispatcherInterface $dispatcher = null, HttpClientInterface $client = null, LoggerInterface $logger = null): \Traversable
+    public static function getDefaultFactories(?EventDispatcherInterface $dispatcher = null, ?HttpClientInterface $client = null, ?LoggerInterface $logger = null): \Traversable
     {
         foreach (self::FACTORY_CLASSES as $factoryClass) {
             if (class_exists($factoryClass)) {

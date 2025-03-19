@@ -40,7 +40,7 @@ class TextPart extends AbstractPart
     /**
      * @param resource|string|File $body Use a File instance to defer loading the file until rendering
      */
-    public function __construct($body, ?string $charset = 'utf-8', string $subtype = 'plain', string $encoding = null)
+    public function __construct($body, ?string $charset = 'utf-8', string $subtype = 'plain', ?string $encoding = null)
     {
         parent::__construct();
 
@@ -123,7 +123,11 @@ class TextPart extends AbstractPart
     public function getBody(): string
     {
         if ($this->body instanceof File) {
-            return file_get_contents($this->body->getPath());
+            if (false === $ret = @file_get_contents($this->body->getPath())) {
+                throw new InvalidArgumentException(error_get_last()['message']);
+            }
+
+            return $ret;
         }
 
         if (null === $this->seekable) {

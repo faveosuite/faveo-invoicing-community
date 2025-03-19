@@ -21,7 +21,7 @@ class Strings
 {
 	use Nette\StaticClass;
 
-	public const TrimCharacters = " \t\n\r\0\x0B\u{A0}";
+	public const TrimCharacters = " \t\n\r\0\x0B\u{A0}\u{2000}\u{2001}\u{2002}\u{2003}\u{2004}\u{2005}\u{2006}\u{2007}\u{2008}\u{2009}\u{200A}\u{200B}";
 
 	/** @deprecated use Strings::TrimCharacters */
 	public const TRIM_CHARACTERS = self::TrimCharacters;
@@ -589,6 +589,7 @@ class Strings
 	/**
 	 * Searches the string for all occurrences matching the regular expression and
 	 * returns an array of arrays containing the found expression and each subexpression.
+	 * @return ($lazy is true ? \Generator<int, array> : array[])
 	 */
 	public static function matchAll(
 		string $subject,
@@ -599,20 +600,40 @@ class Strings
 		bool $unmatchedAsNull = false,
 		bool $patternOrder = false,
 		bool $utf8 = false,
-	): array
+		bool $lazy = false,
+	): array|\Generator
 	{
-		$flags = is_int($captureOffset) // back compatibility
-			? $captureOffset
-			: ($captureOffset ? PREG_OFFSET_CAPTURE : 0) | ($unmatchedAsNull ? PREG_UNMATCHED_AS_NULL : 0) | ($patternOrder ? PREG_PATTERN_ORDER : 0);
-
 		if ($utf8) {
 			$offset = strlen(self::substring($subject, 0, $offset));
 			$pattern .= 'u';
 		}
 
+		if ($lazy) {
+			$flags = PREG_OFFSET_CAPTURE | ($unmatchedAsNull ? PREG_UNMATCHED_AS_NULL : 0);
+			return (function () use ($utf8, $captureOffset, $flags, $subject, $pattern, $offset) {
+				$counter = 0;
+				while (
+					$offset <= strlen($subject) - ($counter ? 1 : 0)
+					&& self::pcre('preg_match', [$pattern, $subject, &$m, $flags, $offset])
+				) {
+					$offset = $m[0][1] + max(1, strlen($m[0][0]));
+					if (!$captureOffset) {
+						$m = array_map(fn($item) => $item[0], $m);
+					} elseif ($utf8) {
+						$m = self::bytesToChars($subject, [$m])[0];
+					}
+					yield $counter++ => $m;
+				}
+			})();
+		}
+
 		if ($offset > strlen($subject)) {
 			return [];
 		}
+
+		$flags = is_int($captureOffset) // back compatibility
+			? $captureOffset
+			: ($captureOffset ? PREG_OFFSET_CAPTURE : 0) | ($unmatchedAsNull ? PREG_UNMATCHED_AS_NULL : 0) | ($patternOrder ? PREG_PATTERN_ORDER : 0);
 
 		self::pcre('preg_match_all', [
 			$pattern, $subject, &$m,
@@ -622,7 +643,6 @@ class Strings
 		return $utf8 && $captureOffset
 			? self::bytesToChars($subject, $m)
 			: $m;
-
 	}
 
 

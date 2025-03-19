@@ -121,26 +121,74 @@ class Arrays
 
 
 	/**
-	 * Returns the first item from the array or null if array is empty.
-	 * @template T
-	 * @param  array<T>  $array
-	 * @return ?T
+	 * Returns the first item (matching the specified predicate if given). If there is no such item, it returns result of invoking $else or null.
+	 * @template K of int|string
+	 * @template V
+	 * @param  array<K, V>  $array
+	 * @param  ?callable(V, K, array<K, V>): bool  $predicate
+	 * @return ?V
 	 */
-	public static function first(array $array): mixed
+	public static function first(array $array, ?callable $predicate = null, ?callable $else = null): mixed
 	{
-		return $array[array_key_first($array)] ?? null;
+		$key = self::firstKey($array, $predicate);
+		return $key === null
+			? ($else ? $else() : null)
+			: $array[$key];
 	}
 
 
 	/**
-	 * Returns the last item from the array or null if array is empty.
-	 * @template T
-	 * @param  array<T>  $array
-	 * @return ?T
+	 * Returns the last item (matching the specified predicate if given). If there is no such item, it returns result of invoking $else or null.
+	 * @template K of int|string
+	 * @template V
+	 * @param  array<K, V>  $array
+	 * @param  ?callable(V, K, array<K, V>): bool  $predicate
+	 * @return ?V
 	 */
-	public static function last(array $array): mixed
+	public static function last(array $array, ?callable $predicate = null, ?callable $else = null): mixed
 	{
-		return $array[array_key_last($array)] ?? null;
+		$key = self::lastKey($array, $predicate);
+		return $key === null
+			? ($else ? $else() : null)
+			: $array[$key];
+	}
+
+
+	/**
+	 * Returns the key of first item (matching the specified predicate if given) or null if there is no such item.
+	 * @template K of int|string
+	 * @template V
+	 * @param  array<K, V>  $array
+	 * @param  ?callable(V, K, array<K, V>): bool  $predicate
+	 * @return ?K
+	 */
+	public static function firstKey(array $array, ?callable $predicate = null): int|string|null
+	{
+		if (!$predicate) {
+			return array_key_first($array);
+		}
+		foreach ($array as $k => $v) {
+			if ($predicate($v, $k, $array)) {
+				return $k;
+			}
+		}
+		return null;
+	}
+
+
+	/**
+	 * Returns the key of last item (matching the specified predicate if given) or null if there is no such item.
+	 * @template K of int|string
+	 * @template V
+	 * @param  array<K, V>  $array
+	 * @param  ?callable(V, K, array<K, V>): bool  $predicate
+	 * @return ?K
+	 */
+	public static function lastKey(array $array, ?callable $predicate = null): int|string|null
+	{
+		return $predicate
+			? self::firstKey(array_reverse($array, preserve_keys: true), $predicate)
+			: array_key_last($array);
 	}
 
 
@@ -217,7 +265,7 @@ class Arrays
 		$res = [];
 		$cb = $preserveKeys
 			? function ($v, $k) use (&$res): void { $res[$k] = $v; }
-		: function ($v) use (&$res): void { $res[] = $v; };
+			: function ($v) use (&$res): void { $res[] = $v; };
 		array_walk_recursive($array, $cb);
 		return $res;
 	}
@@ -330,17 +378,16 @@ class Arrays
 
 
 	/**
-	 * Tests whether at least one element in the array passes the test implemented by the
-	 * provided callback with signature `function ($value, $key, array $array): bool`.
-	 * @template K
+	 * Tests whether at least one element in the array passes the test implemented by the provided function.
+	 * @template K of int|string
 	 * @template V
-	 * @param  iterable<K, V> $array
-	 * @param  callable(V, K, ($array is array ? array<K, V> : iterable<K, V>)): bool $callback
+	 * @param  array<K, V>  $array
+	 * @param  callable(V, K, array<K, V>): bool  $predicate
 	 */
-	public static function some(iterable $array, callable $callback): bool
+	public static function some(iterable $array, callable $predicate): bool
 	{
 		foreach ($array as $k => $v) {
-			if ($callback($v, $k, $array)) {
+			if ($predicate($v, $k, $array)) {
 				return true;
 			}
 		}
@@ -350,17 +397,16 @@ class Arrays
 
 
 	/**
-	 * Tests whether all elements in the array pass the test implemented by the provided function,
-	 * which has the signature `function ($value, $key, array $array): bool`.
-	 * @template K
+	 * Tests whether all elements in the array pass the test implemented by the provided function.
+	 * @template K of int|string
 	 * @template V
-	 * @param  iterable<K, V> $array
-	 * @param  callable(V, K, ($array is array ? array<K, V> : iterable<K, V>)): bool $callback
+	 * @param  array<K, V>  $array
+	 * @param  callable(V, K, array<K, V>): bool  $predicate
 	 */
-	public static function every(iterable $array, callable $callback): bool
+	public static function every(iterable $array, callable $predicate): bool
 	{
 		foreach ($array as $k => $v) {
-			if (!$callback($v, $k, $array)) {
+			if (!$predicate($v, $k, $array)) {
 				return false;
 			}
 		}
@@ -370,20 +416,64 @@ class Arrays
 
 
 	/**
-	 * Calls $callback on all elements in the array and returns the array of return values.
-	 * The callback has the signature `function ($value, $key, array $array): bool`.
-	 * @template K of array-key
+	 * Returns a new array containing all key-value pairs matching the given $predicate.
+	 * @template K of int|string
 	 * @template V
-	 * @template R
-	 * @param  iterable<K, V> $array
-	 * @param  callable(V, K, ($array is array ? array<K, V> : iterable<K, V>)): R $callback
-	 * @return array<K, R>
+	 * @param  array<K, V>  $array
+	 * @param  callable(V, K, array<K, V>): bool  $predicate
+	 * @return array<K, V>
 	 */
-	public static function map(iterable $array, callable $callback): array
+	public static function filter(array $array, callable $predicate): array
 	{
 		$res = [];
 		foreach ($array as $k => $v) {
-			$res[$k] = $callback($v, $k, $array);
+			if ($predicate($v, $k, $array)) {
+				$res[$k] = $v;
+			}
+		}
+		return $res;
+	}
+
+
+	/**
+	 * Returns an array containing the original keys and results of applying the given transform function to each element.
+	 * @template K of int|string
+	 * @template V
+	 * @template R
+	 * @param  array<K, V>  $array
+	 * @param  callable(V, K, array<K, V>): R  $transformer
+	 * @return array<K, R>
+	 */
+	public static function map(iterable $array, callable $transformer): array
+	{
+		$res = [];
+		foreach ($array as $k => $v) {
+			$res[$k] = $transformer($v, $k, $array);
+		}
+
+		return $res;
+	}
+
+
+	/**
+	 * Returns an array containing new keys and values generated by applying the given transform function to each element.
+	 * If the function returns null, the element is skipped.
+	 * @template K of int|string
+	 * @template V
+	 * @template ResK of int|string
+	 * @template ResV
+	 * @param  array<K, V>  $array
+	 * @param  callable(V, K, array<K, V>): ?array{ResK, ResV}  $transformer
+	 * @return array<ResK, ResV>
+	 */
+	public static function mapWithKeys(array $array, callable $transformer): array
+	{
+		$res = [];
+		foreach ($array as $k => $v) {
+			$pair = $transformer($v, $k, $array);
+			if ($pair) {
+				$res[$pair[0]] = $pair[1];
+			}
 		}
 
 		return $res;

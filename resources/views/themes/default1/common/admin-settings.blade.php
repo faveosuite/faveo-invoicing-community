@@ -462,6 +462,7 @@ Settings
                 <!--col-md-2-->
                 <?php
                 $mailchimpStatus = \App\Model\Common\StatusSetting::first()->value('mailchimp_status');
+                $pipedriveStatus = \App\Model\Common\StatusSetting::first()->value('pipedrive_status');
                 ?>
                 @if($mailchimpStatus ==1)
                 <div class="col-md-2 col-sm-6">
@@ -477,6 +478,21 @@ Settings
                     </div>
                 </div>
                 @endif
+            @if($pipedriveStatus == 1)
+                <div class="col-md-2 col-sm-6">
+                    <div class="settingiconblue">
+                        <div class="settingdivblue">
+                            <a class="icons-color" href="{{ url('pipedrive') }}">
+                                <span class="fa-stack fa-2x">
+                                    {{--pipedrive svg--}}
+                                   <svg width="48px" height="48px" viewBox="0 0 304 304" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g transform="translate(67, 44)"><path fill="#3c8dbc" d="M59.68,81.18c0,20.36,10.33,42.32,33.05,42.32c16.86,0,33.9-13.16,33.9-42.62c0-25.83-13.4-43.17-33.33-43.17c-16.25,0-33.6,11.41-33.6,43.17ZM101.3,0c40.75,0,68.15,32.27,68.15,80.31c0,47.29-28.87,80.31-69.13,80.31c-19.67,0-32.27-8.43-38.87-14.52c0.05,1.45,0.08,3.07,0.08,4.8v64.12H18.33V44.16c0-2.48-0.8-3.29-3.24-3.29H0.55V3.47h35.42c16.31,0,20.49,8.3,21.28,14.7C63.87,10.75,77.59,0,101.3,0Z"/></g></g></svg>
+                                </span>
+                            </a>
+                        </div>
+                        <div class="text-center text-sm fw_400">Pipedrive</div>
+                    </div>
+                </div>
+            @endif
                 <!--/.col-md-2-->
                 <div class="col-md-2 col-sm-6">
                     <div class="settingiconblue">
