@@ -75,7 +75,7 @@ Script
                         <br>
                     <div class="col-md-3 form-group analytics_tag" hidden>
                         {!! Form::label('tag','Google analytics tag',['class'=>'required']) !!}
-                        {!! Form::text('google_analytics_tag',null,['class' => 'form-control']) !!}
+                        {!! Form::text('google_analytics_tag',null,['class' => 'form-control','id'=>'google_analytics_tag']) !!}
                     </div>
 
                    
@@ -158,7 +158,11 @@ Script
                 }
             });
 
-
+            if(document.querySelector('input[name="on_registration"]:checked')){
+                if($('#google_analytics_tag').val()===''){
+                    $('#google_analytics_tag').addClass('is-invalid');
+                }
+            }
             // If validation fails, prevent form submission
             if (!isValid) {
                 e.preventDefault();

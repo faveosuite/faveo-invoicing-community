@@ -97,7 +97,7 @@ Social Media
 
         };
 
-        $('#socialForm').on('submit', function (e) {
+        $('#socialFor').on('submit', function (e) {
             const userFields = {
                 name:$('#name'),
                 link:$('#link'),

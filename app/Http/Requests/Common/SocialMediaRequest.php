@@ -3,7 +3,7 @@
 namespace App\Http\Requests\Common;
 
 use Illuminate\Foundation\Http\FormRequest;
-
+use Illuminate\Support\Facades\Lang;
 class SocialMediaRequest extends FormRequest
 {
     /**
@@ -28,7 +28,7 @@ class SocialMediaRequest extends FormRequest
         if ($this->method() == 'POST') {
             return [
                 'name' => 'required|unique:social_media|max:50',
-                'link' => 'required|url|regex:'.$regex,
+                'link' => 'required|regex:'.$regex,
             ];
         } elseif ($this->method() == 'PATCH') {
             return [
@@ -36,5 +36,12 @@ class SocialMediaRequest extends FormRequest
                 'link' => 'required|url|regex:'.$regex,
             ];
         }
+    }
+
+    public function messages()
+    {
+        return[
+            'link.regex' => Lang::get('message.social_details.link'),
+        ];
     }
 }
