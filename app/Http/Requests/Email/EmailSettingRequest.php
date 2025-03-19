@@ -4,6 +4,7 @@ namespace App\Http\Requests\Email;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Lang;
+
 class EmailSettingRequest extends FormRequest
 {
     /**
@@ -23,7 +24,7 @@ class EmailSettingRequest extends FormRequest
      */
     public function rules()
     {
-        if(in_array($this->driver,['smtp','mailgun','mandrill','ses','sparkpost'])){
+        if (in_array($this->driver, ['smtp', 'mailgun', 'mandrill', 'ses', 'sparkpost'])) {
             return [
                 'password' => 'required_if:driver,smtp,mandrill,ses,sparkpost',
                 'port' => 'required_if:driver,smtp',
