@@ -260,7 +260,7 @@ Create Coupon
         };
 
         // Add input event listeners for all fields
-        ['code','uses','applied','expiry','start','value','type'].forEach(id => {
+        ['code','uses','applied','value','type'].forEach(id => {
 
             document.getElementById(id).addEventListener('input', function () {
                 removeErrorMessage(this);
@@ -273,8 +273,17 @@ Create Coupon
             return regex.test(dateString);
         }
 
+
     });
 
+    $(document).on('input change', '[name="start"]', function () {
+        $(this).removeClass('is-invalid'); // Remove error class when input changes
+    });
+
+
+    $(document).on('input change', '[name="expiry"]', function () {
+        $(this).removeClass('is-invalid'); // Remove error class when input changes
+    });
 
      $('ul.nav-sidebar a').filter(function() {
         return this.id == 'coupon';
@@ -297,7 +306,6 @@ Create Coupon
             type: "GET",
             url: "{{url('get-promotion-code')}}",
             success: function (data) {
-                console.log(data);
                 $("#code").val(data)
             }
         });

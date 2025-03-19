@@ -651,7 +651,7 @@ $("document").ready(function(){
             let fields = document.querySelectorAll("input, textarea, select");
 
             fields.forEach(function (field) {
-                field.addEventListener(field.tagName === "SELECT" ? "change" : "input", function () {
+                field.addEventListener(field.tagName === "SELECT" || field.type === "date" ? "change" : "input", function () {
                     let errorMessage = this.closest('.form-group')?.querySelector(".error-message");
 
                     if (errorMessage) {
@@ -668,7 +668,16 @@ $("document").ready(function(){
                     errorMessage.hide();
                 }
             });
+
+            $('.datetimepicker-input').on("change blur", function () {
+                let errorMessage = $(this).closest('.form-group').find(".error-message");
+                if (errorMessage.length) {
+                    errorMessage.hide();
+                    $(this).removeClass('is-invalid');
+                }
+            });
         });
+
     </script>
 
 

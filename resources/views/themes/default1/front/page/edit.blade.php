@@ -248,9 +248,11 @@ Edit Page
 
 
 
-              if(isValid && !isValidURL(userFields.url.val())){
-                  showError(userFields.url,@json(trans('message.page_details.valid_url')),);
-                  isValid=false;
+              if(userFields.url.val()!=='') {
+                  if (!isValidURL(userFields.url.val())) {
+                      showError(userFields.url,@json(trans('message.page_details.valid_url')),);
+                      isValid = false;
+                  }
               }
 
               // If validation fails, prevent form submission

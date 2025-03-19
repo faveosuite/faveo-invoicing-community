@@ -397,7 +397,7 @@ Create User
             timezone:@json(trans('message.user_edit_details.add_timezone')),
         };
 
-        $('#userUpdateForm').on('submit', function (e) {
+        $('#submit').on('click', function (e) {
             const userFields = {
                 first_name: $('#first_name'),
                 last_name: $('#last_name'),
@@ -446,26 +446,42 @@ Create User
                 }
             });
 
-            if (isValid && !validName(userFields.first_name.val())) {
-                showError(userFields.first_name, @json(trans('message.user_edit_details.add_valid_name')));
-                isValid = false;
+            if(userFields.first_name.val()!=='') {
+                if (!validName(userFields.first_name.val())) {
+                    showError(userFields.first_name, @json(trans('message.user_edit_details.add_valid_name')));
+                    isValid = false;
+                }
             }
 
-            if (isValid && !validLastName(userFields.last_name.val())) {
-                showError(userFields.last_name, @json(trans('message.user_edit_details.add_valid_lastname')));
-                isValid = false;
+            if(userFields.last_name.val()!=='') {
+                if (!validLastName(userFields.last_name.val())) {
+                    showError(userFields.last_name, @json(trans('message.user_edit_details.add_valid_lastname')));
+                    isValid = false;
+                }
             }
 
-            if (isValid && !validName(userFields.company.val())) {
-                showError(userFields.company,@json(trans('message.user_edit_details.add_valid_company')));
-                isValid = false;
+            if(userFields.company.val()!=='') {
+                if (!validName(userFields.company.val())) {
+                    showError(userFields.company,@json(trans('message.user_edit_details.add_valid_company')));
+                    isValid = false;
+                }
             }
 
-            if (isValid && !validateEmail(userFields.email.val())) {
-                showError(userFields.email, @json(trans('message.user_edit_details.add_valid_email')));
-                isValid = false;
+            if(userFields.email.val()!=='') {
+                if (!validateEmail(userFields.email.val())) {
+                    showError(userFields.email, @json(trans('message.user_edit_details.add_valid_email')));
+                    isValid = false;
+                }
             }
 
+            if(telInput.val()===''){
+                errorMsg.classList.remove("hide");
+                errorMsg.innerHTML = @json(trans('message.user_edit_details.add_phone_number'));
+                $('#mobile_code').addClass('is-invalid');
+                $('#mobile_code').css("border-color", "#dc3545");
+                $('#error-msg').css({"width": "100%", "margin-top": ".25rem", "font-size": "80%", "color": "#dc3545"});
+                isValid=false;
+            }
 
             // If validation fails, prevent form submission
             if (!isValid) {
@@ -501,9 +517,7 @@ Create User
         }
 
         function validateEmail(email) {
-
-            const emailPattern = /^(?!.*\.\.)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|org|net|edu|gov|mil|co|io|biz|info|dev|xyz)$/;
-
+            const emailPattern = /^(?!.*\.\.)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|org|net|edu|gov|mil|co|io|biz|info|dev|xyz|in)$/;
             return emailPattern.test(email);
 
         }
@@ -551,15 +565,6 @@ Create User
 
 // listen to the telephone input for changes
 
-$('#submit').on('click',function() {
-    if(telInput.val()===''){
-        errorMsg.classList.remove("hide");
-        errorMsg.innerHTML = @json(trans('message.user_edit_details.add_phone_number'));
-        $('#mobile_code').addClass('is-invalid');
-        $('#mobile_code').css("border-color", "#dc3545");
-        $('#error-msg').css({"width": "100%", "margin-top": ".25rem", "font-size": "80%", "color": "#dc3545"});
-    }
-});
 
     telInput.on("countrychange", function (e, countryData) {
         addressDropdown.val(countryData.iso2);
