@@ -521,8 +521,42 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
                 }
                 fieldsets[fieldSet].style.display = 'block';
                 progressList[fieldSet].classList.add('active');
+                autoFocus();
             }
         }
+
+        function autoFocus() {
+            // Focus on OTP if it's active
+            if (document.querySelector('#otp_li')?.classList.contains('active')) {
+                setTimeout(() => {
+                    const otpInput = document.querySelector('#otp');
+                    if (otpInput) {
+                        otpInput.focus();
+                        otpInput.addEventListener('keyup', function (event) {
+                            if (event.key === 'Enter') {
+                                submitOtp();
+                            }
+                        });
+                    }
+                }, 300);
+            }
+
+            // Focus on Email OTP if it's active
+            if (document.querySelector('#email_li')?.classList.contains('active')) {
+                setTimeout(() => {
+                    const emailOtpInput = document.querySelector('#email_otp');
+                    if (emailOtpInput) {
+                        emailOtpInput.focus();
+                        emailOtpInput.addEventListener('keyup', function (event) {
+                            if (event.key === 'Enter') {
+                                isEmailVerified();
+                            }
+                        });
+                    }
+                }, 300);
+            }
+        }
+
 
         function sendEmail() {
             const data = {eid: eid};
