@@ -97,7 +97,7 @@ final class AsyncContext
         if (\is_callable($pause = $this->response->getInfo('pause_handler'))) {
             $pause($duration);
         } elseif (0 < $duration) {
-            usleep(1E6 * $duration);
+            usleep((int) (1E6 * $duration));
         }
     }
 
@@ -116,7 +116,7 @@ final class AsyncContext
     /**
      * Returns the current info of the response.
      */
-    public function getInfo(string $type = null): mixed
+    public function getInfo(?string $type = null): mixed
     {
         if (null !== $type) {
             return $this->info[$type] ?? $this->response->getInfo($type);
@@ -161,8 +161,8 @@ final class AsyncContext
         $this->info['previous_info'][] = $info = $this->response->getInfo();
         if (null !== $onProgress = $options['on_progress'] ?? null) {
             $thisInfo = &$this->info;
-            $options['on_progress'] = static function (int $dlNow, int $dlSize, array $info) use (&$thisInfo, $onProgress) {
-                $onProgress($dlNow, $dlSize, $thisInfo + $info);
+            $options['on_progress'] = static function (int $dlNow, int $dlSize, array $info, ?\Closure $resolve = null) use (&$thisInfo, $onProgress) {
+                $onProgress($dlNow, $dlSize, $thisInfo + $info, $resolve);
             };
         }
         if (0 < ($info['max_duration'] ?? 0) && 0 < ($info['total_time'] ?? 0)) {
@@ -189,7 +189,7 @@ final class AsyncContext
      *
      * @param ?callable(ChunkInterface, self): ?\Iterator $passthru
      */
-    public function passthru(callable $passthru = null): void
+    public function passthru(?callable $passthru = null): void
     {
         $this->passthru = $passthru ?? static function ($chunk, $context) {
             $context->passthru = null;

@@ -87,7 +87,7 @@ class PostgresGrammar extends Grammar
     {
         return 'select c.relname as name, n.nspname as schema, pg_total_relation_size(c.oid) as size, '
             ."obj_description(c.oid, 'pg_class') as comment from pg_class c, pg_namespace n "
-            ."where c.relkind in ('r', 'p') and n.oid = c.relnamespace and n.nspname not in ('pg_catalog', 'information_schema')"
+            ."where c.relkind in ('r', 'p') and n.oid = c.relnamespace and n.nspname not in ('pg_catalog', 'information_schema') "
             .'order by c.relname';
     }
 
@@ -168,11 +168,11 @@ class PostgresGrammar extends Grammar
     public function compileColumns($database, $schema, $table)
     {
         return sprintf(
-            'select quote_ident(a.attname) as name, t.typname as type_name, format_type(a.atttypid, a.atttypmod) as type, '
+            'select a.attname as name, t.typname as type_name, format_type(a.atttypid, a.atttypmod) as type, '
             .'(select tc.collcollate from pg_catalog.pg_collation tc where tc.oid = a.attcollation) as collation, '
             .'not a.attnotnull as nullable, '
             .'(select pg_get_expr(adbin, adrelid) from pg_attrdef where c.oid = pg_attrdef.adrelid and pg_attrdef.adnum = a.attnum) as default, '
-            .'(select pg_description.description from pg_description where pg_description.objoid = c.oid and a.attnum = pg_description.objsubid) as comment '
+            .'col_description(c.oid, a.attnum) as comment '
             .'from pg_attribute a, pg_class c, pg_type t, pg_namespace n '
             .'where c.relname = %s and n.nspname = %s and a.attnum > 0 and a.attrelid = c.oid and a.atttypid = t.oid and n.oid = c.relnamespace '
             .'order by a.attnum',

@@ -110,11 +110,12 @@ class SettingsController extends BaseSettingsController
             $domainCheckStatus = StatusSetting::pluck('domain_check')->first();
             $mailSendingStatus = Setting::value('sending_status');
             $model = $apikeys->find(1);
+            $isPipedriveVerificationEnabled = ApiKey::value('require_pipedrive_user_verification');
             // $v3captchaStatus = StatusSetting::pluck('v3recaptcha_status')->first();
             // $v3siteKey = $apikeys->pluck('v3captcha_sitekey')->first();
             // $v3secretKey = $apikeys->pluck('v3captcha_secretCheck')->first();
 
-            return view('themes.default1.common.apikey', compact('model', 'status', 'licenseSecret', 'licenseUrl', 'siteKey', 'secretKey', 'captchaStatus', 'v3CaptchaStatus', 'updateStatus', 'updateSecret', 'updateUrl', 'mobileStatus', 'mobileauthkey', 'msg91Sender', 'msg91TemplateId', 'emailStatus', 'twitterStatus', 'twitterKeys', 'zohoStatus', 'zohoKey', 'rzpStatus', 'rzpKeys', 'mailchimpSetting', 'mailchimpKey', 'termsStatus', 'termsUrl', 'pipedriveKey', 'pipedriveStatus', 'domainCheckStatus', 'mailSendingStatus', 'licenseClientId', 'licenseClientSecret', 'licenseGrantType', 'msg91ThirdPartyId'));
+            return view('themes.default1.common.apikey', compact('model', 'status', 'licenseSecret', 'licenseUrl', 'siteKey', 'secretKey', 'captchaStatus', 'v3CaptchaStatus', 'updateStatus', 'updateSecret', 'updateUrl', 'mobileStatus', 'mobileauthkey', 'msg91Sender', 'msg91TemplateId', 'emailStatus', 'twitterStatus', 'twitterKeys', 'zohoStatus', 'zohoKey', 'rzpStatus', 'rzpKeys', 'mailchimpSetting', 'mailchimpKey', 'termsStatus', 'termsUrl', 'pipedriveKey', 'pipedriveStatus', 'domainCheckStatus', 'mailSendingStatus', 'licenseClientId', 'licenseClientSecret', 'licenseGrantType', 'msg91ThirdPartyId', 'isPipedriveVerificationEnabled'));
         } catch (\Exception $ex) {
             return redirect('/')->with('fails', $ex->getMessage());
         }
