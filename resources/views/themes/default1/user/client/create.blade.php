@@ -596,8 +596,8 @@ addressDropdown.change(function() {
             } else {
               errorMsg.classList.remove("hide");
               errorMsg.innerHTML = @json(trans('message.user_edit_details.add_valid_phone'));
-             $('#mobile_code').css("border-color","red");
-             $('#error-msg').css({"color":"red","margin-top":"5px"});
+                $('#mobile_code').css("border-color", "#dc3545");
+                $('#error-msg').css({"color": "#dc3545", "margin-top": "5px", "font-size": "80%"});
             }
         }
 });
