@@ -345,12 +345,17 @@
 
                                 <td class="col-md-2">Mailchimp</td>
                                 <td class="col-md-2">
-                                    <label class="switch toggle_event_editing">
+                                    @if($mailchimpSetting==1)
+                                        <p>Active</p>
+                                    @else
+                                        <p>Inactive</p>
+                                    @endif
+{{--                                    <label class="switch toggle_event_editing">--}}
 
-                                        <input type="checkbox" value="{{$mailchimpSetting}}"  name="mobile_settings"
-                                               class="checkbox9" id="mailchimp">
-                                        <span class="slider round"></span>
-                                    </label>
+{{--                                        <input type="checkbox" value="{{$mailchimpSetting}}"  name="mobile_settings"--}}
+{{--                                               class="checkbox9" id="mailchimp">--}}
+{{--                                        <span class="slider round"></span>--}}
+{{--                                    </label>--}}
 
                                 </td>
 {{--                                <td class="col-md-4 mailchimpverify">--}}
@@ -577,11 +582,12 @@
                         {!! Form::text('license_grant_type',$licenseGrantType,['class' => 'form-control','id'=>'license_grant_type']) !!}
                         <h6 id="license_grantTypeCheck"></h6>
                     </div>
-                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                    <label class="switch toggle_event_editing">
                     <input type="checkbox" value="{{$status}}"  name="modules_settings"
                            class="checkbox" id="License">
                     <span class="slider round"></span>
-                    </div>
+                    </label>
+
                 </div>
 
                 <div class="modal-footer justify-content-between">
@@ -697,6 +703,12 @@
                         <h6 id="mailchimp_check"></h6>
                     </div>
 
+                    <label class="switch toggle_event_editing">
+
+                        <input type="checkbox" value="{{$mailchimpSetting}}"  name="mobile_settings"
+                               class="checkbox9" id="mailchimp">
+                        <span class="slider round"></span>
+                    </label>
                 </div>
 
                 <div class="modal-footer justify-content-between">
@@ -879,7 +891,7 @@
         $('#License').change(function () {
 
             if ($(this).prop("checked")) {
-                alert('hii');
+
                 // checked
                 // $('#license_api_secret').val();
                 // $('#license_api_url').val();
@@ -887,11 +899,11 @@
                 // $('#license_client_secret').val();
                 // $('.LicenseField').show();
                 // $('.licenseEmptyField').hide();
-                $('#license_api_secret').attr('enabled', true);
-                $('#license_api_url').attr('enabled', true);
-                $('#license_client_secret').attr('enabled',true);
-                $('#license_client_id').attr('enabled',true);
-                $('#license_grant_type').attr('enabled',true)
+                // $('#license_api_secret').attr('enabled', true);
+                // $('#license_api_url').attr('enabled', true);
+                // $('#license_client_secret').attr('enabled',true);
+                // $('#license_client_id').attr('enabled',true);
+                // $('#license_grant_type').attr('enabled',true)
             }
             else{
                 // $('.LicenseField').hide();
@@ -900,11 +912,11 @@
                 // $('.licenseEmptyField').show();
                //
                // $('.licenseEmptyField').show();
-                $('#license_api_secret').attr('disabled', true);
-                $('#license_api_url').attr('disabled', true);
-                $('#license_client_secret').attr('disabled',true);
-                $('#license_client_id').attr('disabled',true);
-                $('#license_grant_type').attr('disabled',true)
+               //  $('#license_api_secret').attr('disabled', true);
+               //  $('#license_api_url').attr('disabled', true);
+               //  $('#license_client_secret').attr('disabled',true);
+               //  $('#license_client_id').attr('disabled',true);
+               //  $('#license_grant_type').attr('disabled',true)
                
         }
     });
@@ -1017,6 +1029,7 @@
 
                 },
                 success: function (response) {
+                    location.reload();
                     $('#alertMessage').show();
                     var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
                     $('#alertMessage').html(result+ ".");
@@ -1024,6 +1037,7 @@
                     setInterval(function(){
                         $('#alertMessage').slideUp(3000);
                     }, 1000);
+
                 },
 
 
@@ -1646,8 +1660,8 @@
                 $('#mailchimp_authkey').val(mailchimpkey);
 
             } else {
-                $('.mailchimp_authkey').attr('disabled', true);
-                $('.mailchimp_authkey').val('');
+                // $('.mailchimp_authkey').attr('disabled', true);
+                // $('.mailchimp_authkey').val('');
 
 
             }
