@@ -31,7 +31,7 @@ class AddUserToExternalService implements ShouldQueue
         try {
             (new AuthController())->addUserToExternalServices($this->user);
         } catch (\Exception $e) {
-            \Log::error("Failed to add user to {$this->user->email}: " . $e->getMessage());
+            \Log::error("Failed to add user to {$this->user->email}: ".$e->getMessage());
         }
     }
 }
