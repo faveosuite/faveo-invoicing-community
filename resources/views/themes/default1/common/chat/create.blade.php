@@ -76,6 +76,7 @@ Script
                     <div class="col-md-3 form-group analytics_tag" hidden>
                         {!! Form::label('tag','Google analytics tag',['class'=>'required']) !!}
                         {!! Form::text('google_analytics_tag',null,['class' => 'form-control','id'=>'google_analytics_tag']) !!}
+                        <span class="error-messag hide" id="google-error-msg"></span>
                     </div>
 
                    
@@ -113,9 +114,20 @@ Script
 
 
 {!! Form::close() !!}
-
+<style>
+    .error-messag{
+        font-size:80%;
+        color:#dc3545;
+    }
+</style>
 <script>
+   document.querySelector('#google_analytics_tag').addEventListener('input',function(){
+       if($('#google_analytics_tag').val()!==''){
+           $('#google_analytics_tag').removeClass('is-invalid');
+           document.getElementById('google-error-msg').innerHTML ='';
+       }
 
+   });
     $(document).ready(function() {
         const userRequiredFields = {
             name:@json(trans('message.script_details.name')),
@@ -158,9 +170,11 @@ Script
                 }
             });
 
-            if(document.querySelector('input[name="on_registration"]:checked')){
+            if(document.querySelector('input[name="google_analytics"]:checked')){
                 if($('#google_analytics_tag').val()===''){
                     $('#google_analytics_tag').addClass('is-invalid');
+                    document.getElementById('google-error-msg').innerHTML =@json(trans('message.google_analytics_tag'));
+                    isValid=false;
                 }
             }
             // If validation fails, prevent form submission

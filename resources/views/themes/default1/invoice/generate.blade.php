@@ -172,11 +172,15 @@ Create Invoice
                         background-repeat: no-repeat;
                         background-position: right 10px center;
                         background-size: 16px 16px;`;
+               e.preventDefault();
            }else{
                document.querySelector('.select2-selection').style.border='1px solid silver';
 
            }
 
+            if($('#price').val()==''){
+                e.preventDefault();
+            }
 
             const userFields = {
                 user:$('#users'),
@@ -208,6 +212,7 @@ Create Invoice
                 }
             });
 
+
             if(isValid && !isValidDate(userFields.datepicker.val())){
                 showError(userFields.datepicker, @json(trans('message.invoice_details.add_valid_date')));
                 isValid = false;
@@ -221,6 +226,10 @@ Create Invoice
             }else{
                 plan[0].classList.remove('is-invalid');
 
+            }
+
+            if(document.getElementsByName('price').value===''){
+                isValid=false;
             }
 
             // If validation fails, prevent form submission
@@ -265,6 +274,7 @@ Create Invoice
             var plan = document.getElementsByName('plan');
             plan[0].classList.remove('is-invalid');
             document.getElementById('subscription-msg').innerHTML ='';
+            document.getElementById('price').classList.remove('is-invalid');
         }
         if ($('#product').length > 0) {
             var product = document.getElementsByName('product')[0].value;
