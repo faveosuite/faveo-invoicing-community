@@ -535,7 +535,7 @@ trait HttpClientTrait
     /**
      * @throws InvalidArgumentException When the value cannot be json-encoded
      */
-    private static function jsonEncode(mixed $value, int $flags = null, int $maxDepth = 512): string
+    private static function jsonEncode(mixed $value, ?int $flags = null, int $maxDepth = 512): string
     {
         $flags ??= \JSON_HEX_TAG | \JSON_HEX_APOS | \JSON_HEX_AMP | \JSON_HEX_QUOT | \JSON_PRESERVE_ZERO_FRACTION;
 
@@ -557,6 +557,8 @@ trait HttpClientTrait
      */
     private static function resolveUrl(array $url, ?array $base, array $queryDefaults = []): array
     {
+        $givenUrl = $url;
+
         if (null !== $base && '' === ($base['scheme'] ?? '').($base['authority'] ?? '')) {
             throw new InvalidArgumentException(sprintf('Invalid "base_uri" option: host or scheme is missing in "%s".', implode('', $base)));
         }
@@ -610,6 +612,10 @@ trait HttpClientTrait
             $url['query'] = null;
         }
 
+        if (null !== $url['scheme'] && null === $url['authority']) {
+            throw new InvalidArgumentException(\sprintf('Invalid URL: host is missing in "%s".', implode('', $givenUrl)));
+        }
+
         return $url;
     }
 
@@ -621,7 +627,10 @@ trait HttpClientTrait
     private static function parseUrl(string $url, array $query = [], array $allowedSchemes = ['http' => 80, 'https' => 443]): array
     {
         if (false === $parts = parse_url($url)) {
-            throw new InvalidArgumentException(sprintf('Malformed URL "%s".', $url));
+            if ('/' !== ($url[0] ?? '') || false === $parts = parse_url($url.'#')) {
+                throw new InvalidArgumentException(sprintf('Malformed URL "%s".', $url));
+            }
+            unset($parts['fragment']);
         }
 
         if ($query) {

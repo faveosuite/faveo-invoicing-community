@@ -5,9 +5,11 @@ namespace Livewire\Features\SupportFileUploads;
 use Facades\Livewire\Features\SupportFileUploads\GenerateSignedUploadUrl;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\UploadedFile;
+use Livewire\Attributes\Renderless;
 
 trait WithFileUploads
 {
+    #[Renderless]
     function _startUpload($name, $fileInfo, $isMultiple)
     {
         if (FileUploadConfiguration::isUsingS3()) {
@@ -25,7 +27,9 @@ trait WithFileUploads
 
     function _finishUpload($name, $tmpPath, $isMultiple)
     {
-        $this->cleanupOldUploads();
+        if (FileUploadConfiguration::shouldCleanupOldUploads()) {
+            $this->cleanupOldUploads();
+        }
 
         if ($isMultiple) {
             $file = collect($tmpPath)->map(function ($i) {

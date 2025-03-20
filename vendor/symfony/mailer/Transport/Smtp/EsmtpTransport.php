@@ -15,6 +15,7 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Mailer\Exception\TransportException;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
+use Symfony\Component\Mailer\Exception\UnexpectedResponseException;
 use Symfony\Component\Mailer\Transport\Smtp\Auth\AuthenticatorInterface;
 use Symfony\Component\Mailer\Transport\Smtp\Stream\AbstractStream;
 use Symfony\Component\Mailer\Transport\Smtp\Stream\SocketStream;
@@ -32,7 +33,7 @@ class EsmtpTransport extends SmtpTransport
     private string $password = '';
     private array $capabilities;
 
-    public function __construct(string $host = 'localhost', int $port = 0, bool $tls = null, EventDispatcherInterface $dispatcher = null, LoggerInterface $logger = null, AbstractStream $stream = null, array $authenticators = null)
+    public function __construct(string $host = 'localhost', int $port = 0, ?bool $tls = null, ?EventDispatcherInterface $dispatcher = null, ?LoggerInterface $logger = null, ?AbstractStream $stream = null, ?array $authenticators = null)
     {
         parent::__construct($stream, $dispatcher, $logger);
 
@@ -199,7 +200,7 @@ class EsmtpTransport extends SmtpTransport
                 $authenticator->authenticate($this);
 
                 return;
-            } catch (TransportExceptionInterface $e) {
+            } catch (UnexpectedResponseException $e) {
                 $code = $e->getCode();
 
                 try {
