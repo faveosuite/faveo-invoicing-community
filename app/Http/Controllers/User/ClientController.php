@@ -7,6 +7,7 @@ use App\ExportDetail;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\License\LicenseController;
 use App\Http\Requests\User\ClientRequest;
+use App\Jobs\AddUserToExternalService;
 use App\Jobs\ReportExport;
 use App\Model\Common\Country;
 use App\Model\Mailjob\QueueService;
@@ -267,9 +268,7 @@ class ClientController extends AdvanceSearchController
                 $this->sendWelcomeMail($userInput);
             }
 
-            $authController = new AuthController();
-
-            $authController->addUserToExternalServices($userInput);
+            AddUserToExternalService::dispatch($userInput);
 
             return redirect()->back()->with('success', \Lang::get('message.saved-successfully'));
         } catch (\Swift_TransportException $e) {

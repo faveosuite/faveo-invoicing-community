@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\ProfileRequest;
+use App\Jobs\AddUserToExternalService;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Rules\CaptchaValidation;
@@ -95,8 +96,7 @@ class RegisterController extends Controller
             $need_verify = $this->getEmailMobileStatusResponse();
 
             if (! $need_verify) {
-                $authController = new AuthController();
-                $authController->addUserToExternalServices($userInput);
+                AddUserToExternalService::dispatch($userInput);
             }
             $userInput->save();
 
