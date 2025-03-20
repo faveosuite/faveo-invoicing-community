@@ -146,6 +146,7 @@ class PipedriveController extends Controller
                     }
             }
         }
+
         return array_merge($data, $params);
     }
 
@@ -157,16 +158,15 @@ class PipedriveController extends Controller
     public function addUserToPipedrive($user): void
     {
         try {
-
-            if(!StatusSetting::value('pipedrive_status')){
-                return ;
+            if (! StatusSetting::value('pipedrive_status')) {
+                return;
             }
 
             // Check if user already exists in Pipedrive
             $searchResult = $this->personsApi->searchPersons($user->email, 'email')->getRawData();
 
-            if (!empty($searchResult->items)) {
-                return ;
+            if (! empty($searchResult->items)) {
+                return;
             }
 
             // Create Organization if company name is available
@@ -175,20 +175,20 @@ class PipedriveController extends Controller
                 // Check if the organization already exists
                 $orgSearchResult = $this->organizationsApi->searchOrganization($user->company, 'name')->getRawData();
 
-                if (!empty($orgSearchResult->items)) {
+                if (! empty($orgSearchResult->items)) {
                     $orgId = $orgSearchResult->items[0]->item->id;
                 } else {
                     $orgResponse = $this->organizationsApi->addOrganization(['name' => $user->company]);
                     if ($orgResponse && isset($orgResponse->getRawData()->id)) {
                         $orgId = $orgResponse->getRawData()->id;
                     } else {
-                        throw new \Exception("Failed to create organization.");
+                        throw new \Exception('Failed to create organization.');
                     }
                 }
             }
 
             // Create Person
-            $personData = $this->getPersonDataFromUser($user, ['org_id' => $orgId,]);
+            $personData = $this->getPersonDataFromUser($user, ['org_id' => $orgId]);
 
             $personResponse = $this->personsApi->addPerson($personData);
 
@@ -209,7 +209,7 @@ class PipedriveController extends Controller
                 $this->dealsApi->addDeal($dealData);
             }
 
-            return ;
+            return;
         } catch (\Exception $e) {
             throw new \Exception('Error adding user to Pipedrive: '.$e->getMessage());
         }
@@ -218,6 +218,7 @@ class PipedriveController extends Controller
     public function pipedriveSettings()
     {
         $apiKey = ApiKey::value('pipedrive_api_key');
+
         return view('themes.default1.common.pipedrive.settings', compact('apiKey'));
     }
 }
