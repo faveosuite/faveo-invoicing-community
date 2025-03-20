@@ -6,6 +6,7 @@ use App\ApiKey;
 use App\Http\Controllers\Controller;
 use App\Model\Common\Country;
 use App\Model\Common\PipedriveField;
+use App\Model\Common\StatusSetting;
 use App\User;
 use GuzzleHttp\Client;
 use Pipedrive\versions\v1\Api;
@@ -29,10 +30,6 @@ class PipedriveController extends Controller
     public function __construct()
     {
         $token = ApiKey::value('pipedrive_api_key');
-
-        if (! $token) {
-            throw new \Exception('Pipedrive API key is missing.');
-        }
 
         $config = new PipedriveConfiguration();
         $config->setApiKey('api_token', $token);
@@ -84,7 +81,7 @@ class PipedriveController extends Controller
                 }
             }
 
-            return successResponse('Fields synchronized successfully');
+            return successResponse('Pipedrive fields mapped successfully');
         } catch (\Exception $e) {
             return errorResponse('Failed to add Pipedrive fields: '.$e->getMessage());
         }
@@ -114,7 +111,7 @@ class PipedriveController extends Controller
      * @param  User  $user
      * @return array
      */
-    protected function getPersonDataFromUser(User $user): array
+    protected function getPersonDataFromUser(User $user, $params = []): array
     {
         $mappings = PipedriveField::where('active', true)->get();
         $data = [];
@@ -149,8 +146,7 @@ class PipedriveController extends Controller
                     }
             }
         }
-
-        return $data;
+        return array_merge($data, $params);
     }
 
     /**
@@ -158,29 +154,42 @@ class PipedriveController extends Controller
      *
      * @param  User  $user
      */
-    public function addUserToPipedrive($user)
+    public function addUserToPipedrive($user): void
     {
         try {
+
+            if(!StatusSetting::value('pipedrive_status')){
+                return ;
+            }
+
             // Check if user already exists in Pipedrive
             $searchResult = $this->personsApi->searchPersons($user->email, 'email')->getRawData();
 
-            if (! empty($searchResult->items)) {
-                return null;
+            if (!empty($searchResult->items)) {
+                return ;
             }
 
             // Create Organization if company name is available
             $orgId = null;
             if ($user->company) {
-                $orgResponse = $this->organizationsApi->addOrganization(['name' => $user->company]);
-                if ($orgResponse && isset($orgResponse->getRawData()->id)) {
-                    $orgId = $orgResponse->getRawData()->id;
+                // Check if the organization already exists
+                $orgSearchResult = $this->organizationsApi->searchOrganization($user->company, 'name')->getRawData();
+
+                if (!empty($orgSearchResult->items)) {
+                    $orgId = $orgSearchResult->items[0]->item->id;
                 } else {
-                    throw new \Exception('Failed to create organization.');
+                    $orgResponse = $this->organizationsApi->addOrganization(['name' => $user->company]);
+                    if ($orgResponse && isset($orgResponse->getRawData()->id)) {
+                        $orgId = $orgResponse->getRawData()->id;
+                    } else {
+                        throw new \Exception("Failed to create organization.");
+                    }
                 }
             }
 
             // Create Person
-            $personData = $this->getPersonDataFromUser($user);
+            $personData = $this->getPersonDataFromUser($user, ['org_id' => $orgId,]);
+
             $personResponse = $this->personsApi->addPerson($personData);
 
             if (! $personResponse || ! isset($personResponse->getRawData()->id)) {
@@ -200,9 +209,15 @@ class PipedriveController extends Controller
                 $this->dealsApi->addDeal($dealData);
             }
 
-            return true;
+            return ;
         } catch (\Exception $e) {
             throw new \Exception('Error adding user to Pipedrive: '.$e->getMessage());
         }
+    }
+
+    public function pipedriveSettings()
+    {
+        $apiKey = ApiKey::value('pipedrive_api_key');
+        return view('themes.default1.common.pipedrive.settings', compact('apiKey'));
     }
 }
