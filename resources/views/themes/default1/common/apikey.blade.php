@@ -112,9 +112,14 @@
                                 <td class="col-md-2">
                                     <label class="switch toggle_event_editing">
 
-                                        <input type="checkbox" value="{{$status}}"  name="modules_settings"
-                                               class="checkbox" id="License">
-                                        <span class="slider round"></span>
+                                        @if($status==1)
+                                        <p>Active</p>
+                                        @else
+                                            <p>Inactive</p>
+                                        @endif
+{{--                                        <input type="checkbox" value="{{$status}}"  name="modules_settings"--}}
+{{--                                               class="checkbox" id="License">--}}
+{{--                                        <span class="slider round"></span>--}}
                                     </label>
 
                                 </td>
@@ -273,7 +278,7 @@
                                     <h6 id=""></h6>
                                 </td>
                                 <td class="col-md-4 captchaField hide">
-                                    <div class="form-group m-1 d-flex">
+{{--                                    <div class="form-group m-1 d-flex">--}}
 {{--                                        <div class="custom-control custom-radio m-2">--}}
 {{--                                            <input class="custom-control-input" type="radio" id="captchaRadioV2" name="customRadio" {{ $captchaStatus === 1 ? 'checked' : '' }}>--}}
 {{--                                            <label for="captchaRadioV2" class="custom-control-label">{{ __('message.recaptcha_v2') }}</label>--}}
@@ -572,6 +577,11 @@
                         {!! Form::text('license_grant_type',$licenseGrantType,['class' => 'form-control','id'=>'license_grant_type']) !!}
                         <h6 id="license_grantTypeCheck"></h6>
                     </div>
+                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                    <input type="checkbox" value="{{$status}}"  name="modules_settings"
+                           class="checkbox" id="License">
+                    <span class="slider round"></span>
+                    </div>
                 </div>
 
                 <div class="modal-footer justify-content-between">
@@ -848,38 +858,40 @@
                 $('#License').prop('checked', true);
                 // $('.LicenseField').show();
                 // $('.licenseEmptyField').hide();
-                $('#license_api_secret').attr('enabled', true);
-                $('#license_api_url').attr('enabled', true);
-                $('#license_client_secret').attr('enabled',true);
-                $('#license_client_id').attr('enabled',true);
-                $('#license_grant_type').attr('enabled',true);
+                // $('#license_api_secret').attr('enabled', true);
+                // $('#license_api_url').attr('enabled', true);
+                // $('#license_client_secret').attr('enabled',true);
+                // $('#license_client_id').attr('enabled',true);
+                // $('#license_grant_type').attr('enabled',true);
 
             } else if(status ==0) {
                 // $('.LicenseField').hide();
                 // $('.licenseEmptyField').show();
-                $('#license_api_secret').attr('disabled', true);
-                $('#license_api_url').attr('disabled', true);
-                $('#license_client_secret').attr('disabled',true);
-                $('#license_client_id').attr('disabled',true);
-                $('#license_grant_type').attr('disabled',true)
+                // $('#license_api_secret').attr('disabled', true);
+                // $('#license_api_url').attr('disabled', true);
+                // $('#license_client_secret').attr('disabled',true);
+                // $('#license_client_id').attr('disabled',true);
+                // $('#license_grant_type').attr('disabled',true);
 
             }
         });
         $('#license_apiCheck').hide();
         $('#License').change(function () {
+
             if ($(this).prop("checked")) {
+                alert('hii');
                 // checked
-                $('#license_api_secret').val();
-                $('#license_api_url').val();
-                $('#license_client_id').val();
-                $('#license_client_secret').val();
+                // $('#license_api_secret').val();
+                // $('#license_api_url').val();
+                // $('#license_client_id').val();
+                // $('#license_client_secret').val();
                 // $('.LicenseField').show();
                 // $('.licenseEmptyField').hide();
-                $('#license_api_secret').attr('disabled', true);
-                $('#license_api_url').attr('disabled', true);
-                $('#license_client_secret').attr('disabled',true);
-                $('#license_client_id').attr('disabled',true);
-                $('#license_grant_type').attr('disabled',true)
+                $('#license_api_secret').attr('enabled', true);
+                $('#license_api_url').attr('enabled', true);
+                $('#license_client_secret').attr('enabled',true);
+                $('#license_client_id').attr('enabled',true);
+                $('#license_grant_type').attr('enabled',true)
             }
             else{
                 // $('.LicenseField').hide();
@@ -897,6 +909,31 @@
         }
     });
 
+
+        $(document).ready(function (){
+            var termsstatus =  $('.checkbox10').val();
+            if(termsstatus ==1)
+            {
+                $('#terms').prop('checked',true);
+                $('.terms_url').attr('enabled', true);
+            } else if(termsstatus ==0){
+                $('#terms').prop('checked',false);
+                $('.terms_url').attr('disabled', true);
+            }
+        });
+        $("#terms").on('change',function (){
+            if($(this).prop('checked')) {
+                var terms =  $('#hiddenTermsValue').val();
+                $('.terms_url').attr('disabled', false);
+                $('#terms_url').val(terms);
+
+            } else {
+                $('.terms_url').attr('disabled', true);
+                $('.terms_url').val('');
+
+
+            }
+        });
 
 
         function licenseDetails(){
