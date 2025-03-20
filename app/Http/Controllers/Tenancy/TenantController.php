@@ -38,50 +38,75 @@ class TenantController extends Controller
 
     public function viewTenant()
     {
-        if ($this->cloud && $this->cloud->cloud_central_domain) {
-            $app_key = null;
-            $cloud = $this->cloud;
+        try {
+            if ($this->cloud && $this->cloud->cloud_central_domain) {
+                $app_key = null;
+                $cloud = $this->cloud;
+                $cloudPopUp = CloudPopUp::find(1);
+                $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
+
+                throw_if($keys && !$keys->app_key, new Exception(Lang::get('message.cloud_invalid_message')));
+
+                $app_key = optional($keys)->app_key;
+
+                if ($response = $this->client->request(
+                    'GET',
+                    $this->cloud->cloud_central_domain . '/tenants',
+                    [
+                        'query' => [
+                            'key' => $app_key,
+                        ],
+                    ]
+                )) {
+                    $responseBody = (string)$response->getBody();
+                    $responseData = json_decode($responseBody, true);
+                    $de = collect($responseData['message'])->paginate(5);
+                }
+
+
+            } else {
+                $de = null;
+                $cloudButton = null;
+                $cloud = null;
+                $cloudPopUp = null;
+            }
+            $cloudButton = StatusSetting::value('cloud_button');
+            $cloudDataCenters = CloudDataCenters::all();
+
+            // Format the results as per the specified format
+            $regions = $cloudDataCenters->map(function ($center) {
+                return [
+                    'name' => !empty($center->cloud_city) ? $center->cloud_city . ', ' . $center->cloud_countries : $center->cloud_state . ', ' . $center->cloud_countries,
+                    'latitude' => $center->latitude,
+                    'longitude' => $center->longitude,
+                ];
+            });
+
+            return view('themes.default1.tenant.index', compact('de', 'cloudButton', 'cloud', 'regions', 'cloudPopUp'));
+        }catch (\Exception $e){
+            $cloud=$this->cloud;
             $cloudPopUp = CloudPopUp::find(1);
-            $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
+            $cloudButton = StatusSetting::value('cloud_button');
+            $cloudDataCenters = CloudDataCenters::all();
 
-            throw_if($keys && ! $keys->app_key, new Exception(Lang::get('message.cloud_invalid_message')));
+            // Format the results as per the specified format
+            $regions = $cloudDataCenters->map(function ($center) {
+                return [
+                    'name' => !empty($center->cloud_city) ? $center->cloud_city . ', ' . $center->cloud_countries : $center->cloud_state . ', ' . $center->cloud_countries,
+                    'latitude' => $center->latitude,
+                    'longitude' => $center->longitude,
+                ];
+            });
 
-            $app_key = optional($keys)->app_key;
+            $de=null;
+            return view('themes.default1.tenant.index', compact('de', 'cloudButton', 'cloud', 'regions', 'cloudPopUp'))->withErrors([$e->getMessage()]);
 
-            $response = $this->client->request(
-                'GET',
-                $this->cloud->cloud_central_domain.'/tenants',
-                [
-                    'query' => [
-                        'key' => $app_key,
-                    ],
-                ]
-            );
-
-            $responseBody = (string) $response->getBody();
-            $responseData = json_decode($responseBody, true);
-
-            $de = collect($responseData['message'])->paginate(5);
-        } else {
-            $de = null;
-            $cloudButton = null;
-            $cloud = null;
-            $cloudPopUp = null;
         }
-        $cloudButton = StatusSetting::value('cloud_button');
-        $cloudDataCenters = CloudDataCenters::all();
-
-        // Format the results as per the specified format
-        $regions = $cloudDataCenters->map(function ($center) {
-            return [
-                'name' => ! empty($center->cloud_city) ? $center->cloud_city.', '.$center->cloud_countries : $center->cloud_state.', '.$center->cloud_countries,
-                'latitude' => $center->latitude,
-                'longitude' => $center->longitude,
-            ];
-        });
-
-        return view('themes.default1.tenant.index', compact('de', 'cloudButton', 'cloud', 'regions', 'cloudPopUp'));
     }
+
+
+
+
 
     public function enableCloud(Request $request)
     {
@@ -534,8 +559,7 @@ class TenantController extends Controller
 
         try {
             $cloud = new FaveoCloud;
-            $cloud->updateOrCreate(['id' => 1], ['cloud_central_domain' => $request->input('cloud_central_domain'), 'cloud_cname' => $request->input('cloud_cname')]);
-
+            $cloud->updateOrCreate(['id'=>1],['cloud_central_domain' => $request->input('cloud_central_domain'), 'cloud_cname' => $request->input('cloud_cname')]);
             // $cloud->first()->fill($request->all())->save();
             return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
         } catch (Exception $e) {
