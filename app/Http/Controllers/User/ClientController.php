@@ -4,7 +4,6 @@ namespace App\Http\Controllers\User;
 
 use App\Comment;
 use App\ExportDetail;
-use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\License\LicenseController;
 use App\Http\Requests\User\ClientRequest;
 use App\Jobs\AddUserToExternalService;

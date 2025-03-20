@@ -307,7 +307,6 @@ class AuthController extends BaseAuthController
             $user->mobile_verified = 1;
 
             if (! \Auth::check() && StatusSetting::first()->value('emailverification_status') !== 1) {
-
                 //dispatch the job to add user to external services
                 AddUserToExternalService::dispatch($user);
 
