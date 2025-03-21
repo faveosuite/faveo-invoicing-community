@@ -109,6 +109,13 @@ return [
     */
 
     'key' => env('APP_KEY', 'base64:G4WSQduFNvk9rYtoLS1ozg=='),
+
+    'previous_keys' => [
+        ...array_filter(
+            explode(',', env('APP_PREVIOUS_KEYS', 'base64:G4WSQduFNvk9rYtoLS1ozg=='))
+        ),
+    ],
+
     'cipher' => 'AES-128-CBC',
 
     /*
