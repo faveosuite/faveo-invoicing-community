@@ -351,8 +351,9 @@ class InstallerController extends Controller
     public function getLang()
     {
         $language = Cache::get('language', config('app.locale'));
-        $lang = Lang::get("installer_messages", [], $language);
+        $lang = Lang::get('installer_messages', [], $language);
         $currentLang = $language;
+
         return successResponse('', [
             'lang' => $lang,
             'currentLang' => $currentLang,
