@@ -182,6 +182,10 @@ Create Invoice
                 e.preventDefault();
             }
 
+            if($('#product').val()==''){
+                e.preventDefault();
+            }
+
             const userFields = {
                 user:$('#users'),
                 datepicker:$('#datepicker'),
