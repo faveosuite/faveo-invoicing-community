@@ -23,7 +23,7 @@ use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
-
+use Illuminate\Support\Facades\Log;
 class TenantController extends Controller
 {
     private $cloud;
@@ -84,24 +84,26 @@ class TenantController extends Controller
 
             return view('themes.default1.tenant.index', compact('de', 'cloudButton', 'cloud', 'regions', 'cloudPopUp'));
         }catch (\Exception $e){
-            $cloud=$this->cloud;
-            $cloudPopUp = CloudPopUp::find(1);
-            $cloudButton = StatusSetting::value('cloud_button');
-            $cloudDataCenters = CloudDataCenters::all();
+                Log::error($e->getMessage());
+                $cloud = $this->cloud;
+                $cloudPopUp = CloudPopUp::find(1);
+                $cloudButton = StatusSetting::value('cloud_button');
+                $cloudDataCenters = CloudDataCenters::all();
 
-            // Format the results as per the specified format
-            $regions = $cloudDataCenters->map(function ($center) {
-                return [
-                    'name' => !empty($center->cloud_city) ? $center->cloud_city . ', ' . $center->cloud_countries : $center->cloud_state . ', ' . $center->cloud_countries,
-                    'latitude' => $center->latitude,
-                    'longitude' => $center->longitude,
-                ];
-            });
+                // Format the results as per the specified format
+                $regions = $cloudDataCenters->map(function ($center) {
+                    return [
+                        'name' => !empty($center->cloud_city) ? $center->cloud_city . ', ' . $center->cloud_countries : $center->cloud_state . ', ' . $center->cloud_countries,
+                        'latitude' => $center->latitude,
+                        'longitude' => $center->longitude,
+                    ];
+                });
 
-            $de=null;
-            return view('themes.default1.tenant.index', compact('de', 'cloudButton', 'cloud', 'regions', 'cloudPopUp'))->withErrors([$e->getMessage()]);
+                $de = null;
+                return view('themes.default1.tenant.index', compact('de', 'cloudButton', 'cloud', 'regions', 'cloudPopUp'))->withErrors(Lang::get('message.cloud_error_message'));
 
         }
+
     }
 
 
