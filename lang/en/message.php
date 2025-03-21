@@ -1053,4 +1053,8 @@ return [
     'url_tooltip'=>'Enter the installation guide URL to assist users with Application setup.',
     'valid_widget_name'=>'The name must be fewer than 50 characters and cannot consist only of special characters.',
     'google_analytics_tag'=>'Please enter google analytics tag.',
+    'subscription-error-msg'=>'Please select the subscription.',
+    'cloud-error-message'=>'Please enter cloud domain.',
+    'agents-error-message'=>'Please enter number of agents.',
+    'quantity-error-message'=>'Please enter quantity.',
 ];
