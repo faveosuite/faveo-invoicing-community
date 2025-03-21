@@ -491,10 +491,11 @@ class LicenseController extends Controller
             $OauthDetails = $this->oauthAuthorization();
             $token = $OauthDetails->access_token;
 
-            $this->postCurl($url . 'api/admin/license/deactivate', "api_key_secret=$api_key_secret&license_code=$licenseCode", $token);
-        }catch (\Exception $ex) {
+            $this->postCurl($url.'api/admin/license/deactivate', "api_key_secret=$api_key_secret&license_code=$licenseCode", $token);
+        } catch (\Exception $ex) {
             Log::error($ex->getMessage());
-            return ;
+
+            return;
         }
     }
 
