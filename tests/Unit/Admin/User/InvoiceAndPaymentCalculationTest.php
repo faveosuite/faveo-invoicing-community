@@ -32,8 +32,6 @@ class InvoiceAndPaymentCalculationTest extends DBTestCase
     #[Group('InvoiceAndPayment')]
     public function test_change_get_clients_invoiceDetailsWhenInvoiceIsViewed()
     {
-        $this->expectException(\Exception::class);
-        $this->withoutMiddleware();
         $this->getLoggedInUser();
         $user = $this->user;
         $user_id = $user->id;
@@ -58,6 +56,5 @@ class InvoiceAndPaymentCalculationTest extends DBTestCase
             'user_id' => $user_id,
         ]);
         $this->assertStringContainsSubstring($response->content(), '<!DOCTYPE html>');
-        $response->setExpectedException(\Exception::class);
     }
 }

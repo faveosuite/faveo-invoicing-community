@@ -38,7 +38,8 @@ class SoftDeleteControllerTest extends DBTestCase
         $this->withoutMiddleware();
         $user = User::factory()->create();
         $user->delete();
-        $data = $this->call('DELETE', 'permanent-delete-client', ['select' => [$user->id]]);
+        $this->expectOutputRegex('/Deleted Successfully/');
+        $response = $this->call('DELETE', 'permanent-delete-client', ['select' => [$user->id]]);
         $this->assertDatabaseMissing('users', ['id' => $user->id]);
     }
 
@@ -53,6 +54,7 @@ class SoftDeleteControllerTest extends DBTestCase
         $comment = Comment::create(['user_id' => $user2->id, 'updated_by_user_id' => $user1->id, 'description' => 'TesComment']);
         $order = Order::create(['client' => $user1->id, 'order_status' => 'executed', 'product' => $product->id]);
         $user1->delete();
+        $this->expectOutputRegex('/Deleted Successfully/');
         $data = $this->call('DELETE', 'permanent-delete-client', ['select' => [$user1->id]]);
         $this->assertDatabaseMissing('users', ['id' => $user1->id]);
         $this->assertDatabaseMissing('invoices', ['user_id' => $user1->id]);
