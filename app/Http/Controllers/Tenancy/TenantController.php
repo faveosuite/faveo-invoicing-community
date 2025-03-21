@@ -384,11 +384,15 @@ class TenantController extends Controller
                     return ['status' => 'false', 'message' => trans('message.cname')];
                 }
             }
+
             $licCode = Order::where('number', $request->input('orderNo'))->first()->serial_key;
             $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
-            if (! $keys->app_key) {//Valdidate if the app key to be sent is valid or not
-                throw new Exception('Invalid App key provided. Please contact admin.');
+            if (!optional($keys)->app_key) {//Validate if the app key to be sent is valid or not
+                return ['status' => 'false', 'message' => trans('message.something_bad')];
+//                throw new Exception('Invalid App key provided. Please contact admin.');
             }
+
+
             $token = str_random(32);
             \DB::table('third_party_tokens')->insert(['user_id' => $userId, 'token' => $token]);
             $client = new Client([]);
@@ -399,7 +403,6 @@ class TenantController extends Controller
                 'POST',
                 $this->cloud->cloud_central_domain.'/tenants', ['form_params' => $data, 'headers' => ['signature' => $hashedSignature]]
             );
-
             $response = explode('{', (string) $response->getBody());
 
             $response = '{'.$response[1];
