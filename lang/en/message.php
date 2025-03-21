@@ -1008,6 +1008,7 @@ return [
     'cloud_hub_valid_url'=>'Please enter a valid url(https://example.com).',
     'cloud_invalid_message'=>'Invalid App key provided. Please contact admin.',
     'cloud_error_message'=>'Unable to connect to cloud server, contact your server administrator for assistance.',
+
     'script_details' => [
         'name' => 'Please enter script name.',
         'content' => 'Please enter script content.',
