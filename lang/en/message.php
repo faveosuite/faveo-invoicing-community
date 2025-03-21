@@ -891,4 +891,5 @@ return [
     'cloud_hub_valid_url'=>'Please enter a valid url(https://example.com).',
     'cloud_invalid_message'=>'Invalid App key provided. Please contact admin.',
     'cloud_error_message'=>'Unable to connect to the cloud server. Please contact your server administrator for assistance.',
+    'api_key_error'=>'Invalid App key provided. Please contact admin.',
 ];
