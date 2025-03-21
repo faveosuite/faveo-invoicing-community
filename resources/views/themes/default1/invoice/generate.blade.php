@@ -225,7 +225,37 @@ Create Invoice
             if(!document.getElementsByName('plan')[0].value){
                 plan=document.getElementsByName('plan');
                 plan[0].classList.add('is-invalid');
-                document.getElementById('subscription-msg').innerHTML ='Please select the subscription.';
+                document.getElementById('subscription-msg').innerHTML =@json(trans('message.subscription-error-message'));
+                isValid=false;
+            }else{
+                plan[0].classList.remove('is-invalid');
+
+            }
+
+            if(!document.getElementsByName('agents')[0].value){
+                plan=document.getElementsByName('agents');
+                plan[0].classList.add('is-invalid');
+                document.getElementById('agents-msg').innerHTML =@json(trans('message.agents-error-message'));
+                isValid=false;
+            }else{
+                plan[0].classList.remove('is-invalid');
+
+            }
+
+            if(!document.getElementsByName('cloud_domain')[0].value){
+                plan=document.getElementsByName('cloud_domain');
+                plan[0].classList.add('is-invalid');
+                document.getElementById('cloud-msg').innerHTML =@json(trans('message.cloud-error-message'));
+                isValid=false;
+            }else{
+                plan[0].classList.remove('is-invalid');
+
+            }
+
+            if(!document.getElementsByName('quantity')[0].value){
+                plan=document.getElementsByName('quantity');
+                plan[0].classList.add('is-invalid');
+                document.getElementById('quantity-msg').innerHTML =@json(trans('message.quantity-error-message'));
                 isValid=false;
             }else{
                 plan[0].classList.remove('is-invalid');
@@ -268,6 +298,12 @@ Create Invoice
     });
 
 
+     document.getElementById("agents").addEventListener("input", function () {
+         document.getElementById('agents-msg').innerHTML ='';
+         $('#agents').classList.remove('is-invalid');
+
+     });
+
 
     function getPrice(val) {
          var user = document.getElementsByName('user')[0].value;
@@ -291,7 +327,6 @@ Create Invoice
             data: {'product': product, 'user': user, 'plan': val},
             //data: 'product=' + val+'user='+user,
             success: function (data) {
-                console.log(data);
                 var price = data['price'];
                 var field = data['field'];
                 var qty = data['quantity'];
