@@ -258,26 +258,30 @@
                                 <td class="col-md-2">Google reCAPTCHA</td>
                                 <td class="col-md-2">
                                     <label class="switch toggle_event_editing">
-
-                                        <input type="checkbox" value="{{ $captchaStatus || $v3CaptchaStatus}}"  name="modules_settings"
-                                               class="checkbox2" id="captcha">
-                                        <span class="slider round"></span>
+                                            @if($captchaStatus || $v3CaptchaStatus)
+                                                <p>Active</p>
+                                        @else
+                                            <p>Inactive</p>
+                                        @endif
+{{--                                        <input type="checkbox" value="{{ $captchaStatus || $v3CaptchaStatus}}"  name="modules_settings"--}}
+{{--                                               class="checkbox2" id="captcha">--}}
+{{--                                        <span class="slider round"></span>--}}
                                     </label>
 
                                 </td>
 
-                                <td class="col-md-4 captchaEmptyField">
-                                    {!! Form::label('nocaptcha_secret',Lang::get('message.nocaptcha_secret')) !!}
-                                    {!! Form::text('nocaptcha_secret1',null,['class' => 'form-control nocapsecretHide','disabled'=>'disabled']) !!}
-                                    <h6 id=""></h6>
+{{--                                <td class="col-md-4 captchaEmptyField">--}}
+{{--                                    {!! Form::label('nocaptcha_secret',Lang::get('message.nocaptcha_secret')) !!}--}}
+{{--                                    {!! Form::text('nocaptcha_secret1',null,['class' => 'form-control nocapsecretHide','disabled'=>'disabled']) !!}--}}
+{{--                                    <h6 id=""></h6>--}}
 
 
-                                    <!-- last name -->
-                                    {!! Form::label('nocaptcha_sitekey',Lang::get('message.nocaptcha_sitekey')) !!} :
-                                    {!! Form::text('nocaptcha_sitekey1',null,['class' => 'form-control siteKeyHide','disabled'=>'disabled']) !!}
-                                    <h6 id=""></h6>
-                                </td>
-                                <td class="col-md-4 captchaField hide">
+{{--                                    <!-- last name -->--}}
+{{--                                    {!! Form::label('nocaptcha_sitekey',Lang::get('message.nocaptcha_sitekey')) !!} :--}}
+{{--                                    {!! Form::text('nocaptcha_sitekey1',null,['class' => 'form-control siteKeyHide','disabled'=>'disabled']) !!}--}}
+{{--                                    <h6 id=""></h6>--}}
+{{--                                </td>--}}
+{{--                                <td class="col-md-4 captchaField hide">--}}
 {{--                                    <div class="form-group m-1 d-flex">--}}
 {{--                                        <div class="custom-control custom-radio m-2">--}}
 {{--                                            <input class="custom-control-input" type="radio" id="captchaRadioV2" name="customRadio" {{ $captchaStatus === 1 ? 'checked' : '' }}>--}}
@@ -300,7 +304,7 @@
 {{--                                    <h6 id="captcha_secretCheck"></h6>--}}
 {{--                                    <br/>--}}
 
-                                </td>
+{{--                                </td>--}}
 {{--                                <td class="col-md-2"><button type="submit" class="form-group btn btn-primary" onclick="captchaDetails()" id="submit2"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button></td>--}}
                                 <td class="col-md-2"><a href="#google-recaptcha" data-toggle="modal" data-target="#google-recaptcha" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a></td>
 
@@ -345,12 +349,16 @@
 
                                 <td class="col-md-2">Mailchimp</td>
                                 <td class="col-md-2">
-                                    @if($mailchimpSetting==1)
+                                    <label class="switch toggle_event_editing">
+
+                                @if($mailchimpSetting==1)
                                         <p>Active</p>
                                     @else
                                         <p>Inactive</p>
                                     @endif
-{{--                                    <label class="switch toggle_event_editing">--}}
+                                    </label>
+
+                                    {{--                                    <label class="switch toggle_event_editing">--}}
 
 {{--                                        <input type="checkbox" value="{{$mailchimpSetting}}"  name="mobile_settings"--}}
 {{--                                               class="checkbox9" id="mailchimp">--}}
@@ -632,6 +640,11 @@
                         <h6 id="captcha_secretCheck"></h6>
                     </div>
 
+                    <label class="switch toggle_event_editing">
+                    <input type="checkbox" value="{{ $captchaStatus || $v3CaptchaStatus}}"  name="modules_settings"
+                           class="checkbox2" id="captcha">
+                    <span class="slider round"></span>
+                    </label>
                 </div>
 
                 <div class="modal-footer justify-content-between">
