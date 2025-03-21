@@ -291,7 +291,7 @@ Create Invoice
             data: {'product': product, 'user': user, 'plan': val},
             //data: 'product=' + val+'user='+user,
             success: function (data) {
-                
+                console.log(data);
                 var price = data['price'];
                 var field = data['field'];
                 var qty = data['quantity'];
@@ -399,8 +399,15 @@ Create Invoice
             }
             else if(document.getElementsByName('agents')[0]){
                 var agents = document.getElementsByName('agents')[0].value;
-                var cloud_domain = document.getElementsByName('cloud_domain')[0].value;
-                var data = $("#formoid").serialize() + '&agents=' + agents + '&user=' + user + '&cloud_domain=' +cloud_domain;
+                // var cloud_domain = document.getElementsByName('cloud_domain')[0].value;
+                // var data = $("#formoid").serialize() + '&agents=' + agents + '&user=' + user + '&cloud_domain=' +cloud_domain;
+                if(!document.getElementsByName('cloud_domain')[0]) {
+                    var data = $("#formoid").serialize() + '&agents=' + agents + '&user=' + user;
+                }else{
+                    var cloud_domain = document.getElementsByName('cloud_domain')[0].value;
+                    var data = $("#formoid").serialize() + '&agents=' + agents + '&user=' + user + '&cloud_domain=' +cloud_domain;
+                }
+
             }
             else {
                 var data = $("#formoid").serialize() + '&user=' + user;
