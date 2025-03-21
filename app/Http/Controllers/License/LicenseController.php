@@ -6,6 +6,7 @@ use App\ApiKey;
 use App\Http\Controllers\Controller;
 use App\Model\Order\Order;
 use App\Model\Product\Product;
+use Illuminate\Support\Facades\Log;
 
 class LicenseController extends Controller
 {
@@ -483,13 +484,18 @@ class LicenseController extends Controller
 
     public function deActivateTheLicense($licenseCode)
     {
-        $url = $this->url;
-        $api_key_secret = $this->api_key_secret;
+        try {
+            $url = $this->url;
+            $api_key_secret = $this->api_key_secret;
 
-        $OauthDetails = $this->oauthAuthorization();
-        $token = $OauthDetails->access_token;
+            $OauthDetails = $this->oauthAuthorization();
+            $token = $OauthDetails->access_token;
 
-        $this->postCurl($url.'api/admin/license/deactivate', "api_key_secret=$api_key_secret&license_code=$licenseCode", $token);
+            $this->postCurl($url . 'api/admin/license/deactivate', "api_key_secret=$api_key_secret&license_code=$licenseCode", $token);
+        }catch (\Exception $ex) {
+            Log::error($ex->getMessage());
+            return ;
+        }
     }
 
     public function reissueDomain($installationPath)

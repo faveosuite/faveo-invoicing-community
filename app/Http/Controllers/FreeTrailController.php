@@ -72,14 +72,15 @@ class FreeTrailController extends Controller
                     $this->createFreetrailInvoiceItems($request->get('product'));
                     $serial_key = $this->executeFreetrailOrder();
 
+
                     $isSuccess = (new TenantController(new Client, new FaveoCloud()))->createTenant(new Request(['orderNo' => $this->orderNo, 'domain' => $request->domain]));
-
                     if ($isSuccess['status'] == 'false') {
-                        (new LicenseController())->deActivateTheLicense($serial_key);
+                            (new LicenseController())->deActivateTheLicense($serial_key);
 
-                        DB::rollback(); // Rollback the transaction
+                            DB::rollback(); // Rollback the transaction
 
-                        return $isSuccess;
+                            return $isSuccess;
+
                     }
                     \DB::table('free_trial_allowed')->insert([
                         'user_id' => $userId,
