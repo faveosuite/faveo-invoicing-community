@@ -239,7 +239,7 @@ Create Invoice
                 isValid=false;
             }else{
                 plan[0].classList.remove('is-invalid');
-
+                document.getElementById('agents-msg').innerHTML ='';
             }
 
             if(!document.getElementsByName('cloud_domain')[0].value){
@@ -249,6 +249,7 @@ Create Invoice
                 isValid=false;
             }else{
                 plan[0].classList.remove('is-invalid');
+                document.getElementById('cloud-msg').innerHTML ='';
 
             }
 
@@ -259,6 +260,7 @@ Create Invoice
                 isValid=false;
             }else{
                 plan[0].classList.remove('is-invalid');
+                document.getElementById('quantity-msg').innerHTML ='';
 
             }
 
@@ -296,14 +298,6 @@ Create Invoice
         }
 
     });
-
-
-     document.getElementById("agents").addEventListener("input", function () {
-         document.getElementById('agents-msg').innerHTML ='';
-         $('#agents').classList.remove('is-invalid');
-
-     });
-
 
     function getPrice(val) {
          var user = document.getElementsByName('user')[0].value;
