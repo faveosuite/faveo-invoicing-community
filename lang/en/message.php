@@ -725,7 +725,7 @@ return [
     'tick-to-add_to_contact-product' => 'Check if you want to add Contact Sales button',
     'cloud_domain' => 'Enter cloud domain',
     'cloud_domain_empty' => "Oops! You can't generate an invoice for this plan without providing a domain.",
-    'domain_taken' => 'Oops! It seems like this domain is already in use by another user. Please try with a different domain.',
+    'domain_taken' => 'Oops! It seems like this domain is already in use by another user. Please try with a different domain or The provided api key is null.',
 
     'without_installation_found' => 'Oops! It looks like you can\'t make changes to the agents if we can\'t locate your cloud domain. Kindly renew your subscription first, make the necessary agent alterations later. You can adjust the agents in your cloud settings under your order. Thank you!',
     'nothing_changed' => 'No worries! It looks like there hasn\'t been any changes – your current and new domains appear to be the same. Feel free to reach out if you have any questions or need further assistance',

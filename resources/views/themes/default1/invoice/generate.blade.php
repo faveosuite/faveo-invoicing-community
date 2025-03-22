@@ -267,7 +267,6 @@ Create Invoice
                 var data = $("#formoid").serialize() + '&user=' + user;
             }
         }
-        console.log(data);
         data = data + '&plan=' + plan + '&subscription=' + subscription+'&description='+description;
         $("#generate").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
 

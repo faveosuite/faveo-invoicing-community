@@ -126,7 +126,6 @@ class FreeTrailController extends Controller
             return $invoice;
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
-
             throw new \Exception('Can not Generate Invoice');
         }
     }
@@ -172,7 +171,6 @@ class FreeTrailController extends Controller
             }
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
-
             throw new \Exception('Can not Generate Invoice items');
         }
     }
@@ -282,7 +280,6 @@ class FreeTrailController extends Controller
             return $licCode;
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
-
             throw new \Exception('Can not Generate Free trail serialkey');
         }
     }
