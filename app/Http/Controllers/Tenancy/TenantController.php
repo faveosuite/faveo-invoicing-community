@@ -389,7 +389,6 @@ class TenantController extends Controller
             $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
             if (!optional($keys)->app_key) {//Validate if the app key to be sent is valid or not
                 return ['status' => 'false', 'message' => trans('message.something_bad')];
-//                throw new Exception('Invalid App key provided. Please contact admin.');
             }
 
 
