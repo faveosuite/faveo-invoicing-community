@@ -22,7 +22,6 @@ use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\ThirdPartyApp;
 use App\User;
-use AWS\CRT\Log;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
@@ -940,27 +939,27 @@ class CloudExtraActivities extends Controller
 
     public function checkDomain($domain)
     {
-        try{
-        $client = new Client([]);
+        try {
+            $client = new Client([]);
             $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
-            if (!optional($keys)->app_key) {
+            if (! optional($keys)->app_key) {
                 app('log')->error('The api key is null');
+
                 return false; // Instead of returning JSON, return false
             }
             $data = ['domain' => $domain, 'key' => $keys->app_key];
             $response = $client->request(
                 'POST',
-                $this->cloud->cloud_central_domain . '/checkDomain', ['form_params' => $data]
+                $this->cloud->cloud_central_domain.'/checkDomain', ['form_params' => $data]
             );
-            $response = explode('{', (string)$response->getBody());
+            $response = explode('{', (string) $response->getBody());
 
             $response = array_first($response);
 
             return json_decode($response);
-        } catch(\Exception $e){
+        } catch(\Exception $e) {
             return false;
         }
-
     }
 
     public function fetchData()
