@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
     {
         $env = base_path().DIRECTORY_SEPARATOR.'.env';
 
-        if (is_file($env)) {
+        if (is_file($env) && config('app.env') !== 'testing') {
 
             setEnvValue(['APP_PREVIOUS_KEYS' => 'SomeRandomString']);
 
