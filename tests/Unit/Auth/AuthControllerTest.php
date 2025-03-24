@@ -55,7 +55,7 @@ class AuthControllerTest extends TestCase
     }
 
     #[Test]
-    public function it_requests_otp_for_verified_user()
+    public function test_it_requests_otp_for_verified_user()
     {
         $user = $this->createUser(['mobile_verified' => 0]);
 
@@ -69,7 +69,7 @@ class AuthControllerTest extends TestCase
     }
 
     #[Test]
-    public function it_verifies_otp_successfully()
+    public function test_it_verifies_otp_successfully()
     {
         $user = $this->createUser(['mobile_verified' => false]);
         Session::flash('user', $user);
@@ -90,7 +90,7 @@ class AuthControllerTest extends TestCase
     }
 
     #[Test]
-    public function it_fails_to_verify_invalid_otp()
+    public function test_it_fails_to_verify_invalid_otp()
     {
         $user = $this->createUser(['mobile_verified' => false]);
         Session::flash('user', $user);
@@ -110,7 +110,7 @@ class AuthControllerTest extends TestCase
     }
 
     #[Test]
-    public function it_sends_email_successfully()
+    public function test_it_sends_email_successfully()
     {
         $user = User::factory()->create();
         $request = new Request(['eid' => Crypt::encrypt($user->email)]);
@@ -127,7 +127,7 @@ class AuthControllerTest extends TestCase
     }
 
     #[Test]
-    public function it_handles_maximum_email_verification_attempts()
+    public function test_it_handles_maximum_email_verification_attempts()
     {
         $user = User::factory()->create();
         VerificationAttempt::create([
@@ -145,7 +145,7 @@ class AuthControllerTest extends TestCase
     }
 
     #[Test]
-    public function it_does_not_send_email_for_nonexistent_user()
+    public function test_it_does_not_send_email_for_nonexistent_user()
     {
         $request = new Request(['eid' => Crypt::encrypt('nonexistent@example.com')]);
 
@@ -155,7 +155,7 @@ class AuthControllerTest extends TestCase
     }
 
     #[Test]
-    public function it_does_not_send_email_if_already_sent()
+    public function test_it_does_not_send_email_if_already_sent()
     {
         $user = User::factory()->create();
         AccountActivate::create(['email' => $user->email]);
@@ -170,7 +170,7 @@ class AuthControllerTest extends TestCase
     }
 
     #[Test]
-    public function it_sends_resend_success_message_for_get_requests()
+    public function test_it_sends_resend_success_message_for_get_requests()
     {
         $user = User::factory()->create();
         $request = new Request(['eid' => Crypt::encrypt($user->email)]);
@@ -186,7 +186,7 @@ class AuthControllerTest extends TestCase
     }
 
     #[Test]
-    public function it_handles_exceptions_gracefully()
+    public function test_it_handles_exceptions_gracefully()
     {
         $request = new Request(['eid' => 'invalid_encrypted_value']);
 
