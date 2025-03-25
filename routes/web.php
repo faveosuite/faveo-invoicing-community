@@ -184,6 +184,8 @@ Route::middleware('installAgora')->group(function () {
     Route::post('changeLogo', [Common\SettingsController::class, 'delete']);
 
     Route::get('settings', [Common\SettingsController::class, 'settings']);
+    Route::get('/datatable/data', [Common\SettingsController::class, 'getDataTableData'])->name('datatable.data');
+
     Route::get('settings/system', [Common\SettingsController::class, 'settingsSystem']);
     Route::patch('settings/system', [Common\SettingsController::class, 'postSettingsSystem']);
     Route::get('settings/email', [Common\EmailSettingsController::class, 'settingsEmail'])->middleware('auth');

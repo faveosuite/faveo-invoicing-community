@@ -7,6 +7,7 @@ use App\Email_log;
 use App\Facades\Attach;
 use App\Http\Requests\Common\SettingsRequest;
 use App\Model\Common\Mailchimp\MailchimpSetting;
+use App\Model\Github\Github;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;
@@ -112,10 +113,85 @@ class SettingsController extends BaseSettingsController
             // $v3captchaStatus = StatusSetting::pluck('v3recaptcha_status')->first();
             // $v3siteKey = $apikeys->pluck('v3captcha_sitekey')->first();
             // $v3secretKey = $apikeys->pluck('v3captcha_secretCheck')->first();
+            $mailchimp_set = new MailchimpSetting();
+            $set = $mailchimp_set->firstOrFail();
+            $mail_api_key = $set->api_key;
+            $mailchimp= new \Mailchimp\Mailchimp($mail_api_key);
+            $allists = $mailchimp->get('lists?count=20')['lists'];
+            $selectedList[] = $set->list_id;
+            $model = new Github();
+            $github = $model->firstOrFail();
+            $githubStatus = StatusSetting::first()->github_status;
+            $githubFileds = $github->select('client_id', 'client_secret', 'username', 'password')->first();
 
-            return view('themes.default1.common.apikey', compact('model', 'status', 'licenseSecret', 'licenseUrl', 'siteKey', 'secretKey', 'captchaStatus', 'v3CaptchaStatus', 'updateStatus', 'updateSecret', 'updateUrl', 'mobileStatus', 'mobileauthkey', 'msg91Sender', 'msg91TemplateId', 'emailStatus', 'twitterStatus', 'twitterKeys', 'zohoStatus', 'zohoKey', 'rzpStatus', 'rzpKeys', 'mailchimpSetting', 'mailchimpKey', 'termsStatus', 'termsUrl', 'pipedriveKey', 'pipedriveStatus', 'domainCheckStatus', 'mailSendingStatus', 'licenseClientId', 'licenseClientSecret', 'licenseGrantType'));
+
+
+            return view('themes.default1.common.apikey', compact('model', 'status', 'licenseSecret', 'licenseUrl', 'siteKey', 'secretKey', 'captchaStatus', 'v3CaptchaStatus', 'updateStatus', 'updateSecret', 'updateUrl', 'mobileStatus', 'mobileauthkey', 'msg91Sender', 'msg91TemplateId', 'emailStatus', 'twitterStatus', 'twitterKeys', 'zohoStatus', 'zohoKey', 'rzpStatus', 'rzpKeys', 'mailchimpSetting', 'mailchimpKey', 'termsStatus', 'termsUrl', 'pipedriveKey', 'pipedriveStatus', 'domainCheckStatus', 'mailSendingStatus',
+                'licenseClientId', 'licenseClientSecret', 'licenseGrantType','allists', 'selectedList','set','githubStatus','githubFileds'));
         } catch (\Exception $ex) {
             return redirect('/')->with('fails', $ex->getMessage());
+        }
+    }
+
+
+    public function getDataTableData(Request $request){
+        $status = StatusSetting::pluck('license_status')->first();
+        $mobileStatus = StatusSetting::pluck('msg91_status')->first();
+        $captchaStatus = StatusSetting::pluck('recaptcha_status')->first();
+        $v3CaptchaStatus = StatusSetting::pluck('v3_recaptcha_status')->first();
+        $twitterStatus = $this->statusSetting->pluck('twitter_status')->first();
+        $zohoStatus = $this->statusSetting->pluck('zoho_status')->first();
+        $pipedriveStatus = StatusSetting::pluck('pipedrive_status')->first();
+        $domainCheckStatus = StatusSetting::pluck('domain_check')->first();
+        $githubStatus = StatusSetting::first()->github_status;
+        $mailchimpSetting = StatusSetting::pluck('mailchimp_status')->first();
+        $termsStatus = StatusSetting::pluck('terms')->first();
+
+        if($request->ajax()){
+        $dataTable = collect([
+            ['options' => 'Auto Faveo Licenser & Update Manager', 'status' => $this->getStatus($status),'action' => '<a href="#create-third-party-app" data-toggle="modal" data-target="#create-third-party-app" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>',
+            ],
+            ['options' => "Don't Allow Domin/Ip based Restriction", 'status' => $this->getStatus($domainCheckStatus), 'action' => 'NotAvailable'],
+            ['options' => 'Google reCAPTCHA', 'status' => $this->getStatus2($v3CaptchaStatus,$captchaStatus), 'action' => '<a href="#google-recaptcha" data-toggle="modal" data-target="#google-recaptcha" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
+            ],
+            ['options' => 'Msg 91(Mobile Verification)', 'status' => $this->getStatus($mobileStatus), 'action' => '<a href="#msg-91" data-toggle="modal" data-target="#msg-91" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
+            ],
+            ['options' => 'Mailchimp', 'status' =>$this->getStatus($mailchimpSetting), 'action' => '<a href="#mailchimps" data-toggle="modal" data-target="#mailchimps" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
+            ],
+            ['options' => 'Show Terms on Registration Page', 'status' => $this->getStatus($termsStatus), 'action' => '<a href="#showTerms" data-toggle="modal" data-target="#showTerms" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
+            ],
+            ['options' => 'Twitter', 'status' => $this->getStatus($twitterStatus), 'action' => '<a href="#twitters" data-toggle="modal" data-target="#twitters" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
+            ],
+            ['options' => 'Zoho CRM', 'status' => $this->getStatus($zohoStatus), 'action' => '<a href="#zohoCrm" data-toggle="modal" data-target="#zohoCrm" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
+            ],
+            ['options' => 'Pipedrive', 'status' => $this->getStatus($pipedriveStatus), 'action' => '<a href="#pipedrv" data-toggle="modal" data-target="#pipedrv" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
+            ],
+            ['options' => 'Github', 'status' => $this->getStatus($githubStatus),'action' => '<a href="#githubSet" data-toggle="modal" data-target="#githubSet" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
+            ],
+        ]);
+
+        return DataTables::of($dataTable)
+            ->rawColumns(['status', 'action'])
+            ->make(true);
+    }
+    }
+    private function getStatus($value)
+    {
+
+        if ($value==1) {
+            return 'Active';
+        }else{
+            return 'Inactive';
+        }
+    }
+
+    private function getStatus2($value,$value2)
+    {
+
+        if (!$value && !$value2) {
+            return 'Inactive';
+        }else{
+            return 'Active';
         }
     }
 

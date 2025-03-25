@@ -337,8 +337,8 @@ class BaseSettingsController extends PaymentSettingsController
                 return false;
             }
         } else {
-            $nocaptcha_sitekey = '00';
-            $captcha_secretCheck = '00';
+            $nocaptcha_sitekey = '';
+            $captcha_secretCheck = '';
             $path_to_file = base_path('.env');
             $file_contents = file_get_contents($path_to_file);
             $file_contents_secretchek = str_replace([env('NOCAPTCHA_SECRET'), env('NOCAPTCHA_SITEKEY')], [$captcha_secretCheck, $nocaptcha_sitekey], $file_contents);
@@ -391,8 +391,8 @@ class BaseSettingsController extends PaymentSettingsController
                 return false;
             }
         } else {
-            $nocaptcha_sitekey = '00';
-            $captcha_secretCheck = '00';
+            $nocaptcha_sitekey = '';
+            $captcha_secretCheck = '';
             $path_to_file = base_path('.env');
             $file_contents = file_get_contents($path_to_file);
             $file_contents_secretchek = str_replace([env('RECAPTCHA_SITE_KEY'), env('RECAPTCHA_SITE_KEY')], [$captcha_secretCheck, $nocaptcha_sitekey], $file_contents);
