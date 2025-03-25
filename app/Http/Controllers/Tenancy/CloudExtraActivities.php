@@ -22,7 +22,6 @@ use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\ThirdPartyApp;
 use App\User;
-use AWS\CRT\Log;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
@@ -940,22 +939,19 @@ class CloudExtraActivities extends Controller
 
     public function checkDomain($domain)
     {
-
         $client = new Client([]);
-            $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
+        $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
 
-            $data = ['domain' => $domain, 'key' => $keys->app_key];
-            $response = $client->request(
-                'POST',
-                $this->cloud->cloud_central_domain . '/checkDomain', ['form_params' => $data]
-            );
-            $response = explode('{', (string)$response->getBody());
+        $data = ['domain' => $domain, 'key' => $keys->app_key];
+        $response = $client->request(
+            'POST',
+            $this->cloud->cloud_central_domain.'/checkDomain', ['form_params' => $data]
+        );
+        $response = explode('{', (string) $response->getBody());
 
-            $response = array_first($response);
+        $response = array_first($response);
 
-            return json_decode($response);
-
-
+        return json_decode($response);
     }
 
     public function fetchData()
