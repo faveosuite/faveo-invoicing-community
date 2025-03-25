@@ -37,7 +37,7 @@ Mailchimp
                             <div class="form-group {{ $errors->has('api_key') ? 'has-error' : '' }}">
 
 
-                                {!! Form::text('api_key', null, ['class' => 'form-control', 'disabled' => 'disabled']) !!}
+                                {!! Form::text('api_key', null, ['class' => 'form-control']) !!}
                                 <p><i> {{ Lang::get('message.enter-the-mailchimp-api-key-setting') }}</i></p>
 
 
