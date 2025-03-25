@@ -17,7 +17,8 @@ class PipedriveField extends Model
         'field_type',
     ];
 
-    public function localFields(){
+    public function localFields()
+    {
         return $this->hasMany(PipedriveLocalFields::class, 'pipedrive_id');
     }
 }
