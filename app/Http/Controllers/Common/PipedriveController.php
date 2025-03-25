@@ -29,7 +29,7 @@ class PipedriveController extends Controller
      */
     public function __construct()
     {
-        $this->middleware(['auth','admin']);
+        $this->middleware(['auth', 'admin']);
         $token = ApiKey::value('pipedrive_api_key');
 
         $config = new PipedriveConfiguration();
@@ -80,7 +80,7 @@ class PipedriveController extends Controller
                 $orgSearchResult = $this->organizationsApi->searchOrganization($user->company, 'name')->getRawData();
                 $orgId = $orgSearchResult['items'][0]['item']['id'] ?? null;
 
-                if (!$orgId) {
+                if (! $orgId) {
                     $orgResponse = $this->organizationsApi->addOrganization(['name' => $user->company]);
                     $orgId = $orgResponse?->getRawData()['id'] ?? null;
                 }
@@ -91,7 +91,7 @@ class PipedriveController extends Controller
             $personId = $personResponse?->getRawData()['id'] ?? null;
 
             if ($personId && $orgId) {
-                $this->dealsApi->addDeal(['title' => $user->company . ' deal', 'person_id' => $personId, 'org_id' => $orgId]);
+                $this->dealsApi->addDeal(['title' => $user->company.' deal', 'person_id' => $personId, 'org_id' => $orgId]);
             }
         } catch (\Exception $e) {
             throw new \Exception('Error adding user to Pipedrive: '.$e->getMessage());
@@ -115,7 +115,7 @@ class PipedriveController extends Controller
 
         return successResponse('Local fields retrieved successfully', [
             'local_fields' => PipedriveLocalFields::with('pipedrive')->get(),
-            'pipedrive_fields' => PipedriveField::all()
+            'pipedrive_fields' => PipedriveField::all(),
         ]);
     }
 
@@ -124,6 +124,7 @@ class PipedriveController extends Controller
         foreach ($request->all() as $key => $value) {
             PipedriveLocalFields::where('field_key', $key)->update(['pipedrive_key' => $value]);
         }
+
         return successResponse('Fields mapped successfully');
     }
 
@@ -143,14 +144,13 @@ class PipedriveController extends Controller
 
                 return [
                     $key => match ($field->field_key) {
-                        'mobile' => $user->mobile ? '+' . $user->mobile_code . ' ' . $user->mobile : null,
+                        'mobile' => $user->mobile ? '+'.$user->mobile_code.' '.$user->mobile : null,
                         'country' => Country::where('country_code_char2', $user->country)->value('nicename'),
                         'org_id' => $orgId,
                         default => $user->{$field->field_key} ?? null,
-                    }
+                    },
                 ];
             })
             ->toArray();
     }
-
 }

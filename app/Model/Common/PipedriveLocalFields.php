@@ -18,7 +18,8 @@ class PipedriveLocalFields extends Model
         'pipedrive_key',
     ];
 
-    public function pipedrive(){
+    public function pipedrive()
+    {
         return $this->belongsTo(PipedriveField::class, 'pipedrive_key');
     }
 }
