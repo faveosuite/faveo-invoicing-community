@@ -4,6 +4,8 @@ namespace App\Traits;
 
 use App\ApiKey;
 use App\FileSystemSettings;
+use \DrewM\MailChimp\MailChimp;
+use Illuminate\Support\Facades\Http;
 use App\Http\Requests\UpdateStoragePathRequest;
 use App\Model\Common\Mailchimp\MailchimpSetting;
 use App\Model\Common\StatusSetting;
@@ -11,6 +13,7 @@ use Aws\Exception\AwsException;
 use Aws\S3\S3Client;
 use DateTime;
 use Illuminate\Http\Request;
+use mysql_xdevapi\Exception;
 
 //////////////////////////////////////////////////////////////
 //TRAIT FOR SAVING API STATUS AND API KEYS //
@@ -134,12 +137,25 @@ trait ApiKeySettings
 
     public function updateMailchimpDetails(Request $request)
     {
-        $chimp_auth_key = $request->input('mailchimp_auth_key');
-        $status = $request->input('status');
-        StatusSetting::find(1)->update(['mailchimp_status' => $status]);
-        MailchimpSetting::find(1)->update(['api_key' => $chimp_auth_key]);
+        try {
+            $chimp_auth_key = $request->input('mailchimp_auth_key');
 
-        return ['message' => 'success', 'update' => 'Mailchimp settings saved'];
+            $dc = substr($chimp_auth_key, strpos($chimp_auth_key, '-') + 1);
+            // Mailchimp API URL
+            $url = "https://{$dc}.api.mailchimp.com/3.0/";
+            // Make an API request
+            $response = Http::withBasicAuth('anystring', $chimp_auth_key)->get($url);
+            if ($response->successful()) {
+                $status = $request->input('status');
+                StatusSetting::find(1)->update(['mailchimp_status' => $status]);
+                MailchimpSetting::find(1)->update(['api_key' => $chimp_auth_key]);
+                return ['message' => 'success', 'update' => 'Mailchimp settings saved'];
+            } else {
+                return ['message' => 'error', 'update' => 'Mailchimp api key is wrong'];
+            }
+        }catch(\Exception $e){
+            return ['message' => 'error', 'update' => 'Mailchimp api key is wrong'];
+        }
     }
 
     public function updateTermsDetails(Request $request)
