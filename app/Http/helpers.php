@@ -124,7 +124,7 @@ function getTimeInLoggedInUserTimeZone(string $dateTimeString, $format = 'M j, Y
  * @param  string|null  $dateTimeString
  * @return string
  */
-function getDateHtml(string $dateTimeString = null)
+function getDateHtml(?string $dateTimeString = null)
 {
     try {
         if (! $dateTimeString) {
@@ -138,7 +138,7 @@ function getDateHtml(string $dateTimeString = null)
         return '--';
     }
 }
-function getDateHtmlcopy(string $dateTimeString = null)
+function getDateHtmlcopy(?string $dateTimeString = null)
 {
     try {
         if (! $dateTimeString) {
