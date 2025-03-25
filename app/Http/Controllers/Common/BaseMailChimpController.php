@@ -53,12 +53,12 @@ class BaseMailChimpController extends Controller
                 $result = $this->mailchimp->patch("lists/$this->list_id/members/$hash", [
                     'interests' => [$interestGroupIdForNo => true, $interestGroupIdForYes => false, $productGroupId => true],
                 ]);
-            //refer to https://us7.api.mailchimp.com/playground
+                //refer to https://us7.api.mailchimp.com/playground
             } elseif ($interestGroupIdForNo && $productGroupId == null) {
                 $result = $this->mailchimp->patch("lists/$this->list_id/members/$hash", [
                     'interests' => [$interestGroupIdForNo => true, $interestGroupIdForYes => false],
                 ]);
-            //refer to https://us7.api.mailchimp.com/playground
+                //refer to https://us7.api.mailchimp.com/playground
             } elseif ($productGroupId && $interestGroupIdForNo == null || $interestGroupIdForYes == null) {
                 $result = $this->mailchimp->patch("lists/$this->list_id/members/$hash", [
                     'interests' => [$productGroupId => true],
@@ -93,7 +93,7 @@ class BaseMailChimpController extends Controller
                 $result = $this->mailchimp->patch("lists/$this->list_id/members/$hash", [
                     'interests' => [$interestGroupIdForNo => false, $interestGroupIdForYes => true],
                 ]);
-            //refer to https://us7.api.mailchimp.com/playground
+                //refer to https://us7.api.mailchimp.com/playground
             } elseif ($productGroupId && $interestGroupIdForNo == null || $interestGroupIdForYes == null) {
                 $result = $this->mailchimp->patch("lists/$this->list_id/members/$hash", [
                     'interests' => [$productGroupId => true],
