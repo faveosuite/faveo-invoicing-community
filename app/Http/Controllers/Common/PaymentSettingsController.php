@@ -335,10 +335,11 @@ class PaymentSettingsController extends Controller
         return redirect()->back()->with('success', 'Deleted Successfully');
     }
 
-    public function updatePaymentStatus(Request $request){
+    public function updatePaymentStatus(Request $request)
+    {
         $plugs = new Plugin();
-        $name=$request->input('name');
-        $status=$request->input('status');
+        $name = $request->input('name');
+        $status = $request->input('status');
         $plug = $plugs->where('name', $name)->first();
         if (! $plug) {
             $app = base_path().DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'app.php';
@@ -354,7 +355,6 @@ class PaymentSettingsController extends Controller
 //        $status = $plug->status;
 
         if ($status == 0) {
-
             $plug->status = 0;
 
             $app = base_path().DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'app.php';
@@ -377,9 +377,9 @@ class PaymentSettingsController extends Controller
         }
 
         $plug->save();
+
         return ['message' => 'success', 'update' => 'Status has changed'];
 
 //        return redirect()->back()->with('success', 'Status has changed');
-
     }
 }
