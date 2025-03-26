@@ -368,7 +368,7 @@ class HomeController extends BaseHomeController
             $id = $request->input('id');
 
             $product = ($id) ?
-                $product->where('id', $id)->select('id')->first():
+                $product->where('id', $id)->select('id')->first() :
                 $product->whereRaw('LOWER(`name`) LIKE ? ', strtolower($this->mapOldBoys($title)))->orWhere('id', $id)->select('id')->first();
 
             if ($request->has('version')) {
@@ -455,7 +455,7 @@ class HomeController extends BaseHomeController
             $id = $request->input('id');
 
             $product = ($id) ?
-                $product->where('id', $id)->select('id')->first():
+                $product->where('id', $id)->select('id')->first() :
                 $product->whereRaw('LOWER(`name`) LIKE ? ', strtolower($this->mapOldBoys($title)))->orWhere('id', $id)->select('id')->first();
 
             /**
