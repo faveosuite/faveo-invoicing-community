@@ -189,7 +189,7 @@ class InstallerController extends Controller
         rename($exampleEnvPath, $envPath);
     }
 
-    public function updateInstallEnv(string $environment, string $driver = null, $redisConfig = [])
+    public function updateInstallEnv(string $environment, ?string $driver = null, $redisConfig = [])
     {
         $env = base_path().DIRECTORY_SEPARATOR.'.env';
         if (! is_file($env)) {
@@ -462,6 +462,7 @@ class InstallerController extends Controller
             $environment = Cache::get('env');
             $this->updateInstallEnv($environment);
             Session::flush();
+
             return view('themes.default1.installer.finalPage');
         } else {
             return Redirect::route('get-start');
