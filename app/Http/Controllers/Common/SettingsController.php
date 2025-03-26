@@ -146,27 +146,74 @@ class SettingsController extends BaseSettingsController
         $githubStatus = StatusSetting::first()->github_status;
         $mailchimpSetting = StatusSetting::pluck('mailchimp_status')->first();
         $termsStatus = StatusSetting::pluck('terms')->first();
+        $v3_v2_recaptcha_status = StatusSetting::pluck('v3_v2_recaptcha_status')->first();
+        $checkboxValue = $v3_v2_recaptcha_status ? '1' : '0';
+        $checked = $v3_v2_recaptcha_status ? 'checked' : '';
+
+        $toggleSwitch = '
+        <label class="switch toggle_event_editing gcaptcha">
+            <input type="checkbox" value="'.$checkboxValue.'"  
+                   name="modules_settings"
+                   class="checkbox2" id="captcha" '.$checked.'>
+            <span class="slider round"></span>
+        </label>
+    ';
 
         if($request->ajax()){
         $dataTable = collect([
-            ['options' => 'Auto Faveo Licenser & Update Manager', 'description'=>'This Verifies the authenticity of installed agora software.','status' => $this->getStatus($status),'action' => '<a href="#create-third-party-app" data-toggle="modal" data-target="#create-third-party-app" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>',
+            ['options' => 'Auto Faveo Licenser & Update Manager', 'description'=>'This Verifies the authenticity of installed agora software.','status' =>  '
+        <label class="switch toggle_event_editing licenser">
+            <input type="checkbox" value="'.($status ? '1' : '0').'"  
+                   name="modules_settings"
+                   class="checkbox" id="License" '.($status ? 'checked' : '').'>
+            <span class="slider round"></span>
+        </label>
+    ','action' => '<a href="#create-third-party-app" data-toggle="modal" data-target="#create-third-party-app" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>',
             ],
             ['options' => "Don't Allow Domin/Ip based Restriction",'description'=>'Not Available', 'status' => $this->getStatus($domainCheckStatus), 'action' => 'NotAvailable'],
-            ['options' => 'Google reCAPTCHA','description'=>'This is used to enable google recaptcha.','status' => $this->getStatus2($v3CaptchaStatus,$captchaStatus), 'action' => '<a href="#google-recaptcha" data-toggle="modal" data-target="#google-recaptcha" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
+            ['options' => 'Google reCAPTCHA','description'=>'This is used to enable google recaptcha.','status' => $toggleSwitch, 'action' => '<a href="#google-recaptcha" data-toggle="modal" data-target="#google-recaptcha" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
             ],
-            ['options' => 'Msg 91(Mobile Verification)','description'=>'This is used to enable Msg 91(Mobile Verification).', 'status' => $this->getStatus($mobileStatus), 'action' => '<a href="#msg-91" data-toggle="modal" data-target="#msg-91" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
+            ['options' => 'Msg 91(Mobile Verification)','description'=>'This is used to enable Msg 91(Mobile Verification).', 'status' => '<label class="switch toggle_event_editing mstatus">
+                    <input type="checkbox" value="'.($mobileStatus?'1':'0').'"  name="mobile_settings"
+                           class="checkbox4" id="mobile"'.($mobileStatus ? 'checked' : '').'>
+                    <span class="slider round"></span>
+                    </label>', 'action' => '<a href="#msg-91" data-toggle="modal" data-target="#msg-91" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
             ],
-            ['options' => 'Mailchimp','description'=>'This is used to enable mailchimp.', 'status' =>$this->getStatus($mailchimpSetting), 'action' => '<a href="#mailchimps" data-toggle="modal" data-target="#mailchimps" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
+            ['options' => 'Mailchimp','description'=>'This is used to enable mailchimp.', 'status' =>'<label class="switch toggle_event_editing mailchimpstatus">
+                        <input type="checkbox" value="'.($mailchimpSetting?'1':'0').'"  name="mobile_settings"
+                               class="checkbox9" id="mailchimp"'.($mailchimpSetting ? 'checked' : '').'>
+                        <span class="slider round"></span>
+                    </label>', 'action' => '<a href="#mailchimps" data-toggle="modal" data-target="#mailchimps" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
             ],
-            ['options' => 'Show Terms on Registration Page', 'description'=>'This is used to show the terms in registration page.','status' => $this->getStatus($termsStatus), 'action' => '<a href="#showTerms" data-toggle="modal" data-target="#showTerms" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
+            ['options' => 'Show Terms on Registration Page', 'description'=>'This is used to show the terms in registration page.','status' => '<label class="switch toggle_event_editing termstatus">
+
+                        <input type="checkbox" value="'.($termsStatus?'1':'0').'"  name="terms_settings"
+                               class="checkbox10" id="terms"'.($termsStatus?'checked':'').'>
+                        <span class="slider round"></span>
+                    </label>', 'action' => '<a href="#showTerms" data-toggle="modal" data-target="#showTerms" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
             ],
-            ['options' => 'Twitter','description'=>'This is used to enable Twitter.', 'status' => $this->getStatus($twitterStatus), 'action' => '<a href="#twitters" data-toggle="modal" data-target="#twitters" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
+            ['options' => 'Twitter','description'=>'This is used to enable Twitter.', 'status' =>'<label class="switch toggle_event_editing twitterstatus">
+                    <input type="checkbox" value="'.($twitterStatus?'1':'0').'"  name="twitter_settings"
+                           class="checkbox6" id="twitter"'.($twitterStatus?'checked':'').'>
+                    <span class="slider round"></span>
+                    </label>', 'action' => '<a href="#twitters" data-toggle="modal" data-target="#twitters" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
             ],
-            ['options' => 'Zoho CRM', 'description'=>'This is used to enable zoho crm.','status' => $this->getStatus($zohoStatus), 'action' => '<a href="#zohoCrm" data-toggle="modal" data-target="#zohoCrm" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
+            ['options' => 'Zoho CRM', 'description'=>'This is used to enable zoho crm.','status' => '                    <label class="switch toggle_event_editing zohostatus">
+                        <input type="checkbox" value="'.($zohoStatus?'1':'0').'"  name="zoho_settings"
+                           class="checkbox8" id="zoho"'.($zohoStatus?'checked':'').'>
+                        <span class="slider round"></span>
+                    </label>', 'action' => '<a href="#zohoCrm" data-toggle="modal" data-target="#zohoCrm" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
             ],
-            ['options' => 'Pipedrive', 'description'=>'This is used to enable pipedrive.','status' => $this->getStatus($pipedriveStatus), 'action' => '<a href="#pipedrv" data-toggle="modal" data-target="#pipedrv" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
+            ['options' => 'Pipedrive', 'description'=>'This is used to enable pipedrive.','status' => '                    <label class="switch toggle_event_editing pipedrivestatus">
+                        <input type="checkbox" value="'.($pipedriveStatus?'1':'0').'"  name="pipedrive_settings"
+                           class="checkbox13" id="pipedrive"'.($pipedriveStatus?'checked':'').'>
+                        <span class="slider round"></span>
+                    </label>', 'action' => '<a href="#pipedrv" data-toggle="modal" data-target="#pipedrv" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
             ],
-            ['options' => 'Github', 'description'=>'This is used to enable github.','status' => $this->getStatus($githubStatus),'action' => '<a href="#githubSet" data-toggle="modal" data-target="#githubSet" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
+            ['options' => 'Github', 'description'=>'This is used to enable github.','status' => '                        <label class="switch toggle_event_editing githubstatus">
+                            <input type="checkbox" value="'.($githubStatus?'1':'0').'" name="github_settings" class="checkbox" id="github"'.($githubStatus?'checked':'').'>
+                            <span class="slider round"></span>
+                        </label>','action' => '<a href="#githubSet" data-toggle="modal" data-target="#githubSet" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
             ],
         ]);
 

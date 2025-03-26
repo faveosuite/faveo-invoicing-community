@@ -200,6 +200,7 @@ Route::middleware('installAgora')->group(function () {
     Route::delete('activity-delete', [Common\SettingsController::class, 'destroy'])->name('activity-delete');
     Route::delete('email-delete', [Common\SettingsController::class, 'destroyEmail'])->name('email-delete');
     Route::post('licenseDetails', [Common\BaseSettingsController::class, 'licenseDetails'])->name('licenseDetails');
+    Route::post('licenseStatus', [Common\BaseSettingsController::class, 'licenseStatus'])->name('licenseStatus');
     Route::post('updateDetails', [Common\BaseSettingsController::class, 'updateDetails'])->name('updateDetails');
     Route::post('captchaDetails', [Common\BaseSettingsController::class, 'captchaDetails'])->name('captchaDetails');
     Route::post('updatemobileDetails', [Common\BaseSettingsController::class, 'updateMobileDetails'])->name('updatemobileDetails');

@@ -37,6 +37,75 @@ trait ApiKeySettings
         return ['message' => 'success', 'update' => 'Licensing settings saved'];
     }
 
+    public function licenseStatus(Request $request)
+    {
+        $status = $request->input();
+
+        if (is_array($status)&& key_exists('status', $status)) {
+            $lstatus = $request->input('status');
+            StatusSetting::where('id', 1)->update(['license_status' => $lstatus]);
+            return ['message' => 'success', 'update' => 'Licensing status saved'];
+        }
+
+        if (is_array($status)&& key_exists('mstatus', $status)) {
+            $mstatus = $request->input('mstatus');
+            StatusSetting::find(1)->update(['msg91_status' => $mstatus]);
+            return ['message' => 'success', 'update' => 'Mobile status saved'];
+        }
+
+        if (is_array($status)&& key_exists('mailchimpstatus', $status)) {
+            $mailchimpstatus = $request->input('mailchimpstatus');
+            StatusSetting::find(1)->update(['mailchimp_status' => $mailchimpstatus]);
+            return ['message' => 'success', 'update' => 'Mailchimp status saved'];
+        }
+
+
+        if (is_array($status)&& key_exists('termsstatus', $status)) {
+            $termsstatus = $request->input('termsstatus');
+            StatusSetting::find(1)->update(['terms' => $termsstatus]);
+            return ['message' => 'success', 'update' => 'Terms status saved'];
+        }
+
+        if (is_array($status)&& key_exists('twitterstatus', $status)) {
+            $twitterstatus = $request->input('twitterstatus');
+            StatusSetting::find(1)->update(['twitter_status' => $twitterstatus]);
+            return ['message' => 'success', 'update' => 'Twitter status saved'];
+        }
+
+        if (is_array($status)&& key_exists('zohostatus', $status)) {
+            $twitterstatus = $request->input('zohostatus');
+            StatusSetting::find(1)->update(['zoho_status' => $twitterstatus]);
+            return ['message' => 'success', 'update' => 'Zoho status saved'];
+        }
+
+        if (is_array($status)&& key_exists('pipedrivestatus', $status)) {
+            $twitterstatus = $request->input('pipedrivestatus');
+            StatusSetting::find(1)->update(['pipedrive_status' => $twitterstatus]);
+            return ['message' => 'success', 'update' => 'Pipedrive status saved'];
+        }
+
+        if (is_array($status)&& key_exists('githubstatus', $status)) {
+            $twitterstatus = $request->input('githubstatus');
+            StatusSetting::find(1)->update(['github_status' => $twitterstatus]);
+            return ['message' => 'success', 'update' => 'Github status saved'];
+        }
+
+        if (is_array($status)&& key_exists('gcaptchastatus', $status)) {
+            $twitterstatus = $request->input('gcaptchastatus');
+            StatusSetting::find(1)->update(['v3_v2_recaptcha_status' => $twitterstatus]);
+            return ['message' => 'success', 'update' => 'Google recaptcha status saved'];
+        }
+
+    }
+
+
+    public function mobileStatus(Request $request)
+    {
+
+        $status = $request->input('status');
+
+    }
+
     //Save Auto Update status in Database
     public function updateDetails(Request $request)
     {

@@ -353,6 +353,7 @@ class BaseSettingsController extends PaymentSettingsController
         StatusSetting::where('id', 1)->update([
             'recaptcha_status' => $recaptchaStatus,
             'v3_recaptcha_status' => $v3RecaptchaStatus,
+            'v3_v2_recaptcha_status' => $status,
         ]);
         ApiKey::where('id', 1)->update(['nocaptcha_sitekey' => $nocaptcha_sitekey,
             'captcha_secretCheck' => $captcha_secretCheck, ]);
