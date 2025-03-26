@@ -350,6 +350,14 @@ class RenewController extends BaseRenewController
                 }
                 $cost = (int) $cost * (int) $agents;
             }
+            else{
+                if(Product::whereid(Plan::whereid($planid)->first()->product)->first()->can_modify_agent){
+                    $sub = Subscription::find($id);
+                    $order_id = $sub->order_id;
+                    $agents = intval(substr(Order::where('id', $order_id)->value('serial_key'), 12));
+                    $cost = (int) $cost * (int) $agents;
+                }
+            }
 
             $items = $this->invoiceBySubscriptionId($id, $planid, $cost, $currency, $agents);
             $invoiceid = $items->invoice_id;

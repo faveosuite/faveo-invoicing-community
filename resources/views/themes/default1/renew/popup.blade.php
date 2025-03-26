@@ -17,8 +17,10 @@
 
                                       
                                          <p class="text-black"><strong>Current number of agents:</strong> {{$agents}}</p>
+                                        <input type="hidden" id="agentsForSelf" value="{{ $agents }}">
 
-                                            <p class="text-black"><strong>Current plan:</strong> {{$planName}}</p>
+
+                                        <p class="text-black"><strong>Current plan:</strong> {{$planName}}</p>
                                                     <?php
 
                                           $plans = App\Model\Payment\Plan::join('products', 'plans.product', '=', 'products.id')
@@ -145,6 +147,7 @@
            data: { 'user': user, 'plan': planId },
            success: function (data) {
                if(data[1]) {
+                   agents= $('.agents').val() ?? $('#agentsForSelf').val();
                    var totalPrice = agents * parseFloat(data[0]);
                }
                else{
