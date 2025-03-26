@@ -138,7 +138,7 @@ class BaseProductController extends ExtendedBaseProductController
                                 ->attribute('onchange', 'getPrice(this.value)'),
                             html()->div()
                                 ->class('error-message')
-                                ->id('subscription-msg')
+                                ->id('subscription-msg'),
                         ])
                         ->toHtml();
             } else {//If No Plan Exist For A Product
