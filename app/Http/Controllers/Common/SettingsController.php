@@ -149,24 +149,24 @@ class SettingsController extends BaseSettingsController
 
         if($request->ajax()){
         $dataTable = collect([
-            ['options' => 'Auto Faveo Licenser & Update Manager', 'status' => $this->getStatus($status),'action' => '<a href="#create-third-party-app" data-toggle="modal" data-target="#create-third-party-app" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>',
+            ['options' => 'Auto Faveo Licenser & Update Manager', 'description'=>'This Verifies the authenticity of installed agora software.','status' => $this->getStatus($status),'action' => '<a href="#create-third-party-app" data-toggle="modal" data-target="#create-third-party-app" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>',
             ],
-            ['options' => "Don't Allow Domin/Ip based Restriction", 'status' => $this->getStatus($domainCheckStatus), 'action' => 'NotAvailable'],
-            ['options' => 'Google reCAPTCHA', 'status' => $this->getStatus2($v3CaptchaStatus,$captchaStatus), 'action' => '<a href="#google-recaptcha" data-toggle="modal" data-target="#google-recaptcha" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
+            ['options' => "Don't Allow Domin/Ip based Restriction",'description'=>'Not Available', 'status' => $this->getStatus($domainCheckStatus), 'action' => 'NotAvailable'],
+            ['options' => 'Google reCAPTCHA','description'=>'This is used to enable google recaptcha.','status' => $this->getStatus2($v3CaptchaStatus,$captchaStatus), 'action' => '<a href="#google-recaptcha" data-toggle="modal" data-target="#google-recaptcha" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
             ],
-            ['options' => 'Msg 91(Mobile Verification)', 'status' => $this->getStatus($mobileStatus), 'action' => '<a href="#msg-91" data-toggle="modal" data-target="#msg-91" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
+            ['options' => 'Msg 91(Mobile Verification)','description'=>'This is used to enable Msg 91(Mobile Verification).', 'status' => $this->getStatus($mobileStatus), 'action' => '<a href="#msg-91" data-toggle="modal" data-target="#msg-91" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
             ],
-            ['options' => 'Mailchimp', 'status' =>$this->getStatus($mailchimpSetting), 'action' => '<a href="#mailchimps" data-toggle="modal" data-target="#mailchimps" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
+            ['options' => 'Mailchimp','description'=>'This is used to enable mailchimp.', 'status' =>$this->getStatus($mailchimpSetting), 'action' => '<a href="#mailchimps" data-toggle="modal" data-target="#mailchimps" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
             ],
-            ['options' => 'Show Terms on Registration Page', 'status' => $this->getStatus($termsStatus), 'action' => '<a href="#showTerms" data-toggle="modal" data-target="#showTerms" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
+            ['options' => 'Show Terms on Registration Page', 'description'=>'This is used to show the terms in registration page.','status' => $this->getStatus($termsStatus), 'action' => '<a href="#showTerms" data-toggle="modal" data-target="#showTerms" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
             ],
-            ['options' => 'Twitter', 'status' => $this->getStatus($twitterStatus), 'action' => '<a href="#twitters" data-toggle="modal" data-target="#twitters" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
+            ['options' => 'Twitter','description'=>'This is used to enable Twitter.', 'status' => $this->getStatus($twitterStatus), 'action' => '<a href="#twitters" data-toggle="modal" data-target="#twitters" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
             ],
-            ['options' => 'Zoho CRM', 'status' => $this->getStatus($zohoStatus), 'action' => '<a href="#zohoCrm" data-toggle="modal" data-target="#zohoCrm" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
+            ['options' => 'Zoho CRM', 'description'=>'This is used to enable zoho crm.','status' => $this->getStatus($zohoStatus), 'action' => '<a href="#zohoCrm" data-toggle="modal" data-target="#zohoCrm" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
             ],
-            ['options' => 'Pipedrive', 'status' => $this->getStatus($pipedriveStatus), 'action' => '<a href="#pipedrv" data-toggle="modal" data-target="#pipedrv" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
+            ['options' => 'Pipedrive', 'description'=>'This is used to enable pipedrive.','status' => $this->getStatus($pipedriveStatus), 'action' => '<a href="#pipedrv" data-toggle="modal" data-target="#pipedrv" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
             ],
-            ['options' => 'Github', 'status' => $this->getStatus($githubStatus),'action' => '<a href="#githubSet" data-toggle="modal" data-target="#githubSet" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
+            ['options' => 'Github', 'description'=>'This is used to enable github.','status' => $this->getStatus($githubStatus),'action' => '<a href="#githubSet" data-toggle="modal" data-target="#githubSet" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
             ],
         ]);
 

@@ -932,4 +932,5 @@ return [
     'git_password_s'=>'Please enter a valid git password.',
     'git_client_s'=>'Please enter a valid git client id.',
     'git_secret_s'=>'Please enter a valid git client secret.',
+    'check'=>'Check',
 ];

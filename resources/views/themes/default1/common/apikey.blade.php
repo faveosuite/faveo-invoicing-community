@@ -90,14 +90,15 @@
 
         <!-- /.box-header -->
         <div class="card-body">
-            <div id="alertMessage"></div>
+{{--            <div id="alertMessage"></div>--}}
             <div class="scrollit" style="height:800px">
                 <div class="row">
                     <div class="col-md-12">
                         <table id="custom-table" class="table table-striped">
                             <thead>
                             <tr>
-                                <th>Options</th>
+                                <th>Name</th>
+                                <th>Description</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
@@ -587,10 +588,11 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Github Setings</h4>
+                    <h4 class="modal-title">Github Settings</h4>
 
                 </div>
                 <div class="modal-body">
+                    <div id="alertMessage1"></div>
                     <input type ="hidden" id="hidden_git_username" value="{{$githubFileds->username}}">
                     <input type ="hidden" id="hidden_git_password" value="{{$githubFileds->password}}">
                     <input type ="hidden" id="hidden_git_client" value="{{$githubFileds->client_id}}">
@@ -604,8 +606,18 @@
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         <!-- last name -->
                         {!! Form::label('password',Lang::get('message.password'),['class'=>'required']) !!}
-                        <input type= "password" value="{{$githubFileds->password}}" name="password" id="git_password" class="form-control git_password">
+
+                        <div class="input-group">
+                            <input type= "password" value="{{$githubFileds->password}}" name="password" id="git_password" class="form-control git_password">
+
+                            <div class="input-group-append">
+                            <span role="button" class="input-group-text" onclick="togglePasswordVisibility(this)">
+                                <i class="fa fa-eye-slash"></i>
+                            </span>
+                            </div>
+                        </div>
                         <h6 id="pass"></h6>
+
                     </div>
 
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
@@ -615,8 +627,18 @@
                     </div>
 
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+
                         {!! Form::label('client_secret',Lang::get('message.client_secret'),['class'=>'required']) !!}
-                        {!! Form::text('client_secret',$githubFileds->client_secret,['class' => 'form-control git_secret','id'=>'git_secret']) !!}
+                        <div class="input-group">
+{{--                            {!! Form::password('client_secret',$githubFileds->client_secret,['class' => 'form-control git_secret','id'=>'git_secret']) !!}--}}
+                            <input type= "password" value="{{$githubFileds->client_secret}}" name="client_secret" id="git_secret" class="form-control git_secret">
+
+                            <div class="input-group-append">
+                            <span role="button" class="input-group-text" onclick="togglePasswordVisibility(this)">
+                                <i class="fa fa-eye-slash"></i>
+                            </span>
+                        </div>
+                        </div>
                         <h6 id="c_secret"></h6>
                     </div>
 
@@ -649,10 +671,19 @@
 
                 </div>
                 <div class="modal-body">
+                    <div id="alertMessage"></div>
 
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         {!! Form::label('lic_api_secret',Lang::get('message.lic_api_secret'),['class'=>'required']) !!}
-                        {!! Form::text('license_api_secret',$licenseSecret,['class' => 'form-control','id'=>'license_api_secret']) !!}
+                        <div class="input-group">
+                            <input type= "password" value="{{$licenseSecret}}" name='license_api_secret' id='license_api_secret' class="form-control">
+
+                            <div class="input-group-append">
+                            <span role="button" class="input-group-text" onclick="togglePasswordVisibility(this)">
+                                <i class="fa fa-eye-slash"></i>
+                            </span>
+                            </div>
+                        </div>
                         <h6 id="license_apiCheck"></h6>
                     </div>
 
@@ -671,7 +702,16 @@
 
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         {!! Form::label('lic_client_secret',Lang::get('message.lic_client_secret'),['class'=>'required']) !!}
-                        {!! Form::text('license_client_secret',$licenseClientSecret,['class' => 'form-control','id'=>'license_client_secret']) !!}
+{{--                        {!! Form::text('license_client_secret',$licenseClientSecret,['class' => 'form-control','id'=>'license_client_secret']) !!}--}}
+                        <div class="input-group">
+                            <input type= "password" value="{{$licenseClientSecret}}" name='license_client_secret' id='license_client_secret' class="form-control">
+
+                            <div class="input-group-append">
+                            <span role="button" class="input-group-text" onclick="togglePasswordVisibility(this)">
+                                <i class="fa fa-eye-slash"></i>
+                            </span>
+                            </div>
+                        </div>
                         <h6 id="license_clientSecretCheck"></h6>
                     </div>
 
@@ -711,6 +751,8 @@
 
                 </div>
                 <div class="modal-body">
+                    <div id="alertMessage2"></div>
+
                     <div class="form-group m-1 d-flex">
                         <div class="custom-control custom-radio m-2">
                             <input class="custom-control-input " type="radio" id="captchaRadioV2" name="customRadio" {{ $captchaStatus === 1 ? 'checked' : '' }}>
@@ -730,7 +772,16 @@
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         <!-- last name -->
                         {!! Form::label('nocaptcha_secret',Lang::get('message.nocaptcha_secret'),['class'=>'required']) !!}
-                        {!! Form::text('nocaptcha_secret',$secretKey,['class' => 'form-control','id'=>'nocaptcha_secret']) !!}
+{{--                        {!! Form::text('nocaptcha_secret',$secretKey,['class' => 'form-control','id'=>'nocaptcha_secret']) !!}--}}
+                        <div class="input-group">
+                            <input type= "password" value="{{$secretKey}}" name='nocaptcha_secret' id='nocaptcha_secret' class="form-control">
+
+                            <div class="input-group-append">
+                            <span role="button" class="input-group-text" onclick="togglePasswordVisibility(this)">
+                                <i class="fa fa-eye-slash"></i>
+                            </span>
+                            </div>
+                        </div>
                         <h6 id="captcha_secretCheck"></h6>
                     </div>
 
@@ -762,11 +813,13 @@
 
                 </div>
                 <div class="modal-body">
+                    <div id="alertMessage3"></div>
                     <input type ="hidden" id="hiddenMobValue" value="{{$mobileauthkey}}">
 
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         {!! Form::label('mobile',Lang::get('message.msg91_key'),['class'=>'required']) !!}
                         {!! Form::text('msg91_auth_key',$mobileauthkey,['class' => 'form-control mobile_authkey','id'=>'mobile_authkey']) !!}
+
                         <h6 id="mobile_check"></h6>
                     </div>
 
@@ -812,13 +865,30 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">Mailchimp</h4>
+
                 </div>
+
                 <div class="modal-body">
+                    <div id="alertMessage4"></div>
+
                     <input type ="hidden" id="hiddenMailChimpValue" value="{{$mailchimpKey}}">
-                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                        {!! Form::label('mailchimp',Lang::get('message.mailchimp_key'),['class'=>'required']) !!}
-                        {!! Form::text('mailchimp',$mailchimpKey,['class' => 'form-control mailchimp_authkey','id'=>'mailchimp_authkey']) !!}
-                        <h6 id="mailchimp_check"></h6>
+
+                    {!! Form::label('mailchimp', Lang::get('message.mailchimp_key'), ['class' => 'required me-2']) !!}
+
+                    <div class="form-group d-flex align-items-center gap-2">
+
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            {!! Form::text('mailchimp', $mailchimpKey, [
+                                'class' => 'form-control mailchimp_authkey',
+                                'id' => 'mailchimp_authkey',
+                                'style' => 'width: 300px;' // Adjust width as needed
+                            ]) !!}
+                            <h6 id="mailchimp_check" style="margin: 0;"></h6>
+
+                            <button type="submit" class="btn btn-primary" id="submit9">
+                                <i class="fa fa-save"></i>&nbsp;&nbsp;{!! Lang::get('message.save') !!}
+                            </button>
+                        </div>
                     </div>
                     <div style="display: flex; align-items: center; gap: 10px;">
                         {!! Form::label('mailchimp',Lang::get('message.mailchimp_settings'),['class'=>'required']) !!}
@@ -830,44 +900,42 @@
                     </div>
                 </div>
 
-                <div class="modal-footer justify-content-between">
-                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
-                   <button type="submit" class="form-group btn btn-primary"  id="submit9"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button>
 
-                </div>
+{{--                <?php--}}
+{{--                $mailchimpStatus = \App\Model\Common\StatusSetting::first()->value('mailchimp_status');--}}
+{{--                ?>--}}
+{{--                @if($mailchimpStatus==1)--}}
 
-                <?php
-                $mailchimpStatus = \App\Model\Common\StatusSetting::first()->value('mailchimp_status');
-                ?>
-                @if($mailchimpStatus ==1)
-                <div class="card-body">
+                    <div id="extraInput" style="display: none;">
+
+                    <div class="card-body">
                     {!! Form::model($set,['url'=>'mailchimp','method'=>'patch','files'=>true]) !!}
 
                     <table class="table table-condensed">
 
 
+{{--                        <tr>--}}
+
+{{--                            <td><b>{!! Form::label('api_key',Lang::get('message.api_key'),['class'=>'required']) !!}</b></td>--}}
+{{--                            <td>--}}
+{{--                                <div class="form-group {{ $errors->has('api_key') ? 'has-error' : '' }}">--}}
+
+
+{{--                                    <p><i> {{ Lang::get('message.enter-the-mailchimp-api-key-setting') }}</i></p>--}}
+
+
+{{--                                </div>--}}
+{{--                            </td>--}}
+
+{{--                        </tr>--}}
                         <tr>
-
-                            <td><b>{!! Form::label('api_key',Lang::get('message.api_key'),['class'=>'required']) !!}</b></td>
-                            <td>
-                                <div class="form-group {{ $errors->has('api_key') ? 'has-error' : '' }}">
-
-
-                                    {!! Form::text('api_key', null, ['class' => 'form-control']) !!}
-                                    <p><i> {{ Lang::get('message.enter-the-mailchimp-api-key-setting') }}</i></p>
-
-
-                                </div>
-                            </td>
-
-                        </tr>
-                        <tr>
+                            {!! Form::hidden('api_key', null, ['class' => 'form-control']) !!}
 
                             <td><b>{!! Form::label('list_id',Lang::get('message.list_id'),['class'=>'required']) !!}</b></td>
                             <td>
                                 <div class="row">
-                                    <div class="col-md-6 form-group {{ $errors->has('list_id') ? 'has-error' : '' }}">
-                                        <select name="list_id" class="form-control" </select>
+                                    <div class="form-group {{ $errors->has('list_id') ? 'has-error' : '' }}">
+                                        <select name="list_id" class="form-control" style="width:290px"</select>
                                         <option value="">Choose</option>
                                         @foreach($allists as $list)
                                             <option value="{{$list->id}}"<?php  if(in_array($list->id, $selectedList) )
@@ -924,13 +992,17 @@
 
                     </table>
 
-
-                    <button type="submit" class="btn btn-primary pull-right" id="submit" style="margin-top:-40px;"><i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}</button>
+                    <button type="submit" class="btn btn-primary pull-right" id="submit" ><i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}</button>
 
                 </div>
-                @endif
-
+                    </div>
+{{--                    @endif--}}
+                <div class="modal-footer justify-content-between">
+{{--                    <button type="submit" class="form-group btn btn-primary"  id="submit9"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button>--}}
+                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
+                </div>
             </div>
+
         </div>
     </div>
 
@@ -942,6 +1014,7 @@
                     <h4 class="modal-title">Show Terms on Registration Page</h4>
                 </div>
                 <div class="modal-body">
+                    <div id="alertMessage5"></div>
                     <input type ="hidden" id="hiddenTermsValue" value="{{$termsUrl}}">
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         {!! Form::label('terms',Lang::get('message.terms_url'),['class'=>'required']) !!}
@@ -980,6 +1053,7 @@
 
                 </div>
                 <div class="modal-body">
+                    <div id="alertMessage6"></div>
                     <input type ="hidden" id="hidden_consumer_key" value="{{$twitterKeys->twitter_consumer_key}}">
                     <input type ="hidden" id="hidden_consumer_secret" value="{{$twitterKeys->twitter_consumer_secret}}">
                     <input type ="hidden" id="hidden_access_token" value="{{$twitterKeys->twitter_access_token}}">
@@ -994,7 +1068,16 @@
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         <!-- last name -->
                         {!! Form::label('consumer_secret',Lang::get('message.consumer_secret'),['class'=>'required']) !!}
-                        {!! Form::text('consumer_secret',$twitterKeys->twitter_consumer_secret,['class' => 'form-control consumer_secret','id'=>'consumer_secret']) !!}
+{{--                        {!! Form::text('consumer_secret',$twitterKeys->twitter_consumer_secret,['class' => 'form-control consumer_secret','id'=>'consumer_secret']) !!}--}}
+                        <div class="input-group">
+                            <input type= "password" value="{{$twitterKeys->twitter_consumer_secret}}" name='consumer_secret' id='consumer_secret' class="form-control consumer_secret">
+
+                            <div class="input-group-append">
+                            <span role="button" class="input-group-text" onclick="togglePasswordVisibility(this)">
+                                <i class="fa fa-eye-slash"></i>
+                            </span>
+                            </div>
+                        </div>
                         <h6 id="consumer_secretcheck"></h6>
                     </div>
 
@@ -1007,7 +1090,16 @@
 
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         {!! Form::label('token_secret',Lang::get('message.token_secret'),['class'=>'required']) !!}
-                        {!! Form::text('token_secret',$twitterKeys->access_tooken_secret,['class' => 'form-control token_secret','id'=>'token_secret']) !!}
+{{--                        {!! Form::text('token_secret',$twitterKeys->access_tooken_secret,['class' => 'form-control token_secret','id'=>'token_secret']) !!}--}}
+                        <div class="input-group">
+                            <input type= "password" value="{{$twitterKeys->access_tooken_secret}}" name='token_secret' id='token_secret' class="form-control token_secret">
+
+                            <div class="input-group-append">
+                            <span role="button" class="input-group-text" onclick="togglePasswordVisibility(this)">
+                                <i class="fa fa-eye-slash"></i>
+                            </span>
+                            </div>
+                        </div>
                         <h6 id="token_secretcheck"></h6>
                     </div>
                     <div style="display: flex; align-items: center; gap: 10px;">
@@ -1038,6 +1130,7 @@
                     <h4 class="modal-title">Zoho CRM</h4>
                 </div>
                 <div class="modal-body">
+                    <div id="alertMessage7"></div>
 
                     <input type ="hidden" id="hidden_zoho_key" value="{{$zohoKey}}">
 
@@ -1074,6 +1167,8 @@
                     <h4 class="modal-title">pipedrive</h4>
                 </div>
                 <div class="modal-body">
+                    <div id="alertMessage8"></div>
+
                     <input type ="hidden" id="hidden_pipedrive_key" value="{{$pipedriveKey}}">
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         {!! Form::label('pipedrive_key',Lang::get('message.pipedrive_key'),['class'=>'required']) !!}
@@ -1112,9 +1207,10 @@
                 serverSide: true,
                 ajax: "{{ route('datatable.data') }}", // Calls the separate function
                 columns: [
-                    { data: 'options', name: 'options' },
-                    { data: 'status', name: 'status', orderable: false, searchable: false },
-                    { data: 'action', name: 'action', orderable: false, searchable: false }
+                    { data: 'options', name: 'Name' },
+                    {data:'description',name:'Description'},
+                    { data: 'status', name: 'Status', orderable: false, searchable: false },
+                    { data: 'action', name: 'Action', orderable: false, searchable: false }
                 ]
             });
         });
@@ -1326,7 +1422,9 @@
 
                 },
                 success: function (response) {
-                    location.reload();
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
                     $('#alertMessage').show();
                     var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
                     $('#alertMessage').html(result+ ".");
@@ -1431,6 +1529,9 @@
                     "update_api_url" :$('#update_api_url').val(),
                 },
                 success: function (response) {
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
                     $('#alertMessage').show();
                     var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
                     $('#alertMessage').html(result+ ".");
@@ -1550,8 +1651,13 @@
             if (!isValid) {
                 e.preventDefault();
             }
-
-
+            var recaptchaType='';
+            if($('#captchaRadioV2').prop('checked')){
+                recaptchaType='v2';
+            }
+            if($('#captchaRadioV3').prop('checked')){
+                recaptchaType='v3';
+            }
 
             $("#submit2").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
             $.ajax({
@@ -1560,17 +1666,20 @@
                 type : 'post',
                 data: {
                     "status": checkboxvalue,
-                    "recaptcha_type": $('#captchaRadioV2').prop('checked') ? 'v2' : 'v3',
+                    "recaptcha_type": recaptchaType,
                     "nocaptcha_sitekey": $('#nocaptcha_sitekey').val(),
                     "nocaptcha_secret" :$('#nocaptcha_secret').val(),
                 },
                 success: function (data) {
-                    $('#alertMessage').show();
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
+                    $('#alertMessage2').show();
                     var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
-                    $('#alertMessage').html(result+ ".");
+                    $('#alertMessage2').html(result+ ".");
                     $("#submit2").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
-                        $('#alertMessage').slideUp(3000);
+                        $('#alertMessage2').slideUp(3000);
                     }, 1000);
                 },
 
@@ -1810,17 +1919,20 @@
                     "msg91_template_id": $('#template_id').val(),
                 },
                 success: function (data) {
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
                     const result = `
                 <div class="alert alert-success alert-dismissable">
                     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
                     <strong><i class="fa fa-check"></i> Success! </strong>${data.update}.
                 </div>`;
-                    $('#alertMessage').show().html(result);
+                    $('#alertMessage3').show().html(result);
                     $("#submit3").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
 
 
                     setInterval(function(){
-                        $('#alertMessage').slideUp(3000);
+                        $('#alertMessage3').slideUp(3000);
                     }, 1000);
                 },
                 error: function () {
@@ -1861,6 +1973,9 @@
                     "status": emailstatus,
                 },
                 success: function (data) {
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
                     $('#alertMessage').show();
                     var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
                     $('#alertMessage').html(result+ ".");
@@ -2029,12 +2144,15 @@
                     "access_token":$('#access_token').val() ,  "token_secret" : $('#token_secret').val()
                 },
                 success: function (data) {
-                    $('#alertMessage').show();
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
+                    $('#alertMessage6').show();
                     var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
-                    $('#alertMessage').html(result+ ".");
+                    $('#alertMessage6').html(result+ ".");
                     $("#submit5").html("<i class='fa fa-save'>&nbsp;</i>Save");
                     setInterval(function(){
-                        $('#alertMessage').slideUp(3000);
+                        $('#alertMessage6').slideUp(3000);
                     }, 1000);
                 },
             })
@@ -2143,12 +2261,15 @@
                     "zoho_key": $('#zoho_key').val(),
                 },
                 success: function (data) {
-                    $('#alertMessage').show();
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
+                    $('#alertMessage7').show();
                     var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
-                    $('#alertMessage').html(result+ ".");
+                    $('#alertMessage7').html(result+ ".");
                     $("#submit7").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
-                        $('#alertMessage').slideUp(3000);
+                        $('#alertMessage7').slideUp(3000);
                     }, 1000);
                 },
             })
@@ -2243,7 +2364,7 @@
             }
 
 
-
+console.log(chimpstatus);
             $("#submit9").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
             $.ajax ({
                 url: '{{url("updateMailchimpDetails")}}',
@@ -2253,21 +2374,30 @@
                     "mailchimp_auth_key": $('#mailchimp_authkey').val(),
                 },
                 success: function (data) {
-                    console.log(data['message'])
+
+                    var mailchimpstatus=data['mailchimpStatus'];
+                    var status=data['status'];
+                    if(mailchimpstatus===1 && status==='1'){
+                        let extraInput = document.getElementById('extraInput');
+                        extraInput.style.display ='block';
+                    }else{
+                       let extraInput = document.getElementById('extraInput');
+                       extraInput.style.display ='none';
+                   }
                     if(data['message']==='success'){
-                    $('#alertMessage').show();
+                    $('#alertMessage4').show();
                     var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
-                    $('#alertMessage').html(result+ ".");
+                    $('#alertMessage4').html(result+ ".");
                     $("#submit9").html("<i class='fa fa-save'>&nbsp;</i>Save");
                     setInterval(function(){
-                        $('#alertMessage').slideUp(3000);
+                        $('#alertMessage4').slideUp(3000);
                     }, 1000);}else{
-                        $('#alertMessage').show();
+                        $('#alertMessage4').show();
                         var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> error! </strong>'+data.update+'.</div>';
-                        $('#alertMessage').html(result+ ".");
+                        $('#alertMessage4').html(result+ ".");
                         $("#submit9").html("<i class='fa fa-save'>&nbsp;</i>Save");
                         setInterval(function(){
-                            $('#alertMessage').slideUp(3000);
+                            $('#alertMessage4').slideUp(3000);
                         }, 1000);
                     }
                 },
@@ -2355,9 +2485,12 @@
                 }
             });
 
-            // if (isValid && userRequiredFields.description.val()==null) {
-            //     isValid = false;
-            // }
+            if($('#term_url').val()!=''){
+            if (isValid && !isValidURL(userFields.name.val())) {
+                showError(userFields.name,'Please enter a valid url(https://example.com).');
+                isValid = false;
+            }
+            }
 
 
             // If validation fails, prevent form submission
@@ -2377,17 +2510,27 @@
                     "terms_url": $('#terms_url').val(),
                 },
                 success: function (data) {
-                    $('#alertMessage').show();
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
+                    $('#alertMessage5').show();
                     var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
-                    $('#alertMessage').html(result+ ".");
+                    $('#alertMessage5').html(result+ ".");
                     $("#submit10").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
-                        $('#alertMessage').slideUp(3000);
+                        $('#alertMessage5').slideUp(3000);
                     }, 1000);
                 },
             })
         });
-
+        function isValidURL(url) {
+            try {
+                new URL(url);
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
         <!---------------------------------------------------------------------------------------------------------------->
         /*
        *Piprdrive
@@ -2489,12 +2632,15 @@
                     "pipedrive_key": $('#pipedrive_key').val(),
                 },
                 success: function (data) {
-                    $('#alertMessage').show();
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
+                    $('#alertMessage8').show();
                     var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
-                    $('#alertMessage').html(result+ ".");
+                    $('#alertMessage8').html(result+ ".");
                     $("#submit13").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
-                        $('#alertMessage').slideUp(3000);
+                        $('#alertMessage8').slideUp(3000);
                     }, 1000);
                 },
             })
@@ -2693,12 +2839,15 @@
                     "git_client":$('#git_client').val() ,  "git_secret" : $('#git_secret').val()
                 },
                 success: function (data) {
-                    $('#alertMessage').show();
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
+                    $('#alertMessage1').show();
                     var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
-                    $('#alertMessage').html(result+ ".");
+                    $('#alertMessage1').html(result+ ".");
                     $("#submit").html("<i class='fa fa-sync-alt'>&nbsp;</i>Update");
                     setInterval(function(){
-                        $('#alertMessage').slideUp(3000);
+                        $('#alertMessage1').slideUp(3000);
                     }, 1000);
                 },
             })
