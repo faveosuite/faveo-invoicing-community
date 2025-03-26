@@ -181,7 +181,7 @@ class InstallerController extends Controller
         rename($exampleEnvPath, $envPath);
     }
 
-    public function updateInstallEnv(string $environment, string $driver = null, $redisConfig = [])
+    public function updateInstallEnv(string $environment, ?string $driver = null, $redisConfig = [])
     {
         $env = base_path().DIRECTORY_SEPARATOR.'.env';
         if (! is_file($env)) {

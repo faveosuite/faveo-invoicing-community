@@ -463,7 +463,7 @@ class PageController extends Controller
      * @param  int  $templateid  Id of the Template
      * @return longtext The Template to be displayed
      */
-    public function pageTemplates(int $templateid = null, int $groupid)
+    public function pageTemplates(?int $templateid = null, int $groupid)
     {
         try {
             $productsHightlight = Product::wherehighlight(1)->get();
