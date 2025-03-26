@@ -134,7 +134,7 @@ Settings
                   <div class="col-md-2 col-sm-6">
                     <div class="settingiconblue">
                         <div class="settingdivblue">
-                            <a class="icons-color" href="{{ url('plugin') }}">
+                            <a class="icons-color" href="{{ url('payment-gateway-integration') }}">
                                 <span class="fa-stack fa-2x">
                                     <i class="fa fa-credit-card fa-stack-1x"></i>
                                 </span>
@@ -428,48 +428,48 @@ Settings
     <div class="card-body">
         <div class="row">
                 <!--col-md-2-->
-                <div class="col-md-2 col-sm-6">
-                    <div class="settingiconblue">
-                        <div class="settingdivblue">
-                            <a class="icons-color" href="{{ url('github') }}">
-                                <span class="fa-stack fa-2x">
-                                    <i class="fab fa-github-square fa-stack-1x"></i>
-                                </span>
-                            </a>
-                        </div>
-                        <div class="text-center text-sm fw_400">Github</div>
-                    </div>
-                </div>
+{{--                <div class="col-md-2 col-sm-6">--}}
+{{--                    <div class="settingiconblue">--}}
+{{--                        <div class="settingdivblue">--}}
+{{--                            <a class="icons-color" href="{{ url('github') }}">--}}
+{{--                                <span class="fa-stack fa-2x">--}}
+{{--                                    <i class="fab fa-github-square fa-stack-1x"></i>--}}
+{{--                                </span>--}}
+{{--                            </a>--}}
+{{--                        </div>--}}
+{{--                        <div class="text-center text-sm fw_400">Github</div>--}}
+{{--                    </div>--}}
+{{--                </div>--}}
                 <!--/.col-md-2-->
                 <!--col-md-2-->
-                <?php
-                $mailchimpStatus = \App\Model\Common\StatusSetting::first()->value('mailchimp_status');
-                ?>
-                @if($mailchimpStatus ==1)
-                <div class="col-md-2 col-sm-6">
-                    <div class="settingiconblue">
-                        <div class="settingdivblue">
-                            <a class="icons-color" href="{{ url('mailchimp') }}">
-                                <span class="fa-stack fa-2x">
-                                    <i class="fab fa-mailchimp fa-stack-1x"></i>
-                                </span>
-                            </a>
-                        </div>
-                        <div class="text-center text-sm fw_400">Mail Chimp</div>
-                    </div>
-                </div>
-                @endif
+{{--                <?php--}}
+{{--                $mailchimpStatus = \App\Model\Common\StatusSetting::first()->value('mailchimp_status');--}}
+{{--                ?>--}}
+{{--                @if($mailchimpStatus ==1)--}}
+{{--                <div class="col-md-2 col-sm-6">--}}
+{{--                    <div class="settingiconblue">--}}
+{{--                        <div class="settingdivblue">--}}
+{{--                            <a class="icons-color" href="{{ url('mailchimp') }}">--}}
+{{--                                <span class="fa-stack fa-2x">--}}
+{{--                                    <i class="fab fa-mailchimp fa-stack-1x"></i>--}}
+{{--                                </span>--}}
+{{--                            </a>--}}
+{{--                        </div>--}}
+{{--                        <div class="text-center text-sm fw_400">Mail Chimp</div>--}}
+{{--                    </div>--}}
+{{--                </div>--}}
+{{--                @endif--}}
                 <!--/.col-md-2-->
                 <div class="col-md-2 col-sm-6">
                     <div class="settingiconblue">
                         <div class="settingdivblue">
-                            <a class="icons-color" href="{{ url('apikeys') }}">
+                            <a class="icons-color" href="{{ url('third-party-integration') }}">
                                 <span class="fa-stack fa-2x">
                                     <i class="fa fa-cogs fa-stack-1x"></i>
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">Api Keys</div>
+                        <div class="text-center text-sm fw_400">Third Party Integration</div>
                     </div>
                 </div>
         </div>

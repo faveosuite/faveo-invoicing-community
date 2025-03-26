@@ -477,7 +477,8 @@ Route::middleware('installAgora')->group(function () {
     /*
      * plugins
      */
-    Route::get('plugin', [Common\SettingsController::class, 'plugins']);
+    Route::get('payment-gateway-integration', [Common\SettingsController::class, 'plugins']);
+    Route::post('updatePaymentStatus', [Common\PaymentSettingsController::class, 'updatePaymentStatus']);
 
     // Route::get('get-plugin', [Common\PaymentSettingsController::class, 'getPlugin'])->name('get-plugin');
     // Route::get('getplugin', [Common\SettingsController::class, 'getPlugin']);
@@ -597,7 +598,7 @@ Route::middleware('installAgora')->group(function () {
     /*
      * Api Keys
      */
-    Route::get('apikeys', [Common\SettingsController::class, 'getKeys']);
+    Route::get('third-party-integration', [Common\SettingsController::class, 'getKeys']);
     Route::patch('apikeys', [Common\SettingsController::class, 'postKeys']);
     Route::post('login', [Auth\LoginController::class, 'login'])->name('login');
     // Route::post('login', [Auth\LoginController::class, 'login'])->name('login');
