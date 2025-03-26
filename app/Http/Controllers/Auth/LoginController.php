@@ -161,14 +161,13 @@ class LoginController extends Controller
 
     public function redirectToGithub($provider)//redirect to twitter ,github,google and linkedin
     {
-
         $details = SocialLogin::where('type', $provider)->first();
 
-            \Config::set("services.$provider.redirect", $details->redirect_url);
-            \Config::set("services.$provider.client_id", $details->client_id);
-            \Config::set("services.$provider.client_secret", $details->client_secret);
+        \Config::set("services.$provider.redirect", $details->redirect_url);
+        \Config::set("services.$provider.client_id", $details->client_id);
+        \Config::set("services.$provider.client_secret", $details->client_secret);
 
-            return Socialite::driver($provider)->redirect();
+        return Socialite::driver($provider)->redirect();
     }
 
     public function handler($provider)
