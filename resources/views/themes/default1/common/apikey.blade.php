@@ -90,11 +90,11 @@
 
         <!-- /.box-header -->
         <div class="card-body">
-{{--            <div id="alertMessage"></div>--}}
+            <div id="alertMessage12"></div>
             <div class="scrollit" style="height:800px">
                 <div class="row">
                     <div class="col-md-12">
-                        <table id="custom-table" class="table table-striped">
+                        <table id="custom-table" class="table display" cellspacing="0" width="100%">
                             <thead>
                             <tr>
                                 <th>Name</th>
@@ -109,6 +109,58 @@
             </div>
         </div>
         <!-- /.box-body -->
+    </div>
+    <div class="modal fade" id="msg-91" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Msg 91(Mobile Verification)</h4>
+
+                </div>
+                <div class="modal-body">
+                    <div id="alertMessage3"></div>
+                    <input type ="hidden" id="hiddenMobValue" value="{{$mobileauthkey}}">
+
+                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                        {!! Form::label('mobile',Lang::get('message.msg91_key'),['class'=>'required']) !!}
+                        {!! Form::text('msg91_auth_key',$mobileauthkey,['class' => 'form-control mobile_authkey','id'=>'mobile_authkey']) !!}
+
+                        <h6 id="mobile_check"></h6>
+                    </div>
+
+                    <input type ="hidden" id="hiddenSender" value="{{$msg91Sender}}">
+
+                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                        {!! Form::label('mobile',Lang::get('message.msg91_sender'),['class'=>'required']) !!}
+                        {!! Form::text('msg91_sender',$msg91Sender,['class' => 'form-control sender','id'=>'sender']) !!}
+                        <h6 id="sender_check"></h6>
+                    </div>
+
+                    <input type ="hidden" id="hiddenTemplate" value="{{$msg91TemplateId}}">
+
+                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                        {!! Form::label('mobile',Lang::get('message.msg91_template_id'),['class'=>'required']) !!}
+                        {!! Form::text('msg91_template_id',$msg91TemplateId,['class' => 'form-control template_id','id'=>'template_id']) !!}
+                        <h6 id="template_check"></h6>
+                    </div>
+
+                    {{--                    <div style="display: flex; align-items: center; gap: 10px;">--}}
+                    {{--                        {!! Form::label('mobile_settings',Lang::get('message.mobile_settings'),['class'=>'required']) !!}--}}
+                    {{--                        <label class="switch toggle_event_editing">--}}
+                    {{--                    <input type="checkbox" value="{{$mobileStatus}}"  name="mobile_settings"--}}
+                    {{--                           class="checkbox4" id="mobile">--}}
+                    {{--                    <span class="slider round"></span>--}}
+                    {{--                    </label>--}}
+                    {{--                    </div>--}}
+                </div>
+
+                <div class="modal-footer justify-content-between">
+                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
+                    <button type="submit" class="form-group btn btn-primary"  id="submit3"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button>
+
+                </div>
+            </div>
+        </div>
     </div>
 
 
@@ -169,14 +221,14 @@
                         <h6 id="c_secret"></h6>
                     </div>
 
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        {!! Form::label('github_settings',Lang::get('message.github_settings'),['class'=>'required']) !!}
+{{--                    <div style="display: flex; align-items: center; gap: 10px;">--}}
+{{--                        {!! Form::label('github_settings',Lang::get('message.github_settings'),['class'=>'required']) !!}--}}
 
-                        <label class="switch toggle_event_editing">
-                            <input type="checkbox" value="{{$githubStatus}}" name="github_settings" class="checkbox" id="github">
-                            <span class="slider round"></span>
-                        </label>
-                    </div>
+{{--                        <label class="switch toggle_event_editing">--}}
+{{--                            <input type="checkbox" value="{{$githubStatus}}" name="github_settings" class="checkbox" id="github">--}}
+{{--                            <span class="slider round"></span>--}}
+{{--                        </label>--}}
+{{--                    </div>--}}
 
                 </div>
 
@@ -247,21 +299,20 @@
                         <h6 id="license_grantTypeCheck"></h6>
                     </div>
 
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        {!! Form::label('modules_settings',Lang::get('message.modules_settings'),['class'=>'required']) !!}
+{{--                    <div style="display: flex; align-items: center; gap: 10px;">--}}
+{{--                        {!! Form::label('modules_settings',Lang::get('message.modules_settings'),['class'=>'required']) !!}--}}
 
-                        <label class="switch toggle_event_editing">
-                        <input type="checkbox" value="{{$status}}"  name="modules_settings"
-                               class="checkbox" id="License">
-                        <span class="slider round"></span>
-                    </label>
-                    </div>
+{{--                        <label class="switch toggle_event_editing">--}}
+{{--                        <input type="checkbox" value="{{$status}}"  name="modules_settings"--}}
+{{--                               class="checkbox" id="License">--}}
+{{--                        <span class="slider round"></span>--}}
+{{--                    </label>--}}
+{{--                    </div>--}}
                 </div>
 
                 <div class="modal-footer justify-content-between">
                     <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
                     <button type="submit" class="form-group btn btn-primary"  onclick="licenseDetails()" id="submit"><i class="fa fa-save">&nbsp;</i>{!!Lang::get('message.save')!!}</button>
-
                 </div>
             </div>
         </div>
@@ -311,14 +362,14 @@
                         <h6 id="captcha_secretCheck"></h6>
                     </div>
 
-                    <div style="display: flex; align-items: center; gap: 10px;">
+{{--                    <div style="display: flex; align-items: center; gap: 10px;">--}}
                         {!! Form::label('captcha',Lang::get('message.captcha'),['class'=>'required']) !!}
-                        <label class="switch toggle_event_editing">
-                    <input type="checkbox" value="{{ $captchaStatus || $v3CaptchaStatus}}"  name="modules_settings"
-                           class="checkbox2" id="captcha">
-                    <span class="slider round"></span>
-                    </label>
-                    </div>
+{{--                        <label class="switch toggle_event_editing">--}}
+{{--                    <input type="checkbox" value="{{ $captchaStatus || $v3CaptchaStatus}}"  name="modules_settings"--}}
+{{--                           class="checkbox2" id="captcha">--}}
+{{--                    <span class="slider round"></span>--}}
+{{--                    </label>--}}
+{{--                    </div>--}}
                 </div>
 
                 <div class="modal-footer justify-content-between">
@@ -331,58 +382,6 @@
     </div>
 
 
-    <div class="modal fade" id="msg-91" data-backdrop="static" data-keyboard="false">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">Msg 91(Mobile Verification)</h4>
-
-                </div>
-                <div class="modal-body">
-                    <div id="alertMessage3"></div>
-                    <input type ="hidden" id="hiddenMobValue" value="{{$mobileauthkey}}">
-
-                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                        {!! Form::label('mobile',Lang::get('message.msg91_key'),['class'=>'required']) !!}
-                        {!! Form::text('msg91_auth_key',$mobileauthkey,['class' => 'form-control mobile_authkey','id'=>'mobile_authkey']) !!}
-
-                        <h6 id="mobile_check"></h6>
-                    </div>
-
-                    <input type ="hidden" id="hiddenSender" value="{{$msg91Sender}}">
-
-                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                        {!! Form::label('mobile',Lang::get('message.msg91_sender'),['class'=>'required']) !!}
-                        {!! Form::text('msg91_sender',$msg91Sender,['class' => 'form-control sender','id'=>'sender']) !!}
-                        <h6 id="sender_check"></h6>
-                    </div>
-
-                    <input type ="hidden" id="hiddenTemplate" value="{{$msg91TemplateId}}">
-
-                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                        {!! Form::label('mobile',Lang::get('message.msg91_template_id'),['class'=>'required']) !!}
-                        {!! Form::text('msg91_template_id',$msg91TemplateId,['class' => 'form-control template_id','id'=>'template_id']) !!}
-                        <h6 id="template_check"></h6>
-                    </div>
-
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        {!! Form::label('mobile_settings',Lang::get('message.mobile_settings'),['class'=>'required']) !!}
-                        <label class="switch toggle_event_editing">
-                    <input type="checkbox" value="{{$mobileStatus}}"  name="mobile_settings"
-                           class="checkbox4" id="mobile">
-                    <span class="slider round"></span>
-                    </label>
-                    </div>
-                </div>
-
-                <div class="modal-footer justify-content-between">
-                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
-                    <button type="submit" class="form-group btn btn-primary"  id="submit3"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button>
-
-                </div>
-            </div>
-        </div>
-    </div>
 
 
     <div class="modal fade" id="mailchimps" data-backdrop="static" data-keyboard="false">
@@ -406,25 +405,24 @@
                             {!! Form::text('mailchimp', $mailchimpKey, [
                                 'class' => 'form-control mailchimp_authkey',
                                 'id' => 'mailchimp_authkey',
-                                'style' => 'width: 300px;' // Adjust width as needed
+                                'style' => 'width: 350px;' // Adjust width as needed
                             ]) !!}
                             <h6 id="mailchimp_check" style="margin: 0;"></h6>
 
                             <button type="submit" class="btn btn-primary" id="submit9">
-                                <i class="fa fa-save"></i>&nbsp;&nbsp;{!! Lang::get('message.save') !!}
+                                <i class="fa fa-check"></i>&nbsp;&nbsp;{!! Lang::get('message.check') !!}
                             </button>
                         </div>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        {!! Form::label('mailchimp',Lang::get('message.mailchimp_settings'),['class'=>'required']) !!}
-                        <label class="switch toggle_event_editing">
-                        <input type="checkbox" value="{{$mailchimpSetting}}"  name="mobile_settings"
-                               class="checkbox9" id="mailchimp">
-                        <span class="slider round"></span>
-                    </label>
-                    </div>
+{{--                    <div style="display: flex; align-items: center; gap: 10px;">--}}
+{{--                        {!! Form::label('mailchimp',Lang::get('message.mailchimp_settings'),['class'=>'required']) !!}--}}
+{{--                        <label class="switch toggle_event_editing">--}}
+{{--                        <input type="checkbox" value="{{$mailchimpSetting}}"  name="mobile_settings"--}}
+{{--                               class="checkbox9" id="mailchimp">--}}
+{{--                        <span class="slider round"></span>--}}
+{{--                    </label>--}}
+{{--                    </div>--}}
                 </div>
-
 
 
 
@@ -501,7 +499,12 @@
 
                     </table>
 
-                    <button type="submit" class="btn btn-primary pull-right" id="submit" ><i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}</button>
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary" id="submit">
+                                <i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}
+                            </button>
+                        </div>
+{{--                    <button type="submit" class="btn btn-primary pull-right" id="submit" ><i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}</button>--}}
 
                 </div>
                     </div>
@@ -528,16 +531,16 @@
                         {!! Form::text('terms',$termsUrl,['class' => 'form-control terms_url','id'=>'terms_url']) !!}
                         <h6 id="terms_check"></h6>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        {!! Form::label('terms_settings',Lang::get('message.terms_settings'),['class'=>'required']) !!}
+{{--                    <div style="display: flex; align-items: center; gap: 10px;">--}}
+{{--                        {!! Form::label('terms_settings',Lang::get('message.terms_settings'),['class'=>'required']) !!}--}}
 
-                        <label class="switch toggle_event_editing">
+{{--                        <label class="switch toggle_event_editing">--}}
 
-                        <input type="checkbox" value="{{$termsStatus}}"  name="terms_settings"
-                               class="checkbox10" id="terms">
-                        <span class="slider round"></span>
-                    </label>
-                    </div>
+{{--                        <input type="checkbox" value="{{$termsStatus}}"  name="terms_settings"--}}
+{{--                               class="checkbox10" id="terms">--}}
+{{--                        <span class="slider round"></span>--}}
+{{--                    </label>--}}
+{{--                    </div>--}}
                 </div>
 
                 <div class="modal-footer justify-content-between">
@@ -607,15 +610,15 @@
                         </div>
                         <h6 id="token_secretcheck"></h6>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        {!! Form::label('twitter_settings',Lang::get('message.twitter_settings'),['class'=>'required']) !!}
+{{--                    <div style="display: flex; align-items: center; gap: 10px;">--}}
+{{--                        {!! Form::label('twitter_settings',Lang::get('message.twitter_settings'),['class'=>'required']) !!}--}}
 
-                    <label class="switch toggle_event_editing">
-                    <input type="checkbox" value="{{$twitterStatus}}"  name="twitter_settings"
-                           class="checkbox6" id="twitter">
-                    <span class="slider round"></span>
-                    </label>
-                    </div>
+{{--                    <label class="switch toggle_event_editing">--}}
+{{--                    <input type="checkbox" value="{{$twitterStatus}}"  name="twitter_settings"--}}
+{{--                           class="checkbox6" id="twitter">--}}
+{{--                    <span class="slider round"></span>--}}
+{{--                    </label>--}}
+{{--                    </div>--}}
                 </div>
 
                 <div class="modal-footer justify-content-between">
@@ -644,15 +647,15 @@
                         {!! Form::text('zoho_key',$zohoKey,['class' => 'form-control zoho_key','id'=>'zoho_key']) !!}
                         <h6 id="zoho_keycheck"></h6>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        {!! Form::label('zoho_settings',Lang::get('message.zoho_settings'),['class'=>'required']) !!}
+{{--                    <div style="display: flex; align-items: center; gap: 10px;">--}}
+{{--                        {!! Form::label('zoho_settings',Lang::get('message.zoho_settings'),['class'=>'required']) !!}--}}
 
-                    <label class="switch toggle_event_editing">
-                        <input type="checkbox" value="{{$zohoStatus}}"  name="zoho_settings"
-                           class="checkbox8" id="zoho">
-                        <span class="slider round"></span>
-                    </label>
-                    </div>
+{{--                    <label class="switch toggle_event_editing">--}}
+{{--                        <input type="checkbox" value="{{$zohoStatus}}"  name="zoho_settings"--}}
+{{--                           class="checkbox8" id="zoho">--}}
+{{--                        <span class="slider round"></span>--}}
+{{--                    </label>--}}
+{{--                    </div>--}}
                 </div>
 
                 <div class="modal-footer justify-content-between">
@@ -680,15 +683,15 @@
                         {!! Form::text('pipedrive_key',$pipedriveKey,['class' => 'form-control pipedrive_key','id'=>'pipedrive_key']) !!}
                         <h6 id="pipedrive_keycheck"></h6>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        {!! Form::label('pipedrive_settings',Lang::get('message.pipedrive_settings'),['class'=>'required']) !!}
+{{--                    <div style="display: flex; align-items: center; gap: 10px;">--}}
+{{--                        {!! Form::label('pipedrive_settings',Lang::get('message.pipedrive_settings'),['class'=>'required']) !!}--}}
 
-                    <label class="switch toggle_event_editing">
-                        <input type="checkbox" value="{{$pipedriveStatus}}"  name="pipedrive_settings"
-                           class="checkbox13" id="pipedrive">
-                        <span class="slider round"></span>
-                    </label>
-                    </div>
+{{--                    <label class="switch toggle_event_editing">--}}
+{{--                        <input type="checkbox" value="{{$pipedriveStatus}}"  name="pipedrive_settings"--}}
+{{--                           class="checkbox13" id="pipedrive">--}}
+{{--                        <span class="slider round"></span>--}}
+{{--                    </label>--}}
+{{--                    </div>--}}
                 </div>
 
                 <div class="modal-footer justify-content-between">
@@ -702,15 +705,323 @@
     {!! Form::close() !!}
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css">
+    <!-- <script src="https://code.jquery.com/jquery-3.5.1.js"></script> -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.0.3/css/buttons.dataTables.min.css">
+    <script src="https://cdn.datatables.net/buttons/1.0.3/js/dataTables.buttons.min.js"></script>
+
+    <script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
 
     <script>
+        $(document).on('change', '.licenser input[type="checkbox"]', function() {
+            if ($('#License').prop("checked")) {
+            var checkboxvalue = 1;
+        }
+        else{
+            var checkboxvalue = 0;
+        }
+
+            $.ajax({
+
+                url : '{{url("licenseStatus")}}',
+                type : 'post',
+                data: {
+                    "status": checkboxvalue,
+                },
+                success: function (response) {
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
+                    $('#alertMessage12').show();
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
+                    $('#alertMessage12').html(result+ ".");
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    setInterval(function(){
+                        $('#alertMessage12').slideUp(3000);
+                    }, 1000);
+
+                },
+            });
+
+        });
+
+        $(document).on('change', '.mstatus input[type="checkbox"]', function() {
+            if ($('#mobile').prop("checked")) {
+                var checkboxvalue = 1;
+            }
+            else{
+                var checkboxvalue = 0;
+            }
+
+            $.ajax({
+
+                url : '{{url("licenseStatus")}}',
+                type : 'post',
+                data: {
+                    "mstatus": checkboxvalue,
+                },
+                success: function (response) {
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
+                    $('#alertMessage12').show();
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
+                    $('#alertMessage12').html(result+ ".");
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    setInterval(function(){
+                        $('#alertMessage12').slideUp(3000);
+                    }, 1000);
+
+                },
+            });
+
+        });
+
+        $(document).on('change', '.mailchimpstatus input[type="checkbox"]', function() {
+            if ($('#mobile').prop("checked")) {
+                var checkboxvalue = 1;
+            }
+            else{
+                var checkboxvalue = 0;
+            }
+
+            $.ajax({
+
+                url : '{{url("licenseStatus")}}',
+                type : 'post',
+                data: {
+                    "mailchimpstatus": checkboxvalue,
+                },
+                success: function (response) {
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
+                    $('#alertMessage12').show();
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
+                    $('#alertMessage12').html(result+ ".");
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    setInterval(function(){
+                        $('#alertMessage12').slideUp(3000);
+                    }, 1000);
+
+                },
+            });
+
+        });
+
+
+        $(document).on('change', '.termstatus input[type="checkbox"]', function() {
+            if ($('#terms').prop("checked")) {
+                var checkboxvalue = 1;
+            }
+            else{
+                var checkboxvalue = 0;
+            }
+
+            $.ajax({
+
+                url : '{{url("licenseStatus")}}',
+                type : 'post',
+                data: {
+                    "temrsstatus": checkboxvalue,
+                },
+                success: function (response) {
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
+                    $('#alertMessage12').show();
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
+                    $('#alertMessage12').html(result+ ".");
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    setInterval(function(){
+                        $('#alertMessage12').slideUp(3000);
+                    }, 1000);
+
+                },
+            });
+
+        });
+
+        $(document).on('change', '.twitterstatus input[type="checkbox"]', function() {
+            if ($('#twitter').prop("checked")) {
+                var checkboxvalue = 1;
+            }
+            else{
+                var checkboxvalue = 0;
+            }
+
+            $.ajax({
+
+                url : '{{url("licenseStatus")}}',
+                type : 'post',
+                data: {
+                    "twitterstatus": checkboxvalue,
+                },
+                success: function (response) {
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
+                    $('#alertMessage12').show();
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
+                    $('#alertMessage12').html(result+ ".");
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    setInterval(function(){
+                        $('#alertMessage12').slideUp(3000);
+                    }, 1000);
+
+                },
+            });
+
+        });
+
+        $(document).on('change', '.gcaptcha input[type="checkbox"]', function() {
+            if ($('#captcha').prop("checked")) {
+                var checkboxvalue = 1;
+            }
+            else{
+                var checkboxvalue = 0;
+            }
+
+            $.ajax({
+
+                url : '{{url("licenseStatus")}}',
+                type : 'post',
+                data: {
+                    "gcaptchastatus": checkboxvalue,
+                },
+                success: function (response) {
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
+                    $('#alertMessage12').show();
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
+                    $('#alertMessage12').html(result+ ".");
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    setInterval(function(){
+                        $('#alertMessage12').slideUp(3000);
+                    }, 1000);
+
+                },
+            });
+
+        });
+
+
+        $(document).on('change', '.zohostatus input[type="checkbox"]', function() {
+            if ($('#zoho').prop("checked")) {
+                var checkboxvalue = 1;
+            }
+            else{
+                var checkboxvalue = 0;
+            }
+
+            $.ajax({
+
+                url : '{{url("licenseStatus")}}',
+                type : 'post',
+                data: {
+                    "zohostatus": checkboxvalue,
+                },
+                success: function (response) {
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
+                    $('#alertMessage12').show();
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
+                    $('#alertMessage12').html(result+ ".");
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    setInterval(function(){
+                        $('#alertMessage12').slideUp(3000);
+                    }, 1000);
+
+                },
+            });
+
+        });
+
+        $(document).on('change', '.pipedrivestatus input[type="checkbox"]', function() {
+            if ($('#pipedrive').prop("checked")) {
+                var checkboxvalue = 1;
+            }
+            else{
+                var checkboxvalue = 0;
+            }
+
+            $.ajax({
+
+                url : '{{url("licenseStatus")}}',
+                type : 'post',
+                data: {
+                    "pipedrivestatus": checkboxvalue,
+                },
+                success: function (response) {
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
+                    $('#alertMessage12').show();
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
+                    $('#alertMessage12').html(result+ ".");
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    setInterval(function(){
+                        $('#alertMessage12').slideUp(3000);
+                    }, 1000);
+
+                },
+            });
+
+        });
+
+        $(document).on('change', '.githubstatus input[type="checkbox"]', function() {
+            if ($('#github').prop("checked")) {
+                var checkboxvalue = 1;
+            }
+            else{
+                var checkboxvalue = 0;
+            }
+
+            $.ajax({
+
+                url : '{{url("licenseStatus")}}',
+                type : 'post',
+                data: {
+                    "githubstatus": checkboxvalue,
+                },
+                success: function (response) {
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
+                    $('#alertMessage12').show();
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
+                    $('#alertMessage12').html(result+ ".");
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    setInterval(function(){
+                        $('#alertMessage12').slideUp(3000);
+                    }, 1000);
+
+                },
+            });
+
+        });
+
+
         $(document).ready(function () {
             $('#custom-table').DataTable({
                 processing: true,
                 serverSide: true,
+
                 ajax: "{{ route('datatable.data') }}", // Calls the separate function
+                "oLanguage": {
+                    "sLengthMenu": "_MENU_ Records per page",
+                    "sSearch": "<span style='right: 180px;'>Search:</span> ",
+                    "sProcessing": ' <div class="overlay dataTables_processing"><i class="fas fa-3x fa-sync-alt fa-spin" style=" margin-top: -25px;"></i><div class="text-bold pt-2">Loading...</div></div>'
+                },
+                columnDefs: [
+                    {
+                        targets: 'no-sort',
+                        orderable: false,
+                        order: []
+                    }
+                ],
                 columns: [
                     { data: 'options', name: 'Name' },
                     {data:'description',name:'Description'},
@@ -744,8 +1055,7 @@
             }
         });
         $('#license_apiCheck').hide();
-        $('#License').change(function () {
-
+        $('#License').on('change',function () {
             if ($(this).prop("checked")) {
 
 
@@ -754,7 +1064,7 @@
                 $('.nocapsecretHide').val('');
                 $('.siteKeyHide').val('');
 
-               
+
         }
     });
 
@@ -956,9 +1266,20 @@
             });
         };
 
+        var initial_id=$('input[name="customRadio"]:checked').attr('id');
+        var initial_key=$('#nocaptcha_sitekey').val();
+        var initial_secret=$('#nocaptcha_secret').val();
+        $('input[name="customRadio"]').change(function () {
+            var selectedId = $(this).attr('id'); // Get the ID of selected radio button
+            if(selectedId!==initial_id){
+                $('#nocaptcha_sitekey').val('');
+                $('#nocaptcha_secret').val('');
+            }else{
+                $('#nocaptcha_sitekey').val(initial_key);
+                $('#nocaptcha_secret').val(initial_secret);
+            }
 
-
-
+        });
 
         /**
          * Google ReCAPTCHA
@@ -1585,14 +1906,14 @@ console.log(chimpstatus);
                     $('#alertMessage4').show();
                     var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
                     $('#alertMessage4').html(result+ ".");
-                    $("#submit9").html("<i class='fa fa-save'>&nbsp;</i>Save");
+                    $("#submit9").html("<i class='fa fa-check'>&nbsp;</i>Check");
                     setInterval(function(){
                         $('#alertMessage4').slideUp(3000);
                     }, 1000);}else{
                         $('#alertMessage4').show();
                         var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> error! </strong>'+data.update+'.</div>';
                         $('#alertMessage4').html(result+ ".");
-                        $("#submit9").html("<i class='fa fa-save'>&nbsp;</i>Save");
+                        $("#submit9").html("<i class='fa fa-check'>&nbsp;</i>Check");
                         setInterval(function(){
                             $('#alertMessage4').slideUp(3000);
                         }, 1000);
