@@ -4,16 +4,15 @@ namespace App\Traits;
 
 use App\ApiKey;
 use App\FileSystemSettings;
-use \DrewM\MailChimp\MailChimp;
-use Illuminate\Support\Facades\Http;
 use App\Http\Requests\UpdateStoragePathRequest;
 use App\Model\Common\Mailchimp\MailchimpSetting;
 use App\Model\Common\StatusSetting;
 use Aws\Exception\AwsException;
 use Aws\S3\S3Client;
 use DateTime;
+use DrewM\MailChimp\MailChimp;
 use Illuminate\Http\Request;
-use mysql_xdevapi\Exception;
+use Illuminate\Support\Facades\Http;
 
 //////////////////////////////////////////////////////////////
 //TRAIT FOR SAVING API STATUS AND API KEYS //
@@ -119,8 +118,8 @@ trait ApiKeySettings
         $status = $request->input('status');
         StatusSetting::find(1)->update(['pipedrive_status' => $status]);
         ApiKey::find(1)->update(['pipedrive_api_key' => $pipedriveKey]);
-        return ['message' => 'success', 'update' => 'Pipedrive settings saved'];
 
+        return ['message' => 'success', 'update' => 'Pipedrive settings saved'];
     }
 
     public function updateMailchimpProductStatus(Request $request)
@@ -151,30 +150,32 @@ trait ApiKeySettings
                 $status = $request->input('status');
                 StatusSetting::find(1)->update(['mailchimp_status' => $status]);
                 MailchimpSetting::find(1)->update(['api_key' => $chimp_auth_key]);
-                $mailchimpStatus=1;
+                $mailchimpStatus = 1;
+
                 return [
                     'message' => 'success',
                     'update' => 'Mailchimp settings saved',
                     'mailchimpStatus' => $mailchimpStatus,
-                    'status'=>$status
+                    'status' => $status,
                 ];
             } else {
-                $mailchimpStatus=0;
+                $mailchimpStatus = 0;
                 $status = $request->input('status');
 
                 return [
                     'message' => 'error',
                     'update' => 'Mailchimp api key is wrong',
-                    'mailchimpStatus' => $mailchimpStatus
-                ];            }
-        }catch(\Exception $e){
-            $mailchimpStatus=0;
+                    'mailchimpStatus' => $mailchimpStatus,
+                ];
+            }
+        } catch(\Exception $e) {
+            $mailchimpStatus = 0;
             $status = $request->input('status');
 
             return [
                 'message' => 'error',
                 'update' => 'Mailchimp api key is wrong',
-                'mailchimpStatus' => $mailchimpStatus
+                'mailchimpStatus' => $mailchimpStatus,
             ];
         }
     }
