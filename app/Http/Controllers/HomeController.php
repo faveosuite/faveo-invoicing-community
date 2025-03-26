@@ -518,7 +518,7 @@ class HomeController extends BaseHomeController
      *
      * @author  Manish Verma <manish.verma@ladybirdweb.com>
      */
-    private function getPHPCompatibleVersionString(string $version = null): string
+    private function getPHPCompatibleVersionString(?string $version = null): string
     {
         return preg_replace('#v\.|v#', '', str_replace('_', '.', $version));
     }

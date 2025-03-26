@@ -210,7 +210,7 @@ class DashboardController extends Controller
      *
      * @throws \Exception
      */
-    public function getSoldProducts(int $noOfDays = null)
+    public function getSoldProducts(?int $noOfDays = null)
     {
         // ASSUMING THIS CODE WON"T STAY ALIVE TILL year 3000
         $dateBefore = $noOfDays ? (new Carbon("-$noOfDays days"))->toDateTimeString() : Carbon::now()->startOfMillennium()->toDateTimeString();

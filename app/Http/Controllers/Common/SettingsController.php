@@ -7,10 +7,10 @@ use App\Email_log;
 use App\Facades\Attach;
 use App\Http\Requests\Common\SettingsRequest;
 use App\Model\Common\Mailchimp\MailchimpSetting;
-use App\Model\Github\Github;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;
+use App\Model\Github\Github;
 use App\Model\Mailjob\QueueService;
 use App\Model\Order\Order;
 use App\Model\Payment\Currency;
@@ -116,7 +116,7 @@ class SettingsController extends BaseSettingsController
             $mailchimp_set = new MailchimpSetting();
             $set = $mailchimp_set->firstOrFail();
             $mail_api_key = $set->api_key;
-            $mailchimp= new \Mailchimp\Mailchimp($mail_api_key);
+            $mailchimp = new \Mailchimp\Mailchimp($mail_api_key);
             $allists = $mailchimp->get('lists?count=20')['lists'];
             $selectedList[] = $set->list_id;
             $model = new Github();
@@ -124,17 +124,15 @@ class SettingsController extends BaseSettingsController
             $githubStatus = StatusSetting::first()->github_status;
             $githubFileds = $github->select('client_id', 'client_secret', 'username', 'password')->first();
 
-
-
             return view('themes.default1.common.apikey', compact('model', 'status', 'licenseSecret', 'licenseUrl', 'siteKey', 'secretKey', 'captchaStatus', 'v3CaptchaStatus', 'updateStatus', 'updateSecret', 'updateUrl', 'mobileStatus', 'mobileauthkey', 'msg91Sender', 'msg91TemplateId', 'emailStatus', 'twitterStatus', 'twitterKeys', 'zohoStatus', 'zohoKey', 'rzpStatus', 'rzpKeys', 'mailchimpSetting', 'mailchimpKey', 'termsStatus', 'termsUrl', 'pipedriveKey', 'pipedriveStatus', 'domainCheckStatus', 'mailSendingStatus',
-                'licenseClientId', 'licenseClientSecret', 'licenseGrantType','allists', 'selectedList','set','githubStatus','githubFileds'));
+                'licenseClientId', 'licenseClientSecret', 'licenseGrantType', 'allists', 'selectedList', 'set', 'githubStatus', 'githubFileds'));
         } catch (\Exception $ex) {
             return redirect('/')->with('fails', $ex->getMessage());
         }
     }
 
-
-    public function getDataTableData(Request $request){
+    public function getDataTableData(Request $request)
+    {
         $status = StatusSetting::pluck('license_status')->first();
         $mobileStatus = StatusSetting::pluck('msg91_status')->first();
         $captchaStatus = StatusSetting::pluck('recaptcha_status')->first();
@@ -147,50 +145,49 @@ class SettingsController extends BaseSettingsController
         $mailchimpSetting = StatusSetting::pluck('mailchimp_status')->first();
         $termsStatus = StatusSetting::pluck('terms')->first();
 
-        if($request->ajax()){
-        $dataTable = collect([
-            ['options' => 'Auto Faveo Licenser & Update Manager', 'description'=>'This Verifies the authenticity of installed agora software.','status' => $this->getStatus($status),'action' => '<a href="#create-third-party-app" data-toggle="modal" data-target="#create-third-party-app" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>',
-            ],
-            ['options' => "Don't Allow Domin/Ip based Restriction",'description'=>'Not Available', 'status' => $this->getStatus($domainCheckStatus), 'action' => 'NotAvailable'],
-            ['options' => 'Google reCAPTCHA','description'=>'This is used to enable google recaptcha.','status' => $this->getStatus2($v3CaptchaStatus,$captchaStatus), 'action' => '<a href="#google-recaptcha" data-toggle="modal" data-target="#google-recaptcha" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
-            ],
-            ['options' => 'Msg 91(Mobile Verification)','description'=>'This is used to enable Msg 91(Mobile Verification).', 'status' => $this->getStatus($mobileStatus), 'action' => '<a href="#msg-91" data-toggle="modal" data-target="#msg-91" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
-            ],
-            ['options' => 'Mailchimp','description'=>'This is used to enable mailchimp.', 'status' =>$this->getStatus($mailchimpSetting), 'action' => '<a href="#mailchimps" data-toggle="modal" data-target="#mailchimps" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
-            ],
-            ['options' => 'Show Terms on Registration Page', 'description'=>'This is used to show the terms in registration page.','status' => $this->getStatus($termsStatus), 'action' => '<a href="#showTerms" data-toggle="modal" data-target="#showTerms" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
-            ],
-            ['options' => 'Twitter','description'=>'This is used to enable Twitter.', 'status' => $this->getStatus($twitterStatus), 'action' => '<a href="#twitters" data-toggle="modal" data-target="#twitters" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
-            ],
-            ['options' => 'Zoho CRM', 'description'=>'This is used to enable zoho crm.','status' => $this->getStatus($zohoStatus), 'action' => '<a href="#zohoCrm" data-toggle="modal" data-target="#zohoCrm" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
-            ],
-            ['options' => 'Pipedrive', 'description'=>'This is used to enable pipedrive.','status' => $this->getStatus($pipedriveStatus), 'action' => '<a href="#pipedrv" data-toggle="modal" data-target="#pipedrv" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
-            ],
-            ['options' => 'Github', 'description'=>'This is used to enable github.','status' => $this->getStatus($githubStatus),'action' => '<a href="#githubSet" data-toggle="modal" data-target="#githubSet" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
-            ],
-        ]);
+        if ($request->ajax()) {
+            $dataTable = collect([
+                ['options' => 'Auto Faveo Licenser & Update Manager', 'description' => 'This Verifies the authenticity of installed agora software.', 'status' => $this->getStatus($status), 'action' => '<a href="#create-third-party-app" data-toggle="modal" data-target="#create-third-party-app" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>',
+                ],
+                ['options' => "Don't Allow Domin/Ip based Restriction", 'description' => 'Not Available', 'status' => $this->getStatus($domainCheckStatus), 'action' => 'NotAvailable'],
+                ['options' => 'Google reCAPTCHA', 'description' => 'This is used to enable google recaptcha.', 'status' => $this->getStatus2($v3CaptchaStatus, $captchaStatus), 'action' => '<a href="#google-recaptcha" data-toggle="modal" data-target="#google-recaptcha" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>',
+                ],
+                ['options' => 'Msg 91(Mobile Verification)', 'description' => 'This is used to enable Msg 91(Mobile Verification).', 'status' => $this->getStatus($mobileStatus), 'action' => '<a href="#msg-91" data-toggle="modal" data-target="#msg-91" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>',
+                ],
+                ['options' => 'Mailchimp', 'description' => 'This is used to enable mailchimp.', 'status' => $this->getStatus($mailchimpSetting), 'action' => '<a href="#mailchimps" data-toggle="modal" data-target="#mailchimps" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>',
+                ],
+                ['options' => 'Show Terms on Registration Page', 'description' => 'This is used to show the terms in registration page.', 'status' => $this->getStatus($termsStatus), 'action' => '<a href="#showTerms" data-toggle="modal" data-target="#showTerms" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>',
+                ],
+                ['options' => 'Twitter', 'description' => 'This is used to enable Twitter.', 'status' => $this->getStatus($twitterStatus), 'action' => '<a href="#twitters" data-toggle="modal" data-target="#twitters" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>',
+                ],
+                ['options' => 'Zoho CRM', 'description' => 'This is used to enable zoho crm.', 'status' => $this->getStatus($zohoStatus), 'action' => '<a href="#zohoCrm" data-toggle="modal" data-target="#zohoCrm" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>',
+                ],
+                ['options' => 'Pipedrive', 'description' => 'This is used to enable pipedrive.', 'status' => $this->getStatus($pipedriveStatus), 'action' => '<a href="#pipedrv" data-toggle="modal" data-target="#pipedrv" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>',
+                ],
+                ['options' => 'Github', 'description' => 'This is used to enable github.', 'status' => $this->getStatus($githubStatus), 'action' => '<a href="#githubSet" data-toggle="modal" data-target="#githubSet" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>',
+                ],
+            ]);
 
-        return DataTables::of($dataTable)
-            ->rawColumns(['status', 'action'])
-            ->make(true);
+            return DataTables::of($dataTable)
+                ->rawColumns(['status', 'action'])
+                ->make(true);
+        }
     }
-    }
+
     private function getStatus($value)
     {
-
-        if ($value==1) {
+        if ($value == 1) {
             return 'Active';
-        }else{
+        } else {
             return 'Inactive';
         }
     }
 
-    private function getStatus2($value,$value2)
+    private function getStatus2($value, $value2)
     {
-
-        if (!$value && !$value2) {
+        if (! $value && ! $value2) {
             return 'Inactive';
-        }else{
+        } else {
             return 'Active';
         }
     }
