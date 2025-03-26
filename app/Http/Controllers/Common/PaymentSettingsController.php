@@ -340,6 +340,7 @@ class PaymentSettingsController extends Controller
         $name=$request->input('name');
         $status=$request->input('status');
         $plug = $plugs->where('name', $name)->first();
+
         if (! $plug) {
             $app = base_path().DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'app.php';
             $str = "\n'App\\Plugins\\$name"."\\ServiceProvider',";
@@ -354,9 +355,7 @@ class PaymentSettingsController extends Controller
 //        $status = $plug->status;
 
         if ($status == 0) {
-
             $plug->status = 0;
-
             $app = base_path().DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'app.php';
             $str = "\n'App\\Plugins\\$name"."\\ServiceProvider',";
             $line_i_am_looking_for = 102;
