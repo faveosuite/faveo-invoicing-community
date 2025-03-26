@@ -337,8 +337,10 @@ class BaseSettingsController extends PaymentSettingsController
                 return false;
             }
         } else {
-            $nocaptcha_sitekey = '';
-            $captcha_secretCheck = '';
+//            $nocaptcha_sitekey = '';
+//            $captcha_secretCheck = '';
+            $nocaptcha_sitekey = $request->input('nocaptcha_sitekey');
+            $captcha_secretCheck = $request->input('nocaptcha_secret');
             $path_to_file = base_path('.env');
             $file_contents = file_get_contents($path_to_file);
             $file_contents_secretchek = str_replace([env('NOCAPTCHA_SECRET'), env('NOCAPTCHA_SITEKEY')], [$captcha_secretCheck, $nocaptcha_sitekey], $file_contents);

@@ -119,6 +119,8 @@ trait ApiKeySettings
         $status = $request->input('status');
         StatusSetting::find(1)->update(['pipedrive_status' => $status]);
         ApiKey::find(1)->update(['pipedrive_api_key' => $pipedriveKey]);
+        return ['message' => 'success', 'update' => 'Pipedrive settings saved'];
+
     }
 
     public function updateMailchimpProductStatus(Request $request)
@@ -149,12 +151,31 @@ trait ApiKeySettings
                 $status = $request->input('status');
                 StatusSetting::find(1)->update(['mailchimp_status' => $status]);
                 MailchimpSetting::find(1)->update(['api_key' => $chimp_auth_key]);
-                return ['message' => 'success', 'update' => 'Mailchimp settings saved'];
+                $mailchimpStatus=1;
+                return [
+                    'message' => 'success',
+                    'update' => 'Mailchimp settings saved',
+                    'mailchimpStatus' => $mailchimpStatus,
+                    'status'=>$status
+                ];
             } else {
-                return ['message' => 'error', 'update' => 'Mailchimp api key is wrong'];
-            }
+                $mailchimpStatus=0;
+                $status = $request->input('status');
+
+                return [
+                    'message' => 'error',
+                    'update' => 'Mailchimp api key is wrong',
+                    'mailchimpStatus' => $mailchimpStatus
+                ];            }
         }catch(\Exception $e){
-            return ['message' => 'error', 'update' => 'Mailchimp api key is wrong'];
+            $mailchimpStatus=0;
+            $status = $request->input('status');
+
+            return [
+                'message' => 'error',
+                'update' => 'Mailchimp api key is wrong',
+                'mailchimpStatus' => $mailchimpStatus
+            ];
         }
     }
 
