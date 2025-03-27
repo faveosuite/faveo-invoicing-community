@@ -93,7 +93,7 @@
                     <div class="form-group col-md-4{{ $errors->has('version') ? 'has-error' : '' }}">
                         <i class='fa fa-info-circle' style='cursor: help; font-size: small; color: rgb(60, 141, 188);' ><label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title="If update is kept restricted for this release, product users need to update their versions upto this release first before updating to further releases.">
                         </label></i>
-                        {!! Form::label('restrict','Restrict update') !!}&nbsp;
+                        {!! html()->label('Restrict update')->for('restrict') !!}
                         <input type="checkbox" value="0" name= "is_restricted" id="r_release" onclick="resrictedRelease()">
                     </div>
                 </div>
@@ -105,7 +105,7 @@
             </div>
 
 
-            <!-- {!! Form::close()  !!} -->
+            <!-- {!! html()->form()->close() !!} -->
             <!-- </form> -->
             <br>
 

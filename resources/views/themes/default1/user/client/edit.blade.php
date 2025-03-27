@@ -186,7 +186,7 @@ Edit User
                     <div class="col-md-3 form-group {{ $errors->has('town') ? 'has-error' : '' }}">
                         <!-- town -->
                         {!! html()->label(Lang::get('message.town'), 'town') !!}
-                        {!! html()->text('town')->class(form-control'. ($errors->has('town') ? ' is-invalid' : '')) !!}
+                        {!! html()->text('town')->class('form-control'. ($errors->has('town') ? ' is-invalid' : '')) !!}
                         @error('town')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
@@ -213,7 +213,7 @@ Edit User
                     </div>
                     <div class="col-md-3 form-group {{ $errors->has('state') ? 'has-error' : '' }}">
                         <!-- state -->
-                        {!! Form::label('state',Lang::get('message.state')) !!}
+                        {!! html()->label(Lang::get('message.state'))->for('state') !!}
                         <select name="state" id="state-list" class="form-control {{$errors->has('') ? ' is-invalid' : ''}}">
                             @if(count($state)>0)
                             <option value="{{$state['id']}}">{{$state['name']}}</option>
