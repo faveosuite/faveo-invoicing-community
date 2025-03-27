@@ -145,7 +145,7 @@
         <div class="card-header">
             <h3 class="card-title">Cloud server</h3>
         </div>
-        <div class="card-body table-responsive">\
+        <div class="card-body table-responsive">
             {!! html()->modelForm($cloud,'POST', route('cloud-details'))->id('cloud-details')->open() !!}
             <div class="row">
                 <div class="col-md-6">

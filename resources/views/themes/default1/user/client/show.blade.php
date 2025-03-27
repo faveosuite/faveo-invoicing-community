@@ -689,16 +689,9 @@ User
 
                                             <div class="timeline-item">
                                                    @include('themes.default1.user.client.editComment')
-                                                   @if($user->profile_pic != null)
-                                             
-                                                    <h3 class="timeline-header"><a href="{{url('clients/'.$user->id)}}"><img src="{{ asset('storage/common/images/users/' . $user->profile_pic) }}" class="img-circle img-bordered-sm" alt="User Image" width="35" height="35">&nbsp;{{$user->first_name}} {{$user->last_name}}</a> commented on
-                                                    <b> {!! getDateHtml($comment->created_at) !!}</b>
-                                                </h3>
-                                                @else
                                                 <h3 class="timeline-header"><a href="{{url('clients/'.$user->id)}}"><img src="{{ $user->profile_pic }}" class="img-circle img-bordered-sm" alt="User Image" width="35" height="35">&nbsp;{{$user->first_name}} {{$user->last_name}}</a> commented on
                                                     <b> {!! getDateHtml($comment->created_at) !!}</b>
                                                 </h3>
-                                                @endif
                                                    
                                                  
 
