@@ -198,7 +198,7 @@
                                     <div class="form-group {{ $errors->has('require_domain') ? 'has-error' : '' }}">
                                         <!-- last name -->
                                         {!! html()->label(trans('message.require_domain'), 'require_domain') !!}
-                                        <p>{!! html()->checkbox('require_domain', 1) !!} {{Lang::get('message.tick-to-show-domain-registration-options')}}</p>
+                                        <p>{!! html()->checkbox('require_domain',false, 1) !!} {{Lang::get('message.tick-to-show-domain-registration-options')}}</p>
 
                                     </div>
                                 </li>
@@ -220,7 +220,7 @@
                                         <!--  <button type="button" class="" data-toggle="tooltip" data-placement="top" title="Tooltip on top"></button> -->
                                         <label data-toggle="tooltip" data-placement="top" title="">Hidden</label>
 
-                                        <p>{!! html()->checkbox('hidden', 1) !!}  {{Lang::get('message.tick-to-hide-from-order-form')}}</p>
+                                        <p>{!! html()->checkbox('hidden', false ,1) !!}  {{Lang::get('message.tick-to-hide-from-order-form')}}</p>
 
                                     </div>
                                 </li>
@@ -230,7 +230,7 @@
                                         <!--  <button type="button" class="" data-toggle="tooltip" data-placement="top" title="Tooltip on top"></button> -->
                                         <label data-toggle="tooltip" data-placement="top" title="">Highlight</label>
 
-                                        <p>{!! html()->checkbox('highlight') !!}  {{Lang::get('message.tick-to-highlight-product')}}</p>
+                                        <p>{!! html()->checkbox('highlight', false) !!}  {{Lang::get('message.tick-to-highlight-product')}}</p>
 
                                     </div>
                                 </li>
@@ -240,7 +240,7 @@
                                         <!--  <button type="button" class="" data-toggle="tooltip" data-placement="top" title="Tooltip on top"></button> -->
                                         <label data-toggle="tooltip" data-placement="top" title="">Contact to sales</label>
 
-                                        <p>{!! html()->checkbox('add_to_contact') !!}  {{Lang::get('message.tick-to-add_to_contact-product')}}</p>
+                                        <p>{!! html()->checkbox('add_to_contact', false) !!}  {{Lang::get('message.tick-to-add_to_contact-product')}}</p>
 
                                     </div>
                                 </li>
@@ -312,7 +312,7 @@
                                 <td>
                                     <div>
                                         <label>
-                                            {!! html()->radio('show_agent', 1)->id('agent') !!}
+                                            {!! html()->radio('show_agent',false, 1)->id('agent') !!}
                                             <!-- <input type ="radio" id="agent" value="1" name="cartquantity">   -->
                                             {!! html()->hidden('can_modify_agent', 0) !!}
                                             <!-- <input type ="radio" id="agent" value="0" name="cartquantity" hidden>   -->
@@ -321,7 +321,7 @@
                                     </div>
                                     <br/>
                                     <div class="col-md-10" id="allowmulagent" style="display:none">
-                                        <p{!! html()->checkbox('can_modify_agent', 1) !!}{{Lang::get('message.allow_multiple_agents_quantity')}} </p>
+                                        <p{!! html()->checkbox('can_modify_agent', false,1) !!}{{Lang::get('message.allow_multiple_agents_quantity')}} </p>
                                     </div>
                                 </td>
                             </div>
@@ -335,7 +335,7 @@
                                 </label>
                                 <br/>
                                 <div class="col-md-10" id="allowmulproduct" style="display:none">
-                                    <p>{!! html()->checkbox('can_modify_quantity', 1) !!}  {{Lang::get('message.allow_multiple_product_quantity')}} </p>
+                                    <p>{!! html()->checkbox('can_modify_quantity',false, 1) !!}  {{Lang::get('message.allow_multiple_product_quantity')}} </p>
                                 </div>
 
                             </td>
