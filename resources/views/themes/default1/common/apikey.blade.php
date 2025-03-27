@@ -295,7 +295,10 @@
 
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         {!! Form::label('lic_grant_type',Lang::get('message.lic_grant_type'),['class'=>'required']) !!}
-                        {!! Form::text('license_grant_type',$licenseGrantType,['class' => 'form-control','id'=>'license_grant_type']) !!}
+{{--                        {!! Form::select('license_grant_type',$licenseGrantType,['class' => 'form-control','id'=>'license_grant_type']) !!}--}}
+                        <select name="lic_grant_type" value="{{$licenseGrantType}}" id="license_grant_type" class="form-control">
+                            <option value="client_credentials">Client_credentials</option>
+                        </select>
                         <h6 id="license_grantTypeCheck"></h6>
                     </div>
 
@@ -815,7 +818,7 @@
         });
 
 
-        $(document).on('change', '.termstatus input[type="checkbox"]', function() {
+        $(document).on('change', '.termstatus1 input[type="checkbox"]', function() {
             if ($('#terms_url').prop("checked")) {
                 var checkboxvalue = 1;
             }
@@ -828,7 +831,7 @@
                 url : '{{url("licenseStatus")}}',
                 type : 'post',
                 data: {
-                    "temrsStatus": checkboxvalue,
+                    "termsStatus": checkboxvalue,
                 },
                 success: function (response) {
                     setTimeout(function() {
