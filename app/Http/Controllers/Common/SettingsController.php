@@ -190,7 +190,7 @@ class SettingsController extends BaseSettingsController
         </label>
     ','action' => '<a href="#create-third-party-app" data-toggle="modal" data-target="#create-third-party-app" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>',
             ],
-            ['options' => "Don't Allow Domin/Ip based Restriction",'description'=>'Not Available', 'status' => $this->getStatus($domainCheckStatus), 'action' => 'NotAvailable'],
+//            ['options' => "Don't Allow Domin/Ip based Restriction",'description'=>'Not Available', 'status' => $this->getStatus($domainCheckStatus), 'action' => 'NotAvailable'],
             ['options' => 'Google reCAPTCHA','description'=>'The Google reCAPTCHA integration adds a reCAPTCHA feature to all unauthenticated pages, helping to protect your forms from bots and automated submissions, ensuring that only genuine users can submit information','status' => $toggleSwitch, 'action' => '<a href="#google-recaptcha" data-toggle="modal" data-target="#google-recaptcha" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
             ],
             ['options' => 'Msg 91(Mobile Verification)','description'=>"The MSG91.com service is used to send OTPs (One-Time Passwords) to verify the contact's mobile number during registration, ensuring a secure and reliable method of contact verification.", 'status' => '<label class="switch toggle_event_editing mstatus">
@@ -205,7 +205,7 @@ class SettingsController extends BaseSettingsController
                         <span class="slider round"></span>
                     </label>', 'action' => '<a href="#mailchimps" data-toggle="modal" data-target="#mailchimps" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
             ],
-            ['options' => 'Show Terms on Registration Page', 'description'=>"When the 'Show Terms on Registration Page' option is enabled, a checkbox is displayed on the registration page, requiring users to agree to the Terms and Conditions before completing their registration.",'status' => '<label class="switch toggle_event_editing termstatus">
+            ['options' => 'Show Terms on Registration Page', 'description'=>"When the 'Show Terms on Registration Page' option is enabled, a checkbox is displayed on the registration page, requiring users to agree to the Terms and Conditions before completing their registration.",'status' => '<label class="switch toggle_event_editing termstatus1">
 
                         <input type="checkbox" value="'.($termsStatus?'1':'0').'"  name="terms_settings"
                                class="checkbox10" id="terms"'.($termsStatus?'checked':'').'>
