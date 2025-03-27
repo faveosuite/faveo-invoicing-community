@@ -462,6 +462,7 @@ class InstallerController extends Controller
             $environment = Cache::get('env');
             $this->updateInstallEnv($environment);
             Session::flush();
+
             return view('themes.default1.installer.finalPage');
         } else {
             return Redirect::route('get-start');
