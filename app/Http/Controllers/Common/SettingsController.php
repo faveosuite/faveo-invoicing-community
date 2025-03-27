@@ -73,6 +73,7 @@ class SettingsController extends BaseSettingsController
     public function getKeys(ApiKey $apikeys)
     {
         try {
+
             $licenseClientId = ApiKey::pluck('license_client_id')->first();
             $licenseClientSecret = ApiKey::pluck('license_client_secret')->first();
             $licenseGrantType = ApiKey::pluck('license_grant_type')->first();
@@ -103,6 +104,7 @@ class SettingsController extends BaseSettingsController
             $rzpKeys = $apikeys->select('rzp_key', 'rzp_secret', 'apilayer_key')->first();
             $mailchimpSetting = StatusSetting::pluck('mailchimp_status')->first();
             $mailchimpKey = MailchimpSetting::pluck('api_key')->first();
+
             $termsStatus = StatusSetting::pluck('terms')->first();
             $termsUrl = $apikeys->pluck('terms_url')->first();
             $pipedriveKey = $apikeys->pluck('pipedrive_api_key')->first();
@@ -114,16 +116,34 @@ class SettingsController extends BaseSettingsController
             // $v3siteKey = $apikeys->pluck('v3captcha_sitekey')->first();
             // $v3secretKey = $apikeys->pluck('v3captcha_secretCheck')->first();
             $mailchimp_set = new MailchimpSetting();
+
             $set = $mailchimp_set->firstOrFail();
+
             $mail_api_key = $set->api_key;
-            $mailchimp= new \Mailchimp\Mailchimp($mail_api_key);
+            $mailchimp = ''; // Default to null in case of failure
+            $mailchimp = new \Mailchimp\Mailchimp($mail_api_key);
             $allists = $mailchimp->get('lists?count=20')['lists'];
+
             $selectedList[] = $set->list_id;
+//            try {
+//                $mailchimp = new \Mailchimp\Mailchimp($mail_api_key);
+//                $allists = $mailchimp->get('lists?count=20')['lists'];
+//                $selectedList[] = $set->list_id;
+//
+//            } catch (\Exception $e) {
+//                // Log the error if needed
+//                \Log::error("Mailchimp Initialization Failed: " . $e->getMessage());
+//
+//                // Return null when it fails
+//                $mailchimp = '';
+//                $allists=[];
+//                $selectedList = [];
+//            }
+
             $model = new Github();
             $github = $model->firstOrFail();
             $githubStatus = StatusSetting::first()->github_status;
             $githubFileds = $github->select('client_id', 'client_secret', 'username', 'password')->first();
-
 
 
             return view('themes.default1.common.apikey', compact('model', 'status', 'licenseSecret', 'licenseUrl', 'siteKey', 'secretKey', 'captchaStatus', 'v3CaptchaStatus', 'updateStatus', 'updateSecret', 'updateUrl', 'mobileStatus', 'mobileauthkey', 'msg91Sender', 'msg91TemplateId', 'emailStatus', 'twitterStatus', 'twitterKeys', 'zohoStatus', 'zohoKey', 'rzpStatus', 'rzpKeys', 'mailchimpSetting', 'mailchimpKey', 'termsStatus', 'termsUrl', 'pipedriveKey', 'pipedriveStatus', 'domainCheckStatus', 'mailSendingStatus',
@@ -161,7 +181,7 @@ class SettingsController extends BaseSettingsController
 
         if($request->ajax()){
         $dataTable = collect([
-            ['options' => 'Auto Faveo Licenser & Update Manager', 'description'=>'This Verifies the authenticity of installed agora software.','status' =>  '
+            ['options' => 'Auto Faveo Licenser & Update Manager', 'description'=>'The Faveo License Manager Integration adds the ability to manage software licenses and updates within Faveo Invoicing, allowing seamless tracking, activation, and updating of licenses directly through the platform','status' =>  '
         <label class="switch toggle_event_editing licenser">
             <input type="checkbox" value="'.($status ? '1' : '0').'"  
                    name="modules_settings"
@@ -171,46 +191,46 @@ class SettingsController extends BaseSettingsController
     ','action' => '<a href="#create-third-party-app" data-toggle="modal" data-target="#create-third-party-app" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>',
             ],
             ['options' => "Don't Allow Domin/Ip based Restriction",'description'=>'Not Available', 'status' => $this->getStatus($domainCheckStatus), 'action' => 'NotAvailable'],
-            ['options' => 'Google reCAPTCHA','description'=>'This is used to enable google recaptcha.','status' => $toggleSwitch, 'action' => '<a href="#google-recaptcha" data-toggle="modal" data-target="#google-recaptcha" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
+            ['options' => 'Google reCAPTCHA','description'=>'The Google reCAPTCHA integration adds a reCAPTCHA feature to all unauthenticated pages, helping to protect your forms from bots and automated submissions, ensuring that only genuine users can submit information','status' => $toggleSwitch, 'action' => '<a href="#google-recaptcha" data-toggle="modal" data-target="#google-recaptcha" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
             ],
-            ['options' => 'Msg 91(Mobile Verification)','description'=>'This is used to enable Msg 91(Mobile Verification).', 'status' => '<label class="switch toggle_event_editing mstatus">
+            ['options' => 'Msg 91(Mobile Verification)','description'=>"The MSG91.com service is used to send OTPs (One-Time Passwords) to verify the contact's mobile number during registration, ensuring a secure and reliable method of contact verification.", 'status' => '<label class="switch toggle_event_editing mstatus">
                     <input type="checkbox" value="'.($mobileStatus?'1':'0').'"  name="mobile_settings"
                            class="checkbox4" id="mobile"'.($mobileStatus ? 'checked' : '').'>
                     <span class="slider round"></span>
                     </label>', 'action' => '<a href="#msg-91" data-toggle="modal" data-target="#msg-91" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
             ],
-            ['options' => 'Mailchimp','description'=>'This is used to enable mailchimp.', 'status' =>'<label class="switch toggle_event_editing mailchimpstatus">
+            ['options' => 'Mailchimp','description'=>"The Mailchimp plugin seamlessly pushes all contact data from Faveo Invoicing to Mailchimp during contact registration and profile edits. Additionally, purchase data can be mapped to Mailchimp. A dedicated mapping page allows users to customize which data should be synced between the two platforms", 'status' =>'<label class="switch toggle_event_editing mailchimpstatus">
                         <input type="checkbox" value="'.($mailchimpSetting?'1':'0').'"  name="mobile_settings"
                                class="checkbox9" id="mailchimp"'.($mailchimpSetting ? 'checked' : '').'>
                         <span class="slider round"></span>
                     </label>', 'action' => '<a href="#mailchimps" data-toggle="modal" data-target="#mailchimps" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
             ],
-            ['options' => 'Show Terms on Registration Page', 'description'=>'This is used to show the terms in registration page.','status' => '<label class="switch toggle_event_editing termstatus">
+            ['options' => 'Show Terms on Registration Page', 'description'=>"When the 'Show Terms on Registration Page' option is enabled, a checkbox is displayed on the registration page, requiring users to agree to the Terms and Conditions before completing their registration.",'status' => '<label class="switch toggle_event_editing termstatus">
 
                         <input type="checkbox" value="'.($termsStatus?'1':'0').'"  name="terms_settings"
                                class="checkbox10" id="terms"'.($termsStatus?'checked':'').'>
                         <span class="slider round"></span>
                     </label>', 'action' => '<a href="#showTerms" data-toggle="modal" data-target="#showTerms" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
             ],
-            ['options' => 'Twitter','description'=>'This is used to enable Twitter.', 'status' =>'<label class="switch toggle_event_editing twitterstatus">
+            ['options' => 'Twitter','description'=>"This plugin displays live tweets from a specified Twitter page directly in the footer of the portal, keeping users updated with the latest posts in real-time.", 'status' =>'<label class="switch toggle_event_editing twitterstatus">
                     <input type="checkbox" value="'.($twitterStatus?'1':'0').'"  name="twitter_settings"
                            class="checkbox6" id="twitter"'.($twitterStatus?'checked':'').'>
                     <span class="slider round"></span>
                     </label>', 'action' => '<a href="#twitters" data-toggle="modal" data-target="#twitters" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
             ],
-            ['options' => 'Zoho CRM', 'description'=>'This is used to enable zoho crm.','status' => '                    <label class="switch toggle_event_editing zohostatus">
+            ['options' => 'Zoho CRM', 'description'=>"The Zoho CRM plugin seamlessly transfers all contact data from Faveo Invoicing to Zoho CRM upon contact registration and profile edits, ensuring your CRM is always up-to-date with the latest contact information.",'status' => '                    <label class="switch toggle_event_editing zohostatus">
                         <input type="checkbox" value="'.($zohoStatus?'1':'0').'"  name="zoho_settings"
                            class="checkbox8" id="zoho"'.($zohoStatus?'checked':'').'>
                         <span class="slider round"></span>
                     </label>', 'action' => '<a href="#zohoCrm" data-toggle="modal" data-target="#zohoCrm" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
             ],
-            ['options' => 'Pipedrive', 'description'=>'This is used to enable pipedrive.','status' => '                    <label class="switch toggle_event_editing pipedrivestatus">
+            ['options' => 'Pipedrive', 'description'=>"The Pipedrive CRM plugin automatically pushes all contact data from Faveo Invoicing to Pipedrive CRM during contact registration and profile edits. A dedicated mapping page allows users to customize which data fields should be synced between the two platforms.",'status' => '                    <label class="switch toggle_event_editing pipedrivestatus">
                         <input type="checkbox" value="'.($pipedriveStatus?'1':'0').'"  name="pipedrive_settings"
                            class="checkbox13" id="pipedrive"'.($pipedriveStatus?'checked':'').'>
                         <span class="slider round"></span>
                     </label>', 'action' => '<a href="#pipedrv" data-toggle="modal" data-target="#pipedrv" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
             ],
-            ['options' => 'Github', 'description'=>'This is used to enable github.','status' => '                        <label class="switch toggle_event_editing githubstatus">
+            ['options' => 'Github', 'description'=>"The GitHub integration adds the ability to retrieve and download products directly from a GitHub repository, streamlining the process of accessing and managing files from your GitHub projects within the platform",'status' => '                        <label class="switch toggle_event_editing githubstatus">
                             <input type="checkbox" value="'.($githubStatus?'1':'0').'" name="github_settings" class="checkbox" id="github"'.($githubStatus?'checked':'').'>
                             <span class="slider round"></span>
                         </label>','action' => '<a href="#githubSet" data-toggle="modal" data-target="#githubSet" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a>'
