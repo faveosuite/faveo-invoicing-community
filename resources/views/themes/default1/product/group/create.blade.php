@@ -108,7 +108,7 @@ Create Group
                             <div class="form-group {{ $errors->has('hidden') ? 'has-error' : '' }}">
 
                                
-                                <p>{!! html()->checkbox('hidden', 1) !!} {{Lang::get('message.check-this-box-if-this-is-a-hidden-group')}}</p>
+                                <p>{!! html()->checkbox('hidden', false , 1) !!} {{Lang::get('message.check-this-box-if-this-is-a-hidden-group')}}</p>
 
 
                             </div>

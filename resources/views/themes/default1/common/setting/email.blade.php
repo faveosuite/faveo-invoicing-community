@@ -81,7 +81,7 @@ Email
                             <td>
 
 
-                                {!! html()->select('encryption', ['' => 'Choose','ssl' => 'SSL','tls' => 'TLS','starttls' => 'STARTTLS'], $set->encryption)->class('form-control'. ($errors->has('encryption') ? ' is-invalid' : '')->id('encryption') !!}
+                                {!! html()->select('encryption', ['' => 'Choose','ssl' => 'SSL','tls' => 'TLS','starttls' => 'STARTTLS'], $set->encryption)->class('form-control'. ($errors->has('encryption') ? ' is-invalid' : ''))->id('encryption') !!}
                                 <i> {{Lang::get('message.select-email-encryption-method')}}</i>
                             @error('encryption')
                             <span class="error-message"> {{$message}}</span>
@@ -95,12 +95,16 @@ Email
 
 
                       <tr>
+                          <div class="form-group secret" >
                           <td><b>{!! html()->label('Secret')->class('required')->for('secret') !!}</b></td>
                           <td>
-                              <div class="form-group secret">
-                                  {!! html()->text('secret', $set->secret)->class('form-control'. ($errors->has('secret') ? ' is-invalid' : ''))->id('secret') !!}
+                              {!! html()->text('secret', $set->secret)->class('form-control'. ($errors->has('secret') ? ' is-invalid' : ''))->id('secret') !!}
+                              @error('secret')
+                              <span class="error-message"> {{$message}}</span>
+                              @enderror
+                              <div class="input-group-append">
                               </div>
-                          </td>
+                          </div>
                       </tr>
 
 

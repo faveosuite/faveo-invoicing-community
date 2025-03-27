@@ -301,7 +301,7 @@
                                                 $value = 'true';
                                             }
                                             ?>
-                                            <p>{!! html()->checkbox('add_to_contact', $checked) !!} {{Lang::get('message.tick-to-add_to_contact-product')}}</p>
+                                            <p>{!! html()->checkbox('add_to_contact', $value, 1) !!} {{Lang::get('message.tick-to-add_to_contact-product')}}</p>
 
                                         </div>
 
@@ -741,37 +741,7 @@
             $('#upload-table').find("td input[type='checkbox']").prop('checked', $(e).prop('checked'));
         }
 
-        $(document).on('click','#bulk_delete',function(){
-            var id=[];
-            if (confirm("Are you sure you want to delete this?"))
-            {
-                $('.upload_checkbox:checked').each(function(){
-                    id.push($(this).val())
-                });
-                if(id.length >0)
-                {
-                    $.ajax({
-                        url:"{!! Url('uploads-delete') !!}",
-                        method:"delete",
-                        data: $('#checks:checked').serialize(),
-                        beforeSend: function () {
-                            $('#gif').show();
-                        },
-                        success: function (data) {
-
-                            $('#gif').hide();
-                            $('#response').html(data);
-                            location.reload();
-                        }
-                    })
-                }
-                else
-                {
-                    alert("Please select at least one checkbox");
-                }
-            }
-
-            $(document).ready(function () {
+        $(document).ready(function () {
                 var selectedIds = [];
 
                 let alertTimeout;

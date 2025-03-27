@@ -72,11 +72,8 @@ Create User
 
                     <div class="col-md-3 form-group {{ $errors->has('user_name') ? 'has-error' : '' }}">
                         <!-- mobile -->
-                        {!! html()->label(Lang::get('message.user_name')) !!}
+                        {!! html()->label(Lang::get('message.user_name'))->class('required') !!}
                         {!! html()->text('user_name')->class('form-control'.($errors->has('user_name') ? ' is-invalid' : '')) !!}
-
-                        {!! Form::label('user_name',Lang::get('message.user_name'),['class'=>'required']) !!}
-                        {!! Form::text('user_name',null,['class' => 'form-control'.($errors->has('user_name') ? ' is-invalid' : '')]) !!}
                         @error('user_name')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
