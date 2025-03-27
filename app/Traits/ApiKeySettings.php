@@ -59,9 +59,9 @@ trait ApiKeySettings
         }
 
 
-        if (is_array($status)&& key_exists('termsstatus', $status)) {
-            $termsstatus = $request->input('termsstatus');
-            StatusSetting::find(1)->update(['terms' => $termsstatus]);
+        if (is_array($status)&& key_exists('termsStatus', $status)) {
+            $termsStatus = $request->input('termsStatus');
+            StatusSetting::find(1)->update(['terms' => $termsStatus]);
             return ['message' => 'success', 'update' => 'Terms status saved'];
         }
 

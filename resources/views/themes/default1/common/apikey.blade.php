@@ -499,18 +499,23 @@
 
                     </table>
 
-                        <div class="d-flex justify-content-end">
-                            <button type="submit" class="btn btn-primary" id="submit">
-                                <i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}
-                            </button>
-                        </div>
-{{--                    <button type="submit" class="btn btn-primary pull-right" id="submit" ><i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}</button>--}}
+{{--                        <div class="d-flex justify-content-end">--}}
+{{--                            <button type="submit" class="btn btn-primary" id="submit">--}}
+{{--                                <i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}--}}
+{{--                            </button>--}}
+{{--                        </div>--}}
 
                 </div>
                     </div>
                 <div class="modal-footer justify-content-between">
                     <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
+
+                    <div id="extraInput1" style="display: none;">
+
+                    <button type="submit" class="btn btn-primary pull-right" id="submit" ><i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}</button>
+                    </div>
                 </div>
+
             </div>
 
         </div>
@@ -778,7 +783,7 @@
         });
 
         $(document).on('change', '.mailchimpstatus input[type="checkbox"]', function() {
-            if ($('#mobile').prop("checked")) {
+            if ($('#mailchimp').prop("checked")) {
                 var checkboxvalue = 1;
             }
             else{
@@ -811,7 +816,7 @@
 
 
         $(document).on('change', '.termstatus input[type="checkbox"]', function() {
-            if ($('#terms').prop("checked")) {
+            if ($('#terms_url').prop("checked")) {
                 var checkboxvalue = 1;
             }
             else{
@@ -823,7 +828,7 @@
                 url : '{{url("licenseStatus")}}',
                 type : 'post',
                 data: {
-                    "temrsstatus": checkboxvalue,
+                    "temrsStatus": checkboxvalue,
                 },
                 success: function (response) {
                     setTimeout(function() {
@@ -1898,9 +1903,13 @@ console.log(chimpstatus);
                     if(mailchimpstatus===1 && status==='1'){
                         let extraInput = document.getElementById('extraInput');
                         extraInput.style.display ='block';
+                        let extraInput1 = document.getElementById('extraInput1');
+                        extraInput1.style.display ='block';
                     }else{
                        let extraInput = document.getElementById('extraInput');
                        extraInput.style.display ='none';
+                        let extraInput1 = document.getElementById('extraInput1');
+                        extraInput1.style.display ='none';
                    }
                     if(data['message']==='success'){
                     $('#alertMessage4').show();
