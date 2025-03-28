@@ -1900,6 +1900,6 @@ return [
     'mandatory_tax' => '稅務頁面缺少必填欄位。',
     'info' => '信息',
     'product_quantity' => '產品數量',
-    'table_search' => '搜尋：'
+    'table_search' => '搜尋：',
 
 ];

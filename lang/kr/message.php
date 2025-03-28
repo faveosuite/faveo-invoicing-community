@@ -1724,7 +1724,6 @@ return [
     'enter_valid_firstname' => '올바른 이름을 입력하세요',
     'enter_valid_lastname' => '올바른 성을 입력하세요',
 
-
     'email_not_matching' => '이메일 도메인이 URL 도메인과 일치하지 않습니다.',
     'price_description' => '가격 설명',
     'product_description' => '제품 설명',
