@@ -1707,4 +1707,219 @@ return [
     'enter_valid_firstname' => 'Vennligst skriv inn et gyldig fornavn',
     'enter_valid_lastname' => 'Vennligst skriv inn et gyldig etternavn',
 
+    'email_not_matching' => 'E-postdomenet samsvarer ikke med URL-domenet.',
+    'price_description' => 'Prisbeskrivelse',
+    'product_description' => 'Produktbeskrivelse',
+
+    'user_edit_details' => [
+        'add_first_name' => 'Vennligst skriv inn et fornavn.',
+        'add_last_name' => 'Vennligst skriv inn et etternavn.',
+        'add_email' => 'Vennligst skriv inn en e-postadresse.',
+        'add_address' => 'Vennligst skriv inn en adresse.',
+        'add_phone_number' => 'Vennligst skriv inn et mobilnummer.',
+        'add_company' => 'Vennligst skriv inn et firmanavn.',
+        'add_valid_email' => 'Vennligst skriv inn en gyldig e-postadresse.',
+        'add_valid_phone' => 'Vennligst skriv inn et gyldig mobilnummer.',
+        'add_valid_name' => 'Vennligst skriv inn et gyldig navn som kun bruker bokstaver og mellomrom.',
+        'add_valid_lastname' => 'Vennligst skriv inn et gyldig etternavn som kun bruker bokstaver og mellomrom.',
+        'add_user_name' => 'Vennligst skriv inn et brukernavn.',
+        'add_country' => 'Vennligst velg et land.',
+        'add_timezone' => 'Vennligst velg en tidssone.',
+        'add_mobile' => 'Vennligst skriv inn et mobilnummer.',
+        'add_valid_company' => 'Vennligst skriv inn et gyldig firmanavn som kun bruker bokstaver og mellomrom.',
+    ],
+
+    'invoice_details' => [
+        'add_user' => 'Vennligst skriv inn et kundenavn.',
+        'add_date' => 'Vennligst velg en gyldig dato.',
+        'add_product' => 'Vennligst velg et gyldig produkt.',
+        'add_price' => 'Vennligst skriv inn prisen.',
+        'payment_date' => 'Vennligst skriv inn betalingsdatoen.',
+        'total' => 'Vennligst skriv inn den totale fakturaen.',
+        'add_valid_date' => 'Vennligst skriv inn en gyldig dato.',
+        'status' => 'Vennligst skriv inn fakturastatus.',
+    ],
+
+    'page_details' => [
+        'add_name' => 'Vennligst skriv inn et gyldig sidenavn.',
+        'add_slug' => 'Vennligst skriv inn et gyldig side-slug.',
+        'add_url' => 'Vennligst skriv inn en gyldig URL(https://example.com).',
+        'add_content' => 'Vennligst skriv inn sidens innhold.',
+        'add_publish' => 'Vennligst skriv inn publiseringsstatus.',
+        'publish_date' => 'Vennligst skriv inn publiseringsdato.',
+        'default_page' => 'Vennligst velg en standardside.',
+        'valid_url' => 'Vennligst skriv inn en gyldig URL(https://example.com).',
+    ],
+
+    'product_details' => [
+        'add_name' => 'Vennligst skriv inn et gyldig produktnavn.',
+        'add_group' => 'Vennligst velg en gyldig gruppe.',
+        'add_license_type' => 'Vennligst velg en lisens type.',
+        'add_description' => 'Vennligst skriv inn prisbeskrivelse.',
+        'add_product_sku' => 'Vennligst skriv inn produkt SKU.',
+        'add_product_description' => 'Vennligst skriv inn produktbeskrivelse.',
+    ],
+
+    'coupon_details' => [
+        'add_code' => 'Vennligst skriv inn kupongkode.',
+        'add_type' => 'Vennligst velg en kupongtype.',
+        'add_value' => 'Vennligst skriv inn kupongrabattverdi.',
+        'add_expiry' => 'Vennligst velg en kupongutløpsdato.',
+        'add_start' => 'Vennligst velg en kupongstartdato.',
+        'add_uses' => 'Vennligst skriv inn et gyldig nummer.',
+        'add_applied' => 'Vennligst velg et gyldig produkt.',
+    ],
+
+    'group_details' => [
+        'group_name' => 'Vennligst skriv inn et gyldig gruppenavn.',
+        'template' => 'Vennligst velg mal.',
+    ],
+
+    'com_details' => [
+        'company_name' => 'Vennligst skriv inn et firmanavn.',
+        'company_email' => 'Vennligst skriv inn en gyldig e-post.',
+        'add_address' => 'Vennligst skriv inn firmens adresse.',
+        'add_phone' => 'Vennligst skriv inn firmatelefonnummer.',
+        'add_website' => 'Vennligst skriv inn en gyldig URL(https://example.com).',
+        'add_country' => 'Vennligst skriv inn firmaets land.',
+        'add_state' => 'Vennligst skriv inn firmaets stat.',
+        'default_currency' => 'Vennligst skriv inn standardvaluta.',
+    ],
+
+    'lic_details' => [
+        'new_license_type' => 'Vennligst skriv inn lisens type.',
+    ],
+
+    'app_details' => [
+        'app_name' => 'Vennligst skriv inn et gyldig appnavn.',
+        'app_key' => 'Vennligst skriv inn en gyldig appnøkkel.',
+        'app_secret' => 'Vennligst skriv inn en gyldig apphemmelighet.',
+    ],
+
+    'socialLogin_details' => [
+        'client_id' => 'Vennligst skriv inn et gyldig klient-ID.',
+        'client_secret' => 'Vennligst skriv inn en gyldig klienthemmelighet.',
+        'redirect_url' => 'Vennligst skriv inn en gyldig URL(https://example.com).',
+        'api_id' => 'Vennligst skriv inn et gyldig API-ID.',
+        'api_secret' => 'Vennligst skriv inn et gyldig API-hemmlighet.',
+    ],
+
+    'templateEdit_details' => [
+        'subject' => 'Vennligst skriv inn emnet.',
+        'template_type' => 'Vennligst velg maltype.',
+        'content' => 'Vennligst skriv inn malinnhold.',
+    ],
+
+    'tax_details' => [
+        'tax_name' => 'Vennligst skriv inn skattenavn.',
+        'rate' => 'Vennligst skriv inn skattesats.',
+    ],
+
+    'widget_details' => [
+        'name' => 'Vennligst skriv inn widgetnavn.',
+        'type' => 'Vennligst skriv inn widgettype.',
+        'publish' => 'Vennligst skriv inn publiseringsrettigheter.',
+    ],
+
+    'social_details' => [
+        'name' => 'Vennligst skriv inn et gyldig navn.',
+        'link' => 'Vennligst skriv inn en gyldig lenke(https://example.com).',
+    ],
+
+    'image_allowed' => 'Kun PNG, JPG og JPEG filer er tillatt.',
+    'image_max' => 'Bilde kan ikke være større enn 2 MB.',
+    'central_domain' => 'Vennligst skriv inn domenenavn(https://example.com).',
+    'cloud_name' => 'Vennligst skriv inn cloud cname(example.com)',
+    'cloud_popup' => 'Vennligst oppgi cloud popup overskrift.',
+    'cloud_label' => 'Vennligst oppgi etikett for domenet.',
+    'cloud_radio' => 'Vennligst oppgi etikett for radioknappen.',
+    'saas_product' => 'Vennligst velg et produkt.',
+    'saas_free_product' => 'Vennligst velg et produkt for gratis prøveperiode.',
+    'saas_product_key' => 'Vennligst skriv inn produktnøkkel.',
+    'cloud_hub_state' => 'Vennligst velg en stat/fylke.',
+    'cloud_hub_countries' => 'Vennligst velg et land.',
+    'cloud_hub_valid_url' => 'Vennligst skriv inn en gyldig URL(https://example.com).',
+    'cloud_invalid_message' => 'Ugyldig App-nøkkel gitt. Vennligst kontakt administrator.',
+    'cloud_error_message' => 'Kan ikke koble til cloud-serveren, kontakt serveradministratoren for hjelp.',
+
+    'script_details' => [
+        'name' => 'Vennligst skriv inn skriptnavn.',
+        'content' => 'Vennligst skriv inn skriptinnhold.',
+    ],
+
+    'razorpay_details' => [
+        'rzp_key' => 'Vennligst skriv inn en gyldig Razorpay-nøkkel.',
+        'rzp_secret' => 'Vennligst skriv inn et gyldig Razorpay-hemmelighetsnøkkel.',
+        'apilayer_key' => 'Vennligst skriv inn en gyldig tilgangsnøkkel.',
+    ],
+
+    'sys_manager' => [
+        'account_manager' => 'Vennligst velg en kontoansvarlig.',
+        'replacement' => 'Vennligst skriv inn et gyldig navn.',
+        'sales_manager' => 'Vennligst velg en salgsleder.',
+    ],
+
+    'plan_details' => [
+        'planname' => 'Vennligst skriv inn planenavn.',
+        'planproduct' => 'Vennligst velg et gyldig produkt.',
+        'plandays' => 'Vennligst skriv inn varigheten (i dager).',
+        'currency' => 'Vennligst skriv inn valutakoden.',
+        'country' => 'Vennligst skriv inn landets navn.',
+        'regular_price' => 'Vennligst skriv inn standardpris.',
+        'renewal_price' => 'Vennligst skriv inn fornyelsespris.',
+        'productquant' => 'Vennligst skriv inn produktkvantitet.',
+        'agentquant' => 'Vennligst skriv inn agentkvantitet.',
+    ],
+
+    'emailSettings_details' => [
+        'driver' => 'Vennligst velg en gyldig e-postdriver.',
+        'host' => 'Vennligst skriv inn en gyldig e-postvert.',
+        'port' => 'Vennligst skriv inn et gyldig portnummer.',
+        'email' => 'Vennligst skriv inn en gyldig e-postadresse.',
+        'password' => 'Vennligst skriv inn e-postpassord.',
+        'domain' => 'Vennligst skriv inn et gyldig e-postdomene.',
+        'region' => 'Vennligst skriv inn en gyldig e-postregion.',
+        'api_key' => 'Vennligst skriv inn et gyldig API-nøkkel.',
+        'from_name' => 'Vennligst skriv inn avsenders navn.',
+        'encryption' => 'Vennligst velg en krypteringsmetode.',
+        'secret' => 'Vennligst skriv inn et gyldig hemmelig passord.',
+    ],
+
+    'github_details' => [
+        'name' => 'Vennligst skriv inn et gyldig GitHub-brukernavn.',
+        'password' => 'Vennligst skriv inn et gyldig GitHub-passord.',
+        'client' => 'Vennligst skriv inn et gyldig klient-ID.',
+        'secret' => 'Vennligst skriv inn et gyldig klienthemmelighetspassord.',
+    ],
+
+    'add_files' => [
+        'title' => 'Vennligst skriv inn tittel.',
+        'version' => 'Vennligst skriv inn en gyldig versjon.',
+        'dependencies' => 'Vennligst skriv inn avhengigheter.',
+    ],
+
+    'valid_name' => 'Firmanavnet må være færre enn 50 tegn.',
+    'valid_gst_number' => 'Vennligst skriv inn et gyldig GST-nummer.',
+    'url_tooltip' => 'Skriv inn installasjonsveilednings-URL for å hjelpe brukere med applikasjonsoppsett.',
+    'valid_widget_name' => 'Navnet må være færre enn 50 tegn og kan ikke kun bestå av spesialtegn.',
+    'google_analytics_tag' => 'Vennligst skriv inn Google Analytics-tag.',
+    'subscription-error-msg' => 'Vennligst velg abonnement.',
+    'cloud-error-message' => 'Vennligst skriv inn sky-domenet.',
+    'agents-error-message' => 'Vennligst skriv inn antall agenter.',
+    'quantity-error-message' => 'Vennligst skriv inn kvantitet.',
+    'product_description' => 'Produktbeskrivelse',
+    'choose_file' => 'Velg fil',
+    'upload_company_logo' => 'Last opp firmalogo',
+    'create_invoice' => 'Opprett faktura',
+    'create_coupon' => 'Opprett kupong',
+    'offer_price' => 'Tilbudspris',
+    'restrict_update' => 'Begrens oppdatering',
+    'create_product' => 'Opprett produkt',
+    'enter_type_cart' => 'Vennligst skriv inn typen handlekurvside',
+    'income_tax_details' => 'Ufullstendige skattedetaljer',
+    'mandatory_tax' => 'Obligatoriske felt mangler på skatteskjermen.',
+    'info' => 'info',
+    'product_quantity' => 'Produktmengde',
+    'table_search' => 'Søk:',
+
 ];

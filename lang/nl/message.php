@@ -1681,4 +1681,220 @@ return [
     'enter_valid_firstname' => 'Voer een geldige voornaam in',
     'enter_valid_lastname' => 'Voer een geldige achternaam in',
 
+    'email_not_matching' => 'Het e-maildomein komt niet overeen met het URL-domein.',
+    'price_description' => 'Prijsbeschrijving',
+    'product_description' => 'Productomschrijving',
+
+    'user_edit_details' => [
+        'add_first_name' => 'Voer een voornaam in.',
+        'add_last_name' => 'Voer een achternaam in.',
+        'add_email' => 'Voer een e-mailadres in.',
+        'add_address' => 'Voer een adres in.',
+        'add_phone_number' => 'Voer een mobiel nummer in.',
+        'add_company' => 'Voer een bedrijfsnaam in.',
+        'add_valid_email' => 'Voer een geldig e-mailadres in.',
+        'add_valid_phone' => 'Voer een geldig mobiel nummer in.',
+        'add_valid_name' => 'Voer een geldige naam in, alleen letters en spaties toegestaan.',
+        'add_valid_lastname' => 'Voer een geldige achternaam in, alleen letters en spaties toegestaan.',
+        'add_user_name' => 'Voer een gebruikersnaam in.',
+        'add_country' => 'Selecteer een land.',
+        'add_timezone' => 'Selecteer een tijdzone.',
+        'add_mobile' => 'Voer een mobiel nummer in.',
+        'add_valid_company' => 'Voer een geldige bedrijfsnaam in, alleen letters en spaties toegestaan.',
+    ],
+
+    'invoice_details' => [
+        'add_user' => 'Voer een klantnaam in.',
+        'add_date' => 'Selecteer een geldige datum.',
+        'add_product' => 'Selecteer een geldig product.',
+        'add_price' => 'Voer een prijs in.',
+        'payment_date' => 'Voer de betaaldatum in.',
+        'total' => 'Voer het totale factuurbedrag in.',
+        'add_valid_date' => 'Voer een geldige datum in.',
+        'status' => 'Voer de status van de factuur in.',
+    ],
+
+    'page_details' => [
+        'add_name' => 'Voer een geldige paginanaam in.',
+        'add_slug' => 'Voer een geldige paginaslug in.',
+        'add_url' => 'Voer een geldige URL in (https://example.com).',
+        'add_content' => 'Voer paginacontent in.',
+        'add_publish' => 'Voer de publicatiestatus in.',
+        'publish_date' => 'Voer een publicatiedatum in.',
+        'default_page' => 'Selecteer een standaardpagina.',
+        'valid_url' => 'Voer een geldige URL in (https://example.com).',
+    ],
+
+    'product_details' => [
+        'add_name' => 'Voer een geldige productnaam in.',
+        'add_group' => 'Selecteer een geldige groep.',
+        'add_license_type' => 'Selecteer een licentietype.',
+        'add_description' => 'Voer een prijsbeschrijving in.',
+        'add_product_sku' => 'Voer de product SKU in.',
+        'add_product_description' => 'Voer de productomschrijving in.',
+    ],
+
+    'coupon_details' => [
+        'add_code' => 'Voer de couponcode in.',
+        'add_type' => 'Selecteer een coupon type.',
+        'add_value' => 'Voer de couponkorting in.',
+        'add_expiry' => 'Selecteer een vervaldatum voor de coupon.',
+        'add_start' => 'Selecteer een startdatum voor de coupon.',
+        'add_uses' => 'Voer een geldig aantal in.',
+        'add_applied' => 'Selecteer een geldig product.',
+    ],
+
+    'group_details' => [
+        'group_name' => 'Voer een geldige groepsnaam in.',
+        'template' => 'Selecteer een sjabloon.',
+    ],
+
+    'com_details' => [
+        'company_name' => 'Voer een bedrijfsnaam in.',
+        'company_email' => 'Voer een geldig e-mailadres in.',
+        'add_address' => 'Voer het bedrijfsadres in.',
+        'add_phone' => 'Voer het bedrijfs telefoonnummer in.',
+        'add_website' => 'Voer een geldige URL in (https://example.com).',
+        'add_country' => 'Voer het bedrijfsland in.',
+        'add_state' => 'Voer de bedrijfsstaat in.',
+        'default_currency' => 'Voer de standaardvaluta in.',
+    ],
+
+    'lic_details' => [
+        'new_license_type' => 'Voer een licentietype in.',
+    ],
+
+    'app_details' => [
+        'app_name' => 'Voer een geldige app-naam in.',
+        'app_key' => 'Voer een geldige app-sleutel in.',
+        'app_secret' => 'Voer een geldige app-geheim in.',
+    ],
+
+    'socialLogin_details' => [
+        'client_id' => 'Voer een geldig client-ID in.',
+        'client_secret' => 'Voer een geldig clientgeheim in.',
+        'redirect_url' => 'Voer een geldige URL in (https://example.com).',
+        'api_id' => 'Voer een geldige API-ID in.',
+        'api_secret' => 'Voer een geldig API-geheim in.',
+    ],
+
+    'templateEdit_details' => [
+        'subject' => 'Voer een onderwerp in.',
+        'template_type' => 'Selecteer een sjabloon type.',
+        'content' => 'Voer sjablooninhoud in.',
+    ],
+
+    'tax_details' => [
+        'tax_name' => 'Voer een belastingnaam in.',
+        'rate' => 'Voer het belastingtarief in.',
+    ],
+
+    'widget_details' => [
+        'name' => 'Voer de widgetnaam in.',
+        'type' => 'Voer het widgettype in.',
+        'publish' => 'Voer de publicatierechten in.',
+    ],
+
+    'social_details' => [
+        'name' => 'Voer een geldige naam in.',
+        'link' => 'Voer een geldige link in (https://example.com).',
+    ],
+
+    'image_allowed' => 'Alleen PNG, JPG en JPEG-bestanden zijn toegestaan.',
+    'image_max' => 'De afbeelding mag niet groter zijn dan 2 MB.',
+    'central_domain' => 'Voer een domeinnaam in (https://example.com).',
+    'cloud_name' => 'Voer een cloud CNAME in (example.com)',
+    'cloud_popup' => 'Geef de cloud popup kop in.',
+    'cloud_label' => 'Geef een label voor het domein op.',
+    'cloud_radio' => 'Geef een label voor de keuzerondjes op.',
+    'saas_product' => 'Selecteer een product.',
+    'saas_free_product' => 'Selecteer een product voor een gratis proefperiode.',
+    'saas_product_key' => 'Voer de productcode in.',
+    'cloud_hub_state' => 'Selecteer een staat of provincie.',
+    'cloud_hub_countries' => 'Selecteer een land.',
+    'cloud_hub_valid_url' => 'Voer een geldige URL in (https://example.com).',
+    'cloud_invalid_message' => 'Ongeldige app-sleutel verstrekt. Neem contact op met de beheerder.',
+    'cloud_error_message' => 'Kan geen verbinding maken met de cloudserver, neem contact op met de serverbeheerder voor hulp.',
+
+    'script_details' => [
+        'name' => 'Voer de scriptnaam in.',
+        'content' => 'Voer de scriptinhoud in.',
+    ],
+
+    'razorpay_details' => [
+        'rzp_key' => 'Voer een geldige Razorpay-sleutel in.',
+        'rzp_secret' => 'Voer een geldig Razorpay-geheim in.',
+        'apilayer_key' => 'Voer een geldige toegangssleutel in.',
+    ],
+
+    'sys_manager' => [
+        'account_manager' => 'Selecteer een accountmanager.',
+        'replacement' => 'Voer een geldige naam in.',
+        'sales_manager' => 'Selecteer een salesmanager.',
+    ],
+
+    'plan_details' => [
+        'planname' => 'Voer een naam voor het plan in.',
+        'planproduct' => 'Selecteer een geldig product.',
+        'plandays' => 'Voer de duur in (in dagen).',
+        'currency' => 'Voer de valutacode in.',
+        'country' => 'Voer de landnaam in.',
+        'regular_price' => 'Voer de reguliere prijs in.',
+        'renewal_price' => 'Voer de prijs bij verlenging in.',
+        'productquant' => 'Voer de producthoeveelheid in.',
+        'agentquant' => 'Voer de hoeveelheid agenten in.',
+    ],
+
+    'emailSettings_details' => [
+        'driver' => 'Selecteer een geldige e-maildriver.',
+        'host' => 'Voer een geldig e-mailhost in.',
+        'port' => 'Voer een geldig poortnummer in.',
+        'email' => 'Voer een geldig e-mailadres in.',
+        'password' => 'Voer het e-mailwachtwoord in.',
+        'domain' => 'Voer een geldig e-maildomein in.',
+        'region' => 'Voer een geldige e-mailregio in.',
+        'api_key' => 'Voer een geldige API-sleutel in.',
+        'from_name' => 'Voer de naam van de afzender in.',
+        'encryption' => 'Selecteer een versleutelingstype.',
+        'secret' => 'Voer een geldig geheim wachtwoord in.',
+    ],
+
+    'github_details' => [
+        'name' => 'Voer een geldig GitHub-gebruikersnaam in.',
+        'password' => 'Voer een geldig GitHub-wachtwoord in.',
+        'client' => 'Voer een geldig client-ID in.',
+        'secret' => 'Voer een geldig clientgeheim wachtwoord in.',
+    ],
+
+    'add_files' => [
+        'title' => 'Voer een titel in.',
+        'version' => 'Voer een geldige versie in.',
+        'dependencies' => 'Voer de afhankelijkheden in.',
+    ],
+
+    'valid_name' => 'De bedrijfsnaam mag niet meer dan 50 tekens bevatten.',
+    'valid_gst_number' => 'Voer een geldig GST-nummer in.',
+    'url_tooltip' => 'Voer de URL van de installatiehandleiding in om gebruikers te helpen bij de installatie van de applicatie.',
+    'valid_widget_name' => 'De naam mag niet meer dan 50 tekens bevatten en mag niet alleen uit speciale tekens bestaan.',
+    'google_analytics_tag' => 'Voer het Google Analytics-tag in.',
+    'subscription-error-msg' => 'Selecteer het abonnement.',
+    'cloud-error-message' => 'Voer een cloud-domein in.',
+    'agents-error-message' => 'Voer het aantal agenten in.',
+    'quantity-error-message' => 'Voer de hoeveelheid in.',
+    'product_description' => 'Productomschrijving',
+    'choose_file' => 'Bestand kiezen',
+    'upload_company_logo' => 'Bedrijfslogo uploaden',
+    'create_invoice' => 'Factuur aanmaken',
+    'create_coupon' => 'Coupon aanmaken',
+    'offer_price' => 'Aanbiedingsprijs',
+    'restrict_update' => 'Bijwerken beperken',
+    'create_product' => 'Product aanmaken',
+    'enter_type_cart' => 'Voer het type winkelwagenpagina in',
+    'income_tax_details' => 'Onvolledige belastinggegevens',
+    'mandatory_tax' => 'Verplichte velden ontbreken op het belastingscherm.',
+    'info' => 'Info',
+    'product_quantity' => 'Producthoeveelheid',
+    'table_search' => 'Zoeken:',
+
+
 ];

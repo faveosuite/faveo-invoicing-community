@@ -1631,4 +1631,219 @@
      'enter_valid_firstname' => 'Jekk jogħġbok daħħal isem validu',
      'enter_valid_lastname' => 'Jekk jogħġbok daħħal kunjom validu',
 
+     'email_not_matching' => 'Id-dominju tal-email ma jaqbilx mad-dominju tal-URL.',
+     'price_description' => 'Deskrizzjoni tal-prezz',
+     'product_description' => 'Deskrizzjoni tal-prodott',
+
+     'user_edit_details' => [
+         'add_first_name' => 'Jekk jogħbok daħħal isimha.',
+         'add_last_name' => 'Jekk jogħbok daħħal l-isem tal-familja.',
+         'add_email' => 'Jekk jogħbok daħħal indirizz tal-email.',
+         'add_address' => 'Jekk jogħbok daħħal l-indirizz.',
+         'add_phone_number' => 'Jekk jogħbok daħħal in-numru tat-telefon.',
+         'add_company' => 'Jekk jogħbok daħħal isim il-kumpanija.',
+         'add_valid_email' => 'Jekk jogħbok daħħal indirizz email validu.',
+         'add_valid_phone' => 'Jekk jogħbok daħħal numru tat-telefon validu.',
+         'add_valid_name' => 'Jekk jogħbok daħħal isim validu billi tuża biss it-titli u spazji.',
+         'add_valid_lastname' => 'Jekk jogħbok daħħal isim tal-familja validu billi tuża biss it-titli u spazji.',
+         'add_user_name' => 'Jekk jogħbok daħħal ismik.',
+         'add_country' => 'Jekk jogħbok agħżel pajjiż.',
+         'add_timezone' => 'Jekk jogħbok agħżel żona taż-żmien.',
+         'add_mobile' => 'Jekk jogħbok daħħal in-numru tal-mobile.',
+         'add_valid_company' => 'Jekk jogħbok daħħal isim validu tal-kumpanija billi tuża biss it-titli u spazji.',
+     ],
+
+     'invoice_details' => [
+         'add_user' => 'Jekk jogħbok daħħal isim il-klijent.',
+         'add_date' => 'Jekk jogħbok agħżel data valida.',
+         'add_product' => 'Jekk jogħbok agħżel prodott validu.',
+         'add_price' => 'Jekk jogħbok daħħal il-prezz.',
+         'payment_date' => 'Jekk jogħbok daħħal id-data tal-ħlas.',
+         'total' => 'Jekk jogħbok daħħal l-ammont totali tal-invoice.',
+         'add_valid_date' => 'Jekk jogħbok daħħal data valida.',
+         'status' => 'Jekk jogħbok daħħal is-status tal-invoice.',
+     ],
+
+     'page_details' => [
+         'add_name' => 'Jekk jogħbok daħħal isim validu tal-paġna.',
+         'add_slug' => 'Jekk jogħbok daħħal slug validu tal-paġna.',
+         'add_url' => 'Jekk jogħbok daħħal URL validu(https://example.com).',
+         'add_content' => 'Jekk jogħbok daħħal il-kontenut tal-paġna.',
+         'add_publish' => 'Jekk jogħbok daħħal status tal-pubblikazzjoni.',
+         'publish_date' => 'Jekk jogħbok daħħal data tal-pubblikazzjoni.',
+         'default_page' => 'Jekk jogħbok agħżel paġna predefinita.',
+         'valid_url' => 'Jekk jogħbok daħħal URL validu(https://example.com).',
+     ],
+
+     'product_details' => [
+         'add_name' => 'Jekk jogħbok daħħal isim validu tal-prodott.',
+         'add_group' => 'Jekk jogħbok agħżel grupp validu.',
+         'add_license_type' => 'Jekk jogħbok agħżel tip ta\' liċenzja.',
+         'add_description' => 'Jekk jogħbok daħħal deskrizzjoni tal-prezz.',
+         'add_product_sku' => 'Jekk jogħbok daħħal SKU tal-prodott.',
+         'add_product_description' => 'Jekk jogħbok daħħal deskrizzjoni tal-prodott.',
+     ],
+
+     'coupon_details' => [
+         'add_code' => 'Jekk jogħbok daħħal kodiċi tal-kupun.',
+         'add_type' => 'Jekk jogħbok agħżel tip ta\' kupun.',
+         'add_value' => 'Jekk jogħbok daħħal il-valur tad-discount tal-kupun.',
+         'add_expiry' => 'Jekk jogħbok agħżel data ta\' skadenza tal-kupun.',
+         'add_start' => 'Jekk jogħbok agħżel data ta\' bidu tal-kupun.',
+         'add_uses' => 'Jekk jogħbok daħħal numru validu.',
+         'add_applied' => 'Jekk jogħbok agħżel prodott validu.',
+     ],
+
+     'group_details' => [
+         'group_name' => 'Jekk jogħbok daħħal isim validu tal-grupp.',
+         'template' => 'Jekk jogħbok agħżel template.',
+     ],
+
+     'com_details' => [
+         'company_name' => 'Jekk jogħbok daħħal isim tal-kumpanija.',
+         'company_email' => 'Jekk jogħbok daħħal email validu.',
+         'add_address' => 'Jekk jogħbok daħħal indirizz tal-kumpanija.',
+         'add_phone' => 'Jekk jogħbok daħħal in-numru tat-telefon tal-kumpanija.',
+         'add_website' => 'Jekk jogħbok daħħal URL validu(https://example.com).',
+         'add_country' => 'Jekk jogħbok daħħal pajjiż tal-kumpanija.',
+         'add_state' => 'Jekk jogħbok daħħal stat tal-kumpanija.',
+         'default_currency' => 'Jekk jogħbok daħħal il-munita predefinita.',
+     ],
+
+     'lic_details' => [
+         'new_license_type' => 'Jekk jogħbok daħħal tip ta\' liċenzja.',
+     ],
+
+     'app_details' => [
+         'app_name' => 'Jekk jogħbok daħħal isim validu tal-App.',
+         'app_key' => 'Jekk jogħbok daħħal key validu tal-App.',
+         'app_secret' => 'Jekk jogħbok daħħal secret validu tal-App.',
+     ],
+
+     'socialLogin_details' => [
+         'client_id' => 'Jekk jogħbok daħħal ID validu tal-klijent.',
+         'client_secret' => 'Jekk jogħbok daħħal secret validu tal-klijent.',
+         'redirect_url' => 'Jekk jogħbok daħħal URL validu(https://example.com).',
+         'api_id' => 'Jekk jogħbok daħħal API ID validu.',
+         'api_secret' => 'Jekk jogħbok daħħal API secret validu.',
+     ],
+
+     'templateEdit_details' => [
+         'subject' => 'Jekk jogħbok daħħal suġġett.',
+         'template_type' => 'Jekk jogħbok agħżel tip ta\' template.',
+         'content' => 'Jekk jogħbok daħħal il-kontenut tat-template.',
+     ],
+
+     'tax_details' => [
+         'tax_name' => 'Jekk jogħbok daħħal isim tat-taxxa.',
+         'rate' => 'Jekk jogħbok daħħal ir-rata tat-taxxa.',
+     ],
+
+     'widget_details' => [
+         'name' => 'Jekk jogħbok daħħal isim tal-widget.',
+         'type' => 'Jekk jogħbok daħħal tip tal-widget.',
+         'publish' => 'Jekk jogħbok daħħal il-permess tal-pubblikazzjoni.',
+     ],
+
+     'social_details' => [
+         'name' => 'Jekk jogħbok daħħal isim validu.',
+         'link' => 'Jekk jogħbok daħħal link validu(https://example.com).',
+     ],
+
+     'image_allowed' => 'Jista\' jsir biss upload ta\' fajls PNG, JPG, u JPEG.',
+     'image_max' => 'Il-fajl tal-immaġni ma jistax ikun aktar minn 2 MB.',
+     'central_domain' => 'Jekk jogħbok daħħal isim id-dominju(https://example.com).',
+     'cloud_name' => 'Jekk jogħbok daħħal cloud cname(example.com)',
+     'cloud_popup' => 'Jekk jogħbok ipprovdi heading popup tal-cloud.',
+     'cloud_label' => 'Jekk jogħbok ipprovdi l-etiketta għad-dominju.',
+     'cloud_radio' => 'Jekk jogħbok ipprovdi l-etiketta għall-buttuna tar-radju.',
+     'saas_product' => 'Jekk jogħbok agħżel prodott.',
+     'saas_free_product' => 'Jekk jogħbok agħżel prodott għal prova b\'xejn.',
+     'saas_product_key' => 'Jekk jogħbok daħħal key tal-prodott.',
+     'cloud_hub_state' => 'Jekk jogħbok agħżel stat/kontea.',
+     'cloud_hub_countries' => 'Jekk jogħbok agħżel pajjiż.',
+     'cloud_hub_valid_url' => 'Jekk jogħbok daħħal URL validu(https://example.com).',
+     'cloud_invalid_message' => 'Key tal-App invalida pprovduta. Jekk jogħbok ikkuntattja l-amministratur.',
+     'cloud_error_message' => 'Ma nistgħux nikkonnettjaw mas-server tal-cloud, jekk jogħbok ikkuntattja l-amministratur tas-server għal għajnuna.',
+
+     'script_details' => [
+         'name' => 'Jekk jogħbok daħħal isim tal-script.',
+         'content' => 'Jekk jogħbok daħħal il-kontenut tal-script.',
+     ],
+
+     'razorpay_details' => [
+         'rzp_key' => 'Jekk jogħbok daħħal key validu Razorpay.',
+         'rzp_secret' => 'Jekk jogħbok daħħal password segreta validu Razorpay.',
+         'apilayer_key' => 'Jekk jogħbok daħħal access key validu.',
+     ],
+
+     'sys_manager' => [
+         'account_manager' => 'Jekk jogħbok agħżel Account Manager.',
+         'replacement' => 'Jekk jogħbok daħħal isim validu.',
+         'sales_manager' => 'Jekk jogħbok agħżel Sales Manager.',
+     ],
+
+     'plan_details' => [
+         'planname' => 'Jekk jogħbok daħħal isim tal-pjan.',
+         'planproduct' => 'Jekk jogħbok agħżel prodott validu.',
+         'plandays' => 'Jekk jogħbok daħħal id-durata (f\'jum).',
+         'currency' => 'Jekk jogħbok daħħal il-kodiċi tal-munita.',
+         'country' => 'Jekk jogħbok daħħal isim tal-pajjiż.',
+         'regular_price' => 'Jekk jogħbok daħħal il-prezz regolari.',
+         'renewal_price' => 'Jekk jogħbok daħħal il-prezz tal-ristar.',
+         'productquant' => 'Jekk jogħbok daħħal kwantità tal-prodott.',
+         'agentquant' => 'Jekk jogħbok daħħal kwantità tal-aġent.',
+     ],
+
+     'emailSettings_details' => [
+         'driver' => 'Jekk jogħbok agħżel driver validu tal-email.',
+         'host' => 'Jekk jogħbok daħħal host validu tal-email.',
+         'port' => 'Jekk jogħbok daħħal numru validu tal-port.',
+         'email' => 'Jekk jogħbok daħħal indirizz email validu.',
+         'password' => 'Jekk jogħbok daħħal password tal-email.',
+         'domain' => 'Jekk jogħbok daħħal dominju validu tal-email.',
+         'region' => 'Jekk jogħbok daħħal reġjun validu tal-email.',
+         'api_key' => 'Jekk jogħbok daħħal API key validu.',
+         'from_name' => 'Jekk jogħbok daħħal isim il-mittent.',
+         'encryption' => 'Jekk jogħbok agħżel metodu ta\' enkrizzjoni.',
+         'secret' => 'Jekk jogħbok daħħal password segreta valida.',
+     ],
+
+     'github_details' => [
+         'name' => 'Jekk jogħbok daħħal username validu GitHub.',
+         'password' => 'Jekk jogħbok daħħal password validu GitHub.',
+         'client' => 'Jekk jogħbok daħħal ID validu tal-klijent.',
+         'secret' => 'Jekk jogħbok daħħal secret validu tal-klijent.',
+     ],
+
+     'add_files' => [
+         'title' => 'Jekk jogħbok daħħal titlu.',
+         'version' => 'Jekk jogħbok daħħal verżjoni valida.',
+         'dependencies' => 'Jekk jogħbok daħħal dipendenzi.',
+     ],
+
+     'valid_name' => 'Isim il-kumpanija għandu jkun anqas minn 50 karattru.',
+     'valid_gst_number' => 'Jekk jogħbok daħħal numru GST validu.',
+     'url_tooltip' => 'Daħħal l-URL tal-gwida tal-installazzjoni biex jgħin lill-utenti bil-setup tal-Applikazzjoni.',
+     'valid_widget_name' => 'Isim għandu jkun anqas minn 50 karattru u ma jistax ikun magħmul biss minn karattri speċjali.',
+     'google_analytics_tag' => 'Jekk jogħbok daħħal it-tag tal-google analytics.',
+     'subscription-error-msg' => 'Jekk jogħbok agħżel is-sottoskrizzjoni.',
+     'cloud-error-message' => 'Jekk jogħbok daħħal id-dominju tal-cloud.',
+     'agents-error-message' => 'Jekk jogħbok daħħal in-numru ta\' aġenti.',
+     'quantity-error-message' => 'Jekk jogħbok daħħal il-kwantità.',
+     'product_description' => 'Deskrizzjoni tal-prodott',
+     'choose_file' => 'Agħżel il-fajl',
+     'upload_company_logo' => 'Ipoġġi l-logo tal-kumpanija',
+     'create_invoice' => 'Oħloq fattura',
+     'create_coupon' => 'Oħloq kupon',
+     'offer_price' => 'Offerta prezz',
+     'restrict_update' => 'Irristikka aġġornament',
+     'create_product' => 'Oħloq prodott',
+     'enter_type_cart' => 'Jekk jogħġbok daħħal it-tip tal-paġna tal-kart',
+     'income_tax_details' => 'Dettalji tat-taxxa incompleti',
+     'mandatory_tax' => 'Qasam obbligatorju nieqes fuq il-iskrin tat-taxxa.',
+     'info' => 'Informazzjoni',
+     'product_quantity' => 'Kwantità tal-prodott',
+     'table_search' => 'Fittex:'
+
  ];

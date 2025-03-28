@@ -1694,4 +1694,219 @@ return [
     'enter_valid_firstname' => 'Veuillez entrer un prénom valide',
     'enter_valid_lastname' => 'Veuillez entrer un nom de famille valide',
 
+    'email_not_matching' => 'Le domaine de l\'email ne correspond pas au domaine de l\'URL.',
+    'price_description' => 'Description du prix',
+    'product_description' => 'Description du produit',
+
+    'user_edit_details' => [
+        'add_first_name' => 'Veuillez entrer un prénom.',
+        'add_last_name' => 'Veuillez entrer un nom de famille.',
+        'add_email' => 'Veuillez entrer une adresse email.',
+        'add_address' => 'Veuillez entrer une adresse.',
+        'add_phone_number' => 'Veuillez entrer un numéro de téléphone mobile.',
+        'add_company' => 'Veuillez entrer un nom d\'entreprise.',
+        'add_valid_email' => 'Veuillez entrer une adresse email valide.',
+        'add_valid_phone' => 'Veuillez entrer un numéro de téléphone mobile valide.',
+        'add_valid_name' => 'Veuillez entrer un nom valide en utilisant uniquement des lettres et des espaces.',
+        'add_valid_lastname' => 'Veuillez entrer un nom de famille valide en utilisant uniquement des lettres et des espaces.',
+        'add_user_name' => 'Veuillez entrer un nom d\'utilisateur.',
+        'add_country' => 'Veuillez sélectionner un pays.',
+        'add_timezone' => 'Veuillez sélectionner un fuseau horaire.',
+        'add_mobile' => 'Veuillez entrer un numéro de téléphone mobile.',
+        'add_valid_company' => 'Veuillez entrer un nom d\'entreprise valide en utilisant uniquement des lettres et des espaces.',
+    ],
+
+    'invoice_details' => [
+        'add_user' => 'Veuillez entrer un nom de client.',
+        'add_date' => 'Veuillez sélectionner une date valide.',
+        'add_product' => 'Veuillez sélectionner un produit valide.',
+        'add_price' => 'Veuillez entrer un prix.',
+        'payment_date' => 'Veuillez entrer la date de paiement.',
+        'total' => 'Veuillez entrer le montant total de la facture.',
+        'add_valid_date' => 'Veuillez entrer une date valide.',
+        'status' => 'Veuillez entrer le statut de la facture.',
+    ],
+
+    'page_details' => [
+        'add_name' => 'Veuillez entrer un nom de page valide.',
+        'add_slug' => 'Veuillez entrer un slug de page valide.',
+        'add_url' => 'Veuillez entrer une URL valide(https://example.com).',
+        'add_content' => 'Veuillez entrer le contenu de la page.',
+        'add_publish' => 'Veuillez entrer le statut de publication.',
+        'publish_date' => 'Veuillez entrer une date de publication.',
+        'default_page' => 'Veuillez sélectionner une page par défaut.',
+        'valid_url' => 'Veuillez entrer une URL valide(https://example.com).',
+    ],
+
+    'product_details' => [
+        'add_name' => 'Veuillez entrer un nom de produit valide.',
+        'add_group' => 'Veuillez sélectionner un groupe valide.',
+        'add_license_type' => 'Veuillez sélectionner un type de licence.',
+        'add_description' => 'Veuillez entrer une description du prix.',
+        'add_product_sku' => 'Veuillez entrer le SKU du produit.',
+        'add_product_description' => 'Veuillez entrer la description du produit.',
+    ],
+
+    'coupon_details' => [
+        'add_code' => 'Veuillez entrer un code de coupon.',
+        'add_type' => 'Veuillez sélectionner un type de coupon.',
+        'add_value' => 'Veuillez entrer la valeur du rabais du coupon.',
+        'add_expiry' => 'Veuillez sélectionner une date d\'expiration du coupon.',
+        'add_start' => 'Veuillez sélectionner une date de début du coupon.',
+        'add_uses' => 'Veuillez entrer un nombre valide.',
+        'add_applied' => 'Veuillez sélectionner un produit valide.',
+    ],
+
+    'group_details' => [
+        'group_name' => 'Veuillez entrer un nom de groupe valide.',
+        'template' => 'Veuillez sélectionner un modèle.',
+    ],
+
+    'com_details' => [
+        'company_name' => 'Veuillez entrer un nom d\'entreprise.',
+        'company_email' => 'Veuillez entrer un email valide.',
+        'add_address' => 'Veuillez entrer l\'adresse de l\'entreprise.',
+        'add_phone' => 'Veuillez entrer le numéro de téléphone de l\'entreprise.',
+        'add_website' => 'Veuillez entrer une URL valide(https://example.com).',
+        'add_country' => 'Veuillez entrer le pays de l\'entreprise.',
+        'add_state' => 'Veuillez entrer l\'état de l\'entreprise.',
+        'default_currency' => 'Veuillez entrer la devise par défaut.',
+    ],
+
+    'lic_details' => [
+        'new_license_type' => 'Veuillez entrer le type de licence.',
+    ],
+
+    'app_details' => [
+        'app_name' => 'Veuillez entrer un nom d\'application valide.',
+        'app_key' => 'Veuillez entrer une clé d\'application valide.',
+        'app_secret' => 'Veuillez entrer un secret d\'application valide.',
+    ],
+
+    'socialLogin_details' => [
+        'client_id' => 'Veuillez entrer un ID client valide.',
+        'client_secret' => 'Veuillez entrer un secret client valide.',
+        'redirect_url' => 'Veuillez entrer une URL valide(https://example.com).',
+        'api_id' => 'Veuillez entrer un ID d\'API valide.',
+        'api_secret' => 'Veuillez entrer un secret d\'API valide.',
+    ],
+
+    'templateEdit_details' => [
+        'subject' => 'Veuillez entrer un sujet.',
+        'template_type' => 'Veuillez sélectionner un type de modèle.',
+        'content' => 'Veuillez entrer le contenu du modèle.',
+    ],
+
+    'tax_details' => [
+        'tax_name' => 'Veuillez entrer un nom de taxe.',
+        'rate' => 'Veuillez entrer le taux de taxe.',
+    ],
+
+    'widget_details' => [
+        'name' => 'Veuillez entrer un nom de widget.',
+        'type' => 'Veuillez entrer un type de widget.',
+        'publish' => 'Veuillez entrer la permission de publication.',
+    ],
+
+    'social_details' => [
+        'name' => 'Veuillez entrer un nom valide.',
+        'link' => 'Veuillez entrer un lien valide(https://example.com).',
+    ],
+
+    'image_allowed' => 'Seuls les fichiers PNG, JPG et JPEG sont autorisés.',
+    'image_max' => 'L\'image ne doit pas dépasser 2 Mo.',
+    'central_domain' => 'Veuillez entrer le nom de domaine(https://example.com).',
+    'cloud_name' => 'Veuillez entrer le nom du cloud cname(example.com)',
+    'cloud_popup' => 'Veuillez fournir le titre de la popup cloud.',
+    'cloud_label' => 'Veuillez fournir une étiquette pour le domaine.',
+    'cloud_radio' => 'Veuillez fournir une étiquette pour le bouton radio.',
+    'saas_product' => 'Veuillez sélectionner un produit.',
+    'saas_free_product' => 'Veuillez sélectionner un produit pour un essai gratuit.',
+    'saas_product_key' => 'Veuillez entrer la clé du produit.',
+    'cloud_hub_state' => 'Veuillez sélectionner un état/comté.',
+    'cloud_hub_countries' => 'Veuillez sélectionner un pays.',
+    'cloud_hub_valid_url' => 'Veuillez entrer une URL valide(https://example.com).',
+    'cloud_invalid_message' => 'Clé d\'application invalide fournie. Veuillez contacter l\'administrateur.',
+    'cloud_error_message' => 'Impossible de se connecter au serveur cloud, contactez votre administrateur serveur pour obtenir de l\'aide.',
+
+    'script_details' => [
+        'name' => 'Veuillez entrer un nom de script.',
+        'content' => 'Veuillez entrer le contenu du script.',
+    ],
+
+    'razorpay_details' => [
+        'rzp_key' => 'Veuillez entrer une clé Razorpay valide.',
+        'rzp_secret' => 'Veuillez entrer un mot de passe secret Razorpay valide.',
+        'apilayer_key' => 'Veuillez entrer une clé d\'accès valide.',
+    ],
+
+    'sys_manager' => [
+        'account_manager' => 'Veuillez sélectionner un gestionnaire de compte.',
+        'replacement' => 'Veuillez entrer un nom valide.',
+        'sales_manager' => 'Veuillez sélectionner un responsable des ventes.',
+    ],
+
+    'plan_details' => [
+        'planname' => 'Veuillez entrer le nom du plan.',
+        'planproduct' => 'Veuillez sélectionner un produit valide.',
+        'plandays' => 'Veuillez entrer la durée (en jours).',
+        'currency' => 'Veuillez entrer le code de devise.',
+        'country' => 'Veuillez entrer le nom du pays.',
+        'regular_price' => 'Veuillez entrer le prix normal.',
+        'renewal_price' => 'Veuillez entrer le prix de renouvellement.',
+        'productquant' => 'Veuillez entrer la quantité de produit.',
+        'agentquant' => 'Veuillez entrer la quantité d\'agents.',
+    ],
+
+    'emailSettings_details' => [
+        'driver' => 'Veuillez sélectionner un conducteur email valide.',
+        'host' => 'Veuillez entrer un hôte email valide.',
+        'port' => 'Veuillez entrer un numéro de port valide.',
+        'email' => 'Veuillez entrer une adresse email valide.',
+        'password' => 'Veuillez entrer un mot de passe email.',
+        'domain' => 'Veuillez entrer un domaine email valide.',
+        'region' => 'Veuillez entrer une région email valide.',
+        'api_key' => 'Veuillez entrer une clé API valide.',
+        'from_name' => 'Veuillez entrer le nom de l\'expéditeur.',
+        'encryption' => 'Veuillez sélectionner une méthode de cryptage.',
+        'secret' => 'Veuillez entrer un mot de passe secret valide.',
+    ],
+
+    'github_details' => [
+        'name' => 'Veuillez entrer un nom d\'utilisateur GitHub valide.',
+        'password' => 'Veuillez entrer un mot de passe GitHub valide.',
+        'client' => 'Veuillez entrer un ID client valide.',
+        'secret' => 'Veuillez entrer un mot de passe secret client valide.',
+    ],
+
+    'add_files' => [
+        'title' => 'Veuillez entrer le titre.',
+        'version' => 'Veuillez entrer une version valide.',
+        'dependencies' => 'Veuillez entrer les dépendances.',
+    ],
+
+    'valid_name' => 'Le nom de l\'entreprise doit comporter moins de 50 caractères.',
+    'valid_gst_number' => 'Veuillez entrer un numéro GST valide.',
+    'url_tooltip' => 'Entrez l\'URL du guide d\'installation pour aider les utilisateurs avec la configuration de l\'application.',
+    'valid_widget_name' => 'Le nom doit comporter moins de 50 caractères et ne peut être composé uniquement de caractères spéciaux.',
+    'google_analytics_tag' => 'Veuillez entrer le tag Google Analytics.',
+    'subscription-error-msg' => 'Veuillez sélectionner l\'abonnement.',
+    'cloud-error-message' => 'Veuillez entrer un domaine cloud.',
+    'agents-error-message' => 'Veuillez entrer le nombre d\'agents.',
+    'quantity-error-message' => 'Veuillez entrer la quantité.',
+    'product_description' => 'Description du produit',
+    'choose_file' => 'Choisir un fichier',
+    'upload_company_logo' => 'Télécharger le logo de l’entreprise',
+    'create_invoice' => 'Créer une facture',
+    'create_coupon' => 'Créer un coupon',
+    'offer_price' => 'Prix promotionnel',
+    'restrict_update' => 'Restreindre la mise à jour',
+    'create_product' => 'Créer un produit',
+    'enter_type_cart' => 'Veuillez entrer le type de page du panier',
+    'income_tax_details' => 'Détails fiscaux incomplets',
+    'mandatory_tax' => 'Champs obligatoires manquants sur l’écran des taxes.',
+    'info' => 'info',
+    'product_quantity' => 'Quantité de produit',
+    'table_search' => 'Rechercher :',
+
 ];

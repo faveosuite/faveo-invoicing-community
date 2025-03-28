@@ -458,14 +458,14 @@
 
         $(document).ready(function() {
             const userRequiredFields = {
-                company:@json(trans('message.company_details.company_name')),
-                company_email:@json(trans('message.company_details.company_email')),
-                website:@json(trans('message.company_details.add_website')),
-                phone_code:@json(trans('message.company_details.add_phone')),
-                address:@json(trans('message.company_details.add_address')),
-                country:@json(trans('message.company_details.add_country')),
-                default_currency:@json(trans('message.company_details.default_currency')),
-                state:@json(trans('message.company_details.add_state')),
+                company:@json(trans('message.com_details.company_name')),
+                company_email:@json(trans('message.com_details.company_email')),
+                website:@json(trans('message.com_details.add_website')),
+                phone_code:@json(trans('message.com_details.add_phone')),
+                address:@json(trans('message.com_details.add_address')),
+                country:@json(trans('message.com_details.add_country')),
+                default_currency:@json(trans('message.com_details.default_currency')),
+                state:@json(trans('message.com_details.add_state')),
 
             };
 

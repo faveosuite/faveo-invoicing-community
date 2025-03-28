@@ -61,7 +61,7 @@ License Types
 
         $(document).ready(function() {
             const userRequiredFields = {
-                name:@json(trans('message.license_details.new_license_type')),
+                name:@json(trans('message.lic_details.new_license_type')),
 
 
             };
@@ -127,7 +127,7 @@ License Types
 
         $(document).ready(function() {
             const userRequiredFields = {
-                name:@json(trans('message.license_details.new_license_type')),
+                name:@json(trans('message.lic_details.new_license_type')),
 
 
             };

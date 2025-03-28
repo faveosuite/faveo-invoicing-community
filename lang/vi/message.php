@@ -1702,4 +1702,218 @@ return [
     'enter_valid_firstname' => 'Vui lòng nhập tên hợp lệ',
     'enter_valid_lastname' => 'Vui lòng nhập họ hợp lệ',
 
+    'email_not_matching' => 'Tên miền email không khớp với tên miền URL.',
+    'price_description' => 'Mô tả giá',
+    'product_description' => 'Mô tả sản phẩm',
+
+    'user_edit_details' => [
+        'add_first_name' => 'Vui lòng nhập tên.',
+        'add_last_name' => 'Vui lòng nhập họ.',
+        'add_email' => 'Vui lòng nhập địa chỉ email.',
+        'add_address' => 'Vui lòng nhập địa chỉ.',
+        'add_phone_number' => 'Vui lòng nhập số điện thoại di động.',
+        'add_company' => 'Vui lòng nhập tên công ty.',
+        'add_valid_email' => 'Vui lòng nhập một địa chỉ email hợp lệ.',
+        'add_valid_phone' => 'Vui lòng nhập một số điện thoại di động hợp lệ.',
+        'add_valid_name' => 'Vui lòng nhập tên hợp lệ chỉ sử dụng chữ cái và khoảng trắng.',
+        'add_valid_lastname' => 'Vui lòng nhập họ hợp lệ chỉ sử dụng chữ cái và khoảng trắng.',
+        'add_user_name' => 'Vui lòng nhập tên người dùng.',
+        'add_country' => 'Vui lòng chọn quốc gia.',
+        'add_timezone' => 'Vui lòng chọn múi giờ.',
+        'add_mobile' => 'Vui lòng nhập số điện thoại di động.',
+        'add_valid_company' => 'Vui lòng nhập tên công ty hợp lệ chỉ sử dụng chữ cái và khoảng trắng.',
+    ],
+
+    'invoice_details' => [
+        'add_user' => 'Vui lòng nhập tên khách hàng.',
+        'add_date' => 'Vui lòng chọn ngày hợp lệ.',
+        'add_product' => 'Vui lòng chọn sản phẩm hợp lệ.',
+        'add_price' => 'Vui lòng nhập giá.',
+        'payment_date' => 'Vui lòng nhập ngày thanh toán.',
+        'total' => 'Vui lòng nhập tổng số hóa đơn.',
+        'add_valid_date' => 'Vui lòng nhập ngày hợp lệ.',
+        'status' => 'Vui lòng nhập trạng thái hóa đơn.',
+    ],
+
+    'page_details' => [
+        'add_name' => 'Vui lòng nhập tên trang hợp lệ.',
+        'add_slug' => 'Vui lòng nhập slug trang hợp lệ.',
+        'add_url' => 'Vui lòng nhập URL hợp lệ (https://example.com).',
+        'add_content' => 'Vui lòng nhập nội dung trang.',
+        'add_publish' => 'Vui lòng nhập trạng thái xuất bản.',
+        'publish_date' => 'Vui lòng nhập ngày xuất bản.',
+        'default_page' => 'Vui lòng chọn trang mặc định.',
+        'valid_url' => 'Vui lòng nhập URL hợp lệ (https://example.com).',
+    ],
+
+    'product_details' => [
+        'add_name' => 'Vui lòng nhập tên sản phẩm hợp lệ.',
+        'add_group' => 'Vui lòng chọn nhóm hợp lệ.',
+        'add_license_type' => 'Vui lòng chọn loại giấy phép.',
+        'add_description' => 'Vui lòng nhập mô tả giá.',
+        'add_product_sku' => 'Vui lòng nhập SKU sản phẩm.',
+        'add_product_description' => 'Vui lòng nhập mô tả sản phẩm.',
+    ],
+
+    'coupon_details' => [
+        'add_code' => 'Vui lòng nhập mã giảm giá.',
+        'add_type' => 'Vui lòng chọn loại mã giảm giá.',
+        'add_value' => 'Vui lòng nhập giá trị giảm giá.',
+        'add_expiry' => 'Vui lòng chọn ngày hết hạn mã giảm giá.',
+        'add_start' => 'Vui lòng chọn ngày bắt đầu mã giảm giá.',
+        'add_uses' => 'Vui lòng nhập số lượng hợp lệ.',
+        'add_applied' => 'Vui lòng chọn sản phẩm hợp lệ.',
+    ],
+
+    'group_details' => [
+        'group_name' => 'Vui lòng nhập tên nhóm hợp lệ.',
+        'template' => 'Vui lòng chọn mẫu.',
+    ],
+
+    'com_details' => [
+        'company_name' => 'Vui lòng nhập tên công ty.',
+        'company_email' => 'Vui lòng nhập email hợp lệ.',
+        'add_address' => 'Vui lòng nhập địa chỉ công ty.',
+        'add_phone' => 'Vui lòng nhập số điện thoại công ty.',
+        'add_website' => 'Vui lòng nhập URL hợp lệ (https://example.com).',
+        'add_country' => 'Vui lòng nhập quốc gia công ty.',
+        'add_state' => 'Vui lòng nhập bang công ty.',
+        'default_currency' => 'Vui lòng nhập đơn vị tiền tệ mặc định.',
+    ],
+
+    'lic_details' => [
+        'new_license_type' => 'Vui lòng nhập loại giấy phép.',
+    ],
+
+    'app_details' => [
+        'app_name' => 'Vui lòng nhập tên ứng dụng hợp lệ.',
+        'app_key' => 'Vui lòng nhập khóa ứng dụng hợp lệ.',
+        'app_secret' => 'Vui lòng nhập bí mật ứng dụng hợp lệ.',
+    ],
+
+    'socialLogin_details' => [
+        'client_id' => 'Vui lòng nhập ID khách hàng hợp lệ.',
+        'client_secret' => 'Vui lòng nhập bí mật khách hàng hợp lệ.',
+        'redirect_url' => 'Vui lòng nhập URL hợp lệ (https://example.com).',
+        'api_id' => 'Vui lòng nhập ID API hợp lệ.',
+        'api_secret' => 'Vui lòng nhập bí mật API hợp lệ.',
+    ],
+
+    'templateEdit_details' => [
+        'subject' => 'Vui lòng nhập chủ đề.',
+        'template_type' => 'Vui lòng chọn loại mẫu.',
+        'content' => 'Vui lòng nhập nội dung mẫu.',
+    ],
+
+    'tax_details' => [
+        'tax_name' => 'Vui lòng nhập tên thuế.',
+        'rate' => 'Vui lòng nhập tỷ lệ thuế.',
+    ],
+
+    'widget_details' => [
+        'name' => 'Vui lòng nhập tên widget.',
+        'type' => 'Vui lòng nhập loại widget.',
+        'publish' => 'Vui lòng nhập quyền xuất bản.',
+    ],
+
+    'social_details' => [
+        'name' => 'Vui lòng nhập tên hợp lệ.',
+        'link' => 'Vui lòng nhập liên kết hợp lệ (https://example.com).',
+    ],
+
+    'image_allowed' => 'Chỉ cho phép tệp PNG, JPG và JPEG.',
+    'image_max' => 'Kích thước ảnh không vượt quá 2 MB.',
+    'central_domain' => 'Vui lòng nhập tên miền (https://example.com).',
+    'cloud_name' => 'Vui lòng nhập cname đám mây (example.com)',
+    'cloud_popup' => 'Vui lòng cung cấp tiêu đề popup đám mây.',
+    'cloud_label' => 'Vui lòng cung cấp nhãn cho tên miền.',
+    'cloud_radio' => 'Vui lòng cung cấp nhãn cho nút radio.',
+    'saas_product' => 'Vui lòng chọn sản phẩm.',
+    'saas_free_product' => 'Vui lòng chọn sản phẩm cho dùng thử miễn phí.',
+    'saas_product_key' => 'Vui lòng nhập khóa sản phẩm.',
+    'cloud_hub_state' => 'Vui lòng chọn bang/quận.',
+    'cloud_hub_countries' => 'Vui lòng chọn quốc gia.',
+    'cloud_hub_valid_url' => 'Vui lòng nhập URL hợp lệ (https://example.com).',
+    'cloud_invalid_message' => 'Khóa ứng dụng không hợp lệ. Vui lòng liên hệ với quản trị viên.',
+    'cloud_error_message' => 'Không thể kết nối với máy chủ đám mây, vui lòng liên hệ với quản trị viên máy chủ.',
+    'script_details' => [
+        'name' => 'Vui lòng nhập tên script.',
+        'content' => 'Vui lòng nhập nội dung script.',
+    ],
+
+    'razorpay_details' => [
+        'rzp_key' => 'Vui lòng nhập khóa Razorpay hợp lệ.',
+        'rzp_secret' => 'Vui lòng nhập mật khẩu bí mật Razorpay hợp lệ.',
+        'apilayer_key' => 'Vui lòng nhập khóa truy cập hợp lệ.',
+    ],
+
+    'sys_manager' => [
+        'account_manager' => 'Vui lòng chọn người quản lý tài khoản.',
+        'replacement' => 'Vui lòng nhập tên hợp lệ.',
+        'sales_manager' => 'Vui lòng chọn người quản lý bán hàng.',
+    ],
+
+    'plan_details' => [
+        'planname' => 'Vui lòng nhập tên gói.',
+        'planproduct' => 'Vui lòng chọn sản phẩm hợp lệ.',
+        'plandays' => 'Vui lòng nhập thời gian (theo ngày).',
+        'currency' => 'Vui lòng nhập mã tiền tệ.',
+        'country' => 'Vui lòng nhập tên quốc gia.',
+        'regular_price' => 'Vui lòng nhập giá thông thường.',
+        'renewal_price' => 'Vui lòng nhập giá gia hạn.',
+        'productquant' => 'Vui lòng nhập số lượng sản phẩm.',
+        'agentquant' => 'Vui lòng nhập số lượng đại lý.',
+    ],
+
+    'emailSettings_details' => [
+        'driver' => 'Vui lòng chọn driver email hợp lệ.',
+        'host' => 'Vui lòng nhập host email hợp lệ.',
+        'port' => 'Vui lòng nhập số cổng hợp lệ.',
+        'email' => 'Vui lòng nhập địa chỉ email hợp lệ.',
+        'password' => 'Vui lòng nhập mật khẩu email.',
+        'domain' => 'Vui lòng nhập tên miền email hợp lệ.',
+        'region' => 'Vui lòng nhập khu vực email hợp lệ.',
+        'api_key' => 'Vui lòng nhập API key hợp lệ.',
+        'from_name' => 'Vui lòng nhập tên người gửi.',
+        'encryption' => 'Vui lòng chọn phương pháp mã hóa.',
+        'secret' => 'Vui lòng nhập mật khẩu bí mật hợp lệ.',
+    ],
+
+    'github_details' => [
+        'name' => 'Vui lòng nhập tên người dùng GitHub hợp lệ.',
+        'password' => 'Vui lòng nhập mật khẩu GitHub hợp lệ.',
+        'client' => 'Vui lòng nhập client ID hợp lệ.',
+        'secret' => 'Vui lòng nhập bí mật client hợp lệ.',
+    ],
+
+    'add_files' => [
+        'title' => 'Vui lòng nhập tiêu đề.',
+        'version' => 'Vui lòng nhập phiên bản hợp lệ.',
+        'dependencies' => 'Vui lòng nhập các phụ thuộc.',
+    ],
+
+    'valid_name' => 'Tên công ty phải ít hơn 50 ký tự.',
+    'valid_gst_number' => 'Vui lòng nhập số GST hợp lệ.',
+    'url_tooltip' => 'Nhập URL hướng dẫn cài đặt để giúp người dùng với việc thiết lập ứng dụng.',
+    'valid_widget_name' => 'Tên phải ít hơn 50 ký tự và không chỉ chứa các ký tự đặc biệt.',
+    'google_analytics_tag' => 'Vui lòng nhập thẻ Google Analytics.',
+    'subscription-error-msg' => 'Vui lòng chọn gói đăng ký.',
+    'cloud-error-message' => 'Vui lòng nhập tên miền đám mây.',
+    'agents-error-message' => 'Vui lòng nhập số lượng đại lý.',
+    'quantity-error-message' => 'Vui lòng nhập số lượng.',
+    'product_description' => 'Mô tả sản phẩm',
+    'choose_file' => 'Chọn tệp',
+    'upload_company_logo' => 'Tải lên logo công ty',
+    'create_invoice' => 'Tạo hóa đơn',
+    'create_coupon' => 'Tạo mã giảm giá',
+    'offer_price' => 'Giá ưu đãi',
+    'restrict_update' => 'Hạn chế cập nhật',
+    'create_product' => 'Tạo sản phẩm',
+    'enter_type_cart' => 'Vui lòng nhập loại trang giỏ hàng',
+    'income_tax_details' => 'Chi tiết thuế chưa hoàn thành',
+    'mandatory_tax' => 'Các trường bắt buộc thiếu trong màn hình thuế.',
+    'info' => 'Thông tin',
+    'product_quantity' => 'Số lượng sản phẩm',
+    'table_search' => 'Tìm kiếm:',
+
 ];

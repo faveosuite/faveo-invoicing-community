@@ -591,8 +591,8 @@ return [
     /*
          * Postavke
          */
-    'log_setting' => 'Sistemski logovi',
-    'cleanup_log' => 'Očisti logove',
+    'log_setting' => 'Sistemski dnevnici',
+    'cleanup_log' => 'Obrišite dnevnike',
     'nocaptcha_secret' => 'Google reCAPTCHA Tajni ključ',
     'nocaptcha_sitekey' => 'Google reCAPTCHA Site ključ',
 
@@ -1625,5 +1625,220 @@ return [
     'caps_orders' => 'NARUDŽBE',
     'enter_valid_firstname' => 'Molimo unesite važeće ime',
     'enter_valid_lastname' => 'Molimo unesite važeće prezime',
+
+    'email_not_matching' => 'Domena e-pošte ne odgovara URL domeni.',
+    'price_description' => 'Opis cijene',
+    'product_description' => 'Opis proizvoda',
+
+    'user_edit_details' => [
+        'add_first_name' => 'Molimo unesite ime.',
+        'add_last_name' => 'Molimo unesite prezime.',
+        'add_email' => 'Molimo unesite email adresu.',
+        'add_address' => 'Molimo unesite adresu.',
+        'add_phone_number' => 'Molimo unesite broj mobilnog telefona.',
+        'add_company' => 'Molimo unesite naziv kompanije.',
+        'add_valid_email' => 'Molimo unesite važeću email adresu.',
+        'add_valid_phone' => 'Molimo unesite važeći broj mobilnog telefona.',
+        'add_valid_name' => 'Molimo unesite važeće ime koristeći samo slova i razmake.',
+        'add_valid_lastname' => 'Molimo unesite važeće prezime koristeći samo slova i razmake.',
+        'add_user_name' => 'Molimo unesite korisničko ime.',
+        'add_country' => 'Molimo odaberite državu.',
+        'add_timezone' => 'Molimo odaberite vremensku zonu.',
+        'add_mobile' => 'Molimo unesite broj mobilnog telefona.',
+        'add_valid_company' => 'Molimo unesite važeći naziv kompanije koristeći samo slova i razmake.',
+    ],
+
+    'invoice_details' => [
+        'add_user' => 'Molimo unesite naziv klijenta.',
+        'add_date' => 'Molimo odaberite važeći datum.',
+        'add_product' => 'Molimo odaberite važeći proizvod.',
+        'add_price' => 'Molimo unesite cijenu.',
+        'payment_date' => 'Molimo unesite datum uplate.',
+        'total' => 'Molimo unesite ukupni iznos fakture.',
+        'add_valid_date' => 'Molimo unesite važeći datum.',
+        'status' => 'Molimo unesite status fakture.',
+    ],
+
+    'page_details' => [
+        'add_name' => 'Molimo unesite važeći naziv stranice.',
+        'add_slug' => 'Molimo unesite važeći slug stranice.',
+        'add_url' => 'Molimo unesite važeći URL(https://example.com).',
+        'add_content' => 'Molimo unesite sadržaj stranice.',
+        'add_publish' => 'Molimo unesite status objave.',
+        'publish_date' => 'Molimo unesite datum objave.',
+        'default_page' => 'Molimo odaberite zadanu stranicu.',
+        'valid_url' => 'Molimo unesite važeći URL(https://example.com).',
+    ],
+
+    'product_details' => [
+        'add_name' => 'Molimo unesite važeći naziv proizvoda.',
+        'add_group' => 'Molimo odaberite važeću grupu.',
+        'add_license_type' => 'Molimo odaberite tip licence.',
+        'add_description' => 'Molimo unesite opis cijene.',
+        'add_product_sku' => 'Molimo unesite SKU proizvoda.',
+        'add_product_description' => 'Molimo unesite opis proizvoda.',
+    ],
+
+    'coupon_details' => [
+        'add_code' => 'Molimo unesite kod kupona.',
+        'add_type' => 'Molimo odaberite tip kupona.',
+        'add_value' => 'Molimo unesite vrijednost popusta kupona.',
+        'add_expiry' => 'Molimo odaberite datum isteka kupona.',
+        'add_start' => 'Molimo odaberite datum početka kupona.',
+        'add_uses' => 'Molimo unesite važeći broj.',
+        'add_applied' => 'Molimo odaberite važeći proizvod.',
+    ],
+
+    'group_details' => [
+        'group_name' => 'Molimo unesite važeći naziv grupe.',
+        'template' => 'Molimo odaberite predložak.',
+    ],
+
+    'com_details' => [
+        'company_name' => 'Molimo unesite naziv kompanije.',
+        'company_email' => 'Molimo unesite važeću email adresu.',
+        'add_address' => 'Molimo unesite adresu kompanije.',
+        'add_phone' => 'Molimo unesite broj telefona kompanije.',
+        'add_website' => 'Molimo unesite važeći URL(https://example.com).',
+        'add_country' => 'Molimo unesite državu kompanije.',
+        'add_state' => 'Molimo unesite državu kompanije.',
+        'default_currency' => 'Molimo unesite zadanu valutu.',
+    ],
+
+    'lic_details' => [
+        'new_license_type' => 'Molimo unesite tip licence.',
+    ],
+
+    'app_details' => [
+        'app_name' => 'Molimo unesite važeći naziv aplikacije.',
+        'app_key' => 'Molimo unesite važeći ključ aplikacije.',
+        'app_secret' => 'Molimo unesite važeću tajnu aplikacije.',
+    ],
+
+    'socialLogin_details' => [
+        'client_id' => 'Molimo unesite važeći ID klijenta.',
+        'client_secret' => 'Molimo unesite važeću tajnu klijenta.',
+        'redirect_url' => 'Molimo unesite važeći URL(https://example.com).',
+        'api_id' => 'Molimo unesite važeći API ID.',
+        'api_secret' => 'Molimo unesite važeću API tajnu.',
+    ],
+
+    'templateEdit_details' => [
+        'subject' => 'Molimo unesite predmet.',
+        'template_type' => 'Molimo odaberite tip predloška.',
+        'content' => 'Molimo unesite sadržaj predloška.',
+    ],
+
+    'tax_details' => [
+        'tax_name' => 'Molimo unesite naziv poreza.',
+        'rate' => 'Molimo unesite stopu poreza.',
+    ],
+
+    'widget_details' => [
+        'name' => 'Molimo unesite naziv widgeta.',
+        'type' => 'Molimo unesite tip widgeta.',
+        'publish' => 'Molimo unesite dozvolu za objavu.',
+    ],
+
+    'social_details' => [
+        'name' => 'Molimo unesite važeće ime.',
+        'link' => 'Molimo unesite važeći link(https://example.com).',
+    ],
+
+    'image_allowed' => 'Dozvoljeni su samo PNG, JPG i JPEG fajlovi.',
+    'image_max' => 'Slika ne smije biti veća od 2 MB.',
+    'central_domain' => 'Molimo unesite naziv domene(https://example.com).',
+    'cloud_name' => 'Molimo unesite cloud cname(example.com)',
+    'cloud_popup' => 'Molimo unesite naslov cloud popup-a.',
+    'cloud_label' => 'Molimo unesite labelu za domenu.',
+    'cloud_radio' => 'Molimo unesite labelu za radio dugme.',
+    'saas_product' => 'Molimo odaberite proizvod.',
+    'saas_free_product' => 'Molimo odaberite proizvod za besplatan probni period.',
+    'saas_product_key' => 'Molimo unesite ključ proizvoda.',
+    'cloud_hub_state' => 'Molimo odaberite državu/okrug.',
+    'cloud_hub_countries' => 'Molimo odaberite zemlju.',
+    'cloud_hub_valid_url' => 'Molimo unesite važeći URL(https://example.com).',
+    'cloud_invalid_message' => 'Pruženi ključ aplikacije je nevažeći. Molimo kontaktirajte administratora.',
+    'cloud_error_message' => 'Nema mogućnosti povezivanja s cloud serverom, kontaktirajte administratora vašeg servera za pomoć.',
+
+    'script_details' => [
+        'name' => 'Molimo unesite naziv skripte.',
+        'content' => 'Molimo unesite sadržaj skripte.',
+    ],
+
+    'razorpay_details' => [
+        'rzp_key' => 'Molimo unesite važeći Razorpay ključ.',
+        'rzp_secret' => 'Molimo unesite važeću tajnu lozinku Razorpay-a.',
+        'apilayer_key' => 'Molimo unesite važeći pristupni ključ.',
+    ],
+
+    'sys_manager' => [
+        'account_manager' => 'Molimo odaberite menadžera računa.',
+        'replacement' => 'Molimo unesite važeće ime.',
+        'sales_manager' => 'Molimo odaberite menadžera prodaje.',
+    ],
+
+    'plan_details' => [
+        'planname' => 'Molimo unesite naziv plana.',
+        'planproduct' => 'Molimo odaberite važeći proizvod.',
+        'plandays' => 'Molimo unesite trajanje (u danima).',
+        'currency' => 'Molimo unesite šifru valute.',
+        'country' => 'Molimo unesite naziv zemlje.',
+        'regular_price' => 'Molimo unesite redovnu cijenu.',
+        'renewal_price' => 'Molimo unesite cijenu obnove.',
+        'productquant' => 'Molimo unesite količinu proizvoda.',
+        'agentquant' => 'Molimo unesite količinu agenata.',
+    ],
+
+    'emailSettings_details' => [
+        'driver' => 'Molimo odaberite važeći email driver.',
+        'host' => 'Molimo unesite važeći email host.',
+        'port' => 'Molimo unesite važeći broj porta.',
+        'email' => 'Molimo unesite važeću email adresu.',
+        'password' => 'Molimo unesite email lozinku.',
+        'domain' => 'Molimo unesite važeću email domenu.',
+        'region' => 'Molimo unesite važeći region email-a.',
+        'api_key' => 'Molimo unesite važeći API ključ.',
+        'from_name' => 'Molimo unesite ime pošiljaoca.',
+        'encryption' => 'Molimo odaberite metodu enkripcije.',
+        'secret' => 'Molimo unesite važeću tajnu lozinku.',
+    ],
+
+    'github_details' => [
+        'name' => 'Molimo unesite važeće GitHub korisničko ime.',
+        'password' => 'Molimo unesite važeću GitHub lozinku.',
+        'client' => 'Molimo unesite važeći ID klijenta.',
+        'secret' => 'Molimo unesite važeću tajnu klijenta.',
+    ],
+
+    'add_files' => [
+        'title' => 'Molimo unesite naziv.',
+        'version' => 'Molimo unesite važeću verziju.',
+        'dependencies' => 'Molimo unesite zavisnosti.',
+    ],
+
+    'valid_name' => 'Naziv kompanije mora imati manje od 50 karaktera.',
+    'valid_gst_number' => 'Molimo unesite važeći GST broj.',
+    'url_tooltip' => 'Unesite URL vodiča za instalaciju kako biste pomogli korisnicima pri postavljanju aplikacije.',
+    'valid_widget_name' => 'Naziv mora imati manje od 50 karaktera i ne može se sastojati samo od posebnih karaktera.',
+    'google_analytics_tag' => 'Molimo unesite Google Analytics oznaku.',
+    'subscription-error-msg' => 'Molimo odaberite pretplatu.',
+    'cloud-error-message' => 'Molimo unesite cloud domenu.',
+    'agents-error-message' => 'Molimo unesite broj agenata.',
+    'quantity-error-message' => 'Molimo unesite količinu.',
+    'product_description' => 'Opis proizvoda',
+    'choose_file' => 'Odaberite datoteku',
+    'upload_company_logo' => 'Otpremite logo kompanije',
+    'create_invoice' => 'Kreiraj fakturu',
+    'create_coupon' => 'Kreiraj kupon',
+    'offer_price' => 'Ponuđena cijena',
+    'restrict_update' => 'Ograniči ažuriranje',
+    'create_product' => 'Kreiraj proizvod',
+    'enter_type_cart' => 'Molimo unesite tip stranice korpe',
+    'income_tax_details' => 'Nepotpuni podaci o porezu',
+    'mandatory_tax' => 'Obavezna polja nedostaju na ekranu poreza.',
+    'info' => 'Informacija',
+    'product_quantity' => 'Količina proizvoda',
+    'table_search' => 'Pretraga:',
 
 ];

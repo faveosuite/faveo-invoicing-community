@@ -1698,4 +1698,219 @@ return [
     'enter_valid_firstname' => 'Por favor, ingrese un nombre válido',
     'enter_valid_lastname' => 'Por favor, ingrese un apellido válido',
 
+    'email_not_matching' => 'El dominio del correo electrónico no coincide con el dominio de la URL.',
+    'price_description' => 'Descripción del precio',
+    'product_description' => 'Descripción del producto',
+
+    'user_edit_details' => [
+        'add_first_name' => 'Por favor, ingrese un nombre.',
+        'add_last_name' => 'Por favor, ingrese un apellido.',
+        'add_email' => 'Por favor, ingrese una dirección de correo electrónico.',
+        'add_address' => 'Por favor, ingrese una dirección.',
+        'add_phone_number' => 'Por favor, ingrese un número de teléfono móvil.',
+        'add_company' => 'Por favor, ingrese un nombre de empresa.',
+        'add_valid_email' => 'Por favor, ingrese una dirección de correo electrónico válida.',
+        'add_valid_phone' => 'Por favor, ingrese un número de móvil válido.',
+        'add_valid_name' => 'Por favor, ingrese un nombre válido utilizando solo letras y espacios.',
+        'add_valid_lastname' => 'Por favor, ingrese un apellido válido utilizando solo letras y espacios.',
+        'add_user_name' => 'Por favor, ingrese un nombre de usuario.',
+        'add_country' => 'Por favor, seleccione un país.',
+        'add_timezone' => 'Por favor, seleccione una zona horaria.',
+        'add_mobile' => 'Por favor, ingrese un número móvil.',
+        'add_valid_company' => 'Por favor, ingrese un nombre de empresa válido utilizando solo letras y espacios.',
+    ],
+
+    'invoice_details' => [
+        'add_user' => 'Por favor, ingrese un nombre de cliente.',
+        'add_date' => 'Por favor, seleccione una fecha válida.',
+        'add_product' => 'Por favor, seleccione un producto válido.',
+        'add_price' => 'Por favor, ingrese el precio.',
+        'payment_date' => 'Por favor, ingrese la fecha de pago.',
+        'total' => 'Por favor, ingrese el monto total de la factura.',
+        'add_valid_date' => 'Por favor, ingrese una fecha válida.',
+        'status' => 'Por favor, ingrese el estado de la factura.',
+    ],
+
+    'page_details' => [
+        'add_name' => 'Por favor, ingrese un nombre de página válido.',
+        'add_slug' => 'Por favor, ingrese un slug de página válido.',
+        'add_url' => 'Por favor, ingrese una URL válida(https://ejemplo.com).',
+        'add_content' => 'Por favor, ingrese el contenido de la página.',
+        'add_publish' => 'Por favor, ingrese el estado de publicación.',
+        'publish_date' => 'Por favor, ingrese una fecha de publicación.',
+        'default_page' => 'Por favor, seleccione una página predeterminada.',
+        'valid_url' => 'Por favor, ingrese una URL válida(https://ejemplo.com).',
+    ],
+
+    'product_details' => [
+        'add_name' => 'Por favor, ingrese un nombre de producto válido.',
+        'add_group' => 'Por favor, seleccione un grupo válido.',
+        'add_license_type' => 'Por favor, seleccione un tipo de licencia.',
+        'add_description' => 'Por favor, ingrese la descripción del precio.',
+        'add_product_sku' => 'Por favor, ingrese el SKU del producto.',
+        'add_product_description' => 'Por favor, ingrese la descripción del producto.',
+    ],
+
+    'coupon_details' => [
+        'add_code' => 'Por favor, ingrese el código del cupón.',
+        'add_type' => 'Por favor, seleccione un tipo de cupón.',
+        'add_value' => 'Por favor, ingrese el valor del descuento del cupón.',
+        'add_expiry' => 'Por favor, seleccione una fecha de expiración del cupón.',
+        'add_start' => 'Por favor, seleccione una fecha de inicio del cupón.',
+        'add_uses' => 'Por favor, ingrese un número válido.',
+        'add_applied' => 'Por favor, seleccione un producto válido.',
+    ],
+
+    'group_details' => [
+        'group_name' => 'Por favor, ingrese un nombre de grupo válido.',
+        'template' => 'Por favor, seleccione una plantilla.',
+    ],
+
+    'com_details' => [
+        'company_name' => 'Por favor, ingrese un nombre de empresa.',
+        'company_email' => 'Por favor, ingrese un correo electrónico válido.',
+        'add_address' => 'Por favor, ingrese la dirección de la empresa.',
+        'add_phone' => 'Por favor, ingrese el número de teléfono de la empresa.',
+        'add_website' => 'Por favor, ingrese una URL válida(https://ejemplo.com).',
+        'add_country' => 'Por favor, ingrese el país de la empresa.',
+        'add_state' => 'Por favor, ingrese el estado de la empresa.',
+        'default_currency' => 'Por favor, ingrese la moneda predeterminada.',
+    ],
+
+    'lic_details' => [
+        'new_license_type' => 'Por favor, ingrese el tipo de licencia.',
+    ],
+
+    'app_details' => [
+        'app_name' => 'Por favor, ingrese un nombre de aplicación válido.',
+        'app_key' => 'Por favor, ingrese una clave de aplicación válida.',
+        'app_secret' => 'Por favor, ingrese un secreto de aplicación válido.',
+    ],
+
+    'socialLogin_details' => [
+        'client_id' => 'Por favor, ingrese un ID de cliente válido.',
+        'client_secret' => 'Por favor, ingrese un secreto de cliente válido.',
+        'redirect_url' => 'Por favor, ingrese una URL válida(https://ejemplo.com).',
+        'api_id' => 'Por favor, ingrese un ID de API válido.',
+        'api_secret' => 'Por favor, ingrese un secreto de API válido.',
+    ],
+
+    'templateEdit_details' => [
+        'subject' => 'Por favor, ingrese el asunto.',
+        'template_type' => 'Por favor, seleccione un tipo de plantilla.',
+        'content' => 'Por favor, ingrese el contenido de la plantilla.',
+    ],
+
+    'tax_details' => [
+        'tax_name' => 'Por favor, ingrese un nombre de impuesto.',
+        'rate' => 'Por favor, ingrese la tasa de impuesto.',
+    ],
+
+    'widget_details' => [
+        'name' => 'Por favor, ingrese el nombre del widget.',
+        'type' => 'Por favor, ingrese el tipo de widget.',
+        'publish' => 'Por favor, ingrese el permiso de publicación.',
+    ],
+
+    'social_details' => [
+        'name' => 'Por favor, ingrese un nombre válido.',
+        'link' => 'Por favor, ingrese un enlace válido(https://ejemplo.com).',
+    ],
+
+    'image_allowed' => 'Solo se permiten archivos PNG, JPG y JPEG.',
+    'image_max' => 'La imagen no debe ser mayor a 2 MB.',
+    'central_domain' => 'Por favor, ingrese el nombre de dominio(https://ejemplo.com).',
+    'cloud_name' => 'Por favor, ingrese el CNAME de la nube(ejemplo.com)',
+    'cloud_popup' => 'Por favor, proporcione el encabezado del popup de la nube.',
+    'cloud_label' => 'Por favor, proporcione la etiqueta para el dominio.',
+    'cloud_radio' => 'Por favor, proporcione la etiqueta para el botón de opción.',
+    'saas_product' => 'Por favor, seleccione un producto.',
+    'saas_free_product' => 'Por favor, seleccione un producto para prueba gratuita.',
+    'saas_product_key' => 'Por favor, ingrese la clave del producto.',
+    'cloud_hub_state' => 'Por favor, seleccione un estado/condado.',
+    'cloud_hub_countries' => 'Por favor, seleccione un país.',
+    'cloud_hub_valid_url' => 'Por favor, ingrese una URL válida(https://ejemplo.com).',
+    'cloud_invalid_message' => 'Clave de aplicación inválida proporcionada. Por favor, contacte al administrador.',
+    'cloud_error_message' => 'No se puede conectar con el servidor de la nube, contacte a su administrador de servidor para asistencia.',
+
+    'script_details' => [
+        'name' => 'Por favor, ingrese el nombre del script.',
+        'content' => 'Por favor, ingrese el contenido del script.',
+    ],
+
+    'razorpay_details' => [
+        'rzp_key' => 'Por favor, ingrese una clave válida de Razorpay.',
+        'rzp_secret' => 'Por favor, ingrese una contraseña secreta válida de Razorpay.',
+        'apilayer_key' => 'Por favor, ingrese una clave de acceso válida.',
+    ],
+
+    'sys_manager' => [
+        'account_manager' => 'Por favor, seleccione un administrador de cuentas.',
+        'replacement' => 'Por favor, ingrese un nombre válido.',
+        'sales_manager' => 'Por favor, seleccione un gerente de ventas.',
+    ],
+
+    'plan_details' => [
+        'planname' => 'Por favor, ingrese el nombre del plan.',
+        'planproduct' => 'Por favor, seleccione un producto válido.',
+        'plandays' => 'Por favor, ingrese la duración (en días).',
+        'currency' => 'Por favor, ingrese el código de la moneda.',
+        'country' => 'Por favor, ingrese el nombre del país.',
+        'regular_price' => 'Por favor, ingrese el precio regular.',
+        'renewal_price' => 'Por favor, ingrese el precio de renovación.',
+        'productquant' => 'Por favor, ingrese la cantidad del producto.',
+        'agentquant' => 'Por favor, ingrese la cantidad de agentes.',
+    ],
+
+    'emailSettings_details' => [
+        'driver' => 'Por favor, seleccione un controlador de correo electrónico válido.',
+        'host' => 'Por favor, ingrese un host de correo electrónico válido.',
+        'port' => 'Por favor, ingrese un número de puerto válido.',
+        'email' => 'Por favor, ingrese una dirección de correo electrónico válida.',
+        'password' => 'Por favor, ingrese la contraseña del correo electrónico.',
+        'domain' => 'Por favor, ingrese un dominio de correo electrónico válido.',
+        'region' => 'Por favor, ingrese una región de correo electrónico válida.',
+        'api_key' => 'Por favor, ingrese una clave de API válida.',
+        'from_name' => 'Por favor, ingrese el nombre del remitente.',
+        'encryption' => 'Por favor, seleccione un método de cifrado.',
+        'secret' => 'Por favor, ingrese una contraseña secreta válida.',
+    ],
+
+    'github_details' => [
+        'name' => 'Por favor, ingrese un nombre de usuario válido de GitHub.',
+        'password' => 'Por favor, ingrese una contraseña válida de GitHub.',
+        'client' => 'Por favor, ingrese un ID de cliente válido.',
+        'secret' => 'Por favor, ingrese una contraseña secreta válida de cliente.',
+    ],
+
+    'add_files' => [
+        'title' => 'Por favor, ingrese el título.',
+        'version' => 'Por favor, ingrese una versión válida.',
+        'dependencies' => 'Por favor, ingrese las dependencias.',
+    ],
+
+    'valid_name' => 'El nombre de la empresa debe tener menos de 50 caracteres.',
+    'valid_gst_number' => 'Por favor, ingrese un número de GST válido.',
+    'url_tooltip' => 'Ingrese la URL de la guía de instalación para ayudar a los usuarios con la configuración de la aplicación.',
+    'valid_widget_name' => 'El nombre debe tener menos de 50 caracteres y no puede consistir solo en caracteres especiales.',
+    'google_analytics_tag' => 'Por favor, ingrese la etiqueta de Google Analytics.',
+    'subscription-error-msg' => 'Por favor, seleccione la suscripción.',
+    'cloud-error-message' => 'Por favor, ingrese el dominio de la nube.',
+    'agents-error-message' => 'Por favor, ingrese el número de agentes.',
+    'quantity-error-message' => 'Por favor, ingrese la cantidad.',
+    'product_description' => 'Descripción del producto',
+    'choose_file' => 'Elegir archivo',
+    'upload_company_logo' => 'Subir el logotipo de la empresa',
+    'create_invoice' => 'Crear factura',
+    'create_coupon' => 'Crear cupón',
+    'offer_price' => 'Precio de oferta',
+    'restrict_update' => 'Restringir actualización',
+    'create_product' => 'Crear producto',
+    'enter_type_cart' => 'Por favor, introduzca el tipo de página del carrito',
+    'income_tax_details' => 'Detalles de impuestos incompletos',
+    'mandatory_tax' => 'Faltan campos obligatorios en la pantalla de impuestos.',
+    'info' => 'Información',
+    'product_quantity' => 'Cantidad de producto',
+    'table_search' => 'Buscar:',
+
 ];

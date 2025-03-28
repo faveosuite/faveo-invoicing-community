@@ -225,8 +225,8 @@
                 }
             });
             const userRequiredFields = {
-                manager:@json(trans('message.system_manager.account_manager')),
-                replace_with:@json(trans('message.system_manager.replacement')),
+                manager:@json(trans('message.sys_manager.account_manager')),
+                replace_with:@json(trans('message.sys_manager.replacement')),
             }
 
             $('#replace').click(function (e) {
@@ -368,8 +368,8 @@
             });
 
             const userRequiredFields = {
-                manager:@json(trans('message.system_manager.sales_manager')),
-                replace_with:@json(trans('message.system_manager.replacement')),
+                manager:@json(trans('message.sys_manager.sales_manager')),
+                replace_with:@json(trans('message.sys_manager.replacement')),
             }
             $('#replaceSales').click(function (e) {
 

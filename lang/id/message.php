@@ -517,7 +517,7 @@ return [
          * github
          */
     'github' => 'Github',
-    'username' => 'Nama Pengguna',
+    'username' => 'Nama belakang',
     'client_id' => 'ID Klien',
     'client_secret' => 'Rahasia Klien',
     'github-owner' => 'Pemilik Github',
@@ -1696,5 +1696,220 @@ return [
     'caps_orders' => 'PESANAN',
     'enter_valid_firstname' => 'Silakan masukkan nama depan yang valid',
     'enter_valid_lastname' => 'Silakan masukkan nama belakang yang valid',
+
+    'email_not_matching' => 'Domain email tidak cocok dengan domain URL.',
+    'price_description' => 'Deskripsi harga',
+    'product_description' => 'Deskripsi produk',
+
+    'user_edit_details' => [
+        'add_first_name' => 'Silakan masukkan nama depan.',
+        'add_last_name' => 'Silakan masukkan nama belakang.',
+        'add_email' => 'Silakan masukkan alamat email.',
+        'add_address' => 'Silakan masukkan alamat.',
+        'add_phone_number' => 'Silakan masukkan nomor ponsel.',
+        'add_company' => 'Silakan masukkan nama perusahaan.',
+        'add_valid_email' => 'Silakan masukkan alamat email yang valid.',
+        'add_valid_phone' => 'Silakan masukkan nomor ponsel yang valid.',
+        'add_valid_name' => 'Silakan masukkan nama yang valid menggunakan hanya huruf dan spasi.',
+        'add_valid_lastname' => 'Silakan masukkan nama belakang yang valid menggunakan hanya huruf dan spasi.',
+        'add_user_name' => 'Silakan masukkan nama pengguna.',
+        'add_country' => 'Silakan pilih negara.',
+        'add_timezone' => 'Silakan pilih zona waktu.',
+        'add_mobile' => 'Silakan masukkan nomor ponsel.',
+        'add_valid_company' => 'Silakan masukkan nama perusahaan yang valid menggunakan hanya huruf dan spasi.',
+    ],
+
+    'invoice_details' => [
+        'add_user' => 'Silakan masukkan nama klien.',
+        'add_date' => 'Silakan pilih tanggal yang valid.',
+        'add_product' => 'Silakan pilih produk yang valid.',
+        'add_price' => 'Silakan masukkan harga.',
+        'payment_date' => 'Silakan masukkan tanggal pembayaran.',
+        'total' => 'Silakan masukkan jumlah total faktur.',
+        'add_valid_date' => 'Silakan masukkan tanggal yang valid.',
+        'status' => 'Silakan masukkan status faktur.',
+    ],
+
+    'page_details' => [
+        'add_name' => 'Silakan masukkan nama halaman yang valid.',
+        'add_slug' => 'Silakan masukkan slug halaman yang valid.',
+        'add_url' => 'Silakan masukkan URL yang valid(https://example.com).',
+        'add_content' => 'Silakan masukkan konten halaman.',
+        'add_publish' => 'Silakan masukkan status terbit.',
+        'publish_date' => 'Silakan masukkan tanggal terbit.',
+        'default_page' => 'Silakan pilih halaman default.',
+        'valid_url' => 'Silakan masukkan URL yang valid(https://example.com).',
+    ],
+
+    'product_details' => [
+        'add_name' => 'Silakan masukkan nama produk yang valid.',
+        'add_group' => 'Silakan pilih grup yang valid.',
+        'add_license_type' => 'Silakan pilih jenis lisensi.',
+        'add_description' => 'Silakan masukkan deskripsi harga.',
+        'add_product_sku' => 'Silakan masukkan SKU produk.',
+        'add_product_description' => 'Silakan masukkan deskripsi produk.',
+    ],
+
+    'coupon_details' => [
+        'add_code' => 'Silakan masukkan kode kupon.',
+        'add_type' => 'Silakan pilih jenis kupon.',
+        'add_value' => 'Silakan masukkan nilai diskon kupon.',
+        'add_expiry' => 'Silakan pilih tanggal kadaluwarsa kupon.',
+        'add_start' => 'Silakan pilih tanggal mulai kupon.',
+        'add_uses' => 'Silakan masukkan jumlah yang valid.',
+        'add_applied' => 'Silakan pilih produk yang valid.',
+    ],
+
+    'group_details' => [
+        'group_name' => 'Silakan masukkan nama grup yang valid.',
+        'template' => 'Silakan pilih template.',
+    ],
+
+    'com_details' => [
+        'company_name' => 'Silakan masukkan nama perusahaan.',
+        'company_email' => 'Silakan masukkan email yang valid.',
+        'add_address' => 'Silakan masukkan alamat perusahaan.',
+        'add_phone' => 'Silakan masukkan nomor telepon perusahaan.',
+        'add_website' => 'Silakan masukkan URL yang valid(https://example.com).',
+        'add_country' => 'Silakan masukkan negara perusahaan.',
+        'add_state' => 'Silakan masukkan negara bagian perusahaan.',
+        'default_currency' => 'Silakan masukkan mata uang default.',
+    ],
+
+    'lic_details' => [
+        'new_license_type' => 'Silakan masukkan jenis lisensi.',
+    ],
+
+    'app_details' => [
+        'app_name' => 'Silakan masukkan nama aplikasi yang valid.',
+        'app_key' => 'Silakan masukkan kunci aplikasi yang valid.',
+        'app_secret' => 'Silakan masukkan rahasia aplikasi yang valid.',
+    ],
+
+    'socialLogin_details' => [
+        'client_id' => 'Silakan masukkan ID klien yang valid.',
+        'client_secret' => 'Silakan masukkan rahasia klien yang valid.',
+        'redirect_url' => 'Silakan masukkan URL yang valid(https://example.com).',
+        'api_id' => 'Silakan masukkan ID API yang valid.',
+        'api_secret' => 'Silakan masukkan rahasia API yang valid.',
+    ],
+
+    'templateEdit_details' => [
+        'subject' => 'Silakan masukkan subjek.',
+        'template_type' => 'Silakan pilih jenis template.',
+        'content' => 'Silakan masukkan konten template.',
+    ],
+
+    'tax_details' => [
+        'tax_name' => 'Silakan masukkan nama pajak.',
+        'rate' => 'Silakan masukkan tarif pajak.',
+    ],
+
+    'widget_details' => [
+        'name' => 'Silakan masukkan nama widget.',
+        'type' => 'Silakan masukkan tipe widget.',
+        'publish' => 'Silakan masukkan izin penerbitan.',
+    ],
+
+    'social_details' => [
+        'name' => 'Silakan masukkan nama yang valid.',
+        'link' => 'Silakan masukkan tautan yang valid(https://example.com).',
+    ],
+
+    'image_allowed' => 'Hanya file PNG, JPG, dan JPEG yang diizinkan.',
+    'image_max' => 'Ukuran gambar tidak boleh lebih dari 2 MB.',
+    'central_domain' => 'Silakan masukkan nama domain(https://example.com).',
+    'cloud_name' => 'Silakan masukkan cname cloud(example.com)',
+    'cloud_popup' => 'Silakan beri judul popup cloud.',
+    'cloud_label' => 'Silakan beri label untuk domain.',
+    'cloud_radio' => 'Silakan beri label untuk tombol radio.',
+    'saas_product' => 'Silakan pilih produk.',
+    'saas_free_product' => 'Silakan pilih produk untuk percakapan gratis.',
+    'saas_product_key' => 'Silakan masukkan kunci produk.',
+    'cloud_hub_state' => 'Silakan pilih negara bagian.',
+    'cloud_hub_countries' => 'Silakan pilih negara.',
+    'cloud_hub_valid_url' => 'Silakan masukkan URL yang valid(https://example.com).',
+    'cloud_invalid_message' => 'Kunci aplikasi tidak valid. Silakan hubungi admin.',
+    'cloud_error_message' => 'Tidak dapat terhubung ke server cloud, hubungi administrator server Anda untuk bantuan.',
+
+    'script_details' => [
+        'name' => 'Silakan masukkan nama skrip.',
+        'content' => 'Silakan masukkan konten skrip.',
+    ],
+
+    'razorpay_details' => [
+        'rzp_key' => 'Silakan masukkan kunci Razorpay yang valid.',
+        'rzp_secret' => 'Silakan masukkan rahasia Razorpay yang valid.',
+        'apilayer_key' => 'Silakan masukkan kunci akses yang valid.',
+    ],
+
+    'sys_manager' => [
+        'account_manager' => 'Silakan pilih manajer akun.',
+        'replacement' => 'Silakan masukkan nama yang valid.',
+        'sales_manager' => 'Silakan pilih manajer penjualan.',
+    ],
+
+    'plan_details' => [
+        'planname' => 'Silakan masukkan nama rencana.',
+        'planproduct' => 'Silakan pilih produk yang valid.',
+        'plandays' => 'Silakan masukkan durasi (dalam hari).',
+        'currency' => 'Silakan masukkan kode mata uang.',
+        'country' => 'Silakan masukkan nama negara.',
+        'regular_price' => 'Silakan masukkan harga reguler.',
+        'renewal_price' => 'Silakan masukkan harga pembaruan.',
+        'productquant' => 'Silakan masukkan jumlah produk.',
+        'agentquant' => 'Silakan masukkan jumlah agen.',
+    ],
+
+    'emailSettings_details' => [
+        'driver' => 'Silakan pilih driver email yang valid.',
+        'host' => 'Silakan masukkan host email yang valid.',
+        'port' => 'Silakan masukkan nomor port yang valid.',
+        'email' => 'Silakan masukkan alamat email yang valid.',
+        'password' => 'Silakan masukkan kata sandi email.',
+        'domain' => 'Silakan masukkan domain email yang valid.',
+        'region' => 'Silakan masukkan wilayah email yang valid.',
+        'api_key' => 'Silakan masukkan kunci API yang valid.',
+        'from_name' => 'Silakan masukkan nama pengirim.',
+        'encryption' => 'Silakan pilih metode enkripsi.',
+        'secret' => 'Silakan masukkan kata sandi rahasia yang valid.',
+    ],
+
+    'github_details' => [
+        'name' => 'Silakan masukkan nama pengguna GitHub yang valid.',
+        'password' => 'Silakan masukkan kata sandi GitHub yang valid.',
+        'client' => 'Silakan masukkan ID klien yang valid.',
+        'secret' => 'Silakan masukkan kata sandi rahasia klien yang valid.',
+    ],
+
+    'add_files' => [
+        'title' => 'Silakan masukkan judul.',
+        'version' => 'Silakan masukkan versi yang valid.',
+        'dependencies' => 'Silakan masukkan ketergantungan.',
+    ],
+
+    'valid_name' => 'Nama perusahaan harus kurang dari 50 karakter.',
+    'valid_gst_number' => 'Silakan masukkan nomor GST yang valid.',
+    'url_tooltip' => 'Masukkan URL panduan instalasi untuk membantu pengguna dalam pengaturan Aplikasi.',
+    'valid_widget_name' => 'Nama harus kurang dari 50 karakter dan tidak boleh hanya terdiri dari karakter khusus.',
+    'google_analytics_tag' => 'Silakan masukkan tag google analytics.',
+    'subscription-error-msg' => 'Silakan pilih langganan.',
+    'cloud-error-message' => 'Silakan masukkan domain cloud.',
+    'agents-error-message' => 'Silakan masukkan jumlah agen.',
+    'quantity-error-message' => 'Silakan masukkan jumlah.',
+    'product_description' => 'Deskripsi Produk',
+    'choose_file' => 'Pilih file',
+    'upload_company_logo' => 'Unggah logo perusahaan',
+    'create_invoice' => 'Buat Faktur',
+    'create_coupon' => 'Buat Kupon',
+    'offer_price' => 'Harga Penawaran',
+    'restrict_update' => 'Batasi Pembaruan',
+    'create_product' => 'Buat Produk',
+    'enter_type_cart' => 'Silakan masukkan jenis halaman keranjang',
+    'income_tax_details' => 'Detail Pajak Tidak Lengkap',
+    'mandatory_tax' => 'Kolom wajib hilang di layar Pajak.',
+    'info' => 'info',
+    'product_quantity' => 'Jumlah Produk',
+    'table_search' => 'Cari:',
 
 ];

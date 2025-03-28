@@ -872,9 +872,211 @@ return [
     'max_stripe_key' => 'Stripe Key cannot exceed 200 characters',
     'required_stripe_secret' => 'Please Enter Stripe Secret',
     'max_stripe_secret' => 'Stripe Secret cannot exceed 200 characters',
+
+    'email_not_matching' => 'The email domain does not match the URL domain.',
+    'price_description' => 'Price description',
+    'product_description' => 'Product description',
+
+    'user_edit_details' => [
+        'add_first_name' => 'Please enter a first name.',
+        'add_last_name' => 'Please enter a last name.',
+        'add_email' => 'Please enter a email address.',
+        'add_address' => 'Please enter a address.',
+        'add_phone_number' => 'Please enter a mobile number.',
+        'add_company' => 'Please enter a company name.',
+        'add_valid_email' => 'Please enter a valid email address.',
+        'add_valid_phone' => 'Please enter a valid mobile number.',
+        'add_valid_name' => 'Please enter a valid name using only letters and spaces.',
+        'add_valid_lastname' => 'Please enter a valid last name using only letters and spaces.',
+        'add_user_name' => 'Please enter a username.',
+        'add_country' => 'Please select  a country.',
+        'add_timezone' => 'Please select a timezone.',
+        'add_mobile' => 'Please enter a mobile number.',
+        'add_valid_company' => 'Please enter a valid company name using only letters and spaces.',
+    ],
+
+    'invoice_details' => [
+        'add_user' => 'Please enter a client name.',
+        'add_date' => 'Please select a valid date.',
+        'add_product' => 'Please select a valid product.',
+        'add_price' => 'Please enter price.',
+        'payment_date' => 'Please enter the payment date.',
+        'total' => 'Please enter the total invoice amount.',
+        'add_valid_date' => 'Please enter a valid date.',
+        'status' => 'Please enter status of invoice.',
+    ],
+
+    'page_details' => [
+        'add_name' => 'Please enter a valid page name.',
+        'add_slug' => 'Please enter a valid page slug.',
+        'add_url' => 'Please enter a valid URL(https://example.com).',
+        'add_content' => 'Please enter page content.',
+        'add_publish' => 'Please enter publish status.',
+        'publish_date' => 'Please enter a publishing date.',
+        'default_page' => 'Please select a default page.',
+        'valid_url' => 'Please enter a valid URL(https://example.com).',
+    ],
+
+    'product_details' => [
+        'add_name' => 'Please enter a valid Product name.',
+        'add_group' => 'Please select a valid group.',
+        'add_license_type' => 'Please select a License type.',
+        'add_description' => 'Please enter price description.',
+        'add_product_sku' => 'Please enter product SKU.',
+        'add_product_description' => 'Please enter product description.',
+    ],
+
+    'coupon_details' => [
+        'add_code' => 'Please enter coupon code.',
+        'add_type' => 'Please select a coupon type.',
+        'add_value' => 'Please enter coupon discount value.',
+        'add_expiry' => 'Please select a coupon expiration date.',
+        'add_start' => 'Please select a coupon start date.',
+        'add_uses' => 'Please enter a valid number.',
+        'add_applied' => 'Please select a valid product.',
+    ],
+
+    'group_details' => [
+        'group_name' => 'Please enter a valid group name.',
+        'template' => 'Please select template.',
+    ],
+
+    'com_details' => [
+        'company_name' => 'Please enter a company name.',
+        'company_email' => 'Please enter a valid email.',
+        'add_address' => 'Please enter company address.',
+        'add_phone' => 'Please enter the company phone number.',
+        'add_website' => 'Please enter a valid URL(https://example.com).',
+        'add_country' => 'Please enter the company country.',
+        'add_state' => 'Please enter the company state.',
+        'default_currency' => 'Please enter the default currency.',
+    ],
+
+    'lic_details' => [
+        'new_license_type' => 'Please enter license type.',
+    ],
+
+    'app_details' => [
+        'app_name' => 'Please enter a valid App name.',
+        'app_key' => 'Please enter a valid App key.',
+        'app_secret' => 'Please enter a valid App secret.',
+    ],
+
+    'socialLogin_details' => [
+        'client_id' => 'Please enter a  valid client ID.',
+        'client_secret' => 'Please enter a valid client secret.',
+        'redirect_url' => 'Please enter a valid URL(https://example.com).',
+        'api_id' => 'Please enter a valid API ID.',
+        'api_secret' => 'Please enter a valid API secret.',
+    ],
+
+    'templateEdit_details' => [
+        'subject' => 'Please enter subject.',
+        'template_type' => 'Please select template type.',
+        'content' => 'Please enter template content.',
+    ],
+
+    'tax_details' => [
+        'tax_name' => 'Please enter a tax name.',
+        'rate' => 'Please enter tax rate.',
+    ],
+
+    'widget_details' => [
+        'name' => 'Please enter widget name.',
+        'type' => 'Please enter widget type.',
+        'publish' => 'Please enter the publishing permission.',
+    ],
+
+    'social_details' => [
+        'name' => 'Please enter a valid name.',
+        'link' => 'Please enter a valid link(https://example.com).',
+    ],
+
+    'image_allowed' => 'Only PNG, JPG, and JPEG files are allowed.',
+    'image_max' => 'The image may not be greater than 2 MB.',
+    'central_domain' => 'Please enter domain name(https://example.com).',
+    'cloud_name' => 'Please enter cloud cname(example.com)',
+    'cloud_popup' => 'Please provide cloud popup heading.',
+    'cloud_label' => 'Please provide label for domain.',
+    'cloud_radio' => 'Please provide label for radio button.',
+    'saas_product' => 'Please select a product.',
+    'saas_free_product' => 'Please select a product for free trial.',
+    'saas_product_key' => 'Please enter product key.',
+    'cloud_hub_state' => 'Please select a state/county.',
+    'cloud_hub_countries' => 'Please select a country.',
+    'cloud_hub_valid_url' => 'Please enter a valid url(https://example.com).',
+    'cloud_invalid_message' => 'Invalid App key provided. Please contact admin.',
+    'cloud_error_message' => 'Unable to connect to cloud server, contact your server administrator for assistance.',
+
+    'script_details' => [
+        'name' => 'Please enter script name.',
+        'content' => 'Please enter script content.',
+    ],
+
+    'razorpay_details' => [
+        'rzp_key' => 'Please enter a valid Razorpay key.',
+        'rzp_secret' => 'Please enter a valid Razorpay secret password.',
+        'apilayer_key' => 'Please enter a valid access key.',
+    ],
+
+    'sys_manager' => [
+        'account_manager' => 'Please select an Account manager.',
+        'replacement' => 'Please enter a valid name.',
+        'sales_manager' => 'Please select a Sales manager.',
+    ],
+
+    'plan_details' => [
+        'planname' => 'Please enter plan name.',
+        'planproduct' => 'Please select a valid product.',
+        'plandays' => 'Please enter the duration (in days).',
+        'currency' => 'Please enter the currency code.',
+        'country' => 'Please enter the country name.',
+        'regular_price' => 'Please enter the regular price.',
+        'renewal_price' => 'Please enter the renewal price.',
+        'productquant' => 'Please enter the product quantity.',
+        'agentquant' => 'Please enter the agent quantity.',
+    ],
+
+    'emailSettings_details' => [
+        'driver' => 'Please select a valid email driver.',
+        'host' => 'Please enter a valid email host.',
+        'port' => 'Please enter a valid port number.',
+        'email' => 'Please enter a valid email address.',
+        'password' => 'Please enter email password.',
+        'domain' => 'Please enter a valid email domain.',
+        'region' => 'Please enter a valid email region.',
+        'api_key' => 'Please enter a valid API key.',
+        'from_name' => 'Please enter the senders name.',
+        'encryption' => 'Please select a encryption method.',
+        'secret' => 'Please enter a valid secret password.',
+    ],
+
+    'github_details' => [
+        'name' => 'Please enter a valid GitHub username.',
+        'password' => 'Please enter a valid GitHub password.',
+        'client' => 'Please enter a valid client ID.',
+        'secret' => 'Please enter a valid client secret password.',
+    ],
+
+    'add_files' => [
+        'title' => 'Please enter title.',
+        'version' => 'Please enter a valid version.',
+        'dependencies' => 'Please enter dependencies.',
+    ],
+
+    'valid_name' => 'The company name must be fewer than 50 characters.',
+    'valid_gst_number' => 'Please enter a valid GST number.',
+    'url_tooltip' => 'Enter the installation guide URL to assist users with Application setup.',
+    'valid_widget_name' => 'The name must be fewer than 50 characters and cannot consist only of special characters.',
+    'google_analytics_tag' => 'Please enter google analytics tag.',
+    'subscription-error-msg' => 'Please select the subscription.',
+    'cloud-error-message' => 'Please enter cloud domain.',
+    'agents-error-message' => 'Please enter number of agents.',
+    'quantity-error-message' => 'Please enter quantity.',
     'product_description' => 'Product Description',
     'price_description' => 'Price Description',
-
+    'image_allowed' => 'Only PNG, JPG, and JPEG files are allowed.',
+    'image_max' => 'The image may not be greater than 2 MB.',
     //email templates
 
     'choose_password' => 'Click here to reset your password: ',
@@ -1702,5 +1904,20 @@ return [
     'period' => 'Period',
     'last_10_requests' => 'Last 10 Requests',
     'caps_orders' => 'ORDERS',
+    'enter_valid_firstname' => 'Please enter a valid first name',
+    'enter_valid_lastname' => 'Please enter a valid last name',
+    'choose_file' => 'Choose file',
+    'upload_company_logo' => 'Upload the company logo',
+    'create_invoice' => 'Create Invoice',
+    'create_coupon' => 'Create Coupon',
+    'offer_price' => 'Offer Price',
+    'restrict_update' => 'Restrict Update',
+    'create_product' => 'Create Product',
+    'enter_type_cart' => 'Please enter type of cart page',
+    'income_tax_details' => 'Incomplete Tax Details',
+    'mandatory_tax' => 'Mandatory fields missing in Tax screen.',
+    'info' => 'info',
+    'product_quantity' => 'Product Quantity',
+    'table_search' => 'Search:',
 
 ];

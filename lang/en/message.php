@@ -941,7 +941,7 @@ return [
         'template' => 'Please select template.',
     ],
 
-    'company_details' => [
+    'com_details' => [
         'company_name' => 'Please enter a company name.',
         'company_email' => 'Please enter a valid email.',
         'add_address' => 'Please enter company address.',
@@ -952,7 +952,7 @@ return [
         'default_currency' => 'Please enter the default currency.',
     ],
 
-    'license_details' => [
+    'lic_details' => [
         'new_license_type' => 'Please enter license type.',
     ],
 
@@ -1019,7 +1019,7 @@ return [
         'apilayer_key' => 'Please enter a valid access key.',
     ],
 
-    'system_manager' => [
+    'sys_manager' => [
         'account_manager' => 'Please select an Account manager.',
         'replacement' => 'Please enter a valid name.',
         'sales_manager' => 'Please select a Sales manager.',

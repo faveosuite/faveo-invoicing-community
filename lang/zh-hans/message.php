@@ -1684,4 +1684,219 @@ return [
     'enter_valid_firstname' => '请输入有效的名字',
     'enter_valid_lastname' => '请输入有效的姓氏',
 
+    'email_not_matching' => '电子邮件域与URL域不匹配。',
+    'price_description' => '价格描述',
+    'product_description' => '产品描述',
+
+    'user_edit_details' => [
+        'add_first_name' => '请输入名字。',
+        'add_last_name' => '请输入姓氏。',
+        'add_email' => '请输入电子邮件地址。',
+        'add_address' => '请输入地址。',
+        'add_phone_number' => '请输入手机号码。',
+        'add_company' => '请输入公司名称。',
+        'add_valid_email' => '请输入有效的电子邮件地址。',
+        'add_valid_phone' => '请输入有效的手机号码。',
+        'add_valid_name' => '请输入有效的名字，只能使用字母和空格。',
+        'add_valid_lastname' => '请输入有效的姓氏，只能使用字母和空格。',
+        'add_user_name' => '请输入用户名。',
+        'add_country' => '请选择国家。',
+        'add_timezone' => '请选择时区。',
+        'add_mobile' => '请输入手机号码。',
+        'add_valid_company' => '请输入有效的公司名称，只能使用字母和空格。',
+    ],
+
+    'invoice_details' => [
+        'add_user' => '请输入客户名称。',
+        'add_date' => '请选择有效的日期。',
+        'add_product' => '请选择有效的产品。',
+        'add_price' => '请输入价格。',
+        'payment_date' => '请输入支付日期。',
+        'total' => '请输入总发票金额。',
+        'add_valid_date' => '请输入有效的日期。',
+        'status' => '请输入发票状态。',
+    ],
+
+    'page_details' => [
+        'add_name' => '请输入有效的页面名称。',
+        'add_slug' => '请输入有效的页面别名。',
+        'add_url' => '请输入有效的URL(https://example.com)。',
+        'add_content' => '请输入页面内容。',
+        'add_publish' => '请输入发布状态。',
+        'publish_date' => '请输入发布日期。',
+        'default_page' => '请选择默认页面。',
+        'valid_url' => '请输入有效的URL(https://example.com)。',
+    ],
+
+    'product_details' => [
+        'add_name' => '请输入有效的产品名称。',
+        'add_group' => '请选择有效的分组。',
+        'add_license_type' => '请选择许可类型。',
+        'add_description' => '请输入价格描述。',
+        'add_product_sku' => '请输入产品SKU。',
+        'add_product_description' => '请输入产品描述。',
+    ],
+
+    'coupon_details' => [
+        'add_code' => '请输入优惠券代码。',
+        'add_type' => '请选择优惠券类型。',
+        'add_value' => '请输入优惠券折扣值。',
+        'add_expiry' => '请选择优惠券到期日期。',
+        'add_start' => '请选择优惠券开始日期。',
+        'add_uses' => '请输入有效的使用次数。',
+        'add_applied' => '请选择有效的产品。',
+    ],
+
+    'group_details' => [
+        'group_name' => '请输入有效的分组名称。',
+        'template' => '请选择模板。',
+    ],
+
+    'com_details' => [
+        'company_name' => '请输入公司名称。',
+        'company_email' => '请输入有效的电子邮件。',
+        'add_address' => '请输入公司地址。',
+        'add_phone' => '请输入公司电话号码。',
+        'add_website' => '请输入有效的URL(https://example.com)。',
+        'add_country' => '请输入公司所在国家。',
+        'add_state' => '请输入公司所在州。',
+        'default_currency' => '请输入默认货币。',
+    ],
+
+    'lic_details' => [
+        'new_license_type' => '请输入许可类型。',
+    ],
+
+    'app_details' => [
+        'app_name' => '请输入有效的应用名称。',
+        'app_key' => '请输入有效的应用密钥。',
+        'app_secret' => '请输入有效的应用密钥。',
+    ],
+
+    'socialLogin_details' => [
+        'client_id' => '请输入有效的客户端ID。',
+        'client_secret' => '请输入有效的客户端密钥。',
+        'redirect_url' => '请输入有效的URL(https://example.com)。',
+        'api_id' => '请输入有效的API ID。',
+        'api_secret' => '请输入有效的API密钥。',
+    ],
+
+    'templateEdit_details' => [
+        'subject' => '请输入主题。',
+        'template_type' => '请选择模板类型。',
+        'content' => '请输入模板内容。',
+    ],
+
+    'tax_details' => [
+        'tax_name' => '请输入税名。',
+        'rate' => '请输入税率。',
+    ],
+
+    'widget_details' => [
+        'name' => '请输入小部件名称。',
+        'type' => '请输入小部件类型。',
+        'publish' => '请输入发布权限。',
+    ],
+
+    'social_details' => [
+        'name' => '请输入有效的名称。',
+        'link' => '请输入有效的链接(https://example.com)。',
+    ],
+
+    'image_allowed' => '仅允许PNG、JPG和JPEG文件。',
+    'image_max' => '图像大小不得超过2MB。',
+    'central_domain' => '请输入域名(https://example.com)。',
+    'cloud_name' => '请输入云CNAME（example.com）',
+    'cloud_popup' => '请输入云弹出窗口标题。',
+    'cloud_label' => '请输入云标签。',
+    'cloud_radio' => '请输入云单选按钮标签。',
+    'saas_product' => '请选择产品。',
+    'saas_free_product' => '请选择免费试用的产品。',
+    'saas_product_key' => '请输入产品密钥。',
+    'cloud_hub_state' => '请选择州/县。',
+    'cloud_hub_countries' => '请选择国家。',
+    'cloud_hub_valid_url' => '请输入有效的URL(https://example.com)。',
+    'cloud_invalid_message' => '提供的应用密钥无效。请联系管理员。',
+    'cloud_error_message' => '无法连接到云服务器，请联系您的服务器管理员以获取帮助。',
+
+    'script_details' => [
+        'name' => '请输入脚本名称。',
+        'content' => '请输入脚本内容。',
+    ],
+
+    'razorpay_details' => [
+        'rzp_key' => '请输入有效的Razorpay密钥。',
+        'rzp_secret' => '请输入有效的Razorpay密钥密码。',
+        'apilayer_key' => '请输入有效的访问密钥。',
+    ],
+
+    'sys_manager' => [
+        'account_manager' => '请选择账户经理。',
+        'replacement' => '请输入有效的名称。',
+        'sales_manager' => '请选择销售经理。',
+    ],
+
+    'plan_details' => [
+        'planname' => '请输入计划名称。',
+        'planproduct' => '请选择有效的产品。',
+        'plandays' => '请输入持续时间（天）。',
+        'currency' => '请输入货币代码。',
+        'country' => '请输入国家名称。',
+        'regular_price' => '请输入常规价格。',
+        'renewal_price' => '请输入续订价格。',
+        'productquant' => '请输入产品数量。',
+        'agentquant' => '请输入代理数量。',
+    ],
+
+    'emailSettings_details' => [
+        'driver' => '请选择有效的邮件驱动程序。',
+        'host' => '请输入有效的邮件主机。',
+        'port' => '请输入有效的端口号。',
+        'email' => '请输入有效的电子邮件地址。',
+        'password' => '请输入电子邮件密码。',
+        'domain' => '请输入有效的电子邮件域名。',
+        'region' => '请输入有效的电子邮件区域。',
+        'api_key' => '请输入有效的API密钥。',
+        'from_name' => '请输入发件人姓名。',
+        'encryption' => '请选择加密方法。',
+        'secret' => '请输入有效的密钥密码。',
+    ],
+
+    'github_details' => [
+        'name' => '请输入有效的GitHub用户名。',
+        'password' => '请输入有效的GitHub密码。',
+        'client' => '请输入有效的客户端ID。',
+        'secret' => '请输入有效的客户端密钥。',
+    ],
+
+    'add_files' => [
+        'title' => '请输入标题。',
+        'version' => '请输入有效的版本。',
+        'dependencies' => '请输入依赖项。',
+    ],
+
+    'valid_name' => '公司名称必须少于50个字符。',
+    'valid_gst_number' => '请输入有效的GST号码。',
+    'url_tooltip' => '输入安装指南URL，以帮助用户设置应用程序。',
+    'valid_widget_name' => '名称必须少于50个字符，且不能仅由特殊字符组成。',
+    'google_analytics_tag' => '请输入Google分析标签。',
+    'subscription-error-msg' => '请选择订阅。',
+    'cloud-error-message' => '请输入云域名。',
+    'agents-error-message' => '请输入代理数量。',
+    'quantity-error-message' => '请输入数量。',
+    'product_description' => '产品描述',
+    'choose_file' => '选择文件',
+    'upload_company_logo' => '上传公司徽标',
+    'create_invoice' => '创建发票',
+    'create_coupon' => '创建优惠券',
+    'offer_price' => '报价',
+    'restrict_update' => '限制更新',
+    'create_product' => '创建产品',
+    'enter_type_cart' => '请输入购物车页面类型',
+    'income_tax_details' => '税务详情不完整',
+    'mandatory_tax' => '税务页面缺少必填字段。',
+    'info' => '信息',
+    'product_quantity' => '产品数量',
+    'table_search' => '搜索：',
+
 ];

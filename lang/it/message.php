@@ -1697,4 +1697,219 @@ return [
     'enter_valid_firstname' => 'Inserisci un nome valido',
     'enter_valid_lastname' => 'Inserisci un cognome valido',
 
+    'email_not_matching' => 'Il dominio dell\'email non corrisponde al dominio dell\'URL.',
+    'price_description' => 'Descrizione del prezzo',
+    'product_description' => 'Descrizione del prodotto',
+
+    'user_edit_details' => [
+        'add_first_name' => 'Si prega di inserire un nome.',
+        'add_last_name' => 'Si prega di inserire un cognome.',
+        'add_email' => 'Si prega di inserire un indirizzo email.',
+        'add_address' => 'Si prega di inserire un indirizzo.',
+        'add_phone_number' => 'Si prega di inserire un numero di cellulare.',
+        'add_company' => 'Si prega di inserire un nome azienda.',
+        'add_valid_email' => 'Si prega di inserire un indirizzo email valido.',
+        'add_valid_phone' => 'Si prega di inserire un numero di cellulare valido.',
+        'add_valid_name' => 'Si prega di inserire un nome valido utilizzando solo lettere e spazi.',
+        'add_valid_lastname' => 'Si prega di inserire un cognome valido utilizzando solo lettere e spazi.',
+        'add_user_name' => 'Si prega di inserire un nome utente.',
+        'add_country' => 'Si prega di selezionare un paese.',
+        'add_timezone' => 'Si prega di selezionare un fuso orario.',
+        'add_mobile' => 'Si prega di inserire un numero di cellulare.',
+        'add_valid_company' => 'Si prega di inserire un nome azienda valido utilizzando solo lettere e spazi.',
+    ],
+
+    'invoice_details' => [
+        'add_user' => 'Si prega di inserire un nome cliente.',
+        'add_date' => 'Si prega di selezionare una data valida.',
+        'add_product' => 'Si prega di selezionare un prodotto valido.',
+        'add_price' => 'Si prega di inserire il prezzo.',
+        'payment_date' => 'Si prega di inserire la data di pagamento.',
+        'total' => 'Si prega di inserire l\'importo totale della fattura.',
+        'add_valid_date' => 'Si prega di inserire una data valida.',
+        'status' => 'Si prega di inserire lo stato della fattura.',
+    ],
+
+    'page_details' => [
+        'add_name' => 'Si prega di inserire un nome pagina valido.',
+        'add_slug' => 'Si prega di inserire uno slug pagina valido.',
+        'add_url' => 'Si prega di inserire un URL valido (https://esempio.com).',
+        'add_content' => 'Si prega di inserire il contenuto della pagina.',
+        'add_publish' => 'Si prega di inserire lo stato di pubblicazione.',
+        'publish_date' => 'Si prega di inserire una data di pubblicazione.',
+        'default_page' => 'Si prega di selezionare una pagina predefinita.',
+        'valid_url' => 'Si prega di inserire un URL valido (https://esempio.com).',
+    ],
+
+    'product_details' => [
+        'add_name' => 'Si prega di inserire un nome prodotto valido.',
+        'add_group' => 'Si prega di selezionare un gruppo valido.',
+        'add_license_type' => 'Si prega di selezionare un tipo di licenza.',
+        'add_description' => 'Si prega di inserire una descrizione del prezzo.',
+        'add_product_sku' => 'Si prega di inserire il codice prodotto.',
+        'add_product_description' => 'Si prega di inserire una descrizione del prodotto.',
+    ],
+
+    'coupon_details' => [
+        'add_code' => 'Si prega di inserire il codice coupon.',
+        'add_type' => 'Si prega di selezionare un tipo di coupon.',
+        'add_value' => 'Si prega di inserire il valore dello sconto del coupon.',
+        'add_expiry' => 'Si prega di selezionare una data di scadenza del coupon.',
+        'add_start' => 'Si prega di selezionare una data di inizio coupon.',
+        'add_uses' => 'Si prega di inserire un numero valido.',
+        'add_applied' => 'Si prega di selezionare un prodotto valido.',
+    ],
+
+    'group_details' => [
+        'group_name' => 'Si prega di inserire un nome gruppo valido.',
+        'template' => 'Si prega di selezionare un modello.',
+    ],
+
+    'com_details' => [
+        'company_name' => 'Si prega di inserire un nome azienda.',
+        'company_email' => 'Si prega di inserire un email valido.',
+        'add_address' => 'Si prega di inserire l\'indirizzo azienda.',
+        'add_phone' => 'Si prega di inserire il numero di telefono aziendale.',
+        'add_website' => 'Si prega di inserire un URL valido (https://esempio.com).',
+        'add_country' => 'Si prega di inserire il paese azienda.',
+        'add_state' => 'Si prega di inserire lo stato azienda.',
+        'default_currency' => 'Si prega di inserire la valuta predefinita.',
+    ],
+
+    'lic_details' => [
+        'new_license_type' => 'Si prega di inserire il tipo di licenza.',
+    ],
+
+    'app_details' => [
+        'app_name' => 'Si prega di inserire un nome app valido.',
+        'app_key' => 'Si prega di inserire una chiave app valida.',
+        'app_secret' => 'Si prega di inserire un segreto app valido.',
+    ],
+
+    'socialLogin_details' => [
+        'client_id' => 'Si prega di inserire un ID client valido.',
+        'client_secret' => 'Si prega di inserire un segreto client valido.',
+        'redirect_url' => 'Si prega di inserire un URL valido (https://esempio.com).',
+        'api_id' => 'Si prega di inserire un ID API valido.',
+        'api_secret' => 'Si prega di inserire un segreto API valido.',
+    ],
+
+    'templateEdit_details' => [
+        'subject' => 'Si prega di inserire l\'oggetto.',
+        'template_type' => 'Si prega di selezionare il tipo di modello.',
+        'content' => 'Si prega di inserire il contenuto del modello.',
+    ],
+
+    'tax_details' => [
+        'tax_name' => 'Si prega di inserire un nome tassa.',
+        'rate' => 'Si prega di inserire la percentuale della tassa.',
+    ],
+
+    'widget_details' => [
+        'name' => 'Si prega di inserire il nome del widget.',
+        'type' => 'Si prega di inserire il tipo di widget.',
+        'publish' => 'Si prega di inserire il permesso di pubblicazione.',
+    ],
+
+    'social_details' => [
+        'name' => 'Si prega di inserire un nome valido.',
+        'link' => 'Si prega di inserire un link valido (https://esempio.com).',
+    ],
+
+    'image_allowed' => 'Sono consentiti solo file PNG, JPG e JPEG.',
+    'image_max' => 'L\'immagine non può essere più grande di 2 MB.',
+    'central_domain' => 'Si prega di inserire il nome del dominio (https://esempio.com).',
+    'cloud_name' => 'Si prega di inserire il cname del cloud (esempio.com)',
+    'cloud_popup' => 'Si prega di fornire il titolo del popup del cloud.',
+    'cloud_label' => 'Si prega di fornire un’etichetta per il dominio.',
+    'cloud_radio' => 'Si prega di fornire un’etichetta per il pulsante di opzione.',
+    'saas_product' => 'Si prega di selezionare un prodotto.',
+    'saas_free_product' => 'Si prega di selezionare un prodotto per la prova gratuita.',
+    'saas_product_key' => 'Si prega di inserire la chiave del prodotto.',
+    'cloud_hub_state' => 'Si prega di selezionare uno stato/una contea.',
+    'cloud_hub_countries' => 'Si prega di selezionare un paese.',
+    'cloud_hub_valid_url' => 'Si prega di inserire un URL valido (https://esempio.com).',
+    'cloud_invalid_message' => 'Chiave App non valida fornita. Si prega di contattare l\'amministratore.',
+    'cloud_error_message' => 'Impossibile connettersi al server cloud, contattare l\'amministratore del server per assistenza.',
+
+    'script_details' => [
+        'name' => 'Si prega di inserire il nome dello script.',
+        'content' => 'Si prega di inserire il contenuto dello script.',
+    ],
+
+    'razorpay_details' => [
+        'rzp_key' => 'Si prega di inserire una chiave Razorpay valida.',
+        'rzp_secret' => 'Si prega di inserire una password segreta Razorpay valida.',
+        'apilayer_key' => 'Si prega di inserire una chiave di accesso valida.',
+    ],
+
+    'sys_manager' => [
+        'account_manager' => 'Si prega di selezionare un gestore dell\'account.',
+        'replacement' => 'Si prega di inserire un nome valido.',
+        'sales_manager' => 'Si prega di selezionare un responsabile vendite.',
+    ],
+
+    'plan_details' => [
+        'planname' => 'Si prega di inserire il nome del piano.',
+        'planproduct' => 'Si prega di selezionare un prodotto valido.',
+        'plandays' => 'Si prega di inserire la durata (in giorni).',
+        'currency' => 'Si prega di inserire il codice valuta.',
+        'country' => 'Si prega di inserire il nome del paese.',
+        'regular_price' => 'Si prega di inserire il prezzo regolare.',
+        'renewal_price' => 'Si prega di inserire il prezzo di rinnovo.',
+        'productquant' => 'Si prega di inserire la quantità di prodotto.',
+        'agentquant' => 'Si prega di inserire la quantità di agenti.',
+    ],
+
+    'emailSettings_details' => [
+        'driver' => 'Si prega di selezionare un driver email valido.',
+        'host' => 'Si prega di inserire un host email valido.',
+        'port' => 'Si prega di inserire un numero di porta valido.',
+        'email' => 'Si prega di inserire un indirizzo email valido.',
+        'password' => 'Si prega di inserire la password dell\'email.',
+        'domain' => 'Si prega di inserire un dominio email valido.',
+        'region' => 'Si prega di inserire una regione email valida.',
+        'api_key' => 'Si prega di inserire una chiave API valida.',
+        'from_name' => 'Si prega di inserire il nome del mittente.',
+        'encryption' => 'Si prega di selezionare un metodo di crittografia.',
+        'secret' => 'Si prega di inserire una password segreta valida.',
+    ],
+
+    'github_details' => [
+        'name' => 'Si prega di inserire un nome utente GitHub valido.',
+        'password' => 'Si prega di inserire una password GitHub valida.',
+        'client' => 'Si prega di inserire un ID client valido.',
+        'secret' => 'Si prega di inserire una password segreta client valida.',
+    ],
+
+    'add_files' => [
+        'title' => 'Si prega di inserire il titolo.',
+        'version' => 'Si prega di inserire una versione valida.',
+        'dependencies' => 'Si prega di inserire le dipendenze.',
+    ],
+
+    'valid_name' => 'Il nome dell\'azienda deve essere inferiore a 50 caratteri.',
+    'valid_gst_number' => 'Si prega di inserire un numero GST valido.',
+    'url_tooltip' => 'Inserisci l\'URL della guida all\'installazione per assistere gli utenti con la configurazione dell\'applicazione.',
+    'valid_widget_name' => 'Il nome deve essere inferiore a 50 caratteri e non può consistere solo di caratteri speciali.',
+    'google_analytics_tag' => 'Si prega di inserire il tag di Google Analytics.',
+    'subscription-error-msg' => 'Si prega di selezionare l\'abbonamento.',
+    'cloud-error-message' => 'Si prega di inserire il dominio cloud.',
+    'agents-error-message' => 'Si prega di inserire il numero di agenti.',
+    'quantity-error-message' => 'Si prega di inserire la quantità.',
+    'product_description' => 'Descrizione del prodotto',
+    'choose_file' => 'Scegli file',
+    'upload_company_logo' => 'Carica il logo dell\'azienda',
+    'create_invoice' => 'Crea fattura',
+    'create_coupon' => 'Crea coupon',
+    'offer_price' => 'Prezzo offerta',
+    'restrict_update' => 'Limita aggiornamento',
+    'create_product' => 'Crea prodotto',
+    'enter_type_cart' => 'Inserisci il tipo di pagina del carrello',
+    'income_tax_details' => 'Dettagli fiscali incompleti',
+    'mandatory_tax' => 'Campi obbligatori mancanti nella schermata fiscale.',
+    'info' => 'informazioni',
+    'product_quantity' => 'Quantità prodotto',
+    'table_search' => 'Cerca:',
+
 ];

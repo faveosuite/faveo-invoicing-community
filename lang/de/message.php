@@ -1694,4 +1694,219 @@ return [
     'enter_valid_firstname' => 'Bitte geben Sie einen gültigen Vornamen ein',
     'enter_valid_lastname' => 'Bitte geben Sie einen gültigen Nachnamen ein',
 
+    'email_not_matching' => 'Die E-Mail-Domain stimmt nicht mit der URL-Domain überein.',
+    'price_description' => 'Preisbeschreibung',
+    'product_description' => 'Produktbeschreibung',
+
+    'user_edit_details' => [
+        'add_first_name' => 'Bitte geben Sie einen Vornamen ein.',
+        'add_last_name' => 'Bitte geben Sie einen Nachnamen ein.',
+        'add_email' => 'Bitte geben Sie eine E-Mail-Adresse ein.',
+        'add_address' => 'Bitte geben Sie eine Adresse ein.',
+        'add_phone_number' => 'Bitte geben Sie eine Handynummer ein.',
+        'add_company' => 'Bitte geben Sie einen Firmennamen ein.',
+        'add_valid_email' => 'Bitte geben Sie eine gültige E-Mail-Adresse ein.',
+        'add_valid_phone' => 'Bitte geben Sie eine gültige Handynummer ein.',
+        'add_valid_name' => 'Bitte geben Sie einen gültigen Namen ein, der nur aus Buchstaben und Leerzeichen besteht.',
+        'add_valid_lastname' => 'Bitte geben Sie einen gültigen Nachnamen ein, der nur aus Buchstaben und Leerzeichen besteht.',
+        'add_user_name' => 'Bitte geben Sie einen Benutzernamen ein.',
+        'add_country' => 'Bitte wählen Sie ein Land aus.',
+        'add_timezone' => 'Bitte wählen Sie eine Zeitzone aus.',
+        'add_mobile' => 'Bitte geben Sie eine Handynummer ein.',
+        'add_valid_company' => 'Bitte geben Sie einen gültigen Firmennamen ein, der nur aus Buchstaben und Leerzeichen besteht.',
+    ],
+
+    'invoice_details' => [
+        'add_user' => 'Bitte geben Sie einen Kundennamen ein.',
+        'add_date' => 'Bitte wählen Sie ein gültiges Datum aus.',
+        'add_product' => 'Bitte wählen Sie ein gültiges Produkt aus.',
+        'add_price' => 'Bitte geben Sie den Preis ein.',
+        'payment_date' => 'Bitte geben Sie das Zahlungsdatum ein.',
+        'total' => 'Bitte geben Sie den Gesamtbetrag der Rechnung ein.',
+        'add_valid_date' => 'Bitte geben Sie ein gültiges Datum ein.',
+        'status' => 'Bitte geben Sie den Status der Rechnung ein.',
+    ],
+
+    'page_details' => [
+        'add_name' => 'Bitte geben Sie einen gültigen Seitennamen ein.',
+        'add_slug' => 'Bitte geben Sie einen gültigen Seitenslug ein.',
+        'add_url' => 'Bitte geben Sie eine gültige URL ein (https://example.com).',
+        'add_content' => 'Bitte geben Sie den Seiteninhalt ein.',
+        'add_publish' => 'Bitte geben Sie den Veröffentlichungsstatus ein.',
+        'publish_date' => 'Bitte geben Sie ein Veröffentlichungsdatum ein.',
+        'default_page' => 'Bitte wählen Sie eine Standardseite aus.',
+        'valid_url' => 'Bitte geben Sie eine gültige URL ein (https://example.com).',
+    ],
+
+    'product_details' => [
+        'add_name' => 'Bitte geben Sie einen gültigen Produktnamen ein.',
+        'add_group' => 'Bitte wählen Sie eine gültige Gruppe aus.',
+        'add_license_type' => 'Bitte wählen Sie einen Lizenztyp aus.',
+        'add_description' => 'Bitte geben Sie eine Preisbeschreibung ein.',
+        'add_product_sku' => 'Bitte geben Sie die Produkt-SKU ein.',
+        'add_product_description' => 'Bitte geben Sie eine Produktbeschreibung ein.',
+    ],
+
+    'coupon_details' => [
+        'add_code' => 'Bitte geben Sie den Gutscheincode ein.',
+        'add_type' => 'Bitte wählen Sie einen Gutscheintyp aus.',
+        'add_value' => 'Bitte geben Sie den Gutscheinrabattwert ein.',
+        'add_expiry' => 'Bitte wählen Sie ein Ablaufdatum für den Gutschein aus.',
+        'add_start' => 'Bitte wählen Sie ein Startdatum für den Gutschein aus.',
+        'add_uses' => 'Bitte geben Sie eine gültige Anzahl ein.',
+        'add_applied' => 'Bitte wählen Sie ein gültiges Produkt aus.',
+    ],
+
+    'group_details' => [
+        'group_name' => 'Bitte geben Sie einen gültigen Gruppennamen ein.',
+        'template' => 'Bitte wählen Sie eine Vorlage aus.',
+    ],
+
+    'com_details' => [
+        'company_name' => 'Bitte geben Sie einen Firmennamen ein.',
+        'company_email' => 'Bitte geben Sie eine gültige E-Mail ein.',
+        'add_address' => 'Bitte geben Sie die Firmenadresse ein.',
+        'add_phone' => 'Bitte geben Sie die Firmen-Telefonnummer ein.',
+        'add_website' => 'Bitte geben Sie eine gültige URL ein (https://example.com).',
+        'add_country' => 'Bitte geben Sie das Land der Firma ein.',
+        'add_state' => 'Bitte geben Sie den Bundesstaat der Firma ein.',
+        'default_currency' => 'Bitte geben Sie die Standardwährung ein.',
+    ],
+
+    'lic_details' => [
+        'new_license_type' => 'Bitte geben Sie den Lizenztyp ein.',
+    ],
+
+    'app_details' => [
+        'app_name' => 'Bitte geben Sie einen gültigen App-Namen ein.',
+        'app_key' => 'Bitte geben Sie einen gültigen App-Schlüssel ein.',
+        'app_secret' => 'Bitte geben Sie ein gültiges App-Geheimnis ein.',
+    ],
+
+    'socialLogin_details' => [
+        'client_id' => 'Bitte geben Sie eine gültige Client-ID ein.',
+        'client_secret' => 'Bitte geben Sie ein gültiges Client-Geheimnis ein.',
+        'redirect_url' => 'Bitte geben Sie eine gültige URL ein (https://example.com).',
+        'api_id' => 'Bitte geben Sie eine gültige API-ID ein.',
+        'api_secret' => 'Bitte geben Sie ein gültiges API-Geheimnis ein.',
+    ],
+
+    'templateEdit_details' => [
+        'subject' => 'Bitte geben Sie das Betreff ein.',
+        'template_type' => 'Bitte wählen Sie einen Vorlagentyp aus.',
+        'content' => 'Bitte geben Sie den Vorlageninhalt ein.',
+    ],
+
+    'tax_details' => [
+        'tax_name' => 'Bitte geben Sie einen Steuennamen ein.',
+        'rate' => 'Bitte geben Sie den Steuersatz ein.',
+    ],
+
+    'widget_details' => [
+        'name' => 'Bitte geben Sie den Widget-Namen ein.',
+        'type' => 'Bitte geben Sie den Widget-Typ ein.',
+        'publish' => 'Bitte geben Sie die Veröffentlichungserlaubnis ein.',
+    ],
+
+    'social_details' => [
+        'name' => 'Bitte geben Sie einen gültigen Namen ein.',
+        'link' => 'Bitte geben Sie einen gültigen Link ein (https://example.com).',
+    ],
+
+    'image_allowed' => 'Nur PNG-, JPG- und JPEG-Dateien sind erlaubt.',
+    'image_max' => 'Das Bild darf nicht größer als 2 MB sein.',
+    'central_domain' => 'Bitte geben Sie den Domainnamen ein (https://example.com).',
+    'cloud_name' => 'Bitte geben Sie den Cloud-CNAME ein (example.com).',
+    'cloud_popup' => 'Bitte geben Sie die Überschrift für das Cloud-Popup ein.',
+    'cloud_label' => 'Bitte geben Sie das Label für die Domain ein.',
+    'cloud_radio' => 'Bitte geben Sie das Label für die Radiotaste ein.',
+    'saas_product' => 'Bitte wählen Sie ein Produkt aus.',
+    'saas_free_product' => 'Bitte wählen Sie ein Produkt für die kostenlose Testversion aus.',
+    'saas_product_key' => 'Bitte geben Sie den Produktschlüssel ein.',
+    'cloud_hub_state' => 'Bitte wählen Sie einen Bundesstaat/Kreis aus.',
+    'cloud_hub_countries' => 'Bitte wählen Sie ein Land aus.',
+    'cloud_hub_valid_url' => 'Bitte geben Sie eine gültige URL ein (https://example.com).',
+    'cloud_invalid_message' => 'Ungültiger App-Schlüssel. Bitte kontaktieren Sie den Administrator.',
+    'cloud_error_message' => 'Verbindung zum Cloud-Server nicht möglich. Wenden Sie sich an den Serveradministrator für Unterstützung.',
+
+    'script_details' => [
+        'name' => 'Bitte geben Sie den Skriptnamen ein.',
+        'content' => 'Bitte geben Sie den Skriptinhalt ein.',
+    ],
+
+    'razorpay_details' => [
+        'rzp_key' => 'Bitte geben Sie einen gültigen Razorpay-Schlüssel ein.',
+        'rzp_secret' => 'Bitte geben Sie ein gültiges Razorpay-Geheimnis ein.',
+        'apilayer_key' => 'Bitte geben Sie einen gültigen Zugangsschlüssel ein.',
+    ],
+
+    'sys_manager' => [
+        'account_manager' => 'Bitte wählen Sie einen Kontomanager aus.',
+        'replacement' => 'Bitte geben Sie einen gültigen Namen ein.',
+        'sales_manager' => 'Bitte wählen Sie einen Verkaufsleiter aus.',
+    ],
+
+    'plan_details' => [
+        'planname' => 'Bitte geben Sie einen Plan-Namen ein.',
+        'planproduct' => 'Bitte wählen Sie ein gültiges Produkt aus.',
+        'plandays' => 'Bitte geben Sie die Dauer (in Tagen) ein.',
+        'currency' => 'Bitte geben Sie den Währungscode ein.',
+        'country' => 'Bitte geben Sie den Ländernamen ein.',
+        'regular_price' => 'Bitte geben Sie den regulären Preis ein.',
+        'renewal_price' => 'Bitte geben Sie den Erneuerungspreis ein.',
+        'productquant' => 'Bitte geben Sie die Produktmenge ein.',
+        'agentquant' => 'Bitte geben Sie die Agentenmenge ein.',
+    ],
+
+    'emailSettings_details' => [
+        'driver' => 'Bitte wählen Sie einen gültigen E-Mail-Treiber aus.',
+        'host' => 'Bitte geben Sie einen gültigen E-Mail-Host ein.',
+        'port' => 'Bitte geben Sie eine gültige Portnummer ein.',
+        'email' => 'Bitte geben Sie eine gültige E-Mail-Adresse ein.',
+        'password' => 'Bitte geben Sie das E-Mail-Passwort ein.',
+        'domain' => 'Bitte geben Sie eine gültige E-Mail-Domain ein.',
+        'region' => 'Bitte geben Sie eine gültige E-Mail-Region ein.',
+        'api_key' => 'Bitte geben Sie einen gültigen API-Schlüssel ein.',
+        'from_name' => 'Bitte geben Sie den Namen des Absenders ein.',
+        'encryption' => 'Bitte wählen Sie eine Verschlüsselungsmethode aus.',
+        'secret' => 'Bitte geben Sie ein gültiges geheimes Passwort ein.',
+    ],
+
+    'github_details' => [
+        'name' => 'Bitte geben Sie einen gültigen GitHub-Benutzernamen ein.',
+        'password' => 'Bitte geben Sie ein gültiges GitHub-Passwort ein.',
+        'client' => 'Bitte geben Sie eine gültige Client-ID ein.',
+        'secret' => 'Bitte geben Sie ein gültiges Client-Geheimnis ein.',
+    ],
+
+    'add_files' => [
+        'title' => 'Bitte geben Sie einen Titel ein.',
+        'version' => 'Bitte geben Sie eine gültige Version ein.',
+        'dependencies' => 'Bitte geben Sie Abhängigkeiten ein.',
+    ],
+
+    'valid_name' => 'Der Firmenname muss weniger als 50 Zeichen lang sein.',
+    'valid_gst_number' => 'Bitte geben Sie eine gültige GST-Nummer ein.',
+    'url_tooltip' => 'Geben Sie die URL des Installationshandbuchs ein, um den Benutzern beim Setup der Anwendung zu helfen.',
+    'valid_widget_name' => 'Der Name muss weniger als 50 Zeichen lang sein und darf keine Sonderzeichen enthalten.',
+    'google_analytics_tag' => 'Bitte geben Sie den Google Analytics-Tag ein.',
+    'subscription-error-msg' => 'Bitte wählen Sie das Abonnement aus.',
+    'cloud-error-message' => 'Bitte geben Sie die Cloud-Domain ein.',
+    'agents-error-message' => 'Bitte geben Sie die Anzahl der Agenten ein.',
+    'quantity-error-message' => 'Bitte geben Sie die Menge ein.',
+    'product_description' => 'Produktbeschreibung',
+    'choose_file' => 'Datei auswählen',
+    'upload_company_logo' => 'Firmenlogo hochladen',
+    'create_invoice' => 'Rechnung erstellen',
+    'create_coupon' => 'Gutschein erstellen',
+    'offer_price' => 'Angebotspreis',
+    'restrict_update' => 'Aktualisierung einschränken',
+    'create_product' => 'Produkt erstellen',
+    'enter_type_cart' => 'Bitte geben Sie den Typ der Warenkorbseite ein',
+    'income_tax_details' => 'Unvollständige Steuerdetails',
+    'mandatory_tax' => 'Pflichtfelder fehlen im Steuerbildschirm.',
+    'info' => 'Info',
+    'product_quantity' => 'Produktmenge',
+    'table_search' => 'Suche:',
+
 ];

@@ -1687,5 +1687,219 @@ return [
     'caps_orders' => '訂單',
     'enter_valid_firstname' => '請輸入有效的名字',
     'enter_valid_lastname' => '請輸入有效的姓氏',
+    'email_not_matching' => '電子郵件域名與URL域名不匹配。',
+    'price_description' => '價格描述',
+    'product_description' => '產品描述',
+
+    'user_edit_details' => [
+        'add_first_name' => '請輸入名。',
+        'add_last_name' => '請輸入姓。',
+        'add_email' => '請輸入電子郵件地址。',
+        'add_address' => '請輸入地址。',
+        'add_phone_number' => '請輸入手機號碼。',
+        'add_company' => '請輸入公司名稱。',
+        'add_valid_email' => '請輸入有效的電子郵件地址。',
+        'add_valid_phone' => '請輸入有效的手機號碼。',
+        'add_valid_name' => '請輸入有效的名稱，只能使用字母和空格。',
+        'add_valid_lastname' => '請輸入有效的姓氏，只能使用字母和空格。',
+        'add_user_name' => '請輸入用戶名。',
+        'add_country' => '請選擇國家。',
+        'add_timezone' => '請選擇時區。',
+        'add_mobile' => '請輸入手機號碼。',
+        'add_valid_company' => '請輸入有效的公司名稱，只能使用字母和空格。',
+    ],
+
+    'invoice_details' => [
+        'add_user' => '請輸入客戶名稱。',
+        'add_date' => '請選擇有效日期。',
+        'add_product' => '請選擇有效的產品。',
+        'add_price' => '請輸入價格。',
+        'payment_date' => '請輸入付款日期。',
+        'total' => '請輸入總發票金額。',
+        'add_valid_date' => '請輸入有效日期。',
+        'status' => '請輸入發票狀態。',
+    ],
+
+    'page_details' => [
+        'add_name' => '請輸入有效的頁面名稱。',
+        'add_slug' => '請輸入有效的頁面縮略名。',
+        'add_url' => '請輸入有效的URL（https://example.com）。',
+        'add_content' => '請輸入頁面內容。',
+        'add_publish' => '請輸入發布狀態。',
+        'publish_date' => '請輸入發布日期。',
+        'default_page' => '請選擇默認頁面。',
+        'valid_url' => '請輸入有效的URL（https://example.com）。',
+    ],
+
+    'product_details' => [
+        'add_name' => '請輸入有效的產品名稱。',
+        'add_group' => '請選擇有效的組別。',
+        'add_license_type' => '請選擇許可類型。',
+        'add_description' => '請輸入價格描述。',
+        'add_product_sku' => '請輸入產品SKU。',
+        'add_product_description' => '請輸入產品描述。',
+    ],
+
+    'coupon_details' => [
+        'add_code' => '請輸入優惠碼。',
+        'add_type' => '請選擇優惠券類型。',
+        'add_value' => '請輸入優惠券折扣值。',
+        'add_expiry' => '請選擇優惠券到期日期。',
+        'add_start' => '請選擇優惠券開始日期。',
+        'add_uses' => '請輸入有效數量。',
+        'add_applied' => '請選擇有效的產品。',
+    ],
+
+    'group_details' => [
+        'group_name' => '請輸入有效的組名。',
+        'template' => '請選擇模板。',
+    ],
+
+    'com_details' => [
+        'company_name' => '請輸入公司名稱。',
+        'company_email' => '請輸入有效的電子郵件。',
+        'add_address' => '請輸入公司地址。',
+        'add_phone' => '請輸入公司電話號碼。',
+        'add_website' => '請輸入有效的URL（https://example.com）。',
+        'add_country' => '請輸入公司所在國。',
+        'add_state' => '請輸入公司所在州。',
+        'default_currency' => '請輸入默認貨幣。',
+    ],
+
+    'lic_details' => [
+        'new_license_type' => '請輸入許可類型。',
+    ],
+
+    'app_details' => [
+        'app_name' => '請輸入有效的應用名稱。',
+        'app_key' => '請輸入有效的應用金鑰。',
+        'app_secret' => '請輸入有效的應用密鑰。',
+    ],
+
+    'socialLogin_details' => [
+        'client_id' => '請輸入有效的客戶端ID。',
+        'client_secret' => '請輸入有效的客戶端密鑰。',
+        'redirect_url' => '請輸入有效的URL（https://example.com）。',
+        'api_id' => '請輸入有效的API ID。',
+        'api_secret' => '請輸入有效的API密鑰。',
+    ],
+
+    'templateEdit_details' => [
+        'subject' => '請輸入主題。',
+        'template_type' => '請選擇模板類型。',
+        'content' => '請輸入模板內容。',
+    ],
+
+    'tax_details' => [
+        'tax_name' => '請輸入稅名。',
+        'rate' => '請輸入稅率。',
+    ],
+
+    'widget_details' => [
+        'name' => '請輸入小工具名稱。',
+        'type' => '請輸入小工具類型。',
+        'publish' => '請輸入發布許可。',
+    ],
+
+    'social_details' => [
+        'name' => '請輸入有效名稱。',
+        'link' => '請輸入有效鏈接（https://example.com）。',
+    ],
+
+    'image_allowed' => '只允許PNG、JPG和JPEG文件。',
+    'image_max' => '圖像大小不得超過2 MB。',
+    'central_domain' => '請輸入域名（https://example.com）。',
+    'cloud_name' => '請輸入雲CNAME（example.com）',
+    'cloud_popup' => '請提供雲彈出標題。',
+    'cloud_label' => '請提供域名標籤。',
+    'cloud_radio' => '請提供單選按鈕標籤。',
+    'saas_product' => '請選擇產品。',
+    'saas_free_product' => '請選擇免費試用的產品。',
+    'saas_product_key' => '請輸入產品金鑰。',
+    'cloud_hub_state' => '請選擇州/縣。',
+    'cloud_hub_countries' => '請選擇國家。',
+    'cloud_hub_valid_url' => '請輸入有效URL（https://example.com）。',
+    'cloud_invalid_message' => '提供的應用金鑰無效，請聯繫管理員。',
+    'cloud_error_message' => '無法連接到雲伺服器，請聯繫您的伺服器管理員以尋求幫助。',
+
+    'script_details' => [
+        'name' => '請輸入腳本名稱。',
+        'content' => '請輸入腳本內容。',
+    ],
+
+    'razorpay_details' => [
+        'rzp_key' => '請輸入有效的Razorpay金鑰。',
+        'rzp_secret' => '請輸入有效的Razorpay密碼。',
+        'apilayer_key' => '請輸入有效的訪問金鑰。',
+    ],
+
+    'sys_manager' => [
+        'account_manager' => '請選擇賬戶經理。',
+        'replacement' => '請輸入有效的名稱。',
+        'sales_manager' => '請選擇銷售經理。',
+    ],
+
+    'plan_details' => [
+        'planname' => '請輸入計劃名稱。',
+        'planproduct' => '請選擇有效的產品。',
+        'plandays' => '請輸入天數。',
+        'currency' => '請輸入貨幣代碼。',
+        'country' => '請輸入國家名稱。',
+        'regular_price' => '請輸入常規價格。',
+        'renewal_price' => '請輸入續訂價格。',
+        'productquant' => '請輸入產品數量。',
+        'agentquant' => '請輸入代理數量。',
+    ],
+
+    'emailSettings_details' => [
+        'driver' => '請選擇有效的電子郵件驅動。',
+        'host' => '請輸入有效的郵件主機。',
+        'port' => '請輸入有效的端口號。',
+        'email' => '請輸入有效的電子郵件地址。',
+        'password' => '請輸入電子郵件密碼。',
+        'domain' => '請輸入有效的電子郵件域。',
+        'region' => '請輸入有效的電子郵件區域。',
+        'api_key' => '請輸入有效的API金鑰。',
+        'from_name' => '請輸入發件人名稱。',
+        'encryption' => '請選擇加密方法。',
+        'secret' => '請輸入有效的密碼。',
+    ],
+
+    'github_details' => [
+        'name' => '請輸入有效的GitHub用戶名。',
+        'password' => '請輸入有效的GitHub密碼。',
+        'client' => '請輸入有效的客戶端ID。',
+        'secret' => '請輸入有效的客戶端密碼。',
+    ],
+
+    'add_files' => [
+        'title' => '請輸入標題。',
+        'version' => '請輸入有效版本。',
+        'dependencies' => '請輸入依賴。',
+    ],
+
+    'valid_name' => '公司名稱不得超過50個字符。',
+    'valid_gst_number' => '請輸入有效的GST號碼。',
+    'url_tooltip' => '輸入安裝指南URL以幫助用戶設置應用程序。',
+    'valid_widget_name' => '名稱不得超過50個字符，且不能僅包含特殊字符。',
+    'google_analytics_tag' => '請輸入Google分析標籤。',
+    'subscription-error-msg' => '請選擇訂閱。',
+    'cloud-error-message' => '請輸入雲域名。',
+    'agents-error-message' => '請輸入代理數量。',
+    'quantity-error-message' => '請輸入數量。',
+    'product_description' => '產品描述',
+    'choose_file' => '選擇檔案',
+    'upload_company_logo' => '上傳公司標誌',
+    'create_invoice' => '創建發票',
+    'create_coupon' => '創建優惠券',
+    'offer_price' => '報價',
+    'restrict_update' => '限制更新',
+    'create_product' => '創建產品',
+    'enter_type_cart' => '請輸入購物車頁面類型',
+    'income_tax_details' => '不完整的稅務詳細信息',
+    'mandatory_tax' => '稅務頁面缺少必填欄位。',
+    'info' => '信息',
+    'product_quantity' => '產品數量',
+    'table_search' => '搜尋：'
 
 ];

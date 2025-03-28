@@ -1724,4 +1724,220 @@ return [
     'enter_valid_firstname' => '올바른 이름을 입력하세요',
     'enter_valid_lastname' => '올바른 성을 입력하세요',
 
+
+    'email_not_matching' => '이메일 도메인이 URL 도메인과 일치하지 않습니다.',
+    'price_description' => '가격 설명',
+    'product_description' => '제품 설명',
+
+    'user_edit_details' => [
+        'add_first_name' => '이름을 입력해주세요.',
+        'add_last_name' => '성명을 입력해주세요.',
+        'add_email' => '이메일 주소를 입력해주세요.',
+        'add_address' => '주소를 입력해주세요.',
+        'add_phone_number' => '휴대폰 번호를 입력해주세요.',
+        'add_company' => '회사 이름을 입력해주세요.',
+        'add_valid_email' => '유효한 이메일 주소를 입력해주세요.',
+        'add_valid_phone' => '유효한 휴대폰 번호를 입력해주세요.',
+        'add_valid_name' => '이름은 문자와 공백만 사용하여 유효한 이름을 입력해주세요.',
+        'add_valid_lastname' => '성명은 문자와 공백만 사용하여 유효한 성을 입력해주세요.',
+        'add_user_name' => '사용자 이름을 입력해주세요.',
+        'add_country' => '국가를 선택해주세요.',
+        'add_timezone' => '시간대를 선택해주세요.',
+        'add_mobile' => '휴대폰 번호를 입력해주세요.',
+        'add_valid_company' => '회사 이름은 문자와 공백만 사용하여 유효한 회사를 입력해주세요.',
+    ],
+
+    'invoice_details' => [
+        'add_user' => '고객 이름을 입력해주세요.',
+        'add_date' => '유효한 날짜를 선택해주세요.',
+        'add_product' => '유효한 제품을 선택해주세요.',
+        'add_price' => '가격을 입력해주세요.',
+        'payment_date' => '지불 날짜를 입력해주세요.',
+        'total' => '총 청구 금액을 입력해주세요.',
+        'add_valid_date' => '유효한 날짜를 입력해주세요.',
+        'status' => '청구서 상태를 입력해주세요.',
+    ],
+
+    'page_details' => [
+        'add_name' => '유효한 페이지 이름을 입력해주세요.',
+        'add_slug' => '유효한 페이지 슬러그를 입력해주세요.',
+        'add_url' => '유효한 URL(https://example.com)을 입력해주세요.',
+        'add_content' => '페이지 내용을 입력해주세요.',
+        'add_publish' => '게시 상태를 입력해주세요.',
+        'publish_date' => '게시 날짜를 입력해주세요.',
+        'default_page' => '기본 페이지를 선택해주세요.',
+        'valid_url' => '유효한 URL(https://example.com)을 입력해주세요.',
+    ],
+
+    'product_details' => [
+        'add_name' => '유효한 제품 이름을 입력해주세요.',
+        'add_group' => '유효한 그룹을 선택해주세요.',
+        'add_license_type' => '라이선스 유형을 선택해주세요.',
+        'add_description' => '가격 설명을 입력해주세요.',
+        'add_product_sku' => '제품 SKU를 입력해주세요.',
+        'add_product_description' => '제품 설명을 입력해주세요.',
+    ],
+
+    'coupon_details' => [
+        'add_code' => '쿠폰 코드를 입력해주세요.',
+        'add_type' => '쿠폰 유형을 선택해주세요.',
+        'add_value' => '쿠폰 할인 값을 입력해주세요.',
+        'add_expiry' => '쿠폰 만료 날짜를 선택해주세요.',
+        'add_start' => '쿠폰 시작 날짜를 선택해주세요.',
+        'add_uses' => '유효한 숫자를 입력해주세요.',
+        'add_applied' => '유효한 제품을 선택해주세요.',
+    ],
+
+    'group_details' => [
+        'group_name' => '유효한 그룹 이름을 입력해주세요.',
+        'template' => '템플릿을 선택해주세요.',
+    ],
+
+    'com_details' => [
+        'company_name' => '회사 이름을 입력해주세요.',
+        'company_email' => '유효한 이메일을 입력해주세요.',
+        'add_address' => '회사 주소를 입력해주세요.',
+        'add_phone' => '회사 전화번호를 입력해주세요.',
+        'add_website' => '유효한 URL(https://example.com)을 입력해주세요.',
+        'add_country' => '회사 국가를 입력해주세요.',
+        'add_state' => '회사 주를 입력해주세요.',
+        'default_currency' => '기본 통화를 입력해주세요.',
+    ],
+
+    'lic_details' => [
+        'new_license_type' => '라이선스 유형을 입력해주세요.',
+    ],
+
+    'app_details' => [
+        'app_name' => '유효한 앱 이름을 입력해주세요.',
+        'app_key' => '유효한 앱 키를 입력해주세요.',
+        'app_secret' => '유효한 앱 비밀 키를 입력해주세요.',
+    ],
+
+    'socialLogin_details' => [
+        'client_id' => '유효한 클라이언트 ID를 입력해주세요.',
+        'client_secret' => '유효한 클라이언트 비밀 키를 입력해주세요.',
+        'redirect_url' => '유효한 URL(https://example.com)을 입력해주세요.',
+        'api_id' => '유효한 API ID를 입력해주세요.',
+        'api_secret' => '유효한 API 비밀 키를 입력해주세요.',
+    ],
+
+    'templateEdit_details' => [
+        'subject' => '제목을 입력해주세요.',
+        'template_type' => '템플릿 유형을 선택해주세요.',
+        'content' => '템플릿 내용을 입력해주세요.',
+    ],
+
+    'tax_details' => [
+        'tax_name' => '세금 이름을 입력해주세요.',
+        'rate' => '세금 비율을 입력해주세요.',
+    ],
+
+    'widget_details' => [
+        'name' => '위젯 이름을 입력해주세요.',
+        'type' => '위젯 유형을 입력해주세요.',
+        'publish' => '게시 권한을 입력해주세요.',
+    ],
+
+    'social_details' => [
+        'name' => '유효한 이름을 입력해주세요.',
+        'link' => '유효한 링크(https://example.com)을 입력해주세요.',
+    ],
+
+    'image_allowed' => 'PNG, JPG, JPEG 파일만 허용됩니다.',
+    'image_max' => '이미지는 2MB를 초과할 수 없습니다.',
+    'central_domain' => '도메인 이름을 입력해주세요(https://example.com).',
+    'cloud_name' => '클라우드 CNAME을 입력해주세요(example.com)',
+    'cloud_popup' => '클라우드 팝업 제목을 제공해주세요.',
+    'cloud_label' => '도메인 레이블을 제공해주세요.',
+    'cloud_radio' => '라디오 버튼 레이블을 제공해주세요.',
+    'saas_product' => '제품을 선택해주세요.',
+    'saas_free_product' => '무료 체험을 위한 제품을 선택해주세요.',
+    'saas_product_key' => '제품 키를 입력해주세요.',
+    'cloud_hub_state' => '주/카운티를 선택해주세요.',
+    'cloud_hub_countries' => '국가를 선택해주세요.',
+    'cloud_hub_valid_url' => '유효한 URL(https://example.com)을 입력해주세요.',
+    'cloud_invalid_message' => '잘못된 앱 키가 제공되었습니다. 관리자에게 문의하세요.',
+    'cloud_error_message' => '클라우드 서버에 연결할 수 없습니다. 서버 관리자에게 도움을 요청하세요.',
+
+    'script_details' => [
+        'name' => '스크립트 이름을 입력해주세요.',
+        'content' => '스크립트 내용을 입력해주세요.',
+    ],
+
+    'razorpay_details' => [
+        'rzp_key' => '유효한 Razorpay 키를 입력해주세요.',
+        'rzp_secret' => '유효한 Razorpay 비밀 키를 입력해주세요.',
+        'apilayer_key' => '유효한 액세스 키를 입력해주세요.',
+    ],
+
+    'sys_manager' => [
+        'account_manager' => '계정 관리자를 선택해주세요.',
+        'replacement' => '유효한 이름을 입력해주세요.',
+        'sales_manager' => '영업 관리자를 선택해주세요.',
+    ],
+
+    'plan_details' => [
+        'planname' => '플랜 이름을 입력해주세요.',
+        'planproduct' => '유효한 제품을 선택해주세요.',
+        'plandays' => '기간(일)을 입력해주세요.',
+        'currency' => '통화 코드를 입력해주세요.',
+        'country' => '국가 이름을 입력해주세요.',
+        'regular_price' => '정상 가격을 입력해주세요.',
+        'renewal_price' => '갱신 가격을 입력해주세요.',
+        'productquant' => '제품 수량을 입력해주세요.',
+        'agentquant' => '에이전트 수량을 입력해주세요.',
+    ],
+
+    'emailSettings_details' => [
+        'driver' => '유효한 이메일 드라이버를 선택해주세요.',
+        'host' => '유효한 이메일 호스트를 입력해주세요.',
+        'port' => '유효한 포트 번호를 입력해주세요.',
+        'email' => '유효한 이메일 주소를 입력해주세요.',
+        'password' => '이메일 비밀번호를 입력해주세요.',
+        'domain' => '유효한 이메일 도메인을 입력해주세요.',
+        'region' => '유효한 이메일 지역을 입력해주세요.',
+        'api_key' => '유효한 API 키를 입력해주세요.',
+        'from_name' => '보낸 사람 이름을 입력해주세요.',
+        'encryption' => '암호화 방법을 선택해주세요.',
+        'secret' => '유효한 비밀번호를 입력해주세요.',
+    ],
+
+    'github_details' => [
+        'name' => '유효한 GitHub 사용자명을 입력해주세요.',
+        'password' => '유효한 GitHub 비밀번호를 입력해주세요.',
+        'client' => '유효한 클라이언트 ID를 입력해주세요.',
+        'secret' => '유효한 클라이언트 비밀 키를 입력해주세요.',
+    ],
+
+    'add_files' => [
+        'title' => '제목을 입력해주세요.',
+        'version' => '유효한 버전을 입력해주세요.',
+        'dependencies' => '종속 항목을 입력해주세요.',
+    ],
+
+    'valid_name' => '회사 이름은 50자 이내여야 합니다.',
+    'valid_gst_number' => '유효한 GST 번호를 입력해주세요.',
+    'url_tooltip' => '응용 프로그램 설정을 돕기 위해 설치 가이드 URL을 입력하세요.',
+    'valid_widget_name' => '이름은 50자 이내여야 하며 특수 문자만으로 구성될 수 없습니다.',
+    'google_analytics_tag' => '구글 분석 태그를 입력해주세요.',
+    'subscription-error-msg' => '구독을 선택해주세요.',
+    'cloud-error-message' => '클라우드 도메인을 입력해주세요.',
+    'agents-error-message' => '에이전트 수를 입력해주세요.',
+    'quantity-error-message' => '수량을 입력해주세요.',
+    'product_description' => '제품 설명',
+    'choose_file' => '파일 선택',
+    'upload_company_logo' => '회사 로고 업로드',
+    'create_invoice' => '인보이스 생성',
+    'create_coupon' => '쿠폰 생성',
+    'offer_price' => '제안 가격',
+    'restrict_update' => '업데이트 제한',
+    'create_product' => '제품 생성',
+    'enter_type_cart' => '장바구니 페이지 유형을 입력하세요',
+    'income_tax_details' => '불완전한 세금 세부 정보',
+    'mandatory_tax' => '세금 화면에서 필수 항목이 누락되었습니다.',
+    'info' => '정보',
+    'product_quantity' => '제품 수량',
+    'table_search' => '검색:',
+
 ];
