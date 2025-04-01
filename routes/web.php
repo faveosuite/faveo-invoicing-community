@@ -90,8 +90,6 @@ Route::middleware('installAgora')->group(function () {
     Route::get('confirm/payment', [RazorpayController::class, 'afterPayment']);
     Route::post('stripeUpdatePayment/confirm', [Front\ClientController::class, 'stripeUpdatePayment']);
 
-
-
     /*
      * Front Client Pages
      */
@@ -171,7 +169,6 @@ Route::middleware('installAgora')->group(function () {
     /*
      * Client
      */
-
 
     //contact-option
     Route::get('contact-option', [Common\SettingsController::class, 'contactOption'])->name('contact-option');
