@@ -234,7 +234,7 @@
 
                 <div class="modal-footer justify-content-between">
                     <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
-                    <button type="submit" id="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}</button>
+                    <button type="submit" id="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-save'>&nbsp;</i> Saving..."><i class="fa fa-save">&nbsp;</i>{!!Lang::get('message.save')!!}</button>
 
                 </div>
             </div>
@@ -366,13 +366,14 @@
                     </div>
 
 {{--                    <div style="display: flex; align-items: center; gap: 10px;">--}}
-                        {!! Form::label('captcha',Lang::get('message.captcha'),['class'=>'required']) !!}
+{{--                        {!! Form::label('captcha',Lang::get('message.captcha'),['class'=>'required']) !!}--}}
 {{--                        <label class="switch toggle_event_editing">--}}
 {{--                    <input type="checkbox" value="{{ $captchaStatus || $v3CaptchaStatus}}"  name="modules_settings"--}}
 {{--                           class="checkbox2" id="captcha">--}}
 {{--                    <span class="slider round"></span>--}}
 {{--                    </label>--}}
 {{--                    </div>--}}
+
                 </div>
 
                 <div class="modal-footer justify-content-between">
@@ -398,25 +399,24 @@
                 <div class="modal-body">
                     <div id="alertMessage4"></div>
 
-                    <input type ="hidden" id="hiddenMailChimpValue" value="{{$mailchimpKey}}">
 
-                    {!! Form::label('mailchimp', Lang::get('message.mailchimp_key'), ['class' => 'required me-2']) !!}
+{{--                    {!! Form::label('mailchimp', Lang::get('message.mailchimp_key'), ['class' => 'required me-2']) !!}--}}
 
-                    <div class="form-group d-flex align-items-center gap-2">
+{{--                    <div class="form-group d-flex align-items-center gap-2">--}}
 
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            {!! Form::text('mailchimp', $mailchimpKey, [
-                                'class' => 'form-control mailchimp_authkey',
-                                'id' => 'mailchimp_authkey',
-                                'style' => 'width: 350px;' // Adjust width as needed
-                            ]) !!}
-                            <h6 id="mailchimp_check" style="margin: 0;"></h6>
+{{--                        <div style="display: flex; align-items: center; gap: 10px;">--}}
+{{--                            {!! Form::text('mailchimp', $mailchimpKey, [--}}
+{{--                                'class' => 'form-control mailchimp_authkey',--}}
+{{--                                'id' => 'mailchimp_authkey',--}}
+{{--                                'style' => 'width: 350px;' // Adjust width as needed--}}
+{{--                            ]) !!}--}}
+{{--                            <h6 id="mailchimp_check" style="margin: 0;"></h6>--}}
 
-                            <button type="submit" class="btn btn-primary" id="submit9">
-                                <i class="fa fa-check"></i>&nbsp;&nbsp;{!! Lang::get('message.check') !!}
-                            </button>
-                        </div>
-                    </div>
+{{--                            <button type="submit" class="btn btn-primary" id="submit9">--}}
+{{--                                <i class="fa fa-check"></i>&nbsp;&nbsp;{!! Lang::get('message.check') !!}--}}
+{{--                            </button>--}}
+{{--                        </div>--}}
+{{--                    </div>--}}
 {{--                    <div style="display: flex; align-items: center; gap: 10px;">--}}
 {{--                        {!! Form::label('mailchimp',Lang::get('message.mailchimp_settings'),['class'=>'required']) !!}--}}
 {{--                        <label class="switch toggle_event_editing">--}}
@@ -425,82 +425,137 @@
 {{--                        <span class="slider round"></span>--}}
 {{--                    </label>--}}
 {{--                    </div>--}}
-                </div>
+{{--                </div>--}}
+
+{{--                {!! Form::model($set,['url'=>'mailchimp','method'=>'patch','files'=>true]) !!}--}}
+
+                        <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                            <input type ="hidden" id="hiddenMailChimpValue" value="{{$mailchimpKey}}">
+                            {!! Form::label('mailchimp', Lang::get('message.mailchimp_key'), ['class' => 'required me-2']) !!}
+                            {!! Form::text('mailchimp', $mailchimpKey, [
+                                                       'class' => 'form-control mailchimp_authkey',
+                                                       'id' => 'mailchimp_authkey',
+                                                           'style' => 'width: 310px;' // Adjust width as needed
+                                                       ]) !!}
+                            <h6 id="mailchimp_check" style="margin: 0;"></h6>
+                        </div>
+
+                        <div id="extraInput" style="display: none;">
 
 
-
-                    <div id="extraInput" style="display: none;">
-
-                    <div class="card-body">
-                    {!! Form::model($set,['url'=>'mailchimp','method'=>'patch','files'=>true]) !!}
-
-                    <table class="table table-condensed">
-
-
-
-                        <tr>
+                        <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                             {!! Form::hidden('api_key', null, ['class' => 'form-control']) !!}
 
-                            <td><b>{!! Form::label('list_id',Lang::get('message.list_id'),['class'=>'required']) !!}</b></td>
-                            <td>
-                                <div class="row">
-                                    <div class="form-group {{ $errors->has('list_id') ? 'has-error' : '' }}">
-                                        <select name="list_id" class="form-control" style="width:290px"</select>
-                                        <option value="">Choose</option>
-                                        @foreach($allists as $list)
-                                            <option value="{{$list->id}}"<?php  if(in_array($list->id, $selectedList) )
-                                            { echo "selected";} ?>>{{$list->name}}</option>
+                            {!! Form::label('list_id',Lang::get('message.list_id'),['class'=>'required']) !!}
+                            <select name="list_id" class="form-control" id="list_id" style="width:310px">
+                            <option value="">Choose</option>
+                            @foreach($allists as $list)
+                                <option value="{{$list->id}}"<?php  if(in_array($list->id, $selectedList) )
+                                { echo "selected";} ?>>{{$list->name}}</option>
 
-                                        @endforeach
-                                        <p><i> {{Lang::get('message.enter-the-mailchimp-list-id')}}</i> </p>
+                            @endforeach
+                            </select>
+                            <p><i> {{Lang::get('message.enter-the-mailchimp-list-id')}}</i> </p>
 
+                        </div>
 
-                                    </div>
-                                </div>
-                            </td>
+                        <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                            {!! Form::label('subscribe_status',Lang::get('message.subscribe_status'),['class'=>'required']) !!}
+                            {!! Form::select('subscribe_status',['subscribed'=>'Subscribed','unsubscribed'=>'Unsubscribed','cleaned'=>'Cleaned','pending'=>'Pending'],null,['class' => 'form-control','style' => 'width: 310px;','id'=>'subscribe_status']) !!}
+                            <p><i> {{Lang::get('message.enter-the-mailchimp-subscribe-status')}}</i> </p>
+                        </div>
 
-                        </tr>
+{{--                            @if($set->api_key&& $set->list_id)--}}
+                            <div id="extraInput9" style="display: none;">
 
-                        <tr>
+                            <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                                {!! Form::label('mapping',Lang::get('message.mapping'),['class'=>'required']) !!}
+                                <a href="{{url('mail-chimp/mapping')}}" class="btn btn-secondary btn-sm">{{Lang::get('message.mapping')}}</a>
+                                <p><i> {{Lang::get('message.map-the-mailchimp-field-with-agora')}}</i> </p>
+                            </div>
+                            </div>
+{{--                            @endif--}}
+                        </div>
 
-                            <td><b>{!! Form::label('subscribe_status',Lang::get('message.subscribe_status'),['class'=>'required']) !!}</b></td>
-                            <td>
-                                <div class="form-group {{ $errors->has('subscribe_status') ? 'has-error' : '' }}">
+{{--                        <tr>--}}
+{{--                            <td>                    {!! Form::label('mailchimp', Lang::get('message.mailchimp_key'), ['class' => 'required me-2']) !!}--}}
+{{--                            </td>--}}
 
+{{--                            <td>--}}
+{{--                                <div class="form-group {{ $errors->has('subscribe_status') ? 'has-error' : '' }}">--}}
+{{--                                    <input type ="hidden" id="hiddenMailChimpValue" value="{{$mailchimpKey}}">--}}
 
-                                    {!! Form::select('subscribe_status',['subscribed'=>'Subscribed','unsubscribed'=>'Unsubscribed','cleaned'=>'Cleaned','pending'=>'Pending'],null,['class' => 'form-control']) !!}
-                                    <p><i> {{Lang::get('message.enter-the-mailchimp-subscribe-status')}}</i> </p>
-
-
-                                </div>
-                            </td>
-
-                        </tr>
-
-                        @if($set->api_key&&$set->list_id)
-                            <tr>
-
-                                <td><b>{!! Form::label('mapping',Lang::get('message.mapping'),['class'=>'required']) !!}</b></td>
-                                <td>
-                                    <div class="form-group">
-
-
-                                        <div class="col-md-6">
-                                            <a href="{{url('mail-chimp/mapping')}}" class="btn btn-secondary btn-sm">{{Lang::get('message.mapping')}}</a>
-                                            <p><i> {{Lang::get('message.map-the-mailchimp-field-with-agora')}}</i> </p>
-                                        </div>
-
+{{--                                {!! Form::text('mailchimp', $mailchimpKey, [--}}
+{{--                                'class' => 'form-control mailchimp_authkey',--}}
+{{--                                'id' => 'mailchimp_authkey',--}}
+{{--                                    'style' => 'width: 350px;' // Adjust width as needed--}}
+{{--                                ]) !!}--}}
+{{--                                </div>--}}
+{{--                            </td>--}}
+{{--                        </tr>--}}
 
 
-                                    </div>
-                                </td>
+{{--                        <tr>--}}
+{{--                            {!! Form::hidden('api_key', null, ['class' => 'form-control']) !!}--}}
 
-                            </tr>
+{{--                            <td><b>{!! Form::label('list_id',Lang::get('message.list_id'),['class'=>'required']) !!}</b></td>--}}
+{{--                            <td>--}}
+{{--                                    <div class="form-group {{ $errors->has('list_id') ? 'has-error' : '' }}">--}}
+{{--                                        <select name="list_id" class="form-control" style="width:310px"</select>--}}
+{{--                                        <option value="">Choose</option>--}}
+{{--                                        @foreach($allists as $list)--}}
+{{--                                            <option value="{{$list->id}}"<?php  if(in_array($list->id, $selectedList) )--}}
+{{--                                            { echo "selected";} ?>>{{$list->name}}</option>--}}
 
-                        @endif
-                        {!! Form::close() !!}
+{{--                                        @endforeach--}}
+{{--                                        <p><i> {{Lang::get('message.enter-the-mailchimp-list-id')}}</i> </p>--}}
 
-                    </table>
+
+{{--                                    </div>--}}
+{{--                            </td>--}}
+
+{{--                        </tr>--}}
+
+{{--                        <tr>--}}
+
+{{--                            <td><b>{!! Form::label('subscribe_status',Lang::get('message.subscribe_status'),['class'=>'required']) !!}</b></td>--}}
+{{--                            <td>--}}
+{{--                                <div class="form-group {{ $errors->has('subscribe_status') ? 'has-error' : '' }}">--}}
+
+
+{{--                                    {!! Form::select('subscribe_status',['subscribed'=>'Subscribed','unsubscribed'=>'Unsubscribed','cleaned'=>'Cleaned','pending'=>'Pending'],null,['class' => 'form-control']) !!}--}}
+{{--                                    <p><i> {{Lang::get('message.enter-the-mailchimp-subscribe-status')}}</i> </p>--}}
+
+
+{{--                                </div>--}}
+{{--                            </td>--}}
+
+{{--                        </tr>--}}
+
+{{--                        @if($set->api_key&&$set->list_id)--}}
+{{--                            <tr>--}}
+{{--         <a href="{{url('mail-chimp/mapping')}}" class="btn btn-secondary btn-sm">{{Lang::get('message.mapping')}}</a>--}}
+{{--                                            <p><i> {{Lang::get('message.map-the-mailchimp-field-with-agora')}}</i> </p>--}}
+{{--                                    --}}
+{{--                                <td><b>{!! Form::label('mapping',Lang::get('message.mapping'),['class'=>'required']) !!}</b></td>--}}
+{{--                                <td>--}}
+{{--                                    <div class="form-group">--}}
+
+
+{{--                                        <div class="col-md-6">--}}
+{{--                                            <a href="{{url('mail-chimp/mapping')}}" class="btn btn-secondary btn-sm">{{Lang::get('message.mapping')}}</a>--}}
+{{--                                            <p><i> {{Lang::get('message.map-the-mailchimp-field-with-agora')}}</i> </p>--}}
+{{--                                        </div>--}}
+
+
+
+{{--                                    </div>--}}
+{{--                                </td>--}}
+
+{{--                            </tr>--}}
+
+{{--                        @endif--}}
+                    </div>
 
 {{--                        <div class="d-flex justify-content-end">--}}
 {{--                            <button type="submit" class="btn btn-primary" id="submit">--}}
@@ -508,17 +563,28 @@
 {{--                            </button>--}}
 {{--                        </div>--}}
 
-                </div>
+
+
+                <div id="extraInput1" style="display: none;">
+                <div class="modal-footer justify-content-between">
+                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
+                        <button type="submit" class="btn btn-primary pull-right" id="submit-chimp" ><i class="fa fa-save">&nbsp;</i>{!!Lang::get('message.save')!!}</button>
                     </div>
+
+                </div>
+                {!! Form::close() !!}
+
+                <div id="extraInput5" style="display: block;">
                 <div class="modal-footer justify-content-between">
                     <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
 
-                    <div id="extraInput1" style="display: none;">
-
-                    <button type="submit" class="btn btn-primary pull-right" id="submit" ><i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}</button>
+                    <button type="submit" class="btn btn-primary" id="submit9">
+                        <i class="fa fa-save"></i>&nbsp;&nbsp;{!! Lang::get('message.save') !!}
+                    </button>
                     </div>
                 </div>
 
+{{--            </div>--}}
             </div>
 
         </div>
@@ -721,6 +787,166 @@
     <script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
 
     <script>
+
+        $(document).on('click', '#license-edit-button', function() {
+            $.ajax({
+
+                url : '{{url("licensekeys")}}',
+                type : 'post',
+                success: function (response) {
+
+                    $('#license_api_secret').val(response['licenseSecret']);
+                    $('#license_api_url').val(response['licenseUrl']);
+                    $('#license_client_id').val(response['licenseClientId']);
+                    $('#license_client_secret').val(response['licenseClientSecret']);
+                    $('#license_grant_type').val(response['licenseGrantType']);
+                    $('#create-third-party-app').modal('show');
+                },
+            });
+        });
+
+        $(document).on('click', '#captcha-edit-button', function() {
+            $.ajax({
+
+                url : '{{url("googleCaptcha")}}',
+                type : 'post',
+                success: function (response) {
+                    if(response['captchaStatus']){
+                        selectCaptcha('captchaRadioV2');
+                    }
+                    if(response['v3_recaptcha_status']){
+                        selectCaptcha('captchaRadioV3');
+                    }
+                    $('#nocaptcha_sitekey').val(response['siteKey']);
+                    $('#nocaptcha_secret').val(response['secretKey']);
+                    $('#google-recaptcha').modal('show');
+                },
+            });
+        });
+        function selectCaptcha(version) {
+            let radios = document.getElementsByName('customRadio'); // Get all radio buttons by name
+            radios.forEach(radio => {
+                if (radio.id === version) {
+                    radio.checked = true; // Select the correct radio
+                } else {
+                    radio.checked = false;
+                }
+            });
+        }
+
+        // Example Usage: Change selection dynamically
+        $(document).on('click', '#msg91-edit-button', function() {
+            $.ajax({
+
+                url : '{{url("mobileVerification")}}',
+                type : 'post',
+                success: function (response) {
+                    $('#mobile_authkey').val(response['mobileauthkey']);
+                    $('#sender').val(response['msg91Sender']);
+                    $('#template_id').val(response['msg91TemplateId']);
+                    $('#msg-91').modal('show');
+                },
+            });
+        });
+
+        $(document).on('click', '#termsUrl-edit-button', function() {
+            $.ajax({
+
+                url : '{{url("termsUrl")}}',
+                type : 'post',
+                success: function (response) {
+                    $('#terms_url').val(response['termsUrl']);
+
+                    $('#showTerms').modal('show');
+                },
+            });
+        });
+
+        $(document).on('click', '#zoho-edit-button', function() {
+            $.ajax({
+
+                url : '{{url("zohokeys")}}',
+                type : 'post',
+                success: function (response) {
+                    $('#zoho_key').val(response['zohoKey']);
+
+                    $('#zohoCrm').modal('show');
+                },
+            });
+        });
+
+
+        $(document).on('click', '#pipedrive-edit-button', function() {
+            $.ajax({
+
+                url : '{{url("pipedrivekeys")}}',
+                type : 'post',
+                success: function (response) {
+                    $('#pipedrive_key').val(response['pipedriveKey']);
+
+                    $('#pipedrv').modal('show');
+                },
+            });
+        });
+
+
+        $(document).on('click', '#twitter-edit-button', function() {
+            $.ajax({
+
+                url : '{{url("twitterkeys")}}',
+                type : 'post',
+                success: function (response) {
+                    $('#consumer_key').val(response['twitterkeys']['twitter_consumer_key']);
+                    $('#consumer_secret').val(response['twitterkeys']['twitter_consumer_secret']);
+                    $('#access_token').val(response['twitterkeys']['twitter_access_token']);
+                    $('#token_secret').val(response['twitterkeys']['access_tooken_secret']);
+
+                    $('#twitters').modal('show');
+                },
+            });
+        });
+
+
+        $(document).on('click', '#github-edit-button', function() {
+            $.ajax({
+
+                url : '{{url("githubkeys")}}',
+                type : 'post',
+                success: function (response) {
+                    $('#git_username').val(response['githubFileds']['username']);
+                    $('#git_password').val(response['githubFileds']['password']);
+                    $('#git_client').val(response['githubFileds']['client_id']);
+                    $('#git_secret').val(response['githubFileds']['client_secret']);
+
+                    $("#githubSet").modal('show');
+                },
+            });
+        });
+
+
+        $(document).on('click', '#mailchimp-edit-button', function() {
+            $.ajax({
+
+                url : '{{url("mailchimpkeys")}}',
+                type : 'post',
+                success: function (response) {
+                    $('#mailchimp_authkey').val(response['mailchimpKey']);
+                    var array=response['allLists'];
+                    if(array && array.length) {
+                        var value1 = response['allLists'][0]['id'];
+                        var name1 = response['allLists'][0]['name'];
+                        var value2 = response['subscribe_status'];
+                        const select = document.getElementById('list_id');
+                        select.value = value1;
+                        select.text = name1;
+                        const select1 = document.getElementById('subscribe_status');
+                        select1.value = value2;
+                    }
+
+                    $("#mailchimps").modal('show');
+                },
+            });
+        });
         $(document).on('change', '.licenser input[type="checkbox"]', function() {
             if ($('#License').prop("checked")) {
             var checkboxvalue = 1;
@@ -819,7 +1045,7 @@
 
 
         $(document).on('change', '.termstatus1 input[type="checkbox"]', function() {
-            if ($('#terms_url').prop("checked")) {
+            if ($('#terms').prop("checked")) {
                 var checkboxvalue = 1;
             }
             else{
@@ -1085,8 +1311,6 @@
                 var checkboxvalue = 0;
             }
 
-
-
             const userRequiredFields = {
                 name:@json(trans('message.license_api_secret')),
                 type:@json(trans('message.license_api_url')),
@@ -1126,7 +1350,12 @@
                     }
                 });
 
-
+            if($('#license_api_url').val()!=''){
+                if (isValid && !isValidURL(userFields.type.val())) {
+                    showError(userFields.type,'Please enter a valid url(https://example.com).');
+                    isValid = false;
+                }
+            }
                 // If validation fails, prevent form submission
                 if (!isValid) {
                     e.preventDefault();
@@ -1830,15 +2059,23 @@
         /*
        *Mailchimp
         */
-        $(document).ready(function (){
-            var mailchimpstatus =  $('.checkbox9').val();
-            if(mailchimpstatus ==1)
-            {
-                $('#mailchimp').prop('checked',true);
-            } else if(mailchimpstatus ==0){
-                $('#mailchimp').prop('checked',false);
-            }
-        });
+        {{--$(document).ready(function (){--}}
+        {{--    var mailchimpstatus =  {{$mailchimpSetting}};--}}
+        {{--    if(mailchimpstatus ==1)--}}
+        {{--    {--}}
+        {{--        $('#mailchimp').prop('checked',true);--}}
+        {{--        let extraInput = document.getElementById('extraInput');--}}
+        {{--        extraInput.style.display ='block';--}}
+        {{--        let extraInput1 = document.getElementById('extraInput1');--}}
+        {{--        extraInput1.style.display ='block';--}}
+        {{--    } else if(mailchimpstatus ==0){--}}
+        {{--        $('#mailchimp').prop('checked',false);--}}
+        {{--        let extraInput = document.getElementById('extraInput');--}}
+        {{--        extraInput.style.display ='none';--}}
+        {{--        let extraInput1 = document.getElementById('extraInput1');--}}
+        {{--        extraInput1.style.display ='none';--}}
+        {{--    }--}}
+        {{--});--}}
 
         //Validate and pass value through ajax
         $("#submit9").on('click',function (){ //When Submit button is checked
@@ -1890,7 +2127,6 @@
             }
 
 
-console.log(chimpstatus);
             $("#submit9").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
             $.ajax ({
                 url: '{{url("updateMailchimpDetails")}}',
@@ -1900,12 +2136,13 @@ console.log(chimpstatus);
                     "mailchimp_auth_key": $('#mailchimp_authkey').val(),
                 },
                 success: function (data) {
-
-                    var mailchimpstatus=data['mailchimpStatus'];
+                    var mailchimpstatus=data['mailchimpverifiedStatus'];
                     var status=data['status'];
-                    if(mailchimpstatus===1 && status==='1'){
+                    if(mailchimpstatus===1){
                         let extraInput = document.getElementById('extraInput');
                         extraInput.style.display ='block';
+                        let extraInput5 = document.getElementById('extraInput5');
+                        extraInput5.style.display ='none';
                         let extraInput1 = document.getElementById('extraInput1');
                         extraInput1.style.display ='block';
                     }else{
@@ -1913,19 +2150,47 @@ console.log(chimpstatus);
                        extraInput.style.display ='none';
                         let extraInput1 = document.getElementById('extraInput1');
                         extraInput1.style.display ='none';
+                        let extraInput5 = document.getElementById('extraInput5');
+                        extraInput5.style.display ='block';
                    }
                     if(data['message']==='success'){
+                        var value1=data['allLists'][0]['id'];
+                        var name1=data['allLists'][0]['name'];
+                        var value2=data['subscribe_status'];
+
+                        if($('#list_id').val()!==value1) {
+
+                            const options = [
+                                {value: value1, text: name1},
+                            ];
+
+                            const select = document.getElementById('list_id');
+
+                            options.forEach(optionData => {
+                                const option = document.createElement('option');
+                                option.value = optionData.value;
+                                option.text = optionData.text;
+                                select.appendChild(option);
+                            });
+                        }else{
+                            let extraInput5 = document.getElementById('extraInput9');
+                            extraInput5.style.display ='block';
+                        }
+                        const select1 = document.getElementById('subscribe_status');
+                        select1.value=value2;
+
+
                     $('#alertMessage4').show();
                     var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
                     $('#alertMessage4').html(result+ ".");
-                    $("#submit9").html("<i class='fa fa-check'>&nbsp;</i>Check");
+                    $("#submit9").html("<i class='fa fa-save'>&nbsp;</i>Save");
                     setInterval(function(){
                         $('#alertMessage4').slideUp(3000);
                     }, 1000);}else{
                         $('#alertMessage4').show();
                         var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> error! </strong>'+data.update+'.</div>';
                         $('#alertMessage4').html(result+ ".");
-                        $("#submit9").html("<i class='fa fa-check'>&nbsp;</i>Check");
+                        $("#submit9").html("<i class='fa fa-save'>&nbsp;</i>Save");
                         setInterval(function(){
                             $('#alertMessage4').slideUp(3000);
                         }, 1000);
@@ -1934,7 +2199,48 @@ console.log(chimpstatus);
             })
         });
 
-   <!--------------------------------------------------------------------------------------------->
+        $("#submit-chimp").on('click',function () { //When Submit button is checked
+            var list_id=$('#list_id').val();
+            var subscribe_status=$('#subscribe_status').val();
+            $("#submit-chimp").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+            $.ajax ({
+                url: '{{url("mailchimp")}}',
+                type : 'patch',
+                data: {
+                    'list_id':list_id,
+                    'subscribe_status':subscribe_status,
+                },
+                success: function (data) {
+                    var list_id=data['list_id'];
+                    if(list_id===1){
+                        let extraInput = document.getElementById('extraInput9');
+                        extraInput.style.display ='block';
+                    }else{
+                        let extraInput1 = document.getElementById('extraInput9');
+                        extraInput1.style.display ='none';
+                    }
+                    if(data['message']==='success'){
+
+                        $('#alertMessage4').show();
+                        var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
+                        $('#alertMessage4').html(result+ ".");
+                        $("#submit-chimp").html("<i class='fa fa-save'>&nbsp;</i>Save");
+                        setInterval(function(){
+                            $('#alertMessage4').slideUp(3000);
+                        }, 1000);}
+                        else{
+                        $('#alertMessage4').show();
+                        var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> error! </strong>'+data.update+'.</div>';
+                        $('#alertMessage4').html(result+ ".");
+                        $("#submit-chimp").html("<i class='fa fa-save'>&nbsp;</i>Save");
+                        setInterval(function(){
+                            $('#alertMessage4').slideUp(3000);
+                        }, 1000);
+                    }
+                },
+            })
+        });
+        <!--------------------------------------------------------------------------------------------->
         /*
        *Terms
         */
@@ -2242,17 +2548,10 @@ console.log(chimpstatus);
                 }
             });
 
-
-
-
             // If validation fails, prevent form submission
             if (!isValid) {
                 preventDefault();
             }
-
-
-
-
 
             $("#submit").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
             $.ajax ({
@@ -2270,7 +2569,7 @@ console.log(chimpstatus);
                     $('#alertMessage1').show();
                     var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
                     $('#alertMessage1').html(result+ ".");
-                    $("#submit").html("<i class='fa fa-sync-alt'>&nbsp;</i>Update");
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;</i>Save");
                     setInterval(function(){
                         $('#alertMessage1').slideUp(3000);
                     }, 1000);
