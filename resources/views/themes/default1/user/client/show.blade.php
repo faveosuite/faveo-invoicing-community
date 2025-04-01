@@ -271,36 +271,96 @@ User
 
                          $(document).on('click','#bulk_invoice_delete',function(){
                               var id=[];
-                              if (confirm("Are you sure you want to delete this?"))
-                                {
-                                    $('.invoice_checkbox:checked').each(function(){
-                                      id.push($(this).val())
-                                    });
-                                    if(id.length >0)
-                                    {
-                                       $.ajax({
-                                              url:"{!! Url('invoice-delete') !!}",
-                                              method:"delete",
-                                              data: $('#check:checked').serialize(),
-                                              beforeSend: function () {
-                                        $('#gif').show();
-                                        },
-                                        success: function (data) {
-                                        $('#gif').hide();
-                                        $('#response').html(data);
-                                        setTimeout(function(){
-                                            location.reload();
-                                        },2000);
-                                        }
-                                       })
-                                    }
-                                    else
-                                    {
-                                        alert("Please select at least one checkbox");
-                                    }
-                                    }  
-                                     });
-                                    
+                              // if (confirm("Are you sure you want to delete this?"))
+                              //   {
+                                    {{--$('.invoice_checkbox:checked').each(function(){--}}
+                                    {{--  id.push($(this).val())--}}
+                                    {{--});--}}
+                                    {{--if(id.length >0)--}}
+                                    {{--{--}}
+                                    {{--   $.ajax({--}}
+                                    {{--          url:"{!! Url('invoice-delete') !!}",--}}
+                                    {{--          method:"delete",--}}
+                                    {{--          data: $('#check:checked').serialize(),--}}
+                                    {{--          beforeSend: function () {--}}
+                                    {{--    $('#gif').show();--}}
+                                    {{--    },--}}
+                                    {{--    success: function (data) {--}}
+                                    {{--    $('#gif').hide();--}}
+                                    {{--    $('#response').html(data);--}}
+                                    {{--    setTimeout(function(){--}}
+                                    {{--        location.reload();--}}
+                                    {{--    },2000);--}}
+                                    {{--    }--}}
+                                    {{--   })--}}
+                                    {{--}--}}
+                                    {{--else--}}
+                                    {{--{--}}
+                                    {{--    alert("Please select at least one checkbox");--}}
+                                    {{--}--}}
+                                    {{--}  --}}
+
+
+
+
+                         var swl=swal.fire({
+                             title:"<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Delete')}}</h2>",
+                             html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
+                                 "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
+                                 "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.invoice_delete')}}</p>"+"</div>" +
+                                 "</div>",
+                             showCancelButton: true,
+                             showCloseButton: true,
+                             position:"top",
+                             width:"600px",
+
+                             confirmButtonText: @json(trans('message.Delete')),
+                             confirmButtonColor: "#007bff",
+
+                         }).then((result)=> {
+                             if (result.isConfirmed) {
+                                 $('.invoice_checkbox:checked').each(function(){
+                                     id.push($(this).val())
+                                 });
+                                 if(id.length >0)
+                                 {
+                                     $.ajax({
+                                         url:"{!! Url('invoice-delete') !!}",
+                                         method:"delete",
+                                         data: $('#check:checked').serialize(),
+                                         beforeSend: function () {
+                                             $('#gif').show();
+                                         },
+                                         success: function (data) {
+                                             $('#gif').hide();
+                                             $('#response').html(data);
+                                             setTimeout(function(){
+                                                 location.reload();
+                                             },2000);
+                                         }
+                                     })
+                                 } else {
+                                     swal.fire({
+                                         title:"<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
+                                         html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
+                                             "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
+                                             "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_invoice')}}</p>"+"</div>" +
+                                             "</div>",
+                                         position: 'top',
+                                         confirmButtonText: "OK",
+                                         showCloseButton: true,
+                                         confirmButtonColor: "#007bff",
+                                         width:"600px",
+                                     })
+                                 }
+                             }else if (result.dismiss === Swal.DismissReason.cancel) {
+                                 // Action if "No" is clicked
+                                 window.close();
+                             }
+
+                         })
+                         return false;
+                                })
                                     </script>
 
 
@@ -499,35 +559,91 @@ User
 
                             $(document).on('click','#bulk_payment_delete',function(){
                                 var id=[];
-                                if (confirm("Are you sure you want to delete this?"))
-                                {
-                                    $('.payment_checkbox:checked').each(function(){
-                                        id.push($(this).val())
-                                    });
-                                    if(id.length >0)
-                                    {
-                                        $.ajax({
-                                            url:"{!! Url('payment-delete') !!}",
-                                            method:"delete",
-                                            data: $('#checkpayment:checked').serialize(),
-                                            beforeSend: function () {
-                                                $('#gif').show();
-                                            },
-                                            success: function (data) {
-                                                $('#gif').hide();
-                                                $('#response').html(data);
-                                                setTimeout(function(){
-                                                location.reload();
-                                                },2000);
-                                            }
-                                        })
-                                    }
-                                    else
-                                    {
-                                        alert("Please select at least one checkbox");
-                                    }
-                                }
+                                {{--if (confirm("Are you sure you want to delete this?"))--}}
+                                {{--{--}}
+                                {{--    $('.payment_checkbox:checked').each(function(){--}}
+                                {{--        id.push($(this).val())--}}
+                                {{--    });--}}
+                                {{--    if(id.length >0)--}}
+                                {{--    {--}}
+                                {{--        $.ajax({--}}
+                                {{--            url:"{!! Url('payment-delete') !!}",--}}
+                                {{--            method:"delete",--}}
+                                {{--            data: $('#checkpayment:checked').serialize(),--}}
+                                {{--            beforeSend: function () {--}}
+                                {{--                $('#gif').show();--}}
+                                {{--            },--}}
+                                {{--            success: function (data) {--}}
+                                {{--                $('#gif').hide();--}}
+                                {{--                $('#response').html(data);--}}
+                                {{--                setTimeout(function(){--}}
+                                {{--                location.reload();--}}
+                                {{--                },2000);--}}
+                                {{--            }--}}
+                                {{--        })--}}
+                                {{--    }--}}
+                                {{--    else--}}
+                                {{--    {--}}
+                                {{--        alert("Please select at least one checkbox");--}}
+                                {{--    }--}}
+                                {{--}--}}
 
+
+                                var swl=swal.fire({
+                                    title:"<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Delete')}}</h2>",
+                                    html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
+                                        "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
+                                        "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.payment_delete')}}</p>"+"</div>" +
+                                        "</div>",
+                                    showCancelButton: true,
+                                    showCloseButton: true,
+                                    position:"top",
+                                    width:"600px",
+
+                                    confirmButtonText: @json(trans('message.Delete')),
+                                    confirmButtonColor: "#007bff",
+
+                                }).then((result)=> {
+                                    if (result.isConfirmed) {
+                                        $('.payment_checkbox:checked').each(function(){
+                                            id.push($(this).val())
+                                        });
+                                        if(id.length >0)
+                                        {
+                                            $.ajax({
+                                                url:"{!! Url('payment-delete') !!}",
+                                                method:"delete",
+                                                data: $('#checkpayment:checked').serialize(),
+                                                beforeSend: function () {
+                                                    $('#gif').show();
+                                                },
+                                                success: function (data) {
+                                                    $('#gif').hide();
+                                                    $('#response').html(data);
+                                                    setTimeout(function(){
+                                                        location.reload();
+                                                    },2000);
+                                                }
+                                            })
+                                        } else {
+                                            swal.fire({
+                                                title:"<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
+                                                html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
+                                                    "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
+                                                    "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_payment_details')}}</p>"+"</div>" +
+                                                    "</div>",
+                                                position: 'top',
+                                                confirmButtonText: "OK",
+                                                showCloseButton: true,
+                                                confirmButtonColor: "#007bff",
+                                                width:"600px",
+                                            })
+                                        }
+                                    }else if (result.dismiss === Swal.DismissReason.cancel) {
+                                        // Action if "No" is clicked
+                                        window.close();             }
+                                })
+                                return false;
                             });
 
                         </script>
@@ -624,34 +740,91 @@ User
 
                                 $(document).on('click','#bulk_order_delete',function(){
                                     var id=[];
-                                    if (confirm("Are you sure you want to delete this?"))
-                                    {
-                                        $('.order_checkbox:checked').each(function(){
-                                            id.push($(this).val())
-                                        });
-                                        if(id.length >0)
-                                        {
-                                            $.ajax({
-                                                url:"{!! Url('orders-delete') !!}",
-                                                method:"delete",
-                                                data: $('#checkorder:checked').serialize(),
-                                                beforeSend: function () {
-                                                    $('#gif').show();
-                                                },
-                                                success: function (data) {
-                                                    $('#gif').hide();
-                                                    $('#response').html(data);
-                                                    setTimeout(function(){
-                                                    location.reload();
-                                                    },2000);
+                                    // if (confirm("Are you sure you want to delete this?"))
+                                    {{--{--}}
+                                    {{--    $('.order_checkbox:checked').each(function(){--}}
+                                    {{--        id.push($(this).val())--}}
+                                    {{--    });--}}
+                                    {{--    if(id.length >0)--}}
+                                    {{--    {--}}
+                                    {{--        $.ajax({--}}
+                                    {{--            url:"{!! Url('orders-delete') !!}",--}}
+                                    {{--            method:"delete",--}}
+                                    {{--            data: $('#checkorder:checked').serialize(),--}}
+                                    {{--            beforeSend: function () {--}}
+                                    {{--                $('#gif').show();--}}
+                                    {{--            },--}}
+                                    {{--            success: function (data) {--}}
+                                    {{--                $('#gif').hide();--}}
+                                    {{--                $('#response').html(data);--}}
+                                    {{--                setTimeout(function(){--}}
+                                    {{--                location.reload();--}}
+                                    {{--                },2000);--}}
+                                    {{--                }--}}
+                                    {{--            })--}}
+                                    {{--        }--}}
+                                    {{--        else--}}
+                                    {{--        {--}}
+                                    {{--            alert("Please select at least one checkbox");--}}
+                                    {{--        }--}}
+                                    {{--    }--}}
+
+
+                                    var swl=swal.fire({
+                                        title:"<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Delete')}}</h2>",
+                                        html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
+                                            "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
+                                            "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.order_delete')}}</p>"+"</div>" +
+                                            "</div>",
+                                        showCancelButton: true,
+                                        showCloseButton: true,
+                                        position:"top",
+                                        width:"600px",
+
+                                        confirmButtonText: @json(trans('message.Delete')),
+                                        confirmButtonColor: "#007bff",
+
+                                    }).then((result)=> {
+                                        if (result.isConfirmed) {
+                                            $('.order_checkbox:checked').each(function(){
+                                                id.push($(this).val())
+                                            });
+                                            if(id.length >0)
+                                            {
+                                                $.ajax({
+                                                    url:"{!! Url('orders-delete') !!}",
+                                                    method:"delete",
+                                                    data: $('#checkorder:checked').serialize(),
+                                                    beforeSend: function () {
+                                                        $('#gif').show();
+                                                    },
+                                                    success: function (data) {
+                                                        $('#gif').hide();
+                                                        $('#response').html(data);
+                                                        setTimeout(function(){
+                                                            location.reload();
+                                                        },2000);
                                                     }
                                                 })
+                                            } else {
+                                                swal.fire({
+                                                    title:"<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
+                                                    html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
+                                                        "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
+                                                        "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_order_details')}}</p>"+"</div>" +
+                                                        "</div>",
+                                                    position: 'top',
+                                                    confirmButtonText: "OK",
+                                                    showCloseButton: true,
+                                                    confirmButtonColor: "#007bff",
+                                                    width:"600px",
+                                                })
                                             }
-                                            else
-                                            {
-                                                alert("Please select at least one checkbox");
-                                            }
-                                        }
+                                        }else if (result.dismiss === Swal.DismissReason.cancel) {
+                                            // Action if "No" is clicked
+                                            window.close();             }
+                                    })
+                                    return false;
 
                                 });
 
@@ -829,6 +1002,7 @@ User
 @stop
 
 @section('icheck')
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
 
@@ -872,28 +1046,63 @@ User
 
     $('.deleteComment').on('click',function(){
             var id=[];
-      if (confirm("Are you sure you want to delete this?"))
-        {
-          var id = $(this).attr('data-comment-id');
-          $.ajax({
-                      url:"{!! route('comment-delete') !!}",
-                      method:"delete",
-                      data: {'data-comment-id':id},
-                success: function (data) {
-                $('#response').show();
-                  var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>Success! </strong>'+data.message+'!</div>';
-                  document.getElementById('response').innerHTML = result;
-                setTimeout(function(){
-                location.reload();
-                },2000);
-                },error: function(data) {
-                  $('#response').show();
-                  var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>Whoops! </strong>'+data.message+'!</div>';
-                  document.getElementById('response').innerHTML = result;
-                location.reload();
+
+        var swl=swal.fire({
+            title:"<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Delete')}}</h2>",
+            html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
+                "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
+                "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.comment_delete')}}</p>"+"</div>" +
+                "</div>",
+            showCancelButton: true,
+            showCloseButton: true,
+            position:"top",
+            width:"600px",
+
+            confirmButtonText: @json(trans('message.Delete')),
+            confirmButtonColor: "#007bff",
+
+        }).then((result)=> {
+            if (result.isConfirmed) {
+                var id = $(this).attr('data-comment-id');
+
+                if (id.length > 0) {
+                    $.ajax({
+                        url:"{!! route('comment-delete') !!}",
+                        method:"delete",
+                        data: {'data-comment-id':id},
+                        success: function (data) {
+                            $('#response').show();
+                            var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>Success! </strong>'+data.message+'!</div>';
+                            document.getElementById('response').innerHTML = result;
+                            setTimeout(function(){
+                                location.reload();
+                            },2000);
+                        },error: function(data) {
+                            $('#response').show();
+                            var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>Whoops! </strong>'+data.message+'!</div>';
+                            document.getElementById('response').innerHTML = result;
+                            location.reload();
+                        }
+                    })
+                } else {
+                    swal.fire({
+                        title:"<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
+                        html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
+                            "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
+                            "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_checkbox')}}</p>"+"</div>" +
+                            "</div>",
+                        position: 'top',
+                        confirmButtonText: "OK",
+                        showCloseButton: true,
+                        confirmButtonColor: "#007bff",
+                        width:"600px",
+                    })
                 }
-               })
-        }  
+            }else if (result.dismiss === Swal.DismissReason.cancel) {
+                // Action if "No" is clicked
+                window.close();             }
+        })
+        return false;
     })
   
 
@@ -1011,7 +1220,6 @@ User
 
                 },
            success: function (response) {
-            console.log(response)
             $('#cus_detail').html('');
             $('.clientemail').html((response.client).email);
             $('.clientcompanyname').html((response.client).company);
