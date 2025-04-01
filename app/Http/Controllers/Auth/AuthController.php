@@ -480,7 +480,7 @@ class AuthController extends BaseAuthController
         $user = \Session::get('user');
         if ($user) {
             $eid = Crypt::encrypt($user->email);
-            $setting = StatusSetting::first(['recaptcha_status', 'v3_recaptcha_status', 'emailverification_status', 'msg91_status']);
+            $setting = StatusSetting::first(['recaptcha_status', 'v3_recaptcha_status', 'emailverification_status', 'msg91_status','v3_v2_recaptcha_status']);
 
             return view('themes.default1.user.verify', compact('user', 'eid', 'setting'));
         }

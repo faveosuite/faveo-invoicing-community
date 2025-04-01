@@ -90,6 +90,8 @@ Route::middleware('installAgora')->group(function () {
     Route::get('confirm/payment', [RazorpayController::class, 'afterPayment']);
     Route::post('stripeUpdatePayment/confirm', [Front\ClientController::class, 'stripeUpdatePayment']);
 
+
+
     /*
      * Front Client Pages
      */
@@ -170,6 +172,10 @@ Route::middleware('installAgora')->group(function () {
      * Client
      */
 
+
+    //contact-option
+    Route::get('contact-option', [Common\SettingsController::class, 'contactOption'])->name('contact-option');
+
     /*
      * Profile Process
      */
@@ -185,6 +191,15 @@ Route::middleware('installAgora')->group(function () {
 
     Route::get('settings', [Common\SettingsController::class, 'settings']);
     Route::get('/datatable/data', [Common\SettingsController::class, 'getDataTableData'])->name('datatable.data');
+    Route::post('licensekeys', [Common\SettingsController::class, 'licensekeys']);
+    Route::post('googleCaptcha', [Common\SettingsController::class, 'googleCaptcha']);
+    Route::post('mobileVerification', [Common\SettingsController::class, 'mobileVerification']);
+    Route::post('termsUrl', [Common\SettingsController::class, 'termsUrl']);
+    Route::post('zohokeys', [Common\SettingsController::class, 'zohokeys']);
+    Route::post('pipedrivekeys', [Common\SettingsController::class, 'pipedrivekeys']);
+    Route::post('twitterkeys', [Common\SettingsController::class, 'twitterkeys']);
+    Route::post('githubkeys', [Common\SettingsController::class, 'githubkeys']);
+    Route::post('mailchimpkeys', [Common\SettingsController::class, 'mailchimpKeys']);
 
     Route::get('settings/system', [Common\SettingsController::class, 'settingsSystem']);
     Route::patch('settings/system', [Common\SettingsController::class, 'postSettingsSystem']);
