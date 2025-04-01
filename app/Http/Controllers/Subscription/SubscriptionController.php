@@ -97,6 +97,12 @@ class SubscriptionController extends Controller
                 ->where('orders.order_status', 'executed')
                 ->where('is_subscribed', 1)
                 ->orWhereRaw('(case when rzp_subscription = 1 then 1 when autoRenew_status = 1 then 1 else 0 end) = 1')
+                    ->select([
+                        'subscriptions.*',
+                        'orders.id as order_id',
+                        'orders.*',
+                        'subscriptions.id as id',
+                    ])
                 ->get()
                 ->toArray();
                 $subscriptions = array_merge($subscriptions, $subscriptionsForDay);
