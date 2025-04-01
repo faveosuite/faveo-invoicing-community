@@ -63,14 +63,17 @@
                                     </td>
                                 @endforeach
                                 <td class="text-right">
-                                    <a href="{{ route('log-viewer::logs.show', [$date]) }}" class="btn btn-xs btn-info">
+                                    <a href="{{ route('log-viewer::logs.show', [$date]) }}" class="btn btn-xs btn-info"
+                                       data-toggle="tooltip" title="View Logs">
                                         <i class="fa fa-search"></i>
                                     </a>
-                                    <a href="{{ route('log-viewer::logs.download', [$date]) }}" class="btn btn-xs btn-success">
+                                    <a href="{{ route('log-viewer::logs.download', [$date]) }}"
+                                       class="btn btn-xs btn-success" data-toggle="tooltip" title="Download Logs">
                                         <i class="fa fa-download"></i>
                                     </a>
-                                    <a class="btn btn-xs btn-danger delete" data-log-date="{{ $date }}">
-                                        <i  class="fa fa-trash" style="color: white;"></i>
+                                    <a href="#delete-log-modal" class="btn btn-xs btn-danger"
+                                       data-log-date="{{ $date }}" data-toggle="tooltip" title="Delete Logs">
+                                        <i class="fa fa-trash"></i>
                                     </a>
                                 </td>
                             </tr>
@@ -154,5 +157,8 @@
             });
         });
     });
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+    })
 </script>
 

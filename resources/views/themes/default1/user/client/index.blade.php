@@ -21,11 +21,13 @@ Users
             position: relative;
             right: -15px;
         }
-          .dropdown-menu {
+        .dropdown-menu {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             position: absolute;
-            max-height: 210px;
-            overflow-y: hidden;
+            max-height: 150px;
+            overflow-y: auto;
             overflow-x: hidden;
+            width: max-content;
         }
 
         #loading {

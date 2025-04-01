@@ -126,7 +126,7 @@ Create Group
                            <div class="form-group">
                             
                             <div class="col-md-4">
-                             <img src='{{ asset("storage/$template->image")}}' alt="Porto Theme" class="img-thumbnail" >
+                             <img src='{{ asset("images/$template->image")}}' alt="Porto Theme" class="img-thumbnail" >
                              <br/>
                             <input type="radio" name='pricing_templates_id' value='{{$template->id}}' id='template' style="text-align: center;">
                             {{$template->name}}

@@ -58,25 +58,21 @@ Edit Tax
                        
 
                     </div>
-                   
-                    <div class="col-md-4 form-group">
-                        <!-- name -->
-                        {{ html()->label(Lang::get('message.status'), 'status') }}
-                        <div class="row">
-                            <div class="col-md-6 form-group {{ $errors->has('active') ? 'has-error' : '' }}">
-                                <!-- name -->
-                                {{ html()->label(Lang::get('message.active'), 'active') }}
-                                {{ html()->radio('active', 1) }}
 
-                            </div>
-                            <div class="col-md-6 form-group {{ $errors->has('active') ? 'has-error' : '' }}">
-                                <!-- name -->
-                                {{ html()->label(Lang::get('message.inactive'), 'inactive') }}
-                                {{ html()->radio('active', 0) }}
-
+                    <div class="col-md-3 ml-3">
+                        <div class="form-group">
+                            {{ html()->label(Lang::get('message.status'), 'status') }}
+                            <div class="mt-2">
+                                <div class="form-check form-check-inline">
+                                    {{ html()->label(Lang::get('message.active'), 'active') }}
+                                    {{ html()->radio('active', 1)->class('ml-1') }}
+                                </div>
+                                <div class="form-check form-check-inline ml-3">
+                                    {{ html()->label(Lang::get('message.inactive'), 'inactive') }}
+                                    {{ html()->radio('active', 0)->class('ml-1') }}
+                                </div>
                             </div>
                         </div>
-
                     </div>
 
 
