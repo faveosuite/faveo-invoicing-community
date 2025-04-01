@@ -1896,5 +1896,4 @@ return [
     'product_quantity' => 'Producthoeveelheid',
     'table_search' => 'Zoeken:',
 
-
 ];

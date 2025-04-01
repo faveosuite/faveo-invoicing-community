@@ -1904,5 +1904,4 @@ return [
     'product_quantity' => 'Quantidade do produto',
     'table_search' => 'Pesquisar:',
 
-
 ];
