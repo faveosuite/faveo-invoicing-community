@@ -1003,4 +1003,121 @@ return [
     'agents-error-message' => 'Please enter number of agents.',
     'quantity-error-message' => 'Please enter quantity.',
 
+
+    'user_edit_details' => [
+        'add_first_name' => 'Please enter a first name.',
+        'add_last_name' => 'Please enter a last name.',
+        'add_email' => 'Please enter a email address.',
+        'add_address' => 'Please enter a address.',
+        'add_phone_number' => 'Please enter a mobile number.',
+        'add_company' => 'Please enter a company name.',
+        'add_valid_email' => 'Please enter a valid email address.',
+        'add_valid_phone' => 'Please enter a valid mobile number.',
+        'add_valid_name' => 'Please enter a valid name using only letters and spaces.',
+        'add_valid_lastname' => 'Please enter a valid last name using only letters and spaces.',
+        'add_user_name' => 'Please enter a username.',
+        'add_country' => 'Please select  a country.',
+        'add_timezone' => 'Please select a timezone.',
+        'add_mobile' => 'Please enter a mobile number.',
+        'add_valid_company' => 'Please enter a valid company name using only letters and spaces.',
+    ],
+
+    'invoice_details' => [
+        'add_user' => 'Please enter a client name.',
+        'add_date' => 'Please select a valid date.',
+        'add_product' => 'Please select a valid product.',
+        'add_price' => 'Please enter price.',
+        'payment_date' => 'Please enter the payment date.',
+        'total' => 'Please enter the total invoice amount.',
+        'add_valid_date' => 'Please enter a valid date.',
+        'status' => 'Please enter status of invoice.',
+    ],
+
+    'page_details' => [
+        'add_name' => 'Please enter a valid page name.',
+        'add_slug' => 'Please enter a valid page slug.',
+        'add_url' => 'Please enter a valid URL(https://example.com).',
+        'add_content' => 'Please enter page content.',
+        'add_publish' => 'Please enter publish status.',
+        'publish_date' => 'Please enter a publishing date.',
+        'default_page' => 'Please select a default page.',
+        'valid_url' => 'Please enter a valid URL(https://example.com).',
+    ],
+
+    'product_details' => [
+        'add_name' => 'Please enter a valid Product name.',
+        'add_group' => 'Please select a valid group.',
+        'add_license_type' => 'Please select a License type.',
+        'add_description' => 'Please enter price description.',
+        'add_product_sku' => 'Please enter product SKU.',
+        'add_product_description' => 'Please enter product description.',
+    ],
+
+    'coupon_details' => [
+        'add_code' => 'Please enter coupon code.',
+        'add_type' => 'Please select a coupon type.',
+        'add_value' => 'Please enter coupon discount value.',
+        'add_expiry' => 'Please select a coupon expiration date.',
+        'add_start' => 'Please select a coupon start date.',
+        'add_uses' => 'Please enter a valid number.',
+        'add_applied' => 'Please select a valid product.',
+    ],
+
+    'group_details' => [
+        'group_name' => 'Please enter a valid group name.',
+        'template' => 'Please select template.',
+    ],
+
+    'company_details' => [
+        'company_name' => 'Please enter a company name.',
+        'company_email' => 'Please enter a valid email.',
+        'add_address' => 'Please enter company address.',
+        'add_phone' => 'Please enter the company phone number.',
+        'add_website' => 'Please enter a valid URL(https://example.com).',
+        'add_country' => 'Please enter the company country.',
+        'add_state' => 'Please enter the company state.',
+        'default_currency' => 'Please enter the default currency.',
+    ],
+
+    'license_details' => [
+        'new_license_type' => 'Please enter license type.',
+    ],
+
+    'app_details' => [
+        'app_name' => 'Please enter a valid App name.',
+        'app_key' => 'Please enter a valid App key.',
+        'app_secret' => 'Please enter a valid App secret.',
+    ],
+
+    'socialLogin_details' => [
+        'client_id' => 'Please enter a  valid client ID.',
+        'client_secret' => 'Please enter a valid client secret.',
+        'redirect_url' => 'Please enter a valid URL(https://example.com).',
+        'api_id' => 'Please enter a valid API ID.',
+        'api_secret' => 'Please enter a valid API secret.',
+    ],
+
+    'templateEdit_details' => [
+        'subject' => 'Please enter subject.',
+        'template_type' => 'Please select template type.',
+        'content' => 'Please enter template content.',
+    ],
+
+    'tax_details' => [
+        'tax_name' => 'Please enter a tax name.',
+        'rate' => 'Please enter tax rate.',
+    ],
+
+    'widget_details' => [
+        'name' => 'Please enter widget name.',
+        'type' => 'Please enter widget type.',
+        'publish' => 'Please enter the publishing permission.',
+    ],
+
+    'social_details' => [
+        'name' => 'Please enter a valid name.',
+        'link' => 'Please enter a valid link(https://example.com).',
+    ],
+
+
 ];
