@@ -1844,6 +1844,6 @@
      'mandatory_tax' => 'Qasam obbligatorju nieqes fuq il-iskrin tat-taxxa.',
      'info' => 'Informazzjoni',
      'product_quantity' => 'Kwantità tal-prodott',
-     'table_search' => 'Fittex:'
+     'table_search' => 'Fittex:',
 
  ];

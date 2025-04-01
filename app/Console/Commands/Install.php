@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use App\Http\Controllers\BillingInstaller\BillingDependencyController;
 use App\Http\Controllers\BillingInstaller\InstallerController;
 use Illuminate\Console\Command;
-use Illuminate\Http\Request;
 
 class Install extends Command
 {
