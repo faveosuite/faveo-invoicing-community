@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Dashboard
+    {{ __('message.dashboard') }}
 @endsection
 @section('content')
 @section('content-header')
@@ -155,7 +155,7 @@ Dashboard
            'title' => __('message.recently_register_users'),
            'layout' => 'custom',
            'collection'=> $users,
-           'linkLeft'=> ['pqd4adkea1q15cvv3fk9rn21gh98q1rspcez7j4mk7a3g43a' => url($url)],
+           'linkLeft'=> [ 'View All' => url($url)],
 
            'linkRight'=> ['Create New User' => url('clients/create')]
     ])
@@ -199,7 +199,7 @@ Dashboard
            'layout' => 'table',
            'collection'=> $invoices,
            'columns'=> ['Invoice No', 'Total', 'User','Date', 'Paid', 'Balance', 'Status'],
-            'linkLeft'=> ['pqd4adkea1q15cvv3fk9rn21gh98q1rspcez7j4mk7a3g43a' => url('invoices?from='.$startDate.'&till='.$endDate)],
+           'linkLeft'=> [ 'View All' => url('invoices?from='.$startDate.'&till='.$endDate)],
            'linkRight'=> ['Generate New Invoice' => url('invoice/generate')]
     ])
 
@@ -238,7 +238,7 @@ Dashboard
             'collection'=> $expiredSubscriptions,
             'columns'=> ['User', 'Order No', 'Expiry', 'Days Passed', 'Product'],
             'linkRight'=> ['Place New Order' => url('invoice/generate')],
-            'linkLeft'=> ['pqd4adkea1q15cvv3fk9rn21gh98q1rspcez7j4mk7a3g43a' => url('orders?from='.$expiredSubscriptionDate.'&till='.$currentDate.'&renewal=expired_subscription&product_id=paid')]
+            'linkLeft'=> ['View All' => url('orders?from='.$expiredSubscriptionDate.'&till='.$currentDate.'&renewal=expired_subscription&product_id=paid')]
      ])
 
          @foreach($expiredSubscriptions as $element)
@@ -259,7 +259,7 @@ Dashboard
             'collection'=> $subscriptions,
             'columns'=> ['User', 'Order No', 'Expiry', 'Days Left', 'Product'],
             'linkRight'=> ['Place New Order' => url('invoice/generate')],
-            'linkLeft'=> ['pqd4adkea1q15cvv3fk9rn21gh98q1rspcez7j4mk7a3g43a' => url('orders?from='.$currentDate.'&till='.$expiringSubscriptionDate.'&renewal=expiring_subscription&product_id=paid')]
+            'linkLeft'=> ['View All' => url('orders?from='.$currentDate.'&till='.$expiringSubscriptionDate.'&renewal=expiring_subscription&product_id=paid')]
      ])
 
          @foreach($subscriptions as $element)

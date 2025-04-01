@@ -1617,7 +1617,7 @@ return [
     'saving' => 'Saving...',
     'select_one_option' => 'Please Select One Option',
     'renew' => 'Renew',
-    'view_all_orders' => 'pqd4adkea1q15cvv3fk9rn21gh98q1rspcez7j4mk7a3g43a Orders',
+    'view_all_orders' => 'View All Orders',
     'choose_product' => 'Choose A Product',
     'export' => 'Export',
     'order_date' => 'Order Date',
