@@ -1002,4 +1002,5 @@ return [
     'cloud-error-message' => 'Please enter cloud domain.',
     'agents-error-message' => 'Please enter number of agents.',
     'quantity-error-message' => 'Please enter quantity.',
+
 ];
