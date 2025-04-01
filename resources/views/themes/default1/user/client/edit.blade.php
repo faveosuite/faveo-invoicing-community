@@ -224,7 +224,8 @@ Edit User
                     <div class="col-md-3 form-group {{ $errors->has('zip') ? 'has-error' : '' }}">
                         <!-- postal -->
                         {!! Form::label('zip',Lang::get('message.zip')) !!}
-                        {!! Form::text('zip',null,['class' => 'form-control'. ($errors->has('zip') ? ' is-invalid' : '')]) !!}
+                        {!! Form::text('zip',null,['class' => 'form-control'. ($errors->has('zip') ? ' is-invalid' : ''),'id'=>'zip1']) !!}
+                        <span id="zip-error-msg"></span>
                         @error('zip')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
@@ -328,7 +329,7 @@ Edit User
 
         };
 
-        $('.userUpdateForm').on('submit', function (e) {
+        $('#submit').on('click',function(e) {
             const userFields = {
                 first_name: $('#first_name'),
                 last_name: $('#last_name'),
@@ -390,6 +391,24 @@ Edit User
                     isValid = false;
                 }
             }
+            var zip=$('#zip1');
+            ziperrorMsg = document.querySelector("#zip-error-msg");
+
+            if(zip.val()!==''){
+                if(!zipRegex(zip.val())){
+                    e.preventDefault();
+                    ziperrorMsg.innerHTML = @json(trans('message.valid_zip'));
+
+                    $('#zip1').addClass('is-invalid');
+                    $('#zip1').css("border-color", "#dc3545");
+                    $('#zip-error-msg').css({
+                        "width": "100%",
+                        "margin-top": ".25rem",
+                        "font-size": "80%",
+                        "color": "#dc3545"
+                    });
+                }
+            }
 
             // If validation fails, prevent form submission
             if (!isValid) {
@@ -413,6 +432,17 @@ Edit User
             });
         });
 
+        document.getElementById("zip1").addEventListener('input',function(){
+            ziperrorMsg = document.querySelector("#zip-error-msg");
+            $('#zip1').removeClass('is-invalid');
+            $('#zip1').css("border-color", "silver");
+            ziperrorMsg.innerHTML = '';
+        })
+
+        function zipRegex(val) {
+            var re = /^[a-zA-Z0-9]+$/;
+            return re.test(val);
+        }
 
         function validName(string){
             nameRegex=/^[A-Za-z][A-Za-z-\s]+$/;

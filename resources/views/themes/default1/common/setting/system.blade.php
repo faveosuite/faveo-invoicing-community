@@ -178,7 +178,8 @@ System Setting
                             <div class="form-group {{ $errors->has('zip') ? 'has-error' : '' }}">
 
 
-                                {!! Form::text('zip',null,['class' => 'form-control'.($errors->has('zip') ? ' is-invalid' : '')]) !!}
+                                {!! Form::text('zip',null,['class' => 'form-control'.($errors->has('zip') ? ' is-invalid' : ''),'id'=>'zip1']) !!}
+                                <span id="zip-error-msg"></span>
                                 @error('zip')
                                 <span class="error-message"> {{$message}}</span>
                                 @enderror
@@ -269,7 +270,7 @@ System Setting
 
                                  <td>
                                      
-                                    {!! Form::text('gstin',null,['class' => 'form-control'.($errors->has('gstin') ? ' is-invalid' : ''),'id'=>'gstin']) !!}
+                                    {!! Form::number('gstin',null,['class' => 'form-control'.($errors->has('gstin') ? ' is-invalid' : ''),'id'=>'gstin']) !!}
                                      <span class="hide" id="gst-error-msg"></span>
                                      @error('gstin')
                                      <span class="error-message"> {{$message}}</span>
@@ -436,7 +437,7 @@ System Setting
                                     <label role="button" class="custom-file-label" for="logo">{{ __('Choose file') }}</label>
                                 </div>
                             </div>
-                            <span class="hide system-error" id="errMsg"></span>
+                            <span class="hide system-error" id="logo-err-Msg"></span>
                         @if($errors->has('logo'))
                                 <small class="form-text text-danger mt-1">
                                     <i class="fas fa-exclamation-circle"></i> {{ $errors->first('logo') }}
@@ -464,7 +465,100 @@ System Setting
 
 
     <script>
+        $(document).ready(function () {
 
+            var fup = document.getElementById('logo');
+            var errMsg=document.getElementById('logo-err-Msg');
+            $('#logo').on('change',function(e){
+                const input = document.getElementById('logo');
+                const file = input.files?.[0];
+                var fileName = fup.value;
+                const maxSize = 2 * 1024 * 1024;
+
+                if(file.size>maxSize){
+                    fup.classList.add('is-invalid');
+                    errMsg.innerText=@json(trans('message.image_invalid_size'));
+                    document.getElementById('submit').disabled = true;
+                    return false;
+                }
+                var ext = fileName.substring(fileName.lastIndexOf('.') + 1);
+                if(ext ==="jpeg" || ext==="jpg" || ext==='png') {
+                    errMsg.innerText='';
+                    fup.classList.remove('is-invalid');
+                    document.getElementById('submit').disabled = false;
+
+                    return true;
+                } else {
+                    fup.classList.add('is-invalid');
+                    errMsg.innerText=@json(trans('message.image_invalid_message'));
+                    document.getElementById('submit').disabled = true;
+                    return false;
+                }});
+
+            var fup1 = document.getElementById('admin-logo');
+            var errMsg1=document.getElementById('admin-err-Msg');
+            $('#admin-logo').on('change',function(e){
+                const input = document.getElementById('admin-logo');
+                const file = input.files?.[0];
+                var fileName = fup1.value;
+                var ext = fileName.substring(fileName.lastIndexOf('.') + 1);
+
+                const maxSize = 2 * 1024 * 1024;
+
+                if(file.size>maxSize){
+                    fup1.classList.add('is-invalid');
+                    errMsg1.innerText=@json(trans('message.image_invalid_size'));
+                    document.getElementById('submit').disabled = true;
+                    return false;
+                }
+                if(ext ==="jpeg" || ext==="jpg" || ext==='png') {
+                    errMsg1.innerText='';
+                    fup1.classList.remove('is-invalid');
+                    document.getElementById('submit').disabled = false;
+
+                    return true;
+                } else {
+                    fup1.classList.add('is-invalid');
+                    errMsg1.innerText=@json(trans('message.image_invalid_message'));
+                    document.getElementById('submit').disabled = true;
+                    return false;
+                }});
+
+            var fup2 = document.getElementById('fav-icon');
+            var errMsg2=document.getElementById('favicon-err-Msg');
+            $('#fav-icon').on('change',function(e){
+                const input = document.getElementById('fav-icon');
+                const file = input.files?.[0];
+                var fileName = fup2.value;
+                var ext = fileName.substring(fileName.lastIndexOf('.') + 1);
+
+                const maxSize = 2 * 1024 * 1024;
+
+                if(file.size>maxSize){
+                    fup2.classList.remove('is-invalid');
+                    errMsg2.innerText=@json(trans('message.image_invalid_size'));
+                    document.getElementById('submit').disabled = true;
+                    return false;
+                }
+                if(ext ==="jpeg" || ext==="jpg" || ext==='png') {
+                    errMsg2.innerText='';
+                    fup2.classList.remove('is-invalid');
+                    document.getElementById('submit').disabled = false;
+
+                    return true;
+                } else {
+                    fup2.classList.add('is-invalid');
+                    errMsg2.innerText=@json(trans('message.image_invalid_message'));
+                    document.getElementById('submit').disabled = true;
+                    return false;
+                }});
+
+
+            $('.custom-file-input').on('change', function() {
+                let fileName = $(this).val().split('\\').pop();
+                $(this).next('.custom-file-label').addClass('selected').html(fileName);
+            });
+        });
         $(document).ready(function() {
             const userRequiredFields = {
                 company:@json(trans('message.company_details.company_name')),
@@ -552,65 +646,7 @@ System Setting
 
 
 
-    $(document).ready(function () {
 
-            var fup = document.getElementById('logo');
-            var errMsg=document.getElementById('errMsg');
-            $('#logo').on('change',function(e){
-                var fileName = fup.value;
-            var ext = fileName.substring(fileName.lastIndexOf('.') + 1);
-
-            if(ext ==="jpeg" || ext==="jpg" || ext==='png') {
-                errMsg.innerText='';
-                fup.classList.remove('is-invalid');
-                return true;
-        } else {
-            fup.classList.add('is-invalid');
-            errMsg.innerText=@json(trans('message.image_invalid_message'));
-            e.preventDefault();
-            return false;
-        }});
-
-        var fup1 = document.getElementById('admin-logo');
-        var errMsg1=document.getElementById('admin-err-Msg');
-        $('#admin-logo').on('change',function(e){
-            var fileName = fup1.value;
-            var ext = fileName.substring(fileName.lastIndexOf('.') + 1);
-
-            if(ext ==="jpeg" || ext==="jpg" || ext==='png') {
-                errMsg1.innerText='';
-                fup1.classList.remove('is-invalid');
-                return true;
-            } else {
-                fup1.classList.add('is-invalid');
-                errMsg1.innerText=@json(trans('message.image_invalid_message'));
-                e.preventDefault();
-                return false;
-            }});
-
-        var fup2 = document.getElementById('fav-icon');
-        var errMsg2=document.getElementById('favicon-err-Msg');
-        $('#fav-icon').on('change',function(e){
-            var fileName = fup2.value;
-            var ext = fileName.substring(fileName.lastIndexOf('.') + 1);
-
-            if(ext ==="jpeg" || ext==="jpg" || ext==='png') {
-                errMsg2.innerText='';
-                fup2.classList.remove('is-invalid');
-                return true;
-            } else {
-                fup2.classList.add('is-invalid');
-                errMsg2.innerText=@json(trans('message.image_invalid_message'));
-                e.preventDefault();
-                return false;
-            }});
-
-
-        $('.custom-file-input').on('change', function() {
-            let fileName = $(this).val().split('\\').pop();
-            $(this).next('.custom-file-label').addClass('selected').html(fileName);
-        });
-    });
 
     $(document).ready(function(){
          $(function () {
@@ -630,9 +666,7 @@ System Setting
     validMsg = document.querySelector("#valid-msg");
 
     var url=$('#knowledge_base_url');
-    var gstin=$('#gstin');
     urlerrorMsg = document.querySelector("#url-error-msg");
-    gstinerrorMsg=document.querySelector("#gst-error-msg");
         var reset = function() {
       errorMsg.innerHTML = "";
       errorMsg.classList.add("hide");
@@ -671,9 +705,11 @@ System Setting
 
                 }
             }
+            gstinerrorMsg=document.querySelector("#gst-error-msg");
+            var gstin=$('#gstin');
 
             if(gstin.val()!==''){
-                if(gstin.val().length>15){
+                if(gstin.val().length!=15 ){
                     e.preventDefault();
                     gstinerrorMsg.innerHTML = @json(trans('message.valid_gst_number'));
                     $('#gstin').addClass('is-invalid');
@@ -686,8 +722,31 @@ System Setting
                     });
                 }
             }
-        });
 
+
+            var zip=$('#zip1');
+            ziperrorMsg = document.querySelector("#zip-error-msg");
+
+            if(zip.val()!==''){
+                if(!zipRegex(zip.val())){
+                    e.preventDefault();
+                    ziperrorMsg.innerHTML = @json(trans('message.valid_zip'));
+
+                    $('#zip1').addClass('is-invalid');
+                    $('#zip1').css("border-color", "#dc3545");
+                    $('#zip-error-msg').css({
+                        "width": "100%",
+                        "margin-top": ".25rem",
+                        "font-size": "80%",
+                        "color": "#dc3545"
+                    });
+                }
+            }
+        });
+        function zipRegex(val) {
+            var re = /^[a-zA-Z0-9]+$/;
+            return re.test(val);
+        }
     telInput.on('input blur submit', function () {
       reset();
         if ($.trim(telInput.val())) {
@@ -886,9 +945,18 @@ System Setting
     ['logo', 'admin-logo', 'fav-icon'].forEach((id) => {
         const input = document.getElementById(id);
         const preview = document.getElementById(`preview-${id}`);
-
         if (input && preview) {
             input.addEventListener('change', () => {
+                if(input.id=='admin-logo'){
+                    var errMsg1=document.getElementById('admin-err-Msg');
+                   var fup=document.getElementById(input.id);
+                }else if(input.id=='logo'){
+                    var errMsg1=document.getElementById('logo-err-Msg');
+                    var fup=document.getElementById(input.id)
+                }else{
+                    var errMsg1=document.getElementById('favicon-err-Msg');
+                   var fup=document.getElementById(input.id);
+                }
                 // Clear previous preview if file selection is canceled
                 if (!input.files.length) {
                     preview.src = '';
@@ -905,25 +973,35 @@ System Setting
         if (!file){
             return
         }
-        const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
 
-        if (allowedTypes.includes(file.type)) {
-            const reader = new FileReader();
 
-            reader.onload = (e) => {
-                preview.src = e.target.result;
-            };
+            const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
 
-            reader.onerror = () => {
+            if (allowedTypes.includes(file.type)) {
+                const reader = new FileReader();
+
+                reader.onload = (e) => {
+                    preview.src = e.target.result;
+                };
+
+                reader.onerror = () => {
+                    input.value = '';
+                };
+
+                reader.readAsDataURL(file);
+            } else {
                 input.value = '';
-            };
+                preview.src = originalSrc;
+            }
 
-            reader.readAsDataURL(file);
-        }else {
-            input.value = '';
-            preview.src = originalSrc;
-        }
     }
+
+        document.getElementById("zip1").addEventListener('input',function(){
+            ziperrorMsg = document.querySelector("#zip-error-msg");
+            $('#zip1').removeClass('is-invalid');
+            $('#zip1').css("border-color", "silver");
+            ziperrorMsg.innerHTML = '';
+        });
 </script>
 
 

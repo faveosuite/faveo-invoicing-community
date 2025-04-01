@@ -156,6 +156,8 @@ Route::middleware('installAgora')->group(function () {
 
     Route::resource('social-media', Common\SocialMediaController::class);
     Route::get('get-social-media', [Common\SocialMediaController::class, 'getSocials'])->name('get-social-media');
+    Route::delete('social-delete', [Common\SocialMediaController::class, 'destroy'])->name('social-delete');
+
     Route::auth();
     Route::post('auth/register', [Auth\RegisterController::class, 'postRegister'])->name('auth/register');
     Route::get('auth/logout', [Auth\LoginController::class, 'logout'])->name('logout');

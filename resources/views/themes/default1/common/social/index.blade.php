@@ -29,13 +29,17 @@ Social Media
     
 
     <div class="card-body table-responsive">
+
         <div class="row">
-            
+
             <div class="col-md-12">
                  <table id="social-media-table" class="table display" cellspacing="0" width="100%" styleClass="borderless">
+                     <button  value="" class="btn btn-secondary btn-sm btn-alldell" id="bulk_delete"><i class="fa fa-trash"></i>&nbsp;&nbsp;Delete Selected</button><br /><br />
 
                     <thead><tr>
-                         <th>Name</th>
+                        <th class="no-sort"><input type="checkbox" name="select_all" onchange="checking(this)"></th>
+
+                        <th>Name</th>
                            <th>Content</th>
                           <th>Action</th>
                         </tr></thead>
@@ -49,7 +53,7 @@ Social Media
     </div>
 
 </div>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css" />
 <script src="//cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript">
@@ -77,7 +81,8 @@ Social Media
               }],
     
             columns: [
-               
+                {data: 'checkbox', name: 'checkbox'},
+
                 {data: 'name', name: 'name'},
                 {data: 'link', name: 'link'},
                 {data: 'action', name: 'action'}
@@ -109,6 +114,10 @@ Social Media
 
 @section('icheck')
 <script>
+    function checking(e){
+
+        $('#script-table').find("td input[type='checkbox']").prop('checked', $(e).prop('checked'));
+    }
     $(function () {
 
 
@@ -128,6 +137,90 @@ Social Media
         });
 
 
+    });
+
+    $(document).on('click','#bulk_delete',function(){
+        var id=[];
+        $('.chat_checkbox:checked').each(function(){
+            id.push($(this).val())
+        });
+        if(id.length<=0){
+            swal.fire({
+                title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
+                html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
+                    "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
+                    "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_social')}}</p>" + "</div>" +
+                    "</div>",
+                position: 'top',
+                confirmButtonText: "OK",
+                showCloseButton: true,
+                confirmButtonColor: "#007bff",
+                width: "600px",
+                buttonsStyling: false,
+                customClass: {
+                    confirmButton: 'btn btn-primary btn-sm custom-confirm',
+                }
+            })
+        }
+        else {
+            var swl = swal.fire({
+                title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Delete')}}</h2>",
+                html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
+                    "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
+                    "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.social_delete')}}</p>" + "</div>" +
+                    "</div>",
+                showCancelButton: true,
+                showCloseButton: true,
+                position: "top",
+                width: "600px",
+                confirmButtonText: @json(trans('message.Delete')),
+                confirmButtonColor: "#007bff",
+                buttonsStyling: false,
+                reverseButtons: true,
+                customClass: {
+                    actions: 'swal2-actions-custom-fix',
+                    confirmButton: 'btn btn-primary btn-sm custom-confirm',
+                    cancelButton: 'btn btn-secondary btn-sm custom-cancel'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('.chat_checkbox:checked').each(function () {
+                        id.push($(this).val())
+                    });
+                    if (id.length > 0) {
+                        $.ajax({
+                            url: "{!! route('social-delete') !!}",
+                            method: "delete",
+                            data: $('#check:checked').serialize(),
+                            beforeSend: function () {
+                                $('#gif').show();
+                            },
+                            success: function (data) {
+                                $('#gif').hide();
+                                $('#response').html(data);
+                                location.reload();
+                            }
+                        })
+                    } else {
+                        swal.fire({
+                            title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
+                            html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
+                                "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
+                                "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_social')}}</p>" + "</div>" +
+                                "</div>",
+                            position: 'top',
+                            confirmButtonText: "OK",
+                            showCloseButton: true,
+                            confirmButtonColor: "#007bff",
+                            width: "600px",
+                        })
+                    }
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    window.close();
+                }
+                return false;
+            });
+        }
     });
 </script>
 @stop
