@@ -56,7 +56,7 @@ Edit Widget
 
                     <div class="col-md-4 form-group {{ $errors->has('allow_mailchimp') ? 'has-error' : '' }}">
                         {!! html()->label(Lang::get('message.allow_mailchimp'))->class('required')->for('allow_mailchimp') !!}
-                        {!! html()->select('allow_mailchimp', [1 => 'Yes', 0 => 'No'])->class('form-control')->value($mailchimpStatus ? null : $mail) !!}
+                        {!! html()->select('allow_mailchimp', [1 => 'Yes', 0 => 'No'])->class('form-control')->value($widget->allow_mailchimp)->attributes($mailchimpStatus ? [] : $mail) !!}
                     </div>
 
                     <div class="col-md-4 form-group {{ $errors->has('allow_social_media') ? 'has-error' : '' }}">

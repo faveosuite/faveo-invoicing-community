@@ -57,7 +57,7 @@ Social Media
                         <td>
                             <div class="form-group {{ $errors->has('link') ? 'has-error' : '' }}">
                                 <p><i> {{Lang::get('message.enter-the-link-of-the-social-media')}}</i> </p>
-                                {!! html()->text('link')->class('form-control'. ($errors->has('link') ? ' is-invalid' : ''))->id('link')->placeholder('https://example.com') !!} {!! Form::text('link',null,['class' => 'form-control'. ($errors->has('link') ? ' is-invalid' : ''),'id'=>'link','placeholder'=>'https://example.com']) !!}
+                                {!! html()->text('link')->class('form-control'. ($errors->has('link') ? ' is-invalid' : ''))->id('link')->placeholder('https://example.com') !!}
 
                                 <div class="input-group-append">
                                 </div>
