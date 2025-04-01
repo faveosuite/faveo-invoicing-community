@@ -7,10 +7,10 @@ use App\Email_log;
 use App\Facades\Attach;
 use App\Http\Requests\Common\SettingsRequest;
 use App\Model\Common\Mailchimp\MailchimpSetting;
-use App\Model\Github\Github;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;
+use App\Model\Github\Github;
 use App\Model\Mailjob\QueueService;
 use App\Model\Order\Order;
 use App\Model\Payment\Currency;
@@ -48,7 +48,7 @@ class SettingsController extends BaseSettingsController
         $isRedisConfigured = QueueService::where('short_name', 'redis')->value('status');
         $mailSendingStatus = Setting::value('sending_status');
 
-        return view('themes.default1.common.admin-settings', compact('isRedisConfigured','mailSendingStatus'));
+        return view('themes.default1.common.admin-settings', compact('isRedisConfigured', 'mailSendingStatus'));
         //return view('themes.default1.common.settings', compact('setting', 'template'));
     }
 
@@ -71,27 +71,30 @@ class SettingsController extends BaseSettingsController
      *
      * @param  ApiKey  $apikeys
      */
-
-    public function licensekeys(ApiKey $apikeys){
+    public function licensekeys(ApiKey $apikeys)
+    {
         $licenseSecret = $apikeys->pluck('license_api_secret')->first();
         $licenseUrl = $apikeys->pluck('license_api_url')->first();
         $licenseClientId = $apikeys->pluck('license_client_id')->first();
         $licenseClientSecret = $apikeys->pluck('license_client_secret')->first();
         $licenseGrantType = $apikeys->pluck('license_grant_type')->first();
-       return response()->json([
+
+        return response()->json([
             'licenseGrantType' => $licenseGrantType,
             'licenseSecret' => $licenseSecret,
             'licenseClientId' => $licenseClientId,
             'licenseClientSecret' => $licenseClientSecret,
-            'licenseUrl' => $licenseUrl
+            'licenseUrl' => $licenseUrl,
         ]);
     }
 
-    public function googleCaptcha(ApiKey $apikeys){
+    public function googleCaptcha(ApiKey $apikeys)
+    {
         $captchaStatus = StatusSetting::pluck('recaptcha_status')->first();
         $v3CaptchaStatus = StatusSetting::pluck('v3_recaptcha_status')->first();
         $siteKey = $apikeys->pluck('nocaptcha_sitekey')->first();
         $secretKey = $apikeys->pluck('captcha_secretCheck')->first();
+
         return response()->json([
             'captchaStatus' => $captchaStatus,
             'v3CaptchaStatus' => $v3CaptchaStatus,
@@ -100,21 +103,24 @@ class SettingsController extends BaseSettingsController
         ]);
     }
 
-    public function mobileVerification(ApiKey $apikeys){
+    public function mobileVerification(ApiKey $apikeys)
+    {
         $mobileauthkey = $apikeys->pluck('msg91_auth_key')->first();
         $msg91Sender = $apikeys->pluck('msg91_sender')->first();
         $msg91TemplateId = $apikeys->pluck('msg91_template_id')->first();
+
         return response()->json([
             'mobileauthkey' => $mobileauthkey,
             'msg91Sender' => $msg91Sender,
-            'msg91TemplateId'=>$msg91TemplateId
+            'msg91TemplateId' => $msg91TemplateId,
         ]);
     }
 
-    public function mailchimpKeys(ApiKey $apikeys){
+    public function mailchimpKeys(ApiKey $apikeys)
+    {
         $mailchimpSetting = StatusSetting::pluck('mailchimp_status')->first();
         $mailchimpKey = MailchimpSetting::pluck('api_key')->first();
-        $subscribe_status=MailchimpSetting::pluck('subscribe_status')->first();
+        $subscribe_status = MailchimpSetting::pluck('subscribe_status')->first();
         $mailchimp_set = new MailchimpSetting();
         $set = $mailchimp_set->firstOrFail();
         $mail_api_key = $set->api_key;
@@ -122,16 +128,16 @@ class SettingsController extends BaseSettingsController
             $mailchimp = new \Mailchimp\Mailchimp($mail_api_key);
             $allists = $mailchimp->get('lists?count=20')['lists'];
             $selectedList[] = $set->list_id;
-
         } catch (\Exception $e) {
             // Log the error if needed
-            \Log::error("Mailchimp Initialization Failed: " . $e->getMessage());
+            \Log::error('Mailchimp Initialization Failed: '.$e->getMessage());
 
             // Return null when it fails
             $mailchimp = '';
-            $allists=[];
+            $allists = [];
             $selectedList = [];
         }
+
         return response()->json([
             'mailchimpSetting' => $mailchimpSetting,
             'mailchimpKey' => $mailchimpKey,
@@ -141,22 +147,28 @@ class SettingsController extends BaseSettingsController
         ]);
     }
 
-    public function termsUrl(ApiKey $apikeys){
+    public function termsUrl(ApiKey $apikeys)
+    {
         $termsUrl = $apikeys->pluck('terms_url')->first();
+
         return response()->json([
             'termsUrl' => $termsUrl,
         ]);
     }
-    public function twitterkeys(ApiKey $apikeys){
+
+    public function twitterkeys(ApiKey $apikeys)
+    {
         $twitterKeys = $apikeys->select('twitter_consumer_key', 'twitter_consumer_secret',
             'twitter_access_token', 'access_tooken_secret')->first();
+
         return response()->json([
             'twitterkeys' => $twitterKeys,
 
         ]);
     }
 
-    public function zohokeys(ApiKey $apikeys){
+    public function zohokeys(ApiKey $apikeys)
+    {
         $zohoKey = $apikeys->pluck('zoho_api_key')->first();
 
         return response()->json([
@@ -165,19 +177,23 @@ class SettingsController extends BaseSettingsController
         ]);
     }
 
-    public function pipedrivekeys(ApiKey $apikeys){
+    public function pipedrivekeys(ApiKey $apikeys)
+    {
         $pipedriveKey = $apikeys->pluck('pipedrive_api_key')->first();
+
         return response()->json([
             'pipedriveKey' => $pipedriveKey,
 
         ]);
     }
 
-    public function githubkeys(ApiKey $apikeys){
+    public function githubkeys(ApiKey $apikeys)
+    {
         $model = new Github();
         $github = $model->firstOrFail();
         $githubStatus = StatusSetting::first()->github_status;
         $githubFileds = $github->select('client_id', 'client_secret', 'username', 'password')->first();
+
         return response()->json([
             'githubFileds' => $githubFileds,
 
@@ -187,7 +203,7 @@ class SettingsController extends BaseSettingsController
     public function getKeys(ApiKey $apikeys)
     {
         try {
-            $mailchimpverifiedStatus=0;
+            $mailchimpverifiedStatus = 0;
             $licenseClientId = ApiKey::pluck('license_client_id')->first();
             $licenseClientSecret = ApiKey::pluck('license_client_secret')->first();
             $licenseGrantType = ApiKey::pluck('license_grant_type')->first();
@@ -242,14 +258,13 @@ class SettingsController extends BaseSettingsController
                 $mailchimp = new \Mailchimp\Mailchimp($mail_api_key);
                 $allists = $mailchimp->get('lists?count=20')['lists'];
                 $selectedList[] = $set->list_id;
-
             } catch (\Exception $e) {
                 // Log the error if needed
-                \Log::error("Mailchimp Initialization Failed: " . $e->getMessage());
+                \Log::error('Mailchimp Initialization Failed: '.$e->getMessage());
 
                 // Return null when it fails
                 $mailchimp = '';
-                $allists=[];
+                $allists = [];
                 $selectedList = [];
             }
             $model = new Github();
@@ -257,16 +272,15 @@ class SettingsController extends BaseSettingsController
             $githubStatus = StatusSetting::first()->github_status;
             $githubFileds = $github->select('client_id', 'client_secret', 'username', 'password')->first();
 
-
             return view('themes.default1.common.apikey', compact('model', 'status', 'licenseSecret', 'licenseUrl', 'siteKey', 'secretKey', 'captchaStatus', 'v3CaptchaStatus', 'updateStatus', 'updateSecret', 'updateUrl', 'mobileStatus', 'mobileauthkey', 'msg91Sender', 'msg91TemplateId', 'emailStatus', 'twitterStatus', 'twitterKeys', 'zohoStatus', 'zohoKey', 'rzpStatus', 'rzpKeys', 'mailchimpSetting', 'mailchimpKey', 'termsStatus', 'termsUrl', 'pipedriveKey', 'pipedriveStatus', 'domainCheckStatus', 'mailSendingStatus',
-                'licenseClientId', 'licenseClientSecret', 'licenseGrantType','allists', 'selectedList','set','githubStatus','githubFileds','mailchimpverifiedStatus'));
+                'licenseClientId', 'licenseClientSecret', 'licenseGrantType', 'allists', 'selectedList', 'set', 'githubStatus', 'githubFileds', 'mailchimpverifiedStatus'));
         } catch (\Exception $ex) {
             return redirect('/')->with('fails', $ex->getMessage());
         }
     }
 
-
-    public function getDataTableData(Request $request){
+    public function getDataTableData(Request $request)
+    {
         $status = StatusSetting::pluck('license_status')->first();
         $mobileStatus = StatusSetting::pluck('msg91_status')->first();
         $captchaStatus = StatusSetting::pluck('recaptcha_status')->first();
@@ -291,85 +305,84 @@ class SettingsController extends BaseSettingsController
         </label>
     ';
 
-        if($request->ajax()){
-        $dataTable = collect([
-            ['options' => 'Auto Faveo Licenser & Update Manager', 'description'=>'The Faveo License Manager Integration adds the ability to manage software licenses and updates within Faveo Invoicing, allowing seamless tracking, activation, and updating of licenses directly through the platform','status' =>  '
+        if ($request->ajax()) {
+            $dataTable = collect([
+                ['options' => 'Auto Faveo Licenser & Update Manager', 'description' => 'The Faveo License Manager Integration adds the ability to manage software licenses and updates within Faveo Invoicing, allowing seamless tracking, activation, and updating of licenses directly through the platform', 'status' => '
         <label class="switch toggle_event_editing licenser">
             <input type="checkbox" value="'.($status ? '1' : '0').'"  
                    name="modules_settings"
                    class="checkbox" id="License" '.($status ? 'checked' : '').'>
             <span class="slider round"></span>
         </label>
-    ','action' => '<button id="license-edit-button" class="btn btn-sm btn-secondary btn-xs" ><span class="nav-icon fa fa-fw fa-edit"></span></button>',
-            ],
-//            ['options' => "Don't Allow Domin/Ip based Restriction",'description'=>'Not Available', 'status' => $this->getStatus($domainCheckStatus), 'action' => 'NotAvailable'],
-            ['options' => 'Google reCAPTCHA','description'=>'The Google reCAPTCHA integration adds a reCAPTCHA feature to all unauthenticated pages, helping to protect your forms from bots and automated submissions, ensuring that only genuine users can submit information','status' => $toggleSwitch, 'action' => '<button id="captcha-edit-button" class="btn btn-sm btn-secondary btn-xs" ><span class="nav-icon fa fa-fw fa-edit"></span></button>'
-            ],
-            ['options' => 'Msg 91(Mobile Verification)','description'=>"The MSG91.com service is used to send OTPs (One-Time Passwords) to verify the contact's mobile number during registration, ensuring a secure and reliable method of contact verification.", 'status' => '<label class="switch toggle_event_editing mstatus">
-                    <input type="checkbox" value="'.($mobileStatus?'1':'0').'"  name="mobile_settings"
+    ', 'action' => '<button id="license-edit-button" class="btn btn-sm btn-secondary btn-xs" ><span class="nav-icon fa fa-fw fa-edit"></span></button>',
+                ],
+                //            ['options' => "Don't Allow Domin/Ip based Restriction",'description'=>'Not Available', 'status' => $this->getStatus($domainCheckStatus), 'action' => 'NotAvailable'],
+                ['options' => 'Google reCAPTCHA', 'description' => 'The Google reCAPTCHA integration adds a reCAPTCHA feature to all unauthenticated pages, helping to protect your forms from bots and automated submissions, ensuring that only genuine users can submit information', 'status' => $toggleSwitch, 'action' => '<button id="captcha-edit-button" class="btn btn-sm btn-secondary btn-xs" ><span class="nav-icon fa fa-fw fa-edit"></span></button>',
+                ],
+                ['options' => 'Msg 91(Mobile Verification)', 'description' => "The MSG91.com service is used to send OTPs (One-Time Passwords) to verify the contact's mobile number during registration, ensuring a secure and reliable method of contact verification.", 'status' => '<label class="switch toggle_event_editing mstatus">
+                    <input type="checkbox" value="'.($mobileStatus ? '1' : '0').'"  name="mobile_settings"
                            class="checkbox4" id="mobile"'.($mobileStatus ? 'checked' : '').'>
                     <span class="slider round"></span>
                     </label>', 'action' => '<button id="msg91-edit-button" class="btn btn-sm btn-secondary btn-xs"><span class="nav-icon fa fa-fw fa-edit"></span></button>',
-            ],
-            ['options' => 'Mailchimp','description'=>"The Mailchimp plugin seamlessly pushes all contact data from Faveo Invoicing to Mailchimp during contact registration and profile edits. Additionally, purchase data can be mapped to Mailchimp. A dedicated mapping page allows users to customize which data should be synced between the two platforms", 'status' =>'<label class="switch toggle_event_editing mailchimpstatus">
-                        <input type="checkbox" value="'.($mailchimpSetting?'1':'0').'"  name="mobile_settings"
+                ],
+                ['options' => 'Mailchimp', 'description' => 'The Mailchimp plugin seamlessly pushes all contact data from Faveo Invoicing to Mailchimp during contact registration and profile edits. Additionally, purchase data can be mapped to Mailchimp. A dedicated mapping page allows users to customize which data should be synced between the two platforms', 'status' => '<label class="switch toggle_event_editing mailchimpstatus">
+                        <input type="checkbox" value="'.($mailchimpSetting ? '1' : '0').'"  name="mobile_settings"
                                class="checkbox9" id="mailchimp"'.($mailchimpSetting ? 'checked' : '').'>
                         <span class="slider round"></span>
                     </label>', 'action' => '<button id="mailchimp-edit-button" class="btn btn-sm btn-secondary btn-xs"><span class="nav-icon fa fa-fw fa-edit"></span></button>',
-            ],
-            ['options' => 'Show Terms on Registration Page', 'description'=>"When the 'Show Terms on Registration Page' option is enabled, a checkbox is displayed on the registration page, requiring users to agree to the Terms and Conditions before completing their registration.",'status' => '<label class="switch toggle_event_editing termstatus1">
+                ],
+                ['options' => 'Show Terms on Registration Page', 'description' => "When the 'Show Terms on Registration Page' option is enabled, a checkbox is displayed on the registration page, requiring users to agree to the Terms and Conditions before completing their registration.", 'status' => '<label class="switch toggle_event_editing termstatus1">
 
-                        <input type="checkbox" value="'.($termsStatus?'1':'0').'"  name="terms_settings"
-                               class="checkbox10" id="terms"'.($termsStatus?'checked':'').'>
+                        <input type="checkbox" value="'.($termsStatus ? '1' : '0').'"  name="terms_settings"
+                               class="checkbox10" id="terms"'.($termsStatus ? 'checked' : '').'>
                         <span class="slider round"></span>
                     </label>', 'action' => '<button id="termsUrl-edit-button" class="btn btn-sm btn-secondary btn-xs"><span class="nav-icon fa fa-fw fa-edit"></span></button>',
-            ],
-            ['options' => 'Twitter','description'=>"This plugin displays live tweets from a specified Twitter page directly in the footer of the portal, keeping users updated with the latest posts in real-time.", 'status' =>'<label class="switch toggle_event_editing twitterstatus">
-                    <input type="checkbox" value="'.($twitterStatus?'1':'0').'"  name="twitter_settings"
-                           class="checkbox6" id="twitter"'.($twitterStatus?'checked':'').'>
+                ],
+                ['options' => 'Twitter', 'description' => 'This plugin displays live tweets from a specified Twitter page directly in the footer of the portal, keeping users updated with the latest posts in real-time.', 'status' => '<label class="switch toggle_event_editing twitterstatus">
+                    <input type="checkbox" value="'.($twitterStatus ? '1' : '0').'"  name="twitter_settings"
+                           class="checkbox6" id="twitter"'.($twitterStatus ? 'checked' : '').'>
                     <span class="slider round"></span>
                     </label>', 'action' => '<button id="twitter-edit-button" class="btn btn-sm btn-secondary btn-xs"><span class="nav-icon fa fa-fw fa-edit"></span></button>',
-            ],
-            ['options' => 'Zoho CRM', 'description'=>"The Zoho CRM plugin seamlessly transfers all contact data from Faveo Invoicing to Zoho CRM upon contact registration and profile edits, ensuring your CRM is always up-to-date with the latest contact information.",'status' => '                    <label class="switch toggle_event_editing zohostatus">
-                        <input type="checkbox" value="'.($zohoStatus?'1':'0').'"  name="zoho_settings"
-                           class="checkbox8" id="zoho"'.($zohoStatus?'checked':'').'>
+                ],
+                ['options' => 'Zoho CRM', 'description' => 'The Zoho CRM plugin seamlessly transfers all contact data from Faveo Invoicing to Zoho CRM upon contact registration and profile edits, ensuring your CRM is always up-to-date with the latest contact information.', 'status' => '                    <label class="switch toggle_event_editing zohostatus">
+                        <input type="checkbox" value="'.($zohoStatus ? '1' : '0').'"  name="zoho_settings"
+                           class="checkbox8" id="zoho"'.($zohoStatus ? 'checked' : '').'>
                         <span class="slider round"></span>
                     </label>', 'action' => '<button id="zoho-edit-button" class="btn btn-sm btn-secondary btn-xs"><span class="nav-icon fa fa-fw fa-edit"></span></button>',
-            ],
-            ['options' => 'Pipedrive', 'description'=>"The Pipedrive CRM plugin automatically pushes all contact data from Faveo Invoicing to Pipedrive CRM during contact registration and profile edits. A dedicated mapping page allows users to customize which data fields should be synced between the two platforms.",'status' => '                    <label class="switch toggle_event_editing pipedrivestatus">
-                        <input type="checkbox" value="'.($pipedriveStatus?'1':'0').'"  name="pipedrive_settings"
-                           class="checkbox13" id="pipedrive"'.($pipedriveStatus?'checked':'').'>
+                ],
+                ['options' => 'Pipedrive', 'description' => 'The Pipedrive CRM plugin automatically pushes all contact data from Faveo Invoicing to Pipedrive CRM during contact registration and profile edits. A dedicated mapping page allows users to customize which data fields should be synced between the two platforms.', 'status' => '                    <label class="switch toggle_event_editing pipedrivestatus">
+                        <input type="checkbox" value="'.($pipedriveStatus ? '1' : '0').'"  name="pipedrive_settings"
+                           class="checkbox13" id="pipedrive"'.($pipedriveStatus ? 'checked' : '').'>
                         <span class="slider round"></span>
                     </label>', 'action' => '<button id="pipedrive-edit-button" class="btn btn-sm btn-secondary btn-xs"><span class="nav-icon fa fa-fw fa-edit"></span></button>',
-            ],
-            ['options' => 'Github', 'description'=>"The GitHub integration adds the ability to retrieve and download products directly from a GitHub repository, streamlining the process of accessing and managing files from your GitHub projects within the platform",'status' => '                        <label class="switch toggle_event_editing githubstatus">
-                            <input type="checkbox" value="'.($githubStatus?'1':'0').'" name="github_settings" class="checkbox" id="github"'.($githubStatus?'checked':'').'>
+                ],
+                ['options' => 'Github', 'description' => 'The GitHub integration adds the ability to retrieve and download products directly from a GitHub repository, streamlining the process of accessing and managing files from your GitHub projects within the platform', 'status' => '                        <label class="switch toggle_event_editing githubstatus">
+                            <input type="checkbox" value="'.($githubStatus ? '1' : '0').'" name="github_settings" class="checkbox" id="github"'.($githubStatus ? 'checked' : '').'>
                             <span class="slider round"></span>
-                        </label>','action' => '<button id="github-edit-button" class="btn btn-sm btn-secondary btn-xs"><span class="nav-icon fa fa-fw fa-edit"></span></button>',
-            ],
-        ]);
+                        </label>', 'action' => '<button id="github-edit-button" class="btn btn-sm btn-secondary btn-xs"><span class="nav-icon fa fa-fw fa-edit"></span></button>',
+                ],
+            ]);
 
-        return DataTables::of($dataTable)
-            ->rawColumns(['status', 'action'])
-            ->make(true);
+            return DataTables::of($dataTable)
+                ->rawColumns(['status', 'action'])
+                ->make(true);
+        }
     }
-    }
+
     private function getStatus($value)
     {
-
-        if ($value==1) {
+        if ($value == 1) {
             return 'Active';
-        }else{
+        } else {
             return 'Inactive';
         }
     }
 
-    private function getStatus2($value,$value2)
+    private function getStatus2($value, $value2)
     {
-
-        if (!$value && !$value2) {
+        if (! $value && ! $value2) {
             return 'Inactive';
-        }else{
+        } else {
             return 'Active';
         }
     }
@@ -1032,9 +1045,11 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    public function contactOption(){
+    public function contactOption()
+    {
         $mailSendingStatus = Setting::value('sending_status');
         $emailStatus = StatusSetting::pluck('emailverification_status')->first();
-        return view('themes.default1.common.setting.contact-options',compact('mailSendingStatus','emailStatus'));
+
+        return view('themes.default1.common.setting.contact-options', compact('mailSendingStatus', 'emailStatus'));
     }
 }
