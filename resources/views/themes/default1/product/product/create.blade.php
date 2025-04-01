@@ -118,7 +118,9 @@
 
                         <div class="col-md-6 form-group {{ $errors->has('price_description') ? 'has-error' : '' }}">
                             <!-- last name -->
-                            <script src="https://cdn.tiny.cloud/1/oiio010oipuw2n6qyq3li1h993tyg25lu28kgt1trxnjczpn/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+{{--                            <script src="https://cdn.tiny.cloud/1/oiio010oipuw2n6qyq3li1h993tyg25lu28kgt1trxnjczpn/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>--}}
+                            <script src="https://cdn.tiny.cloud/1/vj36xscbbzlnzmp9xo0kjctxdwdwfdll1rna0h0131am535t/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+
                             <script>
                                 tinymce.init({
                                     selector: 'textarea',
@@ -184,10 +186,13 @@
                                     <div class="form-group {{ $errors->has('image') ? 'has-error' : '' }}">
                                         <!-- last name -->
                                         {!! Form::label('image',Lang::get('message.image')) !!}
-                                        {!! Form::file('image') !!}
+                                        <div>
+                                        {!! Form::file('image',['id'=>'image']) !!}
+                                            <span class="system-error text-danger d-block mt-1" id="profilepic-err-Msg"></span>
                                         @error('image')
                                         <span class="error-message"> {{$message}}</span>
                                         @enderror
+                                        </div>
                                     </div>
                                 </li>
 
@@ -248,7 +253,9 @@
                     <div class="row">
                         <div class="col-md-12 form-group {{ $errors->has('product_description') ? 'has-error' : '' }}">
                             <!-- last name -->
-                            <script src="https://cdn.tiny.cloud/1/oiio010oipuw2n6qyq3li1h993tyg25lu28kgt1trxnjczpn/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+{{--                            <script src="https://cdn.tiny.cloud/1/oiio010oipuw2n6qyq3li1h993tyg25lu28kgt1trxnjczpn/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>--}}
+                            <script src="https://cdn.tiny.cloud/1/vj36xscbbzlnzmp9xo0kjctxdwdwfdll1rna0h0131am535t/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+
                             <script>
                                 tinymce.init({
                                     selector: 'textarea',
@@ -376,7 +383,34 @@
     </div>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
-
+            $(document).ready(function() {
+                var fup = document.getElementById('image');
+                var errMsg = document.getElementById('profilepic-err-Msg');
+                $('#image').on('change', function (e) {
+                    var fileName = fup.value;
+                    var filesize = e.target.files[0];
+                    var ext = fileName.substring(fileName.lastIndexOf('.') + 1);
+                    const maxSize = 2 * 1024 * 1024;
+                    if (filesize.size > maxSize) {
+                        errMsg.innerText =@json(trans('message.image_invalid_size'));
+                        document.getElementById('submit').disabled = true;
+                        return false;
+                    }
+                    if (ext !== "jpeg" && ext !== "jpg" && ext !== 'png') {
+                        errMsg.innerText =@json(trans('message.image_invalid_message'));
+                        document.getElementById('submit').disabled = true;
+                        return false;
+                    } else if (filesize.size > maxSize) {
+                        errMsg.innerText =@json(trans('message.image_invalid_size'));
+                        document.getElementById('submit').disabled = true;
+                        return false;
+                    } else {
+                        errMsg.innerText = '';
+                        document.getElementById('submit').disabled = false;
+                        return true;
+                    }
+                });
+            });
             $(document).ready(function() {
                 tinymce.get('textarea1').on('change', function() {
                     let content = tinymce.get('textarea1').getContent();

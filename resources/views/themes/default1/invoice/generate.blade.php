@@ -165,6 +165,7 @@ Create Invoice
 
 
         $('#generate').on('click', function (e) {
+            @if($user='')
            if($('#users').val()==''){
                document.querySelector('.select2-selection').style.cssText = `
                         border: 1px solid #dc3545;
@@ -177,7 +178,7 @@ Create Invoice
                document.querySelector('.select2-selection').style.border='1px solid silver';
 
            }
-
+            @endif
             if($('#price').val()==''){
                 e.preventDefault();
             }
@@ -284,7 +285,7 @@ Create Invoice
 
 
         // Add input event listeners for all fields
-        ['users','product','price','datepicker'].forEach(id => {
+        ['users','price','datepicker'].forEach(id => {
             document.getElementById(id).addEventListener('input', function () {
                 removeErrorMessage(this);
 
@@ -346,6 +347,8 @@ Create Invoice
     }
 
         $('#product').on('change',function(){
+            var plan = document.getElementsByName('product');
+            plan[0].classList.remove('is-invalid');
             val = $('#product').val();
              $.ajax({
             type: "GET",

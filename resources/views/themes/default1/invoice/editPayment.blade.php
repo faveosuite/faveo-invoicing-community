@@ -18,6 +18,42 @@ Edit Payment
 @stop
 
     @section('content')
+        <style>
+            /* Keep input size consistent */
+            .input-wrapper .form-control,
+            .input-wrapper .form-control.is-invalid {
+                box-sizing: border-box;
+                width: 100%;
+                height: 38px; /* Ensure consistent height */
+                /*padding-right: 2.25rem; !* Adjust for the calendar icon *!*/
+            }
+
+            /* Ensure invalid state doesn't affect input size */
+            .input-wrapper .form-control.is-invalid {
+                border-width: 1px;
+            }
+
+            /* Style for invalid-feedback */
+            .invalid-feedback {
+                margin-top: 0.25rem;
+                font-size: 0.875em;
+                color: #dc3545;
+            }
+
+            /* Ensure invalid-feedback doesn't push content */
+            .input-wrapper {
+                position: relative;
+                height: 38px; /* Maintain consistent height */
+                width:450px;
+                overflow: visible;
+            }
+
+            /* Prevent any layout shifts */
+            .form-group {
+                position: relative;
+            }
+
+        </style>
     <div class="card card-primary card-outline">
        <div class="card-header">
           <div id="alertMessage"></div>
@@ -39,19 +75,23 @@ Edit Payment
                     <div class="row">
 
                         <div class="col-md-4 form-group {{ $errors->has('invoice_status') ? 'has-error' : '' }}">
-                            <!-- first name -->
                             {!! Form::label('payment_date',Lang::get('message.date-of-payment'),['class'=>'required']) !!}
-                              <div class="input-group date" id="payment" data-target-input="nearest">
-                                 <input type="text" id="payment_date" name="payment_date" class="form-control datetimepicker-input" autocomplete="off"  data-target="#payment"/>
+                            <div class="input-group date" id="payment" data-target-input="nearest">
+                                <div class="input-wrapper">
+                                    <input type="text" id="payment_date" name="payment_date"
+                                           class="form-control datetimepicker-input {{ $errors->has('payment_date') ? 'is-invalid' : '' }}"
+                                           autocomplete="off" data-target="#payment"/>
+                                </div>
                                 <div class="input-group-append" data-target="#payment" data-toggle="datetimepicker">
                                     <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-
                                 </div>
-                              
-
                             </div>
-                      
 
+                            @if ($errors->has('payment_date'))
+                                <div class="invalid-feedback">
+                                    {{ $errors->first('payment_date') }}
+                                </div>
+                            @endif
                         </div>
 
                         <div class="col-md-4 form-group {{ $errors->has('payment_method') ? 'has-error' : '' }}">
@@ -262,6 +302,66 @@ Edit Payment
     }); 
     
     function multiplePayment(){
+        const userRequiredFields = {
+            company:@json(trans('message.payment_amount')),
+            company_email:@json(trans('message.payment_date')),
+            website:@json(trans('message.payment_method')),
+        };
+
+
+        const userFields = {
+            company:$('#amount'),
+            company_email:$('#payment_date'),
+            website:$('#payment_method'),
+
+        };
+
+
+        // Clear previous errors
+        Object.values(userFields).forEach(field => {
+            field.removeClass('is-invalid');
+            field.next('.error').remove();
+
+        });
+
+        let isValid = true;
+        const showError = (field, message) => {
+            field.addClass('is-invalid');
+            field.after(`<span class='error invalid-feedback'>${message}</span>`);
+        };
+
+        // Validate required fields
+        Object.keys(userFields).forEach(field => {
+            if (!userFields[field].val()) {
+                showError(userFields[field], userRequiredFields[field]);
+                isValid = false;
+            }
+        });
+
+        // If validation fails, prevent form submission
+        if (!isValid) {
+            e.preventDefault();
+        }
+
+        // Function to remove error when input'id' => 'changePasswordForm'ng data
+        const removeErrorMessage = (field) => {
+            field.classList.remove('is-invalid');
+            const error = field.nextElementSibling;
+            if (error && error.classList.contains('error')) {
+                error.remove();
+            }
+        };
+
+        // Add input event listeners for all fields
+        ['amount','payment_date','payment_method'].forEach(id => {
+
+            document.getElementById(id).addEventListener('input', function () {
+                removeErrorMessage(this);
+
+            });
+        });
+
+
      $("#submit").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
     var invoice = [];
     var invoiceAmount = [];
