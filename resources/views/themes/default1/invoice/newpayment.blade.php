@@ -96,7 +96,6 @@ Payment
 
 
                        <div class="col-md-4 form-group {{ $errors->has('payment_method') ? 'has-error' : '' }}">
-                           <!-- last name -->
                            {!! html()->label(Lang::get('message.payment-method'), 'payment_method')->class('required') !!}
                            {!! html()->select('payment_method', [
                                '' => 'Choose',
@@ -106,16 +105,15 @@ Payment
                                'razorpay' => 'Razorpay',
                                'stripe' => 'Stripe',
                                'Credit Balance' => 'Credit Balance'
-                           ])->class('form-control')->id('payment_method') !!}
-
+                           ])->class('form-control')->id('payment_method')->value('') !!}
                        </div>
 
-                      
+
+
                        <div class="col-md-4 form-group {{ $errors->has('amount') ? 'has-error' : '' }}">
-                           <!-- first name -->
                            {!! html()->label(Lang::get('message.amount'), 'amount')->class('required') !!}
-                           {!! html()->text('amount', null)->class('form-control')->id('amount') !!}
-                           <input type="hidden" name="hidden" id="amount1">
+                           {!! html()->text('amount')->class('form-control')->id('amount') !!}
+                           {!! html()->hidden('hidden')->id('amount1') !!}
                        </div>
 
                       
@@ -348,15 +346,13 @@ Payment
            $("#submit").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
    var invoice = [];
    var invoiceAmount = [];
-   $(":checked").each(function() {
-     if($(this).val() != ""){
-      var value = $('#'+ $(this).val()).val();
-       invoice.push($(this).val());
-       invoiceAmount.push(value);
-
-     }
-
-   });
+       $(":checked").each(function() {
+           if ($(this).val() != "") {
+               var value = $('#' + $.escapeSelector($(this).val())).val();
+               invoice.push($(this).val());
+               invoiceAmount.push(value);
+           }
+       });
 
 
    var data = {
@@ -382,7 +378,7 @@ Payment
             $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
               $('#error1').show();
            var html = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i>Whoops! </strong>Something went wrong <br><ul>';
-          
+
            for (var key in ex.responseJSON.errors)
            {
                html += '<li>' + ex.responseJSON.errors[key][0] + '</li>'
@@ -393,7 +389,7 @@ Payment
            $('#error1').show();
             document.getElementById('error1').innerHTML = html;
 
-         
+
          }
    });
  }

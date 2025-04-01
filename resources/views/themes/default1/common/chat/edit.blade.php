@@ -57,9 +57,9 @@ Edit
                         <!-- first name -->
                         {!! html()->label('Show script', 'script')->class('required') !!}
                         <br>
-                        {!! html()->radio('on_registration', 1)->checked() !!}
+                        {!! html()->radio('on_registration', true ,1) !!}
                         <label for="on_registration" style="font-weight: normal !important;">On registration</label>
-                        {!! html()->radio('on_registration', 0) !!}
+                        {!! html()->radio('on_registration', false ,0) !!}
                         <label for="on_every_page" style="font-weight: normal !important;">On every page</label>
                         @error('on_registration')
                         <span class="error-message"> {{$message}}</span>
@@ -70,7 +70,7 @@ Edit
                         <!-- first name -->
                          {!! html()->label('Google analytics', 'analytics') !!}
                          {!! html()->hidden('google_analytics', 0)->id('hidden_analytic') !!}
-                         {!! html()->checkbox('google_analytics', $chat->google_analytics)->id('analytics') !!}
+                         {!! html()->checkbox('google_analytics', null ,$chat->google_analytics)->id('analytics') !!}
                     </div>
                         <br>
                     <div class="col-md-3 form-group analytics_tag" hidden>
