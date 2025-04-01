@@ -167,9 +167,8 @@ class MailChimpController extends BaseMailChimpController
             ->where('list_id', $this->list_id)->pluck('name', 'tag')->toArray();
             $agoraProducts = Product::pluck('name', 'id')->toArray();
 
-
             $mailchimpProducts = $this->mailchimp->get("lists/$this->list_id/interest-categories");
-            if($mailchimpProducts['categories']===[]){
+            if ($mailchimpProducts['categories'] === []) {
                 return redirect()->back()->with('fails', \Lang::get('message.mailchimp_group_error'));
             }
             $selectedProducts = MailchimpGroupAgoraRelation::select('agora_product_id', 'mailchimp_group_cat_id')->orderBy('id', 'asc')->get()->toArray();
