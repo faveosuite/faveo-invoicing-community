@@ -50,6 +50,7 @@
       */
      public function __construct($options = [])
      {
+         $twitterDetails=App\ApiKey::find(1)->pluck('consumer_key','consumer_secret','access_token','token_secret');
          $this->options = array_merge(
       [
           'consumer_key' => '',
