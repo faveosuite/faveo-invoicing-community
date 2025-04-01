@@ -92,15 +92,18 @@
             margin-top: 0 !important;
         }
 
-        .swal2-cancel {
-            position: absolute !important;
-            bottom: 23px !important;
-            left: 10px !important; /* Moves it to the left */
-            right: auto !important; /* Removes default right-side positioning */
-            padding: 10px;
-            font-size: 15px ;
-            margin-top:20px;
+        .swal2-actions-custom-fix {
+            display: flex !important;
+            justify-content: space-between !important;
+            width: 100% !important;
+            padding: 0 1rem;
         }
+
+        .custom-confirm,
+        .custom-cancel {
+            min-width: 100px;
+        }
+
 
         .is-invalid + .select2-container .select2-selection {
             border: 1px solid #dc3545 !important;
@@ -171,6 +174,13 @@
         .dropdown-profile{
             right: 0;
             left: auto !important;
+        }
+
+        /* Centering the 'No results found' message */
+        .select2-results .select2-results__message {
+            text-align: center;
+            padding: 10px;
+            font-size: 14px;
         }
 
     </style>

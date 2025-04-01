@@ -186,60 +186,87 @@ Email Logs
          $(document).on('click','#bulk_delete',function(e){
           var id=[];
           e.preventDefault();
-             var swl = swal.fire({
-                 title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Delete')}}</h2>",
-                 html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
-                     "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
-                     "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.email_log_delete')}}</p>" + "</div>" +
-                     "</div>",
-                 showCancelButton: true,
-                 showCloseButton: true,
-                 position: "top",
-                 width: "600px",
-
-                 confirmButtonText: @json(trans('message.Delete')),
-                 confirmButtonColor: "#007bff",
-
-             }).then((result) => {
-                 if (result.isConfirmed) {
-                     $('.email:checked').each(function(){
-                         id.push($(this).val())
-                     });
-                     if(id.length >0)
-                     {
-                         $.ajax({
-                             url:"{!! route('email-delete') !!}",
-                             method:"delete",
-                             data: $('#check:checked').serialize(),
-                             beforeSend: function () {
-                                 $('#gif').show();
-                             },
-                             success: function (data) {
-                                 $('#gif').hide();
-                                 $('#response').html(data);
-                                 location.reload();
-                             }
-                         })
-                     } else {
-                         swal.fire({
-                             title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
-                             html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
-                                 "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
-                                 "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_email_log')}}</p>" + "</div>" +
-                                 "</div>",
-                             position: 'top',
-                             confirmButtonText: "OK",
-                             showCloseButton: true,
-                             confirmButtonColor: "#007bff",
-                             width: "600px",
-                         })
-                     }
-                 } else if (result.dismiss === Swal.DismissReason.cancel) {
-                     window.close();
-                 }
-                 return false;
+             $('.email:checked').each(function(){
+                 id.push($(this).val())
              });
+             if(id.length<=0){
+                 swal.fire({
+                     title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
+                     html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
+                         "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
+                         "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_email_log')}}</p>" + "</div>" +
+                         "</div>",
+                     position: 'top',
+                     confirmButtonText: "OK",
+                     showCloseButton: true,
+                     confirmButtonColor: "#007bff",
+                     width: "600px",
+                     buttonsStyling: false,
+                     customClass: {
+                         confirmButton: 'btn btn-primary btn-sm custom-confirm',
+                     }
+                 })
+             }
+             else {
+                 var swl = swal.fire({
+                     title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Delete')}}</h2>",
+                     html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
+                         "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
+                         "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.email_log_delete')}}</p>" + "</div>" +
+                         "</div>",
+                     showCancelButton: true,
+                     showCloseButton: true,
+                     position: "top",
+                     width: "600px",
 
+                     confirmButtonText: @json(trans('message.Delete')),
+                     confirmButtonColor: "#007bff",
+                     buttonsStyling: false,
+                     reverseButtons: true,
+                     customClass: {
+                         actions: 'swal2-actions-custom-fix',
+                         confirmButton: 'btn btn-primary btn-sm custom-confirm',
+                         cancelButton: 'btn btn-secondary btn-sm custom-cancel'
+                     }
+                 }).then((result) => {
+                     if (result.isConfirmed) {
+                         $('.email:checked').each(function () {
+                             id.push($(this).val())
+                         });
+                         if (id.length > 0) {
+                             $.ajax({
+                                 url: "{!! route('email-delete') !!}",
+                                 method: "delete",
+                                 data: $('#check:checked').serialize(),
+                                 beforeSend: function () {
+                                     $('#gif').show();
+                                 },
+                                 success: function (data) {
+                                     $('#gif').hide();
+                                     $('#response').html(data);
+                                     location.reload();
+                                 }
+                             })
+                         } else {
+                             swal.fire({
+                                 title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
+                                 html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
+                                     "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
+                                     "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_email_log')}}</p>" + "</div>" +
+                                     "</div>",
+                                 position: 'top',
+                                 confirmButtonText: "OK",
+                                 showCloseButton: true,
+                                 confirmButtonColor: "#007bff",
+                                 width: "600px",
+                             })
+                         }
+                     } else if (result.dismiss === Swal.DismissReason.cancel) {
+                         window.close();
+                     }
+                     return false;
+                 });
+             }
          });
 
 
