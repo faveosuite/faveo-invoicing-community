@@ -244,7 +244,7 @@ Users
                         <div class="col-md-3 form-group">
                             <!-- Email Status -->
                             {!! html()->label('Email Status', 'active') !!}
-                            {!! html()->select('active', ['' => 'Choose'] + ['1' => 'Active', '0' => 'Inactive'], $request->active)
+                            {!! html()->select('email_verified', ['' => 'Choose'] + ['1' => 'Active', '0' => 'Inactive'], $request->email_verified)
                                 ->class('form-control')
                                 ->id('active') !!}
                         </div>
@@ -371,7 +371,7 @@ $(document).ready(function() {
         stateSave: false,
         order: [[{!! $request->sort_field ?: 5 !!}, {!! "'".$request->sort_order."'" ?: "'asc'" !!}]],
         ajax: {
-            "url": '{!! route('get-clients', "company=$request->company&country=$request->country&industry=$request->industry&role=$request->role&position=$request->position&reg_from=$request->reg_from&reg_till=$request->reg_till&actmanager=$request->actmanager&salesmanager=$request->salesmanager&active=$request->active&mobile_verified=$request->mobile_verified&is_2fa_enabled=$request->is_2fa_enabled") !!}',
+            "url": '{!! route('get-clients', "company=$request->company&country=$request->country&industry=$request->industry&role=$request->role&position=$request->position&reg_from=$request->reg_from&reg_till=$request->reg_till&actmanager=$request->actmanager&salesmanager=$request->salesmanager&email_verified=$request->email_verified&mobile_verified=$request->mobile_verified&is_2fa_enabled=$request->is_2fa_enabled") !!}',
             error: function(xhr) {
                 if (xhr.status == 401) {
                     alert('Your session has expired. Please login again to continue.');

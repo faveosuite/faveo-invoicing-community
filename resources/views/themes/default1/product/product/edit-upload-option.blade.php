@@ -10,7 +10,7 @@ Edit Product Uploads
         <ol class="breadcrumb float-sm-right">
             <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
             <li class="breadcrumb-item"><a href="{{url('products')}}"><i class="fa fa-dashboard"></i> All Products</a></li>
-            <li class="breadcrumb-item active">Edit Product Uplaod</li>
+            <li class="breadcrumb-item active">Edit Product Upload</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -47,7 +47,7 @@ Edit Product Uploads
                     <div class="col-md-4 form-group {{ $errors->has('version') ? 'has-error' : '' }}">
                         <!-- first name -->
                         {!! html()->label(Lang::get('message.version'))->class('required')->for('version') !!}
-                        {!! html()->text('version')->class('form-control')->readonly() !!}
+                        {!! html()->text('version')->class('form-control')->isReadonly() !!}
                     </div>
 
                     <div class="col-md-12 form-group {{ $errors->has('description') ? 'has-error' : '' }}">
@@ -70,7 +70,7 @@ Edit Product Uploads
                             <label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="If the release is kept private, product users won't receive notification for this release."></label>
                         </i>
                         {!! html()->label('Private Release')->for('is_private') !!}
-                        {!! html()->checkbox('is_private', 1) !!}
+                        {!! html()->checkbox('is_private', null ,1) !!}
                     </div>
 
                     <div class="col-md-4 form-group {{ $errors->has('release_type') ? 'has-error' : '' }}">
@@ -86,7 +86,7 @@ Edit Product Uploads
                             <label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="If update is kept restricted for this release, product users need to update their versions upto this release first before updating to further releases."></label>
                         </i>
                         {!! html()->label('Restrict update')->for('is_restricted') !!}
-                        {!! html()->checkbox('is_restricted', 1) !!}
+                        {!! html()->checkbox('is_restricted', null ,1) !!}
                     </div>
                 </div>
 

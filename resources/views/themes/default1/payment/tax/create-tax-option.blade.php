@@ -26,113 +26,102 @@
                 <!-- Form  -->
                         {!! html()->form('POST', url('taxes/class'))->id('taxClass')->open() !!}
 
-                        <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                    <!-- name -->
-                            {!! html()->label(Lang::get('Tax Type'))->for('name')->class('required') !!}
-
-                            <!-- {!! html()->text('name')->class('form-control') !!} -->
-                      <select name="name" id="gst" class="form-control {{$errors->has('name') ? ' is-invalid' : ''}}">
-                      <option value="Others">Others</option>
-                      <option value="Intra State GST">Intra State GST (Same Indian State)</option>
-                      <option value="Inter State GST">Inter State GST (Other Indian  State)</option>
-                      <option value="Union Territory GST">Union Territory GST (Indian Union Territory)</option>
-                      </select>
+                <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                    <!-- Tax Type -->
+                    {!! html()->label(Lang::get('Tax Type'))->for('name')->class('required') !!}
+                    <select name="name" id="gst" class="form-control {{ $errors->has('name') ? ' is-invalid' : '' }}">
+                        <option value="Others">Others</option>
+                        <option value="Intra State GST">Intra State GST (Same Indian State)</option>
+                        <option value="Inter State GST">Inter State GST (Other Indian State)</option>
+                        <option value="Union Territory GST">Union Territory GST (Indian Union Territory)</option>
+                    </select>
                     @error('name')
-                    <span class="error-message"> {{$message}}</span>
+                    <span class="error-message">{{ $message }}</span>
                     @enderror
                 </div>
 
-                        {!! html()->form('POST', url('tax'))->open() !!}
-                        <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                    <!-- name -->
-
-                            {{ html()->label(Lang::get('Tax Name'))->class('required')->for('tax-name') }}
-                            {{ html()->text('tax-name')->class('form-control'. ($errors->has('tax-name') ? ' is-invalid' : ''))->id('taxname') }}
-                     @error('tax-name')
-                     <span class="error-message"> {{$message}}</span>
-                     @enderror
-                   <h6 id ="namecheck"></h6>
+                <div class="form-group {{ $errors->has('tax-name') ? 'has-error' : '' }}">
+                    <!-- Tax Name -->
+                    {{ html()->label(Lang::get('Tax Name'))->class('required')->for('tax-name') }}
+                    {{ html()->text('tax-name')->class('form-control' . ($errors->has('tax-name') ? ' is-invalid' : ''))->id('taxname') }}
+                    @error('tax-name')
+                    <span class="error-message">{{ $message }}</span>
+                    @enderror
+                    <h6 id="namecheck"></h6>
                 </div>
-           
-                 <div class="form-group">
-                    <!-- name -->
-                     {{ html()->label(Lang::get('message.status'))->for('status') }}
 
-                 </div>
+                <div class="form-group">
+                    {{ html()->label(Lang::get('message.status'))->for('status') }}
+                </div>
 
-                 <div class="row">
-                     <div class="col-md-3 form-group {{ $errors->has('active') ? 'has-error' : '' }}">
-                         <!-- Active -->
-                         {{ html()->label(Lang::get('message.active'))->for('active') }}
-                         {{ html()->radio('active', 1)->checked() }}
-                     </div>
-
-
-                    </div>
+                <div class="row">
                     <div class="col-md-3 form-group {{ $errors->has('active') ? 'has-error' : '' }}">
-                        <!-- name -->
-                        { html()->label(Lang::get('message.inactive'))->for('inactive') }}
-                        {{ html()->radio('active', 0) }}
-
+                        <!-- Active -->
+                        {{ html()->label(Lang::get('message.active'))->for('active') }}
+                        {{ html()->radio('active', 1, true) }}
                     </div>
-                     @error('active')
-                     <span class="error-message"> {{$message}}</span>
-                     @enderror
+
+                    <div class="col-md-3 form-group {{ $errors->has('active') ? 'has-error' : '' }}">
+                        <!-- Inactive -->
+                        {{ html()->label(Lang::get('message.inactive'))->for('inactive') }}
+                        {{ html()->radio('active', 0) }}
+                    </div>
+                    @error('active')
+                    <span class="error-message">{{ $message }}</span>
+                    @enderror
                 </div>
-                  <div class="form-group {{ $errors->has('country') ? 'has-error' : '' }}">
-                    <!-- name -->
-                      {{ html()->label(Lang::get('message.country'))->for('countryvisible') }}
-                      <br>
-                      {{ html()->select('country', ['' => 'All Countries', 'Choose' => $countries])
-                          ->class('form-control select2'. ($errors->has('country') ? ' is-invalid' : ''))
-                          ->style('width:460px')
-                          ->id('countryvisible')
-                          ->attribute('onChange', 'getState(this.value);') }}
-                      @error('country')
-                      <span class="error-message"> {{$message}}</span>
-                      @enderror
-                     
-                     <input type='text' name="country1" id= "countrynotvisible" class="form-control hide" value="India" readonly>
-                   
+                <div class="form-group {{ $errors->has('country') ? 'has-error' : '' }}">
+                    <!-- Country -->
+                    {{ html()->label(Lang::get('message.country'))->for('countryvisible') }}
+                    <br>
+                    {{ html()->select('country', ['' => 'All Countries'] + $countries)
+                        ->class('form-control select2' . ($errors->has('country') ? ' is-invalid' : ''))
+                        ->style('width:460px')
+                        ->id('countryvisible')
+                        ->attribute('onChange', 'getState(this.value);') }}
+                    @error('country')
+                    <span class="error-message">{{ $message }}</span>
+                    @enderror
 
+                    <input type='text' name="country1" id="countrynotvisible" class="form-control hide" value="India" readonly>
                 </div>
-                  <div class="form-group showwhengst {{ $errors->has('state') ? 'has-error' : '' }}" style="display:block">
-                    <!-- name -->
-                      {{ html()->label(Lang::get('message.state'))->for('state') }}
 
-                    <select name="state"  class="form-control {{$errors->has('state') ? ' is-invalid' : ''}}" id="statess">
-                        <option name="state" value=''>All States</option>
-                    </select>
-                      @error('state')
-                      <span class="error-message"> {{$message}}</span>
-                      @enderror
+                <div class="form-group showwhengst {{ $errors->has('state') ? 'has-error' : '' }}" style="display:block">
+                    <!-- State -->
+                    {{ html()->label(Lang::get('message.state'))->for('state') }}
+                    {{ html()->select('state', ['' => 'All States'])
+                        ->class('form-control' . ($errors->has('state') ? ' is-invalid' : ''))
+                        ->id('statess') }}
+                    @error('state')
+                    <span class="error-message">{{ $message }}</span>
+                    @enderror
                 </div>
-                 <div class="form-group showwhengst{{ $errors->has('rate') ? 'has-error' : '' }}" style="display:block" >
-                    <!-- name -->
-                     {{ html()->label(Lang::get('message.rate') . ' (%)')->for('rate')->class('required') }}
-                     {{ html()->number('rate')->class('form-control'. ($errors->has('rate') ? ' is-invalid' : ''))->id('rate') }}
-                     @error('rate')
-                     <span class="error-message"> {{$message}}</span>
-                     @enderror
-                     <h6 id ="ratecheck"></h6>
 
+                <div class="form-group showwhengst {{ $errors->has('rate') ? 'has-error' : '' }}" style="display:block">
+                    <!-- Tax Rate -->
+                    {{ html()->label(Lang::get('message.rate') . ' (%)')->for('rate')->class('required') }}
+                    {{ html()->number('rate')->class('form-control' . ($errors->has('rate') ? ' is-invalid' : ''))->id('rate') }}
+                    @error('rate')
+                    <span class="error-message">{{ $message }}</span>
+                    @enderror
+                    <h6 id="ratecheck"></h6>
+                </div>
 
-                 </div>
-                  
-                
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" id="closeTax">
+                        <i class="fa fa-times"></i>&nbsp;Close
+                    </button>
+                    <button type="submit" id="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>&nbsp;Save
+                    </button>
+                </div>
 
-
+                {!! html()->form()->close() !!}
+                <!-- /Form -->
             </div>
-            <div class="modal-footer justify-content-between">
-                <button type="button" class="btn btn-default " data-dismiss="modal" id="closeTax"><i class="fa fa-times"></i>&nbsp;Close</button>
-                <button type="submit" id="submit" class="btn btn-primary"><i class="fas fa-save"></i>&nbsp;Saves</button>
-
-            </div>
-            {!! html()->form()->close() !!}
-            <!-- /Form -->
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->  
+</div><!-- /.modal -->
 
 @if (count($errors) > 0)
     <script type="text/javascript">

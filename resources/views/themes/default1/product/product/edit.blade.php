@@ -237,7 +237,7 @@
                                         <!-- last name -->
                                         {!! html()->label(trans('message.require_domain'), 'require_domain') !!}
                                         {!! html()->hidden('require_domain', 0) !!}
-                                        <p>{!! html()->checkbox('require_domain', 1) !!} {{Lang::get('message.tick-to-show-domain-registration-options')}}</p>
+                                        <p>{!! html()->checkbox('require_domain', null ,1) !!} {{Lang::get('message.tick-to-show-domain-registration-options')}}</p>
 
                                     </div>
                                 </li>
@@ -1188,6 +1188,9 @@
                             $('#error').hide();
                             var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="far fa-check"></i> Success! </strong>'+response.message+'.</div>';
                             $('#alertMessage1').html(result+ ".");
+                            setTimeout(function() {
+                                location.reload();
+                            }, 5000);
                         } ,
                         error: function(ex) {
                             $("#uploadVersion").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");

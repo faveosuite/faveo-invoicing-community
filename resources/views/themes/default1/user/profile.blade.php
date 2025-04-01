@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-User Profile
+View Profile
 @stop
 
 @section('content-header')
@@ -67,7 +67,7 @@ input:checked + .slider:before {
 </style>
 
     <div class="col-sm-6">
-        <h1>User Profile</h1>
+        <h1>View Profile</h1>
     </div>
     <div class="col-sm-6">
 
