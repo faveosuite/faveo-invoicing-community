@@ -98,10 +98,17 @@ Edit Payment
                         <div class="col-md-4 form-group {{ $errors->has('payment_method') ? 'has-error' : '' }}">
                             <!-- last name -->
                             {!! html()->label(Lang::get('message.payment-method'))->for('payment_method')->class('required') !!}
-                            {!! html()->select('payment_method', ['' => 'Choose', 'cash' => 'Cash', 'check' => 'Check', 'online payment' => 'Online Payment', 'razorpay' => 'Razorpay'])
+                            {!! html()->select('payment_method', [
+                                '' => 'Choose',
+                               'cash' => 'Cash',
+                               'check' => 'Check',
+                               'online payment' => 'Online Payment',
+                               'razorpay' => 'Razorpay',
+                               'stripe' => 'Stripe',
+                               'Credit Balance' => 'Credit Balance'
+                               ])
                                 ->class('form-control')
-                                ->id('payment_method')
-                                ->default(null) !!}
+                                ->id('payment_method') !!}
 
                         </div>
 
@@ -374,7 +381,7 @@ Edit Payment
     var invoiceAmount = [];
     $(":checked").each(function() {
       if($(this).val() != ""){
-       var value = $('#'+ $(this).val()).val();
+          var value = $('#' + $.escapeSelector($(this).val())).val();
         invoice.push($(this).val());
         invoiceAmount.push(value);
 
