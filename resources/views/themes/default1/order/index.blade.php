@@ -420,7 +420,7 @@ Orders
             "oLanguage": {
               "sLengthMenu": "_MENU_ Records per page",
               "sSearch": "<span style='position: relative;right: 140px;'>Search:</span> ",
-              "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>'
+                "sProcessing": ' <div class="overlay dataTables_processing"><i class="fas fa-3x fa-sync-alt fa-spin" style=" margin-top: -25px;"></i><div class="text-bold pt-2">Loading...</div></div>'
             },
             columns: [
                 {data: 'checkbox', name: 'checkbox'},

@@ -102,6 +102,9 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         $expiry_date = '';
         if ($days > 0 && $permissions == 1) {
             $date = \Carbon\Carbon::parse($sub->ends_at);
+            if ($date->isPast()) {
+                $date = now();
+            }
             $expiry_date = $date->addDays($days);
         }
 
@@ -113,6 +116,9 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         $expiry_date = '';
         if ($days > 0 && $permissions == 1) {
             $date = \Carbon\Carbon::parse($sub->update_ends_at);
+            if ($date->isPast()) {
+                $date = now();
+            }
             $expiry_date = $date->addDays($days);
         }
 
@@ -124,6 +130,9 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         $expiry_date = '';
         if ($days > 0 && $permissions == 1) {
             $date = \Carbon\Carbon::parse($sub->support_ends_at);
+            if ($date->isPast()) {
+                $date = now();
+            }
             $expiry_date = $date->addDays($days);
         }
 
