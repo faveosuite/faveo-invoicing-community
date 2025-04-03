@@ -134,15 +134,23 @@ class BaseMailChimpController extends Controller
             //            'api_key' => 'required',
             'list_id' => 'required',
         ]);
-
         try {
             $this->mailchimp_set->first()->update(['subscribe_status' => $request->input('subscribe_status'),
                 'list_id' => $request->input('list_id'), ]);
             $this->addListsToAgora();
 
-            return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
+//            return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
+            return [
+                'message' => 'success',
+                'update' => \Lang::get('message.mailchimp_setting'),
+                'list_id' => 1,
+            ];
         } catch (Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return [
+                'message' => 'error',
+                'update' => \Lang::get('message.mailchimp_apikey_error'),
+                'list_id' => 0,
+            ];
         }
     }
 

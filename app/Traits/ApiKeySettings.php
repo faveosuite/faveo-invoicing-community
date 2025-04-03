@@ -33,7 +33,79 @@ trait ApiKeySettings
             'license_client_id' => $licenseApiClientId, 'license_client_secret' => $licenseApiClientSecret,
             'license_grant_type' => $licenseApiGrantType, ]);
 
-        return ['message' => 'success', 'update' => 'Licensing settings saved'];
+        return ['message' => 'success', 'update' => \Lang::get('message.license_setting')];
+    }
+
+    public function licenseStatus(Request $request)
+    {
+        $status = $request->input();
+        if (is_array($status) && key_exists('status', $status)) {
+            $lstatus = $request->input('status');
+            StatusSetting::where('id', 1)->update(['license_status' => $lstatus]);
+
+            return ['message' => 'success', 'update' => \Lang::get('message.license_status')];
+        }
+
+        if (is_array($status) && key_exists('mstatus', $status)) {
+            $mstatus = $request->input('mstatus');
+            StatusSetting::find(1)->update(['msg91_status' => $mstatus]);
+
+            return ['message' => 'success', 'update' => \Lang::get('message.mobile_status')];
+        }
+
+        if (is_array($status) && key_exists('mailchimpstatus', $status)) {
+            $mailchimpstatus = $request->input('mailchimpstatus');
+            StatusSetting::find(1)->update(['mailchimp_status' => $mailchimpstatus]);
+
+            return ['message' => 'success', 'update' => \Lang::get('message.mailchimp_status')];
+        }
+
+        if (is_array($status) && key_exists('termsStatus', $status)) {
+            $termsStatus = $request->input('termsStatus');
+            StatusSetting::find(1)->update(['terms' => $termsStatus]);
+
+            return ['message' => 'success', 'update' => \Lang::get('message.terms_status')];
+        }
+
+        if (is_array($status) && key_exists('twitterstatus', $status)) {
+            $twitterstatus = $request->input('twitterstatus');
+            StatusSetting::find(1)->update(['twitter_status' => $twitterstatus]);
+
+            return ['message' => 'success', 'update' => \Lang::get('message.twitter_status')];
+        }
+
+        if (is_array($status) && key_exists('zohostatus', $status)) {
+            $twitterstatus = $request->input('zohostatus');
+            StatusSetting::find(1)->update(['zoho_status' => $twitterstatus]);
+
+            return ['message' => 'success', 'update' => \Lang::get('message.zoho_status')];
+        }
+
+        if (is_array($status) && key_exists('pipedrivestatus', $status)) {
+            $twitterstatus = $request->input('pipedrivestatus');
+            StatusSetting::find(1)->update(['pipedrive_status' => $twitterstatus]);
+
+            return ['message' => 'success', 'update' => \Lang::get('message.pipedrive_status')];
+        }
+
+        if (is_array($status) && key_exists('githubstatus', $status)) {
+            $twitterstatus = $request->input('githubstatus');
+            StatusSetting::find(1)->update(['github_status' => $twitterstatus]);
+
+            return ['message' => 'success', 'update' => \Lang::get('message.github_status')];
+        }
+
+        if (is_array($status) && key_exists('gcaptchastatus', $status)) {
+            $twitterstatus = $request->input('gcaptchastatus');
+            StatusSetting::find(1)->update(['v3_v2_recaptcha_status' => $twitterstatus]);
+
+            return ['message' => 'success', 'update' => \Lang::get('message.google_status')];
+        }
+    }
+
+    public function mobileStatus(Request $request)
+    {
+        $status = $request->input('status');
     }
 
     //Save Auto Update status in Database
@@ -58,7 +130,7 @@ trait ApiKeySettings
         StatusSetting::find(1)->update(['msg91_status' => $status]);
         ApiKey::find(1)->update(['msg91_auth_key' => $key, 'msg91_sender' => $request->input('msg91_sender'), 'msg91_template_id' => $request->input('msg91_template_id')]);
 
-        return ['message' => 'success', 'update' => 'Msg91 settings saved'];
+        return ['message' => 'success', 'update' => \Lang::get('message.mobile_setting')];
     }
 
     /*
@@ -71,7 +143,7 @@ trait ApiKeySettings
         StatusSetting::find(1)->update(['zoho_status' => $status]);
         ApiKey::find(1)->update(['zoho_api_key' => $key]);
 
-        return ['message' => 'success', 'update' => 'Zoho settings saved'];
+        return ['message' => 'success', 'update' => \Lang::get('message.zoho_status')];
     }
 
     /*
@@ -82,7 +154,7 @@ trait ApiKeySettings
         $status = $request->input('status');
         StatusSetting::find(1)->update(['emailverification_status' => $status]);
 
-        return ['message' => 'success', 'update' => 'Email verification status saved'];
+        return ['message' => 'success', 'update' => \Lang::get('message.email_setting')];
     }
 
     /*
@@ -109,7 +181,7 @@ trait ApiKeySettings
         StatusSetting::find(1)->update(['twitter_status' => $status]);
         ApiKey::find(1)->update(['twitter_consumer_key' => $consumer_key, 'twitter_consumer_secret' => $consumer_secret, 'twitter_access_token' => $access_token, 'access_tooken_secret' => $token_secret]);
 
-        return ['message' => 'success', 'update' => 'Twitter settings saved'];
+        return ['message' => 'success', 'update' => \Lang::get('message.twitter_setting')];
     }
 
     public function updatepipedriveDetails(Request $request)
@@ -119,7 +191,7 @@ trait ApiKeySettings
         StatusSetting::find(1)->update(['pipedrive_status' => $status]);
         ApiKey::find(1)->update(['pipedrive_api_key' => $pipedriveKey]);
 
-        return ['message' => 'success', 'update' => 'Pipedrive settings saved'];
+        return ['message' => 'success', 'update' => \Lang::get('message.pipedrive_setting')];
     }
 
     public function updateMailchimpProductStatus(Request $request)
@@ -150,22 +222,33 @@ trait ApiKeySettings
                 $status = $request->input('status');
                 StatusSetting::find(1)->update(['mailchimp_status' => $status]);
                 MailchimpSetting::find(1)->update(['api_key' => $chimp_auth_key]);
-                $mailchimpStatus = 1;
+                $mailchimpverifiedStatus = 1;
+
+                $mailchimp_set = new MailchimpSetting();
+                $set = $mailchimp_set->firstOrFail();
+                $mail_api_key = $set->api_key;
+                $mailchimp = new \Mailchimp\Mailchimp($mail_api_key);
+                $allists = $mailchimp->get('lists?count=20')['lists'];
+                $selectedList[] = $set->list_id;
+                $subscribe_status = MailchimpSetting::pluck('subscribe_status')->first();
 
                 return [
                     'message' => 'success',
-                    'update' => 'Mailchimp settings saved',
-                    'mailchimpStatus' => $mailchimpStatus,
+                    'update' => \Lang::get('message.mailchimp_setting'),
+                    'mailchimpverifiedStatus' => $mailchimpverifiedStatus,
                     'status' => $status,
+                    'allLists' => $allists,
+                    'selectedList' => $selectedList,
+                    'subscribe_status' => $subscribe_status,
                 ];
             } else {
-                $mailchimpStatus = 0;
+//                $mailchimpverifiedStatus=0;
                 $status = $request->input('status');
 
                 return [
                     'message' => 'error',
-                    'update' => 'Mailchimp api key is wrong',
-                    'mailchimpStatus' => $mailchimpStatus,
+                    'update' => \Lang::get('message.mailchimp_apikey_error'),
+                    //                    'mailchimpverifiedStatus' => $mailchimpverifiedStatus
                 ];
             }
         } catch(\Exception $e) {
@@ -174,8 +257,8 @@ trait ApiKeySettings
 
             return [
                 'message' => 'error',
-                'update' => 'Mailchimp api key is wrong',
-                'mailchimpStatus' => $mailchimpStatus,
+                'update' => \Lang::get('message.mailchimp_apikey_error'),
+                //                'mailchimpStatus' => $mailchimpStatus
             ];
         }
     }
@@ -187,7 +270,7 @@ trait ApiKeySettings
         StatusSetting::find(1)->update(['terms' => $status]);
         ApiKey::find(1)->update(['terms_url' => $terms_url]);
 
-        return ['message' => 'success', 'update' => 'Terms url saved'];
+        return ['message' => 'success', 'update' => \Lang::get('message.terms_setting')];
     }
 
     /**

@@ -90,11 +90,11 @@
 
         <!-- /.box-header -->
         <div class="card-body">
-{{--            <div id="alertMessage"></div>--}}
+            <div id="alertMessage12"></div>
             <div class="scrollit" style="height:800px">
                 <div class="row">
                     <div class="col-md-12">
-                        <table id="custom-table" class="table table-striped">
+                        <table id="custom-table" class="table display" cellspacing="0" width="100%">
                             <thead>
                             <tr>
                                 <th>Name</th>
@@ -104,483 +104,63 @@
                             </tr>
                             </thead>
                         </table>
-{{--                        <table class="table table-bordered ">--}}
-{{--                            <thead>--}}
-{{--                            <tr>--}}
-
-{{--                                <th>Options</th>--}}
-{{--                                <th>Status</th>--}}
-{{--                                <th>Fields</th>--}}
-{{--                                <th>Action</th>--}}
-{{--                            </tr>--}}
-{{--                            </thead>--}}
-{{--                            <tbody>--}}
-{{--                            <tr>--}}
-
-{{--                                <td class="col-md-2">Auto Faveo Licenser & Update Manager</td>--}}
-{{--                                <td class="col-md-2">--}}
-{{--                                    <label class="switch toggle_event_editing">--}}
-
-{{--                                        @if($status==1)--}}
-{{--                                            <p>Active</p>--}}
-{{--                                        @else--}}
-{{--                                            <p>Inactive</p>--}}
-{{--                                        @endif--}}
-{{--                                        <input type="checkbox" value="{{$status}}"  name="modules_settings"--}}
-{{--                                               class="checkbox" id="License">--}}
-{{--                                        <span class="slider round"></span>--}}
-{{--                                    </label>--}}
-
-{{--                                </td>--}}
-
-{{--                                <td class="col-md-4 licenseEmptyField">--}}
-{{--                                    {!! Form::label('lic_api_secret',Lang::get('message.lic_api_secret')) !!}--}}
-{{--                                    {!! Form::text('license_api',null,['class' => 'form-control secretHide','disabled'=>'disabled'--}}
-{{--                                    ]) !!}--}}
-{{--                                    <h6 id="license_apiCheck"></h6>--}}
-{{--                                    <br/>--}}
-{{--                                    <!-- last name -->--}}
-{{--                                    {!! Form::label('lic_api_url',Lang::get('message.lic_api_url')) !!} :--}}
-{{--                                    {!! Form::text('license_api',null,['class' => 'form-control urlHide','disabled'=>'disabled']) !!}--}}
-{{--                                    <h6 id="license_urlCheck"></h6>--}}
-{{--                                    <br/>--}}
-{{--                                    {!! Form::label('lic_client_id',Lang::get('message.lic_client_id')) !!} :--}}
-{{--                                    {!! Form::text('license_client_id',null,['class' => 'form-control urlHide','disabled'=>'disabled']) !!}--}}
-{{--                                    <h6 id="license_clientIdCheck"></h6>--}}
-{{--                                    <br/>--}}
-{{--                                    {!! Form::label('lic_client_secret',Lang::get('message.lic_client_secret')) !!} :--}}
-{{--                                    {!! Form::text('license_client_secret',null,['class' => 'form-control urlHide','disabled'=>'disabled']) !!}--}}
-{{--                                    <h6 id="license_clientSecretCheck"></h6>--}}
-{{--                                    <br/>--}}
-{{--                                    {!! Form::label('lic_grant_type',Lang::get('message.lic_grant_type')) !!} :--}}
-{{--                                    {!! Form::text('license_grant_type',null,['class' => 'form-control urlHide','disabled'=>'disabled']) !!}--}}
-{{--                                    <h6 id="license_grantTypeCheck"></h6>--}}
-
-{{--                                </td>--}}
-
-{{--                                <td class="col-md-4 LicenseField hide">--}}
-
-
-{{--                                    <!-- last name -->--}}
-{{--                                    {!! Form::label('lic_api_secret',Lang::get('message.lic_api_secret')) !!}--}}
-{{--                                    {!! Form::text('license_api_secret',$licenseSecret,['class' => 'form-control','id'=>'license_api_secret']) !!}--}}
-{{--                                    <h6 id="license_apiCheck"></h6>--}}
-{{--                                    <br/>--}}
-
-{{--                                    <!-- last name -->--}}
-{{--                                    {!! Form::label('lic_api_url',Lang::get('message.lic_api_url')) !!} :--}}
-{{--                                    {!! Form::text('license_api_url',$licenseUrl,['class' => 'form-control','id'=>'license_api_url']) !!}--}}
-{{--                                    <h6 id="license_urlCheck"></h6>--}}
-{{--                                    <br/>--}}
-
-{{--                                    {!! Form::label('lic_client_id',Lang::get('message.lic_client_id')) !!} :--}}
-{{--                                    {!! Form::text('license_client_id',$licenseClientId,['class' => 'form-control','id'=>'license_client_id']) !!}--}}
-{{--                                    <h6 id="license_clientIdCheck"></h6>--}}
-{{--                                    <br/>--}}
-
-{{--                                    {!! Form::label('lic_client_secret',Lang::get('message.lic_client_secret')) !!} :--}}
-{{--                                    {!! Form::text('license_client_secret',$licenseClientSecret,['class' => 'form-control','id'=>'license_client_secret']) !!}--}}
-{{--                                    <h6 id="license_clientSecretCheck"></h6>--}}
-{{--                                    <br/>--}}
-
-
-{{--                                    {!! Form::label('lic_grant_type',Lang::get('message.lic_grant_type')) !!} :--}}
-{{--                                    {!! Form::text('license_grant_type',$licenseGrantType,['class' => 'form-control','id'=>'license_grant_type']) !!}--}}
-{{--                                    <h6 id="license_grantTypeCheck"></h6>--}}
-
-
-{{--                                </td>--}}
-{{--                            --}}
-{{--                                <td class="col-md-2"><button type="submit" class="form-group btn btn-primary"  onclick="licenseDetails()" id="submit"><i class="fa fa-save">&nbsp;</i>{!!Lang::get('message.save')!!}</button></td>--}}
-{{--                                <td class="col-md-2"><a href="#create-third-party-app" data-toggle="modal" data-target="#create-third-party-app" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a></td>--}}
-
-{{--                            </tr>--}}
-
-{{--                            <tr>--}}
-
-{{--                                <td class="col-md-2">Don't Allow Domin/Ip based Restriction</td>--}}
-{{--                                <td class="col-md-2">--}}
-{{--                                    <label class="switch toggle_event_editing">--}}
-
-{{--                                        @if($domainCheckStatus==1)--}}
-{{--                                            <p>Active</p>--}}
-{{--                                        @else--}}
-{{--                                            <p>Inactive</p>--}}
-{{--                                        @endif--}}
-{{--                                        <input type="checkbox" value="{{$domainCheckStatus}}"  name="domain_settings"--}}
-{{--                                               class="checkbox15" id="domain">--}}
-{{--                                        <span class="slider round"></span>--}}
-{{--                                    </label>--}}
-
-{{--                                </td>--}}
-{{--                                <td class="col-md-4 domainverify">--}}
-
-{{--                                    <b>Not Available</b>--}}
-
-
-{{--                                </td>--}}
-{{--                                <td class="col-md-2"><button type="submit" class="form-group btn btn-primary"  id="submit14"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button></td>--}}
-{{--                                <td class="col-md-2"><b>Not Available</b></td>--}}
-{{--                            </tr>--}}
-
-
-{{--                            <!--<tr>--}}
-
-{{--                  <td class="col-md-2">Auto Update</td>--}}
-{{--                  <td class="col-md-2">--}}
-{{--                    <label class="switch toggle_event_editing">--}}
-
-{{--                         <input type="checkbox" value="{{$updateStatus}}"  name="modules_settings"--}}
-{{--                          class="checkbox3" id="update">--}}
-{{--                          <span class="slider round"></span>--}}
-{{--                    </label>--}}
-
-{{--                  </td>--}}
-
-{{--                  <td class="col-md-4 updateEmptyField">--}}
-{{--                  {!! Form::label('update_api_secret',Lang::get('message.lic_api_secret')) !!}--}}
-{{--                            {!! Form::text('update_api',null,['class' => 'form-control updatesecretHide','disabled'=>'disabled']) !!}-->--}}
-
-
-
-{{--                            <!-- last name -->--}}
-{{--                            <!-- {!! Form::label('update_api_url',Lang::get('message.lic_api_url')) !!} :--}}
-{{--                        {!! Form::text('update_api',null,['class' => 'form-control updateurlHide','disabled'=>'disabled']) !!}--}}
-
-{{--                            </td>--}}
-{{--                            <td class="col-md-4 updateField hide">-->--}}
-
-
-{{--                            <!-- last name -->--}}
-{{--                            <!--{!! Form::label('update_api_secret',Lang::get('message.lic_api_secret')) !!}--}}
-{{--                            {!! Form::text('update_api_secret',$updateSecret,['class' => 'form-control','id'=>'update_api_secret']) !!}--}}
-{{--                            <h6 id="update_apiCheck"></h6>--}}
-{{--                            <br/>-->--}}
-
-{{--                            <!-- last name -->--}}
-{{--                            <!--{!! Form::label('update_api_url',Lang::get('message.lic_api_url')) !!} :--}}
-{{--                        {!! Form::text('update_api_url',$updateUrl,['class' => 'form-control','id'=>'update_api_url']) !!}--}}
-{{--                            <h6 id="update_urlCheck"></h6>--}}
-
-{{--                   </td>--}}
-{{--                      <td class="col-md-2" ><button type="submit" class="form-group btn btn-primary" onclick="updateDetails()" id="submitudpate"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button></td>--}}
-{{--                </tr>-->--}}
-
-{{--                --}}
-
-{{--                            <tr>--}}
-{{--                                <td class="col-md-2">Google reCAPTCHA</td>--}}
-{{--                                <td class="col-md-2">--}}
-{{--                                    <label class="switch toggle_event_editing">--}}
-{{--                                            @if($captchaStatus || $v3CaptchaStatus)--}}
-{{--                                                <p>Active</p>--}}
-{{--                                        @else--}}
-{{--                                            <p>Inactive</p>--}}
-{{--                                        @endif--}}
-{{--                                        <input type="checkbox" value="{{ $captchaStatus || $v3CaptchaStatus}}"  name="modules_settings"--}}
-{{--                                               class="checkbox2" id="captcha">--}}
-{{--                                        <span class="slider round"></span>--}}
-{{--                                    </label>--}}
-
-{{--                                </td>--}}
-
-{{--                                <td class="col-md-4 captchaEmptyField">--}}
-{{--                                    {!! Form::label('nocaptcha_secret',Lang::get('message.nocaptcha_secret')) !!}--}}
-{{--                                    {!! Form::text('nocaptcha_secret1',null,['class' => 'form-control nocapsecretHide','disabled'=>'disabled']) !!}--}}
-{{--                                    <h6 id=""></h6>--}}
-
-
-{{--                                    <!-- last name -->--}}
-{{--                                    {!! Form::label('nocaptcha_sitekey',Lang::get('message.nocaptcha_sitekey')) !!} :--}}
-{{--                                    {!! Form::text('nocaptcha_sitekey1',null,['class' => 'form-control siteKeyHide','disabled'=>'disabled']) !!}--}}
-{{--                                    <h6 id=""></h6>--}}
-{{--                                </td>--}}
-{{--                                <td class="col-md-4 captchaField hide">--}}
-{{--                                    <div class="form-group m-1 d-flex">--}}
-{{--                                        <div class="custom-control custom-radio m-2">--}}
-{{--                                            <input class="custom-control-input" type="radio" id="captchaRadioV2" name="customRadio" {{ $captchaStatus === 1 ? 'checked' : '' }}>--}}
-{{--                                            <label for="captchaRadioV2" class="custom-control-label">{{ __('message.recaptcha_v2') }}</label>--}}
-{{--                                        </div>--}}
-{{--                                        <div class="custom-control custom-radio m-2">--}}
-{{--                                            <input class="custom-control-input" type="radio" id="captchaRadioV3" name="customRadio" {{ $v3CaptchaStatus === 1 ? 'checked' : '' }}>--}}
-{{--                                            <label for="captchaRadioV3" class="custom-control-label">{{ __('message.recaptcha_v3') }}</label>--}}
-{{--                                        </div>--}}
-{{--                                    </div>--}}
-
-{{--                                    <!-- last name -->--}}
-{{--                                    {!! Form::label('nocaptcha_sitekey',Lang::get('message.nocaptcha_sitekey')) !!}--}}
-{{--                                    {!! Form::text('nocaptcha_sitekey',$siteKey,['class' => 'form-control','id'=>'nocaptcha_sitekey']) !!}--}}
-{{--                                    <h6 id="captcha_sitekeyCheck"></h6>--}}
-
-{{--                                    <!-- last name -->--}}
-{{--                                    {!! Form::label('nocaptcha_secret',Lang::get('message.nocaptcha_secret')) !!}--}}
-{{--                                    {!! Form::text('nocaptcha_secret',$secretKey,['class' => 'form-control','id'=>'nocaptcha_secret']) !!}--}}
-{{--                                    <h6 id="captcha_secretCheck"></h6>--}}
-{{--                                    <br/>--}}
-
-{{--                                </td>--}}
-{{--                                <td class="col-md-2"><button type="submit" class="form-group btn btn-primary" onclick="captchaDetails()" id="submit2"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button></td>--}}
-{{--                                <td class="col-md-2"><a href="#google-recaptcha" data-toggle="modal" data-target="#google-recaptcha" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a></td>--}}
-
-{{--                            </tr>--}}
-{{--                         <tr>--}}
-
-{{--                                <td class="col-md-2">Msg 91(Mobile Verification)</td>--}}
-{{--                                <td class="col-md-2">--}}
-{{--                                    <label class="switch toggle_event_editing">--}}
-{{--                                        @if($mobileStatus)--}}
-{{--                                            <p>Active</p>--}}
-{{--                                        @else--}}
-{{--                                            <p>Inactive</p>--}}
-{{--                                        @endif--}}
-
-{{--                                    </label>--}}
-
-{{--                                </td>--}}
-{{--                                <td class="col-md-4 mobileverify">--}}
-
-{{--                                    <input type ="hidden" id="hiddenMobValue" value="{{$mobileauthkey}}">--}}
-{{--                                    <!-- last name -->--}}
-{{--                                    {!! Form::label('mobile',Lang::get('message.msg91_key')) !!}--}}
-{{--                                    {!! Form::text('msg91_auth_key',$mobileauthkey,['class' => 'form-control mobile_authkey','id'=>'mobile_authkey']) !!}--}}
-{{--                                    <h6 id="mobile_check"></h6>--}}
-{{--                                    <br/>--}}
-{{--                                    <input type ="hidden" id="hiddenSender" value="{{$msg91Sender}}">--}}
-{{--                                    {!! Form::label('mobile',Lang::get('message.msg91_sender')) !!}--}}
-{{--                                    {!! Form::text('msg91_sender',$msg91Sender,['class' => 'form-control sender','id'=>'sender']) !!}--}}
-{{--                                    <h6 id="sender_check"></h6>--}}
-
-{{--                                    <input type ="hidden" id="hiddenTemplate" value="{{$msg91TemplateId}}">--}}
-{{--                                    {!! Form::label('mobile',Lang::get('message.msg91_template_id')) !!}--}}
-{{--                                    {!! Form::text('msg91_template_id',$msg91TemplateId,['class' => 'form-control template_id','id'=>'template_id']) !!}--}}
-{{--                                    <h6 id="template_check"></h6>--}}
-{{--                                </td>--}}
-{{--                                <td class="col-md-2"><button type="submit" class="form-group btn btn-primary"  id="submit3"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button></td>--}}
-{{--                             <td class="col-md-2"><a href="#msg-91" data-toggle="modal" data-target="#msg-91" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a></td>--}}
-
-{{--                         </tr>--}}
-
-
-{{--                            <tr>--}}
-
-{{--                                <td class="col-md-2">Mailchimp</td>--}}
-{{--                                <td class="col-md-2">--}}
-{{--                                    <label class="switch toggle_event_editing">--}}
-
-{{--                                @if($mailchimpSetting==1)--}}
-{{--                                        <p>Active</p>--}}
-{{--                                    @else--}}
-{{--                                        <p>Inactive</p>--}}
-{{--                                    @endif--}}
-{{--                                    </label>--}}
-
-{{--                                    --}}{{--                                    <label class="switch toggle_event_editing">--}}
-
-{{--                                        <input type="checkbox" value="{{$mailchimpSetting}}"  name="mobile_settings"--}}
-{{--                                               class="checkbox9" id="mailchimp">--}}
-{{--                                        <span class="slider round"></span>--}}
-{{--                                    </label>--}}
-
-{{--                                </td>--}}
-{{--                                <td class="col-md-4 mailchimpverify">--}}
-
-{{--                                    <input type ="hidden" id="hiddenMailChimpValue" value="{{$mailchimpKey}}">--}}
-{{--                                    <!-- last name -->--}}
-{{--                                    {!! Form::label('mailchimp',Lang::get('message.mailchimp_key')) !!}--}}
-{{--                                    {!! Form::text('mailchimp',$mailchimpKey,['class' => 'form-control mailchimp_authkey','id'=>'mailchimp_authkey']) !!}--}}
-{{--                                    <h6 id="mailchimp_check"></h6>--}}
-{{--                                    <br/>--}}
-
-
-{{--                                </td>--}}
-{{--                                <td class="col-md-2"><a href="#mailchimps" data-toggle="modal" data-target="#mailchimps" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a></td>--}}
-
-{{--                            </tr>--}}
-
-{{--                            <tr>--}}
-
-{{--                                <td class="col-md-2">Show Terms on Registration Page</td>--}}
-{{--                                <td class="col-md-2">--}}
-{{--                                    <label class="switch toggle_event_editing">--}}
-{{--                                        @if($termsStatus)--}}
-{{--                                            <p>Active</p>--}}
-{{--                                        @else--}}
-{{--                                            <p>Inactive</p>--}}
-{{--                                        @endif--}}
-{{--                                    </label>--}}
-
-{{--                                </td>--}}
-{{--                                <td class="col-md-4 termsverify">--}}
-
-{{--                                    <input type ="hidden" id="hiddenTermsValue" value="{{$termsUrl}}">--}}
-{{--                                    <!-- last name -->--}}
-{{--                                    {!! Form::label('terms',Lang::get('message.terms_url')) !!}--}}
-{{--                                    {!! Form::text('terms',$termsUrl,['class' => 'form-control terms_url','id'=>'terms_url']) !!}--}}
-{{--                                    <h6 id="terms_check"></h6>--}}
-{{--                                    <br/>--}}
-
-
-{{--                                </td>--}}
-{{--                                <td class="col-md-2"><button type="submit" class="form-group btn btn-primary"  id="submit10"><i class="fa fa-save">&nbsp;</i>{!!Lang::get('message.save')!!}</button></td>--}}
-{{--                                <td class="col-md-2"><a href="#showTerms" data-toggle="modal" data-target="#showTerms" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a></td>--}}
-
-{{--                            </tr>--}}
-
-
-{{--                            @if($mailSendingStatus)--}}
-
-{{--                                <tr>--}}
-
-{{--                                    <td class="col-md-2">Email Verification</td>--}}
-{{--                                    <td class="col-md-2">--}}
-{{--                                        <label class="switch toggle_event_editing">--}}
-
-{{--                                            <input type="checkbox" value="{{$emailStatus}}"  name="email_settings"--}}
-{{--                                                   class="checkbox5" id="email">--}}
-{{--                                            <span class="slider round"></span>--}}
-{{--                                        </label>--}}
-
-{{--                                    </td>--}}
-{{--                                    <td class="col-md-4 mobileverify">--}}
-
-{{--                                        <b>Not Available</b>--}}
-
-
-{{--                                    </td>--}}
-{{--                                    <td class="col-md-2" ><button type="submit" class="form-group btn btn-primary"  id="submit4"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button></td>--}}
-{{--                                </tr>--}}
-{{--                            @endif--}}
-
-
-{{--                            <tr>--}}
-
-{{--                                <td class="col-md-2">Twitter</td>--}}
-{{--                                <td class="col-md-2">--}}
-{{--                                    <label class="switch toggle_event_editing">--}}
-{{--                                        @if($twitterStatus==1)--}}
-{{--                                            <p>Active</p>--}}
-{{--                                        @else--}}
-{{--                                            <p>Inactive</p>--}}
-{{--                                            @endif--}}
-{{--                                    </label>--}}
-{{--                                </td>--}}
-
-{{--                                <td class="col-md-2 twitterverify">--}}
-{{--                                    <input type ="hidden" id="hidden_consumer_key" value="{{$twitterKeys->twitter_consumer_key}}">--}}
-{{--                                    <input type ="hidden" id="hidden_consumer_secret" value="{{$twitterKeys->twitter_consumer_secret}}">--}}
-{{--                                    <input type ="hidden" id="hidden_access_token" value="{{$twitterKeys->twitter_access_token}}">--}}
-{{--                                    <input type ="hidden" id="hidden_token_secret" value="{{$twitterKeys->access_tooken_secret}}">--}}
-{{--                                    {!! Form::label('consumer_key',Lang::get('message.consumer_key')) !!}--}}
-{{--                                    {!! Form::text('consumer_key',$twitterKeys->twitter_consumer_key,['class' => 'form-control consumer_key','id'=>'consumer_key']) !!}--}}
-{{--                                    <h6 id="consumer_keycheck"></h6>--}}
-
-
-{{--                                    <!-- last name -->--}}
-{{--                                    {!! Form::label('consumer_secret',Lang::get('message.consumer_secret')) !!}--}}
-{{--                                    {!! Form::text('consumer_secret',$twitterKeys->twitter_consumer_secret,['class' => 'form-control consumer_secret','id'=>'consumer_secret']) !!}--}}
-{{--                                    <h6 id="consumer_secretcheck"></h6>--}}
-
-
-
-{{--                                    {!! Form::label('access_token',Lang::get('message.access_token')) !!}--}}
-{{--                                    {!! Form::text('access_token',$twitterKeys->twitter_access_token,['class' => 'form-control access_token','id'=>'access_token']) !!}--}}
-{{--                                    <h6 id="access_tokencheck"></h6>--}}
-
-
-
-{{--                                    {!! Form::label('token_secret',Lang::get('message.token_secret')) !!}--}}
-{{--                                    {!! Form::text('token_secret',$twitterKeys->access_tooken_secret,['class' => 'form-control token_secret','id'=>'token_secret']) !!}--}}
-{{--                                    <h6 id="token_secretcheck"></h6>--}}
-
-
-{{--                                </td>--}}
-
-{{--                                <td class="col-md-2" ><button type="submit" class="form-group btn btn-primary"  id="submit5"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button></td>--}}
-{{--                                <td class="col-md-2"><a href="#twitters" data-toggle="modal" data-target="#twitters" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a></td>--}}
-
-{{--                            </tr>--}}
-
-{{--                            <tr>--}}
-
-{{--                                <td class="col-md-2">Zoho CRM</td>--}}
-{{--                                <td class="col-md-2">--}}
-{{--                                    <label class="switch toggle_event_editing">--}}
-{{--                                        @if($zohoStatus)--}}
-{{--                                            <p>Active</p>--}}
-{{--                                        @else--}}
-{{--                                            <p>Inactive</p>--}}
-{{--                                        @endif--}}
-{{--                                    </label>--}}
-
-{{--                                </td>--}}
-{{--                                <td class="col-md-4 zohoverify">--}}
-
-{{--                                    <input type ="hidden" id="hidden_zoho_key" value="{{$zohoKey}}">--}}
-{{--                                    <!-- last name -->--}}
-{{--                                    {!! Form::label('zoho_key',Lang::get('message.zoho_crm')) !!}--}}
-{{--                                    {!! Form::text('zoho_key',$zohoKey,['class' => 'form-control zoho_key','id'=>'zoho_key']) !!}--}}
-{{--                                    <h6 id="zoho_keycheck"></h6>--}}
-{{--                                    <br/>--}}
-
-
-{{--                                </td>--}}
-{{--                                <td class="col-md-2"><button type="submit" class="form-group btn btn-primary"  id="submit7"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button></td>--}}
-{{--                                <td class="col-md-2"><a href="#zohoCrm" data-toggle="modal" data-target="#zohoCrm" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a></td>--}}
-
-{{--                            </tr>--}}
-
-{{--                            <tr>--}}
-
-{{--                                <td class="col-md-2">Pipedrive</td>--}}
-{{--                                <td class="col-md-2">--}}
-{{--                                    <label class="switch toggle_event_editing">--}}
-{{--                                        @if($pipedriveStatus)--}}
-{{--                                            <p>Active</p>--}}
-{{--                                        @else--}}
-{{--                                            <p>Inactive</p>--}}
-{{--                                        @endif--}}
-{{--                                    </label>--}}
-
-{{--                                </td>--}}
-{{--                                <td class="col-md-4 pipedriveverify">--}}
-
-{{--                                    <input type ="hidden" id="hidden_pipedrive_key" value="{{$pipedriveKey}}">--}}
-{{--                                    <!-- last name -->--}}
-{{--                                    {!! Form::label('pipedrive_key',Lang::get('message.pipedrive_key')) !!}--}}
-{{--                                    {!! Form::text('pipedrive_key',$pipedriveKey,['class' => 'form-control pipedrive_key','id'=>'pipedrive_key']) !!}--}}
-{{--                                    <h6 id="pipedrive_keycheck"></h6>--}}
-{{--                                    <br/>--}}
-
-
-{{--                                </td>--}}
-{{--                                <td class="col-md-2"><button type="submit" class="form-group btn btn-primary"  id="submit13"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button></td>--}}
-{{--                                <td class="col-md-2"><a href="#pipedrv" data-toggle="modal" data-target="#pipedrv" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a></td>--}}
-
-{{--                            </tr>--}}
-
-{{--                            <tr>--}}
-{{--                                <td class="col-md-2">Github</td>--}}
-{{--                                <td class="col-md-2">--}}
-{{--                                    <label class="switch toggle_event_editing">--}}
-{{--                                    @if($githubStatus==1)--}}
-{{--                                        <p>Active</p>--}}
-{{--                                    @else--}}
-{{--                                        <p>Inactive</p>--}}
-{{--                                    @endif--}}
-{{--                                    </label>--}}
-{{--                                </td>--}}
-{{--                                <td class="col-md-2"><a href="#githubSet" data-toggle="modal" data-target="#githubSet" class="btn btn-sm btn-secondary btn-xs editThirdPartyApp"><span class="fa fa-edit"></span></a></td>--}}
-
-{{--                            </tr>--}}
-{{--                            </tbody>--}}
-
-
-{{--                        </table>--}}
-                    </div>
+                 </div>
                 </div>
             </div>
         </div>
         <!-- /.box-body -->
+    </div>
+    <div class="modal fade" id="msg-91" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Msg 91(Mobile Verification)</h4>
+
+                </div>
+                <div class="modal-body">
+                    <div id="alertMessage3"></div>
+                    <input type ="hidden" id="hiddenMobValue" value="{{$mobileauthkey}}">
+
+                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                        {!! Form::label('mobile',Lang::get('message.msg91_key'),['class'=>'required']) !!}
+                        {!! Form::text('msg91_auth_key',$mobileauthkey,['class' => 'form-control mobile_authkey','id'=>'mobile_authkey']) !!}
+
+                        <h6 id="mobile_check"></h6>
+                    </div>
+
+                    <input type ="hidden" id="hiddenSender" value="{{$msg91Sender}}">
+
+                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                        {!! Form::label('mobile',Lang::get('message.msg91_sender'),['class'=>'required']) !!}
+                        {!! Form::text('msg91_sender',$msg91Sender,['class' => 'form-control sender','id'=>'sender']) !!}
+                        <h6 id="sender_check"></h6>
+                    </div>
+
+                    <input type ="hidden" id="hiddenTemplate" value="{{$msg91TemplateId}}">
+
+                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                        {!! Form::label('mobile',Lang::get('message.msg91_template_id'),['class'=>'required']) !!}
+                        {!! Form::text('msg91_template_id',$msg91TemplateId,['class' => 'form-control template_id','id'=>'template_id']) !!}
+                        <h6 id="template_check"></h6>
+                    </div>
+
+                    {{--                    <div style="display: flex; align-items: center; gap: 10px;">--}}
+                    {{--                        {!! Form::label('mobile_settings',Lang::get('message.mobile_settings'),['class'=>'required']) !!}--}}
+                    {{--                        <label class="switch toggle_event_editing">--}}
+                    {{--                    <input type="checkbox" value="{{$mobileStatus}}"  name="mobile_settings"--}}
+                    {{--                           class="checkbox4" id="mobile">--}}
+                    {{--                    <span class="slider round"></span>--}}
+                    {{--                    </label>--}}
+                    {{--                    </div>--}}
+                </div>
+
+                <div class="modal-footer justify-content-between">
+                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
+                    <button type="submit" class="form-group btn btn-primary"  id="submit3"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button>
+
+                </div>
+            </div>
+        </div>
     </div>
 
 
@@ -630,7 +210,6 @@
 
                         {!! Form::label('client_secret',Lang::get('message.client_secret'),['class'=>'required']) !!}
                         <div class="input-group">
-{{--                            {!! Form::password('client_secret',$githubFileds->client_secret,['class' => 'form-control git_secret','id'=>'git_secret']) !!}--}}
                             <input type= "password" value="{{$githubFileds->client_secret}}" name="client_secret" id="git_secret" class="form-control git_secret">
 
                             <div class="input-group-append">
@@ -642,20 +221,20 @@
                         <h6 id="c_secret"></h6>
                     </div>
 
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        {!! Form::label('github_settings',Lang::get('message.github_settings'),['class'=>'required']) !!}
+{{--                    <div style="display: flex; align-items: center; gap: 10px;">--}}
+{{--                        {!! Form::label('github_settings',Lang::get('message.github_settings'),['class'=>'required']) !!}--}}
 
-                        <label class="switch toggle_event_editing">
-                            <input type="checkbox" value="{{$githubStatus}}" name="github_settings" class="checkbox" id="github">
-                            <span class="slider round"></span>
-                        </label>
-                    </div>
+{{--                        <label class="switch toggle_event_editing">--}}
+{{--                            <input type="checkbox" value="{{$githubStatus}}" name="github_settings" class="checkbox" id="github">--}}
+{{--                            <span class="slider round"></span>--}}
+{{--                        </label>--}}
+{{--                    </div>--}}
 
                 </div>
 
                 <div class="modal-footer justify-content-between">
                     <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
-                    <button type="submit" id="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}</button>
+                    <button type="submit" id="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-save'>&nbsp;</i> Saving..."><i class="fa fa-save">&nbsp;</i>{!!Lang::get('message.save')!!}</button>
 
                 </div>
             </div>
@@ -702,7 +281,6 @@
 
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         {!! Form::label('lic_client_secret',Lang::get('message.lic_client_secret'),['class'=>'required']) !!}
-{{--                        {!! Form::text('license_client_secret',$licenseClientSecret,['class' => 'form-control','id'=>'license_client_secret']) !!}--}}
                         <div class="input-group">
                             <input type= "password" value="{{$licenseClientSecret}}" name='license_client_secret' id='license_client_secret' class="form-control">
 
@@ -717,25 +295,27 @@
 
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         {!! Form::label('lic_grant_type',Lang::get('message.lic_grant_type'),['class'=>'required']) !!}
-                        {!! Form::text('license_grant_type',$licenseGrantType,['class' => 'form-control','id'=>'license_grant_type']) !!}
+{{--                        {!! Form::select('license_grant_type',$licenseGrantType,['class' => 'form-control','id'=>'license_grant_type']) !!}--}}
+                        <select name="lic_grant_type" value="{{$licenseGrantType}}" id="license_grant_type" class="form-control">
+                            <option value="client_credentials">Client_credentials</option>
+                        </select>
                         <h6 id="license_grantTypeCheck"></h6>
                     </div>
 
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        {!! Form::label('modules_settings',Lang::get('message.modules_settings'),['class'=>'required']) !!}
+{{--                    <div style="display: flex; align-items: center; gap: 10px;">--}}
+{{--                        {!! Form::label('modules_settings',Lang::get('message.modules_settings'),['class'=>'required']) !!}--}}
 
-                        <label class="switch toggle_event_editing">
-                        <input type="checkbox" value="{{$status}}"  name="modules_settings"
-                               class="checkbox" id="License">
-                        <span class="slider round"></span>
-                    </label>
-                    </div>
+{{--                        <label class="switch toggle_event_editing">--}}
+{{--                        <input type="checkbox" value="{{$status}}"  name="modules_settings"--}}
+{{--                               class="checkbox" id="License">--}}
+{{--                        <span class="slider round"></span>--}}
+{{--                    </label>--}}
+{{--                    </div>--}}
                 </div>
 
                 <div class="modal-footer justify-content-between">
                     <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
                     <button type="submit" class="form-group btn btn-primary"  onclick="licenseDetails()" id="submit"><i class="fa fa-save">&nbsp;</i>{!!Lang::get('message.save')!!}</button>
-
                 </div>
             </div>
         </div>
@@ -785,14 +365,15 @@
                         <h6 id="captcha_secretCheck"></h6>
                     </div>
 
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        {!! Form::label('captcha',Lang::get('message.captcha'),['class'=>'required']) !!}
-                        <label class="switch toggle_event_editing">
-                    <input type="checkbox" value="{{ $captchaStatus || $v3CaptchaStatus}}"  name="modules_settings"
-                           class="checkbox2" id="captcha">
-                    <span class="slider round"></span>
-                    </label>
-                    </div>
+{{--                    <div style="display: flex; align-items: center; gap: 10px;">--}}
+{{--                        {!! Form::label('captcha',Lang::get('message.captcha'),['class'=>'required']) !!}--}}
+{{--                        <label class="switch toggle_event_editing">--}}
+{{--                    <input type="checkbox" value="{{ $captchaStatus || $v3CaptchaStatus}}"  name="modules_settings"--}}
+{{--                           class="checkbox2" id="captcha">--}}
+{{--                    <span class="slider round"></span>--}}
+{{--                    </label>--}}
+{{--                    </div>--}}
+
                 </div>
 
                 <div class="modal-footer justify-content-between">
@@ -805,59 +386,6 @@
     </div>
 
 
-    <div class="modal fade" id="msg-91" data-backdrop="static" data-keyboard="false">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">Msg 91(Mobile Verification)</h4>
-
-                </div>
-                <div class="modal-body">
-                    <div id="alertMessage3"></div>
-                    <input type ="hidden" id="hiddenMobValue" value="{{$mobileauthkey}}">
-
-                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                        {!! Form::label('mobile',Lang::get('message.msg91_key'),['class'=>'required']) !!}
-                        {!! Form::text('msg91_auth_key',$mobileauthkey,['class' => 'form-control mobile_authkey','id'=>'mobile_authkey']) !!}
-
-                        <h6 id="mobile_check"></h6>
-                    </div>
-
-                    <input type ="hidden" id="hiddenSender" value="{{$msg91Sender}}">
-
-                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                        {!! Form::label('mobile',Lang::get('message.msg91_sender'),['class'=>'required']) !!}
-                        {!! Form::text('msg91_sender',$msg91Sender,['class' => 'form-control sender','id'=>'sender']) !!}
-                        <h6 id="sender_check"></h6>
-                    </div>
-
-                    <input type ="hidden" id="hiddenTemplate" value="{{$msg91TemplateId}}">
-
-                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                        {!! Form::label('mobile',Lang::get('message.msg91_template_id'),['class'=>'required']) !!}
-                        {!! Form::text('msg91_template_id',$msg91TemplateId,['class' => 'form-control template_id','id'=>'template_id']) !!}
-                        <h6 id="template_check"></h6>
-                    </div>
-
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        {!! Form::label('mobile_settings',Lang::get('message.mobile_settings'),['class'=>'required']) !!}
-                        <label class="switch toggle_event_editing">
-                    <input type="checkbox" value="{{$mobileStatus}}"  name="mobile_settings"
-                           class="checkbox4" id="mobile">
-                    <span class="slider round"></span>
-                    </label>
-                    </div>
-                </div>
-
-                <div class="modal-footer justify-content-between">
-                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
-{{--                    <button type="submit" class="form-group btn btn-primary" onclick="captchaDetails()" id="submit2"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button>--}}
-                    <button type="submit" class="form-group btn btn-primary"  id="submit3"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button>
-
-                </div>
-            </div>
-        </div>
-    </div>
 
 
     <div class="modal fade" id="mailchimps" data-backdrop="static" data-keyboard="false">
@@ -871,136 +399,192 @@
                 <div class="modal-body">
                     <div id="alertMessage4"></div>
 
-                    <input type ="hidden" id="hiddenMailChimpValue" value="{{$mailchimpKey}}">
 
-                    {!! Form::label('mailchimp', Lang::get('message.mailchimp_key'), ['class' => 'required me-2']) !!}
+{{--                    {!! Form::label('mailchimp', Lang::get('message.mailchimp_key'), ['class' => 'required me-2']) !!}--}}
 
-                    <div class="form-group d-flex align-items-center gap-2">
+{{--                    <div class="form-group d-flex align-items-center gap-2">--}}
 
-                        <div style="display: flex; align-items: center; gap: 10px;">
+{{--                        <div style="display: flex; align-items: center; gap: 10px;">--}}
+{{--                            {!! Form::text('mailchimp', $mailchimpKey, [--}}
+{{--                                'class' => 'form-control mailchimp_authkey',--}}
+{{--                                'id' => 'mailchimp_authkey',--}}
+{{--                                'style' => 'width: 350px;' // Adjust width as needed--}}
+{{--                            ]) !!}--}}
+{{--                            <h6 id="mailchimp_check" style="margin: 0;"></h6>--}}
+
+{{--                            <button type="submit" class="btn btn-primary" id="submit9">--}}
+{{--                                <i class="fa fa-check"></i>&nbsp;&nbsp;{!! Lang::get('message.check') !!}--}}
+{{--                            </button>--}}
+{{--                        </div>--}}
+{{--                    </div>--}}
+{{--                    <div style="display: flex; align-items: center; gap: 10px;">--}}
+{{--                        {!! Form::label('mailchimp',Lang::get('message.mailchimp_settings'),['class'=>'required']) !!}--}}
+{{--                        <label class="switch toggle_event_editing">--}}
+{{--                        <input type="checkbox" value="{{$mailchimpSetting}}"  name="mobile_settings"--}}
+{{--                               class="checkbox9" id="mailchimp">--}}
+{{--                        <span class="slider round"></span>--}}
+{{--                    </label>--}}
+{{--                    </div>--}}
+{{--                </div>--}}
+
+{{--                {!! Form::model($set,['url'=>'mailchimp','method'=>'patch','files'=>true]) !!}--}}
+
+                        <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                            <input type ="hidden" id="hiddenMailChimpValue" value="{{$mailchimpKey}}">
+                            {!! Form::label('mailchimp', Lang::get('message.mailchimp_key'), ['class' => 'required me-2']) !!}
                             {!! Form::text('mailchimp', $mailchimpKey, [
-                                'class' => 'form-control mailchimp_authkey',
-                                'id' => 'mailchimp_authkey',
-                                'style' => 'width: 300px;' // Adjust width as needed
-                            ]) !!}
+                                                       'class' => 'form-control mailchimp_authkey',
+                                                       'id' => 'mailchimp_authkey',
+                                                           'style' => 'width: 310px;' // Adjust width as needed
+                                                       ]) !!}
                             <h6 id="mailchimp_check" style="margin: 0;"></h6>
-
-                            <button type="submit" class="btn btn-primary" id="submit9">
-                                <i class="fa fa-save"></i>&nbsp;&nbsp;{!! Lang::get('message.save') !!}
-                            </button>
                         </div>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        {!! Form::label('mailchimp',Lang::get('message.mailchimp_settings'),['class'=>'required']) !!}
-                        <label class="switch toggle_event_editing">
-                        <input type="checkbox" value="{{$mailchimpSetting}}"  name="mobile_settings"
-                               class="checkbox9" id="mailchimp">
-                        <span class="slider round"></span>
-                    </label>
-                    </div>
-                </div>
+
+                        <div id="extraInput" style="display: none;">
 
 
-{{--                <?php--}}
-{{--                $mailchimpStatus = \App\Model\Common\StatusSetting::first()->value('mailchimp_status');--}}
-{{--                ?>--}}
-{{--                @if($mailchimpStatus==1)--}}
+                        <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                            {!! Form::hidden('api_key', null, ['class' => 'form-control']) !!}
 
-                    <div id="extraInput" style="display: none;">
+                            {!! Form::label('list_id',Lang::get('message.list_id'),['class'=>'required']) !!}
+                            <select name="list_id" class="form-control" id="list_id" style="width:310px">
+                            <option value="">Choose</option>
+                            @foreach($allists as $list)
+                                <option value="{{$list->id}}"<?php  if(in_array($list->id, $selectedList) )
+                                { echo "selected";} ?>>{{$list->name}}</option>
 
-                    <div class="card-body">
-                    {!! Form::model($set,['url'=>'mailchimp','method'=>'patch','files'=>true]) !!}
+                            @endforeach
+                            </select>
+                            <p><i> {{Lang::get('message.enter-the-mailchimp-list-id')}}</i> </p>
 
-                    <table class="table table-condensed">
+                        </div>
+
+                        <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                            {!! Form::label('subscribe_status',Lang::get('message.subscribe_status'),['class'=>'required']) !!}
+                            {!! Form::select('subscribe_status',['subscribed'=>'Subscribed','unsubscribed'=>'Unsubscribed','cleaned'=>'Cleaned','pending'=>'Pending'],null,['class' => 'form-control','style' => 'width: 310px;','id'=>'subscribe_status']) !!}
+                            <p><i> {{Lang::get('message.enter-the-mailchimp-subscribe-status')}}</i> </p>
+                        </div>
+
+{{--                            @if($set->api_key&& $set->list_id)--}}
+                            <div id="extraInput9" style="display: none;">
+
+                            <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                                {!! Form::label('mapping',Lang::get('message.mapping'),['class'=>'required']) !!}
+                                <a href="{{url('mail-chimp/mapping')}}" class="btn btn-secondary btn-sm">{{Lang::get('message.mapping')}}</a>
+                                <p><i> {{Lang::get('message.map-the-mailchimp-field-with-agora')}}</i> </p>
+                            </div>
+                            </div>
+{{--                            @endif--}}
+                        </div>
+
+{{--                        <tr>--}}
+{{--                            <td>                    {!! Form::label('mailchimp', Lang::get('message.mailchimp_key'), ['class' => 'required me-2']) !!}--}}
+{{--                            </td>--}}
+
+{{--                            <td>--}}
+{{--                                <div class="form-group {{ $errors->has('subscribe_status') ? 'has-error' : '' }}">--}}
+{{--                                    <input type ="hidden" id="hiddenMailChimpValue" value="{{$mailchimpKey}}">--}}
+
+{{--                                {!! Form::text('mailchimp', $mailchimpKey, [--}}
+{{--                                'class' => 'form-control mailchimp_authkey',--}}
+{{--                                'id' => 'mailchimp_authkey',--}}
+{{--                                    'style' => 'width: 350px;' // Adjust width as needed--}}
+{{--                                ]) !!}--}}
+{{--                                </div>--}}
+{{--                            </td>--}}
+{{--                        </tr>--}}
 
 
 {{--                        <tr>--}}
+{{--                            {!! Form::hidden('api_key', null, ['class' => 'form-control']) !!}--}}
 
-{{--                            <td><b>{!! Form::label('api_key',Lang::get('message.api_key'),['class'=>'required']) !!}</b></td>--}}
+{{--                            <td><b>{!! Form::label('list_id',Lang::get('message.list_id'),['class'=>'required']) !!}</b></td>--}}
 {{--                            <td>--}}
-{{--                                <div class="form-group {{ $errors->has('api_key') ? 'has-error' : '' }}">--}}
+{{--                                    <div class="form-group {{ $errors->has('list_id') ? 'has-error' : '' }}">--}}
+{{--                                        <select name="list_id" class="form-control" style="width:310px"</select>--}}
+{{--                                        <option value="">Choose</option>--}}
+{{--                                        @foreach($allists as $list)--}}
+{{--                                            <option value="{{$list->id}}"<?php  if(in_array($list->id, $selectedList) )--}}
+{{--                                            { echo "selected";} ?>>{{$list->name}}</option>--}}
+
+{{--                                        @endforeach--}}
+{{--                                        <p><i> {{Lang::get('message.enter-the-mailchimp-list-id')}}</i> </p>--}}
 
 
-{{--                                    <p><i> {{ Lang::get('message.enter-the-mailchimp-api-key-setting') }}</i></p>--}}
+{{--                                    </div>--}}
+{{--                            </td>--}}
+
+{{--                        </tr>--}}
+
+{{--                        <tr>--}}
+
+{{--                            <td><b>{!! Form::label('subscribe_status',Lang::get('message.subscribe_status'),['class'=>'required']) !!}</b></td>--}}
+{{--                            <td>--}}
+{{--                                <div class="form-group {{ $errors->has('subscribe_status') ? 'has-error' : '' }}">--}}
+
+
+{{--                                    {!! Form::select('subscribe_status',['subscribed'=>'Subscribed','unsubscribed'=>'Unsubscribed','cleaned'=>'Cleaned','pending'=>'Pending'],null,['class' => 'form-control']) !!}--}}
+{{--                                    <p><i> {{Lang::get('message.enter-the-mailchimp-subscribe-status')}}</i> </p>--}}
 
 
 {{--                                </div>--}}
 {{--                            </td>--}}
 
 {{--                        </tr>--}}
-                        <tr>
-                            {!! Form::hidden('api_key', null, ['class' => 'form-control']) !!}
 
-                            <td><b>{!! Form::label('list_id',Lang::get('message.list_id'),['class'=>'required']) !!}</b></td>
-                            <td>
-                                <div class="row">
-                                    <div class="form-group {{ $errors->has('list_id') ? 'has-error' : '' }}">
-                                        <select name="list_id" class="form-control" style="width:290px"</select>
-                                        <option value="">Choose</option>
-                                        @foreach($allists as $list)
-                                            <option value="{{$list->id}}"<?php  if(in_array($list->id, $selectedList) )
-                                            { echo "selected";} ?>>{{$list->name}}</option>
-
-                                        @endforeach
-                                        <p><i> {{Lang::get('message.enter-the-mailchimp-list-id')}}</i> </p>
+{{--                        @if($set->api_key&&$set->list_id)--}}
+{{--                            <tr>--}}
+{{--         <a href="{{url('mail-chimp/mapping')}}" class="btn btn-secondary btn-sm">{{Lang::get('message.mapping')}}</a>--}}
+{{--                                            <p><i> {{Lang::get('message.map-the-mailchimp-field-with-agora')}}</i> </p>--}}
+{{--                                    --}}
+{{--                                <td><b>{!! Form::label('mapping',Lang::get('message.mapping'),['class'=>'required']) !!}</b></td>--}}
+{{--                                <td>--}}
+{{--                                    <div class="form-group">--}}
 
 
-                                    </div>
-                                </div>
-                            </td>
-
-                        </tr>
-
-                        <tr>
-
-                            <td><b>{!! Form::label('subscribe_status',Lang::get('message.subscribe_status'),['class'=>'required']) !!}</b></td>
-                            <td>
-                                <div class="form-group {{ $errors->has('subscribe_status') ? 'has-error' : '' }}">
-
-
-                                    {!! Form::select('subscribe_status',['subscribed'=>'Subscribed','unsubscribed'=>'Unsubscribed','cleaned'=>'Cleaned','pending'=>'Pending'],null,['class' => 'form-control']) !!}
-                                    <p><i> {{Lang::get('message.enter-the-mailchimp-subscribe-status')}}</i> </p>
-
-
-                                </div>
-                            </td>
-
-                        </tr>
-
-                        @if($set->api_key&&$set->list_id)
-                            <tr>
-
-                                <td><b>{!! Form::label('mapping',Lang::get('message.mapping'),['class'=>'required']) !!}</b></td>
-                                <td>
-                                    <div class="form-group">
-
-
-                                        <div class="col-md-6">
-                                            <a href="{{url('mail-chimp/mapping')}}" class="btn btn-secondary btn-sm">{{Lang::get('message.mapping')}}</a>
-                                            <p><i> {{Lang::get('message.map-the-mailchimp-field-with-agora')}}</i> </p>
-                                        </div>
+{{--                                        <div class="col-md-6">--}}
+{{--                                            <a href="{{url('mail-chimp/mapping')}}" class="btn btn-secondary btn-sm">{{Lang::get('message.mapping')}}</a>--}}
+{{--                                            <p><i> {{Lang::get('message.map-the-mailchimp-field-with-agora')}}</i> </p>--}}
+{{--                                        </div>--}}
 
 
 
-                                    </div>
-                                </td>
+{{--                                    </div>--}}
+{{--                                </td>--}}
 
-                            </tr>
+{{--                            </tr>--}}
 
-                        @endif
-                        {!! Form::close() !!}
-
-                    </table>
-
-                    <button type="submit" class="btn btn-primary pull-right" id="submit" ><i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}</button>
-
-                </div>
+{{--                        @endif--}}
                     </div>
-{{--                    @endif--}}
+
+{{--                        <div class="d-flex justify-content-end">--}}
+{{--                            <button type="submit" class="btn btn-primary" id="submit">--}}
+{{--                                <i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}--}}
+{{--                            </button>--}}
+{{--                        </div>--}}
+
+
+
+                <div id="extraInput1" style="display: none;">
                 <div class="modal-footer justify-content-between">
-{{--                    <button type="submit" class="form-group btn btn-primary"  id="submit9"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button>--}}
                     <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
+                        <button type="submit" class="btn btn-primary pull-right" id="submit-chimp" ><i class="fa fa-save">&nbsp;</i>{!!Lang::get('message.save')!!}</button>
+                    </div>
+
                 </div>
+                {!! Form::close() !!}
+
+                <div id="extraInput5" style="display: block;">
+                <div class="modal-footer justify-content-between">
+                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
+
+                    <button type="submit" class="btn btn-primary" id="submit9">
+                        <i class="fa fa-save"></i>&nbsp;&nbsp;{!! Lang::get('message.save') !!}
+                    </button>
+                    </div>
+                </div>
+
+{{--            </div>--}}
             </div>
 
         </div>
@@ -1021,21 +605,20 @@
                         {!! Form::text('terms',$termsUrl,['class' => 'form-control terms_url','id'=>'terms_url']) !!}
                         <h6 id="terms_check"></h6>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        {!! Form::label('terms_settings',Lang::get('message.terms_settings'),['class'=>'required']) !!}
+{{--                    <div style="display: flex; align-items: center; gap: 10px;">--}}
+{{--                        {!! Form::label('terms_settings',Lang::get('message.terms_settings'),['class'=>'required']) !!}--}}
 
-                        <label class="switch toggle_event_editing">
+{{--                        <label class="switch toggle_event_editing">--}}
 
-                        <input type="checkbox" value="{{$termsStatus}}"  name="terms_settings"
-                               class="checkbox10" id="terms">
-                        <span class="slider round"></span>
-                    </label>
-                    </div>
+{{--                        <input type="checkbox" value="{{$termsStatus}}"  name="terms_settings"--}}
+{{--                               class="checkbox10" id="terms">--}}
+{{--                        <span class="slider round"></span>--}}
+{{--                    </label>--}}
+{{--                    </div>--}}
                 </div>
 
                 <div class="modal-footer justify-content-between">
                     <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
-{{--                    <button type="submit" class="form-group btn btn-primary"  id="submit9"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button>--}}
                     <button type="submit" class="form-group btn btn-primary"  id="submit10"><i class="fa fa-save">&nbsp;</i>{!!Lang::get('message.save')!!}</button>
 
                 </div>
@@ -1090,7 +673,6 @@
 
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         {!! Form::label('token_secret',Lang::get('message.token_secret'),['class'=>'required']) !!}
-{{--                        {!! Form::text('token_secret',$twitterKeys->access_tooken_secret,['class' => 'form-control token_secret','id'=>'token_secret']) !!}--}}
                         <div class="input-group">
                             <input type= "password" value="{{$twitterKeys->access_tooken_secret}}" name='token_secret' id='token_secret' class="form-control token_secret">
 
@@ -1102,15 +684,15 @@
                         </div>
                         <h6 id="token_secretcheck"></h6>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        {!! Form::label('twitter_settings',Lang::get('message.twitter_settings'),['class'=>'required']) !!}
+{{--                    <div style="display: flex; align-items: center; gap: 10px;">--}}
+{{--                        {!! Form::label('twitter_settings',Lang::get('message.twitter_settings'),['class'=>'required']) !!}--}}
 
-                    <label class="switch toggle_event_editing">
-                    <input type="checkbox" value="{{$twitterStatus}}"  name="twitter_settings"
-                           class="checkbox6" id="twitter">
-                    <span class="slider round"></span>
-                    </label>
-                    </div>
+{{--                    <label class="switch toggle_event_editing">--}}
+{{--                    <input type="checkbox" value="{{$twitterStatus}}"  name="twitter_settings"--}}
+{{--                           class="checkbox6" id="twitter">--}}
+{{--                    <span class="slider round"></span>--}}
+{{--                    </label>--}}
+{{--                    </div>--}}
                 </div>
 
                 <div class="modal-footer justify-content-between">
@@ -1139,15 +721,15 @@
                         {!! Form::text('zoho_key',$zohoKey,['class' => 'form-control zoho_key','id'=>'zoho_key']) !!}
                         <h6 id="zoho_keycheck"></h6>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        {!! Form::label('zoho_settings',Lang::get('message.zoho_settings'),['class'=>'required']) !!}
+{{--                    <div style="display: flex; align-items: center; gap: 10px;">--}}
+{{--                        {!! Form::label('zoho_settings',Lang::get('message.zoho_settings'),['class'=>'required']) !!}--}}
 
-                    <label class="switch toggle_event_editing">
-                        <input type="checkbox" value="{{$zohoStatus}}"  name="zoho_settings"
-                           class="checkbox8" id="zoho">
-                        <span class="slider round"></span>
-                    </label>
-                    </div>
+{{--                    <label class="switch toggle_event_editing">--}}
+{{--                        <input type="checkbox" value="{{$zohoStatus}}"  name="zoho_settings"--}}
+{{--                           class="checkbox8" id="zoho">--}}
+{{--                        <span class="slider round"></span>--}}
+{{--                    </label>--}}
+{{--                    </div>--}}
                 </div>
 
                 <div class="modal-footer justify-content-between">
@@ -1175,15 +757,15 @@
                         {!! Form::text('pipedrive_key',$pipedriveKey,['class' => 'form-control pipedrive_key','id'=>'pipedrive_key']) !!}
                         <h6 id="pipedrive_keycheck"></h6>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        {!! Form::label('pipedrive_settings',Lang::get('message.pipedrive_settings'),['class'=>'required']) !!}
+{{--                    <div style="display: flex; align-items: center; gap: 10px;">--}}
+{{--                        {!! Form::label('pipedrive_settings',Lang::get('message.pipedrive_settings'),['class'=>'required']) !!}--}}
 
-                    <label class="switch toggle_event_editing">
-                        <input type="checkbox" value="{{$pipedriveStatus}}"  name="pipedrive_settings"
-                           class="checkbox13" id="pipedrive">
-                        <span class="slider round"></span>
-                    </label>
-                    </div>
+{{--                    <label class="switch toggle_event_editing">--}}
+{{--                        <input type="checkbox" value="{{$pipedriveStatus}}"  name="pipedrive_settings"--}}
+{{--                           class="checkbox13" id="pipedrive">--}}
+{{--                        <span class="slider round"></span>--}}
+{{--                    </label>--}}
+{{--                    </div>--}}
                 </div>
 
                 <div class="modal-footer justify-content-between">
@@ -1197,15 +779,483 @@
     {!! Form::close() !!}
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css">
+    <!-- <script src="https://code.jquery.com/jquery-3.5.1.js"></script> -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.0.3/css/buttons.dataTables.min.css">
+    <script src="https://cdn.datatables.net/buttons/1.0.3/js/dataTables.buttons.min.js"></script>
+
+    <script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
 
     <script>
+
+        $(document).on('click', '#license-edit-button', function() {
+            $.ajax({
+
+                url : '{{url("licensekeys")}}',
+                type : 'post',
+                success: function (response) {
+
+                    $('#license_api_secret').val(response['licenseSecret']);
+                    $('#license_api_url').val(response['licenseUrl']);
+                    $('#license_client_id').val(response['licenseClientId']);
+                    $('#license_client_secret').val(response['licenseClientSecret']);
+                    $('#license_grant_type').val(response['licenseGrantType']);
+                    $('#create-third-party-app').modal('show');
+                },
+            });
+        });
+
+        $(document).on('click', '#captcha-edit-button', function() {
+            $.ajax({
+
+                url : '{{url("googleCaptcha")}}',
+                type : 'post',
+                success: function (response) {
+                    if(response['captchaStatus']){
+                        selectCaptcha('captchaRadioV2');
+                    }
+                    if(response['v3_recaptcha_status']){
+                        selectCaptcha('captchaRadioV3');
+                    }
+                    $('#nocaptcha_sitekey').val(response['siteKey']);
+                    $('#nocaptcha_secret').val(response['secretKey']);
+                    $('#google-recaptcha').modal('show');
+                },
+            });
+        });
+        function selectCaptcha(version) {
+            let radios = document.getElementsByName('customRadio'); // Get all radio buttons by name
+            radios.forEach(radio => {
+                if (radio.id === version) {
+                    radio.checked = true; // Select the correct radio
+                } else {
+                    radio.checked = false;
+                }
+            });
+        }
+
+        // Example Usage: Change selection dynamically
+        $(document).on('click', '#msg91-edit-button', function() {
+            $.ajax({
+
+                url : '{{url("mobileVerification")}}',
+                type : 'post',
+                success: function (response) {
+                    $('#mobile_authkey').val(response['mobileauthkey']);
+                    $('#sender').val(response['msg91Sender']);
+                    $('#template_id').val(response['msg91TemplateId']);
+                    $('#msg-91').modal('show');
+                },
+            });
+        });
+
+        $(document).on('click', '#termsUrl-edit-button', function() {
+            $.ajax({
+
+                url : '{{url("termsUrl")}}',
+                type : 'post',
+                success: function (response) {
+                    $('#terms_url').val(response['termsUrl']);
+
+                    $('#showTerms').modal('show');
+                },
+            });
+        });
+
+        $(document).on('click', '#zoho-edit-button', function() {
+            $.ajax({
+
+                url : '{{url("zohokeys")}}',
+                type : 'post',
+                success: function (response) {
+                    $('#zoho_key').val(response['zohoKey']);
+
+                    $('#zohoCrm').modal('show');
+                },
+            });
+        });
+
+
+        $(document).on('click', '#pipedrive-edit-button', function() {
+            $.ajax({
+
+                url : '{{url("pipedrivekeys")}}',
+                type : 'post',
+                success: function (response) {
+                    $('#pipedrive_key').val(response['pipedriveKey']);
+
+                    $('#pipedrv').modal('show');
+                },
+            });
+        });
+
+
+        $(document).on('click', '#twitter-edit-button', function() {
+            $.ajax({
+
+                url : '{{url("twitterkeys")}}',
+                type : 'post',
+                success: function (response) {
+                    $('#consumer_key').val(response['twitterkeys']['twitter_consumer_key']);
+                    $('#consumer_secret').val(response['twitterkeys']['twitter_consumer_secret']);
+                    $('#access_token').val(response['twitterkeys']['twitter_access_token']);
+                    $('#token_secret').val(response['twitterkeys']['access_tooken_secret']);
+
+                    $('#twitters').modal('show');
+                },
+            });
+        });
+
+
+        $(document).on('click', '#github-edit-button', function() {
+            $.ajax({
+
+                url : '{{url("githubkeys")}}',
+                type : 'post',
+                success: function (response) {
+                    $('#git_username').val(response['githubFileds']['username']);
+                    $('#git_password').val(response['githubFileds']['password']);
+                    $('#git_client').val(response['githubFileds']['client_id']);
+                    $('#git_secret').val(response['githubFileds']['client_secret']);
+
+                    $("#githubSet").modal('show');
+                },
+            });
+        });
+
+
+        $(document).on('click', '#mailchimp-edit-button', function() {
+            $.ajax({
+
+                url : '{{url("mailchimpkeys")}}',
+                type : 'post',
+                success: function (response) {
+                    $('#mailchimp_authkey').val(response['mailchimpKey']);
+                    var array=response['allLists'];
+                    if(array && array.length) {
+                        var value1 = response['allLists'][0]['id'];
+                        var name1 = response['allLists'][0]['name'];
+                        var value2 = response['subscribe_status'];
+                        const select = document.getElementById('list_id');
+                        select.value = value1;
+                        select.text = name1;
+                        const select1 = document.getElementById('subscribe_status');
+                        select1.value = value2;
+                    }
+
+                    $("#mailchimps").modal('show');
+                },
+            });
+        });
+        $(document).on('change', '.licenser input[type="checkbox"]', function() {
+            if ($('#License').prop("checked")) {
+            var checkboxvalue = 1;
+        }
+        else{
+            var checkboxvalue = 0;
+        }
+
+            $.ajax({
+
+                url : '{{url("licenseStatus")}}',
+                type : 'post',
+                data: {
+                    "status": checkboxvalue,
+                },
+                success: function (response) {
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
+                    $('#alertMessage12').show();
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
+                    $('#alertMessage12').html(result+ ".");
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    setInterval(function(){
+                        $('#alertMessage12').slideUp(3000);
+                    }, 1000);
+
+                },
+            });
+
+        });
+
+        $(document).on('change', '.mstatus input[type="checkbox"]', function() {
+            if ($('#mobile').prop("checked")) {
+                var checkboxvalue = 1;
+            }
+            else{
+                var checkboxvalue = 0;
+            }
+
+            $.ajax({
+
+                url : '{{url("licenseStatus")}}',
+                type : 'post',
+                data: {
+                    "mstatus": checkboxvalue,
+                },
+                success: function (response) {
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
+                    $('#alertMessage12').show();
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
+                    $('#alertMessage12').html(result+ ".");
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    setInterval(function(){
+                        $('#alertMessage12').slideUp(3000);
+                    }, 1000);
+
+                },
+            });
+
+        });
+
+        $(document).on('change', '.mailchimpstatus input[type="checkbox"]', function() {
+            if ($('#mailchimp').prop("checked")) {
+                var checkboxvalue = 1;
+            }
+            else{
+                var checkboxvalue = 0;
+            }
+
+            $.ajax({
+
+                url : '{{url("licenseStatus")}}',
+                type : 'post',
+                data: {
+                    "mailchimpstatus": checkboxvalue,
+                },
+                success: function (response) {
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
+                    $('#alertMessage12').show();
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
+                    $('#alertMessage12').html(result+ ".");
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    setInterval(function(){
+                        $('#alertMessage12').slideUp(3000);
+                    }, 1000);
+
+                },
+            });
+
+        });
+
+
+        $(document).on('change', '.termstatus1 input[type="checkbox"]', function() {
+            if ($('#terms').prop("checked")) {
+                var checkboxvalue = 1;
+            }
+            else{
+                var checkboxvalue = 0;
+            }
+
+            $.ajax({
+
+                url : '{{url("licenseStatus")}}',
+                type : 'post',
+                data: {
+                    "termsStatus": checkboxvalue,
+                },
+                success: function (response) {
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
+                    $('#alertMessage12').show();
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
+                    $('#alertMessage12').html(result+ ".");
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    setInterval(function(){
+                        $('#alertMessage12').slideUp(3000);
+                    }, 1000);
+
+                },
+            });
+
+        });
+
+        $(document).on('change', '.twitterstatus input[type="checkbox"]', function() {
+            if ($('#twitter').prop("checked")) {
+                var checkboxvalue = 1;
+            }
+            else{
+                var checkboxvalue = 0;
+            }
+
+            $.ajax({
+
+                url : '{{url("licenseStatus")}}',
+                type : 'post',
+                data: {
+                    "twitterstatus": checkboxvalue,
+                },
+                success: function (response) {
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
+                    $('#alertMessage12').show();
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
+                    $('#alertMessage12').html(result+ ".");
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    setInterval(function(){
+                        $('#alertMessage12').slideUp(3000);
+                    }, 1000);
+
+                },
+            });
+
+        });
+
+        $(document).on('change', '.gcaptcha input[type="checkbox"]', function() {
+            if ($('#captcha').prop("checked")) {
+                var checkboxvalue = 1;
+            }
+            else{
+                var checkboxvalue = 0;
+            }
+
+            $.ajax({
+
+                url : '{{url("licenseStatus")}}',
+                type : 'post',
+                data: {
+                    "gcaptchastatus": checkboxvalue,
+                },
+                success: function (response) {
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
+                    $('#alertMessage12').show();
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
+                    $('#alertMessage12').html(result+ ".");
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    setInterval(function(){
+                        $('#alertMessage12').slideUp(3000);
+                    }, 1000);
+
+                },
+            });
+
+        });
+
+
+        $(document).on('change', '.zohostatus input[type="checkbox"]', function() {
+            if ($('#zoho').prop("checked")) {
+                var checkboxvalue = 1;
+            }
+            else{
+                var checkboxvalue = 0;
+            }
+
+            $.ajax({
+
+                url : '{{url("licenseStatus")}}',
+                type : 'post',
+                data: {
+                    "zohostatus": checkboxvalue,
+                },
+                success: function (response) {
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
+                    $('#alertMessage12').show();
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
+                    $('#alertMessage12').html(result+ ".");
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    setInterval(function(){
+                        $('#alertMessage12').slideUp(3000);
+                    }, 1000);
+
+                },
+            });
+
+        });
+
+        $(document).on('change', '.pipedrivestatus input[type="checkbox"]', function() {
+            if ($('#pipedrive').prop("checked")) {
+                var checkboxvalue = 1;
+            }
+            else{
+                var checkboxvalue = 0;
+            }
+
+            $.ajax({
+
+                url : '{{url("licenseStatus")}}',
+                type : 'post',
+                data: {
+                    "pipedrivestatus": checkboxvalue,
+                },
+                success: function (response) {
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
+                    $('#alertMessage12').show();
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
+                    $('#alertMessage12').html(result+ ".");
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    setInterval(function(){
+                        $('#alertMessage12').slideUp(3000);
+                    }, 1000);
+
+                },
+            });
+
+        });
+
+        $(document).on('change', '.githubstatus input[type="checkbox"]', function() {
+            if ($('#github').prop("checked")) {
+                var checkboxvalue = 1;
+            }
+            else{
+                var checkboxvalue = 0;
+            }
+
+            $.ajax({
+
+                url : '{{url("licenseStatus")}}',
+                type : 'post',
+                data: {
+                    "githubstatus": checkboxvalue,
+                },
+                success: function (response) {
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
+                    $('#alertMessage12').show();
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
+                    $('#alertMessage12').html(result+ ".");
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    setInterval(function(){
+                        $('#alertMessage12').slideUp(3000);
+                    }, 1000);
+
+                },
+            });
+
+        });
+
+
         $(document).ready(function () {
             $('#custom-table').DataTable({
                 processing: true,
                 serverSide: true,
+
                 ajax: "{{ route('datatable.data') }}", // Calls the separate function
+                "oLanguage": {
+                    "sLengthMenu": "_MENU_ Records per page",
+                    "sSearch": "<span style='right: 180px;'>Search:</span> ",
+                    "sProcessing": ' <div class="overlay dataTables_processing"><i class="fas fa-3x fa-sync-alt fa-spin" style=" margin-top: -25px;"></i><div class="text-bold pt-2">Loading...</div></div>'
+                },
+                columnDefs: [
+                    {
+                        targets: 'no-sort',
+                        orderable: false,
+                        order: []
+                    }
+                ],
                 columns: [
                     { data: 'options', name: 'Name' },
                     {data:'description',name:'Description'},
@@ -1232,56 +1282,23 @@
             licensebox=document.getElementById('License').value;
             if(licensebox ==1) {
                 $('#License').prop('checked', true);
-                // $('.LicenseField').show();
-                // $('.licenseEmptyField').hide();
-                // $('#license_api_secret').attr('enabled', true);
-                // $('#license_api_url').attr('enabled', true);
-                // $('#license_client_secret').attr('enabled',true);
-                // $('#license_client_id').attr('enabled',true);
-                // $('#license_grant_type').attr('enabled',true);
+
 
             } else if(licensebox ==0) {
-                // $('.LicenseField').hide();
-                // $('.licenseEmptyField').show();
-                // $('#license_api_secret').attr('disabled', true);
-                // $('#license_api_url').attr('disabled', true);
-                // $('#license_client_secret').attr('disabled',true);
-                // $('#license_client_id').attr('disabled',true);
-                // $('#license_grant_type').attr('disabled',true);
 
             }
         });
         $('#license_apiCheck').hide();
-        $('#License').change(function () {
-
+        $('#License').on('change',function () {
             if ($(this).prop("checked")) {
 
-                // checked
-                // $('#license_api_secret').val();
-                // $('#license_api_url').val();
-                // $('#license_client_id').val();
-                // $('#license_client_secret').val();
-                // $('.LicenseField').show();
-                // $('.licenseEmptyField').hide();
-                // $('#license_api_secret').attr('enabled', true);
-                // $('#license_api_url').attr('enabled', true);
-                // $('#license_client_secret').attr('enabled',true);
-                // $('#license_client_id').attr('enabled',true);
-                // $('#license_grant_type').attr('enabled',true)
+
             }
             else{
-                // $('.LicenseField').hide();
                 $('.nocapsecretHide').val('');
                 $('.siteKeyHide').val('');
-                // $('.licenseEmptyField').show();
-               //
-               // $('.licenseEmptyField').show();
-               //  $('#license_api_secret').attr('disabled', true);
-               //  $('#license_api_url').attr('disabled', true);
-               //  $('#license_client_secret').attr('disabled',true);
-               //  $('#license_client_id').attr('disabled',true);
-               //  $('#license_grant_type').attr('disabled',true)
-               
+
+
         }
     });
 
@@ -1289,70 +1306,10 @@
 
             if ($('#License').prop("checked")) {
                 var checkboxvalue = 1;
-
-                // if ($('#license_api_secret').val() =="" ) {
-                //     $('#license_apiCheck').show();
-                //     $('#license_apiCheck').html("Please Enter API Secret Key");
-                //     $('#license_api_secret').css("border-color","red");
-                //     $('#license_apiCheck').css({"color":"red","margin-top":"5px"});
-                //     setTimeout(function(){
-                //     $('#license_apiCheck').hide();
-                //       $('#license_api_secret').css("border-color","");
-                //         }, 1500);
-                //     return false;
-                // }
-         
-                // if ($('#license_api_url').val() =="" ) {
-                //     $('#license_urlCheck').show();
-                //     $('#license_urlCheck').html("Please Enter API URL");
-                //     $('#license_api_url').css("border-color","red");
-                //     $('#license_urlCheck').css({"color":"red","margin-top":"5px"});
-                //     setTimeout(function(){
-                //     $('#license_urlCheck').hide();
-                //       $('#license_api_url').css("border-color","");
-                //         }, 1500);
-                //     return false;
-                // }
-                //
-                // if ($('#license_client_id').val() =="" ) {
-                //     $('#license_clientIdCheck').show();
-                //     $('#license_clientIdCheck').html("Please Enter Client Id For License Manager");
-                //     $('#license_client_id').css("border-color","red");
-                //     $('#license_clientIdCheck').css({"color":"red","margin-top":"5px"});
-                //     setTimeout(function(){
-                //     $('#license_clientIdCheck').hide();
-                //       $('#license_client_id').css("border-color","");
-                //         }, 1500);
-                //     return false;
-                // }
-                // if ($('#license_client_secret').val() =="" ) {
-                //     $('#license_clientSecretCheck').show();
-                //     $('#license_clientSecretCheck').html("Please Enter Your Client Secret For License Manager");
-                //     $('#license_client_secret').css("border-color","red");
-                //     $('#license_clientSecretCheck').css({"color":"red","margin-top":"5px"});
-                //     setTimeout(function(){
-                //     $('#license_clientSecretCheck').hide();
-                //       $('#license_client_secret').css("border-color","");
-                //         }, 1500);
-                //     return false;
-                // }
-                // if ($('#license_grant_type').val() =="" ) {
-                //     $('#license_grantTypeCheck').show();
-                //     $('#license_grantTypeCheck').html("Please Enter Your Grant Type For License Manager");
-                //     $('#license_grant_type').css("border-color","red");
-                //     $('#license_grantTypeCheck').css({"color":"red","margin-top":"5px"});
-                //     setTimeout(function(){
-                //     $('#license_grantTypeCheck').hide();
-                //       $('#license_grant_type').css("border-color","");
-                //         }, 1500);
-                //     return false;
-                // }
             }
             else{
                 var checkboxvalue = 0;
             }
-
-
 
             const userRequiredFields = {
                 name:@json(trans('message.license_api_secret')),
@@ -1393,11 +1350,12 @@
                     }
                 });
 
-                // if (isValid && userRequiredFields.description.val()==null) {
-                //     isValid = false;
-                // }
-
-
+            if($('#license_api_url').val()!=''){
+                if (isValid && !isValidURL(userFields.type.val())) {
+                    showError(userFields.type,'Please enter a valid url(https://example.com).');
+                    isValid = false;
+                }
+            }
                 // If validation fails, prevent form submission
                 if (!isValid) {
                     e.preventDefault();
@@ -1545,9 +1503,20 @@
             });
         };
 
+        var initial_id=$('input[name="customRadio"]:checked').attr('id');
+        var initial_key=$('#nocaptcha_sitekey').val();
+        var initial_secret=$('#nocaptcha_secret').val();
+        $('input[name="customRadio"]').change(function () {
+            var selectedId = $(this).attr('id'); // Get the ID of selected radio button
+            if(selectedId!==initial_id){
+                $('#nocaptcha_sitekey').val('');
+                $('#nocaptcha_secret').val('');
+            }else{
+                $('#nocaptcha_sitekey').val(initial_key);
+                $('#nocaptcha_secret').val(initial_secret);
+            }
 
-
-
+        });
 
         /**
          * Google ReCAPTCHA
@@ -1558,51 +1527,14 @@
             var status = $('.checkbox2').val();
             if(status ==1) {
                 $('#captcha').prop('checked', true);
-                // $('.captchaField').show();
-                // $('.captchaEmptyField').hide();
             } else if(status ==0) {
-                // $('.captchaField').hide();
-                // $('.captchaEmptyField').show();
-
             }
         });
-        // $('#captcha_secretCheck').hide();
-        // $('#captcha').change(function () {
-        //     if ($(this).prop("checked")) {
-        //         // checked
-        //         $('#nocaptcha_secret').val();
-        //         $('#nocaptcha_sitekey').val();
-        //         $('.captchaField').show();
-        //         $('.captchaEmptyField').hide();
-        //     }
-        //     else{
-        //         $('.captchaField').hide();
-        //         $('.secretHide').val('');
-        //         $('.urlHide').val('');
-        //         $('.captchaEmptyField').show();
-        //
-        //
-        //     }
-        // });
 
         function captchaDetails(e){
       
             if ($('#captcha').prop("checked")) {
                 var checkboxvalue = 1;
-                // if ($('#nocaptcha_secret').val() =="" ) {
-                //     $('#captcha_secretCheck').show();
-                //     $('#captcha_secretCheck').html("Please Enter Secret Key");
-                //     $('#captcha_secret').css("border-color","red");
-                //     $('#captcha_secretCheck').css({"color":"red","margin-top":"5px"});
-                //     return false;
-                // }
-                // if ($('#nocaptcha_sitekey').val() =="" ) {
-                //     $('#captcha_sitekeyCheck').show();
-                //     $('#captcha_sitekeyCheck').html("Please Enter Sitekey");
-                //     $('#nocaptcha_sitekey').css("border-color","red");
-                //     $('#captcha_sitekeyCheck').css({"color":"red","margin-top":"5px"});
-                //     return false;
-                // }
 
             }
             else{
@@ -1642,9 +1574,6 @@
                 }
             });
 
-            // if (isValid && userRequiredFields.description.val()==null) {
-            //     isValid = false;
-            // }
 
 
             // If validation fails, prevent form submission
@@ -1777,14 +1706,10 @@
             if(mobilestatus ==1)
             {
                 $('#mobile').prop('checked',true);
-                // $('.mobile_authkey').attr('enabled', true);
-                // $('.sender').attr('enabled', true);
-                // $('.template_id').attr('enabled',true)
+
             } else if(mobilestatus ==0){
                 $('#mobile').prop('checked',false);
-                // $('.mobile_authkey').attr('disabled', true);
-                // $('.sender').attr('disabled', true);
-                // $('.template_id').attr('disabled', true)
+
             }
         });
         $("#mobile").on('change',function (){
@@ -1792,22 +1717,6 @@
                 var mobilekey =  $('#hiddenMobValue').val();
                 var sender =  $('#hiddenSender').val();
                 var template =  $('#hiddenTemplate').val();
-                // $('.mobile_authkey').attr('disabled', false);
-                // $('.sender').attr('disabled', false);
-                // // $('.template_id').attr('disabled',false)
-                // $('#mobile_authkey').val(mobilekey);
-                // $('#sender').val(sender);
-                // $('#template_id').val(template);
-
-
-            } else {
-                // $('.mobile_authkey').attr('disabled', true);
-                // $('.sender').attr('disabled', true);
-                // $('.template_id').attr('disabled',true)
-                // $('.mobile_authkey').val('');
-                // $('.sender').val('');
-                // $('.template_id').val('');
-
             }
         });
         //Validate and pass value through ajax
@@ -1815,42 +1724,9 @@
             if ($('#mobile').prop('checked')) { // If checkbox is checked
                 var mobilestatus = 1;
 
-                // // Validate Auth Key
-                // if ($('#mobile_authkey').val() === "") {
-                //     $('#mobile_check').show().text("Please Enter Auth Key").css({ "color": "red", "margin-top": "5px" });
-                //     $('#mobile_authkey').addClass('error-border');
-                //     return false;
-                // } else {
-                //     $('#mobile_check').hide();
-                //     $('#mobile_authkey').removeClass('error-border');
-                // }
 
-                // // Validate Sender
-                // if ($('#sender').val() !== "") {
-                //     const senderRegex = /^[a-zA-Z]{0,6}$/;
-                //     if (senderRegex.test($('#sender').val())) {
-                //         $('#sender_check').hide();
-                //         $('#sender').removeClass('error-border');
-                //     } else {
-                //         $('#sender_check').show().text("Sender can only be alphabets and maximum 6 characters").css({ "color": "red", "margin-top": "5px" });
-                //         $('#sender').addClass('error-border');
-                //         return false;
-                //     }
-                // }
-
-                // // Validate Template ID
-                // if ($('#template_id').val() === "") {
-                //     $('#template_id').addClass('error-border');
-                //     $('#template_check').show().text("Please Enter Template ID").css({ "color": "red", "margin-top": "5px" });
-                //     return false;
-                // } else {
-                //     $('#template_id').removeClass('error-border');
-                //     $('#template_check').hide();
-                // }
             } else {
-                // // Reset fields when mobile is unchecked
-                // $('#mobile_authkey, #sender, #template_id').removeClass('error-border');
-                // $('#mobile_check, #sender_check, #template_check').hide().text("");
+
                 mobilestatus = 0;
             }
 
@@ -1892,9 +1768,7 @@
                 }
             });
 
-            // if (isValid && userRequiredFields.description.val()==null) {
-            //     isValid = false;
-            // }
+
 
 
             // If validation fails, prevent form submission
@@ -1949,15 +1823,7 @@
         /*
          * Email Status Setting
          */
-        // $(document).ready(function (){
-        //     var emailstatus =  $('.checkbox5').val();
-        //     if(emailstatus ==1)
-        //     {
-        //         $('#email').prop('checked',true);
-        //     } else if(emailstatus ==0){
-        //         $('#email').prop('checked',false);
-        //     }
-        // });
+
         //Validate and pass value through ajax
         $("#submit4").on('click',function (){ //When Submit button is checked
             if ($('#email').prop('checked')) {//if button is on
@@ -1996,87 +1862,23 @@
             if(twitterstatus ==1)
             {
                 $('#twitter').prop('checked',true);
-                // $('#consumer_key').attr('enabled', true);
-                // $('#consumer_secret').attr('enabled', true);
-                // $('#access_token').attr('enabled', true);
-                // $('#token_secret').attr('enabled', true);
+
 
             } else if(twitterstatus ==0){
                 $('#twitter').prop('checked',false);
-                // $('.consumer_key').attr('disabled', true);
-                // $('.consumer_secret').attr('disabled', true);
-                // $('.access_token').attr('disabled', true);
-                // $('.token_secret').attr('disabled', true);
+
             }
         });
 
-        // $("#twitter").on('change',function (){
-        //     if($(this).prop('checked')) {
-        //         var consumer_key =  $('#hidden_consumer_key').val();
-        //         var consumer_secret =  $('#hidden_consumer_secret').val();
-        //         var access_token =  $('#hidden_access_token').val();
-        //         var token_secret =  $('#hidden_token_secret').val();
-        //         $('.consumer_key').attr('disabled', false);
-        //         $('.consumer_secret').attr('disabled', false);
-        //         $('.access_token').attr('disabled', false);
-        //         $('.token_secret').attr('disabled', false);
-        //         $('#consumer_key').val(consumer_key);
-        //         $('#consumer_secret').val(consumer_secret);
-        //         $('#access_token').val(access_token);
-        //         $('#token_secret').val(token_secret);
-        //
-        //     } else {
-        //         $('.consumer_key').attr('disabled', true);
-        //         $('.consumer_secret').attr('disabled', true);
-        //         $('.access_token').attr('disabled', true);
-        //         $('.token_secret').attr('disabled', true);
-        //         $('#consumer_key').val('');
-        //         $('#consumer_secret').val('');
-        //         $('#access_token').val('');
-        //         $('#token_secret').val('');
-        //
-        //
-        //     }
-        // });
+
 
         //Validate and pass value through ajax
         $("#submit5").on('click',function (){ //When Submit button is clicked
             if ($('#twitter').prop('checked')) {//if button is on
                 var twitterstatus = 1;
-                // if ($('#consumer_key').val() == "") { //if value is not entered
-                //     $('#consumer_keycheck').show();
-                //     $('#consumer_keycheck').html("Please Enter Twitter Consumer Key");
-                //     $('#consumer_key').css("border-color","red");
-                //     $('#consumer_keycheck').css({"color":"red","margin-top":"5px"});
-                //     return false;
-                // } else if ($('#consumer_secret').val() == "") {
-                //     $('#consumer_secretcheck').show();
-                //     $('#consumer_secretcheck').html("Please Enter Twitter Consumer Secret");
-                //     $('#consumer_secret').css("border-color","red");
-                //     $('#consumer_secretcheck').css({"color":"red","margin-top":"5px"});
-                //     return false;
-                // } else if ($('#access_token').val() == "") {
-                //     $('#access_tokencheck').show();
-                //     $('#access_tokencheck').html("Please Enter Twitter Access Token");
-                //     $('#access_token').css("border-color","red");
-                //     $('#access_tokencheck').css({"color":"red","margin-top":"5px"});
-                //     return false;
-                // } else if ($('#token_secret').val() == "") {
-                //     $('#token_secretcheck').show();
-                //     $('#token_secretcheck').html("Please Enter Twitter Token Secret");
-                //     $('#token_secret').css("border-color","red");
-                //     $('#token_secretcheck').css({"color":"red","margin-top":"5px"});
-                //     return false;
-                // }
+
             } else {
-                // $('#consumer_keycheck').html("");
-                // $('#consumer_key').css("border-color","");
-                // $('#consumer_secretcheck').html("");
-                // $('#consumer_secret').css("border-color","");
-                // $('#access_tokencheck').html("");
-                // $('#access_token').css("border-color","");
-                // $('#token_secretcheck').html("");
-                // $('#token_secret').css("border-color","");
+
                 var twitterstatus = 0;
             }
 
@@ -2121,9 +1923,7 @@
                 }
             });
 
-            // if (isValid && userRequiredFields.description.val()==null) {
-            //     isValid = false;
-            // }
+
 
 
             // If validation fails, prevent form submission
@@ -2176,33 +1976,14 @@
                 // $('.zoho_key').attr('disabled', true);
             }
         });
-        // $("#zoho").on('change',function (){
-        //     if($(this).prop('checked')) {
-        //         var zohokey =  $('#hidden_zoho_key').val();
-        //         $('.zoho_key').attr('disabled', false);
-        //         $('#zoho_key').val(zohokey);
-        //
-        //     } else {
-        //         $('.zoho_key').attr('disabled', true);
-        //         $('.zoho_key').val('');
-        //
-        //
-        //     }
-        // });
+
         //Validate and pass value through ajax
         $("#submit7").on('click',function (){ //When Submit button is checked
             if ($('#zoho').prop('checked')) {//if button is on
                 var zohostatus = 1;
-                // if ($('#zoho_key').val() == "") { //if value is not entered
-                //     $('#zoho_keycheck').show();
-                //     $('#zoho_keycheck').html("Please Enter Zoho Key");
-                //     $('#zoho_key').css("border-color","red");
-                //     $('#zoho_keycheck').css({"color":"red","margin-top":"5px"});
-                //     return false;
-                // }
+
             } else {
-                // $('#zoho_keycheck').html("");
-                // $('#zoho_key').css("border-color","");
+
                 var zohostatus = 0;
 
             }
@@ -2278,44 +2059,31 @@
         /*
        *Mailchimp
         */
-        $(document).ready(function (){
-            var mailchimpstatus =  $('.checkbox9').val();
-            if(mailchimpstatus ==1)
-            {
-                $('#mailchimp').prop('checked',true);
-                // $('.mailchimp_authkey').attr('enabled', true);
-            } else if(mailchimpstatus ==0){
-                $('#mailchimp').prop('checked',false);
-                // $('.mailchimp_authkey').attr('disabled', true);
-            }
-        });
-        // $("#mailchimp").on('change',function (){
-        //     if($(this).prop('checked')) {
-        //         var mailchimpkey =  $('#hiddenMailChimpValue').val();
-        //         $('.mailchimp_authkey').attr('disabled', false);
-        //         $('#mailchimp_authkey').val(mailchimpkey);
-        //
-        //     } else {
-        //         // $('.mailchimp_authkey').attr('disabled', true);
-        //         // $('.mailchimp_authkey').val('');
-        //
-        //
-        //     }
-        // });
+        {{--$(document).ready(function (){--}}
+        {{--    var mailchimpstatus =  {{$mailchimpSetting}};--}}
+        {{--    if(mailchimpstatus ==1)--}}
+        {{--    {--}}
+        {{--        $('#mailchimp').prop('checked',true);--}}
+        {{--        let extraInput = document.getElementById('extraInput');--}}
+        {{--        extraInput.style.display ='block';--}}
+        {{--        let extraInput1 = document.getElementById('extraInput1');--}}
+        {{--        extraInput1.style.display ='block';--}}
+        {{--    } else if(mailchimpstatus ==0){--}}
+        {{--        $('#mailchimp').prop('checked',false);--}}
+        {{--        let extraInput = document.getElementById('extraInput');--}}
+        {{--        extraInput.style.display ='none';--}}
+        {{--        let extraInput1 = document.getElementById('extraInput1');--}}
+        {{--        extraInput1.style.display ='none';--}}
+        {{--    }--}}
+        {{--});--}}
+
         //Validate and pass value through ajax
         $("#submit9").on('click',function (){ //When Submit button is checked
             if ($('#mailchimp').prop('checked')) {//if button is on
                 var chimpstatus = 1;
-                // if ($('#mailchimp_authkey').val() == "") { //if value is not entered
-                //     $('#mailchimp_check').show();
-                //     $('#mailchimp_check').html("Please Enter Mailchimp Api Key");
-                //     $('#mailchimp_authkey').css("border-color","red");
-                //     $('#mailchimp_check').css({"color":"red","margin-top":"5px"});
-                //     return false;
-                // }
+
             } else {
-            //     $('#mailchimp_check').html("");
-            //     $('#mailchimp_authkey').css("border-color","");
+
                 var chimpstatus = 0;
 
             }
@@ -2353,18 +2121,12 @@
                 }
             });
 
-            // if (isValid && userRequiredFields.description.val()==null) {
-            //     isValid = false;
-            // }
-
-
             // If validation fails, prevent form submission
             if (!isValid) {
                 preventDefault();
             }
 
 
-console.log(chimpstatus);
             $("#submit9").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
             $.ajax ({
                 url: '{{url("updateMailchimpDetails")}}',
@@ -2374,17 +2136,50 @@ console.log(chimpstatus);
                     "mailchimp_auth_key": $('#mailchimp_authkey').val(),
                 },
                 success: function (data) {
-
-                    var mailchimpstatus=data['mailchimpStatus'];
+                    var mailchimpstatus=data['mailchimpverifiedStatus'];
                     var status=data['status'];
-                    if(mailchimpstatus===1 && status==='1'){
+                    if(mailchimpstatus===1){
                         let extraInput = document.getElementById('extraInput');
                         extraInput.style.display ='block';
+                        let extraInput5 = document.getElementById('extraInput5');
+                        extraInput5.style.display ='none';
+                        let extraInput1 = document.getElementById('extraInput1');
+                        extraInput1.style.display ='block';
                     }else{
                        let extraInput = document.getElementById('extraInput');
                        extraInput.style.display ='none';
+                        let extraInput1 = document.getElementById('extraInput1');
+                        extraInput1.style.display ='none';
+                        let extraInput5 = document.getElementById('extraInput5');
+                        extraInput5.style.display ='block';
                    }
                     if(data['message']==='success'){
+                        var value1=data['allLists'][0]['id'];
+                        var name1=data['allLists'][0]['name'];
+                        var value2=data['subscribe_status'];
+
+                        if($('#list_id').val()!==value1) {
+
+                            const options = [
+                                {value: value1, text: name1},
+                            ];
+
+                            const select = document.getElementById('list_id');
+
+                            options.forEach(optionData => {
+                                const option = document.createElement('option');
+                                option.value = optionData.value;
+                                option.text = optionData.text;
+                                select.appendChild(option);
+                            });
+                        }else{
+                            let extraInput5 = document.getElementById('extraInput9');
+                            extraInput5.style.display ='block';
+                        }
+                        const select1 = document.getElementById('subscribe_status');
+                        select1.value=value2;
+
+
                     $('#alertMessage4').show();
                     var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
                     $('#alertMessage4').html(result+ ".");
@@ -2404,7 +2199,48 @@ console.log(chimpstatus);
             })
         });
 
-   <!--------------------------------------------------------------------------------------------->
+        $("#submit-chimp").on('click',function () { //When Submit button is checked
+            var list_id=$('#list_id').val();
+            var subscribe_status=$('#subscribe_status').val();
+            $("#submit-chimp").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+            $.ajax ({
+                url: '{{url("mailchimp")}}',
+                type : 'patch',
+                data: {
+                    'list_id':list_id,
+                    'subscribe_status':subscribe_status,
+                },
+                success: function (data) {
+                    var list_id=data['list_id'];
+                    if(list_id===1){
+                        let extraInput = document.getElementById('extraInput9');
+                        extraInput.style.display ='block';
+                    }else{
+                        let extraInput1 = document.getElementById('extraInput9');
+                        extraInput1.style.display ='none';
+                    }
+                    if(data['message']==='success'){
+
+                        $('#alertMessage4').show();
+                        var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
+                        $('#alertMessage4').html(result+ ".");
+                        $("#submit-chimp").html("<i class='fa fa-save'>&nbsp;</i>Save");
+                        setInterval(function(){
+                            $('#alertMessage4').slideUp(3000);
+                        }, 1000);}
+                        else{
+                        $('#alertMessage4').show();
+                        var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> error! </strong>'+data.update+'.</div>';
+                        $('#alertMessage4').html(result+ ".");
+                        $("#submit-chimp").html("<i class='fa fa-save'>&nbsp;</i>Save");
+                        setInterval(function(){
+                            $('#alertMessage4').slideUp(3000);
+                        }, 1000);
+                    }
+                },
+            })
+        });
+        <!--------------------------------------------------------------------------------------------->
         /*
        *Terms
         */
@@ -2419,33 +2255,14 @@ console.log(chimpstatus);
                 // $('.terms_url').attr('disabled', true);
             }
         });
-        // $("#terms").on('change',function (){
-        //     if($(this).prop('checked')) {
-        //         var terms =  $('#hiddenTermsValue').val();
-        //         // $('.terms_url').attr('disabled', false);
-        //         $('#terms_url').val(terms);
-        //
-        //     } else {
-        //         $('.terms_url').attr('disabled', true);
-        //         $('.terms_url').val('');
-        //
-        //
-        //     }
-        // });
+
         //Validate and pass value through ajax
         $("#submit10").on('click',function (){ //When Submit button is checked
             if ($('#terms').prop('checked')) {//if button is on
                 var termsstatus = 1;
-                // if ($('#terms_url').val() == "") { //if value is not entered
-                //     $('#terms_check').show();
-                //     $('#terms_check').html("Please Enter Terms Url");
-                //     $('#terms_url').css("border-color","red");
-                //     $('#terms_check').css({"color":"red","margin-top":"5px"});
-                //     return false;
-                // }
+
             } else {
-                // $('#terms_check').html("");
-                // $('#terms_url').css("border-color","");
+
                 var termsstatus = 0;
 
             }
@@ -2546,33 +2363,14 @@ console.log(chimpstatus);
                 // $('.pipedrive_key').attr('disabled', true);
             }
         });
-        // $("#pipedrive").on('change',function (){
-        //     if($(this).prop('checked')) {
-        //         var pipedrivekey =  $('#hidden_pipedrive_key').val();
-        //         $('.pipedrive_key').attr('disabled', false);
-        //         $('#pipedrive_key').val(pipedrivekey);
-        //
-        //     } else {
-        //         $('.pipedrive_key').attr('disabled', true);
-        //         $('.pipedrive_key').val('');
-        //
-        //
-        //     }
-        // });
+
         //Validate and pass value through ajax
         $("#submit13").on('click',function (){ //When Submit button is checked
             if ($('#pipedrive').prop('checked')) {//if button is on
                 var pipedrivestatus = 1;
-                // if ($('#pipedrive_key').val() == "") { //if value is not entered
-                //     $('#pipedrive_keycheck').show();
-                //     $('#pipedrive_keycheck').html("Please Enter Pipedrive API Key");
-                //     $('#pipedrive_key').css("border-color","red");
-                //     $('#pipedrive_keycheck').css({"color":"red","margin-top":"5px"});
-                //     return false;
-                // }
+
             } else {
-                // $('#pipedrive_keycheck').html("");
-                // $('#pipedrive_key').css("border-color","");
+
                 var pipedrivestatus = 0;
 
             }
@@ -2610,9 +2408,6 @@ console.log(chimpstatus);
                 }
             });
 
-            // if (isValid && userRequiredFields.description.val()==null) {
-            //     isValid = false;
-            // }
 
 
             // If validation fails, prevent form submission
@@ -2693,85 +2488,23 @@ console.log(chimpstatus);
             if(githubstatus ==1)
             {
                 $('#github').prop('checked',true);
-                // $('#git_username').attr('enabled', true);
-                // $('#git_password').attr('enabled', true);
-                // $('#git_client').attr('enabled', true);
-                // $('#git_secret').attr('enabled', true);
+
 
             } else if(githubstatus ==0){
                 $('#github').prop('checked',false);
-                // $('.git_username').attr('disabled', true);
-                // $('.git_password').attr('disabled', true);
-                // $('.git_client').attr('disabled', true);
-                // $('.git_secret').attr('disabled', true);
+
             }
         });
 
-        // $("#github").on('change',function (){
-        //     if($(this).prop('checked')) {
-        //         var username =  $('#hidden_git_username').val();
-        //         var password =  $('#hidden_git_password').val();
-        //         var client =  $('#hidden_git_client').val();
-        //         var secret =  $('#hidden_git_secret').val();
-        //         $('.git_username').attr('disabled', false);
-        //         $('.git_password').attr('disabled', false);
-        //         $('.git_client').attr('disabled', false);
-        //         $('.git_secret').attr('disabled', false);
-        //         $('#git_username').val(username);
-        //         $('#git_password').val(password);
-        //         $('#git_client').val(client);
-        //         $('#git_secret').val(secret);
-        //
-        //     } else {
-        //         $('.git_username').attr('disabled', true);
-        //         $('.git_password').attr('disabled', true);
-        //         $('.git_client').attr('disabled', true);
-        //         $('.git_secret').attr('disabled', true);
-        //         // $('#git_username').val('');
-        //         // $('#git_password').val('');
-        //         // $('#git_client').val('');
-        //         // $('#git_secret').val('');
-        //     }
-        // });
+
 
         //Validate and pass value through ajax
         $("#submit").on('click',function (){ //When Submit button is clicked
             if ($('#github').prop('checked')) {//if button is on
                 var githubstatus = 1;
-                // if ($('#git_username').val() == "") { //if value is not entered
-                //     $('#user').show();
-                //     $('#user').html("Please Enter github Username");
-                //     $('#git_username').css("border-color","red");
-                //     $('#user').css({"color":"red","margin-top":"5px"});
-                //     return false;
-                // } else if ($('#git_password').val() == "") {
-                //     $('#pass').show();
-                //     $('#pass').html("Please Enter Github Password");
-                //     $('#git_password').css("border-color","red");
-                //     $('#pass').css({"color":"red","margin-top":"5px"});
-                //     return false;
-                // } else if ($('#git_client').val() == "") {
-                //     $('#c_id').show();
-                //     $('#c_id').html("Please Enter Client Id");
-                //     $('#git_client').css("border-color","red");
-                //     $('#c_id').css({"color":"red","margin-top":"5px"});
-                //     return false;
-                // } else if ($('#git_secret').val() == "") {
-                //     $('#c_secret').show();
-                //     $('#c_secret').html("Please Enter Client Secret Key");
-                //     $('#git_secret').css("border-color","red");
-                //     $('#c_secret').css({"color":"red","margin-top":"5px"});
-                //     return false;
-                // }
+
             } else {
-                // $('#user').html("");
-                // $('#git_username').css("border-color","");
-                // $('#pass').html("");
-                // $('#git_password').css("border-color","");
-                // $('#c_id').html("");
-                // $('#git_client').css("border-color","");
-                // $('#c_secret').html("");
-                // $('#git_secret').css("border-color","");
+
                 var githubstatus = 0;
             }
 
@@ -2815,19 +2548,10 @@ console.log(chimpstatus);
                 }
             });
 
-            // if (isValid && userRequiredFields.description.val()==null) {
-            //     isValid = false;
-            // }
-
-
             // If validation fails, prevent form submission
             if (!isValid) {
                 preventDefault();
             }
-
-
-
-
 
             $("#submit").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
             $.ajax ({
@@ -2845,7 +2569,7 @@ console.log(chimpstatus);
                     $('#alertMessage1').show();
                     var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
                     $('#alertMessage1').html(result+ ".");
-                    $("#submit").html("<i class='fa fa-sync-alt'>&nbsp;</i>Update");
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;</i>Save");
                     setInterval(function(){
                         $('#alertMessage1').slideUp(3000);
                     }, 1000);

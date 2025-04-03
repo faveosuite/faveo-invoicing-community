@@ -201,8 +201,7 @@ System Setting
                                 @enderror
                                 <span id="url-error-msg" class="hide"></span>
 
-                                {!! Form::text('knowledge_base_url',null,['class' => 'form-control']) !!}
-                                
+
 
                             </div>
                         </td>

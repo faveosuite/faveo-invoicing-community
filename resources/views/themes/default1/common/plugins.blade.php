@@ -77,7 +77,7 @@ Plugins
 {{--                                       </td>--}}
                                     @if($item['name'] == $s->name && $s->status)
                                      <td>
-                                       <a href= "{{url($item['settings'])}}" class="btn btn-secondary btn-sm btn-xs"><i class="nav-icon fa fa-fw fa-cogs" style="color:white;"></i></a>
+                                       <a href= "{{url($item['settings'])}}" class="btn btn-secondary btn-sm btn-xs"><i class="nav-icon fa fa-fw fa-edit" style="color:white;"></i></a>
                                     </td>
                                      @endif
 
