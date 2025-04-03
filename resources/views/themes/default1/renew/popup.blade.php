@@ -2,7 +2,7 @@
 <div class="modal fade" id="renew{{$id}}" tabindex="-1" role="dialog" aria-labelledby="renewModalLabel" aria-hidden="true">
 
                             <div class="modal-dialog">
-                                 {!! Form::open(['url'=>'client/renew/'.$id]) !!}
+                                 {!! Form::open(['url'=>'client/renew/'.$id,'data-form-id'=>"$id"]) !!}
 
                                 <div class="modal-content">
 
@@ -10,7 +10,7 @@
 
                                         <h4 class="modal-title" id="renewModalLabel">Renew your order</h4>
 
-                                        <button type="button" class="btn-close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                        <button type="button" class="btn-close closebutton" data-dismiss="modal"  aria-hidden="true">&times;</button>
                                     </div>
 
                                     <div class="modal-body">
@@ -75,9 +75,9 @@
                                                     <label class="form-label">Plans <span class="text-danger"> *</span></label>
                                                     <div class="custom-select-1">
                                                             @if($agents == 'Unlimited')
-                                                                {!! Form::select('plan',['' => 'Select'] + $plans, null, ['class' => 'form-control plan-dropdown', 'onchange' => 'fetchPlanCost(this.value)','id'=>'plan']) !!}
+                                                                {!! Form::select('plan',['' => 'Select'] + $plans, null, ['class' => 'form-control plan-dropdown', 'onchange' => 'fetchPlanCost(this.value)','id'=>"plan$id"]) !!}
                                                             @else
-                                                                {!! Form::select('plan',['' => 'Select'] + $plans, null, ['class' => 'form-control plan-dropdown', 'onchange' => 'fetchPlanCost(this.value, ' . $agents . ')','id'=>'plan']) !!}
+                                                                {!! Form::select('plan',['' => 'Select'] + $plans, null, ['class' => 'form-control plan-dropdown', 'onchange' => 'fetchPlanCost(this.value, ' . $agents . ')','id'=>"plan$id"]) !!}
                                                             @endif
                                                             {!! Form::hidden('user',$userid) !!}
                                                     </div>
@@ -89,7 +89,7 @@
                                                 <div class="form-group col">
                                                     <label class="form-label">Agents <span class="text-danger"> *</span></label>
                                                     <div class="custom-select-1">
-                                                         {!! Form::number('agents', $agents, ['class' => 'form-control agents', 'id' => 'agents','min' => '1', 'placeholder' => '',]) !!}
+                                                         {!! Form::number('agents', $agents, ['class' => 'form-control agents', 'id' => "agents$id",'min' => '1', 'placeholder' => '',]) !!}
                                                     </div>
                                                 </div>
                                             </div>
@@ -107,71 +107,61 @@
                                     </div>
                      
 
-                                    <div class="modal-footer">
-
-                                        <button type="button" class="btn btn-light closebutton" id="closebutton" data-dismiss="modal">Close</button>
-
-                                        <button type="submit" class="btn btn-primary" data-bs-dismiss="modal" id="saveRenew">Renew</button>
-                                    </div>
-                                 
+                                        <div class="modal-footer d-flex justify-content-between">
+                                            <button type="button" class="btn btn-light closebutton" id="closebutton" data-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-primary" data-bs-dismiss="modal" id="{{$id}}">Renew</button>
+                                        </div>
                                 </div>
                                  {!! Form::close()  !!} 
                             </div>
                         </div>
   
 <script>
-    const userRequiredFields = {
-        planname:@json(trans('message.plan_renew')),
-        planproduct:@json(trans('message.agents')),
+    $(document).on('submit', 'form[data-form-id]', function (e) {
+        e.preventDefault(); // Prevent default submission
 
-    };
+        const form = $(this); // The form being submitted
+        const formId = form.data('form-id'); // Retrieve the unique form ID
 
-    $('#saveRenew').on('click', function (e) {
         const userFields = {
-            planname:$('#plan'),
-            planproduct:$('#agents'),
+            planname: form.find(`#plan${formId}`),
+            planproduct: form.find(`#agents${formId}`)
         };
 
+        const userRequiredFields = {
+            planname:@json(trans('message.plan_renew')),
+            planproduct:@json(trans('message.agents')),
+        };
 
         // Clear previous errors
         Object.values(userFields).forEach(field => {
             field.removeClass('is-invalid');
-            field.next().next('.error').remove();
-
+            field.siblings('.error').remove(); // Clear previous errors
         });
 
         let isValid = true;
 
         const showError = (field, message) => {
             field.addClass('is-invalid');
-            field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+            field.after(`<span class='error invalid-feedback'>${message}</span>`);
         };
 
         // Validate required fields
-        Object.keys(userFields).forEach(field => {
-            if (!userFields[field].val()) {
-                showError(userFields[field], userRequiredFields[field]);
+        Object.keys(userFields).forEach(key => {
+            if (!userFields[key].val()) {
+                showError(userFields[key], userRequiredFields[key]);
                 isValid = false;
             }
         });
 
-
-        // If validation fails, prevent form submission
-        if (!isValid) {
-            e.preventDefault();
+        // If valid, submit the form using native submission
+        if (isValid) {
+            form[0].submit(); // Use the DOM form submission to avoid re-triggering jQuery event
         }
     });
-    // Function to remove error when input'id' => 'changePasswordForm'ng data
-    const removeErrorMessage = (field) => {
-        field.classList.remove('is-invalid');
-        const error = field.nextElementSibling;
-        if (error && error.classList.contains('error')) {
-            error.remove();
-        }
-    };
 
     // Add input event listeners for all fields
-    ['planname','planproduct','country','currency','renew_prices','plandays','regular_prices'].forEach(id => {
+    ['plan{{$id}}','agents{{$id}}'].forEach(id => {
 
         document.getElementById(id).addEventListener('input', function () {
             removeErrorMessage(this);

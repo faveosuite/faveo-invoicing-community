@@ -165,6 +165,7 @@ Create Invoice
 
 
         $('#generate').on('click', function (e) {
+            @if($user='')
            if($('#users').val()==''){
                document.querySelector('.select2-selection').style.cssText = `
                         border: 1px solid #dc3545;
@@ -177,7 +178,7 @@ Create Invoice
                document.querySelector('.select2-selection').style.border='1px solid silver';
 
            }
-
+            @endif
             if($('#price').val()==''){
                 e.preventDefault();
             }

@@ -227,8 +227,10 @@
                     {!! Form::label('cloud_product', Lang::get('message.cloud_product'), ['class' => 'required']) !!}
                     <div class="form-group">
                         <!-- Select Field 1 -->
-                        <select name="cloud_product" class="form-control" id="saas-product">
-                            @foreach($products as $product)
+                        <select name="cloud_product" class="form-control select2" id="saas-product">
+                            <option value="">Choose</option>
+
+                        @foreach($products as $product)
                             <option value="{!! $product->id !!}">{{$product->name}}</option>
                             @endforeach
                             <!-- Add more options as needed -->
@@ -242,8 +244,10 @@
                     ?>
                     {!! Form::label('cloud_free_plan', Lang::get('message.cloud_free_plan'), ['class' => 'required']) !!}
                     <div class="form-group">
-                        <select name="cloud_free_plan" class="form-control" id="saas-free-product">
-                            @foreach($plans as $plan)
+                        <select name="cloud_free_plan" class="form-control select2" id="saas-free-product">
+                            <option value="">Choose</option>
+
+                        @foreach($plans as $plan)
                             <option value="{!! $plan->id !!}">{!! $plan->name !!}</option>
                             @endforeach
                         </select>
@@ -333,7 +337,7 @@
                           {!! Form::label('cloud_state', Lang::get('message.cloud_state'), ['class' => 'required']) !!}
                           <div class="form-group">
 
-                              <select id="cloud_state" name="cloud_state" class="form-control">
+                              <select id="cloud_state" name="cloud_state" class="form-control select2">
                               </select>
                               <div class="input-group-append"></div>
 
@@ -1067,6 +1071,18 @@ $('#cloud-details').on('submit', function (e) {
             removeErrorMessage(this);
         }
     });
+
+    $('#cloud_state').on('change', function () {
+        if ($(this).val() !== '') {
+            document.querySelector('.select2-selection').style.cssText = `
+                border: 1px solid silver;
+                background-image:null;
+                background-repeat: no-repeat;
+                background-position: right 10px center;
+                background-size: 16px 16px;`;
+            removeErrorMessage(this);
+        }
+    });
     $('#cloud-data-center').on('submit', function (e) {
 
         const userFields = {
@@ -1112,8 +1128,30 @@ $('#cloud-details').on('submit', function (e) {
         if (!isValid) {
             e.preventDefault();
         }
-    })
+    });
 
+    $('#saas-product').on('change', function () {
+        if ($(this).val() !== '') {
+            document.querySelector('.select2-selection').style.cssText = `
+                border: 1px solid silver;
+                background-image:null;
+                background-repeat: no-repeat;
+                background-position: right 10px center;
+                background-size: 16px 16px;`;
+            removeErrorMessage(this);
+        }
+    });
+    $('#saas-free-product').on('change', function () {
+        if ($(this).val() !== '') {
+            document.querySelector('.select2-selection').style.cssText = `
+                border: 1px solid silver;
+                background-image:null;
+                background-repeat: no-repeat;
+                background-position: right 10px center;
+                background-size: 16px 16px;`;
+            removeErrorMessage(this);
+        }
+    });
     $('#product-configuration').on('submit', function (e) {
 
         const userFields = {

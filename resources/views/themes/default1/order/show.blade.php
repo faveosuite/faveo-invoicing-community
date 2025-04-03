@@ -215,7 +215,7 @@ input:checked + .slider:before {
                                                                <h5 class="modal-title" id="exampleModalLabel">Please Enter Your Domain That You Wish To Host</h5>
                                                            </div>
                                                            <div class="modal-body">
-                                                               <form method="GET" action="{{url('uploadFile')}}">
+                                                               <form method="GET" action="{{url('uploadFile')}}" id="domain_id">
                                                                    {!! csrf_field() !!}
                                                                    <div class="form-group">
                                                                        <label for="recipient-name" class="col-form-label">Domain Name:</label>
@@ -223,11 +223,7 @@ input:checked + .slider:before {
                                                                        {{Form::hidden('orderNo', $order->number)}}
                                                                        {{Form::hidden('userId',$user->id)}}
                                                                        <br>
-{{--                                                                       <div class="modal-footer">--}}
-{{--                                                                           <button type="button" id="close" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>--}}
-{{--                                                                           <button type="submit" id="domainSave" class="done btn btn-primary"><i class="fas fa-save"></i>&nbsp;Done</button>--}}
-{{--                                                                       </div>--}}
-                                                                       <div class="modal-footer">
+                                                                       <div class="modal-footer d-flex justify-content-between">
                                                                            <button type="button" id="close" class="btn btn-default float-start" data-dismiss="modal">
                                                                                <i class="fa fa-times"></i>&nbsp;Close
                                                                            </button>
@@ -789,7 +785,9 @@ input:checked + .slider:before {
 
 
 @section('icheck')
-<script>
+                 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+                 <script>
 
     function checking(e){
           
@@ -799,32 +797,81 @@ input:checked + .slider:before {
 
      $(document).on('click','#bulk_delete',function(){
       var id=[];
-      if (confirm("Are you sure you want to delete this?"))
-        {
-            $('.payment_checkbox:checked').each(function(){
-              id.push($(this).val())
-            });
-            if(id.length >0)
-            {
-               $.ajax({
-                      url:"{!! route('payment-delete') !!}",
-                      method:"delete",
-                      data: $('#check:checked').serialize(),
-                      beforeSend: function () {
-                $('#gif').show();
-                },
-                success: function (data) {
-                $('#gif').hide();
-                $('#response').html(data);
-                location.reload();
-                }
-               })
-            }
-            else
-            {
-                alert("Please select at least one checkbox");
-            }
-        }  
+
+
+         $('.payment_checkbox:checked').each(function(){
+             id.push($(this).val())
+         });
+         if(id.length<=0){
+             swal.fire({
+                 title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
+                 html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
+                     "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
+                     "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_payment')}}</p>" + "</div>" +
+                     "</div>",
+                 position: 'top',
+                 confirmButtonText: "OK",
+                 showCloseButton: true,
+                 confirmButtonColor: "#007bff",
+                 width: "600px",
+             })
+         }
+         else {
+             var swl = swal.fire({
+                 title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Delete')}}</h2>",
+                 html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
+                     "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
+                     "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.payment_details_delete')}}</p>" + "</div>" +
+                     "</div>",
+                 showCancelButton: true,
+                 showCloseButton: true,
+                 position: "top",
+                 width: "600px",
+
+                 confirmButtonText: @json(trans('message.Delete')),
+                 confirmButtonColor: "#007bff",
+
+             }).then((result) => {
+                 if (result.isConfirmed) {
+                     $('.payment_checkbox:checked').each(function(){
+                         id.push($(this).val())
+                     });
+                     if(id.length >0)
+                     {
+                         $.ajax({
+                             url:"{!! route('payment-delete') !!}",
+                             method:"delete",
+                             data: $('#check:checked').serialize(),
+                             beforeSend: function () {
+                                 $('#gif').show();
+                             },
+                             success: function (data) {
+                                 $('#gif').hide();
+                                 $('#response').html(data);
+                                 location.reload();
+                             }
+                         })
+                     } else {
+                         swal.fire({
+                             title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
+                             html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
+                                 "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
+                                 "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_checkbox')}}</p>" + "</div>" +
+                                 "</div>",
+                             position: 'top',
+                             confirmButtonText: "OK",
+                             showCloseButton: true,
+                             confirmButtonColor: "#007bff",
+                             width: "600px",
+                         })
+                     }
+                 } else if (result.dismiss === Swal.DismissReason.cancel) {
+                     // Action if "No" is clicked
+                     window.close();
+                 }
+             })
+             return false;
+         }
 
      });
 </script>
@@ -844,51 +891,55 @@ input:checked + .slider:before {
 <!-----------------------------------For Reissuing License Domain------------------------------------------------------------->
 <script>
 
+    $('#domain_id').on('submit',function(e){
+        const userRequiredFields = {
+            name:@json(trans('message.domain_name')),
+
+        };
+
+        const userFields = {
+            name:$('#recipient-name'),
+
+
+        };
+
+
+        // Clear previous errors
+        Object.values(userFields).forEach(field => {
+            field.removeClass('is-invalid');
+            field.next().next('.error').remove();
+
+        });
+
+        let isValid = true;
+
+        const showError = (field, message) => {
+            field.addClass('is-invalid');
+            field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+        };
+
+        // Validate required fields
+        Object.keys(userFields).forEach(field => {
+            if (!userFields[field].val()) {
+                showError(userFields[field], userRequiredFields[field]);
+                isValid = false;
+            }
+        });
+
+        // If validation fails, prevent form submission
+        if (!isValid) {
+            e.preventDefault();
+        }
+
+    });
+
+
         $("#reissueLic").click(function(){
           if ($('#domainRes').val() == 1) {
             var oldDomainId = $(this).attr('data-id');
             $("#orderId").val(oldDomainId);
             $("#domainModal").modal();
-            $("#domainSave").on('click',function(e){
-
-                    const userRequiredFields = {
-                    name:@json(trans('message.domain_name')),
-
-                };
-
-                    const userFields = {
-                    name:$('#recipient-name'),
-
-
-                };
-
-
-                    // Clear previous errors
-                    Object.values(userFields).forEach(field => {
-                    field.removeClass('is-invalid');
-                    field.next().next('.error').remove();
-
-                });
-
-                    let isValid = true;
-
-                    const showError = (field, message) => {
-                    field.addClass('is-invalid');
-                    field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
-                };
-
-                    // Validate required fields
-                    Object.keys(userFields).forEach(field => {
-                    if (!userFields[field].val()) {
-                    showError(userFields[field], userRequiredFields[field]);
-                    isValid = false;
-                }
-                });
-
-                    // If validation fails, prevent form submission
-                    if (!isValid) {
-                    e.preventDefault();
-                }
+            $("#domainSave").on('click',function(){
 
                  var id = $('#orderId').val();
             $.ajax ({
@@ -1130,7 +1181,7 @@ input:checked + .slider:before {
         });
 
  //When Submit Button is Clicked in Modal Popup, passvalue through Ajax
-    $("#installLimitSave").on('click',function(e){
+    $("#installLimitSave").on('click',function(){
 
         const userRequiredFields = {
             name:@json(trans('message.limit_number')),

@@ -270,8 +270,8 @@ Create User
                     <div class="col-md-3 form-group {{ $errors->has('zip') ? 'has-error' : '' }}">
                         <!-- mobile -->
                         {!! Form::label('zip',Lang::get('message.zip')) !!}
-                        {!! Form::text('zip',null,['class' => 'form-control'.($errors->has('zip') ? ' is-invalid' : '')]) !!}
-
+                        {!! Form::text('zip',null,['class' => 'form-control'.($errors->has('zip') ? ' is-invalid' : ''),'id'=>'zip1']) !!}
+                        <span id="zip-error-msg"></span>
                     </div>
                     <div class="col-md-3 form-group {{ $errors->has('timezone_id') ? 'has-error' : '' }}">
                         <!-- mobile -->
@@ -473,6 +473,25 @@ Create User
                     isValid = false;
                 }
             }
+            var zip=$('#zip1');
+            ziperrorMsg = document.querySelector("#zip-error-msg");
+
+            if(zip.val()!==''){
+                if(!zipRegex(zip.val())){
+                    e.preventDefault();
+                    ziperrorMsg.innerHTML = @json(trans('message.valid_zip'));
+
+                    $('#zip1').addClass('is-invalid');
+                    $('#zip1').css("border-color", "#dc3545");
+                    $('#zip-error-msg').css({
+                        "width": "100%",
+                        "margin-top": ".25rem",
+                        "font-size": "80%",
+                        "color": "#dc3545"
+                    });
+                }
+            }
+
 
             if(telInput.val()===''){
                 errorMsg.classList.remove("hide");
@@ -497,6 +516,17 @@ Create User
             }
         };
 
+        document.getElementById("zip1").addEventListener('input',function(){
+            ziperrorMsg = document.querySelector("#zip-error-msg");
+            $('#zip1').removeClass('is-invalid');
+            $('#zip1').css("border-color", "silver");
+            ziperrorMsg.innerHTML = '';
+        });
+
+    function zipRegex(val) {
+        var re = /^[a-zA-Z0-9]+$/;
+        return re.test(val);
+    }
         // Add input event listeners for all fields
         ['first_name','last_name','email','company','user_name','address','mobile_code','country','timezone_id'].forEach(id => {
 

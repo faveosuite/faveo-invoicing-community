@@ -692,7 +692,7 @@ System Setting
             var zip=$('#zip1');
             ziperrorMsg = document.querySelector("#zip-error-msg");
 
-            if(zip!==''){
+            if(zip.val()!==''){
                 if(!zipRegex(zip.val())){
                     e.preventDefault();
                     ziperrorMsg.innerHTML = @json(trans('message.valid_zip'));
@@ -948,6 +948,13 @@ System Setting
             preview.src = originalSrc;
         }
     }
+
+        document.getElementById("zip1").addEventListener('input',function(){
+            ziperrorMsg = document.querySelector("#zip-error-msg");
+            $('#zip1').removeClass('is-invalid');
+            $('#zip1').css("border-color", "silver");
+            ziperrorMsg.innerHTML = '';
+        });
 </script>
 
 

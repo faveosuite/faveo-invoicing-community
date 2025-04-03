@@ -51,7 +51,7 @@ Renew
                    <div class="col-md-4 form-group {{ $errors->has('payment_method') ? 'has-error' : '' }}">
                         <!-- last name -->
                         {!! Form::label('payment_method',Lang::get('message.payment-method'),['class'=>'required']) !!}
-                        {!! Form::select('payment_method',[''=>'Choose','cash'=>'Cash','check'=>'Check','online payment'=>'Online Payment','razorpay'=>'Razorpay','stripe'=>'Stripe'],null,['class' => 'form-control']) !!}
+                        {!! Form::select('payment_method',[''=>'Choose','cash'=>'Cash','check'=>'Check','online payment'=>'Online Payment','razorpay'=>'Razorpay','stripe'=>'Stripe'],null,['class' => 'form-control','id'=>'payment_method']) !!}
 
                     </div>
                      <div class="col-md-4 form-group {{ $errors->has('cost') ? 'has-error' : '' }}">
@@ -175,6 +175,68 @@ Renew
          var selectedPlanId = document.getElementsByName('plan')[0].value;
          fetchPlanCost(selectedPlanId);
      });
+
+     $(document).ready(function() {
+         const userRequiredFields = {
+             planname:@json(trans('message.renew_plan')),
+             planproduct:@json(trans('message.renew_price')),
+             regular_price:@json(trans('message.renew_payment_methos')),
+         };
+
+         $('#submit').on('click', function (e) {
+             const userFields = {
+                 planname:$('#plan'),
+                 planproduct:$('#price'),
+                 regular_price:$('#payment_method'),
+             };
+
+
+             // Clear previous errors
+             Object.values(userFields).forEach(field => {
+                 field.removeClass('is-invalid');
+                 field.next().next('.error').remove();
+
+             });
+
+             let isValid = true;
+
+             const showError = (field, message) => {
+                 field.addClass('is-invalid');
+                 field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+             };
+
+             // Validate required fields
+             Object.keys(userFields).forEach(field => {
+                 if (!userFields[field].val()) {
+                     showError(userFields[field], userRequiredFields[field]);
+                     isValid = false;
+                 }
+             });
+
+             // If validation fails, prevent form submission
+             if (!isValid) {
+                 e.preventDefault();
+             }
+         });
+         // Function to remove error when input'id' => 'changePasswordForm'ng data
+         const removeErrorMessage = (field) => {
+             field.classList.remove('is-invalid');
+             const error = field.nextElementSibling;
+             if (error && error.classList.contains('error')) {
+                 error.remove();
+             }
+         };
+
+         // Add input event listeners for all fields
+         ['plan','price','payment_method'].forEach(id => {
+
+             document.getElementById(id).addEventListener('input', function () {
+                 removeErrorMessage(this);
+
+             });
+         });
+     });
+
 
  </script>
 @stop

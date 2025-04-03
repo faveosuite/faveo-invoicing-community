@@ -154,12 +154,13 @@
 
                         <td>
                           <div class="{{ ($row['country_id'] != 0) ? 'input-group' : '' }}">
-                            <input type="number" class="form-control {{$errors->has('renew_price') ? ' is-invalid' : ''}}" name="renew_price[{{ $row['id'] }}]" value="{{ $row['renew_price'] }}" id="renew_price"> &nbsp;&nbsp;
+                            <input type="number" class="form-control {{$errors->has('renew_price') ? ' is-invalid' : ''}}" name="renew_price[{{ $row['id'] }}]" value="{{ $row['renew_price'] }}" id="renew_price">
+                            <div class="input-group-append">
+                            </div>&nbsp;&nbsp;
                             @error('renew_price')
                             <span class="error-message"> {{$message}}</span>
                             @enderror
-                            <div class="input-group-append">
-                            </div>
+
                             @if($row['country_id'] != 0)
                               <span class="input-group-text btn_remove" id="{{$loop->iteration}}"><i class="fa fa-minus"></i></span>
 
@@ -349,7 +350,7 @@
         $('#dynamic_table tr:last').after(`
         <tr id="row` + i + `">
           <td>
-            <select name="country_id[]" class="form-control selectpicker" >
+            <select name="country_id[]" class="form-control selectpicker" id="country" >
               <option value="" selected disabled>Choose Country</option>
               @foreach ($countries as $country)
                 <option value="{{$country['country_id']}}">
@@ -360,7 +361,7 @@
           </td>
 
           <td>
-            <select name="currency[]" class="form-control">
+            <select name="currency[]" class="form-control" id="currency">
             <option value="">
               Choose
             </option>
@@ -373,15 +374,15 @@
           </td>
 
           <td>
-            <input type="text" class="form-control" name="add_price[]">
+            <input type="number" class="form-control" name="add_price[]" id="regular_price">
           </td>
           <td>
-            <input type="text" class="form-control" name="offer_price[]">
+            <input type="number" class="form-control" name="offer_price[]">
           </td>
 
           <td>
             <div class="input-group">
-              <input type="text" class="form-control" name="renew_price[]">&nbsp;&nbsp;
+              <input type="number" class="form-control" name="renew_price[]" id="renew_price">&nbsp;&nbsp;
               <button id="` + i + `" class="input-group-text btn_remove"><i class="fa fa-minus"></i></button>
             </div>
           </td>

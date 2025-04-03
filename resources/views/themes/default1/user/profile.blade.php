@@ -474,11 +474,10 @@ input:checked + .slider:before {
         var zip=$('#zip1');
         ziperrorMsg = document.querySelector("#zip-error-msg");
 
-        if(zip!==''){
+        if(zip.val()!=''){
             if(!zipRegex(zip.val())){
-                e.preventDefault();
                 ziperrorMsg.innerHTML = @json(trans('message.valid_zip'));
-
+                e.preventDefault();
                 $('#zip1').addClass('is-invalid');
                 $('#zip1').css("border-color", "#dc3545");
                 $('#zip-error-msg').css({
@@ -490,6 +489,14 @@ input:checked + .slider:before {
             }
         }
     })
+
+    document.getElementById("zip1").addEventListener('input',function(){
+        ziperrorMsg = document.querySelector("#zip-error-msg");
+        $('#zip1').removeClass('is-invalid');
+        $('#zip1').css("border-color", "silver");
+        ziperrorMsg.innerHTML = '';
+    });
+
     function zipRegex(val) {
         var re = /^[a-zA-Z0-9]+$/;
         return re.test(val);
@@ -600,12 +607,14 @@ input:checked + .slider:before {
             };
 
             // Add input event listeners for all fields
-            ['first_name','last_name','email','company','user_name','address','mobile'].forEach(id => {
+            ['first_name','last_name','email','company','user_name','address','mobile','zip1'].forEach(id => {
                 document.getElementById(id).addEventListener('input', function () {
                     removeErrorMessage(this);
 
             });
         });
+
+
 
 
         function validName(string){
@@ -755,11 +764,13 @@ input:checked + .slider:before {
              $('.select2').select2()
          });
     var country = $('#country').val();
-    if(country == 'IN') {
-        $('#gstin').show()
-    } else {
-        $('#gstin').hide();
-    }
+    window.onload = function () {
+             if (country === 'IN') {
+                 $('#gstin').show();
+             } else {
+                 $('#gstin').hide();
+             }
+         };
     getCode(country);
     var telInput = $('#mobile_code');
     addressDropdown = $("#country");
@@ -772,10 +783,8 @@ input:checked + .slider:before {
     };
 
          $('#submit').on('click',function(e) {
-             console.log(44);
              if(telInput.val()===''){
                  e.preventDefault();
-                 console.log(55);
                  errorMsg.classList.remove("hide");
                  errorMsg.innerHTML = @json(trans('message.user_edit_details.add_phone_number'));
                  $('#mobile_code').addClass('is-invalid');

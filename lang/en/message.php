@@ -1136,4 +1136,9 @@ return [
     'agents'=>'Please enter number of agents.',
     'domain_name'=>'Please enter a valid domain name.',
     'limit_number'=>'Please enter installation limit.',
+    'renew_plan'=>'Please enter a valid plan.',
+    'renew_price'=>'Please enter a price.',
+    'renew_payment_method'=>'Please select a payment method.',
+    'payment_details_delete'=>'Are you sure you want to delete this payment detail.?',
+    'sweet_payment'=>'Please select at least one payment detail.',
 ];
