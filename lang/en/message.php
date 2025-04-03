@@ -894,8 +894,8 @@ return [
     'tax_delete' => 'Are you sure you want to delete this tax record?',
     'widget_delete' => 'Are you sure you want to delete this widget?',
     'script_delete' => 'Are you sure you want to delete this script?',
-    'comment_delete'=>'Are you sure you want to delete this comment?',
-    'payment_delete'=>'Are you sure you want to delete this payment detail.?',
+    'comment_delete' => 'Are you sure you want to delete this comment?',
+    'payment_delete' => 'Are you sure you want to delete this payment detail.?',
     'Delete' => 'Delete',
     'Select' => 'Select',
     'Yes' => 'Yes',
@@ -923,7 +923,7 @@ return [
     'state_field_required' => 'The State field is required when India is selected as the country.',
     'user_delete' => 'Are you sure? Deleting user permanently will delete all invoices, orders, subscriptions and comments related to the user.',
     'license_type' => 'Are you sure you want to delete this? All the Products and Permissions related to this License Type would be deleted',
-      'central_domain' => 'Please enter domain name(https://example.com).',
+    'central_domain' => 'Please enter domain name(https://example.com).',
     'cloud_name' => 'Please enter cloud cname(example.com)',
     'cloud_popup' => 'Please provide cloud popup heading.',
     'cloud_label' => 'Please provide label for domain.',
@@ -1002,7 +1002,6 @@ return [
     'cloud-error-message' => 'Please enter cloud domain.',
     'agents-error-message' => 'Please enter number of agents.',
     'quantity-error-message' => 'Please enter quantity.',
-
 
     'user_edit_details' => [
         'add_first_name' => 'Please enter a first name.',
@@ -1118,6 +1117,5 @@ return [
         'name' => 'Please enter a valid name.',
         'link' => 'Please enter a valid link(https://example.com).',
     ],
-
 
 ];
