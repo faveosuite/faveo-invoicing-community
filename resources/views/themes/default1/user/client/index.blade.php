@@ -568,61 +568,81 @@ $(document).ready(function() {
      }
 
 
-     $(document).on('click','#bulk_delete',function(){
+     $(document).on('click','#bulk_delete',function(e){
       var id=[];
-     var swl=swal.fire({
-             title:"<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Suspend')}}</h2>",
-             html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
-                   "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
-                   "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.user_sweet_suspend')}}</p>"+"</div>" +
-                   "</div>",
-             showCancelButton: true,
-             showCloseButton: true,
-             position:"top",
-             width:"600px",
+         $('.user_checkbox:checked').each(function () {
+             id.push($(this).val())
+         });
+      if(id.length<=0){
+          e.preventDefault();
+          swal.fire({
+              title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
+              html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
+                  "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
+                  "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_checkbox')}}</p>" + "</div>" +
+                  "</div>",
+              position: 'top',
+              confirmButtonText: "OK",
+              showCloseButton: true,
+              confirmButtonColor: "#007bff",
+              width: "600px",
+          })
+      }
+      else {
+          var swl = swal.fire({
+              title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Suspend')}}</h2>",
+              html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
+                  "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
+                  "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.user_sweet_suspend')}}</p>" + "</div>" +
+                  "</div>",
+              showCancelButton: true,
+              showCloseButton: true,
+              position: "top",
+              width: "600px",
 
-         confirmButtonText: @json(trans('message.Suspend')),
-         confirmButtonColor: "#007bff",
+              confirmButtonText: @json(trans('message.Suspend')),
+              confirmButtonColor: "#007bff",
 
-     }).then((result)=> {
-             if (result.isConfirmed) {
-                 $('.user_checkbox:checked').each(function () {
-                     id.push($(this).val())
-                 });
-                 if (id.length > 0) {
-                     $.ajax({
-                         url: "{!! Url('clients-delete') !!}",
-                         method: "delete",
-                         data: $('#check:checked').serialize(),
-                         beforeSend: function () {
-                             '<div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>'
-                         },
-                         success: function (data) {
-                             $('#gif').html('');
-                             $('#response').html(data);
-                             location.reload();
-                         }
-                     })
-                 } else {
-                     swal.fire({
-                         title:"<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
-                         html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
-                             "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
-                             "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_checkbox')}}</p>"+"</div>" +
-                             "</div>",
-                         position: 'top',
-                         confirmButtonText: "OK",
-                         showCloseButton: true,
-                         confirmButtonColor: "#007bff",
-                         width:"600px",
-                     })
-                 }
-             }else if (result.dismiss === Swal.DismissReason.cancel) {
-                 // Action if "No" is clicked
-                 window.close();             }
-         })
-        return false;
-
+          }).then((result) => {
+              if (result.isConfirmed) {
+                  $('.user_checkbox:checked').each(function () {
+                      id.push($(this).val())
+                  });
+                  if (id.length > 0) {
+                      $.ajax({
+                          url: "{!! Url('clients-delete') !!}",
+                          method: "delete",
+                          data: $('#check:checked').serialize(),
+                          beforeSend: function () {
+                              '<div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>'
+                          },
+                          success: function (data) {
+                              $('#gif').html('');
+                              $('#response').html(data);
+                              location.reload();
+                          }
+                      })
+                  } else {
+                      swal.fire({
+                          title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
+                          html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
+                              "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
+                              "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_checkbox')}}</p>" + "</div>" +
+                              "</div>",
+                          position: 'top',
+                          confirmButtonText: "OK",
+                          showCloseButton: true,
+                          confirmButtonColor: "#007bff",
+                          width: "600px",
+                      })
+                  }
+              } else if (result.dismiss === Swal.DismissReason.cancel) {
+                  // Action if "No" is clicked
+                  window.close();
+              }
+          })
+          return false;
+      }
      });
  </script>
  @stop

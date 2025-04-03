@@ -219,13 +219,21 @@ input:checked + .slider:before {
                                                                    {!! csrf_field() !!}
                                                                    <div class="form-group">
                                                                        <label for="recipient-name" class="col-form-label">Domain Name:</label>
-                                                                       <input type="text" class="form-control" id="recipient-name" placeholder="https://faveohelpdesk.com/public" name="domain" value="" required>
+                                                                       <input type="text" class="form-control" id="recipient-name" placeholder="https://faveohelpdesk.com/public" name="domain" value="">
                                                                        {{Form::hidden('orderNo', $order->number)}}
                                                                        {{Form::hidden('userId',$user->id)}}
                                                                        <br>
+{{--                                                                       <div class="modal-footer">--}}
+{{--                                                                           <button type="button" id="close" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>--}}
+{{--                                                                           <button type="submit" id="domainSave" class="done btn btn-primary"><i class="fas fa-save"></i>&nbsp;Done</button>--}}
+{{--                                                                       </div>--}}
                                                                        <div class="modal-footer">
-                                                                           <button type="button" id="close" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
-                                                                           <button type="submit" id="domainSave" class="done btn btn-primary"><i class="fas fa-save"></i>&nbsp;Done</button>
+                                                                           <button type="button" id="close" class="btn btn-default float-start" data-dismiss="modal">
+                                                                               <i class="fa fa-times"></i>&nbsp;Close
+                                                                           </button>
+                                                                           <button type="submit" id="domainSave" class="done btn btn-primary float-end">
+                                                                               <i class="fas fa-save"></i>&nbsp;Done
+                                                                           </button>
                                                                        </div>
                                                                    </div>
                                                                </form>
@@ -655,6 +663,7 @@ input:checked + .slider:before {
           </div>
         </div>
         </div>
+
 <script>
 
     $(document).ready(function(){
@@ -672,6 +681,23 @@ input:checked + .slider:before {
 <script type="text/javascript">
 
         $(document).ready(function(){
+            // Function to remove error when input'id' => 'changePasswordForm'ng data
+            const removeErrorMessage = (field) => {
+                field.classList.remove('is-invalid');
+                const error = field.nextElementSibling;
+                if (error && error.classList.contains('error')) {
+                    error.remove();
+                }
+            };
+
+            // Add input event listeners for all fields
+            ['recipient-name','limitnumber'].forEach(id => {
+
+                document.getElementById(id).addEventListener('input', function () {
+                    removeErrorMessage(this);
+
+                });
+            });
          var status = $('.renewcheckbox').val();
          if(status ==1) {
          $('#renew').prop('checked',true)
@@ -817,13 +843,54 @@ input:checked + .slider:before {
     </script>
 <!-----------------------------------For Reissuing License Domain------------------------------------------------------------->
 <script>
+
         $("#reissueLic").click(function(){
           if ($('#domainRes').val() == 1) {
             var oldDomainId = $(this).attr('data-id');
             $("#orderId").val(oldDomainId);
             $("#domainModal").modal();
-            $("#domainSave").on('click',function(){
-            var id = $('#orderId').val();
+            $("#domainSave").on('click',function(e){
+
+                    const userRequiredFields = {
+                    name:@json(trans('message.domain_name')),
+
+                };
+
+                    const userFields = {
+                    name:$('#recipient-name'),
+
+
+                };
+
+
+                    // Clear previous errors
+                    Object.values(userFields).forEach(field => {
+                    field.removeClass('is-invalid');
+                    field.next().next('.error').remove();
+
+                });
+
+                    let isValid = true;
+
+                    const showError = (field, message) => {
+                    field.addClass('is-invalid');
+                    field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+                };
+
+                    // Validate required fields
+                    Object.keys(userFields).forEach(field => {
+                    if (!userFields[field].val()) {
+                    showError(userFields[field], userRequiredFields[field]);
+                    isValid = false;
+                }
+                });
+
+                    // If validation fails, prevent form submission
+                    if (!isValid) {
+                    e.preventDefault();
+                }
+
+                 var id = $('#orderId').val();
             $.ajax ({
                 type: 'patch',
                 url : "{{url('reissue-license')}}",
@@ -1063,7 +1130,45 @@ input:checked + .slider:before {
         });
 
  //When Submit Button is Clicked in Modal Popup, passvalue through Ajax
-    $("#installLimitSave").on('click',function(){
+    $("#installLimitSave").on('click',function(e){
+
+        const userRequiredFields = {
+            name:@json(trans('message.limit_number')),
+
+        };
+
+        const userFields = {
+            name:$('#limitnumber'),
+        };
+
+
+        // Clear previous errors
+        Object.values(userFields).forEach(field => {
+            field.removeClass('is-invalid');
+            field.next().next('.error').remove();
+
+        });
+
+        let isValid = true;
+
+        const showError = (field, message) => {
+            field.addClass('is-invalid');
+            field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+        };
+
+        // Validate required fields
+        Object.keys(userFields).forEach(field => {
+            if (!userFields[field].val()) {
+                showError(userFields[field], userRequiredFields[field]);
+                isValid = false;
+            }
+        });
+
+        // If validation fails, prevent form submission
+        if (!isValid) {
+            e.preventDefault();
+        }
+
         var newlimit = $("#limitnumber").val();
         var orderId = $("#order5").val();
         $.ajax({

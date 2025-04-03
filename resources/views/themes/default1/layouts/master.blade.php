@@ -173,6 +173,13 @@
             left: auto !important;
         }
 
+        /* Centering the 'No results found' message */
+        .select2-results .select2-results__message {
+            text-align: center;
+            padding: 10px;
+            font-size: 14px;
+        }
+
     </style>
     <?php
     $set = new \App\Model\Common\Setting();

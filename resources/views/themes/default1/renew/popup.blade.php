@@ -75,9 +75,9 @@
                                                     <label class="form-label">Plans <span class="text-danger"> *</span></label>
                                                     <div class="custom-select-1">
                                                             @if($agents == 'Unlimited')
-                                                                {!! Form::select('plan',['' => 'Select'] + $plans, null, ['class' => 'form-control plan-dropdown', 'onchange' => 'fetchPlanCost(this.value)',]) !!}
+                                                                {!! Form::select('plan',['' => 'Select'] + $plans, null, ['class' => 'form-control plan-dropdown', 'onchange' => 'fetchPlanCost(this.value)','id'=>'plan']) !!}
                                                             @else
-                                                                {!! Form::select('plan',['' => 'Select'] + $plans, null, ['class' => 'form-control plan-dropdown', 'onchange' => 'fetchPlanCost(this.value, ' . $agents . ')',]) !!}
+                                                                {!! Form::select('plan',['' => 'Select'] + $plans, null, ['class' => 'form-control plan-dropdown', 'onchange' => 'fetchPlanCost(this.value, ' . $agents . ')','id'=>'plan']) !!}
                                                             @endif
                                                             {!! Form::hidden('user',$userid) !!}
                                                     </div>
@@ -89,7 +89,7 @@
                                                 <div class="form-group col">
                                                     <label class="form-label">Agents <span class="text-danger"> *</span></label>
                                                     <div class="custom-select-1">
-                                                         {!! Form::number('agents', $agents, ['class' => 'form-control agents', 'id' => 'agents','min' => '1', 'placeholder' => '']) !!}
+                                                         {!! Form::number('agents', $agents, ['class' => 'form-control agents', 'id' => 'agents','min' => '1', 'placeholder' => '',]) !!}
                                                     </div>
                                                 </div>
                                             </div>
@@ -120,6 +120,65 @@
                         </div>
   
 <script>
+    const userRequiredFields = {
+        planname:@json(trans('message.plan_renew')),
+        planproduct:@json(trans('message.agents')),
+
+    };
+
+    $('#saveRenew').on('click', function (e) {
+        const userFields = {
+            planname:$('#plan'),
+            planproduct:$('#agents'),
+        };
+
+
+        // Clear previous errors
+        Object.values(userFields).forEach(field => {
+            field.removeClass('is-invalid');
+            field.next().next('.error').remove();
+
+        });
+
+        let isValid = true;
+
+        const showError = (field, message) => {
+            field.addClass('is-invalid');
+            field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+        };
+
+        // Validate required fields
+        Object.keys(userFields).forEach(field => {
+            if (!userFields[field].val()) {
+                showError(userFields[field], userRequiredFields[field]);
+                isValid = false;
+            }
+        });
+
+
+        // If validation fails, prevent form submission
+        if (!isValid) {
+            e.preventDefault();
+        }
+    });
+    // Function to remove error when input'id' => 'changePasswordForm'ng data
+    const removeErrorMessage = (field) => {
+        field.classList.remove('is-invalid');
+        const error = field.nextElementSibling;
+        if (error && error.classList.contains('error')) {
+            error.remove();
+        }
+    };
+
+    // Add input event listeners for all fields
+    ['planname','planproduct','country','currency','renew_prices','plandays','regular_prices'].forEach(id => {
+
+        document.getElementById(id).addEventListener('input', function () {
+            removeErrorMessage(this);
+
+        });
+    });
+
 
 
         $('.closebutton').on('click', function () {

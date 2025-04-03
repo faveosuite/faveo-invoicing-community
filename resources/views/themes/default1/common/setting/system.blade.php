@@ -178,7 +178,8 @@ System Setting
                             <div class="form-group {{ $errors->has('zip') ? 'has-error' : '' }}">
 
 
-                                {!! Form::text('zip',null,['class' => 'form-control'.($errors->has('zip') ? ' is-invalid' : '')]) !!}
+                                {!! Form::text('zip',null,['class' => 'form-control'.($errors->has('zip') ? ' is-invalid' : ''),'id'=>'zip1']) !!}
+                                <span id="zip-error-msg"></span>
                                 @error('zip')
                                 <span class="error-message"> {{$message}}</span>
                                 @enderror
@@ -269,7 +270,7 @@ System Setting
 
                                  <td>
                                      
-                                    {!! Form::text('gstin',null,['class' => 'form-control'.($errors->has('gstin') ? ' is-invalid' : ''),'id'=>'gstin']) !!}
+                                    {!! Form::number('gstin',null,['class' => 'form-control'.($errors->has('gstin') ? ' is-invalid' : ''),'id'=>'gstin']) !!}
                                      <span class="hide" id="gst-error-msg"></span>
                                      @error('gstin')
                                      <span class="error-message"> {{$message}}</span>
@@ -630,9 +631,7 @@ System Setting
     validMsg = document.querySelector("#valid-msg");
 
     var url=$('#knowledge_base_url');
-    var gstin=$('#gstin');
     urlerrorMsg = document.querySelector("#url-error-msg");
-    gstinerrorMsg=document.querySelector("#gst-error-msg");
         var reset = function() {
       errorMsg.innerHTML = "";
       errorMsg.classList.add("hide");
@@ -671,9 +670,11 @@ System Setting
 
                 }
             }
+            gstinerrorMsg=document.querySelector("#gst-error-msg");
+            var gstin=$('#gstin');
 
             if(gstin.val()!==''){
-                if(gstin.val().length>15){
+                if(gstin.val().length!=15 ){
                     e.preventDefault();
                     gstinerrorMsg.innerHTML = @json(trans('message.valid_gst_number'));
                     $('#gstin').addClass('is-invalid');
@@ -686,8 +687,31 @@ System Setting
                     });
                 }
             }
-        });
 
+
+            var zip=$('#zip1');
+            ziperrorMsg = document.querySelector("#zip-error-msg");
+
+            if(zip!==''){
+                if(!zipRegex(zip.val())){
+                    e.preventDefault();
+                    ziperrorMsg.innerHTML = @json(trans('message.valid_zip'));
+
+                    $('#zip1').addClass('is-invalid');
+                    $('#zip1').css("border-color", "#dc3545");
+                    $('#zip-error-msg').css({
+                        "width": "100%",
+                        "margin-top": ".25rem",
+                        "font-size": "80%",
+                        "color": "#dc3545"
+                    });
+                }
+            }
+        });
+        function zipRegex(val) {
+            var re = /^[a-zA-Z0-9]+$/;
+            return re.test(val);
+        }
     telInput.on('input blur submit', function () {
       reset();
         if ($.trim(telInput.val())) {

@@ -382,7 +382,7 @@
           <td>
             <div class="input-group">
               <input type="text" class="form-control" name="renew_price[]">&nbsp;&nbsp;
-              <span id="` + i + `" class="input-group-text btn_remove"><i class="fa fa-minus"></i></span>
+              <button id="` + i + `" class="input-group-text btn_remove"><i class="fa fa-minus"></i></button>
             </div>
           </td>
 

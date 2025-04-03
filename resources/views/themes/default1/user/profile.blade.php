@@ -64,6 +64,13 @@ input:checked + .slider:before {
     overflow:scroll;
     height:600px;
 }
+
+.system-error {
+    display: block;
+    margin-top: 5px; /* Adds spacing between file input and error message */
+    color: #dc3545; /* Bootstrap's danger color for errors */
+    font-size: 0.875em; /* Slightly smaller font size */
+}
 </style>
 
     <div class="col-sm-6">
@@ -257,7 +264,8 @@ input:checked + .slider:before {
                 <div class="col-md-6 form-group {{ $errors->has('zip') ? 'has-error' : '' }}">
                     <!-- mobile -->
                     {!! Form::label('zip',null,Lang::get('message.zip')) !!}
-                    {!! Form::text('zip',null,['class' => 'form-control'. ($errors->has('zip') ? ' is-invalid' : '')]) !!}
+                    {!! Form::text('zip',null,['class' => 'form-control'. ($errors->has('zip') ? ' is-invalid' : ''),'id'=>'zip1']) !!}
+                    <span id="zip-error-msg"></span>
                     @error('zip')
                     <span class="error-message"> {{$message}}</span>
                     @enderror
@@ -266,7 +274,8 @@ input:checked + .slider:before {
                 <div class="col-md-6 form-group" id= "gstin">
                     <!-- mobile -->
                     {!! Form::label('GSTIN',null,'GSTIN') !!}
-                    {!! Form::text('gstin',null,['class' => 'form-control'. ($errors->has('gstin') ? ' is-invalid' : '')]) !!}
+                    {!! Form::number('gstin',null,['class' => 'form-control'. ($errors->has('gstin') ? ' is-invalid' : ''),'id'=>'gstin1']) !!}
+                    <span id="gst-error-msg"></span>
                     @error('gstin')
                     <span class="error-message"> {{$message}}</span>
                     @enderror
@@ -276,7 +285,12 @@ input:checked + .slider:before {
                 <div class="form-group {{ $errors->has('profile_pic') ? 'has-error' : '' }}">
                     <!-- profile pic -->
                     {!! Form::label('profile_pic',Lang::get('message.profile-picture')) !!}
-                    {!! Form::file('profile_pic') !!}
+
+                    <div class="input-group">
+                    {!! Form::file('profile_pic',['id'=>'profile_pic']) !!}
+                    </div>
+                    <span class="system-error" id="profilepic-err-Msg"></span>
+
                     <br>
 
                        <?php
@@ -285,6 +299,7 @@ input:checked + .slider:before {
                         <img src="{{ Auth::user()->profile_pic }}" class="img-thumbnail" style="height: 50px;">
 
                 </div>
+
                 <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Updating..."><i class="fas fa-sync">&nbsp;&nbsp;</i>{!!Lang::get('message.update')!!}</button></h4>
 
                 {!! Form::token() !!}
@@ -438,7 +453,78 @@ input:checked + .slider:before {
 {!! Form::close() !!}
 <script src="{{asset('common/js/2fa.js')}}"></script>
 <script>
+    $('#submit').on('click',function(e) {
+        var gstin = $('#gstin1');
+        gstinerrorMsg = document.querySelector("#gst-error-msg");
+        if (gstin.val() !== '') {
+            if (gstin.val().length != 15) {
+                e.preventDefault();
+                gstinerrorMsg.innerHTML = @json(trans('message.valid_gst_number'));
+                $('#gstin1').addClass('is-invalid');
+                $('#gstin1').css("border-color", "#dc3545");
+                $('#gst-error-msg').css({
+                    "width": "100%",
+                    "margin-top": ".25rem",
+                    "font-size": "80%",
+                    "color": "#dc3545"
+                });
+            }
+        }
+
+        var zip=$('#zip1');
+        ziperrorMsg = document.querySelector("#zip-error-msg");
+
+        if(zip!==''){
+            if(!zipRegex(zip.val())){
+                e.preventDefault();
+                ziperrorMsg.innerHTML = @json(trans('message.valid_zip'));
+
+                $('#zip1').addClass('is-invalid');
+                $('#zip1').css("border-color", "#dc3545");
+                $('#zip-error-msg').css({
+                    "width": "100%",
+                    "margin-top": ".25rem",
+                    "font-size": "80%",
+                    "color": "#dc3545"
+                });
+            }
+        }
+    })
+    function zipRegex(val) {
+        var re = /^[a-zA-Z0-9]+$/;
+        return re.test(val);
+    }
     $(document).ready(function() {
+        var fup = document.getElementById('profile_pic');
+        var errMsg=document.getElementById('profilepic-err-Msg');
+        $('#profile_pic').on('change',function(e){
+
+            var fileName = fup.value;
+            var filesize=e.target.files[0];
+            var ext = fileName.substring(fileName.lastIndexOf('.') + 1);
+            const maxSize = 2 * 1024 * 1024;
+            console.log(filesize.size);
+            console.log(maxSize);
+            if(filesize.size>maxSize){
+                errMsg.innerText=@json(trans('message.image_invalid_size'));
+                e.preventDefault();
+                return false;
+            }
+            if(ext !=="jpeg" || ext!=="jpg" || ext!=='png') {
+
+                errMsg.innerText=@json(trans('message.image_invalid_message'));
+                e.preventDefault();
+                return false;
+            }else if(filesize.size>maxSize){
+                errMsg.innerText=@json(trans('message.image_invalid_size'));
+                e.preventDefault();
+                return false;
+            }else {
+                errMsg.innerText='';
+                return true;
+            }
+        });
+
         const userRequiredFields = {
             first_name:@json(trans('message.user_edit_details.add_first_name')),
             last_name:@json(trans('message.user_edit_details.add_last_name')),

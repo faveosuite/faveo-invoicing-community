@@ -754,7 +754,7 @@
             }
         }
     </script>
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         $(document).ready(function () {
             var map = L.map('map', {
@@ -848,9 +848,23 @@
 
         function popProduct(id) {
             var id = id;
-            if (confirm("Are you sure you want to destroy this product configuration?")) {
-                var loadingElement = document.getElementById("loading");
-                loadingElement.style.display = "flex";
+    var swl=swal.fire({
+        title:"<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Delete')}}</h2>",
+        html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
+            "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
+            "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.cloud_delete')}}</p>"+"</div>" +
+            "</div>",
+        showCancelButton: true,
+        showCloseButton: true,
+        position:"top",
+        width:"600px",
+
+        confirmButtonText: @json(trans('message.Delete')),
+        confirmButtonColor: "#007bff",
+
+    }).then((result)=> {
+        if (result.isConfirmed) {
+            if (id.length > 0) {
                 $.ajax({
                     url: "{!! url('delete-cloud-product') !!}",
                     method: "delete",
@@ -886,278 +900,297 @@
                             location.reload();
                         }, 10000);
                     },
-                    complete: function () {
-                        loadingElement.style.display = "none"; // Hide the loading indicator
-                    }
+                    // complete: function () {
+                    //     loadingElement.style.display = "none"; // Hide the loading indicator
+                    // }
                 });
+            } else {
+                swal.fire({
+                    title:"<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
+                    html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
+                        "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
+                        "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_checkbox')}}</p>"+"</div>" +
+                        "</div>",
+                    position: 'top',
+                    confirmButtonText: "OK",
+                    showCloseButton: true,
+                    confirmButtonColor: "#007bff",
+                    width:"600px",
+                })
             }
+        }else if (result.dismiss === Swal.DismissReason.cancel) {
+            // Action if "No" is clicked
+            window.close();             }
+    })
+    return false;
+
+}
+
+$(document).ready(function () {
+    // Listen for changes in the country dropdown
+    $('#cloud_countries').change(function () {
+        var country = $(this).val();
+
+        // Make an AJAX request to fetch states based on the selected country
+        $.ajax({
+            url: "{{ url('get-state') }}/" + country + "?country_id=" + country,
+            type: 'GET',
+            success: function (data) {
+                console.log(data);
+                // Update the state dropdown with the retrieved states
+                $('#cloud_state').empty();
+                    $('#cloud_state').append(data);
+            },
+            error: function (xhr, status, error) {
+                console.error(error);
+            }
+        });
+    });
+});
+
+$(document).ready(function () {
+    // Add an id to the country dropdown
+    $(function () {
+        //Initialize Select2 Elements
+        $('.select2').select2()
+    });
+});
+
+
+</script>
+<script>
+$(document).ready(function () {
+    function isValidURL(url) {
+        const pattern = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w-]*)*$/;
+        return pattern.test(url);
+    }
+    const userRequiredFields = {
+        cloud_central_domain:@json(trans('message.central_domain')),
+        cloud_cname:@json(trans('message.cloud_name')),
+        cloud_top_message:@json(trans('message.cloud_popup')),
+        cloud_label_field:@json(trans('message.cloud_label')),
+        cloud_label_radio:@json(trans('message.cloud_radio')),
+        saas_product:@json(trans('message.saas_product')),
+        saas_free_product:@json(trans('message.saas_free_product')),
+        saas_product_key:@json(trans('message.saas_product_key')),
+        cloud_state:@json(trans('message.cloud_hub_state')),
+        cloud_countries:@json(trans('message.cloud_hub_countries')),
+
+    };
+
+$('#cloud-details').on('submit', function (e) {
+
+    const userFields = {
+        cloud_central_domain:$('#cloud_central_domain'),
+        cloud_cname:$('#cloud_cname'),
+    };
+
+
+    // Clear previous errors
+    Object.values(userFields).forEach(field => {
+        field.removeClass('is-invalid');
+        field.next().next('.error').remove();
+
+    });
+
+    let isValid = true;
+
+    const showError = (field, message) => {
+        field.addClass('is-invalid');
+        field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+    };
+
+    // Validate required fields
+    Object.keys(userFields).forEach(field => {
+        if (!userFields[field].val()) {
+            showError(userFields[field], userRequiredFields[field]);
+            isValid = false;
         }
+    });
 
-        $(document).ready(function () {
-            // Listen for changes in the country dropdown
-            $('#cloud_countries').change(function () {
-                var country = $(this).val();
+    if(isValid && !isValidURL(userFields.cloud_central_domain.val())){
+        showError(userFields.cloud_central_domain,@json(trans('message.cloud_hub_valid_url')));
+        isValid=false;
+    }
 
-                // Make an AJAX request to fetch states based on the selected country
-                $.ajax({
-                    url: "{{ url('get-state') }}/" + country + "?country_id=" + country,
-                    type: 'GET',
-                    success: function (data) {
-                        console.log(data);
-                        // Update the state dropdown with the retrieved states
-                        $('#cloud_state').empty();
-                            $('#cloud_state').append(data);
-                    },
-                    error: function (xhr, status, error) {
-                        console.error(error);
-                    }
-                });
-            });
-        });
+    // If validation fails, prevent form submission
+    if (!isValid) {
+        e.preventDefault();
+    }
+});
 
-        $(document).ready(function () {
-            // Add an id to the country dropdown
-            $(function () {
-                //Initialize Select2 Elements
-                $('.select2').select2()
-            });
-        });
+    $('#cloud-pop-up').on('submit', function (e) {
 
-
-    </script>
-    <script>
-        $(document).ready(function () {
-            function isValidURL(url) {
-                const pattern = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w-]*)*$/;
-                return pattern.test(url);
-            }
-            const userRequiredFields = {
-                cloud_central_domain:@json(trans('message.central_domain')),
-                cloud_cname:@json(trans('message.cloud_name')),
-                cloud_top_message:@json(trans('message.cloud_popup')),
-                cloud_label_field:@json(trans('message.cloud_label')),
-                cloud_label_radio:@json(trans('message.cloud_radio')),
-                saas_product:@json(trans('message.saas_product')),
-                saas_free_product:@json(trans('message.saas_free_product')),
-                saas_product_key:@json(trans('message.saas_product_key')),
-                cloud_state:@json(trans('message.cloud_hub_state')),
-                cloud_countries:@json(trans('message.cloud_hub_countries')),
-
-            };
-
-        $('#cloud-details').on('submit', function (e) {
-
-            const userFields = {
-                cloud_central_domain:$('#cloud_central_domain'),
-                cloud_cname:$('#cloud_cname'),
-            };
-
-
-            // Clear previous errors
-            Object.values(userFields).forEach(field => {
-                field.removeClass('is-invalid');
-                field.next().next('.error').remove();
-
-            });
-
-            let isValid = true;
-
-            const showError = (field, message) => {
-                field.addClass('is-invalid');
-                field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
-            };
-
-            // Validate required fields
-            Object.keys(userFields).forEach(field => {
-                if (!userFields[field].val()) {
-                    showError(userFields[field], userRequiredFields[field]);
-                    isValid = false;
-                }
-            });
-
-            if(isValid && !isValidURL(userFields.cloud_central_domain.val())){
-                showError(userFields.cloud_central_domain,@json(trans('message.cloud_hub_valid_url')));
-                isValid=false;
-            }
-
-            // If validation fails, prevent form submission
-            if (!isValid) {
-                e.preventDefault();
-            }
-        });
-
-            $('#cloud-pop-up').on('submit', function (e) {
-
-                const userFields = {
-                    cloud_top_message:$('#cloud_top_message'),
-                    cloud_label_field:$('#cloud_label_field'),
-                    cloud_label_radio:$('#cloud_label_radio'),
-                };
-
-
-                // Clear previous errors
-                Object.values(userFields).forEach(field => {
-                    field.removeClass('is-invalid');
-                    field.next().next('.error').remove();
-
-                });
-
-                let isValid = true;
-
-                const showError = (field, message) => {
-                    field.addClass('is-invalid');
-                    field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
-                };
-
-                // Validate required fields
-                Object.keys(userFields).forEach(field => {
-                    if (!userFields[field].val()) {
-                        showError(userFields[field], userRequiredFields[field]);
-                        isValid = false;
-                    }
-                });
-
-
-                // If validation fails, prevent form submission
-                if (!isValid) {
-                    e.preventDefault();
-                }
-            })
-            $('#cloud_countries').on('change', function () {
-                if ($(this).val() !== '') {
-                    document.querySelector('.select2-selection').style.cssText = `
-                        border: 1px solid silver;
-                        background-image:null;
-                        background-repeat: no-repeat;
-                        background-position: right 10px center;
-                        background-size: 16px 16px;`;
-                    removeErrorMessage(this);
-                }
-            });
-            $('#cloud-data-center').on('submit', function (e) {
-
-                const userFields = {
-                    cloud_state:$('#cloud_state'),
-                    cloud_countries:$('#cloud_countries'),
-                };
-
-                if($('#cloud_countries').val()==''){
-                    document.querySelector('.select2-selection').style.cssText = `
-                        border: 1px solid #dc3545;
-                        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23dc3545' viewBox='0 0 12 12'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
-                        background-repeat: no-repeat;
-                        background-position: right 30px center;
-                        background-size: 18px 18px;`;
-                }else{
-                    document.querySelector('.select2-selection').style.border='1px solid silver';
-
-                }
-                // Clear previous errors
-                Object.values(userFields).forEach(field => {
-                    field.removeClass('is-invalid');
-                    field.next().next('.error').remove();
-
-                });
-
-                let isValid = true;
-
-                const showError = (field, message) => {
-                    field.addClass('is-invalid');
-                    field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
-                };
-
-                // Validate required fields
-                Object.keys(userFields).forEach(field => {
-                    if (!userFields[field].val()) {
-                        showError(userFields[field], userRequiredFields[field]);
-                        isValid = false;
-                    }
-                });
-
-
-                // If validation fails, prevent form submission
-                if (!isValid) {
-                    e.preventDefault();
-                }
-            })
-
-            $('#product-configuration').on('submit', function (e) {
-
-                const userFields = {
-                    saas_product:$('#saas-product'),
-                    saas_free_product:$('#saas-free-product'),
-                    saas_product_key:$('#saas-product-key'),
-                };
-
-
-                // Clear previous errors
-                Object.values(userFields).forEach(field => {
-                    field.removeClass('is-invalid');
-                    field.next().next('.error').remove();
-
-                });
-
-                let isValid = true;
-
-                const showError = (field, message) => {
-                    field.addClass('is-invalid');
-                    field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
-                };
-
-                // Validate required fields
-                Object.keys(userFields).forEach(field => {
-                    if (!userFields[field].val()) {
-                        showError(userFields[field], userRequiredFields[field]);
-                        isValid = false;
-                    }
-                });
-
-
-                // If validation fails, prevent form submission
-                if (!isValid) {
-                    e.preventDefault();
-                }
-            })
-
-
-        // Function to remove error when input'id' => 'changePasswordForm'ng data
-        const removeErrorMessage = (field) => {
-            field.classList.remove('is-invalid');
-            const error = field.nextElementSibling;
-            if (error && error.classList.contains('error')) {
-                error.remove();
-            }
+        const userFields = {
+            cloud_top_message:$('#cloud_top_message'),
+            cloud_label_field:$('#cloud_label_field'),
+            cloud_label_radio:$('#cloud_label_radio'),
         };
 
-        // Add input event listeners for all fields
-        ['cloud_central_domain',
-            'cloud_cname',
-            'saas-product',
-            'saas-free-product',
-            'saas-product-key',
-            'cloud_countries',
-            'cloud_state',
-            'cloud_top_message',
-            'cloud_label_field',
-            'cloud_label_radio'].forEach(id => {
 
-            document.getElementById(id).addEventListener('input', function () {
-                removeErrorMessage(this);
+        // Clear previous errors
+        Object.values(userFields).forEach(field => {
+            field.removeClass('is-invalid');
+            field.next().next('.error').remove();
 
-            });
         });
-        });
-    </script>
-    <script>
-        $('ul.nav-sidebar a').filter(function() {
-            return this.id == 'setting';
-        }).addClass('active');
 
-        // for treeview
-        $('ul.nav-treeview a').filter(function() {
-            return this.id == 'setting';
-        }).parentsUntil(".nav-sidebar > .nav-treeview").addClass('menu-open').prev('a').addClass('active');
-    </script>
+        let isValid = true;
+
+        const showError = (field, message) => {
+            field.addClass('is-invalid');
+            field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+        };
+
+        // Validate required fields
+        Object.keys(userFields).forEach(field => {
+            if (!userFields[field].val()) {
+                showError(userFields[field], userRequiredFields[field]);
+                isValid = false;
+            }
+        });
+
+
+        // If validation fails, prevent form submission
+        if (!isValid) {
+            e.preventDefault();
+        }
+    })
+    $('#cloud_countries').on('change', function () {
+        if ($(this).val() !== '') {
+            document.querySelector('.select2-selection').style.cssText = `
+                border: 1px solid silver;
+                background-image:null;
+                background-repeat: no-repeat;
+                background-position: right 10px center;
+                background-size: 16px 16px;`;
+            removeErrorMessage(this);
+        }
+    });
+    $('#cloud-data-center').on('submit', function (e) {
+
+        const userFields = {
+            cloud_state:$('#cloud_state'),
+            cloud_countries:$('#cloud_countries'),
+        };
+
+        if($('#cloud_countries').val()==''){
+            document.querySelector('.select2-selection').style.cssText = `
+                border: 1px solid #dc3545;
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23dc3545' viewBox='0 0 12 12'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+                background-repeat: no-repeat;
+                background-position: right 30px center;
+                background-size: 18px 18px;`;
+        }else{
+            document.querySelector('.select2-selection').style.border='1px solid silver';
+
+        }
+        // Clear previous errors
+        Object.values(userFields).forEach(field => {
+            field.removeClass('is-invalid');
+            field.next().next('.error').remove();
+
+        });
+
+        let isValid = true;
+
+        const showError = (field, message) => {
+            field.addClass('is-invalid');
+            field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+        };
+
+        // Validate required fields
+        Object.keys(userFields).forEach(field => {
+            if (!userFields[field].val()) {
+                showError(userFields[field], userRequiredFields[field]);
+                isValid = false;
+            }
+        });
+
+
+        // If validation fails, prevent form submission
+        if (!isValid) {
+            e.preventDefault();
+        }
+    })
+
+    $('#product-configuration').on('submit', function (e) {
+
+        const userFields = {
+            saas_product:$('#saas-product'),
+            saas_free_product:$('#saas-free-product'),
+            saas_product_key:$('#saas-product-key'),
+        };
+
+
+        // Clear previous errors
+        Object.values(userFields).forEach(field => {
+            field.removeClass('is-invalid');
+            field.next().next('.error').remove();
+
+        });
+
+        let isValid = true;
+
+        const showError = (field, message) => {
+            field.addClass('is-invalid');
+            field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+        };
+
+        // Validate required fields
+        Object.keys(userFields).forEach(field => {
+            if (!userFields[field].val()) {
+                showError(userFields[field], userRequiredFields[field]);
+                isValid = false;
+            }
+        });
+
+
+        // If validation fails, prevent form submission
+        if (!isValid) {
+            e.preventDefault();
+        }
+    })
+
+
+// Function to remove error when input'id' => 'changePasswordForm'ng data
+const removeErrorMessage = (field) => {
+    field.classList.remove('is-invalid');
+    const error = field.nextElementSibling;
+    if (error && error.classList.contains('error')) {
+        error.remove();
+    }
+};
+
+// Add input event listeners for all fields
+['cloud_central_domain',
+    'cloud_cname',
+    'saas-product',
+    'saas-free-product',
+    'saas-product-key',
+    'cloud_countries',
+    'cloud_state',
+    'cloud_top_message',
+    'cloud_label_field',
+    'cloud_label_radio'].forEach(id => {
+
+    document.getElementById(id).addEventListener('input', function () {
+        removeErrorMessage(this);
+
+    });
+});
+});
+</script>
+<script>
+$('ul.nav-sidebar a').filter(function() {
+    return this.id == 'setting';
+}).addClass('active');
+
+// for treeview
+$('ul.nav-treeview a').filter(function() {
+    return this.id == 'setting';
+}).parentsUntil(".nav-sidebar > .nav-treeview").addClass('menu-open').prev('a').addClass('active');
+</script>
 
 @stop
 

@@ -637,10 +637,28 @@ Orders
      }
      
 
-     $(document).on('click','#bulk_delete',function(){
+     $(document).on('click','#bulk_delete',function(e){
       var id=[];
 
+         $('.order_checkbox:checked').each(function(){
+             id.push($(this).val())
+         });
 
+         if(id.length<=0){
+             e.preventDefault();
+             swal.fire({
+                 title:"<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
+                 html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
+                     "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
+                     "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_order')}}</p>"+"</div>" +
+                     "</div>",
+                 position: 'top',
+                 confirmButtonText: "OK",
+                 showCloseButton: true,
+                 confirmButtonColor: "#007bff",
+                 width:"600px",
+             })
+         }else{
          var swl=swal.fire({
              title:"<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Delete')}}</h2>",
              html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
@@ -694,7 +712,7 @@ Orders
              }
          })
                 return false;
-
+}
 
      });
     $('#update_expiry').datetimepicker({

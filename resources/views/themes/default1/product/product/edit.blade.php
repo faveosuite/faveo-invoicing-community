@@ -510,8 +510,97 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+        $(document).on('click','#bulk_delete',function() {
+            console.log('hii');
+
+            var id = [];
+            {{--if (confirm("Are you sure you want to delete this?"))--}}
+            {{--{--}}
+            {{--    $('.upload_checkbox:checked').each(function(){--}}
+            {{--        id.push($(this).val())--}}
+            {{--    });--}}
+            {{--    if(id.length >0)--}}
+            {{--    {--}}
+            {{--        $.ajax({--}}
+            {{--            url:"{!! Url('uploads-delete') !!}",--}}
+            {{--            method:"delete",--}}
+            {{--            data: $('#checks:checked').serialize(),--}}
+            {{--            beforeSend: function () {--}}
+            {{--                $('#gif').show();--}}
+            {{--            },--}}
+            {{--            success: function (data) {--}}
+
+            {{--                $('#gif').hide();--}}
+            {{--                $('#response').html(data);--}}
+            {{--                location.reload();--}}
+            {{--            }--}}
+            {{--        })--}}
+            {{--    }--}}
+            {{--    else--}}
+            {{--    {--}}
+            {{--        alert("Please select at least one checkbox");--}}
+            {{--    }--}}
+            {{--}--}}
+
+            var swl=swal.fire({
+                title:"<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Delete')}}</h2>",
+                html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
+                    "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
+                    "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.file_delete')}}</p>"+"</div>" +
+                    "</div>",
+                showCancelButton: true,
+                showCloseButton: true,
+                position:"top",
+                width:"600px",
+
+                confirmButtonText: @json(trans('message.Delete')),
+                confirmButtonColor: "#007bff",
+
+            }).then((result)=> {
+                if (result.isConfirmed) {
+                    $('.upload_checkbox:checked').each(function(){
+                        id.push($(this).val())
+                    });
+                    if(id.length >0)
+                    {
+                        $.ajax({
+                            url:"{!! Url('uploads-delete') !!}",
+                            method:"delete",
+                            data: $('#checks:checked').serialize(),
+                            beforeSend: function () {
+                                $('#gif').show();
+                            },
+                            success: function (data) {
+
+                                $('#gif').hide();
+                                $('#response').html(data);
+                                location.reload();
+                            }
+                        })
+                    } else {
+                        swal.fire({
+                            title:"<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
+                            html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
+                                "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
+                                "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_file')}}</p>"+"</div>" +
+                                "</div>",
+                            position: 'top',
+                            confirmButtonText: "OK",
+                            showCloseButton: true,
+                            confirmButtonColor: "#007bff",
+                            width:"600px",
+                        })
+                    }
+                }else if (result.dismiss === Swal.DismissReason.cancel) {
+                    // Action if "No" is clicked
+                    window.close();             }
+            })
+            return false;
+
+        })
         $('ul.nav-sidebar a').filter(function() {
             return this.id == 'all_product';
         }).addClass('active');
@@ -741,35 +830,37 @@
             $('#upload-table').find("td input[type='checkbox']").prop('checked', $(e).prop('checked'));
         }
 
-        $(document).on('click','#bulk_delete',function(){
-            var id=[];
-            if (confirm("Are you sure you want to delete this?"))
-            {
-                $('.upload_checkbox:checked').each(function(){
-                    id.push($(this).val())
-                });
-                if(id.length >0)
-                {
-                    $.ajax({
-                        url:"{!! Url('uploads-delete') !!}",
-                        method:"delete",
-                        data: $('#checks:checked').serialize(),
-                        beforeSend: function () {
-                            $('#gif').show();
-                        },
-                        success: function (data) {
+        // $(document).on('click','#bulk_delete',function(){
+        //     console.log('hii');
 
-                            $('#gif').hide();
-                            $('#response').html(data);
-                            location.reload();
-                        }
-                    })
-                }
-                else
-                {
-                    alert("Please select at least one checkbox");
-                }
-            }
+            {{--var id=[];--}}
+            {{--if (confirm("Are you sure you want to delete this?"))--}}
+            {{--{--}}
+            {{--    $('.upload_checkbox:checked').each(function(){--}}
+            {{--        id.push($(this).val())--}}
+            {{--    });--}}
+            {{--    if(id.length >0)--}}
+            {{--    {--}}
+            {{--        $.ajax({--}}
+            {{--            url:"{!! Url('uploads-delete') !!}",--}}
+            {{--            method:"delete",--}}
+            {{--            data: $('#checks:checked').serialize(),--}}
+            {{--            beforeSend: function () {--}}
+            {{--                $('#gif').show();--}}
+            {{--            },--}}
+            {{--            success: function (data) {--}}
+
+            {{--                $('#gif').hide();--}}
+            {{--                $('#response').html(data);--}}
+            {{--                location.reload();--}}
+            {{--            }--}}
+            {{--        })--}}
+            {{--    }--}}
+            {{--    else--}}
+            {{--    {--}}
+            {{--        alert("Please select at least one checkbox");--}}
+            {{--    }--}}
+            {{--}--}}
 
             $(document).ready(function () {
                 var selectedIds = [];
@@ -820,19 +911,19 @@
                 }
 
                 // Open modal when delete button is clicked
-                $(document).on('click', '#bulk_delete', function () {
-                    selectedIds = [];
-
-                    $('.upload_checkbox:checked').each(function () {
-                        selectedIds.push($(this).val());
-                    });
-
-                    if (selectedIds.length > 0) {
-                        $('#deleteModal').modal('show'); // Show Bootstrap modal
-                    } else {
-                        alert("Please select at least one checkbox");
-                    }
-                });
+                // $(document).on('click', '#bulk_delete', function () {
+                //     selectedIds = [];
+                //
+                //     $('.upload_checkbox:checked').each(function () {
+                //         selectedIds.push($(this).val());
+                //     });
+                //
+                //     if (selectedIds.length > 0) {
+                //         $('#deleteModal').modal('show'); // Show Bootstrap modal
+                //     } else {
+                //         alert("Please select at least one checkbox");
+                //     }
+                // });
 
                 // Confirm delete inside modal
                 $('#confirmDelete').click(function () {
