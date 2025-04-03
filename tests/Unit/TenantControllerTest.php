@@ -5,15 +5,14 @@ namespace Tests\Unit;
 use App\Http\Controllers\Tenancy\TenantController;
 use App\Model\Common\FaveoCloud;
 use App\ThirdPartyApp;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\Request;
-use Tests\TestCase;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Http\Request;
+use Tests\TestCase;
 
 class TenantControllerTest extends TestCase
 {
@@ -136,6 +135,5 @@ class TenantControllerTest extends TestCase
 
         // Assert redirect and error message
         $this->assertEquals('Connection error', session('fails'));
-
     }
 }
