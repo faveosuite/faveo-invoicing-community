@@ -90,7 +90,9 @@ class BaseAuthController extends Controller
 
         $response = $this->makeRequest('POST', 'https://api.msg91.com/api/v5/otp', $queryParams);
 
-        (new MSG91Controller())->updateOtpRequest($response['message'], $userID);
+        if(isset($response['request_id'])){
+            (new MSG91Controller())->updateOtpRequest($response['request_id'], $userID);
+        }
 
         return $response['type'] !== 'error';
     }
