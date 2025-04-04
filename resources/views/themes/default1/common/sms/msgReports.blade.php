@@ -6,12 +6,13 @@
 
 @section('content-header')
     <div class="col-sm-6">
-        <h1>All Users</h1>
+        <h1>MSG91 Reports</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
             <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item active">All Users</li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}"> Settings</a></li>
+            <li class="breadcrumb-item active">MSG91 Reports</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -28,6 +29,7 @@
                 <tr>
 {{--                    <th class="no-sort"><input type="checkbox" name="select_all" onchange="checking(this)"></th>--}}
                     <th>Request ID</th>
+                    <th>User</th>
                     <th>Mobile Number</th>
                     <th>Sender ID</th>
                     <th>Status</th>
@@ -80,9 +82,28 @@
                 }],
                 columns: [
                     {data: 'request_id', name: 'request_id'},
+                    {
+                        data: 'user.full_name',
+                        name: 'user',
+                        render: function (data, type, row) {
+                            const baseUrl = @json(url('clients'));
+                            if (row.user?.id && data) {
+                                return `<a href="${baseUrl}/${row.user.id}" class="text-primary">${data}</a>`;
+                            }
+                            return '---';
+                        }
+                    },
                     {data: 'mobile_number', name: 'mobile_number'},
                     {data: 'formatted_sender_id', name: 'sender_id'},
-                    {data: 'readable_status', name: 'status'},
+                    {
+                        data: 'readable_status',
+                        name: 'status',
+                        render: function (data, type, row) {
+                            const isDelivered = row.status === "1";
+                            const badgeClass = isDelivered ? 'badge badge-success' : 'badge badge-danger';
+                            return `<span class="${badgeClass}">${data}</span>`;
+                        }
+                    },
                     {data: 'failure_reason', name: 'failure_reason'},
                     {data: 'date', name: 'date'}
                 ],
@@ -115,11 +136,12 @@
             });
 
             // Add refresh button next to search bar
-            $('.dataTables_filter').append(
-                '<button id="refresh-table-btn" class="btn btn-sm btn-outline-secondary" ' +
-                'style="margin-left: 10px;" title="Refresh">' +
-                '<i class="fas fa-sync-alt"></i></button>'
-            );
+            $('.dataTables_filter').append(`
+    <button id="refresh-table-btn" class="btn btn-link p-2" data-toggle="tooltip" title="Refresh Table" style="text-decoration: none;">
+        <i class="fas fa-sync-alt text-secondary" id="refresh-icon" style="font-size: 1.2rem; transition: transform 0.5s ease;"></i>
+    </button>
+`);
+
 
             // Handle refresh button click
             $(document).on('click', '#refresh-table-btn', function() {

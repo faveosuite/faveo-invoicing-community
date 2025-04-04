@@ -84,8 +84,7 @@ class MSG91Controller extends Controller
 
     public function getMsg91Reports(Request $request)
     {
-        $response = MsgDeliveryReports::all();
-
+        $response = MsgDeliveryReports::with('user')->get();
         return successResponse('success', $response);
     }
 }
