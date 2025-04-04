@@ -40,6 +40,7 @@ class MSG91Controller extends Controller
                             'number' => $singleReport['number'],
                             'status' => $singleReport['status'],
                             'date' => $singleReport['date'] ?? now()->toDateTimeString(),
+                            'failure_reason' => $singleReport['failureReason'] ?? null,
                         ]);
                     }
                 }
@@ -63,6 +64,7 @@ class MSG91Controller extends Controller
                 'mobile_number' => $reportData['number'],
                 'status' => $reportData['status'],
                 'date' => $reportData['date'],
+                'failure_reason' => $reportData['failure_reason'],
             ]
         );
     }
@@ -82,21 +84,7 @@ class MSG91Controller extends Controller
 
     public function getMsg91Reports(Request $request)
     {
-        $response = MsgDeliveryReports::get()->map(function ($item) {
-            return [
-                'id' => $item->id,
-                'mobile_number' => $item->mobile_number,
-                'request_id' => $item->request_id,
-                'status' => $item->status == '1' ? 'delivered' : $item->status,
-                'date' => $item->date,
-                'sender_id' => strtoupper($item->sender_id),
-                'failure_reason' => $item->failure_reason,
-                'user_id' => $item->user_id,
-                'created_at' => $item->created_at,
-                'updated_at' => $item->updated_at,
-            ];
-        });
-
+        $response = MsgDeliveryReports::all();
         return successResponse('success', $response);
     }
 }

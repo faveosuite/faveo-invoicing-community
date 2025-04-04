@@ -81,8 +81,8 @@
                 columns: [
                     {data: 'request_id', name: 'request_id'},
                     {data: 'mobile_number', name: 'mobile_number'},
-                    {data: 'sender_id', name: 'sender_id'},
-                    {data: 'status', name: 'status'},
+                    {data: 'formatted_sender_id', name: 'sender_id'},
+                    {data: 'readable_status', name: 'status'},
                     {data: 'failure_reason', name: 'failure_reason'},
                     {data: 'date', name: 'date'}
                 ],

@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('status')->nullable();
             $table->date('date')->nullable();
             $table->string('sender_id')->nullable();
-            $table->integer('failure_reason')->nullable();
+            $table->string('failure_reason')->nullable();
             $table->string('user_id')->nullable();
             $table->timestamps();
         });
