@@ -21,12 +21,12 @@ class MsgDeliveryReports extends Model
     protected $appends = ['readable_status', 'formatted_sender_id'];
 
     const STATUS_MAP = [
-        "1" => "Delivered",
-        "2" => "Failed",
-        "9" => "NDNC",
-        "16" => "Rejected",
-        "25" => "Rejected",
-        "17" => "Blocked number",
+        '1' => 'Delivered',
+        '2' => 'Failed',
+        '9' => 'NDNC',
+        '16' => 'Rejected',
+        '25' => 'Rejected',
+        '17' => 'Blocked number',
     ];
 
     public function getReadableStatusAttribute()
