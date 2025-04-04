@@ -73,7 +73,7 @@ class BaseAuthController extends Controller
         }
     }
 
-    public function sendOtp(string $mobile): bool
+    public function sendOtp(string $mobile, $userID = null): bool
     {
         // Remove any non-numeric characters
         $mobile = preg_replace('/\D/', '', $mobile);
@@ -90,8 +90,7 @@ class BaseAuthController extends Controller
 
         $response = $this->makeRequest('POST', 'https://api.msg91.com/api/v5/otp', $queryParams);
 
-        $userId = \Session::get('user')->id ?? null;
-        (new MSG91Controller())->updateOtpRequest($response['message'], $userId);
+        (new MSG91Controller())->updateOtpRequest($response['message'], $userID);
 
         return $response['type'] !== 'error';
     }

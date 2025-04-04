@@ -40,7 +40,7 @@ class MSG91Controller extends Controller
                             'number' => $singleReport['number'],
                             'status' => $singleReport['status'],
                             'date' => $singleReport['date'] ?? now()->toDateTimeString(),
-                            'failure_reason' => $singleReport['failureReason'] ?? null,
+                            'failure_reason' => $singleReport['failedReason'] ?? null,
                         ]);
                     }
                 }
