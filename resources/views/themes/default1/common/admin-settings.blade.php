@@ -310,6 +310,24 @@ Settings
                     </div>
                 </div>
 
+            <?php
+            $isMobileVerificationEnabled = \App\Model\Common\StatusSetting::first()->value('msg91_status');
+            ?>
+            @if($isMobileVerificationEnabled)
+                <div class="col-md-2 col-sm-6">
+                    <div class="settingiconblue">
+                        <div class="settingdivblue">
+                            <a class="icons-color" href="{{ url('sms/reports') }}">
+                                <span class="fa-stack fa-2x">
+                                    <i class="fas fa-comments"></i>
+                                </span>
+                            </a>
+                        </div>
+                        <div class="text-center text-sm fw_400">MSG91 Reports</div>
+                    </div>
+                </div>
+            @endif
+
           <!--        <div class="col-md-2 col-sm-6">
                     <div class="settingiconblue">
                         <div class="settingdivblue">
