@@ -53,8 +53,9 @@ trait ApiKeySettings
     {
         $status = $request->input('status');
         $key = $request->input('msg91_auth_key');
+        $thirdPartyId = $request->input('thirdPartyId');
         StatusSetting::find(1)->update(['msg91_status' => $status]);
-        ApiKey::find(1)->update(['msg91_auth_key' => $key, 'msg91_sender' => $request->input('msg91_sender'), 'msg91_template_id' => $request->input('msg91_template_id')]);
+        ApiKey::find(1)->update(['msg91_auth_key' => $key, 'msg91_sender' => $request->input('msg91_sender'), 'msg91_template_id' => $request->input('msg91_template_id'), 'msg91_third_party_id' => $thirdPartyId]);
 
         return ['message' => 'success', 'update' => 'Msg91 settings saved'];
     }
@@ -191,6 +192,8 @@ trait ApiKeySettings
             $cloud_dailyAt = \Request::get('cloud-dailyAt');
             $invoice_commands = \Request::get('invoice-commands');
             $invoice_dailyAt = \Request::get('invoice-dailyAt');
+            $msg91_commands = \Request::get('msg91-commands');
+            $msg91_dailyAt = \Request::get('msg91-dailyAt');
 
             $activity_command = $this->getCommand($activity_commands, $activity_dailyAt);
             $expiry_command = $this->getCommand($expiry_commands, $expiry_dailyAt);
@@ -199,7 +202,8 @@ trait ApiKeySettings
             $expiry_command = $this->getCommand($expiry_commands, $expiry_dailyAt);
             $cloud_command = $this->getCommand($cloud_commands, $cloud_dailyAt);
             $invoice_command = $this->getCommand($invoice_commands, $invoice_dailyAt);
-            $jobs = ['expiryMail' => $expiry_command, 'deleteLogs' => $activity_command, 'subsExpirymail' => $subexpiry_commands, 'postExpirymail' => $postexpiry_command, 'cloud' => $cloud_command, 'invoice' => $invoice_command];
+            $msg91_command = $this->getCommand($msg91_commands, $msg91_dailyAt);
+            $jobs = ['expiryMail' => $expiry_command, 'deleteLogs' => $activity_command, 'subsExpirymail' => $subexpiry_commands, 'postExpirymail' => $postexpiry_command, 'cloud' => $cloud_command, 'invoice' => $invoice_command, 'msg91Reports' => $msg91_command];
 
             $this->storeCommand($jobs);
         }

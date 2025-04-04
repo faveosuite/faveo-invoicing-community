@@ -303,7 +303,7 @@ foreach($scripts as $script) {
 {{--                                {!! Form::hidden('mobile',null,['id'=>'mobile_code_hidden']) !!}--}}
                                 <input class="form-control form-control-lg text-4" id="mobilenum" name="mobile" type="tel">
                                 {!! Form::hidden('mobile_code',null,['class'=>'form-control form-control-lg text-4','id'=>'mobile_code']) !!}
-                                {!! Form::hidden('mobile_county_iso',null,['id'=>'mobile_country_iso']) !!}
+                                {!! Form::hidden('mobile_country_iso',null,['id'=>'mobile_country_iso']) !!}
                                 <span id="valid-msg" class="hide"></span>
                                 <span id="error-msg" class="hide"></span>
                                 <span id="mobile_codecheck"></span>

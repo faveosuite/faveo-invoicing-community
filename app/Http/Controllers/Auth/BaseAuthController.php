@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\ApiKey;
+use App\Http\Controllers\Common\MSG91Controller;
 use App\Http\Controllers\Controller;
 use App\Model\Common\Country;
 use App\Model\Common\Setting;
@@ -72,7 +73,7 @@ class BaseAuthController extends Controller
         }
     }
 
-    public function sendOtp(string $mobile): bool
+    public function sendOtp(string $mobile, $userID = null): bool
     {
         // Remove any non-numeric characters
         $mobile = preg_replace('/\D/', '', $mobile);
@@ -88,6 +89,21 @@ class BaseAuthController extends Controller
         ];
 
         $response = $this->makeRequest('POST', 'https://api.msg91.com/api/v5/otp', $queryParams);
+
+        if (isset($response['request_id'])) {
+            $user = User::select('mobile_country_iso', 'mobile', 'mobile_code')->find($userID);
+
+            if ($user) {
+                (new MSG91Controller())->updateOtpRequest(
+                    $response['request_id'],
+                    0,
+                    $user->mobile_country_iso,
+                    $user->mobile,
+                    $user->mobile_code,
+                    $userID
+                );
+            }
+        }
 
         return $response['type'] !== 'error';
     }
