@@ -1150,5 +1150,6 @@ return [
     'terms_setting' => 'Show Terms in registration page settings successfully saved',
     'mailchimp_group_error' => 'This page requires a Mailchimp group to function properly. Please create a group in Mailchimp before proceeding.',
     'pipedrive_setting' => 'Pipedrive settings successfully saved',
-
+    'pipedrive_error' => 'Pipedrive API key is invalid.',
+    'terms_error'=>'The provided terms and condition url is invalid.',
 ];

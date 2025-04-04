@@ -221,15 +221,6 @@
                         <h6 id="c_secret"></h6>
                     </div>
 
-{{--                    <div style="display: flex; align-items: center; gap: 10px;">--}}
-{{--                        {!! Form::label('github_settings',Lang::get('message.github_settings'),['class'=>'required']) !!}--}}
-
-{{--                        <label class="switch toggle_event_editing">--}}
-{{--                            <input type="checkbox" value="{{$githubStatus}}" name="github_settings" class="checkbox" id="github">--}}
-{{--                            <span class="slider round"></span>--}}
-{{--                        </label>--}}
-{{--                    </div>--}}
-
                 </div>
 
                 <div class="modal-footer justify-content-between">
@@ -295,22 +286,13 @@
 
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         {!! Form::label('lic_grant_type',Lang::get('message.lic_grant_type'),['class'=>'required']) !!}
-{{--                        {!! Form::select('license_grant_type',$licenseGrantType,['class' => 'form-control','id'=>'license_grant_type']) !!}--}}
                         <select name="lic_grant_type" value="{{$licenseGrantType}}" id="license_grant_type" class="form-control">
                             <option value="client_credentials">Client_credentials</option>
                         </select>
                         <h6 id="license_grantTypeCheck"></h6>
                     </div>
 
-{{--                    <div style="display: flex; align-items: center; gap: 10px;">--}}
-{{--                        {!! Form::label('modules_settings',Lang::get('message.modules_settings'),['class'=>'required']) !!}--}}
 
-{{--                        <label class="switch toggle_event_editing">--}}
-{{--                        <input type="checkbox" value="{{$status}}"  name="modules_settings"--}}
-{{--                               class="checkbox" id="License">--}}
-{{--                        <span class="slider round"></span>--}}
-{{--                    </label>--}}
-{{--                    </div>--}}
                 </div>
 
                 <div class="modal-footer justify-content-between">
@@ -365,14 +347,6 @@
                         <h6 id="captcha_secretCheck"></h6>
                     </div>
 
-{{--                    <div style="display: flex; align-items: center; gap: 10px;">--}}
-{{--                        {!! Form::label('captcha',Lang::get('message.captcha'),['class'=>'required']) !!}--}}
-{{--                        <label class="switch toggle_event_editing">--}}
-{{--                    <input type="checkbox" value="{{ $captchaStatus || $v3CaptchaStatus}}"  name="modules_settings"--}}
-{{--                           class="checkbox2" id="captcha">--}}
-{{--                    <span class="slider round"></span>--}}
-{{--                    </label>--}}
-{{--                    </div>--}}
 
                 </div>
 
@@ -398,36 +372,6 @@
 
                 <div class="modal-body">
                     <div id="alertMessage4"></div>
-
-
-{{--                    {!! Form::label('mailchimp', Lang::get('message.mailchimp_key'), ['class' => 'required me-2']) !!}--}}
-
-{{--                    <div class="form-group d-flex align-items-center gap-2">--}}
-
-{{--                        <div style="display: flex; align-items: center; gap: 10px;">--}}
-{{--                            {!! Form::text('mailchimp', $mailchimpKey, [--}}
-{{--                                'class' => 'form-control mailchimp_authkey',--}}
-{{--                                'id' => 'mailchimp_authkey',--}}
-{{--                                'style' => 'width: 350px;' // Adjust width as needed--}}
-{{--                            ]) !!}--}}
-{{--                            <h6 id="mailchimp_check" style="margin: 0;"></h6>--}}
-
-{{--                            <button type="submit" class="btn btn-primary" id="submit9">--}}
-{{--                                <i class="fa fa-check"></i>&nbsp;&nbsp;{!! Lang::get('message.check') !!}--}}
-{{--                            </button>--}}
-{{--                        </div>--}}
-{{--                    </div>--}}
-{{--                    <div style="display: flex; align-items: center; gap: 10px;">--}}
-{{--                        {!! Form::label('mailchimp',Lang::get('message.mailchimp_settings'),['class'=>'required']) !!}--}}
-{{--                        <label class="switch toggle_event_editing">--}}
-{{--                        <input type="checkbox" value="{{$mailchimpSetting}}"  name="mobile_settings"--}}
-{{--                               class="checkbox9" id="mailchimp">--}}
-{{--                        <span class="slider round"></span>--}}
-{{--                    </label>--}}
-{{--                    </div>--}}
-{{--                </div>--}}
-
-{{--                {!! Form::model($set,['url'=>'mailchimp','method'=>'patch','files'=>true]) !!}--}}
 
                         <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                             <input type ="hidden" id="hiddenMailChimpValue" value="{{$mailchimpKey}}">
@@ -465,7 +409,6 @@
                             <p><i> {{Lang::get('message.enter-the-mailchimp-subscribe-status')}}</i> </p>
                         </div>
 
-{{--                            @if($set->api_key&& $set->list_id)--}}
                             <div id="extraInput9" style="display: none;">
 
                             <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
@@ -474,97 +417,8 @@
                                 <p><i> {{Lang::get('message.map-the-mailchimp-field-with-agora')}}</i> </p>
                             </div>
                             </div>
-{{--                            @endif--}}
                         </div>
-
-{{--                        <tr>--}}
-{{--                            <td>                    {!! Form::label('mailchimp', Lang::get('message.mailchimp_key'), ['class' => 'required me-2']) !!}--}}
-{{--                            </td>--}}
-
-{{--                            <td>--}}
-{{--                                <div class="form-group {{ $errors->has('subscribe_status') ? 'has-error' : '' }}">--}}
-{{--                                    <input type ="hidden" id="hiddenMailChimpValue" value="{{$mailchimpKey}}">--}}
-
-{{--                                {!! Form::text('mailchimp', $mailchimpKey, [--}}
-{{--                                'class' => 'form-control mailchimp_authkey',--}}
-{{--                                'id' => 'mailchimp_authkey',--}}
-{{--                                    'style' => 'width: 350px;' // Adjust width as needed--}}
-{{--                                ]) !!}--}}
-{{--                                </div>--}}
-{{--                            </td>--}}
-{{--                        </tr>--}}
-
-
-{{--                        <tr>--}}
-{{--                            {!! Form::hidden('api_key', null, ['class' => 'form-control']) !!}--}}
-
-{{--                            <td><b>{!! Form::label('list_id',Lang::get('message.list_id'),['class'=>'required']) !!}</b></td>--}}
-{{--                            <td>--}}
-{{--                                    <div class="form-group {{ $errors->has('list_id') ? 'has-error' : '' }}">--}}
-{{--                                        <select name="list_id" class="form-control" style="width:310px"</select>--}}
-{{--                                        <option value="">Choose</option>--}}
-{{--                                        @foreach($allists as $list)--}}
-{{--                                            <option value="{{$list->id}}"<?php  if(in_array($list->id, $selectedList) )--}}
-{{--                                            { echo "selected";} ?>>{{$list->name}}</option>--}}
-
-{{--                                        @endforeach--}}
-{{--                                        <p><i> {{Lang::get('message.enter-the-mailchimp-list-id')}}</i> </p>--}}
-
-
-{{--                                    </div>--}}
-{{--                            </td>--}}
-
-{{--                        </tr>--}}
-
-{{--                        <tr>--}}
-
-{{--                            <td><b>{!! Form::label('subscribe_status',Lang::get('message.subscribe_status'),['class'=>'required']) !!}</b></td>--}}
-{{--                            <td>--}}
-{{--                                <div class="form-group {{ $errors->has('subscribe_status') ? 'has-error' : '' }}">--}}
-
-
-{{--                                    {!! Form::select('subscribe_status',['subscribed'=>'Subscribed','unsubscribed'=>'Unsubscribed','cleaned'=>'Cleaned','pending'=>'Pending'],null,['class' => 'form-control']) !!}--}}
-{{--                                    <p><i> {{Lang::get('message.enter-the-mailchimp-subscribe-status')}}</i> </p>--}}
-
-
-{{--                                </div>--}}
-{{--                            </td>--}}
-
-{{--                        </tr>--}}
-
-{{--                        @if($set->api_key&&$set->list_id)--}}
-{{--                            <tr>--}}
-{{--         <a href="{{url('mail-chimp/mapping')}}" class="btn btn-secondary btn-sm">{{Lang::get('message.mapping')}}</a>--}}
-{{--                                            <p><i> {{Lang::get('message.map-the-mailchimp-field-with-agora')}}</i> </p>--}}
-{{--                                    --}}
-{{--                                <td><b>{!! Form::label('mapping',Lang::get('message.mapping'),['class'=>'required']) !!}</b></td>--}}
-{{--                                <td>--}}
-{{--                                    <div class="form-group">--}}
-
-
-{{--                                        <div class="col-md-6">--}}
-{{--                                            <a href="{{url('mail-chimp/mapping')}}" class="btn btn-secondary btn-sm">{{Lang::get('message.mapping')}}</a>--}}
-{{--                                            <p><i> {{Lang::get('message.map-the-mailchimp-field-with-agora')}}</i> </p>--}}
-{{--                                        </div>--}}
-
-
-
-{{--                                    </div>--}}
-{{--                                </td>--}}
-
-{{--                            </tr>--}}
-
-{{--                        @endif--}}
                     </div>
-
-{{--                        <div class="d-flex justify-content-end">--}}
-{{--                            <button type="submit" class="btn btn-primary" id="submit">--}}
-{{--                                <i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}--}}
-{{--                            </button>--}}
-{{--                        </div>--}}
-
-
-
                 <div id="extraInput1" style="display: none;">
                 <div class="modal-footer justify-content-between">
                     <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
@@ -584,7 +438,6 @@
                     </div>
                 </div>
 
-{{--            </div>--}}
             </div>
 
         </div>
@@ -604,18 +457,7 @@
                         {!! Form::label('terms',Lang::get('message.terms_url'),['class'=>'required']) !!}
                         {!! Form::text('terms',$termsUrl,['class' => 'form-control terms_url','id'=>'terms_url']) !!}
                         <h6 id="terms_check"></h6>
-                    </div>
-{{--                    <div style="display: flex; align-items: center; gap: 10px;">--}}
-{{--                        {!! Form::label('terms_settings',Lang::get('message.terms_settings'),['class'=>'required']) !!}--}}
-
-{{--                        <label class="switch toggle_event_editing">--}}
-
-{{--                        <input type="checkbox" value="{{$termsStatus}}"  name="terms_settings"--}}
-{{--                               class="checkbox10" id="terms">--}}
-{{--                        <span class="slider round"></span>--}}
-{{--                    </label>--}}
-{{--                    </div>--}}
-                </div>
+                 </div>
 
                 <div class="modal-footer justify-content-between">
                     <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
@@ -624,6 +466,7 @@
                 </div>
             </div>
         </div>
+    </div>
     </div>
 
 
@@ -651,7 +494,6 @@
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         <!-- last name -->
                         {!! Form::label('consumer_secret',Lang::get('message.consumer_secret'),['class'=>'required']) !!}
-{{--                        {!! Form::text('consumer_secret',$twitterKeys->twitter_consumer_secret,['class' => 'form-control consumer_secret','id'=>'consumer_secret']) !!}--}}
                         <div class="input-group">
                             <input type= "password" value="{{$twitterKeys->twitter_consumer_secret}}" name='consumer_secret' id='consumer_secret' class="form-control consumer_secret">
 
@@ -684,15 +526,7 @@
                         </div>
                         <h6 id="token_secretcheck"></h6>
                     </div>
-{{--                    <div style="display: flex; align-items: center; gap: 10px;">--}}
-{{--                        {!! Form::label('twitter_settings',Lang::get('message.twitter_settings'),['class'=>'required']) !!}--}}
 
-{{--                    <label class="switch toggle_event_editing">--}}
-{{--                    <input type="checkbox" value="{{$twitterStatus}}"  name="twitter_settings"--}}
-{{--                           class="checkbox6" id="twitter">--}}
-{{--                    <span class="slider round"></span>--}}
-{{--                    </label>--}}
-{{--                    </div>--}}
                 </div>
 
                 <div class="modal-footer justify-content-between">
@@ -721,15 +555,7 @@
                         {!! Form::text('zoho_key',$zohoKey,['class' => 'form-control zoho_key','id'=>'zoho_key']) !!}
                         <h6 id="zoho_keycheck"></h6>
                     </div>
-{{--                    <div style="display: flex; align-items: center; gap: 10px;">--}}
-{{--                        {!! Form::label('zoho_settings',Lang::get('message.zoho_settings'),['class'=>'required']) !!}--}}
 
-{{--                    <label class="switch toggle_event_editing">--}}
-{{--                        <input type="checkbox" value="{{$zohoStatus}}"  name="zoho_settings"--}}
-{{--                           class="checkbox8" id="zoho">--}}
-{{--                        <span class="slider round"></span>--}}
-{{--                    </label>--}}
-{{--                    </div>--}}
                 </div>
 
                 <div class="modal-footer justify-content-between">
@@ -757,15 +583,7 @@
                         {!! Form::text('pipedrive_key',$pipedriveKey,['class' => 'form-control pipedrive_key','id'=>'pipedrive_key']) !!}
                         <h6 id="pipedrive_keycheck"></h6>
                     </div>
-{{--                    <div style="display: flex; align-items: center; gap: 10px;">--}}
-{{--                        {!! Form::label('pipedrive_settings',Lang::get('message.pipedrive_settings'),['class'=>'required']) !!}--}}
 
-{{--                    <label class="switch toggle_event_editing">--}}
-{{--                        <input type="checkbox" value="{{$pipedriveStatus}}"  name="pipedrive_settings"--}}
-{{--                           class="checkbox13" id="pipedrive">--}}
-{{--                        <span class="slider round"></span>--}}
-{{--                    </label>--}}
-{{--                    </div>--}}
                 </div>
 
                 <div class="modal-footer justify-content-between">
@@ -1380,17 +1198,26 @@
 
                 },
                 success: function (response) {
-                    setTimeout(function() {
-                        location.reload();
-                    }, 3000);
-                    $('#alertMessage').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
-                    $('#alertMessage').html(result+ ".");
-                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
-                    setInterval(function(){
-                        $('#alertMessage').slideUp(3000);
-                    }, 1000);
-
+                    if(response['message']=='success') {
+                        setTimeout(function () {
+                            location.reload();
+                        }, 3000);
+                        $('#alertMessage').show();
+                        var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>' + response.update + '.</div>';
+                        $('#alertMessage').html(result + ".");
+                        $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                        setInterval(function () {
+                            $('#alertMessage').slideUp(3000);
+                        }, 1000);
+                    }else{
+                        $('#alertMessage').show();
+                        var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> Error! </strong>' + response.update + '.</div>';
+                        $('#alertMessage').html(result + ".");
+                        $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                        setInterval(function () {
+                            $('#alertMessage').slideUp(3000);
+                        }, 1000);
+                    }
                 },
 
 
@@ -2230,7 +2057,7 @@
                         }, 1000);}
                         else{
                         $('#alertMessage4').show();
-                        var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> error! </strong>'+data.update+'.</div>';
+                        var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> error! </strong>'+data.update+'.</div>';
                         $('#alertMessage4').html(result+ ".");
                         $("#submit-chimp").html("<i class='fa fa-save'>&nbsp;</i>Save");
                         setInterval(function(){
@@ -2327,16 +2154,26 @@
                     "terms_url": $('#terms_url').val(),
                 },
                 success: function (data) {
-                    setTimeout(function() {
-                        location.reload();
-                    }, 3000);
-                    $('#alertMessage5').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
-                    $('#alertMessage5').html(result+ ".");
-                    $("#submit10").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
-                    setInterval(function(){
-                        $('#alertMessage5').slideUp(3000);
-                    }, 1000);
+                    if(data['message']==='success') {
+                        setTimeout(function () {
+                            location.reload();
+                        }, 3000);
+                        $('#alertMessage5').show();
+                        var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>' + data.update + '.</div>';
+                        $('#alertMessage5').html(result + ".");
+                        $("#submit10").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                        setInterval(function () {
+                            $('#alertMessage5').slideUp(3000);
+                        }, 1000);
+                    }else{
+                        $('#alertMessage5').show();
+                        var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> Error! </strong>' + data.update + '.</div>';
+                        $('#alertMessage5').html(result + ".");
+                        $("#submit10").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                        setInterval(function () {
+                            $('#alertMessage5').slideUp(3000);
+                        }, 1000);
+                    }
                 },
             })
         });
@@ -2427,16 +2264,26 @@
                     "pipedrive_key": $('#pipedrive_key').val(),
                 },
                 success: function (data) {
-                    setTimeout(function() {
-                        location.reload();
-                    }, 3000);
-                    $('#alertMessage8').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
-                    $('#alertMessage8').html(result+ ".");
-                    $("#submit13").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
-                    setInterval(function(){
-                        $('#alertMessage8').slideUp(3000);
-                    }, 1000);
+                    if(data['message']=='success') {
+                        setTimeout(function () {
+                            location.reload();
+                        }, 3000);
+                        $('#alertMessage8').show();
+                        var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>' + data.update + '.</div>';
+                        $('#alertMessage8').html(result + ".");
+                        $("#submit13").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                        setInterval(function () {
+                            $('#alertMessage8').slideUp(3000);
+                        }, 1000);
+                    }else{
+                        $('#alertMessage8').show();
+                        var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> Error! </strong>' + data.update + '.</div>';
+                        $('#alertMessage8').html(result + ".");
+                        $("#submit13").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                        setInterval(function () {
+                            $('#alertMessage8').slideUp(3000);
+                        }, 1000);
+                    }
                 },
             })
         });
