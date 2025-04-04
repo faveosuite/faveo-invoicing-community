@@ -144,7 +144,7 @@ User
                         <a class="nav-link" id="customer_detail" data-toggle="pill" href="#settings" role="tab"  aria-selected="false">{{Lang::get('message.customer_detail')}}</a>
                         <a class="nav-link" id="payment" data-toggle="pill" href="#timeline" role="tab"  aria-selected="false">{{Lang::get('message.payment_detail')}}</a>
                         <a class="nav-link" id="orderdetail" data-toggle="pill" href="#order" role="tab" aria-controls="vert-tabs-settings" aria-selected="false">{{Lang::get('message.order_detail')}}</a>
-                        <a class="nav-link" id="vert-tabs-comment-tab" data-toggle="pill" href="#comment" role="tab" aria-controls="vert-tabs-settings" aria-selected="false">{{Lang::get('message.comment')}}&nbsp;<span class="badge bg-green">{{count($comments)}}</span></a>
+                        <a class="nav-link" id="vert-tabs-comment-tab" data-toggle="pill" href="#comments" role="tab" aria-controls="vert-tabs-settings" aria-selected="false">{{Lang::get('message.comment')}}&nbsp;<span class="badge bg-green">{{count($comments)}}</span></a>
 
                     </div>
                 </div>
@@ -196,11 +196,10 @@ User
                                     $('#customer_detail').trigger('click');
                                 }  else if(activeTab == "#activity") {
                                     $('#invoice').trigger('click');
-                                }  else if(activeTab == "#comment") {
-                                    $('#comment').trigger('click');
+                                }  else if(activeTab == "#comments") {
+                                    $('#vert-tabs-comment-tab').tab('show');
                                 }
                             });
-
 
                             $("#invoice").on('click',function(){
                                 $('#orderdetail-table').DataTable().clear().destroy();
@@ -793,19 +792,13 @@ User
 
                         </div>
                        
-                        <div class="tab-pane fade" id="comment" role="tabpanel" aria-labelledby="vert-tabs-settings-tab">
+                        <div class="tab-pane fade" id="comments" role="tabpanel" aria-labelledby="vert-tabs-settings-tab">
                             <a href="#comment" class="btn btn-default btn-sm pull-right" data-toggle="modal" data-target="#createComment">
                                 <span class="fas fa-plus"></span>&nbsp;&nbsp;{{Lang::get('message.add_comment')}}</a>
                             @include('themes.default1.user.client.createComment')
 
                             <br/> <br/> <br/>
-                           
-                                <!-- The timeline -->
-                              
 
-                                   
-                                    <!-- /.timeline-label -->
-                                    <!-- timeline item -->
                                     @forelse($comments as $comment)
                                      <div class="timeline">
                                         <?php
@@ -814,17 +807,17 @@ User
                                          if(\App\User::onlyTrashed()->find($userId)) {
                                              $user = \App\User::onlyTrashed()->find($userId);
                                         }
-                                        
+
                                        ?>
                                         <div>
-                                      
+
 
                                             <i class="fas fa-comments bg-yellow" title="Posted by {{$user->role}}"></i>
 
                                             <div class="timeline-item">
                                                    @include('themes.default1.user.client.editComment')
                                                    @if($user->profile_pic != null)
-                                             
+
                                                     <h3 class="timeline-header"><a href="{{url('clients/'.$user->id)}}"><img src="{{ asset('storage/common/images/users/' . $user->profile_pic) }}" class="img-circle img-bordered-sm" alt="User Image" width="35" height="35">&nbsp;{{$user->first_name}} {{$user->last_name}}</a> commented on
                                                     <b> {!! getDateHtml($comment->created_at) !!}</b>
                                                 </h3>
@@ -833,12 +826,12 @@ User
                                                     <b> {!! getDateHtml($comment->created_at) !!}</b>
                                                 </h3>
                                                 @endif
-                                                   
-                                                 
+
+
 
                                                 <div class="timeline-body" id="longdesc" >
 
-                                                  
+
                                                         @if(strlen($comment->description) > 100)
                                                             {{substr($comment->description,0,100)}}
                                                             <span class="read-more-show hide_content">More&nbsp;<i class="fa fa-angle-down"></i></span>
@@ -851,7 +844,7 @@ User
 
                                                     <!-- {{$comment->description}} -->
 
-                                                   
+
                                                     <br/>
                                                     </div>
                                                     <div id="response"></div>
@@ -862,7 +855,7 @@ User
 
                                                     </div>
                                                 </div>
-                                        
+
                                     </div>
                                     @empty
                                         <tr>
@@ -872,8 +865,8 @@ User
                                         </tr>
                                          </div>
                                     @endforelse
-                               
-                                
+
+
                              </div>
                     </div>
                 </div>

@@ -15,7 +15,7 @@
                     {!! Form::label('license',Lang::get('message.installation_limit'),['class'=>'required']) !!}
                     <div id="response3"></div>
                      <input name="install-limit" type="number" value="" class="form-control" id="limitnumber">
-					<div class="inpput-group-append"></div>
+					<div class="input-group-append"></div>
               </div>
         
 		</div>

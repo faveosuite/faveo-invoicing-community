@@ -1134,7 +1134,7 @@ return [
     'image_invalid_size'=>'Please upload files, size less than 2MB.',
     'plan_renew'=>'Please select a plan.',
     'agents'=>'Please enter number of agents.',
-    'domain_name'=>'Please enter a valid domain name.',
+    'domain_name'=>'Please enter a valid domain(https://example.com/public).',
     'limit_number'=>'Please enter installation limit.',
     'renew_plan'=>'Please enter a valid plan.',
     'renew_price'=>'Please enter a price.',

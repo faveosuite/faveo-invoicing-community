@@ -36,12 +36,13 @@ Renew
                     <div class="col-md-4 form-group {{ $errors->has('plan') ? 'has-error' : '' }}">
                         <!-- first name -->
                         {!! Form::label('plan','Plans',['class'=>'required']) !!}
-                          <select name="plan" id="plan" value= "Choose" onchange="fetchPlanCost(this.value)" class="form-control">
+                          <select name="plan" id="plan" value= "Choose" onchange="fetchPlanCost(this.value)" class="form-control" >
                              <option value="Choose">Choose</option>
                            @foreach($plans as $key=>$plan)
                               <option value={{$key}}>{{$plan}}</option>
                           @endforeach
                           </select>
+                        <div class="input-group-append"></div>
                         <!-- {!! Form::select('plan',[''=>'Select','Plans'=>$plans],null,['class' => 'form-control','onchange'=>'fetchPlanCost(this.value)']) !!} -->
                         {!! Form::hidden('user',$userid) !!}
                     </div>
@@ -52,12 +53,13 @@ Renew
                         <!-- last name -->
                         {!! Form::label('payment_method',Lang::get('message.payment-method'),['class'=>'required']) !!}
                         {!! Form::select('payment_method',[''=>'Choose','cash'=>'Cash','check'=>'Check','online payment'=>'Online Payment','razorpay'=>'Razorpay','stripe'=>'Stripe'],null,['class' => 'form-control','id'=>'payment_method']) !!}
-
+                       <div class="input-group-append"></div>
                     </div>
                      <div class="col-md-4 form-group {{ $errors->has('cost') ? 'has-error' : '' }}">
                         <!-- last name -->
                         {!! Form::label('cost',Lang::get('message.price'),['class'=>'required']) !!}
                         {!! Form::text('cost',null,['class' => 'form-control','id'=>'price']) !!}
+                         <div class="input-group-append"></div>
 
                     </div>
                 </div>
@@ -85,6 +87,68 @@ Renew
 
 {!! Form::close() !!}
  <script>
+     $(document).ready(function() {
+         const userRequiredFields = {
+             planname:@json(trans('message.renew_plan')),
+             planproduct:@json(trans('message.renew_price')),
+             regular_price:@json(trans('message.renew_payment_method')),
+         };
+
+         $('#submit').on('click', function (e) {
+             const userFields = {
+                 planname:$('#plan'),
+                 planproduct:$('#price'),
+                 regular_price:$('#payment_method'),
+             };
+
+
+             // Clear previous errors
+             Object.values(userFields).forEach(field => {
+                 field.removeClass('is-invalid');
+                 field.next().next('.error').remove();
+
+             });
+
+             let isValid = true;
+
+             const showError = (field, message) => {
+                 field.addClass('is-invalid');
+                 field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+             };
+
+             // Validate required fields
+             Object.keys(userFields).forEach(field => {
+                 if (!userFields[field].val()) {
+                     showError(userFields[field], userRequiredFields[field]);
+                     isValid = false;
+                 }
+             });
+
+             // If validation fails, prevent form submission
+             if (!isValid) {
+                 e.preventDefault();
+             }
+         });
+         // Function to remove error when input'id' => 'changePasswordForm'ng data
+         const removeErrorMessage = (field) => {
+             field.classList.remove('is-invalid');
+             const error = field.nextElementSibling;
+             if (error && error.classList.contains('error')) {
+                 error.remove();
+             }
+         };
+
+         // Add input event listeners for all fields
+         ['plan','price','payment_method'].forEach(id => {
+
+             document.getElementById(id).addEventListener('input', function () {
+                 removeErrorMessage(this);
+
+             });
+         });
+     });
+
+
      $('ul.nav-sidebar a').filter(function() {
         return this.id == 'all_order';
     }).addClass('active');
@@ -176,66 +240,7 @@ Renew
          fetchPlanCost(selectedPlanId);
      });
 
-     $(document).ready(function() {
-         const userRequiredFields = {
-             planname:@json(trans('message.renew_plan')),
-             planproduct:@json(trans('message.renew_price')),
-             regular_price:@json(trans('message.renew_payment_methos')),
-         };
 
-         $('#submit').on('click', function (e) {
-             const userFields = {
-                 planname:$('#plan'),
-                 planproduct:$('#price'),
-                 regular_price:$('#payment_method'),
-             };
-
-
-             // Clear previous errors
-             Object.values(userFields).forEach(field => {
-                 field.removeClass('is-invalid');
-                 field.next().next('.error').remove();
-
-             });
-
-             let isValid = true;
-
-             const showError = (field, message) => {
-                 field.addClass('is-invalid');
-                 field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
-             };
-
-             // Validate required fields
-             Object.keys(userFields).forEach(field => {
-                 if (!userFields[field].val()) {
-                     showError(userFields[field], userRequiredFields[field]);
-                     isValid = false;
-                 }
-             });
-
-             // If validation fails, prevent form submission
-             if (!isValid) {
-                 e.preventDefault();
-             }
-         });
-         // Function to remove error when input'id' => 'changePasswordForm'ng data
-         const removeErrorMessage = (field) => {
-             field.classList.remove('is-invalid');
-             const error = field.nextElementSibling;
-             if (error && error.classList.contains('error')) {
-                 error.remove();
-             }
-         };
-
-         // Add input event listeners for all fields
-         ['plan','price','payment_method'].forEach(id => {
-
-             document.getElementById(id).addEventListener('input', function () {
-                 removeErrorMessage(this);
-
-             });
-         });
-     });
 
 
  </script>

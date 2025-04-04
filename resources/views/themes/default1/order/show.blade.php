@@ -218,8 +218,8 @@ input:checked + .slider:before {
                                                                <form method="GET" action="{{url('uploadFile')}}" id="domain_id">
                                                                    {!! csrf_field() !!}
                                                                    <div class="form-group">
-                                                                       <label for="recipient-name" class="col-form-label">Domain Name:</label>
-                                                                       <input type="text" class="form-control" id="recipient-name" placeholder="https://faveohelpdesk.com/public" name="domain" value="">
+                                                                       <label for="recipient-name" class="col-form-label required">Domain Name</label>
+                                                                       <input type="text" class="form-control" id="recipient-name" placeholder="https://example.com/public" name="domain" value="">
                                                                        {{Form::hidden('orderNo', $order->number)}}
                                                                        {{Form::hidden('userId',$user->id)}}
                                                                        <br>
@@ -926,6 +926,11 @@ input:checked + .slider:before {
             }
         });
 
+        if(isValid && !isValidURL(userFields.name.val())){
+            showError(userFields.name,@json(trans('message.domain_name')));
+            isValid=false;
+        }
+
         // If validation fails, prevent form submission
         if (!isValid) {
             e.preventDefault();
@@ -933,6 +938,14 @@ input:checked + .slider:before {
 
     });
 
+    function isValidURL(url) {
+        try {
+            new URL(url);
+            return true;  // URL is valid
+        } catch (e) {
+            return false; // URL is invalid
+        }
+    }
 
         $("#reissueLic").click(function(){
           if ($('#domainRes').val() == 1) {
