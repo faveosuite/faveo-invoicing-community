@@ -20,6 +20,59 @@ use Illuminate\Support\Facades\Http;
 
 trait ApiKeySettings
 {
+    private function postCurl($post_url, $post_info, $token = null)
+    {
+        if (! empty($token)) {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $post_url);
+            curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BEARER);
+            curl_setopt($ch, CURLOPT_XOAUTH2_BEARER, $token);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $post_info);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+            $result = curl_exec($ch);
+            curl_close($ch);
+
+            return $result;
+        } else {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $post_url);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $post_info);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+            $result = curl_exec($ch);
+            curl_close($ch);
+
+            return $result;
+        }
+    }
+
+
+    private function getCurl($get_url, $token = null)
+    {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $get_url);
+        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BEARER);
+        curl_setopt($ch, CURLOPT_XOAUTH2_BEARER, $token);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 90);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // For testing, set to true in production
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        if (curl_exec($ch) === false) {
+            echo 'Curl error: '.curl_error($ch);
+        }
+        $content = curl_exec($ch);
+        curl_close($ch);
+
+        return json_decode($content, true);
+    }
+
     public function licenseDetails(Request $request)
     {
         $status = $request->input('status');
@@ -28,6 +81,26 @@ trait ApiKeySettings
         $licenseApiClientId = $request->input('license_client_id');
         $licenseApiClientSecret = $request->input('license_client_secret');
         $licenseApiGrantType = $request->input('license_grant_type');
+
+        $data = [
+            'api_key_secret' => $licenseApiSecret,
+            'client_id' => $licenseApiClientId,
+            'client_secret' => $licenseApiClientSecret,
+            'grant_type' => $licenseApiGrantType,
+        ];
+
+        try {
+            $response = $this->postCurl($licenseApiUrl . 'oauth/token', $data);
+            $response = json_decode($response);
+
+            $token = $response->access_token;
+            $getkey = $this->getCurl($licenseApiUrl . 'api/admin/viewApiKeys', $token);
+        }catch(\Exception $e){
+            return ['message' => 'error', 'update' => 'Please enter valid details.'];
+        }
+
+
+
         StatusSetting::where('id', 1)->update(['license_status' => $status]);
         ApiKey::where('id', 1)->update(['license_api_secret' => $licenseApiSecret, 'license_api_url' => $licenseApiUrl,
             'license_client_id' => $licenseApiClientId, 'license_client_secret' => $licenseApiClientSecret,
@@ -125,11 +198,11 @@ trait ApiKeySettings
      */
     public function updatemobileDetails(Request $request)
     {
+
         $status = $request->input('status');
         $key = $request->input('msg91_auth_key');
         StatusSetting::find(1)->update(['msg91_status' => $status]);
         ApiKey::find(1)->update(['msg91_auth_key' => $key, 'msg91_sender' => $request->input('msg91_sender'), 'msg91_template_id' => $request->input('msg91_template_id')]);
-
         return ['message' => 'success', 'update' => \Lang::get('message.mobile_setting')];
     }
 
@@ -187,6 +260,26 @@ trait ApiKeySettings
     public function updatepipedriveDetails(Request $request)
     {
         $pipedriveKey = $request->input('pipedrive_key');
+
+        $url = "https://api.pipedrive.com/v1/users/me?api_token=" . urlencode($pipedriveKey);
+
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false); // For testing, set to true in production
+
+        $response = curl_exec($curl);
+        $error = curl_error($curl);
+        curl_close($curl);
+
+        if ($error) {
+            return ['message' => 'error', 'update' => "$error"];
+        }
+
+        $result = json_decode($response, true);
+        if (isset($result['success']) && $result['success'] !== true) {
+            return ['message' => 'fails', 'update' => \Lang::get('message.pipedrive_error')];
+        }
         $status = $request->input('status');
         StatusSetting::find(1)->update(['pipedrive_status' => $status]);
         ApiKey::find(1)->update(['pipedrive_api_key' => $pipedriveKey]);
@@ -266,6 +359,13 @@ trait ApiKeySettings
     public function updateTermsDetails(Request $request)
     {
         $terms_url = $request->input('terms_url');
+        $ch = curl_init($terms_url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($ch);
+        curl_close($ch);
+        if($response==false){
+            return ['message' => 'error', 'update' => \Lang::get('message.terms_error')];
+        }
         $status = (int) $request->input('status');
         StatusSetting::find(1)->update(['terms' => $status]);
         ApiKey::find(1)->update(['terms_url' => $terms_url]);

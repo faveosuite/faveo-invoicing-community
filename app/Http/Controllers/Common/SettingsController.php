@@ -193,7 +193,6 @@ class SettingsController extends BaseSettingsController
         $github = $model->firstOrFail();
         $githubStatus = StatusSetting::first()->github_status;
         $githubFileds = $github->select('client_id', 'client_secret', 'username', 'password')->first();
-
         return response()->json([
             'githubFileds' => $githubFileds,
 
@@ -259,21 +258,21 @@ class SettingsController extends BaseSettingsController
                 $allists = $mailchimp->get('lists?count=20')['lists'];
                 $selectedList[] = $set->list_id;
             } catch (\Exception $e) {
-                // Log the error if needed
                 \Log::error('Mailchimp Initialization Failed: '.$e->getMessage());
-
-                // Return null when it fails
-                $mailchimp = '';
                 $allists = [];
                 $selectedList = [];
             }
             $model = new Github();
             $github = $model->firstOrFail();
             $githubStatus = StatusSetting::first()->github_status;
-            $githubFileds = $github->select('client_id', 'client_secret', 'username', 'password')->first();
+//            $githubFileds = $github->select('client_id', 'client_secret', 'username', 'password')->first();
+$githubFileds=(object)[
+    'client_id' => '1325',
+    'client_secret'=>'23452',
+    'username'=>'test',
+    'password'=>'test',
 
-
-
+];
             return view('themes.default1.common.apikey', compact('model', 'status', 'licenseSecret', 'licenseUrl', 'siteKey', 'secretKey', 'captchaStatus', 'v3CaptchaStatus', 'updateStatus', 'updateSecret', 'updateUrl', 'mobileStatus', 'mobileauthkey', 'msg91Sender', 'msg91TemplateId', 'emailStatus', 'twitterStatus', 'twitterKeys', 'zohoStatus', 'zohoKey', 'rzpStatus', 'rzpKeys', 'mailchimpSetting', 'mailchimpKey', 'termsStatus', 'termsUrl', 'pipedriveKey', 'pipedriveStatus', 'domainCheckStatus', 'mailSendingStatus',
                 'licenseClientId', 'licenseClientSecret', 'licenseGrantType','allists', 'selectedList','set','githubStatus','githubFileds'));
         } catch (\Exception $ex) {

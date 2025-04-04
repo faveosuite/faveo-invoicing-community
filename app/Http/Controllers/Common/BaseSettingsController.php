@@ -315,7 +315,7 @@ class BaseSettingsController extends PaymentSettingsController
 
             $envFile = app()->environmentFilePath();
             $str = file_get_contents($envFile);
-
+            $resultJson = json_decode($str);
             if (count($values) > 0) {
                 foreach ($values as $envKey => $envValue) {
                     $str .= "\n"; // In case the searched variable is in the last line without \n
@@ -337,8 +337,6 @@ class BaseSettingsController extends PaymentSettingsController
                 return false;
             }
         } else {
-//            $nocaptcha_sitekey = '';
-//            $captcha_secretCheck = '';
             $nocaptcha_sitekey = $request->input('nocaptcha_sitekey');
             $captcha_secretCheck = $request->input('nocaptcha_secret');
             $path_to_file = base_path('.env');
@@ -361,7 +359,7 @@ class BaseSettingsController extends PaymentSettingsController
         return ['message' => 'success', 'update' => 'Recaptcha Settings Updated'];
     }
 
-    //Save Google recaptch site key and secret in Database
+    //Save Google recaptcha site key and secret in Database
     public function v3captchaDetails(Request $request)
     {
         $status = $request->input('status');

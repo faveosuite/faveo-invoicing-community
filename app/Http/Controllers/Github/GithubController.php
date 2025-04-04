@@ -210,6 +210,7 @@ class GithubController extends Controller
 
             return view('themes.default1.github.settings', compact('model', 'githubStatus', 'githubFileds'));
         } catch (Exception $ex) {
+
             return redirect('/')->with('fails', $ex->getMessage());
         }
     }
@@ -218,6 +219,22 @@ class GithubController extends Controller
     {
         try {
             $status = $request->input('status');
+//            $url = "https://api.pipedrive.com/v1/users/me?api_token=" . urlencode($pipedriveKey);
+//
+//            $curl = curl_init();
+//            curl_setopt($curl, CURLOPT_URL, $url);
+//            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+//            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false); // For testing, set to true in production
+//
+//            $response = curl_exec($curl);
+//            $error = curl_error($curl);
+//            curl_close($curl);
+//
+//            if ($error) {
+//                return ['message' => 'error', 'update' => "$error"];
+//            }
+
+
             StatusSetting::find(1)->update(['github_status' => $status]);
             Github::find(1)->update(['username' => $request->input('git_username'),
                 'password' => $request->input('git_password'), 'client_id' => $request->input('git_client'),
@@ -300,8 +317,6 @@ class GithubController extends Controller
 
             return $link['header'];
         } catch (Exception $ex) {
-            dd($ex);
-
             return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
