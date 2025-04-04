@@ -35,9 +35,9 @@ Renew
 
                     <div class="col-md-4 form-group {{ $errors->has('plan') ? 'has-error' : '' }}">
                         <!-- first name -->
-                        {!! Form::label('plan','Plans',['class'=>'required']) !!}
-                          <select name="plan" id="plan" value= "Choose" onchange="fetchPlanCost(this.value)" class="form-control" >
-                             <option value="Choose">Choose</option>
+                        {!! Form::label('plan','Plan',['class'=>'required']) !!}
+                          <select name="plan" id="plans" onchange="fetchPlanCost(this.value)" class="form-control" >
+                             <option value=''>Choose</option>
                            @foreach($plans as $key=>$plan)
                               <option value={{$key}}>{{$plan}}</option>
                           @endforeach
@@ -96,11 +96,10 @@ Renew
 
          $('#submit').on('click', function (e) {
              const userFields = {
-                 planname:$('#plan'),
+                 planname:$('#plans'),
                  planproduct:$('#price'),
                  regular_price:$('#payment_method'),
              };
-
 
              // Clear previous errors
              Object.values(userFields).forEach(field => {
@@ -139,7 +138,7 @@ Renew
          };
 
          // Add input event listeners for all fields
-         ['plan','price','payment_method'].forEach(id => {
+         ['plans','price','payment_method'].forEach(id => {
 
              document.getElementById(id).addEventListener('input', function () {
                  removeErrorMessage(this);
@@ -208,7 +207,6 @@ Renew
              success: function (data) {
 
                  $("#price").val(data[0]);
-
                  shouldFetchPlanCost = true;
 
              }
@@ -218,14 +216,14 @@ Renew
      }
      @endif
      // Call the fetchPlanCost function when the plan dropdown selection changes
-     $('#plan').on('change', function () {
+     $('#plans').on('change', function () {
          var selectedPlanId = $(this).val(); // Get the selected plan ID
          fetchPlanCost(selectedPlanId); // Call the function to fetch plan cost
      });
 
      // Call the fetchPlanCost function initially with the default selected plan
      $(document).ready(function () {
-         var initialPlanId = $('#plan').val();
+         var initialPlanId = $('#plans').val();
          fetchPlanCost(initialPlanId);
      });
 
