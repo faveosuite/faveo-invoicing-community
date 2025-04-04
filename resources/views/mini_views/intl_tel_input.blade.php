@@ -100,4 +100,24 @@
             input.setAttribute('data-country-iso', selectedCountry.iso2);
         }
     }
+
+    function getAllCountryData(filter = null) {
+        const iti = itiInstances[0]; // get the instance
+        const countries = iti.countries;
+
+        if (!filter) {
+            return countries;
+        }
+
+        // Convert to lowercase for case-insensitive matching
+        const filtered = countries.filter(country => {
+            return Object.keys(filter).every(key => {
+                const value = filter[key].toString().toLowerCase();
+                const countryValue = (country[key] || '').toString().toLowerCase();
+                return countryValue === value;
+            });
+        });
+
+        return filtered;
+    }
 </script>
