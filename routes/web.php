@@ -611,7 +611,14 @@ Route::middleware('installAgora')->group(function () {
     Route::prefix('api')->withoutMiddleware(['web'])->middleware(['api'])->group(function () {
         Route::post('productDownload', [Product\BaseProductController::class, 'productDownload']);
         Route::post('productExist', [Product\BaseProductController::class, 'productFileExist']);
+
+//        it receive the reports form the MSG91
+        Route::post('msg91/reports', [Common\MSG91Controller::class, 'handleReports']);
     });
+
+    Route::get('sms/reports', [Common\MSG91Controller::class, 'msg91Reports']);
+    Route::get('getMsgReports', [Common\MSG91Controller::class, 'getMsg91Reports']);
+
 
     //preview image
     Route::get('preview-file', [FileManagerController::class, 'previewFile']);

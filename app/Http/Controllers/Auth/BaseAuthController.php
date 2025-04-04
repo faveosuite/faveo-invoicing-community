@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\ApiKey;
+use App\Http\Controllers\Common\MSG91Controller;
 use App\Http\Controllers\Controller;
 use App\Model\Common\Country;
 use App\Model\Common\Setting;
@@ -88,6 +89,11 @@ class BaseAuthController extends Controller
         ];
 
         $response = $this->makeRequest('POST', 'https://api.msg91.com/api/v5/otp', $queryParams);
+
+        if ($response['type'] !== 'success') {
+            $userId = \Session::get('user')->id ?? null;
+            (new MSG91Controller())->updateOtpRequest($response['message'], $userId);
+        }
 
         return $response['type'] !== 'error';
     }
