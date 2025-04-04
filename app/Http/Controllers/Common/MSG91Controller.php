@@ -8,15 +8,15 @@ use Illuminate\Http\Request;
 
 class MSG91Controller extends Controller
 {
-
     public function __construct()
     {
-        $this->middleware(['auth','admin']);
+        $this->middleware(['auth', 'admin']);
     }
+
     /**
-     * Handle MSG91 webhook delivery reports
+     * Handle MSG91 webhook delivery reports.
      *
-     * @param Request $request
+     * @param  Request  $request
      */
     public function handleReports(Request $request): void
     {
@@ -39,21 +39,20 @@ class MSG91Controller extends Controller
                             'sender_id' => $senderId,
                             'number' => $singleReport['number'],
                             'status' => $singleReport['status'],
-                            'date' => $singleReport['date'] ?? now()->toDateTimeString()
+                            'date' => $singleReport['date'] ?? now()->toDateTimeString(),
                         ]);
                     }
                 }
             });
-
         } catch (\Exception $e) {
-            return ;
+            return;
         }
     }
 
     /**
-     * Process and store individual report
+     * Process and store individual report.
      *
-     * @param array $reportData
+     * @param  array  $reportData
      */
     protected function processIndividualReport(array $reportData)
     {
@@ -76,7 +75,6 @@ class MSG91Controller extends Controller
         );
     }
 
-
     public function msg91Reports()
     {
         return view('themes.default1.common.sms.msgReports');
@@ -89,7 +87,7 @@ class MSG91Controller extends Controller
                 'id' => $item->id,
                 'mobile_number' => $item->mobile_number,
                 'request_id' => $item->request_id,
-                'status' => $item->status == "1" ? "delivered" : $item->status,
+                'status' => $item->status == '1' ? 'delivered' : $item->status,
                 'date' => $item->date,
                 'sender_id' => strtoupper($item->sender_id),
                 'failure_reason' => $item->failure_reason,
@@ -101,5 +99,4 @@ class MSG91Controller extends Controller
 
         return successResponse('success', $response);
     }
-
 }

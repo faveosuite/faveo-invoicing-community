@@ -619,7 +619,6 @@ Route::middleware('installAgora')->group(function () {
     Route::get('sms/reports', [Common\MSG91Controller::class, 'msg91Reports']);
     Route::get('getMsgReports', [Common\MSG91Controller::class, 'getMsg91Reports']);
 
-
     //preview image
     Route::get('preview-file', [FileManagerController::class, 'previewFile']);
 });
