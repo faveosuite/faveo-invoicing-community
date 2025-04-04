@@ -39,10 +39,10 @@ class MsgDeliveryReports extends Model
     {
         return strtoupper($this->sender_id);
     }
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id')
             ->selectRaw("id, CONCAT(first_name, ' ', last_name) as full_name");
     }
-
 }
