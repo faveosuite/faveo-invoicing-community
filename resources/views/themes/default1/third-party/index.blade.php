@@ -261,6 +261,21 @@ Third party Apps
         })
     }
 
+    $('.get-app-key').on('click', function () {
+        $.ajax({
+            type: "GET",
+            url: "{{url('get-app-key')}}",
+            success: function (data) {
+                $(".app-key").val(data)
+            }
+        });
+
+    })
+
+    $('.closebutton').on('click', function () {
+        location.reload();
+    })
+
       $(document).on('click','#bulk_delete',function() {
           var id = [];
           $('.type_checkbox:checked').each(function () {
@@ -346,20 +361,6 @@ Third party Apps
                   return false;
               });
           }
-              $('.get-app-key').on('click', function () {
-                  $.ajax({
-                      type: "GET",
-                      url: "{{url('get-app-key')}}",
-                      success: function (data) {
-                          $(".app-key").val(data)
-                      }
-                  });
-
-              })
-
-              $('.closebutton').on('click', function () {
-                  location.reload();
-              })
 
       });
 

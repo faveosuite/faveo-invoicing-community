@@ -159,7 +159,7 @@ class AuthController extends BaseAuthController
             $attempts->mobile_attempt = (int) $attempts->mobile_attempt + 1;
             $attempts->save();
 
-            if (! $this->sendOtp($user->mobile_code.$user->mobile)) {
+            if (! $this->sendOtp($user->mobile_code.$user->mobile, $user->id)) {
                 return errorResponse(__('message.otp_verification.send_failure'));
             }
 

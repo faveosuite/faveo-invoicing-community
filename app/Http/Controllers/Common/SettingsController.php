@@ -91,6 +91,7 @@ class SettingsController extends BaseSettingsController
             $mobileauthkey = $apikeys->pluck('msg91_auth_key')->first();
             $msg91Sender = $apikeys->pluck('msg91_sender')->first();
             $msg91TemplateId = $apikeys->pluck('msg91_template_id')->first();
+            $msg91ThirdPartyId = $apikeys->pluck('msg91_third_party_id')->first();
             $updateUrl = $apikeys->pluck('update_api_url')->first();
             $emailStatus = StatusSetting::pluck('emailverification_status')->first();
             $twitterKeys = $apikeys->select('twitter_consumer_key', 'twitter_consumer_secret',
@@ -113,7 +114,7 @@ class SettingsController extends BaseSettingsController
             // $v3siteKey = $apikeys->pluck('v3captcha_sitekey')->first();
             // $v3secretKey = $apikeys->pluck('v3captcha_secretCheck')->first();
 
-            return view('themes.default1.common.apikey', compact('model', 'status', 'licenseSecret', 'licenseUrl', 'siteKey', 'secretKey', 'captchaStatus', 'v3CaptchaStatus', 'updateStatus', 'updateSecret', 'updateUrl', 'mobileStatus', 'mobileauthkey', 'msg91Sender', 'msg91TemplateId', 'emailStatus', 'twitterStatus', 'twitterKeys', 'zohoStatus', 'zohoKey', 'rzpStatus', 'rzpKeys', 'mailchimpSetting', 'mailchimpKey', 'termsStatus', 'termsUrl', 'pipedriveKey', 'pipedriveStatus', 'domainCheckStatus', 'mailSendingStatus', 'licenseClientId', 'licenseClientSecret', 'licenseGrantType'));
+            return view('themes.default1.common.apikey', compact('model', 'status', 'licenseSecret', 'licenseUrl', 'siteKey', 'secretKey', 'captchaStatus', 'v3CaptchaStatus', 'updateStatus', 'updateSecret', 'updateUrl', 'mobileStatus', 'mobileauthkey', 'msg91Sender', 'msg91TemplateId', 'emailStatus', 'twitterStatus', 'twitterKeys', 'zohoStatus', 'zohoKey', 'rzpStatus', 'rzpKeys', 'mailchimpSetting', 'mailchimpKey', 'termsStatus', 'termsUrl', 'pipedriveKey', 'pipedriveStatus', 'domainCheckStatus', 'mailSendingStatus', 'licenseClientId', 'licenseClientSecret', 'licenseGrantType', 'msg91ThirdPartyId'));
         } catch (\Exception $ex) {
             return redirect('/')->with('fails', $ex->getMessage());
         }

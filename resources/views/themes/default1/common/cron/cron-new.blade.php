@@ -32,7 +32,7 @@
         @endif
 
 
-    
+
 
     {!! Form::model($status,['url' => 'post-scheduler', 'method' => 'PATCH','id'=>'Form']) !!}
     <div class="card-header">
@@ -48,7 +48,7 @@
                 </div>
         </div>
 
-        
+
          <div class="alert  alert-dismissable" style="background: #F3F3F3">
             <div class="row">
             <div class="col-md-2 copy-command1">
@@ -70,7 +70,7 @@
                     </div>
                 </div>
                   <div class="col-md-5 copy-command2">
-                   <span style="font-size: 15px">-q {{$cronPath}} schedule:run 2>&1 </span> 
+                   <span style="font-size: 15px">-q {{$cronPath}} schedule:run 2>&1 </span>
                 </div>
                 <div class="col-md-1">
                     <span style="font-size: 20px" id="copyBtn" title="{{Lang::get('message.verify-and-copy-command')}}" onclick="verifyPHPExecutableAndCopyCommand()"><i class="fa fa-clipboard"></i></span>
@@ -78,14 +78,14 @@
                 </div>
             </div>
         </div>
-        
+
      <div class="row">
         <div class="col-md-6">
             <div class="info-box">
                 <span class="info-box-icon bg-info" style="height: 70px;"><i class="fa fa-envelope"></i></span>
                 <!-- Apply any bg-* class to to the icon to color it -->
                 <div class="info-box-content" style="display: block;">
-               
+
                     <div class="col-md-6">
 
                         <div class="form-group">
@@ -101,7 +101,7 @@
                             {!! Form::text('expiry-dailyAt',$condition->getConditionValue('expiryMail')['at'],['class'=>'form-control time-picker',"placeholder" => "HH:MM"]) !!}
 
                         </div>
-                      
+
                     </div>
                 </div>
             </div><!-- /.info-box-content -->
@@ -126,7 +126,7 @@
                             {!! Form::text('activity-dailyAt',$condition->getConditionValue('deleteLogs')['at'],['class'=>'form-control time-picker',"placeholder" => "HH:MM"]) !!}
 
                         </div>
-                       
+
                     </div>
                 </div><!-- /.info-box-content -->
             </div><!-- /.info-box -->
@@ -137,7 +137,7 @@
                 <span class="info-box-icon bg-info" style="height: 70px;"><i class="fa fa-cloud"></i></span>
                 <!-- Apply any bg-* class to to the icon to color it -->
                 <div class="info-box-content" style="display: block;">
-               
+
                     <div class="col-md-6">
 
                         <div class="form-group">
@@ -158,7 +158,7 @@
                     </div>
 
 
-                   
+
                 </div>
             </div><!-- /.info-box-content -->
 
@@ -173,7 +173,7 @@
                 <span class="info-box-icon bg-info" style="height: 70px;"><i class="fa fa-envelope"></i></span>
                 <!-- Apply any bg-* class to to the icon to color it -->
                 <div class="info-box-content" style="display: block;">
-               
+
                     <div class="col-md-6">
 
                         <div class="form-group">
@@ -189,7 +189,7 @@
                             {!! Form::text('postsubexpiry-dailyAt',$condition->getConditionValue('postExpirymail')['at'],['class'=>'form-control time-picker',"placeholder" => "HH:MM"]) !!}
 
                         </div>
-                      
+
                     </div>
                 </div>
             </div><!-- /.info-box-content -->
@@ -201,7 +201,7 @@
                 <span class="info-box-icon bg-info" style="height: 70px;"><i class="fa fa-cloud"></i></span>
                 <!-- Apply any bg-* class to to the icon to color it -->
                 <div class="info-box-content" style="display: block;">
-               
+
                     <div class="col-md-6">
 
                         <div class="form-group">
@@ -219,7 +219,7 @@
                     </div>
 
 
-                   
+
                 </div>
             </div><!-- /.info-box-content -->
 
@@ -230,7 +230,7 @@
                 <span class="info-box-icon bg-info" style="height: 70px;"><i class="fas fa-file-invoice"></i></span>
                 <!-- Apply any bg-* class to to the icon to color it -->
                 <div class="info-box-content" style="display: block;">
-               
+
                     <div class="col-md-6">
 
                         <div class="form-group">
@@ -248,7 +248,37 @@
                     </div>
 
 
-                   
+
+                </div>
+            </div><!-- /.info-box-content -->
+
+        </div><!-- /.info-box -->
+
+        <div class="col-md-6">
+            <div class="info-box">
+                <span class="info-box-icon bg-info" style="height: 70px;"><i class="fas fa-comments"></i></span>
+                <!-- Apply any bg-* class to to the icon to color it -->
+                <div class="info-box-content" style="display: block;">
+
+                    <div class="col-md-6">
+
+                        <div class="form-group">
+
+                            {!! Form::label('msg91_report', 'Msg 91 Reports Deletion' . ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="This cron is to trigger deletion of the old Msg91 Reports."></i>', [], false) !!}
+                            <br>
+                            {!! Form::checkbox('msg91_cron',1,$condition->checkActiveJob()['msg91Reports'],['id'=>'msg91_fetching']) !!}
+                            &nbsp;{{Lang::get('message.enable_msg_cron')}}
+                        </div>
+
+                    </div>
+                    <div class="col-md-6" id="invoice">
+                        {!! Form::select('msg91-commands',$commands,$condition->getConditionValue('msg91Reports')['condition'],['class'=>'form-control','id'=>'msg91-command']) !!}
+                        <div id='msg91-daily-at'>
+                            {!! Form::text('msg91-dailyAt',$condition->getConditionValue('msg91Reports')['at'],['class'=>'form-control time-picker',"placeholder" => "HH:MM"]) !!}
+                        </div>
+                    </div>
+
+
                 </div>
             </div><!-- /.info-box-content -->
 
@@ -263,374 +293,113 @@
 
 
 <script>
-    $(document).ready(function () {
-$(".time-picker").datetimepicker({
-        format: 'HH:ss',
-        // useCurrent: false, //Important! See issue #1075
-    });
+    $(function () {
+        // Init datetime picker
+        $(".time-picker").datetimepicker({ format: 'HH:ss' });
 
-$('#tab2url').click(function(){
-    $('#tab1').removeClass('active')
-    $("#tab2").addClass('active');
-});
+        // Tab switching
+        $('#tab2url').on('click', function () {
+            $('#tab1').removeClass('active');
+            $('#tab2').addClass('active');
+        });
 
-        var checked = $("#email_fetching").is(':checked');
-        check(checked, 'email_fetching');
-        $("#email_fetching").on('click', function () {
-            checked = $("#email_fetching").is(':checked');
-            check(checked);
-        });
-        var command = $("#fetching-command").val();
-        showDailyAt(command);
-        $("#fetching-command").on('change', function () {
-            command = $("#fetching-command").val();
-            showDailyAt(command);
-        });
-        function check(checked, id) {
-            if (checked) {
-                $("#fetching").show();
-            } else {
-                $("#fetching").hide();
-            }
-        }
-        function showDailyAt(command) {
-            if (command === 'dailyAt') {
-                $("#fetching-daily-at").show();
-                // $("input").prop('required',true);
-            } else {
-                $("#fetching-daily-at").hide();
-            }
+        // Toggle sections by checkbox
+        function handleToggle(checkboxId, sectionId) {
+            const $checkbox = $(`#${checkboxId}`);
+            const $section = $(`#${sectionId}`);
+            const update = () => $section.toggle($checkbox.is(':checked'));
+            update();
+            $checkbox.on('click', update);
         }
 
-      
-
-
-
-        // Ldap cron settings end //
-    });
-
-        $(document).ready(function () {
-$(".time-picker").datetimepicker({
-        format: 'HH:ss',
-        // useCurrent: false, //Important! See issue #1075
-    });
-
-
-        var checked = $("#cloud_fetching").is(':checked');
-        check(checked, 'cloud_fetching');
-        $("#cloud_fetching").on('click', function () {
-            checked = $("#cloud_fetching").is(':checked');
-            check(checked);
-        });
-        var command = $("#cloud-command").val();
-        showDailyAt(command);
-        $("#cloud-command").on('change', function () {
-            command = $("#cloud-command").val();
-            showDailyAt(command);
-        });
-        function check(checked, id) {
-            if (checked) {
-                $("#cloud").show();
-            } else {
-                $("#cloud").hide();
-            }
-        }
-        function showDailyAt(command) {
-            if (command === 'dailyAt') {
-                $("#cloud-daily-at").show();
-                // $("input").prop('required',true);
-            } else {
-                $("#cloud-daily-at").hide();
-            }
+        // Toggle daily-at section by command type
+        function handleCommand(selectId, targetId) {
+            const $select = $(`#${selectId}`);
+            const $target = $(`#${targetId}`);
+            const update = () => $target.toggle($select.val() === 'dailyAt');
+            update();
+            $select.on('change', update);
         }
 
-      
+        // Grouped config
+        const config = [
+            { checkbox: 'email_fetching', section: 'fetching', select: 'fetching-command', daily: 'fetching-daily-at' },
+            { checkbox: 'cloud_fetching', section: 'cloud', select: 'cloud-command', daily: 'cloud-daily-at' },
+            { checkbox: 'notification_cron', section: 'notification', select: 'notification-command', daily: 'notification-daily-at' },
+            { checkbox: 'auto_close', section: 'workflow', select: 'workflow-command', daily: 'workflow-daily-at' },
+            { checkbox: 'notification_cron1', section: 'notification1', select: 'notification-command1', daily: 'notification-daily-at1' },
+            { checkbox: 'sub_fetching', section: 'subfetching', select: 'subfetching-command', daily: 'subfetching-daily-at' },
+            { checkbox: 'postsub_fetching', section: 'postsubfetching', select: 'postsubfetching-command', daily: 'postsubfetching-daily-at' },
+            { checkbox: 'invoice_fetching', section: 'invoice', select: 'invoice-command', daily: 'invoice-daily-at' },
+            { checkbox: 'msg91_fetching', section: 'msg91', select: 'msg91-command', daily: 'msg91-daily-at' },
+        ];
 
-
-
-        // Ldap cron settings end //
-    });
-
-
-
-
-    $(document).ready(function () {
-        var checked = $("#notification_cron").is(':checked');
-        check(checked, 'notification_cron');
-        $("#notification_cron").on('click', function () {
-            checked = $("#notification_cron").is(':checked');
-            check(checked);
+        config.forEach(({ checkbox, section, select, daily }) => {
+            handleToggle(checkbox, section);
+            handleCommand(select, daily);
         });
-        var command = $("#notification-command").val();
-        showDailyAt(command);
-        $("#notification-command").on('change', function () {
-            command = $("#notification-command").val();
-            showDailyAt(command);
+
+        // PHP Executable handling
+        $('#phpExecutableList').on('change', function () {
+            const val = $(this).val();
+            if (val === 'Other') {
+                $('#phpExecutableList').hide();
+                $('#phpExecutableTextArea').show();
+            }
         });
-        function check(checked, id) {
-            if (checked) {
-                $("#notification").show();
-            } else {
-                $("#notification").hide();
+
+        $('#phpExecutableTextClear').on('click', function () {
+            $('#phpExecutableList').val(0).show();
+            $('#phpExecutableTextArea').hide();
+        });
+
+        // Verify PHP Executable & Copy Command
+        $('#copyBtn').on('click', function () {
+            const executablePath = ($('#phpExecutableList').val() === "Other")
+                ? $('#phpExecutableText').val().trim()
+                : $('#phpExecutableList').val().trim();
+
+            const cronCommand = "* * * * * " + executablePath + " " + $(".copy-command2").text().trim();
+            copyToClipboard(cronCommand);
+
+            $.ajax({
+                method: 'POST',
+                url: "{{ route('verify-cron') }}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    path: executablePath
+                },
+                beforeSend: function () {
+                    $("#loader").show();
+                    $(".alert-danger, .alert-success, #copyBtn").hide();
+                },
+                success: function (result) {
+                    $(".alert-success-message").html("{{ Lang::get('message.cron-command-copied') }} " + result.message);
+                    $(".cron-success, #copyBtn").show();
+                    $("#loader").hide();
+                },
+                error: function (xhr) {
+                    $('#clearClipBoard').click();
+                    $(".cron-danger, #copyBtn").show();
+                    $("#loader").hide();
+                    $(".alert-danger-message").html("{{ Lang::get('message.cron-command-not-copied') }} " + xhr.responseJSON.message);
+                }
+            });
+        });
+
+        // Utility: Copy text to clipboard
+        function copyToClipboard(text = " ") {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+            } catch (err) {
+                console.error('Copy failed', err);
             }
-        }
-        function showDailyAt(command) {
-            if (command === 'dailyAt') {
-                $("#notification-daily-at").show();
-            } else {
-                $("#notification-daily-at").hide();
-            }
+            document.body.removeChild(textArea);
         }
     });
-    $(document).ready(function () {
-        var checked = $("#auto_close").is(':checked');
-        check(checked, 'auto_close');
-        $("#auto_close").on('click', function () {
-            checked = $("#auto_close").is(':checked');
-            check(checked);
-        });
-        var command = $("#workflow-command").val();
-        showDailyAt(command);
-        $("#workflow-command").on('change', function () {
-            command = $("#workflow-command").val();
-            showDailyAt(command);
-        });
-        function check(checked, id) {
-            if (checked) {
-                $("#workflow").show();
-            } else {
-                $("#workflow").hide();
-            }
-        }
-        function showDailyAt(command) {
-            if (command == 'dailyAt') {
-                $("#workflow-daily-at").show();
-            } else {
-                $("#workflow-daily-at").hide();
-            }
-        }
-    });
-//follow up
-     $(document).ready(function () {
-        var checked = $("#notification_cron1").is(':checked');
-        check(checked, 'notification_cron1');
-        $("#notification_cron1").on('click', function () {
-            checked = $("#notification_cron1").is(':checked');
-            check(checked);
-        });
-        var command = $("#notification-command1").val();
-        showDailyAt(command);
-        $("#notification-command1").on('change', function () {
-            command = $("#notification-command1").val();
-            showDailyAt(command);
-        });
-        function check(checked, id) {
-            if (checked) {
-                $("#notification1").show();
-            } else {
-                $("#notification1").hide();
-            }
-        }
-        function showDailyAt(command) {
-            if (command === 'dailyAt') {
-                $("#notification-daily-at1").show();
-            } else {
-                $("#notification-daily-at1").hide();
-            }
-        }
-    });
-
-
-         $(document).ready(function () {
-$(".time-picker").datetimepicker({
-        format: 'HH:ss',
-        // useCurrent: false, //Important! See issue #1075
-    });
-
-
-
-        var checked = $("#sub_fetching").is(':checked');
-        check(checked, 'sub_fetching');
-        $("#sub_fetching").on('click', function () {
-            checked = $("#sub_fetching").is(':checked');
-            check(checked);
-        });
-        var command = $("#subfetching-command").val();
-        showDailyAt(command);
-        $("#subfetching-command").on('change', function () {
-            command = $("#subfetching-command").val();
-            showDailyAt(command);
-        });
-        function check(checked, id) {
-            if (checked) {
-                $("#subfetching").show();
-            } else {
-                $("#subfetching").hide();
-            }
-        }
-        function showDailyAt(command) {
-            if (command === 'dailyAt') {
-                $("#subfetching-daily-at").show();
-                // $("input").prop('required',true);
-            } else {
-                $("#subfetching-daily-at").hide();
-            }
-        }
-
-      
-
-
-
-        // Ldap cron settings end //
-    });
-
-
-
-         $(document).ready(function () {
-$(".time-picker").datetimepicker({
-        format: 'HH:ss',
-        // useCurrent: false, //Important! See issue #1075
-    });
-
-
-
-        var checked = $("#postsub_fetching").is(':checked');
-        check(checked, 'postsub_fetching');
-        $("#postsub_fetching").on('click', function () {
-            checked = $("#postsub_fetching").is(':checked');
-            check(checked);
-        });
-        var command = $("#postsubfetching-command").val();
-        showDailyAt(command);
-        $("#postsubfetching-command").on('change', function () {
-            command = $("#postsubfetching-command").val();
-            showDailyAt(command);
-        });
-        function check(checked, id) {
-            if (checked) {
-                $("#postsubfetching").show();
-            } else {
-                $("#postsubfetching").hide();
-            }
-        }
-        function showDailyAt(command) {
-            if (command === 'dailyAt') {
-                $("#postsubfetching-daily-at").show();
-                // $("input").prop('required',true);
-            } else {
-                $("#postsubfetching-daily-at").hide();
-            }
-        }
-
-      
-
-
-
-        // Ldap cron settings end //
-    });
-
-
-                 $(document).ready(function () {
-$(".time-picker").datetimepicker({
-        format: 'HH:ss',
-        // useCurrent: false, //Important! See issue #1075
-    });
-
-
-        var checked = $("#invoice_fetching").is(':checked');
-        check(checked, 'invoice_fetching');
-        $("#invoice_fetching").on('click', function () {
-            checked = $("#invoice_fetching").is(':checked');
-            check(checked);
-        });
-        var command = $("#invoice-command").val();
-        showDailyAt(command);
-        $("#invoice-command").on('change', function () {
-            command = $("#invoice-command").val();
-            showDailyAt(command);
-        });
-        function check(checked, id) {
-            if (checked) {
-                $("#invoice").show();
-            } else {
-                $("#invoice").hide();
-            }
-        }
-        function showDailyAt(command) {
-            if (command === 'dailyAt') {
-                $("#invoice-daily-at").show();
-                // $("input").prop('required',true);
-            } else {
-                $("#invoice-daily-at").hide();
-            }
-        }
-
-      
-
-
-
-        // Ldap cron settings end //
-    });
-
-//-------------------------------------------------------------//
-
-    function checksome(showtext = true)
-    {
-        if (!showtext) {
-            $("#phpExecutableList").css('display', "block");
-            $("#phpExecutableList").val(0)
-            $("#phpExecutableTextArea").css('display', "none");
-        } else if($("#phpExecutableList").val() == 'Other') {
-            $("#phpExecutableList").css('display', "none");
-            $("#phpExecutableTextArea").css('display', "block");
-        }
-    }
-
-    function verifyPHPExecutableAndCopyCommand()
-    {
-        copy = false;
-        var path = ($("#phpExecutableList").val()=="Other")? $("#phpExecutableText").val(): $("#phpExecutableList").val();
-        var text = "* * * * * "+path.trim()+" "+$(".copy-command2").text().trim();
-        copyToClipboard(text);
-
-        $.ajax({
-            'method': 'post',
-            'url': "{{route('verify-cron')}}",
-            data: {
-                 "_token": "{{ csrf_token() }}",
-                "path": path
-            },
-            beforeSend: function() {
-                $("#loader").css("display", "block");
-                $(".alert-danger, .alert-success, #copyBtn").css('display', 'none');
-            },
-            success: function (result,status,xhr) {
-                $(".alert-success-message").html("{{Lang::get('message.cron-command-copied')}} "+result.message);
-                $(".cron-success, #copyBtn").css('display', 'block');
-                $("#loader").css("display", "none");
-                copy = true
-            },
-            error: function(xhr,status,error) {
-                $('#clearClipBoard').click();
-                $(".cron-danger, #copyBtn").css('display', 'block');
-                $("#loader").css("display", "none");
-                $(".alert-danger-message").html("{{Lang::get('message.cron-command-not-copied')}} "+xhr.responseJSON.message);
-            },
-        });
-    }
-
-    function copyToClipboard(text = " ")
-    {
-        var textArea = document.createElement("textarea");
-        textArea.value = text;
-        document.body.appendChild(textArea);
-        textArea.select();
-        try {
-            var successful = document.execCommand('copy');
-            var msg = successful ? 'successful' : 'unsuccessful';
-        } catch (err) {
-        }
-        console.log(msg);
-        document.body.removeChild(textArea);
-    }
 </script>
+
