@@ -22,6 +22,7 @@ class MsgDeliveryReports extends Model
     protected $appends = ['readable_status', 'formatted_sender_id'];
 
     const STATUS_MAP = [
+        '0' => 'Pending',
         '1' => 'Delivered',
         '2' => 'Failed',
         '9' => 'NDNC',
@@ -43,6 +44,6 @@ class MsgDeliveryReports extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id')
-            ->selectRaw("id, CONCAT(first_name, ' ', last_name) as full_name");
+            ->selectRaw("id, CONCAT(first_name, ' ', last_name) as full_name, email");
     }
 }

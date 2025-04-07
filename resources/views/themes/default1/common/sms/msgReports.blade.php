@@ -30,6 +30,7 @@
 {{--                    <th class="no-sort"><input type="checkbox" name="select_all" onchange="checking(this)"></th>--}}
                     <th>Request ID</th>
                     <th>User</th>
+                    <th>Email</th>
                     <th>Mobile Number</th>
                     <th>Sender ID</th>
                     <th>Status</th>
@@ -49,6 +50,7 @@
             // Initialize DataTable with proper configuration
             var reportsTable = $('#reports-table').DataTable({
                 processing: true,
+                serverSide: true,
                 stateSave: false,
                 ajax: {
                     url: '{!! url('getMsgReports') !!}',
@@ -84,7 +86,7 @@
                     {data: 'request_id', name: 'request_id'},
                     {
                         data: 'user.full_name',
-                        name: 'user',
+                        name: 'user.full_name',
                         render: function (data, type, row) {
                             const baseUrl = @json(url('clients'));
                             if (row.user?.id && data) {
@@ -93,18 +95,34 @@
                             return '---';
                         }
                     },
+                    {
+                      data: 'user.email',
+                      name: 'user.email',
+                    },
                     {data: 'mobile_number', name: 'mobile_number'},
                     {data: 'formatted_sender_id', name: 'sender_id'},
                     {
                         data: 'readable_status',
                         name: 'status',
                         render: function (data, type, row) {
-                            const isDelivered = row.status === "1";
-                            const badgeClass = isDelivered ? 'badge badge-success' : 'badge badge-danger';
+                            const statusClasses = {
+                                '0': 'badge badge-warning',
+                                '1': 'badge badge-success',
+                            };
+                            const badgeClass = statusClasses[row.status] || 'badge badge-danger';
                             return `<span class="${badgeClass}">${data}</span>`;
                         }
                     },
-                    {data: 'failure_reason', name: 'failure_reason'},
+                    {
+                        data: 'failure_reason',
+                        name: 'failure_reason',
+                        render: (data, type, row) => {
+                            if (data) {
+                                return `<span>${data}</span>`;
+                            }
+                            return '---';
+                        }
+                    },
                     {data: 'date', name: 'date'}
                 ],
                 drawCallback: function(settings) {
