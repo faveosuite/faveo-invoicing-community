@@ -166,7 +166,8 @@
                                     <div class="form-group {{ $errors->has('image') ? 'has-error' : '' }}">
                                         <!-- last name -->
                                         {!! Form::label('image',Lang::get('message.image')) !!}
-                                        {!! Form::file('image') !!}
+                                        {!! Form::file('image',['id'=>'image']) !!}
+                                        <span class="system-error text-danger d-block mt-1" id="profilepic-err-Msg"></span>
                                         <br>
                                         @if($product->image)
                                             <img src="{{$product->image }}" width="100px" alt="slider Image">
@@ -513,6 +514,35 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+        $(document).ready(function() {
+            var fup = document.getElementById('image');
+            var errMsg = document.getElementById('profilepic-err-Msg');
+            $('#image').on('change', function (e) {
+                var fileName = fup.value;
+                var filesize = e.target.files[0];
+                var ext = fileName.substring(fileName.lastIndexOf('.') + 1);
+                const maxSize = 2 * 1024 * 1024;
+                if (filesize.size > maxSize) {
+                    errMsg.innerText =@json(trans('message.image_invalid_size'));
+                    document.getElementById('submit').disabled = true;
+                    return false;
+                }
+                if (ext !== "jpeg" && ext !== "jpg" && ext !== 'png') {
+                    errMsg.innerText =@json(trans('message.image_invalid_message'));
+                    document.getElementById('submit').disabled = true;
+                    return false;
+                } else if (filesize.size > maxSize) {
+                    errMsg.innerText =@json(trans('message.image_invalid_size'));
+                    document.getElementById('submit').disabled = true;
+                    return false;
+                } else {
+                    errMsg.innerText = '';
+                    document.getElementById('submit').disabled = false;
+                    return true;
+                }
+            });
+        });
+
         $(document).on('click','#bulk_delete',function() {
 
             var id = [];

@@ -465,7 +465,76 @@ System Setting
 
 
     <script>
+        $(document).ready(function () {
 
+            var fup = document.getElementById('logo');
+            var errMsg=document.getElementById('errMsg');
+            $('#logo').on('change',function(e){
+                var fileName = fup.value;
+                var ext = fileName.substring(fileName.lastIndexOf('.') + 1);
+                const maxSize = 2 * 1024 * 1024;
+
+                if(ext ==="jpeg" || ext==="jpg" || ext==='png') {
+                    errMsg.innerText='';
+                    fup.classList.remove('is-invalid');
+                    document.getElementById('submit').disabled = false;
+
+                    return true;
+                } else {
+                    fup.classList.add('is-invalid');
+                    errMsg.innerText=@json(trans('message.image_invalid_message'));
+                    document.getElementById('submit').disabled = true;
+                    return false;
+                }});
+
+            var fup1 = document.getElementById('admin-logo');
+            var errMsg1=document.getElementById('admin-err-Msg');
+            $('#admin-logo').on('change',function(e){
+                var fileName = fup1.value;
+                var ext = fileName.substring(fileName.lastIndexOf('.') + 1);
+
+                const maxSize = 2 * 1024 * 1024;
+
+                if(ext ==="jpeg" || ext==="jpg" || ext==='png') {
+                    errMsg1.innerText='';
+                    fup1.classList.remove('is-invalid');
+                    document.getElementById('submit').disabled = false;
+
+                    return true;
+                } else {
+                    fup1.classList.add('is-invalid');
+                    errMsg1.innerText=@json(trans('message.image_invalid_message'));
+                    document.getElementById('submit').disabled = true;
+                    return false;
+                }});
+
+            var fup2 = document.getElementById('fav-icon');
+            var errMsg2=document.getElementById('favicon-err-Msg');
+            $('#fav-icon').on('change',function(e){
+                var fileName = fup2.value;
+                var ext = fileName.substring(fileName.lastIndexOf('.') + 1);
+
+                const maxSize = 2 * 1024 * 1024;
+
+                if(ext ==="jpeg" || ext==="jpg" || ext==='png') {
+                    errMsg2.innerText='';
+                    fup2.classList.remove('is-invalid');
+                    document.getElementById('submit').disabled = false;
+
+                    return true;
+                } else {
+                    fup2.classList.add('is-invalid');
+                    errMsg2.innerText=@json(trans('message.image_invalid_message'));
+                    document.getElementById('submit').disabled = true;
+                    return false;
+                }});
+
+
+            $('.custom-file-input').on('change', function() {
+                let fileName = $(this).val().split('\\').pop();
+                $(this).next('.custom-file-label').addClass('selected').html(fileName);
+            });
+        });
         $(document).ready(function() {
             const userRequiredFields = {
                 company:@json(trans('message.company_details.company_name')),
@@ -553,65 +622,7 @@ System Setting
 
 
 
-    $(document).ready(function () {
 
-            var fup = document.getElementById('logo');
-            var errMsg=document.getElementById('errMsg');
-            $('#logo').on('change',function(e){
-                var fileName = fup.value;
-            var ext = fileName.substring(fileName.lastIndexOf('.') + 1);
-
-            if(ext ==="jpeg" || ext==="jpg" || ext==='png') {
-                errMsg.innerText='';
-                fup.classList.remove('is-invalid');
-                return true;
-        } else {
-            fup.classList.add('is-invalid');
-            errMsg.innerText=@json(trans('message.image_invalid_message'));
-            e.preventDefault();
-            return false;
-        }});
-
-        var fup1 = document.getElementById('admin-logo');
-        var errMsg1=document.getElementById('admin-err-Msg');
-        $('#admin-logo').on('change',function(e){
-            var fileName = fup1.value;
-            var ext = fileName.substring(fileName.lastIndexOf('.') + 1);
-
-            if(ext ==="jpeg" || ext==="jpg" || ext==='png') {
-                errMsg1.innerText='';
-                fup1.classList.remove('is-invalid');
-                return true;
-            } else {
-                fup1.classList.add('is-invalid');
-                errMsg1.innerText=@json(trans('message.image_invalid_message'));
-                e.preventDefault();
-                return false;
-            }});
-
-        var fup2 = document.getElementById('fav-icon');
-        var errMsg2=document.getElementById('favicon-err-Msg');
-        $('#fav-icon').on('change',function(e){
-            var fileName = fup2.value;
-            var ext = fileName.substring(fileName.lastIndexOf('.') + 1);
-
-            if(ext ==="jpeg" || ext==="jpg" || ext==='png') {
-                errMsg2.innerText='';
-                fup2.classList.remove('is-invalid');
-                return true;
-            } else {
-                fup2.classList.add('is-invalid');
-                errMsg2.innerText=@json(trans('message.image_invalid_message'));
-                e.preventDefault();
-                return false;
-            }});
-
-
-        $('.custom-file-input').on('change', function() {
-            let fileName = $(this).val().split('\\').pop();
-            $(this).next('.custom-file-label').addClass('selected').html(fileName);
-        });
-    });
 
     $(document).ready(function(){
          $(function () {

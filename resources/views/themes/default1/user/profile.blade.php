@@ -510,24 +510,22 @@ input:checked + .slider:before {
             var filesize=e.target.files[0];
             var ext = fileName.substring(fileName.lastIndexOf('.') + 1);
             const maxSize = 2 * 1024 * 1024;
-            console.log(filesize.size);
-            console.log(maxSize);
             if(filesize.size>maxSize){
                 errMsg.innerText=@json(trans('message.image_invalid_size'));
-                e.preventDefault();
+                document.getElementById('submit').disabled = true;
                 return false;
             }
-            if(ext !=="jpeg" || ext!=="jpg" || ext!=='png') {
-
+            if(ext !=="jpeg" && ext!=="jpg" && ext!=='png') {
                 errMsg.innerText=@json(trans('message.image_invalid_message'));
-                e.preventDefault();
+                document.getElementById('submit').disabled = true;
                 return false;
             }else if(filesize.size>maxSize){
                 errMsg.innerText=@json(trans('message.image_invalid_size'));
-                e.preventDefault();
+                document.getElementById('submit').disabled = true;
                 return false;
             }else {
                 errMsg.innerText='';
+                document.getElementById('submit').disabled = false;
                 return true;
             }
         });

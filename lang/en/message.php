@@ -875,7 +875,7 @@ return [
     'product_description' => 'Product Description',
     'price_description' => 'Price Description',
 
-    'image_allowed' => 'Only PNG, JPG, and JPEG files are allowed.',
+    'image_allowed' => 'Please upload a file in JPEG, JPG, or PNG format only.',
     'image_max' => 'The image may not be greater than 2 MB.',
     'image_invalid_message' => 'Please upload a file in JPEG, JPG, or PNG format only.',
     'Suspend' => 'Suspend',
@@ -1131,7 +1131,7 @@ return [
     'payment_method'=>'Please select a payment method.',
     'payment_date'=>'Please enter a payment date.',
     'new_comment'=>'Please enter a comment.',
-    'image_invalid_size'=>'Please upload files, size less than 2MB.',
+    'image_invalid_size'=>'Please upload file, size less than 2MB.',
     'plan_renew'=>'Please select a plan.',
     'agents'=>'Please enter number of agents.',
     'domain_name'=>'Please enter a valid domain(https://example.com/public).',
