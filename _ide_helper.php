@@ -17498,7 +17498,7 @@ namespace Barryvdh\DomPDF {
  
 }
 
-namespace GrahamCampbell\Markdown\Facades { 
+namespace GrahamCampbell\Markdown\Facades {
 
     /**
      * This is the markdown facade class.
@@ -17506,7 +17506,7 @@ namespace GrahamCampbell\Markdown\Facades {
      * @author Graham Campbell <graham@alt-three.com>
      */ 
     class Markdown {
-        
+
         /**
          * Converts CommonMark to HTML.
          *
@@ -17520,7 +17520,8 @@ namespace GrahamCampbell\Markdown\Facades {
                         /** @var \League\CommonMark\Converter $instance */
                         return $instance->convertToHtml($commonMark);
         }
-         
+
+
     }
  
 }

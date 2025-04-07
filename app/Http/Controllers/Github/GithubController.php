@@ -7,6 +7,7 @@ use App\Model\Common\StatusSetting;
 use App\Model\Github\Github;
 use App\Model\Product\Subscription;
 use Exception;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 
 class GithubController extends Controller
@@ -219,28 +220,33 @@ class GithubController extends Controller
     {
         try {
             $status = $request->input('status');
-//            $url = "https://api.pipedrive.com/v1/users/me?api_token=" . urlencode($pipedriveKey);
-//
-//            $curl = curl_init();
-//            curl_setopt($curl, CURLOPT_URL, $url);
-//            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-//            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false); // For testing, set to true in production
-//
-//            $response = curl_exec($curl);
-//            $error = curl_error($curl);
-//            curl_close($curl);
-//
-//            if ($error) {
-//                return ['message' => 'error', 'update' => "$error"];
-//            }
+        try {
+            $client = new Client();
+            $username = $request->input('git_username');
+            $token = $request->input('git_password');
+            $response = $client->get('https://api.github.com/user', [
+                'auth' => [$username, $token],
+                'headers' => [
+                    'Accept' => 'application/vnd.github+json',
+                    'User-Agent' => 'MyApp'
+                ]
+            ]);
 
+            $data = json_decode($response->getBody(), true);
+            if ($data['login'] !== $username) {
+                return ['message' => 'error', 'update' => \Lang::get('message.github_invalid')];
+            }
+        }catch(\Exception $ex){
+            return ['message' => 'error',  'update' => \Lang::get('message.github_invalid')];
+
+        }
 
             StatusSetting::find(1)->update(['github_status' => $status]);
             Github::find(1)->update(['username' => $request->input('git_username'),
                 'password' => $request->input('git_password'), 'client_id' => $request->input('git_client'),
                 'client_secret' => $request->input('git_secret'), ]);
 
-            return ['message' => 'success', 'update' => 'Github Settings Updated'];
+            return ['message' => 'success',  'update' => \Lang::get('message.github_valid')];
         } catch (Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }

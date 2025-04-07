@@ -2410,16 +2410,26 @@
                     "git_client":$('#git_client').val() ,  "git_secret" : $('#git_secret').val()
                 },
                 success: function (data) {
-                    setTimeout(function() {
-                        location.reload();
-                    }, 3000);
-                    $('#alertMessage1').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
-                    $('#alertMessage1').html(result+ ".");
-                    $("#submit").html("<i class='fa fa-save'>&nbsp;</i>Save");
-                    setInterval(function(){
-                        $('#alertMessage1').slideUp(3000);
-                    }, 1000);
+                    if(data['message']==='success') {
+                        setTimeout(function () {
+                            location.reload();
+                        }, 3000);
+                        $('#alertMessage1').show();
+                        var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>' + data.update + '.</div>';
+                        $('#alertMessage1').html(result + ".");
+                        $("#submit").html("<i class='fa fa-save'>&nbsp;</i>Save");
+                        setInterval(function () {
+                            $('#alertMessage1').slideUp(3000);
+                        }, 1000);
+                    }else{
+                        $('#alertMessage1').show();
+                        var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> Error! </strong>' + data.update + '.</div>';
+                        $('#alertMessage1').html(result + ".");
+                        $("#submit").html("<i class='fa fa-save'>&nbsp;</i>Save");
+                        setInterval(function () {
+                            $('#alertMessage1').slideUp(2000);
+                        }, 6000);
+                    }
                 },
             })
         });

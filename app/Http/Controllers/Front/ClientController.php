@@ -583,7 +583,6 @@ class ClientController extends BaseClientController
             Terminated</span>';
                                 }
                             })
-
                             ->addColumn('agents', function ($model) {
                                 $license = substr($model->serial_key, 12, 16);
                                 if ($license == '0000') {
@@ -592,6 +591,7 @@ class ClientController extends BaseClientController
 
                                 return intval($license, 10);
                             })
+
                             ->addColumn('expiry', function ($model) {
                                 return getExpiryLabel($model->update_ends_at, 'badge');
                             })
@@ -611,9 +611,10 @@ class ClientController extends BaseClientController
                                 $url = '';
                                 $deleteCloud = '';
                                 $listUrl = '';
-                                if ($status == 'success' && $model->price != '0' && $model->type == '4') {
+
+                                if ($status == 'success' && $model->price != '0' && $model->type=='4') {
+
                                     $deleteCloud = $this->getCloudDeletePopup($model, $model->product_id);
-                                    $listUrl = $this->getPopup($model, $model->product_id);
                                     $listUrl = $this->getPopup($model, $model->product_id);
                                 } elseif ($status == 'success' && $model->price == '0' && $model->type != '4') {
                                     $listUrl = $this->getPopup($model, $model->product_id);

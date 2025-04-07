@@ -70,32 +70,32 @@ class BaseClientController extends Controller
         $downloadPermission = LicensePermissionsController::getPermissionsForProduct($productid);
         if ($downloadPermission['allowDownloadTillExpiry'] == 1) {
             if (strtotime($link['created_at']) < strtotime($orderEndDate->update_ends_at)) {
-                $githubApi = new \App\Http\Controllers\Github\GithubApiController();
+//                $githubApi = new \App\Http\Controllers\Github\GithubApiController();
 
-                $link = $githubApi->getCurl1($link['zipball_url']);
+//                $link = $githubApi->getCurl1($link['zipball_url']);
 
-                return '<p><a href='.$link['header']['Location']." 
+                return '<p><a href='.$link['zipball_url']." 
             class='btn btn-sm btn-primary'><i class='fa fa-download'>
             </i>&nbsp;&nbsp;Download</a>".'&nbsp;
 
       </p>';
             } else {
                 return '<button class="btn btn-primary btn-sm disabled tooltip">
-            Download <span class="tooltiptext">Please Renew!!</span></button>';
+             <span class="tooltiptex">Please Renew!!</span></button>';
             }
         } elseif ($downloadPermission['allowDownloadTillExpiry'] == 0) {
             if ($countExpiry == $countVersions) {
-                $githubApi = new \App\Http\Controllers\Github\GithubApiController();
-                $link = $githubApi->getCurl1($link['zipball_url']);
+//                $githubApi = new \App\Http\Controllers\Github\GithubApiController();
+//                $link = $githubApi->getCurl1($link['zipball_url']);
 
-                return '<p><a href='.$link['header']['Location']." 
+                return '<p><a href='.$link['zipball_url']." 
             class='btn btn-sm btn-primary'><i class='fa fa-download'>
             </i>&nbsp;&nbsp;Download</a>".'&nbsp;
 
       </p>';
             } else {
                 return '<button class="btn btn-primary btn-sm disabled tooltip">
-            Download <span class="tooltiptext">Please Renew!!</span></button>';
+            <span class="tooltiptex">Please Renew!!</span></button>';
             }
         }
     }

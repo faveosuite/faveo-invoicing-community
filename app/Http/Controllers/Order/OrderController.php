@@ -574,7 +574,6 @@ class OrderController extends BaseOrderController
                     }
                 }
             }
-
             return $status;
         } catch (\Exception $ex) {
             throw new \Exception($ex->getMessage());
