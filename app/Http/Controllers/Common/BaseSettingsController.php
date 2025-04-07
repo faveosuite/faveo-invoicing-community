@@ -11,6 +11,7 @@ use App\Model\Mailjob\ExpiryMailDay;
 use App\Traits\ApiKeySettings;
 use Illuminate\Http\Request;
 use Spatie\Activitylog\Models\Activity;
+use Illuminate\Support\Facades\Http;
 
 class BaseSettingsController extends PaymentSettingsController
 {
@@ -303,11 +304,27 @@ class BaseSettingsController extends PaymentSettingsController
         return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
     }
 
+    public function verifyToken($token,$secretkey)
+    {
+        $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+            'secret' => $secretkey,
+            'response' => $token,
+        ]);
+
+        return $response->json();
+    }
+
     //Save Google recaptch site key and secret in Database
     public function captchaDetails(Request $request)
     {
         $status = $request->input('status');
         $recaptchaType = $request->input('recaptcha_type');
+        $dummyToken = '03AEkXODdKzwXvAAYFXk3GhQz6-DsE8Vfzcq3TTK3_NmshwT6ZhyikD1M9rDdqO__a5dv4HFiJpZoBD6AQHlVX6dHbEmxJqkRexr7PSXjVhw4vHP_A1ChHjHDCJH53k9e2yT0B7R0G2MBK2W4h1vFzS0oZ5F9l4a0UlvTbCVft1J';
+        $captcha_secretCheck = $request->input('nocaptcha_secret');
+
+        $response =$this->verifyToken($dummyToken,$captcha_secretCheck);
+
+        dd($response);
         if ($status == 1) {
             $nocaptcha_sitekey = $request->input('nocaptcha_sitekey');
             $captcha_secretCheck = $request->input('nocaptcha_secret');
