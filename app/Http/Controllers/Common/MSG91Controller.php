@@ -74,8 +74,10 @@ class MSG91Controller extends Controller
     {
         MsgDeliveryReports::updateOrCreate(
             ['request_id' => $requestId],
-            ['user_id' => $userID],
-            ['status' => $status]
+            [
+                'user_id' => $userID,
+                'status' => $status
+            ]
         );
     }
 
