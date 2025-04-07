@@ -165,47 +165,37 @@ class MSG91Controller extends Controller
             ->make(true);
     }
 
-
     public function msg91ReportQuery(Request $request)
     {
         $query = MsgDeliveryReports::with('user');
 
         // Individual field filters
-        $query->when($request->filled('request_id'), fn($q) =>
-        $q->where('request_id', 'like', '%' . $request->input('request_id') . '%')
+        $query->when($request->filled('request_id'), fn ($q) => $q->where('request_id', 'like', '%'.$request->input('request_id').'%')
         );
 
-        $query->when($request->filled('mobile_number'), fn($q) =>
-        $q->where('mobile_number', 'like', '%' . $request->input('mobile_number') . '%')
+        $query->when($request->filled('mobile_number'), fn ($q) => $q->where('mobile_number', 'like', '%'.$request->input('mobile_number').'%')
         );
 
-        $query->when($request->filled('sender_id'), fn($q) =>
-        $q->where('sender_id', 'like', '%' . $request->input('sender_id') . '%')
+        $query->when($request->filled('sender_id'), fn ($q) => $q->where('sender_id', 'like', '%'.$request->input('sender_id').'%')
         );
 
-        $query->when($request->filled('failure_reason'), fn($q) =>
-        $q->where('failure_reason', 'like', '%' . $request->input('failure_reason') . '%')
+        $query->when($request->filled('failure_reason'), fn ($q) => $q->where('failure_reason', 'like', '%'.$request->input('failure_reason').'%')
         );
 
-        $query->when($request->has('status') && $request->input('status') !== '', fn($q) =>
-        $q->where('status', $request->input('status'))
+        $query->when($request->has('status') && $request->input('status') !== '', fn ($q) => $q->where('status', $request->input('status'))
         );
 
-        $query->when($request->filled('date_from'), fn($q) =>
-        $q->whereDate('date', '>=', $request->input('date_from'))
+        $query->when($request->filled('date_from'), fn ($q) => $q->whereDate('date', '>=', $request->input('date_from'))
         );
 
-        $query->when($request->filled('date_to'), fn($q) =>
-        $q->whereDate('date', '<=', $request->input('date_to'))
+        $query->when($request->filled('date_to'), fn ($q) => $q->whereDate('date', '<=', $request->input('date_to'))
         );
 
         $query->when($request->filled('email'), function ($q) use ($request) {
-            $q->whereHas('user', fn($subQuery) =>
-            $subQuery->where('email', 'like', '%' . $request->input('email') . '%')
+            $q->whereHas('user', fn ($subQuery) => $subQuery->where('email', 'like', '%'.$request->input('email').'%')
             );
         });
 
         return $query;
     }
-
 }
