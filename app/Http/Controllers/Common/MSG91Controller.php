@@ -76,7 +76,7 @@ class MSG91Controller extends Controller
             ['request_id' => $requestId],
             [
                 'user_id' => $userID,
-                'status' => $status
+                'status' => $status,
             ]
         );
     }
