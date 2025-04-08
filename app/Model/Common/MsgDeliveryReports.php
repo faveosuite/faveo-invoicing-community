@@ -41,6 +41,11 @@ class MsgDeliveryReports extends Model
         return strtoupper($this->sender_id);
     }
 
+    public function countries()
+    {
+        return $this->belongsTo(Country::class, 'country_iso', 'country_code_char2');
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id')

@@ -16,10 +16,11 @@ return new class extends Migration
             $table->string('mobile_number');
             $table->string('request_id')->unique()->nullable();
             $table->string('status')->nullable();
-            $table->date('date')->nullable();
+            $table->dateTime('date')->nullable();
             $table->string('sender_id')->nullable();
             $table->string('failure_reason')->nullable();
             $table->string('user_id')->nullable();
+            $table->string('country_iso')->nullable();
             $table->timestamps();
         });
     }

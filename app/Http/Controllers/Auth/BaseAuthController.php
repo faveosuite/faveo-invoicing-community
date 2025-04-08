@@ -91,7 +91,8 @@ class BaseAuthController extends Controller
         $response = $this->makeRequest('POST', 'https://api.msg91.com/api/v5/otp', $queryParams);
 
         if (isset($response['request_id'])) {
-            (new MSG91Controller())->updateOtpRequest($response['request_id'], 0, $userID);
+            $country_iso = User::where('id', $userID)->value('mobile_country_iso');
+            (new MSG91Controller())->updateOtpRequest($response['request_id'], 0, $country_iso ,$userID);
         }
 
         return $response['type'] !== 'error';
