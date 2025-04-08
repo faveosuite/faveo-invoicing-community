@@ -439,7 +439,6 @@ class ClientController extends BaseClientController
                 ->first();
 
             $downloadPermission = LicensePermissionsController::getPermissionsForProduct($productid);
-
             return \DataTables::of($versions)
                 ->addColumn('id', function ($version) {
                     return ucfirst($version->id);
@@ -478,6 +477,7 @@ class ClientController extends BaseClientController
      */
     public function getGithubVersionList($productid, $clientid, $invoiceid)
     {
+
         try {
             $products = $this->product::where('id', $productid)
             ->select('name', 'version', 'github_owner', 'github_repository')->get();
@@ -504,7 +504,6 @@ class ClientController extends BaseClientController
                     }
                 }
             }
-
             return \DataTables::of($link)
                             ->addColumn('version', function ($link) {
                                 return ucfirst($link['tag_name']);
@@ -513,8 +512,8 @@ class ClientController extends BaseClientController
                                 return ucfirst($link['name']);
                             })
                             ->addColumn('description', function ($link) {
-                                $markdown = Markdown::convertToHtml(ucfirst($link['body']));
-
+//                                $markdown = Markdown::convertToHtml(ucfirst($link['body']));
+                                  $markdown=$link['body'];
                                 return $markdown;
                             })
                             ->addColumn('file', function ($link) use ($countExpiry, $countVersions, $invoiceid, $productid) {

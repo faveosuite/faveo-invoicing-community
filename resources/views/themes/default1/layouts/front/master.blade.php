@@ -1033,7 +1033,6 @@ setTimeout(function() {
     $(document).ready(function() {
         $('#mailchimp-subscription').on('click', function(e) {
             e.preventDefault();
-            console.log("in");
 
             // Select elements using jQuery
             var $form = $('#newsletterForm');
