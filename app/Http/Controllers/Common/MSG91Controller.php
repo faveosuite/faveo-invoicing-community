@@ -71,7 +71,7 @@ class MSG91Controller extends Controller
         );
     }
 
-    public function updateOtpRequest($requestId, $status,$country_iso, $userID = null)
+    public function updateOtpRequest($requestId, $status, $country_iso, $userID = null)
     {
         MsgDeliveryReports::updateOrCreate(
             ['request_id' => $requestId],
@@ -172,7 +172,7 @@ class MSG91Controller extends Controller
 
     public function msg91ReportQuery(Request $request)
     {
-        $query = MsgDeliveryReports::with(['user','countries']);
+        $query = MsgDeliveryReports::with(['user', 'countries']);
 
         // Individual field filters
         $query->when($request->filled('request_id'), fn ($q) => $q->where('request_id', 'like', '%'.$request->input('request_id').'%'));
@@ -204,7 +204,6 @@ class MSG91Controller extends Controller
             $to = Carbon::createFromFormat('m/d/Y', $request->input('date_to'))->format('Y-m-d');
             $q->whereDate('date', '<=', $to);
         });
-
 
         $query->when($request->filled('email'), function ($q) use ($request) {
             $q->whereHas('user', fn ($subQuery) => $subQuery->where('email', 'like', '%'.$request->input('email').'%')

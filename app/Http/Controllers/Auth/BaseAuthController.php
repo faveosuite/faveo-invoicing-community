@@ -92,7 +92,7 @@ class BaseAuthController extends Controller
 
         if (isset($response['request_id'])) {
             $country_iso = User::where('id', $userID)->value('mobile_country_iso');
-            (new MSG91Controller())->updateOtpRequest($response['request_id'], 0, $country_iso ,$userID);
+            (new MSG91Controller())->updateOtpRequest($response['request_id'], 0, $country_iso, $userID);
         }
 
         return $response['type'] !== 'error';
