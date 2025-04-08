@@ -437,7 +437,7 @@ System Setting
                                     <label role="button" class="custom-file-label" for="logo">{{ __('Choose file') }}</label>
                                 </div>
                             </div>
-                            <span class="hide system-error" id="errMsg"></span>
+                            <span class="hide system-error" id="logo-err-Msg"></span>
                         @if($errors->has('logo'))
                                 <small class="form-text text-danger mt-1">
                                     <i class="fas fa-exclamation-circle"></i> {{ $errors->first('logo') }}
@@ -468,12 +468,20 @@ System Setting
         $(document).ready(function () {
 
             var fup = document.getElementById('logo');
-            var errMsg=document.getElementById('errMsg');
+            var errMsg=document.getElementById('logo-err-Msg');
             $('#logo').on('change',function(e){
+                const input = document.getElementById('logo');
+                const file = input.files?.[0];
                 var fileName = fup.value;
-                var ext = fileName.substring(fileName.lastIndexOf('.') + 1);
                 const maxSize = 2 * 1024 * 1024;
 
+                if(file.size>maxSize){
+                    fup.classList.add('is-invalid');
+                    errMsg.innerText=@json(trans('message.image_invalid_size'));
+                    document.getElementById('submit').disabled = true;
+                    return false;
+                }
+                var ext = fileName.substring(fileName.lastIndexOf('.') + 1);
                 if(ext ==="jpeg" || ext==="jpg" || ext==='png') {
                     errMsg.innerText='';
                     fup.classList.remove('is-invalid');
@@ -490,11 +498,19 @@ System Setting
             var fup1 = document.getElementById('admin-logo');
             var errMsg1=document.getElementById('admin-err-Msg');
             $('#admin-logo').on('change',function(e){
+                const input = document.getElementById('admin-logo');
+                const file = input.files?.[0];
                 var fileName = fup1.value;
                 var ext = fileName.substring(fileName.lastIndexOf('.') + 1);
 
                 const maxSize = 2 * 1024 * 1024;
 
+                if(file.size>maxSize){
+                    fup1.classList.add('is-invalid');
+                    errMsg1.innerText=@json(trans('message.image_invalid_size'));
+                    document.getElementById('submit').disabled = true;
+                    return false;
+                }
                 if(ext ==="jpeg" || ext==="jpg" || ext==='png') {
                     errMsg1.innerText='';
                     fup1.classList.remove('is-invalid');
@@ -511,11 +527,19 @@ System Setting
             var fup2 = document.getElementById('fav-icon');
             var errMsg2=document.getElementById('favicon-err-Msg');
             $('#fav-icon').on('change',function(e){
+                const input = document.getElementById('fav-icon');
+                const file = input.files?.[0];
                 var fileName = fup2.value;
                 var ext = fileName.substring(fileName.lastIndexOf('.') + 1);
 
                 const maxSize = 2 * 1024 * 1024;
 
+                if(file.size>maxSize){
+                    fup2.classList.remove('is-invalid');
+                    errMsg2.innerText=@json(trans('message.image_invalid_size'));
+                    document.getElementById('submit').disabled = true;
+                    return false;
+                }
                 if(ext ==="jpeg" || ext==="jpg" || ext==='png') {
                     errMsg2.innerText='';
                     fup2.classList.remove('is-invalid');
@@ -921,9 +945,18 @@ System Setting
     ['logo', 'admin-logo', 'fav-icon'].forEach((id) => {
         const input = document.getElementById(id);
         const preview = document.getElementById(`preview-${id}`);
-
         if (input && preview) {
             input.addEventListener('change', () => {
+                if(input.id=='admin-logo'){
+                    var errMsg1=document.getElementById('admin-err-Msg');
+                   var fup=document.getElementById(input.id);
+                }else if(input.id=='logo'){
+                    var errMsg1=document.getElementById('logo-err-Msg');
+                    var fup=document.getElementById(input.id)
+                }else{
+                    var errMsg1=document.getElementById('favicon-err-Msg');
+                   var fup=idocument.getElementById(input.id);
+                }
                 // Clear previous preview if file selection is canceled
                 if (!input.files.length) {
                     preview.src = '';
@@ -940,24 +973,27 @@ System Setting
         if (!file){
             return
         }
-        const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
 
-        if (allowedTypes.includes(file.type)) {
-            const reader = new FileReader();
 
-            reader.onload = (e) => {
-                preview.src = e.target.result;
-            };
+            const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
 
-            reader.onerror = () => {
+            if (allowedTypes.includes(file.type)) {
+                const reader = new FileReader();
+
+                reader.onload = (e) => {
+                    preview.src = e.target.result;
+                };
+
+                reader.onerror = () => {
+                    input.value = '';
+                };
+
+                reader.readAsDataURL(file);
+            } else {
                 input.value = '';
-            };
+                preview.src = originalSrc;
+            }
 
-            reader.readAsDataURL(file);
-        }else {
-            input.value = '';
-            preview.src = originalSrc;
-        }
     }
 
         document.getElementById("zip1").addEventListener('input',function(){
