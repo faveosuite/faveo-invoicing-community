@@ -144,6 +144,10 @@ Create Script
                  showCloseButton: true,
                  confirmButtonColor: "#007bff",
                  width: "600px",
+                 buttonsStyling: false,
+                 customClass: {
+                     confirmButton: 'btn btn-primary btn-sm custom-confirm',
+                 }
              })
          }
          else {
@@ -160,7 +164,13 @@ Create Script
 
                  confirmButtonText: @json(trans('message.Delete')),
                  confirmButtonColor: "#007bff",
-
+                 buttonsStyling: false,
+                 reverseButtons: true,
+                 customClass: {
+                     actions: 'swal2-actions-custom-fix',
+                     confirmButton: 'btn btn-primary btn-sm custom-confirm',
+                     cancelButton: 'btn btn-secondary btn-sm custom-cancel'
+                 }
              }).then((result) => {
                  if (result.isConfirmed) {
                      $('.chat_checkbox:checked').each(function () {
