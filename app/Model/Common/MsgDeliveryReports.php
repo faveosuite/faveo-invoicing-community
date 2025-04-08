@@ -18,6 +18,7 @@ class MsgDeliveryReports extends Model
         'sender_id',
         'failure_reason',
         'user_id',
+        'country_iso',
     ];
     protected $appends = ['readable_status', 'formatted_sender_id'];
 
