@@ -244,6 +244,15 @@
                 }
             });
 
+            $('.dataTables_filter').append(`
+     <button id="refresh-table-btn" class="btn btn-link p-2" data-toggle="tooltip" title="Refresh Table" style="text-decoration: none;">
+         <i class="fas fa-sync-alt text-secondary" id="refresh-icon" style="font-size: 1.2rem; transition: transform 0.5s ease;"></i>
+     </button>
+ `);
+            $(document).on('click', '#refresh-table-btn', function() {
+                table.ajax.reload();
+            });
+
             // Submit filter form
             $('form').on('submit', function(e) {
                 e.preventDefault();
