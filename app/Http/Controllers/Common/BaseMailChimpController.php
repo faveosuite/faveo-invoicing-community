@@ -131,7 +131,6 @@ class BaseMailChimpController extends Controller
     public function postMailChimpSettings(Request $request)
     {
         $this->validate($request, [
-            //            'api_key' => 'required',
             'list_id' => 'required',
         ]);
         try {
@@ -139,7 +138,6 @@ class BaseMailChimpController extends Controller
                 'list_id' => $request->input('list_id'), ]);
             $this->addListsToAgora();
 
-//            return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
             return [
                 'message' => 'success',
                 'update' => \Lang::get('message.mailchimp_setting'),

@@ -319,10 +319,7 @@ class BaseSettingsController extends PaymentSettingsController
     {
         $status = $request->input('status');
         $recaptchaType = $request->input('recaptcha_type');
-        $dummyToken = '03AEkXODdKzwXvAAYFXk3GhQz6-DsE8Vfzcq3TTK3_NmshwT6ZhyikD1M9rDdqO__a5dv4HFiJpZoBD6AQHlVX6dHbEmxJqkRexr7PSXjVhw4vHP_A1ChHjHDCJH53k9e2yT0B7R0G2MBK2W4h1vFzS0oZ5F9l4a0UlvTbCVft1J';
-        $captcha_secretCheck = $request->input('nocaptcha_secret');
-
-        $response =$this->verifyToken($dummyToken,$captcha_secretCheck);
+        $siteKey = $request->input('nocaptcha_sitekey');
 
         if ($status == 1) {
             $nocaptcha_sitekey = $request->input('nocaptcha_sitekey');

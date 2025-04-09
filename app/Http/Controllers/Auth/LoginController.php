@@ -82,7 +82,6 @@ class LoginController extends Controller
             'email_username.required' => 'Please Enter an Email',
             'password1.required' => 'Please Enter Password',
         ]);
-
         $loginInput = $request->input('email_username');
         $password = $request->input('password1');
 
