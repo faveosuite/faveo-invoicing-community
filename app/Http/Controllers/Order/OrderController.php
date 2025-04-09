@@ -127,6 +127,7 @@ class OrderController extends BaseOrderController
 
             $count = count($query->cursor());
             $cont = new \App\Http\Controllers\License\LicenseController();
+
             return \DataTables::of($query)
                 ->orderColumn('client', '-orders.created_at $1')
                 ->orderColumn('product_name', 'orders.created_at $1')
@@ -171,6 +172,7 @@ class OrderController extends BaseOrderController
                  })
                 ->addColumn('version', function ($model) {
                     $version = $model->product_version;
+
                     return $version;
 //                    $installedVersions = InstallationDetail::where('order_id', $model->id)->pluck('version')->toArray();
 //                    if (count($installedVersions)) {
@@ -575,6 +577,7 @@ class OrderController extends BaseOrderController
                     }
                 }
             }
+
             return $status;
         } catch (\Exception $ex) {
             throw new \Exception($ex->getMessage());

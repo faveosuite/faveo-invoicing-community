@@ -53,7 +53,6 @@ trait ApiKeySettings
         }
     }
 
-
     private function getCurl($get_url, $token = null)
     {
         $ch = curl_init();
@@ -72,6 +71,7 @@ trait ApiKeySettings
 
         return json_decode($content, true);
     }
+
     private function oauthAuthorization()
     {
         $url = $this->url;
@@ -87,6 +87,7 @@ trait ApiKeySettings
 
         return $response;
     }
+
     public function licenseDetails(Request $request)
     {
         $status = $request->input('status');
@@ -103,18 +104,15 @@ trait ApiKeySettings
             'grant_type' => $licenseApiGrantType,
         ];
 
-
         try {
-            $response = $this->postCurl($licenseApiUrl . 'oauth/token', $data);
+            $response = $this->postCurl($licenseApiUrl.'oauth/token', $data);
             $response = json_decode($response);
 
             $token = $response->access_token;
-            $getkey = $this->getCurl($licenseApiUrl . 'api/admin/viewApiKeys', $token);
-        }catch(\Exception $e){
+            $getkey = $this->getCurl($licenseApiUrl.'api/admin/viewApiKeys', $token);
+        } catch(\Exception $e) {
             return ['message' => 'error', 'update' => 'Please enter valid details.'];
         }
-
-
 
         StatusSetting::where('id', 1)->update(['license_status' => $status]);
         ApiKey::where('id', 1)->update(['license_api_secret' => $licenseApiSecret, 'license_api_url' => $licenseApiUrl,
@@ -219,6 +217,7 @@ trait ApiKeySettings
         $key = $request->input('msg91_auth_key');
         StatusSetting::find(1)->update(['msg91_status' => $status]);
         ApiKey::find(1)->update(['msg91_auth_key' => $key, 'msg91_sender' => $request->input('msg91_sender'), 'msg91_template_id' => $request->input('msg91_template_id')]);
+
         return ['message' => 'success', 'update' => \Lang::get('message.mobile_setting')];
     }
 
@@ -277,7 +276,7 @@ trait ApiKeySettings
     {
         $pipedriveKey = $request->input('pipedrive_key');
 
-        $url = "https://api.pipedrive.com/v1/users/me?api_token=" . urlencode($pipedriveKey);
+        $url = 'https://api.pipedrive.com/v1/users/me?api_token='.urlencode($pipedriveKey);
 
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $url);
@@ -379,7 +378,7 @@ trait ApiKeySettings
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $response = curl_exec($ch);
         curl_close($ch);
-        if($response==false){
+        if ($response == false) {
             return ['message' => 'error', 'update' => \Lang::get('message.terms_error')];
         }
         $status = (int) $request->input('status');
