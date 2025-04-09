@@ -185,7 +185,7 @@
 
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         <!-- last name -->
-                        {!! Form::label('password',Lang::get('message.password'),['class'=>'required']) !!}
+                        {!! Form::label('password',Lang::get('message.pat'),['class'=>'required']) !!}
 
                         <div class="input-group">
                             <input type= "password" value="{{$githubFileds->password}}" name="password" id="git_password" class="form-control git_password">
@@ -328,6 +328,8 @@
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         {!! Form::label('nocaptcha_sitekey',Lang::get('message.nocaptcha_sitekey'),['class'=>'required']) !!}
                         {!! Form::text('nocaptcha_sitekey',$siteKey,['class' => 'form-control','id'=>'nocaptcha_sitekey']) !!}
+                        <span class="system-error" id="status"></span>
+
                         <h6 id="captcha_sitekeyCheck"></h6>
                     </div>
 
@@ -346,8 +348,7 @@
                         </div>
                         <h6 id="captcha_secretCheck"></h6>
                     </div>
-
-
+                    <div id="recaptcha-wrapper"></div>
                 </div>
 
                 <div class="modal-footer justify-content-between">
@@ -379,7 +380,6 @@
                             {!! Form::text('mailchimp', $mailchimpKey, [
                                                        'class' => 'form-control mailchimp_authkey',
                                                        'id' => 'mailchimp_authkey',
-                                                           'style' => 'width: 310px;' // Adjust width as needed
                                                        ]) !!}
                             <h6 id="mailchimp_check" style="margin: 0;"></h6>
                         </div>
@@ -391,7 +391,7 @@
                             {!! Form::hidden('api_key', null, ['class' => 'form-control']) !!}
 
                             {!! Form::label('list_id',Lang::get('message.list_id'),['class'=>'required']) !!}
-                            <select name="list_id" class="form-control" id="list_id" style="width:310px">
+                            <select name="list_id" class="form-control" id="list_id" style="width:100%">
                             <option value="">Choose</option>
                             @foreach($allists as $list)
                                 <option value="{{$list->id}}"<?php  if(in_array($list->id, $selectedList) )
@@ -405,7 +405,7 @@
 
                         <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                             {!! Form::label('subscribe_status',Lang::get('message.subscribe_status'),['class'=>'required']) !!}
-                            {!! Form::select('subscribe_status',['subscribed'=>'Subscribed','unsubscribed'=>'Unsubscribed','cleaned'=>'Cleaned','pending'=>'Pending'],null,['class' => 'form-control','style' => 'width: 310px;','id'=>'subscribe_status']) !!}
+                            {!! Form::select('subscribe_status',['subscribed'=>'Subscribed','unsubscribed'=>'Unsubscribed','cleaned'=>'Cleaned','pending'=>'Pending'],null,['class' => 'form-control','id'=>'subscribe_status']) !!}
                             <p><i> {{Lang::get('message.enter-the-mailchimp-subscribe-status')}}</i> </p>
                         </div>
 
@@ -603,9 +603,153 @@
     <script src="https://cdn.datatables.net/buttons/1.0.3/js/dataTables.buttons.min.js"></script>
 
     <script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
+    <script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit" async defer></script>
 
     <script>
+        let currentSiteKey = '';
+        let scriptLoaded = false;
 
+        function isLikelyV3Key(sitekey) {
+            return sitekey.length > 35 && !sitekey.includes('localhost');
+        }
+
+        function loadRecaptchaScript(sitekey, callback) {
+            // Remove old script if present
+            const existingScript = document.querySelector('script[src*="google.com/recaptcha/api.js"]');
+            if (existingScript) {
+                existingScript.remove();
+                scriptLoaded = false;
+                delete window.grecaptcha;
+            }
+
+            const script = document.createElement('script');
+            script.src = `https://www.google.com/recaptcha/api.js?render=${sitekey}`;
+            script.async = true;
+            script.defer = true;
+
+            script.onload = () => {
+                scriptLoaded = true;
+                callback();
+            };
+
+            script.onerror = () => {
+                document.getElementById("nocaptcha_sitekey").classList.add('is-invalid');
+                document.getElementById("status").textContent = "The Google reCAPTCHA site key is invalid";
+            };
+
+            document.head.appendChild(script);
+        }
+
+        function verifyWithRecaptchaV3(sitekey) {
+            if (!window.grecaptcha) {
+                document.getElementById("status").textContent = "The Google reCAPTCHA site key is invalid";
+                return;
+            }
+
+            try {
+                grecaptcha.ready(() => {
+                    grecaptcha.execute(sitekey, { action: 'submit' })
+                        .then(token => {
+                            // Optional: Show token in console for debugging
+
+                            if (!token || token.length < 100) {
+                                throw new Error("The Google reCAPTCHA site key is invalid");
+                            }
+
+                            document.getElementById("nocaptcha_sitekey").classList.remove('is-invalid');
+                            document.getElementById("status").textContent = "";
+                        })
+                        .catch(err => {
+                            document.getElementById("status").textContent = " The Google reCAPTCHA site key is invalid.";
+                            document.getElementById("nocaptcha_sitekey").classList.add('is-invalid');
+                        });
+                });
+            } catch (e) {
+                document.getElementById("status").textContent = " The Google reCAPTCHA site key is invalid.";
+                document.getElementById("nocaptcha_sitekey").classList.add('is-invalid');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('nocaptcha_sitekey').addEventListener('input', function () {
+                const initial_id = document.querySelector('input[name="customRadio"]:checked')?.id;
+                const newSiteKey = this.value.trim();
+
+                document.getElementById("status").textContent = '';
+
+                if (initial_id === 'captchaRadioV3') {
+                    if (!isLikelyV3Key(newSiteKey)) {
+                        document.getElementById("status").textContent = "The Google reCAPTCHA site key is invalid.";
+                        this.classList.add('is-invalid');
+                        return;
+                    }
+
+                    if (newSiteKey && newSiteKey !== currentSiteKey) {
+                        currentSiteKey = newSiteKey;
+                        loadRecaptchaScript(newSiteKey, () => {
+                            verifyWithRecaptchaV3(newSiteKey);
+                        });
+                    }
+                }
+            });
+        });
+    </script>
+
+
+    <script>
+        document.getElementById('nocaptcha_sitekey').addEventListener('input', function () {
+
+            var initial_id=$('input[name="customRadio"]:checked').attr('id');
+
+            if(initial_id==='captchaRadioV2') {
+                const sitekey = this.value.trim();
+                if (!sitekey) return;
+
+                // Load reCAPTCHA v3 script dynamically
+                const existing = document.querySelector('script[src*="recaptcha/api.js"]');
+                if (existing) existing.remove(); // Remove if already loaded
+
+                const script = document.createElement('script');
+                script.src = `https://www.google.com/recaptcha/api.js?render=${sitekey}`;
+                script.async = true;
+                script.defer = true;
+                document.head.appendChild(script);
+
+                script.onload = () => {
+                    grecaptcha.ready(() => {
+                        try {
+                            grecaptcha.execute(sitekey, {action: 'submit'})
+                                .then(token => {
+                                    // document.getElementById("status").textContent = " The Google recaptcha site key is valid.";
+                                    document.getElementById("nocaptcha_sitekey").classList.remove('is-invalid');
+                                    document.getElementById("status").innerHTML = "";
+
+                                })
+                                .catch(err => {
+
+                                        document.getElementById("status").innerHTML = "The Google reCAPTCHA site key is invalid.";
+                                    document.getElementById("nocaptcha_sitekey").classList.add('is-invalid');
+
+                                });
+                        } catch (innerErr) {
+                                document.getElementById("status").innerHTML = "The Google reCAPTCHA site key is invalid.";
+                            document.getElementById("nocaptcha_sitekey").classList.add('is-invalid');
+
+                        }
+                    });
+                };
+
+                script.onerror = () => {
+                    // document.getElementById("status").textContent = " The Google recaptcha site key is valid.";
+                    document.getElementById("nocaptcha_sitekey").classList.remove('is-invalid');
+                    document.getElementById("status").innerHTML = "";
+
+                };
+            }
+        });
+    </script>
+
+    <script>
         $(document).on('click', '#license-edit-button', function() {
             $.ajax({
 
@@ -1334,6 +1478,8 @@
         var initial_key=$('#nocaptcha_sitekey').val();
         var initial_secret=$('#nocaptcha_secret').val();
         $('input[name="customRadio"]').change(function () {
+            document.getElementById("status").textContent = "";
+
             var selectedId = $(this).attr('id'); // Get the ID of selected radio button
             if(selectedId!==initial_id){
                 $('#nocaptcha_sitekey').val('');

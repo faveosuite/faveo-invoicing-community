@@ -72,7 +72,21 @@ trait ApiKeySettings
 
         return json_decode($content, true);
     }
+    private function oauthAuthorization()
+    {
+        $url = $this->url;
+        $data = [
+            'client_id' => $this->client_id,
+            'client_secret' => $this->client_secret,
+            'grant_type' => $this->grant_type,
+        ];
 
+        $response = $this->postCurl($url.'oauth/token', $data);
+
+        $response = json_decode($response);
+
+        return $response;
+    }
     public function licenseDetails(Request $request)
     {
         $status = $request->input('status');
@@ -88,6 +102,7 @@ trait ApiKeySettings
             'client_secret' => $licenseApiClientSecret,
             'grant_type' => $licenseApiGrantType,
         ];
+
 
         try {
             $response = $this->postCurl($licenseApiUrl . 'oauth/token', $data);
@@ -198,7 +213,8 @@ trait ApiKeySettings
      */
     public function updatemobileDetails(Request $request)
     {
-
+        $authKey = $request->input('msg91_auth_key');
+        $templateId = $request->input('msg91_template_id');
         $status = $request->input('status');
         $key = $request->input('msg91_auth_key');
         StatusSetting::find(1)->update(['msg91_status' => $status]);

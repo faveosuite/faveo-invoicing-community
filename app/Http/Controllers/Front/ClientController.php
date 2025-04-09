@@ -610,9 +610,7 @@ class ClientController extends BaseClientController
                                 $url = '';
                                 $deleteCloud = '';
                                 $listUrl = '';
-
                                 if ($status == 'success' && $model->price != '0' && $model->type=='4') {
-
                                     $deleteCloud = $this->getCloudDeletePopup($model, $model->product_id);
                                     $listUrl = $this->getPopup($model, $model->product_id);
                                 } elseif ($status == 'success' && $model->price == '0' && $model->type != '4') {
@@ -712,6 +710,7 @@ class ClientController extends BaseClientController
             if ($order->client != $user->id) {
                 throw new \Exception('Cannot view order. Invalid modification of data.');
             }
+
             $invoice = $order->invoice()->first();
             $items = $order->invoice()->first()->invoiceItem()->get();
             $subscription = $order->subscription()->first();
@@ -763,11 +762,11 @@ class ClientController extends BaseClientController
                 ->select('id', 'invoice_id', 'user_id', 'amount', 'payment_method', 'payment_status', 'created_at')
                 ->orderByDesc('created_at')
                 ->first();
-
             return view(
                 'themes.default1.front.clients.show-order',
                 compact('invoice', 'order', 'user', 'product', 'subscription', 'licenseStatus', 'installationDetails', 'allowDomainStatus', 'date', 'licdate', 'versionLabel', 'installationDetails', 'id', 'statusAutorenewal', 'status', 'payment_log', 'recentPayment')
             );
+
         } catch (Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }

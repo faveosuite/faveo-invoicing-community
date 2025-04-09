@@ -3,9 +3,12 @@
 namespace App\Model\Common;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class StatusSetting extends Model
 {
+    use HasFactory;
+
     protected $table = 'status_settings';
 
     public $timestamps = false;

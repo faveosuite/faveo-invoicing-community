@@ -1154,4 +1154,5 @@ return [
     'terms_error'=>'The provided terms and condition url is invalid.',
     'github_invalid'=>'Authentication failed. Please check your GitHub username and personal access token.',
     'github_valid'=>'Github settings successfully saved.',
+    'pat'=>"Personal Access Token.",
 ];

@@ -127,7 +127,6 @@ class OrderController extends BaseOrderController
 
             $count = count($query->cursor());
             $cont = new \App\Http\Controllers\License\LicenseController();
-
             return \DataTables::of($query)
                 ->orderColumn('client', '-orders.created_at $1')
                 ->orderColumn('product_name', 'orders.created_at $1')
@@ -171,14 +170,16 @@ class OrderController extends BaseOrderController
                      return $planName->name ?? '';
                  })
                 ->addColumn('version', function ($model) {
-                    $installedVersions = InstallationDetail::where('order_id', $model->id)->pluck('version')->toArray();
-                    if (count($installedVersions)) {
-                        $latest = max($installedVersions);
-
-                        return getVersionAndLabel($latest, $model->product);
-                    } else {
-                        return '--';
-                    }
+                    $version = $model->product_version;
+                    return $version;
+//                    $installedVersions = InstallationDetail::where('order_id', $model->id)->pluck('version')->toArray();
+//                    if (count($installedVersions)) {
+//                        $latest = max($installedVersions);
+//
+//                        return getVersionAndLabel($latest, $model->product);
+//                    } else {
+//                        return '--';
+//                    }
                 })
                 ->addColumn('agents', function ($model) {
                     $license = substr($model->serial_key, 12, 16);
