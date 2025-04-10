@@ -24,8 +24,8 @@ class MSG91Controller extends Controller
      */
     public function handleReports(Request $request): void
     {
-        if(!$this->validateThirdPartyRequest($request)){
-            return ;
+        if (! $this->validateThirdPartyRequest($request)) {
+            return;
         }
         try {
             $jsonData = $request->input('data');
@@ -73,7 +73,7 @@ class MSG91Controller extends Controller
         }
     }
 
-    public function updateOtpRequest($requestId, $status, $country_iso,$mobile,$mobile_code, $userID = null)
+    public function updateOtpRequest($requestId, $status, $country_iso, $mobile, $mobile_code, $userID = null)
     {
         MsgDeliveryReports::updateOrCreate(
             ['request_id' => $requestId],
@@ -179,7 +179,7 @@ class MSG91Controller extends Controller
                 $q->where('country_iso', $request->input('country_iso'));
             });
 
-            $q->where('mobile_number', 'like', '%' . $request->input('mobile_number') . '%');
+            $q->where('mobile_number', 'like', '%'.$request->input('mobile_number').'%');
         });
 
         $query->when($request->filled('failure_reason'), fn ($q) => $q->where('failure_reason', 'like', '%'.$request->input('failure_reason').'%'));
@@ -193,7 +193,6 @@ class MSG91Controller extends Controller
                 $q->where('status', $status);
             }
         });
-
 
         $query->when($request->filled('date_from'), function ($q) use ($request) {
             $from = Carbon::createFromFormat('m/d/Y', $request->input('date_from'))->format('Y-m-d');
@@ -222,7 +221,7 @@ class MSG91Controller extends Controller
             ->where('app_secret', $app_secret)
             ->first();
 
-        if (!$app) {
+        if (! $app) {
             return false;
         }
 
