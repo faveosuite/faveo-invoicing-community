@@ -1,18 +1,18 @@
 @extends('themes.default1.layouts.master')
 
 @section('title')
-    MSG91 Reports
+   {{ __('message.msg_reports') }}
 @stop
 
 @section('content-header')
     <div class="col-sm-6">
-        <h1>MSG91 Reports</h1>
+        <h1>{{ __('message.msg_reports') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{ url('/') }}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{ url('settings') }}">Settings</a></li>
-            <li class="breadcrumb-item active">MSG91 Reports</li>
+            <li class="breadcrumb-item"><a href="{{ url('/') }}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ url('settings') }}">{{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.msg_reports') }}</li>
         </ol>
     </div>
 @stop
@@ -23,7 +23,7 @@
             <!-- Search -->
             <div class="card card-secondary card-outline {{ request()->all() ? '' : 'collapsed-card' }}">
                 <div class="card-header">
-                    <h3 class="card-title">Advance Search</h3>
+                    <h3 class="card-title">{{ __('message.advance_search') }}</h3>
                     <div class="card-tools">
                         <button type="button" class="btn btn-tool" id="tip-search" title="Expand">
                             <i id="search-icon" class="fas {{ request()->all() ? 'fa-minus' : 'fa-plus' }}"></i>
@@ -35,39 +35,39 @@
                         @csrf
                         <div class="row">
                             <div class="col-md-3 form-group">
-                                <label for="request_id">Request ID</label>
+                                <label for="request_id">{{ __('message.request_id') }}</label>
                                 <input type="text" name="request_id" class="form-control" value="{{ old('request_id', request('request_id')) }}">
                             </div>
                             <div class="col-md-3 form-group">
-                                <label for="full_name">Full Name</label>
+                                <label for="full_name">{{ __('message.full_name') }}</label>
                                 <input type="text" name="full_name" class="form-control" value="{{ old('full_name', request('full_name')) }}">
                             </div>
                             <div class="col-md-3 form-group">
-                                <label for="email">Email</label>
+                                <label for="email">{{ __('message.email') }}</label>
                                 <input type="email" name="email" class="form-control" value="{{ old('email', request('email')) }}">
                             </div>
                             <div class="col-md-3 form-group">
-                                <label for="mobile_number">Mobile Number</label>
+                                <label for="mobile_number">{{ __('message.mobile_number') }}</label>
                                 <input type="tel" name="mobile_number" id="mobilenum" class="form-control" value="{{ old('mobile_number', request('mobile_number')) }}">
                             </div>
                             <div class="col-md-3 form-group">
                                 <label for="status">Status</label>
                                 <select name="status" class="form-control">
                                     <option value="">Select Status</option>
-                                    <option value="0" {{ request('status') === '0' ? 'selected' : '' }}>Pending</option>
-                                    <option value="1" {{ request('status') === '1' ? 'selected' : '' }}>Delivered</option>
-                                    <option value="2" {{ request('status') === '2' ? 'selected' : '' }}>Failed</option>
-                                    <option value="9" {{ request('status') === '9' ? 'selected' : '' }}>NDNC</option>
-                                    <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>Rejected</option>
-                                    <option value="17" {{ request('status') === '17' ? 'selected' : '' }}>Blocked number</option>
+                                    <option value="0" {{ request('status') === '0' ? 'selected' : '' }}>{{ __('message.pending') }}</option>
+                                    <option value="1" {{ request('status') === '1' ? 'selected' : '' }}>{{ __('message.delivered') }}</option>
+                                    <option value="2" {{ request('status') === '2' ? 'selected' : '' }}>{{ __('message.failed') }}</option>
+                                    <option value="9" {{ request('status') === '9' ? 'selected' : '' }}>{{ __('message.ndnc') }}</option>
+                                    <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>{{ __('message.rejected') }}</option>
+                                    <option value="17" {{ request('status') === '17' ? 'selected' : '' }}>{{ __('message.blocked_number') }}</option>
                                 </select>
                             </div>
                             <div class="col-md-3 form-group">
-                                <label for="failure_reason">Failure Reason</label>
+                                <label for="failure_reason">{{ __('message.failure_reason') }}</label>
                                 <input type="text" name="failure_reason" class="form-control" value="{{ old('failure_reason', request('failure_reason')) }}">
                             </div>
                             <div class="col-md-3 form-group">
-                                <label for="date_from">Date From</label>
+                                <label for="date_from">{{ __('message.date_from') }}</label>
                                 <div class="input-group date" id="date_from_picker" data-target-input="nearest">
                                     <input type="text" name="date_from" class="form-control datetimepicker-input" data-target="#date_from_picker" autocomplete="off" value="{{ old('date_from', request('date_from')) }}" />
                                     <div class="input-group-append" data-target="#date_from_picker" data-toggle="datetimepicker">
@@ -77,7 +77,7 @@
                             </div>
 
                             <div class="col-md-3 form-group">
-                                <label for="date_to">Date To</label>
+                                <label for="date_to">{{ __('message.date_to') }}</label>
                                 <div class="input-group date" id="date_to_picker" data-target-input="nearest">
                                     <input type="text" name="date_to" class="form-control datetimepicker-input" data-target="#date_to_picker" autocomplete="off" value="{{ old('date_to', request('date_to')) }}" />
                                     <div class="input-group-append" data-target="#date_to_picker" data-toggle="datetimepicker">
@@ -101,13 +101,13 @@
             <table id="reports-table" class="table display" cellspacing="0" width="100%">
                 <thead>
                 <tr>
-                    <th>Request ID</th>
-                    <th>User</th>
-                    <th>Email</th>
-                    <th>Mobile Number</th>
-                    <th>Status</th>
-                    <th>Failure Reason</th>
-                    <th>Date</th>
+                    <th>{{ __('message.request_id') }}</th>
+                    <th>{{ __('message.user') }}</th>
+                    <th>{{ __('message.email') }}</th>
+                    <th>{{ __('message.mobile_number') }}</th>
+                    <th>{{ __('message.status') }}</th>
+                    <th>{{ __('message.failure_reason') }}</th>
+                    <th>{{ __('message.date') }}</th>
                 </tr>
                 </thead>
             </table>

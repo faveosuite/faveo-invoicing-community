@@ -1073,4 +1073,25 @@ return [
     'cloud-error-message' => 'Please enter cloud domain.',
     'agents-error-message' => 'Please enter number of agents.',
     'quantity-error-message' => 'Please enter quantity.',
+
+    'msg_reports'  => 'MSG91 Reports',
+    'advance_search'   => 'Advance Search',
+
+    'request_id'       => 'Request ID',
+    'full_name'        => 'Full Name',
+    'mobile_number'    => 'Mobile Number',
+    'failure_reason'   => 'Failure Reason',
+    'date_from'        => 'Date From',
+    'date_to'          => 'Date To',
+
+    'search'           => 'Search',
+    'reset'            => 'Reset',
+    'select_status'    => 'Select Status',
+
+    'pending'          => 'Pending',
+    'delivered'        => 'Delivered',
+    'ndnc'             => 'NDNC',
+    'rejected'         => 'Rejected',
+    'blocked_number'   => 'Blocked number',
+    'user'           => 'User',
 ];
