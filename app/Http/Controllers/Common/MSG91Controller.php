@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Common;
 
+use App\ApiKey;
 use App\Http\Controllers\Controller;
 use App\Model\Common\MsgDeliveryReports;
+use App\ThirdPartyApp;
 use Carbon\Carbon;
 use DataTables;
 use Illuminate\Http\Request;
@@ -22,6 +24,9 @@ class MSG91Controller extends Controller
      */
     public function handleReports(Request $request): void
     {
+        if(!$this->validateThirdPartyRequest($request)){
+            return ;
+        }
         try {
             $jsonData = $request->input('data');
 
@@ -32,13 +37,11 @@ class MSG91Controller extends Controller
             \DB::transaction(function () use ($reports) {
                 foreach ($reports as $reportGroup) {
                     $requestId = $reportGroup['requestId'];
-                    $senderId = $reportGroup['senderId'];
 
                     // Process individual number reports
                     foreach ($reportGroup['report'] as $singleReport) {
                         $this->processIndividualReport([
                             'request_id' => $requestId,
-                            'sender_id' => $senderId,
                             'number' => $singleReport['number'],
                             'status' => $singleReport['status'],
                             'date' => $singleReport['date'] ?? now()->toDateTimeString(),
@@ -59,19 +62,18 @@ class MSG91Controller extends Controller
      */
     protected function processIndividualReport(array $reportData)
     {
-        MsgDeliveryReports::updateOrCreate(
-            ['request_id' => $reportData['request_id']],
-            [
-                'sender_id' => $reportData['sender_id'],
-                'mobile_number' => $reportData['number'],
+        $record = MsgDeliveryReports::where('request_id', $reportData['request_id'])->first();
+
+        if ($record) {
+            $record->update([
                 'status' => $reportData['status'],
                 'date' => $reportData['date'],
                 'failure_reason' => $reportData['failure_reason'],
-            ]
-        );
+            ]);
+        }
     }
 
-    public function updateOtpRequest($requestId, $status, $country_iso, $userID = null)
+    public function updateOtpRequest($requestId, $status, $country_iso,$mobile,$mobile_code, $userID = null)
     {
         MsgDeliveryReports::updateOrCreate(
             ['request_id' => $requestId],
@@ -79,6 +81,8 @@ class MSG91Controller extends Controller
                 'user_id' => $userID,
                 'status' => $status,
                 'country_iso' => $country_iso,
+                'mobile_number' => $mobile,
+                'mobile_code' => $mobile_code,
             ]
         );
     }
@@ -101,9 +105,6 @@ class MSG91Controller extends Controller
             })
             ->addColumn('user.email', function ($model) {
                 return $model->user ? $model->user->email : '---';
-            })
-            ->addColumn('formatted_sender_id', function ($model) {
-                return $model->formatted_sender_id;
             })
             ->addColumn('readable_status', function ($model) {
                 return $model->readable_status;
@@ -132,9 +133,6 @@ class MSG91Controller extends Controller
             ->filterColumn('request_id', function ($query, $keyword) {
                 $query->where('request_id', 'like', "%{$keyword}%");
             })
-            ->filterColumn('formatted_sender_id', function ($query, $keyword) {
-                $query->where('formatted_sender_id', 'like', "%{$keyword}%");
-            })
             ->filterColumn('readable_status', function ($query, $keyword) {
                 $query->where('status', 'like', "%{$keyword}%");
             })
@@ -151,18 +149,17 @@ class MSG91Controller extends Controller
             // Sorting
             ->orderColumn('request_id', 'request_id $1')
             ->orderColumn('mobile_number', 'mobile_number $1')
-            ->orderColumn('formatted_sender_id', 'formatted_sender_id $1')
             ->orderColumn('readable_status', 'status $1')
             ->orderColumn('date', 'date $1')
             ->orderColumn('failure_reason', 'failure_reason $1')
             ->orderColumn('user.full_name', function ($query, $direction) {
-                $query->leftJoin('users', 'msg_delivery_reports.user_id', '=', 'users.id')
-                    ->orderByRaw("CONCAT(users.first_name, ' ', users.last_name) {$direction}")
+                $query->leftJoin('users as u2', 'msg_delivery_reports.user_id', '=', 'u2.id')
+                    ->orderByRaw("CONCAT(u2.first_name, ' ', u2.last_name) {$direction}")
                     ->select('msg_delivery_reports.*');
             })
             ->orderColumn('user.email', function ($query, $direction) {
-                $query->leftJoin('users', 'msg_delivery_reports.user_id', '=', 'users.id')
-                    ->orderBy('users.email', $direction)
+                $query->leftJoin('users as u2', 'msg_delivery_reports.user_id', '=', 'u2.id')
+                    ->orderBy('u2.email', $direction)
                     ->select('msg_delivery_reports.*');
             })
 
@@ -172,14 +169,18 @@ class MSG91Controller extends Controller
 
     public function msg91ReportQuery(Request $request)
     {
-        $query = MsgDeliveryReports::with(['user', 'countries']);
+        $query = MsgDeliveryReports::with(['user']);
 
         // Individual field filters
         $query->when($request->filled('request_id'), fn ($q) => $q->where('request_id', 'like', '%'.$request->input('request_id').'%'));
 
-        $query->when($request->filled('mobile_number'), fn ($q) => $q->where('mobile_number', 'like', '%'.$request->input('mobile_number').'%'));
+        $query->when($request->filled('mobile_number'), function ($q) use ($request) {
+            $q->when($request->filled('country_iso'), function ($q) use ($request) {
+                $q->where('country_iso', $request->input('country_iso'));
+            });
 
-        $query->when($request->filled('sender_id'), fn ($q) => $q->where('sender_id', 'like', '%'.$request->input('sender_id').'%'));
+            $q->where('mobile_number', 'like', '%' . $request->input('mobile_number') . '%');
+        });
 
         $query->when($request->filled('failure_reason'), fn ($q) => $q->where('failure_reason', 'like', '%'.$request->input('failure_reason').'%'));
 
@@ -193,7 +194,6 @@ class MSG91Controller extends Controller
             }
         });
 
-        $query->when($request->filled('country'), fn ($q) => $q->where('country_iso', $request->input('country')));
 
         $query->when($request->filled('date_from'), function ($q) use ($request) {
             $from = Carbon::createFromFormat('m/d/Y', $request->input('date_from'))->format('Y-m-d');
@@ -211,5 +211,23 @@ class MSG91Controller extends Controller
         });
 
         return $query;
+    }
+
+    public function validateThirdPartyRequest($request)
+    {
+        $app_key = $request->input('app_key');
+        $app_secret = $request->input('app_secret');
+
+        $app = ThirdPartyApp::where('app_key', $app_key)
+            ->where('app_secret', $app_secret)
+            ->first();
+
+        if (!$app) {
+            return false;
+        }
+
+        $apiKeyExists = ApiKey::where('msg91_third_party_id', $app->id)->exists();
+
+        return $apiKeyExists;
     }
 }

@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('msg_delivery_reports', function (Blueprint $table) {
             $table->id();
             $table->string('mobile_number');
+            $table->string('mobile_code');
             $table->string('request_id')->unique()->nullable();
             $table->string('status')->nullable();
             $table->dateTime('date')->nullable();

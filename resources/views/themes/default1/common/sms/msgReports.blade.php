@@ -1,7 +1,7 @@
 @extends('themes.default1.layouts.master')
 
 @section('title')
-    Users
+    MSG91 Reports
 @stop
 
 @section('content-header')
@@ -48,11 +48,7 @@
                             </div>
                             <div class="col-md-3 form-group">
                                 <label for="mobile_number">Mobile Number</label>
-                                <input type="text" name="mobile_number" class="form-control" value="{{ old('mobile_number', request('mobile_number')) }}">
-                            </div>
-                            <div class="col-md-3 form-group">
-                                <label for="sender_id">Sender ID</label>
-                                <input type="text" name="sender_id" class="form-control" value="{{ old('sender_id', request('sender_id')) }}">
+                                <input type="tel" name="mobile_number" id="mobilenum" class="form-control" value="{{ old('mobile_number', request('mobile_number')) }}">
                             </div>
                             <div class="col-md-3 form-group">
                                 <label for="status">Status</label>
@@ -64,17 +60,6 @@
                                     <option value="9" {{ request('status') === '9' ? 'selected' : '' }}>NDNC</option>
                                     <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>Rejected</option>
                                     <option value="17" {{ request('status') === '17' ? 'selected' : '' }}>Blocked number</option>
-                                </select>
-                            </div>
-                            <div class="col-md-3 form-group">
-                                <label for="country">Country</label>
-                                <select name="country" class="form-control">
-                                    <option value="">Select Country</option>
-                                    @foreach(\App\Model\Common\Country::all() as $country)
-                                        <option value="{{ $country->country_code_char2 }}" {{ request('country') === $country->country_code_char2 ? 'selected' : '' }}>
-                                            {{ $country->nicename }}
-                                        </option>
-                                    @endforeach
                                 </select>
                             </div>
                             <div class="col-md-3 form-group">
@@ -120,7 +105,6 @@
                     <th>User</th>
                     <th>Email</th>
                     <th>Mobile Number</th>
-                    <th>Sender ID</th>
                     <th>Status</th>
                     <th>Failure Reason</th>
                     <th>Date</th>
@@ -135,6 +119,7 @@
     <script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
     <script>
         $(document).ready(function() {
+            var input = document.querySelector("#mobilenum");
             const table = $('#reports-table').DataTable({
                 processing: true,
                 serverSide: true,
@@ -146,9 +131,8 @@
                         d.full_name = $('input[name="full_name"]').val();
                         d.email = $('input[name="email"]').val();
                         d.mobile_number = $('input[name="mobile_number"]').val();
-                        d.sender_id = $('input[name="sender_id"]').val();
+                        d.country_iso = input.getAttribute('data-country-iso')?.toUpperCase();
                         d.status = $('select[name="status"]').val();
-                        d.country = $('select[name="country"]').val();
                         d.failure_reason = $('input[name="failure_reason"]').val();
                         d.date_from = $('input[name="date_from"]').val();
                         d.date_to = $('input[name="date_to"]').val();
@@ -188,14 +172,18 @@
                         data: 'mobile_number',
                         name: 'mobile_number',
                         render: function (data, type, row) {
+                            var iso = row.country_iso || 'IN';
+                            const countryData = getAllCountryData({ iso2: iso })[0] || {};
+                            var dialCode = countryData.dialCode || '';
+                            var countryName = countryData.name || '';
                             const countryIso = row.countries?.nicename || '';
+
                             if (data) {
-                                return `<span data-toggle="tooltip" title="${countryIso}">${data}</span>`;
+                                return `<span data-toggle="tooltip" title="${countryName}">+${dialCode} ${data}</span>`;
                             }
                             return '---';
                         }
                     },
-                    {data: 'formatted_sender_id', name: 'sender_id'},
                     {
                         data: 'readable_status',
                         name: 'status',
@@ -227,7 +215,6 @@
                     const urlParams = new URLSearchParams(window.location.search);
                     const hasSearchParams = urlParams.has('request_id') ||
                         urlParams.has('mobile_number') ||
-                        urlParams.has('sender_id') ||
                         urlParams.has('status') ||
                         urlParams.has('date') ||
                         urlParams.has('failure_reason');

@@ -19,6 +19,7 @@ class MsgDeliveryReports extends Model
         'failure_reason',
         'user_id',
         'country_iso',
+        'mobile_code',
     ];
     protected $appends = ['readable_status', 'formatted_sender_id'];
 
@@ -40,11 +41,6 @@ class MsgDeliveryReports extends Model
     public function getFormattedSenderIdAttribute()
     {
         return strtoupper($this->sender_id);
-    }
-
-    public function countries()
-    {
-        return $this->belongsTo(Country::class, 'country_iso', 'country_code_char2');
     }
 
     public function user()
