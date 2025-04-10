@@ -171,7 +171,12 @@ class OrderController extends BaseOrderController
                  })
                 ->addColumn('version', function ($model) {
                     $version = $model->product_version;
+                    if($version){
                     return $version;
+                    }
+                    else{
+                        return '--';
+                    }
 //                    $installedVersions = InstallationDetail::where('order_id', $model->id)->pluck('version')->toArray();
 //                    if (count($installedVersions)) {
 //                        $latest = max($installedVersions);

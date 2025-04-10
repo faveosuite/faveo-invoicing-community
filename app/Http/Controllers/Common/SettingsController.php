@@ -6,6 +6,7 @@ use App\ApiKey;
 use App\Email_log;
 use App\Facades\Attach;
 use App\Http\Requests\Common\SettingsRequest;
+use App\ThirdPartyApp;
 use App\Model\Common\Mailchimp\MailchimpSetting;
 use App\Model\Github\Github;
 use App\Model\Common\Setting;
@@ -49,7 +50,6 @@ class SettingsController extends BaseSettingsController
         $mailSendingStatus = Setting::value('sending_status');
 
         return view('themes.default1.common.admin-settings', compact('isRedisConfigured', 'mailSendingStatus'));
-        //return view('themes.default1.common.settings', compact('setting', 'template'));
     }
 
     public function plugins()
@@ -243,18 +243,9 @@ class SettingsController extends BaseSettingsController
             $mailSendingStatus = Setting::value('sending_status');
             $emailStatus = StatusSetting::pluck('emailverification_status')->first();
             $model = $apikeys->find(1);
-            // $v3captchaStatus = StatusSetting::pluck('v3recaptcha_status')->first();
-            // $v3siteKey = $apikeys->pluck('v3captcha_sitekey')->first();
-            // $v3secretKey = $apikeys->pluck('v3captcha_secretCheck')->first();
             $mailchimp_set = new MailchimpSetting();
-
             $set = $mailchimp_set->firstOrFail();
-
             $mail_api_key = $set->api_key;
-//            $mailchimp = ''; // Default to null in case of failure
-//            $mailchimp = new \Mailchimp\Mailchimp($mail_api_key);
-//            $allists = $mailchimp->get('lists?count=20')['lists'];
-//            $selectedList[] = $set->list_id;
             try {
                 $mailchimp = new \Mailchimp\Mailchimp($mail_api_key);
                 $allists = $mailchimp->get('lists?count=20')['lists'];
@@ -267,16 +258,8 @@ class SettingsController extends BaseSettingsController
             $model = new Github();
             $github = $model->firstOrFail();
             $githubStatus = StatusSetting::first()->github_status;
-//            $githubFileds = $github->select('client_id', 'client_secret', 'username', 'password')->first();
-$githubFileds=(object)[
-    'client_id' => '1325',
-    'client_secret'=>'23452',
-    'username'=>'test',
-    'password'=>'test',
-
-];
             return view('themes.default1.common.apikey', compact('model', 'status', 'licenseSecret', 'licenseUrl', 'siteKey', 'secretKey', 'captchaStatus', 'v3CaptchaStatus', 'updateStatus', 'updateSecret', 'updateUrl', 'mobileStatus', 'mobileauthkey', 'msg91Sender', 'msg91TemplateId', 'emailStatus', 'twitterStatus', 'twitterKeys', 'zohoStatus', 'zohoKey', 'rzpStatus', 'rzpKeys', 'mailchimpSetting', 'mailchimpKey', 'termsStatus', 'termsUrl', 'pipedriveKey', 'pipedriveStatus', 'domainCheckStatus', 'mailSendingStatus',
-                'licenseClientId', 'licenseClientSecret', 'licenseGrantType','allists', 'selectedList','set','githubStatus','githubFileds'));
+                'licenseClientId', 'licenseClientSecret', 'licenseGrantType','allists', 'selectedList','set','githubStatus'));
         } catch (\Exception $ex) {
             return redirect('/')->with('fails', $ex->getMessage());
         }
@@ -341,18 +324,6 @@ $githubFileds=(object)[
                         <span class="slider round"></span>
                     </label>', 'action' => '<button id="termsUrl-edit-button" class="btn btn-sm btn-secondary btn-xs"><span class="nav-icon fa fa-fw fa-edit"></span></button>',
                 ],
-//                ['options' => 'Twitter', 'description' => 'This plugin displays live tweets from a specified Twitter page directly in the footer of the portal, keeping users updated with the latest posts in real-time.', 'status' => '<label class="switch toggle_event_editing twitterstatus">
-//                    <input type="checkbox" value="'.($twitterStatus ? '1' : '0').'"  name="twitter_settings"
-//                           class="checkbox6" id="twitter"'.($twitterStatus ? 'checked' : '').'>
-//                    <span class="slider round"></span>
-//                    </label>', 'action' => '<button id="twitter-edit-button" class="btn btn-sm btn-secondary btn-xs"><span class="nav-icon fa fa-fw fa-edit"></span></button>',
-//                ],
-//                ['options' => 'Zoho CRM', 'description' => 'The Zoho CRM plugin seamlessly transfers all contact data from Faveo Invoicing to Zoho CRM upon contact registration and profile edits, ensuring your CRM is always up-to-date with the latest contact information.', 'status' => '                    <label class="switch toggle_event_editing zohostatus">
-//                        <input type="checkbox" value="'.($zohoStatus ? '1' : '0').'"  name="zoho_settings"
-//                           class="checkbox8" id="zoho"'.($zohoStatus ? 'checked' : '').'>
-//                        <span class="slider round"></span>
-//                    </label>', 'action' => '<button id="zoho-edit-button" class="btn btn-sm btn-secondary btn-xs"><span class="nav-icon fa fa-fw fa-edit"></span></button>',
-//                ],
                 ['options' => 'Pipedrive', 'description' => 'The Pipedrive CRM plugin automatically pushes all contact data from Faveo Invoicing to Pipedrive CRM during contact registration and profile edits. A dedicated mapping page allows users to customize which data fields should be synced between the two platforms.', 'status' => '                    <label class="switch toggle_event_editing pipedrivestatus">
                         <input type="checkbox" value="'.($pipedriveStatus ? '1' : '0').'"  name="pipedrive_settings"
                            class="checkbox13" id="pipedrive"'.($pipedriveStatus ? 'checked' : '').'>

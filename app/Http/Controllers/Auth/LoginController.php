@@ -211,9 +211,9 @@ class LoginController extends Controller
             ]);
         }
 
-//        if ($user && ($user->active == 1 && $user->mobile_verified !== 1)) {//check for mobile verification
-//            return redirect('verify')->with('user', $user);
-//        }
+        if ($user && ($user->active == 1 && $user->mobile_verified !== 1)) {//check for mobile verification
+            return redirect('verify')->with('user', $user);
+        }
 
         Auth::login($user);
 

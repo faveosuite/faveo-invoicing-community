@@ -351,7 +351,6 @@ trait ApiKeySettings
                     'subscribe_status' => $subscribe_status,
                 ];
             } else {
-//                $mailchimpverifiedStatus=0;
                 $status = $request->input('status');
 
                 return [

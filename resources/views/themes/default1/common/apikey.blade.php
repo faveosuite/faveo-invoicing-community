@@ -144,7 +144,8 @@
                         <h6 id="template_check"></h6>
                     </div>
 
-                </div>
+
+                    </div>
 
                 <div class="modal-footer justify-content-between">
                     <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
@@ -165,13 +166,9 @@
                 </div>
                 <div class="modal-body">
                     <div id="alertMessage1"></div>
-                    <input type ="hidden" id="hidden_git_username" value="{{$githubFileds->username}}">
-                    <input type ="hidden" id="hidden_git_password" value="{{$githubFileds->password}}">
-                    <input type ="hidden" id="hidden_git_client" value="{{$githubFileds->client_id}}">
-                    <input type ="hidden" id="hidden_client_secret" value="{{$githubFileds->client_secret}}">
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         {!! Form::label('username',Lang::get('message.username'),['class'=>'required']) !!}
-                        {!! Form::text('username',$githubFileds->username,['class' => 'form-control git_username','id'=>'git_username']) !!}
+                        {!! Form::text('username',null,['class' => 'form-control git_username','id'=>'git_username']) !!}
                         <h6 id="user"></h6>
                     </div>
 
@@ -180,7 +177,7 @@
                         {!! Form::label('password',Lang::get('message.pat'),['class'=>'required']) !!}
 
                         <div class="input-group">
-                            <input type= "password" value="{{$githubFileds->password}}" name="password" id="git_password" class="form-control git_password">
+                            <input type= "password" name="password" id="git_password" class="form-control git_password">
 
                             <div class="input-group-append">
                             <span role="button" class="input-group-text" onclick="togglePasswordVisibility(this)">
@@ -194,7 +191,7 @@
 
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         {!! Form::label('client_id',Lang::get('message.client_id'),['class'=>'required']) !!}
-                        {!! Form::text('client_id',$githubFileds->client_id,['class' => 'form-control git_client','id'=>'git_client']) !!}
+                        {!! Form::text('client_id',null,['class' => 'form-control git_client','id'=>'git_client']) !!}
                         <h6 id="c_id"></h6>
                     </div>
 
@@ -202,7 +199,7 @@
 
                         {!! Form::label('client_secret',Lang::get('message.client_secret'),['class'=>'required']) !!}
                         <div class="input-group">
-                            <input type= "password" value="{{$githubFileds->client_secret}}" name="client_secret" id="git_secret" class="form-control git_secret">
+                            <input type= "password" name="client_secret" id="git_secret" class="form-control git_secret">
 
                             <div class="input-group-append">
                             <span role="button" class="input-group-text" onclick="togglePasswordVisibility(this)">
