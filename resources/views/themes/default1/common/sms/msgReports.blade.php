@@ -130,7 +130,7 @@
                         d.request_id = $('input[name="request_id"]').val();
                         d.full_name = $('input[name="full_name"]').val();
                         d.email = $('input[name="email"]').val();
-                        d.mobile_number = $('input[name="mobile_number"]').val();
+                        d.mobile_number = $('input[name="mobile_number"]').val().replace(/\D/g, '');
                         d.country_iso = input.getAttribute('data-country-iso')?.toUpperCase();
                         d.status = $('select[name="status"]').val();
                         d.failure_reason = $('input[name="failure_reason"]').val();

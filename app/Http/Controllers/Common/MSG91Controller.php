@@ -182,6 +182,12 @@ class MSG91Controller extends Controller
             $q->where('mobile_number', 'like', '%'.$request->input('mobile_number').'%');
         });
 
+        $query->when($request->filled('full_name'), function ($q) use ($request) {
+            $q->whereHas('user', function ($subQuery) use ($request) {
+                $subQuery->whereRaw("CONCAT(users.first_name, ' ', users.last_name) LIKE ?", ['%'.$request->input('full_name').'%']);
+            });
+        });
+
         $query->when($request->filled('failure_reason'), fn ($q) => $q->where('failure_reason', 'like', '%'.$request->input('failure_reason').'%'));
 
         $query->when($request->filled('status'), function ($q) use ($request) {
