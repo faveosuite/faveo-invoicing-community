@@ -473,31 +473,32 @@ System Setting
                 const input = document.getElementById('logo');
                 const file = input.files?.[0];
                 var fileName = fup.value;
-                const maxSize = 2 * 1024 * 1024;
+                var ext = fileName.substring(fileName.lastIndexOf('.') + 1);
 
-                if(file.size>maxSize){
+                const maxSize = 2 * 1024 * 1024;
+                if(ext !=="jpeg" && ext !=="jpg" && ext !=='png') {
+                    fup.classList.add('is-invalid');
+                    errMsg.innerText=@json(trans('message.image_invalid_message'));
+                    document.getElementById('submit').disabled = true;
+                    return false;
+                }else if(file.size>maxSize){
                     fup.classList.add('is-invalid');
                     errMsg.innerText=@json(trans('message.image_invalid_size'));
                     document.getElementById('submit').disabled = true;
                     return false;
                 }
-                var ext = fileName.substring(fileName.lastIndexOf('.') + 1);
-                if(ext ==="jpeg" || ext==="jpg" || ext==='png') {
+                else {
                     errMsg.innerText='';
                     fup.classList.remove('is-invalid');
                     document.getElementById('submit').disabled = false;
-
                     return true;
-                } else {
-                    fup.classList.add('is-invalid');
-                    errMsg.innerText=@json(trans('message.image_invalid_message'));
-                    document.getElementById('submit').disabled = true;
-                    return false;
-                }});
+                }
+            });
 
             var fup1 = document.getElementById('admin-logo');
             var errMsg1=document.getElementById('admin-err-Msg');
             $('#admin-logo').on('change',function(e){
+
                 const input = document.getElementById('admin-logo');
                 const file = input.files?.[0];
                 var fileName = fup1.value;
@@ -505,23 +506,23 @@ System Setting
 
                 const maxSize = 2 * 1024 * 1024;
 
-                if(file.size>maxSize){
+
+                if(ext !=="jpeg" && ext !=="jpg" && ext !=='png') {
+                    fup1.classList.add('is-invalid');
+                    errMsg1.innerText=@json(trans('message.image_invalid_message'));
+                    document.getElementById('submit').disabled = true;
+                    return false;
+                }else if(file.size>maxSize){
                     fup1.classList.add('is-invalid');
                     errMsg1.innerText=@json(trans('message.image_invalid_size'));
                     document.getElementById('submit').disabled = true;
                     return false;
                 }
-                if(ext ==="jpeg" || ext==="jpg" || ext==='png') {
+                else {
                     errMsg1.innerText='';
                     fup1.classList.remove('is-invalid');
                     document.getElementById('submit').disabled = false;
-
                     return true;
-                } else {
-                    fup1.classList.add('is-invalid');
-                    errMsg1.innerText=@json(trans('message.image_invalid_message'));
-                    document.getElementById('submit').disabled = true;
-                    return false;
                 }});
 
             var fup2 = document.getElementById('fav-icon');
@@ -533,25 +534,24 @@ System Setting
                 var ext = fileName.substring(fileName.lastIndexOf('.') + 1);
 
                 const maxSize = 2 * 1024 * 1024;
-
-                if(file.size>maxSize){
-                    fup2.classList.remove('is-invalid');
-                    errMsg2.innerText=@json(trans('message.image_invalid_size'));
-                    document.getElementById('submit').disabled = true;
-                    return false;
-                }
-                if(ext ==="jpeg" || ext==="jpg" || ext==='png') {
-                    errMsg2.innerText='';
-                    fup2.classList.remove('is-invalid');
-                    document.getElementById('submit').disabled = false;
-
-                    return true;
-                } else {
+                if(ext !=="jpeg" && ext !=="jpg" && ext !=='png') {
                     fup2.classList.add('is-invalid');
                     errMsg2.innerText=@json(trans('message.image_invalid_message'));
                     document.getElementById('submit').disabled = true;
                     return false;
-                }});
+                }else if(file.size>maxSize){
+                    fup2.classList.add('is-invalid');
+                    errMsg2.innerText=@json(trans('message.image_invalid_size'));
+                    document.getElementById('submit').disabled = true;
+                    return false;
+                }
+                else {
+                    errMsg2.innerText='';
+                    fup2.classList.remove('is-invalid');
+                    document.getElementById('submit').disabled = false;
+                    return true;
+                }
+                });
 
 
             $('.custom-file-input').on('change', function() {
@@ -947,16 +947,7 @@ System Setting
         const preview = document.getElementById(`preview-${id}`);
         if (input && preview) {
             input.addEventListener('change', () => {
-                if(input.id=='admin-logo'){
-                    var errMsg1=document.getElementById('admin-err-Msg');
-                   var fup=document.getElementById(input.id);
-                }else if(input.id=='logo'){
-                    var errMsg1=document.getElementById('logo-err-Msg');
-                    var fup=document.getElementById(input.id)
-                }else{
-                    var errMsg1=document.getElementById('favicon-err-Msg');
-                   var fup=document.getElementById(input.id);
-                }
+
                 // Clear previous preview if file selection is canceled
                 if (!input.files.length) {
                     preview.src = '';
