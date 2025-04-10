@@ -955,7 +955,7 @@ System Setting
                     var fup=document.getElementById(input.id)
                 }else{
                     var errMsg1=document.getElementById('favicon-err-Msg');
-                   var fup=idocument.getElementById(input.id);
+                   var fup=document.getElementById(input.id);
                 }
                 // Clear previous preview if file selection is canceled
                 if (!input.files.length) {
