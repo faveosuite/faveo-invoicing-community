@@ -91,7 +91,7 @@
         <!-- /.box-header -->
         <div class="card-body">
             <div id="alertMessage12"></div>
-            <div class="scrollit" style="height:800px">
+            <div class="scrollit" style="height:1000px">
                 <div class="row">
                     <div class="col-md-12">
                         <table id="custom-table" class="table display" cellspacing="0" width="100%">
@@ -144,14 +144,6 @@
                         <h6 id="template_check"></h6>
                     </div>
 
-                    {{--                    <div style="display: flex; align-items: center; gap: 10px;">--}}
-                    {{--                        {!! Form::label('mobile_settings',Lang::get('message.mobile_settings'),['class'=>'required']) !!}--}}
-                    {{--                        <label class="switch toggle_event_editing">--}}
-                    {{--                    <input type="checkbox" value="{{$mobileStatus}}"  name="mobile_settings"--}}
-                    {{--                           class="checkbox4" id="mobile">--}}
-                    {{--                    <span class="slider round"></span>--}}
-                    {{--                    </label>--}}
-                    {{--                    </div>--}}
                 </div>
 
                 <div class="modal-footer justify-content-between">
@@ -336,7 +328,6 @@
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         <!-- last name -->
                         {!! Form::label('nocaptcha_secret',Lang::get('message.nocaptcha_secret'),['class'=>'required']) !!}
-{{--                        {!! Form::text('nocaptcha_secret',$secretKey,['class' => 'form-control','id'=>'nocaptcha_secret']) !!}--}}
                         <div class="input-group">
                             <input type= "password" value="{{$secretKey}}" name='nocaptcha_secret' id='nocaptcha_secret' class="form-control">
 
@@ -2032,24 +2023,6 @@
         /*
        *Mailchimp
         */
-        {{--$(document).ready(function (){--}}
-        {{--    var mailchimpstatus =  {{$mailchimpSetting}};--}}
-        {{--    if(mailchimpstatus ==1)--}}
-        {{--    {--}}
-        {{--        $('#mailchimp').prop('checked',true);--}}
-        {{--        let extraInput = document.getElementById('extraInput');--}}
-        {{--        extraInput.style.display ='block';--}}
-        {{--        let extraInput1 = document.getElementById('extraInput1');--}}
-        {{--        extraInput1.style.display ='block';--}}
-        {{--    } else if(mailchimpstatus ==0){--}}
-        {{--        $('#mailchimp').prop('checked',false);--}}
-        {{--        let extraInput = document.getElementById('extraInput');--}}
-        {{--        extraInput.style.display ='none';--}}
-        {{--        let extraInput1 = document.getElementById('extraInput1');--}}
-        {{--        extraInput1.style.display ='none';--}}
-        {{--    }--}}
-        {{--});--}}
-
         //Validate and pass value through ajax
         $("#submit9").on('click',function (){ //When Submit button is checked
             if ($('#mailchimp').prop('checked')) {//if button is on
