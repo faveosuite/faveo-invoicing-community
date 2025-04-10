@@ -71,7 +71,6 @@ class BaseClientController extends Controller
         if ($downloadPermission['allowDownloadTillExpiry'] == 1) {
             if (strtotime($link['created_at']) < strtotime($orderEndDate->update_ends_at)) {
 //                $githubApi = new \App\Http\Controllers\Github\GithubApiController();
-
 //                $link = $githubApi->getCurl1($link['zipball_url']);
 
                 return '<p><a href='.$link['zipball_url']." 

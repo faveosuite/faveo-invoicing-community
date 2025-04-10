@@ -54,9 +54,6 @@ Plugins
                         
                               @foreach($status as $s)
                               @if($item['name'] == $s->name)
-{{--                               <td><form method="post" action="{{url('plugin/status/'.$item['name'])}}"><input type="hidden" name="_token" value='.\Session::token().'>--}}
-{{--                                   @csrf--}}
-{{--                                    <button type="submit" class="btn btn-secondary btn-sm btn-xs" title = "Activate"><i class="fa fa-tasks" style="color:white;"></i></button></form>--}}
 
                                        <td>
                                             <label class="switch toggle_event_editing">
@@ -66,15 +63,7 @@ Plugins
                                             </label>
                                        </td>
 
-{{--                                        <td>--}}
-{{--                                           <form method="post" action="{{ url('plugin/status/'.$item['name']) }}"><input type="hidden" name="_token" value="\Session::token()">--}}
-{{--                                            @csrf--}}
-{{--                                            <label class="switch toggle_event_editing">--}}
-{{--                                                <button type="submit" id="submit" class="btn btn-secondary btn-sm btn-xs" title="Deactivate"><i class="fa fa-tasks" style="color:white;"></i></button>--}}
-{{--                                            </label>--}}
 
-{{--                                            </form>--}}
-{{--                                       </td>--}}
                                     @if($item['name'] == $s->name && $s->status)
                                      <td>
                                        <a href= "{{url($item['settings'])}}" class="btn btn-secondary btn-sm btn-xs"><i class="nav-icon fa fa-fw fa-edit" style="color:white;"></i></a>
