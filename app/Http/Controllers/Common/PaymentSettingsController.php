@@ -353,7 +353,6 @@ class PaymentSettingsController extends Controller
             return redirect()->back()->with('success', 'Status has changed');
         }
         if ($status == 0) {
-
             $plug->status = 0;
             $app = base_path().DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'app.php';
             $str = "\n'App\\Plugins\\$name"."\\ServiceProvider',";
@@ -377,6 +376,5 @@ class PaymentSettingsController extends Controller
         $plug->save();
 
         return ['message' => 'success', 'update' => \Lang::get('message.status_change')];
-
     }
 }
