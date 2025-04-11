@@ -6,12 +6,11 @@ use App\ApiKey;
 use App\Email_log;
 use App\Facades\Attach;
 use App\Http\Requests\Common\SettingsRequest;
-use App\ThirdPartyApp;
 use App\Model\Common\Mailchimp\MailchimpSetting;
-use App\Model\Github\Github;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;
+use App\Model\Github\Github;
 use App\Model\Mailjob\QueueService;
 use App\Model\Order\Order;
 use App\Model\Payment\Currency;
@@ -105,8 +104,6 @@ class SettingsController extends BaseSettingsController
 
     public function mobileVerification(ApiKey $apikeys)
     {
-
-
         $mobileauthkey = $apikeys->pluck('msg91_auth_key')->first();
         $msg91Sender = $apikeys->pluck('msg91_sender')->first();
         $msg91TemplateId = $apikeys->pluck('msg91_template_id')->first();
@@ -195,6 +192,7 @@ class SettingsController extends BaseSettingsController
         $github = $model->firstOrFail();
         $githubStatus = StatusSetting::first()->github_status;
         $githubFileds = $github->select('client_id', 'client_secret', 'username', 'password')->first();
+
         return response()->json([
             'githubFileds' => $githubFileds,
 
@@ -258,15 +256,16 @@ class SettingsController extends BaseSettingsController
             $model = new Github();
             $github = $model->firstOrFail();
             $githubStatus = StatusSetting::first()->github_status;
+
             return view('themes.default1.common.apikey', compact('model', 'status', 'licenseSecret', 'licenseUrl', 'siteKey', 'secretKey', 'captchaStatus', 'v3CaptchaStatus', 'updateStatus', 'updateSecret', 'updateUrl', 'mobileStatus', 'mobileauthkey', 'msg91Sender', 'msg91TemplateId', 'emailStatus', 'twitterStatus', 'twitterKeys', 'zohoStatus', 'zohoKey', 'rzpStatus', 'rzpKeys', 'mailchimpSetting', 'mailchimpKey', 'termsStatus', 'termsUrl', 'pipedriveKey', 'pipedriveStatus', 'domainCheckStatus', 'mailSendingStatus',
-                'licenseClientId', 'licenseClientSecret', 'licenseGrantType','allists', 'selectedList','set','githubStatus'));
+                'licenseClientId', 'licenseClientSecret', 'licenseGrantType', 'allists', 'selectedList', 'set', 'githubStatus'));
         } catch (\Exception $ex) {
             return redirect('/')->with('fails', $ex->getMessage());
         }
     }
 
-
-    public function getDataTableData(Request $request){
+    public function getDataTableData(Request $request)
+    {
         $status = StatusSetting::pluck('license_status')->first();
         $mobileStatus = StatusSetting::pluck('msg91_status')->first();
         $captchaStatus = StatusSetting::pluck('recaptcha_status')->first();

@@ -2,10 +2,10 @@
 
 namespace Tests\Unit\Common;
 
+use App\ApiKey;
+use App\Model\Common\StatusSetting;
 use App\User;
 use Tests\TestCase;
-use App\Model\Common\StatusSetting;
-use App\ApiKey;
 
 class SettingsControllerTest extends TestCase
 {
@@ -126,12 +126,11 @@ class SettingsControllerTest extends TestCase
         ]);
     }
 
-
     public function test_get_data_table_data_returns_valid_json()
     {
         $user = User::factory()->create(['role' => 'admin']);
         $this->actingAs($user);
-        $status=StatusSetting::factory()->create([
+        $status = StatusSetting::factory()->create([
             'license_status' => 1,
             'msg91_status' => 1,
             'recaptcha_status' => 1,
@@ -149,9 +148,8 @@ class SettingsControllerTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonStructure([
                 'data' => [
-                    '*' => ['options', 'description', 'status', 'action']
-                ]
+                    '*' => ['options', 'description', 'status', 'action'],
+                ],
             ]);
     }
-    
 }

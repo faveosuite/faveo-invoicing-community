@@ -3,8 +3,8 @@
 namespace App\Model\Common;
 
 use Database\Factories\StatusSettingFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class StatusSetting extends Model
 {
