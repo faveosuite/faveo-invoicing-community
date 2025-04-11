@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-    Api Key
+    Third Party Integrations
 @stop
 @section('content-header')
     <style>
@@ -62,10 +62,10 @@
 .slider.round:before {
   border-radius: 50%;
 }
-.scrollit {
-    overflow:scroll;
-    height:600px;
-}
+/*.scrollit {*/
+/*    overflow:scroll;*/
+/*    height:600px;*/
+/*}*/
         .error-border {
             border-color: red;
         }
@@ -73,13 +73,13 @@
 
 </style>
 <div class="col-sm-6 md-6">
-    <h1>API Keys</h1>
+    <h1>Third Party Integrations</h1>
 </div>
 <div class="col-sm-6 md-6">
     <ol class="breadcrumb float-sm-right">
         <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
         <li class="breadcrumb-item"><a href="{{url('settings')}}"> Settings</a></li>
-        <li class="breadcrumb-item active">Api Key</li>
+        <li class="breadcrumb-item active">Third Party Integrations</li>
     </ol>
 </div><!-- /.col -->
 @stop
@@ -91,8 +91,8 @@
         <!-- /.box-header -->
         <div class="card-body">
             <div id="alertMessage12"></div>
-            <div class="scrollit" style="height:1000px">
-                <div class="row">
+{{--            <div class="scrollit" style="height:1000px">--}}
+                <div class="row" style="height:960px">
                     <div class="col-md-12">
                         <table id="custom-table" class="table display" cellspacing="0" width="100%">
                             <thead>
@@ -109,7 +109,7 @@
             </div>
         </div>
         <!-- /.box-body -->
-    </div>
+{{--    </div>--}}
     <div class="modal fade" id="msg-91" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -219,13 +219,13 @@
 
                     </div>
 
-                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}" style="display:none">
                         {!! Form::label('client_id',Lang::get('message.client_id'),['class'=>'required']) !!}
                         {!! Form::text('client_id',null,['class' => 'form-control git_client','id'=>'git_client']) !!}
                         <h6 id="c_id"></h6>
                     </div>
 
-                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                    <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}" style="display:none" >
 
                         {!! Form::label('client_secret',Lang::get('message.client_secret'),['class'=>'required']) !!}
                         <div class="input-group">
@@ -292,7 +292,7 @@
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         {!! Form::label('lic_client_secret',Lang::get('message.lic_client_secret'),['class'=>'required']) !!}
                         <div class="input-group">
-                            <input type= "password" value="{{$licenseClientSecret}}" name='license_client_secret' id='license_client_secret' class="form-control">
+                            <input type="password" value="{{$licenseClientSecret}}" name='license_client_secret' id='license_client_secret' class="form-control">
 
                             <div class="input-group-append">
                             <span role="button" class="input-group-text" onclick="togglePasswordVisibility(this)">
@@ -334,15 +334,18 @@
                 <div class="modal-body">
                     <div id="alertMessage2"></div>
 
-                    <div class="form-group m-1 d-flex">
-                        <div class="custom-control custom-radio m-2">
-                            <input class="custom-control-input " type="radio" id="captchaRadioV2" name="customRadio" {{ $captchaStatus === 1 ? 'checked' : '' }}>
-                            <label for="captchaRadioV2" class="custom-control-label">{{ __('message.recaptcha_v2') }}</label>
+                    <div class="form-group m-1">
+                        <div class="d-flex align-items-center">
+                            <div class="custom-control custom-radio m-2">
+                                <input class="custom-control-input" type="radio" id="captchaRadioV2" name="customRadio" {{ $captchaStatus === 1 ? 'checked' : '' }}>
+                                <label for="captchaRadioV2" class="custom-control-label">{{ __('message.recaptcha_v2') }}</label>
+                            </div>
+                            <div class="custom-control custom-radio m-2">
+                                <input class="custom-control-input" type="radio" id="captchaRadioV3" name="customRadio" {{ $v3CaptchaStatus === 1 ? 'checked' : '' }}>
+                                <label for="captchaRadioV3" class="custom-control-label">{{ __('message.recaptcha_v3') }}</label>
+                            </div>
                         </div>
-                        <div class="custom-control custom-radio m-2">
-                            <input class="custom-control-input" type="radio" id="captchaRadioV3" name="customRadio" {{ $v3CaptchaStatus === 1 ? 'checked' : '' }}>
-                            <label for="captchaRadioV3" class="custom-control-label">{{ __('message.recaptcha_v3') }}</label>
-                        </div>
+                        <span class="system-error text-danger ml-3" id="checkboxerror"></span>
                     </div>
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         {!! Form::label('nocaptcha_sitekey',Lang::get('message.nocaptcha_sitekey'),['class'=>'required']) !!}
@@ -366,7 +369,9 @@
                         </div>
                         <h6 id="captcha_secretCheck"></h6>
                     </div>
-                    <div id="recaptcha-wrapper"></div>
+                    <div id="recaptcha-wrapper">
+                        <div id="recaptcha-container"></div>
+                    </div>
                 </div>
 
                 <div class="modal-footer justify-content-between">
@@ -377,7 +382,6 @@
             </div>
         </div>
     </div>
-
 
 
 
@@ -418,14 +422,14 @@
 
                             @endforeach
                             </select>
-                            <p><i> {{Lang::get('message.enter-the-mailchimp-list-id')}}</i> </p>
+                            <span><i> {{Lang::get('message.enter-the-mailchimp-list-id')}}</i> </span>
 
                         </div>
 
                         <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                             {!! Form::label('subscribe_status',Lang::get('message.subscribe_status'),['class'=>'required']) !!}
                             {!! Form::select('subscribe_status',['subscribed'=>'Subscribed','unsubscribed'=>'Unsubscribed','cleaned'=>'Cleaned','pending'=>'Pending'],null,['class' => 'form-control','id'=>'subscribe_status']) !!}
-                            <p><i> {{Lang::get('message.enter-the-mailchimp-subscribe-status')}}</i> </p>
+                            <span><i> {{Lang::get('message.enter-the-mailchimp-subscribe-status')}}</i> </span>
                         </div>
 
                             <div id="extraInput9" style="display: none;">
@@ -440,7 +444,7 @@
                     </div>
                 <div id="extraInput1" style="display: none;">
                 <div class="modal-footer justify-content-between">
-                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
+                    <button type="button" id="close1" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
                         <button type="submit" class="btn btn-primary pull-right" id="submit-chimp" ><i class="fa fa-save">&nbsp;</i>{!!Lang::get('message.save')!!}</button>
                     </div>
 
@@ -449,7 +453,7 @@
 
                 <div id="extraInput5" style="display: block;">
                 <div class="modal-footer justify-content-between">
-                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
+                    <button type="button" id="close1" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
 
                     <button type="submit" class="btn btn-primary" id="submit9">
                         <i class="fa fa-save"></i>&nbsp;&nbsp;{!! Lang::get('message.save') !!}
@@ -558,7 +562,6 @@
     </div>
 
 
-
     <div class="modal fade" id="zohoCrm" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -626,11 +629,16 @@
     <script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit" async defer></script>
 
     <script>
+        $('#close1').on('click',function(){
+            location.reload();
+        });
+
         let currentSiteKey = '';
         let scriptLoaded = false;
 
         function isLikelyV3Key(sitekey) {
             return sitekey.length > 35 && !sitekey.includes('localhost');
+
         }
 
         function loadRecaptchaScript(sitekey, callback) {
@@ -655,6 +663,8 @@
             script.onerror = () => {
                 document.getElementById("nocaptcha_sitekey").classList.add('is-invalid');
                 document.getElementById("status").textContent = @json(trans('message.invalid_recaptcha_key'));
+                document.getElementById("submit2").disabled=true;
+
             };
 
             document.head.appendChild(script);
@@ -663,30 +673,44 @@
         function verifyWithRecaptchaV3(sitekey) {
             if (!window.grecaptcha) {
                 document.getElementById("status").textContent = @json(trans('message.invalid_recaptcha_key'));
+                document.getElementById("submit2").disabled=true;
                 return;
             }
 
             try {
                 grecaptcha.ready(() => {
-                    grecaptcha.execute(sitekey, { action: 'submit' })
-                        .then(token => {
-                            // Optional: Show token in console for debugging
+                    try {
+                        grecaptcha.execute(sitekey, {action: 'submit'})
+                            .then(token => {
+                                // Optional: Show token in console for debugging
 
-                            if (!token || token.length < 100) {
-                                throw new Error(@json(trans('message.invalid_recaptcha_key')));
-                            }
+                                if (!token || token.length < 100) {
+                                    throw new Error(@json(trans('message.invalid_recaptcha_key')));
+                                    document.getElementById("submit2").disabled=true;
+                                }
 
-                            document.getElementById("nocaptcha_sitekey").classList.remove('is-invalid');
-                            document.getElementById("status").textContent = "";
-                        })
-                        .catch(err => {
-                            document.getElementById("status").textContent = @json(trans('message.invalid_recaptcha_key'));
-                            document.getElementById("nocaptcha_sitekey").classList.add('is-invalid');
-                        });
+                                document.getElementById("nocaptcha_sitekey").classList.remove('is-invalid');
+                                document.getElementById("status").textContent = "";
+                                document.getElementById("submit2").disabled=false;
+
+                            })
+                            .catch(err => {
+                                document.getElementById("status").textContent = @json(trans('message.invalid_recaptcha_key'));
+                                document.getElementById("nocaptcha_sitekey").classList.add('is-invalid');
+                                document.getElementById("submit2").disabled=true;
+                            });
+                    }catch(err){
+                        document.getElementById("status").textContent = @json(trans('message.invalid_recaptcha_key'));
+                        document.getElementById("nocaptcha_sitekey").classList.add('is-invalid');
+                        document.getElementById("submit2").disabled=true;
+
+                    }
                 });
             } catch (e) {
                 document.getElementById("status").textContent = @json(trans('message.invalid_recaptcha_key'));
                 document.getElementById("nocaptcha_sitekey").classList.add('is-invalid');
+                document.getElementById("submit2").disabled=true;
+
             }
         }
 
@@ -694,9 +718,13 @@
             document.getElementById('nocaptcha_sitekey').addEventListener('input', function () {
                 const initial_id = document.querySelector('input[name="customRadio"]:checked')?.id;
                 const newSiteKey = this.value.trim();
+                resetRecaptchaContainer();
 
                 document.getElementById("status").textContent = '';
-
+                var captchaError=document.getElementById('captchaError');
+                if(captchaError !=null) {
+                    document.getElementById('captchaError').textContent = '';
+                }
                 if (initial_id === 'captchaRadioV3') {
                     if (!isLikelyV3Key(newSiteKey)) {
                         document.getElementById("status").textContent = @json(trans('message.invalid_recaptcha_key'));
@@ -718,55 +746,160 @@
 
     <script>
         document.getElementById('nocaptcha_sitekey').addEventListener('input', function () {
-
+            resetRecaptchaContainer();
+            var captchaError=document.getElementById('captchaError');
+            if(captchaError !=null) {
+                document.getElementById('captchaError').textContent = '';
+            }
             var initial_id=$('input[name="customRadio"]:checked').attr('id');
 
             if(initial_id==='captchaRadioV2') {
                 const sitekey = this.value.trim();
                 if (!sitekey) return;
+                validateRecaptchaV2Key(sitekey);
 
-                // Load reCAPTCHA v3 script dynamically
-                const existing = document.querySelector('script[src*="recaptcha/api.js"]');
-                if (existing) existing.remove(); // Remove if already loaded
+            }
+            });
+        let recaptchaWidgetId = null;
 
-                const script = document.createElement('script');
-                script.src = `https://www.google.com/recaptcha/api.js?render=${sitekey}`;
-                script.async = true;
-                script.defer = true;
-                document.head.appendChild(script);
+        function validateRecaptchaV2Key(sitekey) {
+            const containerId = 'recaptcha-container';
 
-                script.onload = () => {
-                    grecaptcha.ready(() => {
-                        try {
-                            grecaptcha.execute(sitekey, {action: 'submit'})
-                                .then(token => {
-                                    // document.getElementById("status").textContent = " The Google recaptcha site key is valid.";
-                                    document.getElementById("nocaptcha_sitekey").classList.remove('is-invalid');
-                                    document.getElementById("status").innerHTML = "";
+            const oldScript = document.querySelector('script[src*="recaptcha/api.js"]');
+            if (oldScript) {
+                oldScript.remove();
+            }
+            document.getElementById("status").textContent = '';
+            document.getElementById("nocaptcha_sitekey").classList.remove('is-invalid');
+            // Clear any existing reCAPTCHA widget
+            document.getElementById(containerId).innerHTML = '';
+            recaptchaWidgetId = null;
+            delete window.grecaptcha;
 
-                                })
-                                .catch(err => {
+            // Load reCAPTCHA API script
+            const script = document.createElement('script');
+            script.src = 'https://www.google.com/recaptcha/api.js?onload=onV2Load&render=explicit';
+            script.async = true;
+            script.defer = true;
 
-                                        document.getElementById("status").innerHTML = @json(trans('message.invalid_recaptcha_key'));
-                                    document.getElementById("nocaptcha_sitekey").classList.add('is-invalid');
+            window.onV2Load = function () {
+                try {
+                    // Render reCAPTCHA inside the container
+                    recaptchaWidgetId = grecaptcha.render(containerId, {
+                        sitekey: sitekey,
+                        callback: function (token) {
+                            document.getElementById("status").textContent = '';
+                            document.getElementById("nocaptcha_sitekey").classList.remove('is-invalid');
+                            document.getElementById("submit2").disabled=false;
 
-                                });
-                        } catch (innerErr) {
-                                document.getElementById("status").innerHTML = @json(trans('message.invalid_recaptcha_key'));
-                            document.getElementById("nocaptcha_sitekey").classList.add('is-invalid');
-
+                        },
+                        'error-callback': function() {
+                            // Handle error callback when reCAPTCHA fails
+                            showError();
                         }
                     });
-                };
+                    clearError();
+                } catch (e) {
+                    showError();
+                }
+            };
 
-                script.onerror = () => {
-                    // document.getElementById("status").textContent = " The Google recaptcha site key is valid.";
-                    document.getElementById("nocaptcha_sitekey").classList.remove('is-invalid');
-                    document.getElementById("status").innerHTML = "";
+            script.onerror = function () {
+                showError();
+            };
 
-                };
+            try {
+                document.head.appendChild(script);
+                clearError();
+            } catch (err) {
+                console.error('Unexpected error appending script:', err);
+                showError(); // Show error if there is an issue with appending the script tag
+            }
+        }
+
+
+
+        // Function to display error messages
+        function showError() {
+            document.getElementById("status").textContent = @json(trans('message.invalid_recaptcha_key'));
+            document.getElementById("nocaptcha_sitekey").classList.add('is-invalid');
+            document.getElementById("submit2").disabled=true;
+
+        }
+
+        // Function to clear error messages
+        function clearError() {
+            document.getElementById("status").textContent = '';
+            document.getElementById("nocaptcha_sitekey").classList.remove('is-invalid');
+            document.getElementById("submit2").disabled=false;
+
+        }
+
+        function resetRecaptchaContainer() {
+                // Remove old script
+                const oldScript = document.querySelector('script[src*="recaptcha/api.js"]');
+                if (oldScript) oldScript.remove();
+
+                // Delete global grecaptcha object
+                delete window.grecaptcha;
+
+                // Remove container
+                document.getElementById('recaptcha-container')?.remove();
+                const newContainer = document.createElement('div');
+                newContainer.id = 'recaptcha-container';
+                document.getElementById('recaptcha-wrapper').appendChild(newContainer);
+
+                recaptchaWidgetId = null;
+            }
+
+
+        $('input[name="customRadio"]').change(function () {
+            var initial_key=$('#nocaptcha_sitekey').val();
+            var initial_secret=$('#nocaptcha_secret').val();
+            var initial_id=$('input[name="customRadio"]:checked').attr('id');
+            document.getElementById('checkboxerror').textContent='';
+            document.getElementById("nocaptcha_sitekey").classList.remove('is-invalid');
+            const newSiteKey = initial_key;
+            resetRecaptchaContainer();
+            document.getElementById("submit2").disabled=false;
+
+            document.getElementById("status").textContent = '';
+            var captchaError=document.getElementById('captchaError');
+            if(captchaError !=null) {
+                document.getElementById('captchaError').textContent = '';
+            }
+            if (initial_id === 'captchaRadioV3') {
+                if (!isLikelyV3Key(newSiteKey)) {
+                    document.getElementById("status").textContent = @json(trans('message.invalid_recaptcha_key'));
+                    this.classList.add('is-invalid');
+                    return;
+                }
+
+                if (newSiteKey) {
+                    currentSiteKey = newSiteKey;
+                    loadRecaptchaScript(newSiteKey, () => {
+                        verifyWithRecaptchaV3(newSiteKey);
+                    });
+                }
+            }
+            if(initial_id==='captchaRadioV2') {
+                const sitekey = initial_key;
+                if (!sitekey) return;
+                validateRecaptchaV2Key(sitekey);
+
+            }
+            var selectedId = $(this).attr('id'); // Get the ID of selected radio button
+
+            let inputGroup1 =document.getElementById('nocaptcha_secret');
+            let passwordInput1 = inputGroup1.type;
+            let icon1 = inputGroup1.closest('.input-group').querySelector('i');
+            if(passwordInput1==='text'){
+                inputGroup1.type='password';
+                icon1.classList.remove('fa-eye');
+                icon1.classList.add('fa-eye-slash');
             }
         });
+
     </script>
 
     <script>
@@ -777,11 +910,27 @@
                 type : 'post',
                 success: function (response) {
 
-                    $('#license_api_secret').val(response['licenseSecret']);
-                    $('#license_api_url').val(response['licenseUrl']);
-                    $('#license_client_id').val(response['licenseClientId']);
-                    $('#license_client_secret').val(response['licenseClientSecret']);
-                    $('#license_grant_type').val(response['licenseGrantType']);
+                    $('#license_api_secret').val(response['data']['licenseSecret']);
+                    let inputGroup =document.getElementById('license_api_secret');
+                    let passwordInput = inputGroup.type;
+                    let icon = inputGroup.closest('.input-group').querySelector('i');
+                    if(passwordInput==='text'){
+                        inputGroup.type='password';
+                        icon.classList.remove('fa-eye');
+                        icon.classList.add('fa-eye-slash');
+                    }
+                    $('#license_api_url').val(response['data']['licenseUrl']);
+                    $('#license_client_id').val(response['data']['licenseClientId']);
+                    $('#license_client_secret').val(response['data']['licenseClientSecret']);
+                    let inputGroup1 =document.getElementById('license_client_secret');
+                    let passwordInput1 = inputGroup1.type;
+                    let icon1 = inputGroup1.closest('.input-group').querySelector('i');
+                    if(passwordInput1==='text'){
+                        inputGroup1.type='password';
+                        icon1.classList.remove('fa-eye');
+                        icon1.classList.add('fa-eye-slash');
+                    }
+                    $('#license_grant_type').val(response['data']['licenseGrantType']);
                     $('#create-third-party-app').modal('show');
                 },
             });
@@ -793,16 +942,24 @@
                 url : '{{url("googleCaptcha")}}',
                 type : 'post',
                 success: function (response) {
-                    if(response['captchaStatus']){
+                    if(response['data']['captchaStatus']){
                         selectCaptcha('captchaRadioV2');
                     }
-                    if(response['v3_recaptcha_status']){
+                    if(response['data']['v3_recaptcha_status']){
                         selectCaptcha('captchaRadioV3');
                     }
                     document.getElementById("nocaptcha_sitekey").classList.remove('is-invalid');
                     document.getElementById("status").innerHTML = "";
-                    $('#nocaptcha_sitekey').val(response['siteKey']);
-                    $('#nocaptcha_secret').val(response['secretKey']);
+                    $('#nocaptcha_sitekey').val(response['data']['siteKey']);
+                    $('#nocaptcha_secret').val(response['data']['secretKey']);
+                    let inputGroup1 =document.getElementById('nocaptcha_secret');
+                    let passwordInput1 = inputGroup1.type;
+                    let icon1 = inputGroup1.closest('.input-group').querySelector('i');
+                    if(passwordInput1==='text'){
+                        inputGroup1.type='password';
+                        icon1.classList.remove('fa-eye');
+                        icon1.classList.add('fa-eye-slash');
+                    }
                     $('#google-recaptcha').modal('show');
                 },
             });
@@ -825,9 +982,9 @@
                 url : '{{url("mobileVerification")}}',
                 type : 'post',
                 success: function (response) {
-                    $('#mobile_authkey').val(response['mobileauthkey']);
-                    $('#sender').val(response['msg91Sender']);
-                    $('#template_id').val(response['msg91TemplateId']);
+                    $('#mobile_authkey').val(response['data']['mobileauthkey']);
+                    $('#sender').val(response['data']['msg91Sender']);
+                    $('#template_id').val(response['data']['msg91TemplateId']);
                     $('#msg-91').modal('show');
                 },
             });
@@ -839,7 +996,7 @@
                 url : '{{url("termsUrl")}}',
                 type : 'post',
                 success: function (response) {
-                    $('#terms_url').val(response['termsUrl']);
+                    $('#terms_url').val(response['data']['termsUrl']);
 
                     $('#showTerms').modal('show');
                 },
@@ -852,7 +1009,7 @@
                 url : '{{url("zohokeys")}}',
                 type : 'post',
                 success: function (response) {
-                    $('#zoho_key').val(response['zohoKey']);
+                    $('#zoho_key').val(response['data']['zohoKey']);
 
                     $('#zohoCrm').modal('show');
                 },
@@ -866,7 +1023,7 @@
                 url : '{{url("pipedrivekeys")}}',
                 type : 'post',
                 success: function (response) {
-                    $('#pipedrive_key').val(response['pipedriveKey']);
+                    $('#pipedrive_key').val(response['data']['pipedriveKey']);
 
                     $('#pipedrv').modal('show');
                 },
@@ -880,10 +1037,10 @@
                 url : '{{url("twitterkeys")}}',
                 type : 'post',
                 success: function (response) {
-                    $('#consumer_key').val(response['twitterkeys']['twitter_consumer_key']);
-                    $('#consumer_secret').val(response['twitterkeys']['twitter_consumer_secret']);
-                    $('#access_token').val(response['twitterkeys']['twitter_access_token']);
-                    $('#token_secret').val(response['twitterkeys']['access_tooken_secret']);
+                    $('#consumer_key').val(response['data']['twitterkeys']['twitter_consumer_key']);
+                    $('#consumer_secret').val(response['data']['twitterkeys']['twitter_consumer_secret']);
+                    $('#access_token').val(response['data']['twitterkeys']['twitter_access_token']);
+                    $('#token_secret').val(response['data']['twitterkeys']['access_tooken_secret']);
 
                     $('#twitters').modal('show');
                 },
@@ -897,10 +1054,16 @@
                 url : '{{url("githubkeys")}}',
                 type : 'post',
                 success: function (response) {
-                    $('#git_username').val(response['githubFileds']['username']);
-                    $('#git_password').val(response['githubFileds']['password']);
-                    $('#git_client').val(response['githubFileds']['client_id']);
-                    $('#git_secret').val(response['githubFileds']['client_secret']);
+                    $('#git_username').val(response['data']['githubFileds']['username']);
+                    $('#git_password').val(response['data']['githubFileds']['password']);
+                    let inputGroup1 =document.getElementById('git_password');
+                    let passwordInput1 = inputGroup1.type;
+                    let icon1 = inputGroup1.closest('.input-group').querySelector('i');
+                    if(passwordInput1==='text'){
+                        inputGroup1.type='password';
+                        icon1.classList.remove('fa-eye');
+                        icon1.classList.add('fa-eye-slash');
+                    }
 
                     $("#githubSet").modal('show');
                 },
@@ -914,12 +1077,12 @@
                 url : '{{url("mailchimpkeys")}}',
                 type : 'post',
                 success: function (response) {
-                    $('#mailchimp_authkey').val(response['mailchimpKey']);
+                    $('#mailchimp_authkey').val(response['data']['mailchimpKey']);
                     var array=response['allLists'];
                     if(array && array.length) {
-                        var value1 = response['allLists'][0]['id'];
-                        var name1 = response['allLists'][0]['name'];
-                        var value2 = response['subscribe_status'];
+                        var value1 = response['data']['allLists'][0]['id'];
+                        var name1 = response['data']['allLists'][0]['name'];
+                        var value2 = response['data']['subscribe_status'];
                         const select = document.getElementById('list_id');
                         select.value = value1;
                         select.text = name1;
@@ -938,9 +1101,7 @@
         else{
             var checkboxvalue = 0;
         }
-
             $.ajax({
-
                 url : '{{url("licenseStatus")}}',
                 type : 'post',
                 data: {
@@ -951,13 +1112,12 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage12').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
-                    $('#alertMessage12').html(result+ ".");
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
+                    $('#alertMessage12').html(result);
                     $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
                         $('#alertMessage12').slideUp(3000);
                     }, 1000);
-
                 },
             });
 
@@ -983,8 +1143,8 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage12').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
-                    $('#alertMessage12').html(result+ ".");
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
+                    $('#alertMessage12').html(result);
                     $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
                         $('#alertMessage12').slideUp(3000);
@@ -1015,8 +1175,8 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage12').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
-                    $('#alertMessage12').html(result+ ".");
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
+                    $('#alertMessage12').html(result);
                     $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
                         $('#alertMessage12').slideUp(3000);
@@ -1048,8 +1208,8 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage12').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
-                    $('#alertMessage12').html(result+ ".");
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
+                    $('#alertMessage12').html(result);
                     $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
                         $('#alertMessage12').slideUp(3000);
@@ -1080,8 +1240,8 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage12').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
-                    $('#alertMessage12').html(result+ ".");
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
+                    $('#alertMessage12').html(result);
                     $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
                         $('#alertMessage12').slideUp(3000);
@@ -1099,7 +1259,6 @@
             else{
                 var checkboxvalue = 0;
             }
-
             $.ajax({
 
                 url : '{{url("licenseStatus")}}',
@@ -1112,8 +1271,8 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage12').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
-                    $('#alertMessage12').html(result+ ".");
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
+                    $('#alertMessage12').html(result);
                     $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
                         $('#alertMessage12').slideUp(3000);
@@ -1145,8 +1304,8 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage12').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
-                    $('#alertMessage12').html(result+ ".");
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
+                    $('#alertMessage12').html(result);
                     $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
                         $('#alertMessage12').slideUp(3000);
@@ -1177,8 +1336,8 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage12').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
-                    $('#alertMessage12').html(result+ ".");
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
+                    $('#alertMessage12').html(result);
                     $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
                         $('#alertMessage12').slideUp(3000);
@@ -1209,8 +1368,8 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage12').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
-                    $('#alertMessage12').html(result+ ".");
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
+                    $('#alertMessage12').html(result);
                     $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
                         $('#alertMessage12').slideUp(3000);
@@ -1226,6 +1385,7 @@
             $('#custom-table').DataTable({
                 processing: true,
                 serverSide: true,
+                stateSave: false,
 
                 ajax: "{{ route('datatable.data') }}", // Calls the separate function
                 "oLanguage": {
@@ -1445,28 +1605,26 @@
 
                 },
                 success: function (response) {
-                    if(response['message']=='success') {
                         setTimeout(function () {
                             location.reload();
                         }, 3000);
                         $('#alertMessage').show();
-                        var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>' + response.update + '.</div>';
-                        $('#alertMessage').html(result + ".");
+                        var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>' + response.message + '.</div>';
+                        $('#alertMessage').html(result);
                         $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                         setInterval(function () {
                             $('#alertMessage').slideUp(3000);
                         }, 1000);
-                    }else{
-                        $('#alertMessage').show();
-                        var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> Error! </strong>' + response.update + '.</div>';
-                        $('#alertMessage').html(result + ".");
-                        $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
-                        setInterval(function () {
-                            $('#alertMessage').slideUp(3000);
-                        }, 1000);
-                    }
                 },
-
+                error:function(response){
+                    $('#alertMessage').show();
+                    var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> Error! </strong>' + response.responseJSON.message + '</div>';
+                    $('#alertMessage').html(result);
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    setInterval(function () {
+                        $('#alertMessage').slideUp(3000);
+                    }, 1000);
+                },
 
             });
         };
@@ -1486,7 +1644,7 @@
             ,'sender','template_id','consumer_key','consumer_secret',
             'access_token','token_secret','git_username',
         'git_password','git_client','git_secret',
-        'zoho_key','pipedrive_key','terms_url','mailchimp_authkey'].forEach(id => {
+        'zoho_key','pipedrive_key','terms_url','mailchimp_authkey','list_id','subscribe_status'].forEach(id => {
 
             document.getElementById(id).addEventListener('input', function () {
                 removeErrorMessage(this);
@@ -1566,7 +1724,7 @@
                     }, 3000);
                     $('#alertMessage').show();
                     var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
-                    $('#alertMessage').html(result+ ".");
+                    $('#alertMessage').html(result);
                     $("#submitudpate").html("<i class='fa fa-floppy-o'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
                         $('#alertMessage').slideUp(3000);
@@ -1576,21 +1734,6 @@
 
             });
         };
-
-        var initial_id=$('input[name="customRadio"]:checked').attr('id');
-        var initial_key=$('#nocaptcha_sitekey').val();
-        var initial_secret=$('#nocaptcha_secret').val();
-        $('input[name="customRadio"]').change(function () {
-            document.getElementById("status").textContent = "";
-
-            var selectedId = $(this).attr('id'); // Get the ID of selected radio button
-            if(selectedId!==initial_id){
-                $('#nocaptcha_sitekey').val('');
-                $('#nocaptcha_secret').val('');
-            }else{
-                $('#nocaptcha_sitekey').val(initial_key);
-                $('#nocaptcha_secret').val(initial_secret);
-            }
 
 
 
@@ -1607,7 +1750,7 @@
             }
         });
 
-        function captchaDetails(){
+        function captchaDetails(e){
       
             if ($('#captcha').prop("checked")) {
                 var checkboxvalue = 1;
@@ -1618,8 +1761,8 @@
             }
 
             const userRequiredFields = {
-                name:@json(trans('message.site_key')),
-                type:@json(trans('message.secret_key')),
+                name:@json(trans('message.secret_key')),
+                type:@json(trans('message.site_key')),
             };
 
             const userFields = {
@@ -1639,7 +1782,7 @@
 
             const showError = (field, message) => {
                 field.addClass('is-invalid');
-                field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+                field.next().after(`<span class='error invalid-feedback' id='captchaError'>${message}</span>`);
             };
 
             // Validate required fields
@@ -1651,17 +1794,21 @@
             });
 
 
-
-            // If validation fails, prevent form submission
-            if (!isValid) {
-                e.preventDefault();
-            }
             var recaptchaType='';
             if($('#captchaRadioV2').prop('checked')){
                 recaptchaType='v2';
             }
             if($('#captchaRadioV3').prop('checked')){
                 recaptchaType='v3';
+            }
+            if(recaptchaType!=='v2' && recaptchaType!=='v3'){
+                document.getElementById('checkboxerror').textContent=@json(trans('message.recaptcha_type_error'));
+                isValid = false;
+            }
+
+            // If validation fails, prevent form submission
+            if (!isValid) {
+                e.preventDefault();
             }
 
             $("#submit2").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
@@ -1680,8 +1827,8 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage2').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
-                    $('#alertMessage2').html(result+ ".");
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.message+'.</div>';
+                    $('#alertMessage2').html(result);
                     $("#submit2").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
                         $('#alertMessage2').slideUp(3000);
@@ -1763,7 +1910,7 @@
                 success: function (data) {
                     $('#alertMessage').show();
                     var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
-                    $('#alertMessage').html(result+ ".");
+                    $('#alertMessage').html(result);
                     $("#submit3").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
                         $('#alertMessage').slideUp(3000);
@@ -1801,8 +1948,8 @@
                 var mobilestatus = 1;
 
 
-
             } else {
+
                 mobilestatus = 0;
             }
 
@@ -1867,7 +2014,6 @@
                     "msg91_auth_key": $('#mobile_authkey').val(),
                     "msg91_sender": $('#sender').val(),
                     "msg91_template_id": $('#template_id').val(),
-                    "thirdPartyId": $('#third_party_key').val(),
                 },
                 success: function (data) {
                     setTimeout(function() {
@@ -1876,7 +2022,7 @@
                     const result = `
                 <div class="alert alert-success alert-dismissable">
                     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                    <strong><i class="fa fa-check"></i> Success! </strong>${data.update}.
+                    <strong><i class="fa fa-check"></i> Success! </strong>${data.message}.
                 </div>`;
                     $('#alertMessage3').show().html(result);
                     $("#submit3").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
@@ -1921,7 +2067,7 @@
                     }, 3000);
                     $('#alertMessage').show();
                     var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
-                    $('#alertMessage').html(result+ ".");
+                    $('#alertMessage').html(result);
                     $("#submit4").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
                         $('#alertMessage').slideUp(3000);
@@ -2026,7 +2172,7 @@
                     }, 3000);
                     $('#alertMessage6').show();
                     var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
-                    $('#alertMessage6').html(result+ ".");
+                    $('#alertMessage6').html(result);
                     $("#submit5").html("<i class='fa fa-save'>&nbsp;</i>Save");
                     setInterval(function(){
                         $('#alertMessage6').slideUp(3000);
@@ -2097,10 +2243,6 @@
                 }
             });
 
-            // if (isValid && userRequiredFields.description.val()==null) {
-            //     isValid = false;
-            // }
-
 
             // If validation fails, prevent form submission
             if (!isValid) {
@@ -2124,10 +2266,10 @@
                     }, 3000);
                     $('#alertMessage7').show();
                     var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
-                    $('#alertMessage').html(result+ ".");
+                    $('#alertMessage7').html(result);
                     $("#submit7").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
-                        $('#alertMessage').slideUp(3000);
+                        $('#alertMessage7').slideUp(3000);
                     }, 1000);
                 },
             })
@@ -2136,7 +2278,6 @@
         /*
        *Mailchimp
         */
-
         //Validate and pass value through ajax
         $("#submit9").on('click',function (){ //When Submit button is checked
             if ($('#mailchimp').prop('checked')) {//if button is on
@@ -2196,8 +2337,9 @@
                     "mailchimp_auth_key": $('#mailchimp_authkey').val(),
                 },
                 success: function (data) {
-                    var mailchimpstatus=data['mailchimpverifiedStatus'];
-                    var status=data['status'];
+                    document.getElementById('mailchimp_authkey').disabled=true;
+                    var mailchimpstatus=data['data']['mailchimpverifiedStatus'];
+                    var status=data['data']['status'];
                     if(mailchimpstatus===1){
                         let extraInput = document.getElementById('extraInput');
                         extraInput.style.display ='block';
@@ -2213,10 +2355,9 @@
                         let extraInput5 = document.getElementById('extraInput5');
                         extraInput5.style.display ='block';
                    }
-                    if(data['message']==='success'){
-                        var value1=data['allLists'][0]['id'];
-                        var name1=data['allLists'][0]['name'];
-                        var value2=data['subscribe_status'];
+                        var value1=data['data']['allLists'][0]['id'];
+                        var name1=data['data']['allLists'][0]['name'];
+                        var value2=data['data']['subscribe_status'];
 
                         if($('#list_id').val()!==value1) {
 
@@ -2241,25 +2382,70 @@
 
 
                     $('#alertMessage4').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
-                    $('#alertMessage4').html(result+ ".");
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.message+'.</div>';
+                    $('#alertMessage4').html(result);
                     $("#submit9").html("<i class='fa fa-save'>&nbsp;</i>Save");
                     setInterval(function(){
                         $('#alertMessage4').slideUp(3000);
-                    }, 1000);}else{
-                        $('#alertMessage4').show();
-                        var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> error! </strong>'+data.update+'.</div>';
-                        $('#alertMessage4').html(result+ ".");
-                        $("#submit9").html("<i class='fa fa-save'>&nbsp;</i>Save");
-                        setInterval(function(){
-                            $('#alertMessage4').slideUp(3000);
-                        }, 1000);
-                    }
+                    }, 1000);
+                },
+                error: function(data){
+                    $('#alertMessage4').show();
+                    var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> error! </strong>'+data.responseJSON.message+'.</div>';
+                    $('#alertMessage4').html(result);
+                    $("#submit9").html("<i class='fa fa-save'>&nbsp;</i>Save");
+                    setInterval(function(){
+                        $('#alertMessage4').slideUp(3000);
+                    }, 1000);
                 },
             })
         });
 
         $("#submit-chimp").on('click',function () { //When Submit button is checked
+
+
+
+            const userRequiredFields = {
+                name:@json(trans('message.list_id_error')),
+                type:@json(trans('message.subscribe_status_error')),
+
+            };
+
+            const userFields = {
+                name:$('#list_id'),
+                type:$('#subscribe_status'),
+
+            };
+
+
+            // Clear previous errors
+            Object.values(userFields).forEach(field => {
+                field.removeClass('is-invalid');
+                field.next().next('.error').remove();
+
+            });
+
+            let isValid = true;
+
+            const showError = (field, message) => {
+                field.addClass('is-invalid');
+                field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+            };
+
+            // Validate required fields
+            Object.keys(userFields).forEach(field => {
+                if (!userFields[field].val()) {
+                    showError(userFields[field], userRequiredFields[field]);
+                    isValid = false;
+                }
+            });
+
+            // If validation fails, prevent form submission
+            if (!isValid) {
+                preventDefault();
+            }
+
+
             var list_id=$('#list_id').val();
             var subscribe_status=$('#subscribe_status').val();
             $("#submit-chimp").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
@@ -2271,7 +2457,7 @@
                     'subscribe_status':subscribe_status,
                 },
                 success: function (data) {
-                    var list_id=data['list_id'];
+                    var list_id=data['data']['list_id'];
                     if(list_id===1){
                         let extraInput = document.getElementById('extraInput9');
                         extraInput.style.display ='block';
@@ -2279,19 +2465,19 @@
                         let extraInput1 = document.getElementById('extraInput9');
                         extraInput1.style.display ='none';
                     }
-                    if(data['message']==='success'){
+                    if(data['success']===true){
 
                         $('#alertMessage4').show();
-                        var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
-                        $('#alertMessage4').html(result+ ".");
+                        var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.message+'.</div>';
+                        $('#alertMessage4').html(result);
                         $("#submit-chimp").html("<i class='fa fa-save'>&nbsp;</i>Save");
                         setInterval(function(){
                             $('#alertMessage4').slideUp(3000);
                         }, 1000);}
                         else{
                         $('#alertMessage4').show();
-                        var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> error! </strong>'+data.update+'.</div>';
-                        $('#alertMessage4').html(result+ ".");
+                        var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> error! </strong>'+data.message+'.</div>';
+                        $('#alertMessage4').html(result);
                         $("#submit-chimp").html("<i class='fa fa-save'>&nbsp;</i>Save");
                         setInterval(function(){
                             $('#alertMessage4').slideUp(3000);
@@ -2387,26 +2573,26 @@
                     "terms_url": $('#terms_url').val(),
                 },
                 success: function (data) {
-                    if(data['message']==='success') {
                         setTimeout(function () {
                             location.reload();
                         }, 3000);
                         $('#alertMessage5').show();
-                        var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>' + data.update + '.</div>';
-                        $('#alertMessage5').html(result + ".");
+                        var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>' + data.message + '.</div>';
+                        $('#alertMessage5').html(result);
                         $("#submit10").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                         setInterval(function () {
                             $('#alertMessage5').slideUp(3000);
                         }, 1000);
-                    }else{
-                        $('#alertMessage5').show();
-                        var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> Error! </strong>' + data.update + '.</div>';
-                        $('#alertMessage5').html(result + ".");
-                        $("#submit10").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
-                        setInterval(function () {
-                            $('#alertMessage5').slideUp(3000);
-                        }, 1000);
-                    }
+
+                },
+                error: function(data){
+                    $('#alertMessage5').show();
+                    var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> Error! </strong>' + data.responseJSON.message + '</div>';
+                    $('#alertMessage5').html(result);
+                    $("#submit10").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    setInterval(function () {
+                        $('#alertMessage5').slideUp(3000);
+                    }, 1000);
                 },
             })
         });
@@ -2497,26 +2683,25 @@
                     "pipedrive_key": $('#pipedrive_key').val(),
                 },
                 success: function (data) {
-                    if(data['message']=='success') {
                         setTimeout(function () {
                             location.reload();
                         }, 3000);
                         $('#alertMessage8').show();
-                        var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>' + data.update + '.</div>';
-                        $('#alertMessage8').html(result + ".");
+                        var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>' + data.message + '.</div>';
+                        $('#alertMessage8').html(result);
                         $("#submit13").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                         setInterval(function () {
                             $('#alertMessage8').slideUp(3000);
                         }, 1000);
-                    }else{
-                        $('#alertMessage8').show();
-                        var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> Error! </strong>' + data.update + '.</div>';
-                        $('#alertMessage8').html(result + ".");
-                        $("#submit13").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
-                        setInterval(function () {
-                            $('#alertMessage8').slideUp(3000);
-                        }, 1000);
-                    }
+                },
+                error: function(data){
+                    $('#alertMessage8').show();
+                    var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> Error! </strong>' + data.responseJSON.message + '.</div>';
+                    $('#alertMessage8').html(result);
+                    $("#submit13").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    setInterval(function () {
+                        $('#alertMessage8').slideUp(3000);
+                    }, 1000);
                 },
             })
         });
@@ -2551,7 +2736,7 @@
                 success: function (data) {
                     $('#alertMessage').show();
                     var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
-                    $('#alertMessage').html(result+ ".");
+                    $('#alertMessage').html(result);
                     $("#submit14").html("<i class='fa fa-save'>&nbsp;</i>Save");
                     setInterval(function(){
                         $('#alertMessage').slideUp(3000);
@@ -2593,15 +2778,13 @@
             const userRequiredFields = {
                 name:@json(trans('message.git_username_s')),
                 type:@json(trans('message.git_password_s')),
-                template:@json(trans('message.git_client_s')),
-                token:@json(trans('message.git_secret_s')),
+
             };
 
             const userFields = {
                 name:$('#git_username'),
                 type:$('#git_password'),
-                template:$('#git_client'),
-                token:$('#git_secret'),
+
 
             };
 
@@ -2640,29 +2823,28 @@
                 data: {
                     "status": githubstatus,
                     "git_username": $('#git_username').val(),"git_password" : $('#git_password').val() ,
-                    "git_client":$('#git_client').val() ,  "git_secret" : $('#git_secret').val()
+
                 },
                 success: function (data) {
-                    if(data['message']==='success') {
                         setTimeout(function () {
                             location.reload();
                         }, 3000);
                         $('#alertMessage1').show();
-                        var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>' + data.update + '.</div>';
-                        $('#alertMessage1').html(result + ".");
+                        var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>' + data.message + '</div>';
+                        $('#alertMessage1').html(result);
                         $("#submit").html("<i class='fa fa-save'>&nbsp;</i>Save");
                         setInterval(function () {
                             $('#alertMessage1').slideUp(3000);
                         }, 1000);
-                    }else{
-                        $('#alertMessage1').show();
-                        var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> Error! </strong>' + data.update + '.</div>';
-                        $('#alertMessage1').html(result + ".");
-                        $("#submit").html("<i class='fa fa-save'>&nbsp;</i>Save");
-                        setInterval(function () {
-                            $('#alertMessage1').slideUp(2000);
-                        }, 6000);
-                    }
+                },
+                error:function(data){
+                    $('#alertMessage1').show();
+                    var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> Error! </strong>' + data.responseJSON.message + '</div>';
+                    $('#alertMessage1').html(result);
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;</i>Save");
+                    setInterval(function () {
+                        $('#alertMessage1').slideUp(2000);
+                    }, 6000);
                 },
             })
         });

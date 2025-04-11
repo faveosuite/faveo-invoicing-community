@@ -110,7 +110,7 @@
             <div id="alertMessage"></div>
 
             <div class="d-flex align-items-center">
-                <h4 class="mb-0 me-2">Allow User to login only if they have </h4>
+                <h4 class="mb-0 me-2">Allow user to login only if they have verified their email</h4>
                 <i class="fas fa-question-circle  custom-tooltip" data-toggle="tooltip" data-placement="top" style="margin-left: 7px" title="{{Lang::get('message.verify_email_tooltip')}}"></i>
             </div>
             <div class="form-check mt-2">
@@ -177,7 +177,7 @@
                     }, 3000);
                     $('#alertMessage').show();
                     var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
-                    $('#alertMessage').html(result+ ".");
+                    $('#alertMessage').html(result);
                     $("#submit4").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
                         $('#alertMessage').slideUp(3000);
@@ -204,7 +204,7 @@
                     }, 3000);
                     $('#alertMessage').show();
                     var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
-                    $('#alertMessage').html(result+ ".");
+                    $('#alertMessage').html(result);
                     $("#submit4").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
                         $('#alertMessage').slideUp(3000);

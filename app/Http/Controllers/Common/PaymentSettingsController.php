@@ -337,46 +337,30 @@ class PaymentSettingsController extends Controller
 
     public function updatePaymentStatus(Request $request)
     {
-        $plugs = new Plugin();
+        $plugs=new Plugin();
         $name = $request->input('name');
         $status = $request->input('status');
-        $plug = Plugin::where('name', $name)->first();
+        $plug = $plugs->where('name', $name)->first();
+        $app = base_path().DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'app.php';
+        $str = "\n'App\\Plugins\\$name"."\\ServiceProvider',";
+        $line_i_am_looking_for = 102;
+        $lines = file($app, FILE_IGNORE_NEW_LINES);
+        $lines[$line_i_am_looking_for] = $str;
         if (! $plug) {
-            $app = base_path().DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'app.php';
-            $str = "\n'App\\Plugins\\$name"."\\ServiceProvider',";
-            $line_i_am_looking_for = 102;
-            $lines = file($app, FILE_IGNORE_NEW_LINES);
-            $lines[$line_i_am_looking_for] = $str;
             file_put_contents($app, implode("\n", $lines));
             $plugs->create(['name' => $name, 'path' => $name, 'status' => 1]);
-
-            return redirect()->back()->with('success', 'Status has changed');
+            return successResponse(\Lang::get('message.status_change'));
         }
-        if ($status == 0) {
-
-            $plug->status = 0;
-            $app = base_path().DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'app.php';
-            $str = "\n'App\\Plugins\\$name"."\\ServiceProvider',";
-            $line_i_am_looking_for = 102;
-            $lines = file($app, FILE_IGNORE_NEW_LINES);
-            $lines[$line_i_am_looking_for] = $str;
-            file_put_contents($app, implode("\n", $lines));
-        } elseif ($status == 1) {
-            $plug->status = 1;
-            /*
-             * remove service provider from app.php
-             */
-            $str = "\n'App\\Plugins\\$name"."\\ServiceProvider',";
-            $path_to_file = base_path().DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR.'app.php';
-
-            $file_contents = file_get_contents($path_to_file);
-            $file_contents = str_replace($str, '//', $file_contents);
-            file_put_contents($path_to_file, $file_contents);
-        }
-
+            if ($status) {
+                $plug->status = 1;
+                file_put_contents($app, implode("\n", $lines));
+            } else {
+                $plug->status = 0;
+                $file_contents = file_get_contents($app);
+                $file_contents = str_replace($str, '//', $file_contents);
+                file_put_contents($app, $file_contents);
+            }
         $plug->save();
-
-        return ['message' => 'success', 'update' => \Lang::get('message.status_change')];
-
+        return successResponse(\Lang::get('message.status_change'));
     }
 }

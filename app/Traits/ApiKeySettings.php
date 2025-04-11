@@ -20,73 +20,7 @@ use Illuminate\Support\Facades\Http;
 
 trait ApiKeySettings
 {
-    private function postCurl($post_url, $post_info, $token = null)
-    {
-        if (! empty($token)) {
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $post_url);
-            curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BEARER);
-            curl_setopt($ch, CURLOPT_XOAUTH2_BEARER, $token);
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $post_info);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-            $result = curl_exec($ch);
-            curl_close($ch);
 
-            return $result;
-        } else {
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $post_url);
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $post_info);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-            $result = curl_exec($ch);
-            curl_close($ch);
-
-            return $result;
-        }
-    }
-
-
-    private function getCurl($get_url, $token = null)
-    {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $get_url);
-        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BEARER);
-        curl_setopt($ch, CURLOPT_XOAUTH2_BEARER, $token);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 90);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // For testing, set to true in production
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        if (curl_exec($ch) === false) {
-            echo 'Curl error: '.curl_error($ch);
-        }
-        $content = curl_exec($ch);
-        curl_close($ch);
-
-        return json_decode($content, true);
-    }
-    private function oauthAuthorization()
-    {
-        $url = $this->url;
-        $data = [
-            'client_id' => $this->client_id,
-            'client_secret' => $this->client_secret,
-            'grant_type' => $this->grant_type,
-        ];
-
-        $response = $this->postCurl($url.'oauth/token', $data);
-
-        $response = json_decode($response);
-
-        return $response;
-    }
     public function licenseDetails(Request $request)
     {
         $status = $request->input('status');
@@ -105,91 +39,61 @@ trait ApiKeySettings
 
 
         try {
-            $response = $this->postCurl($licenseApiUrl . 'oauth/token', $data);
+            $response = Http::withoutVerifying()->asForm()->post($licenseApiUrl.'oauth/token', $data);
             $response = json_decode($response);
-
             $token = $response->access_token;
-            $getkey = $this->getCurl($licenseApiUrl . 'api/admin/viewApiKeys', $token);
         }catch(\Exception $e){
-            return ['message' => 'error', 'update' => 'Please enter valid details.'];
+            return errorResponse(\Lang::get('message.license_invalid'));
+
         }
-
-
-
         StatusSetting::where('id', 1)->update(['license_status' => $status]);
         ApiKey::where('id', 1)->update(['license_api_secret' => $licenseApiSecret, 'license_api_url' => $licenseApiUrl,
             'license_client_id' => $licenseApiClientId, 'license_client_secret' => $licenseApiClientSecret,
             'license_grant_type' => $licenseApiGrantType, ]);
+        return successResponse(\Lang::get('message.license_setting'));
 
-        return ['message' => 'success', 'update' => \Lang::get('message.license_setting')];
     }
+
 
     public function licenseStatus(Request $request)
     {
-        $status = $request->input();
-        if (is_array($status) && key_exists('status', $status)) {
-            $lstatus = $request->input('status');
-            StatusSetting::where('id', 1)->update(['license_status' => $lstatus]);
+        $statusData = collect([
+            'status'             => ['key' => 'license_status',       'lang' => __('message.license_status')],
+            'mstatus'            => ['key' => 'msg91_status',         'lang' => __('message.mobile_status')],
+            'mailchimpstatus'    => ['key' => 'mailchimp_status',     'lang' => __('message.mailchimp_status')],
+            'gcaptchastatus'     => ['key' => 'v3_v2_recaptcha_status','lang' => __('message.google_status')],
+            'termsStatus'         => ['key' => 'terms',                'lang' => __('message.terms_status')],
+            'pipedrivestatus'   => ['key' => 'pipedrive_status',     'lang' => __('message.pipedrive_status')],
+            'githubstatus'       => ['key' => 'github_status',        'lang' => __('message.github_status')],
+        ]);
 
-            return ['message' => 'success', 'update' => \Lang::get('message.license_status')];
-        }
+        try {
+            $input = $request->all();
 
-        if (is_array($status) && key_exists('mstatus', $status)) {
-            $mstatus = $request->input('mstatus');
-            StatusSetting::find(1)->update(['msg91_status' => $mstatus]);
+            // Find the first matching status key
+            $statusEntry = $statusData->first(function ($value, $inputKey) use ($input) {
+                return array_key_exists($inputKey, $input);
+            });
 
-            return ['message' => 'success', 'update' => \Lang::get('message.mobile_status')];
-        }
+            if (!$statusEntry) {
+                return errorResponse(\Lang::get('message.invalid_key'));
+            }
 
-        if (is_array($status) && key_exists('mailchimpstatus', $status)) {
-            $mailchimpstatus = $request->input('mailchimpstatus');
-            StatusSetting::find(1)->update(['mailchimp_status' => $mailchimpstatus]);
 
-            return ['message' => 'success', 'update' => \Lang::get('message.mailchimp_status')];
-        }
+            $inputKey = array_key_first(array_intersect_key($input, $statusData->toArray()));
+            $statusValue = $input[$inputKey];
 
-        if (is_array($status) && key_exists('termsStatus', $status)) {
-            $termsStatus = $request->input('termsStatus');
-            StatusSetting::find(1)->update(['terms' => $termsStatus]);
+            StatusSetting::where('id', 1)->update([
+                $statusEntry['key'] => $statusValue
+            ]);
 
-            return ['message' => 'success', 'update' => \Lang::get('message.terms_status')];
-        }
+            return successResponse($statusEntry['lang']);
 
-        if (is_array($status) && key_exists('twitterstatus', $status)) {
-            $twitterstatus = $request->input('twitterstatus');
-            StatusSetting::find(1)->update(['twitter_status' => $twitterstatus]);
-
-            return ['message' => 'success', 'update' => \Lang::get('message.twitter_status')];
-        }
-
-        if (is_array($status) && key_exists('zohostatus', $status)) {
-            $twitterstatus = $request->input('zohostatus');
-            StatusSetting::find(1)->update(['zoho_status' => $twitterstatus]);
-
-            return ['message' => 'success', 'update' => \Lang::get('message.zoho_status')];
-        }
-
-        if (is_array($status) && key_exists('pipedrivestatus', $status)) {
-            $twitterstatus = $request->input('pipedrivestatus');
-            StatusSetting::find(1)->update(['pipedrive_status' => $twitterstatus]);
-
-            return ['message' => 'success', 'update' => \Lang::get('message.pipedrive_status')];
-        }
-
-        if (is_array($status) && key_exists('githubstatus', $status)) {
-            $twitterstatus = $request->input('githubstatus');
-            StatusSetting::find(1)->update(['github_status' => $twitterstatus]);
-
-            return ['message' => 'success', 'update' => \Lang::get('message.github_status')];
-        }
-
-        if (is_array($status) && key_exists('gcaptchastatus', $status)) {
-            $twitterstatus = $request->input('gcaptchastatus');
-            StatusSetting::find(1)->update(['v3_v2_recaptcha_status' => $twitterstatus]);
-
-            return ['message' => 'success', 'update' => \Lang::get('message.google_status')];
+        } catch (\Exception $e) {
+            return errorResponse(\Lang::get('message.invalid_key'));
         }
     }
+
 
     public function mobileStatus(Request $request)
     {
@@ -221,8 +125,7 @@ trait ApiKeySettings
         StatusSetting::find(1)->update(['msg91_status' => $status]);
 
         ApiKey::find(1)->update(['msg91_auth_key' => $key, 'msg91_sender' => $request->input('msg91_sender'), 'msg91_template_id' => $request->input('msg91_template_id'), 'msg91_third_party_id' => $thirdPartyId]);
-
-        return ['message' => 'success', 'update' => 'Msg91 settings saved'];
+        return successResponse(\Lang::get('message.mobile_setting'));
     }
 
     /*
@@ -278,32 +181,32 @@ trait ApiKeySettings
 
     public function updatepipedriveDetails(Request $request)
     {
-        $pipedriveKey = $request->input('pipedrive_key');
+        try {
+            $pipedriveKey = $request->input('pipedrive_key');
 
-        $url = "https://api.pipedrive.com/v1/users/me?api_token=" . urlencode($pipedriveKey);
+            $response = Http::get("https://api.pipedrive.com/v1/users/me", [
+                'api_token' => $pipedriveKey
+            ]);
+            if (!$response->successful()) {
+                return errorResponse(\Lang::get('message.pipedrive_error'));
 
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false); // For testing, set to true in production
+            }
 
-        $response = curl_exec($curl);
-        $error = curl_error($curl);
-        curl_close($curl);
+            $result = json_decode($response, true);
+            if (isset($result['success']) && $result['success'] !== true) {
+                return errorResponse(\Lang::get('message.pipedrive_error'));
 
-        if ($error) {
-            return ['message' => 'error', 'update' => "$error"];
+            }
+            $status = $request->input('status');
+            StatusSetting::find(1)->update(['pipedrive_status' => $status]);
+            ApiKey::find(1)->update(['pipedrive_api_key' => $pipedriveKey]);
+
+            return successResponse(\Lang::get('message.pipedrive_setting'));
+
+        }catch (\Exception $exception){
+            return errorResponse(\Lang::get('message.pipedrive_error'));
+
         }
-
-        $result = json_decode($response, true);
-        if (isset($result['success']) && $result['success'] !== true) {
-            return ['message' => 'fails', 'update' => \Lang::get('message.pipedrive_error')];
-        }
-        $status = $request->input('status');
-        StatusSetting::find(1)->update(['pipedrive_status' => $status]);
-        ApiKey::find(1)->update(['pipedrive_api_key' => $pipedriveKey]);
-
-        return ['message' => 'success', 'update' => \Lang::get('message.pipedrive_setting')];
     }
 
     public function updateMailchimpProductStatus(Request $request)
@@ -343,52 +246,37 @@ trait ApiKeySettings
                 $allists = $mailchimp->get('lists?count=20')['lists'];
                 $selectedList[] = $set->list_id;
                 $subscribe_status = MailchimpSetting::pluck('subscribe_status')->first();
-
-                return [
-                    'message' => 'success',
-                    'update' => \Lang::get('message.mailchimp_setting'),
-                    'mailchimpverifiedStatus' => $mailchimpverifiedStatus,
+                $data=['mailchimpverifiedStatus' => $mailchimpverifiedStatus,
                     'status' => $status,
                     'allLists' => $allists,
                     'selectedList' => $selectedList,
-                    'subscribe_status' => $subscribe_status,
-                ];
-            } else {
-                $status = $request->input('status');
+                    'subscribe_status' => $subscribe_status,];
+                return successResponse(\Lang::get('message.mailchimp_setting'),$data);
 
-                return [
-                    'message' => 'error',
-                    'update' => \Lang::get('message.mailchimp_apikey_error'),
-                    //                    'mailchimpverifiedStatus' => $mailchimpverifiedStatus
-                ];
             }
-        } catch(\Exception $e) {
-            $mailchimpStatus = 0;
-            $status = $request->input('status');
+                return errorResponse(\Lang::get('message.mailchimp_apikey_error'));
 
-            return [
-                'message' => 'error',
-                'update' => \Lang::get('message.mailchimp_apikey_error'),
-                //                'mailchimpStatus' => $mailchimpStatus
-            ];
+        } catch(\Exception $e) {
+            return errorResponse(\Lang::get('message.mailchimp_apikey_error'));
         }
     }
 
     public function updateTermsDetails(Request $request)
     {
         $terms_url = $request->input('terms_url');
-        $ch = curl_init($terms_url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $response = curl_exec($ch);
-        curl_close($ch);
-        if($response==false){
-            return ['message' => 'error', 'update' => \Lang::get('message.terms_error')];
-        }
-        $status = (int) $request->input('status');
-        StatusSetting::find(1)->update(['terms' => $status]);
-        ApiKey::find(1)->update(['terms_url' => $terms_url]);
+        try {
+            $response = Http::get($terms_url);
 
-        return ['message' => 'success', 'update' => \Lang::get('message.terms_setting')];
+            if ($response == false) {
+                return errorResponse(\Lang::get('message.terms_error'));
+            }
+            $status = (int)$request->input('status');
+            StatusSetting::find(1)->update(['terms' => $status]);
+            ApiKey::find(1)->update(['terms_url' => $terms_url]);
+            return successResponse(\Lang::get('message.terms_setting'));
+        }catch (\Exception $e) {
+            return errorResponse(\Lang::get('message.terms_error'));
+        }
     }
 
     /**
