@@ -253,7 +253,6 @@ Third party Apps
            var appKey = $(this).attr('data-appKey');
            var appId   = $(this).attr('data-id');
            var appSecret   = $(this).attr('data-secret');
-           console.log(appName,appKey,appSecret)
             $("#edit-app").modal('show');
             $("#name").val(appName);
             $("#key").val(appKey);
@@ -348,23 +347,22 @@ Third party Apps
                   return false;
               });
           }
-              $('.get-app-key').on('click', function () {
-                  $.ajax({
-                      type: "GET",
-                      url: "{{url('get-app-key')}}",
-                      success: function (data) {
-                          $(".app-key").val(data)
-                      }
-                  });
-
-              })
-
-              $('.closebutton').on('click', function () {
-                  location.reload();
-              })
 
       });
+    $('.get-app-key').on('click', function () {
+        $.ajax({
+            type: "GET",
+            url: "{{url('get-app-key')}}",
+            success: function (data) {
+                $(".app-key").val(data)
+            }
+        });
 
+    })
+
+    $('.closebutton').on('click', function () {
+        location.reload();
+    })
 
       
  </script>

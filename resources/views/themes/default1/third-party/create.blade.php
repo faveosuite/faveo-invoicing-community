@@ -29,6 +29,7 @@
                     <span class="appkeycheck"></span>
                    </div>
                    <div class="col-md-4">
+
                         <a href="#" class="btn btn-primary get-app-key"><i class="fas fa-sync-alt"></i>&nbsp;Generate key</a>
                    </div>
                  </div>

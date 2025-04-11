@@ -207,7 +207,7 @@ Plugins
                     location.reload();
                 }, 3000);
                 $('#alertMessage').show();
-                var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
+                var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.message+'.</div>';
                 $('#alertMessage').html(result+ ".");
                 setInterval(function(){
                     $('#alertMessage').slideUp(3000);
@@ -238,7 +238,7 @@ Plugins
                     location.reload();
                 }, 3000);
                 $('#alertMessage').show();
-                var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
+                var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.message+'.</div>';
                 $('#alertMessage').html(result+ ".");
                 setInterval(function(){
                     $('#alertMessage').slideUp(3000);
