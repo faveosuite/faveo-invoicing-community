@@ -71,7 +71,7 @@ class ThirdPartyAppController extends Controller
                 $query->whereRaw($sql, ["%{$keyword}%"]);
             })
                 ->editColumn('app_secret', function ($user) {
-                    return '*****'; // Always display masked password
+                    return '*****';
                 })
             ->rawColumns(['checkbox', 'app_name', 'app_key', 'app_secret', 'action'])
             ->make(true);

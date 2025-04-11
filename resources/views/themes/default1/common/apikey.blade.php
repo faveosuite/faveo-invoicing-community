@@ -745,11 +745,11 @@
                 type : 'post',
                 success: function (response) {
 
-                    $('#license_api_secret').val(response['licenseSecret']);
-                    $('#license_api_url').val(response['licenseUrl']);
-                    $('#license_client_id').val(response['licenseClientId']);
-                    $('#license_client_secret').val(response['licenseClientSecret']);
-                    $('#license_grant_type').val(response['licenseGrantType']);
+                    $('#license_api_secret').val(response['data']['licenseSecret']);
+                    $('#license_api_url').val(response['data']['licenseUrl']);
+                    $('#license_client_id').val(response['data']['licenseClientId']);
+                    $('#license_client_secret').val(response['data']['licenseClientSecret']);
+                    $('#license_grant_type').val(response['data']['licenseGrantType']);
                     $('#create-third-party-app').modal('show');
                 },
             });
@@ -761,16 +761,16 @@
                 url : '{{url("googleCaptcha")}}',
                 type : 'post',
                 success: function (response) {
-                    if(response['captchaStatus']){
+                    if(response['data']['captchaStatus']){
                         selectCaptcha('captchaRadioV2');
                     }
-                    if(response['v3_recaptcha_status']){
+                    if(response['data']['v3_recaptcha_status']){
                         selectCaptcha('captchaRadioV3');
                     }
                     document.getElementById("nocaptcha_sitekey").classList.remove('is-invalid');
                     document.getElementById("status").innerHTML = "";
-                    $('#nocaptcha_sitekey').val(response['siteKey']);
-                    $('#nocaptcha_secret').val(response['secretKey']);
+                    $('#nocaptcha_sitekey').val(response['data']['siteKey']);
+                    $('#nocaptcha_secret').val(response['data']['secretKey']);
                     $('#google-recaptcha').modal('show');
                 },
             });
@@ -793,9 +793,9 @@
                 url : '{{url("mobileVerification")}}',
                 type : 'post',
                 success: function (response) {
-                    $('#mobile_authkey').val(response['mobileauthkey']);
-                    $('#sender').val(response['msg91Sender']);
-                    $('#template_id').val(response['msg91TemplateId']);
+                    $('#mobile_authkey').val(response['data']['mobileauthkey']);
+                    $('#sender').val(response['data']['msg91Sender']);
+                    $('#template_id').val(response['data']['msg91TemplateId']);
                     $('#msg-91').modal('show');
                 },
             });
@@ -807,7 +807,7 @@
                 url : '{{url("termsUrl")}}',
                 type : 'post',
                 success: function (response) {
-                    $('#terms_url').val(response['termsUrl']);
+                    $('#terms_url').val(response['data']['termsUrl']);
 
                     $('#showTerms').modal('show');
                 },
@@ -820,7 +820,7 @@
                 url : '{{url("zohokeys")}}',
                 type : 'post',
                 success: function (response) {
-                    $('#zoho_key').val(response['zohoKey']);
+                    $('#zoho_key').val(response['data']['zohoKey']);
 
                     $('#zohoCrm').modal('show');
                 },
@@ -834,7 +834,7 @@
                 url : '{{url("pipedrivekeys")}}',
                 type : 'post',
                 success: function (response) {
-                    $('#pipedrive_key').val(response['pipedriveKey']);
+                    $('#pipedrive_key').val(response['data']['pipedriveKey']);
 
                     $('#pipedrv').modal('show');
                 },
@@ -848,10 +848,10 @@
                 url : '{{url("twitterkeys")}}',
                 type : 'post',
                 success: function (response) {
-                    $('#consumer_key').val(response['twitterkeys']['twitter_consumer_key']);
-                    $('#consumer_secret').val(response['twitterkeys']['twitter_consumer_secret']);
-                    $('#access_token').val(response['twitterkeys']['twitter_access_token']);
-                    $('#token_secret').val(response['twitterkeys']['access_tooken_secret']);
+                    $('#consumer_key').val(response['data']['twitterkeys']['twitter_consumer_key']);
+                    $('#consumer_secret').val(response['data']['twitterkeys']['twitter_consumer_secret']);
+                    $('#access_token').val(response['data']['twitterkeys']['twitter_access_token']);
+                    $('#token_secret').val(response['data']['twitterkeys']['access_tooken_secret']);
 
                     $('#twitters').modal('show');
                 },
@@ -865,10 +865,10 @@
                 url : '{{url("githubkeys")}}',
                 type : 'post',
                 success: function (response) {
-                    $('#git_username').val(response['githubFileds']['username']);
-                    $('#git_password').val(response['githubFileds']['password']);
-                    $('#git_client').val(response['githubFileds']['client_id']);
-                    $('#git_secret').val(response['githubFileds']['client_secret']);
+                    $('#git_username').val(response['data']['githubFileds']['username']);
+                    $('#git_password').val(response['data']['githubFileds']['password']);
+                    $('#git_client').val(response['data']['githubFileds']['client_id']);
+                    $('#git_secret').val(response['data']['githubFileds']['client_secret']);
 
                     $("#githubSet").modal('show');
                 },
@@ -882,12 +882,12 @@
                 url : '{{url("mailchimpkeys")}}',
                 type : 'post',
                 success: function (response) {
-                    $('#mailchimp_authkey').val(response['mailchimpKey']);
+                    $('#mailchimp_authkey').val(response['data']['mailchimpKey']);
                     var array=response['allLists'];
                     if(array && array.length) {
-                        var value1 = response['allLists'][0]['id'];
-                        var name1 = response['allLists'][0]['name'];
-                        var value2 = response['subscribe_status'];
+                        var value1 = response['data']['allLists'][0]['id'];
+                        var name1 = response['data']['allLists'][0]['name'];
+                        var value2 = response['data']['subscribe_status'];
                         const select = document.getElementById('list_id');
                         select.value = value1;
                         select.text = name1;
@@ -906,9 +906,7 @@
         else{
             var checkboxvalue = 0;
         }
-
             $.ajax({
-
                 url : '{{url("licenseStatus")}}',
                 type : 'post',
                 data: {
@@ -919,13 +917,12 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage12').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
                     $('#alertMessage12').html(result+ ".");
                     $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
                         $('#alertMessage12').slideUp(3000);
                     }, 1000);
-
                 },
             });
 
@@ -951,7 +948,7 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage12').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
                     $('#alertMessage12').html(result+ ".");
                     $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
@@ -983,7 +980,7 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage12').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
                     $('#alertMessage12').html(result+ ".");
                     $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
@@ -1016,7 +1013,7 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage12').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
                     $('#alertMessage12').html(result+ ".");
                     $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
@@ -1048,7 +1045,7 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage12').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
                     $('#alertMessage12').html(result+ ".");
                     $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
@@ -1067,7 +1064,6 @@
             else{
                 var checkboxvalue = 0;
             }
-
             $.ajax({
 
                 url : '{{url("licenseStatus")}}',
@@ -1080,7 +1076,7 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage12').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
                     $('#alertMessage12').html(result+ ".");
                     $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
@@ -1113,7 +1109,7 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage12').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
                     $('#alertMessage12').html(result+ ".");
                     $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
@@ -1145,7 +1141,7 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage12').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
                     $('#alertMessage12').html(result+ ".");
                     $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
@@ -1177,7 +1173,7 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage12').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
                     $('#alertMessage12').html(result+ ".");
                     $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
@@ -1332,28 +1328,26 @@
 
                 },
                 success: function (response) {
-                    if(response['message']=='success') {
                         setTimeout(function () {
                             location.reload();
                         }, 3000);
                         $('#alertMessage').show();
-                        var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>' + response.update + '.</div>';
+                        var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>' + response.message + '.</div>';
                         $('#alertMessage').html(result + ".");
                         $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                         setInterval(function () {
                             $('#alertMessage').slideUp(3000);
                         }, 1000);
-                    }else{
-                        $('#alertMessage').show();
-                        var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> Error! </strong>' + response.update + '.</div>';
-                        $('#alertMessage').html(result + ".");
-                        $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
-                        setInterval(function () {
-                            $('#alertMessage').slideUp(3000);
-                        }, 1000);
-                    }
                 },
-
+                error:function(response){
+                    $('#alertMessage').show();
+                    var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> Error! </strong>' + response.responseJSON.message + '</div>';
+                    $('#alertMessage').html(result + ".");
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    setInterval(function () {
+                        $('#alertMessage').slideUp(3000);
+                    }, 1000);
+                },
 
             });
         };
@@ -1567,7 +1561,7 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage2').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.message+'.</div>';
                     $('#alertMessage2').html(result+ ".");
                     $("#submit2").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
@@ -1762,7 +1756,7 @@
                     const result = `
                 <div class="alert alert-success alert-dismissable">
                     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                    <strong><i class="fa fa-check"></i> Success! </strong>${data.update}.
+                    <strong><i class="fa fa-check"></i> Success! </strong>${data.message}.
                 </div>`;
                     $('#alertMessage3').show().html(result);
                     $("#submit3").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
@@ -1983,10 +1977,6 @@
                 }
             });
 
-            // if (isValid && userRequiredFields.description.val()==null) {
-            //     isValid = false;
-            // }
-
 
             // If validation fails, prevent form submission
             if (!isValid) {
@@ -2081,8 +2071,8 @@
                     "mailchimp_auth_key": $('#mailchimp_authkey').val(),
                 },
                 success: function (data) {
-                    var mailchimpstatus=data['mailchimpverifiedStatus'];
-                    var status=data['status'];
+                    var mailchimpstatus=data['data']['mailchimpverifiedStatus'];
+                    var status=data['data']['status'];
                     if(mailchimpstatus===1){
                         let extraInput = document.getElementById('extraInput');
                         extraInput.style.display ='block';
@@ -2098,10 +2088,9 @@
                         let extraInput5 = document.getElementById('extraInput5');
                         extraInput5.style.display ='block';
                    }
-                    if(data['message']==='success'){
-                        var value1=data['allLists'][0]['id'];
-                        var name1=data['allLists'][0]['name'];
-                        var value2=data['subscribe_status'];
+                        var value1=data['data']['allLists'][0]['id'];
+                        var name1=data['data']['allLists'][0]['name'];
+                        var value2=data['data']['subscribe_status'];
 
                         if($('#list_id').val()!==value1) {
 
@@ -2126,20 +2115,21 @@
 
 
                     $('#alertMessage4').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.message+'.</div>';
                     $('#alertMessage4').html(result+ ".");
                     $("#submit9").html("<i class='fa fa-save'>&nbsp;</i>Save");
                     setInterval(function(){
                         $('#alertMessage4').slideUp(3000);
-                    }, 1000);}else{
-                        $('#alertMessage4').show();
-                        var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> error! </strong>'+data.update+'.</div>';
-                        $('#alertMessage4').html(result+ ".");
-                        $("#submit9").html("<i class='fa fa-save'>&nbsp;</i>Save");
-                        setInterval(function(){
-                            $('#alertMessage4').slideUp(3000);
-                        }, 1000);
-                    }
+                    }, 1000);
+                },
+                error: function(data){
+                    $('#alertMessage4').show();
+                    var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> error! </strong>'+data.responseJSON.message+'.</div>';
+                    $('#alertMessage4').html(result+ ".");
+                    $("#submit9").html("<i class='fa fa-save'>&nbsp;</i>Save");
+                    setInterval(function(){
+                        $('#alertMessage4').slideUp(3000);
+                    }, 1000);
                 },
             })
         });
@@ -2156,7 +2146,7 @@
                     'subscribe_status':subscribe_status,
                 },
                 success: function (data) {
-                    var list_id=data['list_id'];
+                    var list_id=data['data']['list_id'];
                     if(list_id===1){
                         let extraInput = document.getElementById('extraInput9');
                         extraInput.style.display ='block';
@@ -2164,10 +2154,10 @@
                         let extraInput1 = document.getElementById('extraInput9');
                         extraInput1.style.display ='none';
                     }
-                    if(data['message']==='success'){
+                    if(data['success']===true){
 
                         $('#alertMessage4').show();
-                        var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
+                        var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.message+'.</div>';
                         $('#alertMessage4').html(result+ ".");
                         $("#submit-chimp").html("<i class='fa fa-save'>&nbsp;</i>Save");
                         setInterval(function(){
@@ -2175,7 +2165,7 @@
                         }, 1000);}
                         else{
                         $('#alertMessage4').show();
-                        var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> error! </strong>'+data.update+'.</div>';
+                        var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> error! </strong>'+data.message+'.</div>';
                         $('#alertMessage4').html(result+ ".");
                         $("#submit-chimp").html("<i class='fa fa-save'>&nbsp;</i>Save");
                         setInterval(function(){
@@ -2272,26 +2262,26 @@
                     "terms_url": $('#terms_url').val(),
                 },
                 success: function (data) {
-                    if(data['message']==='success') {
                         setTimeout(function () {
                             location.reload();
                         }, 3000);
                         $('#alertMessage5').show();
-                        var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>' + data.update + '.</div>';
+                        var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>' + data.message + '.</div>';
                         $('#alertMessage5').html(result + ".");
                         $("#submit10").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                         setInterval(function () {
                             $('#alertMessage5').slideUp(3000);
                         }, 1000);
-                    }else{
-                        $('#alertMessage5').show();
-                        var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> Error! </strong>' + data.update + '.</div>';
-                        $('#alertMessage5').html(result + ".");
-                        $("#submit10").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
-                        setInterval(function () {
-                            $('#alertMessage5').slideUp(3000);
-                        }, 1000);
-                    }
+
+                },
+                error: function(data){
+                    $('#alertMessage5').show();
+                    var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> Error! </strong>' + data.responseJSON.message + '</div>';
+                    $('#alertMessage5').html(result + ".");
+                    $("#submit10").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    setInterval(function () {
+                        $('#alertMessage5').slideUp(3000);
+                    }, 1000);
                 },
             })
         });
@@ -2382,26 +2372,25 @@
                     "pipedrive_key": $('#pipedrive_key').val(),
                 },
                 success: function (data) {
-                    if(data['message']=='success') {
                         setTimeout(function () {
                             location.reload();
                         }, 3000);
                         $('#alertMessage8').show();
-                        var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>' + data.update + '.</div>';
+                        var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>' + data.message + '.</div>';
                         $('#alertMessage8').html(result + ".");
                         $("#submit13").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                         setInterval(function () {
                             $('#alertMessage8').slideUp(3000);
                         }, 1000);
-                    }else{
-                        $('#alertMessage8').show();
-                        var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> Error! </strong>' + data.update + '.</div>';
-                        $('#alertMessage8').html(result + ".");
-                        $("#submit13").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
-                        setInterval(function () {
-                            $('#alertMessage8').slideUp(3000);
-                        }, 1000);
-                    }
+                },
+                error: function(data){
+                    $('#alertMessage8').show();
+                    var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> Error! </strong>' + data.responseJSON.message + '.</div>';
+                    $('#alertMessage8').html(result + ".");
+                    $("#submit13").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    setInterval(function () {
+                        $('#alertMessage8').slideUp(3000);
+                    }, 1000);
                 },
             })
         });
@@ -2528,26 +2517,25 @@
                     "git_client":$('#git_client').val() ,  "git_secret" : $('#git_secret').val()
                 },
                 success: function (data) {
-                    if(data['message']==='success') {
                         setTimeout(function () {
                             location.reload();
                         }, 3000);
                         $('#alertMessage1').show();
-                        var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>' + data.update + '.</div>';
+                        var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>' + data.message + '.</div>';
                         $('#alertMessage1').html(result + ".");
                         $("#submit").html("<i class='fa fa-save'>&nbsp;</i>Save");
                         setInterval(function () {
                             $('#alertMessage1').slideUp(3000);
                         }, 1000);
-                    }else{
-                        $('#alertMessage1').show();
-                        var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> Error! </strong>' + data.update + '.</div>';
-                        $('#alertMessage1').html(result + ".");
-                        $("#submit").html("<i class='fa fa-save'>&nbsp;</i>Save");
-                        setInterval(function () {
-                            $('#alertMessage1').slideUp(2000);
-                        }, 6000);
-                    }
+                },
+                error:function(data){
+                    $('#alertMessage1').show();
+                    var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> Error! </strong>' + data.responseJSON.message + '.</div>';
+                    $('#alertMessage1').html(result + ".");
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;</i>Save");
+                    setInterval(function () {
+                        $('#alertMessage1').slideUp(2000);
+                    }, 6000);
                 },
             })
         });

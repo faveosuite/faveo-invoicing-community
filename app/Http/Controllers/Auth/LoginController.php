@@ -103,6 +103,7 @@ class LoginController extends Controller
 
         // Check account activation and mobile verification
         if (! $this->userNeedVerified($user)) {
+
             $attempts = VerificationAttempt::find($user->id);
 
             if ($attempts && $attempts->updated_at->lte(Carbon::now()->subHours(6))) {
@@ -200,7 +201,7 @@ class LoginController extends Controller
             $user = User::create([
                 'email' => $githubUser->getEmail(),
                 'user_name' => $githubUser->getEmail(),
-                'first_name' => $githubUser->getEmail(),
+                'first_name' => $githubUser->getName(),
                 'active' => '1',
                 'role' => 'user',
                 'ip' => $location['ip'],

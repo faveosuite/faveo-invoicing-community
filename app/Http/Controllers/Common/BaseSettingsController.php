@@ -11,7 +11,6 @@ use App\Model\Mailjob\ExpiryMailDay;
 use App\Traits\ApiKeySettings;
 use Illuminate\Http\Request;
 use Spatie\Activitylog\Models\Activity;
-use Illuminate\Support\Facades\Http;
 
 class BaseSettingsController extends PaymentSettingsController
 {
@@ -304,16 +303,6 @@ class BaseSettingsController extends PaymentSettingsController
         return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
     }
 
-    public function verifyToken($token,$secretkey)
-    {
-        $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
-            'secret' => $secretkey,
-            'response' => $token,
-        ]);
-
-        return $response->json();
-    }
-
     //Save Google recaptch site key and secret in Database
     public function captchaDetails(Request $request)
     {
@@ -368,8 +357,8 @@ class BaseSettingsController extends PaymentSettingsController
         ]);
         ApiKey::where('id', 1)->update(['nocaptcha_sitekey' => $nocaptcha_sitekey,
             'captcha_secretCheck' => $captcha_secretCheck, ]);
+        return successResponse(\Lang::get('message.recaptcha_settings'));
 
-        return ['message' => 'success', 'update' => 'Recaptcha Settings Updated'];
     }
 
     //Save Google recaptcha site key and secret in Database

@@ -27,6 +27,12 @@
     border-color: #777;
     outline: none; 
 }
+
+        .markdown-output p {
+            color: #000; /* Change color to black */
+        }
+
+
 /*This is added because of the eye icon is automatically added in edge browser*/
         input[type="password"]::-ms-reveal {
             display: none !important;
