@@ -51,6 +51,7 @@ class MSG91Controller extends Controller
                 }
             });
         } catch (\Exception $e) {
+            \Log::error('Error processing MSG91 reports: '.$e->getMessage());
             return;
         }
     }
@@ -177,9 +178,7 @@ class MSG91Controller extends Controller
         $query->when($request->filled('mobile_number'), function ($q) use ($request) {
             $q->when($request->filled('country_iso'), function ($q) use ($request) {
                 $q->where('country_iso', $request->input('country_iso'));
-            });
-
-            $q->where('mobile_number', 'like', '%'.$request->input('mobile_number').'%');
+            })->where('mobile_number', 'like', '%'.$request->input('mobile_number').'%');
         });
 
         $query->when($request->filled('full_name'), function ($q) use ($request) {
