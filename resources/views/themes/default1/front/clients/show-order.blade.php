@@ -172,114 +172,108 @@
     @endif
     <li class="active text-dark">Order Details</li>
 @stop
-<?php
 
-$cartSubtotalWithoutCondition = 0;
-use Razorpay\Api\Api;
-$merchant_orderid= generateMerchantRandomString();
+{{--<?php--}}
+{{--$cartSubtotalWithoutCondition = 0;--}}
+{{--use Razorpay\Api\Api;--}}
+{{--$merchant_orderid= generateMerchantRandomString();--}}
 
-function generateMerchantRandomString($length = 10) {
-    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    $charactersLength = strlen($characters);
-    $randomString = '';
-    for ($i = 0; $i < $length; $i++) {
-        $randomString .= $characters[rand(0, $charactersLength - 1)];
-    }
-    return $randomString;
-}
-$rzp_key = app\ApiKey::where('id', 1)->value('rzp_key');
-$rzp_secret = app\ApiKey::where('id', 1)->value('rzp_secret');
-$apilayer_key = app\ApiKey::where('id', 1)->value('apilayer_key');
-$stripe_key = app\ApiKey::where('id', 1)->value('stripe_key');
-$api = new Api($rzp_key, $rzp_secret);
-$displayCurrency = getCurrencyForClient(\Auth::user()->country);
-$symbol = getCurrencyForClient(\Auth::user()->country);
+{{--function generateMerchantRandomString($length = 10) {--}}
+{{--    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';--}}
+{{--    $charactersLength = strlen($characters);--}}
+{{--    $randomString = '';--}}
+{{--    for ($i = 0; $i < $length; $i++) {--}}
+{{--        $randomString .= $characters[rand(0, $charactersLength - 1)];--}}
+{{--    }--}}
+{{--    return $randomString;--}}
+{{--}--}}
+{{--$rzp_key = app\ApiKey::where('id', 1)->value('rzp_key');--}}
+{{--$rzp_secret = app\ApiKey::where('id', 1)->value('rzp_secret');--}}
+{{--$apilayer_key = app\ApiKey::where('id', 1)->value('apilayer_key');--}}
+{{--$stripe_key = app\ApiKey::where('id', 1)->value('stripe_key');--}}
+{{--$api = new Api($rzp_key, $rzp_secret);--}}
+{{--$displayCurrency = getCurrencyForClient(\Auth::user()->country);--}}
+{{--$symbol = getCurrencyForClient(\Auth::user()->country);--}}
 
-if ($symbol == 'INR'){
-
-
-    $exchangeRate= '';
+{{--if ($symbol == 'INR'){--}}
 
 
-    $orderData = [
-        'receipt'         => '3456',
-        'amount'          => round(1.00*100), // 2000 rupees in paise
-
-        'currency'        => getCurrencyForClient(\Auth::user()->country),
-        'payment_capture' => 0 // auto capture
-
-    ];
+{{--    $exchangeRate= '';--}}
 
 
-} else {
+{{--    $orderData = [--}}
+{{--        'receipt'         => '3456',--}}
+{{--        'amount'          => round(1.00*100), // 2000 rupees in paise--}}
 
-    $exchangeRate = '';
-    $orderData = [
-        'receipt'         => '3456',
-        'amount'          =>  round(1.00*100), // 2000 rupees in paise
+{{--        'currency'        => getCurrencyForClient(\Auth::user()->country),--}}
+{{--        'payment_capture' => 0 // auto capture--}}
 
-        'currency'        => getCurrencyForClient(\Auth::user()->country),
-        'payment_capture' => 0 // auto capture
-
-    ];
-}
-
-$razorpayOrder = $api->order->create($orderData);
-$razorpayOrderId = $razorpayOrder['id'];
-$_SESSION['razorpay_order_id'] = $razorpayOrderId;
-$displayAmount = $amount = $orderData['amount'];
-
-$data = [
-    "key"               => $rzp_key,
-    "name"              => 'Faveo Helpdesk',
-    "currency"          => 'INR',
-    "prefill"=> [
-        "contact"=>    \Auth::user()->mobile_code .\Auth::user()->mobile,
-        "email"=>      \Auth::user()->email,
-    ],
-    "description"       =>  'Order for Invoice No' .-$invoice->number,
-    "notes"             => [
-        "First Name"         => \Auth::user()->first_name,
-        "Last Name"         =>  \Auth::user()->last_name,
-        "Company Name"      => \Auth::user()->company,
-        "Address"           =>  \Auth::user()->address,
-        "Email"             =>  \Auth::user()->email,
-        "Country"           =>  \Auth::user()->country,
-        "State"             => \Auth::user()->state,
-        "City"              => \Auth::user()->town,
-        "Zip"               => \Auth::user()->zip,
-        "Currency"          => \Auth::user()->currency,
-        "Amount Paid"   => '1',
-        "Exchange Rate"   =>  $exchangeRate,
-        "merchant_order_id" =>  $merchant_orderid,
-    ],
-    "theme"             => [
-        "color"             => "#F37254"
-    ],
-    "order_id"          => $razorpayOrderId,
-];
-if ($displayCurrency !== 'INR')
-{
-    $data['display_currency']  = 'USD';
-    $data['display_amount']    ='1';
-
-}
-$json = json_encode($data);
+{{--    ];--}}
 
 
-$currency = \Auth::user()->currency;
+{{--} else {--}}
+
+{{--    $exchangeRate = '';--}}
+{{--    $orderData = [--}}
+{{--        'receipt'         => '3456',--}}
+{{--        'amount'          =>  round(1.00*100), // 2000 rupees in paise--}}
+
+{{--        'currency'        => getCurrencyForClient(\Auth::user()->country),--}}
+{{--        'payment_capture' => 0 // auto capture--}}
+
+{{--    ];--}}
+{{--}--}}
+{{--$razorpayOrder = $api->order->create($orderData);--}}
+{{--$razorpayOrderId = $razorpayOrder['id'];--}}
+{{--$_SESSION['razorpay_order_id'] = $razorpayOrderId;--}}
+{{--$displayAmount = $amount = $orderData['amount'];--}}
+
+{{--$data = [--}}
+{{--    "key"               => $rzp_key,--}}
+{{--    "name"              => 'Faveo Helpdesk',--}}
+{{--    "currency"          => 'INR',--}}
+{{--    "prefill"=> [--}}
+{{--        "contact"=>    \Auth::user()->mobile_code .\Auth::user()->mobile,--}}
+{{--        "email"=>      \Auth::user()->email,--}}
+{{--    ],--}}
+{{--    "description"       =>  'Order for Invoice No' .-$invoice->number,--}}
+{{--    "notes"             => [--}}
+{{--        "First Name"         => \Auth::user()->first_name,--}}
+{{--        "Last Name"         =>  \Auth::user()->last_name,--}}
+{{--        "Company Name"      => \Auth::user()->company,--}}
+{{--        "Address"           =>  \Auth::user()->address,--}}
+{{--        "Email"             =>  \Auth::user()->email,--}}
+{{--        "Country"           =>  \Auth::user()->country,--}}
+{{--        "State"             => \Auth::user()->state,--}}
+{{--        "City"              => \Auth::user()->town,--}}
+{{--        "Zip"               => \Auth::user()->zip,--}}
+{{--        "Currency"          => \Auth::user()->currency,--}}
+{{--        "Amount Paid"   => '1',--}}
+{{--        "Exchange Rate"   =>  $exchangeRate,--}}
+{{--        "merchant_order_id" =>  $merchant_orderid,--}}
+{{--    ],--}}
+{{--    "theme"             => [--}}
+{{--        "color"             => "#F37254"--}}
+{{--    ],--}}
+{{--//    "order_id"          => $razorpayOrderId,--}}
+{{--];--}}
+{{--if ($displayCurrency !== 'INR')--}}
+{{--{--}}
+{{--    $data['display_currency']  = 'USD';--}}
+{{--    $data['display_amount']    ='1';--}}
+
+{{--}--}}
+{{--$json = json_encode($data);--}}
 
 
-$gateways = \App\Http\Controllers\Common\SettingsController::checkPaymentGateway(getCurrencyForClient(\Auth::user()->country));
-// $processingFee = \DB::table(strtolower($gateways))->where('currencies',\Auth::user()->currency)->value('processing_fee');
-$planid = \App\Model\Payment\Plan::where('product',$product->id)->value('id');
-$price = $order->price_override;
+{{--$currency = \Auth::user()->currency;--}}
 
 
-
-
-
-?>
+{{--$gateways = \App\Http\Controllers\Common\SettingsController::checkPaymentGateway(getCurrencyForClient(\Auth::user()->country));--}}
+{{--// $processingFee = \DB::table(strtolower($gateways))->where('currencies',\Auth::user()->currency)->value('processing_fee');--}}
+{{--$planid = \App\Model\Payment\Plan::where('product',$product->id)->value('id');--}}
+{{--$price = $order->price_override;--}}
+{{--?>--}}
 
 
 
@@ -427,10 +421,6 @@ $price = $order->price_override;
 
             <div class="col-lg-9 mt-2">
                 @if($order->order_status != 'Terminated')
-                        <?php
-                        $terminatedOrderId = \DB::table('terminated_order_upgrade')->where('upgraded_order_id',$order->id)->value('terminated_order_id');
-                        $terminatedOrderNumber = \App\Model\Order\Order::where('id',$terminatedOrderId)->value('number');
-                        ?>
                     @if(!empty($terminatedOrderId))
                         <p class="order-links">
                             Order: <b>{{$order->number}}</b>
@@ -736,10 +726,6 @@ $price = $order->price_override;
 
                                             <i class="fas fa-globe text-primary"></i>
                                         </div>
-                                        <?php
-                                        $installation_path=\App\Model\Order\InstallationDetail::where('order_id',$id)
-                                            ->where('installation_path','!=',cloudCentralDomain())->latest()->value('installation_path');
-                                        ?>
 
                                         <div class="feature-box-info">
 
@@ -870,20 +856,6 @@ $price = $order->price_override;
                             </div>
 
                             <div class="row"><div class="col"><hr class="solid my-3"></div></div>
-                            <?php
-                            if($statusAutorenewal == 1 && $payment_log == null && !empty($terminatedOrderId)){
-                           
-                             $payment_log = \App\Payment_log::where('order',  $terminatedOrderNumber)
-                                ->where('payment_type', 'Payment method updated')
-                                ->orderBy('id', 'desc')
-                                ->first();
-                                if(!$payment_log){
-                                    $payment_log = \App\Payment_log::where('order',  $terminatedOrderNumber)
-                                    ->orderBy('id', 'desc')
-                                    ->first();
-                                }
-                            }
-                            ?>
                             @if($statusAutorenewal == 1 && $payment_log)
                             <div class="row align-items-center">
 
@@ -1034,9 +1006,7 @@ $price = $order->price_override;
     </div>
 
     <div class="modal fade" id="numberOfAgentsModal" tabindex="-1" role="dialog" aria-labelledby="numberOfAgentsModalLabel" aria-hidden="true">
-        <?php
-        $latestAgents   = ltrim(substr($order->serial_key, 12),'0');
-        ?>
+
 
         <div class="modal-dialog">
 
@@ -1111,55 +1081,56 @@ $price = $order->price_override;
                 <div class="modal-body">
                     <div id="response-upgrade"></div>
                     <div id="failure-upgrade"></div>
-                    <?php
-                    // Retrieve the plans data as before
-                    $plans = App\Model\Payment\Plan::join('products', 'plans.product', '=', 'products.id')
-                        ->leftJoin('plan_prices','plans.id','=','plan_prices.plan_id')
-                        ->where('plans.product','!=',$product->id)
-                        ->where('products.type',4)
-                        ->where('products.can_modify_agent',1)
-                        ->where('plan_prices.renew_price','!=','0')
-                        ->pluck('plans.name', 'plans.id')
-                        ->toArray();
-                    $planIds = array_keys($plans);
+{{--                    <?php--}}
+{{--                    // Retrieve the plans data as before--}}
+{{--                    $plans = App\Model\Payment\Plan::join('products', 'plans.product', '=', 'products.id')--}}
+{{--                        ->leftJoin('plan_prices','plans.id','=','plan_prices.plan_id')--}}
+{{--                        ->where('plans.product','!=',$product->id)--}}
+{{--                        ->where('products.type',4)--}}
+{{--                        ->where('products.can_modify_agent',1)--}}
+{{--                        ->where('plan_prices.renew_price','!=','0')--}}
+{{--                        ->pluck('plans.name', 'plans.id')--}}
+{{--                        ->toArray();--}}
 
-                    $countryids = \App\Model\Common\Country::where('country_code_char2', \Auth::user()->country)->first();
+{{--                    $planIds = array_keys($plans);--}}
 
-
-                    $renewalPrices = \App\Model\Payment\PlanPrice::whereIn('plan_id', $planIds)
-                        ->where('country_id',$countryids->country_id)
-                        ->where('currency',getCurrencyForClient(\Auth::user()->country))
-                        ->latest()
-                        ->pluck('renew_price', 'plan_id')
-                        ->toArray();
-
-                    if(empty($renewalPrices)){
-                        $renewalPrices = \App\Model\Payment\PlanPrice::whereIn('plan_id', $planIds)
-                            ->where('country_id',0)
-                            ->where('currency',getCurrencyForClient(\Auth::user()->country))
-                            ->latest()
-                            ->pluck('renew_price', 'plan_id')
-                            ->toArray();
-                    }
-
-                    foreach ($plans as $planId => $planName) {
-                        if (isset($renewalPrices[$planId])) {
-                            if(in_array($product->id,cloudPopupProducts())) {
-                                $plans[$planId] .= " (Plan price-per agent: " . currencyFormat($renewalPrices[$planId], getCurrencyForClient(\Auth::user()->country), true) . ")";
-                            }
-                        }
-                    }
-                    // Add more cloud IDs until we have a generic way to differentiate
-                    if(in_array($product->id,cloudPopupProducts())){
-                        $plans = array_filter($plans, function ($value) {
-                            return stripos($value, 'free') === false;
-                        });
-                    }
+{{--                    $countryids = \App\Model\Common\Country::where('country_code_char2', \Auth::user()->country)->first();--}}
 
 
-                    $planIdOld = \App\Model\Product\Subscription::where('order_id',$id)->value('plan_id');
-                    $planNameReal = \App\Model\Payment\Plan::where('id',$planIdOld)->value('name');
-                    ?>
+{{--                    $renewalPrices = \App\Model\Payment\PlanPrice::whereIn('plan_id', $planIds)--}}
+{{--                        ->where('country_id',$countryids->country_id)--}}
+{{--                        ->where('currency',getCurrencyForClient(\Auth::user()->country))--}}
+{{--                        ->latest()--}}
+{{--                        ->pluck('renew_price', 'plan_id')--}}
+{{--                        ->toArray();--}}
+
+{{--                    if(empty($renewalPrices)){--}}
+{{--                        $renewalPrices = \App\Model\Payment\PlanPrice::whereIn('plan_id', $planIds)--}}
+{{--                            ->where('country_id',0)--}}
+{{--                            ->where('currency',getCurrencyForClient(\Auth::user()->country))--}}
+{{--                            ->latest()--}}
+{{--                            ->pluck('renew_price', 'plan_id')--}}
+{{--                            ->toArray();--}}
+{{--                    }--}}
+
+{{--                    foreach ($plans as $planId => $planName) {--}}
+{{--                        if (isset($renewalPrices[$planId])) {--}}
+{{--                            if(in_array($product->id,cloudPopupProducts())) {--}}
+{{--                                $plans[$planId] .= " (Plan price-per agent: " . currencyFormat($renewalPrices[$planId], getCurrencyForClient(\Auth::user()->country), true) . ")";--}}
+{{--                            }--}}
+{{--                        }--}}
+{{--                    }--}}
+{{--                    // Add more cloud IDs until we have a generic way to differentiate--}}
+{{--                    if(in_array($product->id,cloudPopupProducts())){--}}
+{{--                        $plans = array_filter($plans, function ($value) {--}}
+{{--                            return stripos($value, 'free') === false;--}}
+{{--                        });--}}
+{{--                    }--}}
+
+
+{{--                    $planIdOld = \App\Model\Product\Subscription::where('order_id',$id)->value('plan_id');--}}
+{{--                    $planNameReal = \App\Model\Payment\Plan::where('id',$planIdOld)->value('name');--}}
+{{--                    ?>--}}
 
 
                     <p class="text-black"><strong>Current Plan: </strong>{{$planNameReal}}</p>
