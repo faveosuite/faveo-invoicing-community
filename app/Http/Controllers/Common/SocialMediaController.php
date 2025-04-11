@@ -66,7 +66,7 @@ class SocialMediaController extends Controller
                                  $sql = 'link like ?';
                                  $query->whereRaw($sql, ["%{$keyword}%"]);
                              })
-                            ->rawColumns(['checkbox','name', 'link', 'action'])
+                            ->rawColumns(['checkbox', 'name', 'link', 'action'])
                             ->make(true);
             // ->searchColumns('name')
             // ->orderColumns('class')
