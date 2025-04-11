@@ -24,9 +24,9 @@ use App\Payment_log;
 use App\Plugins\Stripe\Controllers\SettingsController;
 use App\User;
 use Exception;
-use GrahamCampbell\Markdown\Facades\Markdown;
 use Illuminate\Http\Request;
 use Razorpay\Api\Api;
+use Illuminate\Support\Str;
 
 class ClientController extends BaseClientController
 {
@@ -512,10 +512,8 @@ class ClientController extends BaseClientController
                                 return ucfirst($link['name']);
                             })
                             ->addColumn('description', function ($link) {
-//                                $markdown = Markdown::convertToHtml(ucfirst($link['body']));
-                                  $markdown=$link['body'];
-                                return $markdown;
-                            })
+                                $markdown = Str::markdown((ucfirst($link['body'])));
+                                return '<div class="markdown-output">' . $markdown . '</div>';                            })
                             ->addColumn('file', function ($link) use ($countExpiry, $countVersions, $invoiceid, $productid) {
                                 $order = Order::where('invoice_id', '=', $invoiceid)->first();
                                 $order_id = $order->id;

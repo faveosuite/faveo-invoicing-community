@@ -170,21 +170,14 @@ class OrderController extends BaseOrderController
                      return $planName->name ?? '';
                  })
                 ->addColumn('version', function ($model) {
-                    $version = $model->product_version;
-                    if($version){
-                    return $version;
-                    }
-                    else{
+                    $installedVersions = InstallationDetail::where('order_id', $model->id)->pluck('version')->toArray();
+
+                    if (count($installedVersions)) {
+                        $latest=max($installedVersions);
+                        return getVersionAndLabel($latest, $model->product);
+                    } else {
                         return '--';
                     }
-//                    $installedVersions = InstallationDetail::where('order_id', $model->id)->pluck('version')->toArray();
-//                    if (count($installedVersions)) {
-//                        $latest = max($installedVersions);
-//
-//                        return getVersionAndLabel($latest, $model->product);
-//                    } else {
-//                        return '--';
-//                    }
                 })
                 ->addColumn('agents', function ($model) {
                     $license = substr($model->serial_key, 12, 16);

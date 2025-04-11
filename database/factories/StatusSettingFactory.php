@@ -2,10 +2,11 @@
 
 namespace Database\Factories;
 
+use App\Model\Common\StatusSetting;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Model>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Model\Common\StatusSetting>
  */
 class StatusSettingFactory extends Factory
 {
@@ -14,6 +15,8 @@ class StatusSettingFactory extends Factory
      *
      * @return array<string, mixed>
      */
+    protected $model = StatusSetting::class;
+
     public function definition(): array
     {
         return [
@@ -28,7 +31,6 @@ class StatusSettingFactory extends Factory
             'emailverification_status' => rand(0, 1),
             'recaptcha_status' => rand(0, 1),
             'v3_recaptcha_status' => rand(0, 1),
-            'update_status' => rand(0, 1),
             'zoho_status' => rand(0, 1),
             'rzp_status' => rand(0, 1),
             'mailchimp_product_status' => rand(0, 1),
