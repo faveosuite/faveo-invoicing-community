@@ -34,16 +34,13 @@ class SettingsControllerTest extends TestCase
 
     public function test_license_keys_endpoint_returns_expected_keys()
     {
-        // Create dummy ApiKey record using factory
+        $user = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($user);
         ApiKey::factory()->create();
 
-        // Call the endpoint
-        $response = $this->getJson('/licensekeys');
-
-        // Assert 200 OK
+        $response = $this->post('licensekeys');
         $response->assertStatus(200);
 
-        // Assert JSON structure
         $response->assertJsonStructure([
             'licenseGrantType',
             'licenseSecret',
@@ -55,7 +52,8 @@ class SettingsControllerTest extends TestCase
 
     public function test_google_captcha_response()
     {
-        // Arrange: Create dummy data
+        $user = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($user);
         $apiKey = ApiKey::factory()->create([
             'nocaptcha_sitekey' => 'test-site-key',
             'captcha_secretCheck' => 'test-secret-key',
@@ -66,10 +64,8 @@ class SettingsControllerTest extends TestCase
             'v3_recaptcha_status' => '1',
         ]);
 
-        // Act: Make the request
-        $response = $this->postJson('googleCaptcha');
+        $response = $this->post('googleCaptcha');
 
-        // Assert: Check the expected JSON response
         $response->assertStatus(200)
             ->assertJson([
                 'captchaStatus' => '1',
@@ -81,17 +77,16 @@ class SettingsControllerTest extends TestCase
 
     public function test_returns_mobile_verification_details()
     {
-        // Arrange: create dummy ApiKey record
+        $user = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($user);
         $apikey = ApiKey::factory()->create([
             'msg91_auth_key' => 'dummy_auth_key',
             'msg91_sender' => 'dummy_sender',
             'msg91_template_id' => 'dummy_template',
         ]);
 
-        // Act: call the controller method via route
-        $response = $this->postJson('mobileVerification');
+        $response = $this->post('mobileVerification');
 
-        // Assert: check if response contains expected keys and values
         $response->assertStatus(200)
             ->assertJson([
                 'mobileauthkey' => 'dummy_auth_key',
@@ -102,15 +97,14 @@ class SettingsControllerTest extends TestCase
 
     public function test_returns_terms_url_from_apikeys()
     {
-        // Arrange: create a dummy ApiKey record
+        $user = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($user);
         $apiKey = ApiKey::factory()->create([
             'terms_url' => 'https://example.com/terms',
         ]);
 
-        // Act: call the route or controller method
         $response = $this->postJson('termsUrl'); // adjust this route as per your app
 
-        // Assert: check that the correct terms URL is returned
         $response->assertStatus(200);
         $response->assertJson([
             'termsUrl' => 'https://example.com/terms',
@@ -119,11 +113,12 @@ class SettingsControllerTest extends TestCase
 
     public function test_returns_pipedrive_api_key()
     {
+        $user = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($user);
         $apiKey = ApiKey::factory()->create([
             'pipedrive_api_key' => 'fake-pipedrive-key-123',
         ]);
-
-        $response = $this->postJson('pipedrivekeys'); // adjust the route if needed
+        $response = $this->post('pipedrivekeys'); // adjust the route if needed
 
         $response->assertStatus(200);
         $response->assertJson([
@@ -134,8 +129,9 @@ class SettingsControllerTest extends TestCase
 
     public function test_get_data_table_data_returns_valid_json()
     {
-        // Seed dummy data
-        StatusSetting::factory()->create([
+        $user = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($user);
+        $status=StatusSetting::factory()->create([
             'license_status' => 1,
             'msg91_status' => 1,
             'recaptcha_status' => 1,
@@ -148,11 +144,8 @@ class SettingsControllerTest extends TestCase
             'terms' => 0,
             'v3_v2_recaptcha_status' => 0,
         ]);
+        $response = $this->get('datatable/data');
 
-        // Hit the route (adjust URI if prefixed)
-        $response = $this->postJson('datatable.data');
-
-        // Basic structure check
         $response->assertStatus(200)
             ->assertJsonStructure([
                 'data' => [

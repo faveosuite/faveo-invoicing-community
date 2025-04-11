@@ -11,11 +11,11 @@ class MailchimpControllerTest extends TestCase
     {
 
         $payload = [
-            'list_id' => 'new-list-id',
+            'list_id' => '1',
             'subscribe_status' => 1,
         ];
 
-        $response = $this->post('/settings/mailchimp', $payload);
+        $response = $this->patch('mailchimp', $payload);
 
         $response->assertStatus(200);
         $response->assertJson([
