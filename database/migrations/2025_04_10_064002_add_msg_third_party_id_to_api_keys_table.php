@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::table('api_keys', function (Blueprint $table) {
             $table->unsignedBigInteger('msg91_third_party_id')->nullable()->after('msg91_template_id');
+
+            $table->foreign('msg91_third_party_id')
+                ->references('id')
+                ->on('third_party_apps')
+                ->onDelete('set null');
         });
     }
 
