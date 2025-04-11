@@ -1,16 +1,16 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Plugins
+    Payment Gateway Integrations
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Payment Gateway</h1>
+        <h1>Payment Gateway Integrations</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
             <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
             <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item active">Plugins</li>
+            <li class="breadcrumb-item active">Payment Gateway Integrations</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -207,8 +207,8 @@ Plugins
                     location.reload();
                 }, 3000);
                 $('#alertMessage').show();
-                var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
-                $('#alertMessage').html(result+ ".");
+                var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.message+'.</div>';
+                $('#alertMessage').html(result);
                 setInterval(function(){
                     $('#alertMessage').slideUp(3000);
                 }, 1000);
@@ -238,8 +238,8 @@ Plugins
                     location.reload();
                 }, 3000);
                 $('#alertMessage').show();
-                var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
-                $('#alertMessage').html(result+ ".");
+                var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.message+'.</div>';
+                $('#alertMessage').html(result);
                 setInterval(function(){
                     $('#alertMessage').slideUp(3000);
                 }, 1000);

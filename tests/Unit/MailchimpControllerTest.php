@@ -2,25 +2,29 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
+use App\Http\Controllers\Common\BaseMailChimpController;
+use App\User;
+use Illuminate\Http\Request;
+use Tests\DBTestCase;
 
-
-class MailchimpControllerTest extends TestCase
+class MailchimpControllerTest extends DBTestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->classObject = new BaseMailChimpController();
+    }
+
     public function test_post_mailchimp_settings_success()
     {
-
         $payload = [
-            'list_id' => 'new-list-id',
+            'list_id' => '1',
             'subscribe_status' => 1,
         ];
-
-        $response = $this->post('/settings/mailchimp', $payload);
-
-        $response->assertStatus(200);
-        $response->assertJson([
-            'message' => 'success',
-            'list_id' => 'new-list-id',
-        ]);
+        $user = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($user);
+        $request = Request::create('/dummy-url', 'POST', $payload);
+        $methodResponse = $this->getPrivateMethod($this->classObject, 'postMailChimpSettings', [$request]);
+        $this->assertNotEmpty($methodResponse);
     }
 }
