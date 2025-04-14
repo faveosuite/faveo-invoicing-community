@@ -64,7 +64,7 @@ class BaseMailChimpController extends Controller
                     'interests' => [$productGroupId => true],
                 ]);
             }
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             $exe = json_decode($ex->getMessage(), true);
         }
     }
@@ -100,7 +100,7 @@ class BaseMailChimpController extends Controller
                 ]);
             }
             //refer to https://us7.api.mailchimp.com/playground
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
         }
     }
 
@@ -110,7 +110,7 @@ class BaseMailChimpController extends Controller
             $result = $this->mailchimp->get("lists/$this->list_id/merge-fields?count=20");
 
             return $result;
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
@@ -123,7 +123,7 @@ class BaseMailChimpController extends Controller
             $selectedList[] = $set->list_id;
 
             return view('themes.default1.common.mailchimp.settings', compact('set', 'allists', 'selectedList'));
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
@@ -143,7 +143,7 @@ class BaseMailChimpController extends Controller
                 'update' => \Lang::get('message.mailchimp_setting'),
                 'list_id' => 1,
             ];
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             return [
                 'message' => 'error',
                 'update' => \Lang::get('message.mailchimp_apikey_error'),

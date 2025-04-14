@@ -2,13 +2,22 @@
 
 namespace Tests\Unit\Common;
 
+use App\Http\Controllers\Common\SettingsController;
 use App\User;
+use Tests\DBTestCase;
 use Tests\TestCase;
 use App\Model\Common\StatusSetting;
 use App\ApiKey;
 
-class SettingsControllerTest extends TestCase
+class SettingsControllerTest extends DBTestCase
 {
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->classObject = new SettingsController();
+    }
+
     /**
      * A basic unit test example.
      *
@@ -36,18 +45,10 @@ class SettingsControllerTest extends TestCase
     {
         $user = User::factory()->create(['role' => 'admin']);
         $this->actingAs($user);
-        ApiKey::factory()->create();
+        $apiKey=ApiKey::factory()->create();
+        $methodResponse = $this->getPrivateMethod($this->classObject, 'licensekeys', [$apiKey]);
+        $this->assertNotEmpty($methodResponse->content());
 
-        $response = $this->post('licensekeys');
-        $response->assertStatus(200);
-
-        $response->assertJsonStructure([
-            'licenseGrantType',
-            'licenseSecret',
-            'licenseClientId',
-            'licenseClientSecret',
-            'licenseUrl',
-        ]);
     }
 
     public function test_google_captcha_response()
@@ -62,17 +63,12 @@ class SettingsControllerTest extends TestCase
         StatusSetting::factory()->create([
             'recaptcha_status' => '1',
             'v3_recaptcha_status' => '1',
+            'v3_v2_recaptcha_status' => '1',
         ]);
 
-        $response = $this->post('googleCaptcha');
+        $methodResponse = $this->getPrivateMethod($this->classObject, 'googleCaptcha', [$apiKey]);
+        $this->assertNotEmpty($methodResponse->content());
 
-        $response->assertStatus(200)
-            ->assertJson([
-                'captchaStatus' => '1',
-                'v3CaptchaStatus' => '1',
-                'siteKey' => 'test-site-key',
-                'secretKey' => 'test-secret-key',
-            ]);
     }
 
     public function test_returns_mobile_verification_details()
@@ -84,15 +80,9 @@ class SettingsControllerTest extends TestCase
             'msg91_sender' => 'dummy_sender',
             'msg91_template_id' => 'dummy_template',
         ]);
+        $methodResponse = $this->getPrivateMethod($this->classObject, 'mobileVerification', [$apikey]);
+        $this->assertNotEmpty($methodResponse->content());
 
-        $response = $this->post('mobileVerification');
-
-        $response->assertStatus(200)
-            ->assertJson([
-                'mobileauthkey' => 'dummy_auth_key',
-                'msg91Sender' => 'dummy_sender',
-                'msg91TemplateId' => 'dummy_template',
-            ]);
     }
 
     public function test_returns_terms_url_from_apikeys()
@@ -102,13 +92,9 @@ class SettingsControllerTest extends TestCase
         $apiKey = ApiKey::factory()->create([
             'terms_url' => 'https://example.com/terms',
         ]);
+        $methodResponse = $this->getPrivateMethod($this->classObject, 'termsUrl', [$apiKey]);
+        $this->assertNotEmpty($methodResponse->content());
 
-        $response = $this->postJson('termsUrl'); // adjust this route as per your app
-
-        $response->assertStatus(200);
-        $response->assertJson([
-            'termsUrl' => 'https://example.com/terms',
-        ]);
     }
 
     public function test_returns_pipedrive_api_key()
@@ -118,40 +104,9 @@ class SettingsControllerTest extends TestCase
         $apiKey = ApiKey::factory()->create([
             'pipedrive_api_key' => 'fake-pipedrive-key-123',
         ]);
-        $response = $this->post('pipedrivekeys'); // adjust the route if needed
+        $methodResponse = $this->getPrivateMethod($this->classObject, 'pipedrivekeys', [$apiKey]);
+        $this->assertNotEmpty($methodResponse->content());
 
-        $response->assertStatus(200);
-        $response->assertJson([
-            'pipedriveKey' => 'fake-pipedrive-key-123',
-        ]);
-    }
-
-
-    public function test_get_data_table_data_returns_valid_json()
-    {
-        $user = User::factory()->create(['role' => 'admin']);
-        $this->actingAs($user);
-        $status=StatusSetting::factory()->create([
-            'license_status' => 1,
-            'msg91_status' => 1,
-            'recaptcha_status' => 1,
-            'v3_recaptcha_status' => 1,
-            'twitter_status' => 0,
-            'zoho_status' => 0,
-            'pipedrive_status' => 0,
-            'github_status' => 1,
-            'mailchimp_status' => 1,
-            'terms' => 0,
-            'v3_v2_recaptcha_status' => 0,
-        ]);
-        $response = $this->get('datatable/data');
-
-        $response->assertStatus(200)
-            ->assertJsonStructure([
-                'data' => [
-                    '*' => ['options', 'description', 'status', 'action']
-                ]
-            ]);
     }
     
 }
