@@ -20,7 +20,7 @@ return new class extends Migration
             $table->dateTime('date')->nullable();
             $table->string('sender_id')->nullable();
             $table->string('failure_reason')->nullable();
-            $table->unsignedBigInteger('user_id')->nullable();
+            $table->unsignedInteger('user_id')->nullable();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('country_iso')->nullable();
             $table->timestamps();

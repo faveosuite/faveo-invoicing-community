@@ -56,6 +56,8 @@ class MSG91ControllerTest extends DBTestCase
 
     public function test_update_otp_request_creates_or_updates_record()
     {
+        User::factory()->create(['id' => 42]);
+
         $controller = new Msg91Controller();
 
         // First call: create
