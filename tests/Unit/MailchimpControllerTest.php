@@ -4,9 +4,8 @@ namespace Tests\Unit;
 
 use App\Http\Controllers\Common\BaseMailChimpController;
 use App\User;
-use Tests\TestCase;
-use Tests\DBTestCase;
 use Illuminate\Http\Request;
+use Tests\DBTestCase;
 
 class MailchimpControllerTest extends DBTestCase
 {

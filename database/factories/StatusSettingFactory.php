@@ -2,8 +2,9 @@
 
 namespace Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Model\Common\StatusSetting;
+use Illuminate\Database\Eloquent\Factories\Factory;
+
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Model\Common\StatusSetting>
  */
@@ -14,7 +15,6 @@ class StatusSettingFactory extends Factory
      *
      * @return array<string, mixed>
      */
-
     protected $model = StatusSetting::class;
 
     public function definition(): array
