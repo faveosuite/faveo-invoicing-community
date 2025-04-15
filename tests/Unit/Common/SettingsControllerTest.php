@@ -2,16 +2,14 @@
 
 namespace Tests\Unit\Common;
 
+use App\ApiKey;
 use App\Http\Controllers\Common\SettingsController;
+use App\Model\Common\StatusSetting;
 use App\User;
 use Tests\DBTestCase;
-use Tests\TestCase;
-use App\Model\Common\StatusSetting;
-use App\ApiKey;
 
 class SettingsControllerTest extends DBTestCase
 {
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -45,10 +43,9 @@ class SettingsControllerTest extends DBTestCase
     {
         $user = User::factory()->create(['role' => 'admin']);
         $this->actingAs($user);
-        $apiKey=ApiKey::factory()->create();
+        $apiKey = ApiKey::factory()->create();
         $methodResponse = $this->getPrivateMethod($this->classObject, 'licensekeys', [$apiKey]);
         $this->assertNotEmpty($methodResponse->content());
-
     }
 
     public function test_google_captcha_response()
@@ -68,7 +65,6 @@ class SettingsControllerTest extends DBTestCase
 
         $methodResponse = $this->getPrivateMethod($this->classObject, 'googleCaptcha', [$apiKey]);
         $this->assertNotEmpty($methodResponse->content());
-
     }
 
     public function test_returns_mobile_verification_details()
@@ -82,7 +78,6 @@ class SettingsControllerTest extends DBTestCase
         ]);
         $methodResponse = $this->getPrivateMethod($this->classObject, 'mobileVerification', [$apikey]);
         $this->assertNotEmpty($methodResponse->content());
-
     }
 
     public function test_returns_terms_url_from_apikeys()
@@ -94,7 +89,6 @@ class SettingsControllerTest extends DBTestCase
         ]);
         $methodResponse = $this->getPrivateMethod($this->classObject, 'termsUrl', [$apiKey]);
         $this->assertNotEmpty($methodResponse->content());
-
     }
 
     public function test_returns_pipedrive_api_key()
@@ -106,7 +100,5 @@ class SettingsControllerTest extends DBTestCase
         ]);
         $methodResponse = $this->getPrivateMethod($this->classObject, 'pipedrivekeys', [$apiKey]);
         $this->assertNotEmpty($methodResponse->content());
-
     }
-    
 }

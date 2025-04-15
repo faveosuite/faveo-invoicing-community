@@ -11,7 +11,6 @@ use App\Model\Mailjob\ExpiryMailDay;
 use App\Traits\ApiKeySettings;
 use Illuminate\Http\Request;
 use Spatie\Activitylog\Models\Activity;
-use Illuminate\Support\Facades\Http;
 
 class BaseSettingsController extends PaymentSettingsController
 {
