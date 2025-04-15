@@ -138,8 +138,11 @@ $cartSubtotalWithoutCondition = 0;
                                             </a>
 
                                             <span class="product-thumbnail-image">
+                                                <?php
+                                                    $image = \App\Model\Product\Product::find($item->associatedModel->id)->image;
+                                                    ?>
 
-                                                    <img width="90" height="90" alt="" class="img-fluid" src="{{$item->associatedModel->image}}"  data-bs-toggle="tooltip" title="{{$item->name}}">
+                                                    <img width="90" height="90" alt="" class="img-fluid" src="{{$image}}"  data-bs-toggle="tooltip" title="{{$item->name}}">
                                                 </span>
                                         </div>
                                     </td>

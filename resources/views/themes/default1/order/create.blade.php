@@ -73,15 +73,15 @@ Create Order
                 <div class="row">
 
                     <div class="col-md-4 form-group">
-                        <p>{!! html()->checkbox('confirmation', 1) !!} {{ Lang::get('message.order-confirmation') }}</p>
+                        <p>{!! html()->checkbox('confirmation', null ,1) !!} {{ Lang::get('message.order-confirmation') }}</p>
                     </div>
 
                     <div class="col-md-4 form-group {{ $errors->has('invoice') ? 'has-error' : '' }}">
-                        <p>{!! html()->checkbox('invoice', 1) !!} {{ Lang::get('message.generate-invoice') }}</p>
+                        <p>{!! html()->checkbox('invoice', null, 1) !!} {{ Lang::get('message.generate-invoice') }}</p>
                     </div>
 
                     <div class="col-md-4 form-group {{ $errors->has('email') ? 'has-error' : '' }}">
-                        <p>{!! html()->checkbox('email', 1) !!} {{ Lang::get('message.send-email') }}</p>
+                        <p>{!! html()->checkbox('email', null ,1) !!} {{ Lang::get('message.send-email') }}</p>
                     </div>
 
                 </div>

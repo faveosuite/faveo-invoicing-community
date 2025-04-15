@@ -116,11 +116,16 @@ Third party Apps
             };
 
             // Add input event listeners for all fields
-            ['app-name','app-key','app-secret'].forEach(id => {
-
-                document.getElementById(id).addEventListener('input', function () {
+            ['app-name', 'app-secret'].forEach(id => {
+                document.getElementById(id)?.addEventListener('input', function () {
                     removeErrorMessage(this);
+                });
+            });
 
+            document.querySelectorAll('.get-app-key').forEach(button => {
+                button.addEventListener('click', () => {
+                    const el = document.getElementById('app-key');
+                    if (el) removeErrorMessage(el);
                 });
             });
         });

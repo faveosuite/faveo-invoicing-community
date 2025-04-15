@@ -19,11 +19,13 @@ class DatabaseSeeder extends Seeder
     {
         $env = base_path().DIRECTORY_SEPARATOR.'.env';
 
-        if (is_file($env) && config('app.env') !== 'testing') {
+        if (is_file($env) && config('app.env') !== 'testing' && env('APP_KEY_UPDATED') !== 'true') {
 
             setEnvValue(['APP_PREVIOUS_KEYS' => 'SomeRandomString']);
 
             \Artisan::call('key:generate', ['--force' => true]);
+
+            setEnvValue(['APP_KEY_UPDATED' => 'true']);
 
         }
     }

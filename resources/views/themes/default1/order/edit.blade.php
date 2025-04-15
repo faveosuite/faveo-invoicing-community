@@ -78,21 +78,21 @@ Edit Order
 
                     <div class="col-md-4 form-group">
                         <p>
-                            {!! html()->checkbox('confirmation', true) !!}
+                            {!! html()->checkbox('confirmation', null,1) !!}
                             {{ Lang::get('message.order-confirmation') }}
                         </p>
                     </div>
 
                     <div class="col-md-4 form-group {!! $errors->has('invoice') ? 'has-error' : '' !!}">
                         <p>
-                            {!! html()->checkbox('invoice', true) !!}
+                            {!! html()->checkbox('invoice', null,1) !!}
                             {{ Lang::get('message.generate-invoice') }}
                         </p>
                     </div>
 
                     <div class="col-md-4 form-group {!! $errors->has('email') ? 'has-error' : '' !!}">
                         <p>
-                            {!! html()->checkbox('email', true) !!}
+                            {!! html()->checkbox('email', null,1) !!}
                             {{ Lang::get('message.send-email') }}
                         </p>
                     </div>
