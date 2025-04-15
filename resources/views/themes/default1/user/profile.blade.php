@@ -451,7 +451,7 @@ input:checked + .slider:before {
 
 
 {!! Form::close() !!}
-<script src="{{asset('common/js/2fa.js')}}"></script>
+<script src="{{asset('common/js/2fa1.js')}}"></script>
 <script>
     $('#submit').on('click',function(e) {
         var gstin = $('#gstin1');
