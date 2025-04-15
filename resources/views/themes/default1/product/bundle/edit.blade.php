@@ -84,7 +84,7 @@
                                 <div class="form-group {{ $errors->has('allow_promotion') ? 'has-error' : '' }}">
                                     {!! html()->label(Lang::get('message.allow-promotion'), 'allow_promotion') !!}
                                     <p>
-                                        {!! html()->checkbox('allow_promotion', 1) !!}
+                                        {!! html()->checkbox('allow_promotion', null,1) !!}
                                         {{ Lang::get('message.tick-to-allow-promotion-codes-to-be-used-in-conjunction-with-this-bundle') }}
                                     </p>
                                 </div>

@@ -74,22 +74,22 @@
 
                     <div class="col-md-3 form-group {{ $errors->has('tax_addon') ? 'has-error' : '' }}">
                         {!! html()->label(Lang::get('message.tax-addon'), 'tax_addon') !!}
-                        <p>{!! html()->checkbox('tax_addon', 1) !!} {{ Lang::get('message.charge-tax-on-this-addon') }}</p>
+                        <p>{!! html()->checkbox('tax_addon', null,1) !!} {{ Lang::get('message.charge-tax-on-this-addon') }}</p>
                     </div>
 
                     <div class="col-md-3 form-group {{ $errors->has('show_on_order') ? 'has-error' : '' }}">
                         {!! html()->label(Lang::get('message.show-on-order'), 'show_on_order') !!}
-                        <p>{!! html()->checkbox('show_on_order', 1) !!} {{ Lang::get('message.show-addon-during-initial-product-order-process') }}</p>
+                        <p>{!! html()->checkbox('show_on_order', null,1) !!} {{ Lang::get('message.show-addon-during-initial-product-order-process') }}</p>
                     </div>
 
                     <div class="col-md-3 form-group {{ $errors->has('auto_active_payment') ? 'has-error' : '' }}">
                         {!! html()->label(Lang::get('message.auto-active-payment'), 'auto_active_payment') !!}
-                        <p>{!! html()->checkbox('auto_active_payment', 1) !!} {{ Lang::get('message.auto-activate-on-payment') }}</p>
+                        <p>{!! html()->checkbox('auto_active_payment', null,1) !!} {{ Lang::get('message.auto-activate-on-payment') }}</p>
                     </div>
 
                     <div class="col-md-3 form-group {{ $errors->has('suspend_parent') ? 'has-error' : '' }}">
                         {!! html()->label(Lang::get('message.suspend-parent-product'), 'suspend_parent') !!}
-                        <p>{!! html()->checkbox('suspend_parent', 1) !!} {{ Lang::get('message.tick-to-suspend-the-parent-product-as-well-when-instances-of-this-addon-are-overdue') }}</p>
+                        <p>{!! html()->checkbox('suspend_parent', null,1) !!} {{ Lang::get('message.tick-to-suspend-the-parent-product-as-well-when-instances-of-this-addon-are-overdue') }}</p>
                     </div>
 
                 </div>

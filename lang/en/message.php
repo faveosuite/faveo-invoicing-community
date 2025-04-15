@@ -1140,4 +1140,87 @@ return [
     'renew_payment_method' => 'Please select a payment method.',
     'payment_details_delete' => 'Are you sure you want to delete this payment detail.?',
     'sweet_payment' => 'Please select at least one payment detail.',
+    'image_allowed' => 'Only PNG, JPG, and JPEG files are allowed.',
+    'image_max' => 'The image may not be greater than 2 MB.',
+    'central_domain' => 'Please enter domain name(https://example.com).',
+    'cloud_name' => 'Please enter cloud cname(example.com)',
+    'cloud_popup' => 'Please provide cloud popup heading.',
+    'cloud_label' => 'Please provide label for domain.',
+    'cloud_radio' => 'Please provide label for radio button.',
+    'saas_product' => 'Please select a product.',
+    'saas_free_product' => 'Please select a product for free trial.',
+    'saas_product_key' => 'Please enter product key.',
+    'cloud_hub_state' => 'Please select a state/county.',
+    'cloud_hub_countries' => 'Please select a country.',
+    'cloud_hub_valid_url' => 'Please enter a valid url(https://example.com).',
+    'cloud_invalid_message' => 'Invalid App key provided. Please contact admin.',
+    'cloud_error_message' => 'Unable to connect to cloud server, contact your server administrator for assistance.',
+
+    'script_details' => [
+        'name' => 'Please enter script name.',
+        'content' => 'Please enter script content.',
+    ],
+
+    'razorpay_details' => [
+        'rzp_key' => 'Please enter a valid Razorpay key.',
+        'rzp_secret' => 'Please enter a valid Razorpay secret password.',
+        'apilayer_key' => 'Please enter a valid access key.',
+    ],
+
+    'system_manager' => [
+        'account_manager' => 'Please select an Account manager.',
+        'replacement' => 'Please enter a valid name.',
+        'sales_manager' => 'Please select a Sales manager.',
+    ],
+
+    'plan_details' => [
+        'planname' => 'Please enter plan name.',
+        'planproduct' => 'Please select a valid product.',
+        'plandays' => 'Please enter the duration (in days).',
+        'currency' => 'Please enter the currency code.',
+        'country' => 'Please enter the country name.',
+        'regular_price' => 'Please enter the regular price.',
+        'renewal_price' => 'Please enter the renewal price.',
+        'productquant' => 'Please enter the product quantity.',
+        'agentquant' => 'Please enter the agent quantity.',
+    ],
+
+    'emailSettings_details' => [
+        'driver' => 'Please select a valid email driver.',
+        'host' => 'Please enter a valid email host.',
+        'port' => 'Please enter a valid port number.',
+        'email' => 'Please enter a valid email address.',
+        'password' => 'Please enter email password.',
+        'domain' => 'Please enter a valid email domain.',
+        'region' => 'Please enter a valid email region.',
+        'api_key' => 'Please enter a valid API key.',
+        'from_name' => 'Please enter the senders name.',
+        'encryption' => 'Please select a encryption method.',
+        'secret' => 'Please enter a valid secret password.',
+    ],
+
+    'github_details' => [
+        'name' => 'Please enter a valid GitHub username.',
+        'password' => 'Please enter a valid GitHub password.',
+        'client' => 'Please enter a valid client ID.',
+        'secret' => 'Please enter a valid client secret password.',
+    ],
+
+    'add_files' => [
+        'title' => 'Please enter title.',
+        'version' => 'Please enter a valid version.',
+        'dependencies' => 'Please enter dependencies.',
+    ],
+
+    'valid_name' => 'The company name must be fewer than 50 characters.',
+    'valid_gst_number' => 'Please enter a valid GST number.',
+    'url_tooltip' => 'Enter the installation guide URL to assist users with Application setup.',
+    'valid_widget_name' => 'The name must be fewer than 50 characters and cannot consist only of special characters.',
+    'google_analytics_tag' => 'Please enter google analytics tag.',
+    'subscription-error-msg' => 'Please select the subscription.',
+    'cloud-error-message' => 'Please enter cloud domain.',
+    'agents-error-message' => 'Please enter number of agents.',
+    'quantity-error-message' => 'Please enter quantity.',
+
+    'source' => 'Source',
 ];

@@ -309,14 +309,10 @@ class SettingsController extends BaseSettingsController
         $validator = \Validator::make($request->all(), [
             'from' => 'nullable',
             'till' => 'nullable|after:from',
-            'delFrom' => 'nullable',
-            'delTill' => 'nullable|after:delFrom',
         ]);
         if ($validator->fails()) {
             $request->from = '';
             $request->till = '';
-            $request->delFrom = '';
-            $request->delTill = '';
 
             return redirect('settings/activitylog')->with('fails', 'Start date should be before end date');
         }
@@ -324,10 +320,8 @@ class SettingsController extends BaseSettingsController
             $activity = $activities->all();
             $from = $request->input('from');
             $till = $request->input('till');
-            $delFrom = $request->input('delFrom');
-            $delTill = $request->input('delTill');
 
-            return view('themes.default1.common.Activity-Log', compact('activity', 'from', 'till', 'delFrom', 'delTill'));
+            return view('themes.default1.common.Activity-Log', compact('activity', 'from', 'till'));
         } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }
@@ -350,9 +344,7 @@ class SettingsController extends BaseSettingsController
         try {
             $from = $request->input('log_from');
             $till = $request->input('log_till');
-            $delFrom = $request->input('delFrom');
-            $delTill = $request->input('delTill');
-            $query = $this->advanceSearch($from, $till, $delFrom, $delTill);
+            $query = $this->advanceSearch($from, $till);
 
             return \DataTables::of($query->take(50))
              ->setTotalRecords($query->count())
@@ -418,7 +410,7 @@ class SettingsController extends BaseSettingsController
                                 $query->whereRaw($sql, ["%{$keyword}%"]);
                             })
 
-                            ->rawColumns(['checkbox', 'name', 'description',
+                            ->rawColumns(['name', 'description',
                                 'username', 'role', 'new', 'old', 'created_at', ])
                             ->make(true);
         } catch (\Exception $e) {

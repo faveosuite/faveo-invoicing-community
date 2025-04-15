@@ -116,7 +116,7 @@ Edit Group
 
                            <div class="form-group">
                             <div class="col-md-4">
-                             <img src='{{ asset("storage/images/$template->image")}}' alt="Porto theme" class="img-thumbnail">
+                             <img src='{{ asset("images/$template->image")}}' alt="Porto theme" class="img-thumbnail">
                              <br/>
                              @if($template->id == $selectedTemplate)
                              <input type="radio" id="template" name= 'pricing_templates_id' value="{{$template->id}}" checked style="text-align: center;">
@@ -148,7 +148,7 @@ Edit Group
                                                  $value = 'true';   
                                                 }
                                                 ?>
-                                                <p>{!! html()->checkbox('status', 1, $value) !!} {{Lang::get('message.check-this-box_to_toggle_status')}}</p>
+                                                <p>{!! html()->checkbox('status', $value ,1) !!} {{Lang::get('message.check-this-box_to_toggle_status')}}</p>
                             </div>
                         </td>
 

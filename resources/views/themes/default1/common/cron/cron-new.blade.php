@@ -98,7 +98,7 @@
     enabled auto-renewal"></i>'
 ) !!}
                             <br>
-                            {!! html()->checkbox('expiry_cron', 1, $condition->checkActiveJob()['expiryMail'])->id('email_fetching') !!}
+                            {!! html()->checkbox('expiry_cron', $condition->checkActiveJob()['expiryMail'])->id('email_fetching') ,1 !!}
                             &nbsp;{{ Lang::get('message.enable_expiry-cron') }}
 
                         </div>
@@ -133,7 +133,7 @@
                         <div class="form-group">
                             {!! html()->label(Lang::get('message.delete_activity'))->for('auto_close') !!}
                             <br>
-                            {!! html()->checkbox('activity', 1, $condition->checkActiveJob()['deleteLogs'])->id('auto_close') !!}
+                            {!! html()->checkbox('activity', $condition->checkActiveJob()['deleteLogs'])->id('auto_close') ,1 !!}
                             {{ Lang::get('message.enable_activity_clean') }}
                         </div>
                     </div>
@@ -176,7 +176,7 @@
      )
  !!}
                             <br>
-                            {!! html()->checkbox('subs_expirymail', 1, $condition->checkActiveJob()['subsExpirymail'])
+                            {!! html()->checkbox('subs_expirymail', $condition->checkActiveJob()['subsExpirymail'] ,1)
                                 ->id('sub_fetching')
                             !!}
                             &nbsp; {{ Lang::get('message.enable_expiry-cron') }}
@@ -274,7 +274,7 @@
 
                             <br>
 
-                            {!! html()->checkbox('cloud_cron', 1, $condition->checkActiveJob()['cloud'])
+                            {!! html()->checkbox('cloud_cron', $condition->checkActiveJob()['cloud'] ,1)
                                 ->id('cloud_fetching')
                             !!}
                             &nbsp;{{ Lang::get('Enable Faveo Cloud') }}
@@ -321,7 +321,7 @@
 
                                 <br>
 
-                                {!! html()->checkbox('invoice_cron', $condition->checkActiveJob()['invoice'])
+                                {!! html()->checkbox('invoice_cron', $condition->checkActiveJob()['invoice'], 1)
                                     ->id('invoice_fetching')
                                 !!}
                                 &nbsp; {{ Lang::get('Enable Invoice Deletion') }}

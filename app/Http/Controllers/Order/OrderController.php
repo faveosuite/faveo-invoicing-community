@@ -250,6 +250,8 @@ class OrderController extends BaseOrderController
                 })
                 ->filterColumn('order_status', function ($query, $keyword) {
                     $query->whereRaw('order_status like ?', ["%{$keyword}%"]);
+                })->filterColumn('email', function ($query, $keyword) {
+                    $query->where('email', 'like', "%$keyword%");
                 })
 
                 ->rawColumns(['checkbox', 'date', 'client', 'email', 'mobile', 'country', 'version', 'agents', 'number', 'status', 'plan_name', 'order_status', 'order_date', 'update_ends_at', 'action'])

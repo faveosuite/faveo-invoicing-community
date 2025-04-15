@@ -54,11 +54,10 @@ Payment
            }
 
        </style>
+       <div id="alertMessage"></div>
    <div class="card card-secondary card-outline">
      <div class="card-header">
 
-          <div id="alertMessage"></div>
-          <div id="error1"></div>
            <h5>New Payment</h5>
 
        </div>
@@ -371,12 +370,18 @@ Payment
            $('#alertMessage').show();
            var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
            $('#alertMessage').html(result+ ".");
+             setTimeout(function () {
+                 $('#alertMessage').slideUp();
+             }, 10000);
            $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
          },
          error: function (ex) {
            var errors = ex.responseJSON;
             $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
-              $('#error1').show();
+              $('#alertMessage').show();
+             setTimeout(function () {
+                 $('#alertMessage').slideUp();
+             }, 10000);
            var html = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i>Whoops! </strong>Something went wrong <br><ul>';
 
            for (var key in ex.responseJSON.errors)
@@ -386,8 +391,11 @@ Payment
            html += '</ul></div>';
             $('#alertMessage').hide();
             // $('#alertMessage2').hide();
-           $('#error1').show();
-            document.getElementById('error1').innerHTML = html;
+           $('#alertMessage').show();
+             setTimeout(function () {
+                 $('#alertMessage').slideUp();
+             }, 10000);
+            document.getElementById('alertMessage').innerHTML = html;
 
 
          }

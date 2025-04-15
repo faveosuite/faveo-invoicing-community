@@ -103,7 +103,12 @@ Cart
                                             </th>
                                         </tr>
                                     </thead>
-                                             @forelse($cartCollection as $item)
+                                    <?php
+                                        $sortedCart = $cartCollection->sortBy(function($item) {
+                                            return $item->id;
+                                        });
+                                        ?>
+                                             @forelse($sortedCart as $item)
                                     @php
                                                 if(\Auth::check()) {
                                                 Cart::clearItemConditions($item->id);
@@ -145,8 +150,11 @@ Cart
                                                     </a>
 
                                                     <span class="product-thumbnail-image" >
+                                                        <?php
+                                                            $image = \App\Model\Product\Product::find($item->associatedModel->id)->image;
+                                                            ?>
 
-                                                        <img width="90" height="90" alt="" class="img-fluid" src="{{$item->associatedModel->image}}"  data-bs-toggle="tooltip" title="{{$item->name}}">
+                                                        <img width="90" height="90" alt="" class="img-fluid" src="{{$image}}"  data-bs-toggle="tooltip" title="{{$item->name}}">
                                                     </span>
                                                 </div>
                                             </td>
@@ -168,11 +176,11 @@ Cart
                                                     <td class="product-quantity">
                                                         @if($isAllowedtoEdit['quantity'])
                                                             <div class="quantity">
-                                                                <input type="button" id="quantityminus" class="minus" value="-">
+                                                                <input type="button" class="quantityminus minus" value="-">
                                                                 <input type = "hidden" class="productid" value="{{$item->id}}">
                                                                 <input type = "hidden" class="quatprice" id="quatprice" value=" {{$item->price}}">
                                                                 <input type="text" class="input-text qty text" title="Qty" id="qty" value="{{$item->quantity}}" name="quantity" id="quantity" min="1" step="1" disabled>
-                                                                <input type="button" class="plus" value="+" id="quantityplus" >
+                                                                <input type="button" class="quantityplus plus" value="+">
                                                             </div>
 
 
@@ -187,14 +195,14 @@ Cart
                                                         @else
                                                             @if($isAllowedtoEdit['agent'])
                                                                 <div class="quantity">
-                                                                    <input type="button" id='agentminus' class="minus" value="-">
+                                                                    <input type="button" class="agentminus minus" value="-">
                                                                     <input type="hidden" id="initialagent" value="{{$item->attributes->initialagent}}">
                                                                     <input type = "hidden" class="currency" value="{{$item->attributes->currency}}">
                                                                     <input type = "hidden" class="symbol" value="{{$item->attributes->symbol}}">
                                                                     <input type = "hidden" class="productid" value="{{$item->id}}">
                                                                     <input type = "hidden" class="agentprice" id="agentprice" value=" {{$item->getPriceSum()}}">
                                                                     <input type="text" class="input-text qty text" id="agtqty" title="Qty" value="{{$item->attributes->agents}}" name="quantity" min="1" step="1" disabled>
-                                                                    <input type="button" class="plus" value="+" id="agentplus">
+                                                                    <input type="button" class="agentplus plus" value="+">
                                                                 </div>
 
                                                             @else
@@ -308,10 +316,10 @@ Cart
     <script src="{{asset('client/js/jquery.min.js')}}"></script>
     <script>
         /*
-         * Increase No. Of Agents
-         */
-        $('#agentplus').on('click',function(){
-            var $agtqty=$(this).parents('.quantity').find('.qty');
+        * Increase Agent Qty
+        */
+        $('.agentplus').on('click', function () {
+            var $agtqty = $(this).parents('.quantity').find('.qty');
             var $productid = $(this).parents('.quantity').find('.productid');
             var $agentprice = $(this).parents('.quantity').find('.agentprice');
             var $currency = $(this).parents('.quantity').find('.currency');
@@ -323,8 +331,11 @@ Cart
             var actualAgentPrice = parseInt($agentprice.val());//Get Initial Price of Prduct
             // console.log(productid,currentVal,actualprice);
 
-                var finalAgtqty = $('#agtqty').val(currentAgtQty + 1).val();
-                var finalAgtprice = $('#agentprice').val(actualAgentPrice * finalAgtqty).val();
+            var finalAgtqty = $agtqty.val(currentAgtQty + 1).val();
+            var finalAgtprice = $agentprice.val(actualAgentPrice * finalAgtqty).val();
+
+            var $this = $(this);
+            $this.prop('disabled', true); // disable only the clicked button
 
             $.ajax({
                 type: "POST",
@@ -342,13 +353,13 @@ Cart
         /*
         *Decrease No. of Agents
          */
-        $(document).ready(function(){
-    var currentagtQty = $('#agtqty').val();
-    if (currentagtQty > 1) {
-        $('#agentminus').on('click', function () {
-            if ($(this).prop('disabled')) {
-                return; // Return if the button is disabled
-            }
+        $(document).ready(function () {
+            var currentagtQty = $('.qty').val();
+            if (currentagtQty > 1) {
+                $('.agentminus').on('click', function () {
+                    if ($(this).prop('disabled')) {
+                        return;
+                    }
 
             var $agtqty = $(this).parents('.quantity').find('.qty');
             var $productid = $(this).parents('.quantity').find('.productid');
@@ -361,32 +372,33 @@ Cart
             var currentAgtQty = parseInt($agtqty.val());
             var actualAgentPrice = parseInt($agentprice.val());
 
-            if (!isNaN(currentAgtQty) && currentAgtQty > 1) {
-                var finalAgtqty = $('#agtqty').val(currentAgtQty - 1).val();
-                var finalAgtprice = $('#agentprice').val(actualAgentPrice / 2).val();
-            } else {
-                // If current quantity is 1 or less, don't perform decrement
-                return;
-            }
+                    if (!isNaN(currentAgtQty) && currentAgtQty > 1) {
+                        var finalAgtqty = $agtqty.val(currentAgtQty - 1).val();
+                        var finalAgtprice = $agentprice.val(actualAgentPrice / 2).val();
+                    } else {
+                        return;
+                    }
 
-            $('#agentminus, #agentplus').prop('disabled', true);
-            $.ajax({
-                type: "POST",
-                data: {'productid': productid},
-                beforeSend: function () {
-                    $('#response').html("<img id='blur-bg' class='backgroundfadein' style='width: 50px; height:50 px; display: block; position: fixed;' src='{!! asset('lb-faveo/media/images/gifloader3.gif') !!}'>");
-                },
-                url: "{{url('reduce-agent-qty')}}",
-                success: function () {
-                    location.reload();
-                },
-                complete: function () {
-                    $('#agentminus, #agentplus').prop('disabled', false);
-                }
-            });
+                    var $this = $(this);
+                    $this.prop('disabled', true);
+
+                    $.ajax({
+                        type: "POST",
+                        data: { 'productid': productid },
+                        beforeSend: function () {
+                            $('#response').html("<img id='blur-bg' class='backgroundfadein' style='width: 50px; height:50px; display: block; position: fixed;' src='{!! asset('lb-faveo/media/images/gifloader3.gif') !!}'>");
+                        },
+                        url: "{{url('reduce-agent-qty')}}",
+                        success: function () {
+                            location.reload();
+                        },
+                        complete: function () {
+                            $this.prop('disabled', false);
+                        }
+                    });
+                });
+            }
         });
-    }
-});
 
 
 
@@ -394,15 +406,18 @@ Cart
         /*
         *Increse Product Quantity
          */
-        $('#quantityplus').on('click',function(){
+        $('.quantityplus').on('click', function () {
             var $productid = $(this).parents('.quantity').find('.productid');
-            var productid = parseInt($productid.val()); //get Product Id
-            // console.log(productid,currentVal,actualprice);
+            var productid = parseInt($productid.val());
+
+            var $this = $(this);
+            $this.prop('disabled', true);
+
             $.ajax({
                 type: "POST",
-                data: {'productid':productid},
+                data: { 'productid': productid },
                 beforeSend: function () {
-                    $('#response').html( "<img id='blur-bg' class='backgroundfadein' style='width: 50px; height:50 px; display: block; position:    fixed;' src='{!! asset('lb-faveo/media/images/gifloader3.gif') !!}'>");
+                    $('#response').html("<img id='blur-bg' class='backgroundfadein' style='width: 50px; height:50px; display: block; position: fixed;' src='{!! asset('lb-faveo/media/images/gifloader3.gif') !!}'>");
                 },
                 url: "{{url('update-qty')}}",
                 success: function () {
@@ -411,19 +426,24 @@ Cart
             });
         });
         /*
-         * Reduce Procut Quantity
+         * Reduce Product Quantity
          */
-        $('#quantityminus').on('click',function(){
-            var $qty=$(this).parents('.quantity').find('.qty');
+        $('.quantityminus').on('click', function () {
+            var $qty = $(this).parents('.quantity').find('.qty');
             var $productid = $(this).parents('.quantity').find('.productid');
             var $price = $(this).parents('.quantity').find('.quatprice');
-            var productid = parseInt($productid.val()); //get Product Id
-            var currentQty = parseInt($qty.val()); //Get Current Quantity of Prduct
-            var incraesePrice = parseInt($price.val()); //Get Initial Price of Prduct
+            var productid = parseInt($productid.val());
+            var currentQty = parseInt($qty.val());
+            var incraesePrice = parseInt($price.val());
+
             if (!isNaN(currentQty)) {
-                var finalqty = $('#qty').val(currentQty -1 ).val() ; //Quantity After Increasing
-                var finalprice = $('#quatprice').val(incraesePrice).val(); //Final Price aftr increasing qty
+                var finalqty = $qty.val(currentQty - 1).val();
+                var finalprice = $price.val(incraesePrice).val();
             }
+
+            var $this = $(this);
+            $this.prop('disabled', true);
+
             $.ajax({
                 type: "POST",
                 data: {'productid':productid},

@@ -321,7 +321,10 @@
                                     </div>
                                     <br/>
                                     <div class="col-md-10" id="allowmulagent" style="display:none">
-                                        <p{!! html()->checkbox('can_modify_agent', false,1) !!}{{Lang::get('message.allow_multiple_agents_quantity')}} </p>
+                                        <p>
+                                            {!! html()->checkbox('can_modify_agent', false, 1)->id('can_modify_agent') !!}
+                                            {{ Lang::get('message.allow_multiple_agents_quantity') }}
+                                        </p>
                                     </div>
                                 </td>
                             </div>
