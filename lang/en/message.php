@@ -1155,4 +1155,5 @@ return [
     'github_invalid'=>'Authentication failed. Please check your GitHub username and personal access token.',
     'github_valid'=>'Github settings successfully saved.',
     'pat'=>"Personal Access Token.",
+    'empty_group'=>"No items are available in this Group at the moment, Check out other Groups.",
 ];

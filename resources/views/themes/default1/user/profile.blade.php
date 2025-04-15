@@ -234,7 +234,7 @@ input:checked + .slider:before {
 
 
 
-                        {!! Form::select('country',[Lang::get('message.choose')=>$countries],null,['class' => 'form-control select2'. ($errors->has('country') ? ' is-invalid' : ''),'id'=>'country','onChange'=>'getCountryAttr(this.value)','data-live-search'=>'true','required','data-live-search-placeholder' => 'Search','data-dropup-auto'=>'false','data-size'=>'10','disabled'=>'disabled']) !!}
+                        {!! Form::select('country',[Lang::get('message.choose')=>$countries],null,['class' => 'form-control select2'. ($errors->has('country') ? ' is-invalid' : ''),'id'=>'country','onChange'=>'getCountryAttr(this.value)','data-live-search'=>'true','required','data-live-search-placeholder' => 'Search','data-dropup-auto'=>'false','data-size'=>'10']) !!}
                         <!-- name -->
                         @error('country')
                         <span class="error-message"> {{$message}}</span>
@@ -807,22 +807,7 @@ input:checked + .slider:before {
         }
     });
 
-     addressDropdown.change(function() {
-     telInput.intlTelInput("setCountry", $(this).val());
-             if ($.trim(telInput.val())) {
-            if (validatePhoneNumber(telInput.get(0))) {
-              $('#mobile_code').css("border-color","");
-              errorMsg.classList.add("hide");
-              $('#submit').attr('disabled',false);
-            } else {
-            errorMsg.classList.remove("hide");
-             errorMsg.innerHTML = "Please enter a valid number";
-             $('#mobile_code').css("border-color","red");
-             $('#error-msg').css({"color":"red","margin-top":"5px"});
-             $('#submit').attr('disabled',true);
-            }
-        }
-    });
+
     $('input').on('focus', function () {
         $(this).parent().removeClass('has-error');
     });

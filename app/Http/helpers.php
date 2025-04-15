@@ -368,10 +368,8 @@ function getCurrencyForClient($countryCode)
     $currencyStatus = $country->currency->status;
     if ($currencyStatus) {
         $currency = Currency::where('id', $country->currency_id)->first();
-
         return $currency->code;
     }
-
     return $defaultCurrency;
 }
 

@@ -120,6 +120,11 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return $this->belongsTo(\App\Model\Common\Timezone::class);
     }
 
+    public function auto_renewal()
+    {
+        return $this->hasMany(\App\Auto_renewal::class,'user_id');
+    }
+
     // public function getCreatedAtAttribute($value)
     // {
     //     if (\Auth::user()) {
