@@ -14,12 +14,12 @@ class AdvanceSearchController extends AdminOrderInvoiceController
     public function getregFromTill($join, $reg_from, $reg_till)
     {
         if ($reg_from) {
-            $fromDateStart = date_create($reg_from)->format('Y-m-d') . ' 00:00:00';
+            $fromDateStart = date_create($reg_from)->format('Y-m-d').' 00:00:00';
             $join = $join->where('created_at', '>=', $fromDateStart);
         }
 
         if ($reg_till) {
-            $tillDateEnd = date_create($reg_till)->format('Y-m-d') . ' 23:59:59';
+            $tillDateEnd = date_create($reg_till)->format('Y-m-d').' 23:59:59';
             $join = $join->where('created_at', '<=', $tillDateEnd);
         }
 
