@@ -24,6 +24,7 @@ class WidgetController extends Controller
     {
         try {
             $widgetsCount = Widgets::count();
+
             return view('themes.default1.front.widgets.index', compact('widgetsCount'));
         } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
