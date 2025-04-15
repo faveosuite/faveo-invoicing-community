@@ -275,32 +275,28 @@ trait ApiKeySettings
 
     public function updatepipedriveDetails(Request $request)
     {
-        $pipedriveKey = $request->input('pipedrive_key');
+        try {
+            $pipedriveKey = $request->input('pipedrive_key');
 
-        $url = "https://api.pipedrive.com/v1/users/me?api_token=" . urlencode($pipedriveKey);
+            $response = Http::get("https://api.pipedrive.com/v1/users/me", [
+                'api_token' => $pipedriveKey
+            ]);
+            if (!$response->successful()) {
+                return ['message' => 'fails', 'update' => \Lang::get('message.pipedrive_error')];
+            }
 
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false); // For testing, set to true in production
+            $result = json_decode($response, true);
+            if (isset($result['success']) && $result['success'] !== true) {
+                return ['message' => 'fails', 'update' => \Lang::get('message.pipedrive_error')];
+            }
+            $status = $request->input('status');
+            StatusSetting::find(1)->update(['pipedrive_status' => $status]);
+            ApiKey::find(1)->update(['pipedrive_api_key' => $pipedriveKey]);
 
-        $response = curl_exec($curl);
-        $error = curl_error($curl);
-        curl_close($curl);
-
-        if ($error) {
-            return ['message' => 'error', 'update' => "$error"];
+            return ['message' => 'success', 'update' => \Lang::get('message.pipedrive_setting')];
+        }catch (\Exception $exception){
+            \Log::error($exception->getMessage());
         }
-
-        $result = json_decode($response, true);
-        if (isset($result['success']) && $result['success'] !== true) {
-            return ['message' => 'fails', 'update' => \Lang::get('message.pipedrive_error')];
-        }
-        $status = $request->input('status');
-        StatusSetting::find(1)->update(['pipedrive_status' => $status]);
-        ApiKey::find(1)->update(['pipedrive_api_key' => $pipedriveKey]);
-
-        return ['message' => 'success', 'update' => \Lang::get('message.pipedrive_setting')];
     }
 
     public function updateMailchimpProductStatus(Request $request)
