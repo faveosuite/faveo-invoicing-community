@@ -63,7 +63,7 @@ pipeline {
                     if (!prNumber) {
                         prNumber = sh(script: """
                             curl -s -u ${GITHUB_USER}:${GITHUB_TOKEN} \
-                            "https://api.github.com/repos/ladybirdweb/${repoName}/pulls?head=${GITHUB_USER}:${env.BRANCH_NAME}" \
+                            "https://api.github.com/repos/faveosuite/${repoName}/pulls?head=${GITHUB_USER}:${env.BRANCH_NAME}" \
                             | jq '.[0].number' | tr -d '"'
                         """, returnStdout: true).trim()
                     }
@@ -72,7 +72,7 @@ pipeline {
                     sh """
                     curl -u ${GITHUB_USER}:${GITHUB_TOKEN} \
                          -d '{"state": "${status}", "target_url": "${statusUrl}", "description": "${description}", "context": "Jenkins"}' \
-                         https://api.github.com/repos/ladybirdweb/${repoName}/statuses/${commitSha}
+                         https://api.github.com/repos/faveosuite/${repoName}/statuses/${commitSha}
                     """
 
                     // Close the pull request if the build fails
@@ -81,7 +81,7 @@ pipeline {
                         sh """
                         curl -X PATCH -u ${GITHUB_USER}:${GITHUB_TOKEN} \
                              -d '{"state": "closed"}' \
-                             https://api.github.com/repos/ladybirdweb/${repoName}/pulls/${prNumber}
+                             https://api.github.com/repos/faveosuite/${repoName}/pulls/${prNumber}
                         """
                     }
                 }
