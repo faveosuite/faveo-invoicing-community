@@ -54,12 +54,12 @@
                                 <label for="status">Status</label>
                                 <select name="status" class="form-control">
                                     <option value="">Select Status</option>
-                                    <option value="0" {{ request('status') === '0' ? 'selected' : '' }}>{{ __('message.pending') }}</option>
-                                    <option value="1" {{ request('status') === '1' ? 'selected' : '' }}>{{ __('message.delivered') }}</option>
-                                    <option value="2" {{ request('status') === '2' ? 'selected' : '' }}>{{ __('message.failed') }}</option>
-                                    <option value="9" {{ request('status') === '9' ? 'selected' : '' }}>{{ __('message.ndnc') }}</option>
-                                    <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>{{ __('message.rejected') }}</option>
-                                    <option value="17" {{ request('status') === '17' ? 'selected' : '' }}>{{ __('message.blocked_number') }}</option>
+                                    @foreach($status as $value)
+                                        <option value="{{ $value->status_code }}"
+                                                {{ request('status') === (string) $value->status_code ? 'selected' : '' }}>
+                                            {{ $value->status_label }}
+                                        </option>
+                                    @endforeach
                                 </select>
                             </div>
                             <div class="col-md-3 form-group">

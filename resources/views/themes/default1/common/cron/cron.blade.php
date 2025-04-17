@@ -67,6 +67,7 @@ Cron Setting
                    $postExpiry_status = \App\Model\Common\StatusSetting::pluck('post_expirymail')->first();
                    $cloudStatus = \App\Model\Common\StatusSetting::pluck('cloud_mail_status')->first();
                    $invoiceStatus = \App\Model\Common\StatusSetting::pluck('invoice_deletion_status')->first();
+                   $msg91Status = \App\Model\Common\StatusSetting::pluck('msg91_report_delete_status')->first();
                   ?>
          <div class="card-header">
              <h3 class="card-title">{{Lang::get('message.set_cron_period')}}  </h3>
@@ -224,6 +225,21 @@ Cron Setting
 
 
 
+              <div class="col-md-6">
+                  <div class="form-group">
+                      <label>{{ __('message.delete_msg_reports') }}</label>
+                      @if ($msg91Status == 0)
+                          <select name="msg91_days" class="form-control selectpicker"   style="width: 100%; color:black;" disabled>
+                              <option value="">{{ __('message.please_enable_cron_deletion') }}</option>
+                          </select>
+                      @else
+                          <select name="msg91_days" class="form-control selectpicker" data-live-search="true" data-live-search-placeholder="Search" style="width: 100%;">
+                              @foreach ($msg91Days as $key=>$value)
+                                  <option value="{{$key}}" <?php echo (in_array($key, $msgDeletionDays)) ?  "selected" : "" ;  ?>>{{$value}}</option>
+                              @endforeach
+                          </select>
+                      @endif
+                  </div>
 
 
               <!-- /.form-group -->

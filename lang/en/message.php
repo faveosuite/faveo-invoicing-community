@@ -1242,4 +1242,8 @@ return [
     'rejected' => 'Rejected',
     'blocked_number' => 'Blocked number',
     'user' => 'User',
+
+    'enable_msg_cron' => 'Enable Msg91 Reports Deletion',
+    'delete_msg_reports' => 'Delete Msg91 Reports Older than..',
+    'please_enable_cron_deletion' => 'Please Enable Msg Reports Deletion Cron',
 ];

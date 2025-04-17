@@ -21,21 +21,11 @@ class MsgDeliveryReports extends Model
         'country_iso',
         'mobile_code',
     ];
-    protected $appends = ['readable_status', 'formatted_sender_id'];
+    protected $appends = ['formatted_sender_id'];
 
-    const STATUS_MAP = [
-        '0' => 'Pending',
-        '1' => 'Delivered',
-        '2' => 'Failed',
-        '9' => 'NDNC',
-        '16' => 'Rejected',
-        '25' => 'Rejected',
-        '17' => 'Blocked number',
-    ];
-
-    public function getReadableStatusAttribute()
+    public function readableStatus()
     {
-        return self::STATUS_MAP[$this->status] ?? $this->status;
+        return $this->belongsTo(Msg91Status::class, 'status', 'status_code');
     }
 
     public function getFormattedSenderIdAttribute()

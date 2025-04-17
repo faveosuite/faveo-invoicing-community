@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Common;
 
+use App\Model\Common\MsgDeliveryReports;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;
 use App\Model\Mailjob\ExpiryMailDay;
@@ -504,6 +505,21 @@ class CronController extends BaseCronController
 
             // Delete the Invoice record
             $invoice->delete();
+        });
+    }
+
+    public function msgDeletions()
+    {
+        if (StatusSetting::value('msg91_report_delete_status') != 1) {
+            return;
+        }
+
+        $days = ExpiryMailDay::value('msg91_days');
+
+        $date = Carbon::now()->subDays($days)->toDateString();
+
+        \DB::transaction(function () use ($date) {
+            MsgDeliveryReports::whereDate('created_at', '<=', $date)->delete();
         });
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Common;
 
 use App\ApiKey;
 use App\Http\Controllers\Controller;
+use App\Model\Common\Msg91Status;
 use App\Model\Common\MsgDeliveryReports;
 use App\ThirdPartyApp;
 use Carbon\Carbon;
@@ -31,24 +32,21 @@ class MSG91Controller extends Controller
             $jsonData = $request->input('data');
 
             // Ensure data is an array
-            $reports = is_string($jsonData) ? json_decode($jsonData, true) : $jsonData;
+            $reports = is_string($jsonData) ? collect(json_decode($jsonData, true)) : collect($jsonData);
 
             // Process each report
             \DB::transaction(function () use ($reports) {
-                foreach ($reports as $reportGroup) {
-                    $requestId = $reportGroup['requestId'];
-
-                    // Process individual number reports
-                    foreach ($reportGroup['report'] as $singleReport) {
+                $reports->each(function ($reportGroup) {
+                    $reportGroup['report']->each(function ($singleReport) use ($reportGroup) {
                         $this->processIndividualReport([
-                            'request_id' => $requestId,
+                            'request_id' => $reportGroup['requestId'],
                             'number' => $singleReport['number'],
                             'status' => $singleReport['status'],
                             'date' => $singleReport['date'] ?? now()->toDateTimeString(),
                             'failure_reason' => $singleReport['failedReason'] ?? null,
                         ]);
-                    }
-                }
+                    });
+                });
             });
         } catch (\Exception $e) {
             \Log::error('Error processing MSG91 reports: '.$e->getMessage());
@@ -91,7 +89,8 @@ class MSG91Controller extends Controller
 
     public function msg91Reports()
     {
-        return view('themes.default1.common.sms.msgReports');
+        $status = Msg91Status::orderBy('status_label')->get();
+        return view('themes.default1.common.sms.msgReports', compact('status'));
     }
 
     public function getMsg91Reports(Request $request)
@@ -109,7 +108,7 @@ class MSG91Controller extends Controller
                 return $model->user ? $model->user->email : '---';
             })
             ->addColumn('readable_status', function ($model) {
-                return $model->readable_status;
+                return $model->readableStatus ? $model->readableStatus->status_label : '---';
             })
             ->addColumn('date', function ($model) {
                 return $model->date ? getDateHtml($model->date) : '---';
@@ -135,8 +134,12 @@ class MSG91Controller extends Controller
             ->filterColumn('request_id', function ($query, $keyword) {
                 $query->where('request_id', 'like', "%{$keyword}%");
             })
-            ->filterColumn('readable_status', function ($query, $keyword) {
-                $query->where('status', 'like', "%{$keyword}%");
+            ->filterColumn('status', function ($query, $keyword) {
+                $normalizedKeyword = ucfirst(strtolower($keyword));
+
+                $query->whereHas('readableStatus', function ($subQuery) use ($normalizedKeyword) {
+                    $subQuery->where('status_label', 'like', "%{$normalizedKeyword}%");
+                });
             })
             ->filterColumn('date', function ($query, $keyword) {
                 $query->where('date', 'like', "%{$keyword}%");
@@ -151,7 +154,11 @@ class MSG91Controller extends Controller
             // Sorting
             ->orderColumn('request_id', 'request_id $1')
             ->orderColumn('mobile_number', 'mobile_number $1')
-            ->orderColumn('readable_status', 'status $1')
+            ->orderColumn('status', function ($query, $direction) {
+                $query->leftJoin('msg91_statuses as ms', 'msg_delivery_reports.status', '=', 'ms.status_code')
+                    ->orderBy('ms.status_label', $direction)
+                    ->select('msg_delivery_reports.*');
+            })
             ->orderColumn('date', 'date $1')
             ->orderColumn('failure_reason', 'failure_reason $1')
             ->orderColumn('user.full_name', function ($query, $direction) {
@@ -171,7 +178,7 @@ class MSG91Controller extends Controller
 
     public function msg91ReportQuery(Request $request)
     {
-        $query = MsgDeliveryReports::with(['user']);
+        $query = MsgDeliveryReports::with(['user', 'readableStatus']);
 
         // Individual field filters
         $query->when($request->filled('request_id'), fn ($q) => $q->where('request_id', 'like', '%'.$request->input('request_id').'%'));
@@ -191,13 +198,9 @@ class MSG91Controller extends Controller
         $query->when($request->filled('failure_reason'), fn ($q) => $q->where('failure_reason', 'like', '%'.$request->input('failure_reason').'%'));
 
         $query->when($request->filled('status'), function ($q) use ($request) {
-            $status = $request->input('status');
-
-            if ($status === 'rejected') {
-                $q->whereIn('status', [16, 25]);
-            } else {
-                $q->where('status', $status);
-            }
+            $q->whereHas('readableStatus', function ($subQuery) use ($request) {
+                $subQuery->where('status_code', 'like', '%' . $request->input('status') . '%');
+            });
         });
 
         $query->when($request->filled('date_from'), function ($q) use ($request) {

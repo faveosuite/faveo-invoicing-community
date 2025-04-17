@@ -213,6 +213,9 @@ class BaseSettingsController extends PaymentSettingsController
             '1' => '1 day',
         ];
 
+        $msg91Days = ['720' => '720 Days', '365' => '365 days', '180' => '180 Days',
+            '150' => '150 Days', '60' => '60 Days', '30' => '30 Days', '15' => '15 Days', '5' => '5 Days', '2' => '2 Days', '0' => 'Delete All Logs', ];
+
         $selectedDays = [];
         $daysLists = ExpiryMailDay::get();
         if (count($daysLists) > 0) {
@@ -228,6 +231,7 @@ class BaseSettingsController extends PaymentSettingsController
         $post_expiryday[] = json_decode(ExpiryMailDay::first()->postexpiry_days, true);
         $beforeCloudDay[] = ExpiryMailDay::first()->cloud_days;
         $invoiceDeletionDay[] = ExpiryMailDay::first()->invoice_days;
+        $msgDeletionDays[] = ExpiryMailDay::first()->msg91_days;
 
         return view('themes.default1.common.cron.cron', compact(
             'cronPath',
@@ -248,7 +252,9 @@ class BaseSettingsController extends PaymentSettingsController
             'cloudDays',
             'beforeCloudDay',
             'invoiceDays',
-            'invoiceDeletionDay'
+            'invoiceDeletionDay',
+            'msg91Days',
+            'msgDeletionDays'
         ));
     }
 
@@ -277,6 +283,7 @@ class BaseSettingsController extends PaymentSettingsController
         }
         $allStatus->cloud_mail_status = $request->cloud_cron ? $request->cloud_cron : 0;
         $allStatus->invoice_deletion_status = $request->invoice_cron ? $request->invoice_cron : 0;
+        $allStatus->msg91_report_delete_status = $request->msg91_cron ? $request->msg91_cron : 0;
         $allStatus->save();
         $this->saveConditions();
 
@@ -297,7 +304,7 @@ class BaseSettingsController extends PaymentSettingsController
 
         // $cloudDays = is_array($request->input('cloud_days')) ? $request->input('cloud_days') : [$request->input('cloud_days')];
 
-        \DB::table('expiry_mail_days')->update(['cloud_days' => $request->input('cloud_days'), 'invoice_days' => $request->input('invoice_days')]);
+        \DB::table('expiry_mail_days')->update(['cloud_days' => $request->input('cloud_days'), 'invoice_days' => $request->input('invoice_days'), 'msg91_days' => $request->input('msg91_days')]);
         ActivityLogDay::findOrFail(1)->update(['days' => $request->logdelday]);
 
         return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
