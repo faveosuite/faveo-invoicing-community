@@ -156,7 +156,7 @@ class MSG91ControllerTest extends DBTestCase
                     && $arg['date'] === '2025-04-10 10:00:00';
             }));
 
-        $request = Request::create('/webhook', 'POST', [
+        $request = Request::create('/msg/reports', 'POST', [
             'app_key' => 'k',
             'app_secret' => 's',
             'data' => json_encode($reportsPayload),

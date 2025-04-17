@@ -37,7 +37,7 @@ class MSG91Controller extends Controller
             // Process each report
             \DB::transaction(function () use ($reports) {
                 $reports->each(function ($reportGroup) {
-                    $reportGroup['report']->each(function ($singleReport) use ($reportGroup) {
+                    collect($reportGroup['report'])->each(function ($singleReport) use ($reportGroup) {
                         $this->processIndividualReport([
                             'request_id' => $reportGroup['requestId'],
                             'number' => $singleReport['number'],
@@ -50,7 +50,6 @@ class MSG91Controller extends Controller
             });
         } catch (\Exception $e) {
             \Log::error('Error processing MSG91 reports: '.$e->getMessage());
-
             return;
         }
     }
