@@ -90,6 +90,7 @@ class MSG91Controller extends Controller
     public function msg91Reports()
     {
         $status = Msg91Status::orderBy('status_label')->get();
+
         return view('themes.default1.common.sms.msgReports', compact('status'));
     }
 
@@ -199,7 +200,7 @@ class MSG91Controller extends Controller
 
         $query->when($request->filled('status'), function ($q) use ($request) {
             $q->whereHas('readableStatus', function ($subQuery) use ($request) {
-                $subQuery->where('status_code', 'like', '%' . $request->input('status') . '%');
+                $subQuery->where('status_code', 'like', '%'.$request->input('status').'%');
             });
         });
 

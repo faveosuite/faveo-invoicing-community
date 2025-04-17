@@ -3,9 +3,6 @@
 namespace App\Console\Commands;
 
 use App\Http\Controllers\Common\CronController;
-use App\Model\Common\MsgDeliveryReports;
-use App\Model\Mailjob\ExpiryMailDay;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class CleanupMsg91Reports extends Command
@@ -31,6 +28,6 @@ class CleanupMsg91Reports extends Command
     {
         $controller = new CronController();
         $controller->msgDeletions();
-        $this->info("MSG91 reports have been deleted.");
+        $this->info('MSG91 reports have been deleted.');
     }
 }

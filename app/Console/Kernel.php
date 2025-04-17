@@ -124,7 +124,7 @@ class Kernel extends ConsoleKernel
                         return $this->getCondition($schedule->command('invoices:delete'), $command);
                     }
                 case 'msg91Reports':
-                    if(isset($msgDeletionStatus) && $msgDeletionStatus) {
+                    if (isset($msgDeletionStatus) && $msgDeletionStatus) {
                         return $this->getCondition($schedule->command('cleanup:msg-reports'), $command);
                     }
             }
