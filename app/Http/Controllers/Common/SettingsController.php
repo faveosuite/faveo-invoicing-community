@@ -6,12 +6,11 @@ use App\ApiKey;
 use App\Email_log;
 use App\Facades\Attach;
 use App\Http\Requests\Common\SettingsRequest;
-use App\ThirdPartyApp;
 use App\Model\Common\Mailchimp\MailchimpSetting;
-use App\Model\Github\Github;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;
+use App\Model\Github\Github;
 use App\Model\Mailjob\QueueService;
 use App\Model\Order\Order;
 use App\Model\Payment\Currency;
@@ -73,51 +72,51 @@ class SettingsController extends BaseSettingsController
      */
     public function licensekeys(ApiKey $apikeys)
     {
-        [$licenseSecret, $licenseUrl,$licenseClientId,$licenseClientSecret,$licenseGrantType] = array_values($apikeys->select( 'license_api_secret',
-            'license_api_url','license_client_id','license_client_secret','license_grant_type')->first()->toArray());
-        $data=[
+        [$licenseSecret, $licenseUrl,$licenseClientId,$licenseClientSecret,$licenseGrantType] = array_values($apikeys->select('license_api_secret',
+            'license_api_url', 'license_client_id', 'license_client_secret', 'license_grant_type')->first()->toArray());
+        $data = [
             'licenseGrantType' => $licenseGrantType,
             'licenseSecret' => $licenseSecret,
             'licenseClientId' => $licenseClientId,
             'licenseClientSecret' => $licenseClientSecret,
             'licenseUrl' => $licenseUrl,
         ];
-        return successResponse('',$data);
 
+        return successResponse('', $data);
     }
 
     public function googleCaptcha(ApiKey $apikeys)
     {
-        [$captchaStatus, $v3CaptchaStatus] = array_values(StatusSetting::select( 'recaptcha_status', 'v3_recaptcha_status')->first()->toArray());
-        [$siteKey, $secretKey] = array_values($apikeys->select( 'nocaptcha_sitekey', 'captcha_secretCheck')->first()->toArray());
-        $data=[
+        [$captchaStatus, $v3CaptchaStatus] = array_values(StatusSetting::select('recaptcha_status', 'v3_recaptcha_status')->first()->toArray());
+        [$siteKey, $secretKey] = array_values($apikeys->select('nocaptcha_sitekey', 'captcha_secretCheck')->first()->toArray());
+        $data = [
             'captchaStatus' => $captchaStatus,
             'v3CaptchaStatus' => $v3CaptchaStatus,
             'siteKey' => $siteKey,
             'secretKey' => $secretKey,
         ];
-        return successResponse('',$data);
 
+        return successResponse('', $data);
     }
 
     public function mobileVerification(ApiKey $apikeys)
     {
-        [$mobileauthkey,$msg91Sender,$msg91TemplateId] = array_values($apikeys->select( 'msg91_auth_key', 'msg91_sender','msg91_template_id')->first()->toArray());
+        [$mobileauthkey,$msg91Sender,$msg91TemplateId] = array_values($apikeys->select('msg91_auth_key', 'msg91_sender', 'msg91_template_id')->first()->toArray());
 
-        $data=[
+        $data = [
             'mobileauthkey' => $mobileauthkey,
             'msg91Sender' => $msg91Sender,
             'msg91TemplateId' => $msg91TemplateId,
         ];
-        return successResponse('',$data);
 
+        return successResponse('', $data);
     }
 
     public function mailchimpKeys(ApiKey $apikeys)
     {
         $mailchimpSetting = StatusSetting::pluck('mailchimp_status')->first();
 
-        [$mailchimpKey, $subscribe_status] = array_values(MailchimpSetting::select( 'api_key','subscribe_status')->first()->toArray());
+        [$mailchimpKey, $subscribe_status] = array_values(MailchimpSetting::select('api_key', 'subscribe_status')->first()->toArray());
 
         $mailchimp_set = new MailchimpSetting();
         $set = $mailchimp_set->firstOrFail();
@@ -139,26 +138,26 @@ class SettingsController extends BaseSettingsController
             $selectedList = [];
         }
 
-       $data=[
+        $data = [
             'mailchimpSetting' => $mailchimpSetting,
             'mailchimpKey' => $mailchimpKey,
             'allLists' => $allists,
             'selectedList' => $selectedList,
             'subscribe_status' => $subscribe_status,
         ];
-        return successResponse('',$data);
 
+        return successResponse('', $data);
     }
 
     public function termsUrl(ApiKey $apikeys)
     {
         $termsUrl = $apikeys->value('terms_url');
 
-     $data=[
+        $data = [
             'termsUrl' => $termsUrl,
         ];
-        return successResponse('',$data);
 
+        return successResponse('', $data);
     }
 
     public function twitterkeys(ApiKey $apikeys)
@@ -166,36 +165,36 @@ class SettingsController extends BaseSettingsController
         $twitterKeys = $apikeys->select('twitter_consumer_key', 'twitter_consumer_secret',
             'twitter_access_token', 'access_tooken_secret')->first();
 
-        $data=[
+        $data = [
             'twitterkeys' => $twitterKeys,
 
         ];
-        return successResponse('',$data);
 
+        return successResponse('', $data);
     }
 
     public function zohokeys(ApiKey $apikeys)
     {
-        $zohoKey =  $apikeys->value('zoho_api_key');
+        $zohoKey = $apikeys->value('zoho_api_key');
 
-        $data=[
+        $data = [
             'zohoKey' => $zohoKey,
 
         ];
-        return successResponse('',$data);
 
+        return successResponse('', $data);
     }
 
     public function pipedrivekeys(ApiKey $apikeys)
     {
         $pipedriveKey = $apikeys->value('pipedrive_api_key');
 
-        $data=[
+        $data = [
             'pipedriveKey' => $pipedriveKey,
 
         ];
-        return successResponse('',$data);
 
+        return successResponse('', $data);
     }
 
     public function githubkeys(ApiKey $apikeys)
@@ -205,20 +204,20 @@ class SettingsController extends BaseSettingsController
             $github = $model->firstOrFail();
             $githubStatus = StatusSetting::first()->github_status;
             $githubFileds = $github->select('client_id', 'client_secret', 'username', 'password')->first();
-            $data=[
+            $data = [
                 'githubFileds' => $githubFileds,
 
             ];
-            return successResponse('',$data);
 
-        }catch (\Exception $e){
+            return successResponse('', $data);
+        } catch (\Exception $e) {
             \Log::error($e->getMessage());
-            $data=[
+            $data = [
                 'githubFileds' => '',
 
             ];
-            return successResponse('',$data);
 
+            return successResponse('', $data);
         }
     }
 
@@ -275,15 +274,16 @@ class SettingsController extends BaseSettingsController
             $model = new Github();
             $github = $model->firstOrFail();
             $githubStatus = StatusSetting::first()->github_status;
+
             return view('themes.default1.common.apikey', compact('model', 'status', 'licenseSecret', 'licenseUrl', 'siteKey', 'secretKey', 'captchaStatus', 'v3CaptchaStatus', 'updateStatus', 'updateSecret', 'updateUrl', 'mobileStatus', 'mobileauthkey', 'msg91Sender', 'msg91TemplateId', 'emailStatus', 'twitterStatus', 'twitterKeys', 'zohoStatus', 'zohoKey', 'rzpStatus', 'rzpKeys', 'mailchimpSetting', 'mailchimpKey', 'termsStatus', 'termsUrl', 'pipedriveKey', 'pipedriveStatus', 'domainCheckStatus', 'mailSendingStatus',
-                'licenseClientId', 'licenseClientSecret', 'licenseGrantType','allists', 'selectedList','set','githubStatus'));
+                'licenseClientId', 'licenseClientSecret', 'licenseGrantType', 'allists', 'selectedList', 'set', 'githubStatus'));
         } catch (\Exception $ex) {
             return redirect('/')->with('fails', $ex->getMessage());
         }
     }
 
-
-    public function getDataTableData(Request $request){
+    public function getDataTableData(Request $request)
+    {
         $status = StatusSetting::pluck('license_status')->first();
         $mobileStatus = StatusSetting::pluck('msg91_status')->first();
         $captchaStatus = StatusSetting::pluck('recaptcha_status')->first();
