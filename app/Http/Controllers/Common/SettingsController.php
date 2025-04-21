@@ -212,7 +212,6 @@ class SettingsController extends BaseSettingsController
             return successResponse('',$data);
 
         }catch (\Exception $e){
-            \Log::error($e->getMessage());
             $data=[
                 'githubFileds' => '',
 
@@ -284,18 +283,18 @@ class SettingsController extends BaseSettingsController
 
 
     public function getDataTableData(Request $request){
-        $status = StatusSetting::pluck('license_status')->first();
-        $mobileStatus = StatusSetting::pluck('msg91_status')->first();
-        $captchaStatus = StatusSetting::pluck('recaptcha_status')->first();
-        $v3CaptchaStatus = StatusSetting::pluck('v3_recaptcha_status')->first();
-        $twitterStatus = $this->statusSetting->pluck('twitter_status')->first();
-        $zohoStatus = $this->statusSetting->pluck('zoho_status')->first();
-        $pipedriveStatus = StatusSetting::pluck('pipedrive_status')->first();
-        $domainCheckStatus = StatusSetting::pluck('domain_check')->first();
-        $githubStatus = StatusSetting::first()->github_status;
-        $mailchimpSetting = StatusSetting::pluck('mailchimp_status')->first();
-        $termsStatus = StatusSetting::pluck('terms')->first();
-        $v3_v2_recaptcha_status = StatusSetting::pluck('v3_v2_recaptcha_status')->first();
+        $status = $this->statusSetting->value('license_status');
+        $mobileStatus =$this->statusSetting->value('msg91_status');
+        $captchaStatus = $this->statusSetting->value('recaptcha_status');
+        $v3CaptchaStatus = $this->statusSetting->value('v3_recaptcha_status');
+        $twitterStatus = $this->statusSetting->value('twitter_status');
+        $zohoStatus = $this->statusSetting->value('zoho_status');
+        $pipedriveStatus = $this->statusSetting->value('pipedrive_status');
+        $domainCheckStatus = $this->statusSetting->value('domain_check');
+        $githubStatus = $this->statusSetting->first()->github_status;
+        $mailchimpSetting = $this->statusSetting->value('mailchimp_status');
+        $termsStatus = $this->statusSetting->value('terms');
+        $v3_v2_recaptcha_status = $this->statusSetting->value('v3_v2_recaptcha_status');
         $checkboxValue = $v3_v2_recaptcha_status ? '1' : '0';
         $checked = $v3_v2_recaptcha_status ? 'checked' : '';
 

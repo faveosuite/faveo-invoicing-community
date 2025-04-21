@@ -202,7 +202,6 @@ trait ApiKeySettings
             return successResponse(\Lang::get('message.pipedrive_setting'));
 
         }catch (\Exception $exception){
-            \Log::error($exception->getMessage());
             return errorResponse(\Lang::get('message.pipedrive_error'));
 
         }
@@ -252,10 +251,9 @@ trait ApiKeySettings
                     'subscribe_status' => $subscribe_status,];
                 return successResponse(\Lang::get('message.mailchimp_setting'),$data);
 
-            } else {
-                $status = $request->input('status');
-                return errorResponse(\Lang::get('message.mailchimp_apikey_error'));
             }
+                return errorResponse(\Lang::get('message.mailchimp_apikey_error'));
+
         } catch(\Exception $e) {
             return errorResponse(\Lang::get('message.mailchimp_apikey_error'));
         }
