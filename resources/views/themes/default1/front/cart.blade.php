@@ -118,7 +118,9 @@ Cart
 
 
                                               }
+
                                                  $cartTotal += $item->getPriceSum();;
+
                                                   $domain = [];
 
                                                   if ($item->associatedModel->require_domain) {
@@ -157,7 +159,6 @@ Cart
                                                 <br>
                                                 <i style="font-size: 12px;">{{$item->attributes->domain}}</i>
                                             </td>
-
                                             <td class="product-price">
 
                                                 <span class="amount font-weight-medium text-color-grey">{{currencyFormat($item->price,$code = $item->attributes->currency)}}</span>
@@ -242,7 +243,6 @@ Cart
                                                 <td>
                                                     <strong class="text-color-dark text-3-5" style="font-family: Arial;">Total</strong>
                                                 </td>
-
                                                 <td class="text-end">
                                                     <strong class="text-color-dark"><span class="amount text-color-dark text-5"> {{currencyFormat($cartTotal, $item->attributes->currency)}}</span></strong>
                                                 </td>

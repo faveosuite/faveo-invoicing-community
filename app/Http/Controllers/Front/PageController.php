@@ -514,12 +514,11 @@ class PageController extends Controller
         ")
                 )
                 ->orderBy('products.id')
-                ->orderBy('currency_priority') // prioritize best currency
+                ->orderBy('currency_priority')
                 ->orderByRaw('CAST(plan_prices.add_price AS DECIMAL(10, 2)) ASC')
                 ->orderBy('plans.created_at', 'ASC')
                 ->get()
-                ->unique('id'); // Keeps only one (best) plan per product
-
+                ->unique('id');
 
             $trasform = [];
             $templates = $this->getTemplateOne($productsRelatedToGroup, $trasform);
@@ -593,7 +592,6 @@ class PageController extends Controller
                     'subscription' => $product->type == 4 ? '' : $temp_controller->plans($product->shoping_cart_link, $productId),
                     'url' => $this->generateProductUrl($product, $orderButton, $highlight),
                 ];
-
             }
             $data = PricingTemplate::findOrFail(1)->data;
             return $this->transformTemplate('cart', $data, $trasform);

@@ -210,7 +210,7 @@ input:checked + .slider:before {
                     <div class="col-md-6 form-group {{ $errors->has('town') ? 'has-error' : '' }}">
                         <!-- mobile -->
                         {!! Form::label('town',Lang::get('message.town')) !!}
-                        {!! Form::text('town',null,['class' => 'form-control'. ($errors->has('town') ? ' is-invalid' : '')]) !!}
+                        {!! Form::text('town',null,['class' => 'form-control'. ($errors->has('town') ? ' is-invalid' : ''),'id'=>'town']) !!}
 
                     </div>
 
@@ -407,13 +407,9 @@ input:checked + .slider:before {
 
 
  @include('themes.default1.user.2faModals')
-
-
         <div class="card card-secondary card-outline">
             <div class="card-header">
                 <h3 class="card-title">{{Lang::get('message.setup_2fa')}}</h3>
-
-
             </div>
 
         <div class="card-body">
@@ -806,6 +802,24 @@ input:checked + .slider:before {
             }
         }
     });
+
+         addressDropdown.change(function() {
+             document.getElementById('town').value='';
+             updateCountryCodeAndFlag(telInput.get(0), addressDropdown.val());
+             if ($.trim(telInput.val())) {
+                 if (validatePhoneNumber(telInput.get(0))) {
+                     $('#mobile_code').css("border-color","");
+                     errorMsg.classList.add("hide");
+                     $('#submit').attr('disabled',false);
+                 } else {
+                     errorMsg.classList.remove("hide");
+                     errorMsg.innerHTML = @json(trans('message.user_edit_details.add_valid_phone'));
+                     $('#mobile_code').css("border-color", "#dc3545");
+                     $('#error-msg').css({"color": "#dc3545", "margin-top": "5px", "font-size": "80%"});
+                 }
+             }
+         });
+
 
 
     $('input').on('focus', function () {

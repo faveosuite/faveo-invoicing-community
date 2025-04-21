@@ -140,7 +140,6 @@ class LoginController extends Controller
                 'login' => 'Authentication failed. Please try again.',
             ]);
         }
-
         $this->convertCart();
 
         activity()->log('Logged In');
