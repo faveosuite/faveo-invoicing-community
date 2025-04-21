@@ -518,8 +518,6 @@ class CronController extends BaseCronController
 
         $date = Carbon::now()->subDays($days)->toDateString();
 
-        \DB::transaction(function () use ($date) {
-            MsgDeliveryReports::whereDate('created_at', '<=', $date)->delete();
-        });
+        MsgDeliveryReports::whereDate('created_at', '<=', $date)->delete();
     }
 }

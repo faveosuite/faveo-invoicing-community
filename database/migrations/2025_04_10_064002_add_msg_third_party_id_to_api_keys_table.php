@@ -27,6 +27,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('api_keys', function (Blueprint $table) {
+            $table->dropForeign(['msg91_third_party_id']);
             $table->dropColumn('msg91_third_party_id');
         });
     }

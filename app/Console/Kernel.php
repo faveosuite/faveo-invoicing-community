@@ -92,7 +92,7 @@ class Kernel extends ConsoleKernel
             $invoiceDeletionstatus = StatusSetting::pluck('invoice_deletion_status')->first();
             $delLogDays = ActivityLogDay::pluck('days')->first();
             if (\Schema::hasColumn('status_settings', 'msg91_report_delete_status')) {
-                $msgDeletionStatus = StatusSetting::pluck('msg91_report_delete_status')->first();
+                $msgDeletionStatus = StatusSetting::value('msg91_report_delete_status');
             }
             if ($delLogDays == null) {
                 $delLogDays = 99999999;

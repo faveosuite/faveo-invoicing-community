@@ -34,18 +34,15 @@ class MSG91Controller extends Controller
             // Ensure data is an array
             $reports = is_string($jsonData) ? collect(json_decode($jsonData, true)) : collect($jsonData);
 
-            // Process each report
-            \DB::transaction(function () use ($reports) {
-                $reports->each(function ($reportGroup) {
-                    collect($reportGroup['report'])->each(function ($singleReport) use ($reportGroup) {
-                        $this->processIndividualReport([
-                            'request_id' => $reportGroup['requestId'],
-                            'number' => $singleReport['number'],
-                            'status' => $singleReport['status'],
-                            'date' => $singleReport['date'] ?? now()->toDateTimeString(),
-                            'failure_reason' => $singleReport['failedReason'] ?? null,
-                        ]);
-                    });
+            $reports->each(function ($reportGroup) {
+                collect($reportGroup['report'])->each(function ($singleReport) use ($reportGroup) {
+                    $this->processIndividualReport([
+                        'request_id' => $reportGroup['requestId'],
+                        'number' => $singleReport['number'],
+                        'status' => $singleReport['status'],
+                        'date' => $singleReport['date'] ?? now()->toDateTimeString(),
+                        'failure_reason' => $singleReport['failedReason'] ?? null,
+                    ]);
                 });
             });
         } catch (\Exception $e) {
@@ -62,15 +59,12 @@ class MSG91Controller extends Controller
      */
     protected function processIndividualReport(array $reportData)
     {
-        $record = MsgDeliveryReports::where('request_id', $reportData['request_id'])->first();
-
-        if ($record) {
-            $record->update([
+        MsgDeliveryReports::where('request_id', $reportData['request_id'])
+            ->update([
                 'status' => $reportData['status'],
                 'date' => $reportData['date'],
                 'failure_reason' => $reportData['failure_reason'],
             ]);
-        }
     }
 
     public function updateOtpRequest($requestId, $status, $country_iso, $mobile, $mobile_code, $userID = null)
