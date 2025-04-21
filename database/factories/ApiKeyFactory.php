@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use App\ApiKey;
+
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\ApiKey>
  */

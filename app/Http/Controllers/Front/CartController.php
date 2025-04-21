@@ -91,6 +91,7 @@ class CartController extends BaseCartController
                 $items = $this->addProduct($id, $domain);
                 \Cart::add($items); //Add Items To the Cart Collection
             }
+
             return redirect('show/cart');
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
@@ -116,7 +117,6 @@ class CartController extends BaseCartController
             $agents = 0; //Unlmited Agents
             if (\Session::has('plan_id')) { //If a plan is selected from dropdown in pricing page, this is true
                 $planid = \Session::get('plan_id');
-
             } else {
                 $planid = Plan::where('product', $id)->pluck('id')->first();
             }
@@ -182,6 +182,7 @@ class CartController extends BaseCartController
                     ->with('warning', 'You have an unpaid invoice for this product. Please proceed with the payment or delete the invoice and try again');
                 }
             }
+
             return view('themes.default1.front.cart', compact('cartCollection'));
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
@@ -218,6 +219,7 @@ class CartController extends BaseCartController
         Cart::removeConditionsByType('tax');
         Cart::removeConditionsByType('coupon');
         Cart::clearItemConditions($id);
+
         return 'success';
     }
 
@@ -252,6 +254,7 @@ class CartController extends BaseCartController
     {
         try {
             $cost = $this->planCost($productid, $userid, $planid, $admin);
+
             return $cost;
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
@@ -281,7 +284,7 @@ class CartController extends BaseCartController
                     $countryids = \App\Model\Common\Country::where('country_code_char2', $country)->value('country_id');
                     $currencyAndSymbol = getCurrencyForClient($country);
                 }
-                if (\Auth::user()){
+                if (\Auth::user()) {
                     if ($userid == '') {
                         $country = \Auth::user()->country;
                     } else {
@@ -298,7 +301,7 @@ class CartController extends BaseCartController
                     } else {
                         $currency = userCurrencyAndPrice('', $plan);
                     }
-                    if (!$admin) {
+                    if (! $admin) {
                         $offerprice = PlanPrice::where('plan_id', $plan->id)->where('currency', $currency)->value('offer_price');
                         if (\Session::get('toggleState') == 'yearly' || \Session::get('toggleState') == null) {
                             $id = $currencyQuery->whereIn('days', [365, 366])->value('id');
@@ -307,19 +310,19 @@ class CartController extends BaseCartController
                             });
 
                             $cost = $daysQuery->offer_price ? $daysQuery->add_price - (($daysQuery->offer_price / 100) * $daysQuery->add_price) : $daysQuery->add_price;
-                        }elseif (\Session::get('toggleState') == 'monthly') {
+                        } elseif (\Session::get('toggleState') == 'monthly') {
                             $id = $currencyQuery->whereIn('days', [30, 31])->value('id');
                             $daysQuery = PlanPrice::where('plan_id', $id)->where('currency', $currency)->where('country_id', $countryids)->firstOr(function () use ($currency, $id) {
                                 return PlanPrice::where('plan_id', $id)->where('currency', $currency)->where('country_id', 0)->first();
                             });
                             $cost = $daysQuery->offer_price ? $daysQuery->add_price - (($daysQuery->offer_price / 100) * $daysQuery->add_price) : $daysQuery->add_price;
                         }
-                    }else{
-                            $id = $planid;
-                            $daysQuery = PlanPrice::where('plan_id', $id)->where('currency', $currency)->where('country_id', $countryids)->firstOr(function () use ($currency, $id) {
-                                return PlanPrice::where('plan_id', $id)->where('currency', $currency)->where('country_id', 0)->first();
-                            });
-                            $cost = $daysQuery->offer_price ? $daysQuery->add_price - (($daysQuery->offer_price / 100) * $daysQuery->add_price) : $daysQuery->add_price;
+                    } else {
+                        $id = $planid;
+                        $daysQuery = PlanPrice::where('plan_id', $id)->where('currency', $currency)->where('country_id', $countryids)->firstOr(function () use ($currency, $id) {
+                            return PlanPrice::where('plan_id', $id)->where('currency', $currency)->where('country_id', 0)->first();
+                        });
+                        $cost = $daysQuery->offer_price ? $daysQuery->add_price - (($daysQuery->offer_price / 100) * $daysQuery->add_price) : $daysQuery->add_price;
                     }
                 }
                 Session::put('plan', $id);
@@ -329,7 +332,7 @@ class CartController extends BaseCartController
                 }
 
                 return $cost;
-            }else{
+            } else {
                 $cost = 0;
                 $months = 0;
                 if (! $planid) {//When Product Is Added from Cart
@@ -371,7 +374,6 @@ class CartController extends BaseCartController
     public function addCouponUpdate(Request $request)
     {
         try {
-
             $code = \Request::get('coupon');
             $promo_controller = new \App\Http\Controllers\Payment\PromotionController();
             $result = $promo_controller->checkCode($code);

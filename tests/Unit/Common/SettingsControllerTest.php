@@ -2,11 +2,11 @@
 
 namespace Tests\Unit\Common;
 
-use App\User;
-use Tests\DBTestCase;
+use App\ApiKey;
 use App\Http\Controllers\Common\SettingsController;
 use App\Model\Common\StatusSetting;
-use App\ApiKey;
+use App\User;
+use Tests\DBTestCase;
 
 class SettingsControllerTest extends DBTestCase
 {
@@ -20,7 +20,6 @@ class SettingsControllerTest extends DBTestCase
         parent::setUp();
         $this->classObject = new SettingsController();
     }
-
 
     public function test_validation_when_company_not_given()
     {
@@ -102,5 +101,4 @@ class SettingsControllerTest extends DBTestCase
         $methodResponse = $this->getPrivateMethod($this->classObject, 'pipedrivekeys', [$apiKey]);
         $this->assertNotEmpty($methodResponse->content());
     }
-    
 }

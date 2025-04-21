@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Tests\Unit;
 
 use App\Http\Controllers\Common\BaseMailChimpController;
