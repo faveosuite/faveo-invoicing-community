@@ -265,7 +265,6 @@
             document.getElementById('verify_password').click();
             document.getElementById('copyNewCodeBtn').click();
             document.getElementById('pass_btn').click();
-            document.getElementById('next_rec_code').click();
             document.getElementById('scan_complete').click();
 
         }
