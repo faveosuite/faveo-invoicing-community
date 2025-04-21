@@ -122,7 +122,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     public function auto_renewal()
     {
-        return $this->hasMany(\App\Auto_renewal::class,'user_id');
+        return $this->hasMany(\App\Auto_renewal::class, 'user_id');
     }
 
     // public function getCreatedAtAttribute($value)

@@ -258,7 +258,6 @@ class PlanController extends ExtendedPlanController
      */
     public function update(Plan $plan, PlanRequest $request)
     {
-
         $add_prices = $request->add_price;
         $renew_prices = $request->renew_price;
         $offer_prices = $request->input('offer_price');

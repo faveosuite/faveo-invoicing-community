@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Front\ContactRequest;
 use App\Http\Requests\Front\PageRequest;
 use App\Model\Common\PricingTemplate;
+use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
@@ -17,7 +18,6 @@ use App\Model\Front\FrontendPage;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
-use App\Model\Common\Setting;
 use App\Model\Product\ProductGroup;
 use Illuminate\Http\Request;
 
@@ -522,8 +522,8 @@ class PageController extends Controller
 
             $trasform = [];
             $templates = $this->getTemplateOne($productsRelatedToGroup, $trasform);
-            if(empty($templates)){
-                $templates=\Lang::get('message.empty_group');
+            if (empty($templates)) {
+                $templates = \Lang::get('message.empty_group');
             }
             $products = Product::all();
             $plan = '';
@@ -594,6 +594,7 @@ class PageController extends Controller
                 ];
             }
             $data = PricingTemplate::findOrFail(1)->data;
+
             return $this->transformTemplate('cart', $data, $trasform);
         } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
