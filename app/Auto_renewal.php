@@ -17,7 +17,4 @@ class Auto_renewal extends Model
     {
         return $this->belongsTo(\App\User::class);
     }
-
-
-
 }
