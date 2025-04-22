@@ -206,7 +206,6 @@ class Cart
 
         // get the cart
         $cart = $this->getContent();
-
         // if the item is already in the cart we will just update it
         if ($cart->has($id)) {
 
@@ -215,9 +214,7 @@ class Cart
 
             $this->addRow($id, $item);
         }
-
         $this->currentItemId = $id;
-
         return $this;
     }
 
@@ -724,15 +721,10 @@ class Cart
         if ($this->fireEvent('adding', $item) === false) {
             return false;
         }
-
         $cart = $this->getContent();
-
         $cart->put($id, new ItemCollection($item, $this->config));
-
         $this->save($cart);
-
         $this->fireEvent('added', $item);
-
         return true;
     }
 

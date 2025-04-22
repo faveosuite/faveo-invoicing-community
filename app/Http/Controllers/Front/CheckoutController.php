@@ -123,10 +123,8 @@ class CheckoutController extends InfoController
         //         return redirect('paynow/'.$invoice->id)->with('fails', 'Payment cannot be processed. Please try the other gateway.');
         //     }
         // }
-
         $content = Cart::getContent();
         $taxConditions = $this->getAttributes($content);
-
         try {
             $domain = $request->input('domain');
             if ($domain) {//Store the Domain  in session when user Logged In
@@ -137,7 +135,7 @@ class CheckoutController extends InfoController
             $discountPrice = null;
             $price = [];
             $quantity = [];
-            foreach (\Cart::getContent() as $item) {
+                foreach (\Cart::getContent() as $item) {
                 $price = $item->price;
                 $quantity = $item->quantity;
                 $domain = $item->attributes->domain;
@@ -151,7 +149,6 @@ class CheckoutController extends InfoController
                 }
                 \Session::put('cloud_domain', $domain);
             }
-
             return view('themes.default1.front.checkout', compact('content', 'taxConditions', 'discountPrice', 'domain'));
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
@@ -175,24 +172,23 @@ class CheckoutController extends InfoController
                     \Session::put('cart_currency', $cart_currency);
                     $currency = getCurrencyForClient(\Auth::user()->country) != $cart_currency ? getCurrencyForClient(\Auth::user()->country) : $cart_currency; //If User Currency and cart currency are different the currency es set to user currency.
                     if ($cart_currency != $currency) {
-                        $id = $item->id;
+                        $id = $item->associatedModel->id;
                         Cart::remove($id);
                     }
                     $require_domain = $item->associatedModel->require_domain;
                     $require = [];
                     if ($require_domain) {
-                        $require[$key] = $item->id;
+                        $require[$key] = $item->associatedModel->id;
                     }
-                    $taxConditions = $this->calculateTax($item->id, \Auth::user()->state, \Auth::user()->country); //Calculate Tax Condition by passing ProductId
+                    $taxConditions = $this->calculateTax($item->associatedModel->id, \Auth::user()->state, \Auth::user()->country); //Calculate Tax Condition by passing ProductId
                     Cart::condition($taxConditions);
                     Cart::remove($item->id);
 
                     //Return array of Product Details,attributes and their conditions
                     $items[] = ['id' => $item->id, 'name' => $item->name, 'price' => $item->price,
-                        'quantity' => $item->quantity, 'attributes' => ['currency' => $cart_currency, 'symbol' => $item->attributes->symbol, 'agents' => $item->attributes->agents, 'domain' => optional($item->attributes)->domain], 'associatedModel' => Product::find($item->id), 'conditions' => $taxConditions, ];
+                        'quantity' => $item->quantity, 'attributes' => ['currency' => $cart_currency, 'symbol' => $item->attributes->symbol, 'agents' => $item->attributes->agents, 'domain' => optional($item->attributes)->domain], 'associatedModel' => Product::find($item->associatedModel->id), 'conditions' => $taxConditions, ];
                 }
                 Cart::add($items);
-
                 return $taxConditions;
             }
         } catch (\Exception $ex) {
@@ -257,10 +253,11 @@ class CheckoutController extends InfoController
             $payment_method = ($isTrue) ? $request->input('payment_gateway') : 'Credits';
             \Session::put('payment_method', $payment_method);
             $paynow = $this->checkregularPaymentOrRenewal($request->input('invoice_id'));
-
             $cost = $request->input('cost');
             $state = $this->getState();
+
             if ($paynow === false) {//When regular payment
+
                 $invoice = $invoice_controller->generateInvoice();
                 $amount = intval(Cart::getSubTotal());
                 if (\Session::has('nothingLeft')) {
@@ -291,7 +288,6 @@ class CheckoutController extends InfoController
                         (new TenantController(new Client, new FaveoCloud()))->createTenant(new Request(['orderNo' => $orderNumber, 'domain' => $invoice->cloud_domain]));
                     }
                     $this->performCloudActions($invoice);
-
                     return redirect('checkout')->with('Success', $url);
                 }
             } else {//When renewal, pending payments

@@ -118,14 +118,15 @@ $cartSubtotalWithoutCondition = 0;
                                 </thead>
 
                                 <tbody class="border-top">
-                                     {{Cart::removeCartCondition('Processing fee')}}
+
+                                {{Cart::removeCartCondition('Processing fee')}}
                                         @forelse($content as $item)
-                                       
+
 
                                         @php
-                                        $cartSubtotalWithoutCondition += $item->getPriceSum();
+                                            $productdetails=$item->associatedModel->getAttributes();
+                                            $cartSubtotalWithoutCondition += $item->getPriceSum();
                                         @endphp
-
                                 <tr class="cart_table_item">
 
                                     <td class="product-thumbnail">
@@ -152,7 +153,7 @@ $cartSubtotalWithoutCondition = 0;
  
                                     <?php
                                     $cont = new \App\Http\Controllers\Product\ProductController();
-                                    $isAgentAllowed = $cont->allowQuantityOrAgent($item->id);
+                                    $isAgentAllowed = $cont->allowQuantityOrAgent($productdetails['id']);
                                     ?>
 
                                     <td class="product-quantity">
@@ -161,7 +162,8 @@ $cartSubtotalWithoutCondition = 0;
                                     </td>
                                      <td class="product-agents">
                                     {{($item->attributes->agents)?$item->attributes->agents:'Unlimited'}}
-                                </td>
+
+                                     </td>
 
                                     <td class="product-subtotal ">
 
@@ -213,7 +215,8 @@ $cartSubtotalWithoutCondition = 0;
                         </div>
                     </form>
                     <br>
-                    @if(Cart::getTotal()>0)
+
+                @if(Cart::getTotal()>0)
                     <tr>
                         <td colspan="2" class="border-top-0">
 
@@ -289,10 +292,9 @@ $cartSubtotalWithoutCondition = 0;
                                     </tr>
 
                                     @endif
-
-
                                            @if(count(\Cart::getConditionsByType('tax')) == 1)
-                                                    @foreach(\Cart::getConditions() as $tax)
+
+                                               @foreach(\Cart::getConditions() as $tax)
 
                                                      @if($tax->getName()!= 'null')
                                                       <?php
@@ -341,6 +343,7 @@ $cartSubtotalWithoutCondition = 0;
                                                         $cgst = $parts[0];
                                                         $percentage = $parts[1]; 
                                                     @endphp
+
                                                     <tr class="Taxes border-top-0">
                                                         <th class="d-block  line-height-1 font-weight-semibold text-color-grey ">{{ $cgst }}  
                                                             <label style="font-size: 12px;font-weight: normal;">({{$percentage}})</label>
@@ -378,7 +381,6 @@ $cartSubtotalWithoutCondition = 0;
                                                             } else {
                                                                 $cartTotal = $amt_to_credit;
                                                             }
-
                                                             ?>
                                                         -{{$dd=currencyFormat($cartTotal, $item->attributes->currency)}}
                                                     </span>
@@ -426,7 +428,6 @@ $cartSubtotalWithoutCondition = 0;
                                     @if(Cart::getTotal()>0) 
                                     <?php
                                     $gateways = \App\Http\Controllers\Common\SettingsController::checkPaymentGateway($item->attributes['currency']);
-
                                      ?>
                                      
                                      @if($gateways)
@@ -513,7 +514,9 @@ $cartSubtotalWithoutCondition = 0;
                 </div>
             </div>
         </div>
-        @elseif (\Cart::isEmpty())
+
+@elseif (\Cart::isEmpty())
+
 @endif
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
 <script>
