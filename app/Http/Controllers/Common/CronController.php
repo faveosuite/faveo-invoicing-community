@@ -516,8 +516,10 @@ class CronController extends BaseCronController
 
         $days = ExpiryMailDay::value('msg91_days');
 
-        $date = Carbon::now()->subDays($days)->toDateString();
+        $from = Carbon::minValue();
 
-        MsgDeliveryReports::whereDate('created_at', '<=', $date)->delete();
+        $to = Carbon::now()->subDays($days)->endOfDay();
+
+        MsgDeliveryReports::whereBetween('created_at', [$from, $to])->delete();
     }
 }

@@ -198,15 +198,19 @@ class MSG91Controller extends Controller
             });
         });
 
-        $query->when($request->filled('date_from'), function ($q) use ($request) {
+        $query->when($request->filled(['date_from', 'date_to']), function ($q) use ($request) {
             $from = Carbon::createFromFormat('m/d/Y', $request->input('date_from'))->format('Y-m-d');
-            $q->whereDate('date', '>=', $from);
-        });
-
-        $query->when($request->filled('date_to'), function ($q) use ($request) {
             $to = Carbon::createFromFormat('m/d/Y', $request->input('date_to'))->format('Y-m-d');
-            $q->whereDate('date', '<=', $to);
+            $q->whereBetween('date', [$from, $to]);
         });
+        $query->when($request->filled('date_from') && !$request->filled('date_to'), function ($q) use ($request) {
+                $from = Carbon::createFromFormat('m/d/Y', $request->input('date_from'))->format('Y-m-d');
+                $q->whereBetween('date', [$from, Carbon::maxValue()->format('Y-m-d')]);
+            });
+        $query->when(!$request->filled('date_from') && $request->filled('date_to'), function ($q) use ($request) {
+                $to = Carbon::createFromFormat('m/d/Y', $request->input('date_to'))->format('Y-m-d');
+                $q->whereBetween('date', [Carbon::minValue()->format('Y-m-d'), $to]);
+            });
 
         $query->when($request->filled('email'), function ($q) use ($request) {
             $q->whereHas('user', fn ($subQuery) => $subQuery->where('email', 'like', '%'.$request->input('email').'%')
