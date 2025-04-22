@@ -49,14 +49,12 @@ Cart
                                 @php
                                 $isAgentAllowed = false;
                                 $isAllowedtoEdit = false;
-
                                 foreach ($cartCollection as $item) {
                                     // Your existing logic to calculate $isAgentAllowed and $isAllowedtoEdit
                                     // This part should remain the same as in your original code
                                     $cont = new \App\Http\Controllers\Product\ProductController();
                                     $isAgentAllowed = $cont->allowQuantityOrAgent($item->id);
                                     $isAllowedtoEdit = $cont->isAllowedtoEdit($item->id);
-
                                     break;
                                 }
                                 @endphp
@@ -120,7 +118,6 @@ Cart
                                               }
                                                  $cartTotal += $item->getPriceSum();;
                                                   $domain = [];
-
                                                   if ($item->associatedModel->require_domain) {
                                                       $domain[$key] = $item->associatedModel->id;
                                                       $productName = $item->associatedModel->name;
