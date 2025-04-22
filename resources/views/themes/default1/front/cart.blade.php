@@ -32,10 +32,10 @@ Cart
     ?>
 
         <div role="main" class="main shop pb-4">
-              @if(!Cart::isEmpty())
 
             <div class="container py-4">
-                
+                @if(!Cart::isEmpty())
+
 
                 <div class="row pb-4 mb-5">
 
@@ -49,14 +49,13 @@ Cart
                                 @php
                                 $isAgentAllowed = false;
                                 $isAllowedtoEdit = false;
-
                                 foreach ($cartCollection as $item) {
+                                    $productdetails=$item->associatedModel->getAttributes();
                                     // Your existing logic to calculate $isAgentAllowed and $isAllowedtoEdit
                                     // This part should remain the same as in your original code
                                     $cont = new \App\Http\Controllers\Product\ProductController();
-                                    $isAgentAllowed = $cont->allowQuantityOrAgent($item->id);
-                                    $isAllowedtoEdit = $cont->isAllowedtoEdit($item->id);
-
+                                    $isAgentAllowed = $cont->allowQuantityOrAgent($productdetails['id']);
+                                    $isAllowedtoEdit = $cont->isAllowedtoEdit($productdetails['id']);
                                     break;
                                 }
                                 @endphp
@@ -105,30 +104,33 @@ Cart
                                     </thead>
                                              @forelse($cartCollection as $item)
                                     @php
-                                                if(\Auth::check()) {
-                                                Cart::clearItemConditions($item->id);
-                                                if(\Session::has('code')) {
-                                                \Session::forget('code');
-                                                \Session::forget('usage');
-                                                 $cartcont = new \App\Http\Controllers\Front\CartController();
-                                                 \Cart::update($item->id, [
-                                                  'price'      => $cartcont->planCost($item->id, \Auth::user()->id),
-                                                ]);
-                                              }
+                                                $productdetails1=$item->associatedModel->getAttributes();
+                                                   if(\Auth::check()) {
+                                                   Cart::clearItemConditions($item->id);
+                                                   if(\Session::has('code')) {
+                                                   \Session::forget('code');
+                                                   \Session::forget('usage');
+                                                    $cartcont = new \App\Http\Controllers\Front\CartController();
+                                                    \Cart::update($item->id, [
+                                                     'price'      => $cartcont->planCost($item->id, \Auth::user()->id),
+                                                   ]);
+                                                 }
 
+                                                 }
 
-                                              }
-                                                 $cartTotal += $item->getPriceSum();;
-                                                  $domain = [];
+                                                    $cartTotal += $item->getPriceSum();;
+                                                     $domain = [];
+//                                                     if ($item->associatedModel->require_domain) {
+                                                        if($productdetails1['require_domain']){
+//                                                         $domain[$key] = $item->associatedModel->id;
+                                                         $domain[$key] = $productdetails1['id'];
+//                                                         $productName = $item->associatedModel->name;
+                                                         $productName = $productdetails1['name'];
 
-                                                  if ($item->associatedModel->require_domain) {
-                                                      $domain[$key] = $item->associatedModel->id;
-                                                      $productName = $item->associatedModel->name;
-
-                                                  }
-                                                  $cont = new \App\Http\Controllers\Product\ProductController();
-                                                  $isAgentAllowed = $cont->allowQuantityOrAgent($item->id);
-                                                  $isAllowedtoEdit = $cont->isAllowedtoEdit($item->id);
+                                                     }
+                                                     $cont = new \App\Http\Controllers\Product\ProductController();
+                                                     $isAgentAllowed = $cont->allowQuantityOrAgent($productdetails1['id']);//changed
+                                                     $isAllowedtoEdit = $cont->isAllowedtoEdit($productdetails1['id']);//changed
                                             @endphp
 
                                     <tbody>
@@ -150,7 +152,6 @@ Cart
                                                     </span>
                                                 </div>
                                             </td>
-
                                             <td class="product-name">
 
                                                 <span class="font-weight-semi-bold text-color-dark">{{$item->name}}</span>
@@ -165,11 +166,15 @@ Cart
                                             </td>
 
                                             @if(!$isAgentAllowed)
-                                                    <td class="product-quantity">
-                                                        @if($isAllowedtoEdit['quantity'])
+
+                                                <td class="product-quantity">
+
+                                                    @if($isAllowedtoEdit['quantity'])
                                                             <div class="quantity">
                                                                 <input type="button" id="quantityminus" class="minus" value="-">
-                                                                <input type = "hidden" class="productid" value="{{$item->id}}">
+
+                                                                <input type = "hidden" class="productid" value="{{$productdetails1['id']}}">
+                                                                <input type = "hidden" class="planid" value="{{$item->id}}">
                                                                 <input type = "hidden" class="quatprice" id="quatprice" value=" {{$item->price}}">
                                                                 <input type="text" class="input-text qty text" title="Qty" id="qty" value="{{$item->quantity}}" name="quantity" id="quantity" min="1" step="1" disabled>
                                                                 <input type="button" class="plus" value="+" id="quantityplus" >
@@ -178,11 +183,14 @@ Cart
 
                                                         @else
                                                             {{$item->quantity}}
+
                                                         @endif
                                                     </td>
                                                 @else
                                                     <td class="product-agents">
-                                                        @if (!$item->attributes->agents)
+
+                                                    @if (!$item->attributes->agents)
+
                                                             {{'Unlimited Agents'}}
                                                         @else
                                                             @if($isAllowedtoEdit['agent'])
@@ -191,7 +199,8 @@ Cart
                                                                     <input type="hidden" id="initialagent" value="{{$item->attributes->initialagent}}">
                                                                     <input type = "hidden" class="currency" value="{{$item->attributes->currency}}">
                                                                     <input type = "hidden" class="symbol" value="{{$item->attributes->symbol}}">
-                                                                    <input type = "hidden" class="productid" value="{{$item->id}}">
+                                                                    <input type = "hidden" class="productid" value="{{$productdetails1['id']}}">
+                                                                    <input type = "hidden" class="planid" value="{{$item->id}}">
                                                                     <input type = "hidden" class="agentprice" id="agentprice" value=" {{$item->getPriceSum()}}">
                                                                     <input type="text" class="input-text qty text" id="agtqty" title="Qty" value="{{$item->attributes->agents}}" name="quantity" min="1" step="1" disabled>
                                                                     <input type="button" class="plus" value="+" id="agentplus">
@@ -277,7 +286,8 @@ Cart
                         </div>
                     </div>
                 </div>
-                @else
+
+            @else
                    <div class="featured-boxes">
                     <div class="row">
                         <div class="col-md-12" style="text-align: center;">
@@ -307,18 +317,21 @@ Cart
         </div>
     <script src="{{asset('client/js/jquery.min.js')}}"></script>
     <script>
+
         /*
          * Increase No. Of Agents
          */
         $('#agentplus').on('click',function(){
             var $agtqty=$(this).parents('.quantity').find('.qty');
             var $productid = $(this).parents('.quantity').find('.productid');
+            var $planid = $(this).parents('.quantity').find('.planid');
             var $agentprice = $(this).parents('.quantity').find('.agentprice');
             var $currency = $(this).parents('.quantity').find('.currency');
             var $symbol  = $(this).parents('.quantity').find('.symbol');
             var currency = $currency.val();//Get the Currency for the Product
             var symbol = $symbol.val();//Get the Symbol for the Currency
             var productid = parseInt($productid.val()); //get Product Id
+            var planid = parseInt($planid.val()); //get Product Id
             var currentAgtQty = parseInt($agtqty.val()); //Get Current Quantity of Prduct
             var actualAgentPrice = parseInt($agentprice.val());//Get Initial Price of Prduct
             // console.log(productid,currentVal,actualprice);
@@ -328,7 +341,7 @@ Cart
 
             $.ajax({
                 type: "POST",
-                data:{'productid':productid},
+                data:{'productid':productid,'planid':planid},
                 beforeSend: function () {
                     $('#response').html( "<img id='blur-bg' class='backgroundfadein' style='width: 50px; height:50 px; display: block; position:    fixed;' src='{!! asset('lb-faveo/media/images/gifloader3.gif') !!}'>");
 
@@ -342,6 +355,7 @@ Cart
         /*
         *Decrease No. of Agents
          */
+
         $(document).ready(function(){
     var currentagtQty = $('#agtqty').val();
     if (currentagtQty > 1) {
@@ -352,12 +366,14 @@ Cart
 
             var $agtqty = $(this).parents('.quantity').find('.qty');
             var $productid = $(this).parents('.quantity').find('.productid');
+            var $planid = $(this).parents('.quantity').find('.planid');
             var $agentprice = $(this).parents('.quantity').find('.agentprice');
             var $currency = $(this).parents('.quantity').find('.currency');
             var $symbol = $(this).parents('.quantity').find('.symbol');
             var currency = $currency.val();
             var symbol = $symbol.val();
             var productid = parseInt($productid.val());
+            var planid = parseInt($planid.val()); //get Product Id
             var currentAgtQty = parseInt($agtqty.val());
             var actualAgentPrice = parseInt($agentprice.val());
 
@@ -372,7 +388,7 @@ Cart
             $('#agentminus, #agentplus').prop('disabled', true);
             $.ajax({
                 type: "POST",
-                data: {'productid': productid},
+                data: {'productid': productid,'planid':planid},
                 beforeSend: function () {
                     $('#response').html("<img id='blur-bg' class='backgroundfadein' style='width: 50px; height:50 px; display: block; position: fixed;' src='{!! asset('lb-faveo/media/images/gifloader3.gif') !!}'>");
                 },
@@ -397,10 +413,13 @@ Cart
         $('#quantityplus').on('click',function(){
             var $productid = $(this).parents('.quantity').find('.productid');
             var productid = parseInt($productid.val()); //get Product Id
+            var $planid = $(this).parents('.quantity').find('.planid');
+            var planid = parseInt($planid.val()); //get Product Id
+
             // console.log(productid,currentVal,actualprice);
             $.ajax({
                 type: "POST",
-                data: {'productid':productid},
+                data: {'productid':productid,'planid':planid},
                 beforeSend: function () {
                     $('#response').html( "<img id='blur-bg' class='backgroundfadein' style='width: 50px; height:50 px; display: block; position:    fixed;' src='{!! asset('lb-faveo/media/images/gifloader3.gif') !!}'>");
                 },
@@ -410,6 +429,7 @@ Cart
                 }
             });
         });
+
         /*
          * Reduce Procut Quantity
          */
@@ -418,6 +438,8 @@ Cart
             var $productid = $(this).parents('.quantity').find('.productid');
             var $price = $(this).parents('.quantity').find('.quatprice');
             var productid = parseInt($productid.val()); //get Product Id
+            var $planid = $(this).parents('.quantity').find('.planid');
+            var planid = parseInt($planid.val()); //get Product Id
             var currentQty = parseInt($qty.val()); //Get Current Quantity of Prduct
             var incraesePrice = parseInt($price.val()); //Get Initial Price of Prduct
             if (!isNaN(currentQty)) {
@@ -426,7 +448,7 @@ Cart
             }
             $.ajax({
                 type: "POST",
-                data: {'productid':productid},
+                data: {'productid':productid,'planid':planid},
                 beforeSend: function () {
                     $('#response').html( "<img id='blur-bg' class='backgroundfadein' style='width: 50px; height:50 px; display: block; position:    fixed;' src='{!! asset('lb-faveo/media/images/gifloader3.gif') !!}'>");
                 },
