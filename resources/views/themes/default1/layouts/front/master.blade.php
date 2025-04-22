@@ -380,7 +380,6 @@ $days = $pay->where('product','117')->value('days');
                                                 </ul>
                                             </nav>
                                         </div>
-
                                         <div class="header-nav-features header-nav-features-no-border header-nav-features-lg-show-border order-1 order-lg-2 me-2 me-lg-0">
                                             <div class="header-nav-feature header-nav-features-cart d-inline-flex ms-2 mx-3">
                                                 <a href="{{ url('show/cart') }}" class="header-nav-features-toggle text-decoration-none">
@@ -388,13 +387,16 @@ $days = $pay->where('product','117')->value('days');
                                                     <img src="{{asset('client/porto/fonts/icon-cart.svg')}}" width="14" alt="" class="header-nav-top-icon-img">
                                                     <span class="cart-info">
                                                 <span class="cart-qty">{{ Cart::getTotalQuantity() }}</span>
+
                                             </span>
                                                 </a>
                                                 <div class="header-nav-features-dropdown right-15" id="headerTopCartDropdown">
                                                     <ol class="mini-products-list">
                                                         @forelse(Cart::getContent() as $key => $item)
-                                                                <?php
-                                                                $product = App\Model\Product\Product::where('id', $item->id)->first();
+
+                                                            <?php
+                                                                $productdetails1=$item->associatedModel->getAttributes();
+                                                                $product = App\Model\Product\Product::where('id', $productdetails1['id'])->first();
                                                                 if ($product->require_domain == 1) {
                                                                     $domain[$key] = $item->id;
                                                                 }
@@ -437,6 +439,7 @@ $days = $pay->where('product','117')->value('days');
 
                                                           
                                                         @endforelse
+
                                                         @if (!Cart::isEmpty())
                                                             <div class="totals">
                                                                 <span class="label">Total:</span>

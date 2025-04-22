@@ -32,10 +32,10 @@ Cart
     ?>
 
         <div role="main" class="main shop pb-4">
-              @if(!Cart::isEmpty())
 
             <div class="container py-4">
-                
+                @if(!Cart::isEmpty())
+
 
                 <div class="row pb-4 mb-5">
 
@@ -50,11 +50,12 @@ Cart
                                 $isAgentAllowed = false;
                                 $isAllowedtoEdit = false;
                                 foreach ($cartCollection as $item) {
+                                    $productdetails=$item->associatedModel->getAttributes();
                                     // Your existing logic to calculate $isAgentAllowed and $isAllowedtoEdit
                                     // This part should remain the same as in your original code
                                     $cont = new \App\Http\Controllers\Product\ProductController();
-                                    $isAgentAllowed = $cont->allowQuantityOrAgent($item->id);
-                                    $isAllowedtoEdit = $cont->isAllowedtoEdit($item->id);
+                                    $isAgentAllowed = $cont->allowQuantityOrAgent($productdetails['id']);
+                                    $isAllowedtoEdit = $cont->isAllowedtoEdit($productdetails['id']);
                                     break;
                                 }
                                 @endphp
@@ -103,29 +104,33 @@ Cart
                                     </thead>
                                              @forelse($cartCollection as $item)
                                     @php
-                                                if(\Auth::check()) {
-                                                Cart::clearItemConditions($item->id);
-                                                if(\Session::has('code')) {
-                                                \Session::forget('code');
-                                                \Session::forget('usage');
-                                                 $cartcont = new \App\Http\Controllers\Front\CartController();
-                                                 \Cart::update($item->id, [
-                                                  'price'      => $cartcont->planCost($item->id, \Auth::user()->id),
-                                                ]);
-                                              }
+                                                $productdetails1=$item->associatedModel->getAttributes();
+                                                   if(\Auth::check()) {
+                                                   Cart::clearItemConditions($item->id);
+                                                   if(\Session::has('code')) {
+                                                   \Session::forget('code');
+                                                   \Session::forget('usage');
+                                                    $cartcont = new \App\Http\Controllers\Front\CartController();
+                                                    \Cart::update($item->id, [
+                                                     'price'      => $cartcont->planCost($item->id, \Auth::user()->id),
+                                                   ]);
+                                                 }
 
+                                                 }
 
-                                              }
-                                                 $cartTotal += $item->getPriceSum();;
-                                                  $domain = [];
-                                                  if ($item->associatedModel->require_domain) {
-                                                      $domain[$key] = $item->associatedModel->id;
-                                                      $productName = $item->associatedModel->name;
+                                                    $cartTotal += $item->getPriceSum();;
+                                                     $domain = [];
+//                                                     if ($item->associatedModel->require_domain) {
+                                                        if($productdetails1['require_domain']){
+//                                                         $domain[$key] = $item->associatedModel->id;
+                                                         $domain[$key] = $productdetails1['id'];
+//                                                         $productName = $item->associatedModel->name;
+                                                         $productName = $productdetails1['name'];
 
-                                                  }
-                                                  $cont = new \App\Http\Controllers\Product\ProductController();
-                                                  $isAgentAllowed = $cont->allowQuantityOrAgent($item->id);
-                                                  $isAllowedtoEdit = $cont->isAllowedtoEdit($item->id);
+                                                     }
+                                                     $cont = new \App\Http\Controllers\Product\ProductController();
+                                                     $isAgentAllowed = $cont->allowQuantityOrAgent($productdetails1['id']);//changed
+                                                     $isAllowedtoEdit = $cont->isAllowedtoEdit($productdetails1['id']);//changed
                                             @endphp
 
                                     <tbody>
@@ -143,11 +148,10 @@ Cart
 
                                                     <span class="product-thumbnail-image" >
 
-                                                        <img width="90" height="90" alt="" class="img-fluid" src="{{$item->associatedModel->image}}"  data-bs-toggle="tooltip" title="{{$item->name}}">
+                                                        <img width="90" height="90" alt="" class="img-fluid" src="{{$productdetails1['image']}}"  data-bs-toggle="tooltip" title="{{$item->name}}">
                                                     </span>
                                                 </div>
                                             </td>
-
                                             <td class="product-name">
 
                                                 <span class="font-weight-semi-bold text-color-dark">{{$item->name}}</span>
@@ -162,10 +166,13 @@ Cart
                                             </td>
 
                                             @if(!$isAgentAllowed)
-                                                    <td class="product-quantity">
-                                                        @if($isAllowedtoEdit['quantity'])
+
+                                                <td class="product-quantity">
+
+                                                    @if($isAllowedtoEdit['quantity'])
                                                             <div class="quantity">
                                                                 <input type="button" id="quantityminus" class="minus" value="-">
+
                                                                 <input type = "hidden" class="productid" value="{{$item->id}}">
                                                                 <input type = "hidden" class="quatprice" id="quatprice" value=" {{$item->price}}">
                                                                 <input type="text" class="input-text qty text" title="Qty" id="qty" value="{{$item->quantity}}" name="quantity" id="quantity" min="1" step="1" disabled>
@@ -175,11 +182,14 @@ Cart
 
                                                         @else
                                                             {{$item->quantity}}
+
                                                         @endif
                                                     </td>
                                                 @else
                                                     <td class="product-agents">
-                                                        @if (!$item->attributes->agents)
+
+                                                    @if (!$item->attributes->agents)
+
                                                             {{'Unlimited Agents'}}
                                                         @else
                                                             @if($isAllowedtoEdit['agent'])
@@ -274,7 +284,8 @@ Cart
                         </div>
                     </div>
                 </div>
-                @else
+
+            @else
                    <div class="featured-boxes">
                     <div class="row">
                         <div class="col-md-12" style="text-align: center;">
@@ -304,6 +315,7 @@ Cart
         </div>
     <script src="{{asset('client/js/jquery.min.js')}}"></script>
     <script>
+
         /*
          * Increase No. Of Agents
          */
@@ -339,6 +351,7 @@ Cart
         /*
         *Decrease No. of Agents
          */
+
         $(document).ready(function(){
     var currentagtQty = $('#agtqty').val();
     if (currentagtQty > 1) {
@@ -407,6 +420,7 @@ Cart
                 }
             });
         });
+
         /*
          * Reduce Procut Quantity
          */
