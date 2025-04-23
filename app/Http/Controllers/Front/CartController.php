@@ -249,7 +249,6 @@ class CartController extends BaseCartController
     {
         try {
             $cost = $this->planCost($productid, $userid, $planid, $admin);
-
             return $cost;
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());

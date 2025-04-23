@@ -104,7 +104,7 @@ class BaseCartController extends Controller
             if ($hasPermissionToModifyQuantity) {
                 $cart = \Cart::get($planid);
                 $qty = $cart->quantity - 1;
-                $price = $this->cost($planid);
+                $price = $this->cost($id);
                 Cart::update($planid, [
                     'quantity' => -1,
                     'price' => $price,
@@ -132,7 +132,7 @@ class BaseCartController extends Controller
             if ($hasPermissionToModifyQuantity) {
                 $cart = \Cart::get($planid);
                 $qty = $cart->quantity + 1;
-                $price = $this->cost($planid);
+                $price = $this->cost($id);
                 Cart::update($planid, [
                     'quantity' => [
                         'relative' => false,
