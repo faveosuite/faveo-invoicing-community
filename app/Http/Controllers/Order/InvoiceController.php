@@ -357,10 +357,10 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             foreach (\Cart::getContent() as $cart) {
                 $this->createInvoiceItems($invoice->id, $cart, $amt_to_credit);
             }
+
             if (emailSendingStatus()) {
                 $this->sendMail($user_id, $invoice->id);
             }
-
             return $invoice;
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());

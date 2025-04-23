@@ -321,7 +321,6 @@ $days = $pay->where('product','117')->value('days');
                                                         @endif
                                                     @endforeach
 
-
                                                     @if(Auth::user())
 
                                                         <li class="dropdown">
@@ -387,16 +386,14 @@ $days = $pay->where('product','117')->value('days');
                                                     <img src="{{asset('client/porto/fonts/icon-cart.svg')}}" width="14" alt="" class="header-nav-top-icon-img">
                                                     <span class="cart-info">
                                                 <span class="cart-qty">{{ Cart::getTotalQuantity() }}</span>
-
                                             </span>
                                                 </a>
                                                 <div class="header-nav-features-dropdown right-15" id="headerTopCartDropdown">
                                                     <ol class="mini-products-list">
                                                         @forelse(Cart::getContent() as $key => $item)
-
-                                                            <?php
-                                                                $productdetails1=$item->associatedModel->getAttributes();
-                                                                $product = App\Model\Product\Product::where('id', $productdetails1['id'])->first();
+                                                                <?php
+                                                                $productdetails=$item->associatedModel->getAttributes();
+                                                                $product = App\Model\Product\Product::where('id', $productdetails['id'])->first();
                                                                 if ($product->require_domain == 1) {
                                                                     $domain[$key] = $item->id;
                                                                 }
@@ -422,8 +419,8 @@ $days = $pay->where('product','117')->value('days');
 
                                                             @php
                                                                 $data = \App\Model\Product\ProductGroup::where('hidden','!=', 1)->first();
-                                                            @endphp                                                                      
-                                                  
+                                                            @endphp
+
                                                            <div class="product-details d-flex justify-content-between align-items-center" style="margin-bottom: 20px;font-weight: 500;font-size: 13px;font-family: Poppins,sans-serif;letter-spacing: -0.12px;">
                                                             <span class="text-muted">0 ITEMS</span>
                                                             @if (Auth::check() && $data)
@@ -437,9 +434,8 @@ $days = $pay->where('product','117')->value('days');
 
                                                         <span  style="display: block; text-align: center;">No products in the cart.</span>
 
-                                                          
-                                                        @endforelse
 
+                                                        @endforelse
                                                         @if (!Cart::isEmpty())
                                                             <div class="totals">
                                                                 <span class="label">Total:</span>
@@ -560,7 +556,7 @@ $days = $pay->where('product','117')->value('days');
             @if ($errors->any())
                 <div class="alert alert-danger alert-dismissable" role="alert">
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    
+
                     @if ($errors->count() > 1)
                         <ul>
                             @foreach ($errors->all() as $error)
@@ -977,7 +973,7 @@ $days = $pay->where('product','117')->value('days');
 
 var csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-setInterval(refreshToken, 3600000); 
+setInterval(refreshToken, 3600000);
 
 function refreshToken(){
     $.get('refresh-csrf').done(function(data){
@@ -1036,7 +1032,6 @@ setTimeout(function() {
     $(document).ready(function() {
         $('#mailchimp-subscription').on('click', function(e) {
             e.preventDefault();
-            console.log("in");
 
             // Select elements using jQuery
             var $form = $('#newsletterForm');

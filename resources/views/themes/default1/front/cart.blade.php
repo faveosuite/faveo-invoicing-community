@@ -148,7 +148,7 @@ Cart
 
                                                     <span class="product-thumbnail-image" >
 
-                                                        <img width="90" height="90" alt="" class="img-fluid" src="{{$productdetails1['image']}}"  data-bs-toggle="tooltip" title="{{$item->name}}">
+                                                        <img width="90" height="90" alt="" class="img-fluid" src="{{$item->associatedModel->image}}"  data-bs-toggle="tooltip" title="{{$item->name}}">
                                                     </span>
                                                 </div>
                                             </td>
@@ -173,7 +173,8 @@ Cart
                                                             <div class="quantity">
                                                                 <input type="button" id="quantityminus" class="minus" value="-">
 
-                                                                <input type = "hidden" class="productid" value="{{$item->id}}">
+                                                                <input type = "hidden" class="productid" value="{{$productdetails1['id']}}">
+                                                                <input type = "hidden" class="planid" value="{{$item->id}}">
                                                                 <input type = "hidden" class="quatprice" id="quatprice" value=" {{$item->price}}">
                                                                 <input type="text" class="input-text qty text" title="Qty" id="qty" value="{{$item->quantity}}" name="quantity" id="quantity" min="1" step="1" disabled>
                                                                 <input type="button" class="plus" value="+" id="quantityplus" >
@@ -198,7 +199,8 @@ Cart
                                                                     <input type="hidden" id="initialagent" value="{{$item->attributes->initialagent}}">
                                                                     <input type = "hidden" class="currency" value="{{$item->attributes->currency}}">
                                                                     <input type = "hidden" class="symbol" value="{{$item->attributes->symbol}}">
-                                                                    <input type = "hidden" class="productid" value="{{$item->id}}">
+                                                                    <input type = "hidden" class="productid" value="{{$productdetails1['id']}}">
+                                                                    <input type = "hidden" class="planid" value="{{$item->id}}">
                                                                     <input type = "hidden" class="agentprice" id="agentprice" value=" {{$item->getPriceSum()}}">
                                                                     <input type="text" class="input-text qty text" id="agtqty" title="Qty" value="{{$item->attributes->agents}}" name="quantity" min="1" step="1" disabled>
                                                                     <input type="button" class="plus" value="+" id="agentplus">
@@ -322,12 +324,14 @@ Cart
         $('#agentplus').on('click',function(){
             var $agtqty=$(this).parents('.quantity').find('.qty');
             var $productid = $(this).parents('.quantity').find('.productid');
+            var $planid = $(this).parents('.quantity').find('.planid');
             var $agentprice = $(this).parents('.quantity').find('.agentprice');
             var $currency = $(this).parents('.quantity').find('.currency');
             var $symbol  = $(this).parents('.quantity').find('.symbol');
             var currency = $currency.val();//Get the Currency for the Product
             var symbol = $symbol.val();//Get the Symbol for the Currency
             var productid = parseInt($productid.val()); //get Product Id
+            var planid = parseInt($planid.val()); //get Product Id
             var currentAgtQty = parseInt($agtqty.val()); //Get Current Quantity of Prduct
             var actualAgentPrice = parseInt($agentprice.val());//Get Initial Price of Prduct
             // console.log(productid,currentVal,actualprice);
@@ -337,7 +341,7 @@ Cart
 
             $.ajax({
                 type: "POST",
-                data:{'productid':productid},
+                data:{'productid':productid,'planid':planid},
                 beforeSend: function () {
                     $('#response').html( "<img id='blur-bg' class='backgroundfadein' style='width: 50px; height:50 px; display: block; position:    fixed;' src='{!! asset('lb-faveo/media/images/gifloader3.gif') !!}'>");
 
@@ -362,12 +366,14 @@ Cart
 
             var $agtqty = $(this).parents('.quantity').find('.qty');
             var $productid = $(this).parents('.quantity').find('.productid');
+            var $planid = $(this).parents('.quantity').find('.planid');
             var $agentprice = $(this).parents('.quantity').find('.agentprice');
             var $currency = $(this).parents('.quantity').find('.currency');
             var $symbol = $(this).parents('.quantity').find('.symbol');
             var currency = $currency.val();
             var symbol = $symbol.val();
             var productid = parseInt($productid.val());
+            var planid = parseInt($planid.val()); //get Product Id
             var currentAgtQty = parseInt($agtqty.val());
             var actualAgentPrice = parseInt($agentprice.val());
 
@@ -382,7 +388,7 @@ Cart
             $('#agentminus, #agentplus').prop('disabled', true);
             $.ajax({
                 type: "POST",
-                data: {'productid': productid},
+                data: {'productid': productid,'planid':planid},
                 beforeSend: function () {
                     $('#response').html("<img id='blur-bg' class='backgroundfadein' style='width: 50px; height:50 px; display: block; position: fixed;' src='{!! asset('lb-faveo/media/images/gifloader3.gif') !!}'>");
                 },
@@ -407,10 +413,13 @@ Cart
         $('#quantityplus').on('click',function(){
             var $productid = $(this).parents('.quantity').find('.productid');
             var productid = parseInt($productid.val()); //get Product Id
+            var $planid = $(this).parents('.quantity').find('.planid');
+            var planid = parseInt($planid.val()); //get Product Id
+
             // console.log(productid,currentVal,actualprice);
             $.ajax({
                 type: "POST",
-                data: {'productid':productid},
+                data: {'productid':productid,'planid':planid},
                 beforeSend: function () {
                     $('#response').html( "<img id='blur-bg' class='backgroundfadein' style='width: 50px; height:50 px; display: block; position:    fixed;' src='{!! asset('lb-faveo/media/images/gifloader3.gif') !!}'>");
                 },
@@ -429,6 +438,8 @@ Cart
             var $productid = $(this).parents('.quantity').find('.productid');
             var $price = $(this).parents('.quantity').find('.quatprice');
             var productid = parseInt($productid.val()); //get Product Id
+            var $planid = $(this).parents('.quantity').find('.planid');
+            var planid = parseInt($planid.val()); //get Product Id
             var currentQty = parseInt($qty.val()); //Get Current Quantity of Prduct
             var incraesePrice = parseInt($price.val()); //Get Initial Price of Prduct
             if (!isNaN(currentQty)) {
@@ -437,7 +448,7 @@ Cart
             }
             $.ajax({
                 type: "POST",
-                data: {'productid':productid},
+                data: {'productid':productid,'planid':planid},
                 beforeSend: function () {
                     $('#response').html( "<img id='blur-bg' class='backgroundfadein' style='width: 50px; height:50 px; display: block; position:    fixed;' src='{!! asset('lb-faveo/media/images/gifloader3.gif') !!}'>");
                 },
