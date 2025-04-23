@@ -135,14 +135,14 @@ class BaseCartControllerTest extends DBTestCase
         $planPrice = PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
         $currency = 'INR';
         \Cart::add([
-            'id' => $product->id,
+            'id' => $plan->id,
             'name' => $product->name,
             'price' => 1000,
             'quantity' => 1,
             'attributes' => ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
         ]);
         $response = $this->call('POST', 'update-qty', [
-            'productid' => $product->id,
+            'productid' => $product->id,'planid' => $plan->id,
         ]);
         foreach (\Cart::getContent() as $cart) {
             $this->assertEquals($cart->quantity, 2);
@@ -180,7 +180,7 @@ class BaseCartControllerTest extends DBTestCase
         $planPrice = PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
         $currency = 'INR';
         \Cart::add([
-            'id' => $product->id,
+            'id' => $plan->id,
             'name' => $product->name,
             'price' => 1000,
             'quantity' => 2,
@@ -188,6 +188,7 @@ class BaseCartControllerTest extends DBTestCase
         ]);
         $response = $this->call('POST', 'reduce-product-qty', [
             'productid' => $product->id,
+            'planid' => $plan->id,
         ]);
         foreach (\Cart::getContent() as $cart) {
             $this->assertEquals($cart->quantity, 1);
