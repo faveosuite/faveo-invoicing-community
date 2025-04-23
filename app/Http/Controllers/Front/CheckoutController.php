@@ -135,7 +135,7 @@ class CheckoutController extends InfoController
             $discountPrice = null;
             $price = [];
             $quantity = [];
-                foreach (\Cart::getContent() as $item) {
+            foreach (\Cart::getContent() as $item) {
                 $price = $item->price;
                 $quantity = $item->quantity;
                 $domain = $item->attributes->domain;
@@ -149,6 +149,7 @@ class CheckoutController extends InfoController
                 }
                 \Session::put('cloud_domain', $domain);
             }
+
             return view('themes.default1.front.checkout', compact('content', 'taxConditions', 'discountPrice', 'domain'));
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
@@ -189,6 +190,7 @@ class CheckoutController extends InfoController
                         'quantity' => $item->quantity, 'attributes' => ['currency' => $cart_currency, 'symbol' => $item->attributes->symbol, 'agents' => $item->attributes->agents, 'domain' => optional($item->attributes)->domain], 'associatedModel' => Product::find($item->associatedModel->id), 'conditions' => $taxConditions, ];
                 }
                 Cart::add($items);
+
                 return $taxConditions;
             }
         } catch (\Exception $ex) {
@@ -257,7 +259,6 @@ class CheckoutController extends InfoController
             $state = $this->getState();
 
             if ($paynow === false) {//When regular payment
-
                 $invoice = $invoice_controller->generateInvoice();
                 $amount = intval(Cart::getSubTotal());
                 if (\Session::has('nothingLeft')) {
@@ -288,6 +289,7 @@ class CheckoutController extends InfoController
                         (new TenantController(new Client, new FaveoCloud()))->createTenant(new Request(['orderNo' => $orderNumber, 'domain' => $invoice->cloud_domain]));
                     }
                     $this->performCloudActions($invoice);
+
                     return redirect('checkout')->with('Success', $url);
                 }
             } else {//When renewal, pending payments
