@@ -60,7 +60,6 @@
 
 
 </style>
-  <html>
 <?php
  $dataCenters = \App\Model\CloudDataCenters::all();
 ?>
@@ -78,7 +77,6 @@ foreach($scripts as $script) {
 
 }
 ?>
-
             <!-- Basic -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -101,6 +99,7 @@ foreach($scripts as $script) {
     <link id="googleFonts" href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800%7CShadows+Into+Light&display=swap" rel="stylesheet" type="text/css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
 
     <!-- Vendor CSS -->
 
@@ -181,7 +180,7 @@ $days = $pay->where('product','117')->value('days');
 <body>
 <?php
 $bussinesses = App\Model\Common\Bussiness::pluck('name', 'short')->toArray();
-$status =  App\Model\Common\StatusSetting::select('recaptcha_status','v3_recaptcha_status', 'msg91_status', 'emailverification_status', 'terms')->first();
+$status =  App\Model\Common\StatusSetting::select('v3_v2_recaptcha_status','recaptcha_status','v3_recaptcha_status', 'msg91_status', 'emailverification_status', 'terms')->first();
 $apiKeys = App\ApiKey::select('nocaptcha_sitekey', 'captcha_secretCheck', 'msg91_auth_key', 'terms_url')->first();
 $analyticsTag = App\Model\Common\ChatScript::where('google_analytics', 1)->where('on_registration', 1)->value('google_analytics_tag');
 $location = getLocation();
@@ -697,10 +696,10 @@ $days = $pay->where('product','117')->value('days');
                                     <br>
                                     <?php $cloudProducts = \App\Model\Product\CloudProducts::get(); ?>
                                     @foreach($cloudProducts as $cloudProduct)
-                                    <div class="form-check-inline">
+                                    <div class="form-check">
                                         <label class="form-check-label">
                                             <input type="radio" name="option" class="product" value="{!! $cloudProduct->cloud_product_key !!}" checked>
-                                            {!! \DB::table('products')->where('id',$cloudProduct->cloud_product)->value('name') !!}
+                                            {!! \App\Model\Product\Product::where('id',$cloudProduct->cloud_product)->value('name') !!}
                                         </label>
                                     </div>
                                     @endforeach
@@ -753,7 +752,7 @@ $days = $pay->where('product','117')->value('days');
 
                     <div class="modal-footer">
 
-                        <button type="button" class="btn btn-default pull-left closebutton" id="closebutton" data-dismiss="modal"><i class="fa fa-times">&nbsp;&nbsp;</i>{{ __('message.close') }}</button>
+                        <button type="button" class="btn btn-light pull-left closebutton" id="closebutton" data-dismiss="modal">{{ __('message.close') }}</button>
                         <button type="submit"  class="btn btn-primary createTenant" id="createTenant" onclick="firstlogin({{Auth::user()->id}})"><i class="fa fa-check">&nbsp;&nbsp;</i>{{ __('message.submit') }}</button>
 
                         {!! html()->form()->close()  !!}
@@ -862,112 +861,9 @@ $days = $pay->where('product','117')->value('days');
 
     <footer id="footer" class="position-relative bg-color-light-scale-1 border-top-0">
 
-        <div class="container pt-5 pb-3">
-            <div class="row">
-                <?php
-                function renderWidget($widget, $set, $social, $mailchimpKey)
-                {
-                    $tweetDetails = $widget->allow_tweets == 1 ? '<div id="tweets" class="twitter"></div>' : '';
+        <div class="container">
+            <div class="row" id="footer1">
 
-                    $socialMedia = '';
-                    if ($widget->allow_social_media) {
-                        // Social Media Icons
-                        $socialMedia .= '<ul class="list list-unstyled">';
-                        if ($set->company_email) {
-                            $socialMedia .= '<li class="d-flex align-items-center mb-4">
-                                    <i class="fa-regular fa-envelope fa-xl"></i>&nbsp;&nbsp;
-                                    <a href="mailto:' . $set->company_email . '" class="d-inline-flex align-items-center text-decoration-none text-color-grey text-color-hover-primary font-weight-semibold text-4-5">' . $set->company_email . '</a>
-                                </li>';
-                        }
-                        if ($set->phone) {
-                            $socialMedia .= '<li class="d-flex align-items-center mb-4">
-                                    <i class="fas fa-phone text-4 p-relative top-2"></i>&nbsp;
-                                    <a href="tel:' . $set->phone . '" class="d-inline-flex align-items-center text-decoration-none text-color-grey text-color-hover-primary font-weight-semibold text-4-5">+' . $set->phone_code . ' ' . $set->phone . '</a>
-                                </li>';
-                        }
-                        $socialMedia .= '</ul>';
-
-                        // Social Icons
-                        $socialMedia .= '<ul class="social-icons social-icons-clean social-icons-medium">';
-                        foreach ($social as $media) {
-                            $socialMedia .= '<li class="social-icons-' . strtolower($media->name) . '">
-                                    <a href="' . $media->link . '" target="_blank" data-bs-toggle="tooltip" title="' . ucfirst($media->name) . '">
-                                        <i class="fab fa-' . strtolower($media->name) . ' text-color-grey-lighten"></i>
-                                    </a>
-                                </li>';
-                        }
-                        $socialMedia .= '</ul>';
-                    }
-
-                    $status =  App\Model\Common\StatusSetting::select('recaptcha_status','v3_recaptcha_status', 'msg91_status', 'emailverification_status', 'terms')->first();
-
-                    $mailchimpSection = '';
-                     if ($mailchimpKey !== null && $widget->allow_mailchimp == 1) {
-                        $mailchimpSection .= '<div id="mailchimp-message" style="width: 86%;"></div>
-                                                <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center">
-                                                    <form id="newsletterForm" class="form-style-3 w-100">
-                                                        <div class="input-group mb-3">
-                                                            <input class="custom-input newsletterEmail" placeholder="'. __('message.email_address') .'" name="newsletterEmail" id="newsletterEmail" type="email">
-                                                        </div>
-                                                        <!-- Honeypot fields (hidden) -->
-                                                        <div class="mb-3" style="display: none;">
-                                                            <label>'. __('message.contact_leave') .'</label>
-                                                            <input type="text" name="mailhoneypot_field" value="">
-                                                        </div>';
-                         if ($status->recaptcha_status === 1 || $status->v3_recaptcha_status === 1) {
-
-                             if ($status->recaptcha_status === 1) {
-                                 $mailchimpSection .= '
-            <div class="mb-3">
-                <div id="mailchimp_recaptcha"></div>
-                <div class="robot-verification mb-3" id="mailchimpcaptcha"></div>
-                <span id="mailchimpcaptchacheck"></span>
-            </div>
-        ';
-                             } elseif ($status->v3_recaptcha_status === 1) {
-                                 $mailchimpSection .= '
-                <input type="hidden" id="g-recaptcha-mailchimp" class="g-recaptcha-token" name="g-recaptcha-response">
-        ';
-                             }
-                         }
-                         $mailchimpSection .= '<button class="btn btn-primary mb-3" id="mailchimp-subscription" type="submit"><strong>'. __('message.caps_go') .'!</strong></button>
-                                            </form>
-                                          </div>';
-                    }
-
-                    // Check if the 'menu' class exists in the widget content
-                    $hasMenuClass = strpos($widget->content, 'menu') !== false;
-
-                    // Add class if 'menu' class exists in the widget content
-                    if ($hasMenuClass) {
-                        $widget->content = str_replace('<ul', '<ul class="list list-styled columns-lg-2 px-2"', $widget->content);
-                    }
-
-                    return '<div class="col-lg-4">
-                    <div class="widget-container">
-                        <h4 class="text-color-dark font-weight-bold mb-3">' . $widget->name . '</h4>
-                        <div class="widget-content">
-                            <p class="text-3-5 font-weight-medium pe-lg-2">' . $widget->content . '</p>
-                            ' . $tweetDetails . '
-                            ' . ($widget->allow_social_media ? $socialMedia : '') . '
-                        </div>
-                        ' . $mailchimpSection . '
-                    </div>
-                </div>';
-                }
-
-                $footerWidgetTypes = ['footer1', 'footer2', 'footer3'];
-                foreach ($footerWidgetTypes as $widgetType) {
-                    $widget = \App\Model\Front\Widgets::where('publish', 1)->where('type', $widgetType)->select('name', 'content', 'allow_tweets', 'allow_mailchimp', 'allow_social_media')->first();
-                    $mailchimpKey = \App\Model\Common\Mailchimp\MailchimpSetting::value('api_key');
-                    if($widget && $widget->allow_mailchimp === 1){
-                        $isV2RecaptchaEnabledForNewsletter = 1;
-                    }
-                    if ($widget) {
-                        echo renderWidget($widget, $set, $social, $mailchimpKey);
-                    }
-                }
-                ?>
             </div>
         </div>
 
@@ -995,7 +891,20 @@ $days = $pay->where('product','117')->value('days');
         </div>
     </footer>
 </div>
+<?php
+$footerWidgetTypes = ['footer1', 'footer2', 'footer3'];
+foreach ($footerWidgetTypes as $widgetType) {
+    $widget = \App\Model\Front\Widgets::where('publish', 1)->where('type', $widgetType)->select('name', 'content', 'allow_tweets', 'allow_mailchimp', 'allow_social_media')->first();
+    $mailchimpKey = \App\Model\Common\Mailchimp\MailchimpSetting::value('api_key');
+    if($widget && $widget->allow_mailchimp === 1){
+        $isV2RecaptchaEnabledForNewsletter = 1;
+    }
+}
+?>
+<script>
 
+
+</script>
 <!-- Vendor -->
 <script src="{{asset('client/porto/js-2/plugins.min.js')}}"></script>
 
@@ -1087,19 +996,55 @@ setTimeout(function() {
 </script>
 
   <script>
+      $(document).ready(function(){
+          $.ajax({
+              type: "GET",
+              url: "{{url('footer1')}}",
+              success: function (data) {
 
-      let mailchimp_recaptcha_id;
-      let recaptchaTokenMailChimp;
-      @if(!Auth::check() && $status->recaptcha_status === 1 && isset($isV2RecaptchaEnabledForNewsletter) && $isV2RecaptchaEnabledForNewsletter === 1)
-      recaptchaFunctionToExecute.push(() => {
-          mailchimp_recaptcha_id = grecaptcha.render('mailchimp_recaptcha', { 'sitekey': siteKey });
-      });
-      @endif
+                  var data1=data['data']['footer1'];
+                  var data2=data['data']['footer2'];
+                  var data3=data['data']['footer3'];
+                  var target=document.getElementById('footer1');
+                  [data1, data2, data3].forEach(data => {
+                      if (data !== undefined) {
+                          target.insertAdjacentHTML('beforeend', data);
+                      }
+                  });
+                  mailchimp_render();
+              }
+          });
+      })
+
+      function mailchimp_render() {
+          @if(!Auth::check() && $status->recaptcha_status === 1 && $status->v3_v2_recatcha_status && isset($isV2RecaptchaEnabledForNewsletter) && $isV2RecaptchaEnabledForNewsletter === 1)
+
+          const el = document.getElementById('mailchimp_recaptcha');
+          if (el) {
+              const renderFn = () => {
+                  grecaptcha.render('mailchimp_recaptcha', {
+                      sitekey: siteKey
+                  });
+              };
+
+              if (grecaptchaLoaded && window.grecaptcha) {
+                  renderFn(); // grecaptcha is already ready, run immediately
+              } else {
+                  recaptchaFunctionToExecute.push(renderFn); // queue it for later
+              }
+          } else {
+              console.warn('mailchimp_recaptcha not found in DOM yet');
+          }
+          @endif
+      }
+
+
     </script>
 <script>
 
     $(document).ready(function() {
-        $('#mailchimp-subscription').on('click', function(e) {
+        $(document).on('click', '#mailchimp-subscription', function (e) {
+
             e.preventDefault();
 
             // Select elements using jQuery
@@ -1360,6 +1305,21 @@ setTimeout(function() {
 
         demotelInput.on('input blur', function () {
             resetdemo();
+            // if ($.trim(demotelInput.val())) {
+            //     if (validatePhoneNumber(demotelInput.get(0))) {
+            //         $('#mobilenumdemo').css("border-color","");
+            //         $("#error-msgdemo").html('');
+            //         errorMsgdemo.classList.add("hide");
+            //         $('#demoregister').attr('disabled',false);
+            //     } else {
+            //         errorMsgdemo.classList.remove("hide");
+            //
+            //         errorMsgdemo.innerHTML = "Please enter a valid number";
+            //         $('#mobilenumdemo').css("border-color","red");
+            //         $('#error-msgdemo').css({"color":"red","margin-top":"5px"});
+            //         $('#demoregister').attr('disabled',true);
+            //     }
+            // }
             if ($.trim(demotelInput.val())) {
                 if (validatePhoneNumber(demotelInput.get(0))) {
                     $('#mobilenumdemo').css("border-color","");
@@ -1614,6 +1574,14 @@ setTimeout(function() {
         left: 0;
         font-size: 12px;
         color: red;
+    }
+
+    .widget-container {
+        margin-top:30px !important;
+    }
+
+    .modal-footer {
+        justify-content: space-between !important;
     }
 
 </style>

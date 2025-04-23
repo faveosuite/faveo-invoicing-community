@@ -427,7 +427,6 @@ class LicenseController extends Controller
         $installation_date = [];
         $installation_status = [];
         $details = json_decode($this->searchInstallationId($licenseCode));
-
         if ($details && $details->api_error_detected == 0 && is_array($details->page_message)) {
             foreach ($details->page_message as $detail) {
                 if ($detail->product_id == $productId) {

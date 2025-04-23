@@ -461,6 +461,7 @@
                                         <label role="button" class="custom-file-label" for="logo">{{ __('message.choose_file') }}</label>
                                     </div>
                                 </div>
+                                <span class="hide system-error" id="logo-err-Msg"></span>
 
                                 @if($errors->has('logo'))
                                     <small class="form-text text-danger mt-1">

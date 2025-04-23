@@ -41,9 +41,6 @@ active
 
 @section('content')
    @php
-            $set = App\Model\Common\Setting::where('id', '1')->first();
-            $date = getDateHtml($invoice->date);
-            $symbol = $invoice->currency;
             $itemsSubtotal = 0;
             $taxAmt = 0;
         @endphp
@@ -71,25 +68,6 @@ active
                         <h4 class="mb-0">{{ __('message.date')}} {!! $date !!}</h4>
                     </div>
 
-                    @php
-                $statusClass = '';
-                $statusText = '';
-
-                switch ($invoice->status) {
-                    case 'Success':
-                        $statusClass = 'text-success';
-                        $statusText = 'PAID';
-                        break;
-                    case 'partially paid':
-                        $statusClass = 'text-warning';
-                        $statusText = 'Partially paid';
-                        break;
-                    default:
-                        $statusClass = 'text-fail';
-                        $statusText = 'Unpaid';
-                        break;
-                }
-                @endphp
 
                     <div class="overflow-hidden mb-4">
                      <h2 class="font-weight-normal text-7 mb-0 {{ $statusClass }}">
@@ -325,7 +303,6 @@ active
                 </div>
             </div>
   
-        
           @if(!$payments->isEmpty())
             <div class="card p-3 mt-3">
 
@@ -336,8 +313,6 @@ active
 
                         @php
                         $DateTime = getDateHtml($payment->created_at);
-                        $orderid = \DB::table('orders')->where('invoice_id',$invoice->id)->value('id');
-
                         @endphp
 
                         <thead>

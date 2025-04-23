@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
 use App\Model\Common\StatusSetting;
+use App\Model\Common\SocialMedia;
 use App\Model\Front\Widgets;
 use Illuminate\Http\Request;
 
@@ -223,4 +224,132 @@ class WidgetController extends Controller
                 </div>';
         }
     }
+
+
+    /**
+     * This function returns the rendered widget.
+     *
+     * @param
+     * @param
+     * @return \HTTP
+     * @throws
+     */
+    public function footer1(){
+
+        $set = new \App\Model\Common\Setting();
+        $set = $set->findOrFail(1);
+        $social = SocialMedia::get();
+        $footerWidgetTypes = ['footer1','footer2','footer3'];
+        $isV2RecaptchaEnabledForNewsletter=0;
+        foreach ($footerWidgetTypes as $widgetType) {
+            $widget = \App\Model\Front\Widgets::where('publish', 1)->where('type', $widgetType)->select('name', 'content', 'allow_tweets', 'allow_mailchimp', 'allow_social_media')->first();
+            $mailchimpKey = \App\Model\Common\Mailchimp\MailchimpSetting::value('api_key');
+
+            if ($widget) {
+                $data[$widgetType]=$this->renderWidget($widget, $set, $social, $mailchimpKey);
+            }
+        }
+        return successResponse('success', $data);
+    }
+
+    /**
+     * This function renders the footer widget.
+     *
+     * @param $widget
+     * @param $set
+     * @param $social
+     * @param $mailchimpKey
+     * @return string
+     */
+    function renderWidget($widget, $set, $social, $mailchimpKey)
+    {
+        $tweetDetails = $widget->allow_tweets == 1 ? '<div id="tweets" class="twitter"></div>' : '';
+
+        $socialMedia = '';
+        if ($widget->allow_social_media) {
+            // Social Media Icons
+            $socialMedia .= '<ul class="list list-unstyled">';
+            if ($set->company_email) {
+                $socialMedia .= '<li class="d-flex align-items-center mb-4">
+                                    <i class="fa-regular fa-envelope fa-xl"></i>&nbsp;&nbsp;
+                                    <a href="mailto:' . $set->company_email . '" class="d-inline-flex align-items-center text-decoration-none text-color-grey text-color-hover-primary font-weight-semibold text-4-5">' . $set->company_email . '</a>
+                                </li>';
+            }
+            if ($set->phone) {
+                $socialMedia .= '<li class="d-flex align-items-center mb-4">
+                                    <i class="fas fa-phone text-4 p-relative top-2"></i>&nbsp;
+                                    <a href="tel:' . $set->phone . '" class="d-inline-flex align-items-center text-decoration-none text-color-grey text-color-hover-primary font-weight-semibold text-4-5">+' . $set->phone_code . ' ' . $set->phone . '</a>
+                                </li>';
+            }
+            $socialMedia .= '</ul>';
+
+            // Social Icons
+            $socialMedia .= '<ul class="social-icons social-icons-clean social-icons-medium">';
+            foreach ($social as $media) {
+                $socialMedia .= '<li class="social-icons-' . strtolower($media->name) . '">
+                                    <a href="' . $media->link . '" target="_blank" data-bs-toggle="tooltip" title="' . ucfirst($media->name) . '">
+                                        <i class="fab fa-' . strtolower($media->name) . ' text-color-grey-lighten"></i>
+                                    </a>
+                                </li>';
+            }
+            $socialMedia .= '</ul>';
+        }
+
+        $status =  StatusSetting::select('recaptcha_status','v3_recaptcha_status', 'msg91_status', 'emailverification_status', 'terms')->first();
+
+        $mailchimpSection = '';
+        if ($mailchimpKey !== null && $widget->allow_mailchimp == 1) {
+            $mailchimpSection .= '<div id="mailchimp-message" style="width: 86%;"></div>
+                                                <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center">
+                                                    <form id="newsletterForm" class="form-style-3 w-100">
+                                                        <div class="input-group mb-3">
+                                                            <input class="custom-input newsletterEmail" placeholder="Email Address" name="newsletterEmail" id="newsletterEmail" type="email">
+                                                        </div>
+                                                        <!-- Honeypot fields (hidden) -->
+                                                        <div class="mb-3" style="display: none;">
+                                                            <label>Leave this field empty</label>
+                                                            <input type="text" name="mailhoneypot_field" value="">
+                                                        </div>';
+            if ($status->recaptcha_status === 1 || $status->v3_recaptcha_status === 1) {
+
+                if ($status->recaptcha_status === 1) {
+                    $mailchimpSection .= '
+            <div class="mb-3">
+                <div id="mailchimp_recaptcha"></div>
+                <div class="robot-verification mb-3" id="mailchimpcaptcha"></div>
+                <span id="mailchimpcaptchacheck"></span>
+            </div>
+        ';
+                } elseif ($status->v3_recaptcha_status === 1) {
+                    $mailchimpSection .= '
+                <input type="hidden" id="g-recaptcha-mailchimp" class="g-recaptcha-token" name="g-recaptcha-response">
+        ';
+                }
+            }
+            $mailchimpSection .= '<button class="btn btn-primary mb-3" id="mailchimp-subscription" type="submit"><strong>GO!</strong></button>
+                                            </form>
+                                          </div>';
+        }
+
+        // Check if the 'menu' class exists in the widget content
+        $hasMenuClass = strpos($widget->content, 'menu') !== false;
+
+        // Add class if 'menu' class exists in the widget content
+        if ($hasMenuClass) {
+            $widget->content = str_replace('<ul', '<ul class="list list-styled columns-lg-2 px-2"', $widget->content);
+        }
+
+        return '<div class="col-lg-4">
+                    <div class="widget-container">
+                        <h4 class="text-color-dark font-weight-bold mb-3">' . $widget->name . '</h4>
+                        <div class="widget-content">
+                            <p class="text-3-5 font-weight-medium pe-lg-2">' . $widget->content . '</p>
+                            ' . $tweetDetails . '
+                            ' . ($widget->allow_social_media ? $socialMedia : '') . '
+                        </div>
+                        ' . $mailchimpSection . '
+                    </div>
+                </div>';
+    }
+
 }

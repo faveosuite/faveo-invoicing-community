@@ -29,7 +29,7 @@ class CaptchaValidation implements ValidationRule
         try {
             // Check if reCAPTCHA is enabled
             $settings = StatusSetting::find(1);
-            if ($settings->v3_recaptcha_status !== 1 && $settings->recaptcha_status !== 1) {
+            if ($settings->v3_recaptcha_status !== 1 && $settings->recaptcha_status !== 1 && $settings->v3_v2_recaptcha_status !== 1) {
                 return; // Skip validation if disabled
             }
             // Get the secret key

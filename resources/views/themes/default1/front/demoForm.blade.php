@@ -18,10 +18,10 @@ $status =  App\Model\Common\StatusSetting::select('recaptcha_status','v3_recaptc
 
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true">&times;</button>
                 </div>
-                <div id="alert-container-demo"></div>
+
 
                 <div class="modal-body">
-
+                    <div id="alert-container-demo"></div>
                     <div class="row">
 
                         <div class="col">
@@ -269,19 +269,23 @@ $status =  App\Model\Common\StatusSetting::select('recaptcha_status','v3_recaptc
                 $('#mobilenumdemo').val($('#mobilenumdemo').val().replace(/\D/g, ''));
                 var formData = $(form).serialize();
                 var submitButton = $('#demoregister');
+                $('#demoregister').attr('disabled',true)
+                $("#demoregister").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
                 $.ajax({
-                    url: 'demo-request',
+                    url: '{{url('demo-request')}}',
                     type: 'POST',
                     data: formData,
                     beforeSend: function() {
                         submitButton.prop('disabled', true).html(submitButton.data('loading-text'));
                     },
                     success: function(response) {
+                        $('#demoregister').attr('disabled',false)
+                        $("#demoregister").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>Book a Demo");
                         form.reset();
                         showAlert('success', response.message);
-                        setTimeout(function() {
-                            window.location.reload();
-                        }, 3500);
+                        // setTimeout(function() {
+                        //     window.location.reload();
+                        // }, 3500);
                     },
                     error: function(data) {
                         var response = data.responseJSON ? data.responseJSON : JSON.parse(data.responseText);

@@ -182,6 +182,13 @@ main
     justify-content: center !important;
 }
 
+select {
+    width: 175px !important; /* Set your desired width */
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+ }
+
 /* Firefox-only CSS */
 @-moz-document url-prefix() {
     /* Firefox-specific CSS rules here */
@@ -248,6 +255,9 @@ main
 
 
 <script>
+    $('.owl-carousel select').on('mousedown touchstart', function (e) {
+        e.stopPropagation();
+    });
   $(document).ready(function() {
     $('.toggle_event_editing input').on('change', function() {
       const toggleValue = $(this).prop('checked');
@@ -305,6 +315,7 @@ $(document).ready(function() {
       document.querySelectorAll(".content-switcher").forEach(function (switcher) {
           const card = switcher.closest(".card");
           const priceElement = card.querySelector(".price");
+          const priceLabel=card.querySelector(".price-label");
           const priceUnit = priceElement.querySelector(".price-unit");
           const stylePlanSelect = card.querySelector(".stylePlan");
 
@@ -316,10 +327,11 @@ $(document).ready(function() {
                   const selectedOption = this.options[this.selectedIndex];
                   const newPrice = selectedOption.getAttribute("data-price");
                   const newCurrency = selectedOption.textContent.trim().charAt(0);
-
+                  const newLabel= selectedOption.getAttribute("data-description");
                   if (priceUnit && newPrice) {
                       priceUnit.textContent = newCurrency;
                       priceUnit.nextSibling.textContent = newPrice;
+                      priceLabel.textContent=newLabel;
                   }
               });
           }
