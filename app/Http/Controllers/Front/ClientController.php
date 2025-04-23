@@ -241,11 +241,9 @@ class ClientController extends BaseClientController
         ->select('invoices.id', 'invoices.user_id', 'invoices.date', 'invoices.number', 'invoices.grand_total', 'order_invoice_relations.order_id as orderNo', 'invoices.is_renewed', 'invoices.status', 'invoices.currency')
         ->groupBy('invoices.number')
         ->where('invoices.user_id', '=', \Auth::user()->id);
-
         if ($status == 'pending') {
             $invoices->where('invoices.status', '=', 'pending');
         }
-
         return \DataTables::of($invoices)
                     ->orderColumn('number', '-invoices.date $1')
                     ->orderColumn('orderNo', '-invoices.date $1')
@@ -412,7 +410,6 @@ class ClientController extends BaseClientController
             $invoice_id = Invoice::where('number', $invoiceid)->pluck('id')->first();
             $order = Order::where('invoice_id', '=', $invoice_id)->first();
             $order_id = $order->id;
-
             $versions = ProductUpload::where('product_id', $productid)->where('is_private', 0)
                 ->select(
                     'id',
@@ -439,7 +436,6 @@ class ClientController extends BaseClientController
                 ->first();
 
             $downloadPermission = LicensePermissionsController::getPermissionsForProduct($productid);
-
             return \DataTables::of($versions)
                 ->addColumn('id', function ($version) {
                     return ucfirst($version->id);
@@ -659,7 +655,10 @@ class ClientController extends BaseClientController
         return Order::leftJoin('products', 'products.id', '=', 'orders.product')
             ->leftJoin('subscriptions', 'orders.id', '=', 'subscriptions.order_id')
             ->leftJoin('invoices', 'orders.invoice_id', 'invoices.id')
-            ->select('products.name as product_name', 'products.github_owner', 'products.github_repository', 'products.type', 'products.id as product_id', 'orders.id', 'orders.number', 'orders.client', 'subscriptions.id as sub_id', 'subscriptions.version', 'subscriptions.update_ends_at', 'products.name', 'orders.client', 'invoices.id as invoice_id', 'invoices.number as invoice_number', 'orders.created_at as date', 'orders.price_override as price', 'orders.serial_key', 'orders.order_status')
+            ->select('products.name as product_name', 'products.github_owner', 'products.github_repository', 'products.type', 'products.id as product_id',
+                'orders.id', 'orders.number', 'orders.client', 'subscriptions.id as sub_id', 'subscriptions.version', 'subscriptions.update_ends_at', 'products.name',
+                'orders.client', 'invoices.id as invoice_id', 'invoices.number as invoice_number', 'orders.created_at as date', 'orders.price_override as price',
+                'orders.serial_key', 'orders.order_status')
             ->where('orders.client', \Auth::user()->id);
     }
 
@@ -738,9 +737,8 @@ class ClientController extends BaseClientController
             $licenseStatus = StatusSetting::pluck('license_status')->first();
             $installationDetails = [];
 
-            $cont = new \App\Http\Controllers\License\LicenseController();
+            $cont = app(\App\Http\Controllers\License\LicenseController::class);
             $installationDetails = $cont->searchInstallationPath($order->serial_key, $order->product);
-
             $statusAutorenewal = Subscription::where('order_id', $id)->value('is_subscribed');
 
             $status = Subscription::where('order_id', $id)->value('autoRenew_status');
@@ -763,7 +761,6 @@ class ClientController extends BaseClientController
                 ->select('id', 'invoice_id', 'user_id', 'amount', 'payment_method', 'payment_status', 'created_at')
                 ->orderByDesc('created_at')
                 ->first();
-
             return view(
                 'themes.default1.front.clients.show-order',
                 compact('invoice', 'order', 'user', 'product', 'subscription', 'licenseStatus', 'installationDetails', 'allowDomainStatus', 'date', 'licdate', 'versionLabel', 'installationDetails', 'id', 'statusAutorenewal', 'status', 'payment_log', 'recentPayment')
@@ -888,8 +885,7 @@ class ClientController extends BaseClientController
             $query->where('update_ends_at', '<', now());
         })
         ->count();
-
-        return view('themes.default1.front.clients.index', compact('pendingInvoicesCount', 'ordersCount', 'renewalCount'));
+            return view('themes.default1.front.clients.index', compact('pendingInvoicesCount', 'ordersCount', 'renewalCount'));
     }
 
     /**

@@ -211,6 +211,7 @@ class CloudExtraActivities extends Controller
             $planId = $request->id;
             $agents = $request->agents;
             $orderId = $request->orderId;
+            \Session::put('creditOrderId', $orderId);
             $oldLicense = Order::where('id', $orderId)->latest()->value('serial_key');
             $installation_path = InstallationDetail::where('order_id', $orderId)->where('installation_path', '!=', cloudCentralDomain())->latest()->value('installation_path');
 //            if (empty($installation_path)) {
@@ -221,7 +222,6 @@ class CloudExtraActivities extends Controller
             $items = $this->getThePaymentCalculationUpgradeDowngrade($agents, $oldLicense, $orderId, $planId);
 
             \Cart::add($items); //Add Items To the Cart Collection
-
             \Session::put('upgradeDowngradeProduct', \Auth::user()->id);
             \Session::put('upgradeOldLicense', $oldLicense);
             \Session::put('upgradeorderId', $orderId);
@@ -327,7 +327,8 @@ class CloudExtraActivities extends Controller
             \Session::forget('oldLicense');
             \Session::forget('increase-decrease-days');
             \Session::forget('increase-decrease-days-dont-cloud');
-
+            \Session::forget('discount');
+            \Session::forget('nothingLeft');
             $planIdOld = Subscription::where('order_id', $orderId)->value('plan_id');
 
             $ends_at = Subscription::where('order_id', $orderId)->value('ends_at');
@@ -459,7 +460,12 @@ class CloudExtraActivities extends Controller
                             $price = $priceToBePaid - $priceRemaining;
                         } else {
                             $discount = $priceRemaining - $priceToBePaid;
-                            $price = 0;
+                            \Session::put('nothingLeft','0');
+                            \DB::table('users')->where('id', \Auth::user()->id)->update(['billing_pay_balance' => 1]);
+
+                            \Session::put('discount', round($discount));
+
+                            $price = $priceToBePaid;
                             $pay = \DB::table('payments')->where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('amt_to_credit');
                             $payUpdate = \DB::table('payments')->where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->get();
 
@@ -467,22 +473,23 @@ class CloudExtraActivities extends Controller
                             $payment_id = \DB::table('payments')->where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('id');
                             $orderNumber = Order::where('id', $orderId)->value('number');
                             $formattedPay = currencyFormat($pay, getCurrencyForClient(\Auth::user()->country), true);
-                            if (! $payUpdate->isEmpty()) {
-                                $pay = $pay + round($discount);
-                                Payment::where('user_id', \Auth::user()->id)->where('payment_status', 'success')->update(['amt_to_credit' => $pay]);
-
-                                $messageAdmin = 'An amount of '.$formattedValue.' has been added to the existing balance due to a product downgrade. You can view the details of the downgraded order here: '.
-                                    '<a href="'.config('app.url').'/orders/'.$orderId.'">'.$orderNumber.'</a>.';
-
-                                $messageClient = 'An amount of '.$formattedValue.' has been added to your existing balance due to a product downgrade. You can view the details of the downgraded order here: '.
-                                    '<a href="'.config('app.url').'/my-order/'.$orderId.'">'.$orderNumber.'</a>.';
-
-                                \DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageAdmin, 'role' => 'admin', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
-                                \DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageClient, 'role' => 'user', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
-                            } else {
-                                \Session::put('discount', round($discount));
-                                (new ExtendedBaseInvoiceController())->multiplePayment(\Auth::user()->id, [0 => 'Credit Balance'], 'Credit Balance', Carbon::now(), $price, null, round($discount), 'pending');
-                            }
+                            
+//                            if (! $payUpdate->isEmpty()) {
+//                                $pay = $pay + round($discount);
+//                                Payment::where('user_id', \Auth::user()->id)->where('payment_status', 'success')->update(['amt_to_credit' => $pay]);
+//
+//                                $messageAdmin = 'An amount of '.$formattedValue.' has been added to the existing balance due to a product downgrade. You can view the details of the downgraded order here: '.
+//                                    '<a href="'.config('app.url').'/orders/'.$orderId.'">'.$orderNumber.'</a>.';
+//
+//                                $messageClient = 'An amount of '.$formattedValue.' has been added to your existing balance due to a product downgrade. You can view the details of the downgraded order here: '.
+//                                    '<a href="'.config('app.url').'/my-order/'.$orderId.'">'.$orderNumber.'</a>.';
+//
+//                                \DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageAdmin, 'role' => 'admin', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
+//                                \DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageClient, 'role' => 'user', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
+//                            } else {
+//                                \Session::put('discount', round($discount));
+//                                (new ExtendedBaseInvoiceController())->multiplePayment(\Auth::user()->id, [0 => 'Credit Balance'], 'Credit Balance', Carbon::now(), $price, null, round($discount), 'pending');
+//                            }
                         }
                     } else {
                         $priceToBePaid = $pricePerDayForNewPlan * $daysRemain;
@@ -493,7 +500,10 @@ class CloudExtraActivities extends Controller
                             $price = $priceToBePaid - $priceRemaining;
                         } else {
                             $discount = $priceRemaining - $priceToBePaid;
-                            $price = 0;
+                            \Session::put('nothingLeft','0');
+                            \DB::table('users')->where('id', \Auth::user()->id)->update(['billing_pay_balance' => 1]);
+                            \Session::put('discount', round($discount));
+                            $price = $priceToBePaid;
                             $pay = \DB::table('payments')->where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('amt_to_credit');
                             $payUpdate = \DB::table('payments')->where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->get();
 
@@ -502,30 +512,32 @@ class CloudExtraActivities extends Controller
                             $orderNumber = Order::where('id', $orderId)->value('number');
                             $formattedPay = currencyFormat($pay, getCurrencyForClient(\Auth::user()->country), true);
 
-                            if (! $payUpdate->isEmpty()) {
-                                $pay = $pay + round($discount);
-                                Payment::where('user_id', \Auth::user()->id)->where('payment_status', 'success')->update(['amt_to_credit' => $pay]);
-
-                                $messageAdmin = 'An amount of '.$formattedValue.' has been added to the existing balance due to an order downgrade. You can view the details of the downgraded order here: '.
-                                    '<a href="'.config('app.url').'/orders/'.$orderId.'">'.$orderNumber.'</a>.';
-
-                                $messageClient = 'An amount of '.$formattedValue.' has been added to your existing balance due to an order downgrade. You can view the details of the downgraded order here: '.
-                                    '<a href="'.config('app.url').'/my-order/'.$orderId.'">'.$orderNumber.'</a>.';
-
-                                \DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageAdmin, 'role' => 'admin', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
-                                \DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageClient, 'role' => 'user', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
-                            } else {
-                                \Session::put('discount', round($discount));
-                                (new ExtendedBaseInvoiceController())->multiplePayment(\Auth::user()->id, [0 => 'Credit Balance'], 'Credit Balance', Carbon::now(), $price, null, round($discount), 'pending');
-                            }
+//                            if (! $payUpdate->isEmpty()) {
+//                                $pay = $pay + round($discount);
+//                                Payment::where('user_id', \Auth::user()->id)->where('payment_status', 'success')->update(['amt_to_credit' => $pay]);
+//
+//                                $messageAdmin = 'An amount of '.$formattedValue.' has been added to the existing balance due to an order downgrade. You can view the details of the downgraded order here: '.
+//                                    '<a href="'.config('app.url').'/orders/'.$orderId.'">'.$orderNumber.'</a>.';
+//
+//                                $messageClient = 'An amount of '.$formattedValue.' has been added to your existing balance due to an order downgrade. You can view the details of the downgraded order here: '.
+//                                    '<a href="'.config('app.url').'/my-order/'.$orderId.'">'.$orderNumber.'</a>.';
+//
+//                                \DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageAdmin, 'role' => 'admin', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
+//                                \DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageClient, 'role' => 'user', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
+//                            } else {
+//                                \Session::put('discount', round($discount));
+//                                (new ExtendedBaseInvoiceController())->multiplePayment(\Auth::user()->id, [0 => 'Credit Balance'], 'Credit Balance', Carbon::now(), $price, null, round($discount), 'pending');
+//                            }
                         }
                     }
                 }
             }
+
             \Session::put('priceRemaining', round($priceRemaining));
             \Session::put('priceToBePaid', round($priceToBePaid));
             $items = ['id' => $product_id_new, 'name' => $productNew->name, 'price' => round(abs($price)), 'planId' => $planIdNew,
-                'quantity' => 1, 'attributes' => ['currency' => $currencyNew['currency'], 'symbol' => $currencyNew['symbol'], 'agents' => $newAgents], 'associatedModel' => $productNew];
+                'quantity' => 1, 'attributes' => ['currency' => $currencyNew['currency'], 'symbol' => $currencyNew['symbol'], 'agents' => $newAgents,
+                    'priceRemaining'=>$priceRemaining,'priceToBePaid'=>$priceToBePaid], 'associatedModel' => $productNew];
 
             return $items;
         } catch(\Exception $e) {
@@ -668,10 +680,11 @@ class CloudExtraActivities extends Controller
 
     public function formatCurrency(Request $request)
     {
+
         $amount = $request->input('amount');
         $currency = $request->input('currency');
-        \Session::forget('nothingLeft');
         if (! $amount && User::where('id', \Auth::user()->id)->value('billing_pay_balance')) {
+            \Session::forget('nothingLeft');
             \Session::put('nothingLeft', $amount);
         }
         if ($request->has('invoiceId') && $request->has('alter')) {
@@ -917,7 +930,6 @@ class CloudExtraActivities extends Controller
                     }
                 }
             }
-
             return ['pricePerAgent' => currencyFormat($base_price, $currency['currency'], true), 'totalPrice' => currencyFormat($base_price * $newAgents, $currency['currency'], true), 'priceToPay' => currencyFormat($price, $currency['currency'], true)];
         } catch(\Exception $e) {
             app('log')->error($e->getMessage());

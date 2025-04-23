@@ -90,7 +90,7 @@
                                         @endif
                                     </td>
                                 </tr>
-                               
+
                                 @endforeach
 
                                 <tr class="total">

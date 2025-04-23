@@ -1,6 +1,5 @@
 <a href="#renew" <?php if(\Cart::getContent()->isNotEmpty()) {?> class="btn btn-light-scale-2 btn-sm text-dark" data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="Make sure the cart is empty to Renew your product" onclick="return false" <?php } else {?> class="btn btn-light-scale-2 btn-sm text-dark" <?php } ?> data-toggle="modal" data-target="#renew{{$id}}"><i class="fa fa-refresh" @if( \Cart::getContent()->isEmpty()) data-toggle="tooltip" title="Click here to renew" @endif></i>&nbsp;</a>
 <div class="modal fade" id="renew{{$id}}" tabindex="-1" role="dialog" aria-labelledby="renewModalLabel" aria-hidden="true">
-
                             <div class="modal-dialog">
                                  {!! Form::open(['url'=>'client/renew/'.$id,'data-form-id'=>"$id"]) !!}
 
@@ -125,7 +124,6 @@
 
         const userFields = {
             planname: form.find(`#plan${formId}`),
-            planproduct: form.find(`#agents${formId}`)
         };
 
         const userRequiredFields = {
@@ -177,19 +175,19 @@
         var shouldFetchPlanCost = true; // Disable further calls until needed
 
    function fetchPlanCost(planId,agents=null) {
+
        // Show the loader and disable modal body
        // Show the loader and disable modal body
        $('.loader-wrapper').show();
        $('.overlay').show(); // Show the overlay
        $('.modal-body').css('pointer-events', 'none');
 
-       if(!shouldFetchPlanCost){
-           return
-       }
+       // if(!shouldFetchPlanCost){
+       //     return
+       // }
        var user = document.getElementsByName('user')[0].value;
        shouldFetchPlanCost = false;
        agents=$('.agents').val();
-
        $.ajax({
            type: "get",
            url: "{{ url('get-renew-cost') }}",

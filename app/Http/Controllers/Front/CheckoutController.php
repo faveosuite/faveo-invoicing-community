@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Common\MailChimpController;
 use App\Http\Controllers\Common\TemplateController;
+use App\Http\Controllers\Order\ExtendedBaseInvoiceController;
 use App\Http\Controllers\Tenancy\TenantController;
 use App\Model\Common\FaveoCloud;
 use App\Model\Common\Setting;
@@ -22,6 +23,7 @@ use App\Model\Product\Subscription;
 use App\Traits\Payment\PostPaymentHandle;
 use App\Traits\TaxCalculation;
 use App\User;
+use Carbon\Carbon;
 use Cart;
 use Darryldecode\Cart\CartCondition;
 use GuzzleHttp\Client;
@@ -123,6 +125,7 @@ class CheckoutController extends InfoController
         //         return redirect('paynow/'.$invoice->id)->with('fails', 'Payment cannot be processed. Please try the other gateway.');
         //     }
         // }
+
         $content = Cart::getContent();
         $taxConditions = $this->getAttributes($content);
         try {
@@ -149,7 +152,11 @@ class CheckoutController extends InfoController
                 }
                 \Session::put('cloud_domain', $domain);
             }
-
+            if(\Session::has('priceRemaining')){
+            $total = \Session::get('priceRemaining') > \Cart::getTotal() ? \Session::get('priceRemaining') - \Cart::getTotal() : \Session::get('discount');
+            \Session::forget('discount');
+            \Session::put('discount', $total);
+        }
             return view('themes.default1.front.checkout', compact('content', 'taxConditions', 'discountPrice', 'domain'));
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
@@ -184,10 +191,9 @@ class CheckoutController extends InfoController
                     $taxConditions = $this->calculateTax($item->associatedModel->id, \Auth::user()->state, \Auth::user()->country); //Calculate Tax Condition by passing ProductId
                     Cart::condition($taxConditions);
                     Cart::remove($item->id);
-
                     //Return array of Product Details,attributes and their conditions
                     $items[] = ['id' => $item->id, 'name' => $item->name, 'price' => $item->price,
-                        'quantity' => $item->quantity, 'attributes' => ['currency' => $cart_currency, 'symbol' => $item->attributes->symbol, 'agents' => $item->attributes->agents, 'domain' => optional($item->attributes)->domain], 'associatedModel' => Product::find($item->associatedModel->id), 'conditions' => $taxConditions, ];
+                        'quantity' => $item->quantity, 'attributes' => ['currency' => $cart_currency, 'symbol' => $item->attributes->symbol, 'agents' => $item->attributes->agents, 'domain' => optional($item->attributes)->domain,'priceToBePaid'=>$item->attributes->priceToBePaid,'priceRemaining'=>$item->attributes->priceRemaining], 'associatedModel' => Product::find($item->id), 'conditions' => $taxConditions, ];
                 }
                 Cart::add($items);
 
@@ -233,8 +239,10 @@ class CheckoutController extends InfoController
     {
         $isTrue = 1;
         $cost = $request->input('cost');
+        $discount=\Session::get('discount');
 
         if (\Session::has('nothingLeft')) {
+            \DB::table('users')->where('id', \Auth::user()->id)->update(['billing_pay_balance'=>1]);
             $isTrue = \Session::get('nothingLeft');
         }
 
@@ -255,15 +263,18 @@ class CheckoutController extends InfoController
             $payment_method = ($isTrue) ? $request->input('payment_gateway') : 'Credits';
             \Session::put('payment_method', $payment_method);
             $paynow = $this->checkregularPaymentOrRenewal($request->input('invoice_id'));
+
             $cost = $request->input('cost');
             $state = $this->getState();
 
             if ($paynow === false) {//When regular payment
                 $invoice = $invoice_controller->generateInvoice();
                 $amount = intval(Cart::getSubTotal());
+
                 if (\Session::has('nothingLeft')) {
                     $amount = \Session::get('nothingLeft');
                 }
+
                 if ($amount) {//If payment is for paid product
                     \Event::dispatch(new \App\Events\PaymentGateway(['request' => $request, 'invoice' => $invoice]));
                 } else {
@@ -277,6 +288,7 @@ class CheckoutController extends InfoController
                     $orderNumber = Order::where('invoice_id', $invoice->id)->value('number');
 
                     $orders = Order::where('invoice_id', $invoice->id)->get();
+
                     $url = view('themes.default1.front.postCheckoutTemplate', compact('invoice', 'date', 'product', 'items', 'orders', 'orderNumber', 'show'))->render();
                     // }
                     \Cart::clear();
@@ -289,6 +301,32 @@ class CheckoutController extends InfoController
                         (new TenantController(new Client, new FaveoCloud()))->createTenant(new Request(['orderNo' => $orderNumber, 'domain' => $invoice->cloud_domain]));
                     }
                     $this->performCloudActions($invoice);
+
+                    $payUpdate = \DB::table('payments')->where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->get();
+                    $pay = \DB::table('payments')->where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('amt_to_credit');
+                    $formattedValue = currencyFormat(round($discount), getCurrencyForClient(\Auth::user()->country), true);
+                    $payment_id = \DB::table('payments')->where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('id');
+                    $formattedPay = currencyFormat($pay, getCurrencyForClient(\Auth::user()->country), true);
+                    $orderId=\Session::get('creditOrderId');
+                    $orderNumber = Order::where('id', $orderId)->value('number');
+                    if($discount != null) {
+                        if (!$payUpdate->isEmpty()) {
+                            $pay = $pay + round($discount);
+                            Payment::where('user_id', \Auth::user()->id)->where('payment_status', 'success')->update(['amt_to_credit' => $pay]);
+
+                            $messageAdmin = 'An amount of ' . $formattedValue . ' has been added to the existing balance due to a product downgrade. You can view the details of the downgraded order here: ' .
+                                '<a href="' . config('app.url') . '/orders/' . $orderId . '">' . $orderNumber . '</a>.';
+
+                            $messageClient = 'An amount of ' . $formattedValue . ' has been added to your existing balance due to a product downgrade. You can view the details of the downgraded order here: ' .
+                                '<a href="' . config('app.url') . '/my-order/' . $orderId . '">' . $orderNumber . '</a>.';
+                            \DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageAdmin, 'role' => 'admin', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
+                            \DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageClient, 'role' => 'user', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
+                        } else {
+                            $price = 0;
+                            \Session::put('discount', round($discount));
+                            (new ExtendedBaseInvoiceController())->multiplePayment(\Auth::user()->id, [0 => 'Credit Balance'], 'Credit Balance', Carbon::now(), $price, null, round($discount), 'pending');
+                        }
+                    }
 
                     return redirect('checkout')->with('Success', $url);
                 }
@@ -407,6 +445,7 @@ class CheckoutController extends InfoController
             $url = '';
 
             $url = url("download/$user_id/$invoice->number");
+
             //execute the order
             if (! $agent) {
                 $payment = new \App\Http\Controllers\Order\InvoiceController();

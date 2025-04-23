@@ -8,7 +8,7 @@
 		<div class="modal-body">
 			<div id="response"></div>
 			   <input type="hidden" name="orderId" id="orderId">
-		  <div class="form-group {{ $errors->has('domain') ? 'has-error' : '' }}">
+		  <div class="form-group">
                     <!-- name -->
                     {!! Form::label('domain',Lang::get('message.domain'),['class'=>'required']) !!}
                     {!! Form::text('domain',null,['class' => 'form-control domainss' ,'id'=>'newDomain','required'=>'required','placeholder'=>'Domain Name Should be in the form domain.com or sub.domain.com']) !!}
