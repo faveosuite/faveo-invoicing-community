@@ -1,4 +1,4 @@
-@extends('themes.default1.layouts.front.master')
+    @extends('themes.default1.layouts.front.master')
 @section('title')
     Orders
 @stop
@@ -175,6 +175,7 @@
 <?php
 
 $cartSubtotalWithoutCondition = 0;
+
 use Razorpay\Api\Api;
 $merchant_orderid= generateMerchantRandomString();
 
@@ -187,14 +188,13 @@ function generateMerchantRandomString($length = 10) {
     }
     return $randomString;
 }
-$rzp_key = app\ApiKey::where('id', 1)->value('rzp_key');
-$rzp_secret = app\ApiKey::where('id', 1)->value('rzp_secret');
-$apilayer_key = app\ApiKey::where('id', 1)->value('apilayer_key');
-$stripe_key = app\ApiKey::where('id', 1)->value('stripe_key');
+$rzp_key = App\ApiKey::where('id', 1)->value('rzp_key');
+$rzp_secret = App\ApiKey::where('id', 1)->value('rzp_secret');
+$apilayer_key = App\ApiKey::where('id', 1)->value('apilayer_key');
+$stripe_key = App\ApiKey::where('id', 1)->value('stripe_key');
 $api = new Api($rzp_key, $rzp_secret);
 $displayCurrency = getCurrencyForClient(\Auth::user()->country);
 $symbol = getCurrencyForClient(\Auth::user()->country);
-
 if ($symbol == 'INR'){
 
 
@@ -223,13 +223,16 @@ if ($symbol == 'INR'){
 
     ];
 }
-
-$razorpayOrder = $api->order->create($orderData);
-$razorpayOrderId = $razorpayOrder['id'];
-$_SESSION['razorpay_order_id'] = $razorpayOrderId;
+//$razorpayOrder = $api->order->create($orderData);
+//$razorpayOrderId = $razorpayOrder['id'];
+//$_SESSION['razorpay_order_id'] = $razorpayOrderId;
 $displayAmount = $amount = $orderData['amount'];
 
+
+
 $data = [
+
+
     "key"               => $rzp_key,
     "name"              => 'Faveo Helpdesk',
     "currency"          => 'INR',
@@ -251,13 +254,17 @@ $data = [
         "Currency"          => \Auth::user()->currency,
         "Amount Paid"   => '1',
         "Exchange Rate"   =>  $exchangeRate,
+
+
+
         "merchant_order_id" =>  $merchant_orderid,
     ],
     "theme"             => [
         "color"             => "#F37254"
     ],
-    "order_id"          => $razorpayOrderId,
+//    "order_id"          => $razorpayOrderId,
 ];
+
 if ($displayCurrency !== 'INR')
 {
     $data['display_currency']  = 'USD';
@@ -270,8 +277,10 @@ $json = json_encode($data);
 $currency = \Auth::user()->currency;
 
 
+
 $gateways = \App\Http\Controllers\Common\SettingsController::checkPaymentGateway(getCurrencyForClient(\Auth::user()->country));
 // $processingFee = \DB::table(strtolower($gateways))->where('currencies',\Auth::user()->currency)->value('processing_fee');
+
 $planid = \App\Model\Payment\Plan::where('product',$product->id)->value('id');
 $price = $order->price_override;
 
@@ -1079,9 +1088,11 @@ $price = $order->price_override;
                         </div>
                         <div class="overlay" style="display: none;"></div> <!-- Add this line -->
 
-                        <div class="loader-wrapper" style="display: none; background: white;" >
-                            <i class="fas fa-spinner fa-spin" style="font-size: 40px;"></i>
 
+                        <div class="row loader-wrapper" style="display: none;">
+                            <div class="col-12 d-flex justify-content-center align-items-center" style="min-height: 100px;">
+                                    <i class="fas fa-spinner fa-spin" style="font-size: 40px;"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1186,9 +1197,11 @@ $price = $order->price_override;
                         <p class="text-black" id="upgrade2" style="display: none;" ><strong>Price to be paid: </strong><span id="priceToPay" class="priceToPay" ></span></p>
                         <div class="overlay" style="display: none;"></div> <!-- Add this line -->
 
-                        <div class="loader-wrapper" style="display: none; background: white;" >
-                            <i class="fas fa-spinner fa-spin" style="font-size: 40px;"></i>
 
+                        <div class="row loader-wrapper" style="display: none;">
+                            <div class="col-12 d-flex justify-content-center align-items-center" style="min-height: 100px;">
+                                <i class="fas fa-spinner fa-spin" style="font-size: 40px;"></i>
+                            </div>
                         </div>
                     </div>
                      </div>

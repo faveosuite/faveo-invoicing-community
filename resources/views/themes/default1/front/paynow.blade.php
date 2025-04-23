@@ -23,7 +23,6 @@ Checkout
 @section('main-class') "main shop" @stop
 @section('content')
 <?php
-
     $currency = $invoice->currency;
     $symbol = \App\Model\Payment\Currency::where('code',$invoice->currency)->pluck('symbol')->first();
     $taxAmt = 0;
@@ -301,7 +300,7 @@ Checkout
                                 @if($invoice->grand_total > 0)
                                      <?php $gateways = \App\Http\Controllers\Common\SettingsController::checkPaymentGateway($invoice->currency);
                        ?>
-                          @if(count($gateways))
+                                        @if(count($gateways))
                           @if(empty($invoice->billing_pay) && $amt_to_credit)
 
 

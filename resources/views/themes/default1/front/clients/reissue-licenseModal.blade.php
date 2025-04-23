@@ -8,7 +8,7 @@
 		<div class="modal-body">
 			<div id="response"></div>
 			   <input type="hidden" name="orderId" id="orderId">
-		  <div class="form-group {{ $errors->has('domain') ? 'has-error' : '' }}">
+		  <div class="form-group">
                     <!-- name -->
               {!! html()->label('domain', Lang::get('message.domain'))
 ->class('required') !!}

@@ -300,7 +300,7 @@ foreach($scripts as $script) {
 
                                 {!! html()->textarea('address')
     ->class('form-control form-control-lg text-4')
-    ->rows(4)
+    ->rows(5)
     ->id('address') !!}
                                 <span id="addresscheck"></span>
                             </div>
@@ -616,7 +616,7 @@ foreach($scripts as $script) {
 
             $.validator.addMethod("regex", function(value, element, regexp) {
                 var re = new RegExp(regexp);
-                return this.optional(element) || re.test(value);
+                return this.optional(element) || re.test(value);mas
             }, "Invalid format.");
 
             $.validator.addMethod("validPhone", function(value, element) {
