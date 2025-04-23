@@ -119,6 +119,7 @@
                                  {!! html()->form()->close()  !!}
                             </div>
                         </div>
+  
 <script>
     $(document).ready(function () {
         const formSelector = 'form[data-form-id]';
@@ -240,6 +241,7 @@
             });
         };
 
+        // Call the fetchPlanCost function when the plan dropdown selection changes
         $('#plan').on('change', function () {
             const selectedPlanId = $(this).val();
             const agts = $('.agents').val();

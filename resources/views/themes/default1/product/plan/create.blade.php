@@ -6,7 +6,7 @@
       <h4 class="modal-title">Create Plans</h4>
     </div>
       <div class="modal-body">
-
+          <div id="alertMessage"></div>
         @if (count($errors) > 0)
 
                         <div class="alert alert-danger alert-dismissable">
@@ -427,6 +427,7 @@ $("#close-plan").click(function() {
         'product_id': product
       },
       success: function (data) {
+          console.log(data);
         if (data.subscription != 1) { //Check if Periods to be shown or not
           $('.plandays').hide();
         } else {
@@ -440,7 +441,17 @@ $("#close-plan").click(function() {
           document.getElementById("agentquant").disabled = false;
           document.getElementById("prodquant").disabled = true;
         }
-      }
+      },
+
+        error: function(data){
+            document.getElementById('planproduct').value='';
+            $('#alertMessage').show();
+            var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> error! </strong>'+data.responseJSON.message+'.</div>';
+            $('#alertMessage').html(result);
+            setInterval(function(){
+                $('#alertMessage').slideUp(1000);
+            }, 7000);
+        },
     });
   }
 </script>

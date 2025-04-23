@@ -15,6 +15,7 @@ use App\Model\Product\Product;
 use App\User;
 use Cart;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
 use Session;
 
 class CartController extends BaseCartController
@@ -64,7 +65,7 @@ class CartController extends BaseCartController
         $this->tax_by_state = new $tax_by_state();
     }
 
-    /*
+    /**
      * The first request to the cart Page comes here
      * Get Plan id and Product id as Request
      *
@@ -75,7 +76,7 @@ class CartController extends BaseCartController
     {
         \Session::forget('priceRemaining');
         \Session::forget('priceToBePaid');
-
+        \Session::forget('discount');
         try {
             $plan = '';
             $domain = '';
@@ -189,6 +190,12 @@ class CartController extends BaseCartController
         }
     }
 
+    /**
+     * Checks the unpaid invoice of authorized user.
+     *
+     * @param $item
+     * @return null|array
+     */
     private function checkUnpaidInvoices($item)
     {
         if (\Auth::check()) {
@@ -210,6 +217,12 @@ class CartController extends BaseCartController
         return null;
     }
 
+    /**
+     * This function removes cart content based on id.
+     *
+     * @param Request $request
+     * @return string
+     */
     public function cartRemove(Request $request)
     {
         $id = $request->input('id');
@@ -221,6 +234,12 @@ class CartController extends BaseCartController
         return 'success';
     }
 
+    /**
+     * This function removes overall cart content.
+     *
+     * @param
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function clearCart()
     {
         foreach (Cart::getContent() as $item) {
@@ -246,7 +265,8 @@ class CartController extends BaseCartController
      * @param  int  $productid
      * @param  int  $userid
      * @param  int  $planid
-     * @return string
+     * @return int
+     * @throws \Exception
      */
     public function cost($productid, $planid = '', $userid = '', $admin = false)
     {
@@ -268,7 +288,7 @@ class CartController extends BaseCartController
      * @param  int  $planid
      * @return int
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function planCost($productid, $userid = '', $planid = '', $admin = false)
     {
@@ -371,7 +391,10 @@ class CartController extends BaseCartController
     }
 
     /**
-     * @return type
+     * This function is used to validate coupon and update it.
+     *
+     * @param Request $request
+     * @return string
      */
     public function addCouponUpdate(Request $request)
     {
@@ -389,6 +412,12 @@ class CartController extends BaseCartController
         }
     }
 
+    /**
+     * This function is used to remove coupon.
+     *
+     * @param Request $request
+     * @return string
+     */
     public function removeCoupon(Request $request)
     {
         try {
