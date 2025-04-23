@@ -51,9 +51,7 @@ class ProfileRequest extends Request
                 'email' => 'required|email|unique:users,email,'.$userid,
                 'company' => 'required|max:50',
                 'address' => 'required',
-                'mobile' => 'required',
                 'country' => 'required|exists:countries,country_code_char2',
-                'state' => 'required_if:country,IN',
                 'profile_pic' => 'sometimes|mimes:jpeg,png,jpg|max:2048',
 
             ];
