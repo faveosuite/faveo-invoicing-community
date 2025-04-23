@@ -46,7 +46,7 @@ class BaseCartController extends Controller
     {
         try {
             $id = $request->input('productid');
-            $planid=$request->input('planid');
+            $planid = $request->input('planid');
             $hasPermissionToModifyAgent = Product::find($id)->can_modify_agent;
             if ($hasPermissionToModifyAgent) {
                 $cartValues = $this->getCartValues($planid);
@@ -127,7 +127,7 @@ class BaseCartController extends Controller
     {
         try {
             $id = $request->input('productid');
-            $planid=$request->input('planid');
+            $planid = $request->input('planid');
             $hasPermissionToModifyQuantity = Product::find($id)->can_modify_quantity;
             if ($hasPermissionToModifyQuantity) {
                 $cart = \Cart::get($planid);
