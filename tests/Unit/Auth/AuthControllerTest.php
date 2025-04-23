@@ -64,7 +64,6 @@ class AuthControllerTest extends TestCase
         $request = new Request(['eid' => Crypt::encrypt($user->email)]);
 
         $response = json_decode($this->authController->requestOtp($request)->getContent());
-
         $this->assertEquals(__('message.otp_verification.send_success'), $response->message);
     }
 

@@ -119,6 +119,7 @@
                                  {!! html()->form()->close()  !!}
                             </div>
                         </div>
+  
 <script>
     $(document).ready(function () {
         const formSelector = 'form[data-form-id]';
@@ -203,12 +204,17 @@
                 url: "{{ url('get-renew-cost') }}",
                 data: { user, plan: planId },
                 success: function (data) {
+
                     let totalPrice = 0;
-                    if (data[1]) {
-                        agents = agents || $('#agentsForSelf').val();
-                        totalPrice = agents * parseFloat(data[0]);
-                    } else {
-                        totalPrice = parseFloat(data[0]);
+                    if(agents == 'Unlimited') {
+                        if (data[1]) {
+                            agents = agents || $('#agentsForSelf').val();
+                            totalPrice = agents * parseFloat(data[0]);
+                        } else {
+                            totalPrice = parseFloat(data[0]);
+                        }
+                    }else{
+                        totalPrice=parseFloat(data[0]);
                     }
 
                     const formattedPrice = totalPrice.toFixed(2);
@@ -240,6 +246,7 @@
             });
         };
 
+        // Call the fetchPlanCost function when the plan dropdown selection changes
         $('#plan').on('change', function () {
             const selectedPlanId = $(this).val();
             const agts = $('.agents').val();

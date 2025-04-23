@@ -2632,4 +2632,6 @@ return [
     'placeholder_your-queue-name' => 'your-queue-name',
 
     'waiting' => '기다려 주세요...',
+    'remainingAmount' => '현재 요금제의 남은 크레딧이 크레딧 잔액에 추가됩니다.',
+
 ];

@@ -135,6 +135,7 @@ trait CoupCodeAndInvoiceSearch
 
     public function updateInvoicePayment($invoiceid, $payment_method, $payment_status, $payment_date, $amount)
     {
+
         try {
             $invoice = Invoice::find($invoiceid);
             $processingFee = '';
@@ -155,6 +156,7 @@ trait CoupCodeAndInvoiceSearch
             ->where('invoice_id', $invoiceid)
             ->where('payment_status', 'success')
             ->pluck('amount')->toArray();
+
             $total_paid = array_sum($all_payments);
             if ($total_paid >= $invoice->grand_total) {
                 $invoice_status = 'success';

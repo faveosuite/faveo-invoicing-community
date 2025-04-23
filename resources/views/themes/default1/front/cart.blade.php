@@ -58,6 +58,13 @@
             white-space: nowrap;
             line-height: 1;
         }
+
+        td.product-name {
+            max-width: 85px !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
     </style>
 
 
@@ -198,7 +205,7 @@
                                             <td class="product-price">
                                                 <?php
                                                     $productPrice = $item->price;
-                                                    if($isAgentAllowed){
+                                                    if($isAgentAllowed && $item->toArray()['attributes']['agents']!=0){
                                                         $productPrice = $item->price/$item->toArray()['attributes']['agents'];
                                                     }
                                                     ?>

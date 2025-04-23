@@ -2602,4 +2602,6 @@ return [
     'placeholder_your-queue-name' => 'votre-nom-de-queue',
 
     'waiting' => 'Attendez...',
+    'remainingAmount' => 'Les crédits restants de votre plan actuel seront ajoutés au solde des crédits.',
+
 ];

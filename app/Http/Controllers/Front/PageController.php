@@ -9,7 +9,9 @@ use App\Http\Controllers\Common\TemplateController;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Front\ContactRequest;
 use App\Http\Requests\Front\PageRequest;
+use App\Model\Common\Country;
 use App\Model\Common\PricingTemplate;
+use App\Model\Common\StatesSubdivisions;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;
@@ -19,6 +21,7 @@ use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
 use App\Model\Product\ProductGroup;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class PageController extends Controller
@@ -195,6 +198,7 @@ class PageController extends Controller
 
     public function generate(Request $request)
     {
+        // dd($request->all());
         if ($request->has('slug')) {
             $slug = $request->input('slug');
 
@@ -348,7 +352,7 @@ class PageController extends Controller
             $array1 = $this->keyArray($array[$i]);
             $array2 = $this->valueArray($array[$i]);
             $id = Product::where('name', $array2[0])->value('id');
-            $data = Product::where('name', $array2[0])->value('highlight') ? PricingTemplate::findorFail(2)->data : PricingTemplate::findorFail(1)->data;
+            $data = Product::where('name', $array2[0])->value('highlight') ? PricingTemplate::findorFail(1)->data : PricingTemplate::findorFail(2)->data;
             $offerprice = $this->getOfferprice($id);
             $description = self::getPriceDescription($id);
             $month_offer_price = $offerprice['30_days'] ?? null;
@@ -531,13 +535,25 @@ class PageController extends Controller
         }
     }
 
+    /**
+     * This function returns to the contact us page.
+     *
+     * @param
+     * @param
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse
+     * @throws
+     */
     public function contactUs()
     {
         try {
             $status = StatusSetting::select('recaptcha_status', 'v3_recaptcha_status', 'msg91_status', 'emailverification_status', 'terms')->first();
             $apiKeys = ApiKey::select('nocaptcha_sitekey', 'captcha_secretCheck', 'msg91_auth_key', 'terms_url')->first();
-
-            return view('themes.default1.front.contact', compact('status', 'apiKeys'));
+            $set = new \App\Model\Common\Setting();
+            $set = $set->findOrFail(1);
+            $address = preg_replace("/^\R+|\R+\z/", '', $set->address);
+            $state = StatesSubdivisions::where('state_subdivision_code',$set->state)->value('state_subdivision_name');
+            $country = Country::where('country_code_char2',$set->country)->value('country_name');
+            return view('themes.default1.front.contact', compact('status', 'apiKeys','set','state','country','address'));
         } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }

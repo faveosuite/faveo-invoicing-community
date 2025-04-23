@@ -676,6 +676,8 @@ Route::get('404', function () {
 })->name('error404');
 Route::get('/api/download/agents', [Product\BaseProductController::class, 'agentProductDownload']);
 Route::get('/product/detail', [Product\BaseProductController::class, 'getProductUsingLicenseCode']);
+Route::get('footer1',[Front\WidgetController::class, 'footer1'])->name('footer1')->withoutMiddleware(['auth','admin']);
+
 
 //language
 Route::get('languages', [LanguageController::class, 'viewLanguage'])->middleware('auth');
@@ -683,3 +685,4 @@ Route::post('language-toggle', [LanguageController::class, 'toggleLanguageStatus
 Route::get('language/control', [LanguageController::class, 'fetchLangDropdownUsers']);
 
 // });
+

@@ -6,12 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\User\ProfileRequest;
 use App\Jobs\AddUserToExternalService;
 use App\Model\Common\Setting;
+use App\Model\Common\SocialMedia;
 use App\Model\Common\StatusSetting;
 use App\Rules\CaptchaValidation;
 use App\User;
+use Exception;
 use Facades\Spatie\Referer\Referer;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\Mime\Email;
 
 class RegisterController extends Controller
@@ -45,6 +50,14 @@ class RegisterController extends Controller
         $this->middleware('guest');
     }
 
+    /**
+     * This function performs post registration operations(creating user,add user to pipedrive,mailchimp).
+     *
+     * @param ProfileRequest $request
+     * @param User $user
+     * @return \HTTP|JsonResponse
+     * @throws ValidationException
+     */
     public function postRegister(ProfileRequest $request, User $user)
     {
         $this->validate($request, [
@@ -80,11 +93,9 @@ class RegisterController extends Controller
                 'referrer' => Referer::get(),
 
             ];
-
             $userInput = User::create($user);
 
             activity()->log('User <strong>'.$user['first_name'].' '.$user['last_name'].'</strong> was created');
-
             $need_verify = $this->getEmailMobileStatusResponse();
 
             AddUserToExternalService::dispatch($userInput);
@@ -94,13 +105,22 @@ class RegisterController extends Controller
             \Session::flash('user', $userInput);
 
             return successResponse(__('message.registration_complete'), ['need_verify' => $need_verify]);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             app('log')->error($ex->getMessage());
             $result = [$ex->getMessage()];
 
             return response()->json($result);
         }
     }
+
+    /**
+     * This function returns the email and msg91 status this helps in verifying users email and mobile number.
+     *
+     * @param
+     * @param
+     * @return int
+     * @throws
+     */
 
     protected function getEmailMobileStatusResponse()
     {
@@ -109,6 +129,15 @@ class RegisterController extends Controller
         return ($response->emailverification_status || $response->msg91_status) ? 1 : 0;
     }
 
+
+    /**
+     * This function returns the default currency.
+     *
+     * @param
+     * @param
+     * @return int
+     * @throws
+     */
     protected function getUserCurrency($userCountry)
     {
         $currency = Setting::find(1)->default_currency;
@@ -118,6 +147,15 @@ class RegisterController extends Controller
 
         return $currency;
     }
+
+    /**
+     * This function returns the default currency symbol.
+     *
+     * @param
+     *
+     * @return int
+     * @throws
+     */
 
     protected function getUserCurrencySymbol($userCountry)
     {
@@ -158,4 +196,7 @@ class RegisterController extends Controller
         //     'password' => bcrypt($data['password']),
         // ]);
     }
+
+
+
 }
