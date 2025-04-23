@@ -51,9 +51,7 @@ class ProfileRequest extends Request
                 'email' => 'required|email|unique:users,email,'.$userid,
                 'company' => 'required|max:50',
                 'address' => 'required',
-                'mobile' => 'required',
                 'country' => 'required|exists:countries,country_code_char2',
-                'state' => 'required_if:country,IN',
                 'profile_pic' => 'sometimes|mimes:jpeg,png,jpg|max:2048',
 
             ];
@@ -76,7 +74,8 @@ class ProfileRequest extends Request
                 'last_name' => 'required|max:30',
                 'email' => 'required|email|unique:users',
                 'company' => 'required|max:50',
-                'mobile' => 'required',
+                'mobile' => 'required|regex:/[0-9]/|min:5|max:20',
+                'mobile_code'=>'required',
                 'address' => 'required',
                 'terms' => 'sometimes',
                 'password' => [

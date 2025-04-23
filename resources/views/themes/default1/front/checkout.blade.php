@@ -56,22 +56,10 @@ Checkout
 @stop
 @section('main-class') "main shop" @stop
 @section('content')
-    <?php
-      $amt_to_credit = 0;
-      $curr ='';
-      if(empty($content)){
-          $curr = '';
-      }
-      else{
-          foreach ($content as $item){
-              $curr = $item->attributes->currency;
-          }
-      }
-    ?>
+
 @if (!\Cart::isEmpty())
 <?php
 $cartSubtotalWithoutCondition = 0;
-\DB::table('users')->where('id', \Auth::user()->id)->update(['billing_pay_balance'=>0]);
 ?>
     <div class="container shop py-3">
 
@@ -118,8 +106,7 @@ $cartSubtotalWithoutCondition = 0;
                                 </thead>
 
                                 <tbody class="border-top">
-
-                                {{Cart::removeCartCondition('Processing fee')}}
+                                     {{Cart::removeCartCondition('Processing fee')}}
                                         @forelse($content as $item)
 
 
@@ -296,8 +283,7 @@ $cartSubtotalWithoutCondition = 0;
 
                                     @endif
                                            @if(count(\Cart::getConditionsByType('tax')) == 1)
-
-                                               @foreach(\Cart::getConditions() as $tax)
+                                                    @foreach(\Cart::getConditions() as $tax)
 
                                                      @if($tax->getName()!= 'null')
                                                       <?php
@@ -373,12 +359,7 @@ $cartSubtotalWithoutCondition = 0;
                        
 
                                                             <?php
-                                                          $amt_to_credit = \DB::table('payments')
-                                                                ->where('user_id', \Auth::user()->id)
-                                                                ->where('payment_method','Credit Balance')
-                                                                ->where('payment_status','success')
-                                                                ->where('amt_to_credit','!=',0)
-                                                                ->value('amt_to_credit');
+
                                                             if (\Cart::getTotal() <= $amt_to_credit) {
                                                                 $cartTotal = \Cart::getTotal();
                                                             } else {
@@ -415,22 +396,47 @@ $cartSubtotalWithoutCondition = 0;
                                         </td>
                                     </tr>
                                     {!! html()->form('POST', url('checkout-and-pay'))->id('checkoutsubmitform')->open() !!}
-
-                                    @if(\Session::has('priceRemaining'))
+                                @if(\Session::has('priceRemaining'))
+                                 @if(\Session::get('discount')>0 )
                                     <tr>
                                         <td class="border-top-0">
-                                        <strong class="d-block text-color-dark line-height-1 font-weight-semibold">
+                                        <strong class="d-block text-color-dark line-height-0 font-weight-semibold">
                                     <input type="checkbox" id="billing-temp-balance" class="checkbox" checked disabled>
                                    Total Credits remaining on your current plan: 
-                                    </strong></td>
+                                    <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="{{Lang::get('message.remainingAmount')}}"></i></strong></td>
+
                                      <td class=" align-top border-top-0 text-end">
-                                            <span class="amount font-weight-medium text-color-grey">   {{currencyFormat(\Session::get('priceRemaining'),$code = $item->attributes->currency)}}
+                                            <span class="amount font-weight-medium text-color-grey">{{currencyFormat(\Session::get('priceRemaining'),$code = $item->attributes->currency)}}-{{currencyFormat(Cart::getTotal(),$code = $item->attributes->currency)}}
+                                                ={{currencyFormat(\Session::get('discount'),$code = $item->attributes->currency)}}
+                                            </span></td></tr>
+                                    <tr class="totaltopay">
+
+                                        <td>
+                                            <strong class="text-color-dark text-3-5">To Pay</strong>
+                                        </td>
+                                        <td class="text-end" id="toPay">
+                                            <strong><span class="text-color-dark text-3-5">
+                                                    {{currencyFormat(0,$code = $item->attributes->currency)}}
+                                            </span></strong>
+                                        </td>
+                                    @else
+                                     <tr>
+                                         <td class="border-top-0">
+                                             <strong class="d-block text-color-dark line-height-0 font-weight-semibold">
+                                                 <input type="checkbox" id="billing-temp-balance" class="checkbox" checked disabled>
+                                                 Total Credits remaining on your current plan:
+                                                 </strong></td>
+
+                                         <td class=" align-top border-top-0 text-end">
+                                            <span class="amount font-weight-medium text-color-grey">
+                                                {{currencyFormat(\Session::get('discount'),$code = $item->attributes->currency)}}
                                             </span></td></tr>
                                 @endif
-
-                                    @if(Cart::getTotal()>0) 
+                                @endif
+                                    @if(Cart::getTotal()>0 && \Session::get('discount')<=0)
                                     <?php
                                     $gateways = \App\Http\Controllers\Common\SettingsController::checkPaymentGateway($item->attributes['currency']);
+
                                      ?>
                                      
                                      @if($gateways)
@@ -520,9 +526,7 @@ $cartSubtotalWithoutCondition = 0;
                 </div>
             </div>
         </div>
-
-@elseif (\Cart::isEmpty())
-
+        @elseif (\Cart::isEmpty())
 @endif
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
 <script>
@@ -572,22 +576,22 @@ $(document).ready(function() {
         $('#fee').show();
       }
     }
-      $(document).ready(function () {
-      $('#billing-pay-balance').on('change', function () {
-          var isChecked = $(this).prop('checked');
+      // $(document).ready(function () {
+  {{--    $('#billing-pay-balance').on('change', function () {--}}
+  {{--        var isChecked = $(this).prop('checked');--}}
 
-          $.ajax({
-              type: "POST",
-              url: "{{ route('update-session') }}",
-              data: { isChecked: isChecked },
-              headers: {
-                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-              },
-              success: function(response) {
-              }
-          });
-      });
-  });
+  {{--        $.ajax({--}}
+  {{--            type: "POST",--}}
+  {{--            url: "{{ route('update-session') }}",--}}
+  {{--            data: { isChecked: isChecked },--}}
+  {{--            headers: {--}}
+  {{--                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')--}}
+  {{--            },--}}
+  {{--            success: function(response) {--}}
+  {{--            }--}}
+  {{--        });--}}
+  {{--    });--}}
+  {{--});--}}
       $(document).ready(function () {
       $('#billing-pay-balance').on('change', function () {
           var isChecked = $(this).prop('checked');
@@ -653,7 +657,21 @@ $(document).ready(function() {
 
       // Update content when the checkbox is clicked
       $('#billing-pay-balance').on('change', function () {
-          updateContent();
+          var isChecked = $(this).prop('checked');
+
+          $.ajax({
+              type: "POST",
+              url: "{{ route('update-session') }}",
+              data: { isChecked: isChecked },
+              headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              },
+              success: function(response) {
+                  updateContent();
+
+              }
+
+          });
       });
   });
 

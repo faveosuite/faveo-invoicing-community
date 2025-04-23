@@ -519,8 +519,12 @@ class PageController extends Controller
         try {
             $status = StatusSetting::select('recaptcha_status', 'v3_recaptcha_status', 'msg91_status', 'emailverification_status', 'terms')->first();
             $apiKeys = ApiKey::select('nocaptcha_sitekey', 'captcha_secretCheck', 'msg91_auth_key', 'terms_url')->first();
-
-            return view('themes.default1.front.contact', compact('status', 'apiKeys'));
+            $set = new \App\Model\Common\Setting();
+            $set = $set->findOrFail(1);
+            $address = preg_replace("/^\R+|\R+\z/", '', $set->address);
+            $state = \DB::table('states_subdivisions')->where('state_subdivision_code',$set->state)->value('state_subdivision_name');
+            $country = \DB::table('countries')->where('country_code_char2',$set->country)->value('country_name');
+            return view('themes.default1.front.contact', compact('status', 'apiKeys','set','state','country','address'));
         } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }

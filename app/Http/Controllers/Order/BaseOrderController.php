@@ -74,6 +74,7 @@ class BaseOrderController extends ExtendedOrderController
     {
         try {
             $invoice_items = $this->invoice_items->where('invoice_id', $invoiceid)->get();
+
             $user_id = $this->invoice->find($invoiceid)->user_id;
             if (count($invoice_items) > 0) {
                 foreach ($invoice_items as $item) {

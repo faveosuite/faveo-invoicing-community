@@ -8,6 +8,7 @@ use App\Http\Controllers\Github\GithubApiController;
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\Http\Controllers\Order\RenewController;
 use App\Model\Common\StatusSetting;
+use App\Model\Common\Setting;
 use App\Model\Github\Github;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
@@ -24,7 +25,12 @@ use App\Payment_log;
 use App\Plugins\Stripe\Controllers\SettingsController;
 use App\User;
 use Exception;
+use GrahamCampbell\Markdown\Facades\Markdown;
+use http\Env\Response;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use phpDocumentor\Reflection\Types\Boolean;
 use Illuminate\Support\Str;
 use Razorpay\Api\Api;
 
@@ -74,6 +80,14 @@ class ClientController extends BaseClientController
         $this->client_secret = $this->github->client_secret;
     }
 
+
+    /**
+     * Create new Auto renewal and update auto-renewal status.
+     *
+     * @param  Request $request
+
+     * @return array{type:string,message:string}|JsonResponse
+     */
     public function enableAutorenewalStatus(Request $request)
     {
         try {
@@ -124,6 +138,14 @@ class ClientController extends BaseClientController
         }
     }
 
+
+    /**
+     *  Delete Auto renewal and update auto-renewal status.
+     *
+     * @param  Request $request
+
+     * @return JsonResponse
+     */
     public function disableAutorenewalStatus(Request $request)
     {
         try {
@@ -157,6 +179,13 @@ class ClientController extends BaseClientController
         }
     }
 
+    /**
+     *  Setup razorpay , create auto renewal and update auto renewal status.
+     *
+     * @param Request $request
+     *
+     * @return RedirectResponse
+     */
     public function enableRzpStatus(Request $request)
     {
         try {
@@ -201,6 +230,13 @@ class ClientController extends BaseClientController
         }
     }
 
+    /**
+     *  Auto-renew by id and redirect to paynow page.
+     *
+     * @param
+     *
+     * @return RedirectResponse
+     */
     public function autoRenewbyid()
     {
         try {
@@ -223,15 +259,36 @@ class ClientController extends BaseClientController
         }
     }
 
+    /**
+     *  Show the invoice to the client.
+     *
+     * @param request $request
+     *
+     * @return \Illuminate\Contracts\View\View|RedirectResponse
+     */
     public function invoices(Request $request)
     {
         try {
-            return view('themes.default1.front.clients.invoice', compact('request'));
+            $amt = \DB::table('payments')->where('user_id',\Auth::user()->id)->where('payment_method','Credit Balance')->where('payment_status','success')->value('amt_to_credit');
+            $formattedValue = currencyFormat($amt, getCurrencyForClient(\Auth::user()->country) , true);
+            $payment_id = \DB::table('payments')->where('user_id',\Auth::user()->id)->where('payment_method','Credit Balance')->where('payment_status','success')->value('id');
+            $payment_activity=\DB::table('credit_activity')->where('payment_id',$payment_id)->where('role','user')->orderBy('created_at', 'desc')->get();
+
+            return view('themes.default1.front.clients.invoice', compact('request','formattedValue','payment_activity'));
         } catch (Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
 
+
+    /**
+     *  Get all the invoices in data table.
+     *
+     * @param request $request
+     *
+     * @return \Yajra\DataTables\DataTableAbstract
+     * @throws Exception
+     */
     public function getInvoices(Request $request)
     {
         $status = $request->input('status');
@@ -369,6 +426,15 @@ class ClientController extends BaseClientController
                     ->make(true);
     }
 
+
+    /**
+     *  Show the invoice to the client.
+     *
+     * @param $id
+     *
+     * @return \Illuminate\Contracts\View\View|RedirectResponse
+     * @throws \Exception
+     */
     public function getInvoice($id)
     {
         try {
@@ -386,7 +452,29 @@ class ClientController extends BaseClientController
             $currency = getCurrencyForClient($user->country);
             $symbol = Currency::where('code', $currency)->value('symbol');
 
-            return view('themes.default1.front.clients.show-invoice', compact('invoice', 'items', 'user', 'currency', 'symbol', 'order', 'payments'));
+            $set = Setting::where('id', '1')->first();
+            $date = getDateHtml($invoice->date);
+            $symbol = $invoice->currency;
+
+            $statusClass = '';
+            $statusText = '';
+
+            switch ($invoice->status) {
+                case 'Success':
+                    $statusClass = 'text-success';
+                    $statusText = 'PAID';
+                    break;
+                case 'partially paid':
+                    $statusClass = 'text-warning';
+                    $statusText = 'Partially paid';
+                    break;
+                default:
+                    $statusClass = 'text-fail';
+                    $statusText = 'Unpaid';
+                    break;
+            }
+            return view('themes.default1.front.clients.show-invoice', compact('invoice', 'items',
+                        'user', 'currency', 'symbol', 'order', 'payments','set','date','statusClass','statusText'));
         } catch (Exception $ex) {
             return redirect()->route('my-invoices')->with('fails', $ex->getMessage());
         }
@@ -542,8 +630,13 @@ class ClientController extends BaseClientController
         }
     }
 
-    /*
-     * Show all the orders for User
+    /**
+     *  Get all the orders in data table.
+     *
+     * @param request $request
+     *
+     * @return \Yajra\DataTables\DataTableAbstract
+     * @throws Exception
      */
 
     public function getOrders(Request $request)
@@ -583,6 +676,7 @@ class ClientController extends BaseClientController
             Terminated</span>';
                                 }
                             })
+
                             ->addColumn('agents', function ($model) {
                                 $license = substr($model->serial_key, 12, 16);
                                 if ($license == '0000') {
@@ -591,7 +685,6 @@ class ClientController extends BaseClientController
 
                                 return intval($license, 10);
                             })
-
                             ->addColumn('expiry', function ($model) {
                                 return getExpiryLabel($model->update_ends_at, 'badge');
                             })
@@ -653,15 +746,34 @@ class ClientController extends BaseClientController
         }
     }
 
+    /**
+     *  Gets all the order details for a particular user.
+     *
+     * @param
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     * @throws
+     */
     public function getClientPanelOrdersData()
     {
         return Order::leftJoin('products', 'products.id', '=', 'orders.product')
             ->leftJoin('subscriptions', 'orders.id', '=', 'subscriptions.order_id')
             ->leftJoin('invoices', 'orders.invoice_id', 'invoices.id')
-            ->select('products.name as product_name', 'products.github_owner', 'products.github_repository', 'products.type', 'products.id as product_id', 'orders.id', 'orders.number', 'orders.client', 'subscriptions.id as sub_id', 'subscriptions.version', 'subscriptions.update_ends_at', 'products.name', 'orders.client', 'invoices.id as invoice_id', 'invoices.number as invoice_number', 'orders.created_at as date', 'orders.price_override as price', 'orders.serial_key', 'orders.order_status')
+            ->select('products.name as product_name', 'products.github_owner', 'products.github_repository', 'products.type', 'products.id as product_id',
+                'orders.id', 'orders.number', 'orders.client', 'subscriptions.id as sub_id', 'subscriptions.version', 'subscriptions.update_ends_at', 'products.name',
+                'orders.client', 'invoices.id as invoice_id', 'invoices.number as invoice_number', 'orders.created_at as date', 'orders.price_override as price',
+                'orders.serial_key', 'orders.order_status')
             ->where('orders.client', \Auth::user()->id);
     }
 
+    /**
+     *  Returns to client profile page with needed variables.
+     *
+     * @param
+     *
+     * @return \Illuminate\Contracts\View\View|RedirectResponse
+     * @throws Exception
+     */
     public function profile()
     {
         try {
@@ -703,6 +815,15 @@ class ClientController extends BaseClientController
         }
     }
 
+    /**
+     *  Returns to individual order page.
+     *
+     * @param int $id
+     *
+     * @return \Illuminate\Contracts\View\View|RedirectResponse
+     * @throws Exception
+     */
+
     public function getOrder($id)
     {
         try {
@@ -711,7 +832,6 @@ class ClientController extends BaseClientController
             if ($order->client != $user->id) {
                 throw new \Exception('Cannot view order. Invalid modification of data.');
             }
-
             $invoice = $order->invoice()->first();
             $items = $order->invoice()->first()->invoiceItem()->get();
             $subscription = $order->subscription()->first();
@@ -738,7 +858,7 @@ class ClientController extends BaseClientController
             $licenseStatus = StatusSetting::pluck('license_status')->first();
             $installationDetails = [];
 
-            $cont = new \App\Http\Controllers\License\LicenseController();
+            $cont = app(\App\Http\Controllers\License\LicenseController::class);
             $installationDetails = $cont->searchInstallationPath($order->serial_key, $order->product);
 
             $statusAutorenewal = Subscription::where('order_id', $id)->value('is_subscribed');
@@ -773,6 +893,15 @@ class ClientController extends BaseClientController
         }
     }
 
+    /**
+     *  Returns to admin individual orders with payment details as datatable.
+     *
+     * @param $orderid
+     * @param $userid
+     *
+     * @return \Yajra\DataTables\DataTableAbstract|RedirectResponse
+     * @throws Exception
+     */
     public function getPaymentByOrderId($orderid, $userid)
     {
         try {
@@ -819,6 +948,15 @@ class ClientController extends BaseClientController
         }
     }
 
+    /**
+     *  Returns to client individual orders with payment details as datatable.
+     *
+     * @param $orderid
+     * @param $userid
+     *
+     * @return \Yajra\DataTables\DataTableAbstract|RedirectResponse
+     * @throws Exception
+     */
     public function getPaymentByOrderIdClient($orderid, $userid)
     {
         try {
@@ -878,6 +1016,14 @@ class ClientController extends BaseClientController
         }
     }
 
+    /**
+     *  Returns to client dashboard.
+     *
+     * @param
+     *
+     * @return \Illuminate\Contracts\View\View
+     * @throws
+     */
     public function index()
     {
         $user = auth()->user();
@@ -888,8 +1034,7 @@ class ClientController extends BaseClientController
             $query->where('update_ends_at', '<', now());
         })
         ->count();
-
-        return view('themes.default1.front.clients.index', compact('pendingInvoicesCount', 'ordersCount', 'renewalCount'));
+            return view('themes.default1.front.clients.index', compact('pendingInvoicesCount', 'ordersCount', 'renewalCount'));
     }
 
     /**
@@ -915,6 +1060,14 @@ class ClientController extends BaseClientController
         return response()->json(['error' => 'Cannot delete invoice.'], 400);
     }
 
+    /**
+     *  Checks if Invoice can be deleted or not.
+     *
+     * @param $invoice
+     *
+     * @return bool
+     * @throws
+     */
     private function canDeleteInvoice($invoice)
     {
         return (
@@ -928,6 +1081,14 @@ class ClientController extends BaseClientController
         );
     }
 
+    /**
+     *  Deletes the invoice.
+     *
+     * @param $invoice
+     *
+     * @return
+     * @throws
+     */
     private function deleteInvoice($invoice)
     {
         $invoice->invoiceItem()->delete();
