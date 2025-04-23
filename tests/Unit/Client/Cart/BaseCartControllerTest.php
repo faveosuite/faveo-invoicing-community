@@ -142,7 +142,7 @@ class BaseCartControllerTest extends DBTestCase
             'attributes' => ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
         ]);
         $response = $this->call('POST', 'update-qty', [
-            'productid' => $product->id,'planid' => $plan->id,
+            'productid' => $product->id, 'planid' => $plan->id,
         ]);
         foreach (\Cart::getContent() as $cart) {
             $this->assertEquals($cart->quantity, 2);
