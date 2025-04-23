@@ -20,7 +20,9 @@ class PlanPriceFactory extends Factory
     public function definition()
     {
         return [
-            //
+            'country_id'=>0,
+            'currency'=>'USD',
+            'renew_price'=>$this->faker->numberBetween($min = 1500, $max = 6000),
         ];
     }
 }

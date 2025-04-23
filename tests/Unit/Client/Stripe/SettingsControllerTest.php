@@ -147,7 +147,7 @@ class SettingsControllerTest extends DBTestCase
         $this->assertEquals($status, $response->status);
     }
 
-    // Test case for handling autopay for non 3ds with active status
+//     Test case for handling autopay for non 3ds with active status
     public function test_handle_autoPayment_3ds_card()
     {
         $stripePaymentDetails = (object) ['payment_intent_id' => 'pm_1OyTcJI0SyY30M2QznXTOvZH'];

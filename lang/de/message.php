@@ -2607,4 +2607,6 @@ return [
     'placeholder_your-queue-name' => 'Ihr Queue-Name',
 
     'waiting' => 'Warten...',
+    'remainingAmount' => 'Die verbleibenden Guthaben Ihres aktuellen Tarifs werden dem Kreditguthaben hinzugefügt.',
+
 ];

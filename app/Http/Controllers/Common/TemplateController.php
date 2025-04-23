@@ -222,7 +222,9 @@ class TemplateController extends Controller
             $plan_options = '';
 
             foreach ($priceList as $planId => $planPrice) {
-                $plan_options .= '<option value="'.$planId.'" data-price="'.$planPrice.'">'.$plans[$planId].'</option>';
+
+                $plan_options .= '<option value="'.$planId.'" data-price="'.$planPrice.'" data-description="'.$plans[$planId]['description'].'">'.$plans[$planId]['price'].'</option>';
+
             }
 
             $plan_class = ($plans && $status->status != 1) ? 'stylePlan' : 'planhide';
@@ -282,7 +284,8 @@ class TemplateController extends Controller
         $price1 = currencyFormat($cost, $code = $currency);
         $months = $cost == 0 ? $priceDescription : $months;
         $priceDescription = $priceDescription == '' ? $months : $priceDescription;
-        $price[$value->id] = $price1.' '.$priceDescription;
+        $price[$value->id]['price'] = $price1.' '.$priceDescription;
+        $price[$value->id]['description'] = $priceDescription !=''?$priceDescription:'';
 
         return $price;
     }
@@ -301,6 +304,7 @@ class TemplateController extends Controller
                 $symbol = $currencyAndSymbol['symbol'];
                 $cost = $currencyAndSymbol['plan']->add_price;
                 $priceDescription = $currencyAndSymbol['plan']->price_description;
+
                 $cost = rounding($cost);
                 // $duration = $value->periods;
                 $duration = Period::where('days', $value->days)->first();

@@ -13,6 +13,12 @@ active
     {{ __('message.my_orders')}}
 @stop
 @section('breadcrumb')
+    <style>
+        option
+        {
+            font-size: 11px !important;
+        }
+    </style>
     @if(Auth::check())
         <li><a class="text-primary" href="{{url('my-invoices')}}">{{ __('message.home')}}</a></li>
     @else

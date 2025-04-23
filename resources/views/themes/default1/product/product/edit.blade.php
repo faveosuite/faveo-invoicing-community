@@ -426,7 +426,7 @@
 
                                         ?>
                                     <td>{{round((int) $months)}}</td>
-                                    <td><a href="{{url('plans/'.$plan->id.'/edit')}}" class="btn btn-secondary btn-xs"{!! tooltip('Edit') !!}><i class='fa fa-edit' style='color:white;'></i></a></td>
+                                    <td><a href="{{url('plans/'.$plan->id.'/edit')}}" class="btn btn-secondary btn-xs"{!! tooltip('Edit') !!}<i class='fa fa-edit' style='color:white;'></i></a></td>
                                 </tr>
                             @endforeach
                         </table>

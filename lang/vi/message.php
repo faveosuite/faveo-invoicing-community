@@ -2611,4 +2611,6 @@ return [
     'placeholder_your-queue-name' => 'tên hàng đợi của bạn',
 
     'waiting' => 'Vui lòng đợi...',
+    'remainingAmount' => 'Số tín dụng còn lại trong gói hiện tại của bạn sẽ được cộng vào số dư tín dụng.',
+
 ];

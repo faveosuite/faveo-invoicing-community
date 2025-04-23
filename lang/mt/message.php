@@ -2536,4 +2536,6 @@
      'placeholder_your-queue-name' => 'isem il-queue tiegħek',
 
      'waiting' => 'Stenna...',
+     'remainingAmount' => 'Il-krediti li jifdal fil-pjan kurrenti tiegħek se jiġu miżjuda mal-bilanċ tal-kreditu.',
+
  ];

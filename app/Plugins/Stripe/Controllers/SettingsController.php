@@ -24,17 +24,6 @@ class SettingsController extends Controller
     public function Settings()
     {
         try {
-            if (! Schema::hasTable('stripe')) {
-                Schema::create('stripe', function ($table) {
-                    $table->increments('id');
-                    $table->string('image_url');
-                    $table->string('processing_fee');
-                    $table->string('base_currency');
-                    $table->string('currencies');
-                    $table->timestamps();
-                });
-            }
-
             $stripe1 = new StripePayment();
             // //dd($ccavanue);
             $stripe = $stripe1->where('id', '1')->first();

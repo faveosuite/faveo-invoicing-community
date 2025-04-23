@@ -2615,4 +2615,6 @@ return [
     'placeholder_your-queue-name' => 'your-queue-name',
 
     'waiting' => 'お待ちください...',
+    'remainingAmount' => '現在のプランで残っているクレジットはクレジット残高に追加されます。',
+
 ];

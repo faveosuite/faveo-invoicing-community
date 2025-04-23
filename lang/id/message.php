@@ -2605,4 +2605,6 @@ return [
     'placeholder_your-queue-name' => 'nama-antrian-anda',
 
     'waiting' => 'Tunggu...',
+    'remainingAmount' => 'Sisa kredit dalam paket Anda saat ini akan ditambahkan ke saldo kredit.',
+
 ];

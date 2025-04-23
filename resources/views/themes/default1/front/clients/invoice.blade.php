@@ -56,11 +56,7 @@
 </style>
 
     @auth
-        @php
-            $amt = \DB::table('payments')->where('user_id',\Auth::user()->id)->where('payment_method','Credit Balance')->where('payment_status','success')->value('amt_to_credit');
-            $formattedValue = currencyFormat($amt, getCurrencyForClient(\Auth::user()->country) , true);
 
-        @endphp
         <div class="d-flex justify-content-end mb-2">
             <button class="btn-credit open-createCreditDialog text-truncate"
                     style="background-color: white; border: none; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
@@ -93,10 +89,7 @@
                             <ul class="list-group">
                                 <h6 class="modal-title">{{ __('message.credit_balance_history')}}</h6>
                                 <br>
-                                @php
-                                    $payment_id = \DB::table('payments')->where('user_id',\Auth::user()->id)->where('payment_method','Credit Balance')->where('payment_status','success')->value('id');
-                                    $payment_activity=\DB::table('credit_activity')->where('payment_id',$payment_id)->where('role','user')->orderBy('created_at', 'desc')->get();
-                                @endphp
+
                                 @if(!$payment_activity->isEmpty())
                                     @foreach($payment_activity as $activity)
                                         <li class="list-group-item">

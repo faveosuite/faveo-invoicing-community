@@ -12,7 +12,7 @@
     <style>
         option
         {
-            font-size: 15px;
+            font-size: 12px;
         }
 
         .switch {
@@ -946,9 +946,11 @@
                         </div>
                         <div class="overlay" style="display: none;"></div> <!-- Add this line -->
 
-                        <div class="loader-wrapper" style="display: none; background: white;" >
-                            <i class="fas fa-spinner fa-spin" style="font-size: 40px;"></i>
 
+                        <div class="row loader-wrapper" style="display: none;">
+                            <div class="col-12 d-flex justify-content-center align-items-center" style="min-height: 100px;">
+                                    <i class="fas fa-spinner fa-spin" style="font-size: 40px;"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1004,9 +1006,11 @@
                         <p class="text-black" id="upgrade2" style="display: none;" ><strong>{{ __('message.price_to_be_paid')}} </strong><span id="priceToPay" class="priceToPay" ></span></p>
                         <div class="overlay" style="display: none;"></div> <!-- Add this line -->
 
-                        <div class="loader-wrapper" style="display: none; background: white;" >
-                            <i class="fas fa-spinner fa-spin" style="font-size: 40px;"></i>
 
+                        <div class="row loader-wrapper" style="display: none;">
+                            <div class="col-12 d-flex justify-content-center align-items-center" style="min-height: 100px;">
+                                <i class="fas fa-spinner fa-spin" style="font-size: 40px;"></i>
+                            </div>
                         </div>
                     </div>
                      </div>

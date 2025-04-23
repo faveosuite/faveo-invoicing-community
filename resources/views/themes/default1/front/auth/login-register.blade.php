@@ -302,7 +302,7 @@ foreach($scripts as $script) {
 
                                 {!! html()->textarea('address')
     ->class('form-control form-control-lg text-4')
-    ->rows(4)
+    ->rows(5)
     ->id('address') !!}
                                 <span id="addresscheck"></span>
                             </div>
@@ -335,7 +335,7 @@ foreach($scripts as $script) {
                                 <label class="form-label text-color-dark text-3">{{ __('message.mobile')}} <span class="text-color-danger">*</span></label>
 
 {{--                                {!! html()->hidden('mobile')->id('mobile_code_hidden') !!}--}}
-                                <input class="form-control form-control-lg text-4" id="mobilenum" name="mobile" type="tel">
+                                <input class="form-control form-control-lg rounded" id="mobilenum" name="mobile" type="tel">
                                 {!! html()->hidden('mobile_code')
     ->class('form-control form-control-lg text-4')
     ->id('mobile_code') !!}
