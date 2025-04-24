@@ -10,20 +10,9 @@ use App\Model\Order\Order;
 
     class ClientOrderControllertest extends DBTestCase
 {
-
-    private $classObject;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->classObject = new ClientController();
-    }
-
-
 /** @group order  */
 
     public function  test_my_orders_datatable_sends_data(){
-//        $this->getLoggedInUser();
         $user=User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
@@ -46,6 +35,8 @@ use App\Model\Order\Order;
                 ],
             ]);
     }
+
+
 
 
 }
