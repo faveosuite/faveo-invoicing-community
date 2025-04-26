@@ -14,8 +14,10 @@ return new class extends Migration
         Schema::create('pipedrive_fields', function (Blueprint $table) {
             $table->id();
             $table->string('field_name');
-            $table->string('field_key')->nullable()->unique();
+            $table->string('field_key')->nullable();
             $table->string('field_type')->nullable();
+            $table->unsignedBigInteger('local_field_id')->nullable();
+            $table->unsignedBigInteger('pipedrive_group_id')->nullable();
             $table->timestamps();
         });
     }

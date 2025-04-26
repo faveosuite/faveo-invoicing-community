@@ -6,7 +6,9 @@ use App\ApiKey;
 use App\Http\Controllers\Controller;
 use App\Model\Common\Country;
 use App\Model\Common\PipedriveField;
+use App\Model\Common\PipedriveGroups;
 use App\Model\Common\PipedriveLocalFields;
+use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\User;
 use GuzzleHttp\Client;
@@ -19,6 +21,7 @@ class PipedriveController extends Controller
     protected Api\DealFieldsApi $dealFieldApi;
     protected Api\PersonFieldsApi $personFieldApi;
     protected Api\PersonsApi $personsApi;
+    protected Api\OrganizationFieldsApi $organizationFieldsApi;
     protected Api\OrganizationsApi $organizationsApi;
     protected Api\DealsApi $dealsApi;
 
@@ -41,6 +44,7 @@ class PipedriveController extends Controller
         $this->personFieldApi = new Api\PersonFieldsApi($this->client, $config);
         $this->personsApi = new Api\PersonsApi($this->client, $config);
         $this->organizationsApi = new Api\OrganizationsApi($this->client, $config);
+        $this->organizationFieldsApi = new Api\OrganizationFieldsApi($this->client, $config);
         $this->dealsApi = new Api\DealsApi($this->client, $config);
     }
 
@@ -56,6 +60,95 @@ class PipedriveController extends Controller
         }
     }
 
+    public function getOrganizationFields()
+    {
+        try {
+           return $this->organizationFieldsApi->getOrganizationFields()->getRawData();
+        }catch (\Exception $e) {
+            return [];
+        }
+    }
+
+    public function getDealFields()
+    {
+        try {
+            return $this->dealFieldApi->getDealFields()->getRawData();
+        }catch (\Exception $e) {
+            return [];
+        }
+    }
+
+    public function addPerson($person)
+    {
+        try {
+            $response = (array) $this->personsApi->addPerson($person)->getRawData();
+            $personId = isset($response['id']) ? $response['id'] : null;
+            return $personId;
+        }catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    public function addOrGetOrganization($organization)
+    {
+        try {
+            $orgSearchResult = (array) $this->organizationsApi->searchOrganization($organization['name'], 'name')->getRawData();
+            $orgId = isset($orgSearchResult['items'][0]['item']['id']) ? $orgSearchResult['items'][0]['item']['id'] : null;
+
+            if (! $orgId) {
+                $orgResponse = (array) $this->organizationsApi->addOrganization($organization)->getRawData();
+                $orgId = isset($orgResponse['id']) ? $orgResponse['id'] : null;
+            }
+
+            return $orgId;
+        }catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    public function addDeal($deal)
+    {
+        try {
+            $response = (array) $this->dealsApi->addDeal($deal)->getRawData();
+            return isset($response['id']) ? $response['id'] : null;
+        }catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    private function getGroups()
+    {
+        $personId = PipedriveGroups::where('group_name', 'Person')->value('id');
+        $organizationId = PipedriveGroups::where('group_name', 'Organization')->value('id');
+        $dealId = PipedriveGroups::where('group_name', 'Deal')->value('id');
+
+        return ['personId' => $personId, 'organizationId' => $organizationId, 'dealId' => $dealId];
+    }
+
+    public function syncFields(): void
+    {
+        $groups = $this->getGroups();
+        $this->syncFieldGroup($this->getPipedriveFields(), $groups['personId']); // Person
+        $this->syncFieldGroup($this->getOrganizationFields(), $groups['organizationId']); // Organization
+        $this->syncFieldGroup($this->getDealFields(), $groups['dealId']); // Deal
+    }
+
+    private function syncFieldGroup(array $fields, int $groupId): void
+    {
+        foreach ($fields as $field) {
+            PipedriveField::updateOrCreate(
+                [
+                    'field_key' => $field->key,
+                    'pipedrive_group_id' => $groupId,
+                ],
+                [
+                    'field_name' => $field->name,
+                    'field_type' => $field->field_type,
+                ]
+            );
+        }
+    }
+
     /**
      * Create a new Pipedrive person, organization, and deal.
      */
@@ -66,33 +159,14 @@ class PipedriveController extends Controller
                 return;
             }
 
-            // Check if user already exists in Pipedrive
-            $searchResult = $this->personsApi->searchPersons($user->email, 'email')->getRawData();
+            $groups = $this->getGroups();
 
-            if (! empty($searchResult->items)) {
-                return;
-            }
-
-            // Create Organization if company name is available
-            $orgId = null;
-            if ($user->company) {
-                // Check if the organization already exists
-                $orgSearchResult = $this->organizationsApi->searchOrganization($user->company, 'name')->getRawData();
-                $orgId = $orgSearchResult['items'][0]['item']['id'] ?? null;
-
-                if (! $orgId) {
-                    $orgResponse = $this->organizationsApi->addOrganization(['name' => $user->company]);
-                    $orgId = $orgResponse?->getRawData()['id'] ?? null;
-                }
-            }
-
-            $personData = $this->getPersonDataFromUser($user, $orgId);
-            $personResponse = $this->personsApi->addPerson($personData);
-            $personId = $personResponse?->getRawData()['id'] ?? null;
-
-            if ($personId && $orgId) {
-                $this->dealsApi->addDeal(['title' => $user->company.' deal', 'person_id' => $personId, 'org_id' => $orgId]);
-            }
+            $organization = $this->transformPipedriveData($user, $groups['organizationId']);
+            $orgID = $this->addOrGetOrganization($organization);
+            $person = $this->transformPipedriveData($user, $groups['personId'], ['org_id' => $orgID]);
+            $personID = $this->addPerson($person);
+            $data = $this->transformPipedriveData($user, $groups['dealId'], ['org_id' => $orgID, 'person_id' => $personID]);
+            $this->addDeal($data);
         } catch (\Exception $e) {
             throw new \Exception('Error adding user to Pipedrive: '.$e->getMessage());
         }
@@ -100,57 +174,92 @@ class PipedriveController extends Controller
 
     public function pipedriveSettings()
     {
-        return view('themes.default1.common.pipedrive.settings', ['apiKey' => ApiKey::value('pipedrive_api_key')]);
+        $groups = $this->getGroups();
+        $apiKey = ApiKey::value('pipedrive_api_key');
+        $settings = Setting::first();
+        return view('themes.default1.common.pipedrive.settings', compact('apiKey', 'groups', 'settings'));
     }
 
-    public function getLocalFields()
+    public function getLocalFields($group_id)
     {
-        $fieldsFromPipedrive = $this->getPipedriveFields();
-        foreach ($fieldsFromPipedrive as $field) {
-            PipedriveField::updateOrCreate(
-                ['field_key' => $field->key],
-                ['field_name' => $field->name, 'field_type' => $field->field_type]
-            );
-        }
+        $pipedriveFields = PipedriveField::where('pipedrive_group_id', $group_id)->get();
 
         return successResponse('Local fields retrieved successfully', [
-            'local_fields' => PipedriveLocalFields::with('pipedrive')->get(),
-            'pipedrive_fields' => PipedriveField::all(),
+            'local_fields' => PipedriveLocalFields::get(),
+            'pipedrive_fields' => $pipedriveFields,
         ]);
     }
 
     public function mappingFields(Request $request)
     {
-        foreach ($request->all() as $key => $value) {
-            PipedriveLocalFields::where('field_key', $key)->update(['pipedrive_key' => $value]);
+        $groupID = $request->input('group_id');
+        $group_name = PipedriveGroups::where('id', $groupID)->value('group_name');
+        $data = collect($request->all())->filter();
+
+        $required = $data->filter(function ($value) {
+            return $value === 'title';
+        })->isEmpty();
+
+        if ($group_name === 'Deal' && $required) {
+            return errorResponse('The name field is required for deals.');
         }
+
+        $localFields = PipedriveLocalFields::whereIn('field_key', $data->keys())->pluck('id', 'field_key');
+
+        $data->each(function ($pipedriveKey, $localKey) use ($groupID, $localFields) {
+            if (isset($localFields[$localKey])) {
+                PipedriveField::updateOrCreate(
+                    ['field_key' => $pipedriveKey, 'pipedrive_group_id' => $groupID],
+                    ['local_field_id' => $localFields[$localKey]]
+                );
+            }
+        });
+
+        PipedriveField::where('pipedrive_group_id', $groupID)
+            ->whereNotIn('field_key', $data->values())->update(['local_field_id' => null]);
 
         return successResponse('Fields mapped successfully');
     }
 
-    public function getMapFields()
+
+    public function getMapFields($group_id)
     {
-        return view('themes.default1.common.pipedrive.map');
+        $group_name = PipedriveGroups::where('id', $group_id)->value('group_name');
+
+        $title = match($group_name) {
+            'Person' => \Lang::get('message.contact_mapping'),
+            'Organization' => \Lang::get('message.organization_mapping'),
+            'Deal' => \Lang::get('message.deal_mapping'),
+            default => '',
+        };
+
+        return view('themes.default1.common.pipedrive.map', compact('group_id', 'title'));
     }
 
-    protected function getPersonDataFromUser(User $user, ?int $orgId = null): array
+    private function transformPipedriveData(User $user, int $groupId, array $customFields = []): array
     {
-        return PipedriveLocalFields::whereNotNull('pipedrive_key')->get()
-            ->mapWithKeys(function ($field) use ($user, $orgId) {
-                $key = trim($field->pipedrive_key); // Ensure key is not empty or just whitespace
-                if (empty($key)) {
-                    return []; // Skip empty keys
+        $transformed = PipedriveField::where('pipedrive_group_id', $groupId)
+            ->with('localField')
+            ->get()
+            ->mapWithKeys(function ($field) use ($user) {
+                $localFieldKey = $field->localField->field_key ?? null;
+
+                if ($localFieldKey && !empty($user->{$localFieldKey})) {
+                    return [$field->field_key => $this->userTransform($user, $localFieldKey)];
                 }
 
-                return [
-                    $key => match ($field->field_key) {
-                        'mobile' => $user->mobile ? '+'.$user->mobile_code.' '.$user->mobile : null,
-                        'country' => Country::where('country_code_char2', $user->country)->value('nicename'),
-                        'org_id' => $orgId,
-                        default => $user->{$field->field_key} ?? null,
-                    },
-                ];
+                return [];
             })
             ->toArray();
+        return array_merge($transformed, $customFields);
+    }
+
+    private function userTransform(User $user, string $userField): mixed
+    {
+        return match ($userField) {
+            'mobile' => '+' . $user->mobile_code . ' ' . $user->mobile,
+            'country' => Country::where('country_code_char2', $user->country)->value('nicename'),
+            default => $user->{$userField},
+        };
     }
 }

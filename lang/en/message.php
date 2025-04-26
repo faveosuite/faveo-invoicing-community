@@ -1140,4 +1140,8 @@ return [
     'renew_payment_method' => 'Please select a payment method.',
     'payment_details_delete' => 'Are you sure you want to delete this payment detail.?',
     'sweet_payment' => 'Please select at least one payment detail.',
+
+    'contact_mapping' => 'Contact Mapping',
+    'organization_mapping' => 'Organization Mapping',
+    'deal_mapping' => 'Deal Mapping',
 ];

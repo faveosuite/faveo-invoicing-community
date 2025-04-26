@@ -1,16 +1,16 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-    Mailchimp
+    Pipedrive
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Templates</h1>
+        <h1>{{ $title }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
             <li class="breadcrumb-item"><a href="{{url('/')}}"> Home</a></li>
             <li class="breadcrumb-item"><a href="{{url('settings')}}"> Settings</a></li>
-            <li class="breadcrumb-item"><a href="{{url('mailchimp')}}">Pipedrive Setting</a></li>
+            <li class="breadcrumb-item"><a href="{{url('pipedrive')}}">Pipedrive Setting</a></li>
             <li class="breadcrumb-item active">Pipedrive Mapping</li>
         </ol>
     </div>
@@ -30,6 +30,7 @@
                 <div class="card-body">
                     <form id="mailchimp-form" method="POST" class="needs-validation" novalidate>
                         @csrf
+                        <input name="group_id" type="hidden" value="{{ $group_id }}">
                         <div class="table-responsive">
                             <table class="table table-bordered table-striped" id="faveo-attribute-list">
                                 <thead class="thead-light">
@@ -69,16 +70,17 @@
 
     <script>
         $.ajax({
-            url: @json(url('getPipedriveFields')),
+            url: @json(url("getPipedriveFields/{$group_id}")),
             type: 'GET',
             success: function (response) {
                 if (response.success && response.data && Array.isArray(response.data.local_fields)) {
-                    let selectedOptions = new Set(); // Store selected options
-
+                    // Append rows to the table
                     response.data.local_fields.forEach(function (value) {
-                        let options = response.data.pipedrive_fields.map(opt =>
-                            `<option value="${opt.field_key}" ${value.pipedrive_key === opt.field_key ? 'selected' : ''}>${opt.field_name}</option>`
-                        ).join('');
+                        let options = '';
+
+                        response.data.pipedrive_fields.forEach(function (field) {
+                            options += `<option value="${field.field_key}" ${field.local_field_id === value.id ? 'selected' : ''}>${field.field_name}</option>`;
+                        });
 
                         let row = `
                 <tr>
@@ -97,109 +99,110 @@
 
                     $('[data-toggle="tooltip"]').tooltip();
 
-                    // Function to update dropdowns dynamically
+                    // Function to refresh dropdowns (now allowing duplicates)
                     function updateDropdowns() {
-                        selectedOptions.clear();
-
-                        // Collect selected values
-                        $('.pipedrive-field').each(function () {
-                            let selectedValue = $(this).val();
-                            if (selectedValue) {
-                                selectedOptions.add(selectedValue);
-                            }
-                        });
-
                         $('.pipedrive-field').each(function () {
                             let $dropdown = $(this);
                             let currentValue = $dropdown.val();
 
-                            // Rebuild options excluding selected ones
                             let options = response.data.pipedrive_fields
-                                .filter(opt => !selectedOptions.has(opt.field_key) || opt.field_key === currentValue) // Keep current selection
-                                .map(opt => `<option value="${opt.field_key}" ${opt.field_key === currentValue ? 'selected' : ''}>${opt.field_name}</option>`)
+                                .map(field => `<option value="${field.field_key}" ${field.field_key === currentValue ? 'selected' : ''}>${field.field_name}</option>`)
                                 .join('');
 
-                            // Update dropdown options
                             $dropdown.html(`<option value="">Select an option</option>${options}`);
                         });
                     }
 
-                    // Bind event to dynamically update dropdowns on change
+                    // Bind event
                     $('.pipedrive-field').on('change', function () {
                         updateDropdowns();
                     });
 
-                    updateDropdowns(); // Initial call to remove already selected options
-                } else {
-                    console.log('Error: Invalid data format received');
+                    updateDropdowns(); // Initial update
                 }
             },
             error: function (xhr, error) {
                 console.log('Error:', xhr, error);
             }
         });
+        $(document).ready(function () {
 
-        let alertTimeout;
+            let alertTimeout;
 
-        function showAlert(type, messageOrResponse) {
+            function showAlert(type, messageOrResponse) {
 
-            // Generate appropriate HTML
-            var html = generateAlertHtml(type, messageOrResponse);
+                // Generate appropriate HTML
+                var html = generateAlertHtml(type, messageOrResponse);
 
-            // Clear any existing alerts and remove the timeout
-            $('#alert-container-pipe').html(html);
-            clearTimeout(alertTimeout); // Clear the previous timeout if it exists
+                // Clear any existing alerts and remove the timeout
+                $('#alert-container-pipe').html(html);
+                clearTimeout(alertTimeout); // Clear the previous timeout if it exists
 
-            // Display alert
-            window.scrollTo(0, 0);
+                // Display alert
+                window.scrollTo(0, 0);
 
-            // Auto-dismiss after 5 seconds
-            alertTimeout = setTimeout(function() {
-                $('#alert-container-pipe').fadeOut('slow');
-            }, 5000);
-        }
+                // Auto-dismiss after 5 seconds
+                alertTimeout = setTimeout(function () {
+                    $('#alert-container-pipe').fadeOut('slow');
+                }, 5000);
+            }
 
 
-        function generateAlertHtml(type, response) {
-            // Determine alert styling based on type
-            const isSuccess = type === 'success';
-            const iconClass = isSuccess ? 'fa-check-circle' : 'fa-ban';
-            const alertClass = isSuccess ? 'alert-success' : 'alert-danger';
+            function generateAlertHtml(type, response) {
+                // Determine alert styling based on type
+                const isSuccess = type === 'success';
+                const iconClass = isSuccess ? 'fa-check-circle' : 'fa-ban';
+                const alertClass = isSuccess ? 'alert-success' : 'alert-danger';
 
-            // Extract message and errors
-            const message = response.message || response || 'An error occurred. Please try again.';
-            const errors = response.errors || null;
+                // Extract message and errors
+                const message = response.message || response || 'An error occurred. Please try again.';
+                const errors = response.errors || null;
 
-            // Build base HTML
-            let html = `<div class="alert ${alertClass} alert-dismissible">` +
-                `<i class="fa ${iconClass}"></i> ` +
-                `${message}` +
-                '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+                // Build base HTML
+                let html = `<div class="alert ${alertClass} alert-dismissible">` +
+                    `<i class="fa ${iconClass}"></i> ` +
+                    `${message}` +
+                    '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
 
-            html += '</div>';
+                html += '</div>';
 
-            return html;
-        }
+                return html;
+            }
+
             // AJAX Form Submission
-        $('#mailchimp-form').on('submit', function (event) {
-            event.preventDefault();
+            $('#mailchimp-form').on('submit', function (event) {
+                event.preventDefault();
 
-            let formData = $(this).serialize();
+                let formData = $(this).serialize();
 
-            $.ajax({
-                url: @json(url('sync/pipedrive')),
-                type: 'POST',
-                data: formData,
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function (response) {
-                    showAlert('success', response.message);
-                },
-                error: function (xhr) {
-                    var response = data.responseJSON ? data.responseJSON : JSON.parse(data.responseText);
-                    showAlert('error', response);
-                }
+                $.ajax({
+                    url: @json(url('sync/pipedrive')),
+                    type: 'POST',
+                    data: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function (response) {
+                        showAlert('success', response.message);
+                    },
+                    error: function (data) {
+                        var response = data.responseJSON ? data.responseJSON : JSON.parse(data.responseText);
+
+                        if (response.errors) {
+                            $.each(response.errors, function (field, messages) {
+                                var validator = $('#regiser-form').validate();
+
+                                var fieldSelector = $(`[name="${field}"]`).attr('name');  // Get the name attribute of the selected field
+
+                                validator.showErrors({
+                                    [fieldSelector]: messages[0]
+                                });
+                            });
+                        } else {
+                            showAlert('error', response);
+                        }
+                    }
+                });
             });
         });
     </script>
