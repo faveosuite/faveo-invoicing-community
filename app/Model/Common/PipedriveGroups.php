@@ -12,5 +12,4 @@ class PipedriveGroups extends Model
     protected $fillable = [
         'group_name',
     ];
-
 }

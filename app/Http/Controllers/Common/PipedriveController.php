@@ -63,8 +63,8 @@ class PipedriveController extends Controller
     public function getOrganizationFields()
     {
         try {
-           return $this->organizationFieldsApi->getOrganizationFields()->getRawData();
-        }catch (\Exception $e) {
+            return $this->organizationFieldsApi->getOrganizationFields()->getRawData();
+        } catch (\Exception $e) {
             return [];
         }
     }
@@ -73,7 +73,7 @@ class PipedriveController extends Controller
     {
         try {
             return $this->dealFieldApi->getDealFields()->getRawData();
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             return [];
         }
     }
@@ -83,8 +83,9 @@ class PipedriveController extends Controller
         try {
             $response = (array) $this->personsApi->addPerson($person)->getRawData();
             $personId = isset($response['id']) ? $response['id'] : null;
+
             return $personId;
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             return null;
         }
     }
@@ -101,7 +102,7 @@ class PipedriveController extends Controller
             }
 
             return $orgId;
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             return null;
         }
     }
@@ -110,8 +111,9 @@ class PipedriveController extends Controller
     {
         try {
             $response = (array) $this->dealsApi->addDeal($deal)->getRawData();
+
             return isset($response['id']) ? $response['id'] : null;
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             return null;
         }
     }
@@ -177,6 +179,7 @@ class PipedriveController extends Controller
         $groups = $this->getGroups();
         $apiKey = ApiKey::value('pipedrive_api_key');
         $settings = Setting::first();
+
         return view('themes.default1.common.pipedrive.settings', compact('apiKey', 'groups', 'settings'));
     }
 
@@ -221,12 +224,11 @@ class PipedriveController extends Controller
         return successResponse('Fields mapped successfully');
     }
 
-
     public function getMapFields($group_id)
     {
         $group_name = PipedriveGroups::where('id', $group_id)->value('group_name');
 
-        $title = match($group_name) {
+        $title = match ($group_name) {
             'Person' => \Lang::get('message.contact_mapping'),
             'Organization' => \Lang::get('message.organization_mapping'),
             'Deal' => \Lang::get('message.deal_mapping'),
@@ -244,20 +246,21 @@ class PipedriveController extends Controller
             ->mapWithKeys(function ($field) use ($user) {
                 $localFieldKey = $field->localField->field_key ?? null;
 
-                if ($localFieldKey && !empty($user->{$localFieldKey})) {
+                if ($localFieldKey && ! empty($user->{$localFieldKey})) {
                     return [$field->field_key => $this->userTransform($user, $localFieldKey)];
                 }
 
                 return [];
             })
             ->toArray();
+
         return array_merge($transformed, $customFields);
     }
 
     private function userTransform(User $user, string $userField): mixed
     {
         return match ($userField) {
-            'mobile' => '+' . $user->mobile_code . ' ' . $user->mobile,
+            'mobile' => '+'.$user->mobile_code.' '.$user->mobile,
             'country' => Country::where('country_code_char2', $user->country)->value('nicename'),
             default => $user->{$userField},
         };

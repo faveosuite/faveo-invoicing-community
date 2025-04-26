@@ -17,7 +17,7 @@ class PipedriveField extends Model
         'field_key',
         'field_type',
         'pipedrive_group_id',
-        'local_field_id'
+        'local_field_id',
     ];
 
     public function localField()
