@@ -223,9 +223,9 @@ if ($symbol == 'INR'){
 
     ];
 }
-$razorpayOrder = $api->order->create($orderData);
-$razorpayOrderId = $razorpayOrder['id'];
-$_SESSION['razorpay_order_id'] = $razorpayOrderId;
+//$razorpayOrder = $api->order->create($orderData);
+//$razorpayOrderId = $razorpayOrder['id'];
+//$_SESSION['razorpay_order_id'] = $razorpayOrderId;
 $displayAmount = $amount = $orderData['amount'];
 
 
@@ -262,7 +262,7 @@ $data = [
     "theme"             => [
         "color"             => "#F37254"
     ],
-    "order_id"          => $razorpayOrderId,
+//    "order_id"          => $razorpayOrderId,
 ];
 
 if ($displayCurrency !== 'INR')

@@ -318,12 +318,10 @@ class RenewController extends BaseRenewController
             return redirect('my-invoice/'.$existingUnpaidInvoice->invoice_id.'#invoice-section')
                 ->with('warning', trans('message.existings_invoice'));
         }
-
         $this->validate($request, [
             'plan' => 'required',
             'code' => 'exists:promotions,code',
         ]);
-
         try {
             $planid = $request->input('plan');
             $code = $request->input('code');
@@ -333,7 +331,6 @@ class RenewController extends BaseRenewController
             $cost = preg_replace('/[^0-9]/', '', $cost);
             $currency = $planDetails['currency'];
             $agents = null;
-
             if ($request->has('agents')) {
                 $agents = $request->input('agents');
                 $sub = Subscription::find($id);
@@ -361,7 +358,6 @@ class RenewController extends BaseRenewController
             $items = $this->invoiceBySubscriptionId($id, $planid, $cost, $currency, $agents);
             $invoiceid = $items->invoice_id;
             $this->setSession($id, $planid);
-
             return redirect('paynow/'.$invoiceid);
         } catch (\Exception $ex) {
             throw new \Exception($ex->getMessage());

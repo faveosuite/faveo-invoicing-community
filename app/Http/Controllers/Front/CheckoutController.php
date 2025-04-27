@@ -210,7 +210,6 @@ class CheckoutController extends InfoController
             if ($invoice->user_id != \Auth::user()->id) {
                 throw new \Exception('Cannot initiate payment. Invalid modification of data');
             }
-
             if (count($invoice->payment()->get())) {//If partial payment is made
                 $paid = array_sum($invoice->payment()->pluck('amount')->toArray());
                 $invoice->grand_total = $invoice->grand_total - $paid;
@@ -222,11 +221,9 @@ class CheckoutController extends InfoController
                     $product = $this->product($invoiceid);
                 }
             }
-
             return view('themes.default1.front.paynow', compact('invoice', 'items', 'product', 'paid'));
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
-
             return redirect()->back()->with('fails', $ex->getMessage());
         }
     }

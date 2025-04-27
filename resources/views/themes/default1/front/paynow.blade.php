@@ -14,7 +14,7 @@ Checkout
  <li class="active text-dark">Checkout</li>
 @stop
 <style type="text/css">
-   
+
        .shop_table th {
             border-top: 1px solid rgba(0, 0, 0, 0.06);
             padding: 17px 10px;
@@ -91,7 +91,6 @@ Checkout
                                             $taxAmt +=  $item->subtotal;
                                          }
                                          @endphp
-
                                 <tbody>
 
 
@@ -148,7 +147,7 @@ Checkout
                                 <table class="shop_table cart-totals mb-3">
 
                                     <tbody>
-                                <?php 
+                                <?php
                                 $subtotals = App\Model\Order\InvoiceItem::where('invoice_id',$invoice->id)->pluck('regular_price')->toArray();
                                 $subtotal = array_sum($subtotals);
                                 ?>
@@ -171,8 +170,8 @@ Checkout
                                   $taxDetails = explode('@', $tax);
                                   @endphp
                                   @if ($taxDetails[0]!= 'null')
-                                                            
-                                                       
+
+
                                          <?php
                                         $bifurcateTax = bifurcateTax($taxDetails[0],$taxDetails[1],\Auth::user()->currency, \Auth::user()->state, $taxAmt);
                                         $partsHtml = explode('<br>', $bifurcateTax['html']);
@@ -182,7 +181,7 @@ Checkout
                                       @php
                                         $parts = explode('@', $part);
                                         $cgst = $parts[0];
-                                        $percentage = $parts[1]; 
+                                        $percentage = $parts[1];
                                       @endphp
 
                                         <tr class="Taxes border-top-0">
@@ -195,7 +194,7 @@ Checkout
                                             </td>
                                         </tr>
                                       @endforeach
-                   
+
                                     @endif
                                     @endforeach
 
@@ -300,9 +299,8 @@ Checkout
                                     @if($invoice->grand_total > 0)
                                      <?php $gateways = \App\Http\Controllers\Common\SettingsController::checkPaymentGateway($invoice->currency);
                        ?>
-                          @if(count($gateways))
+                                        @if(count($gateways))
                           @if(empty($invoice->billing_pay) && $amt_to_credit)
-
 
                                     <tr class="total">
 
@@ -362,7 +360,7 @@ Checkout
                                                 </label>
                                                   @endforeach
 
-                   
+
                                             </div>
                                         </td>
                                     </tr>
@@ -374,7 +372,7 @@ Checkout
                                 </table>
                             </div>
                             <button type="submit" id="proceed" class="btn btn-dark btn-modern w-100 text-uppercase text-3 py-3">Proceed <i class="fas fa-arrow-right ms-2"></i></button>
-                         
+
                              {!! Form::close() !!}
                         </div>
                     </div>
@@ -399,7 +397,7 @@ Checkout
         $('#fee').show();
     }
   });
-  
+
 $(document).ready(function() {
   showInitialFee();
 
@@ -518,7 +516,7 @@ function getGateway(element) {
           updateContent();
       });
   });
-  
+
 
 </script>
 <style>

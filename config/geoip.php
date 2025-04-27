@@ -120,10 +120,10 @@ return [
     */
     'default_location' => [
         'ip' => '127.0.0.0',
-        'iso_code' => 'In',
+        'iso_code' => 'IN',
         'country' => 'India',
         'city' => 'Bengaluru',
-        'state' => 'Kr',
+        'state' => 'KA',
         'state_name' => 'Karnataka',
         'postal_code' => '',
         'lat' => '',

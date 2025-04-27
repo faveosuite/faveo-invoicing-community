@@ -27,16 +27,6 @@ class SettingsController extends Controller
     public function Settings()
     {
         try {
-            if (! Schema::hasTable('razorpay')) {
-                Schema::create('razorpay', function ($table) {
-                    $table->increments('id');
-                    $table->string('image_url');
-                    $table->string('processing_fee');
-                    $table->string('base_currency');
-                    $table->string('currencies');
-                    $table->timestamps();
-                });
-            }
 
             $razorpay1 = new RazorpayPayment();
             // //dd($ccavanue);
