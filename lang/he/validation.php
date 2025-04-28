@@ -233,7 +233,7 @@ return [
         ],
     ],
 
-//Email
+    //Email
     'custom' => [
         'password' => [
             'required_if' => 'שדה הסיסמה הוא שדה חובה עבור נהג הדואר שנבחר.',
@@ -337,7 +337,7 @@ return [
         ],
     ],
 
-//Order form
+    //Order form
     'order_form' => [
         'client' => [
             'required' => 'שדה לקוח הוא שדה חובה.',
@@ -365,7 +365,7 @@ return [
         ],
     ],
 
-//Payment form
+    //Payment form
     'coupon_form' => [
         'code' => [
             'required' => 'שדה קוד הקופון הוא שדה חובה.',
@@ -423,7 +423,7 @@ return [
         ],
     ],
 
-//Product
+    //Product
     'subscription_form' => [
         'name' => [
             'required' => 'שדה שם הוא שדה חובה.',
@@ -516,7 +516,7 @@ return [
         ],
     ],
 
-//User
+    //User
     'users' => [
         'first_name' => [
             'required' => 'שדה שם פרטי הוא שדה חובה.',

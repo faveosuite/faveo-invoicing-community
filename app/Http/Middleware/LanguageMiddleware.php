@@ -25,15 +25,17 @@ class LanguageMiddleware
                     $user->language = $language;
                     $user->save();
                 }),
-                !empty($user->language) => $user->language, // Ensures null or empty check
+                ! empty($user->language) => $user->language, // Ensures null or empty check
                 default => Setting::where('id', 1)->value('content') ?? 'en',
             };
 
             $this->setLocale($this->checkEnabledLanguage($lang));
+
             return $next($request);
         }
 
         $this->setLocale($this->getLangFromSessionOrCache());
+
         return $next($request);
     }
 
@@ -59,7 +61,7 @@ class LanguageMiddleware
 
     public function checkEnabledLanguage($lang)
     {
-        if (!empty($lang)) {
+        if (! empty($lang)) {
             // Check if the language is enabled in the database
             $language = Language::where('locale', $lang)->where('enable_disable', 1)->first();
 

@@ -30,14 +30,14 @@ class SocialLoginsController extends Controller
             'api_key' => 'required_if:type,Twitter',
             'api_secret' => 'required_if:type,Twitter',
             'redirect_url' => 'required',
-            ],
+        ],
             [
-                'client_id.required_if'     => __('validation.social_login.client_id_required'),
+                'client_id.required_if' => __('validation.social_login.client_id_required'),
                 'client_secret.required_if' => __('validation.social_login.client_secret_required'),
-                'api_key.required_if'       => __('validation.social_login.api_key_required'),
-                'api_secret.required_if'    => __('validation.social_login.api_secret_required'),
-                'redirect_url.required'     => __('validation.social_login.redirect_url_required'),
-        ]);
+                'api_key.required_if' => __('validation.social_login.api_key_required'),
+                'api_secret.required_if' => __('validation.social_login.api_secret_required'),
+                'redirect_url.required' => __('validation.social_login.redirect_url_required'),
+            ]);
 
         try {
             SocialLogin::where('type', $request->type)->update([

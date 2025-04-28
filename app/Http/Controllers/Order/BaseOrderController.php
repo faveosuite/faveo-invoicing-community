@@ -45,7 +45,7 @@ class BaseOrderController extends ExtendedOrderController
                 if ($subscriptionId) {
                     if (! is_null($agents)) {
                         $url = '<a href='.url('renew/'.$subscriptionId.'/'.$agents)." 
-                class='btn btn-sm btn-secondary btn-xs'".tooltip( __('message.renew'))."<i class='fas fa-credit-card'
+                class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.renew'))."<i class='fas fa-credit-card'
                  style='color:white;'> </i></a>";
                     } else {
                         $url = '<a href='.url('renew/'.$subscriptionId)." 
@@ -57,7 +57,7 @@ class BaseOrderController extends ExtendedOrderController
         }
 
         return '<p><a href='.url('orders/'.$model->id)." 
-        class='btn btn-sm btn-secondary btn-xs'".tooltip( __('message.view'))."<i class='fas fa-eye'
+        class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.view'))."<i class='fas fa-eye'
          style='color:white;'> </i></a> $url</p>";
     }
 
@@ -234,7 +234,7 @@ class BaseOrderController extends ExtendedOrderController
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
 
-            throw new \Exception(__('message.cannot_generate_subscription') . '.' . $ex->getMessage());
+            throw new \Exception(__('message.cannot_generate_subscription').'.'.$ex->getMessage());
         }
     }
 
@@ -343,10 +343,10 @@ class BaseOrderController extends ExtendedOrderController
         $knowledgeBaseUrl = $setting->knowledge_base_url;
 
         $knowledgeBaseUrlFinal = $knowledgeBaseUrl == null
-            ? '<p>' . __('message.knowledge_base_no_url') . '</p>
-       <p>' . __('message.control_panel_invoice') . '</p>'
-            : '<p><a class="moz-txt-link-abbreviated" href="' . $knowledgeBaseUrl . '">' . __('message.knowledge_base_with_url') . '</a> ' . __('message.knowledge_base_help') . '</p>
-       <p>' . __('message.control_panel_invoice') . '</p>';
+            ? '<p>'.__('message.knowledge_base_no_url').'</p>
+       <p>'.__('message.control_panel_invoice').'</p>'
+            : '<p><a class="moz-txt-link-abbreviated" href="'.$knowledgeBaseUrl.'">'.__('message.knowledge_base_with_url').'</a> '.__('message.knowledge_base_help').'</p>
+       <p>'.__('message.control_panel_invoice').'</p>';
 
         $orderHeading = ($value != '4') ? 'Download' : 'Order';
         $orderUrl = ($value != '4') ? $downloadurl : url('my-order/'.$orderid);

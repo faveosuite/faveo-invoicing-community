@@ -64,7 +64,7 @@ class SoftDeleteController extends ClientController
                         })
                         ->addColumn('action', function ($model) {
                             return '<a href='.url('clients/'.$model->id.'/restore')
-                            ." class='btn btn-sm btn-secondary btn-xs'".tooltip( __('message.restore'))."
+                            ." class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.restore'))."
                             <i class='fas fa-sync-alt' style='color:white;'> </i></a>";
                         })
 

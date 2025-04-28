@@ -705,10 +705,10 @@ return [
     'cloud_heading' => 'בוא ניצור יחד את מופע הענן שלך ב-Faveo!',
     'cloud_field_label' => 'הזן את שם הדומיין המבוקש לענן שלך',
     'cloud_price' => 'מחיר לכל סוכן',
-//Delete message
+    //Delete message
     'confirm' => 'האם אתה בטוח שברצונך למחוק זאת?',
 
-//Delete message
+    //Delete message
     'cloud_domain_change' => 'חדשות נהדרות! שם הדומיין שלך ב-Cloud השתנה בהצלחה. נא לשים לב שיכולה להיות השהייה קצרה של כ-5 דקות להחלת השינויים הללו. תודה על סבלנותך!',
     'limit_is_up' => 'שמנו לב שעברת את גבול הניסיון החינמי, אנא מחק את המופעים הקיימים שלך כדי להמשיך.',
     'too_long' => 'נראה כי זהו דומיין גדול מדי, נסה ליצור דומיין עם פחות תווים.',
@@ -727,7 +727,7 @@ return [
     'tick-to-highlight-product' => 'סמן להדגשת המוצר',
     'tick-to-add_to_contact-product' => 'סמן אם ברצונך להוסיף כפתור "צור קשר עם מכירות"',
     'cloud_domain' => 'הזן דומיין Cloud',
-    'cloud_domain_empty' => "אופס! לא ניתן להנפיק חשבונית לתוכנית זו מבלי לספק דומיין.",
+    'cloud_domain_empty' => 'אופס! לא ניתן להנפיק חשבונית לתוכנית זו מבלי לספק דומיין.',
     'domain_taken' => 'אופס! נראה שהדומיין הזה כבר בשימוש על ידי משתמש אחר. אנא נסה דומיין אחר.',
 
     'without_installation_found' => 'אופס! נראה שלא ניתן לבצע שינויים בסוכנים אם לא ניתן לאתר את דומיין ה-Cloud שלך. נא לחדש את המנוי תחילה, ולאחר מכן תוכל לשנות את הסוכנים.',
@@ -739,7 +739,7 @@ return [
     'wrong_domain' => 'אוי לא, נראה שקרה תקלה קטנה! הצוות שלנו על זה ועובד על תיקון הבעיה. ברגע שזה ייפתר, תוכל לשנות את הדומיין שלך. תודה על סבלנותך!',
     'agent_updated' => 'יופי! הצלחנו לעדכן את הסוכנים בתוכנית שלך. הכל מוכן!',
     'change_agents_failed' => 'אופס! במהלך שינוי הסוכנים שלך, משהו השתבש בשרת ה-Cloud. אל תדאג – הצוות שלנו כבר עובד על תיקון הבעיה!',
-    'agent_reduce' => "אופס! אין אפשרות להוריד את מספר הסוכנים בתוכנית זו כרגע. נראה שיש לך סוכנים פעילים בחשבונך. אנו ממליצים לכבות סוכנים נוספים לפני שתנסה להוריד את מספר הסוכנים בתוכנית.",
+    'agent_reduce' => 'אופס! אין אפשרות להוריד את מספר הסוכנים בתוכנית זו כרגע. נראה שיש לך סוכנים פעילים בחשבונך. אנו ממליצים לכבות סוכנים נוספים לפני שתנסה להוריד את מספר הסוכנים בתוכנית.',
     'not_allowed_domain' => 'אופס! נראה שהזנת פורמט דומיין לא תקני שאינו מותר באינטרנט. אנא הזן דומיין תקני להמשך.',
     'agent_zero' => 'נראה שבחרת אפס סוכנים. אנא בחר מספר תקני של סוכנים להמשך.',
     'cloud_cname' => 'רשומת CNAME של Cloud',
@@ -764,7 +764,7 @@ return [
     'user_suspend' => 'המשתמש הזה הושעה מהמערכת. יש לשחזר את המשתמש כדי לצפות בפרטים',
     'country_notfound' => 'לא ניתן לקבוע את המדינה',
 
-//Strong Password
+    //Strong Password
     'strong_password' => 'הסיסמה חייבת להכיל לפחות 8 תווים, אות רישית אחת, אות קטנה אחת, מספר אחד, ותו מיוחד אחד.',
 
     'password_requirements' => 'הסיסמה שלך חייבת לכלול:',
@@ -784,7 +784,7 @@ return [
     'new_password_different' => 'הסיסמה החדשה חייבת להיות שונה מהסיסמה הישנה.',
     'reset_link_expired' => 'לינק לאיפוס הסיסמה שלך פג או לא נמצא. אנא נסה לאפס את הסיסמה שוב.',
 
-//file storage
+    //file storage
 
     'file_storage' => 'אחסון קבצים',
     'set_file_storage' => 'הגדר את נתיב אחסון הקבצים',
@@ -1078,14 +1078,14 @@ return [
     'price_description' => 'תיאור מחיר',
     'image_allowed' => 'רק קבצי PNG, JPG ו-JPEG מורשים.',
     'image_max' => 'הגודל של התמונה לא יכול לעלות על 2 MB.',
-//email templates
+    //email templates
 
     'choose_password' => 'לחץ כאן כדי לאפס את הסיסמה שלך: ',
     'email_username' => 'שם משתמש: ',
     'email_password' => 'סיסמה: ',
     'email_click_here' => 'לחץ כאן',
     'activate_account' => 'כדי להפעיל את החשבון שלך:',
-//error template
+    //error template
     'page_not_found' => 'הדף לא נמצא',
     'sorry' => 'אנחנו מצטערים, אבל הדף שחיפשת לא קיים.',
     'useful_links' => 'הנה כמה קישורים שימושיים',
@@ -1094,7 +1094,7 @@ return [
     'my_profile' => 'הפרופיל שלי',
     'contact_us' => 'צור קשר',
 
-//login-register template
+    //login-register template
     'login_lr' => 'התחברות | הרשמה',
     'sign_lr' => 'התחבר או הירשם',
     'or' => 'או',
@@ -1128,7 +1128,7 @@ return [
     'error_occurred' => 'אירעה שגיאה. אנא נסה שוב.',
     'error_one_country' => 'אנא בחר מדינה',
 
-//contact template
+    //contact template
     'feel_free' => 'אל תהסס לשאול פרטים, אל תשמור שאלות!',
     'contact_name' => 'שם',
     'contact_error_name' => 'אנא הזן את שמך.',
@@ -1141,7 +1141,7 @@ return [
     'contact_send_msg' => 'שלח הודעה',
     'our_office' => 'המשרד שלנו',
 
-//password template
+    //password template
     'forgot_password' => 'שכחת סיסמה? אפס אותה עכשיו!',
     'lost_password' => 'איבדת את הסיסמה?',
     'know_password' => 'אני יודע את הסיסמה שלי',
@@ -1151,7 +1151,7 @@ return [
     'error_occurs' => 'אירעה שגיאה.',
     'reset_password' => 'איפוס סיסמה',
 
-//front-client template
+    //front-client template
     'change_faveo' => 'האם אתה רוצה לשנות את הדומיין הקיים שלך ב-Faveo?',
     'current_domain' => 'הזן דומיין נוכחי',
     'enter_domain' => 'הזן דומיין חדש',
@@ -1309,7 +1309,7 @@ return [
     'loading' => 'טעינה...',
     'subscriptions_table' => 'טבלת מנויים',
     'invalid_format' => 'פורמט לא תקני.',
-//front-page template
+    //front-page template
     'all_pages' => 'כל הדפים',
     'create_new_page' => 'צור דף חדש',
     'edit_page' => 'ערוך דף',
@@ -1319,14 +1319,14 @@ return [
     'select_checkbox' => 'אנא בחר לפחות תיבת סימון אחת',
     'search_result' => 'תוצאות חיפוש',
 
-//front-widgets template
+    //front-widgets template
     'all_widgets' => 'כל הווידג\'טים',
     'create_widget' => 'צור ווידג\'ט',
     'configure_mailchimp' => 'הגדר את Mailchimp בהגדרות כדי לגשת',
     'configure_tweet' => 'הגדר את ציוצי הטוויטר בהגדרות כדי לגשת',
     'edit_widget' => 'ערוך ווידג\'ט',
 
-//front outer template
+    //front outer template
     'remove_product' => 'הסר מוצר',
     'cart_totals' => 'סך הכל בעגלת קניות',
     'clear_cart' => 'נקה את העגלה',
@@ -1376,17 +1376,17 @@ return [
     'paid_with' => 'שולם באמצעות',
     'no_records_found' => 'לא נמצאו רשומות',
 
-// errors
+    // errors
     'sorry_something_wrong' => 'סליחה, משהו השתבש',
     'error_fixed' => 'אנו עובדים על הבעיה ונפתור אותה בהקדם האפשרי.',
     'go_back' => 'חזור אחורה',
     'be_right_back' => 'חוזרים מיד.',
 
-//category template
+    //category template
     'all_categories' => 'כל הקטגוריות',
     'category_name' => 'שם',
 
-//common template
+    //common template
     'create_script_code' => 'צור קוד סקריפט',
     'create_script' => 'צור סקריפט',
     'edit_script_code' => 'ערוך קוד סקריפט',
@@ -1485,7 +1485,7 @@ return [
     'analytics_custom_code' => 'אנליטיקות/קוד מותאם אישית',
     'fields' => 'אנליטיקות/קוד מותאם אישית',
     'auto_faveo_licenser' => 'מנהל רישוי אוטומטי Faveo ועדכון',
-    'do_not_allow_domain' => "אל תאפשר הגבלת דומיין/כתובת IP",
+    'do_not_allow_domain' => 'אל תאפשר הגבלת דומיין/כתובת IP',
     'google_recaptcha' => 'Google reCAPTCHA',
     'msg_mobile_verification' => 'Msg 91 (אימות טלפון נייד)',
     'show_terms_registration' => 'הצג תנאים בעמוד ההרשמה',
@@ -1548,14 +1548,14 @@ return [
     'deactivate' => 'בטל הפעלה',
     'provider' => 'ספק',
 
-//github template
+    //github template
     'github_setting' => 'הגדרות Github',
     'enter_github_username' => 'אנא הזן את שם המשתמש ב-Github',
     'enter_github_password' => 'אנא הזן את סיסמת Github',
     'enter_github_clientid' => 'אנא הזן את מזהה הלקוח',
     'enter_github_client_secret_key' => 'אנא הזן את מפתח סוד הלקוח',
 
-//invoice template
+    //invoice template
     'edit_invoice' => 'ערוך חשבונית',
     'view_user' => 'הצג משתמש',
     'pending' => 'ממתין',
@@ -1596,7 +1596,7 @@ return [
     'no_tax_rates' => 'אין שיעורי מס',
     'store' => 'חנות',
 
-//Master both client and admin panels
+    //Master both client and admin panels
     'admin_dashboard' => 'לוח בקרה של מנהל',
     'my_account' => 'החשבון שלי',
     'start_free_trial' => 'התחל תקופת ניסיון חינם',
@@ -1637,7 +1637,7 @@ return [
     'enter_domain_license' => 'הזן דומיין והורד קובץ רישוי',
     'installation_details' => 'פרטי התקנה',
 
-//payment panel
+    //payment panel
     'payment_date' => 'תאריך תשלום',
     'auto_renewal_subscription' => 'חידוש אוטומטי עבור מנוי עתידי',
     'subscription_start_date' => 'תאריך התחלת מנוי',
@@ -1663,7 +1663,7 @@ return [
     'coupon' => 'קופון',
     'actions' => 'פעולות',
 
-//Tax panel
+    //Tax panel
     'create_tax' => 'צור מס',
     'caps_others' => 'אחרים',
     'others' => 'אחרים',
@@ -1702,7 +1702,7 @@ return [
     'show_cart_page' => 'הצג בדף העגלת קניות',
     'select_taxes' => 'בחר מיסים',
 
-//Product panel
+    //Product panel
     'all_product_details' => 'הוסף פרטי מוצר',
     'enter_json_format' => 'הזן פורמט JSON.',
     'upload' => 'העלה',
@@ -1731,21 +1731,21 @@ return [
     'all_types' => 'כל הסוגים',
     'configure_queue' => 'הגדר תור',
 
-//renew panel
+    //renew panel
     'renew_product' => 'ודא שהעגלת קניות ריקה על מנת לחדש את המוצר שלך',
     'click_renew' => 'לחץ כאן כדי לחדש',
     'renew_your_order' => 'חידוש הזמנה שלך',
     'renew_order' => 'חידוש הזמנה',
     'renewal_price_per_agent' => 'מחיר חידוש-לסוכן: ',
 
-//report panel
+    //report panel
     'file_name' => 'שם קובץ',
     'format' => 'פורמט',
     'contact' => 'צור קשר',
     'report_settings' => 'הגדרות דוח',
     'report_limit' => 'הוסף רשומות לכל גיליון. הגבול המקסימלי הוא 3000.',
 
-//tenant panel
+    //tenant panel
     'cloud_details' => 'פרטי ענן',
     'cloud_server' => 'שרת ענן',
     'customise_cloud_popup' => 'התאם אישית את חלונית הענן',
@@ -1773,7 +1773,7 @@ return [
     'app_key' => 'מפתח אפליקציה',
     'app_secret' => 'סוד אפליקציה',
 
-//user-client panel
+    //user-client panel
     'create_new_user' => 'צור משתמש חדש',
     'create_user' => 'צור משתמש',
     'position' => 'מעמד',
@@ -1868,7 +1868,7 @@ return [
     'by_arcanedev' => 'על ידי ARCANEDEV',
     'toggle_navigation' => 'הפוך ניווט',
 
-//boostrap-4
+    //boostrap-4
     'logs' => 'יומנים',
     'caps_delete_log_file' => 'מחק קובץ יומן',
     'caps_delete_file' => 'מחק קובץ',
@@ -1889,7 +1889,7 @@ return [
     'error_logs' => 'יומני שגיאות',
     'view_logs' => 'צפה ביומנים',
 
-//visitstats
+    //visitstats
     'request' => 'בקשה',
     'visitor' => 'מבקר',
     'browser' => 'דפדפן',
@@ -1918,7 +1918,7 @@ return [
     'info' => 'מידע',
     'product_quantity' => 'כמות מוצר',
     'table_search' => 'חיפוש:',
-//validation message
+    //validation message
     'enter_valid_otp' => 'אנא הזן OTP תקף',
     'verifying' => 'מאמת',
     'resending' => 'שולח מחדש',
@@ -2049,7 +2049,7 @@ return [
     'null' => 'ריק',
     'choose_one_payment_gateway' => 'בחר שער תשלום אחד',
 
-// Controller keys and values
+    // Controller keys and values
     'product_uploaded_successfully' => 'המוצר הועלה בהצלחה',
     'token_mismatch_account_not_activated' => 'אי התאמה בטוקן. לא ניתן להפעיל את החשבון.',
     'email_verification_success' => 'אימות אימייל הצליח. אנא התחבר כדי לגשת לחשבון שלך!',

@@ -37,6 +37,7 @@ class SettingRequest extends Request
 
         ];
     }
+
     public function messages()
     {
         return [

@@ -37,12 +37,12 @@ class BasePromotionController extends Controller
     public function getPromotionDetails($code)
     {
         if (empty($code)) {
-            throw new \Exception( __('message.no_coupon_code_applied'));
+            throw new \Exception(__('message.no_coupon_code_applied'));
         }
         $promo = Promotion::where('code', $code)->first();
         //check promotion code is valid
         if (! $promo) {
-            throw new \Exception( __('message.invalid_promo_code'));
+            throw new \Exception(__('message.invalid_promo_code'));
         }
         $relation = $promo->relation()->get();
         //check the relation between code and product

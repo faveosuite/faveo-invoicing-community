@@ -116,7 +116,7 @@ class ResetPasswordController extends Controller
 
                         \DB::table('password_resets')->where('email', $user->email)->delete();
 
-                        return redirect('login')->with('success',  __('message.password_changed_successfully'));
+                        return redirect('login')->with('success', __('message.password_changed_successfully'));
                     } else {
                         return redirect()->back()
                                     ->withInput($request->only('email'))

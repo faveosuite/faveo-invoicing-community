@@ -189,35 +189,35 @@ return [
             'regex' => 'Web sitesi formatı geçersiz.',
         ],
         'phone' => [
-        'required' => 'Telefon numarası zorunludur.',
-    ],
+            'required' => 'Telefon numarası zorunludur.',
+        ],
         'address' => [
-        'required' => 'Adres zorunludur.',
-    ],
+            'required' => 'Adres zorunludur.',
+        ],
         'state' => [
-        'required' => 'Eyalet zorunludur.',
-    ],
+            'required' => 'Eyalet zorunludur.',
+        ],
         'country' => [
-        'required' => 'Ülke zorunludur.',
-    ],
+            'required' => 'Ülke zorunludur.',
+        ],
         'gstin' => [
-        'max' => 'GSTIN 15 karakteri geçemez.',
-    ],
+            'max' => 'GSTIN 15 karakteri geçemez.',
+        ],
         'default_currency' => [
-        'required' => 'Varsayılan para birimi zorunludur.',
-    ],
+            'required' => 'Varsayılan para birimi zorunludur.',
+        ],
         'admin_logo' => [
-        'mimes' => 'Yönetici logosu jpeg, png, jpg dosya türlerinden biri olmalıdır.',
-        'max' => 'Yönetici logosu 2MB\'dan büyük olamaz.',
-    ],
+            'mimes' => 'Yönetici logosu jpeg, png, jpg dosya türlerinden biri olmalıdır.',
+            'max' => 'Yönetici logosu 2MB\'dan büyük olamaz.',
+        ],
         'fav_icon' => [
-        'mimes' => 'Fav ikon jpeg, png, jpg dosya türlerinden biri olmalıdır.',
-        'max' => 'Fav ikon 2MB\'dan büyük olamaz.',
-    ],
+            'mimes' => 'Fav ikon jpeg, png, jpg dosya türlerinden biri olmalıdır.',
+            'max' => 'Fav ikon 2MB\'dan büyük olamaz.',
+        ],
         'logo' => [
-        'mimes' => 'Logo jpeg, png, jpg dosya türlerinden biri olmalıdır.',
-        'max' => 'Logo 2MB\'dan büyük olamaz.',
-    ],
+            'mimes' => 'Logo jpeg, png, jpg dosya türlerinden biri olmalıdır.',
+            'max' => 'Logo 2MB\'dan büyük olamaz.',
+        ],
     ],
 
     'social_media_form' => [

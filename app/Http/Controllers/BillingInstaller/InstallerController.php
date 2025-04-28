@@ -295,12 +295,9 @@ class InstallerController extends Controller
             $changed = $this->changeLanguage($language);
             $timeZoneId = App\Model\Common\Timezone::where('name', $timezone)->value('id');
 
-
             if (! $changed) {
                 return Redirect::back()->with('fails', 'Invalid language');
             }
-
-
 
             $user = User::where('id', 1)->update([
                 'first_name' => $request->input('first_name'),
@@ -313,7 +310,6 @@ class InstallerController extends Controller
                 'mobile_verified' => 1,
                 'email_verified' => 1,
             ]);
-
 
             // Update the initial company settings
             DB::transaction(function () use ($timeZoneId) {
@@ -409,7 +405,7 @@ class InstallerController extends Controller
             }
 
             $user = Auth::user();
-            $user->language =  $language;
+            $user->language = $language;
             $user->save();
 
             return successResponse('Language set successfully');
@@ -464,6 +460,7 @@ class InstallerController extends Controller
         // checking if the installation is running for the first time or not,getting-started page
         if (Cache::get('config-check') == 'config-check') {
             Cache::put('timezone', $request['timezone']);
+
             return view('themes.default1.installer.view5');
         } else {
             return Redirect::route('db-setup');
@@ -514,7 +511,8 @@ class InstallerController extends Controller
 
             return successResponse('Language set successfully');
         } catch (\Exception $exception) {
-           \Log::exception($exception);
+            \Log::exception($exception);
+
             return errorResponse('error could not change the language');
         }
     }

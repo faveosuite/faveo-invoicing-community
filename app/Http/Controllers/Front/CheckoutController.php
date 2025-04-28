@@ -208,7 +208,7 @@ class CheckoutController extends InfoController
             $paid = 0;
             $invoice = $this->invoice->find($invoiceid);
             if ($invoice->user_id != \Auth::user()->id) {
-                throw new \Exception( __('message.invalid_payment_modification'));
+                throw new \Exception(__('message.invalid_payment_modification'));
             }
 
             if (count($invoice->payment()->get())) {//If partial payment is made
@@ -357,7 +357,7 @@ class CheckoutController extends InfoController
                 return $paymentMethod == 'razorpay' ? 0 : \DB::table(strtolower($paymentMethod))->where('currencies', $currency)->value('processing_fee');
             }
         } catch (\Exception $e) {
-            throw new \Exception( __('message.invalid_modification'));
+            throw new \Exception(__('message.invalid_modification'));
         }
     }
 
@@ -383,7 +383,7 @@ class CheckoutController extends InfoController
 
         if ($invoiceid) {
             if (Invoice::find($invoiceid)->user_id != \Auth::user()->id) {
-                throw new \Exception( __('message.invalid_modification'));
+                throw new \Exception(__('message.invalid_modification'));
             }
             $paynow = true;
         }

@@ -171,7 +171,7 @@ class Google2FAController extends Controller
     {
         $user = $request->userId ? User::where('id', $request->userId)->first() : $request->user();
         if (\Auth::user()->role != 'admin' && $user->id != \Auth::user()->id) {
-            return errorResponse( __('message.cannot_disable_2fa'));
+            return errorResponse(__('message.cannot_disable_2fa'));
         }
         //make secret column blank
         $user->google2fa_secret = null;
@@ -219,7 +219,7 @@ class Google2FAController extends Controller
             $userId = $request->session()->pull('2fa:user:id');
             $this->user = User::findorFail($userId);
             if ($this->user->code_usage_count == 1) {//If backup code is used already
-                throw new \Exception( __('message.code_authenticator_disable_2fa'));
+                throw new \Exception(__('message.code_authenticator_disable_2fa'));
             }
             $rec_code = $request->input('rec_code');
             if ($rec_code == $this->user->backup_code) {
@@ -231,7 +231,7 @@ class Google2FAController extends Controller
                 return redirect($this->redirectPath());
             } else {
                 \Session::put('2fa:user:id', $userId);
-                throw new \Exception( __('message.invalid_recovery_code'));
+                throw new \Exception(__('message.invalid_recovery_code'));
             }
         } catch (\Exception $e) {
             \Session::put('2fa:user:id', $userId);

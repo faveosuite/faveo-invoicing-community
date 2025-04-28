@@ -197,7 +197,8 @@ class ClientController extends BaseClientController
             $mail = new \App\Http\Controllers\Common\PhpMailController();
             $mail->payment_log(\Auth::user()->email, 'stripe', 'failed', Order::where('id', $orderid)->value('number'), $result, $amount, 'Payment method updated');
 
-            return redirect()->back()->with('fails', __('message.payment_declined', ['msg' => $ex->getMessage()]));        }
+            return redirect()->back()->with('fails', __('message.payment_declined', ['msg' => $ex->getMessage()]));
+        }
     }
 
     public function autoRenewbyid()
@@ -324,13 +325,13 @@ class ClientController extends BaseClientController
                         $deleteButton = '';
                         $payNowButton = '';
                         $payment = '';
-                        $viewButton = '<a href="'.url('my-invoice/'.$model->id).'" class="btn btn-light-scale-2 btn-sm text-dark" id="iconStyle" data-toggle="tooltip" data-placement="top" title="' . __('message.click_here_view') . '"><i class="fa fa-eye"></i></a>';
+                        $viewButton = '<a href="'.url('my-invoice/'.$model->id).'" class="btn btn-light-scale-2 btn-sm text-dark" id="iconStyle" data-toggle="tooltip" data-placement="top" title="'.__('message.click_here_view').'"><i class="fa fa-eye"></i></a>';
 
                         if ($status != 'Success' && $model->grand_total > 0) {
-                            $payNowButton = '<a href="'.url('paynow/'.$model->id).'" class="btn btn-light-scale-2 btn-sm text-dark" id="iconStyle" data-toggle="tooltip" data-placement="top" title="' . __('message.click_here_pay') . '"><i class="fa fa-credit-card"></i></a>';
+                            $payNowButton = '<a href="'.url('paynow/'.$model->id).'" class="btn btn-light-scale-2 btn-sm text-dark" id="iconStyle" data-toggle="tooltip" data-placement="top" title="'.__('message.click_here_pay').'"><i class="fa fa-credit-card"></i></a>';
 
                             if (! $model->orderRelation()->exists()) {
-                                $deleteButton = '<a class="btn btn-light-scale-2 btn-sm text-dark delete-btn" id="iconStyle" data-id="'.$model->id.'" data-toggle="tooltip" data-placement="top" title="' . __('message.click_here_delete') . '"><i class="fa fa-trash"></i></a>';
+                                $deleteButton = '<a class="btn btn-light-scale-2 btn-sm text-dark delete-btn" id="iconStyle" data-id="'.$model->id.'" data-toggle="tooltip" data-placement="top" title="'.__('message.click_here_delete').'"><i class="fa fa-trash"></i></a>';
                             }
 
                             return $payNowButton.' '.$deleteButton.' '.$viewButton;
@@ -373,12 +374,12 @@ class ClientController extends BaseClientController
         try {
             $invoice = $this->invoice->find($id);
             if (! $invoice) {
-                throw new \Exception( __('message.invoice_not_found'));
+                throw new \Exception(__('message.invoice_not_found'));
             }
             $payments = $invoice->payment;
             $user = \Auth::user();
             if ($invoice->user_id != $user->id) {
-                throw new \Exception( __('message.invalid_invoice_modification'));
+                throw new \Exception(__('message.invalid_invoice_modification'));
             }
             $items = $invoice->invoiceItem()->get();
             $order = $this->order->getOrderLink($invoice->orderRelation()->value('order_id'), 'my-order');
@@ -576,7 +577,7 @@ class ClientController extends BaseClientController
                                 } else {
                                     $badge = 'badge';
 
-                                    return '<a href='.url('my-order/'.$model->id).'>'.$model->number.'</a>'.'&nbsp;<span class="'.$badge.' '.$badge.'-danger"  <label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="'. __('message.order_has_been_terminated').'">
+                                    return '<a href='.url('my-order/'.$model->id).'>'.$model->number.'</a>'.'&nbsp;<span class="'.$badge.' '.$badge.'-danger"  <label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="'.__('message.order_has_been_terminated').'">
 
                          </label>
             Terminated</span>';
@@ -709,7 +710,7 @@ class ClientController extends BaseClientController
             $user = \Auth::user();
             $order = $this->order->findOrFail($id);
             if ($order->client != $user->id) {
-                throw new \Exception( __('message.invalid_order_view'));
+                throw new \Exception(__('message.invalid_order_view'));
             }
             $invoice = $order->invoice()->first();
             $items = $order->invoice()->first()->invoiceItem()->get();

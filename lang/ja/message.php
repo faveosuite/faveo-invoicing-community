@@ -675,7 +675,7 @@ return [
     'active' => '有効',
     'inactive' => '無効',
     'activate' => '有効化',
-    'extension_required_error' => "この機能にはPHPの:extension拡張が必要です。",
+    'extension_required_error' => 'この機能にはPHPの:extension拡張が必要です。',
     'unknown_error_occured' => '不明なエラーが発生しました',
     'dependencies' => '依存関係',
 
@@ -763,7 +763,7 @@ return [
     'user_suspend' => 'このユーザーはシステムから停止されています。復元すると詳細が表示されます。',
     'country_notfound' => '国が特定できませんでした',
 
-// Strong Password
+    // Strong Password
     'strong_password' => 'パスワードは8文字以上で、大文字・小文字・数字・特殊文字をそれぞれ1つ以上含める必要があります。',
 
     'password_requirements' => 'パスワードには以下を含めてください：',
@@ -782,7 +782,7 @@ return [
     'password_required' => 'パスワードが必要です。',
     'new_password_different' => '新しいパスワードは現在のパスワードと異なる必要があります。',
     'reset_link_expired' => 'パスワードリセットリンクが期限切れまたは無効です。再度お試しください。',
-//file storage
+    //file storage
     'file_storage' => 'ファイルストレージ',
     'set_file_storage' => 'ファイル保存パスを設定',
     'storage_disk' => 'ストレージディスク',
@@ -1077,7 +1077,7 @@ return [
     'image_allowed' => 'PNG、JPG、JPEGファイルのみが許可されています。',
     'image_max' => '画像は2MBを超えることはできません。',
 
-// email templates
+    // email templates
 
     'choose_password' => 'パスワードをリセットするには、こちらをクリックしてください: ',
     'email_username' => 'ユーザー名: ',
@@ -1085,7 +1085,7 @@ return [
     'email_click_here' => 'ここをクリック',
     'activate_account' => 'アカウントを有効にするには、',
 
-// error template
+    // error template
     'page_not_found' => 'ページが見つかりません',
     'sorry' => '申し訳ありませんが、探していたページは存在しません。',
     'useful_links' => '役立つリンクはこちらです',
@@ -1094,7 +1094,7 @@ return [
     'my_profile' => 'マイプロフィール',
     'contact_us' => 'お問い合わせ',
 
-// login-register template
+    // login-register template
     'login_lr' => 'ログイン | 登録',
     'sign_lr' => 'サインインまたは登録',
     'or' => 'または',
@@ -1128,7 +1128,7 @@ return [
     'error_occurred' => 'エラーが発生しました。もう一度お試しください。',
     'error_one_country' => '国を1つ選択してください',
 
-// contact template
+    // contact template
     'feel_free' => '詳細についてお気軽にお尋ねください。質問は保存しないでください!',
     'contact_name' => '名前',
     'contact_error_name' => 'お名前を入力してください。',
@@ -1141,7 +1141,7 @@ return [
     'contact_send_msg' => 'メッセージを送信',
     'our_office' => '私たちのオフィス',
 
-// password template
+    // password template
     'forgot_password' => 'パスワードを忘れましたか？今すぐリセット!',
     'lost_password' => 'パスワードを忘れましたか？',
     'know_password' => 'パスワードを知っています',
@@ -1150,7 +1150,7 @@ return [
     'sending' => '送信中...',
     'error_occurs' => 'エラーが発生しました。',
     'reset_password' => 'パスワードをリセット',
-//front-client template
+    //front-client template
     'change_faveo' => '既存のFaveoクラウドドメインを変更しますか？',
     'current_domain' => '現在のドメインを入力してください',
     'enter_domain' => '新しいドメインを入力してください',
@@ -1308,7 +1308,7 @@ return [
     'loading' => '読み込み中...',
     'subscriptions_table' => 'サブスクリプションテーブル',
     'invalid_format' => '無効な形式。',
-//front-page template
+    //front-page template
     'all_pages' => 'すべてのページ',
     'create_new_page' => '新しいページを作成',
     'edit_page' => 'ページを編集',
@@ -1318,14 +1318,14 @@ return [
     'select_checkbox' => '少なくとも1つのチェックボックスを選択してください',
     'search_result' => '検索結果',
 
-//front-widgets template
+    //front-widgets template
     'all_widgets' => 'すべてのウィジェット',
     'create_widget' => 'ウィジェットを作成',
     'configure_mailchimp' => '設定でMailchimpを構成してアクセスします',
     'configure_tweet' => '設定でツイートを構成してアクセスします',
     'edit_widget' => 'ウィジェットを編集',
 
-//front outer template
+    //front outer template
     'remove_product' => '商品を削除',
     'cart_totals' => 'カートの合計',
     'clear_cart' => 'カートをクリア',
@@ -1375,17 +1375,17 @@ return [
     'paid_with' => '支払い方法',
     'no_records_found' => '記録が見つかりません',
 
-// errors
+    // errors
     'sorry_something_wrong' => '申し訳ありません、何か問題が発生しました',
     'error_fixed' => '現在修正作業中です。できるだけ早く修正します。',
     'go_back' => '戻る',
     'be_right_back' => 'すぐ戻ります',
 
-//category template
+    //category template
     'all_categories' => 'すべてのカテゴリ',
     'category_name' => '名前',
 
-//common template
+    //common template
     'create_script_code' => 'スクリプトコードを作成',
     'create_script' => 'スクリプトを作成',
     'edit_script_code' => 'スクリプトコードを編集',
@@ -1458,7 +1458,7 @@ return [
     'sub' => '件名',
     'yearly' => '年間',
     'activity_log' => 'アクティビティログ',
-// Common template
+    // Common template
     'reset' => 'リセット',
     'module' => 'モジュール',
     'description_event' => '説明/イベント',
@@ -1548,14 +1548,14 @@ return [
     'deactivate' => '無効化',
     'provider' => 'プロバイダー',
 
-// GitHub template
+    // GitHub template
     'github_setting' => 'GitHub設定',
     'enter_github_username' => 'GitHubユーザー名を入力してください',
     'enter_github_password' => 'GitHubパスワードを入力してください',
     'enter_github_clientid' => 'クライアントIDを入力してください',
     'enter_github_client_secret_key' => 'クライアントシークレットキーを入力してください',
 
-// Invoice template
+    // Invoice template
     'edit_invoice' => '請求書を編集',
     'view_user' => 'ユーザーを表示',
     'pending' => '保留中',
@@ -1595,7 +1595,7 @@ return [
     'tax_rates' => '税率',
     'no_tax_rates' => '税率なし',
     'store' => 'ストア',
-// Master both client and admin panels
+    // Master both client and admin panels
     'admin_dashboard' => '管理ダッシュボード',
     'my_account' => 'マイアカウント',
     'start_free_trial' => '無料トライアルを開始',
@@ -1636,7 +1636,7 @@ return [
     'enter_domain_license' => 'ドメインを入力してライセンスファイルをダウンロード',
     'installation_details' => 'インストール詳細',
 
-// Payment panel
+    // Payment panel
     'payment_date' => '支払日',
     'auto_renewal_subscription' => '未来のサブスクリプションの自動更新',
     'subscription_start_date' => 'サブスクリプション開始日',
@@ -1662,7 +1662,7 @@ return [
     'coupon' => 'クーポン',
     'actions' => 'アクション',
 
-// Tax panel
+    // Tax panel
     'create_tax' => '税金を作成',
     'caps_others' => 'その他',
     'others' => 'その他',
@@ -1701,7 +1701,7 @@ return [
     'show_cart_page' => 'カートページに表示',
     'select_taxes' => '税金を選択',
 
-// Product panel
+    // Product panel
     'all_product_details' => '製品の詳細を追加',
     'enter_json_format' => 'JSON形式で入力',
     'upload' => 'アップロード',
@@ -1729,21 +1729,21 @@ return [
     'add_product' => '製品を追加',
     'all_types' => 'すべてのタイプ',
     'configure_queue' => 'キューを構成',
-//renew panel
+    //renew panel
     'renew_product' => '製品を更新するにはカートが空であることを確認してください',
     'click_renew' => 'ここをクリックして更新',
     'renew_your_order' => '注文を更新する',
     'renew_order' => '注文の更新',
     'renewal_price_per_agent' => 'エージェントごとの更新価格：',
 
-//report panel
+    //report panel
     'file_name' => 'ファイル名',
     'format' => '形式',
     'contact' => '連絡先',
     'report_settings' => 'レポート設定',
     'report_limit' => 'シートごとに追加するレコード数。最大制限は3000です。',
 
-//tenanat panel
+    //tenanat panel
     'cloud_details' => 'クラウドの詳細',
     'cloud_server' => 'クラウドサーバー',
     'customise_cloud_popup' => 'クラウドポップアップのカスタマイズ',
@@ -1771,7 +1771,7 @@ return [
     'app_key' => 'アプリキー',
     'app_secret' => 'アプリシークレット',
 
-//user-client panel
+    //user-client panel
     'create_new_user' => '新しいユーザーを作成',
     'create_user' => 'ユーザーを作成',
     'position' => '役職',
@@ -1865,7 +1865,7 @@ return [
     'created_with' => '作成者',
     'by_arcanedev' => 'ARCANEDEVによる',
     'toggle_navigation' => 'ナビゲーションの切り替え',
-//boostrap-4
+    //boostrap-4
     'logs' => 'ログ',
     'caps_delete_log_file' => 'ログファイルを削除',
     'caps_delete_file' => 'ファイルを削除',
@@ -1886,7 +1886,7 @@ return [
     'error_logs' => 'エラーログ',
     'view_logs' => 'ログを表示',
 
-//visitstats
+    //visitstats
     'request' => 'リクエスト',
     'visitor' => '訪問者',
     'browser' => 'ブラウザ',
@@ -1916,7 +1916,7 @@ return [
     'product_quantity' => '製品数量',
     'table_search' => '検索：',
 
-//validation message
+    //validation message
     'enter_valid_otp' => '有効なOTPを入力してください',
     'verifying' => '確認中',
     'resending' => '再送信中',
@@ -2047,7 +2047,7 @@ return [
     'null' => 'ヌル',
     'choose_one_payment_gateway' => '1つの支払いゲートウェイを選択してください',
 
-//Controller keys and values
+    //Controller keys and values
     'product_uploaded_successfully' => '製品が正常にアップロードされました',
     'token_mismatch_account_not_activated' => 'トークンが一致しません。アカウントを有効化できません。',
     'email_verification_success' => 'メール認証が成功しました。ログインしてアカウントにアクセスしてください！',

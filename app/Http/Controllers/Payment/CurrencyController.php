@@ -70,7 +70,7 @@ class CurrencyController extends Controller
                                   return '<div class="dashboard-center">'.$showButton.'</div>';
                               } else {
                                   return  '<div class="dashboard-center"><a class="btn btn-sm btn-secondary btn-xs disabled align-items-center" style="margin-right: 100px;"><i class="fa fa-eye "
-                                style="color:white;"> </i>&nbsp;&nbsp; '. __('message.show_on_dashboard').'</a></div>';
+                                style="color:white;"> </i>&nbsp;&nbsp; '.__('message.show_on_dashboard').'</a></div>';
                               }
                           })
 
@@ -118,15 +118,15 @@ class CurrencyController extends Controller
         $defaultCurrency = Setting::pluck('default_currency')->first();
         $currencyCode = Currency::where('id', $id)->pluck('code')->first(); //If default currency is equal to the currency code then make that button as Disabled as it would always be shown on dashboard and cannot be modified
         if ($defaultCurrency == $currencyCode) {
-            return  '<a class="btn btn-sm btn-warning btn-xs disabled" style="background-color:#f39c12;">&nbsp;&nbsp;'. __('message.default-currency').'</a>';
+            return  '<a class="btn btn-sm btn-warning btn-xs disabled" style="background-color:#f39c12;">&nbsp;&nbsp;'.__('message.default-currency').'</a>';
         }
         $currency = Currency::where('id', $id)->pluck('dashboard_currency')->first();
         if ($currency == 1) {
             return'<form method="post" action='.url('dashboard-currency/'.$id).'>'.'<input type="hidden" name="_token" value='.\Session::token().'>'.'
-                                    <button type="submit" class="btn btn-sm btn-success btn-xs"><i class="fa fa-check" style="color:white;"></i>&nbsp;&nbsp; '. __('message.show_on_dashboard').'</button></form>';
+                                    <button type="submit" class="btn btn-sm btn-success btn-xs"><i class="fa fa-check" style="color:white;"></i>&nbsp;&nbsp; '.__('message.show_on_dashboard').'</button></form>';
         } else {
             return '<form method="post" action='.url('dashboard-currency/'.$id).'>'.'<input type="hidden" name="_token" value='.\Session::token().'>'.'
-                                    <button type="submit" class="btn btn-sm btn-danger btn-xs"><i class="fa fa-times" style="color:white;"></i>&nbsp;&nbsp; '. __('message.show_on_dashboard').'</button></form>';
+                                    <button type="submit" class="btn btn-sm btn-danger btn-xs"><i class="fa fa-times" style="color:white;"></i>&nbsp;&nbsp; '.__('message.show_on_dashboard').'</button></form>';
         }
     }
 

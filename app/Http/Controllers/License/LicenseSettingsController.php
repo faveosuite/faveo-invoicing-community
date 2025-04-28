@@ -49,7 +49,7 @@ class LicenseSettingsController extends LicensePermissionsController
             ->addColumn('action', function ($model) {
                 return "<p><button data-toggle='modal' 
              data-id=".$model->id." data-name= '$model->name' 
-             class='btn btn-sm btn-secondary btn-xs editType'".tooltip( __('message.edit'))."<i class='fa fa-edit'
+             class='btn btn-sm btn-secondary btn-xs editType'".tooltip(__('message.edit'))."<i class='fa fa-edit'
              style='color:white;'> </i></button>&nbsp;</p>";
             })
               ->filterColumn('type_name', function ($query, $keyword) {

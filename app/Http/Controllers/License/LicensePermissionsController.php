@@ -70,7 +70,7 @@ class LicensePermissionsController extends Controller
                 return "<p><button data-toggle='modal' 
              data-id=".$model->id." data-permission= '$selectedPermission' 
              class='btn btn-sm btn-secondary get-license-type addPermission'><i class='fa fa-plus'
-             style='color:white;'> </i>&nbsp;&nbsp;". __('message.add-permissions') ."</button>&nbsp;</p>";
+             style='color:white;'> </i>&nbsp;&nbsp;".__('message.add-permissions').'</button>&nbsp;</p>';
             })
               ->filterColumn('license_type', function ($query, $keyword) {
                   $sql = 'name like ?';

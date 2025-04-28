@@ -92,7 +92,7 @@ class CommentController extends Controller
         try {
             $delComment = $this->comment->where('id', $request->input('data-comment-id'))->delete();
 
-            return successResponse( __('message.comment_deleted_successfully'));
+            return successResponse(__('message.comment_deleted_successfully'));
             // return redirect()->back()->with('success', \Lang::get('message.deleted-successfully'));
         } catch (Exception $ex) {
             app('log')->error($ex->getMessage());

@@ -133,7 +133,7 @@ class LicenseController extends Controller
 
             $addProduct = $this->postCurl($url.'api/admin/products/add', "api_key_secret=$api_key_secret&product_title=$product_name&product_sku=$product_sku&product_status=1", $token);
         } catch (\Exception $ex) {
-            throw new \Exception( __('message.configure_valid_license'));
+            throw new \Exception(__('message.configure_valid_license'));
         }
     }
 
@@ -166,7 +166,7 @@ class LicenseController extends Controller
             $token = $OauthDetails->access_token;
             $addProduct = $this->postCurl($url.'api/admin/products/edit', "api_key_secret=$api_key_secret&product_id=$productId&product_title=$product_name&product_sku=$product_sku&product_status=1", $token);
         } catch (\Exception $ex) {
-            throw new \Exception( __('message.configure_valid_license'));
+            throw new \Exception(__('message.configure_valid_license'));
         }
     }
 
@@ -190,7 +190,7 @@ class LicenseController extends Controller
 
             return $productId;
         } catch (\Exception $ex) {
-            throw new \Exception( __('message.configure_valid_license'));
+            throw new \Exception(__('message.configure_valid_license'));
         }
     }
 
@@ -206,7 +206,7 @@ class LicenseController extends Controller
             $productSku = $product->sku;
             $delProduct = $this->postCurl($url.'api/admin/products/delete', "api_key_secret=$api_key_secret&product_id=$productId&product_title=$productTitle&product_sku=$productSku&product_status=1&delete_record=1", $token);
         } catch (\Exception $ex) {
-            throw new \Exception( __('message.configure_valid_license'));
+            throw new \Exception(__('message.configure_valid_license'));
         }
     }
 
@@ -223,7 +223,7 @@ class LicenseController extends Controller
             $token = $OauthDetails->access_token;
             $addProduct = $this->postCurl($url.'api/admin/clients/edit', "api_key_secret=$api_key_secret&client_id=$userId&client_fname=$first_name&client_lname=$last_name&client_email=$email&client_role='client'&client_status=1", $token);
         } catch (\Exception $ex) {
-            throw new \Exception( __('message.configure_valid_license'));
+            throw new \Exception(__('message.configure_valid_license'));
         }
     }
 
@@ -318,7 +318,7 @@ class LicenseController extends Controller
             $licenseCode = $searchLicense['code'];
             $updateLicense = $this->postCurl($url.'api/admin/license/edit', "api_key_secret=$api_key_secret&product_id=$productId&license_code=$licenseCode&license_id=$licenseId&license_order_number=$orderNo&license_require_domain=$requireDomain&license_status=1&license_expire_date=$l_expiry&license_updates_date=$u_expiry&license_support_date=$s_expiry&license_domain=$domain&license_ip=$ip&license_limit=$license_limit", $token);
         } catch (\Exception $ex) {
-            throw new \Exception( __('message.configure_valid_license'));
+            throw new \Exception(__('message.configure_valid_license'));
         }
     }
 
@@ -401,7 +401,7 @@ class LicenseController extends Controller
                 }
             }
         } catch (\Exception $ex) {
-            throw new \Exception( __('message.configure_valid_license'));
+            throw new \Exception(__('message.configure_valid_license'));
         }
     }
 
@@ -462,7 +462,7 @@ class LicenseController extends Controller
             $code = $searchLicense['code'];
             $updateLicense = $this->postCurl($url.'api/admin/license/edit', "api_key_secret=$api_key_secret&product_id=$productId&license_code=$code&license_id=$licenseId&license_order_number=$orderNo&license_domain=$domain&license_ip=$ip&license_require_domain=$requireDomain&license_status=1&license_expire_date=$licenseExpiry&license_updates_date=$expiryDate&license_support_date=$supportExpiry&license_limit=$license_limit", $token);
         } catch (\Exception $ex) {
-            throw new \Exception( __('message.configure_valid_license'));
+            throw new \Exception(__('message.configure_valid_license'));
         }
     }
 
@@ -579,7 +579,7 @@ class LicenseController extends Controller
             $token = $OauthDetails->access_token;
             $details = json_decode($this->postCurl($url.'api/admin/updateInstallationLogs', "api_key_secret=$api_key_secret&root_url=$root_url&version_number=$version_number&installation_ip=$installation_ip&license_code=$licenseCode", $token));
         } catch (\Exception $ex) {
-            throw new \Exception( __('message.configure_valid_license'));
+            throw new \Exception(__('message.configure_valid_license'));
         }
     }
 
@@ -602,7 +602,7 @@ class LicenseController extends Controller
 
             return [];
         } catch (\Exception $ex) {
-            throw new \Exception( __('message.configure_valid_license'));
+            throw new \Exception(__('message.configure_valid_license'));
         }
     }
 
@@ -616,7 +616,7 @@ class LicenseController extends Controller
 
             return $this->getCurl($url.'api/admin/getProductIdbyKey?'."api_key_secret=$api_key_secret&product_key=$productKey", $token);
         } catch (\Exception $ex) {
-            throw new \Exception( __('message.configure_valid_license'));
+            throw new \Exception(__('message.configure_valid_license'));
         }
     }
 }

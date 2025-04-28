@@ -134,7 +134,7 @@ return [
     Request file custom validation messages
     */
 
-//Common
+    //Common
     'settings_form' => [
         'company' => [
             'required' => 'कंपनी क्षेत्र अनिवार्य है।',
@@ -232,7 +232,7 @@ return [
         ],
     ],
 
-//Email
+    //Email
     'custom' => [
         'password' => [
             'required_if' => 'चयनित मेल ड्राइवर के लिए पासवर्ड क्षेत्र अनिवार्य है।',
@@ -335,7 +335,7 @@ return [
         ],
     ],
 
-//Order form
+    //Order form
     'order_form' => [
         'client' => [
             'required' => 'क्लाइंट क्षेत्र अनिवार्य है।',
@@ -363,7 +363,7 @@ return [
         ],
     ],
 
-//Payment form
+    //Payment form
     'coupon_form' => [
         'code' => [
             'required' => 'कूपन कोड क्षेत्र अनिवार्य है।',
@@ -420,7 +420,7 @@ return [
             // 'exists' => 'चयनित राज्य अमान्य है।',
         ],
     ],
-//Product
+    //Product
     'subscription_form' => [
         'name' => [
             'required' => 'नाम क्षेत्र अनिवार्य है।',
@@ -513,7 +513,7 @@ return [
         ],
     ],
 
-//User
+    //User
     'users' => [
         'first_name' => [
             'required' => 'पहला नाम क्षेत्र अनिवार्य है।',
@@ -551,7 +551,7 @@ return [
         ],
         'zip' => [
             'regex' => 'राज्य क्षेत्र तब अनिवार्य है जब देश भारत हो।',
-        ]
+        ],
     ],
     'profile_form' => [
         'first_name' => [
@@ -622,7 +622,7 @@ return [
         ],
     ],
 
-//Invoice form
+    //Invoice form
     'invoice' => [
         'user' => [
             'required' => 'क्लाइंट्स क्षेत्र आवश्यक है।',
@@ -645,7 +645,7 @@ return [
         ],
     ],
 
-//LocalizedLicense form
+    //LocalizedLicense form
     'domain_form' => [
         'domain' => [
             'required' => 'डोमेन क्षेत्र आवश्यक है।',
@@ -653,7 +653,7 @@ return [
         ],
     ],
 
-//Product Renewal form
+    //Product Renewal form
     'product_renewal' => [
         'domain' => [
             'required' => 'डोमेन क्षेत्र आवश्यक है।',
@@ -661,13 +661,13 @@ return [
         ],
     ],
 
-//Language form
+    //Language form
     'language' => [
         'required' => 'भाषा क्षेत्र आवश्यक है।',
         'invalid' => 'चयनित भाषा अमान्य है।',
     ],
 
-//UpdateSroragePathRequest form
+    //UpdateSroragePathRequest form
     'storage_path' => [
         'disk' => [
             'required' => 'स्टोरेज डिस्क क्षेत्र आवश्यक है।',
@@ -679,7 +679,7 @@ return [
         ],
     ],
 
-//ValidateSecretRequest form
+    //ValidateSecretRequest form
     'validate_secret' => [
         'totp' => [
             'required' => 'कृपया कोड दर्ज करें',
@@ -687,7 +687,7 @@ return [
         ],
     ],
 
-//VerifyOtp form
+    //VerifyOtp form
     'verify_email' => [
         'required' => 'ईमेल क्षेत्र आवश्यक है।',
         'email' => 'ईमेल एक वैध ईमेल पता होना चाहिए।',

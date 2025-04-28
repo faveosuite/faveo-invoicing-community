@@ -59,7 +59,7 @@ class ClientController extends AdvanceSearchController
         $validator = \Validator::make($request->all(), [
             'reg_from' => 'nullable',
             'reg_till' => 'nullable|after:reg_from',
-            ],
+        ],
             [
                 'reg_till.after' => __('validation.reg_till_after'),
             ]);
@@ -133,10 +133,10 @@ class ClientController extends AdvanceSearchController
                         })
                         ->addColumn('action', function ($model) {
                             return '<a href='.url('clients/'.$model->id.'/edit')
-                            ." class='btn btn-sm btn-secondary btn-xs'".tooltip( __('message.edit'))."
+                            ." class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.edit'))."
                             <i class='fa fa-edit' style='color:white;'> </i></a>"
                                     .'  <a href='.url('clients/'.$model->id)
-                                    ." class='btn btn-sm btn-secondary btn-xs'".tooltip( __('message.view'))."
+                                    ." class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.view'))."
                                     <i class='fa fa-eye' style='color:white;'> </i></a>";
                         })
 
@@ -277,7 +277,7 @@ class ClientController extends AdvanceSearchController
             return redirect()->back()->with('success', \Lang::get('message.saved-successfully'));
         } catch (\Swift_TransportException $e) {
             return redirect()->back()->with('warning',
-                __('message.user_created_but_email_problem') . $e->getMessage());
+                __('message.user_created_but_email_problem').$e->getMessage());
         } catch (\Exception $e) {
             return redirect()->back()->with('fails', $e->getMessage());
         }
@@ -434,13 +434,15 @@ class ClientController extends AdvanceSearchController
                     $isAccountManager = User::where('account_manager', $id)->get();
                     $isSalesManager = User::where('manager', $id)->get();
                     if (count($isSalesManager) > 0) {
-                        throw new \Exception( __('messages.admin_delete_restricted', [
-                            'name' => $user->first_name . ' ' . $user->last_name,
-                        ]));                    }
+                        throw new \Exception(__('messages.admin_delete_restricted', [
+                            'name' => $user->first_name.' '.$user->last_name,
+                        ]));
+                    }
                     if (count($isAccountManager) > 0) {
-                        throw new \Exception( __('messages.cannot_delete_admin', [
-                            'name' => $user->first_name . ' ' . $user->last_name
-                        ]));                    }
+                        throw new \Exception(__('messages.cannot_delete_admin', [
+                            'name' => $user->first_name.' '.$user->last_name,
+                        ]));
+                    }
                     if ($user) {
                         $user->delete();
                     } else {

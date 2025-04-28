@@ -181,7 +181,7 @@ return [
     'total_amount_required' => 'Total amount is required.',
     'total_amount_numeric' => 'Total amount must be a numeric value.',
     'invoice_link_required' => 'Please link the amount with at least one Invoice.',
-   /*
+    /*
    Request file custom validation messages
    */
 
@@ -503,32 +503,32 @@ return [
         ],
     ],
 
-        'group' => [
+    'group' => [
+        'name' => [
+            'required' => 'The name is required',
+        ],
+        'features' => [
             'name' => [
-                'required' => 'The name is required',
-            ],
-            'features' => [
-                'name' => [
-                    'required' => 'All Features Field Required',
-                ],
-            ],
-            'price' => [
-                'name' => [
-                    'required_unless' => 'The price is required',
-                ],
-            ],
-            'value' => [
-                'name' => [
-                    'required_unless' => 'The value is required',
-                ],
-            ],
-            'type' => [
-                'required_with' => 'The type is required',
-            ],
-            'title' => [
-                'required_with' => 'The title is required',
+                'required' => 'All Features Field Required',
             ],
         ],
+        'price' => [
+            'name' => [
+                'required_unless' => 'The price is required',
+            ],
+        ],
+        'value' => [
+            'name' => [
+                'required_unless' => 'The value is required',
+            ],
+        ],
+        'type' => [
+            'required_with' => 'The type is required',
+        ],
+        'title' => [
+            'required_with' => 'The title is required',
+        ],
+    ],
 
     'product' => [
         'name' => [
@@ -604,7 +604,7 @@ return [
         ],
         'zip' => [
             'regex' => 'The state field is required when country is India.',
-        ]
+        ],
     ],
 
     'profile_form' => [
@@ -898,11 +898,11 @@ return [
     ],
     'please_enter_recovery_code' => 'Please enter recovery code',
     'social_login' => [
-        'client_id_required'     => 'Client ID is required for Google, Github, or Linkedin.',
+        'client_id_required' => 'Client ID is required for Google, Github, or Linkedin.',
         'client_secret_required' => 'Client Secret is required for Google, Github, or Linkedin.',
-        'api_key_required'       => 'API Key is required for Twitter.',
-        'api_secret_required'    => 'API Secret is required for Twitter.',
-        'redirect_url_required'  => 'Redirect URL is required.',
+        'api_key_required' => 'API Key is required for Twitter.',
+        'api_secret_required' => 'API Secret is required for Twitter.',
+        'redirect_url_required' => 'Redirect URL is required.',
     ],
     'thirdparty_api' => [
         'app_name_required' => 'App name is required.',
@@ -910,14 +910,5 @@ return [
         'app_key_size' => 'App key must be exactly 32 characters.',
         'app_secret_required' => 'App secret is required.',
     ],
-
-
-
-
-
-
-
-
-
 
 ];

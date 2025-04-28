@@ -57,7 +57,7 @@ class AuthController extends BaseAuthController
             if ($activate) {
                 $email = $activate->email;
             } else {
-                throw new NotFoundHttpException( __('message.token_mismatch_account_not_activated'));
+                throw new NotFoundHttpException(__('message.token_mismatch_account_not_activated'));
             }
             $user = $user->where('email', $email)->first();
             if ($user) {
@@ -104,7 +104,7 @@ class AuthController extends BaseAuthController
             'email' => 'required|email|max:255|unique:users',
             'password' => 'required|confirmed|min:6',
         ],
-             [
+            [
                 'name.required' => __('validation.auth_controller.name_required'),
                 'name.max' => __('validation.auth_controller.name_max'),
 
@@ -117,7 +117,6 @@ class AuthController extends BaseAuthController
                 'password.confirmed' => __('validation.auth_controller.password_confirmed'),
                 'password.min' => __('validation.auth_controller.password_min'),
             ]);
-
     }
 
     /**
@@ -139,7 +138,7 @@ class AuthController extends BaseAuthController
     {
         $request->validate([
             'eid' => 'required|string',
-            ],
+        ],
             [
                 'eid.required' => __('validation.eid_required'),
                 'eid.string' => __('validation.eid_string'),
@@ -304,7 +303,7 @@ class AuthController extends BaseAuthController
             'eid' => 'required|string',
             'otp' => 'required|string|size:6',
             'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation()],
-            ],
+        ],
             [
                 'eid.required' => __('validation.verify_otp.eid_required'),  // Translating for eid field
                 'eid.string' => __('validation.verify_otp.eid_string'),
@@ -362,7 +361,7 @@ class AuthController extends BaseAuthController
                 'otp.required' => __('validation.verify_otp.otp_required'),
                 'otp.size' => __('validation.verify_otp.otp_size'),
                 'g-recaptcha-response.required' => __('validation.verify_otp.recaptcha_required'),
-        ]);
+            ]);
 
         try {
             $otp = $request->input('otp');
@@ -425,16 +424,16 @@ class AuthController extends BaseAuthController
             ->orderBy('state_subdivision_name', 'asc')->get();
 
             if (count($states) > 0) {
-                echo '<option value="">' . __('message.choose') . '</option>';
+                echo '<option value="">'.__('message.choose').'</option>';
                 foreach ($states as $stateList) {
                     echo '<option value='.$stateList->state_subdivision_code.'>'
                 .$stateList->state_subdivision_name.'</option>';
                 }
             } else {
-                echo "<option value=''>" . __('message.no_states_available') . "</option>";
+                echo "<option value=''>".__('message.no_states_available').'</option>';
             }
         } catch (\Exception $ex) {
-            echo "<option value=''>" . __('message.problem_while_loading') . "</option>";
+            echo "<option value=''>".__('message.problem_while_loading').'</option>';
 
             return redirect()->back()->with('fails', $ex->getMessage());
         }

@@ -126,7 +126,7 @@ class ExtendedOrderController extends Controller
     {
         $order = Order::findorFail($request->input('id'));
         if (\Auth::user()->role != 'admin' && $order->client != \Auth::user()->id) {
-            return errorResponse( __('message.reissue_license_invalid_modification_data'));
+            return errorResponse(__('message.reissue_license_invalid_modification_data'));
         }
         $order->domain = '';
         $licenseCode = $order->serial_key;

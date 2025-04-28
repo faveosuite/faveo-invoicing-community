@@ -165,5 +165,4 @@ return [
     'tooltip_timezone' => 'Browser timezone is used initially. Select a different timezone if needed.',
     'tooltip_language' => 'Initially loaded default language. Select a different language if needed.',
 
-
 ];

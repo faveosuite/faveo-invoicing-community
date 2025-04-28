@@ -156,7 +156,7 @@ class BaseProductController extends ExtendedBaseProductController
         try {
             if (\Auth::user()->role != 'admin') {
                 if (\Auth::user()->id != $userid) {
-                    throw new \Exception( __('message.no_permission_for_action'));
+                    throw new \Exception(__('message.no_permission_for_action'));
                 }
             }
             $user = new \App\User();
@@ -462,6 +462,6 @@ class BaseProductController extends ExtendedBaseProductController
             'product_id' => $product[0]['product_id'],
         ];
 
-        return successResponse( __('message.product_retrieved_successfully'), $data);
+        return successResponse(__('message.product_retrieved_successfully'), $data);
     }
 }
