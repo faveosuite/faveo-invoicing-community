@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Create Order
+    {{ __('message.create_order') }}
 @stop
 @section('content')
 <div class="box box-primary">

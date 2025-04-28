@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Renew
+    {{ __('message.renew') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
@@ -35,7 +35,7 @@ Renew
 
                     <div class="col-md-4 form-group {{ $errors->has('plan') ? 'has-error' : '' }}">
                         <!-- first name -->
-                        {!! Form::label('plan','Plans',['class'=>'required']) !!}
+                        {!! Form::label('plan', __('message.plans'),['class'=>'required']) !!}
                           <select name="plan" id="plan" value= "Choose" onchange="fetchPlanCost(this.value)" class="form-control">
                              <option value="Choose">{{ __('message.choose') }}</option>
                            @foreach($plans as $key=>$plan)
@@ -51,7 +51,7 @@ Renew
                    <div class="col-md-4 form-group {{ $errors->has('payment_method') ? 'has-error' : '' }}">
                         <!-- last name -->
                         {!! Form::label('payment_method',Lang::get('message.payment-method'),['class'=>'required']) !!}
-                        {!! Form::select('payment_method',[''=>'Choose','cash'=>'Cash','check'=>'Check','online payment'=>'Online Payment','razorpay'=>'Razorpay','stripe'=>'Stripe'],null,['class' => 'form-control']) !!}
+                        {!! Form::select('payment_method',[''=> __('message.choose'),'cash'=>'Cash','check'=>'Check','online payment'=>'Online Payment','razorpay'=>'Razorpay','stripe'=>'Stripe'],null,['class' => 'form-control']) !!}
 
                     </div>
                      <div class="col-md-4 form-group {{ $errors->has('cost') ? 'has-error' : '' }}">
@@ -64,7 +64,7 @@ Renew
                 @if(in_array($productid,cloudPopupProducts()))
                 <div class="row">
                     <div class="col-md-4 form-group">
-                        {!! Form::label('agents', 'Agents', ['class' => 'col-form-label required']) !!}
+                        {!! Form::label('agents', __('message.agents'), ['class' => 'col-form-label required']) !!}
                         {!! Form::number('agents', $agents, ['class' => 'form-control', 'id' => 'agents', 'min' => '1', 'placeholder' => '', 'required']) !!}
                     </div>
                 </div>

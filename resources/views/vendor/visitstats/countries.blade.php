@@ -26,14 +26,14 @@
 								@else
 									<img class="visitortracker-icon"
 										src="{{ asset('/vendor/visitortracker/icons/flags/unknown.png') }}"
-										title="Unknown">
+										title="{{ __('message.unknown') }}">
 								@endif
 
 								{{ $visit->country }}
 							@else
 								<img class="visitortracker-icon"
 									src="{{ asset('/vendor/visitortracker/icons/flags/unknown.png') }}"
-									title="Unknown">
+									title="{{ __('message.unknown') }}">
 
 								{{ __('message.unknown') }}
 							@endif

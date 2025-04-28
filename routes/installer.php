@@ -8,9 +8,7 @@ Route::middleware(['installer'])->group(function () {
 
     Route::get('post-check', [InstallerController::class, 'database'])->name('database');
 
-    Route::get('get-start', [InstallerController::class, 'account'])->name('get-start');
-
-    Route::get('final', [InstallerController::class, 'finalize'])->name('final');
+    Route::get('get-start/{timezone?}', [InstallerController::class, 'account'])->name('get-start');
 
     Route::post('posting', [InstallerController::class, 'configurationcheck'])->name('posting');
 
@@ -31,4 +29,6 @@ Route::middleware(['installer'])->group(function () {
     Route::get('language/settings', [InstallerController::class, 'languageList'])->withoutMiddleware(['isInstalled']);
     Route::post('/update/language', [InstallerController::class, 'storeLanguage'])->withoutMiddleware(['isInstalled']);
     Route::get('/current-language', [InstallerController::class, 'getCurrentLang'])->withoutMiddleware(['isInstalled']);
+    Route::get('final', [InstallerController::class, 'finalize'])->name('final')->withoutMiddleware(['isInstalled']);
+    Route::post('/lang/update',[InstallerController::class, 'storeLanguageForUsers'])->withoutMiddleware(['isInstalled']);
 });

@@ -468,7 +468,9 @@
 
                 }
                 function proceed() {
-                    window.location.href = '{{ URL::route('get-start') }}';
+                    var tz = jstz.determine();
+                    var timezone = tz.name();
+                    window.location.href = '{{ URL::route('get-start') }}'+ '?timezone=' + timezone;
                 }
 
             </script>
@@ -504,12 +506,12 @@
                     <?php Cache::forget('step3') ?>
             @endif
             <button class="btn btn-primary" id="previous" onclick="window.location.href='{{ URL::route('db-setup') }}'">
-                <i class="fas {{ app()->getLocale() == 'ar' ? 'fa-arrow-left' : 'fa-arrow-right' }} previous"></i>&nbsp;
+                <i class="fas {{ in_array(app()->getLocale(), ['ar', 'he']) ? 'fa-arrow-left' : 'fa-arrow-right' }} previous"></i>&nbsp;
                 &nbsp; {{ __('installer_messages.previous')}}</a>
             </button>
 
                 <button class="btn btn-primary float-right" onclick="proceed('start')" id="continue" disabled>
-                    {{ trans('installer_messages.continue') }}&nbsp; <i class="fas {{ app()->getLocale() === 'ar' ? 'fa-arrow-left' : 'fa-arrow-right' }}"></i>
+                    {{ trans('installer_messages.continue') }}&nbsp; <i class="fas {{ in_array(app()->getLocale(), ['ar', 'he']) ? 'fa-arrow-left' : 'fa-arrow-right' }}"></i>
                 </button>
         </div>
     </div>

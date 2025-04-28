@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Invoice
+    {{ __('message.invoice') }}
 @stop
 
 @section('content-header')

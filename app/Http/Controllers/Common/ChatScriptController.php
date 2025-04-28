@@ -43,7 +43,7 @@ class ChatScriptController extends Controller
 
                         ->addColumn('action', function ($model) {
                             return '<a href='.url('chat/'.$model->id.'/edit').
-                            " class='btn btn-sm btn-secondary btn-xs'".tooltip('Edit')."<i class='fa fa-edit'
+                            " class='btn btn-sm btn-secondary btn-xs'".tooltip( __('message.edit'))."<i class='fa fa-edit'
                                  style='color:white;'> </i></a>";
                         })
                              ->filterColumn('name', function ($query, $keyword) {
@@ -81,8 +81,8 @@ class ChatScriptController extends Controller
             'google_analytics_tag' => 'required_if:google_analytics,1',
 
         ], [
-            'script.required' => 'Content field is required',
-            'google_analytics_tag.required_if' => 'The google analytics tag is required',
+            'script.required' => __('message.script_required'),
+            'google_analytics_tag.required_if' => __('message.google_analytics_tag_required_if'),
         ]);
 
         try {
@@ -126,8 +126,8 @@ class ChatScriptController extends Controller
             'google_analytics_tag' => 'required_if:google_analytics,1',
 
         ], [
-            'script.required' => 'Content field is required',
-            'google_analytics_tag.required_if' => 'The google analytics tag is required',
+            'script.required' => __('message.script_required'),
+            'google_analytics_tag.required_if' => __('message.google_analytics_tag_required_if'),
         ]);
 
         try {

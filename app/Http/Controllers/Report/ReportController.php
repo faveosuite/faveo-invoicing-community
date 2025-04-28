@@ -62,7 +62,7 @@ class ReportController extends Controller
              ->addColumn('action', function ($model) {
                  $downloadLink = route('download.exported.file', ['id' => $model->id]);
 
-                 return '<a href="'.$downloadLink.'" class="btn btn-sm btn-secondary btn-xs" data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="Download" data-original-title="Download">
+                 return '<a href="'.$downloadLink.'" class="btn btn-sm btn-secondary btn-xs" data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="'. __('message.download').'" data-original-title="Download">
                 <i class="fas fa-download" style="color:white;"></i>
             </a>';
              })
@@ -144,6 +144,6 @@ class ReportController extends Controller
         $settings->records = $request->records;
         $settings->save();
 
-        return redirect()->back()->with('success', 'Settings updated successfully.');
+        return redirect()->back()->with('success', __('message.settings_updated_successfully'));
     }
 }

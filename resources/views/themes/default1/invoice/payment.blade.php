@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Payment
+    {{ __('message.payment') }}
 @stop
 @section('content-header')
 <h1>
@@ -72,7 +72,7 @@ Payment
                     <div class="col-md-4 form-group {{ $errors->has('payment_method') ? 'has-error' : '' }}">
                         <!-- last name -->
                         {!! Form::label('payment_method',Lang::get('message.payment-method')) !!}
-                        {!! Form::select('payment_method',[''=>'Choose','cash'=>'Cash','check'=>'Check','online payment'=>'Online Payment','razorpay'=>'Razorpay'],$payment_method,['class' => 'form-control']) !!}
+                        {!! Form::select('payment_method',[''=> __('message.choose'),'cash'=>'Cash','check'=>'Check','online payment'=>'Online Payment','razorpay'=>'Razorpay'],$payment_method,['class' => 'form-control']) !!}
 
                     </div>
 

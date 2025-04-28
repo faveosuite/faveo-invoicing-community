@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Script
+ {{ __('message.script') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
@@ -54,12 +54,12 @@ Script
 
                     <div class="col-md-6 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         <!-- first name -->
-                        {!! Form::label('script','Show script',['class'=>'required']) !!}
+                        {!! Form::label('script', __('message.show_script'),['class'=>'required']) !!}
                         <br>
                         {!! Form::radio('on_registration',1,true) !!}
-                        <label for="on_registration" style="font-weight: normal !important;">On registration</label>
+                        <label for="on_registration" style="font-weight: normal !important;">{{ __('message.on_registration') }}</label>
                         &nbsp;{!! Form::radio('on_registration',0,false) !!}
-                        <label for="on_every_page" style="font-weight: normal !important;">On every page</label>
+                        <label for="on_every_page" style="font-weight: normal !important;">{{ __('message.on_every_page') }}</label>
                         @error('on_registration')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
@@ -68,13 +68,13 @@ Script
                      <div class="col-md-3 form-group">
                         <!-- first name -->
                          {!! Form::checkbox('google_analytics',null,null, array('id'=>'analytics')) !!}
-                         {!! Form::label('google_analytics','Google analytics') !!}
+                         {!! Form::label('google_analytics', __('message.google_analytics')) !!}
                         {{Form::hidden('google_analytics',0,['id'=>'hidden_analytic'])}}
                         <!-- <input type="checkbox" name="google_analytics" id="analytics"> -->
                     </div>
                         <br>
                     <div class="col-md-3 form-group analytics_tag" hidden>
-                        {!! Form::label('tag','Google analytics tag',['class'=>'required']) !!}
+                        {!! Form::label('tag', __('message.chat_google_analytics_tag'),['class'=>'required']) !!}
                         {!! Form::text('google_analytics_tag',null,['class' => 'form-control','id'=>'google_analytics_tag']) !!}
                         <span class="error-messag hide" id="google-error-msg"></span>
                     </div>
@@ -106,7 +106,7 @@ Script
             </div>
 
         </div>
-        <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button>
+        <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> {{ __('message.saving') }}"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button>
 
     </div>
 

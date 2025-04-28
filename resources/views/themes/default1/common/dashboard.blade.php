@@ -155,9 +155,9 @@
            'title' => __('message.recently_register_users'),
            'layout' => 'custom',
            'collection'=> $users,
-           'linkLeft'=> [ 'View All' => url($url)],
+           'linkLeft'=> [  __('message.view_all') => url($url)],
 
-           'linkRight'=> ['Create New User' => url('clients/create')]
+           'linkRight'=> [ __('message.create_new_user') => url('clients/create')]
     ])
         <ul class="users-list clearfix">
             @foreach($users as $user)
@@ -198,9 +198,9 @@
            'title'=> __('message.total_sold_products'),
            'layout' => 'table',
            'collection'=> $invoices,
-           'columns'=> ['Invoice No', 'Total', 'User','Date', 'Paid', 'Balance', 'Status'],
-           'linkLeft'=> [ 'View All' => url('invoices?from='.$startDate.'&till='.$endDate)],
-           'linkRight'=> ['Generate New Invoice' => url('invoice/generate')]
+           'columns'=> [ __('message.invoice_no'), __('message.total'), __('message.user') ,__('message.date'), __('message.paid'), __('message.balance'), __('message.status')],
+           'linkLeft'=> [ __('message.view_all') => url('invoices?from='.$startDate.'&till='.$endDate)],
+           'linkRight'=> [ __('message.generate_new_invoice') => url('invoice/generate')]
     ])
 
         @foreach($invoices as $element)
@@ -236,9 +236,9 @@
             'title' => __('message.paid_orders_expired'),
             'layout' => 'table',
             'collection'=> $expiredSubscriptions,
-            'columns'=> ['User', 'Order No', 'Expiry', 'Days Passed', 'Product'],
-            'linkRight'=> ['Place New Order' => url('invoice/generate')],
-            'linkLeft'=> ['View All' => url('orders?from='.$expiredSubscriptionDate.'&till='.$currentDate.'&renewal=expired_subscription&product_id=paid')]
+            'columns'=> [ __('message.user'), __('message.order_no'), __('message.expiry'), __('message.days_passed'), __('message.product')],
+            'linkRight'=> [ __('message.place_new_order') => url('invoice/generate')],
+            'linkLeft'=> [ __('message.view_all') => url('orders?from='.$expiredSubscriptionDate.'&till='.$currentDate.'&renewal=expired_subscription&product_id=paid')]
      ])
 
          @foreach($expiredSubscriptions as $element)
@@ -257,9 +257,9 @@
             'title' => __('message.paid_next_orders_expired'),
             'layout' => 'table',
             'collection'=> $subscriptions,
-            'columns'=> ['User', 'Order No', 'Expiry', 'Days Left', 'Product'],
-            'linkRight'=> ['Place New Order' => url('invoice/generate')],
-            'linkLeft'=> ['View All' => url('orders?from='.$currentDate.'&till='.$expiringSubscriptionDate.'&renewal=expiring_subscription&product_id=paid')]
+            'columns'=> [ __('message.user'), __('message.order_no'), __('message.expiry'), __('message.days_left'), __('message.product')],
+            'linkRight'=> [ __('message.place_new_order') => url('invoice/generate')],
+            'linkLeft'=> [ __('message.view_all') => url('orders?from='.$currentDate.'&till='.$expiringSubscriptionDate.'&renewal=expiring_subscription&product_id=paid')]
      ])
 
          @foreach($subscriptions as $element)
@@ -289,9 +289,9 @@
             'title' => __('message.clients_outdated_version'),
             'layout' => 'table',
             'collection'=> $clientsUsingOldVersion,
-            'columns'=> ['User', 'Version', 'Product', 'Expiry'],
-            'linkLeft'=> ['View All' => url('orders')."?product_id=paid&version=Outdated"],
-            'linkRight'=> ['Create New Product' => url('products/create')]
+            'columns'=> [__('message.user'), __('message.version'), __('message.product'), __('message.expiry')],
+            'linkLeft'=> [ __('message.view_all') => url('orders')."?product_id=paid&version=Outdated"],
+            'linkRight'=> [ __('message.create_new_product') => url('products/create')]
      ])
          @foreach($clientsUsingOldVersion as $element)
              <tr>
@@ -313,9 +313,9 @@
             'title' => __('message.recent_paid_orders'),
             'layout' => 'table',
             'collection'=> $recentOrders,
-            'columns'=> ['Order No', 'Product', 'Date', 'User'],
-             'linkLeft'=> ['View All Paid Orders    ' => url('orders?from='.$expiredSubscriptionDate.'&till='.$currentDate.'&product_id=paid')],
-            'linkRight'=> ['Place New Order' => url('invoice/generate')]
+            'columns'=> [__('message.order_no'), __('message.product'), __('message.date'), __('message.user')],
+             'linkLeft'=> [ __('message.view_all_orders') => url('orders?from='.$expiredSubscriptionDate.'&till='.$currentDate.'&product_id=paid')],
+            'linkRight'=> [__('message.place_new_order') => url('invoice/generate')]
      ])
 
          @foreach($recentOrders as $element)
@@ -337,9 +337,9 @@
            'title' => __('message.product_sold'),
            'layout' => 'list',
            'collection'=> $productSoldInLast30Days,
-           'columns'=> ['Order No', 'Item', 'Date', 'Client'],
-            'linkLeft'=> ['View All Orders' => url('orders?from='.$expiredSubscriptionDate.'&till='.$currentDate)],
-           'linkRight'=> ['Place New Order' => url('invoice/generate')]
+           'columns'=> [ __('message.order_no'), __('message.item'), __('message.date'), __('message.client')],
+            'linkLeft'=> [ __('message.view_all_orders') => url('orders?from='.$expiredSubscriptionDate.'&till='.$currentDate)],
+           'linkRight'=> [ __('message.place_new_order') => url('invoice/generate')]
     ])
 
         @foreach($productSoldInLast30Days as $element)
@@ -366,8 +366,8 @@
            'title'=> __('message.total_sold_products'),
            'layout' => 'list',
            'collection'=> $allSoldProducts,
-           'linkLeft'=> ['View All Sold Products' => url('products?value=totalSoldProduct')],
-           'linkRight'=> ['Create New Product' => url('products/create')]
+           'linkLeft'=> [ __('message.view_sold_products') => url('products?value=totalSoldProduct')],
+           'linkRight'=> [ __('message.create_new_product') => url('products/create')]
     ])
         @foreach($allSoldProducts as $element)
             <li class="item">

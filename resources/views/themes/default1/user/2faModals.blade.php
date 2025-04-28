@@ -2,6 +2,19 @@
     .hide {
         display: none;
     }
+    .button-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    [dir="rtl"] .button-content {
+        flex-direction: row-reverse;
+    }
+
+    [dir="ltr"] .button-content {
+        flex-direction: row;
+    }
 </style>
 
 @php
@@ -98,7 +111,13 @@
                 <span id="passerror"></span>
             </div>
             <div class="modal-footer">
-                <button type="button" id="next_rec_code" class="btn btn-primary">{{ __('message.next') }}&nbsp;&nbsp;<i class="fa fa-arrow-right"></i></button>
+                <button type="button" id="next_rec_code" class="btn btn-primary">
+                    @if(in_array(app()->getLocale(), ['ar', 'he']))
+                        <i class="fa fa-arrow-right"></i>&nbsp;&nbsp;{{ __('message.next') }}
+                    @else
+                        {{ __('message.next') }}&nbsp;&nbsp;<i class="fa fa-arrow-right"></i>
+                    @endif
+                </button>
             </div>
         </div>
     </div>
@@ -129,7 +148,7 @@
                 <div class="modal-body secret-key">
                     <div id="alertMessage2"></div>
                     <ul class="col-sm-offset-3 offset-sm-2 text-left">
-                        <li>{{ __('message.tap') }} <b>{{ __('message.me') }}</b>, {{ __('message.then') }} <b>{{ __('message.set_up_account') }}</b></li>
+                        <li>{{ __('message.tap') }} <b>{{ __('message.menu') }}</b>, {{ __('message.then') }} <b>{{ __('message.set_up_account') }}</b></li>
                         <li>{{ __('message.tap') }} <b>{{ __('message.enter_provided_key') }}</b></li>
                         <li>{{ __('message.enter_email_address') }}</li>
                         <br>
@@ -143,7 +162,13 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" id="scan_complete" class="btn btn-primary">Next&nbsp;&nbsp;<i class="fa fa-arrow-right"></i></button>
+                <button type="button" id="scan_complete" class="btn btn-primary">
+                    @if(in_array(app()->getLocale(), ['ar', 'he']))
+                        <i class="fa fa-arrow-right"></i>&nbsp;&nbsp;{{ __('message.next') }}
+                    @else
+                        {{ __('message.next') }}&nbsp;&nbsp;<i class="fa fa-arrow-right"></i>
+                    @endif
+                </button>
             </div>
         </div>
     </div>
@@ -166,8 +191,10 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" id="prev_button" class="btn btn-default pull-right float-right">
-                    <i class="fa fa-arrow-left"></i>&nbsp;&nbsp;{{ __('message.previous') }}
+                <button type="button" id="prev_button" class="btn btn-default" dir="{{ in_array(app()->getLocale(), ['ar', 'he']) ? 'rtl' : 'ltr' }}">
+                 <span class="button-content">
+                    <i class="fa {{ in_array(app()->getLocale(), ['ar', 'he']) ? 'fa-arrow-left' : 'fa-arrow-left' }}" style="margin-right: 8px;"></i>{{ __('message.previous') }}
+                 </span>
                 </button>
                 <button type="button" id="pass_btn" class="btn ml-auto btn-primary pull-right float-right">
                     <i class="fa fa-check"></i> {{ __('message.verify') }}

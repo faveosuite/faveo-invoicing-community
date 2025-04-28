@@ -90,13 +90,13 @@
                   
                         <!-- name -->
                         {!! Form::label('country',Lang::get('message.country')) !!}
-                     {!! Form::select('country',[''=>'All Countries','Countries'=>$countries],null,['class' => 'form-control country']) !!}
+                     {!! Form::select('country',[''=> __('message.all_countries'),'Countries'=>$countries],null,['class' => 'form-control country']) !!}
                       </div>
                   
                     <div class="col-md-4 form-group changegststate">
                         <!-- name -->
                         {!! Form::label('state',Lang::get('message.state')) !!}
-                         {!! Form::select('state',[''=>'All States','state'=>$states],null,['class' => 'form-control'. ($errors->has('state') ? ' is-invalid' : ''),'id'=>'state-list']) !!}
+                         {!! Form::select('state',[''=> __('message.all_states'),'state'=>$states],null,['class' => 'form-control'. ($errors->has('state') ? ' is-invalid' : ''),'id'=>'state-list']) !!}
                       
 
                     </div>
@@ -168,6 +168,24 @@
                 "sSearch"    : "{{ __('message.search') }}: ",
                 "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
             },
+            language: {
+                paginate: {
+                    first:      "{{ __('message.paginate_first') }}",
+                    last:       "{{ __('message.paginate_last') }}",
+                    next:       "{{ __('message.paginate_next') }}",
+                    previous:   "{{ __('message.paginate_previous') }}"
+                },
+                emptyTable:     "{{ __('message.empty_table') }}",
+                info:           "{{ __('message.datatable_info') }}",
+                search:         "{{ __('message.datatable_search') }} ",
+                zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
+                infoEmpty:      "{{ __('message.info_empty') }}",
+                infoFiltered:   "{{ __('message.info_filtered') }}",
+                lengthMenu:     "{{ __('message.sLengthMenu') }}",
+                loadingRecords: "{{ __('message.loading_records') }}",
+            },
+
+
             columnDefs: [
                 { 
                     targets: 'no-sort', 

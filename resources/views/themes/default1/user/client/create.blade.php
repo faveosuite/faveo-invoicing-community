@@ -100,7 +100,7 @@
                     </div>
                     <div class="col-md-3 form-group {{ $errors->has('bussiness') ? 'has-error' : '' }}">
                         <!-- company -->
-                        {!! Form::label('bussiness','Industry') !!}
+                        {!! Form::label('bussiness', __('message.industry')) !!}
                          <!-- {!! Form::select('bussiness',['Choose'=>'Choose',''=>$bussinesses],null,['class' => 'form-control selectpicker','data-live-search'=>'true', 'data-live-search-placeholder'=>'Search' ,'data-dropup-auto'=>'false', 'data-size'=>'10']) !!} -->
                        <select name="bussiness"  class="form-control select2 {{$errors->has('bussiness') ? ' is-invalid' : ''}}">
                              <option value="">{{ __('message.choose') }}</option>
@@ -277,7 +277,7 @@
                     <div class="col-md-3 form-group {{ $errors->has('timezone_id') ? 'has-error' : '' }}">
                         <!-- mobile -->
                         {!! Form::label('timezone_id',Lang::get('message.timezone'),['class'=>'required']) !!}
-                         {!! Form::select('timezone_id', [''=>'Choose','Timezones'=>$timezones],null,['class' => 'form-control select2'.($errors->has('timezone_id') ? ' is-invalid' : ''),'data-live-search'=>'true','data-live-search-placeholder' => 'Search','data-dropup-auto'=>'false','data-size'=>'10']) !!}
+                         {!! Form::select('timezone_id', [''=>__('message.choose'),'Timezones'=>$timezones],null,['class' => 'form-control select2'.($errors->has('timezone_id') ? ' is-invalid' : ''),'data-live-search'=>'true','data-live-search-placeholder' => 'Search','data-dropup-auto'=>'false','data-size'=>'10']) !!}
                         @error('timezone_id')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
@@ -304,7 +304,7 @@
 
                     <div class="col-md-3 form-group {{ $errors->has('skype') ? 'has-error' : '' }}">
                         <!-- mobile -->
-                        {!! Form::label('skype','Skype') !!}
+                        {!! Form::label('skype', __('message.skype')) !!}
                         {!! Form::text('skype',null,['class' => 'form-control']) !!}
                         @error('skype')
                         <span class="error-message"> {{$message}}</span>
@@ -313,7 +313,7 @@
                     
                     <div class="col-md-3 form-group {{ $errors->has('manager') ? 'has-error' : '' }}">
                         <!-- mobile -->
-                        {!! Form::label('manager','Sales Manager') !!}
+                        {!! Form::label('manager', __('message.sales_manager')) !!}
                          <select name="manager" value= "Choose" class="form-control">
                              <option value="">{{ __('message.choose') }}</option>
                            @foreach($managers as $key=>$manager)
@@ -327,7 +327,7 @@
 
                       <div class="col-md-3 form-group {{ $errors->has('manager') ? 'has-error' : '' }}">
                         <!-- mobile -->
-                        {!! Form::label('manager','Account Manager') !!}
+                        {!! Form::label('manager', __('message.account_manager')) !!}
                          <select name="account_manager" value= "Choose" class="form-control">
                              <option value="">{{ __('message.choose') }}</option>
                            @foreach($accountManager as $key=>$manager)

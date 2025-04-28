@@ -112,7 +112,7 @@
                         <td>
 
                             <div class="form-group col-lg-6{{ $errors->has('applied') ? 'has-error' : '' }}">
-                                {!! Form::select('applied',[''=>'Choose','Products'=>$product],null,['class' => 'form-control'.($errors->has('applied') ? ' is-invalid' : ''),'data-live-search'=>'true','data-live-search-placeholder' => 'Search','data-dropup-auto'=>'false','data-size'=>'10','title'=> __('message.coupon_applied')]]) !!}
+                                {!! Form::select('applied',[''=> __('message.choose'),'Products'=>$product],null,['class' => 'form-control'.($errors->has('applied') ? ' is-invalid' : ''),'data-live-search'=>'true','data-live-search-placeholder' => __('message.search'),'data-dropup-auto'=>'false','data-size'=>'10','title'=> __('message.coupon_applied')]) !!}
                                 @error('applied')
                                 <span class="error-message"> {{$message}}</span>
                                 @enderror

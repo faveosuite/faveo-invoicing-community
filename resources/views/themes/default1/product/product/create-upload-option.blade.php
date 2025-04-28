@@ -73,7 +73,7 @@
                         <i class='fa fa-info-circle' style='cursor: help; font-size: small; color: rgb(60, 141, 188);' ><label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title="{{ __('message.release_private') }}">
                         </label></i>
                         <!-- name -->
-                        {!! Form::label('p_release','Private Release') !!}&nbsp;
+                        {!! Form::label('p_release',__('message.private_release')) !!}&nbsp;
                         <input type="checkbox" value="0" name= "is_private" id="p_release" onclick="privateRelease()">
 
                     </div>
@@ -81,7 +81,7 @@
                         <i class='fa fa-info-circle' style='cursor: help; font-size: small; color: rgb(60, 141, 188);' ><label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title="{{ __('message.release_private') }}">
                         </label></i>
                         <!-- name -->
-                        {!! Form::label('release_type','Releases') !!}&nbsp;
+                        {!! Form::label('release_type', __('message.releases')) !!}&nbsp;
                         <select name="release_type" id="release_type">
                             <option value="official" selected>{{ __('message.official') }}</option>
                             <option value="pre_release">{{ __('message.pre_release') }}</option>
@@ -95,7 +95,7 @@
                     <div class="form-group col-md-4{{ $errors->has('version') ? 'has-error' : '' }}">
                         <i class='fa fa-info-circle' style='cursor: help; font-size: small; color: rgb(60, 141, 188);' ><label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title="{{ __('message.update_restricted') }}">
                         </label></i>
-                        {!! Form::label('restrict','Restrict update') !!}&nbsp;
+                        {!! Form::label('restrict', __('message.restrict_update')) !!}&nbsp;
                         <input type="checkbox" value="0" name= "is_restricted" id="r_release" onclick="resrictedRelease()">
                     </div>
 

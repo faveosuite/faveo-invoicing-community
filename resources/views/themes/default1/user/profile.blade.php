@@ -114,7 +114,7 @@ input:checked + .slider:before {
 
                 <div class="form-group {{ $errors->has('first_name') ? 'has-error' : '' }}">
                     <!-- first name -->
-                    {!! Form::label('first_name',null,['class' => 'required'],Lang::get('message.first_name')) !!}
+                    {!! Form::label('first_name', Lang::get('message.first_name'), ['class' => 'required']) !!}
                     {!! Form::text('first_name',null,['class' => 'form-control'. ($errors->has('first_name') ? ' is-invalid' : '')]) !!}
                     @error('first_name')
                     <span class="error-message"> {{$message}}</span>
@@ -125,7 +125,7 @@ input:checked + .slider:before {
 
                 <div class="form-group {{ $errors->has('last_name') ? 'has-error' : '' }}">
                     <!-- last name -->
-                    {!! Form::label('last_name',null,['class' => 'required'],Lang::get('message.last_name')) !!}
+                    {!! Form::label('last_name', Lang::get('message.last_name'), ['class' => 'required']) !!}
                     {!! Form::text('last_name',null,['class' => 'form-control'. ($errors->has('last_name') ? ' is-invalid' : '')]) !!}
                     @error('last_name')
                     <span class="error-message"> {{$message}}</span>
@@ -135,7 +135,7 @@ input:checked + .slider:before {
                 </div>
                 <div class="form-group {{ $errors->has('user_name') ? 'has-error' : '' }}">
                     <!-- mobile -->
-                    {!! Form::label('user_name',null,['class' => 'required'],Lang::get('message.user_name')) !!}
+                    {!! Form::label('user_name', Lang::get('message.user_name'), ['class' => 'required']) !!}
                     {!! Form::text('user_name',null,['class' => 'form-control'. ($errors->has('user_name') ? ' is-invalid' : '')]) !!}
                     @error('user_name')
                     <span class="error-message"> {{$message}}</span>
@@ -147,7 +147,7 @@ input:checked + .slider:before {
 
                 <div class="form-group">
                     <!-- email -->
-                    {!! Form::label('email',null,['class' => 'required'],Lang::get('message.email')) !!}
+                    {!! Form::label('email', __('message.email'), ['class' => 'required']) !!}
                      {!! Form::text('email',null,['class' => 'form-control'. ($errors->has('email') ? ' is-invalid' : '')]) !!}
                     @error('email')
                     <span class="error-message"> {{$message}}</span>
@@ -158,7 +158,7 @@ input:checked + .slider:before {
 
                 <div class="form-group {{ $errors->has('company') ? 'has-error' : '' }}">
                     <!-- company -->
-                    {!! Form::label('company',null,['class' => 'required'],Lang::get('message.company')) !!}
+                    {!! Form::label('company', Lang::get('message.company'), ['class' => 'required']) !!}
                     {!! Form::text('company',null,['class' => 'form-control'. ($errors->has('company') ? ' is-invalid' : '')]) !!}
                     @error('company')
                     <span class="error-message"> {{$message}}</span>
@@ -169,7 +169,7 @@ input:checked + .slider:before {
 
 
                 <div class="form-group {{ $errors->has('mobile_code') ? 'has-error' : '' }}">
-                  {!! Form::label('mobile',null,['class' => 'required'],Lang::get('message.mobile')) !!}
+                    {!! Form::label('mobile', Lang::get('message.mobile'), ['class' => 'required']) !!}
                      {!! Form::hidden('mobile_code',null,['id'=>'mobile_code_hidden']) !!}
 
                     {!! Form::input('tel', 'mobile', $user->mobile, ['class' => 'form-control selected-dial-code'. ($errors->has('mobile') ? ' is-invalid' : ''), 'id' => 'mobile_code']) !!}
@@ -189,7 +189,7 @@ input:checked + .slider:before {
 
                 <div class="form-group {{ $errors->has('address') ? 'has-error' : '' }}">
                     <!-- phone number -->
-                    {!! Form::label('address',null,['class' => 'required'],Lang::get('message.address')) !!}
+                    {!! Form::label('address', Lang::get('message.address'), ['class' => 'required']) !!}
                     {!! Form::textarea('address',null,['class' => 'form-control'. ($errors->has('address') ? ' is-invalid' : '')]) !!}
                     @error('address')
                     <span class="error-message"> {{$message}}</span>
@@ -227,7 +227,7 @@ input:checked + .slider:before {
 
 
 
-                        {!! Form::select('country',[Lang::get('message.choose')=>$countries],null,['class' => 'form-control select2'. ($errors->has('country') ? ' is-invalid' : ''),'id'=>'country','onChange'=>'getCountryAttr(this.value)','data-live-search'=>'true','required','data-live-search-placeholder' => 'Search','data-dropup-auto'=>'false','data-size'=>'10','disabled'=>'disabled']) !!}
+                        {!! Form::select('country',[Lang::get('message.choose')=>$countries],null,['class' => 'form-control select2'. ($errors->has('country') ? ' is-invalid' : ''),'id'=>'country','onChange'=>'getCountryAttr(this.value)','data-live-search'=>'true','required','data-live-search-placeholder' => __('message.search'),'data-dropup-auto'=>'false','data-size'=>'10','disabled'=>'disabled']) !!}
 
                         <!-- name -->
                         @error('country')
@@ -257,7 +257,7 @@ input:checked + .slider:before {
                  <div class="row">
                 <div class="col-md-6 form-group {{ $errors->has('zip') ? 'has-error' : '' }}">
                     <!-- mobile -->
-                    {!! Form::label('zip',null,Lang::get('message.zip')) !!}
+                    {!! Form::label('zip',Lang::get('message.zip')) !!}
                     {!! Form::text('zip',null,['class' => 'form-control'. ($errors->has('zip') ? ' is-invalid' : '')]) !!}
                     @error('zip')
                     <span class="error-message"> {{$message}}</span>
@@ -326,9 +326,9 @@ input:checked + .slider:before {
                 @endif
                 <!-- old password -->
                 <div class="form-group has-feedback {{ $errors->has('old_password') ? 'has-error' : '' }}">
-                    {!! Form::label('old_password',null,['class' => 'required'],Lang::get('message.old_password')) !!}
+                    {!! Form::label('old_password', Lang::get('message.old_password'), ['class' => 'required']) !!}
                     <div class="input-group">
-                    {!! Form::password('old_password',['placeholder'=>'Password','class' => 'form-control'. ($errors->has('old_password') ? ' is-invalid' : '')]) !!}
+                    {!! Form::password('old_password',['placeholder'=> __('message.password'),'class' => 'form-control'. ($errors->has('old_password') ? ' is-invalid' : '')]) !!}
                         <div class="input-group-append">
                                         <span class="input-group-text" role="button" onclick="togglePasswordVisibility(this)">
                                             <i class="fa fa-eye-slash"></i>
@@ -342,7 +342,7 @@ input:checked + .slider:before {
                 </div>
                 <!-- new password -->
                 <div class="form-group has-feedback {{ $errors->has('new_password') ? 'has-error' : '' }}">
-                    {!! Form::label('new_password',null,['class' => 'required'],Lang::get('message.new_password')) !!}
+                    {!! Form::label('new_password', Lang::get('message.new_password'), ['class' => 'required']) !!}
                     <div class="input-group has-validation">
                     {!! Form::password('new_password',['placeholder'=> __('message.new_password'),'class' => 'form-control'. ($errors->has('new_password') ? ' is-invalid' : '')]) !!}
 
@@ -368,7 +368,7 @@ input:checked + .slider:before {
                 </div>
                 <!-- confirm password -->
                 <div class="form-group has-feedback {{ $errors->has('confirm_password') ? 'has-error' : '' }}">
-                    {!! Form::label('confirm_password',null,['class' => 'required'],Lang::get('message.confirm_password')) !!}
+                    {!! Form::label('confirm_password', Lang::get('message.confirm_password'), ['class' => 'required']) !!}
                     <div class="input-group">
                     {!! Form::password('confirm_password',['placeholder'=> Lang::get('message.confirm_password'),'class' => 'form-control'. ($errors->has('confirm_password') ? ' is-invalid' : '')]) !!}
                     <div class="input-group-append">

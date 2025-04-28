@@ -87,7 +87,12 @@ class ResetPasswordController extends Controller
                 new StrongPassword(),
             ],
             'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation()],
-        ], ['g-recaptcha-response.required' => 'Please verify that you are not a robot.',
+        ], ['g-recaptcha-response.required' => __('message.recaptcha_required'),
+            'token.required' => __('validation.token_validation.token_required'),
+            'email.required' => __('validation.custom_email.required'),
+            'email.email' => __('validation.custom_email.email'),
+            'password.required' => __('validation.token_validation.password_required'),
+            'password.confirmed' => __('validation.token_validation.password_confirmed'),
         ]);
         try {
             $token = $request->input('token');
@@ -111,21 +116,21 @@ class ResetPasswordController extends Controller
 
                         \DB::table('password_resets')->where('email', $user->email)->delete();
 
-                        return redirect('login')->with('success', 'You have successfully changed your password');
+                        return redirect('login')->with('success',  __('message.password_changed_successfully'));
                     } else {
                         return redirect()->back()
                                     ->withInput($request->only('email'))
-                                    ->with('fails', 'User cannot be identified');
+                                    ->with('fails', __('message.user_cannot_identifer'));
                     }
                 } else {
                     return redirect()->back()
                             ->withInput($request->only('email'))
-                            ->with('fails', 'Cannot reset password. Invalid modification of data suspected.');
+                            ->with('fails', __('message.cannot_reset_password_invalid'));
                 }
             } else {
                 return redirect()->back()
                         ->withInput($request->only('email'))
-                        ->with('fails', 'Cannot reset password.');
+                        ->with('fails', __('message.cannot_reset_password'));
             }
         } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());

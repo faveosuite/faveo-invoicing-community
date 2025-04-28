@@ -70,7 +70,7 @@ class LicensePermissionsController extends Controller
                 return "<p><button data-toggle='modal' 
              data-id=".$model->id." data-permission= '$selectedPermission' 
              class='btn btn-sm btn-secondary get-license-type addPermission'><i class='fa fa-plus'
-             style='color:white;'> </i>&nbsp;&nbsp;Add Permissions</button>&nbsp;</p>";
+             style='color:white;'> </i>&nbsp;&nbsp;". __('message.add-permissions') ."</button>&nbsp;</p>";
             })
               ->filterColumn('license_type', function ($query, $keyword) {
                   $sql = 'name like ?';
@@ -122,7 +122,7 @@ class LicensePermissionsController extends Controller
             $licenseType = LicenseType::find($request->input('licenseId'));
             $licenseType->permissions()->attach($request->input('permissionid'));
 
-            return ['message' => 'success', 'update' => 'Permissions Updated Successfully'];
+            return ['message' => 'success', 'update' => __('message.permissions_updated_successfully')];
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
             $result = [$ex->getMessage()];

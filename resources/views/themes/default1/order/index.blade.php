@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Orders
+    {{ __('message.orders') }}
 @stop
 @section('content-header')
 <style type="text/css">
@@ -113,6 +113,10 @@ Orders
             right: 50px; 
         }
 
+   .dropdown-menu {
+       max-height: none !important;
+   }
+
 </style>
     <div class="col-sm-6">
         <h1>{{ __('message.view_all_orders') }}</h1>
@@ -147,21 +151,21 @@ Orders
 
             <div class="col-md-3 form-group">
                 <!-- first name -->
-                {!! Form::label('order_no','Order No:') !!}
+                {!! Form::label('order_no',__('message.order_no_colon')) !!}
                 {!! Form::text('order_no',$request->order_no,['class' => 'form-control','id'=>'order_no']) !!}
 
             </div>
             <div class="col-md-3 form-group">
                 <!-- first name -->
-                {!! Form::label('product_id','Product') !!} <br>
-                {!! Form::select('product_id',[null => 'Choose']+ $paidUnpaidOptions + $products, $request->product_id, ['class' => 'form-control select2','style'=>'width:100%','id'=>'product_id','onChange'=>'getProductVersion(this.value)']) !!}
+                {!! Form::label('product_id', __('message.product')) !!} <br>
+                {!! Form::select('product_id',[null => __('message.choose')]+ $paidUnpaidOptions + $products, $request->product_id, ['class' => 'form-control select2','style'=>'width:100%','id'=>'product_id','onChange'=>'getProductVersion(this.value)']) !!}
             </div>
             
 
             
             <div class="col-md-3 form-group">
                 <!-- first name -->
-                {!! Form::label('from','From') !!}
+                {!! Form::label('from', __('message.from')) !!}
                 <div class="input-group date" id="order_from" data-target-input="nearest">
                     <input type="text" name="from" class="form-control datetimepicker-input" autocomplete="off" value="{!! $request->from !!}" data-target="#order_from"/>
 
@@ -176,7 +180,7 @@ Orders
             </div>
             <div class="col-md-3 form-group">
                 <!-- first name -->
-                {!! Form::label('till','To') !!}
+                {!! Form::label('till', __('message.to')) !!}
                 <div class="input-group date" id="order_till" data-target-input="nearest">
                     <input type="text" name="till" class="form-control datetimepicker-input" autocomplete="off" value="{!! $request->till !!}" data-target="#order_till"/>
 
@@ -191,23 +195,23 @@ Orders
             </div>
             <div class="col-md-3 form-group">
                 <!-- first name -->
-                {!! Form::label('domain','Domain') !!}
+                {!! Form::label('domain', __('message.domain2')) !!}
                 {!! Form::text('domain',$request->domain,['class' => 'form-control','id'=>'domain']) !!}
 
             </div>
 
             <div class="col-md-3 form-group">
                 <!-- first name -->
-                {!! Form::label('act_inst','Installations') !!}
-                {!! Form::select('act_inst',[null => 'Choose']+ $insNotIns + $activeInstallationOptions + $inactiveInstallationOptions, $request->act_inst, ['class' => 'form-control','id'=>'act_inst']) !!}
+                {!! Form::label('act_inst', __('message.installations')) !!}
+                {!! Form::select('act_inst',[null => __('message.choose')]+ $insNotIns + $activeInstallationOptions + $inactiveInstallationOptions, $request->act_inst, ['class' => 'form-control','id'=>'act_inst']) !!}
             </div>
 
            
 
             <div class="col-md-3 form-group">
                 <!-- first name -->
-                {!! Form::label('renewal','Subscriptions') !!}
-                {!! Form::select('renewal',[null => 'Choose']+ $renewal, $request->renewal, ['class' => 'form-control','id'=>'renewal']) !!}
+                {!! Form::label('renewal', __('message.subscriptions')) !!}
+                {!! Form::select('renewal',[null => __('message.choose')]+ $renewal, $request->renewal, ['class' => 'form-control','id'=>'renewal']) !!}
             </div>
 
 
@@ -215,10 +219,10 @@ Orders
         {!! Form::hidden('select', $request->version, ['class' => 'form-control', 'id' => 'select']) !!}
         <div class="col-md-3 form-group {{ $errors->has('state') ? 'has-error' : '' }}">
             <!-- name -->
-            {!! Form::label('version', 'Version') !!}
+            {!! Form::label('version', __('message.version')) !!}
             <select name="version" id="version-list" class="form-control">
         
-                    <option value="">{{ __('message.choose_product') }}</option>
+                    <option value="">{{ __('message.choose') }}</option>
             </select>
         </div>
 
@@ -229,7 +233,7 @@ Orders
                       <button name="Search" type="submit"  class="btn btn-secondary"><i class="fa fa-search"></i>&nbsp;{!!Lang::get('message.search')!!}</button>
                       &nbsp;
                     <!-- <a class="btn btn-secondary" href="{!! url('/orders') !!}"><i class="fas fa-sync-alt"></i>&nbsp;{!!Lang::get('message.reset')!!}</a> -->
-                    {!! Form::submit('Reset',['class'=>'btn btn-secondary','id'=>'reset']) !!}
+                    {!! Form::submit( __('message.reset'),['class'=>'btn btn-secondary','id'=>'reset']) !!}
                 </div>
         </div>
     </div>
@@ -422,6 +426,21 @@ Orders
               "sSearch": "<span style='position: relative;right: 140px;'>{!! __('message.search') !!}:</span> ",
               "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{!! __('message.loading') !!}</div></div>'
             },
+                language: {
+                    paginate: {
+                        first:      "{{ __('message.paginate_first') }}",
+                        last:       "{{ __('message.paginate_last') }}",
+                        next:       "{{ __('message.paginate_next') }}",
+                        previous:   "{{ __('message.paginate_previous') }}"
+                    },
+                    emptyTable:     "{{ __('message.empty_table') }}",
+                    info:           "{{ __('message.datatable_info') }}",
+                    infoEmpty:      "{{ __('message.info_empty') }}",
+                    zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
+                    infoFiltered:   "{{ __('message.info_filtered') }}",
+                    lengthMenu:     "{{ __('message.sLengthMenu') }}",
+                    loadingRecords: "{{ __('message.loading_records') }}",
+                },
             columns: [
                 {data: 'checkbox', name: 'checkbox'},
                 {data: 'client', name: 'client'},
@@ -590,8 +609,8 @@ Orders
                     var result = '<div class="alert alert-danger">' +
                         '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
                         '<span aria-hidden="true">&times;</span></button>' +
-                        '<strong><i class="far fa-thumbs-down"></i> Oops! </strong>' +
-                        'Export failed: ' + xhr.responseJSON.message + '</div>';
+                        '<strong><i class="far fa-thumbs-down"></i> {{ __('message.error_oops') }} </strong>' +
+                        '{{ __('message.export_failed') }}: ' + xhr.responseJSON.message + '</div>';
 
                     $('#export-message').html(result).removeClass('text-success').addClass('text-danger');
                     setTimeout(function() {

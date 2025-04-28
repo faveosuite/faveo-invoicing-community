@@ -1,10 +1,10 @@
 @extends('log-viewer::_template.master')
 @section('title')
-Log-Viewer
+    {{ __('message.logs_viewer') }}
 @stop
 @section('content-header')
 <h1>
- <h1 class="page-header">Log [{{ $log->date }}]</h1>
+ <h1 class="page-header">{{ __('message.Log') }} [{{ $log->date }}]</h1>
 </h1>
 <ol class="breadcrumb">
         <li><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
@@ -25,7 +25,7 @@ Log-Viewer
             {{-- Log Details --}}
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    Log info :
+                    {{ __('message.log_info') }} :
 
                     <div class="group-btns pull-right">
                         <a href="{{ route('log-viewer::logs.download', [$log->date]) }}" class="btn btn-xs btn-success">
@@ -71,7 +71,7 @@ Log-Viewer
                     <form action="{{ route('log-viewer::logs.search', [$log->date, $level]) }}" method="GET">
                         <div class=form-group">
                             <div class="input-group">
-                                <input id="query" name="query" class="form-control"  value="{!! request('query') !!}" placeholder="typing something to search">
+                                <input id="query" name="query" class="form-control"  value="{!! request('query') !!}" placeholder="{{ __('message.typing_something_to_search') }}">
                                 <span class="input-group-btn">
                                     @if (request()->has('query'))
                                         <a href="{{ route('log-viewer::logs.show', [$log->date]) }}" class="btn btn-default"><span class="glyphicon glyphicon-remove"></span></a>
@@ -159,7 +159,7 @@ Log-Viewer
                         {!! $entries->appends(compact('query'))->render() !!}
 
                         <span class="label label-info pull-right">
-                            {{ __('message.page') }} {!! $entries->currentPage() !!} of {!! $entries->lastPage() !!}
+                            {{ __('message.page') }} {!! $entries->currentPage() !!} {{ __('message.boot_of') }} {!! $entries->lastPage() !!}
                         </span>
                     </div>
                 @endif
@@ -190,7 +190,7 @@ Log-Viewer
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-sm btn-default pull-left" data-dismiss="modal">{{ __('message.cancel') }}</button>
-                        <button type="submit" class="btn btn-sm btn-danger" data-loading-text="Loading&hellip;">{{ __('message.caps_delete_file') }}</button>
+                        <button type="submit" class="btn btn-sm btn-danger" data-loading-text="{{ __('message.loading') }}&hellip;">{{ __('message.caps_delete_file') }}</button>
                     </div>
                 </div>
             </form>
@@ -225,7 +225,7 @@ Log-Viewer
                         }
                     },
                     error: function(xhr, textStatus, errorThrown) {
-                        alert('AJAX ERROR ! Check the console !');
+                        alert('{{ __('message.ajax_error_console') }}');
                         console.error(errorThrown);
                         submitBtn.button('reset');
                     }

@@ -1,6 +1,6 @@
 @extends('log-viewer::_template.master')
 @section('title')
-    Log-Viewer
+    {{ __('message.logs_viewer') }}
 @stop
 @section('content-header')
     <h1>
@@ -33,7 +33,7 @@
                                         <div class="info-box-content">
                                             <span class="info-box-text">{{ $item['name'] }}</span>
                                             <span class="info-box-number">
-                                        {{ $item['count'] }} entries - {!! $item['percent'] !!} %
+                                        {{ $item['count'] }} {{ __('message.entries') }} - {!! $item['percent'] !!} %
                                     </span>
                                             <div class="progress">
                                                 <div class="progress-bar" style="width: {{ $item['percent'] }}%"></div>

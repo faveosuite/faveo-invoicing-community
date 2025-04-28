@@ -51,7 +51,7 @@
 
                 <div class="col-sm-4 form-group">
                     {!! Form::label('user',Lang::get('message.clients'),['class'=>'required']) !!}
-                     {!! Form::select('user', [Lang::get('User')=>$users],null,['multiple'=>true,'class'=>"form-control select2". ($errors->has('user') ? ' is-invalid' : ''),'id'=>"users"]) !!}
+                     {!! Form::select('user', [Lang::get('message.user')=>$users],null,['multiple'=>true,'class'=>"form-control select2". ($errors->has('user') ? ' is-invalid' : ''),'id'=>"users"]) !!}
 
                     <span class="error-message" id="user-msg"></span>
                     <h6 id ="productusercheck"></h6>
@@ -105,7 +105,7 @@
                     @enderror
                 </div>
                 <div class="col-md-4 form-group">
-                    {!! Form::label('code','Coupon code') !!}
+                    {!! Form::label('code', __('message.coupon-code')) !!}
                     {!! Form::text('code',null,['class'=>'form-control'. ($errors->has('code') ? ' is-invalid' : '')]) !!}
                     <span class="error-message" id="code-msg"></span>
                 </div>
@@ -508,7 +508,7 @@
     })
 
         $('#users').select2({
-        placeholder: "Search",
+        placeholder: "{{ __('message.search') }}",
         minimumInputLength: 1,
         maximumSelectionLength: 1,
         ajax: {

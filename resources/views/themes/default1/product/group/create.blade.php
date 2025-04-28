@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Create Group
+    {{ __('message.create_group') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
@@ -203,7 +203,7 @@ Create Group
                 $('#error-message').css({"color": "#dc3545", "margin-top": "5px", "font-size": "80%"});
 
                 document.getElementById("error-message").textContent = @json(trans('message.group_details.template'));
-                document.getElementById("error-message").textContent = "Please select the template";
+                document.getElementById("error-message").textContent = @json(trans('message.group_details.template'));
 
                 isValid=false;
             }else{

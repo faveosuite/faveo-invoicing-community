@@ -1,9 +1,9 @@
 @extends('themes.default1.layouts.front.master')
 @section('title')
-    Login | Register
+    {{ __('message.login_register') }}
 @stop
 @section('page-header')
-    Login | Register
+    {{ __('message.login_register') }}
 @stop
 @section('page-heading')
     {{ __('message.sign_lr') }}
@@ -557,16 +557,16 @@ foreach($scripts as $script) {
                 var isEmail = emailRegex.test(value);
 
                 return this.optional(element) || isEmail;
-            }, "Please enter a valid email address");
+            }, "{{ __('message.emailSettings_details.email') }}");
 
             $.validator.addMethod("regex", function(value, element, regexp) {
                 var re = new RegExp(regexp);
                 return this.optional(element) || re.test(value);
-            }, "Invalid format.");
+            }, "{{ __('message.invalid_format') }}");
 
             $.validator.addMethod("validPhone", function(value, element) {
                 return validatePhoneNumber(element);
-            }, "Please enter a valid phone number.");
+            }, "{{ __('message.error_valid_number') }}");
 
             $.validator.addMethod("recaptchaRequired", function(value, element) {
                 try {
@@ -577,7 +577,7 @@ foreach($scripts as $script) {
                     return false
                 }
                 return value.trim() !== "";
-            }, "Please verify that you are not a robot.");
+            }, "{{ __('message.recaptcha_required') }}");
 
             $(document).on('change', '#term', function () {
                 $(this).val($(this).val() === "false" ? "true" : "false");
@@ -601,14 +601,14 @@ foreach($scripts as $script) {
                 },
                 messages: {
                     email_username: {
-                        required: "Please enter your username or email address.",
-                        email_or_username: "Please enter a valid email address."
+                        required: "{{ __('message.username_or_email') }}",
+                        email_or_username: "{{ __('message.emailSettings_details.email') }}"
                     },
                     password1: {
-                        required: "Please enter your password.",
+                        required: "{{ __('message.received_password_enter') }}",
                     },
                     "g-recaptcha-response": {
-                        recaptchaRequired: "Please verify that you are not a robot."
+                        recaptchaRequired: "{{ __('message.recaptcha_required') }}"
                     }
                 },
                 unhighlight: function(element) {
@@ -675,42 +675,42 @@ foreach($scripts as $script) {
                 },
                 messages: {
                     first_name: {
-                        required: "First name is required",
-                        regex: "Please enter a valid first name"
+                        required: "{{ __('message.login_validation.firstname_required') }}",
+                        regex: "{{ __('message.login_validation.firstname_regex') }}"
                     },
                     last_name: {
-                        required: "Last name is required",
-                        regex: "Please enter a valid last name"
+                        required: "{{ __('message.login_validation.lastname_required') }}",
+                        regex: "{{ __('message.login_validation.firstname_regex') }}"
                     },
                     email: {
-                        required: "Email is required",
-                        regex: "Enter a valid email address"
+                        required: "{{ __('message.login_validation.email_required') }}",
+                        regex: "{{ __('message.login_validation.lastname_regex') }}"
                     },
                     company: {
-                        required: "Company name is required"
+                        required: "{{ __('message.login_validation.company_required') }}"
                     },
                     address: {
-                        required: "Address is required",
+                        required: "{{ __('message.login_validation.address_required') }}",
                     },
                     country: {
-                        required: "Please select a country"
+                        required: "{{ __('message.login_validation.country_required') }}"
                     },
                     mobile: {
-                        required: "Mobile number is required",
+                        required: "{{ __('message.login_validation.mobile_required') }}",
                     },
                     password: {
-                        required: "Password is required",
+                        required: "{{ __('message.login_validation.password_required') }}",
                         regex: "{{ __('message.strong_password') }}"
                     },
                     password_confirmation: {
-                        required: "Confirm password is required",
-                        equalTo: "Passwords do not match"
+                        required: "{{ __('message.login_validation.confirm_password_required') }}",
+                        equalTo: "{{ __('message.login_validation.confirm_password_equalto') }}"
                     },
                     terms: {
-                        required: "You must agree to the terms and conditions"
+                        required: "{{ __('message.login_validation.terms_conditions_required') }}"
                     },
                     "g-recaptcha-response": {
-                        recaptchaRequired: "Please verify that you are not a robot."
+                        recaptchaRequired: "{{ __('message.recaptcha_required') }}"
                     }
 
                 },

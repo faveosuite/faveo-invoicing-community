@@ -78,9 +78,9 @@ class LoginController extends Controller
             'password1' => 'required',
             'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation()],
         ], [
-            'g-recaptcha-response.required' => 'Robot Verification Failed. Please Try Again.',
-            'email_username.required' => 'Please Enter an Email',
-            'password1.required' => 'Please Enter Password',
+            'g-recaptcha-response.required' => __('message.robot_verification'),
+            'email_username.required' => __('message.password_email'),
+            'password1.required' => __('message.please_enter_password'),
         ]);
 
         $loginInput = $request->input('email_username');
@@ -91,14 +91,14 @@ class LoginController extends Controller
 
         if (! $user) {
             return redirect()->back()->withInput()->withErrors([
-                'login' => 'Please Enter a valid Email',
+                'login' => __('message.enter_a_email'),
             ]);
         }
 
         // Validate password
         if (! \Hash::check($password, $user->password)) {
             return redirect()->back()->withInput()->withErrors([
-                'password' => 'Please Enter a valid Password',
+                'password' => __('message.please_enter_valid_password'),
             ]);
         }
 
@@ -138,7 +138,7 @@ class LoginController extends Controller
 
         if (! $auth) {
             return redirect()->back()->withInput()->withErrors([
-                'login' => 'Authentication failed. Please try again.',
+                'login' => __('message.auth_failed_try_again'),
             ]);
         }
 
@@ -237,6 +237,12 @@ class LoginController extends Controller
             $this->validate($request, [
                 'company' => 'required|string',
                 'address' => 'required|string',
+                ],
+                [
+                    'company.required' => __('validation.company_validation.company_required'),
+                    'company.string' => __('validation.company_validation.company_string'),
+                    'address.required' => __('validation.company_validation.address_required'),
+                    'address.string' => __('validation.company_validation.company_string'),
             ]);
 
             $user = Auth::user();
@@ -246,7 +252,7 @@ class LoginController extends Controller
 
             return redirect()->back();
         } catch (\Exception $e) {
-            Session::flash('error', 'Please Enter the Details');
+            Session::flash('error', __('message.please_enter_details'));
         }
     }
 

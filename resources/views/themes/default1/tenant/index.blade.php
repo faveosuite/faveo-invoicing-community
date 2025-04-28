@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-    Cloud Hub
+    {{ __('message.cloud_hub') }}
 @stop
 
 
@@ -224,7 +224,7 @@
             {!! Form::model('',['route' => 'cloud-product-store','id'=>'product-configuration']) !!}
             <div class="row original-fields">
                 <div class="col-md-4">
-                    {!! Form::label('cloud_product', Lang::get('message.cloud_product'), ['class' => 'required']) !!}
+                    {!! Form::label('cloud_product', __('message.cloud_product'), ['class' => 'required']) !!}
                     <div class="form-group">
                         <!-- Select Field 1 -->
                         <select name="cloud_product" class="form-control" id="saas-product">
@@ -278,7 +278,7 @@
             <table id="pop-product-table" class="table display" cellspacing="0" width="100%" styleClass="borderless">
                 <thead>
                 <tr>
-                    <th>{{ __('message.cloud_prod') }}</th>
+                    <th>{{ __('message.cloud_product') }}</th>
                     <th>{{ __('message.free_plan_cloud') }}</th>
                     <th>{{ __('message.cloud_prod_key') }}</th>
                     <th>{{ __('message.action') }}</th>
@@ -549,6 +549,23 @@
 
                     "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
                 },
+                language: {
+                    paginate: {
+                        first:      "{{ __('message.paginate_first') }}",
+                        last:       "{{ __('message.paginate_last') }}",
+                        next:       "{{ __('message.paginate_next') }}",
+                        previous:   "{{ __('message.paginate_previous') }}"
+                    },
+                    emptyTable:     "{{ __('message.empty_table') }}",
+                    info:           "{{ __('message.datatable_info') }}",
+                    search:         "{{ __('message.datatable_search') }} ",
+                    zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
+                    infoEmpty:      "{{ __('message.info_empty') }}",
+                    infoFiltered:   "{{ __('message.info_filtered') }}",
+                    lengthMenu:     "{{ __('message.sLengthMenu') }}",
+                    loadingRecords: "{{ __('message.loading_records') }}",
+                },
+
                 columnDefs: [
                     { orderable: false, targets: 4 }
                 ],
@@ -686,8 +703,8 @@
                     var result = '<div class="alert alert-danger">' +
                         '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
                         '<span aria-hidden="true">&times;</span></button>' +
-                        '<strong><i class="far fa-thumbs-down"></i> Oops! </strong>' +
-                        'Export failed: ' + xhr.responseJSON.message + '</div>';
+                        '<strong><i class="far fa-thumbs-down"></i> {{ __('message.error_oops') }} </strong>' +
+                        '{{ __('message.export_failed') }}: ' + xhr.responseJSON.message + '</div>';
 
                     $('#export-message').html(result).removeClass('text-success').addClass('text-danger');
                     setTimeout(function() {
@@ -826,8 +843,23 @@
                 language: {
                     sLengthMenu: "_MENU_ Records per page",
                     sSearch: "Search: ",
-                    sProcessing: ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
+                    sProcessing: ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>',
+                    paginate: {
+                        first:      "{{ __('message.paginate_first') }}",
+                        last:       "{{ __('message.paginate_last') }}",
+                        next:       "{{ __('message.paginate_next') }}",
+                        previous:   "{{ __('message.paginate_previous') }}"
+                    },
+                    emptyTable:     "{{ __('message.empty_table') }}",
+                    info:           "{{ __('message.datatable_info') }}",
+                    search:         "{{ __('message.datatable_search') }} ",
+                    zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
+                    infoEmpty:      "{{ __('message.info_empty') }}",
+                    infoFiltered:   "{{ __('message.info_filtered') }}",
+                    lengthMenu:     "{{ __('message.sLengthMenu') }}",
+                    loadingRecords: "{{ __('message.loading_records') }}",
                 },
+
                 columnDefs: [
                     { orderable: false, targets: 3 }
                 ],

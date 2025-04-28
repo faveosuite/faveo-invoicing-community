@@ -20,6 +20,7 @@ use App\User;
 use App\UserLinkReport;
 use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\DataTables;
 
@@ -58,13 +59,15 @@ class ClientController extends AdvanceSearchController
         $validator = \Validator::make($request->all(), [
             'reg_from' => 'nullable',
             'reg_till' => 'nullable|after:reg_from',
-
-        ]);
+            ],
+            [
+                'reg_till.after' => __('validation.reg_till_after'),
+            ]);
         if ($validator->fails()) {
             $request->reg_from = '';
             $request->reg_till = '';
 
-            return redirect('clients')->with('fails', 'Registered from should be before registered till date');
+            return redirect('clients')->with('fails', __('message.registered_till_date'));
         }
 
         return view('themes.default1.user.client.index', compact('request'));
@@ -96,12 +99,12 @@ class ClientController extends AdvanceSearchController
                             $isSalesManager = User::where('manager', $model->id)->get();
                             if (count($isSalesManager)) {
                                 return "<input type='checkbox' disabled> &nbsp;
-                        <i class='fa fa-info-circle' style='cursor: help; font-size: small; color: rgb(60, 141, 188);' ".'<label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="This user cannot be deleted as he/she is existing sales manager for certain clients. Please replace Sales Manager from settings and then try deleting.">
+                        <i class='fa fa-info-circle' style='cursor: help; font-size: small; color: rgb(60, 141, 188);' ".'<label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="'.__('message.existing_sales_manager_deleting').'">
                         </label>'.'</i>';
                             } elseif (count($isAccountManager)) {
                                 // dd("<input type='checkbox' ".tooltip('dsf')."'disabled'");
                                 return "<input type='checkbox' disabled> &nbsp;
-                        <i class='fa fa-info-circle' style='cursor: help; font-size: small; color: rgb(60, 141, 188);' ".'<label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="This user cannot be deleted as he/she is existing account manager for certain clients. Please replace Account Manager from settings and then try deleting.">
+                        <i class='fa fa-info-circle' style='cursor: help; font-size: small; color: rgb(60, 141, 188);' ".'<label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="'.__('message.existing_account_manager_deleting').'">
                         </label>'.'</i>';
                             } else {
                                 return "<input type='checkbox' class='user_checkbox' value=".$model->id.' name=select[] id=check>';
@@ -130,10 +133,10 @@ class ClientController extends AdvanceSearchController
                         })
                         ->addColumn('action', function ($model) {
                             return '<a href='.url('clients/'.$model->id.'/edit')
-                            ." class='btn btn-sm btn-secondary btn-xs'".tooltip('Edit')."
+                            ." class='btn btn-sm btn-secondary btn-xs'".tooltip( __('message.edit'))."
                             <i class='fa fa-edit' style='color:white;'> </i></a>"
                                     .'  <a href='.url('clients/'.$model->id)
-                                    ." class='btn btn-sm btn-secondary btn-xs'".tooltip('View')."
+                                    ." class='btn btn-sm btn-secondary btn-xs'".tooltip( __('message.view'))."
                                     <i class='fa fa-eye' style='color:white;'> </i></a>";
                         })
 
@@ -166,17 +169,17 @@ class ClientController extends AdvanceSearchController
 
     public function getActiveLabel($mobileActive, $emailActive, $twoFaActive)
     {
-        $emailLabel = "<i class='fas fa-envelope'  style='color:red'  <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title='Unverified email'> </label></i>";
-        $mobileLabel = "<i class='fas fa-phone'  style='color:red'  <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title='Unverified mobile'>  </label></i>";
-        $twoFalabel = "<i class='fas fa-qrcode'  style='color:red'  <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title='2FA not enabled'> </label></i>";
+        $emailLabel = "<i class='fas fa-envelope'  style='color:red'  <label data-toggle='tooltip' style='font-weight:500;' data-placement='top'  title='".Lang::get('message.unverified_email')."'> </label></i>";
+        $mobileLabel = "<i class='fas fa-phone'  style='color:red'  <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title='".Lang::get('message.unverified_mobile')."' >  </label></i>";
+        $twoFalabel = "<i class='fas fa-qrcode'  style='color:red'  <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title='".Lang::get('message.2fa_not_enabled')."'> </label></i>";
         if ($mobileActive) {
-            $mobileLabel = "<i class='fas fa-phone'  style='color:green'  <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title='Mobile verified'></label></i>";
+            $mobileLabel = "<i class='fas fa-phone'  style='color:green'  <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title='".Lang::get('message.mobile_verified')."'></label></i>";
         }
         if ($emailActive) {
-            $emailLabel = "<i class='fas fa-envelope'  style='color:green'  <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title='Email verified'> </label></i>";
+            $emailLabel = "<i class='fas fa-envelope'  style='color:green'  <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title='".Lang::get('message.email_verified')."'> </label></i>";
         }
         if ($twoFaActive) {
-            $twoFalabel = "<i class='fas fa-qrcode'  style='color:green'  <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title='2FA Enabled'> </label></i>";
+            $twoFalabel = "<i class='fas fa-qrcode'  style='color:green'  <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title= '".Lang::get('message.2fa_enabled')."'> </label></i>";
         }
 
         return $emailLabel.'&nbsp;&nbsp;'.$mobileLabel.'&nbsp;&nbsp;'.$twoFalabel;
@@ -273,8 +276,8 @@ class ClientController extends AdvanceSearchController
 
             return redirect()->back()->with('success', \Lang::get('message.saved-successfully'));
         } catch (\Swift_TransportException $e) {
-            return redirect()->back()->with('warning', 'User has been created successfully
-             But email configuration has some problem!!'.$e->getMessage());
+            return redirect()->back()->with('warning',
+                __('message.user_created_but_email_problem') . $e->getMessage());
         } catch (\Exception $e) {
             return redirect()->back()->with('fails', $e->getMessage());
         }
@@ -431,11 +434,13 @@ class ClientController extends AdvanceSearchController
                     $isAccountManager = User::where('account_manager', $id)->get();
                     $isSalesManager = User::where('manager', $id)->get();
                     if (count($isSalesManager) > 0) {
-                        throw new \Exception('Admin'.' '.$user->first_name.' '.$user->last_name.' '.'cannot be deleted as he/she is existing sales manager for certain clients. Please replace Sales Manager from settings and then try deleting.');
-                    }
+                        throw new \Exception( __('messages.admin_delete_restricted', [
+                            'name' => $user->first_name . ' ' . $user->last_name,
+                        ]));                    }
                     if (count($isAccountManager) > 0) {
-                        throw new \Exception('Admin'.' '.$user->first_name.' '.$user->last_name.' '.'cannot be deleted as he/she is existing account manager for certain clients. Please replace Account Manager from settings and then try deleting.');
-                    }
+                        throw new \Exception( __('messages.cannot_delete_admin', [
+                            'name' => $user->first_name . ' ' . $user->last_name
+                        ]));                    }
                     if ($user) {
                         $user->delete();
                     } else {
@@ -567,12 +572,12 @@ class ClientController extends AdvanceSearchController
                 app('queue')->setDefaultDriver($driver->short_name);
                 ReportExport::dispatch('users', $selectedColumns, $searchParams, $email)->onQueue('reports');
 
-                return response()->json(['message' => 'System is generating you report. You will be notified once completed'], 200);
+                return response()->json(['message' => __('message.system_generating_report')], 200);
             } else {
-                return response()->json(['message' => 'Cannot use sync queue driver for export'], 400);
+                return response()->json(['message' => __('message.cannot_sync_queue_driver')], 400);
             }
         } catch (\Exception $e) {
-            \Log::error('Export failed: '.$e->getMessage());
+            \Log::error(__('message.export_failed').$e->getMessage());
 
             return response()->json(['message' => $e->getMessage()], 500);
         }
@@ -583,17 +588,17 @@ class ClientController extends AdvanceSearchController
         $exportDetail = ExportDetail::find($id);
 
         if (! $exportDetail) {
-            return redirect()->back()->with('fails', \Lang::get('File not found.'));
+            return redirect()->back()->with('fails', \Lang::get('message.file_not_found'));
         }
 
         $expirationTime = $exportDetail->created_at->addHours(6);
         if (now()->gt($expirationTime)) {
-            return redirect()->back()->with('fails', \Lang::get('This download link has expired'));
+            return redirect()->back()->with('fails', \Lang::get('message.download_link_expired'));
         }
 
         $filePath = $exportDetail->file_path;
         if (! file_exists($filePath)) {
-            return redirect()->back()->with('fails', \Lang::get('File not found'));
+            return redirect()->back()->with('fails', \Lang::get('message.file_not_found'));
         }
 
         $zipFileName = $exportDetail->file.'.zip';
@@ -615,7 +620,7 @@ class ClientController extends AdvanceSearchController
             }
             $zip->close();
         } else {
-            return redirect()->back()->with('fails', \Lang::get('Failed to create zip file'));
+            return redirect()->back()->with('fails', \Lang::get('message.failed_create_zip_file'));
         }
 
         return response()->download($zipFilePath, $zipFileName)->deleteFileAfterSend(true);
@@ -644,7 +649,7 @@ class ClientController extends AdvanceSearchController
             }
         }
 
-        return response()->json(['message' => 'Columns saved successfully.']);
+        return response()->json(['message' => __('message.columns_saved_successfully.')]);
     }
 
     public function getColumns(Request $request)

@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('settings', function (Blueprint $table) {
-            $table->string('content')->after('country')->default('en');
+            $table->integer('timezone_id')->after('country');
+            $table->string('content')->after('timezone_id');
         });
     }
 
@@ -22,7 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('settings', function (Blueprint $table) {
-            $table->dropColumn('content');
+            $table->dropColumn(['content', 'timezone_id']);
         });
     }
 };

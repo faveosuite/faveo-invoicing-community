@@ -69,7 +69,7 @@
                 <div
                   class="col-md-4 form-group plandays {{ $errors->has('days') ? 'has-error' : '' }}">
                   <!-- days -->
-                  {!! Form::label('days','Periods',['class'=>'required']) !!}
+                  {!! Form::label('days', __('message.periods'),['class'=>'required']) !!}
                   <div class="input-group">
                     <select name="days" value="Choose" class="form-control {{$errors->has('days') ? ' is-invalid' : ''}}" id="plandays">
                       <option value="">{{ __('message.choose') }}</option>
@@ -100,7 +100,7 @@
                       <th class="col-sm-3" style="width:20%">{{ Lang::get('message.currency') }} <span class="text-red">*</span></th>
                       <th class="col-sm-3" style="width:20%">{{ Lang::get('message.price') }} <span class="text-red">*</span></th>
                       <th class="col-sm-3" style="width:20%">
-                        {{ Lang::get('Offer Price') }} <span class="text-bold">(%)</span>
+                        {{ Lang::get('message.offer_price') }} <span class="text-bold">(%)</span>
                       </th>
                       <th class="col-sm-3" style="width:20%">
                         {{ Lang::get('message.renew-price') }} <span class="text-red">*</span>
@@ -166,8 +166,8 @@
 
                 <div class="col-md-12 form-group">
                   <!-- description -->
-                  {!! Form::label('description','Price Description') !!}
-                  {!! Form::text("price_description",null,['class' => 'form-control'.($errors->has('price_description') ? ' is-invalid' : '') ,'placeholder' => __('message.price_description')]) !!}
+                  {!! Form::label('description', __('message.price_description')) !!}
+                  {!! Form::text("price_description",null,['class' => 'form-control'.($errors->has('price_description') ? ' is-invalid' : '') ,'placeholder' => __('message.enter_price_description')]) !!}
 
                   <h6 id="dayscheck"></h6>
 
@@ -176,9 +176,9 @@
 
                 <div class="col-md-6 form-group">
                   <!-- product_quantity -->
-                  {!! Form::label('product_quantity','Product Quantity',['class'=>'required'])!!}
+                  {!! Form::label('product_quantity', __('message.product_quantity'),['class'=>'required'])!!}
                   {!! Form::number("product_quantity",null,['class' =>
-                  'form-control'.($errors->has('product_quantity') ? ' is-invalid' : ''),'disabled'=>'disabled','id'=>'prodquant','placeholder'=>__('message.price_products')])
+                  'form-control'.($errors->has('product_quantity') ? ' is-invalid' : ''),'disabled'=>'disabled','id'=>'prodquant','placeholder'=> __('message.price_products')])
                   !!}
                     @error('product_quantity')
                     <span class="error-message"> {{$message}}</span>
@@ -189,8 +189,9 @@
 
                 <div class="col-md-6 form-group">
                   <!-- agents -->
-                  <i class='fa fa-info-circle' style='cursor: help; font-size: small; color: rgb(60, 141, 188)'<label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="{{ __('message.agents_selected') }}">
-                        </label></i>
+                    <label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="{{ __('message.agents_selected') }}">
+                        <i class="fa fa-info-circle" style="cursor: help; font-size: small; color: rgb(60, 141, 188)"></i>
+                    </label>
                   
                     {!! Form::label('agents',__('message.agent'),['class'=>'required']) !!}
                   {!! Form::number("no_of_agents",null,['class' => 'form-control'.($errors->has('no_of_agents') ? ' is-invalid' : '')

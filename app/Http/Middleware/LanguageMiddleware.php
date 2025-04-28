@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 // use Illuminate\Contracts\Routing\Middleware;
+use App\Model\Common\Language;
 use App\Model\Common\Setting;
 use Closure;
 use Illuminate\Support\Facades\App;
@@ -16,13 +17,23 @@ class LanguageMiddleware
 {
     public function handle($request, Closure $next)
     {
-        if (Auth::check() && Auth::user()->language) {
-            $this->setLocale(Auth::user()->language);
+        if (Auth::check()) {
+            $user = Auth::user(); // Store user instance to avoid multiple calls
 
+            $lang = match (true) {
+                Session::has('language') => tap(Session::get('language'), function ($language) use ($user) {
+                    $user->language = $language;
+                    $user->save();
+                }),
+                !empty($user->language) => $user->language, // Ensures null or empty check
+                default => Setting::where('id', 1)->value('content') ?? 'en',
+            };
+
+            $this->setLocale($this->checkEnabledLanguage($lang));
             return $next($request);
         }
-        $this->setLocale($this->getLangFromSessionOrCache());
 
+        $this->setLocale($this->getLangFromSessionOrCache());
         return $next($request);
     }
 
@@ -44,5 +55,20 @@ class LanguageMiddleware
         };
 
         return $lang;
+    }
+
+    public function checkEnabledLanguage($lang)
+    {
+        if (!empty($lang)) {
+            // Check if the language is enabled in the database
+            $language = Language::where('locale', $lang)->where('enable_disable', 1)->first();
+
+            if ($language) {
+                return $lang;
+            }
+        }
+
+        // Fallback to system default language from settings
+        return Setting::where('id', 1)->value('content') ?? 'en';
     }
 }

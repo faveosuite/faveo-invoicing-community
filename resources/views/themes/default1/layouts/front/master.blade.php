@@ -169,7 +169,7 @@ $days = $pay->where('product','117')->value('days');
     $social = App\Model\Common\SocialMedia::get();
 @endphp
 
-<div class="body p-relative bottom-1" dir="{{ app()->getLocale() == 'ar' ? 'rtl' : 'ltr' }}" >
+<div class="body p-relative bottom-1" dir="{{ in_array(app()->getLocale(), ['ar', 'he']) ? 'rtl' : 'ltr' }}" >
 
     <header id="header" class="header-effect-reveal" data-plugin-options="{'stickyEnabled': true, 'stickyEffect': 'reveal', 'stickyEnableOnBoxed': true, 'stickyEnableOnMobile': false, 'stickyChangeLogo': false, 'stickyStartAt': 200, 'stickySetTop': '-44px'}">
 
@@ -425,7 +425,7 @@ $days = $pay->where('product','117')->value('days');
                                                             @endphp                                                                      
                                                   
                                                            <div class="product-details d-flex justify-content-between align-items-center" style="margin-bottom: 20px;font-weight: 500;font-size: 13px;font-family: Poppins,sans-serif;letter-spacing: -0.12px;">
-                                                            <span class="text-muted">0 ITEMS</span>
+                                                            <span class="text-muted">0 {{ __('message.caps_items') }}</span>
                                                             @if (Auth::check() && $data)
                                                             <a class="text-v-dark text-uppercase" style="color: black;font-family: Poppins,sans-serif;font-weight: 700;font-size: 13px;letter-spacing: -0.12px;" href="{{url("show/cart")}}">{{ __('message.view_cart') }}</a>
                                                             @else
@@ -485,9 +485,13 @@ $days = $pay->where('product','117')->value('days');
                                                         'ru' => 'ru',
                                                         'vi' => 'vn',
                                                         'zh-hans' => 'cn',
-                                                        'zh-hant' => 'cn'
+                                                        'zh-hant' => 'cn',
+                                                        'ja' => 'jp',
+                                                        'ta' => 'in',
+                                                        'hi' => 'in',
+                                                        'he' => 'il',
+                                                        'tr' => 'tr',
                                                     ];
-
                                                     $currentLanguage = app()->getLocale();
                                                     $flagClass = 'flag-icon flag-icon-' . $localeMap[$currentLanguage];
                                                     ?>
@@ -573,7 +577,7 @@ $days = $pay->where('product','117')->value('days');
                 @if(Session::has('success'))
 
                     <div class="alert alert-success">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span></button>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}"> <span aria-hidden="true">&times;</span></button>
                         <strong><i class="far fa-thumbs-up"></i> {{ __('message.well_done') }}</strong>
 
                         {!!Session::get('success')!!}
@@ -585,7 +589,7 @@ $days = $pay->where('product','117')->value('days');
             @if(Session::has('fails') )
 
                 <div class="alert alert-danger alert-dismissable" role="alert">
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true">&times;</span></button>
                     {{Session::get('fails')}}
                 </div>
 
@@ -874,11 +878,11 @@ $days = $pay->where('product','117')->value('days');
                                                 <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center">
                                                     <form id="newsletterForm" class="form-style-3 w-100">
                                                         <div class="input-group mb-3">
-                                                            <input class="custom-input newsletterEmail" placeholder="Email Address" name="newsletterEmail" id="newsletterEmail" type="email">
+                                                            <input class="custom-input newsletterEmail" placeholder="'. __('message.email_address') .'" name="newsletterEmail" id="newsletterEmail" type="email">
                                                         </div>
                                                         <!-- Honeypot fields (hidden) -->
                                                         <div class="mb-3" style="display: none;">
-                                                            <label>Leave this field empty</label>
+                                                            <label>'. __('message.contact_leave') .'</label>
                                                             <input type="text" name="mailhoneypot_field" value="">
                                                         </div>';
                          if ($status->recaptcha_status === 1 || $status->v3_recaptcha_status === 1) {
@@ -897,7 +901,7 @@ $days = $pay->where('product','117')->value('days');
         ';
                              }
                          }
-                         $mailchimpSection .= '<button class="btn btn-primary mb-3" id="mailchimp-subscription" type="submit"><strong>GO!</strong></button>
+                         $mailchimpSection .= '<button class="btn btn-primary mb-3" id="mailchimp-subscription" type="submit"><strong>'. __('message.caps_go') .'!</strong></button>
                                             </form>
                                           </div>';
                     }
@@ -948,11 +952,11 @@ $days = $pay->where('product','117')->value('days');
                 <div class="row">
                     <div class="col mt-4 mb-4 pb-5">
 
-                        <p class="text-center text-3 mb-0 text-color-grey">Copyright © <?php echo date('Y') ?> .
+                        <p class="text-center text-3 mb-0 text-color-grey">{{ __('message.copyright') }} © <?php echo date('Y') ?> .
 
                             <a href="{{$set->website}}" class="text-color-grey text-color-hover-primary font-weight-bold">{{$set->company}}. </a>
 
-                            All Rights Reserved. Powered by
+                            {{ __('message.all_rights') }}
 
                             <a href="{{$set->website}}" class="text-color-grey text-color-hover-primary font-weight-bold" target="_blank">Faveo</a>
                         </p>
@@ -1123,7 +1127,7 @@ setTimeout(function() {
 
             // Validate recaptcha response if it exists
             if ({{ isCaptchaRequired()['status'] }} && recaptchaEnabled && $recaptchaResponse.length && !$recaptchaResponse.val().trim()) {
-                placeErrorMessage("Please verify that you are not a robot.", $recaptchaResponse);
+                placeErrorMessage("{{ __('message.recaptcha_required') }}", $recaptchaResponse);
                 return;
             }
 
@@ -1482,7 +1486,7 @@ setTimeout(function() {
             $('.startFreeTrialBtn').on('click', function () {
                 // If not authenticated, remember that the button was clicked
                 localStorage.setItem('freeTrialClicked', 'true');
-                var message = "{{ __('message.log_free_trial') }}";
+                var message = {!! json_encode(__('message.log_free_trial')) !!};
                 var baseUrl = "{{ env('APP_URL') }}";
 
                 // Redirect to the login/register page
@@ -1515,25 +1519,28 @@ setTimeout(function() {
     const curLang = '{{ app()->getLocale() }}';
 
     $(document).ready(function() {
-        const localeMap = { 'ar': 'ae', 'bsn': 'bs', 'de': 'de', 'en': 'us', 'en-gb': 'gb', 'es': 'es', 'fr': 'fr', 'id': 'id', 'it': 'it', 'kr': 'kr', 'mt': 'mt', 'nl': 'nl', 'no': 'no', 'pt': 'pt', 'ru': 'ru', 'vi': 'vn', 'zh-hans': 'cn', 'zh-hant': 'cn' };
+        const localeMap = { 'ar': 'ae', 'bsn': 'bs', 'de': 'de', 'en': 'us', 'en-gb': 'gb', 'es': 'es', 'fr': 'fr', 'id': 'id', 'it': 'it', 'kr': 'kr', 'mt': 'mt', 'nl': 'nl', 'no': 'no', 'pt': 'pt', 'ru': 'ru', 'vi': 'vn', 'zh-hans': 'cn', 'zh-hant': 'cn', 'ja': 'jp', 'ta': 'in', 'hi': 'in', 'he': 'il', 'tr': 'tr' };
         const currentLocale = '{{ app()->getLocale() }}';
         const mappedLocale = localeMap[currentLocale] || 'us';
         $('#flagIcon').addClass('flag-icon flag-icon-' + mappedLocale);
 
         $.ajax({
-            url: '<?php echo getUrl(); ?>/language/settings',
+            url: '<?php echo getUrl(); ?>/language/control',
             type: 'GET',
             dataType: 'JSON',
             success: function(response) {
                 $.each(response.data, function(key, value) {
-
-                    const mappedLocale = localeMap[value.locale] || value.locale;
-                    const isSelected = value.locale === currentLocale ? 'selected' : 'us';
-                    $('#language-dropdown').append(
-                        '<a href="javascript:;" class="dropdown-item" data-locale="' + value.locale + '" ' + isSelected + '>' +
-                        '<i class="flag-icon flag-icon-' + mappedLocale + ' ' + (curLang === 'ar' ? 'ml-2' : 'mr-2') + '"></i> ' + value.name + ' (' + value.translation + ')' +
-                        '</a>'
-                    );
+                    // Only include languages where enable_disable == 1
+                    if (value.enable_disable == 1) {
+                        const mappedLocale = localeMap[value.locale] || value.locale;
+                        const isSelected = value.locale === currentLocale ? 'selected' : '';
+                        $('#language-dropdown').append(
+                            '<a href="javascript:;" class="dropdown-item" data-locale="' + value.locale + '" ' + isSelected + '>' +
+                            '<i class="flag-icon flag-icon-' + mappedLocale + ' ' + (curLang === 'ar' ? 'ml-2' : 'mr-2') + '"></i> ' +
+                            value.name + ' (' + value.translation + ')' +
+                            '</a>'
+                        );
+                    }
                 });
 
                 // Add event listeners for the dynamically added language options
@@ -1555,7 +1562,7 @@ setTimeout(function() {
     function updateLanguage(language, flagClass) {
         $('#flagIcon').attr('class', flagClass);
         $.ajax({
-            url: '<?php echo getUrl(); ?>/update/language',
+            url: '<?php echo getUrl(); ?>/lang/update',
             type: 'POST',
             data: { language: language },
             success: function(response) {

@@ -200,7 +200,27 @@
                         </td>
 
                     </tr>
-             
+
+                     <tr>
+                         <td>
+                             <b>{!! Form::label('content', Lang::get('message.default_language'), ['class' => 'required']) !!}</b>
+                         </td>
+                         <td>
+                             <select name="content" class="form-control" required>
+                                 @if($defaultLang == '')
+                                     <option value="">{{ __('message.select_default_language') }}</option>
+                                 @endif
+                                 @foreach($languages as $language)
+                                     <option value="{{ $language->locale }}"
+                                             {{ $defaultLang === $language->locale ? 'selected' : '' }}>
+                                         {{ $language->name }} ({{ $language->translation }}) ({{ $language->locale }})
+                                     </option>
+                                 @endforeach
+                             </select>
+                         </td>
+                     </tr>
+                     </br>
+
             </div>
             <div class="col-md-6">
             

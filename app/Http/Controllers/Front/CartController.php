@@ -131,7 +131,7 @@ class CartController extends BaseCartController
                 $currency = userCurrencyAndPrice('', $plan);
                 // $this->checkProductsHaveSimilarCurrency($currency['currency']);
             } else {
-                throw new \Exception('Product cannot be added to cart. No plan exists.');
+                throw new \Exception( __('message.product_add_cart_no_plan'));
             }
             $actualPrice = $this->cost($product->id, $planid);
             if (\Session::has('plan') && $product->can_modify_agent) {
@@ -162,7 +162,7 @@ class CartController extends BaseCartController
         $carts = \Cart::getContent();
         foreach ($carts as $cart) {
             if ($cart->attributes['currency'] != $currency) {
-                throw new \Exception('All products added to the cart should have similar currency');
+                throw new \Exception( __('message.similar_currency_required'));
             }
         }
     }
@@ -180,7 +180,7 @@ class CartController extends BaseCartController
                     Cart::clear($item->id);
 
                     return redirect('my-invoice/'.$unpaidInvoice->id.'#invoice-section')
-                    ->with('warning', 'You have an unpaid invoice for this product. Please proceed with the payment or delete the invoice and try again');
+                    ->with('warning', __('message.unpaid_invoice_warning'));
                 }
             }
 
@@ -365,7 +365,7 @@ class CartController extends BaseCartController
 
                     return $cost;
                 } else {
-                    throw new \Exception('Product cannot be added to cart. No plan exists.');
+                    throw new \Exception( __('message.product_add_cart_no_plan'));
                 }
 
                 return $cost;

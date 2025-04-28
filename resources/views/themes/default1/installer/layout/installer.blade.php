@@ -31,7 +31,7 @@
         ['file' => './admin/css-1/probe.css', 'id' => 'default-styles-1'],
     ];
     $locale = app()->getLocale();
-    $selected_files = ($locale == 'ar') ? array_merge($css_files, $rtl) : array_merge($css_files, $ltr);
+    $selected_files = (in_array($locale, ['ar', 'he'])) ? array_merge($css_files, $rtl) : array_merge($css_files, $ltr);
 
     // Output styles
     foreach ($selected_files as $css) {
@@ -42,13 +42,13 @@
 
 </head>
 
-<body class="layout-top-nav text-sm layout-navbar-fixed layout-footer-fixed" dir="{{ app()->getLocale() == 'ar' ? 'rtl' : 'ltr' }}">
+<body class="layout-top-nav text-sm layout-navbar-fixed layout-footer-fixed" dir="{{ in_array(app()->getLocale(), ['ar', 'he']) ? 'rtl' : 'ltr' }}">
 
 @php
     $currentPath = basename(request()->path());
 @endphp
 
-<div class="wrapper" dir="{{ app()->getLocale() == 'ar' ? 'rtl' : 'ltr' }}">
+<div class="wrapper" dir="{{ in_array(app()->getLocale(), ['ar', 'he']) ? 'rtl' : 'ltr' }}">
 {{--    Header Component--}}
     <nav class="main-header navbar navbar-expand-md navbar-light navbar-white">
 
@@ -80,7 +80,12 @@
                                 'ru' => 'ru',
                                 'vi' => 'vn',
                                 'zh-hans' => 'cn',
-                                'zh-hant' => 'cn'
+                                'zh-hant' => 'cn',
+                                'ja' => 'jp',
+                                'ta' => 'in',
+                                'hi' => 'in',
+                                'he' => 'il',
+                                'tr' => 'tr',
                             ];
 
                             $currentLanguage = app()->getLocale();
@@ -192,7 +197,7 @@
             type: 'GET',
             dataType: 'JSON',
             success: function(response) {
-                const localeMap = { 'ar': 'ae', 'bsn': 'bs', 'de': 'de', 'en': 'us', 'en-gb': 'gb', 'es': 'es', 'fr': 'fr', 'id': 'id', 'it': 'it', 'kr': 'kr', 'mt': 'mt', 'nl': 'nl', 'no': 'no', 'pt': 'pt', 'ru': 'ru', 'vi': 'vn', 'zh-hans': 'cn', 'zh-hant': 'cn' };
+                const localeMap = { 'ar': 'ae', 'bsn': 'bs', 'de': 'de', 'en': 'us', 'en-gb': 'gb', 'es': 'es', 'fr': 'fr', 'id': 'id', 'it': 'it', 'kr': 'kr', 'mt': 'mt', 'nl': 'nl', 'no': 'no', 'pt': 'pt', 'ru': 'ru', 'vi': 'vn', 'zh-hans': 'cn', 'zh-hant': 'cn', 'ja': 'jp', 'ta': 'in', 'hi': 'in', 'he': 'il', 'tr': 'tr' };
                 $.each(response.data, function(key, value) {
                     const mappedLocale = localeMap[value.locale] || value.locale;
                     const isSelected = value.locale === '{{ app()->getLocale() }}' ? 'selected' : '';
@@ -233,7 +238,7 @@
             });
         };
 
-        if (currentLanguage === 'ar') {
+        if (currentLanguage === 'ar' || currentLanguage === 'he') {
             setClassName(document.getElementsByClassName('fas fa-arrow-right'), 'fas fa-arrow-left');
             setClassName(document.getElementsByClassName('continue'), 'fas fa-arrow-left');
             setClassName(document.getElementsByClassName('previous'), 'fas fa-arrow-right');

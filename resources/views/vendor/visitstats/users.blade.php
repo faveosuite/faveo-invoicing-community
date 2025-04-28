@@ -19,7 +19,7 @@
 							@if ($visit->user_id)
                                 <img class="visitortracker-icon"
                                     src="{{ asset('/vendor/visitortracker/icons/user.png') }}"
-                                    title="Authenticated user: {{ $visit->user_email }}">
+                                    title="{{ __('message.authenticated_user') }} {{ $visit->user_email }}">
                                 
                                 {{ $visit->user_email }}
                             @endif

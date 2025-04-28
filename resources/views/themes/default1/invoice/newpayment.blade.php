@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Payment
+    {{ __('message.payment') }}
 @stop
 @section('content-header')
    <div class="col-sm-6">
@@ -55,7 +55,7 @@ Payment
                        <div class="col-md-4 form-group {{ $errors->has('payment_method') ? 'has-error' : '' }}">
                            <!-- last name -->
                            {!! Form::label('payment_method',Lang::get('message.payment-method'),['class'=>'required']) !!}
-                           {!! Form::select('payment_method',[''=>'Choose','cash'=>'Cash','check'=>'Check','online payment'=>'Online Payment','razorpay'=>'Razorpay', 'stripe' => 'Stripe','Credit Balance'=> 'Credit Balance'],null,['class' => 'form-control','id'=>'payment_method']) !!}
+                           {!! Form::select('payment_method',[''=> __('message.choose'),'cash'=>'Cash','check'=>'Check','online payment'=>'Online Payment','razorpay'=>'Razorpay', 'stripe' => 'Stripe','Credit Balance'=> 'Credit Balance'],null,['class' => 'form-control','id'=>'payment_method']) !!}
 
                        </div>
 
@@ -95,7 +95,7 @@ Payment
                                            <th>{{Lang::get('message.date')}}</th>
                                            <th>{{Lang::get('message.invoice_number')}}</th>
                                            <th>{{Lang::get('message.total')}}</th>
-                                           <th>Due</th>
+                                           <th>{{ __('message.invoice_due') }}</th>
                                            <th>{{Lang::get('message.pay')}}</th>
                                           
                                          

@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Report settings
+    {{ __('message.report_settings') }}
 @stop
 @section('content-header')
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
@@ -26,7 +26,7 @@ Report settings
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group">
-                    {!! Form::label('records', Lang::get('Records per export'), ['class' => 'required']) !!}
+                    {!! Form::label('records', Lang::get('message.records_per_export'), ['class' => 'required']) !!}
                     <i class="fas fa-question-circle" data-toggle="tooltip" title="{{ __('message.report_limit') }}"></i>
                     
                     {!! Form::select('records', [

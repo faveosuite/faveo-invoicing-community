@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Edit Invoice
+    {{ __('message.edit-invoice') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">

@@ -207,7 +207,7 @@
                         <div class="form-group">
 
                             {!! Form::label('cloud_fetching', Lang::get('message.cloud_subscription_deletion') . ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="' . Lang::get('message.cron_trigger_cloud') . '"></i>', [], false) !!}<br>
-                            {!! Form::checkbox('cloud_cron',1,$condition->checkActiveJob()['cloud'],['id'=>'cloud_fetching']) !!}&nbsp;{{Lang::get('Enable Faveo Cloud')}}
+                            {!! Form::checkbox('cloud_cron',1,$condition->checkActiveJob()['cloud'],['id'=>'cloud_fetching']) !!}&nbsp;{{Lang::get('message.enable_faveo_cloud')}}
                         </div>
 
                     </div>
@@ -236,7 +236,7 @@
                         <div class="form-group">
 
                             {!! Form::label('invoice_fetching', Lang::get('message.invoice_deletion') . ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="' . Lang::get('message.cron_trigger_deletion_old') . '"></i>', [], false) !!}<br>
-                            {!! Form::checkbox('invoice_cron',1,$condition->checkActiveJob()['invoice'],['id'=>'invoice_fetching']) !!}&nbsp;{{Lang::get('Enable Invoice Deletion')}}
+                            {!! Form::checkbox('invoice_cron',1,$condition->checkActiveJob()['invoice'],['id'=>'invoice_fetching']) !!}&nbsp;{{Lang::get('message.enable_invoice_deletion')}}
                         </div>
 
                     </div>
@@ -254,7 +254,7 @@
 
         </div><!-- /.info-box -->
     </div>
-    <h4><button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fa fa-sync-alt">&nbsp;&nbsp;</i>{!!Lang::get('message.update')!!}</button></h4>
+    <h4><button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> {{ __('message.saving') }}"><i class="fa fa-sync-alt">&nbsp;&nbsp;</i>{!!Lang::get('message.update')!!}</button></h4>
         </div>
     </div>
 

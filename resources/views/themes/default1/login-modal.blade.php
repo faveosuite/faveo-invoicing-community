@@ -179,7 +179,7 @@ $country = findCountryByGeoip($location['iso_code']);
                             <div class="form-group pull-right">
                                 <button type="button" class="btn btn-default closebutton" id="closebutton" data-dismiss="modal"><i class="fa fa-times">&nbsp;&nbsp;</i>{{ __('message.close') }}</button>
 
-                                <input type="submit" name="popup" value="Login" id="submitbtn" class="btn btn-primary" data-loading-text="Loading...">
+                                <input type="submit" name="popup" value="Login" id="submitbtn" class="btn btn-primary" data-loading-text="{{ __('message.loading') }}">
                                 <!-- <button type="button" class="btn btn-primary mb-xl next-step float-right" name="logsendOtp" id="login" onclick="loginUser()">
                                             Send Email
                                 </button> -->
@@ -312,7 +312,7 @@ $country = findCountryByGeoip($location['iso_code']);
                             </div>
 
 
-                                    <span>Already user?<a data-dismiss="modal" data-toggle="modal" href="#login-modal">{{ __('message.sign-in') }}</a></span>
+                                    <span>{{ __('message.already_user') }}?<a data-dismiss="modal" data-toggle="modal" href="#login-modal">{{ __('message.sign-in') }}</a></span>
 
 
 
@@ -521,7 +521,7 @@ $country = findCountryByGeoip($location['iso_code']);
             var userOtp = $('#oneTimePassword').val();
             if (userOtp.length < 4){
                 $('#enterotp').show();
-                $('#enterotp').html("Please Enter A Valid OTP");
+                $('#enterotp').html("{{__('message.enter_valid_otp')}}");
                 $('#enterotp').focus();
                 $('#oneTimePassword').css("border-color","red");
                 $('#enterotp').css({"color":"red","margin-top":"5px"});
@@ -542,7 +542,7 @@ $country = findCountryByGeoip($location['iso_code']);
             $('#enterotp').hide();
             if(verify_otp_check()) {
                 $("#verifyOtp").attr('disabled',true);
-                $("#verifyOtp").html("<i class='fa fa-circle-o-notch fa-spin fa-1x fa-fw'></i>Verifying");
+                $("#verifyOtp").html("<i class='fa fa-circle-o-notch fa-spin fa-1x fa-fw'></i>{{ __('message.verifying') }}");
                 var data = {
                     "mobile":   $('#verify_number').val().replace(/[\. ,:-]+/g, ''),
                     "code"  :   $('#verify_country_code').val(),
@@ -558,11 +558,11 @@ $country = findCountryByGeoip($location['iso_code']);
                         $('#error2').hide();
                         $('#error').hide();
                         $('#alertMessage2').show();
-                        var result =  '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong><i class="far fa-thumbs-up"></i>Well Done! </strong>'+response.message+'!</div>';
+                        var result =  '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong><i class="far fa-thumbs-up"></i>{{ __('message.well_done') }} </strong>'+response.message+'!</div>';
                         // $('#alertMessage3').show();
                         $('#successMessage2').hide();
                         $('#success').html(result);
-                        $("#verifyOtp").html("Verify OTP");
+                        $("#verifyOtp").html("{{ __('message.verify_otp') }}");
                         $('.nav-tabs li a[href="#step1"]').tab('show');
                         $('.wizard-inner').css('display','none');
                         setTimeout(()=>{
@@ -572,8 +572,8 @@ $country = findCountryByGeoip($location['iso_code']);
                     error: function (ex) {
                         $("#verifyOtp").attr('disabled',false);
                         var myJSON = JSON.parse(ex.responseText);
-                        var html = '<div class="alert alert-danger"><strong>Whoops! </strong>Something went wrong<br><br><ul>';
-                        $("#verifyOtp").html("Verify OTP");
+                        var html = '<div class="alert alert-danger"><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<br><br><ul>';
+                        $("#verifyOtp").html("{{ __('message.verify_otp') }}");
                         for (var key in myJSON)
                         {
                             html += '<li>' + myJSON[key][0] + '</li>'
@@ -625,7 +625,7 @@ $country = findCountryByGeoip($location['iso_code']);
                 "type"  :  "text",
             };
             $("#resendOTP").attr('disabled',true);
-            $("#resendOTP").html("<i class='fa fa-circle-o-notch fa-spin fa-1x fa-fw'></i>Resending");
+            $("#resendOTP").html("<i class='fa fa-circle-o-notch fa-spin fa-1x fa-fw'></i>{{ __('message.resending') }}");
             $.ajax({
                 url: '{{url('resend_otp')}}',
                 type: 'GET',
@@ -636,14 +636,14 @@ $country = findCountryByGeoip($location['iso_code']);
                     $('#successMessage2').hide ();
                     $('#alertMessage3').show();
                     $('#error2').hide();
-                    var result =  '<div class="alert alert-success"> <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong><i class="far fa-thumbs-up"></i>Well Done! </strong>'+response.message+'!</div>';
+                    var result =  '<div class="alert alert-success"> <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong><i class="far fa-thumbs-up"></i>{{ __('message.well_done') }} </strong>'+response.message+'!</div>';
                     $('#alertMessage3').html(result+ ".");
                 },
                 error: function (ex) {
                     $("#resendOTP").attr('disabled',false);
                     $("#resendOTP").html("Resend OTP");
                     var myJSON = JSON.parse(ex.responseText);
-                    var html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>Oh Snap! </strong>Something went wrong<br><br><ul>';
+                    var html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>{{ __('message.oh_snap') }} </strong>{{ __('message.something_wrong') }}<br><br><ul>';
                     for (var key in myJSON)
                     {
                         html += '<li>' + myJSON[key][0] + '</li>'
@@ -668,25 +668,25 @@ $country = findCountryByGeoip($location['iso_code']);
                 "type"  :  "voice",
             };
             $("#voiceOTP").attr('disabled',true);
-            $("#voiceOTP").html("<i class='fa fa-circle-o-notch fa-spin fa-1x fa-fw'></i>Sending Voice Call..");
+            $("#voiceOTP").html("<i class='fa fa-circle-o-notch fa-spin fa-1x fa-fw'></i>{{ __('message.sending_voice_call') }}");
             $.ajax({
                 url: '{{url('resend_otp')}}',
                 type: 'GET',
                 data: data,
                 success: function (response) {
                     $("#voiceOTP").attr('disabled',false);
-                    $("#voiceOTP").html("Receive OTP via Voice call");
+                    $("#voiceOTP").html("{{ __('message.receive_otp_voice_call') }}");
                     $('#successMessage2').hide ();
                     $('#alertMessage3').show();
                     $('#error2').hide();
-                    var result =  '<div class="alert alert-success"> <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong><i class="far fa-thumbs-up"></i>Well Done! </strong>'+response.message+'!</div>';
+                    var result =  '<div class="alert alert-success"> <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong><i class="far fa-thumbs-up"></i>{{ __('message.well_done') }} </strong>'+response.message+'!</div>';
                     $('#alertMessage3').html(result+ ".");
                 },
                 error: function (ex) {
                     $("#voiceOTP").attr('disabled',false);
-                    $("#voiceOTP").html("Receive OTP via Voice call");
+                    $("#voiceOTP").html("{{ __('message.receive_otp_voice_call') }}");
                     var myJSON = JSON.parse(ex.responseText);
-                    var html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>Oh Snap! </strong>Something went wrong<br><br><ul>';
+                    var html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>{{ __('message.oh_snap') }} </strong>{{ __('message.something_wrong') }}<br><br><ul>';
                     for (var key in myJSON)
                     {
                         html += '<li>' + myJSON[key][0] + '</li>'
@@ -721,7 +721,7 @@ $country = findCountryByGeoip($location['iso_code']);
             var pass_val = $('#email_password').val();
                 if(pass_val.length == ''){
                 $('#conpass').show();
-                $('#conpass').html("Please Enter a Password");
+                $('#conpass').html("{{ __('message.enter_a_password') }}");
                 $('#conpass').focus();
                 $('#email_password').css("border-color","red");
                 $('#conpass').css({"color":"red","margin-top":"5px"});
@@ -749,7 +749,7 @@ $country = findCountryByGeoip($location['iso_code']);
                     return true;
                 } else{
                     $('#conemail').show();
-                    $('#conemail').html("Please Enter a valid email");
+                    $('#conemail').html("{{ __('message.enter_a_email') }}");
                     $('#conemail').focus();
                     $('#verify_email').css("border-color","red");
                     $('#conemail').css({"color":"red","margin-top":"5px"});
@@ -771,7 +771,7 @@ $country = findCountryByGeoip($location['iso_code']);
             if($("#mobstatusConfirm").val() ==1) { //If Mobile Status Is Active
                 if (userNumber.length < 5){
                     $('#conmobile').show();
-                    $('#conmobile').html("Please Enter Your Mobile No.");
+                    $('#conmobile').html("{{ __('message.enter_a_mobile_no') }}");
                     $('#conmobile').focus();
                     $('#verify_number').css("border-color","red");
                     $('#conmobile').css({"color":"red","margin-top":"5px"});
@@ -809,7 +809,7 @@ $country = findCountryByGeoip($location['iso_code']);
                 var newnumber = $('#verify_number').val();
 
                 $("#sendOtp").attr('disabled',true);
-                $("#sendOtp").html("<i class='fa fa-circle-o-notch fa-spin fa-1x fa-fw'></i>Sending...");
+                $("#sendOtp").html("<i class='fa fa-circle-o-notch fa-spin fa-1x fa-fw'></i>{{ __('message.sending') }}");
                 var data = {
                     "newemail": newemail,
                     "newnumber": newnumber,
@@ -828,7 +828,7 @@ $country = findCountryByGeoip($location['iso_code']);
                     success: function (response) {
                         // window.history.replaceState(response.type, "TitleTest", "login");
                         $("#sendOtp").attr('disabled',false);
-                        var result =  '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong><i class="far fa-thumbs-up"></i>Almost there! </strong>'+response.message+'</div>';
+                        var result =  '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong><i class="far fa-thumbs-up"></i>{{ __('message.almost_there') }} </strong>'+response.message+'</div>';
                         if (($("#checkOtpStatus").val()) == 1 ) {
                             $('#successMessage2').html(result);
                             $('#error1').hide();
@@ -843,11 +843,11 @@ $country = findCountryByGeoip($location['iso_code']);
                             }, 500);
                             window.scrollTo(0, 10);
                             verify_otp_form.elements['hidden_user_id'].value = $('#user_id').val();
-                            $("#sendOtp").html("Send");
+                            $("#sendOtp").html("{{ __('message.send') }}");
                         } else {//Show Only Email Success Message when Mobile Status is Not Active
                             $('#emailsuccess').html(result);
                             $('#successMessage1').hide();
-                            $("#sendOtp").html("Send");
+                            $("#sendOtp").html("{{ __('message.send') }}");
                             $('#error1').hide();
                         }
                     },
@@ -856,7 +856,7 @@ $country = findCountryByGeoip($location['iso_code']);
                         $("#sendOtp").attr('disabled',false);
                          $("#sendOtp").html("Register");
                         $('html, body').animate({scrollTop:0}, 500);
-                         var html = '<div class="alert alert-danger alert-dismissable"><strong><i class="fas fa-exclamation-triangle"></i>Oh Snap! </strong>'+data.responseJSON.message+' <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><br><ul>';
+                         var html = '<div class="alert alert-danger alert-dismissable"><strong><i class="fas fa-exclamation-triangle"></i>{{ __('message.oh_snap') }} </strong>'+data.responseJSON.message+' <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><br><ul>';
                         for (var key in data.responseJSON.errors)
                         {
                             html += '<li>' + data.responseJSON.errors[key][0] + '</li>'
@@ -899,7 +899,7 @@ $country = findCountryByGeoip($location['iso_code']);
         console.log(input.val());
         if(input.val() == null || input.val()==""){
             $('.loginrobot-verification').empty()
-            $('.loginrobot-verification').append("<p style='color:red'>Robot verification failed, please try again.</p>")
+            $('.loginrobot-verification').append("<p style='color:red'>{{ __('message.robot_verification') }}</p>")
             return false;
         }
         else{
@@ -914,7 +914,7 @@ $country = findCountryByGeoip($location['iso_code']);
             var firrstname_val = $('#first_name').val();
             if(firrstname_val.length == ''){
                 $('#first_namecheck').show();
-                $('#first_namecheck').html("Please Enter First Name");
+                $('#first_namecheck').html("{{ __('message.error_firstname') }}");
                 $('#first_namecheck').focus();
                 $('#first_name').css("border-color","red");
                 $('#first_namecheck').css("color","red");
@@ -928,7 +928,7 @@ $country = findCountryByGeoip($location['iso_code']);
 
             if(firrstname_val.length > 30){
                 $('#first_namecheck').show();
-                $('#first_namecheck').html("Max 30 characters allowed ");
+                $('#first_namecheck').html("{{ __('message.error_characters') }} ");
                 $('#first_namecheck').focus();
                 $('#first_name').css("border-color","red");
                 $('#first_namecheck').css("color","red");
@@ -943,7 +943,7 @@ $country = findCountryByGeoip($location['iso_code']);
             var pattern = new RegExp(/[^a-zA-Z0-9]/);
             if(pattern.test(firrstname_val)) {
                 $('#first_namecheck').show();
-                $('#first_namecheck').html("Special characters not allowed");
+                $('#first_namecheck').html("{{ __('message.error_special_characters') }}");
                 $('#first_namecheck').focus();
                 $('#first_name').css("border-color","red");
                 $('#first_namecheck').css("color","red");
@@ -965,7 +965,7 @@ $country = findCountryByGeoip($location['iso_code']);
             var lastname_val = $('#last_name').val();
             if(lastname_val.length == ''){
                 $('#last_namecheck').show();
-                $('#last_namecheck').html("Please Enter Last Name");
+                $('#last_namecheck').html("{{ __('message.error_lastname') }}");
                 $('#last_namecheck').focus();
                 $('#last_name').css("border-color","red");
                 $('#last_namecheck').css({"color":"red","margin-top":"5px"});
@@ -979,7 +979,7 @@ $country = findCountryByGeoip($location['iso_code']);
 
             if(lastname_val.length > 30 ){
                 $('#last_namecheck').show();
-                $('#last_namecheck').html("Maximum 30 characters allowed");
+                $('#last_namecheck').html("{{ __('message.max_characters_allowed') }}");
                 $('#last_namecheck').focus();
                 $('#last_name').css("border-color","red");
                 $('#last_namecheck').css({"color":"red","margin-top":"5px"});
@@ -995,7 +995,7 @@ $country = findCountryByGeoip($location['iso_code']);
             var pattern = new RegExp(/[^a-zA-Z0-9]/);
             if(pattern.test(lastname_val)){
                 $('#last_namecheck').show();
-                $('#last_namecheck').html("Special characters not allowed");
+                $('#last_namecheck').html("{{ __('message.error_special_characters') }}");
                 $('#last_namecheck').focus();
                 $('#last_name').css("border-color","red");
                 $('#last_namecheck').css({"color":"red","margin-top":"5px"});
@@ -1028,7 +1028,7 @@ $country = findCountryByGeoip($location['iso_code']);
         }
                if(email_val.length == ''){
                 $('#emailcheck').show();
-                $('#emailcheck').html("Please Enter an Email");
+                $('#emailcheck').html("{{ __('message.password_email') }}");
                 $('#emailcheck').focus();
                 $('#mail').css("border-color","red");
                 $('#emailcheck').css({"color":"red","margin-top":"5px"});
@@ -1041,7 +1041,7 @@ $country = findCountryByGeoip($location['iso_code']);
             }
         else{
             $('#emailcheck').show();
-            $('#emailcheck').html("Please Enter a valid  Email");
+            $('#emailcheck').html("{{ __('message.enter_a_email') }}");
             $('#emailcheck').focus();
             $('#mail').css("border-color","red");
             $('#emailcheck').css({"color":"red","margin-top":"5px"});
@@ -1062,7 +1062,7 @@ $country = findCountryByGeoip($location['iso_code']);
         var country_val = $('#country').val();
         if(country_val == ''){
             $('#countrycheck').show();
-            $('#countrycheck').html("Please Select One Country ");
+            $('#countrycheck').html("{{ __('message.error_country') }} ");
             $('#countrycheck').focus();
             $('#country').css("border-color","red");
             $('#countrycheck').css({"color":"red","margin-top":"5px"});
@@ -1082,7 +1082,7 @@ $country = findCountryByGeoip($location['iso_code']);
         var mobile_val = $('#phonenum').val();
         if(mobile_val.length == ''){
             $('#mobile_codecheck').show();
-            $('#mobile_codecheck').html("Please Enter Mobile No. ");
+            $('#mobile_codecheck').html("{{ __('message.enter_a_mobile_no') }} ");
             $('#mobile_codecheck').focus();
             $('#phonenum').css("border-color","red");
             $('#mobile_codecheck').css({"color":"red","margin-top":"5px"});
@@ -1107,7 +1107,7 @@ $country = findCountryByGeoip($location['iso_code']);
         var term_val = $('#term').val();
         if(term_val == 'false'){
             $('#termscheck').show();
-            $('#termscheck').html("Terms must be accepted");
+            $('#termscheck').html("{{ __('message.error_terms') }}");
             $('#termscheck').focus();
             $('#term').css("border-color","red");
             $('#termscheck').css({"color":"red","margin-top":"5px"});
@@ -1126,7 +1126,7 @@ $country = findCountryByGeoip($location['iso_code']);
         var captcha_val = $('#g-recaptcha-response-1').val();
         if(captcha_val == ''){
             $('#captchacheck').show();
-            $('#captchacheck').html("Robot Verification Failed, please try again");
+            $('#captchacheck').html("{{ __('message.robot_verification') }}");
             $('#captchacheck').focus();
             $('#captcha').css("border-color","red");
             $('#captchacheck').css({"color":"red","margin-top":"5px"});
@@ -1192,7 +1192,7 @@ $country = findCountryByGeoip($location['iso_code']);
             }
 
             $("#register").attr('disabled',true);
-            $("#register").html("<i class='fas fa-circle-o-notch fa-spin fa-1x fa-fw'></i>Please Wait...");
+            $("#register").html("<i class='fas fa-circle-o-notch fa-spin fa-1x fa-fw'></i>{{ __('message.please_wait') }}");
             $.ajax({
                 url: '{{url("auth/register")}}',
                 type: 'POST',
@@ -1216,12 +1216,12 @@ $country = findCountryByGeoip($location['iso_code']);
                     if(response.type == 'success'){
                         $('.wizard-inner').css('display','block');
                         if($("#checkEmailStatus").val() == 0 && $("#checkOtpStatus").val() == 0) {
-                            var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong><i class="far fa-thumbs-up"></i>Thank You! </strong>'+response.message+'!!</div>';
+                            var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong><i class="far fa-thumbs-up"></i>{{ __('message.thank_you') }} </strong>'+response.message+'!!</div>';
                             $('#alertMessage1').html(result);
                             window.scrollTo(0,0);
-                            $("#register").html("Submit");
+                            $("#register").html("{{ __('message.submit') }}");
                         } else {
-                            var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong><i class="far fa-thumbs-up"></i>Thank You! </strong>'+response.message+'!!</div>';
+                            var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong><i class="far fa-thumbs-up"></i>{{ __('message.thank_you') }} </strong>'+response.message+'!!</div>';
                             $('#successMessage1').html(result);
                             var $active = $('.wizard .nav-tabs li.active');
                             $active.next().removeClass('disabled');
@@ -1238,7 +1238,7 @@ $country = findCountryByGeoip($location['iso_code']);
                         var numberverify= verifyForm.elements['verify_number'].value = $('#phonenum').val().replace(/[\. ,:-]+/g, '');
                         sessionStorage.setItem('oldenumber',numberverify);
                         verifyForm.elements['email_password'].value = $('#password').val();
-                        $("#register").html("Register");
+                        $("#register").html("{{ __('message.register') }}");
                         /*setTimeout(function(){
                             $('#alertMessage1').hide();
                         }, 3000);*/
@@ -1251,11 +1251,11 @@ $country = findCountryByGeoip($location['iso_code']);
 
                     $("#register").attr('disabled',false);
                     // location.reload();
-                    $("#register").html("Register");
+                    $("#register").html("{{ __('message.register') }}");
                     $('html, body').animate({scrollTop:0}, 500);
 
                     // console.log(Jquery.parseJson(data));
-                    var html = '<div class="alert alert-danger alert-dismissable"><strong><i class="fas fa-exclamation-triangle"></i>Oh Snap! </strong>'+data.responseJSON.message+' <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><br><ul>';
+                    var html = '<div class="alert alert-danger alert-dismissable"><strong><i class="fas fa-exclamation-triangle"></i>{{ __('message.oh_snap') }} </strong>'+data.responseJSON.message+' <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><br><ul>';
                     for (var key in data.responseJSON.errors)
                     {
                         html += '<li>' + data.responseJSON.errors[key][0] + '</li>'
@@ -1287,7 +1287,7 @@ $country = findCountryByGeoip($location['iso_code']);
     $( document ).ready(function() {
         var printitem= localStorage.getItem('successmessage');
         if(printitem != null){
-            var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong><i class="far fa-thumbs-up"></i>Well Done! </strong>'+printitem+'!</div>';
+            var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong><i class="far fa-thumbs-up"></i>{{ __('message.well_done') }} </strong>'+printitem+'!</div>';
             $('#alertMessage2').html(result);
             localStorage.removeItem('successmessage');
             localStorage.clear();

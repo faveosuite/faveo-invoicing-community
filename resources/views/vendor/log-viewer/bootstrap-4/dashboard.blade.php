@@ -1,16 +1,16 @@
 @extends('log-viewer::_template.master')
 @section('title')
-Log-Viewer
+    {{ __('message.logs_viewer') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Log-Viewer</h1>
+        <h1>{{ __('message.logs_viewer') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item active">Error Logs</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.error_logs') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -19,10 +19,10 @@ Log-Viewer
 
   <div class="card card-secondary card-outline">
       <div class="card-header">
-          <h3 class="card-title">Log Viewer</h3>
+          <h3 class="card-title">{{ __('message.Log_viewer') }}</h3>
 
           <div class="card-tools">
-              <a href="{{url('log-viewer/logs')}}" class="btn btn-default btn-sm pull-right">&nbsp;Logs</a>
+              <a href="{{url('log-viewer/logs')}}" class="btn btn-default btn-sm pull-right">&nbsp;{{ __('message.logs') }}</a>
 
 
           </div>
@@ -43,7 +43,7 @@ Log-Viewer
                                 <div class="info-box-content">
                                     <span class="info-box-text">{{ $item['name'] }}</span>
                                     <span class="info-box-number">
-                                        {{ $item['count'] }} entries - {!! $item['percent'] !!} %
+                                        {{ $item['count'] }} {{ __('message.entries') }} - {!! $item['percent'] !!} %
                                     </span>
                                     <div class="progress">
                                         <div class="progress-bar" style="width: {{ $item['percent'] }}%"></div>

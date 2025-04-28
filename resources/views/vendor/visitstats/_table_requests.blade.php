@@ -20,7 +20,7 @@
                     @if ($visit->is_login_attempt)
                         <img class="visitortracker-icon"
                             src="{{ asset('/vendor/visitortracker/icons/login_attempt.png') }}"
-                            title="Login attempt">
+                            title="{{ __('message.login_attempt') }}">
                     @endif
                     {{ $visit->method }} 
                      

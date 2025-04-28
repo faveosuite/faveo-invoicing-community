@@ -1920,4 +1920,37 @@ return [
     'product_quantity' => 'Product Quantity',
     'table_search' => 'Search:',
 
+    //validation message
+    'enter_valid_otp' => 'Please Enter A Valid OTP',
+    'verifying' => 'Verifying',
+    'resending' => 'Resending',
+    'sending_voice_call' => 'Sending Voice Call..',
+    'enter_a_password' => 'Please Enter a Password',
+    'enter_a_email' => 'Please Enter a valid email',
+    'enter_a_mobile_no' => 'Please Enter Your Mobile No.',
+    'almost_there' => 'Almost there!',
+    'max_characters_allowed' => 'Maximum 30 characters allowed',
+    'thank_you' => 'Thank You!',
+    'view_sold_products' => 'View All Sold Products',
+    'place_new_order' => 'Place New Order',
+    'item' => 'Item',
+    'username_or_email' => 'Please enter your username or email address.',
+    'login_validation' => [
+        'firstname_required' => 'First name is required',
+        'firstname_regex' => 'Please enter a valid first name',
+        'lastname_required' => 'Last name is required',
+        'lastname_regex' => 'Please enter a valid last name',
+        'email_required' => 'Email is required',
+        'email_regex' => 'Enter a valid email address',
+        'company_required' => 'Company name is required',
+        'address_required' => 'Address is required',
+        'country_required' => 'Please select a country',
+        'mobile_required' => 'Mobile number is required',
+        'password_required' => 'Password is required',
+        'confirm_password_required' => 'Confirm password is required',
+        'confirm_password_equalto' => 'Passwords do not match',
+        'terms_conditions_required' => 'You must agree to the terms and conditions',
+
+    ],
+
 ];

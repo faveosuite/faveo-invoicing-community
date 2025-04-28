@@ -41,8 +41,13 @@ class SocialMediaRequest extends FormRequest
 
     public function messages()
     {
-        return[
-            'link.regex' => Lang::get('message.social_details.link'),
+        return [
+            'name.required' => __('validation.social_media_form.name.required'),
+            'name.unique' => __('validation.social_media_form.name.unique'),
+            'name.max' => __('validation.social_media_form.name.max'),
+            'link.required' => __('validation.social_media_form.link.required'),
+            'link.url' => __('validation.social_media_form.link.url'),
+            'link.regex' => __('validation.social_media_form.link.regex'),
         ];
     }
 }

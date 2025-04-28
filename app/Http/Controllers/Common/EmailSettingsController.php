@@ -46,7 +46,7 @@ class EmailSettingsController extends Controller
             $this->emailConfig->sending_status = 1;
             $this->emailConfig->save();
 
-            return successResponse('Email Settings saved successfully');
+            return successResponse( __('message.email_settings_saved'));
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
@@ -110,8 +110,8 @@ class EmailSettingsController extends Controller
         if (function_exists('mail')) {
             return true;
         }
-        $this->error = 'PHP Mail function is disabled on your server';
-
+        $this->error = __('message.php_mail_disabled');
+        
         return false;
     }
 

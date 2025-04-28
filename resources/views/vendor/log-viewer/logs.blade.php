@@ -1,6 +1,6 @@
 @extends('log-viewer::_template.master')
 @section('title')
-Log-Viewer
+    {{ __('message.logs_viewer') }}
 @stop
 @section('content-header')
 <h1>
@@ -104,7 +104,7 @@ Log-Viewer
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-sm btn-default pull-left" data-dismiss="modal">{{ __('message.cancel') }}</button>
-                        <button type="submit" class="btn btn-sm btn-danger" data-loading-text="Loading&hellip;">{{ __('message.caps_delete_file') }}</button>
+                        <button type="submit" class="btn btn-sm btn-danger" data-loading-text="{{ __('message.loading') }}&hellip;">{{ __('message.caps_delete_file') }}</button>
                     </div>
                 </div>
             </form>
@@ -124,7 +124,7 @@ Log-Viewer
                 var date = $(this).data('log-date');
                 deleteLogForm.find('input[name=date]').val(date);
                 deleteLogModal.find('.modal-body p').html(
-                    'Are you sure you want to <span class="label label-danger">DELETE</span> this log file <span class="label label-primary">' + date + '</span> ?'
+                    '{{ __('message.are_you_want') }} <span class="label label-danger">{{ __('message.caps_delete') }}</span>{{ __('message.this_log_file') }} <span class="label label-primary">' + date + '</span> ?'
                 );
 
                 deleteLogModal.modal('show');
@@ -146,12 +146,12 @@ Log-Viewer
                             location.reload();
                         }
                         else {
-                            alert('AJAX ERROR ! Check the console !');
+                            alert('{{ __('message.ajax_error_console') }}');
                             console.error(data);
                         }
                     },
                     error: function(xhr, textStatus, errorThrown) {
-                        alert('AJAX ERROR ! Check the console !');
+                        alert('{{ __('message.ajax_error_console') }}');
                         console.error(errorThrown);
                         submitBtn.button('reset');
                     }

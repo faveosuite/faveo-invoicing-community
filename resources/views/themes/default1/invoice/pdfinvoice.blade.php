@@ -118,7 +118,7 @@
                                                             @forelse($taxes as $tax)
                                                             <li>{{$tax}}</li>
                                                             @empty 
-                                                            <li>No Tax</li>
+                                                            <li>{{ __('message.no_tax') }}</li>
                                                             @endif
                                                         </ul>
                                                     </td>
@@ -135,7 +135,7 @@
                                                     <td>{{$item->subtotal}}</td>
                                                 </tr>
                                                 @empty 
-                                                <tr><td>Null</td></tr>
+                                                <tr><td>{{ __('message.null') }}</td></tr>
                                                 @endforelse
 
                                             </table>

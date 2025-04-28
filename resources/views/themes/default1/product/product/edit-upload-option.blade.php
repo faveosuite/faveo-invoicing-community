@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Edit Product Uploads
+    {{ __('message.edit_product_uploads') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
@@ -81,7 +81,7 @@ Edit Product Uploads
                       <i class='fa fa-info-circle' style='cursor: help; font-size: small; color: rgb(60, 141, 188);' <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title="{{ __('message.pre_release_private') }}">
                         </label></i>
                                     
-                    {!! Form::label('release_type','Releases') !!}
+                    {!! Form::label('release_type', __('message.releases')) !!}
                     {!! Form::select('release_type', ['official' => 'Official', 'pre_release' => 'Pre Release', 'beta' => 'Beta'], $model->release_type) !!}
                      </div>
 
@@ -89,7 +89,7 @@ Edit Product Uploads
                      <i class="fa fa-info-circle" style="cursor: help; font-size: small; color: rgb(60, 141, 188);" <label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="{{ __('message.update_restricted') }}">
                         </label></i>
 
-                    {!! Form::label('is_restricted','Restrict update') !!}
+                    {!! Form::label('is_restricted', __('message.restrict_update')) !!}
                     {!! Form::checkbox('is_restricted',1) !!}
                      </div>
 

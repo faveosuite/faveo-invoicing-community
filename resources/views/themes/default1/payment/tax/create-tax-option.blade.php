@@ -46,7 +46,7 @@
                  <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                     <!-- name -->
                     
-                    {!! Form::label('tax-name',Lang::get('Tax Name'),['class'=>'required']) !!}
+                    {!! Form::label('tax-name',Lang::get('message.tax_name'),['class'=>'required']) !!}
                     {!! Form::text('tax-name',null,['class' => 'form-control'. ($errors->has('tax-name') ? ' is-invalid' : ''),'id'=>'taxname']) !!}
                      @error('tax-name')
                      <span class="error-message"> {{$message}}</span>
@@ -81,7 +81,7 @@
                     <!-- name -->
                     {!! Form::label('country',Lang::get('message.country')) !!}
                     <br>
-                      {!! Form::select('country',[''=>'All Countries','Choose'=>$countries],null,['class' => 'form-control select2'. ($errors->has('country') ? ' is-invalid' : ''),'style'=>'width:460px','onChange'=>'getState(this.value);','id'=>'countryvisible']) !!}
+                      {!! Form::select('country',[''=> __('message.all_countries'),'Choose'=>$countries],null,['class' => 'form-control select2'. ($errors->has('country') ? ' is-invalid' : ''),'style'=>'width:460px','onChange'=>'getState(this.value);','id'=>'countryvisible']) !!}
                       @error('country')
                       <span class="error-message"> {{$message}}</span>
                       @enderror

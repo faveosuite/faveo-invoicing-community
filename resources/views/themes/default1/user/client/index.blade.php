@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Users
+    {{ __('message.users') }}
 @stop
 
 
@@ -83,7 +83,6 @@ Users
             position: relative;
             z-index: 1;
         }
-
      </style>
 @stop
     
@@ -119,7 +118,7 @@ Users
                         ?>
                         <div class="col-md-3 form-group">
                             <!-- first name -->
-                            {!! Form::label('country','Country') !!}<br>
+                            {!! Form::label('country', __('message.country')) !!}<br>
                             <select style="width:100%;" name="country" value= "Choose" id="country"  class="form-control select2" data-live-search="true" data-live-search-placeholder="{{ __('message.search') }}" data-dropup-auto="false" data-size="10">
                                 <option value="" style="">{{ __('message.choose') }}</option>
                                 @foreach($countries as $key=> $country)
@@ -134,7 +133,7 @@ Users
 
                         <div class="col-md-3 form-group">
                             <!-- first name -->
-                        {!! Form::label('industry','Industries') !!}<br>
+                        {!! Form::label('industry', __('message.industries')) !!}<br>
 
                         <?php $old = ['agriculture_forestry'=>'Agriculture Forestry','safety_security_legal'=>'Safety Security Legal','business_information'=>'Business Information','finance_insurance'=>'Finance Insurance','gaming'=>'Gaming','real_estate_housing'=>'Real Estate Housing','health_services'=>'Health Services','education'=>'Education','food_hospitality'=>'Food Hospitality','personal_services'=>'Personal Services','transportation'=>'Transportation','construction_utilities_contracting'=>'Construction Utilities Contracting','motor_vehicle'=>'Motor Vehicle','animals_pets'=>'Animals & Pets','art_design'=>'Art & Design','auto_transport'=>'Auto & Transport','food_beverage'=>'Food & Beverage','beauty_fashion'=>'Beauty & Fashion','education_childcare'=>'Education & Childcare','environment_green_tech'=>'Environment & Green Tech','events_weddings'=>'Events & Weddings','finance_legal_consulting'=>'Finance, Legal & Consulting','government_municipal'=>'Government & Municipal','home_garden'=>'Home & Garden','internet_technology'=>'Internet & Technology','local_service_providers'=>'Local Service Providers','manufacturing_wholesale'=>'Manufacturing & Wholesale','marketing_advertising'=>'Marketing & Advertising','media_communication'=>'Media & Communication','medical_dental'=>'Medical & Dental','music_bands'=>'Music & Bands','non_profit_charity'=>'Non-Profit & Charity','real_estate'=>'Real Estate','religion'=>'Religion','retail_e-Commerce'=>'Retail & E-Commerce','sports_recreation'=>'Sports & Recreation','travel_hospitality'=>'Travel & Hospitality','other'=>'Other',];
                         $bussinesses =DB::table('bussinesses')->pluck('name','short')->toarray();
@@ -146,7 +145,7 @@ Users
                         ?>
                         <!-- {!! Form::select('industry',['Choose',''=>DB::table('bussinesses')->pluck('name','short')->toarray(),'old'=>$old],null,['class' => 'form-control','data-live-search'=>'true','data-live-search-placeholder'=>'Search','data-dropup-auto'=>'false','data-size'=>'10','id'=>'industry']) !!} -->
 
-                            <select name="industry"  style="width:100%;" class="form-control select2" data-live-search="true",data-live-search-placeholder="Search" data-dropup-auto="false"  data-size="10" id="industry">
+                            <select name="industry"  style="width:100%;" class="form-control select2" data-live-search="true" data-live-search-placeholder="Search" data-dropup-auto="false"  data-size="10" id="industry">
                                 <option value="">{{ __('message.choose') }}</option>
                                 @foreach($bussinesses as $key=>$bussines)
                                     @if($key == $request->industry)
@@ -161,14 +160,14 @@ Users
 
                         <div class="col-md-3 form-group">
                             <!-- first name -->
-                            {!! Form::label('Role','Role') !!}
-                            {!! Form::select('role',[null => 'Choose']+ ['admin'=>'Admin', 'user'=>'user'], $request->role, ['class' => 'form-control','id'=>'role']) !!}
+                            {!! Form::label('Role',__('message.role')) !!}
+                            {!! Form::select('role',[null => __('message.choose')]+ ['admin'=>'Admin', 'user'=>'User'], $request->role, ['class' => 'form-control','id'=>'role']) !!}
                         </div>
 
                         <div class="col-md-3 form-group">
                             <!-- first name -->
                             {!! Form::label('Position', __('message.position')) !!}
-                            {!! Form::select('position',[null => 'Choose']+ ['manager'=>'Sales Manager', 'account_manager'=>'Account Manager'], $request->position, ['class' => 'form-control','id'=>'position']) !!}
+                            {!! Form::select('position',[null => __('message.choose')]+ ['manager'=>'Sales Manager', 'account_manager'=>'Account Manager'], $request->position, ['class' => 'form-control','id'=>'position']) !!}
                         </div>
 
                         <div class="col-md-3 form-group">
@@ -216,7 +215,7 @@ Users
 
                         <div class="col-md-3 form-group">
                             <!-- first name -->
-                            {!! Form::label('from','Users for Sales Manager') !!}
+                            {!! Form::label('from', __('message.user_for_sales_manager')) !!}
                             <select name="salesmanager"  class="form-control selectpicker" data-live-search="true",data-live-search-placeholder="{{ __('message.search') }}" data-dropup-auto="false"  data-size="10" id="salesmanager" >
                                 <option value="">{{ __('message.choose') }}</option>
                                 @foreach($salesManagers as $key=>$sales)
@@ -232,25 +231,25 @@ Users
                          <div class="col-md-3 form-group">
                             <!-- first name -->
                              {!! Form::label('Mobile Status', __('message.mobile_status')) !!}
-                            {!! Form::select('mobile_verified',[null => 'Choose']+ ['1'=>'Active', '0'=>'Inactive'], $request->mobile_verified, ['class' => 'form-control','id'=>'mobile_verified']) !!}
+                            {!! Form::select('mobile_verified',[null =>  __('message.choose')]+ ['1'=>'Active', '0'=>'Inactive'], $request->mobile_verified, ['class' => 'form-control','id'=>'mobile_verified']) !!}
                         </div> 
 
                          <div class="col-md-3 form-group">
                             <!-- first name -->
                              {!! Form::label('Email Status', __('message.email_status')) !!}
-                            {!! Form::select('active',[null => 'Choose']+ ['1'=>'Active', '0'=>'Inactive'], $request->active, ['class' => 'form-control','id'=>'active']) !!}
+                            {!! Form::select('active',[null => __('message.choose')]+ ['1'=>'Active', '0'=>'Inactive'], $request->active, ['class' => 'form-control','id'=>'active']) !!}
                         </div> 
                          <div class="col-md-3 form-group">
                             <!-- first name -->
                              {!! Form::label('2faStatus', __('message.2fa_status')) !!}
-                            {!! Form::select('is_2fa_enabled',[null => 'Choose']+ ['1'=>'Enabled', '0'=>'Disabled'], $request->is_2fa_enabled, ['class' => 'form-control','id'=>'is_2fa_enabled']) !!}
+                            {!! Form::select('is_2fa_enabled',[null => __('message.choose')]+ ['1'=>'Enabled', '0'=>'Disabled'], $request->is_2fa_enabled, ['class' => 'form-control','id'=>'is_2fa_enabled']) !!}
                         </div>   
                         </div>
                 <!-- /.card-body -->
                     <button name="Search" type="submit" id="search"  class="btn btn-secondary"><i class="fa fa-search"></i>&nbsp;{!!Lang::get('message.search')!!}</button>
                     &nbsp;
                     <!-- <a href="{!! url('clients') !!}" id="reset" class="btn btn-secondary"><i class="fas fa-sync-alt"></i>&nbsp;{!!Lang::get('message.reset')!!}</a> -->
-                    {!! Form::submit('Reset',['class'=>'btn btn-secondary','id'=>'reset']) !!}
+                    {!! Form::submit( __('message.reset'),['class'=>'btn btn-secondary','id'=>'reset']) !!}
 
             </div>
             <!-- /.card -->
@@ -377,9 +376,25 @@ $(document).ready(function() {
         },
         "oLanguage": {
             "sLengthMenu": "_MENU_ Records per page",
-             "sSearch": "<span style='position: relative;right: 180px;'>{{ __('message.search') }}:</span> ",
+            "sSearch": "<span style='position: relative;right: 180px;'>{{ __('message.search') }}:</span> ",
             "sProcessing": ' <div class="overlay dataTables_processing"><i class="fas fa-3x fa-sync-alt fa-spin" style=" margin-top: -25px;"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
         },
+        language: {
+            paginate: {
+                first:      "{{ __('message.paginate_first') }}",
+                last:       "{{ __('message.paginate_last') }}",
+                next:       "{{ __('message.paginate_next') }}",
+                previous:   "{{ __('message.paginate_previous') }}"
+            },
+            emptyTable:     "{{ __('message.empty_table') }}",
+            info:           "{{ __('message.datatable_info') }}",
+            zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
+            infoEmpty:      "{{ __('message.info_empty') }}",
+            infoFiltered:   "{{ __('message.info_filtered') }}",
+            lengthMenu:     "{{ __('message.sLengthMenu') }}",
+            loadingRecords: "{{ __('message.loading_records') }}",
+        },
+
         columnDefs: [
             {
                 targets: 'no-sort',
@@ -531,8 +546,8 @@ $(document).ready(function() {
                 var result = '<div class="alert alert-danger">' +
                     '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
                     '<span aria-hidden="true">&times;</span></button>' +
-                    '<strong><i class="far fa-thumbs-down"></i> Oops! </strong>' +
-                    'Export failed: ' + xhr.responseJSON.message + '</div>';
+                    '<strong><i class="far fa-thumbs-down"></i> {{ __('message.error_oops') }} </strong>' +
+                    '{{ __('message.export_failed') }}: ' + xhr.responseJSON.message + '</div>';
 
                 $('#export-message').html(result).removeClass('text-success').addClass('text-danger');
                 setTimeout(function() {

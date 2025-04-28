@@ -50,7 +50,7 @@ use Illuminate\Support\Facades\Artisan;
                         @csrf
                         <div class="float-end installer-login-btn">
                             <button type="submit" name="flush" value="true" class="btn btn-primary mt-4">
-                                {{ trans('installer_messages.login_button') }} &nbsp;<i class="{{ app()->getLocale() === 'ar' ? 'fas fa-arrow-left' : 'fas fa-arrow-right' }}"></i>
+                                {{ trans('installer_messages.login_button') }} &nbsp;<i class="{{ in_array(app()->getLocale(), ['ar', 'he']) ? 'fas fa-arrow-left' : 'fas fa-arrow-right' }}"></i>
                             </button>
                         </div>
                     </form>

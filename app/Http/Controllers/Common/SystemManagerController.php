@@ -71,15 +71,15 @@ class SystemManagerController extends Controller
             'existingAccManager' => 'required',
             'newAccManager' => 'required',
         ], [
-            'existingAccManager.required' => 'Select system Account Manager',
-            'newAccManager.required' => 'Select new Account Manager',
+            'existingAccManager.required' => __('message.existingAccManager_required'),
+            'newAccManager.required' => __('message.newAccManager_required'),
         ]);
 
         try {
             $existingAccManager = $request->input('existingAccManager');
             $newAccountManager = $request->input('newAccManager')[0];
             if ($existingAccManager == $newAccountManager) {
-                return ['message' => 'fails', 'update' => 'Existing and the new account manager cannot be same'];
+                return ['message' => 'fails', 'update' => __('message.same_account_manager_error'),];
             }
             //First make the selected Admin as account Manager-
             User::where('id', $newAccountManager)->update(['position' => 'account_manager']);
@@ -117,16 +117,15 @@ class SystemManagerController extends Controller
             'existingSaleManager' => 'required',
             'newSaleManager' => 'required',
         ], [
-            'existingSaleManager.required' => 'Select system Sales Manager',
-            'newSaleManager.required' => 'Select new Sales Manager',
+            'existingSaleManager.required' =>  __('message.select_system_sales_manager'),
+            'newSaleManager.required' =>  __('message.select_new_sales_manager'),
         ]);
 
         try {
             $existingSaleManager = $request->input('existingSaleManager');
             $newSalesManager = $request->input('newSaleManager')[0];
             if ($existingSaleManager == $newSalesManager) {
-                return ['message' => 'fails', 'update' => 'Existing and the new sales manager cannot be same'];
-            }
+                return ['message' => 'fails', 'update' => __('message.sales_manager_must_be_different')];            }
             //First make the selected Admin as sales Manager-
             User::where('id', $newSalesManager)->update(['position' => 'manager']);
 

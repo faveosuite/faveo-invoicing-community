@@ -72,7 +72,7 @@
 
                                             <div class="row">
                                                 <div class="form-group col">
-                                                    <label class="form-label">Plans <span class="text-danger"> *</span></label>
+                                                    <label class="form-label">{{ __('message.plans') }} <span class="text-danger"> *</span></label>
                                                     <div class="custom-select-1">
                                                             @if($agents == 'Unlimited')
                                                                 {!! Form::select('plan',['' => 'Select'] + $plans, null, ['class' => 'form-control plan-dropdown', 'onchange' => 'fetchPlanCost(this.value)',]) !!}

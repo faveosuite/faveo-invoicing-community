@@ -104,7 +104,7 @@ class AdminOrderInvoiceController extends Controller
                             $check = $cont->checkExecution($model->id);
                             if ($check == false) {
                                 $action = '<p><form id="execute-form" method="post" action='.url('order/execute?invoiceid='.$model->id).'>'.'<input type="hidden" name="_token" value='.\Session::token().'>'.'
-                                <button type="submit" style="margin-top:-10px;" class="btn btn-sm btn-secondary btn-xs"'.tooltip('Execute Order').'<i class="fa fa-tasks" style="color:white;"></i></button></form></p>';
+                                <button type="submit" style="margin-top:-10px;" class="btn btn-sm btn-secondary btn-xs"'.tooltip( __('message.execute_order')).'<i class="fa fa-tasks" style="color:white;"></i></button></form></p>';
 
                                 $action .= '<script>
                                         $("#execute-form").submit(function(event) {
@@ -113,12 +113,12 @@ class AdminOrderInvoiceController extends Controller
                                       </script>';
                             }
                             $editAction = '<a href='.url('invoices/edit/'.$model->id)
-                                ." class='btn btn-sm btn-secondary btn-xs'".tooltip('Edit')."
+                                ." class='btn btn-sm btn-secondary btn-xs'".tooltip( __('message.edit'))."
                                 <i class='fa fa-edit' style='color:white;'>
                                  </i></a>";
 
                             return '<a href='.url('invoices/show?invoiceid='.$model->id)
-                            ." class='btn btn-sm btn-secondary btn-xs' ".tooltip('View')."<i class='fa fa-eye' 
+                            ." class='btn btn-sm btn-secondary btn-xs' ".tooltip( __('message.view'))."<i class='fa fa-eye' 
                             style='color:white;'></i></a>"
                                     ."   $editAction $action";
                         })
@@ -179,7 +179,7 @@ class AdminOrderInvoiceController extends Controller
                             if ($model->order_status == 'Terminated') {
                                 $badge = 'badge';
 
-                                $orderLink = '<a href='.url('my-order/'.$model->id).'>'.$model->number.'</a>'.'&nbsp;<span class="'.$badge.' '.$badge.'-danger"  <label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="Order has been Terminated">
+                                $orderLink = '<a href='.url('my-order/'.$model->id).'>'.$model->number.'</a>'.'&nbsp;<span class="'.$badge.' '.$badge.'-danger"  <label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="'.__('message.order_has_been_terminated').'">
 
                          </label>
             Terminated</span>';
@@ -209,7 +209,7 @@ class AdminOrderInvoiceController extends Controller
                          })
                         ->addColumn('action', function ($model) {
                             return '<a href='.url('orders/'.$model->id)." 
-                            class='btn btn-sm btn-secondary btn-xs'".tooltip('View')."<i class='fa fa-eye' 
+                            class='btn btn-sm btn-secondary btn-xs'".tooltip( __('message.view'))."<i class='fa fa-eye' 
                             style='color:white;'> </i></a>";
                         })
                         ->rawColumns(['checkbox', 'date', 'product', 'number', 'version', 'expiry', 'status', 'action'])
@@ -267,10 +267,10 @@ class AdminOrderInvoiceController extends Controller
                          ->addColumn('action', function ($model) {
                              if ($model->invoice_id == 0) {
                                  if ($model->payment_method == 'Credit Balance') {
-                                     return '<a href='.url('payments/'.$model->id.'/edit/')." class='btn btn-sm btn-secondary btn-xs' ".tooltip('Edit')." <i class='fa fa-edit' style='color:white;'> </i></a>   ".$this->creditActivityPopup($model->id);
+                                     return '<a href='.url('payments/'.$model->id.'/edit/')." class='btn btn-sm btn-secondary btn-xs' ".tooltip( __('message.edit'))." <i class='fa fa-edit' style='color:white;'> </i></a>   ".$this->creditActivityPopup($model->id);
                                  }
 
-                                 return '<a href='.url('payments/'.$model->id.'/edit/')." class='btn btn-sm btn-secondary btn-xs' ".tooltip('Edit')." <i class='fa fa-edit' style='color:white;'> </i></a>";
+                                 return '<a href='.url('payments/'.$model->id.'/edit/')." class='btn btn-sm btn-secondary btn-xs' ".tooltip( __('message.edit'))." <i class='fa fa-edit' style='color:white;'> </i></a>";
                              } else {
                                  return '--';
                              }

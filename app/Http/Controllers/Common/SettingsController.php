@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Common;
 use App\ApiKey;
 use App\Email_log;
 use App\Facades\Attach;
+use App\Http\Controllers\BillingInstaller\InstallerController;
 use App\Http\Requests\Common\SettingsRequest;
 use App\Model\Common\Mailchimp\MailchimpSetting;
 use App\Model\Common\Setting;
@@ -180,10 +181,13 @@ class SettingsController extends BaseSettingsController
             $selectedCurrency = \DB::table('currencies')->where('code', $set->default_currency)
                 ->pluck('name', 'symbol')->toArray();
             $states = findStateByRegionId($set->country);
+            $response = (new InstallerController())->languageList();
+            $languages = $response->getData()->data ?? [];
+            $defaultLang = optional(Setting::first())->content;
 
             return view(
                 'themes.default1.common.setting.system',
-                compact('set', 'selectedCountry', 'state', 'states', 'selectedCurrency')
+                compact('set', 'selectedCountry', 'state', 'states', 'selectedCurrency','languages','defaultLang')
             );
         } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
@@ -247,7 +251,7 @@ class SettingsController extends BaseSettingsController
                     $todo->fav_icon = null;
                 }
                 $todo->save();
-                $response = ['type' => 'success', 'message' => 'Logo Deleted successfully'];
+                $response = ['type' => 'success', 'message' => __('message.logo_deleted_successfully')];
 
                 return response()->json($response);
             }
@@ -319,7 +323,7 @@ class SettingsController extends BaseSettingsController
             $request->delFrom = '';
             $request->delTill = '';
 
-            return redirect('settings/activitylog')->with('fails', 'Start date should be before end date');
+            return redirect('settings/activitylog')->with('fails', __('message.start_date_before_end_date'));
         }
         try {
             $activity = $activities->all();
@@ -658,7 +662,7 @@ class SettingsController extends BaseSettingsController
                     if ($model->status === 'failed') {
                         $exceptionMessage = $model->exception;
 
-                        return '<a href="#" class="show-exception" data-message="'.$exceptionMessage.'">Failed</a>';
+                        return '<a href="#" class="show-exception" data-message="'.$exceptionMessage.'">'.__('message.failed').'</a>';
                     }
 
                     return ucfirst($model->status);

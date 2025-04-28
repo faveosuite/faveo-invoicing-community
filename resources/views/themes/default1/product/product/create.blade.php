@@ -328,7 +328,7 @@
                                     {!! Form::radio('show_agent',0,false,['id'=>'quantity']) !!}
                                     <!-- <input type="radio" id="quantity" value="0" name="cartquantity"> -->
                                     {!! Form::hidden('can_modify_quantity',0) !!}
-                                    {{ __('message.product_qua') }}
+                                    {{ __('message.product_quantity') }}
                                 </label>
                                 <br/>
                                 <div class="col-md-10" id="allowmulproduct" style="display:none">
@@ -458,10 +458,12 @@
 
                     if(isValid && !document.querySelector('input[name="show_agent"]:checked')){
                         Swal.fire({
-                            title: 'Incomplete Tax Details',
-                            text: 'Mandatory fields missing in Tax screen.',
+                            title: '{{ __('message.incomplete_tax_details') }}',
+                            text: '{{ __('message.mandatory_fields_missing') }}',
                             icon: 'info',
-                            confirmButtonColor: '#286090'
+                            confirmButtonColor: '#286090',
+                            confirmButtonText: '{{ __('message.ok') }}',
+                            cancelButtonText: '{{ __('message.cancel') }}',
                         });
                         //alert('Please check the tax page as well.')
 

@@ -14,8 +14,8 @@ class ValidateSecretRequest extends Request
     public function messages()
     {
         return[
-            'totp.required' => 'Please enter code',
-            'totp.digits' => 'Please enter the valid 6 digit code',
+            'totp.required' => __('validation.validate_secret.totp.required'),
+            'totp.digits' => __('validation.validate_secret.totp.digits'),
         ];
     }
 }

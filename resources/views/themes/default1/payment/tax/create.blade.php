@@ -52,7 +52,7 @@
                     <!-- name -->
                     {!! Form::label('country',Lang::get('message.country')) !!}
                     <?php $countries = \App\Model\Common\Country::pluck('country_name', 'country_code_char2')->toArray(); ?>
-                    {!! Form::select('country',[''=>'Select a Country','Countries'=>$countries],null,['class' => 'form-control'. ($errors->has('country') ? ' is-invalid' : ''),'onChange'=>'getState(this.value);']) !!}
+                    {!! Form::select('country',[''=> __('message.select_a_country'),'Countries'=>$countries],null,['class' => 'form-control'. ($errors->has('country') ? ' is-invalid' : ''),'onChange'=>'getState(this.value);']) !!}
 
                 </div>
                  <div class="form-group {{ $errors->has('state') ? 'has-error' : '' }}">

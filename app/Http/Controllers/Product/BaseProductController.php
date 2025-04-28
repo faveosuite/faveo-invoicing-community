@@ -131,7 +131,7 @@ class BaseProductController extends ExtendedBaseProductController
                         \Lang::get('message.subscription').'</label>
                        '.\Form::select(
                             'plan',
-                            ['' => 'Select', 'Plans' => $plans],
+                            ['' => __('message.select'), 'Plans' => $plans],
                             null,
                             ['class' => 'form-control required', 'id' => 'plan', 'onchange' => 'getPrice(this.value)']
                         ).'<div class="error-message" id="subscription-msg"></div>
@@ -156,7 +156,7 @@ class BaseProductController extends ExtendedBaseProductController
         try {
             if (\Auth::user()->role != 'admin') {
                 if (\Auth::user()->id != $userid) {
-                    throw new \Exception('This user has no permission for this action');
+                    throw new \Exception( __('message.no_permission_for_action'));
                 }
             }
             $user = new \App\User();
@@ -462,6 +462,6 @@ class BaseProductController extends ExtendedBaseProductController
             'product_id' => $product[0]['product_id'],
         ];
 
-        return successResponse('Product details retrieved successfully', $data);
+        return successResponse( __('message.product_retrieved_successfully'), $data);
     }
 }

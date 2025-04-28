@@ -30,6 +30,13 @@ class SocialLoginsController extends Controller
             'api_key' => 'required_if:type,Twitter',
             'api_secret' => 'required_if:type,Twitter',
             'redirect_url' => 'required',
+            ],
+            [
+                'client_id.required_if'     => __('validation.social_login.client_id_required'),
+                'client_secret.required_if' => __('validation.social_login.client_secret_required'),
+                'api_key.required_if'       => __('validation.social_login.api_key_required'),
+                'api_secret.required_if'    => __('validation.social_login.api_secret_required'),
+                'redirect_url.required'     => __('validation.social_login.redirect_url_required'),
         ]);
 
         try {
@@ -40,9 +47,9 @@ class SocialLoginsController extends Controller
                 'status' => $request->optradio,
             ]);
 
-            Session::flash('success', 'Social login settings updated successfully');
+            Session::flash('success', __('message.social_login_settings_updated'));
         } catch (\Exception $e) {
-            Session::flash('error', 'An error occurred while updating social login settings');
+            Session::flash('error', __('message.error_occurred_social_login'));
         }
 
         return redirect()->back();

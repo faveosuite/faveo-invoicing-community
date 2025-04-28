@@ -1,12 +1,12 @@
 @extends('themes.default1.layouts.front.master')
 @section('title')
-Email/Mobile Verification | Faveo Helpdesk
+    {{ __('message.email_mobile_faveo') }}
 @stop
 @section('page-heading')
-Email/Mobile Verification
+    {{ __('message.email_mobile') }}
 @stop
 @section('page-header')
-Reset Password
+    {{ __('message.reset_password') }}
 @stop
 @section('breadcrumb')
 <li><a href="{{url('home')}}">{{ __('message.home') }}</a></li>

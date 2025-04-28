@@ -83,7 +83,7 @@ $currentLang = $fetchLang['currentLang'];
         ['file' => './admin/css-1/probe.css', 'id' => 'default-styles-1'],
     ];
 
-    $selected_files = ($currentLang == 'ar') ? array_merge($css_files, $rtl) : array_merge($css_files, $ltr);
+    $selected_files = (in_array($currentLang, ['ar', 'he'])) ? array_merge($css_files, $rtl) : array_merge($css_files, $ltr);
 
     // Output styles
     foreach ($selected_files as $css) {
@@ -116,7 +116,7 @@ $currentLang = $fetchLang['currentLang'];
     </style>
 </head>
 
-<body class="layout-top-nav text-sm layout-navbar-fixed layout-footer-fixed" dir="<?= $currentLang === 'ar' ? 'rtl' : 'ltr' ?>">
+<body class="layout-top-nav text-sm layout-navbar-fixed layout-footer-fixed" dir="<?= in_array($currentLang, ['ar', 'he']) ? 'rtl' : 'ltr' ?>">
 
 <div class="wrapper">
 
@@ -150,7 +150,12 @@ $currentLang = $fetchLang['currentLang'];
                             'ru' => 'ru',
                             'vi' => 'vn',
                             'zh-hans' => 'cn',
-                            'zh-hant' => 'cn'
+                            'zh-hant' => 'cn',
+                            'ja' => 'jp',
+                            'ta' => 'in',
+                            'hi' => 'in',
+                            'he' => 'il',
+                            'tr' => 'tr',
                         ];
 
                         $currentLanguage = $currentLang;
@@ -512,7 +517,7 @@ $currentLang = $fetchLang['currentLang'];
             type: 'GET',
             dataType: 'JSON',
             success: function(response) {
-                const localeMap = { 'ar': 'ae', 'bsn': 'bs', 'de': 'de', 'en': 'us', 'en-gb': 'gb', 'es': 'es', 'fr': 'fr', 'id': 'id', 'it': 'it', 'kr': 'kr', 'mt': 'mt', 'nl': 'nl', 'no': 'no', 'pt': 'pt', 'ru': 'ru', 'vi': 'vn', 'zh-hans': 'cn', 'zh-hant': 'cn' };
+                const localeMap = { 'ar': 'ae', 'bsn': 'bs', 'de': 'de', 'en': 'us', 'en-gb': 'gb', 'es': 'es', 'fr': 'fr', 'id': 'id', 'it': 'it', 'kr': 'kr', 'mt': 'mt', 'nl': 'nl', 'no': 'no', 'pt': 'pt', 'ru': 'ru', 'vi': 'vn', 'zh-hans': 'cn', 'zh-hant': 'cn', 'ja': 'jp', 'ta': 'in', 'hi': 'in', 'he': 'il', 'tr': 'tr' };
                 $.each(response.data, function(key, value) {
                     const mappedLocale = localeMap[value.locale] || value.locale;
                     const isSelected = value.locale === '{{ app()->getLocale() }}' ? 'selected' : '';
@@ -528,7 +533,7 @@ $currentLang = $fetchLang['currentLang'];
                     const selectedLanguage = $(this).data('locale');
                     const mappedLocale = localeMap[selectedLanguage] || selectedLanguage;
                     const flagClass = 'flag-icon flag-icon-' + mappedLocale;
-                    const dir = selectedLanguage === 'ar' ? 'rtl' : 'ltr';
+                    const dir = (selectedLanguage === 'ar' || selectedLanguage === 'he') ? 'rtl' : 'ltr';
 
                     updateLanguage(selectedLanguage, flagClass, dir);
                 });
@@ -539,7 +544,7 @@ $currentLang = $fetchLang['currentLang'];
         });
 
         const currentLanguage = '<?php echo $currentLang; ?>';
-        if (currentLanguage === 'ar') {
+        if (currentLanguage === 'ar' || currentLanguage === 'he') {
                     const arrowElements = document.getElementsByClassName('fas fa-arrow-right');
                     for (let i = 0; i < arrowElements.length; i++) {
                         arrowElements[i].className = 'fas fa-arrow-left';

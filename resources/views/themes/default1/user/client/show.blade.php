@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-User
+    {{ __('message.user') }}
 @stop
 @section('content-header')
 <style type="text/css">
@@ -231,6 +231,23 @@ User
                                         "sSearch"    : "Search: ",
                                         "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
                                     },
+                                    language: {
+                                        paginate: {
+                                            first:      "{{ __('message.paginate_first') }}",
+                                            last:       "{{ __('message.paginate_last') }}",
+                                            next:       "{{ __('message.paginate_next') }}",
+                                            previous:   "{{ __('message.paginate_previous') }}"
+                                        },
+                                        emptyTable:     "{{ __('message.empty_table') }}",
+                                        info:           "{{ __('message.datatable_info') }}",
+                                        search:         "{{ __('message.datatable_search') }} ",
+                                        zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
+                                        infoEmpty:      "{{ __('message.info_empty') }}",
+                                        infoFiltered:   "{{ __('message.info_filtered') }}",
+                                        lengthMenu:     "{{ __('message.sLengthMenu') }}",
+                                        loadingRecords: "{{ __('message.loading_records') }}",
+                                    },
+
                                     columnDefs: [
                                         {
                                             targets: 'no-sort',
@@ -324,60 +341,60 @@ User
                                     <div id="response"></div>
                                     <ul class="list-group list-group-unbordered mb-3">
                                         <li class="list-group-item">
-                                            <b>{{Lang::get('message.email')}}</b>: <span class="pull-right clientemail" style="float:right;"></span>
+                                            <b>{{Lang::get('message.email')}}</b>: <span class="pull-right clientemail" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};"></span>
                                         </li>
                                         <li class="list-group-item">
-                                            <b>{{Lang::get('message.company')}}</b>: <span class="pull-right clientcompanyname" style="float:right;"></span>
+                                            <b>{{Lang::get('message.company')}}</b>: <span class="pull-right clientcompanyname" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};"></span>
                                         </li>
                                         <li class="list-group-item">
-                                            <b>{{ __('message.user_name') }}</b>: <span class="pull-right clientuser_name" style="float:right;"></span>
-                                        </li>
-
-
-
-                                        <li class="list-group-item">
-                                            <b>{{ __('message.business') }}</b>: <span class="pull-right clientbusiness" style="float:right;"></span>
-                                        </li>
-                                        <li class="list-group-item">
-                                            <b>{{Lang::get('message.mobile')}}</b>: <span class="clientmobile" style="float:right;">  @if($client->mobile_code)<b>+</b>{{$client->mobile_code}}@endif&nbsp;{{$client->mobile}}</span>
-                                        </li>
-                                        <li class="list-group-item">
-                                            <b>{{Lang::get('message.address')}}</b>: <span class="pull-right clientaddress" style="float:right;"></span>
+                                            <b>{{ __('message.user_name') }}</b>: <span class="pull-right clientuser_name" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};"></span>
                                         </li>
 
+
+
                                         <li class="list-group-item">
-                                            <b>{{Lang::get('message.town')}}</b>: <span class="pull-right clienttown" style="float:right;"></span>
+                                            <b>{{ __('message.business') }}</b>: <span class="pull-right clientbusiness" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};"></span>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <b>{{Lang::get('message.mobile')}}</b>: <span class="clientmobile" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};">  @if($client->mobile_code)<b>+</b>{{$client->mobile_code}}@endif&nbsp;{{$client->mobile}}</span>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <b>{{Lang::get('message.address')}}</b>: <span class="pull-right clientaddress" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};"></span>
                                         </li>
 
                                         <li class="list-group-item">
-                                            <b>{{Lang::get('message.state')}}</b>: <span class="pull-right clientstate" style="float:right;"></span>
+                                            <b>{{Lang::get('message.town')}}</b>: <span class="pull-right clienttown" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};"></span>
                                         </li>
 
                                         <li class="list-group-item">
-                                            <b>{{Lang::get('message.country')}}</b>: <span class="pull-right clientcountry" style="float:right;"></span>
+                                            <b>{{Lang::get('message.state')}}</b>: <span class="pull-right clientstate" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};"></span>
                                         </li>
 
                                         <li class="list-group-item">
-                                            <b>{{Lang::get('message.zip')}}</b>: <span class="pull-right clientzip" style="float:right;"></span>
+                                            <b>{{Lang::get('message.country')}}</b>: <span class="pull-right clientcountry" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};"></span>
                                         </li>
 
                                         <li class="list-group-item">
-                                            <b>{{Lang::get('message.role')}}</b>: <span class="pull-right clientrole" style="float:right;"></span>
-                                        </li>
-                                        <li class="list-group-item">
-                                            <b>{{ __('message.company_type') }}</b>: <span class="pull-right clientcompany" style="float:right;"></span>
+                                            <b>{{Lang::get('message.zip')}}</b>: <span class="pull-right clientzip" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};"></span>
                                         </li>
 
                                         <li class="list-group-item">
-                                            <b>{{ __('message.company_size') }}</b>: <span class="pull-right clientcomsize" style="float:right;"></span>
+                                            <b>{{Lang::get('message.role')}}</b>: <span class="pull-right clientrole" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};"></span>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <b>{{ __('message.company_type') }}</b>: <span class="pull-right clientcompany" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};"></span>
                                         </li>
 
                                         <li class="list-group-item">
-                                            <b>IP</b>: <span class="pull-right clientip" style="float:right;"></span>
+                                            <b>{{ __('message.company_size') }}</b>: <span class="pull-right clientcomsize" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};"></span>
+                                        </li>
+
+                                        <li class="list-group-item">
+                                            <b>IP</b>: <span class="pull-right clientip" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};"></span>
                                         </li>
                                         @if($client && $client->skype)
                                         <li class="list-group-item">
-                                            <b>{{ __('message.skype') }}</b>: <span class="pull-right clientskype" style="float:right;"></span>
+                                            <b>{{ __('message.skype') }}</b>: <span class="pull-right clientskype" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};"></span>
                                         </li>
                                         @endif
 
@@ -385,24 +402,24 @@ User
                                         <?php $actManager = $client->accountManager()->select('id', 'first_name', 'last_name')->first(); ?>
                                         @if($client && $manager)
                                             <li class="list-group-item">
-                                                <b>{{ __('message.sales_manager') }}</b>: <span class="pull-right clientmanager" style="float:right;"><a href="{{url('clients/'.$manager->id)}}">{{$manager->first_name}} {{$manager->last_name}}</a></span>
+                                                <b>{{ __('message.sales_manager') }}</b>: <span class="pull-right clientmanager" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};"><a href="{{url('clients/'.$manager->id)}}">{{$manager->first_name}} {{$manager->last_name}}</a></span>
                                             </li>
                                         @endif
                                         @if($client && $actManager)
                                         <li class="list-group-item">
-                                                <b>{{ __('message.account_manager') }}</b>: <span class="pull-right actmanager" style="float:right;"><a href="{{url('clients/'.$actManager->id)}}">{{$actManager->first_name}} {{$actManager->last_name}}</a></span>
+                                                <b>{{ __('message.account_manager') }}</b>: <span class="pull-right actmanager" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};"><a href="{{url('clients/'.$actManager->id)}}">{{$actManager->first_name}} {{$actManager->last_name}}</a></span>
                                             </li>
                                         @endif
                                         <li class="list-group-item">
-                                            <b>{{ __('message.referrer') }}</b>: <span class="pull-right referrer" style="float:right;"></span>
+                                            <b>{{ __('message.referrer') }}</b>: <span class="pull-right referrer" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};"></span>
                                         </li>
                                         <li class="list-group-item">
-                                         <b>{{Lang::get('message.mail_verify')}}</b>: 
-                                        <span class="pull-right mailVerify" style="float:right;">{{ $email }}</span>
+                                         <b>{{Lang::get('message.mail_verify')}}</b>:
+                                        <span class="pull-right mailVerify" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};">{{ $email }}</span>
                                     </li>
                                     <li class="list-group-item">
-                                          <b>{{Lang::get('message.mobile_verify')}}</b>: 
-                                        <span class="pull-right mobileVerify" style="float:right;">{{$mobile}}</span>
+                                          <b>{{Lang::get('message.mobile_verify')}}</b>:
+                                        <span class="pull-right mobileVerify" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};">{{$mobile}}</span>
                                     </li>
 
 
@@ -459,7 +476,24 @@ User
                                         "sSearch"    : "Search: ",
                                         "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
                                     },
-                                     columnDefs: [
+                                    language: {
+                                        paginate: {
+                                            first:      "{{ __('message.paginate_first') }}",
+                                            last:       "{{ __('message.paginate_last') }}",
+                                            next:       "{{ __('message.paginate_next') }}",
+                                            previous:   "{{ __('message.paginate_previous') }}"
+                                        },
+                                        emptyTable:     "{{ __('message.empty_table') }}",
+                                        info:           "{{ __('message.datatable_info') }}",
+                                        search:         "{{ __('message.datatable_search') }} ",
+                                        zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
+                                        infoEmpty:      "{{ __('message.info_empty') }}",
+                                        infoFiltered:   "{{ __('message.info_filtered') }}",
+                                        lengthMenu:     "{{ __('message.sLengthMenu') }}",
+                                        loadingRecords: "{{ __('message.loading_records') }}",
+                                    },
+
+                                    columnDefs: [
                                     {
                                         targets: 'no-sort',
                                         orderable: false,
@@ -581,7 +615,24 @@ User
                                             "sSearch"    : "Search: ",
                                             "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
                                         },
-                                         columnDefs: [
+                                        language: {
+                                            paginate: {
+                                                first:      "{{ __('message.paginate_first') }}",
+                                                last:       "{{ __('message.paginate_last') }}",
+                                                next:       "{{ __('message.paginate_next') }}",
+                                                previous:   "{{ __('message.paginate_previous') }}"
+                                            },
+                                            emptyTable:     "{{ __('message.empty_table') }}",
+                                            info:           "{{ __('message.datatable_info') }}",
+                                            search:         "{{ __('message.datatable_search') }} ",
+                                            zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
+                                            infoEmpty:      "{{ __('message.info_empty') }}",
+                                            infoFiltered:   "{{ __('message.info_filtered') }}",
+                                            lengthMenu:     "{{ __('message.sLengthMenu') }}",
+                                            loadingRecords: "{{ __('message.loading_records') }}",
+                                        },
+
+                                        columnDefs: [
                                         {
                                             targets: 'no-sort',
                                             orderable: false,

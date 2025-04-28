@@ -10,7 +10,7 @@
             <div class="modal-body">
                 
                 <div class= "form-group">
-                    {!! Form::label('name','App name',['class'=>'required']) !!}
+                    {!! Form::label('name', __('message.app_name'),['class'=>'required']) !!}
                     <input type="text" name="app_name" id="name" class="form-control app-name {{$errors->has('app_name') ? ' is-invalid' : ''}}">
                     @error('name')
                     <span class="error-message"> {{$message}}</span>
@@ -18,7 +18,7 @@
                     <span class="appnamecheck"></span>
                 </div>
                  <div class= "form-group">
-                    {!! Form::label('key','App key',['class'=>'required']) !!}
+                    {!! Form::label('key', __('message.app_key'),['class'=>'required']) !!}
                     <div class="row">
                      <div class="col-md-8">
                     
@@ -34,7 +34,7 @@
                     </div>
                 </div>
                  <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                      {!! Form::label('name','App Secret',['class'=>'required']) !!}
+                      {!! Form::label('name', __('message.app_secret'),['class'=>'required']) !!}
                     <div class="row">
                      <div class="col-md-12">
                     <input type="text" name="app_secret" id="secret" class="form-control {{$errors->has('app_secret') ? ' is-invalid' : ''}}">

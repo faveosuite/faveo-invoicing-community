@@ -121,7 +121,7 @@ class TenantController extends Controller
             $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
 
             if (! $keys->app_key) {//Valdidate if the app key to be sent is valid or not
-                throw new Exception('Invalid App key provided. Please contact admin.');
+                throw new Exception( __('message.cloud_invalid_message'));
             }
             $response = $this->client->request(
                 'GET',
@@ -304,13 +304,13 @@ class TenantController extends Controller
                     if (empty($order_id) || empty($order_number)) {
                         return "<p><button data-toggle='modal'
                 data-id=".$model->id." data-name= '' onclick=deleteTenant('".$model->id."') id='delten".$model->id."'
-                class='btn btn-sm btn-dark btn-xs delTenant'".tooltip('Delete')."<i class='fa fa-trash'
+                class='btn btn-sm btn-dark btn-xs delTenant'".tooltip( __('message.delete'))."<i class='fa fa-trash'
                 style='color:white;'> </i></button>&nbsp;</p>";
                     }
 
                     return "<p><button data-toggle='modal'
                 data-id='".$model->id."' data-name='' onclick=\"deleteTenant('".$model->id."','".$order_number."')\" id='delten".$model->id."'
-                class='btn btn-sm btn-dark btn-xs delTenant' ".tooltip('Delete')."<i class='fa fa-trash'
+                class='btn btn-sm btn-dark btn-xs delTenant' ".tooltip( __('message.delete'))."<i class='fa fa-trash'
                 style='color:white;'> </i></button>&nbsp;</p>";
                 })
                 ->rawColumns(['Order', 'Deletion day', 'tenants', 'domain', 'db_name', 'db_username', 'action', 'name', 'email', 'mobile', 'country', 'Expiry day', 'plan'])
@@ -350,7 +350,9 @@ class TenantController extends Controller
                 'domain' => 'required||regex:/^[a-zA-Z0-9]+$/u',
             ],
             [
-                'domain.regex' => 'Special characters are not allowed in domain name',
+                'domain.regex' => __('validation.special_characters_not_allowed'),
+                'orderNo.required' => __('validation.orderno_required'),
+                'domain.required' => __('validation.domain_form.domain.required'),
             ]);
 
         $settings = Setting::find(1);
@@ -552,6 +554,9 @@ class TenantController extends Controller
         $this->validate($request, [
             'cloud_central_domain' => 'required',
             'cloud_cname' => 'required',
+        ], [
+            'cloud_central_domain.required' => __('validation.cloud_central_domain_required'),
+            'cloud_cname.required' => __('validation.cloud_cname_required'),
         ]);
 
         try {
@@ -614,7 +619,7 @@ class TenantController extends Controller
                 }
             }
 
-            return redirect()->back()->with('fails', "Something went wrong, we couldn't delete your cloud instance.(mostly your cloud instance was already deleted)");
+            return redirect()->back()->with('fails', __('message.something_wrong_cloud_instance'));
         }
     }
 
@@ -622,7 +627,7 @@ class TenantController extends Controller
     {
         $order = Order::findorFail($order_id);
         if (\Auth::user()->role != 'admin' && $order->client != \Auth::user()->id) {
-            return errorResponse('Cannot remove license installations. Invalid modification of data');
+            return errorResponse( __('message.cannot_remove_license_installation'));
         }
         $order->domain = '';
         $licenseCode = $order->serial_key;
@@ -638,7 +643,7 @@ class TenantController extends Controller
             $updateInstallStatus = $cont->updateInstalledDomain($licenseCode, $order->product);
         }
 
-        return ['message' => 'success', 'update' => 'License installations removed'];
+        return ['message' => 'success', 'update' => __('message.license_installations_removed')];
     }
 
     private function prepareMessages($domain, $user, $success = false)
@@ -681,6 +686,11 @@ class TenantController extends Controller
             'cloud_top_message' => 'required',
             'cloud_label_field' => 'required',
             'cloud_label_radio' => 'required',
+            ],
+                [
+                    'cloud_top_message.required' => __('validation.cloud_tenant.cloud_top_message_required'),
+                    'cloud_label_field.required' => __('validation.cloud_tenant.cloud_label_field_required'),
+                    'cloud_label_radio.required' => __('validation.cloud_tenant.cloud_label_radio_required'),
         ]);
 
         try {
@@ -702,6 +712,11 @@ class TenantController extends Controller
                 'cloud_product' => 'required',
                 'cloud_free_plan' => 'required',
                 'cloud_product_key' => 'required',
+            ],
+            [
+                'cloud_product.required' => __('validation.cloud_tenant.cloud_product_required'),
+                'cloud_free_plan.required' => __('validation.cloud_tenant.cloud_free_plan_required'),
+                'cloud_product_key.required' => __('validation.cloud_tenant.cloud_product_key_required'),
             ]
         );
         try {
@@ -725,12 +740,12 @@ class TenantController extends Controller
                 app('queue')->setDefaultDriver($driver->short_name);
                 ReportExport::dispatch('tenats', $selectedColumns, $searchParams, $email)->onQueue('reports');
 
-                return response()->json(['message' => 'System is generating your report. You will be notified once completed'], 200);
+                return response()->json(['message' => __('message.report_generation_in_progress')], 200);
             } else {
-                return response()->json(['message' => 'Cannot use sync queue driver for export'], 400);
+                return response()->json(['message' => __('message.cannot_sync_queue_driver')], 400);
             }
         } catch (\Exception $e) {
-            \Log::error('Export failed: '.$e->getMessage());
+            \Log::error(__('message.export_failed').$e->getMessage());
 
             return response()->json(['message' => $e->getMessage()], 500);
         }

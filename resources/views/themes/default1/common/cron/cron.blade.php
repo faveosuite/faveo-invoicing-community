@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Cron Setting
+    {{ __('message.cron-setting') }}
 @stop
 @section('content-header')
 <style>
@@ -147,7 +147,7 @@ Cron Setting
 
            <div class="col-md-6">
           <div class="form-group select2">
-              <label>{{ Lang::get('Subscription renewal reminder - Auto payment') }}</label>
+              <label>{{ Lang::get('message.subscription_renewal_reminder_autopayment') }}</label>
               <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="{{ __('message.cron_trigger_enabled') }}"></i>
 
               @if ($Autorenewal_status == 0)
@@ -168,10 +168,10 @@ Cron Setting
 
                 <div class="col-md-6">
               <div class="form-group">
-                <label>{{Lang::get('Cloud subscription deletion')}}</label>  <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="{{ __('message.cron_trigger_cloud') }}"></i>
+                <label>{{Lang::get('message.cloud_subscription_deletion')}}</label>  <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="{{ __('message.cron_trigger_cloud') }}"></i>
                   @if ($cloudStatus == 0)
                     <select id ="days" name="cloud_days" class="form-control selectpicker"   style="width: 100%; color:black;" disabled>
-                      <option value="">{{Lang::get('Please Enable the Faveo cloud cron')}}</option>
+                      <option value="">{{Lang::get('message.enable_faveo_cloud_cron')}}</option>
                     </select>
                       @else
                 <select name="cloud_days" class="form-control selectpicker" data-live-search="true" data-live-search-placeholder="Search" style="width: 100%;">
@@ -187,7 +187,7 @@ Cron Setting
 
     <div class="col-md-6">
         <div class="form-group select2">
-            <label>{{ Lang::get('Subscription expired') }}</label>
+            <label>{{ Lang::get('message.subscription_expired') }}</label>
             <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="{{ __('message.cron_trigger_cloud_both') }}"></i>
 
             @if ($postExpiry_status == 0)
@@ -207,10 +207,10 @@ Cron Setting
 
        <div class="col-md-6">
               <div class="form-group">
-                <label>{{Lang::get('Invoice deletion')}}</label>  <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="{{ __('message.cron_trigger_deletion_old') }}"></i>
+                <label>{{Lang::get('message.invoice_deletion')}}</label>  <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="{{ __('message.cron_trigger_deletion_old') }}"></i>
                   @if ($invoiceStatus == 0)
                     <select id ="days" name="invoice_days[]" class="form-control selectpicker"   style="width: 100%; color:black;" disabled>
-                      <option value="">{{Lang::get('Please enable the invoice deletion cron')}}</option>
+                      <option value="">{{Lang::get('message.enable_invoice_deletion_cron')}}</option>
                     </select>
                       @else
                 <select name="invoice_days" class="form-control selectpicker" data-live-search="true" data-live-search-placeholder="Search" style="width: 100%;">
@@ -233,7 +233,7 @@ Cron Setting
           </div>
           <!-- /.row -->
           @if ( $mailStatus || $activityStatus || $cloudStatus ==1)
-              <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}</button>
+              <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> {{ __('message.saving') }}"><i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}</button>
           @else
               <button type="submit" class="btn btn-primary pull-right disabled" id="submit"><i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}</button>
           @endif

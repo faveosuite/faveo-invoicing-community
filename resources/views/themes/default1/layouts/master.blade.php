@@ -42,7 +42,7 @@
 
         <!-- Custom css/js -->
         <link rel="stylesheet" href="{{ asset('common/intl-tel-input/css/intlTelInput.css') }}">
-        @if(app()->getLocale() == 'ar')
+        @if(in_array(app()->getLocale(), ['ar', 'he']))
             <link rel="stylesheet" href="{{asset('admin/css-1/adminlte-rtl.css')}}">
         @else
             <link rel="stylesheet" href="{{asset('admin/css-1/adminlte.min.css')}}">
@@ -157,7 +157,7 @@
     <div class="wrapper">
 
         <!-- Navbar -->
-        <nav class="main-header navbar navbar-expand navbar-white navbar-light" dir="{{app()->getLocale()=='ar' ? 'rtl' : 'ltr'}}">
+        <nav class="main-header navbar navbar-expand navbar-white navbar-light" dir="{{ in_array(app()->getLocale(), ['ar', 'he']) ? 'rtl' : 'ltr' }}">
             <!-- Left navbar links -->
             <ul class="navbar-nav">
                 <li class="nav-item">
@@ -195,7 +195,12 @@
                             'ru' => 'ru',
                             'vi' => 'vn',
                             'zh-hans' => 'cn',
-                            'zh-hant' => 'cn'
+                            'zh-hant' => 'cn',
+                            'ja' => 'jp',
+                            'ta' => 'in',
+                            'hi' => 'in',
+                            'he' => 'il',
+                            'tr' => 'tr',
                         ];
 
                         $currentLanguage = app()->getLocale();
@@ -474,7 +479,7 @@
         </aside>
 
         <!-- Content Wrapper. Contains page content -->
-        <div class="content-wrapper" dir="{{app()->getLocale()=='ar' ? 'rtl' : 'ltr' }}">
+        <div class="content-wrapper" dir="{{ in_array(app()->getLocale(), ['ar', 'he']) ? 'rtl' : 'ltr' }}">
             <!-- Content Header (Page header) -->
             <div class="content-header">
                 <div class="container-fluid">
@@ -541,8 +546,8 @@
         </div>
         <!-- /.content-wrapper -->
         <footer class="main-footer">
-            <strong>Copyright &copy; {{date('Y')}} <a href="{{$set->website}}">{{$set->company}}</a>.</strong>
-            All rights reserved. Powered by <a href="{{$set->website}}" class="text-color-grey text-color-hover-primary font-weight-bold" target="_blank">Faveo</a>
+            <strong>{{ __('message.copyright') }} &copy; {{date('Y')}} <a href="{{$set->website}}">{{$set->company}}</a>.</strong>
+            {{ __('message.all_rights') }} <a href="{{$set->website}}" class="text-color-grey text-color-hover-primary font-weight-bold" target="_blank">Faveo</a>
             <div class="float-right d-none d-sm-inline-block">
                 <b>{{Lang::get('message.version')}}</b> {{Config::get('app.version')}}
             </div>
@@ -690,22 +695,32 @@ $("document").ready(function(){
             //handle language api
             const flagIcon = document.getElementById('flagIcon');
             const languageDropdown = document.getElementById('language-dropdown');
+            const curLang = '{{ app()->getLocale() }}';
+
 
             $(document).ready(function() {
+                const localeMap = { 'ar': 'ae', 'bsn': 'bs', 'de': 'de', 'en': 'us', 'en-gb': 'gb', 'es': 'es', 'fr': 'fr', 'id': 'id', 'it': 'it', 'kr': 'kr', 'mt': 'mt', 'nl': 'nl', 'no': 'no', 'pt': 'pt', 'ru': 'ru', 'vi': 'vn', 'zh-hans': 'cn', 'zh-hant': 'cn', 'ja': 'jp', 'ta': 'in', 'hi': 'in', 'he': 'il', 'tr': 'tr' };
+                const currentLocale = '{{ app()->getLocale() }}';
+                const mappedLocale = localeMap[currentLocale] || 'us';
+                $('#flagIcon').addClass('flag-icon flag-icon-' + mappedLocale);
+
                 $.ajax({
-                    url: '{{ url('/language/settings') }}',
+                    url: '<?php echo getUrl(); ?>/language/control',
                     type: 'GET',
                     dataType: 'JSON',
                     success: function(response) {
-                        const localeMap = { 'ar': 'ae', 'bsn': 'bs', 'de': 'de', 'en': 'us', 'en-gb': 'gb', 'es': 'es', 'fr': 'fr', 'id': 'id', 'it': 'it', 'kr': 'kr', 'mt': 'mt', 'nl': 'nl', 'no': 'no', 'pt': 'pt', 'ru': 'ru', 'vi': 'vn', 'zh-hans': 'cn', 'zh-hant': 'cn' };
                         $.each(response.data, function(key, value) {
-                            const mappedLocale = localeMap[value.locale] || value.locale;
-                            const isSelected = value.locale === '{{ app()->getLocale() }}' ? 'selected' : '';
-                            $('#language-dropdown').append(
-                                '<a href="javascript:;" class="dropdown-item" data-locale="' + value.locale + '" ' + isSelected + '>' +
-                                '<i class="flag-icon flag-icon-' + mappedLocale + ' mr-2"></i> ' + value.name + ' (' + value.translation + ')' +
-                                '</a>'
-                            );
+                            // Only include languages where enable_disable == 1
+                            if (value.enable_disable == 1) {
+                                const mappedLocale = localeMap[value.locale] || value.locale;
+                                const isSelected = value.locale === currentLocale ? 'selected' : '';
+                                $('#language-dropdown').append(
+                                    '<a href="javascript:;" class="dropdown-item" data-locale="' + value.locale + '" ' + isSelected + '>' +
+                                    '<i class="flag-icon flag-icon-' + mappedLocale + ' ' + (curLang === 'ar' ? 'ml-2' : 'mr-2') + '"></i> ' +
+                                    value.name + ' (' + value.translation + ')' +
+                                    '</a>'
+                                );
+                            }
                         });
 
                         // Add event listeners for the dynamically added language options
@@ -722,11 +737,12 @@ $("document").ready(function(){
                         console.error('Error fetching languages:', error);
                     }
                 });
+            });
 
                 function updateLanguage(language, flagClass) {
                     $('#flagIcon').attr('class', flagClass);
                     $.ajax({
-                        url: '{{ url('/update/language') }}',
+                        url: '<?php echo getUrl(); ?>/lang/update',
                         type: 'POST',
                         data: { language: language },
                         success: function(response) {
@@ -737,7 +753,6 @@ $("document").ready(function(){
                         }
                     });
                 }
-            });
 
           </script>
     <script>

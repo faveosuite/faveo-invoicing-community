@@ -14,6 +14,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Redirect;
@@ -289,6 +290,17 @@ class InstallerController extends Controller
 
                 $this->updateInstallEnv($request->input('environment'), $request->input('cache_driver'), $redisConfig);
             }
+            $timezone = $request->input('timezone');
+            $language = $request->input('language');
+            $changed = $this->changeLanguage($language);
+            $timeZoneId = App\Model\Common\Timezone::where('name', $timezone)->value('id');
+
+
+            if (! $changed) {
+                return Redirect::back()->with('fails', 'Invalid language');
+            }
+
+
 
             $user = User::where('id', 1)->update([
                 'first_name' => $request->input('first_name'),
@@ -302,8 +314,9 @@ class InstallerController extends Controller
                 'email_verified' => 1,
             ]);
 
+
             // Update the initial company settings
-            DB::transaction(function () {
+            DB::transaction(function () use ($timeZoneId) {
                 App\Model\Common\Setting::where('id', 1)
                     ->update([
                         'title' => 'Agora Invoicing',
@@ -312,6 +325,7 @@ class InstallerController extends Controller
                         'admin_logo' => null,
                         'logo' => null,
                         'fav_icon' => null,
+                        'timezone_id' => $timeZoneId,
                     ]);
             });
 
@@ -359,7 +373,7 @@ class InstallerController extends Controller
         ]);
     }
 
-    public function languageList(Request $request)
+    public function languageList()
     {
         try {
             $languageList = array_map('basename', File::directories(lang_path()));
@@ -395,7 +409,7 @@ class InstallerController extends Controller
             }
 
             $user = Auth::user();
-            $user->language = $request->language;
+            $user->language =  $language;
             $user->save();
 
             return successResponse('Language set successfully');
@@ -449,6 +463,7 @@ class InstallerController extends Controller
     {
         // checking if the installation is running for the first time or not,getting-started page
         if (Cache::get('config-check') == 'config-check') {
+            Cache::put('timezone', $request['timezone']);
             return view('themes.default1.installer.view5');
         } else {
             return Redirect::route('db-setup');
@@ -466,6 +481,41 @@ class InstallerController extends Controller
             return view('themes.default1.installer.finalPage');
         } else {
             return Redirect::route('get-start');
+        }
+    }
+
+    private static function changeLanguage($lang)
+    {
+        $path = base_path('lang');  // Path to check available language packages
+        if (array_key_exists($lang, Config::get('languages')) && in_array($lang, scandir($path))) {
+            Cache::forever('lang', $lang);
+            DB::table('settings')->where('id', '=', 1)
+                ->update(['content' => $lang]);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    public function storeLanguageForUsers(StoreLanguageRequest $request)
+    {
+        try {
+            $language = $request->input('language');
+            Session::put('language', $language);
+            if (! Auth::check()) {
+                return successResponse('Language set successfully');
+            }
+
+            $user = Auth::user();
+            $user->language = $language;
+
+            $user->save();
+
+            return successResponse('Language set successfully');
+        } catch (\Exception $exception) {
+           \Log::exception($exception);
+            return errorResponse('error could not change the language');
         }
     }
 }

@@ -120,7 +120,7 @@
 
                             <div class="form-group col-lg-6{{ $errors->has('applied') ? 'has-error' : '' }}">
 
-                                 {!! Form::select('applied',[''=>'Choose','Products'=>$product],$selectedProduct,['class' => 'form-control'.($errors->has('applied') ? ' is-invalid' : ''),'data-live-search'=>'true','data-live-search-placeholder' => 'Search','data-dropup-auto'=>'false','data-size'=>'10','title'=>'Products for which coupon is Applied']) !!}
+                                 {!! Form::select('applied',[''=> __('message.choose'),'Products'=>$product],$selectedProduct,['class' => 'form-control'.($errors->has('applied') ? ' is-invalid' : ''),'data-live-search'=>'true','data-live-search-placeholder' =>  __('message.search'),'data-dropup-auto'=>'false','data-size'=>'10','title'=> __('message.coupon_applied')]) !!}
                                 @error('applied')
                                 <span class="error-message"> {{$message}}</span>
                                 @enderror

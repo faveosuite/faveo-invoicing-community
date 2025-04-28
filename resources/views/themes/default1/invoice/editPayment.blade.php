@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Edit Payment
+    {{ __('message.edit-payment') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
@@ -11,7 +11,7 @@ Edit Payment
             <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
             <li class="breadcrumb-item"><a href="{{url('clients')}}"> {{ __('message.all-users') }}</a></li>
             <li class="breadcrumb-item"><a href="{{url('clients/'.$clientid)}}">{{ __('message.view_user') }}</a></li>
-            <li class="breadcrumb-item active">Edit Payment</li>
+            <li class="breadcrumb-item active">{{ __('message.edit-payment') }}</li>
         </ol>
     </div><!-- /.col -->
 
@@ -57,7 +57,7 @@ Edit Payment
                         <div class="col-md-4 form-group {{ $errors->has('payment_method') ? 'has-error' : '' }}">
                             <!-- last name -->
                             {!! Form::label('payment_method',Lang::get('message.payment-method'),['class'=>'required']) !!}
-                            {!! Form::select('payment_method',[''=>'Choose','cash'=>'Cash','check'=>'Check','online payment'=>'Online Payment','razorpay'=>'Razorpay'],null,['class' => 'form-control','id'=>'payment_method']) !!}
+                            {!! Form::select('payment_method',[''=> __('message.choose'),'cash'=>'Cash','check'=>'Check','online payment'=>'Online Payment','razorpay'=>'Razorpay'],null,['class' => 'form-control','id'=>'payment_method']) !!}
 
                         </div>
 
@@ -100,7 +100,7 @@ Edit Payment
                                             <th>{{Lang::get('message.date')}}</th>
                                             <th>{{Lang::get('message.invoice_number')}}</th>
                                             <th>{{Lang::get('message.total')}}</th>
-                                            <th>Due</th>
+                                            <th>{{ __('message.invoice_due') }}</th>
                                             <th>{{Lang::get('message.pay')}}</th>
                                             
                                            

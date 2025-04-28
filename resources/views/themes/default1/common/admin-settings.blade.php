@@ -239,6 +239,19 @@ Settings
                 </div>
             </div>
 
+            <div class="col-md-2 col-sm-6">
+                <div class="settingiconblue">
+                    <div class="settingdivblue">
+                        <a class="icons-color" href="{{url('languages')}}">
+                            <span class="fa-stack fa-2x">
+                                <i class="fas fa-language fa-stack-1x"></i>
+                            </span>
+                        </a>
+                    </div>
+                    <div class="text-center text-sm fw_400">{{ __('message.language') }}</div>
+                </div>
+            </div>
+
             </div>
     </div>
         <!-- /.row -->

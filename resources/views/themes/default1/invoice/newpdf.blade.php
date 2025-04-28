@@ -172,7 +172,7 @@
                               <div class="table-responsive">
                                  <table class="table">
                                      <tr>
-                                         <th>Subtotal:</th>
+                                         <th>{{ __('message.sub_total') }}:</th>
                                          <td">{{currencyFormat($item->subtotal,$code=$symbol)}}</td>
                                      </tr>
                                      <?php

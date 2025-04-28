@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Tax
+    {{ __('message.Tax') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
@@ -132,7 +132,7 @@ Tax
              <div class="card card-secondary card-outline">
 
                   <div class="card-header">
-                      <h3 class="card-title">{{Lang::get('Tax Classes')}}</h3>
+                      <h3 class="card-title">{{Lang::get('message.tax_classes')}}</h3>
 
                       <div class="card-tools">
                           <a href="#create-tax-option" class="btn btn-default pull-right btn-sm" data-toggle="modal" data-target="#create-tax-option"><span class="fa fa-plus"></span>&nbsp;&nbsp;{{Lang::get('message.create')}}</a>
@@ -243,7 +243,25 @@ $('.btn-off-3').css("background-color", "#DA4F49","color", "white");
                     "sSearch"    : "Search: ",
                     "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
                 },
-                    columnDefs: [
+                language: {
+                    paginate: {
+                        first:      "{{ __('message.paginate_first') }}",
+                        last:       "{{ __('message.paginate_last') }}",
+                        next:       "{{ __('message.paginate_next') }}",
+                        previous:   "{{ __('message.paginate_previous') }}"
+                    },
+                    emptyTable:     "{{ __('message.empty_table') }}",
+                    info:           "{{ __('message.datatable_info') }}",
+                    search:         "{{ __('message.datatable_search') }} ",
+                    zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
+                    infoEmpty:      "{{ __('message.info_empty') }}",
+                    infoFiltered:   "{{ __('message.info_filtered') }}",
+                    lengthMenu:     "{{ __('message.sLengthMenu') }}",
+                    loadingRecords: "{{ __('message.loading_records') }}",
+                },
+
+
+                columnDefs: [
                     { 
                         targets: 'no-sort', 
                         orderable: false,

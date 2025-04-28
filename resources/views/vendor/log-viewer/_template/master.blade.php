@@ -390,8 +390,8 @@ $set = $set->findOrFail(1);
     </div>
     <!-- /.content-wrapper -->
     <footer class="main-footer">
-        <strong>Copyright &copy; {{date('Y')}} <a href="{{$set->website}}">{{$set->company}}</a>.</strong>
-        All rights reserved. Powered by <a href="https://ladybirdweb.com" target="_blank"><img src="{{asset('common/images/Ladybird1.png')}}" alt="Ladybird"></a>
+        <strong>{{ __('message.copyright') }} &copy; {{date('Y')}} <a href="{{$set->website}}">{{$set->company}}</a>.</strong>
+        {{ __('message.all_rights') }} <a href="https://ladybirdweb.com" target="_blank"><img src="{{asset('common/images/Ladybird1.png')}}" alt="Ladybird"></a>
         <div class="float-right d-none d-sm-inline-block">
             <b>{{Lang::get('message.version')}}</b> {{Config::get('app.version')}}
         </div>

@@ -25,7 +25,7 @@
       </div>
       <div class="modal-footer justify-content-between">
         <button type="button" class="btn btn-default pull-left close-popup" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;{{ __('message.close') }}</button>
-        <button type="button" id="submit1" class="btn btn-primary save-periods"><i class="fa fa-save">&nbsp;</i>{!!Lang::get('Save')!!}</button>
+        <button type="button" id="submit1" class="btn btn-primary save-periods"><i class="fa fa-save">&nbsp;</i>{!!Lang::get('message.save')!!}</button>
       </div>
     </div>
     <!-- /.modal-content -->

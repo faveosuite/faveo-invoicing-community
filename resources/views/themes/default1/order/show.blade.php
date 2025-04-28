@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Order
+    {{ __('message.order') }}
 @stop
 @section('content-header')
 <style>
@@ -465,6 +465,22 @@ input:checked + .slider:before {
                       "sSearch"    : "Search: ",
                       "sProcessing": '<div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
                   },
+                  language: {
+                      paginate: {
+                          first:      "{{ __('message.paginate_first') }}",
+                          last:       "{{ __('message.paginate_last') }}",
+                          next:       "{{ __('message.paginate_next') }}",
+                          previous:   "{{ __('message.paginate_previous') }}"
+                      },
+                      emptyTable:     "{{ __('message.empty_table') }}",
+                      search:         "{{ __('message.datatable_search') }} ",
+                      info:           "{{ __('message.datatable_info') }}",
+                      zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
+                      infoEmpty:      "{{ __('message.info_empty') }}",
+                      infoFiltered:   "{{ __('message.info_filtered') }}",
+                      lengthMenu:     "{{ __('message.sLengthMenu') }}",
+                      loadingRecords: "{{ __('message.loading_records') }}",
+                  },
                       columnDefs: [
                       { 
                           targets: 'no-sort', 
@@ -513,6 +529,21 @@ input:checked + .slider:before {
                 "sLengthMenu": "_MENU_ Records per page",
                 "sSearch"    : "Search: ",
                 "sProcessing": '<div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
+            },
+            language: {
+                paginate: {
+                    first:      "{{ __('message.paginate_first') }}",
+                    last:       "{{ __('message.paginate_last') }}",
+                    next:       "{{ __('message.paginate_next') }}",
+                    previous:   "{{ __('message.paginate_previous') }}"
+                },
+                emptyTable:     "{{ __('message.empty_table') }}",
+                search:         "{{ __('message.datatable_search') }} ",
+                info:           "{{ __('message.datatable_info') }}",
+                infoEmpty:      "{{ __('message.info_empty') }}",
+                infoFiltered:   "{{ __('message.info_filtered') }}",
+                lengthMenu:     "{{ __('message.sLengthMenu') }}",
+                loadingRecords: "{{ __('message.loading_records') }}",
             },
                 columnDefs: [
                 { 
@@ -726,6 +757,21 @@ input:checked + .slider:before {
                 "sLengthMenu": "_MENU_ Records per page",
                 "sSearch"    : "Search: ",
                 "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
+            },
+            language: {
+                paginate: {
+                    first:      "{{ __('message.paginate_first') }}",
+                    last:       "{{ __('message.paginate_last') }}",
+                    next:       "{{ __('message.paginate_next') }}",
+                    previous:   "{{ __('message.paginate_previous') }}"
+                },
+                emptyTable:     "{{ __('message.empty_table') }}",
+                search:         "{{ __('message.datatable_search') }} ",
+                info:           "{{ __('message.datatable_info') }}",
+                infoEmpty:      "{{ __('message.info_empty') }}",
+                infoFiltered:   "{{ __('message.info_filtered') }}",
+                lengthMenu:     "{{ __('message.sLengthMenu') }}",
+                loadingRecords: "{{ __('message.loading_records') }}",
             },
                  columnDefs: [
                 { 

@@ -39,8 +39,14 @@ class OrderRequest extends Request
     public function messages()
     {
         return [
-            'price_override.numeric' => 'Price should be a numeric value',
-            'qty.integer' => 'Quantity should be a integer value',
+            'price_override.numeric' => __('validation.price_numeric_value') ,
+            'qty.integer' => __('validation.quantity_integer_value'),
+            'client.required' => __('validation.order_form.client.required'),
+            'payment_method.required' => __('validation.order_form.payment_method.required'),
+            'promotion_code.required' => __('validation.order_form.promotion_code.required'),
+            'order_status.required' => __('validation.order_form.order_status.required'),
+            'product.required' => __('validation.order_form.product.required'),
+            'subscription.required' => __('validation.order_form.subscription.required'),
         ];
     }
 }

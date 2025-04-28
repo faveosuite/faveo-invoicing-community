@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Invoices
+    {{ __('message.invoices') }}
 @stop
 @section('content-header')
 <style type="text/css">
@@ -100,6 +100,9 @@ Invoices
         z-index: 1;
     }
 
+.dropdown-menu {
+    max-height: none !important;
+}
 
 </style>
     <div class="col-sm-6">
@@ -135,20 +138,20 @@ Invoices
             
              <div class="col-md-3 form-group">
                 <!-- first name -->
-                {!! Form::label('name','First Name') !!}
+                {!! Form::label('name', __('message.first_name')) !!}
                 {!! Form::text('name',$request->name,['class' => 'form-control','id'=>'name']) !!}
 
             </div>
 
             <div class="col-md-3 form-group">
                 <!-- first name -->
-                {!! Form::label('invoice_no','Invoice No') !!}
+                {!! Form::label('invoice_no', __('message.invoice_no')) !!}
                 {!! Form::text('invoice_no',$request->invoice_no,['class' => 'form-control','id'=>'invoice_no']) !!}
 
             </div>
        <div class="col-md-3 form-group">
     <!-- first name -->
-    {!! Form::label('status', 'Status') !!}
+    {!! Form::label('status', __('message.status')) !!}
     <select name="status" class="form-control" id="status">
         <option value="">{{ __('message.choose') }}</option>
         <option value="pending" @if($request->input('status') === 'pending') selected @endif>{{ __('message.choose') }}</option>
@@ -159,7 +162,7 @@ Invoices
 
 
               <div class="col-md-3 form-group">
-            {!! Form::label('currency', 'Currency') !!}
+            {!! Form::label('currency', __('message.currency')) !!}
             <select name="currency_id" class="form-control" id="currency">
                 <option value="">{{ __('message.choose') }}</option>
                 @foreach($currencies as $currency)
@@ -175,7 +178,7 @@ Invoices
             
             <div class="col-md-3 form-group">
                 <!-- first name -->
-                {!! Form::label('from','Invoice From') !!}
+                {!! Form::label('from', __('message.invoice_form')) !!}
                 <div class="input-group date" id="invoice_from" data-target-input="nearest">
                     <input type="text" name="from" class="form-control datetimepicker-input" autocomplete="off" value="{{ $request->input('from') }}"  data-target="#invoice_from"/>
 
@@ -190,7 +193,7 @@ Invoices
             </div>
             <div class="col-md-3 form-group">
                 <!-- first name -->
-                {!! Form::label('till','Invoice Till') !!}
+                {!! Form::label('till', __('message.invoice_till')) !!}
                 <div class="input-group date" id="invoice_till" data-target-input="nearest">
                     <input type="text" name="till" class="form-control datetimepicker-input" autocomplete="off" value="{{ $request->input('till') }}"  data-target="#invoice_till"/>
 
@@ -207,9 +210,9 @@ Invoices
             <div class='row'>
                 <div class="col-md-6">
                     <!-- {!! Form::submit('Search',['class'=>'btn btn-primary']) !!} -->
-                    <button name="Search" type="submit"  class="btn btn-secondary"><i class="fa fa-search">&nbsp;</i>{!!Lang::get('Search')!!}</button>
+                    <button name="Search" type="submit"  class="btn btn-secondary"><i class="fa fa-search">&nbsp;</i>{!!Lang::get('message.search')!!}</button>
                      &nbsp;&nbsp;
-                    {!! Form::submit('Reset',['class'=>'btn btn-secondary','id'=>'reset']) !!}
+                    {!! Form::submit( __('message.reset'),['class'=>'btn btn-secondary','id'=>'reset']) !!}
                     </div>
             </div>
 
@@ -225,10 +228,10 @@ Invoices
       
         <h3 class="card-title">{{ Lang::get('message.invoices') }}</h3>
         <div class="card-tools">
-        <button type="button" id="invoice_export-report-btn" class="btn btn-sm pull-right" data-toggle="tooltip" title="Export" style="position: absolute; left: 94%; top: 13px; z-index: 10;">
+        <button type="button" id="invoice_export-report-btn" class="btn btn-sm pull-right" data-toggle="tooltip" title="{{ __('message.export') }}" style="position: absolute; left: 94%; top: 13px; z-index: 10;">
             <i class="fas fa-paper-plane"></i>
         </button>
-        <a href="{{ url('invoice/generate') }}" class="btn btn-sm pull-right" data-toggle="tooltip" title="Create new invoice" style="position: absolute; left: 97%; top: 13px;right: 0px;">
+        <a href="{{ url('invoice/generate') }}" class="btn btn-sm pull-right" data-toggle="tooltip" title="{{ __('message.create-invoice') }}" style="position: absolute; left: 97%; top: 13px;right: 0px;">
             <i class="fas fa-plus"></i>
         </a>
     </div>
@@ -368,6 +371,21 @@ Invoices
                 "sLengthMenu": "_MENU_ Records per page",
                 "sSearch": "<span style='position: relative;right: 180px;'>{{ __('message.search') }}:</span> ",
                 "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
+            },
+            language: {
+                paginate: {
+                    first:      "{{ __('message.paginate_first') }}",
+                    last:       "{{ __('message.paginate_last') }}",
+                    next:       "{{ __('message.paginate_next') }}",
+                    previous:   "{{ __('message.paginate_previous') }}"
+                },
+                emptyTable:     "{{ __('message.empty_table') }}",
+                info:           "{{ __('message.datatable_info') }}",
+                zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
+                infoEmpty:      "{{ __('message.info_empty') }}",
+                infoFiltered:   "{{ __('message.info_filtered') }}",
+                lengthMenu:     "{{ __('message.length_menu') }}",
+                loadingRecords: "{{ __('message.loading_records') }}",
             },
             columnDefs: [
                 {
@@ -518,10 +536,10 @@ Invoices
                 },
                 error: function(xhr, status, error) {
                     var result = '<div class="alert alert-danger">' +
-                        '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
+                        '<button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}">' +
                         '<span aria-hidden="true">&times;</span></button>' +
-                        '<strong><i class="far fa-thumbs-down"></i> Oops! </strong>' +
-                        'Export failed: ' + xhr.responseJSON.message + '</div>';
+                        '<strong><i class="far fa-thumbs-down"></i> {{ __('message.error_oops') }} </strong>' +
+                        '{{ __('message.export_failed') }}: ' + xhr.responseJSON.message + '</div>';
 
                     $('#export-message').html(result).removeClass('text-success').addClass('text-danger');
                     setTimeout(function() {

@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Configure Queue
+    {{ __('message.configure_queue') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
