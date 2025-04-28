@@ -56,7 +56,7 @@ class ExtendedBaseProductController extends Controller
         })
         ->addColumn('action', function ($model) {
             return '<p><a href='.url('edit-upload/'.$model->id).
-                                " class='btn btn-sm btn-secondary'".tooltip( __('message.edit'))."<i class='fa fa-edit'
+                                " class='btn btn-sm btn-secondary'".tooltip(__('message.edit'))."<i class='fa fa-edit'
                                  style='color:white;'> </i></a></p>";
         })
          ->filterColumn('title', function ($query, $keyword) {
@@ -106,12 +106,12 @@ class ExtendedBaseProductController extends Controller
             'title' => 'required',
             'version' => 'required',
             'dependencies' => 'required',
-            ],
+        ],
             [
                 'title.required' => __('validation.extend_product.title_required'),
                 'version.required' => __('validation.extend_product.version_required'),
                 'dependencies.required' => __('validation.extend_product.dependencies_required'),
-        ]);
+            ]);
         try {
             $file_upload = ProductUpload::find($id);
             $file_upload->where('id', $id)->update(['title' => $request->input('title'), 'description' => $request->input('description'), 'version' => $request->input('version'), 'dependencies' => json_encode($request->input('dependencies')), 'is_private' => $request->input('is_private'), 'is_restricted' => $request->input('is_restricted'), 'release_type' => $request->input('release_type')]);
@@ -168,7 +168,7 @@ class ExtendedBaseProductController extends Controller
     <div class="form-group">
         <label class="required">'./* @scrutinizer ignore-type */ \Lang::get('message.cloud_domain').'</label>
         <div class="input-group">
-            <input type="text" name="cloud_domain" class="form-control" id="cloud_domain" placeholder="'. __('message.extended_domain').'" required >
+            <input type="text" name="cloud_domain" class="form-control" id="cloud_domain" placeholder="'.__('message.extended_domain').'" required >
             <input type="text" class="form-control" value=".'.cloudSubDomain().'" disabled="true" style="background-color: #4081B5; color:white; border-color: #0088CC">
         </div>
             <span class="error-message" id="cloud-msg"></span>
@@ -246,18 +246,18 @@ class ExtendedBaseProductController extends Controller
         $checkSubscription = false;
         if ($invoice) {
             if ($invoice->user_id != \Auth::user()->id) {
-                throw new \Exception( __('message.invalid_modification_data_permission'));
+                throw new \Exception(__('message.invalid_modification_data_permission'));
             }
             $checkSubscription = $invoice->order()->first() ? $invoice->order()->first()->subscription : false;
         }
         if ($checkSubscription) {
             if (strtotime($checkSubscription->update_ends_at) > 1) {
                 if ($checkSubscription->update_ends_at < (new Carbon())->toDateTimeString()) {
-                    throw new \Exception( __('message.renew_subscription_download'));
+                    throw new \Exception(__('message.renew_subscription_download'));
                 }
             }
         } else {
-            throw new \Exception( __('message.no_order_exists_invoice'));
+            throw new \Exception(__('message.no_order_exists_invoice'));
         }
     }
 

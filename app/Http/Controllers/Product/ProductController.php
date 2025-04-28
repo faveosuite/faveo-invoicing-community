@@ -177,13 +177,13 @@ class ProductController extends BaseProductController
                                 if (is_array($permissions)) {
                                     if ($permissions['downloadPermission'] == 1) {
                                         $url = '<a href='.url('product/download/'.$model->id).
-                                    " class='btn btn-sm btn-secondary btn-xs'".tooltip( __('message.download'))."<i class='fas fa-cloud-download-alt' 
+                                    " class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.download'))."<i class='fas fa-cloud-download-alt' 
                                     style='color:white;'> </i></a>";
                                     }
                                 }
 
                                 return '<p><a href='.url('products/'.$model->id.'/edit').
-                                " class='btn btn-sm btn-secondary btn-xs'".tooltip( __('message.edit'))."<i class='fa fa-edit'
+                                " class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.edit'))."<i class='fa fa-edit'
                                  style='color:white;'> </i></a>&nbsp;$url</p>";
                             })
                              ->filterColumn('name', function ($query, $keyword) {
@@ -448,19 +448,19 @@ class ProductController extends BaseProductController
             'image' => 'sometimes|mimes:jpeg,png,jpg|max:2048',
             'product_sku' => 'required',
             'group' => 'required',
-            ],
+        ],
             [
-                    'name.required' => __('validation.product_controller.name_required'),
-                    'name.unique' => __('validation.product_controller.name_unique'),
-                    'type.required' => __('validation.product_controller.type_required'),
-                    'description.required' => __('validation.product_controller.description_required'),
-                    'product_description.required' => __('validation.product_controller.product_description_required'),
-                    'image.mimes' => __('validation.product_controller.image_mimes'),
-                    'image.max' => __('validation.product_controller.image_max'),
-                    'product_sku.required' => __('validation.product_controller.product_sku_required'),
-                    'group.required' => __('validation.product_controller.group_required'),
-                    'show_agent.required' => __('validation.product_controller.show_agent_required'),
-        ]);
+                'name.required' => __('validation.product_controller.name_required'),
+                'name.unique' => __('validation.product_controller.name_unique'),
+                'type.required' => __('validation.product_controller.type_required'),
+                'description.required' => __('validation.product_controller.description_required'),
+                'product_description.required' => __('validation.product_controller.product_description_required'),
+                'image.mimes' => __('validation.product_controller.image_mimes'),
+                'image.max' => __('validation.product_controller.image_max'),
+                'product_sku.required' => __('validation.product_controller.product_sku_required'),
+                'group.required' => __('validation.product_controller.group_required'),
+                'show_agent.required' => __('validation.product_controller.show_agent_required'),
+            ]);
 
         if ($v->fails()) {
             return redirect()->back()->with('errors', $v->errors());
@@ -588,7 +588,7 @@ class ProductController extends BaseProductController
 
             return successResponse(__('message.deleted-successfully'));
         } catch (\Exception $e) {
-            return errorResponse( __('message.errors_occurs_delete_product').$e->getMessage());
+            return errorResponse(__('message.errors_occurs_delete_product').$e->getMessage());
         }
     }
 

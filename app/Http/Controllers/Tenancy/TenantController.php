@@ -121,7 +121,7 @@ class TenantController extends Controller
             $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
 
             if (! $keys->app_key) {//Valdidate if the app key to be sent is valid or not
-                throw new Exception( __('message.cloud_invalid_message'));
+                throw new Exception(__('message.cloud_invalid_message'));
             }
             $response = $this->client->request(
                 'GET',
@@ -304,13 +304,13 @@ class TenantController extends Controller
                     if (empty($order_id) || empty($order_number)) {
                         return "<p><button data-toggle='modal'
                 data-id=".$model->id." data-name= '' onclick=deleteTenant('".$model->id."') id='delten".$model->id."'
-                class='btn btn-sm btn-dark btn-xs delTenant'".tooltip( __('message.delete'))."<i class='fa fa-trash'
+                class='btn btn-sm btn-dark btn-xs delTenant'".tooltip(__('message.delete'))."<i class='fa fa-trash'
                 style='color:white;'> </i></button>&nbsp;</p>";
                     }
 
                     return "<p><button data-toggle='modal'
                 data-id='".$model->id."' data-name='' onclick=\"deleteTenant('".$model->id."','".$order_number."')\" id='delten".$model->id."'
-                class='btn btn-sm btn-dark btn-xs delTenant' ".tooltip( __('message.delete'))."<i class='fa fa-trash'
+                class='btn btn-sm btn-dark btn-xs delTenant' ".tooltip(__('message.delete'))."<i class='fa fa-trash'
                 style='color:white;'> </i></button>&nbsp;</p>";
                 })
                 ->rawColumns(['Order', 'Deletion day', 'tenants', 'domain', 'db_name', 'db_username', 'action', 'name', 'email', 'mobile', 'country', 'Expiry day', 'plan'])
@@ -627,7 +627,7 @@ class TenantController extends Controller
     {
         $order = Order::findorFail($order_id);
         if (\Auth::user()->role != 'admin' && $order->client != \Auth::user()->id) {
-            return errorResponse( __('message.cannot_remove_license_installation'));
+            return errorResponse(__('message.cannot_remove_license_installation'));
         }
         $order->domain = '';
         $licenseCode = $order->serial_key;
@@ -686,12 +686,12 @@ class TenantController extends Controller
             'cloud_top_message' => 'required',
             'cloud_label_field' => 'required',
             'cloud_label_radio' => 'required',
-            ],
-                [
-                    'cloud_top_message.required' => __('validation.cloud_tenant.cloud_top_message_required'),
-                    'cloud_label_field.required' => __('validation.cloud_tenant.cloud_label_field_required'),
-                    'cloud_label_radio.required' => __('validation.cloud_tenant.cloud_label_radio_required'),
-        ]);
+        ],
+            [
+                'cloud_top_message.required' => __('validation.cloud_tenant.cloud_top_message_required'),
+                'cloud_label_field.required' => __('validation.cloud_tenant.cloud_label_field_required'),
+                'cloud_label_radio.required' => __('validation.cloud_tenant.cloud_label_radio_required'),
+            ]);
 
         try {
             $cloud = new CloudPopUp;

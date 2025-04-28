@@ -79,7 +79,7 @@ class SystemManagerController extends Controller
             $existingAccManager = $request->input('existingAccManager');
             $newAccountManager = $request->input('newAccManager')[0];
             if ($existingAccManager == $newAccountManager) {
-                return ['message' => 'fails', 'update' => __('message.same_account_manager_error'),];
+                return ['message' => 'fails', 'update' => __('message.same_account_manager_error')];
             }
             //First make the selected Admin as account Manager-
             User::where('id', $newAccountManager)->update(['position' => 'account_manager']);
@@ -117,15 +117,16 @@ class SystemManagerController extends Controller
             'existingSaleManager' => 'required',
             'newSaleManager' => 'required',
         ], [
-            'existingSaleManager.required' =>  __('message.select_system_sales_manager'),
-            'newSaleManager.required' =>  __('message.select_new_sales_manager'),
+            'existingSaleManager.required' => __('message.select_system_sales_manager'),
+            'newSaleManager.required' => __('message.select_new_sales_manager'),
         ]);
 
         try {
             $existingSaleManager = $request->input('existingSaleManager');
             $newSalesManager = $request->input('newSaleManager')[0];
             if ($existingSaleManager == $newSalesManager) {
-                return ['message' => 'fails', 'update' => __('message.sales_manager_must_be_different')];            }
+                return ['message' => 'fails', 'update' => __('message.sales_manager_must_be_different')];
+            }
             //First make the selected Admin as sales Manager-
             User::where('id', $newSalesManager)->update(['position' => 'manager']);
 

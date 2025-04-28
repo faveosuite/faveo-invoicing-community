@@ -22,7 +22,7 @@ class StoreLanguageRequest extends FormRequest
             'language' => ['required', function ($attribute, $value, $fail) {
                 $availableLanguages = array_map('basename', File::directories(lang_path()));
                 if (! in_array($value, $availableLanguages)) {
-                    return $fail( __('validation.language.invalid'));
+                    return $fail(__('validation.language.invalid'));
                 }
             }],
         ];

@@ -3,7 +3,6 @@
 namespace App\Http\Requests\Common;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Lang;
 
 class SocialMediaRequest extends FormRequest
 {

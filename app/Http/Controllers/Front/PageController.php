@@ -65,7 +65,7 @@ class PageController extends Controller
 
                         ->addColumn('action', function ($model) {
                             return '<a href='.url('pages/'.$model->id.'/edit')
-                            ." class='btn btn-sm btn-secondary btn-xs'".tooltip( __('message.edit'))."<i class='fa fa-edit'
+                            ." class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.edit'))."<i class='fa fa-edit'
                                  style='color:white;'> </i></a>";
                         })
                           ->filterColumn('name', function ($query, $keyword) {
@@ -579,13 +579,13 @@ class PageController extends Controller
         if ($product->add_to_contact != 1) {
             if (in_array($product->id, cloudPopupProducts())) {
                 return '<button class="btn '.$orderButton.' btn-modern buttonsale" data-toggle="modal" data-target="#tenancy" data-mydata="'.$product->id.'">
-                                <span style="white-space: nowrap;">' . __('messages.order_now') . '/span>
+                                <span style="white-space: nowrap;">'.__('messages.order_now').'/span>
                             </button>';
             } else {
                 return '<input type="submit" value="Order Now" class="btn '.$orderButton.' btn-modern buttonsale"></form>';
             }
         } else {
-            return '<a class="btn '.$orderButton.' btn-modern sales buttonsale" href="https://www.faveohelpdesk.com/contact-us/">' . __('messages.contact_sales') . '</a>';
+            return '<a class="btn '.$orderButton.' btn-modern sales buttonsale" href="https://www.faveohelpdesk.com/contact-us/">'.__('messages.contact_sales').'</a>';
         }
     }
 

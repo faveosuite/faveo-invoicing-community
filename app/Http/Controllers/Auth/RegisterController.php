@@ -90,7 +90,7 @@ class RegisterController extends Controller
                 $r = $mailchimp->addSubscriber($user);
             }
 
-            activity()->log( __('message.user') . ' <strong>' . $user['first_name'] . ' ' . $user['last_name'] . '</strong> ' . __('message.user_created_suffix'));
+            activity()->log(__('message.user').' <strong>'.$user['first_name'].' '.$user['last_name'].'</strong> '.__('message.user_created_suffix'));
 
             $need_verify = $this->getEmailMobileStatusResponse();
 

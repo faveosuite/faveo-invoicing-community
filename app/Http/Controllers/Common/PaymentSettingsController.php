@@ -269,7 +269,7 @@ class PaymentSettingsController extends Controller
              */
             $this->deleteDirectory($file);
 
-            return redirect()->back()->with('fails', '<b>' . __('messages.plugin_file_path_not_exist') . '</b> ' . $file);
+            return redirect()->back()->with('fails', '<b>'.__('messages.plugin_file_path_not_exist').'</b> '.$file);
         }
     }
 

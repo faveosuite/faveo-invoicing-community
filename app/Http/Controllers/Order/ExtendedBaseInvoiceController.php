@@ -47,12 +47,12 @@ class ExtendedBaseInvoiceController extends Controller
             'payment_date' => 'required',
             'payment_method' => 'required',
             'amount' => 'required',
-            ],
+        ],
             [
                 'payment_date.required' => __('validation.payment.payment_date_required'),
                 'payment_method.required' => __('validation.payment.payment_method_required'),
                 'amount.required' => __('validation.payment.amount_required'),
-        ]);
+            ]);
 
         try {
             $payment = new Payment();
@@ -86,12 +86,12 @@ class ExtendedBaseInvoiceController extends Controller
             'date' => 'required',
             'total' => 'required',
             'status' => 'required',
-            ],
+        ],
             [
                 'date.required' => __('validation.custom_date.date_required'),
                 'total.required' => __('validation.custom_date.total_required'),
                 'status.required' => __('validation.custom_date.status_required'),
-        ]);
+            ]);
 
         try {
             $total = $request->input('total');
@@ -130,7 +130,7 @@ class ExtendedBaseInvoiceController extends Controller
             $payment_status = 'success';
             $payment = $this->multiplePayment($clientid, $invoiceChecked, $payment_method,
                 $payment_date, $totalAmt, $invoicAmount, $amtToCredit, $payment_status);
-            $response = ['type' => 'success', 'message' =>  __('message.payment_updated_succcessfully')];
+            $response = ['type' => 'success', 'message' => __('message.payment_updated_succcessfully')];
 
             return response()->json($response);
         } catch (\Exception $ex) {

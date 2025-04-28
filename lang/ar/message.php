@@ -1761,7 +1761,7 @@ return [
         'confirm_password_required' => 'تأكيد كلمة المرور مطلوب',
         'confirm_password_equalto' => 'كلمات المرور غير متطابقة',
         'terms_conditions_required' => 'يجب أن توافق على الشروط والأحكام',
-        ],
+    ],
     'caps_items' => 'العناصر',
     'view_all' => 'عرض الكل',
     'login_register' => 'تسجيل الدخول | تسجيل',
@@ -1823,6 +1823,5 @@ return [
     'app_secret' => 'الرمز السري للتطبيق',
     'generate_key' => 'إنشاء مفتاح',
     'app_key' => 'مفتاح التطبيق',
-
 
 ];

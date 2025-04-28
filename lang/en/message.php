@@ -2218,10 +2218,10 @@ return [
     'order_report_available_download' => 'Order report available for download',
     'invoice_report_available_download' => 'Invoice report available for download',
     'tenant_report_ready' => 'Hello :first_name :last_name,<br><br>'
-                            . 'Tenant report is successfully generated and ready for download.'
-                            . '<br><br>Download link: <a href=":download_link">:download_link</a>'
-                            . '<br><br>Please note this link will expire in 6 hours.'
-                            . '<br><br>Kind regards,<br>:first_name',
+                            .'Tenant report is successfully generated and ready for download.'
+                            .'<br><br>Download link: <a href=":download_link">:download_link</a>'
+                            .'<br><br>Please note this link will expire in 6 hours.'
+                            .'<br><br>Kind regards,<br>:first_name',
     'tenant_report_available_download' => 'Tenant report available for download',
     'default_language' => 'Default Language',
     'select_default_language' => 'Select Default Language',

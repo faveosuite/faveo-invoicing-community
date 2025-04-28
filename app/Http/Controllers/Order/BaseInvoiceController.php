@@ -76,14 +76,14 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
             'payment_method' => 'required',
             'amount' => 'required|numeric',
             'payment_date' => 'required|date_format:Y-m-d',
-            ],
+        ],
             [
                 'payment_method.required' => __('validation.payment.payment_method_required'),
                 'amount.required' => __('validation.payment.amount_required'),
                 'amount.numeric' => __('validation.amt_numeric'),
                 'payment_date.required' => __('validation.payment.payment_date_required'),
                 'payment_date.date_format' => __('message.payment-date-format'),
-        ]);
+            ]);
 
         try {
             $payment_method = $request->input('payment_method');

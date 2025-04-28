@@ -216,7 +216,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                             $check = $this->checkExecution($model->id);
                             if ($check == false) {
                                 $action = '<p><form id="execute-form" method="post" action='.url('order/execute?invoiceid='.$model->id).'>'.'<input type="hidden" name="_token" value='.\Session::token().'>'.'
-                    <button type="submit" style="margin-top:-10px;" class="btn btn-sm btn-secondary btn-xs"'.tooltip( __('message.execute_order')).'<i class="fa fa-tasks" style="color:white;"></i></button></form></p>';
+                    <button type="submit" style="margin-top:-10px;" class="btn btn-sm btn-secondary btn-xs"'.tooltip(__('message.execute_order')).'<i class="fa fa-tasks" style="color:white;"></i></button></form></p>';
 
                                 $action .= '<script>
                             $("#execute-form").submit(function(event) {
@@ -226,7 +226,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                             }
 
                             return '<a href='.url('invoices/show?invoiceid='.$model->id)
-                            ." class='btn btn-sm btn-secondary btn-xs'".tooltip( __('message.view'))."<i class='fa fa-eye' 
+                            ." class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.view'))."<i class='fa fa-eye' 
                             style='color:white;'> </i></a>"
                                     ."   $action";
                         })
@@ -273,7 +273,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             ->where('invoices.id', '=', $request->input('invoiceid'))
             ->first();
             if (User::onlyTrashed()->find($invoice->user_id)) {
-                throw new \Exception( __('message.user_suspended'));
+                throw new \Exception(__('message.user_suspended'));
             }
             $invoiceItems = $invoice->invoiceItem()->get();
             $user = $this->user->find($invoice->user_id);
@@ -404,7 +404,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
 
             return $invoiceItem;
         } catch (\Exception $ex) {
-            throw new \Exception( __('message.cannot_create_invoice_item'));
+            throw new \Exception(__('message.cannot_create_invoice_item'));
         }
     }
 

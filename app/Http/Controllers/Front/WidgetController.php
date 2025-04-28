@@ -54,7 +54,7 @@ class WidgetController extends Controller
                         })
                         ->addColumn('action', function ($model) {
                             return '<a href='.url('widgets/'.$model->id.'/edit')."
-                             class='btn btn-sm btn-secondary btn-xs'".tooltip( __('message.edit'))."<i class='fa fa-edit'
+                             class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.edit'))."<i class='fa fa-edit'
                                  style='color:white;'> </i></a>";
                         })
                          ->filterColumn('name', function ($query, $keyword) {
@@ -105,7 +105,7 @@ class WidgetController extends Controller
             'publish' => 'required',
             // 'content' => 'required',
             'type' => 'required|unique:widgets',
-            ],
+        ],
             [
                 'name.required' => __('validation.widget.name_required'),
                 'name.max' => __('validation.widget.name_max'),
@@ -138,7 +138,7 @@ class WidgetController extends Controller
             'publish' => 'required',
             // 'content' => 'required',
             'type' => 'required|unique:widgets,type,'.$id,
-            ],
+        ],
             [
                 'name.required' => __('validation.widget.name_required'),
                 'name.max' => __('validation.widget.name_max'),
@@ -151,10 +151,10 @@ class WidgetController extends Controller
             $mailchimpTextBox = Widgets::where('allow_mailchimp', 1)->where('id', '!=', $id)->count();
             $allowsocialIcon = Widgets::where('allow_social_media', 1)->where('id', '!=', $id)->count();
             if ($mailchimpTextBox && $request->input('allow_mailchimp')) {
-                throw new \Exception( __('message.mailchimp_footer_error'));
+                throw new \Exception(__('message.mailchimp_footer_error'));
             }
             if ($allowsocialIcon && $request->allow_social_media == 1) {
-                throw new \Exception( __('message.social_icon_footer_warning'));
+                throw new \Exception(__('message.social_icon_footer_warning'));
             }
             $widget = $this->widget->where('id', $id)->first();
             $widget->fill($request->input());

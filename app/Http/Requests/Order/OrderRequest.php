@@ -39,7 +39,7 @@ class OrderRequest extends Request
     public function messages()
     {
         return [
-            'price_override.numeric' => __('validation.price_numeric_value') ,
+            'price_override.numeric' => __('validation.price_numeric_value'),
             'qty.integer' => __('validation.quantity_integer_value'),
             'client.required' => __('validation.order_form.client.required'),
             'payment_method.required' => __('validation.order_form.payment_method.required'),

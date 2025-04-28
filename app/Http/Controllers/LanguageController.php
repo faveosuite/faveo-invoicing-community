@@ -5,11 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\BillingInstaller\InstallerController;
 use App\Model\Common\Language;
 use App\Model\Common\Setting;
-use App\SocialLogin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Session;
 
 class LanguageController extends Controller
 {
@@ -25,9 +23,10 @@ class LanguageController extends Controller
         foreach ($apiLanguages as $language) {
             $language->enable_disable = $dbLanguages[$language->locale] ?? 0;
         }
+
         return view('themes.default1.common.languages', [
             'languages' => $apiLanguages,
-            'defaultLang' => $defaultLang
+            'defaultLang' => $defaultLang,
         ]);
     }
 
@@ -53,14 +52,14 @@ class LanguageController extends Controller
 
             // If language not found, return a 404 response
             return response()->json(['success' => false, 'message' => 'Language not found.'], 404);
-
         } catch (\Exception $e) {
             // If any error occurs, return a failure message
             return redirect()->back()->with('fails', $e->getMessage());
         }
     }
 
-    public function fetchLangDropdownUsers(){
+    public function fetchLangDropdownUsers()
+    {
         try {
             // Get list of language directories
             $languageList = array_map('basename', File::directories(lang_path()));
@@ -88,7 +87,8 @@ class LanguageController extends Controller
             return successResponse('', collect($languages)->sortBy('name')->values()->all());
         } catch (\Exception $exception) {
             \Log::error($exception);
+
             return errorResponse($exception->getMessage());
         }
-}
+    }
 }

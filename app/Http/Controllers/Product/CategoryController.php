@@ -64,7 +64,7 @@ class CategoryController extends Controller
          ->addColumn('action', function ($model) {
              return "<p><button data-toggle='modal' 
              data-id=".$model->id." data-name= '$model->category_name' 
-             class='btn btn-sm btn-secondary btn-xs editCat'".tooltip( __('message.edit'))."<i class='fa fa-edit'
+             class='btn btn-sm btn-secondary btn-xs editCat'".tooltip(__('message.edit'))."<i class='fa fa-edit'
              style='color:white;'> </i></button>&nbsp;</p>";
          })
          ->rawColumns(['checkbox', 'category_name', 'action'])

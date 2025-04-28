@@ -679,7 +679,7 @@ return [
     'active' => 'सक्रिय',
     'inactive' => 'निष्क्रिय',
     'activate' => 'सक्रिय करें',
-    'extension_required_error' => "इस सुविधा के लिए PHP का :extension एक्सटेंशन आवश्यक है।",
+    'extension_required_error' => 'इस सुविधा के लिए PHP का :extension एक्सटेंशन आवश्यक है।',
     'unknown_error_occured' => 'अज्ञात त्रुटि हुई',
     'dependencies' => 'निर्भरता',
 
@@ -709,10 +709,10 @@ return [
     'cloud_heading' => 'आइए एक साथ मिलकर आपकी Faveo क्लाउड इंस्टेंस बनाएं!',
     'cloud_field_label' => 'अपना वांछित क्लाउड डोमेन नाम दर्ज करें',
     'cloud_price' => 'प्रति एजेंट मूल्य',
-//Delete message
+    //Delete message
     'confirm' => 'क्या आप वाकई इसे हटाना चाहते हैं?',
 
-//Delete message
+    //Delete message
     'cloud_domain_change' => 'शानदार खबर! आपका क्लाउड डोमेन सफलतापूर्वक बदल दिया गया है। कृपया ध्यान दें कि इन परिवर्तनों को लागू करने के लिए लगभग 5 मिनट का छोटा सा डाउनटाइम हो सकता है। आपके धैर्य के लिए धन्यवाद!',
     'limit_is_up' => 'हमें यह जानकारी मिली है कि आपने मुफ्त ट्रायल सीमा को पार कर लिया है, कृपया आगे बढ़ने के लिए अपनी मौजूदा इंस्टेंसेस को हटा दें।',
     'too_long' => 'यह एक बड़ा डोमेन लगता है, कृपया कम संख्या में वर्णों के साथ बनाने का प्रयास करें।',
@@ -731,7 +731,7 @@ return [
     'tick-to-highlight-product' => 'उत्पाद को हाइलाइट करने के लिए चेक करें',
     'tick-to-add_to_contact-product' => 'यदि आप संपर्क बिक्री बटन जोड़ना चाहते हैं तो चेक करें',
     'cloud_domain' => 'क्लाउड डोमेन दर्ज करें',
-    'cloud_domain_empty' => "उफ्फ! आप बिना डोमेन प्रदान किए इस योजना के लिए चालान उत्पन्न नहीं कर सकते।",
+    'cloud_domain_empty' => 'उफ्फ! आप बिना डोमेन प्रदान किए इस योजना के लिए चालान उत्पन्न नहीं कर सकते।',
     'domain_taken' => 'उफ्फ! ऐसा लगता है कि यह डोमेन पहले से किसी अन्य उपयोगकर्ता द्वारा उपयोग में लिया गया है। कृपया किसी अन्य डोमेन के साथ प्रयास करें।',
 
     'without_installation_found' => 'उफ्फ! ऐसा लगता है कि यदि हम आपका क्लाउड डोमेन ढूंढ नहीं पाते हैं तो आप एजेंट्स में बदलाव नहीं कर सकते। कृपया पहले अपनी सदस्यता नवीनीकरण करें, फिर बाद में एजेंट्स में आवश्यक परिवर्तन करें। आप अपने आदेश के तहत क्लाउड सेटिंग्स में एजेंट्स को समायोजित कर सकते हैं। धन्यवाद!',
@@ -743,7 +743,7 @@ return [
     'wrong_domain' => 'ओह नहीं, लगता है कुछ गड़बड़ हो गई है! हमारी टीम इस पर काम कर रही है और इसे जल्दी से ठीक कर देगी। एक बार जब यह ठीक हो जाएगा, तो आप अपने डोमेन को कस्टमाइज कर सकेंगे। धन्यवाद आपके धैर्य के लिए!',
     'agent_updated' => 'वाह! हमने आपके वर्तमान योजना में एजेंट्स को सफलतापूर्वक अपडेट कर दिया है। अब सब कुछ सेट है!',
     'change_agents_failed' => 'उफ्फ! जब आप अपने एजेंट्स में बदलाव कर रहे थे, तो लगता है कि कुछ गड़बड़ हो गई। कोई चिंता नहीं – हमारी बेहतरीन टीम पहले से ही मामले को ठीक करने में लगी है!',
-    'agent_reduce' => "उफ्फ! आप इस योजना पर एजेंट्स की संख्या कम नहीं कर सकते। ऐसा लगता है कि आपके खाते में कुछ सक्रिय एजेंट्स हैं। हम अनुशंसा करते हैं कि आप किसी अतिरिक्त एजेंट्स को निष्क्रिय करें और फिर योजना में एजेंट्स की संख्या को समायोजित करने का प्रयास करें।",
+    'agent_reduce' => 'उफ्फ! आप इस योजना पर एजेंट्स की संख्या कम नहीं कर सकते। ऐसा लगता है कि आपके खाते में कुछ सक्रिय एजेंट्स हैं। हम अनुशंसा करते हैं कि आप किसी अतिरिक्त एजेंट्स को निष्क्रिय करें और फिर योजना में एजेंट्स की संख्या को समायोजित करने का प्रयास करें।',
     'not_allowed_domain' => 'उफ्फ! ऐसा लगता है कि आपने इंटरनेट पर अनुमति नहीं प्राप्त डोमेन प्रारूप दर्ज किया है। कृपया आगे बढ़ने के लिए एक वैध डोमेन नाम दर्ज करें।',
     'agent_zero' => 'ऐसा लगता है कि आपने शून्य एजेंट्स का चयन किया है। कृपया आगे बढ़ने के लिए एक वैध संख्या में एजेंट्स चुनें।',
     'cloud_cname' => 'क्लाउड Cname रिकॉर्ड',
@@ -768,7 +768,7 @@ return [
     'user_suspend' => 'यह उपयोगकर्ता सिस्टम से निलंबित है। विवरण देखने के लिए उपयोगकर्ता को पुनर्स्थापित करें',
     'country_notfound' => 'देश का निर्धारण नहीं किया जा सका',
 
-//Strong Password
+    //Strong Password
     'strong_password' => 'पासवर्ड में कम से कम 8 वर्ण, एक अपरकेस अक्षर, एक लोअरकेस अक्षर, एक अंक और एक विशेष वर्ण होना चाहिए।',
 
     'password_requirements' => 'आपका पासवर्ड में होना चाहिए:',
@@ -788,7 +788,7 @@ return [
     'new_password_different' => 'नया पासवर्ड पुराने पासवर्ड से अलग होना चाहिए।',
     'reset_link_expired' => 'आपका पासवर्ड रीसेट लिंक समाप्त हो चुका है या नहीं मिला। कृपया फिर से पासवर्ड रीसेट करने का प्रयास करें।',
 
-//file storage
+    //file storage
 
     'file_storage' => 'फाइल संग्रहण',
     'set_file_storage' => 'फाइल संग्रहण पथ सेट करें',
@@ -1083,14 +1083,14 @@ return [
     'image_allowed' => 'केवल PNG, JPG, और JPEG फाइलों की अनुमति है।',
     'image_max' => 'चित्र का आकार 2 MB से अधिक नहीं हो सकता।',
 
-//email templates
+    //email templates
 
     'choose_password' => 'अपना पासवर्ड रीसेट करने के लिए यहां क्लिक करें: ',
     'email_username' => 'उपयोगकर्ता नाम: ',
     'email_password' => 'पासवर्ड: ',
     'email_click_here' => 'यहां क्लिक करें',
     'activate_account' => 'अपने खाते को सक्रिय करने के लिए:',
-//error template
+    //error template
     'page_not_found' => 'पृष्ठ नहीं मिला',
     'sorry' => 'हम खेदित हैं, लेकिन आप जो पृष्ठ ढूंढ रहे थे वह मौजूद नहीं है।',
     'useful_links' => 'यहाँ कुछ उपयोगी लिंक हैं',
@@ -1099,7 +1099,7 @@ return [
     'my_profile' => 'मेरा प्रोफ़ाइल',
     'contact_us' => 'संपर्क करें',
 
-//login-register template
+    //login-register template
     'login_lr' => 'लॉगिन | पंजीकरण',
     'sign_lr' => 'साइन इन करें या पंजीकरण करें',
     'or' => 'या',
@@ -1133,7 +1133,7 @@ return [
     'error_occurred' => 'एक त्रुटि हुई। कृपया फिर से प्रयास करें।',
     'error_one_country' => 'कृपया एक देश चुनें',
 
-//contact template
+    //contact template
     'feel_free' => 'विवरण पूछने के लिए स्वतंत्र महसूस करें, कोई सवाल न बचाएं!',
     'contact_name' => 'नाम',
     'contact_error_name' => 'कृपया अपना नाम दर्ज करें।',
@@ -1146,7 +1146,7 @@ return [
     'contact_send_msg' => 'संदेश भेजें',
     'our_office' => 'हमारा कार्यालय',
 
-//password template
+    //password template
     'forgot_password' => 'पासवर्ड भूल गए? अब रीसेट करें!',
     'lost_password' => 'अपना पासवर्ड खो दिया?',
     'know_password' => 'मुझे अपना पासवर्ड पता है',
@@ -1156,7 +1156,7 @@ return [
     'error_occurs' => 'एक त्रुटि हुई।',
     'reset_password' => 'पासवर्ड रीसेट करें',
 
-//front-client template
+    //front-client template
     'change_faveo' => 'क्या आप अपनी मौजूदा faveo क्लाउड डोमेन बदलना चाहते हैं?',
     'current_domain' => 'वर्तमान डोमेन दर्ज करें',
     'enter_domain' => 'नया डोमेन दर्ज करें',
@@ -1314,7 +1314,7 @@ return [
     'loading' => 'लोड हो रहा है...',
     'subscriptions_table' => 'सदस्यता तालिका',
     'invalid_format' => 'अमान्य प्रारूप।',
-//front-page template
+    //front-page template
     'all_pages' => 'सभी पृष्ठ',
     'create_new_page' => 'नया पृष्ठ बनाएं',
     'edit_page' => 'पृष्ठ संपादित करें',
@@ -1324,14 +1324,14 @@ return [
     'select_checkbox' => 'कृपया कम से कम एक चेकबॉक्स चुनें',
     'search_result' => 'खोज परिणाम',
 
-//front-widgets template
+    //front-widgets template
     'all_widgets' => 'सभी विजेट्स',
     'create_widget' => 'विजेट बनाएं',
     'configure_mailchimp' => 'मेलचिम्प को सेटिंग्स में कॉन्फ़िगर करें ताकि आप एक्सेस कर सकें',
     'configure_tweet' => 'ट्वीट्स को सेटिंग्स में कॉन्फ़िगर करें ताकि आप एक्सेस कर सकें',
     'edit_widget' => 'विजेट संपादित करें',
 
-//front outer template
+    //front outer template
     'remove_product' => 'उत्पाद हटाएं',
     'cart_totals' => 'कार्ट टोटल्स',
     'clear_cart' => 'कार्ट साफ करें',
@@ -1381,17 +1381,17 @@ return [
     'paid_with' => 'इससे भुगतान किया गया',
     'no_records_found' => 'कोई रिकॉर्ड नहीं मिला',
 
-// errors
+    // errors
     'sorry_something_wrong' => 'माफ करें, कुछ गलत हुआ',
     'error_fixed' => 'हम इस पर काम कर रहे हैं और इसे जल्द ही ठीक कर देंगे।',
     'go_back' => 'वापस जाएं',
     'be_right_back' => 'थोड़ी देर में वापस आएंगे।',
 
-//category template
+    //category template
     'all_categories' => 'सभी श्रेणियाँ',
     'category_name' => 'नाम',
 
-//common template
+    //common template
     'create_script_code' => 'स्क्रिप्ट कोड बनाएं',
     'create_script' => 'स्क्रिप्ट बनाएं',
     'edit_script_code' => 'स्क्रिप्ट कोड संपादित करें',
@@ -1553,14 +1553,14 @@ return [
     'deactivate' => 'निष्क्रिय करें',
     'provider' => 'प्रदाता',
 
-//github template
+    //github template
     'github_setting' => 'गिथब सेटिंग',
     'enter_github_username' => 'कृपया गिथब यूज़रनेम दर्ज करें',
     'enter_github_password' => 'कृपया गिथब पासवर्ड दर्ज करें',
     'enter_github_clientid' => 'कृपया क्लाइंट आईडी दर्ज करें',
     'enter_github_client_secret_key' => 'कृपया क्लाइंट सीक्रेट कुंजी दर्ज करें',
 
-//invoice template
+    //invoice template
     'edit_invoice' => 'चालान संपादित करें',
     'view_user' => 'उपयोगकर्ता देखें',
     'pending' => 'लंबित',
@@ -1601,7 +1601,7 @@ return [
     'no_tax_rates' => 'कोई कर दरें नहीं हैं',
     'store' => 'स्टोर',
 
-//Master both client and admin panels
+    //Master both client and admin panels
     'admin_dashboard' => 'एडमिन डैशबोर्ड',
     'my_account' => 'मेरा खाता',
     'start_free_trial' => 'निःशुल्क ट्रायल प्रारंभ करें',
@@ -1642,7 +1642,7 @@ return [
     'enter_domain_license' => 'डोमेन दर्ज करें और लाइसेंस फ़ाइल डाउनलोड करें',
     'installation_details' => 'स्थापना विवरण',
 
-//payment panel
+    //payment panel
     'payment_date' => 'भुगतान तिथि',
     'auto_renewal_subscription' => 'भविष्य के सब्सक्रिप्शन के लिए स्वचालित नवीनीकरण',
     'subscription_start_date' => 'सब्सक्रिप्शन प्रारंभ तिथि',
@@ -1668,7 +1668,7 @@ return [
     'coupon' => 'कूपन',
     'actions' => 'क्रियाएँ',
 
-//Tax panel
+    //Tax panel
     'create_tax' => 'कर बनाएं',
     'caps_others' => 'अन्य',
     'others' => 'अन्य',
@@ -1707,7 +1707,7 @@ return [
     'show_cart_page' => 'कार्ट पृष्ठ पर दिखाएं',
     'select_taxes' => 'कर चुनें',
 
-//Product panel
+    //Product panel
     'all_product_details' => 'उत्पाद विवरण जोड़ें',
     'enter_json_format' => 'JSON प्रारूप में दर्ज करें।',
     'upload' => 'अपलोड करें',
@@ -1736,21 +1736,21 @@ return [
     'all_types' => 'सभी प्रकार',
     'configure_queue' => 'क्यू को कॉन्फ़िगर करें',
 
-//renew panel
+    //renew panel
     'renew_product' => 'अपने उत्पाद को नवीनीकरण करने के लिए सुनिश्चित करें कि कार्ट खाली हो',
     'click_renew' => 'नवीनीकरण के लिए यहां क्लिक करें',
     'renew_your_order' => 'अपने आदेश को नवीनीकरण करें',
     'renew_order' => 'आदेश नवीनीकरण',
     'renewal_price_per_agent' => 'प्रति एजेंट नवीनीकरण मूल्य: ',
 
-//report panel
+    //report panel
     'file_name' => 'फाइल का नाम',
     'format' => 'फॉर्मेट',
     'contact' => 'संपर्क',
     'report_settings' => 'रिपोर्ट सेटिंग्स',
     'report_limit' => 'प्रति शीट रिकॉर्ड जोड़ें। अधिकतम सीमा 3000 है।',
 
-//tenant panel
+    //tenant panel
     'cloud_details' => 'क्लाउड विवरण',
     'cloud_server' => 'क्लाउड सर्वर',
     'customise_cloud_popup' => 'क्लाउड पॉपअप कस्टमाइज़ करें',
@@ -1778,7 +1778,7 @@ return [
     'app_key' => 'ऐप कुंजी',
     'app_secret' => 'ऐप गुप्त',
 
-//user-client panel
+    //user-client panel
     'create_new_user' => 'नया उपयोगकर्ता बनाएं',
     'create_user' => 'उपयोगकर्ता बनाएं',
     'position' => 'पद',
@@ -1873,7 +1873,7 @@ return [
     'by_arcanedev' => 'ARCANEDEV द्वारा',
     'toggle_navigation' => 'नेविगेशन बदलें',
 
-//bootstrap-4
+    //bootstrap-4
     'logs' => 'लॉग्स',
     'caps_delete_log_file' => 'लॉग फाइल हटाएं',
     'caps_delete_file' => 'फाइल हटाएं',
@@ -1894,7 +1894,7 @@ return [
     'error_logs' => 'त्रुटि लॉग्स',
     'view_logs' => 'लॉग्स देखें',
 
-//visitstats
+    //visitstats
     'request' => 'अनुरोध',
     'visitor' => 'आगंतुक',
     'browser' => 'ब्राउज़र',
@@ -1923,7 +1923,7 @@ return [
     'info' => 'जानकारी',
     'product_quantity' => 'उत्पाद की मात्रा',
     'table_search' => 'खोजें:',
-//validation message
+    //validation message
     'enter_valid_otp' => 'कृपया एक वैध OTP दर्ज करें',
     'verifying' => 'सत्यापन हो रहा है',
     'resending' => 'फिर से भेजा जा रहा है',
@@ -2054,7 +2054,7 @@ return [
     'null' => 'शून्य',
     'choose_one_payment_gateway' => 'कृपया एक भुगतान गेटवे चुनें',
 
-//Controller keys and values
+    //Controller keys and values
     'product_uploaded_successfully' => 'उत्पाद सफलतापूर्वक अपलोड किया गया',
     'token_mismatch_account_not_activated' => 'टोकन मेल नहीं खाता। खाता सक्रिय नहीं किया जा सकता।',
     'email_verification_success' => 'ईमेल सत्यापन सफल। कृपया अपने खाते तक पहुँचने के लिए लॉगिन करें !!',

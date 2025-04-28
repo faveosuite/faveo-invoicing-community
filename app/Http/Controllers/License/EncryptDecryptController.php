@@ -16,7 +16,7 @@ class EncryptDecryptController extends Controller
         if (openssl_public_encrypt($data, $encrypted, $pubkey, OPENSSL_PKCS1_PADDING)) {
             $data = base64_encode($encrypted);
         } else {
-            throw new \Exception( __('message.unable_to_encrypt'));
+            throw new \Exception(__('message.unable_to_encrypt'));
         }
 
         return $data;

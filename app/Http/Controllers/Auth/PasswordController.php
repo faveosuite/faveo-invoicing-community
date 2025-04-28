@@ -158,7 +158,6 @@ class PasswordController extends Controller
             $mail->sendEmail($from, $to, $data, $subject, $replace, $type);
         }
 
-        return redirect()->back()->with('success', __('message.resets_instruction') . $to . '. ' . __('message.check_junk_folder'));
-
+        return redirect()->back()->with('success', __('message.resets_instruction').$to.'. '.__('message.check_junk_folder'));
     }
 }

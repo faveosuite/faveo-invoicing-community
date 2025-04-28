@@ -36,7 +36,7 @@ class verifyOtp extends FormRequest
 
                 function ($attribute, $value, $fail) use ($pass) {
                     if (! Hash::check($value, $pass)) {
-                        return $fail( __('validation.password_otp.invalid'));
+                        return $fail(__('validation.password_otp.invalid'));
                     }
                 },
             ],

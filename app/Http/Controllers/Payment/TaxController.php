@@ -119,7 +119,7 @@ class TaxController extends Controller
 
                             ->addColumn('action', function ($model) {
                                 return '<a href='.url('tax/'.$model->id.'/edit').
-                                " class='btn btn-sm btn-secondary btn-xs'".tooltip( __('message.edit'))."<i class='fa fa-edit' 
+                                " class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.edit'))."<i class='fa fa-edit' 
                                 style='color:white;'> </i></a>";
                             })
                             ->filterColumn('tax_classes_id', function ($query, $keyword) {
@@ -220,7 +220,7 @@ class TaxController extends Controller
         if ($request->tax_classes_id == 'Others') {
             $this->validate($request, [
                 'rate' => 'required|numeric',
-                ],
+            ],
                 [
                     'rate.required' => __('validation.rate.required'),
                     'rate.numeric' => __('validation.rate.numeric'),
@@ -330,12 +330,12 @@ class TaxController extends Controller
             $id = $stateid;
             $states = \App\Model\Common\State::where('country_code_char2', $id)
             ->orderBy('state_subdivision_name', 'asc')->get();
-            echo '<option value="">' . __('message.choose') . '</option>';
+            echo '<option value="">'.__('message.choose').'</option>';
             foreach ($states as $state) {
                 echo '<option value='.$state->state_subdivision_code.'>'.$state->state_subdivision_name.'</option>';
             }
         } catch (\Exception $ex) {
-            echo "<option value=''>" . __('messages.problem_while_loading') . "</option>";
+            echo "<option value=''>".__('messages.problem_while_loading').'</option>';
 
             return redirect()->back()->with('fails', $ex->getMessage());
         }
@@ -363,11 +363,11 @@ class TaxController extends Controller
         if ($request->input('name') == 'Others') {
             $this->validate($request, [
                 'rate' => 'required|numeric',
-                ],
+            ],
                 [
                     'rate.required' => __('validation.rate.required'),
                     'rate.numeric' => __('validation.rate.numeric'),
-            ]);
+                ]);
         }
 
         try {

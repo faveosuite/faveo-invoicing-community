@@ -151,7 +151,7 @@ class BaseAuthController extends Controller
             $msg2 = '';
             if ($mobileStatus == 1) {
                 $result = $this->sendOtp($mobile, $code);
-                $msg1 = __('message.otp_has_sent') . $number . '.<br>' . __('message.enter_otp_received') . ' <a href=mailto:' . $companyEmail . '>' . $companyEmail . '</a>';
+                $msg1 = __('message.otp_has_sent').$number.'.<br>'.__('message.enter_otp_received').' <a href=mailto:'.$companyEmail.'>'.$companyEmail.'</a>';
             }
             $method = 'POST';
             $emailStatus = StatusSetting::pluck('emailverification_status')->first();
@@ -186,7 +186,7 @@ class BaseAuthController extends Controller
         $user = User::where('email', $email)->first();
         $contact = getContactData();
         if (! $user) {
-            throw new \Exception( __('message.activation_link_sent'));
+            throw new \Exception(__('message.activation_link_sent'));
         }
 
         try {

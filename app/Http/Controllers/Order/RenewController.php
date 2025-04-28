@@ -207,12 +207,12 @@ class RenewController extends BaseRenewController
         try {
             $product = $this->getProductById($productid);
             if (! $product) {
-                throw new Exception( __('message.product_removed_database'));
+                throw new Exception(__('message.product_removed_database'));
             }
             $currency = $this->getUserCurrencyById($userid);
             $price = $product->price()->where('currency', $currency)->first();
             if (! $price) {
-                throw new Exception( __('message.price_removed_database'));
+                throw new Exception(__('message.price_removed_database'));
             }
             $cost = $price->sales_price;
             if (! $cost) {
@@ -251,7 +251,7 @@ class RenewController extends BaseRenewController
             'payment_method' => 'required',
             'cost' => 'required',
             'code' => 'exists:promotions,code',
-            ],
+        ],
             [
                 'plan.required' => __('validation.plan_renewal.plan_required'),
                 'payment_method.required' => __('validation.plan_renewal.payment_method_required'),
@@ -304,7 +304,7 @@ class RenewController extends BaseRenewController
             $sub = $this->sub->find($id);
             $userid = $sub->user_id;
             if (User::onlyTrashed()->find($userid)) {//If User is soft deleted for this order
-                throw new \Exception( __('message.user_order_suspended'));
+                throw new \Exception(__('message.user_order_suspended'));
             }
             $productid = $sub->product_id;
             $plans = $this->plan->pluck('name', 'id')->toArray();
@@ -328,11 +328,11 @@ class RenewController extends BaseRenewController
         $this->validate($request, [
             'plan' => 'required',
             'code' => 'exists:promotions,code',
-            ],
+        ],
             [
                 'plan.required' => __('validation.plan_renewal.plan_required'),
                 'code.exists' => __('validation.plan_renewal.code_not_valid'),
-        ]);
+            ]);
 
         try {
             $planid = $request->input('plan');

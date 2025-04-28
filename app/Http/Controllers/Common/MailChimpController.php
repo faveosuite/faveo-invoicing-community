@@ -87,7 +87,7 @@ class MailChimpController extends BaseMailChimpController
         } catch (Exception $ex) {
             $exe = json_decode($ex->getMessage(), true);
             if ($exe['status'] == 400) {
-                return errorResponse($user['email'] . ' ' . __('message.is_already_subscribed'));
+                return errorResponse($user['email'].' '.__('message.is_already_subscribed'));
             }
         }
     }
@@ -112,7 +112,7 @@ class MailChimpController extends BaseMailChimpController
 
             ]);
 
-            return successResponse( __('message.email_added_to_mailchimp'));
+            return successResponse(__('message.email_added_to_mailchimp'));
         } catch (Exception $ex) {
             $message = $ex->getMessage();
 

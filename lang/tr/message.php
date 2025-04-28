@@ -709,7 +709,7 @@ return [
     'cloud_field_label' => 'İstediğiniz cloud domain adını girin',
     'cloud_price' => 'Ajan başına fiyat',
 
-// Delete message
+    // Delete message
     'confirm' => 'Bunu silmek istediğinizden emin misiniz?',
 
     'cloud_domain_change' => 'Harika haber! Cloud domain başarıyla değiştirildi. Değişikliklerin uygulanması için yaklaşık 5 dakikalık bir kesinti olacaktır. Anlayışınız için teşekkür ederiz.',
@@ -767,7 +767,7 @@ return [
     'user_suspend' => 'Bu kullanıcı sistemden askıya alınmış. Detayları görmek için kullanıcıyı geri yükleyin.',
     'country_notfound' => 'Ülke belirlenemedi',
 
-// Strong Password
+    // Strong Password
     'strong_password' => 'Şifre en az 8 karakter, bir büyük harf, bir küçük harf, bir sayı ve bir özel karakter içermelidir.',
 
     'password_requirements' => 'Şifreniz şunları içermelidir:',
@@ -786,7 +786,7 @@ return [
     'password_required' => 'Şifre gereklidir.',
     'new_password_different' => 'Yeni şifre eski şifreden farklı olmalıdır.',
     'reset_link_expired' => 'Şifre sıfırlama bağlantınız süresi dolmuş ya da bulunamadı. Lütfen tekrar deneyin.',
-// File storage
+    // File storage
     'file_storage' => 'Dosya Depolama',
     'set_file_storage' => 'Dosya depolama yolunu ayarla',
     'storage_disk' => 'Depolama Diski',
@@ -815,7 +815,7 @@ return [
     'error_occured_while_downloading' => 'Dosya indirilirken bir hata oluştu.',
     'file_exist' => 'Dosya mevcut',
 
-// OTP & Email verification
+    // OTP & Email verification
     'verify_mobile' => 'Mobil Doğrula',
     'verify_email' => 'E-posta Doğrula',
     'all_set' => 'Her şey hazır',
@@ -873,19 +873,19 @@ return [
     'too_many_forgot_attempts' => 'Çok fazla şifre sıfırlama denemesi. Lütfen :time sonra tekrar deneyin.',
     'verify_time_limit_exceed' => 'Maksimum doğrulama denemesine ulaştınız. Lütfen :time sonra tekrar deneyin.',
 
-// Stripe
+    // Stripe
     'enter_card_details' => 'Kart bilgilerini girin',
     'required_stripe_key' => 'Stripe Anahtarı girin',
     'max_stripe_key' => 'Stripe Anahtarı 200 karakteri geçemez',
     'required_stripe_secret' => 'Stripe Gizli Anahtarı girin',
     'max_stripe_secret' => 'Stripe Gizli Anahtarı 200 karakteri geçemez',
 
-// Misc
+    // Misc
     'email_not_matching' => 'E-posta domaini, URL domainiyle eşleşmiyor.',
     'price_description' => 'Fiyat açıklaması',
     'product_description' => 'Ürün açıklaması',
 
-// User details validation
+    // User details validation
     'user_edit_details' => [
         'add_first_name' => 'Lütfen adınızı girin.',
         'add_last_name' => 'Lütfen soyadınızı girin.',
@@ -904,7 +904,7 @@ return [
         'add_valid_company' => 'Lütfen yalnızca harf ve boşluk içeren geçerli bir şirket adı girin.',
     ],
 
-// Invoice validation
+    // Invoice validation
     'invoice_details' => [
         'add_user' => 'Lütfen müşteri adını girin.',
         'add_date' => 'Lütfen geçerli bir tarih seçin.',
@@ -916,7 +916,7 @@ return [
         'status' => 'Lütfen fatura durumunu girin.',
     ],
 
-// Page validation
+    // Page validation
     'page_details' => [
         'add_name' => 'Lütfen geçerli bir sayfa adı girin.',
         'add_slug' => 'Lütfen geçerli bir sayfa kısa adı (slug) girin.',
@@ -1086,7 +1086,7 @@ return [
     'price_description' => 'Fiyat Açıklaması',
     'image_allowed' => 'Yalnızca PNG, JPG ve JPEG dosyalarına izin verilir.',
     'image_max' => 'Görsel boyutu 2 MB\'dan büyük olamaz.',
-//email templates
+    //email templates
 
     'choose_password' => 'Şifrenizi sıfırlamak için buraya tıklayın: ',
     'email_username' => 'Kullanıcı Adı: ',
@@ -1094,7 +1094,7 @@ return [
     'email_click_here' => 'Buraya Tıklayın',
     'activate_account' => 'Hesabınızı etkinleştirmek için:',
 
-//error template
+    //error template
     'page_not_found' => 'Sayfa Bulunamadı',
     'sorry' => 'Üzgünüz, ancak aradığınız sayfa mevcut değil.',
     'useful_links' => 'İşte bazı faydalı bağlantılar',
@@ -1103,7 +1103,7 @@ return [
     'my_profile' => 'Profilim',
     'contact_us' => 'Bize Ulaşın',
 
-//login-register template
+    //login-register template
     'login_lr' => 'Giriş | Kayıt',
     'sign_lr' => 'Giriş yap veya Kayıt ol',
     'or' => 'Veya',
@@ -1137,7 +1137,7 @@ return [
     'error_occurred' => 'Bir hata oluştu. Lütfen tekrar deneyin.',
     'error_one_country' => 'Lütfen Bir Ülke Seçin',
 
-//contact template
+    //contact template
     'feel_free' => 'Detaylar için sorularınızı sormaktan çekinmeyin, hiçbir soruyu kaydetmeyin!',
     'contact_name' => 'Ad',
     'contact_error_name' => 'Lütfen adınızı girin.',
@@ -1150,7 +1150,7 @@ return [
     'contact_send_msg' => 'Mesaj Gönder',
     'our_office' => 'Ofisimiz',
 
-//password template
+    //password template
     'forgot_password' => 'Şifrenizi mi unuttunuz? Şimdi sıfırlayın!',
     'lost_password' => 'Şifrenizi mi kaybettiniz?',
     'know_password' => 'Şifremi biliyorum',
@@ -1159,7 +1159,7 @@ return [
     'sending' => 'Gönderiliyor...',
     'error_occurs' => 'Bir hata oluştu.',
     'reset_password' => 'Şifreyi Sıfırla',
-//front-client template
+    //front-client template
     'change_faveo' => 'Mevcut Faveo bulut alan adınızı değiştirmek istiyor musunuz?',
     'current_domain' => 'Mevcut alan adınızı girin',
     'enter_domain' => 'Yeni alan adını girin',
@@ -1317,7 +1317,7 @@ return [
     'loading' => 'Yükleniyor...',
     'subscriptions_table' => 'Abonelik Tablosu',
     'invalid_format' => 'Geçersiz format.',
-//front-page template
+    //front-page template
     'all_pages' => 'Tüm Sayfalar',
     'create_new_page' => 'Yeni Sayfa Oluştur',
     'edit_page' => 'Sayfayı Düzenle',
@@ -1327,14 +1327,14 @@ return [
     'select_checkbox' => 'Lütfen en az bir onay kutusunu işaretleyin',
     'search_result' => 'Arama Sonucu',
 
-//front-widgets template
+    //front-widgets template
     'all_widgets' => 'Tüm Widget\'lar',
     'create_widget' => 'Widget Oluştur',
     'configure_mailchimp' => 'Mailchimp\'inizi ayarlarda yapılandırarak erişim sağlayın',
     'configure_tweet' => 'Tweet\'lerinizi ayarlarda yapılandırarak erişim sağlayın',
     'edit_widget' => 'Widget\'ı Düzenle',
 
-//front outer template
+    //front outer template
     'remove_product' => 'Ürünü Kaldır',
     'cart_totals' => 'Sepet Toplamları',
     'clear_cart' => 'Sepeti Temizle',
@@ -1384,17 +1384,17 @@ return [
     'paid_with' => 'Şu yöntemle ödendi',
     'no_records_found' => 'Kayıt bulunamadı',
 
-// errors
+    // errors
     'sorry_something_wrong' => 'Üzgünüz, Bir şeyler yanlış gitti',
     'error_fixed' => 'Üzerinde çalışıyoruz ve en kısa sürede düzelteceğiz.',
     'go_back' => 'Geri Dön',
     'be_right_back' => 'Hemen döneceğiz.',
 
-//category template
+    //category template
     'all_categories' => 'Tüm Kategoriler',
     'category_name' => 'İsim',
 
-//common template
+    //common template
     'create_script_code' => 'Script Kodu Oluştur',
     'create_script' => 'Script Oluştur',
     'edit_script_code' => 'Script Kodu Düzenle',
@@ -1467,7 +1467,7 @@ return [
     'sub' => 'Konu',
     'yearly' => 'Yıllık',
     'activity_log' => 'Aktivite Günlüğü',
-// System settings and logs
+    // System settings and logs
     'reset' => 'Sıfırla',
     'module' => 'Modül',
     'description_event' => 'Açıklama/Olay',
@@ -1557,14 +1557,14 @@ return [
     'deactivate' => 'Devre Dışı Bırak',
     'provider' => 'Sağlayıcı',
 
-// Github settings
+    // Github settings
     'github_setting' => 'Github Ayarı',
     'enter_github_username' => 'Github Kullanıcı Adını Girin',
     'enter_github_password' => 'Github Şifresini Girin',
     'enter_github_clientid' => 'Client Id Girin',
     'enter_github_client_secret_key' => 'Client Secret Anahtarını Girin',
 
-// Invoice template
+    // Invoice template
     'edit_invoice' => 'Faturayı Düzenle',
     'view_user' => 'Kullanıcıyı Görüntüle',
     'pending' => 'Bekleyen',
@@ -1604,7 +1604,7 @@ return [
     'tax_rates' => 'Vergi Oranları',
     'no_tax_rates' => 'Vergi Oranı Yok',
     'store' => 'Mağaza',
-// Master both client and admin panels
+    // Master both client and admin panels
     'admin_dashboard' => 'Yönetici Paneli',
     'my_account' => 'Hesabım',
     'start_free_trial' => 'ÜCRETSİZ DENEME BAŞLAT',
@@ -1645,7 +1645,7 @@ return [
     'enter_domain_license' => 'Alan Adını Girin ve Lisans Dosyasını İndirin',
     'installation_details' => 'Kurulum Detayları',
 
-// Payment panel
+    // Payment panel
     'payment_date' => 'Ödeme Tarihi',
     'auto_renewal_subscription' => 'Gelecek Abonelik için Otomatik Yenileme',
     'subscription_start_date' => 'Abonelik Başlangıç Tarihi',
@@ -1671,7 +1671,7 @@ return [
     'coupon' => 'Kupon',
     'actions' => 'İşlemler',
 
-// Tax panel
+    // Tax panel
     'create_tax' => 'Vergi Oluştur',
     'caps_others' => 'DİĞERLERİ',
     'others' => 'Diğerleri',
@@ -1710,7 +1710,7 @@ return [
     'show_cart_page' => 'Sepet Sayfasında Göster',
     'select_taxes' => 'Vergileri Seç',
 
-// Product panel
+    // Product panel
     'all_product_details' => 'Ürün Detaylarını Ekle',
     'enter_json_format' => 'JSON formatını girin.',
     'upload' => 'Yükle',
@@ -1738,21 +1738,21 @@ return [
     'add_product' => 'Ürün Ekle',
     'all_types' => 'Tüm Türler',
     'configure_queue' => 'Kuyruğu Yapılandır',
-//renew panel
+    //renew panel
     'renew_product' => 'Ürününüzü yenilemek için sepetin boş olduğundan emin olun',
     'click_renew' => 'Yenilemek için buraya tıklayın',
     'renew_your_order' => 'Siparişinizi yenileyin',
     'renew_order' => 'Siparişi Yenile',
     'renewal_price_per_agent' => 'Ajan başına yenileme ücreti: ',
 
-//report panel
+    //report panel
     'file_name' => 'Dosya adı',
     'format' => 'Biçim',
     'contact' => 'İletişim',
     'report_settings' => 'Rapor ayarları',
     'report_limit' => 'Sayfa başına kayıt ekleyin. Maksimum sınır 3000\'dir.',
 
-//tenanat panel
+    //tenanat panel
     'cloud_details' => 'Bulut Detayları',
     'cloud_server' => 'Bulut sunucusu',
     'customise_cloud_popup' => 'Bulut Açılır Penceresini Özelleştir',
@@ -1780,7 +1780,7 @@ return [
     'app_key' => 'Uygulama anahtarı',
     'app_secret' => 'Uygulama gizli anahtarı',
 
-//user-client panel
+    //user-client panel
     'create_new_user' => 'Yeni Kullanıcı Oluştur',
     'create_user' => 'Kullanıcı Oluştur',
     'position' => 'Pozisyon',
@@ -1874,7 +1874,7 @@ return [
     'created_with' => 'İle oluşturuldu',
     'by_arcanedev' => 'ARCANEDEV tarafından',
     'toggle_navigation' => 'Gezinmeyi Aç/Kapat',
-//boostrap-4
+    //boostrap-4
     'logs' => 'Kayıtlar',
     'caps_delete_log_file' => 'KAYIT DOSYASINI SİL',
     'caps_delete_file' => 'DOSYAYI SİL',
@@ -1895,7 +1895,7 @@ return [
     'error_logs' => 'Hata Kayıtları',
     'view_logs' => 'Kayıtları Görüntüle',
 
-//visitstats
+    //visitstats
     'request' => 'İstek',
     'visitor' => 'Ziyaretçi',
     'browser' => 'Tarayıcı',
@@ -1925,7 +1925,7 @@ return [
     'product_quantity' => 'Ürün Miktarı',
     'table_search' => 'Ara:',
 
-//validation message
+    //validation message
     'enter_valid_otp' => 'Lütfen Geçerli Bir OTP Girin',
     'verifying' => 'Doğrulanıyor',
     'resending' => 'Tekrar Gönderiliyor',
@@ -2056,7 +2056,7 @@ return [
     'null' => 'Boş',
     'choose_one_payment_gateway' => 'Bir ödeme geçidi seçin',
 
-//Controller keys and values
+    //Controller keys and values
     'product_uploaded_successfully' => 'Ürün Başarıyla Yüklendi',
     'token_mismatch_account_not_activated' => 'Jeton uyuşmazlığı. Hesap etkinleştirilemez.',
     'email_verification_success' => 'E-posta doğrulaması başarılı. Lütfen hesabınıza erişmek için giriş yapın!',

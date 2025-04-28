@@ -51,10 +51,10 @@ class HomeController extends BaseHomeController
     {
         $this->validate($request, [
             'title' => 'required',
-            ],
+        ],
             [
-                'title.required' =>  __('validation.extend_product.title_required'),
-        ]);
+                'title.required' => __('validation.extend_product.title_required'),
+            ]);
         $title = $request->input('title');
         $product = $product->where('name', $title)->first();
         if ($product) {
@@ -72,7 +72,7 @@ class HomeController extends BaseHomeController
             $faveo_encrypted_order_number = self::decryptByFaveoPrivateKey($request->input('order_number'));
             $faveo_encrypted_key = self::decryptByFaveoPrivateKey($request->input('serial_key'));
             \Log::emergency(json_encode(['domain' => $request
-                ->input('domain'), 'enc_serial' => $faveo_encrypted_key,
+                    ->input('domain'), 'enc_serial' => $faveo_encrypted_key,
                 'enc_order' => $faveo_encrypted_order_number, ]));
             $request_type = $request->input('request_type');
             $faveo_name = $request->input('name');
@@ -358,9 +358,9 @@ class HomeController extends BaseHomeController
     {
         $v = \Validator::make($request->all(), [
             'title' => 'required',
-            ],
+        ],
             [
-                'title.required' =>  __('validation.extend_product.title_required'),
+                'title.required' => __('validation.extend_product.title_required'),
             ]);
         if ($v->fails()) {
             $error = $v->errors();
@@ -449,8 +449,8 @@ class HomeController extends BaseHomeController
     {
         $v = \Validator::make($request->all(), [
             'title' => 'required',
-            ],[
-            'title.required' =>  __('validation.extend_product.title_required'),
+        ], [
+            'title.required' => __('validation.extend_product.title_required'),
         ]);
         if ($v->fails()) {
             $error = $v->errors();

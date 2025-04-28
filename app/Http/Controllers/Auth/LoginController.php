@@ -237,13 +237,13 @@ class LoginController extends Controller
             $this->validate($request, [
                 'company' => 'required|string',
                 'address' => 'required|string',
-                ],
+            ],
                 [
                     'company.required' => __('validation.company_validation.company_required'),
                     'company.string' => __('validation.company_validation.company_string'),
                     'address.required' => __('validation.company_validation.address_required'),
                     'address.string' => __('validation.company_validation.company_string'),
-            ]);
+                ]);
 
             $user = Auth::user();
             $user->company = $request->company;

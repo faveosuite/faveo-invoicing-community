@@ -30,5 +30,5 @@ Route::middleware(['installer'])->group(function () {
     Route::post('/update/language', [InstallerController::class, 'storeLanguage'])->withoutMiddleware(['isInstalled']);
     Route::get('/current-language', [InstallerController::class, 'getCurrentLang'])->withoutMiddleware(['isInstalled']);
     Route::get('final', [InstallerController::class, 'finalize'])->name('final')->withoutMiddleware(['isInstalled']);
-    Route::post('/lang/update',[InstallerController::class, 'storeLanguageForUsers'])->withoutMiddleware(['isInstalled']);
+    Route::post('/lang/update', [InstallerController::class, 'storeLanguageForUsers'])->withoutMiddleware(['isInstalled']);
 });

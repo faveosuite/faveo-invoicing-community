@@ -187,7 +187,7 @@ class SettingsController extends BaseSettingsController
 
             return view(
                 'themes.default1.common.setting.system',
-                compact('set', 'selectedCountry', 'state', 'states', 'selectedCurrency','languages','defaultLang')
+                compact('set', 'selectedCountry', 'state', 'states', 'selectedCurrency', 'languages', 'defaultLang')
             );
         } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());

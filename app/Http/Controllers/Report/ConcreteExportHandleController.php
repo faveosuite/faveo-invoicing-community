@@ -410,7 +410,7 @@ class ConcreteExportHandleController extends ExportHandleController
             });
 
             if ($filteredOrders->isEmpty()) {
-                throw new \Exception( __('message.no_data_available_export'));
+                throw new \Exception(__('message.no_data_available_export'));
             }
 
             // Get user details for email
@@ -478,7 +478,7 @@ class ConcreteExportHandleController extends ExportHandleController
 
         if (! $keys->app_key) {
             // Validate if the app key to be sent is valid or not
-            throw new \Exception( __('message.cloud_invalid_message'));
+            throw new \Exception(__('message.cloud_invalid_message'));
         }
 
         $response = $client->request(
@@ -670,7 +670,7 @@ class ConcreteExportHandleController extends ExportHandleController
         });
 
         if ($filteredTenants->isEmpty()) {
-            throw new \Exception( __('message.no_data_available_export'));
+            throw new \Exception(__('message.no_data_available_export'));
         }
         // Get user details for email
         $id = User::where('email', $email)->value('id');
