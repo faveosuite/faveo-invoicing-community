@@ -498,21 +498,20 @@ class AuthController extends BaseAuthController
         try {
             $status = StatusSetting::select('mailchimp_status', 'pipedrive_status', 'zoho_status')->first();
 
-            if (!($options['skip_pipedrive'] ?? false)) {
+            if (! ($options['skip_pipedrive'] ?? false)) {
                 $this->pipedrive->addUserToPipedrive($user);
             }
 
-            if (!($options['skip_zoho'] ?? false)) {
+            if (! ($options['skip_zoho'] ?? false)) {
                 $this->addUserToZoho($user, $status->zoho_status);
             }
 
-            if (!($options['skip_mailchimp'] ?? false)) {
+            if (! ($options['skip_mailchimp'] ?? false)) {
                 $this->addUserToMailchimp($user, $status->mailchimp_status);
             }
         } catch (\Exception $exception) {
         }
     }
-
 
     public function updateUserWithVerificationStatus($user)
     {
@@ -523,20 +522,20 @@ class AuthController extends BaseAuthController
             'msg91_status',
             'mailchimp_status',
             'pipedrive_status',
-            'zoho_status'
+            'zoho_status',
         ]);
 
         $emailRequired = $statusSetting->emailverification_status;
         $mobileRequired = $statusSetting->msg91_status;
 
-        $isEmailVerified = !$emailRequired || $user->email_verified;
-        $isMobileVerified = !$mobileRequired || $user->mobile_verified;
+        $isEmailVerified = ! $emailRequired || $user->email_verified;
+        $isMobileVerified = ! $mobileRequired || $user->mobile_verified;
         $isFullyVerified = $isEmailVerified && $isMobileVerified;
 
         // Service call conditions
-        $skipPipedrive = $pipedriveVerificationRequired && !$isFullyVerified;
-        $skipZoho = !$isFullyVerified;
-        $skipMailchimp = !$isFullyVerified;
+        $skipPipedrive = $pipedriveVerificationRequired && ! $isFullyVerified;
+        $skipZoho = ! $isFullyVerified;
+        $skipMailchimp = ! $isFullyVerified;
 
         // Dispatch external sync only where needed
         $this->addUserToExternalServices($user, [
@@ -545,5 +544,4 @@ class AuthController extends BaseAuthController
             'skip_mailchimp' => $skipMailchimp,
         ]);
     }
-
 }
