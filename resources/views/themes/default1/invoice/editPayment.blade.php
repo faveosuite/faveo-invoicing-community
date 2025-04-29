@@ -304,7 +304,7 @@
     function multiplePayment(){
         const userRequiredFields = {
             company:@json(trans('message.payment_amount')),
-            company_email:@json(trans('message.payment_date')),
+            company_email:@json(trans('message.payment_date_error')),
             website:@json(trans('message.payment_method')),
         };
 

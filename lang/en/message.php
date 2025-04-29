@@ -955,7 +955,6 @@ return [
         'apilayer_key' => 'Please enter a valid access key.',
     ],
 
-
     'plan_details' => [
         'planname' => 'Please enter plan name.',
         'planproduct' => 'Please select a valid product.',

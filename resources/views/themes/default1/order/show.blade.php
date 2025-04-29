@@ -939,7 +939,7 @@ input:checked + .slider:before {
 
     $('#domain_id').on('submit',function(e){
         const userRequiredFields = {
-            name:@json(trans('message.domain_name')),
+            name:@json(trans('message.domain_name_error')),
 
         };
 
@@ -973,7 +973,7 @@ input:checked + .slider:before {
         });
 
         if(isValid && !isValidURL(userFields.name.val())){
-            showError(userFields.name,@json(trans('message.domain_name')));
+            showError(userFields.name,@json(trans('message.domain_name_error')));
             isValid=false;
         }
 
