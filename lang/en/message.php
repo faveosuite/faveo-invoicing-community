@@ -955,12 +955,6 @@ return [
         'apilayer_key' => 'Please enter a valid access key.',
     ],
 
-    'system_manager' => [
-        'account_manager' => 'Please select an Account manager.',
-        'replacement' => 'Please enter a valid name.',
-        'sales_manager' => 'Please select a Sales manager.',
-    ],
-
     'plan_details' => [
         'planname' => 'Please enter plan name.',
         'planproduct' => 'Please select a valid product.',
@@ -1128,12 +1122,11 @@ return [
     'valid_zip' => 'Please enter a valid zip code.',
     'payment_amount' => 'Please enter a payment amount.',
     'payment_method' => 'Please select a payment method.',
-    'payment_date' => 'Please enter a payment date.',
+    'payment_date_error' => 'Please enter a payment date.',
     'new_comment' => 'Please enter a comment.',
     'image_invalid_size' => 'Please upload file, size less than 2MB.',
     'plan_renew' => 'Please select a plan.',
-    'agents' => 'Please enter number of agents.',
-    'domain_name' => 'Please enter a valid domain(https://example.com/public).',
+    'domain_name_error' => 'Please enter a valid domain(https://example.com/public).',
     'limit_number' => 'Please enter installation limit.',
     'renew_plan' => 'Please enter a valid plan.',
     'renew_price' => 'Please enter a price.',
