@@ -120,7 +120,7 @@ class RegistrationTest extends DBTestCase
         $response->assertSessionHasErrors('password_confirmation');
     }
 
-    public function test_when_mobile_number_has_more_digit(){
+    public function test_registration_success_message(){
         $user = User::factory()->create();
         $this->withoutMiddleware();
         $response = $this->call('POST', 'auth/register', ['first_name' => $user->first_name,
@@ -135,7 +135,6 @@ class RegistrationTest extends DBTestCase
             'mobile' => $user->mobile,
             'address' => $user->address,
             'town' => $user->town,
-//            'state' => $user->state,
             'zip' => $user->zip,
             'password' => $user->password,
             'password_confirmation' => $user->password,
@@ -145,4 +144,49 @@ class RegistrationTest extends DBTestCase
         ]);
     }
 
+
+    public function test_when_mobile_code_is_not_sent(){
+        $user = User::factory()->create();
+        $this->withoutMiddleware();
+        $response = $this->call('POST', 'auth/register', ['first_name' => $user->first_name,
+            'last_name' => $user->last_name,
+            'email'=>'santhanu@gmail.com',
+            'company' => $user->company,
+            'bussiness' => $user->bussiness,
+            'company_type' => $user->company_type,
+            'company_size' => $user->company_size,
+            'country' => $user->country,
+            'mobile' => $user->mobile,
+            'address' => $user->address,
+            'town' => $user->town,
+            'zip' => $user->zip,
+            'password' => $user->password,
+            'password_confirmation' => $user->password,
+        ]);
+        $response->assertSessionHasErrors('mobile_code');
+    }
+
+
+    public function test_when_user_registered_present_in_database(){
+        $user = User::factory()->create(['bussiness'=>'--','company_type'=>'--']);
+        $this->withoutMiddleware();
+        $response = $this->call('POST', 'auth/register', ['first_name' => $user->first_name,
+            'last_name' => $user->last_name,
+            'email'=>'santhanu@gmail.com',
+            'company' => $user->company,
+            'bussiness' => '--',
+            'company_type' => '--',
+            'company_size' => $user->company_size,
+            'country' => $user->country,
+            'state' => 'IN-TN',
+            'mobile_code' => '91',
+            'mobile' => $user->mobile,
+            'address' => $user->address,
+            'town' => $user->town,
+            'zip' => $user->zip,
+            'password' => $user->password,
+            'password_confirmation' => $user->password,
+        ]);
+        $this->assertDatabaseHas('users', $user->toArray());
+    }
 }

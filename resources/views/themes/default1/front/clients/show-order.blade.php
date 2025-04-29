@@ -188,10 +188,10 @@ function generateMerchantRandomString($length = 10) {
     }
     return $randomString;
 }
-$rzp_key = app\ApiKey::where('id', 1)->value('rzp_key');
-$rzp_secret = app\ApiKey::where('id', 1)->value('rzp_secret');
-$apilayer_key = app\ApiKey::where('id', 1)->value('apilayer_key');
-$stripe_key = app\ApiKey::where('id', 1)->value('stripe_key');
+$rzp_key = App\ApiKey::where('id', 1)->value('rzp_key');
+$rzp_secret = App\ApiKey::where('id', 1)->value('rzp_secret');
+$apilayer_key = App\ApiKey::where('id', 1)->value('apilayer_key');
+$stripe_key = App\ApiKey::where('id', 1)->value('stripe_key');
 $api = new Api($rzp_key, $rzp_secret);
 $displayCurrency = getCurrencyForClient(\Auth::user()->country);
 $symbol = getCurrencyForClient(\Auth::user()->country);

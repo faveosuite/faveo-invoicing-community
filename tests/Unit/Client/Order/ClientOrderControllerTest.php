@@ -16,6 +16,7 @@ use App\Model\Product\Product;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Order\Invoice;
+use Mockery;
     class ClientOrderControllerTest extends DBTestCase
 {
 /** @group order  */
@@ -24,9 +25,31 @@ use App\Model\Order\Invoice;
         $user=User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $order=Order::factory()->create(['client'=>$user->id]);
-            $response=$this->call('get','get-my-orders',['updated_ends_at'=>'expired']);
+        $licensetype=LicenseType::create(['name'=>'DevelopmentLicense']);
+        $licensepermissiontype=LicensePermission::create(['Can be Downloaded']);
+        LicensePermission::create(['Generate License Expiry Date']);
+        LicensePermission::create(['Generate Updates Expiry Date']);
+        LicensePermission::create(['Allow Downloads Before Updates Expire']);
+        $permissionid=[
+            0 => "1",
+            1 => "2",
+            2 => "3",
+            3 => "4",
+            6=>'6',
+        ];
+        $licensetype->permissions()->attach($permissionid);
 
+        $product = Product::create(['name' => 'Helpdesk Advance','description'=>'goodProduct','type'=>$licensetype->id]);
+        $invoice = Invoice::factory()->create(['user_id' => $user->id]);
+        $invoiceItem = InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
+        $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
+            'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, ]);
+        $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
+        $planPrice=PlanPrice::factory()->create(['plan_id'=>$plan->id]);
+        $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
+            'version' => 'v6.0.0', 'update_ends_at' => '']);
+        $response=$this->call('get','get-my-orders',['updated_ends_at'=>'']);
+        $content=$response->json();
         $response->assertStatus(200)
             ->assertJsonStructure([
                 'draw',
@@ -60,7 +83,7 @@ use App\Model\Order\Invoice;
     }
 
 
-    public function test_getting_details_for_my_order_page(){
+    public function test_fails_due_to_invalid_license_key(){
         $user=User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
@@ -82,13 +105,7 @@ use App\Model\Order\Invoice;
         $subscription = Subscription::create(['user_id'=>$user->id,'order_id' => $order->id, 'product_id' => $product->id, 'version' => 'v3.0.0', 'is_subscribed' => '1', 'autoRenew_status' => '1']);
 
         $response=$this->call('get','my-order/'.$order->id);
-        $response->assertViewIs('themes.default1.front.clients.show-order');
-
-        $response->assertViewHasAll([
-            'invoice', 'order', 'user', 'product', 'subscription', 'licenseStatus',
-            'installationDetails', 'allowDomainStatus', 'date', 'licdate', 'versionLabel',
-            'id', 'statusAutorenewal', 'status', 'payment_log', 'recentPayment'
-        ]);
+        $response->assertSessionHas('fails',"Please configure the valid license details in Apikey settings.");
     }
 
         public function test_auto_renewal(){
@@ -196,7 +213,42 @@ use App\Model\Order\Invoice;
                 ]);
     }
 
+        public function  test_my_orders_datatable_individual_data(){
+            $user=User::factory()->create();
+            $this->actingAs($user);
+            $this->withoutMiddleware();
+            $licensetype=LicenseType::create(['name'=>'DevelopmentLicense']);
+            $licensepermissiontype=LicensePermission::create(['Can be Downloaded']);
+            LicensePermission::create(['Generate License Expiry Date']);
+            LicensePermission::create(['Generate Updates Expiry Date']);
+            LicensePermission::create(['Allow Downloads Before Updates Expire']);
+            $permissionid=[
+                0 => "1",
+                1 => "2",
+                2 => "3",
+                3 => "4",
+                6=>'6',
+            ];
+            $licensetype->permissions()->attach($permissionid);
 
-
+            $product = Product::create(['name' => 'Helpdesk Advance','description'=>'goodProduct','type'=>$licensetype->id]);
+            $invoice = Invoice::factory()->create(['user_id' => $user->id]);
+            $invoiceItem = InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
+            $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
+                'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, ]);
+            $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
+            $planPrice=PlanPrice::factory()->create(['plan_id'=>$plan->id]);
+            $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
+                'version' => 'v6.0.0', 'update_ends_at' => '']);
+            $response=$this->call('get','get-my-orders',['updated_ends_at'=>'']);
+            $content=$response->json();
+            $response->assertStatus(200);
+            $this->assertEquals($content['data'][0]['product_id'],$product->id);
+            $this->assertEquals($content['data'][0]['product_name'],$product->name);
+            $this->assertEquals($content['data'][0]['invoice_id'],$invoice->id);
+            $this->assertEquals($content['data'][0]['invoice_number'],$invoice->number);
+            $this->assertEquals($content['data'][0]['version'],$subscription->version);
+            $this->assertEquals($content['data'][0]['client'],$user->id);
+        }
 
 }

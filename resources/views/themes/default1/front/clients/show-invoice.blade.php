@@ -324,7 +324,6 @@ active
                 </div>
             </div>
   
-        
           @if(!$payments->isEmpty())
             <div class="card p-3 mt-3">
 
