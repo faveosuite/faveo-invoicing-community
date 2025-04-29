@@ -178,9 +178,9 @@ class PipedriveController extends Controller
     {
         $groups = $this->getGroups();
         $apiKey = ApiKey::value('pipedrive_api_key');
+        $isVerificationEnabled = ApiKey::value('require_pipedrive_user_verification');
         $settings = Setting::first();
-
-        return view('themes.default1.common.pipedrive.settings', compact('apiKey', 'groups', 'settings'));
+        return view('themes.default1.common.pipedrive.settings', compact('apiKey', 'groups', 'settings', 'isVerificationEnabled'));
     }
 
     public function getLocalFields($group_id)
@@ -264,5 +264,12 @@ class PipedriveController extends Controller
             'country' => Country::where('country_code_char2', $user->country)->value('nicename'),
             default => $user->{$userField},
         };
+    }
+
+    public function updateVerificationStatus(Request $request)
+    {
+        $verificationStatus = (bool) $request->input('require_pipedrive_user_verification');
+        ApiKey::find(1)->update(['require_pipedrive_user_verification' => $verificationStatus]);
+        return successResponse('Verification status updated successfully');
     }
 }

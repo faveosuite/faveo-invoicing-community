@@ -625,6 +625,7 @@ Route::middleware('installAgora')->group(function () {
     Route::get('getPipedriveFields/{group_id}', [PipedriveController::class, 'getLocalFields']);
     Route::get('pipedrive/mapping/{group_id}', [PipedriveController::class, 'getMapFields']);
     Route::post('sync/pipedrive', [PipedriveController::class, 'mappingFields']);
+    Route::post('updatePipedriveVerification', [PipedriveController::class, 'updateVerificationStatus'])->name('pipedrive');
 });
 /*
 * Faveo APIs

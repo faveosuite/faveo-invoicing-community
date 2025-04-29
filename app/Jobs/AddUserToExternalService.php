@@ -29,7 +29,7 @@ class AddUserToExternalService implements ShouldQueue
     public function handle(): void
     {
         try {
-            (new AuthController())->addUserToExternalServices($this->user);
+            (new AuthController())->updateUserWithVerificationStatus($this->user);
         } catch (\Exception $e) {
             \Log::error("Failed to add user to {$this->user->email}: ".$e->getMessage());
         }

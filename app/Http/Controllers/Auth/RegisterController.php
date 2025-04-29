@@ -89,9 +89,8 @@ class RegisterController extends Controller
 
             $need_verify = $this->getEmailMobileStatusResponse();
 
-            if (! $need_verify) {
-                AddUserToExternalService::dispatch($userInput);
-            }
+            AddUserToExternalService::dispatch($userInput);
+
             $userInput->save();
 
             \Session::flash('user', $userInput);
