@@ -10,8 +10,8 @@ use App\Model\Common\StatusSetting;
 use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Request;
-use Tests\DBTestCase;
 use Mockery;
+use Tests\DBTestCase;
 
 class PipedriveControllerTest extends DBTestCase
 {
@@ -47,14 +47,14 @@ class PipedriveControllerTest extends DBTestCase
     public function test_it_updates_verification_status()
     {
         $request = new Request([
-            'require_pipedrive_user_verification' => true
+            'require_pipedrive_user_verification' => true,
         ]);
 
         $response = $this->pipedriveController->updateVerificationStatus($request);
         $data = $response->getData(true);
 
         $this->assertTrue($data['success']);
-        $this->assertTrue((bool)ApiKey::first()->require_pipedrive_user_verification);
+        $this->assertTrue((bool) ApiKey::first()->require_pipedrive_user_verification);
     }
 
     public function test_it_handles_field_mapping_validation()
@@ -103,13 +103,13 @@ class PipedriveControllerTest extends DBTestCase
     {
         $mockController = Mockery::mock(PipedriveController::class)->makePartial();
         $mockController->shouldReceive('getPipedriveFields')->andReturn([
-            (object)['key' => 'person_field', 'name' => 'Person Field', 'field_type' => 'text']
+            (object) ['key' => 'person_field', 'name' => 'Person Field', 'field_type' => 'text'],
         ]);
         $mockController->shouldReceive('getOrganizationFields')->andReturn([
-            (object)['key' => 'org_field', 'name' => 'Org Field', 'field_type' => 'text']
+            (object) ['key' => 'org_field', 'name' => 'Org Field', 'field_type' => 'text'],
         ]);
         $mockController->shouldReceive('getDealFields')->andReturn([
-            (object)['key' => 'deal_field', 'name' => 'Deal Field', 'field_type' => 'text']
+            (object) ['key' => 'deal_field', 'name' => 'Deal Field', 'field_type' => 'text'],
         ]);
 
         $mockController->syncFields();
@@ -160,7 +160,7 @@ class PipedriveControllerTest extends DBTestCase
 
         $request = new Request([
             'group_id' => $group->id,
-            'test' => 'pipedrive_key'
+            'test' => 'pipedrive_key',
         ]);
 
         $response = $this->pipedriveController->mappingFields($request);
@@ -169,7 +169,7 @@ class PipedriveControllerTest extends DBTestCase
         $this->assertTrue($data['success']);
         $this->assertDatabaseHas('pipedrive_fields', [
             'field_key' => 'pipedrive_key',
-            'local_field_id' => $localField->id
+            'local_field_id' => $localField->id,
         ]);
     }
 }

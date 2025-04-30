@@ -271,6 +271,7 @@ class PipedriveController extends Controller
     {
         $verificationStatus = (bool) $request->input('require_pipedrive_user_verification');
         ApiKey::find(1)->update(['require_pipedrive_user_verification' => $verificationStatus]);
+
         return successResponse(__('message.pipedrive_verification_updated'));
     }
 }

@@ -1145,8 +1145,7 @@ return [
     'organization_mapping' => 'Organization Mapping',
     'deal_mapping' => 'Deal Mapping',
 
-
-//    pipedrive fields
+    //    pipedrive fields
     'pipedrive' => 'Pipedrive',
     'pipedrive_settings' => 'Pipedrive Settings',
     'field_mapping' => 'Field Mapping',
