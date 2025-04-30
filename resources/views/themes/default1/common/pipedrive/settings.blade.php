@@ -1,16 +1,16 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-    Mailchimp
+    {{ __('message.pipedrive') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Pipedrive Settings</h1>
+        <h1>{{ __('message.pipedrive_settings') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item active">Pipedrive Setting</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i>{{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i>{{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.pipedrive_settings') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -116,15 +116,15 @@
             <div id="alert-container"></div>
             <div class="card card-secondary card-outline">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h3 class="card-title mb-0">Field Mapping</h3>
+                    <h3 class="card-title mb-0">{{ __('message.field_mapping') }}</h3>
 
                     <div class="ml-auto d-flex align-items-center">
         <span class="mr-2">
             <i class="fas fa-info-circle"
                data-toggle="tooltip"
                data-placement="top"
-               title="Enable this if the user is allowed to add to Pipedrive only after completing verification."></i>
-            User Verification
+               title="{{ __('message.pipedrive_user_verification_tooltip') }}"></i>
+            {{ __('message.user_verification') }}
         </span>
                         <label class="switch toggle_event_editing mb-0">
                             <input type="checkbox" value="{{ $isVerificationEnabled  }}" name="modules_settings" class="checkbox" id="2fa">
@@ -137,7 +137,7 @@
                     <div class="tab-content" id="fieldMappingTabsContent">
                         <div class="alert alert-info" role="alert">
                             <i class="fas fa-info-circle"></i>
-                            Choose the fields you want to map to keep your contacts, organizations, and deals in sync between Faveo Invoicing and Pipedrive.
+                            {{ __('message.pipedrive_config_info') }}
                         </div>
                         <div class="tab-pane fade show active" id="field-mapping" role="tabpanel" aria-labelledby="field-mapping-tab">
                             <div class="d-flex flex-column align-items-center">
@@ -150,7 +150,7 @@
                                             <div class="col-5 text-center">
                                                 <div class="d-flex align-items-center justify-content-center">
                                                     <img src="{{ $settings->admin_logo }}" alt="Agora logo" class="mr-2" width="24">
-                                                    <span class="font-weight-medium">Faveo Invoicing Fields</span>
+                                                    <span class="font-weight-medium">{{ __('message.faveo_fields') }}</span>
                                                 </div>
                                             </div>
                                             <div class="col-2 text-center">
@@ -165,7 +165,7 @@
                                                             <path d="M2690 3670 c-120 -19 -202 -62 -283 -149 -105 -114 -146 -233 -154 -447 -8 -207 21 -323 114 -465 47 -73 106 -126 180 -163 65 -33 123 -45 214 -46 224 0 409 142 486 374 25 75 27 94 27 251 1 187 -9 245 -64 359 -99 209 -301 320 -520 286z"/>
                                                         </g>
                                                     </svg>
-                                                    <span class="font-weight-medium">Person Fields</span>
+                                                    <span class="font-weight-medium">{{ __('message.person_fields') }}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -179,7 +179,7 @@
                                             <div class="col-5 text-center">
                                                 <div class="d-flex align-items-center justify-content-center">
                                                     <img src="{{ $settings->admin_logo }}" alt="Agora logo" class="mr-2" width="24">
-                                                    <span class="font-weight-medium">Faveo Invoicing Fields</span>
+                                                    <span class="font-weight-medium">{{ __('message.faveo_fields') }}</span>
                                                 </div>
                                             </div>
                                             <div class="col-2 text-center">
@@ -194,7 +194,7 @@
                                                             <path d="M2690 3670 c-120 -19 -202 -62 -283 -149 -105 -114 -146 -233 -154 -447 -8 -207 21 -323 114 -465 47 -73 106 -126 180 -163 65 -33 123 -45 214 -46 224 0 409 142 486 374 25 75 27 94 27 251 1 187 -9 245 -64 359 -99 209 -301 320 -520 286z"/>
                                                         </g>
                                                     </svg>
-                                                    <span class="font-weight-medium">Deal Fields</span>
+                                                    <span class="font-weight-medium">{{ __('message.deal_fields') }}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -208,7 +208,7 @@
                                             <div class="col-5 text-center">
                                                 <div class="d-flex align-items-center justify-content-center">
                                                     <img src="{{ $settings->admin_logo }}" alt="Agora logo" class="mr-2" width="24">
-                                                    <span class="font-weight-medium">Faveo Invoicing Fields</span>
+                                                    <span class="font-weight-medium">{{ __('message.faveo_fields') }}</span>
                                                 </div>
                                             </div>
                                             <div class="col-2 text-center">
@@ -223,20 +223,13 @@
                                                             <path d="M2690 3670 c-120 -19 -202 -62 -283 -149 -105 -114 -146 -233 -154 -447 -8 -207 21 -323 114 -465 47 -73 106 -126 180 -163 65 -33 123 -45 214 -46 224 0 409 142 486 374 25 75 27 94 27 251 1 187 -9 245 -64 359 -99 209 -301 320 -520 286z"/>
                                                         </g>
                                                     </svg>
-                                                    <span class="font-weight-medium">Organisation Fields</span>
+                                                    <span class="font-weight-medium">{{ __('message.organization_fields') }}</span>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                     </a>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="tab-pane fade" id="triggers" role="tabpanel" aria-labelledby="triggers-tab">
-                            <!-- Content for Triggers & Activity tab -->
-                            <div class="text-center p-5">
-                                <h4>Triggers & Activity Content</h4>
-                                <p class="text-muted">This section is empty in the original HTML.</p>
                             </div>
                         </div>
                     </div>

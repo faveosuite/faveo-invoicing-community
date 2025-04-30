@@ -19,14 +19,24 @@ return new class extends Migration
             $table->unsignedBigInteger('local_field_id')->nullable();
             $table->unsignedBigInteger('pipedrive_group_id')->nullable();
             $table->timestamps();
+
+            $table->foreign('local_field_id')
+                ->references('id')->on('pipedrive_local_fields')
+                ->onDelete('set null');
+
+            $table->foreign('pipedrive_group_id')
+                ->references('id')->on('pipedrive_groups')
+                ->onDelete('set null');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
+        Schema::table('pipedrive_fields', function (Blueprint $table) {
+            $table->dropForeign(['local_field_id']);
+            $table->dropForeign(['pipedrive_group_id']);
+        });
+
         Schema::dropIfExists('pipedrive_fields');
     }
 };

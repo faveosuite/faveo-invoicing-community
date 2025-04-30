@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-    Pipedrive
+    {{ __('message.pipedrive') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
@@ -8,10 +8,10 @@
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('settings')}}"> Settings</a></li>
-            <li class="breadcrumb-item"><a href="{{url('pipedrive')}}">Pipedrive Setting</a></li>
-            <li class="breadcrumb-item active">Pipedrive Mapping</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}">{{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}">{{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('pipedrive')}}">{{ __('message.pipedrive_settings') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.pipedrive_mapping') }}</li>
         </ol>
     </div>
 @stop
@@ -28,7 +28,7 @@
                     </h3>
                 </div>
                 <div class="card-body">
-                    <form id="mailchimp-form" method="POST" class="needs-validation" novalidate>
+                    <form id="pipedrive-form" method="POST" class="needs-validation" novalidate>
                         @csrf
                         <input name="group_id" type="hidden" value="{{ $group_id }}">
                         <div class="table-responsive">
@@ -36,16 +36,16 @@
                                 <thead class="thead-light">
                                 <tr>
                                     <th>
-                                        Agora Attributes
+                                        {{ __('message.faveo_invoicing_attributes') }}
                                         <i class="fas fa-question-circle"
                                            data-toggle="tooltip"
-                                           title="Attributes available in the system"></i>
+                                           title="{{ __('message.system_attributes_available') }}"></i>
                                     </th>
                                     <th>
-                                        Pipedrive Attributes
+                                        {{ __('message.pipedrive_attributes') }}
                                         <i class="fas fa-question-circle"
                                            data-toggle="tooltip"
-                                           title="Attributes of the pipedrive app"></i>
+                                           title="{{ __('message.pipedrive_attribute_available') }}"></i>
                                     </th>
                                 </tr>
                                 </thead>
