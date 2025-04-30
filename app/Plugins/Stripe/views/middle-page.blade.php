@@ -111,105 +111,6 @@ $processingFee = (float) $processingFee / 100;
 
 $feeAmount = intval(ceil($invoice->grand_total*$processingFee));
 ?>
-<?php
-$taxAmt = 0;
-$cartSubtotalWithoutCondition = 0;
- 
-use Razorpay\Api\Api;
- $merchant_orderid= generateMerchantRandomString();  
-
-function generateMerchantRandomString($length = 10) {
-$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-$charactersLength = strlen($characters);
-$randomString = '';
-for ($i = 0; $i < $length; $i++) {
-    $randomString .= $characters[rand(0, $charactersLength - 1)];
-}
-return $randomString;
-}
- $api = new Api($rzp_key, $rzp_secret);
-$currency = $invoice->currency;
-if (\App\User::where('id',\Auth::user()->id)->value('billing_pay_balance') && $regularPayment) {
-    $amt_to_credit = \DB::table('payments')
-    ->where('user_id', \Auth::user()->id)
-    ->where('payment_method','Credit Balance')
-    ->where('payment_status','success')
-    ->where('amt_to_credit','!=',0)
-    ->value('amt_to_credit');
-    if ($invoice->grand_total <= $amt_to_credit) {
-        $cartTotal = 0;
-    } else {
-        $cartTotal = $invoice->grand_total - $amt_to_credit;
-    }
-} else {
-    $cartTotal = $invoice->grand_total;
-}
-$cartTotal = intval($cartTotal);
-if ($currency == 'INR'){
-$orderData = [
-'receipt'         => '3456',
-'amount'          => round($cartTotal*100), // 2000 rupees in paise
-
-'currency'        => 'INR',
-'payment_capture' => 0 // auto capture
- 
-];
-
-
-} else {
-
- $orderData = [
-'receipt'         => '3456',
-'amount'          =>  round($cartTotal*100), // 2000 rupees in paise
-
-'currency'        => $currency,
-'payment_capture' => 0 // auto capture
-     
-];
-}
-$razorpayOrder = $api->order->create($orderData);
-$razorpayOrderId = $razorpayOrder['id'];
-
-
-
-
-$data = [
-    "key"               => $rzp_key,
-    "name"              => 'Faveo Helpdesk',
-     "prefill"=> [
-        "contact"=>    \Auth::user()->mobile_code .\Auth::user()->mobile,
-        "email"=>      \Auth::user()->email,
-    ],
-    "description"       =>  'Order for Invoice No' .-$invoice->number,
-    "notes"             => [
-    "First Name"         => \Auth::user()->first_name,
-    "Last Name"         =>  \Auth::user()->last_name,
-    "Company Name"      => \Auth::user()->company,
-    "Address"           =>  \Auth::user()->address,
-    "Email"             =>  \Auth::user()->email,
-    "Country"           =>  \Auth::user()->country,
-    "State"             => \Auth::user()->state,
-    "City"              => \Auth::user()->town,
-    "Zip"               => \Auth::user()->zip,
-    "Amount Paid"       => $cartTotal*100,
-
-
-
-    "merchant_order_id" =>  $merchant_orderid,
-    ],
-    "theme"             => [
-    "color"             => "#F37254"
-    ],
-    "order_id"          => $razorpayOrderId,
-];
-
-
-$json = json_encode($data);
-
-
-
-
-?>
 @if($regularPayment)
  <div role="main" class="main">
 
@@ -1050,46 +951,50 @@ $(function() {
 
 
 </form>
+@if($gateway === 'Razorpay')
+    <?php
+        $json = $data['json'];
+    ?>
+    <script>
 
- <script>
-
-    // Checkout details as a json
-var options = <?php echo $json; ?>
+        // Checkout details as a json
+        var options = <?php echo $json; ?>
 
 
-/**
- * The entire list of Checkout fields is available at
- * https://docs.razorpay.com/docs/checkout-form#checkout-fields
- */
-options.handler = function (response){
-    document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
-    document.getElementById('razorpay_signature').value = response.razorpay_signature;
-   
-    document.razorpayform.submit();
-};
+        /**
+         * The entire list of Checkout fields is available at
+         * https://docs.razorpay.com/docs/checkout-form#checkout-fields
+         */
+            options.handler = function (response){
+                document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
+                document.getElementById('razorpay_signature').value = response.razorpay_signature;
 
-// Boolean whether to show image inside a white frame. (default: true)
-options.theme.image_padding = false;
+                document.razorpayform.submit();
+            };
 
-options.modal = {
-    ondismiss: function() {
-    },
-    // Boolean indicating whether pressing escape key 
-    // should close the checkout form. (default: true)
-    escape: true,
-    // Boolean indicating whether clicking translucent blank
-    // space outside checkout form should close the form. (default: false)
-    backdropclose: false
-};
+        // Boolean whether to show image inside a white frame. (default: true)
+        options.theme.image_padding = false;
 
-var rzp = new Razorpay(options);
+        options.modal = {
+            ondismiss: function() {
+            },
+            // Boolean indicating whether pressing escape key
+            // should close the checkout form. (default: true)
+            escape: true,
+            // Boolean indicating whether clicking translucent blank
+            // space outside checkout form should close the form. (default: false)
+            backdropclose: false
+        };
 
-document.getElementById('rzp-button1').onclick = function(e){
-    
-    rzp.open();
-    e.preventDefault();
-}
-</script>
+        var rzp = new Razorpay(options);
+
+        document.getElementById('rzp-button1').onclick = function(e){
+
+            rzp.open();
+            e.preventDefault();
+        }
+    </script>
+@endif
 
 
 @endsection

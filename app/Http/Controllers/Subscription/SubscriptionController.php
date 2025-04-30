@@ -90,21 +90,31 @@ class SubscriptionController extends Controller
             $subscriptions = [];
             foreach ($decodedData as $day) {
                 $day = (int) $day;
-                $startDate = Carbon::now()->toDateString();
                 $endDate = Carbon::now()->addDays($day)->toDateString();
-                $subscriptionsForDay = Subscription::select('subscriptions.*')->whereBetween('update_ends_at', [$startDate, $endDate])
-                ->join('orders', 'subscriptions.order_id', '=', 'orders.id')
-                ->where('orders.order_status', 'executed')
-                ->where('is_subscribed', 1)
-                ->orWhereRaw('(case when rzp_subscription = 1 then 1 when autoRenew_status = 1 then 1 else 0 end) = 1')
+                $subscriptionsForDay = Subscription::query()
                     ->select([
                         'subscriptions.*',
                         'orders.id as order_id',
                         'orders.*',
                         'subscriptions.id as id',
                     ])
-                ->get()
-                ->toArray();
+                    ->join('orders', 'subscriptions.order_id', '=', 'orders.id')
+                    ->where(function ($query) use ($endDate) {
+                        $query->where('subscriptions.update_ends_at', 'LIKE', $endDate.'%')
+                            ->orWhere('subscriptions.support_ends_at', 'LIKE', $endDate.'%')
+                            ->orWhere('subscriptions.ends_at', 'LIKE', $endDate.'%');
+                    })
+                    ->where(function ($query) {
+                        $query->where(function ($q) {
+                            $q->where('orders.order_status', 'executed')
+                                ->where('subscriptions.is_subscribed', 1);
+                        })->orWhere(function ($q) {
+                            $q->where('subscriptions.rzp_subscription', 1)
+                                ->orWhere('subscriptions.autoRenew_status', 1);
+                        });
+                    })
+                    ->get()
+                    ->toArray();
                 $subscriptions = array_merge($subscriptions, $subscriptionsForDay);
             }
 
@@ -136,13 +146,17 @@ class SubscriptionController extends Controller
             $startDate = Carbon::now()->toDateString();
             $endDate = Carbon::now()->addDays($day)->toDateString();
 
-            $subscriptionsForDay = Subscription::where(function ($query) {
-                $query->where('rzp_subscription', '2')
-                      ->orWhere('autoRenew_status', '2');
+            $subscriptionsForDay = Subscription::where(function ($query) use ($endDate) {
+                $query->where('update_ends_at', 'LIKE', $endDate.'%')
+                    ->orWhere('support_ends_at', 'LIKE', $endDate.'%')
+                    ->orWhere('ends_at', 'LIKE', $endDate.'%');
             })
-            ->whereBetween('update_ends_at', [$startDate, $endDate])
-            ->get()
-            ->toArray();
+                ->where(function ($query) {
+                    $query->where('is_subscribed', 2)
+                        ->orWhere('autoRenew_status', 2);
+                })
+                ->get()
+                ->toArray();
 
             $subscriptions = array_merge($subscriptions, $subscriptionsForDay);
         }
@@ -173,7 +187,7 @@ class SubscriptionController extends Controller
                 $order = $cronController->getOrderById($subscription->order_id);
                 $oldinvoice = $cronController->getInvoiceByOrderId($subscription->order_id);
                 $item = $cronController->getInvoiceItemByInvoiceId($oldinvoice->id);
-                $product_details = Product::where('name', $item->product_name)->first();
+                $product_details = Product::where('id', $subscription->product_id)->first();
                 $payment_method = $subscription->autoRenew_status != '0' ? 'stripe' : ($subscription->rzp_subscription != '0' ? 'razorpay' : null);
 
                 $plan = Plan::where('id', $subscription->plan_id)->first('days');
@@ -189,17 +203,29 @@ class SubscriptionController extends Controller
                 $countryids = \App\Model\Common\Country::where('country_code_char2', $user->country)->first();
                 $currency = getCurrencyForClient($user->country);
                 $country = $countryids->country_id;
-                $price = PlanPrice::where('plan_id', $subscription->plan_id)->where('currency', $currency)->where('country_id', $country)->value('renew_price');
-                if (empty($price)) {
-                    $price = PlanPrice::where('plan_id', $subscription->plan_id)->where('currency', $currency)->where('country_id', 0)->value('renew_price');
+
+                $priceRow = PlanPrice::where('plan_id', $subscription->plan_id)
+                    ->where('currency', $currency)
+                    ->whereIn('country_id', [$country, 0])
+                    ->orderByRaw('FIELD(country_id, ?, 0)', [$country])
+                    ->first();
+
+                $price = $priceRow->renew_price ?? 0;
+
+                if (in_array($subscription->product_id, cloudPopupProducts()) || $product_details->can_modify_agent) {
+                    $noOfAgents = $priceRow->no_of_agents;
+                    $priceForAgents = $price / $noOfAgents;
+                    $cost = $this->getPriceforCloud($order, $priceForAgents);
+                } else {
+                    $cost = $price;
                 }
+
                 // add processing fee for stripe payment
                 if ($payment_method == 'stripe') {
                     $processingFee = \DB::table(strtolower('stripe'))->where('currencies', $currency)->value('processing_fee');
                     $processingFee = (float) $processingFee / 100;
-                    $price += ($price * $processingFee);
+                    $price = $cost + ($cost * $processingFee);
                 }
-                $cost = in_array($subscription->product_id, cloudPopupProducts()) || $product_details->can_modify_agent ? $this->getPriceforCloud($order, $price) : $price;
 
                 if ($this->shouldCancelSubscription($product_details, $price)) {
                     Subscription::where('id', $subscription->id)->update(['is_subscribed' => 0]);
@@ -214,7 +240,7 @@ class SubscriptionController extends Controller
 
                     $existingInvoiceItem = \DB::table('invoice_items')
                                               ->where('invoice_id', $findInvoiceid)
-                                              ->where('product_name', $product_details->name)
+                                              ->where('product_id', $subscription->product_id)
                                               ->first();
 
                     if ($existingInvoiceItem) {
@@ -309,7 +335,7 @@ class SubscriptionController extends Controller
             if ($subscription) {
                 $product_name = Product::where('id', $subscription->product_id)->value('name');
                 $invoiceid = \DB::table('order_invoice_relations')->where('order_id', $subscription->order_id)->latest()->value('invoice_id');
-                $invoiceItem = \DB::table('invoice_items')->where('invoice_id', $invoiceid)->where('product_name', $product_name)->first();
+                $invoiceItem = \DB::table('invoice_items')->where('invoice_id', $invoiceid)->where('product_id', $subscription->product_id)->first();
                 $invoice = Invoice::where('id', $invoiceItem->invoice_id)->where('status', 'pending')->first();
                 if ($invoice) {
                     $order = Order::where('id', $subscription->order_id)->first();
@@ -409,7 +435,7 @@ class SubscriptionController extends Controller
     {
         $product_name = Product::where('id', $subscription->product_id)->value('name');
         $invoiceid = \DB::table('order_invoice_relations')->where('order_id', $subscription->order_id)->latest()->value('invoice_id');
-        $invoiceItem = \DB::table('invoice_items')->where('invoice_id', $invoiceid)->where('product_name', $product_name)->first();
+        $invoiceItem = \DB::table('invoice_items')->where('invoice_id', $invoiceid)->where('product_id', $subscription->product_id)->first();
         $invoice = Invoice::where('id', $invoiceItem->invoice_id)->where('status', 'pending')->first();
         $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();
         $stripe = new \Stripe\StripeClient($stripeSecretKey);
@@ -433,10 +459,10 @@ class SubscriptionController extends Controller
         $invoiceCost = $this->calculateReverseUnitCost($currency, $latestInvoice->amount);
         $cost = $cost == intval($invoiceCost) ? $cost : intval($invoiceCost);
         Invoice::where('id', $invoiceItem->invoice_id)->where('status', 'pending')->update(['grand_total' => $cost]);
-        \DB::table('invoice_items')->where('invoice_id', $invoiceid)->where('product_name', $product_name)->update(['regular_price' => $cost]);
+        \DB::table('invoice_items')->where('invoice_id', $invoiceid)->where('product_id', $subscription->product_id)->update(['regular_price' => $cost]);
         // Refresh the invoice and invoice item instances
         $invoice = Invoice::find($invoiceItem->invoice_id);
-        $invoiceItem = InvoiceItem::where('invoice_id', $invoiceid)->where('product_name', $product_name)->first();
+        $invoiceItem = InvoiceItem::where('invoice_id', $invoiceid)->where('product_id', $subscription->product_id)->first();
         $this->PostSubscriptionHandle->successRenew($invoiceItem, $subscription, 'Razorpay', $invoice->currency);
         $sub = $this->PostSubscriptionHandle->successRenew($invoice, $subscription, 'stripe', $currency);
         $this->PostSubscriptionHandle->postRazorpayPayment($invoice, 'stripe');
@@ -464,7 +490,7 @@ class SubscriptionController extends Controller
         $yesterday = Carbon::yesterday()->format('Y-m-d');
         $product_name = Product::where('id', $subscription->product_id)->value('name');
         $invoiceid = \DB::table('order_invoice_relations')->where('order_id', $subscription->order_id)->latest()->value('invoice_id');
-        $invoiceItem = \DB::table('invoice_items')->where('invoice_id', $invoiceid)->where('product_name', $product_name)->first();
+        $invoiceItem = \DB::table('invoice_items')->where('invoice_id', $invoiceid)->where('product_id', $subscription->product_id)->first();
         $invoice = Invoice::where('id', $invoiceItem->invoice_id)->where('status', 'pending')->first();
         $order = Order::where('id', $subscription->order_id)->first();
 
@@ -479,10 +505,10 @@ class SubscriptionController extends Controller
             $invoiceCost = $this->calculateReverseUnitCost($currency, $invoices->amount);
             $cost = $cost == intval($invoiceCost) ? $cost : intval($invoiceCost);
             Invoice::where('id', $invoiceItem->invoice_id)->where('status', 'pending')->update(['grand_total' => $cost]);
-            \DB::table('invoice_items')->where('invoice_id', $invoiceid)->where('product_name', $product_name)->update(['regular_price' => $cost]);
+            \DB::table('invoice_items')->where('invoice_id', $invoiceid)->where('product_id', $subscription->product_id)->update(['regular_price' => $cost]);
             // Refresh the invoice and invoice item instances
             $invoice = Invoice::find($invoiceItem->invoice_id);
-            $invoiceItem = InvoiceItem::where('invoice_id', $invoiceid)->where('product_name', $product_name)->first();
+            $invoiceItem = InvoiceItem::where('invoice_id', $invoiceid)->where('product_id', $subscription->product_id)->first();
             $this->PostSubscriptionHandle->successRenew($invoiceItem, $subscription, 'Razorpay', $invoice->currency);
             $this->PostSubscriptionHandle->postRazorpayPayment($invoiceItem, 'Razorpay');
             $this->PostSubscriptionHandle->sendPaymentSuccessMail($subscription->id, $currency, $cost, $user, $product_name, $order->number);

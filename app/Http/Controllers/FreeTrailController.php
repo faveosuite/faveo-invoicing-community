@@ -152,6 +152,7 @@ class FreeTrailController extends Controller
                 $invoiceItem = $this->invoiceItem->create([
                     'invoice_id' => $invoiceid,
                     'product_name' => $product->name,
+                    'product_id' => $product->id,
                     'regular_price' => planPrice::where('plan_id', $plan_id)
                         ->where('currency', getCurrencyForClient(\Auth::user()->country))->pluck('add_price'),
                     'quantity' => 1,

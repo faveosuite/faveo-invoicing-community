@@ -8,6 +8,9 @@ use App\Http\Controllers\Common\PipedriveController;
 use App\Model\Common\PipedriveGroups;
 use App\Model\Common\PipedriveLocalFields;
 use App\Model\Github\Github;
+use App\Model\Order\InvoiceItem;
+use App\Model\Order\Order;
+use App\Model\Product\Product;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -21,6 +24,7 @@ class DatabaseSeeder extends Seeder
         $this->removeOldGitPassword();
         $this->updateAppKey();
         $this->addFielsForPipedrive();
+        $this->invoiceItemProductIDChange();
     }
 
     public function addMsgStatus()
@@ -94,6 +98,22 @@ class DatabaseSeeder extends Seeder
                 ['group_name' => $group['group_name']],
                 $group
             );
+        }
+    }
+    public function invoiceItemProductIDChange()
+    {
+        $orders = Order::all();
+        foreach ($orders as $order) {
+            // Make sure invoice_item_id and product_id exist in the order
+            if ($order->invoice_item_id && $order->product) {
+                // Find the invoice item
+                $invoiceItem = InvoiceItem::find($order->invoice_item_id);
+                $product = Product::find($order->product);
+                if ($invoiceItem && $product) {
+                    $invoiceItem->product_id = $product->id;
+                    $invoiceItem->save();
+                }
+            }
         }
     }
 }
