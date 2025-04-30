@@ -4,8 +4,10 @@ namespace Database\Seeders\v4_0_2_4_RC_1;
 
 use App\ApiKey;
 use App\Model\Common\Msg91Status;
-use App\Model\Common\PipedriveLocalFields;
 use App\Model\Github\Github;
+use App\Model\Order\InvoiceItem;
+use App\Model\Order\Order;
+use App\Model\Product\Product;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -18,6 +20,7 @@ class DatabaseSeeder extends Seeder
         $this->addMsgStatus();
         $this->removeOldGitPassword();
         $this->updateAppKey();
+        $this->invoiceItemProductIDChange();
     }
 
     public function addMsgStatus()
@@ -46,7 +49,7 @@ class DatabaseSeeder extends Seeder
 
     private function updateAppKey()
     {
-        $env = base_path().DIRECTORY_SEPARATOR.'.env';
+        $env = base_path() . DIRECTORY_SEPARATOR . '.env';
 
         if (is_file($env) && config('app.env') !== 'testing' && env('APP_KEY_UPDATED') !== 'true') {
 
@@ -55,7 +58,22 @@ class DatabaseSeeder extends Seeder
             \Artisan::call('key:generate', ['--force' => true]);
 
             setEnvValue(['APP_KEY_UPDATED' => 'true']);
-
+        }
+    }
+    public function invoiceItemProductIDChange()
+    {
+        $orders = Order::all();
+        foreach ($orders as $order) {
+            // Make sure invoice_item_id and product_id exist in the order
+            if ($order->invoice_item_id && $order->product) {
+                // Find the invoice item
+                $invoiceItem = InvoiceItem::find($order->invoice_item_id);
+                $product = Product::find($order->product);
+                if ($invoiceItem && $product) {
+                    $invoiceItem->product_id = $product->id;
+                    $invoiceItem->save();
+                }
+            }
         }
     }
 }
