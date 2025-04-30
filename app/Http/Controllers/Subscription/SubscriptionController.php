@@ -90,15 +90,27 @@ class SubscriptionController extends Controller
             $subscriptions = [];
             foreach ($decodedData as $day) {
                 $day = (int) $day;
-                $startDate = Carbon::now()->toDateString();
                 $endDate = Carbon::now()->addDays($day)->toDateString();
-                $subscriptionsForDay = Subscription::select('subscriptions.*')->whereBetween('update_ends_at', [$startDate, $endDate])
-                ->join('orders', 'subscriptions.order_id', '=', 'orders.id')
-                ->where('orders.order_status', 'executed')
-                ->where('is_subscribed', 1)
-                ->orWhereRaw('(case when rzp_subscription = 1 then 1 when autoRenew_status = 1 then 1 else 0 end) = 1')
-                ->get()
-                ->toArray();
+                $subscriptionsForDay = Subscription::query()
+                    ->select([
+                        'subscriptions.*',
+                        'orders.id as order_id',
+                        'orders.*',
+                        'subscriptions.id as id',
+                    ])
+                    ->join('orders', 'subscriptions.order_id', '=', 'orders.id')
+                    ->where('update_ends_at', 'LIKE', $endDate.'%')
+                    ->where(function ($query) {
+                        $query->where(function ($q) {
+                            $q->where('orders.order_status', 'executed')
+                                ->where('subscriptions.is_subscribed', 1);
+                        })->orWhere(function ($q) {
+                            $q->where('subscriptions.rzp_subscription', 1)
+                                ->orWhere('subscriptions.autoRenew_status', 1);
+                        });
+                    })
+                    ->get()
+                    ->toArray();
                 $subscriptions = array_merge($subscriptions, $subscriptionsForDay);
             }
 
