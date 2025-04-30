@@ -26,7 +26,7 @@ use Illuminate\Http\Request;
 class FreeTrailController extends Controller
 {
     public $orderNo = null;
-
+    public $tenantController;
     public function __construct()
     {
         $this->middleware('auth');
@@ -38,6 +38,8 @@ class FreeTrailController extends Controller
         $this->order = new Order();
 
         $this->subscription = new Subscription();
+
+        $this->tenantController = new TenantController(new Client, new FaveoCloud());
     }
 
     /**
@@ -71,8 +73,7 @@ class FreeTrailController extends Controller
                     $this->generateFreetrailInvoice();
                     $this->createFreetrailInvoiceItems($request->get('product'));
                     $serial_key = $this->executeFreetrailOrder();
-
-                    $isSuccess = (new TenantController(new Client, new FaveoCloud()))->createTenant(new Request(['orderNo' => $this->orderNo, 'domain' => $request->domain]));
+                    $isSuccess = $this->tenantController->createTenant(new Request(['orderNo' => $this->orderNo, 'domain' => $request->domain]));
                     if ($isSuccess['status'] == 'false') {
                         (new LicenseController())->deActivateTheLicense($serial_key);
 

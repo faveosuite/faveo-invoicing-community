@@ -5,6 +5,7 @@ namespace Tests\Unit\Client\Order;
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\Model\License\LicenseType;
 use App\Model\Order\InvoiceItem;
+use App\Model\Product\Price;
 use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
 use App\Model\License\LicensePermission;
@@ -17,8 +18,15 @@ use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Order\Invoice;
 use Mockery;
+use Tests\TestCase;
+use Illuminate\Support\Facades\Auth;
+use App\Model\Common\StatusSetting;
+use App\Payment_log;
+
     class ClientOrderControllerTest extends DBTestCase
 {
+
+
 /** @group order  */
 
     public function  test_my_orders_datatable_sends_data(){
@@ -105,8 +113,46 @@ use Mockery;
         $subscription = Subscription::create(['user_id'=>$user->id,'order_id' => $order->id, 'product_id' => $product->id, 'version' => 'v3.0.0', 'is_subscribed' => '1', 'autoRenew_status' => '1']);
 
         $response=$this->call('get','my-order/'.$order->id);
+
         $response->assertSessionHas('fails',"Please configure the valid license details in Apikey settings.");
     }
+
+
+
+        public function test_successful_when_license_mocked(){
+            $user=User::factory()->create();
+            $this->actingAs($user);
+            $this->withoutMiddleware();
+            $product=Product::factory()->create();
+            $invoice=Invoice::factory()->create(['user_id'=>$user->id]);
+            $invoiceItem = InvoiceItem::create([
+                'invoice_id' => $invoice->id,
+                'product_name' => 'Helpdesk Advance',
+                'regular_price' => 10000,
+                'quantity' => 1,
+                'tax_name' => 'CGST+SGST',
+                'tax_percentage' => 18,
+                'subtotal' => 11800,
+                'domain' => 'faveo.com',
+                'plan_id' => 1,
+            ]);
+            $order = Order::factory()->create(['invoice_id' => $invoice->id,
+                'invoice_item_id' => $invoiceItem->id, 'client' => $user->id,'product'=>$product->id ]);
+            $subscription = Subscription::create(['user_id'=>$user->id,'order_id' => $order->id, 'product_id' => $product->id, 'version' => 'v3.0.0', 'is_subscribed' => '1', 'autoRenew_status' => '1']);
+            $serialKey = 'eertrertyuhgbvfdrgtyujhnbvfdrethgbf';
+            $productId = 1;
+            $mock = Mockery::mock(\App\Http\Controllers\License\LicenseController::class);
+            $mock->shouldReceive('searchInstallationPath')
+                ->withAnyArgs()
+                ->once()
+                ->andReturn(['path' => '/mocked']);
+
+            $this->app->instance(\App\Http\Controllers\License\LicenseController::class, $mock);
+            $response=$this->call('get','my-order/'.$order->id);
+            $response->assertStatus(200);
+            $response->assertViewIs('themes.default1.front.clients.show-order');
+        }
+
 
         public function test_auto_renewal(){
             $user=User::factory()->create();
@@ -251,4 +297,6 @@ use Mockery;
             $this->assertEquals($content['data'][0]['client'],$user->id);
         }
 
-}
+
+
+    }

@@ -889,6 +889,7 @@ class CloudExtraActivities extends Controller
                     $daysRemain = $futureDateTime->diffInDays($currentDateTime);
                     $pricePerThatAgent = $pricePerDay * $daysRemain;
                     $price = $agentsAdded * $pricePerThatAgent;
+                    dd($pricePerDay, $pricePerThatAgent,$price);
                 }
             } else {
                 if (Carbon::now() >= $ends_at) {
@@ -917,7 +918,6 @@ class CloudExtraActivities extends Controller
                     }
                 }
             }
-
             return ['pricePerAgent' => currencyFormat($base_price, $currency['currency'], true), 'totalPrice' => currencyFormat($base_price * $newAgents, $currency['currency'], true), 'priceToPay' => currencyFormat($price, $currency['currency'], true)];
         } catch(\Exception $e) {
             app('log')->error($e->getMessage());

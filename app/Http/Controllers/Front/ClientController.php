@@ -737,9 +737,8 @@ class ClientController extends BaseClientController
             $licenseStatus = StatusSetting::pluck('license_status')->first();
             $installationDetails = [];
 
-            $cont = new \App\Http\Controllers\License\LicenseController();
+            $cont = app(\App\Http\Controllers\License\LicenseController::class);
             $installationDetails = $cont->searchInstallationPath($order->serial_key, $order->product);
-
             $statusAutorenewal = Subscription::where('order_id', $id)->value('is_subscribed');
 
             $status = Subscription::where('order_id', $id)->value('autoRenew_status');
