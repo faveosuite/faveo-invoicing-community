@@ -354,6 +354,8 @@ class RenewController extends BaseRenewController
                     $sub = Subscription::find($id);
                     $order_id = $sub->order_id;
                     $agents = intval(substr(Order::where('id', $order_id)->value('serial_key'), 12));
+                    //This will get the cost of per agent
+                    $cost = $cost / $planDetails['plan']->no_of_agents;
                     $cost = (int) $cost * (int) $agents;
                 }
             }

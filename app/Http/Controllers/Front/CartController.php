@@ -181,6 +181,10 @@ class CartController extends BaseCartController
                 }
             }
 
+            $cartCollection = Cart::getContent()->sortByDesc(function ($item) {
+                return (int) $item->id;
+            });
+
             return view('themes.default1.front.cart', compact('cartCollection'));
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());

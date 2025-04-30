@@ -52,6 +52,11 @@
         .form-control.is-valid {
             background-image: none !important;
         }
+        .custom-pills{
+            margin-left: -5px;
+            margin-top: -5px;
+            background-color: #ed5348;
+        }
 
 
 </style>
@@ -397,8 +402,7 @@ $days = $pay->where('product','117')->value('days');
                                                 <a href="{{ url('show/cart') }}" class="header-nav-features-toggle text-decoration-none">
                                                     <span class="text-dark opacity-8 font-weight-bold text-color-hover-primary"> Cart</span>
                                                     <img src="{{asset('client/porto/fonts/icon-cart.svg')}}" width="14" alt="" class="header-nav-top-icon-img">
-                                                    <span class="cart-info">
-                                                <span class="cart-qty">{{ Cart::getTotalQuantity() }}</span>
+                                                    <span class="position-absolute top-0 start-100 translate-end badge rounded-pill custom-pills">{{ Cart::getTotalQuantity() }}</span>
                                             </span>
                                                 </a>
                                                 <div class="header-nav-features-dropdown right-15" id="headerTopCartDropdown">
