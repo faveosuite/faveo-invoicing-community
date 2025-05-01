@@ -82,12 +82,40 @@ class ClientFooterGeneralTest extends DBTestCase
         $plan = Plan::create(['id' => 25, 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 15]);
         $cloudProduct=CloudProducts::create(['cloud_product'=>$product->id,'cloud_free_plan'=>$plan->id,"cloud_product_key"=>$product->name]);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
-        $mock=$this->tenantController->shouldReceive('createTenant')
-            ->withAnyArgs()
-            ->andReturn(['status'=>true]);
         $response=$this->call('POST','first-login',['domain'=>'test','id'=>$user->id,'product'=>$product->name]);
         $content=$response->json();
         $this->assertEquals($content['status'],'false');
+    }
+
+
+    public function test_start_free_trial_tenant_created(){
+        $user = User::factory()->create();
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        $product = Product::create(['name' => 'Helpdesk Advance']);
+        $plan = Plan::create(['id' => 25, 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 15]);
+        $cloudProduct=CloudProducts::create(['cloud_product'=>$product->id,'cloud_free_plan'=>$plan->id,"cloud_product_key"=>$product->name]);
+        $invoice = Invoice::factory()->create(['user_id' => $user->id]);
+
+
+        $tenantControllerMock = Mockery::mock(TenantController::class);
+        $requestMock = Mockery::mock(Request::class);
+        $requestMock->domain = 'example.com';
+        $request = new Request([
+            'domain'=>'test',
+            'id'=>$user->id,
+            'product'=>$product->name
+        ]);
+        $tenantControllerMock->shouldReceive('createTenant')
+            ->withAnyArgs()
+            ->andReturn(['status' => true,'message' => trans('message.cloud_created_successfully')]);
+
+        $controller = new FreeTrailController($tenantControllerMock);
+
+        $result = $controller->firstLoginAttempt($request);
+        $this->assertTrue($result['status']);
+        $this->assertEquals(" You will receive the login credentials on your registered email", $result['message']);
+
     }
 
 
@@ -117,9 +145,6 @@ class ClientFooterGeneralTest extends DBTestCase
         $this->assertEquals($content['message'],'It has come to our notice that you have crossed the free trial limit, please delete your existing instances to proceed further.');
     }
 
-    public function test_to_add_email_to_mailchimp(){
-        $this->withoutMiddleware();
 
-    }
 
 }

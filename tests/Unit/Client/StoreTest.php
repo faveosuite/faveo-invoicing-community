@@ -165,7 +165,7 @@ class StoreTest extends DBTestCase
         $product=Product::factory()->create(['group'=>$group->id]);
         $plan=Plan::factory()->create(['product'=>$product->id,'days'=>365]);
         $planPrice=PlanPrice::factory()->create(['plan_id'=>$plan->id,'add_price'=>'500','price_description'=>'GoodProduct','no_of_agents'=>7,'offer_price'=>'100']);
-        $cloudproduct=CloudProducts::create(['cloud_product'=>$product->id,'cloud_free_plan'=>$plan->id]);
+        $cloudproduct=CloudProducts::create(['cloud_product'=>$product-[]>id,'cloud_free_plan'=>$plan->id]);
         $orderButton = 'btn-dark';
         $highlight=false;
         $response = $this->getPrivateMethod($this->con1, 'getOfferprice', [$product->id]);

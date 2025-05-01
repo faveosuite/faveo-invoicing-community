@@ -27,7 +27,7 @@ class FreeTrailController extends Controller
 {
     public $orderNo = null;
     public $tenantController;
-    public function __construct()
+    public function __construct(TenantController $tenantController = null)
     {
         $this->middleware('auth');
 
@@ -39,7 +39,7 @@ class FreeTrailController extends Controller
 
         $this->subscription = new Subscription();
 
-        $this->tenantController = new TenantController(new Client, new FaveoCloud());
+        $this->tenantController = $tenantController ?: new TenantController(new Client, new FaveoCloud);
     }
 
     /**
