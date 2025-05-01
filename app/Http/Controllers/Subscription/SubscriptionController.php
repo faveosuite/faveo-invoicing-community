@@ -99,7 +99,11 @@ class SubscriptionController extends Controller
                         'subscriptions.id as id',
                     ])
                     ->join('orders', 'subscriptions.order_id', '=', 'orders.id')
-                    ->where('update_ends_at', 'LIKE', $endDate.'%')
+                    ->where(function ($query) use ($endDate) {
+                        $query->where('subscriptions.update_ends_at', 'LIKE', $endDate.'%')
+                            ->orWhere('subscriptions.support_ends_at', 'LIKE', $endDate.'%')
+                            ->orWhere('subscriptions.ends_at', 'LIKE', $endDate.'%');
+                    })
                     ->where(function ($query) {
                         $query->where(function ($q) {
                             $q->where('orders.order_status', 'executed')
