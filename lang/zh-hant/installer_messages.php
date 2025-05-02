@@ -156,5 +156,9 @@ return [
     'powered_by' => '版權所有。技術支持',
     'invalid_email' => '無效的電子郵件',
     'your_password_invalid' => '您的密碼格式無效',
+    'timezone' => '時區',
+    'language' => '語言',
+    'tooltip_timezone' => '瀏覽器時區初始使用。需要時可選擇不同的時區。',
+    'tooltip_language' => '初始加載的默認語言。需要時可選擇不同的語言。',
 
 ];

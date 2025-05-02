@@ -155,5 +155,9 @@ return [
     'powered_by' => 'すべての権利を保有。提供:',
     'invalid_email' => '無効なメールアドレスです',
     'your_password_invalid' => 'パスワードの形式が無効です',
+    'timezone' => 'タイムゾーン',
+    'language' => '言語',
+    'tooltip_timezone' => 'ブラウザのタイムゾーンが最初に使用されます。必要に応じて別のタイムゾーンを選択してください。',
+    'tooltip_language' => '最初に読み込まれるデフォルトの言語です。必要に応じて別の言語を選択してください。',
 
 ];

@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-    Api Key
+    {{ __('message.api_key') }}
 @stop
 @section('content-header')
     <style>

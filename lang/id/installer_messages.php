@@ -162,5 +162,9 @@ return [
     'powered_by' => 'Hak Cipta Dilindungi. Ditenagai oleh',
     'invalid_email' => 'Email tidak valid',
     'your_password_invalid' => 'Format kata sandi Anda tidak valid',
+    'timezone' => 'Zona Waktu',
+    'language' => 'Bahasa',
+    'tooltip_timezone' => 'Zona waktu browser digunakan sebagai default. Pilih zona waktu lain jika diperlukan.',
+    'tooltip_language' => 'Bahasa default yang dimuat awalnya. Pilih bahasa lain jika diperlukan.',
 
 ];

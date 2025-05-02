@@ -714,4 +714,148 @@ return [
         'invalid' => 'Geçersiz şifre.',
     ],
 
+    //AuthController file
+    'auth_controller' => [
+        'name_required' => 'Ad gereklidir.',
+        'name_max' => 'Ad en fazla 255 karakter olabilir.',
+
+        'email_required' => 'E-posta gereklidir.',
+        'email_email' => 'Geçerli bir e-posta adresi girin.',
+        'email_max' => 'E-posta en fazla 255 karakter olabilir.',
+        'email_unique' => 'Bu e-posta zaten kayıtlı.',
+
+        'password_required' => 'Şifre gereklidir.',
+        'password_confirmed' => 'Şifre onayı eşleşmiyor.',
+        'password_min' => 'Şifre en az 6 karakter olmalıdır.',
+    ],
+
+    'resend_otp' => [
+        'eid_required' => 'EID alanı gereklidir.',
+        'eid_string' => 'EID bir metin olmalıdır.',
+        'type_required' => 'Tür alanı gereklidir.',
+        'type_string' => 'Tür bir metin olmalıdır.',
+        'type_in' => 'Seçilen tür geçersizdir.',
+    ],
+
+    'verify_otp' => [
+        'eid_required' => 'Çalışan ID’si gereklidir.',
+        'eid_string' => 'Çalışan ID’si bir metin olmalıdır.',
+        'otp_required' => 'OTP gereklidir.',
+        'otp_size' => 'OTP tam olarak 6 karakter olmalıdır.',
+        'recaptcha_required' => 'Lütfen CAPTCHA’yı tamamlayın.',
+        'recaptcha_size' => 'CAPTCHA cevabı geçersiz.',
+    ],
+
+    'company_validation' => [
+        'company_required' => 'Şirket adı gereklidir.',
+        'company_string' => 'Şirket bir metin olmalıdır.',
+        'address_required' => 'Adres gereklidir.',
+        'address_string' => 'Adres bir metin olmalıdır.',
+    ],
+
+    'token_validation' => [
+        'token_required' => 'Token gereklidir.',
+        'password_required' => 'Şifre alanı gereklidir.',
+        'password_confirmed' => 'Şifre onayı eşleşmiyor.',
+    ],
+
+    'custom_email' => [
+        'required' => 'E-posta alanı gereklidir.',
+        'email' => 'Geçerli bir e-posta adresi girin.',
+        'exists' => 'Bu e-posta bizimle kayıtlı değil.',
+    ],
+
+    'newsletterEmail' => [
+        'required' => 'Bülten e-posta alanı gereklidir.',
+        'email' => 'Lütfen geçerli bir bülten e-posta adresi girin.',
+    ],
+
+    'widget' => [
+        'name_required' => 'Ad gereklidir.',
+        'name_max' => 'Ad en fazla 50 karakter olabilir.',
+        'publish_required' => 'Yayın durumu gereklidir.',
+        'type_required' => 'Tür gereklidir.',
+        'type_unique' => 'Bu tür zaten mevcut.',
+    ],
+
+    'payment' => [
+        'payment_date_required' => 'Ödeme tarihi gereklidir.',
+        'payment_method_required' => 'Ödeme yöntemi gereklidir.',
+        'amount_required' => 'Miktar gereklidir.',
+    ],
+
+    'custom_date' => [
+        'date_required' => 'Tarih alanı gereklidir.',
+        'total_required' => 'Toplam alanı gereklidir.',
+        'status_required' => 'Durum alanı gereklidir.',
+    ],
+
+    'plan_renewal' => [
+        'plan_required' => 'Plan alanı gereklidir.',
+        'payment_method_required' => 'Ödeme yöntemi alanı gereklidir.',
+        'cost_required' => 'Maliyet alanı gereklidir.',
+        'code_not_valid' => 'Promosyon kodu geçersiz.',
+    ],
+
+    'rate' => [
+        'required' => 'Ortalama gereklidir.',
+        'numeric' => 'Ortalama bir sayı olmalıdır.',
+    ],
+
+    'product_validate' => [
+        'producttitle_required' => 'Ürün başlığı gereklidir.',
+        'version_required' => 'Versiyon gereklidir.',
+        'filename_required' => 'Lütfen bir dosya yükleyin.',
+        'dependencies_required' => 'Bağımlılıklar alanı gereklidir.',
+    ],
+    'product_sku_unique' => 'Ürün SKU’su benzersiz olmalıdır.',
+    'product_name_unique' => 'Ad benzersiz olmalıdır.',
+    'product_show_agent_required' => 'Lütfen Sepet Sayfası Tercihinizi Seçin.',
+    'product_controller' => [
+        'name_required' => 'Ürün adı gereklidir.',
+        'name_unique' => 'Ad benzersiz olmalıdır.',
+        'type_required' => 'Ürün türü gereklidir.',
+        'description_required' => 'Ürün açıklaması gereklidir.',
+        'product_description_required' => 'Ürün detaylı açıklaması gereklidir.',
+        'image_mimes' => 'Resim jpeg, png, jpg türlerinde bir dosya olmalıdır.',
+        'image_max' => 'Resim en fazla 2048 kilobayt olabilir.',
+        'product_sku_required' => 'Ürün SKU’su gereklidir.',
+        'group_required' => 'Ürün grubu gereklidir.',
+        'show_agent_required' => 'Sepet Sayfası Tercihinizi Seçin.',
+    ],
+    'current_domain_required' => 'Geçerli domain gereklidir.',
+    'new_domain_required' => 'Yeni domain gereklidir.',
+    'special_characters_not_allowed' => 'Domain adında özel karakterler yasaktır.',
+    'orderno_required' => 'Sipariş numarası gereklidir.',
+    'cloud_central_domain_required' => 'Cloud central domain gereklidir.',
+    'cloud_cname_required' => 'Cloud CNAME gereklidir.',
+    'cloud_tenant' => [
+        'cloud_top_message_required' => 'Cloud üst mesajı gereklidir.',
+        'cloud_label_field_required' => 'Cloud etiket alanı gereklidir.',
+        'cloud_label_radio_required' => 'Cloud etiket radyo gereklidir.',
+        'cloud_product_required' => 'Cloud ürünü gereklidir.',
+        'cloud_free_plan_required' => 'Cloud ücretsiz plan gereklidir.',
+        'cloud_product_key_required' => 'Cloud ürün anahtarı gereklidir.',
+    ],
+    'reg_till_after' => 'Kayıt son tarihi, kayıt başlangıç tarihinden sonra olmalıdır.',
+    'extend_product' => [
+        'title_required' => 'Başlık alanı gereklidir.',
+        'version_required' => 'Versiyon alanı gereklidir.',
+        'dependencies_required' => 'Bağımlılıklar alanı gereklidir.',
+    ],
+    'please_enter_recovery_code' => 'Lütfen kurtarma kodunu girin.',
+    'social_login' => [
+        'client_id_required' => 'Google, Github veya Linkedin için Client ID gereklidir.',
+        'client_secret_required' => 'Google, Github veya Linkedin için Client Secret gereklidir.',
+        'api_key_required' => 'Twitter için API Anahtarı gereklidir.',
+        'api_secret_required' => 'Twitter için API Secret gereklidir.',
+        'redirect_url_required' => 'Yönlendirme URL’si gereklidir.',
+    ],
+    'thirdparty_api' => [
+        'app_name_required' => 'Uygulama adı gereklidir.',
+        'app_key_required' => 'Uygulama anahtarı gereklidir.',
+        'app_key_size' => 'Uygulama anahtarı tam olarak 32 karakter olmalıdır.',
+        'app_secret_required' => 'Uygulama gizli anahtarı gereklidir.',
+    ],
+
 ];

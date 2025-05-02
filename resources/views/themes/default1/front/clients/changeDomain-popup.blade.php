@@ -86,13 +86,13 @@
                 } else if(data.status == 'false') {
                     $('#error').show();
                     $('#success').hide();
-                    var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>' + @json(__('message.Whoops!')) + ' </strong>' + @json(__('message.something_wrong')) + '<br><ul><li>' + data.message + '</li></ul></div>';
+                    var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>' + @json(__('message.whoops')) + ' </strong>' + @json(__('message.something_wrong')) + '<br><ul><li>' + data.message + '</li></ul></div>';
                     $('#error').html(result);
                 } else if(data.status == 'success_with_warning') {
                     console.log('here');
                     $('#error').show();
                     $('#success').hide();
-                    var result = '<div class="alert alert-warning alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>' + @json(__('message.whoops!')) + ' </strong><br><ul><li>' + data.message + '</li></ul></div>';
+                    var result = '<div class="alert alert-warning alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>' + @json(__('message.whoops')) + ' </strong><br><ul><li>' + data.message + '</li></ul></div>';
                     $('#error').html(result);
                 } else {
                     $('#error').hide();

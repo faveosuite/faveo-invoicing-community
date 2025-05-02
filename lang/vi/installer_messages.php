@@ -159,4 +159,8 @@ return [
     'powered_by' => 'Tất cả quyền được bảo vệ. Được phát triển bởi',
     'invalid_email' => 'Email không hợp lệ',
     'your_password_invalid' => 'Định dạng mật khẩu của bạn không hợp lệ',
+    'timezone' => 'Múi giờ',
+    'language' => 'Ngôn ngữ',
+    'tooltip_timezone' => 'Múi giờ của trình duyệt được sử dụng ban đầu. Chọn một múi giờ khác nếu cần.',
+    'tooltip_language' => 'Ngôn ngữ mặc định được tải ban đầu. Chọn một ngôn ngữ khác nếu cần.',
 ];

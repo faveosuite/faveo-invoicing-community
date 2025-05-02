@@ -159,5 +159,9 @@ return [
     'powered_by' => 'Id-drittijiet kollha riżervati. Mxewda minn',
     'invalid_email' => 'Email mhux validu',
     'your_password_invalid' => 'Il-format tal-password tiegħek huwa invalidu',
+    'timezone' => 'Żona ta\' Ħin',
+    'language' => 'Lingwa',
+    'tooltip_timezone' => 'Il-ħin tal-browser jintuża inizjalment. Agħżel żona ta\' ħin differenti jekk meħtieġ.',
+    'tooltip_language' => 'Lingwa predefinita li titloka inizjalment. Agħżel lingwa differenti jekk meħtieġ.',
 
 ];

@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Debugging Settings
+    {{ __('message.debugging_settings') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
@@ -31,13 +31,13 @@ Debugging Settings
         <div class="row">
             <div class="col-md-4">
                 <div class="form-group">
-                    {!! Form::label('debug',Lang::get('Debugging')) !!}
+                    {!! Form::label('debug',Lang::get('message.debugging')) !!}
                     <div class="row">
                         <div class="col-sm-3">
-                            <input type="radio" name="debug" value="true" @if($de == true) checked="true" @endif > {{Lang::get('Enable')}}
+                            <input type="radio" name="debug" value="true" @if($de == true) checked="true" @endif > {{Lang::get('message.enable')}}
                         </div>
                         <div class="col-sm-3">
-                            <input type="radio" name="debug" value="false" @if($de == false) checked="true" @endif> {{Lang::get('Disable')}}
+                            <input type="radio" name="debug" value="false" @if($de == false) checked="true" @endif> {{Lang::get('message.disable')}}
                         </div>
                     </div>
                 </div> 

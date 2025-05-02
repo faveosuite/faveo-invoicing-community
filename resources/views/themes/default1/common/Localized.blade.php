@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Localized License
+    {{ __('message.localized_lic') }}
 @stop
 @section('content-header')
 <div class="col-sm-6">

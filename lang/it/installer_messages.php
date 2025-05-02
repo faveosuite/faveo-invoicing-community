@@ -162,5 +162,9 @@ return [
     'powered_by' => 'Tutti i diritti riservati. Powered by',
     'invalid_email' => 'Email non valida',
     'your_password_invalid' => 'Il formato della tua password non è valido',
+    'timezone' => 'Fuso orario',
+    'language' => 'Lingua',
+    'tooltip_timezone' => 'Il fuso orario del browser viene utilizzato inizialmente. Se necessario, seleziona un fuso orario diverso.',
+    'tooltip_language' => 'Lingua predefinita caricata inizialmente. Se necessario, seleziona una lingua diversa.',
 
 ];

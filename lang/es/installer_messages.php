@@ -159,5 +159,10 @@ return [
     'powered_by' => 'Todos los derechos reservados. Desarrollado por',
     'invalid_email' => 'Correo electrónico inválido',
     'your_password_invalid' => 'El formato de tu contraseña es inválido',
+    'timezone' => 'Zona horaria',
+    'language' => 'Idioma',
+    'tooltip_timezone' => 'La zona horaria del navegador se usa inicialmente. Seleccione una zona horaria diferente si es necesario.',
+    'tooltip_language' => 'Idioma predeterminado cargado inicialmente. Seleccione un idioma diferente si es necesario.',
+
 
 ];

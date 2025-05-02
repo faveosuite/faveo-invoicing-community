@@ -216,6 +216,7 @@ class SettingsController extends BaseSettingsController
 
             $setting->default_symbol = Currency::where('code', $request->input('default_currency'))
                             ->pluck('symbol')->first();
+            $setting->content = $request->input('language');
 
             $setting->fill($request->except('password', 'logo', 'admin-logo', 'fav-icon'))->save();
 

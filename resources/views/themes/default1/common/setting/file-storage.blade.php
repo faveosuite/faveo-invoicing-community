@@ -97,7 +97,7 @@
                 </div>
 
                 <button type="submit" class="btn btn-primary pull-right" id="submit"
-                        data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving...">
+                        data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> {{ __('message.saving') }}">
                     <i class="fa fa-save">&nbsp;&nbsp;</i>{{ trans('message.save') }}
                 </button>
             </form>

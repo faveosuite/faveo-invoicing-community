@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Payment Logs
+ {{ __('message.payment_logs') }}
 @stop
 @section('content-header')
 <style>
@@ -94,7 +94,7 @@ Payment Logs
                     <div class="row">
                          <div class="col-md-3 form-group">
                             <!-- first name -->
-                            {!! Form::label('from','From') !!}
+                            {!! Form::label('from', __('message.from')) !!}
                             <div class="input-group date" id="paymentreservationdate_from" data-target-input="nearest">
                                 <input type="text" name="from" class="form-control datetimepicker-input" autocomplete="off" value="" data-target="#paymentreservationdate_from"/>
 
@@ -107,7 +107,7 @@ Payment Logs
 
                         <div class="col-md-3 form-group">
                             <!-- first name -->
-                            {!! Form::label('till','Till') !!}
+                            {!! Form::label('till',__('message.till')) !!}
                             <div class="input-group date" id="paymentreservationdate" data-target-input="nearest">
                                 <input type="text" name="till" class="form-control datetimepicker-input" autocomplete="off" value="" data-target="#paymentreservationdate"/>
 
@@ -124,9 +124,9 @@ Payment Logs
 
                           </div>
                 <!-- /.card-body -->
-                    <button name="Search" type="submit"  class="btn btn-secondary"><i class="fa fa-search"></i>&nbsp;{!!Lang::get('Search')!!}</button>
+                    <button name="Search" type="submit"  class="btn btn-secondary"><i class="fa fa-search"></i>&nbsp;{!!Lang::get('message.search')!!}</button>
                     &nbsp;
-                    <a href="{!! url('settings/paymentlog') !!}" id="reset" class="btn btn-secondary"><i class="fas fa-sync-alt"></i>&nbsp;{!!Lang::get('Reset')!!}</a>
+                    <a href="{!! url('settings/paymentlog') !!}" id="reset" class="btn btn-secondary"><i class="fas fa-sync-alt"></i>&nbsp;{!!Lang::get('message.reset')!!}</a>
             
 
 
@@ -212,7 +212,23 @@ Payment Logs
                 "sSearch": "Search: ",
                 "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
             },
-             columnDefs: [
+            language: {
+                paginate: {
+                    first:      "{{ __('message.paginate_first') }}",
+                    last:       "{{ __('message.paginate_last') }}",
+                    next:       "{{ __('message.paginate_next') }}",
+                    previous:   "{{ __('message.paginate_previous') }}"
+                },
+                emptyTable:     "{{ __('message.empty_table') }}",
+                info:           "{{ __('message.datatable_info') }}",
+                zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
+                infoEmpty:      "{{ __('message.info_empty') }}",
+                infoFiltered:   "{{ __('message.info_filtered') }}",
+                lengthMenu:     "{{ __('message.length_menu') }}",
+                loadingRecords: "{{ __('message.loading_records') }}",
+            },
+
+            columnDefs: [
                 { 
                     targets: 'no-sort', 
                     orderable: false,

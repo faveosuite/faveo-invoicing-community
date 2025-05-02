@@ -35,10 +35,6 @@ class DatabaseSeeder extends Seeder
             ["locale" => "vi", "name" => "Vietnamese", "translation" => "Tiếng Việt"],
         ];
 
-        foreach ($languages as &$lang) {
-            $lang['enable_disable'] = 1; // default enable all languages
-        }
-
         DB::table('languages')->insert($languages);
     }
 }

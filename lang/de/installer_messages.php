@@ -165,5 +165,9 @@ return [
     'powered_by' => 'Alle Rechte vorbehalten. Angetrieben von',
     'invalid_email' => 'Ungültige E-Mail',
     'your_password_invalid' => 'Ihr Passwortformat ist ungültig',
+    'timezone' => 'Zeitzone',
+    'language' => 'Sprache',
+    'tooltip_timezone' => 'Die Browser-Zeitzone wird zunächst verwendet. Wählen Sie eine andere Zeitzone, falls erforderlich.',
+    'tooltip_language' => 'Zunächst geladene Standardsprache. Wählen Sie eine andere Sprache, falls erforderlich.',
 
 ];

@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-    Templates
+    {{ __('message.templates') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
@@ -26,7 +26,7 @@
 
                 
                     <tr>
-                        <h4 class="box-title">{{Lang::get('template_list')}}</h4>
+                        <h4 class="box-title">{{Lang::get('message.template_list')}}</h4>
                     </tr>
 
                     <tr>
@@ -107,7 +107,7 @@
                     </tr>
             <!--         <tr>
 
-                        <td><b>{!! Form::label('download','Download') !!}</b></td>
+                        <td><b>{!! Form::label('download', __('message.download')) !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('download') ? 'has-error' : '' }}">
 

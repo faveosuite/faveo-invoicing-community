@@ -1,12 +1,12 @@
 @extends('themes.default1.layouts.front.master')
 @section('title')
-Reset Password | Faveo Helpdesk
+ {{ __('message.reset_password_faveo_helpdesk') }}
 @stop
 @section('page-heading')
-Reset Your Password
+    {{ __('message.reset_your_password') }}
 @stop
 @section('page-header')
-Reset Password
+    {{ __('message.reset_password') }}
 @stop
 @section('breadcrumb')
     @if(Auth::check())
@@ -63,7 +63,7 @@ main
 
                                 <label class="form-label text-color-dark text-3">{{ __('message.confirm_password')}} <span class="text-color-danger">*</span></label>
                                 <div class="input-group">
-                                {!! Form::password('password_confirmation',['placeholder'=>'Retype password','class' => 'form-control form-control-lg text-4' , 'id' => 'confirm_password']) !!}
+                                {!! Form::password('password_confirmation',['placeholder'=> __('message.retype_password'),'class' => 'form-control form-control-lg text-4' , 'id' => 'confirm_password']) !!}
 
                                 <div class="input-group-append">
                                         <span class="input-group-text" role="button" onclick="togglePasswordVisibility(this)">
@@ -85,7 +85,7 @@ main
 
                             <div class="form-group col">
 
-                                <button type="submit" class="btn btn-dark btn-modern w-100 text-uppercase font-weight-bold text-3 py-3" data-loading-text="Loading...">{{ __('message.reset_password')}}</button>
+                                <button type="submit" class="btn btn-dark btn-modern w-100 text-uppercase font-weight-bold text-3 py-3" data-loading-text="{{ __('message.loading') }}">{{ __('message.reset_password')}}</button>
 
                             </div>
                         </div>

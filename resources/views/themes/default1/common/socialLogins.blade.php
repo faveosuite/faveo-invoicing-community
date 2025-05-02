@@ -1,7 +1,7 @@
 @extends('themes.default1.layouts.master')
 
 @section('title')
-    Social Logins
+    {{ __('message.social_logins') }}
 @stop
 
 @section('content-header')
@@ -76,9 +76,9 @@
                                     <td>{{$item->type}}</td>
                                     <td>
                                         @if($item->status == 1)
-                                        Active
+                                        {{ __('message.active') }}
                                         @else
-                                        Deactive
+                                        {{ __('message.deactive') }}
                                         @endif
                                     </td>
                                     <td>

@@ -705,4 +705,152 @@ return [
         'password' => 'கடவுச்சொல் தவறானது.',
         'invalid' => 'தவறான கடவுச்சொல்.',
     ],
+
+    //AuthController file
+    'auth_controller' => [
+        'name_required' => 'பெயர் அவசியம்.',
+        'name_max' => 'பெயர் 255 எழுத்துகளை விட அதிகமாக இருக்கக்கூடாது.',
+
+        'email_required' => 'மின்னஞ்சல் அவசியம்.',
+        'email_email' => 'சரியான மின்னஞ்சல் முகவரியை உள்ளிடவும்.',
+        'email_max' => 'மின்னஞ்சல் 255 எழுத்துகளை விட அதிகமாக இருக்கக்கூடாது.',
+        'email_unique' => 'இந்த மின்னஞ்சல் ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது.',
+
+        'password_required' => 'கடவுச்சொல் அவசியம்.',
+        'password_confirmed' => 'கடவுச்சொல் உறுதி பொருந்தவில்லை.',
+        'password_min' => 'கடவுச்சொல் குறைந்தது 6 எழுத்துகளாக இருக்க வேண்டும்.',
+    ],
+
+    'resend_otp' => [
+        'eid_required' => 'EID புலம் அவசியம்.',
+        'eid_string' => 'EID ஒரு சரம் ஆக இருக்க வேண்டும்.',
+        'type_required' => 'பொருள் புலம் அவசியம்.',
+        'type_string' => 'பொருள் ஒரு சரம் ஆக இருக்க வேண்டும்.',
+        'type_in' => 'தேர்ந்தெடுக்கப்பட்ட வகை செல்லுபடியானது அல்ல.',
+    ],
+
+    'verify_otp' => [
+        'eid_required' => 'பணியாளர் ஐடி அவசியம்.',
+        'eid_string' => 'பணியாளர் ஐடி ஒரு சரம் ஆக இருக்க வேண்டும்.',
+        'otp_required' => 'OTP அவசியம்.',
+        'otp_size' => 'OTP சரியாக 6 எழுத்துகளாக இருக்க வேண்டும்.',
+        'recaptcha_required' => 'க்ராப்சா முழுமையாக பூர்த்தி செய்யவும்.',
+        'recaptcha_size' => 'க்ராப்சா பதில் செல்லுபடியானது அல்ல.',
+    ],
+
+    'company_validation' => [
+        'company_required' => 'நிறுவனத்தின் பெயர் அவசியம்.',
+        'company_string' => 'நிறுவனம் உரை வடிவில் இருக்க வேண்டும்.',
+        'address_required' => 'முகவரி அவசியம்.',
+        'address_string' => 'முகவரி உரை வடிவில் இருக்க வேண்டும்.',
+    ],
+
+    'token_validation' => [
+        'token_required' => 'கோப்பான் அவசியம்.',
+        'password_required' => 'கடவுச்சொல் புலம் அவசியம்.',
+        'password_confirmed' => 'கடவுச்சொல் உறுதி பொருந்தவில்லை.',
+    ],
+
+    'custom_email' => [
+        'required' => 'மின்னஞ்சல் புலம் அவசியம்.',
+        'email' => 'சரியான மின்னஞ்சல் முகவரியை உள்ளிடவும்.',
+        'exists' => 'இந்த மின்னஞ்சல் எங்களுடன் பதிவு செய்யப்படவில்லை.',
+    ],
+
+    'newsletterEmail' => [
+        'required' => 'செய்தி மின்னஞ்சல் புலம் அவசியம்.',
+        'email' => 'செய்தி மின்னஞ்சல் செல்லுபடியான மின்னஞ்சல் முகவரியாக இருக்க வேண்டும்.',
+    ],
+
+    'widget' => [
+        'name_required' => 'பெயர் அவசியம்.',
+        'name_max' => 'பெயர் 50 எழுத்துகளை விட அதிகமாக இருக்கக்கூடாது.',
+        'publish_required' => 'பதிவிறக்கம் நிலை அவசியம்.',
+        'type_required' => 'வகை அவசியம்.',
+        'type_unique' => 'இந்த வகை ஏற்கனவே இருக்கிறது.',
+    ],
+
+    'payment' => [
+        'payment_date_required' => 'கட்டண தேதி அவசியம்.',
+        'payment_method_required' => 'கட்டண முறை அவசியம்.',
+        'amount_required' => 'பொது தொகை அவசியம்.',
+    ],
+
+    'custom_date' => [
+        'date_required' => 'தேதி புலம் அவசியம்.',
+        'total_required' => 'மொத்த புலம் அவசியம்.',
+        'status_required' => 'நிலைப்படுத்தல் புலம் அவசியம்.',
+    ],
+
+    'plan_renewal' => [
+        'plan_required' => 'திட்டம் புலம் அவசியம்.',
+        'payment_method_required' => 'கட்டண முறை புலம் அவசியம்.',
+        'cost_required' => 'செலவு புலம் அவசியம்.',
+        'code_not_valid' => 'பிரச்சனை குறியீடு செல்லுபடியானது அல்ல.',
+    ],
+
+    'rate' => [
+        'required' => 'விகிதம் அவசியம்.',
+        'numeric' => 'விகிதம் ஒரு எண் ஆக இருக்க வேண்டும்.',
+    ],
+
+    'product_validate' => [
+        'producttitle_required' => 'பொருள் தலைப்பு அவசியம்.',
+        'version_required' => 'பதிப்பு அவசியம்.',
+        'filename_required' => 'தயவுசெய்து ஒரு கோப்பை பதிவேற்றவும்.',
+        'dependencies_required' => 'சம்பந்தப்பட்ட புலம் அவசியம்.',
+    ],
+    'product_sku_unique' => 'பொருள் SKU தனித்துவமாக இருக்க வேண்டும்',
+    'product_name_unique' => 'பெயர் தனித்துவமாக இருக்க வேண்டும்',
+    'product_show_agent_required' => 'உங்கள் கார் பக்கம் விருப்பத்தைத் தேர்ந்தெடுக்கவும்',
+    'product_controller' => [
+        'name_required' => 'பொருள் பெயர் அவசியம்.',
+        'name_unique' => 'பெயர் தனித்துவமாக இருக்க வேண்டும்.',
+        'type_required' => 'பொருள் வகை அவசியம்.',
+        'description_required' => 'பொருள் விளக்கம் அவசியம்.',
+        'product_description_required' => 'விரிவான பொருள் விளக்கம் அவசியம்.',
+        'image_mimes' => 'படம் கோப்பு வகை: jpeg, png, jpg ஆக இருக்க வேண்டும்.',
+        'image_max' => 'படம் 2048 கிலோபைட்டுகளை விட அதிகமாக இருக்கக்கூடாது.',
+        'product_sku_required' => 'பொருள் SKU அவசியம்.',
+        'group_required' => 'பொருள் குழு அவசியம்.',
+        'show_agent_required' => 'உங்கள் கார் பக்கம் விருப்பத்தைத் தேர்ந்தெடுக்கவும்.',
+    ],
+
+    'current_domain_required' => 'தற்போதைய டொமைன் அவசியம்.',
+    'new_domain_required' => 'புதிய டொமைன் அவசியம்.',
+    'special_characters_not_allowed' => 'டொமைன் பெயரில் சிறப்பு எழுத்துக்கள் அனுமதிக்கப்படவில்லை',
+    'orderno_required' => 'ஆர்டர் எண் அவசியம்.',
+    'cloud_central_domain_required' => 'கிளவுட் சென்ட்ரல் டொமைன் அவசியம்.',
+    'cloud_cname_required' => 'கிளவுட் CNAME அவசியம்.',
+    'cloud_tenant' => [
+        'cloud_top_message_required' => 'கிளவுட் மேல் செய்தி அவசியம்.',
+        'cloud_label_field_required' => 'கிளவுட் லேபல் புலம் அவசியம்.',
+        'cloud_label_radio_required' => 'கிளவுட் லேபல் ரேடியோ அவசியம்.',
+        'cloud_product_required' => 'கிளவுட் பொருள் அவசியம்.',
+        'cloud_free_plan_required' => 'கிளவுட் இலவச திட்டம் அவசியம்.',
+        'cloud_product_key_required' => 'கிளவுட் பொருள் விசை அவசியம்.',
+    ],
+
+    'reg_till_after' => 'பதிவு செய்யும் வரை தேதி பதிவு செய்யும் தேதி பின்னர் இருக்க வேண்டும்.',
+    'extend_product' => [
+        'title_required' => 'தலைப்பு புலம் அவசியம்.',
+        'version_required' => 'பதிப்பு புலம் அவசியம்.',
+        'dependencies_required' => 'சம்பந்தப்பட்ட புலம் அவசியம்.',
+    ],
+
+    'please_enter_recovery_code' => 'மீட்பு குறியீட்டை உள்ளிடவும்',
+    'social_login' => [
+        'client_id_required' => 'Google, Github அல்லது Linkedin க்கான Client ID அவசியம்.',
+        'client_secret_required' => 'Google, Github அல்லது Linkedin க்கான Client Secret அவசியம்.',
+        'api_key_required' => 'Twitter க்கான API விசை அவசியம்.',
+        'api_secret_required' => 'Twitter க்கான API ரகசிய விசை அவசியம்.',
+        'redirect_url_required' => 'விசாரணை URL அவசியம்.',
+    ],
+
+    'thirdparty_api' => [
+        'app_name_required' => 'பயன்பாட்டு பெயர் அவசியம்.',
+        'app_key_required' => 'பயன்பாட்டு விசை அவசியம்.',
+        'app_key_size' => 'பயன்பாட்டு விசை குறிப்பிட்ட 32 எழுத்துகளாக இருக்க வேண்டும்.',
+        'app_secret_required' => 'பயன்பாட்டு ரகசிய விசை அவசியம்.',
+    ],
 ];

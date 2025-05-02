@@ -17,11 +17,10 @@ class LanguageController extends Controller
         $apiLanguages = $response->getData()->data ?? [];
         $defaultLang = optional(Setting::first())->content;
 
-        $dbLanguages = \App\Model\Common\Language::pluck('enable_disable', 'locale')->toArray();
+        $dbLanguages = \App\Model\Common\Language::pluck('status', 'locale')->toArray();
 
-        // Attach enable_disable status to each language
         foreach ($apiLanguages as $language) {
-            $language->enable_disable = $dbLanguages[$language->locale] ?? 0;
+            $language->status = $dbLanguages[$language->locale] ?? 0;
         }
 
         return view('themes.default1.common.languages', [
@@ -33,27 +32,21 @@ class LanguageController extends Controller
     public function toggleLanguageStatus(Request $request)
     {
         try {
-            // Validate the incoming request data
             $request->validate([
                 'locale' => 'required|string',
                 'status' => 'required|boolean',
             ]);
 
-            // Find the language using the locale
             $language = \App\Model\Common\Language::where('locale', $request->locale)->first();
 
-            // If the language is found, update its status
             if ($language) {
-                $language->enable_disable = $request->status;
+                $language->status = $request->status;
                 $language->save();
-
-                return response()->json(['success' => true, 'message' => 'Language status updated successfully.']);
+                return response()->json(['success' => true, 'message' => __('message.language_status_updated_successfully')]);
             }
 
-            // If language not found, return a 404 response
-            return response()->json(['success' => false, 'message' => 'Language not found.'], 404);
+            return response()->json(['success' => false, 'message' =>  __('message.language_not_found')], 404);
         } catch (\Exception $e) {
-            // If any error occurs, return a failure message
             return redirect()->back()->with('fails', $e->getMessage());
         }
     }
@@ -61,11 +54,8 @@ class LanguageController extends Controller
     public function fetchLangDropdownUsers()
     {
         try {
-            // Get list of language directories
             $languageList = array_map('basename', File::directories(lang_path()));
             $languages = [];
-
-            // Fetch all database language entries indexed by locale
             $dbLanguages = Language::all()->keyBy('locale');
 
             foreach ($languageList as $key => $langLocale) {
@@ -73,13 +63,11 @@ class LanguageController extends Controller
                 $language['id'] = $key;
                 $language['locale'] = $langLocale;
 
-                // Get name and translation from config
                 $languageArray = \Config::get("languages.$langLocale", ['', '']);
                 $language['name'] = $languageArray[0];
                 $language['translation'] = $languageArray[1];
 
-                // Get enable_disable from the DB (if exists)
-                $language['enable_disable'] = $dbLanguages[$langLocale]->enable_disable ?? 0;
+                $language['status'] = $dbLanguages[$langLocale]->status ?? 0;
 
                 $languages[] = $language;
             }

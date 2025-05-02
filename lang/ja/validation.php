@@ -708,4 +708,148 @@ return [
         'password' => 'パスワードが正しくありません。',
         'invalid' => '無効なパスワードです。',
     ],
+
+    //AuthControllerファイル
+    'auth_controller' => [
+        'name_required' => '名前は必須です。',
+        'name_max' => '名前は255文字を超えることはできません。',
+
+        'email_required' => 'メールアドレスは必須です。',
+        'email_email' => '有効なメールアドレスを入力してください。',
+        'email_max' => 'メールアドレスは255文字を超えることはできません。',
+        'email_unique' => 'このメールアドレスは既に登録されています。',
+
+        'password_required' => 'パスワードは必須です。',
+        'password_confirmed' => 'パスワードの確認が一致しません。',
+        'password_min' => 'パスワードは最低6文字でなければなりません。',
+    ],
+
+    'resend_otp' => [
+        'eid_required' => 'EIDフィールドは必須です。',
+        'eid_string' => 'EIDは文字列である必要があります。',
+        'type_required' => 'タイプフィールドは必須です。',
+        'type_string' => 'タイプは文字列である必要があります。',
+        'type_in' => '選択されたタイプは無効です。',
+    ],
+
+    'verify_otp' => [
+        'eid_required' => '従業員IDは必須です。',
+        'eid_string' => '従業員IDは文字列である必要があります。',
+        'otp_required' => 'OTPは必須です。',
+        'otp_size' => 'OTPは正確に6文字でなければなりません。',
+        'recaptcha_required' => 'CAPTCHAを完了してください。',
+        'recaptcha_size' => 'CAPTCHAの応答が無効です。',
+    ],
+
+    'company_validation' => [
+        'company_required' => '会社名は必須です。',
+        'company_string' => '会社名はテキストである必要があります。',
+        'address_required' => '住所は必須です。',
+        'address_string' => '住所はテキストである必要があります。',
+    ],
+
+    'token_validation' => [
+        'token_required' => 'トークンは必須です。',
+        'password_required' => 'パスワードフィールドは必須です。',
+        'password_confirmed' => 'パスワードの確認が一致しません。',
+    ],
+
+    'custom_email' => [
+        'required' => 'メールアドレスは必須です。',
+        'email' => '有効なメールアドレスを入力してください。',
+        'exists' => 'このメールアドレスは私たちに登録されていません。',
+    ],
+
+    'newsletterEmail' => [
+        'required' => 'ニュースレターのメールアドレスは必須です。',
+        'email' => 'ニュースレター用の有効なメールアドレスを入力してください。',
+    ],
+
+    'widget' => [
+        'name_required' => '名前は必須です。',
+        'name_max' => '名前は50文字を超えることはできません。',
+        'publish_required' => '公開ステータスは必須です。',
+        'type_required' => 'タイプは必須です。',
+        'type_unique' => 'このタイプは既に存在します。',
+    ],
+
+    'payment' => [
+        'payment_date_required' => '支払い日付は必須です。',
+        'payment_method_required' => '支払い方法は必須です。',
+        'amount_required' => '金額は必須です。',
+    ],
+
+    'custom_date' => [
+        'date_required' => '日付フィールドは必須です。',
+        'total_required' => '合計フィールドは必須です。',
+        'status_required' => 'ステータスフィールドは必須です。',
+    ],
+
+    'plan_renewal' => [
+        'plan_required' => 'プランフィールドは必須です。',
+        'payment_method_required' => '支払い方法フィールドは必須です。',
+        'cost_required' => 'コストフィールドは必須です。',
+        'code_not_valid' => 'プロモーションコードは無効です。',
+    ],
+
+    'rate' => [
+        'required' => 'レートは必須です。',
+        'numeric' => 'レートは数値でなければなりません。',
+    ],
+
+    'product_validate' => [
+        'producttitle_required' => '製品タイトルは必須です。',
+        'version_required' => 'バージョンは必須です。',
+        'filename_required' => 'ファイルをアップロードしてください。',
+        'dependencies_required' => '依存関係フィールドは必須です。',
+    ],
+    'product_sku_unique' => '製品SKUは一意である必要があります。',
+    'product_name_unique' => '名前は一意である必要があります。',
+    'product_show_agent_required' => 'カートページの設定を選択してください。',
+    'product_controller' => [
+        'name_required' => '製品名は必須です。',
+        'name_unique' => '名前は一意である必要があります。',
+        'type_required' => '製品タイプは必須です。',
+        'description_required' => '製品の説明は必須です。',
+        'product_description_required' => '詳細な製品説明は必須です。',
+        'image_mimes' => '画像はjpeg、png、jpgの形式でなければなりません。',
+        'image_max' => '画像は2048キロバイトを超えてはいけません。',
+        'product_sku_required' => '製品SKUは必須です。',
+        'group_required' => '製品グループは必須です。',
+        'show_agent_required' => 'カートページの設定を選択してください。',
+    ],
+    'current_domain_required' => '現在のドメインは必須です。',
+    'new_domain_required' => '新しいドメインは必須です。',
+    'special_characters_not_allowed' => 'ドメイン名に特殊文字は使用できません。',
+    'orderno_required' => '注文番号は必須です。',
+    'cloud_central_domain_required' => 'クラウド中央ドメインは必須です。',
+    'cloud_cname_required' => 'クラウドCNAMEは必須です。',
+    'cloud_tenant' => [
+        'cloud_top_message_required' => 'クラウドトップメッセージは必須です。',
+        'cloud_label_field_required' => 'クラウドラベルフィールドは必須です。',
+        'cloud_label_radio_required' => 'クラウドラベルラジオボタンは必須です。',
+        'cloud_product_required' => 'クラウド製品は必須です。',
+        'cloud_free_plan_required' => 'クラウドの無料プランは必須です。',
+        'cloud_product_key_required' => 'クラウド製品キーは必須です。',
+    ],
+    'reg_till_after' => '登録終了日付は、登録開始日付より後でなければなりません。',
+    'extend_product' => [
+        'title_required' => 'タイトルフィールドは必須です。',
+        'version_required' => 'バージョンフィールドは必須です。',
+        'dependencies_required' => '依存関係フィールドは必須です。',
+    ],
+    'please_enter_recovery_code' => '回復コードを入力してください。',
+    'social_login' => [
+        'client_id_required' => 'Google、Github、またはLinkedInのクライアントIDは必須です。',
+        'client_secret_required' => 'Google、Github、またはLinkedInのクライアントシークレットは必須です。',
+        'api_key_required' => 'TwitterのAPIキーは必須です。',
+        'api_secret_required' => 'TwitterのAPIシークレットは必須です。',
+        'redirect_url_required' => 'リダイレクトURLは必須です。',
+    ],
+    'thirdparty_api' => [
+        'app_name_required' => 'アプリ名は必須です。',
+        'app_key_required' => 'アプリキーは必須です。',
+        'app_key_size' => 'アプリキーは正確に32文字でなければなりません。',
+        'app_secret_required' => 'アプリシークレットは必須です。',
+    ],
 ];

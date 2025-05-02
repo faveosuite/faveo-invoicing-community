@@ -712,4 +712,150 @@ return [
         'invalid' => 'अमान्य पासवर्ड।',
     ],
 
+    // AuthController file
+    'auth_controller' => [
+        'name_required' => 'नाम आवश्यक है।',
+        'name_max' => 'नाम 255 अक्षरों से अधिक नहीं हो सकता।',
+
+        'email_required' => 'ईमेल आवश्यक है।',
+        'email_email' => 'कृपया एक वैध ईमेल पता दर्ज करें।',
+        'email_max' => 'ईमेल 255 अक्षरों से अधिक नहीं हो सकता।',
+        'email_unique' => 'यह ईमेल पहले ही पंजीकृत है।',
+
+        'password_required' => 'पासवर्ड आवश्यक है।',
+        'password_confirmed' => 'पासवर्ड पुष्टि मेल नहीं खाती।',
+        'password_min' => 'पासवर्ड कम से कम 6 अक्षरों का होना चाहिए।',
+    ],
+
+    'resend_otp' => [
+        'eid_required' => 'EID फ़ील्ड आवश्यक है।',
+        'eid_string' => 'EID एक स्ट्रिंग होना चाहिए।',
+        'type_required' => 'प्रकार फ़ील्ड आवश्यक है।',
+        'type_string' => 'प्रकार एक स्ट्रिंग होना चाहिए।',
+        'type_in' => 'चुना गया प्रकार अवैध है।',
+    ],
+
+    'verify_otp' => [
+        'eid_required' => 'कर्मचारी ID आवश्यक है।',
+        'eid_string' => 'कर्मचारी ID एक स्ट्रिंग होना चाहिए।',
+        'otp_required' => 'OTP आवश्यक है।',
+        'otp_size' => 'OTP को ठीक 6 अक्षरों का होना चाहिए।',
+        'recaptcha_required' => 'कृपया CAPTCHA पूरा करें।',
+        'recaptcha_size' => 'CAPTCHA प्रतिक्रिया अवैध है।',
+    ],
+
+    'company_validation' => [
+        'company_required' => 'कंपनी का नाम आवश्यक है।',
+        'company_string' => 'कंपनी एक टेक्स्ट होना चाहिए।',
+        'address_required' => 'पता आवश्यक है।',
+        'address_string' => 'पता एक टेक्स्ट होना चाहिए।',
+    ],
+
+    'token_validation' => [
+        'token_required' => 'टोकन आवश्यक है।',
+        'password_required' => 'पासवर्ड फ़ील्ड आवश्यक है।',
+        'password_confirmed' => 'पासवर्ड पुष्टि मेल नहीं खाती।',
+    ],
+
+    'custom_email' => [
+        'required' => 'ईमेल फ़ील्ड आवश्यक है।',
+        'email' => 'कृपया एक वैध ईमेल पता दर्ज करें।',
+        'exists' => 'यह ईमेल हमारे साथ पंजीकृत नहीं है।',
+    ],
+
+    'newsletterEmail' => [
+        'required' => 'न्यूज़लेटर ईमेल आवश्यक है।',
+        'email' => 'न्यूज़लेटर के लिए एक वैध ईमेल पता दर्ज करें।',
+    ],
+
+    'widget' => [
+        'name_required' => 'नाम आवश्यक है।',
+        'name_max' => 'नाम 50 अक्षरों से अधिक नहीं हो सकता।',
+        'publish_required' => 'प्रकाशन स्थिति आवश्यक है।',
+        'type_required' => 'प्रकार आवश्यक है।',
+        'type_unique' => 'यह प्रकार पहले से मौजूद है।',
+    ],
+
+    'payment' => [
+        'payment_date_required' => 'भुगतान तिथि आवश्यक है।',
+        'payment_method_required' => 'भुगतान विधि आवश्यक है।',
+        'amount_required' => 'राशि आवश्यक है।',
+    ],
+
+    'custom_date' => [
+        'date_required' => 'तिथि फ़ील्ड आवश्यक है।',
+        'total_required' => 'कुल फ़ील्ड आवश्यक है।',
+        'status_required' => 'स्थिति फ़ील्ड आवश्यक है।',
+    ],
+
+    'plan_renewal' => [
+        'plan_required' => 'योजना फ़ील्ड आवश्यक है।',
+        'payment_method_required' => 'भुगतान विधि फ़ील्ड आवश्यक है।',
+        'cost_required' => 'लागत फ़ील्ड आवश्यक है।',
+        'code_not_valid' => 'प्रमोशन कोड अवैध है।',
+    ],
+
+    'rate' => [
+        'required' => 'दर आवश्यक है।',
+        'numeric' => 'दर एक संख्या होनी चाहिए।',
+    ],
+
+    'product_validate' => [
+        'producttitle_required' => 'उत्पाद का शीर्षक आवश्यक है।',
+        'version_required' => 'संस्करण आवश्यक है।',
+        'filename_required' => 'कृपया एक फ़ाइल अपलोड करें।',
+        'dependencies_required' => 'निर्भरता फ़ील्ड आवश्यक है।',
+    ],
+
+    'product_sku_unique' => 'उत्पाद SKU अद्वितीय होना चाहिए',
+    'product_name_unique' => 'नाम अद्वितीय होना चाहिए',
+    'product_show_agent_required' => 'अपने कार्ट पेज प्राथमिकता का चयन करें',
+    'product_controller' => [
+        'name_required' => 'उत्पाद का नाम आवश्यक है।',
+        'name_unique' => 'नाम अद्वितीय होना चाहिए।',
+        'type_required' => 'उत्पाद प्रकार आवश्यक है।',
+        'description_required' => 'उत्पाद का विवरण आवश्यक है।',
+        'product_description_required' => 'विस्तृत उत्पाद विवरण आवश्यक है।',
+        'image_mimes' => 'चित्र को jpeg, png, jpg प्रकार की फ़ाइल होनी चाहिए।',
+        'image_max' => 'चित्र का आकार 2048 किलोबाइट से अधिक नहीं हो सकता।',
+        'product_sku_required' => 'उत्पाद SKU आवश्यक है।',
+        'group_required' => 'उत्पाद समूह आवश्यक है।',
+        'show_agent_required' => 'अपने कार्ट पेज प्राथमिकता का चयन करें।',
+    ],
+
+    'current_domain_required' => 'वर्तमान डोमेन आवश्यक है।',
+    'new_domain_required' => 'नया डोमेन आवश्यक है।',
+    'special_characters_not_allowed' => 'डोमेन नाम में विशेष अक्षरों की अनुमति नहीं है।',
+    'orderno_required' => 'आदेश संख्या आवश्यक है।',
+    'cloud_central_domain_required' => 'क्लाउड केंद्रीय डोमेन आवश्यक है।',
+    'cloud_cname_required' => 'क्लाउड CNAME आवश्यक है।',
+    'cloud_tenant' => [
+        'cloud_top_message_required' => 'क्लाउड शीर्ष संदेश आवश्यक है।',
+        'cloud_label_field_required' => 'क्लाउड लेबल फ़ील्ड आवश्यक है।',
+        'cloud_label_radio_required' => 'क्लाउड लेबल रेडियो आवश्यक है।',
+        'cloud_product_required' => 'क्लाउड उत्पाद आवश्यक है।',
+        'cloud_free_plan_required' => 'क्लाउड मुफ्त योजना आवश्यक है।',
+        'cloud_product_key_required' => 'क्लाउड उत्पाद कुंजी आवश्यक है।',
+    ],
+    'reg_till_after' => 'पंजीकरण तक की तिथि, पंजीकरण से तिथि के बाद होनी चाहिए।',
+    'extend_product' => [
+        'title_required' => 'शीर्षक फ़ील्ड आवश्यक है।',
+        'version_required' => 'संस्करण फ़ील्ड आवश्यक है।',
+        'dependencies_required' => 'निर्भरता फ़ील्ड आवश्यक है।',
+    ],
+    'please_enter_recovery_code' => 'कृपया पुनर्प्राप्ति कोड दर्ज करें।',
+    'social_login' => [
+        'client_id_required' => 'गूगल, गिटहब, या लिंक्डइन के लिए क्लाइंट आईडी आवश्यक है।',
+        'client_secret_required' => 'गूगल, गिटहब, या लिंक्डइन के लिए क्लाइंट सीक्रेट आवश्यक है।',
+        'api_key_required' => 'ट्विटर के लिए API कुंजी आवश्यक है।',
+        'api_secret_required' => 'ट्विटर के लिए API सीक्रेट आवश्यक है।',
+        'redirect_url_required' => 'पुनर्निर्देश URL आवश्यक है।',
+    ],
+    'thirdparty_api' => [
+        'app_name_required' => 'ऐप नाम आवश्यक है।',
+        'app_key_required' => 'ऐप कुंजी आवश्यक है।',
+        'app_key_size' => 'ऐप कुंजी बिल्कुल 32 वर्ण होनी चाहिए।',
+        'app_secret_required' => 'ऐप सीक्रेट आवश्यक है।',
+    ],
+
 ];
