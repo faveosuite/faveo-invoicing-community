@@ -383,7 +383,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             }
             if ($planid == 0) {
                 //When Product is added from Faveo Website
-                $planid = Plan::where('product', $cart->id)->pluck('id')->first();
+                $planid = Plan::where('id', $cart->id)->pluck('id')->first();
             }
             $subtotal = $cart->getPriceSum();
             $tax_name = $cart->conditions->getName();
