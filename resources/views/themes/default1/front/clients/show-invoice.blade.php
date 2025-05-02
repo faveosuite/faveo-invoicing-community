@@ -225,8 +225,8 @@ active
 
                               
                                
-                                @foreach($items as $item)
-                               @if($item->regular_price > 0)
+{{--                                @foreach($items as $item)--}}
+{{--                               @if($item->regular_price > 0)--}}
                                  
 
                                 <tbody>
@@ -298,6 +298,8 @@ active
                                        
                                     @endif
                                     @endforeach
+{{--                                    @endif--}}
+{{--                                    @endforeach--}}
                                     <?php
                                     $feeAmount = intval(ceil($invoice->grand_total * 0.99 / 100));
                                     ?>
@@ -315,8 +317,7 @@ active
 
                                     <td class="border-0 moveleft">{{currencyFormat($invoice->grand_total,$code = $symbol)}}</td>
                                 </tr>
-                                @endif
-                                @endforeach
+
                                 </tbody>
                             </table>
                         </div>
@@ -332,6 +333,7 @@ active
                     <table class="table">
                         
                         @foreach($payments as $payment)
+
                         @php
                         $DateTime = getDateHtml($payment->created_at);
                         $orderid = \DB::table('orders')->where('invoice_id',$invoice->id)->value('id');
