@@ -544,4 +544,312 @@ return [
         ],
     ],
 
+    'profile_form' => [
+        'first_name' => [
+            'required' => 'שם פרטי נדרש.',
+            'min' => 'שם פרטי חייב להיות לפחות :min תווים.',
+            'max' => 'שם פרטי לא יכול להיות ארוך יותר מ-:max תווים.',
+        ],
+        'last_name' => [
+            'required' => 'שם משפחה נדרש.',
+            'max' => 'שם משפחה לא יכול להיות ארוך יותר מ-:max תווים.',
+        ],
+        'company' => [
+            'required' => 'שם החברה נדרש.',
+            'max' => 'שם החברה לא יכול להיות ארוך יותר מ-:max תווים.',
+        ],
+        'email' => [
+            'required' => 'דוא"ל נדרש.',
+            'email' => 'הזן כתובת דוא"ל תקפה.',
+            'unique' => 'כתובת הדוא"ל כבר נלקחה. אנא בחר דוא"ל אחר.',
+        ],
+        'mobile' => [
+            'required' => 'מספר נייד נדרש.',
+            'regex' => 'הזן מספר נייד תקף.',
+            'min' => 'מספר הנייד חייב להיות לפחות :min תווים.',
+            'max' => 'מספר הנייד לא יכול להיות ארוך יותר מ-:max תווים.',
+        ],
+        'address' => [
+            'required' => 'כתובת נדרשת.',
+        ],
+        'user_name' => [
+            'required' => 'שם משתמש נדרש.',
+            'unique' => 'שם המשתמש הזה כבר נלקח.',
+        ],
+        'timezone_id' => [
+            'required' => 'אזור זמן נדרש.',
+        ],
+        'country' => [
+            'required' => 'מדינה נדרשת.',
+            'exists' => 'המדינה שנבחרה אינה תקפה.',
+        ],
+        'state' => [
+            'required_if' => 'שדה המדינה נדרש כאשר המדינה היא הודו.',
+        ],
+        'old_password' => [
+            'required' => 'סיסמא ישנה נדרשת.',
+            'min' => 'הסיסמא הישנה חייבת להיות לפחות :min תווים.',
+        ],
+        'new_password' => [
+            'required' => 'סיסמא חדשה נדרשת.',
+            'different' => 'הסיסמא החדשה חייבת להיות שונה מהסיסמא הישנה.',
+        ],
+        'confirm_password' => [
+            'required' => 'אישור סיסמא נדרש.',
+            'same' => 'אישור הסיסמא חייב להיות תואם לסיסמא החדשה.',
+        ],
+        'terms' => [
+            'required' => 'עליך להסכים לתנאים.',
+        ],
+        'password' => [
+            'required' => 'סיסמא נדרשת.',
+        ],
+        'password_confirmation' => [
+            'required' => 'אישור סיסמא נדרש.',
+            'same' => 'הסיסמאות אינן תואמות.',
+        ],
+        'mobile_code' => [
+            'required' => 'הזן קוד מדינה (נייד)',
+        ],
+    ],
+
+//Invoice form
+    'invoice' => [
+        'user' => [
+            'required' => 'שדה הלקוחות נדרש.',
+        ],
+        'date' => [
+            'required' => 'שדה התאריך נדרש.',
+            'date' => 'התאריך חייב להיות תאריך תקף.',
+        ],
+        'domain' => [
+            'regex' => 'הפורמט של הדומיין לא תקף.',
+        ],
+        'plan' => [
+            'required_if' => 'שדה המנוי נדרש.',
+        ],
+        'price' => [
+            'required' => 'שדה המחיר נדרש.',
+        ],
+        'product' => [
+            'required' => 'שדה המוצר נדרש.',
+        ],
+    ],
+
+//LocalizedLicense form
+    'domain_form' => [
+        'domain' => [
+            'required' => 'שדה הדומיין נדרש.',
+            'url' => 'הדומיין חייב להיות כתובת URL תקפה.',
+        ],
+    ],
+
+//Product Renewal form
+    'product_renewal' => [
+        'domain' => [
+            'required' => 'שדה הדומיין נדרש.',
+            'no_http' => 'הדומיין לא יכול להכיל "http" או "https".',
+        ],
+    ],
+
+//Language form
+    'language' => [
+        'required' => 'שדה השפה נדרש.',
+        'invalid' => 'השפה שנבחרה אינה תקפה.',
+    ],
+
+//UpdateSroragePathRequest form
+    'storage_path' => [
+        'disk' => [
+            'required' => 'שדה הדיסק נדרש.',
+            'string' => 'הדיסק חייב להיות מיתר.',
+        ],
+        'path' => [
+            'string' => 'הנתיב חייב להיות מיתר.',
+            'nullable' => 'שדה הנתיב הוא אופציונלי.',
+        ],
+    ],
+
+//ValidateSecretRequest form
+    'validate_secret' => [
+        'totp' => [
+            'required' => 'אנא הזן קוד',
+            'digits' => 'הקוד חייב להיות בן 6 ספרות תקפות',
+        ],
+    ],
+
+//VerifyOtp form
+    'verify_email' => [
+        'required' => 'שדה הדוא"ל נדרש.',
+        'email' => 'הדוא"ל חייב להיות כתובת דוא"ל תקפה.',
+        'verify_email' => 'אימות הדוא"ל נכשל.', // הודעה מותאמת אישית לאימות דוא"ל
+    ],
+
+    'verify_country_code' => [
+        'required' => 'שדה קוד המדינה נדרש.',
+        'numeric' => 'קוד המדינה חייב להיות מספר תקף.',
+        'verify_country_code' => 'אימות קוד המדינה נכשל.', // הודעה מותאמת אישית לאימות קוד המדינה
+    ],
+
+    'verify_number' => [
+        'required' => 'השדה מספר נדרש.',
+        'numeric' => 'המספר חייב להיות מספר תקף.',
+        'verify_number' => 'אימות המספר נכשל.', // הודעה מותאמת אישית לאימות מספר
+    ],
+
+    'password_otp' => [
+        'required' => 'שדה הסיסמא נדרש.',
+        'password' => 'הסיסמא אינה נכונה.',
+        'invalid' => 'סיסמא לא תקפה.',
+    ],
+
+//AuthController file
+    'auth_controller' => [
+        'name_required' => 'שם נדרש.',
+        'name_max' => 'שם לא יכול להיות ארוך יותר מ-255 תווים.',
+
+        'email_required' => 'דוא"ל נדרש.',
+        'email_email' => 'הזן כתובת דוא"ל תקפה.',
+        'email_max' => 'הדוא"ל לא יכול להיות ארוך יותר מ-255 תווים.',
+        'email_unique' => 'הדוא"ל כבר רשום.',
+
+        'password_required' => 'סיסמא נדרשת.',
+        'password_confirmed' => 'אישור הסיסמא לא תואם.',
+        'password_min' => 'הסיסמא חייבת להיות לפחות 6 תווים.',
+    ],
+
+    'resend_otp' => [
+        'eid_required' => 'שדה EID נדרש.',
+        'eid_string' => 'EID חייב להיות מיתר.',
+        'type_required' => 'שדה סוג נדרש.',
+        'type_string' => 'סוג חייב להיות מיתר.',
+        'type_in' => 'הסוג שנבחר אינו תקף.',
+    ],
+
+    'verify_otp' => [
+        'eid_required' => 'שדה מזהה העובד נדרש.',
+        'eid_string' => 'מזהה העובד חייב להיות מיתר.',
+        'otp_required' => 'שדה OTP נדרש.',
+        'otp_size' => 'ה-OTP חייב להיות בדיוק 6 תווים.',
+        'recaptcha_required' => 'אנא השלימו את ה-CAPTCHA.',
+        'recaptcha_size' => 'תגובה CAPTCHA אינה תקפה.',
+    ],
+
+    'company_validation' => [
+        'company_required' => 'שם החברה נדרש.',
+        'company_string' => 'החברה חייבת להיות טקסט.',
+        'address_required' => 'הכתובת נדרשת.',
+        'address_string' => 'הכתובת חייבת להיות טקסט.',
+    ],
+
+    'token_validation' => [
+        'token_required' => 'הטוקן נדרש.',
+        'password_required' => 'שדה הסיסמה נדרש.',
+        'password_confirmed' => 'אישור הסיסמה אינו תואם.',
+    ],
+
+    'custom_email' => [
+        'required' => 'שדה האימייל נדרש.',
+        'email' => 'אנא הזן כתובת אימייל תקפה.',
+        'exists' => 'האימייל הזה לא רשום אצלנו.',
+    ],
+
+    'newsletterEmail' => [
+        'required' => 'שדה האימייל לניווטלטר נדרש.',
+        'email' => 'אנא הזן כתובת אימייל תקפה לניווטלטר.',
+    ],
+
+    'widget' => [
+        'name_required' => 'שם נדרש.',
+        'name_max' => 'שם לא יכול להיות יותר מ-50 תווים.',
+        'publish_required' => 'סטטוס הפצה נדרש.',
+        'type_required' => 'סוג נדרש.',
+        'type_unique' => 'סוג זה כבר קיים.',
+    ],
+
+    'payment' => [
+        'payment_date_required' => 'תאריך התשלום נדרש.',
+        'payment_method_required' => 'שיטת תשלום נדרשת.',
+        'amount_required' => 'סכום נדרש.',
+    ],
+
+    'custom_date' => [
+        'date_required' => 'שדה התאריך נדרש.',
+        'total_required' => 'שדה הסכום הכולל נדרש.',
+        'status_required' => 'שדה המצב נדרש.',
+    ],
+
+    'plan_renewal' => [
+        'plan_required' => 'שדה התוכנית נדרש.',
+        'payment_method_required' => 'שדה שיטת התשלום נדרש.',
+        'cost_required' => 'שדה העלות נדרש.',
+        'code_not_valid' => 'קוד ההנחה לא תקף.',
+    ],
+
+    'rate' => [
+        'required' => 'שדה הדירוג נדרש.',
+        'numeric' => 'הדירוג חייב להיות מספר.',
+    ],
+
+    'product_validate' => [
+        'producttitle_required' => 'כותרת המוצר נדרשת.',
+        'version_required' => 'גרסה נדרשת.',
+        'filename_required' => 'נא להעלות קובץ.',
+        'dependencies_required' => 'שדה התלויות נדרש.',
+    ],
+
+    'product_sku_unique' => 'SKU של המוצר חייב להיות ייחודי.',
+    'product_name_unique' => 'השם חייב להיות ייחודי.',
+    'product_show_agent_required' => 'בחר את העדפת דף הסל שלך.',
+    'product_controller' => [
+        'name_required' => 'שם המוצר נדרש.',
+        'name_unique' => 'השם חייב להיות ייחודי.',
+        'type_required' => 'סוג המוצר נדרש.',
+        'description_required' => 'תיאור המוצר נדרש.',
+        'product_description_required' => 'תיאור מפורט של המוצר נדרש.',
+        'image_mimes' => 'התמונה חייבת להיות קובץ מסוג: jpeg, png, jpg.',
+        'image_max' => 'התמונה לא יכולה להיות גדולה מ-2048 קילובייט.',
+        'product_sku_required' => 'SKU של המוצר נדרש.',
+        'group_required' => 'קבוצת המוצר נדרשת.',
+        'show_agent_required' => 'בחר את העדפת דף הסל שלך.',
+    ],
+
+    'current_domain_required' => 'הדומיין הנוכחי נדרש.',
+    'new_domain_required' => 'הדומיין החדש נדרש.',
+    'special_characters_not_allowed' => 'לא ניתן להשתמש בתוים מיוחדים בשם הדומיין.',
+    'orderno_required' => 'מספר ההזמנה נדרש.',
+    'cloud_central_domain_required' => 'הדומיין המרכזי בענן נדרש.',
+    'cloud_cname_required' => 'CNAME בענן נדרש.',
+    'cloud_tenant' => [
+        'cloud_top_message_required' => 'הודעת העל בענן נדרשת.',
+        'cloud_label_field_required' => 'שדה התווית בענן נדרש.',
+        'cloud_label_radio_required' => 'לחצן הרדיו לתווית בענן נדרש.',
+        'cloud_product_required' => 'מוצר בענן נדרש.',
+        'cloud_free_plan_required' => 'תוכנית חינמית בענן נדרשת.',
+        'cloud_product_key_required' => 'מפתח המוצר בענן נדרש.',
+    ],
+
+    'reg_till_after' => 'תאריך הרישום עד חייב להיות אחרי תאריך הרישום מ.',
+    'extend_product' => [
+        'title_required' => 'שדה הכותרת נדרש.',
+        'version_required' => 'שדה הגרסה נדרש.',
+        'dependencies_required' => 'שדה התלויות נדרש.',
+    ],
+
+    'please_enter_recovery_code' => 'אנא הזן קוד שחזור.',
+    'social_login' => [
+        'client_id_required' => 'מזהה לקוח נדרש עבור גוגל, גיטהאב או לינקדין.',
+        'client_secret_required' => 'סוד לקוח נדרש עבור גוגל, גיטהאב או לינקדין.',
+        'api_key_required' => 'מפתח API נדרש עבור טוויטר.',
+        'api_secret_required' => 'סוד API נדרש עבור טוויטר.',
+        'redirect_url_required' => 'כתובת URL להפניה נדרשת.',
+    ],
+
+    'thirdparty_api' => [
+        'app_name_required' => 'שם אפליקציה נדרש.',
+        'app_key_required' => 'מפתח אפליקציה נדרש.',
+        'app_key_size' => 'מפתח אפליקציה חייב להיות בדיוק 32 תווים.',
+        'app_secret_required' => 'סוד אפליקציה נדרש.',
+    ],
+
 ];

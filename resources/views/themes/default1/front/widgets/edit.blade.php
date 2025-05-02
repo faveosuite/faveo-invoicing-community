@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Edit Widget
+{{ __('message.edit_widget') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
@@ -62,7 +62,7 @@ Edit Widget
                     </div>
                     <div class="col-md-4 form-group {{ $errors->has('allow_mailchimp') ? 'has-error' : '' }}">
                         <!-- last name -->
-                        {!! Form::label('allow_social_media','Allow social media icons',['class'=>'required']) !!}
+                        {!! Form::label('allow_social_media', __('message.allow_social_media_icons'),['class'=>'required']) !!}
                         {!! Form::select('allow_social_media',[1=>'Yes',0=>'No'],null,['class' => 'form-control']) !!}
 
                     </div>
@@ -72,7 +72,7 @@ Edit Widget
                     <div class="col-md-4 form-group {{ $errors->has('type') ? 'has-error' : '' }}">
                         <!-- last name -->
                         {!! Form::label('type',Lang::get('message.type'),['class'=>'required']) !!}
-                        {!! Form::select('type', [''=>'Choose','footer1'=>'Footer 1','footer2'=>'Footer 2','footer3'=>'Footer 3'],$widget->type,['class' => 'form-control'. ($errors->has('type') ? ' is-invalid' : ''),'id'=>'type']) !!}
+                        {!! Form::select('type', [''=> __('message.choose'),'footer1'=>'Footer 1','footer2'=>'Footer 2','footer3'=>'Footer 3'],$widget->type,['class' => 'form-control'. ($errors->has('type') ? ' is-invalid' : ''),'id'=>'type']) !!}
                         <div class="input-group-append">
                         </div>
                     </div>
@@ -125,7 +125,7 @@ Edit Widget
             </div>
 
         </div>
-        <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fa fa-sync-alt">&nbsp;&nbsp;</i>{!!Lang::get('message.update')!!}</button>
+        <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> {{ __('message.saving') }}"><i class="fa fa-sync-alt">&nbsp;&nbsp;</i>{!!Lang::get('message.update')!!}</button>
 
     </div>
 

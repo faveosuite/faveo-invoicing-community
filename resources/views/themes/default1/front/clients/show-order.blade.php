@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.front.master')
 @section('title')
-    Orders
+    {{ __('message.orders') }}
 @stop
 @section('nav-orders')
     active
@@ -1071,7 +1071,7 @@ $price = $order->price_override;
 
                     <p class="text-black"><strong>{{ __('message.current_no_agents')}}</strong> {{$latestAgents}}</p>
 
-                    <p class="text-black"><strong>{{ __('message.price_per_agent:')}} </strong>{!! currencyFormat($ExistingPlanPirce,getCurrencyForClient(\Auth::user()->country),true) !!}</p>
+                    <p class="text-black"><strong>{{ __('message.price_per_agent')}} </strong>{!! currencyFormat($ExistingPlanPirce,getCurrencyForClient(\Auth::user()->country),true) !!}</p>
 
                     <div class="row">
 
@@ -1277,7 +1277,7 @@ $price = $order->price_override;
                             </div>
                             <!-- Card Number Field (with built-in Stripe icon) -->
                             <div class="mb-3">
-                                <label for="card-number" class="form-label">Card Number</label>
+                                <label for="card-number" class="form-label">{{ __('message.card_number') }}</label>
                                 <div id="card-number" class="StripeElement"></div>
                                 <div id="card-number-errors" class="text-danger mt-1" role="alert"></div>
                             </div>
@@ -1286,7 +1286,7 @@ $price = $order->price_override;
                             <div class="row mb-3">
                                 <!-- Expiry Date Field -->
                                 <div class="col-md-6 mb-3">
-                                    <label for="card-expiry" class="form-label">Expiry Date</label>
+                                    <label for="card-expiry" class="form-label">{{ __('message.expiry_date') }}</label>
                                     <div id="card-expiry" class="StripeElement"></div>
                                     <div id="card-expiry-errors" class="text-danger mt-1" role="alert"></div>
                                 </div>
@@ -1303,7 +1303,7 @@ $price = $order->price_override;
                             <div class="d-grid mb-4">
                                 <div class="btn btn-lg btn-outline-dark disabled" style="pointer-events: none;">
                                     <div class="d-flex justify-content-between w-100">
-                                        <span>Total</span>
+                                        <span>{{ __('message.total') }}</span>
                                         <span id="order-total">{{ currencyFormat(1,getCurrencyForClient(\Auth::user()->country)) }}</span>
                                     </div>
                                 </div>
@@ -1311,7 +1311,7 @@ $price = $order->price_override;
                             <div class="form-group row">
                                 <div class="col-md-12">
                                     <button type="submit" id="pay" class="btn btn-primary btn-block">
-                                        {{ __('PAY NOW') }}
+                                        {{ __('message.caps_pay_now') }}
                                     </button>
                                 </div>
                             </div>
@@ -1533,7 +1533,7 @@ $price = $order->price_override;
 
                     $('#pay').on('click', async function () {
                         $('#pay').prop("disabled", true);
-                        $('#pay').html("<i class='fa fa-circle-o-notch fa-spin fa-1x'></i> Processing ...");
+                        $('#pay').html("<i class='fa fa-circle-o-notch fa-spin fa-1x'></i> " + @json( __('message.processing')));
                         const {token, error} = await stripe.createToken(cardNumber);
 
                         await $.ajax({
@@ -1603,6 +1603,21 @@ $price = $order->price_override;
                 "sSearch"    : "Search: ",
                 "sProcessing": '<img id="blur-bg" class="backgroundfadein" style="top:40%;left:50%; width: 50px; height:50 px; display: block; position:    fixed;" src="{!! asset("lb-faveo/media/images/gifloader3.gif") !!}">'
             },
+            language: {
+                paginate: {
+                    first:      "{{ __('message.paginate_first') }}",
+                    last:       "{{ __('message.paginate_last') }}",
+                    next:       "{{ __('message.paginate_next') }}",
+                    previous:   "{{ __('message.paginate_previous') }}"
+                },
+                emptyTable:     "{{ __('message.empty_table') }}",
+                info:           "{{ __('message.datatable_info') }}",
+                zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
+                infoEmpty:      "{{ __('message.info_empty') }}",
+                infoFiltered:   "{{ __('message.info_filtered') }}",
+                lengthMenu:     "{{ __('message.length_menu') }}",
+                loadingRecords: "{{ __('message.loading_records') }}",
+            },
 
             columns: [
                 {data: 'number', name: 'invoice.number'},
@@ -1647,6 +1662,21 @@ $price = $order->price_override;
                 "sLengthMenu": "_MENU_ Records per page",
                 "sSearch"    : "Search: ",
                 "sProcessing": '<img id="blur-bg" class="backgroundfadein" style="top:40%;left:50%; width: 50px; height:50 px; display: block; position:    fixed;" src="{!! asset("lb-faveo/media/images/gifloader3.gif") !!}">'
+            },
+            language: {
+                paginate: {
+                    first:      "{{ __('message.paginate_first') }}",
+                    last:       "{{ __('message.paginate_last') }}",
+                    next:       "{{ __('message.paginate_next') }}",
+                    previous:   "{{ __('message.paginate_previous') }}"
+                },
+                emptyTable:     "{{ __('message.empty_table') }}",
+                info:           "{{ __('message.datatable_info') }}",
+                zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
+                infoEmpty:      "{{ __('message.info_empty') }}",
+                infoFiltered:   "{{ __('message.info_filtered') }}",
+                lengthMenu:     "{{ __('message.length_menu') }}",
+                loadingRecords: "{{ __('message.loading_records') }}",
             },
 
             columns: [
@@ -1794,7 +1824,7 @@ $price = $order->price_override;
 
                     }, error: function(data) {
                         if (data.responseJSON.success === false) {
-                            var result = '<div class="alert alert-danger alert-dismissable"><strong><i class="far fa-thumbs-down"></i> Oops! </strong> ' + data.responseJSON.message + ' </div>';
+                            var result = '<div class="alert alert-danger alert-dismissable"><strong><i class="far fa-thumbs-down"></i>' + @json( __('message.error_oops')) + '</strong> ' + data.responseJSON.message + ' </div>';
                             $('#failure-domain').html(result).css('color', 'red').show(); // Show the error message
                             $('#changeDomain').attr('disabled', false);
                             $('#changeDomain').html("<i class='fa fa-globe'>&nbsp;&nbsp;</i>" + @json(__('message.chg_domain')));
@@ -1846,7 +1876,7 @@ $price = $order->price_override;
                         if (data.responseJSON.success == false) {
                             $('#agentNumber').attr('disabled', false);
                             $('#agentNumber').html("<i class='fa fa-users'>&nbsp;&nbsp;</i> " + @json(__('message.update_agents')));
-                            var result = '<div class="alert alert-danger alert-dismissable"><strong><i class="far fa-thumbs-down"></i> Oops! </strong> ' + data.responseJSON.message + ' </div>';
+                            var result = '<div class="alert alert-danger alert-dismissable"><strong><i class="far fa-thumbs-down"></i>' + @json( __('message.error_oops')) + ' </strong> ' + data.responseJSON.message + ' </div>';
                             $('#failure-agent').html(result).css('color', 'red').show();
                             $('.loader-wrapper').hide();
                             $('.overlay').hide(); // Hide the overlay
@@ -1962,7 +1992,7 @@ $price = $order->price_override;
 
                     },  error: function(data) {
                         if (data.responseJSON.success == false) {
-                            var result = '<div class="alert alert-danger alert-dismissable"><strong><i class="far fa-thumbs-down"></i> Oops! </strong> ' + data.responseJSON.message + '</div>';
+                            var result = '<div class="alert alert-danger alert-dismissable"><strong><i class="far fa-thumbs-down"></i>' + @json(__('message.error_oops')) + ' </strong> ' + data.responseJSON.message + '</div>';
                             $('#failure-upgrade').html(result).css('color', 'red').show();
                             $('#upgradedowngrade').attr('disabled',false);
                             $('#upgradedowngrade').html("<i class='fas fa-cloud-upload-alt'>&nbsp;&nbsp;</i>{{ __('message.change_plan')}}");
@@ -2138,6 +2168,21 @@ $(document).ready(function() {
                                   "sLengthMenu": "_MENU_ Records per page",
                                   "sSearch"    : "Search: ",
                                   "sProcessing": '<div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading')}}</div></div>'
+                              },
+                              language: {
+                                  paginate: {
+                                      first:      "{{ __('message.paginate_first') }}",
+                                      last:       "{{ __('message.paginate_last') }}",
+                                      next:       "{{ __('message.paginate_next') }}",
+                                      previous:   "{{ __('message.paginate_previous') }}"
+                                  },
+                                  emptyTable:     "{{ __('message.empty_table') }}",
+                                  info:           "{{ __('message.datatable_info') }}",
+                                  zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
+                                  infoEmpty:      "{{ __('message.info_empty') }}",
+                                  infoFiltered:   "{{ __('message.info_filtered') }}",
+                                  lengthMenu:     "{{ __('message.length_menu') }}",
+                                  loadingRecords: "{{ __('message.loading_records') }}",
                               },
 
                               columns: [

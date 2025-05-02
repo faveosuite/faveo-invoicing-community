@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.front.master')
 @section('title')
-Profile
+{{ __('message.profile') }}
 @stop
 @section('nav-profile')
 active
@@ -191,7 +191,7 @@ input:checked + .slider:before {
                                         <div class="col-lg-9">
                                               {!! Form::hidden('mobile_code',null,['id'=>'code_hidden']) !!}
                                                <!--<input class="form-control selected-dial-code"  id="mobile_code" value="{{$user->mobile}}" name="mobile" type="tel"> -->
-                                            {!! Form::input('tel', 'mobile', $user->mobile, ['class' => 'form-control selected-dial-code', 'dir'=> app()->getLocale() == 'ar' ? 'rtl' : 'ltr', 'id' => 'incode']) !!}
+                                            {!! Form::input('tel', 'mobile', $user->mobile, ['class' => 'form-control selected-dial-code', 'dir'=> in_array(app()->getLocale(), ['ar', 'he']) ? 'rtl' : 'ltr', 'id' => 'incode']) !!}
                                             {!! Form::hidden('mobile_country_iso',null,['id' => 'mobile_country_iso']) !!}
                                             <span id="invalid-msg" class="hide"></span>
                                                <span id="inerror-msg"></span>
@@ -526,7 +526,7 @@ input:checked + .slider:before {
             const alertClass = isSuccess ? 'alert-success' : 'alert-danger';
 
             // Extract message and errors
-            const message = response.message || response || '{{ __('message.error_occurred') }}';
+            const message = response.message || response || 'An error occurred. Please try again.';
             const errors = response.errors || null;
 
             // Build base HTML
@@ -541,7 +541,7 @@ input:checked + .slider:before {
         }
         $.validator.addMethod("validPhone", function(value, element) {
             return validatePhoneNumber(element);
-        }, "Please enter a valid phone number.");
+        }, "{{ __('message.error_valid_number') }}");
         function placeErrorMessage(error, element, errorMapping = null) {
             if (errorMapping !== null && errorMapping[element.attr("name")]) {
                 $(errorMapping[element.attr("name")]).html(error);
@@ -552,7 +552,7 @@ input:checked + .slider:before {
         $.validator.addMethod("regex", function(value, element, regexp) {
             var re = new RegExp(regexp);
             return this.optional(element) || re.test(value);
-        }, "Invalid format.");
+        }, "{{ __('message.invalid_format') }}");
         document.getElementById('profilePic').addEventListener('change', function(event) {
             const file = event.target.files[0];
 

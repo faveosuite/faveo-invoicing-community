@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Social Media
+    {{ __('message.social-media') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">

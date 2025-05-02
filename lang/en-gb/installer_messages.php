@@ -160,5 +160,9 @@ return [
     'powered_by' => 'All rights reserved. Powered by',
     'invalid_email' => 'Invalid email',
     'your_password_invalid' => 'Your password format is invalid',
+    'timezone' => 'TimeZone',
+    'language' => 'Language',
+    'tooltip_timezone' => 'Browser timezone is used initially. Select a different timezone if needed.',
+    'tooltip_language' => 'Initially loaded default language. Select a different language if needed.',
 
 ];

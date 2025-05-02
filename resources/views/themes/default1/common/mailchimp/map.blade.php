@@ -201,7 +201,7 @@ input:checked + .slider:before {
                 <table class="table table-hover">
                     <tr>
                         <th>{{Lang::get('message.products')}}</th>
-                        <th>{{Lang::get('Mapped With')}}</th>
+                        <th>{{Lang::get('message.mapped_with')}}</th>
                         <th>{{Lang::get('message.mailchimp-product')}}</th>
                     </tr>
 
@@ -545,7 +545,7 @@ input:checked + .slider:before {
 
 
                  <br>
-                 <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fa fa-sync-alt">&nbsp;&nbsp;</i>{!!Lang::get('message.update')!!}</button>
+                 <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> {{ __('message.saving') }}"><i class="fa fa-sync-alt">&nbsp;&nbsp;</i>{!!Lang::get('message.update')!!}</button>
                  {!! Form::close() !!}
 
             </div>

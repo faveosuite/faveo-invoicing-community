@@ -77,23 +77,23 @@
                 } else {
                     $('#error').hide();
                     $('#success').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>Success! </strong>'+data.message+'!</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>@json(trans('message.success')) </strong>'+data.message+'!</div>';
                     $('#success').html(result);
                 }
             },error: function (response) {
                 $('#createtenancy').attr('disabled',false)
-                $("#createtenancy").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>Submit");
-                $("#generate").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>Submit");
+                $("#createtenancy").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>"+"@json(trans('message.submit'))");
+                $("#generate").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>"+"@json(trans('message.submit'))");
                 if(response.status == 422) {
 
-                    var html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong>Whoops! </strong>Something went wrong<ul>';
+                    var html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong>' + @json(__('message.whoops')) + ' </strong>' + @json(__('message.something_wrong')) + '<ul>';
                     for (var key in response.responseJSON.errors)
                     {
                         html += '<li>' + response.responseJSON.errors[key][0] + '</li>'
                     }
 
                 } else {
-                    var html = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong>Whoops! </strong>Something went wrong<ul>';
+                    var html = '<div class="alert alert-danger alert-dismissable">' + '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' + '<strong>' + @json(trans('message.whoops')) + ' </strong>' + @json(trans('message.something_wrong')) + '<ul>';
                     html += '<li>' + response.responseJSON.message + '</li>'
                 }
 
@@ -119,7 +119,7 @@
       const domain = domainInput.value;
 
       if (domain.length > 28) {
-        validationMessage.textContent = "Domain must be 28 characters or less.";
+        validationMessage.textContent = @json( __('message.domain_characters'));
         validationMessage.style.color = "red";
       } else {
         validationMessage.textContent = "";

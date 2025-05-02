@@ -1,13 +1,13 @@
 @extends('themes.default1.layouts.front.master')
 @section('title')
-    Cart
+    {{ __('message.cart') }}
 @stop
 @section('page-header')
     <br>
-    Cart
+    {{ __('message.cart') }}
 @stop
 @section('page-heading')
-Cart
+{{ __('message.cart') }}
 @stop
 @section('breadcrumb')
 @if(Auth::check())
@@ -189,9 +189,8 @@ Cart
                                                 @else
                                                     <td class="product-agents">
 
-                                                    @if (!$item->attributes->agents)
-
-                                                            {{'Unlimited Agents'}}
+                                                        @if (!$item->attributes->agents)
+                                                            {{ __('message.unlimited_agents') }}
                                                         @else
                                                             @if($isAllowedtoEdit['agent'])
                                                                 <div class="quantity">
@@ -276,9 +275,9 @@ Cart
                                     <div class="col-md-auto px-0">
                                         @if(count($domain)>0)
 
-                                       <a href="#domain" data-toggle="modal" data-target="#domain" class="btn btn-dark btn-modern text-2 text-uppercase checkout">Checkout <i class="fas fa-arrow-right ms-2"></i></a>
+                                       <a href="#domain" data-toggle="modal" data-target="#domain" class="btn btn-dark btn-modern text-2 text-uppercase checkout">{{ __('message.checkout') }} <i class="fas fa-arrow-right ms-2"></i></a>
                                          @else
-                                         <a href="{{url('checkout')}}" class="btn btn-dark btn-modern text-2 text-uppercase checkout">Checkout <i class="fas fa-arrow-right ms-2"></i></a>
+                                         <a href="{{url('checkout')}}" class="btn btn-dark btn-modern text-2 text-uppercase checkout">{{ __('message.checkout') }} <i class="fas fa-arrow-right ms-2"></i></a>
                                           @endif
                                     </div>
                                 </div>

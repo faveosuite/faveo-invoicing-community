@@ -1,12 +1,12 @@
 @extends('themes.default1.layouts.front.master')
 @section('title')
-Forgot Password | Faveo Helpdesk
+    {{ __('message.forgot_password_faveo_helpdesk') }}
 @stop
 @section('page-heading')
- Forgot Password
+  {{ __('message.forgot-password') }}
 @stop
 @section('page-header')
-Forgot Password
+    {{ __('message.forgot-password') }}
 @stop
 @section('breadcrumb')
 @section('breadcrumb')

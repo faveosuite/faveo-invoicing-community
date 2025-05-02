@@ -173,7 +173,7 @@
 
                     <tr>
 
-                        <td><b>{!! Form::label('zip','Zip') !!}</b></td>
+                        <td><b>{!! Form::label('zip', __('message.system_zip')) !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('zip') ? 'has-error' : '' }}">
 
@@ -191,7 +191,7 @@
 
                     <tr>
 
-                        <td><b>{!! Form::label('knowledge_base_url','Knowledge Base URL') !!}</b></td>
+                        <td><b>{!! Form::label('knowledge_base_url', __('message.knowledge_base_url')) !!}</b></td>
                         <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{Lang::get('message.url_tooltip')}}"></i>
                         <td>
                             <div class="form-group {{ $errors->has('knowledge_base_url') ? 'has-error' : '' }}">
@@ -211,10 +211,10 @@
 
                      <tr>
                          <td>
-                             <b>{!! Form::label('content', Lang::get('message.default_language'), ['class' => 'required']) !!}</b>
+                             <b>{!! Form::label('language', Lang::get('message.default_language'), ['class' => 'required']) !!}</b>
                          </td>
                          <td>
-                             <select name="content" class="form-control" required>
+                             <select name="language" class="form-control" required>
                                  @if($defaultLang == '')
                                      <option value="">{{ __('message.select_default_language') }}</option>
                                  @endif
@@ -348,7 +348,7 @@
                         <td><b>{!! Form::label('logo',Lang::get('message.admin-logo')) !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('admin-logo') ? 'has-error' : '' }}">
-                                   {{ __('Upload Application Logo') }}
+                                   {{ __('message.upload_application_logo') }}
 
                                 <div class="d-flex align-items-center mt-1">
                                     @if($set->admin_logo)
@@ -380,7 +380,7 @@
 
                         <td>
                             <div class="form-group {{ $errors->has('fav-icon') ? 'has-error' : '' }}">
-                                    {{ __('Upload favicon for Admin and Client Panel') }}
+                                    {{ __('message.upload_favicon_admin_client_panel') }}
 
                                 <div class="d-flex align-items-center mt-1">
                                     @if($set->fav_icon)
@@ -389,7 +389,7 @@
 
                                     <div class="custom-file ml-3">
                                         {!! Form::file('fav-icon', ['class' => 'custom-file-input'.($errors->has('fav-icon') ? ' is-invalid' : ''), 'id' => 'fav-icon' ,'role' => 'button']) !!}
-                                        <label role="button" class="custom-file-label" for="fav-icon">{{ __('Choose file') }}</label>
+                                        <label role="button" class="custom-file-label" for="fav-icon">{{ __('message.choose_file') }}</label>
                                     </div>
                                 </div>
                                 <span class="hide system-error" id="favicon-err-Msg"></span>
@@ -454,7 +454,7 @@
 
                                 <div class="custom-file ml-3">
                                     {!! Form::file('logo', ['class' => 'custom-file-input', 'id' => 'logo', 'role' => 'button', 'onchange' => 'previewImage("preview-logo", "logo")']) !!}
-                                    <label role="button" class="custom-file-label" for="logo">{{ __('Choose file') }}</label>
+                                    <label role="button" class="custom-file-label" for="logo">{{ __('message.choose_file') }}</label>
                                 </div>
                             </div>
                             <span class="hide system-error" id="logo-err-Msg"></span>
@@ -775,9 +775,9 @@
               validMsg.classList.remove("hide");
               $('#submit').attr('disabled',false);
             } else {
-             errorMsg.innerHTML = "Please enter a valid number";
+             errorMsg.innerHTML = @json(trans('message.enter_valid_number'));
                 errorMsg.classList.remove("hide");
-                errorMsg.innerHTML = "Please enter a valid number";
+                errorMsg.innerHTML = @json(trans('message.enter_valid_number'));
                 $('#phone').css("border-color", "#dc3545");
                 $('#error-msg').css({"color": "#dc3545", "margin-top": "5px", "font-size": "80%"});
             }
@@ -808,7 +808,7 @@
                     $('#submit').attr('disabled',false);
                 } else {
                     emailErrorMsg.classList.remove("hide");
-                    emailErrorMsg.innerHTML = "Please enter a valid email address";
+                    emailErrorMsg.innerHTML = @json(trans('message.contact_error_email'));
                     $('#company_email').css("border-color","#dc3545");
                     $('#email-error-msg').css({"color":"#dc3545","margin-top":"5px","font-size":"80%"});
                 }
@@ -826,7 +826,7 @@
                 errorMsg.innerHTML = "";
               $('#submit').attr('disabled',false);
             } else {
-                errorMsg.innerHTML = "Please enter a valid number";
+                errorMsg.innerHTML = @json(trans('message.enter_valid_number'));
              $('#phone').css("border-color","#dc3545");
              $('#error-msg').css({"color":"#dc3545","margin-top":"5px","font-size":"80%"});
              errorMsg.classList.remove("hide");

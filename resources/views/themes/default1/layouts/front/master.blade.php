@@ -1530,7 +1530,7 @@ setTimeout(function() {
             success: function(response) {
                 $.each(response.data, function(key, value) {
                     // Only include languages where enable_disable == 1
-                    if (value.enable_disable == 1) {
+                    if (value.status == 1) {
                         const mappedLocale = localeMap[value.locale] || value.locale;
                         const isSelected = value.locale === currentLocale ? 'selected' : '';
                         $('#language-dropdown').append(

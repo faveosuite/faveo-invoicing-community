@@ -1,12 +1,12 @@
 @extends('themes.default1.layouts.front.master')
 @section('title')
-Checkout
+{{ __('message.checkout') }}
 @stop
 @section('page-header')
-Checkout
+    {{ __('message.checkout') }}
 @stop
 @section('page-heading')
- Checkout
+    {{ __('message.checkout') }}
 @stop
 @section('breadcrumb')
  @if(Auth::check())
@@ -133,7 +133,7 @@ $cartSubtotalWithoutCondition = 0;
 
                                         <div class="product-thumbnail-wrapper" style="width: 100px;">
 
-                                            <a onclick="removeItem('{{$item->id}}');" class="product-thumbnail-remove" data-bs-toggle="tooltip" title="Remove Product" style="top: -15px;">
+                                            <a onclick="removeItem('{{$item->id}}');" class="product-thumbnail-remove" data-bs-toggle="tooltip" title="{{ __('message.remove_product') }}" style="top: -15px;">
 
                                                 <i class="fas fa-times"></i>
                                             </a>
@@ -226,7 +226,7 @@ $cartSubtotalWithoutCondition = 0;
 
                                     <div class="d-flex align-items-center">
 
-                                        <input type="text" class="form-control h-auto line-height-1 py-3" name="coupon"  placeholder="Coupon Code" / style="width: 250px;">
+                                        <input type="text" class="form-control h-auto line-height-1 py-3" name="coupon"  placeholder=" {{ __('message.coupon-code') }}"  style="width: 250px;">
 
                                         <button type="submit" class="btn btn-light btn-modern text-color-dark bg-color-light-scale-2 text-color-hover-light bg-color-hover-dark text-uppercase text-3 font-weight-bold border-0 ws-nowrap btn-px-4 py-3 ms-2">{{ __('message.apply')}}</button>
                                     </div>

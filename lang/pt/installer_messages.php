@@ -160,5 +160,10 @@ return [
     'powered_by' => 'Todos os direitos reservados. Desenvolvido por',
     'invalid_email' => 'E-mail inválido',
     'your_password_invalid' => 'O formato da sua senha é inválido',
+    'timezone' => 'Fuso Horário',
+    'language' => 'Idioma',
+    'tooltip_timezone' => 'O fuso horário do navegador é usado inicialmente. Se necessário, selecione um fuso horário diferente.',
+    'tooltip_language' => 'Idioma padrão carregado inicialmente. Se necessário, selecione um idioma diferente.',
+
 
 ];

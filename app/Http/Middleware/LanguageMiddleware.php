@@ -18,14 +18,14 @@ class LanguageMiddleware
     public function handle($request, Closure $next)
     {
         if (Auth::check()) {
-            $user = Auth::user(); // Store user instance to avoid multiple calls
+            $user = Auth::user();
 
             $lang = match (true) {
                 Session::has('language') => tap(Session::get('language'), function ($language) use ($user) {
                     $user->language = $language;
                     $user->save();
                 }),
-                ! empty($user->language) => $user->language, // Ensures null or empty check
+                ! empty($user->language) => $user->language,
                 default => Setting::where('id', 1)->value('content') ?? 'en',
             };
 
@@ -62,15 +62,13 @@ class LanguageMiddleware
     public function checkEnabledLanguage($lang)
     {
         if (! empty($lang)) {
-            // Check if the language is enabled in the database
-            $language = Language::where('locale', $lang)->where('enable_disable', 1)->first();
+            $language = Language::where('locale', $lang)->where('status', 1)->first();
 
             if ($language) {
                 return $lang;
             }
         }
 
-        // Fallback to system default language from settings
         return Setting::where('id', 1)->value('content') ?? 'en';
     }
 }

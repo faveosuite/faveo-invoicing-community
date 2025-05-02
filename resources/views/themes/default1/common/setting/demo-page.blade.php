@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Demo Page Settings
+    {{ __('message.demo_page_settings') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
@@ -26,13 +26,13 @@ Demo Page Settings
         <div class="row">
                        <div class="col-md-4">
                 <div class="form-group">
-                    {!! Form::label('Demopage',Lang::get('Enable/Disable'),['class'=>'required'])!!}
+                    {!! Form::label('Demopage',Lang::get('message.enable_disable'),['class'=>'required'])!!}
                     <div class="row">
                         <div class="col-sm-3">
-                            <input type="radio" name="status" value="true"  @if($Demo_page->status == true) checked="true" @endif > {{Lang::get('Enable')}}
+                            <input type="radio" name="status" value="true"  @if($Demo_page->status == true) checked="true" @endif > {{Lang::get('message.enable')}}
                         </div>
                         <div class="col-sm-3">
-                            <input type="radio" name="status" value="false" @if($Demo_page->status == false) checked="true" @endif> {{Lang::get('Disable')}}
+                            <input type="radio" name="status" value="false" @if($Demo_page->status == false) checked="true" @endif> {{Lang::get('message.disable')}}
                         </div>
                     </div>
                 </div> 

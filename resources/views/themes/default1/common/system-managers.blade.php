@@ -59,7 +59,7 @@
                             {!! Form::label('account_manager',Lang::get('message.replace_with'),['class'=>'required']) !!}
                         
                            
-                            {!! Form::select('account_manager', [Lang::get('User')=>$users],null,['multiple'=>true,'class'=>"form-control select2".($errors->has('account_manager') ? ' is-invalid' : '') ,'id'=>"users",
+                            {!! Form::select('account_manager', [Lang::get('message.user')=>$users],null,['multiple'=>true,'class'=>"form-control select2".($errors->has('account_manager') ? ' is-invalid' : '') ,'id'=>"users",
                   'onchange'=>"setCustomValidity('')"]) !!}
                     <div class="input-group-append">
                     </div>

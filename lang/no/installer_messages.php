@@ -159,5 +159,9 @@ return [
     'powered_by' => 'Alle rettigheter reservert. Drevet av',
     'invalid_email' => 'Ugyldig e-post',
     'your_password_invalid' => 'Passordformatet ditt er ugyldig',
+    'timezone' => 'Tidssone',
+    'language' => 'Språk',
+    'tooltip_timezone' => 'Nettleserens tidssone brukes initialt. Velg en annen tidssone hvis nødvendig.',
+    'tooltip_language' => 'Initialt lastet standard språk. Velg et annet språk hvis nødvendig.',
 
 ];

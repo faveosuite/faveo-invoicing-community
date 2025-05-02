@@ -159,5 +159,9 @@ return [
     'powered_by' => 'Alle rechten voorbehouden. Aangedreven door',
     'invalid_email' => 'Ongeldige e-mail',
     'your_password_invalid' => 'Je wachtwoordformaat is ongeldig',
+    'timezone' => 'Tijdzone',
+    'language' => 'Taal',
+    'tooltip_timezone' => 'De tijdzone van de browser wordt aanvankelijk gebruikt. Selecteer een andere tijdzone indien nodig.',
+    'tooltip_language' => 'Standaardtaal wordt aanvankelijk geladen. Selecteer een andere taal indien nodig.',
 
 ];

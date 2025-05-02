@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('translation');
             $table->string('locale');
-            $table->integer('enable_disable')->default(1);
+            $table->integer('status')->default(1);
             $table->timestamps();
         });
     }

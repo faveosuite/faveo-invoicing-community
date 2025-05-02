@@ -32,7 +32,7 @@
 
 
 
-                                {!! Form::select('driver',[''=>'Choose','smtp'=>'SMTP','mail'=>'Php mail','mailgun'=>'Mailgun','mandrill'=>'Mandrill','ses'=>'SES','sparkpost'=>'Sparkpost'],$set->driver,['class' => 'form-control'. ($errors->has('driver') ? ' is-invalid' : ''), 'id'=>'driver']) !!}
+                                {!! Form::select('driver',[''=> __('message.choose'),'smtp'=>'SMTP','mail'=>'Php mail','mailgun'=>'Mailgun','mandrill'=>'Mandrill','ses'=>'SES','sparkpost'=>'Sparkpost'],$set->driver,['class' => 'form-control'. ($errors->has('driver') ? ' is-invalid' : ''), 'id'=>'driver']) !!}
                                 <i> {{Lang::get('message.select-email-driver')}}</i>
                             @error('driver')
                             <span class="error-message"> {{$message}}</span>
@@ -81,7 +81,7 @@
                         <td>
 
 
-                                {!! Form::select('encryption',[''=>'Choose','ssl'=>'SSL','tls'=>'TLS','starttls'=>'STARTTLS'],$set->encryption,['class' => 'form-control'. ($errors->has('encryption') ? ' is-invalid' : ''),'id'=>'encryption']) !!}
+                                {!! Form::select('encryption',[''=> __('message.choose'),'ssl'=>'SSL','tls'=>'TLS','starttls'=>'STARTTLS'],$set->encryption,['class' => 'form-control'. ($errors->has('encryption') ? ' is-invalid' : ''),'id'=>'encryption']) !!}
                                 <i> {{Lang::get('message.select-email-encryption-method')}}</i>
                             @error('encryption')
                             <span class="error-message"> {{$message}}</span>
@@ -96,7 +96,7 @@
 
                     <tr>
                         <div class="form-group secret" >
-                        <td><b>{!! Form::label('secret','Secret',['class'=>'required']) !!}</b></td>
+                        <td><b>{!! Form::label('secret', __('message.secret'),['class'=>'required']) !!}</b></td>
                         <td>
 
 
@@ -113,7 +113,7 @@
 
                     <tr>
                         <div class="form-group showWhenMailGunSelected">
-                        <td><b>{!! Form::label('domain','Domain',['class'=>'required']) !!}</b></td>
+                        <td><b>{!! Form::label('domain', __('message.domain2'),['class'=>'required']) !!}</b></td>
                         <td>
                              {!! Form::text('domain',$set->domain,['class' => 'form-control'. ($errors->has('domain') ? ' is-invalid' : ''),'id'=>'domain']) !!}
                             @error('domain')
@@ -129,7 +129,7 @@
 
                     <tr>
                         <div class="form-group showWhenSesSelected">
-                        <td><b>{!! Form::label('key','API Key',['class'=>'required']) !!}</b></td>
+                        <td><b>{!! Form::label('key', __('message.api_key'),['class'=>'required']) !!}</b></td>
                         <td>
                              {!! Form::text('key',$set->key,['class' => 'form-control'. ($errors->has('key') ? ' is-invalid' : ''),'id'=>'api_key']) !!}
                             @error('key')
@@ -143,7 +143,7 @@
 
                       <tr>
                         <div class="form-group showWhenSesSelected">
-                        <td><b>{!! Form::label('region','Region',['class'=>'required']) !!}</b></td>
+                        <td><b>{!! Form::label('region', __('message.region'),['class'=>'required']) !!}</b></td>
                         <td>
                              {!! Form::text('region',$set->region,['class' => 'form-control'. ($errors->has('region') ? ' is-invalid' : ''),'id'=>'region']) !!}
                             @error('region')
@@ -179,12 +179,12 @@
                     
                       <tr>
                         <div class="form-group {{ $errors->has('from_name') ? 'has-error' : '' }}">
-                        <td><b>{!! Form::label('from_name',Lang::get('From Name'),['class'=>'required']) !!}</b></td>
+                        <td><b>{!! Form::label('from_name',Lang::get('message.from_name'),['class'=>'required']) !!}</b></td>
                         <td>
 
 
                                 {!! Form::text('from_name',$set->from_name,['class' => 'form-control'. ($errors->has('from_name') ? ' is-invalid' : ''),'id'=>'from_name']) !!}
-                                <i> {{Lang::get('Enter From Name')}} </i>
+                                <i> {{Lang::get('message.enter_from_name')}} </i>
                             @error('from_name')
                             <span class="error-message"> {{$message}}</span>
                             @enderror

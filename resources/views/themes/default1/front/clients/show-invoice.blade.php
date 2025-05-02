@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.front.master')
 @section('title')
-Invoice
+{{ __('message.invoice') }}
 @stop
 @section('page-heading')
     {{ __('message.view_invoice')}}
@@ -118,9 +118,9 @@ active
                                 {{getStateByCode($set->state)['name']}}
                                 @endif
                                 {{$set->zip}}<br/>
-                                <strong>Country: </strong>{{getCountryByCode($set->country)}}<br/>
-                                <strong>Mobile: </strong><b>+</b>{{$set->phone_code}} {{$set->phone}}<br/>
-                                <strong>Email: </strong>{{$set->company_email}}</li>
+                                <strong>{{ __('message.country') }}: </strong>{{getCountryByCode($set->country)}}<br/>
+                                <strong>{{ __('message.mobile') }}: </strong><b>+</b>{{$set->phone_code}} {{$set->phone}}<br/>
+                                <strong>{{ __('message.email') }}: </strong>{{$set->company_email}}</li>
 
                          @if($set->gstin)
                         <li class="mb-0 mt-2 text-4"><b class="text-dark">{{ __('message.gstin')}}</b> #{{$set->gstin}}</li>
@@ -407,7 +407,7 @@ active
             },
             error: function(xhr, status, error) {
                 console.error("Download failed:", error);
-                alert("Failed to generate PDF. Please try again.");
+                alert(@json( __('message.failed_generate_pdf')));
             },
             complete: function() {
                 $btn.prop('disabled', false).html('<i class="fa fa-download"></i>  '+$btn.data('original-text'));

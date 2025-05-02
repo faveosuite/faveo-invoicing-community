@@ -147,5 +147,9 @@ return [
     'powered_by' => 'Sva prava zadržana. Pokreće',
     'invalid_email' => 'Nevažeći email',
     'your_password_invalid' => 'Format vaše lozinke je nevažeći',
+    'timezone' => 'Vremenska zona',
+    'language' => 'Jezik',
+    'tooltip_timezone' => 'Početno se koristi vremenska zona preglednika. Odaberite drugu vremensku zonu ako je potrebno.',
+    'tooltip_language' => 'Početno učitani zadani jezik. Odaberite drugi jezik ako je potrebno.',
 
 ];

@@ -138,7 +138,7 @@ input:checked + .slider:before {
                                     <th>{{ __('message.native_name') }}</th>
                                     <th>{{ __('message.iso_code') }}</th>
                                     <th>{{ __('message.system_default') }}</th>
-                                    <th>{{ __('message.action') }} &nbsp;<i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="This toggle allows you to enable or disable the dropdowns for available languages." data-original-title=""></i></th>
+                                    <th>{{ __('message.action') }} &nbsp;<i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="{{ __('message.langugae_toggle') }}" data-original-title=""></i></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -171,8 +171,8 @@ input:checked + .slider:before {
                                             'tr' => 'tr',
                                         ];
 
-                                        $localeKey = $language->locale; // Fallback to 'en'
-                                        $flagCountryCode = $localeMap[$localeKey]; // Default to 'us' if not found
+                                        $localeKey = $language->locale;
+                                        $flagCountryCode = $localeMap[$localeKey];
                                         $flagClass = 'flag-icon flag-icon-' . $flagCountryCode;
                                     @endphp
                                     <td>
@@ -193,10 +193,10 @@ input:checked + .slider:before {
                                             <input type="checkbox"
                                                    class="checkbox language-toggle"
                                                    data-locale="{{ $language->locale }}"
-                                                   {{ $language->enable_disable == 1 ? 'checked' : '' }}
+                                                   {{ $language->status == 1 ? 'checked' : '' }}
                                                    {{ $defaultLang === $language->locale ? 'disabled' : '' }}>
                                             <span class="slider round {{ $defaultLang === $language->locale ? 'disabled' : '' }}" data-placement="top"
-                                                  data-toggle="tooltip" title="{{ $defaultLang === $language->locale ? 'Can\'t disable the default language' : '' }}"></span>
+                                                  data-toggle="tooltip" title="{{ $defaultLang === $language->locale ? @trans('message.cannot_disable_language') : '' }}"></span>
                                         </label>
                                     </td>
                                 </tr>

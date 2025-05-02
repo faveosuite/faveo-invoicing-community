@@ -156,5 +156,9 @@ return [
     'powered_by' => '모든 권리 보유. 제공자:',
     'invalid_email' => '잘못된 이메일',
     'your_password_invalid' => '비밀번호 형식이 잘못되었습니다',
+    'timezone' => '시간대',
+    'language' => '언어',
+    'tooltip_timezone' => '브라우저 시간대가 처음에 사용됩니다. 필요에 따라 다른 시간대를 선택하세요.',
+    'tooltip_language' => '기본 언어가 처음에 로드됩니다. 필요에 따라 다른 언어를 선택하세요.',
 
 ];

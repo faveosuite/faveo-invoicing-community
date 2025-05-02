@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Edit Templates
+ {{ __('message.edit_templates') }}
 @stop
 @section('content-header')
  <style>
@@ -82,7 +82,7 @@ Edit Templates
 
                     <div class="col-md-6 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         <!-- first name -->
-                        {!! Form::label('name',Lang::get('Subject'),['class'=>'required']) !!}
+                        {!! Form::label('name',Lang::get('message.sub'),['class'=>'required']) !!}
                         {!! Form::text('name',null,['class' => 'form-control']) !!}
                         @error('name')
                         <span class="error-message"> {{$message}}</span>
@@ -94,7 +94,7 @@ Edit Templates
                     <div class="col-md-6 form-group {{ $errors->has('type') ? 'has-error' : '' }}">
                         <!-- last name -->
                         {!! Form::label('type',Lang::get('message.template-types'),['class'=>'required']) !!}
-                        {!! Form::select('type',[''=>'Select','Type'=>$type],null,['class' => 'form-control']) !!}
+                        {!! Form::select('type',[''=> __('message.select'),'Type'=>$type],null,['class' => 'form-control']) !!}
                         @error('type')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
@@ -165,7 +165,7 @@ Edit Templates
             </div>
 
         </div>
-        <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving..."><i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}</button>
+        <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> {{ __('message.saving') }}"><i class="fa fa-sync-alt">&nbsp;</i>{!!Lang::get('message.update')!!}</button>
 
     </div>
 

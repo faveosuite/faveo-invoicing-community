@@ -182,7 +182,7 @@ foreach($scripts as $script) {
 
                             <div class="form-group col">
 
-                                <button type="submit" class="btn btn-dark btn-modern w-100 text-uppercase font-weight-bold text-3 py-3" data-loading-text="Loading...">{{ __('message.login')}}</button>
+                                <button type="submit" class="btn btn-dark btn-modern w-100 text-uppercase font-weight-bold text-3 py-3" data-loading-text="{{ __('message.loading') }}">{{ __('message.login')}}</button>
                                 @if($google_status == 1 || $twitter_status == 1 || $github_status == 1 ||$linkedin_status == 1)
 
                                 <div class="divider">
@@ -192,28 +192,28 @@ foreach($scripts as $script) {
                                 @endif
                                 @if($google_status == 1)
 
-                                <a href="{{ url('/auth/redirect/google') }}" class="btn btn-primary-scale-2 btn-modern w-100 text-transform-none font-weight-bold align-items-center d-inline-flex justify-content-center text-3 py-3" data-loading-text="Loading...">
+                                <a href="{{ url('/auth/redirect/google') }}" class="btn btn-primary-scale-2 btn-modern w-100 text-transform-none font-weight-bold align-items-center d-inline-flex justify-content-center text-3 py-3" data-loading-text="{{ __('message.loading') }}">
 
                                     <i class="fab fa-google text-5 me-2"></i> {{ __('message.login_google')}}
                                 </a><br><br>
                                 @endif
                                 @if($twitter_status == 1)
 
-                                <a href="{{ url('/auth/redirect/twitter') }}" class="btn btn-primary-scale-2 btn-modern w-100 text-transform-none font-weight-bold align-items-center d-inline-flex justify-content-center text-3 py-3" data-loading-text="Loading...">
+                                <a href="{{ url('/auth/redirect/twitter') }}" class="btn btn-primary-scale-2 btn-modern w-100 text-transform-none font-weight-bold align-items-center d-inline-flex justify-content-center text-3 py-3" data-loading-text="{{ __('message.loading') }}">
 
                                     <i class="fab fa-twitter text-5 me-2"></i> {{ __('message.login_twitter')}}
                                 </a><br><br>
                                 @endif
                                 @if($github_status == 1 )
 
-                                <a href="{{ url('/auth/redirect/github') }}"  class="btn btn-primary-scale-2 btn-modern w-100 text-transform-none font-weight-bold align-items-center d-inline-flex justify-content-center text-3 py-3" data-loading-text="Loading...">
+                                <a href="{{ url('/auth/redirect/github') }}"  class="btn btn-primary-scale-2 btn-modern w-100 text-transform-none font-weight-bold align-items-center d-inline-flex justify-content-center text-3 py-3" data-loading-text="{{ __('message.loading') }}">
 
                                     <i class="fab fa-github text-5 me-2"></i> {{ __('message.login_github')}}
                                 </a><br><br>
                                 @endif
                                  @if($linkedin_status == 1 )
 
-                                <a href="{{ url('/auth/redirect/linkedin') }}"  class="btn btn-primary-scale-2 btn-modern w-100 text-transform-none font-weight-bold align-items-center d-inline-flex justify-content-center text-3 py-3" data-loading-text="Loading...">
+                                <a href="{{ url('/auth/redirect/linkedin') }}"  class="btn btn-primary-scale-2 btn-modern w-100 text-transform-none font-weight-bold align-items-center d-inline-flex justify-content-center text-3 py-3" data-loading-text="{{ __('message.loading') }}">
 
                                     <i class="fab fa-linkedin-in text-5 me-2"></i> {{ __('message.login_linkedin')}}
                                 </a><br><br>

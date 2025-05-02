@@ -155,5 +155,9 @@ return [
     'powered_by' => 'Tüm hakları saklıdır. Sağlayan:',
     'invalid_email' => 'Geçersiz e-posta',
     'your_password_invalid' => 'Şifre formatınız geçersiz',
+    'timezone' => 'Zaman Dilimi',
+    'language' => 'Dil',
+    'tooltip_timezone' => 'Başlangıçta tarayıcı zaman dilimi kullanılır. Gerekirse farklı bir zaman dilimi seçin.',
+    'tooltip_language' => 'Başlangıçta yüklenen varsayılan dil. Gerekirse farklı bir dil seçin.',
 
 ];
