@@ -170,7 +170,7 @@
             }
 
             // AJAX Form Submission
-            $('#mailchimp-form').on('submit', function (event) {
+            $('#pipedrive-form').on('submit', function (event) {
                 event.preventDefault();
 
                 let formData = $(this).serialize();

@@ -127,7 +127,7 @@
             {{ __('message.user_verification') }}
         </span>
                         <label class="switch toggle_event_editing mb-0">
-                            <input type="checkbox" value="{{ $isVerificationEnabled  }}" name="modules_settings" class="checkbox" id="2fa">
+                            <input type="checkbox" value="{{ $isVerificationEnabled }}" name="modules_settings" class="checkbox" id="2fa" {{ $isVerificationEnabled == 1 ? 'checked' : '' }}>
                             <span class="slider round"></span>
                         </label>
                     </div>
