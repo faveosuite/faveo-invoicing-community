@@ -121,7 +121,7 @@ return [
     Request file custom validation messages
     */
 
-// Common
+    // Common
     'settings_form' => [
         'company' => [
             'required' => 'Het bedrijfsveld is verplicht.',
@@ -147,7 +147,7 @@ return [
         ],
         'email' => [
             'required' => 'Het e-mailadres is verplicht.',
-                'email' => 'Het e-mailadres moet geldig zijn.',
+            'email' => 'Het e-mailadres moet geldig zijn.',
         ],
         'password' => [
             'required' => 'Het wachtwoordveld is verplicht.',
@@ -219,7 +219,7 @@ return [
         ],
     ],
 
-// Email
+    // Email
     'custom' => [
         'password' => [
             'required_if' => 'Het wachtwoordveld is verplicht voor de geselecteerde maildriver.',
@@ -322,7 +322,7 @@ return [
         ],
     ],
 
-// Order form
+    // Order form
     'order_form' => [
         'client' => [
             'required' => 'Het klantveld is verplicht.',
@@ -350,7 +350,7 @@ return [
         ],
     ],
 
-// Payment form
+    // Payment form
     'coupon_form' => [
         'code' => [
             'required' => 'De kortingscode is verplicht.',
@@ -407,7 +407,7 @@ return [
             //'exists' => 'De geselecteerde provincie is ongeldig.',
         ],
     ],
-// Product
+    // Product
     'subscription_form' => [
         'name' => [
             'required' => 'Het naamveld is verplicht.',
@@ -500,7 +500,7 @@ return [
         ],
     ],
 
-// User
+    // User
     'users' => [
         'first_name' => [
             'required' => 'De voornaam is verplicht.',
@@ -538,7 +538,7 @@ return [
         ],
         'zip' => [
             'regex' => 'Het provincieveld is verplicht wanneer het land India is.',
-        ]
+        ],
     ],
 
     'profile_form' => [
@@ -610,7 +610,7 @@ return [
         'required' => 'Voer de landcode (mobiel) in.',
     ],
 
-// Invoice form
+    // Invoice form
     'invoice' => [
         'user' => [
             'required' => 'Het klantveld is verplicht.',
@@ -633,7 +633,7 @@ return [
         ],
     ],
 
-// LocalizedLicense form
+    // LocalizedLicense form
     'domain_form' => [
         'domain' => [
             'required' => 'Het domeinveld is verplicht.',
@@ -641,7 +641,7 @@ return [
         ],
     ],
 
-// Product Renewal form
+    // Product Renewal form
     'product_renewal' => [
         'domain' => [
             'required' => 'Het domeinveld is verplicht.',
@@ -649,13 +649,13 @@ return [
         ],
     ],
 
-// Language form
+    // Language form
     'language' => [
         'required' => 'Het taalveld is verplicht.',
         'invalid' => 'De geselecteerde taal is ongeldig.',
     ],
 
-// UpdateSroragePathRequest form
+    // UpdateSroragePathRequest form
     'storage_path' => [
         'disk' => [
             'required' => 'Het opslagdiskveld is verplicht.',
@@ -667,7 +667,7 @@ return [
         ],
     ],
 
-// ValidateSecretRequest form
+    // ValidateSecretRequest form
     'validate_secret' => [
         'totp' => [
             'required' => 'Voer de code in.',
@@ -675,7 +675,7 @@ return [
         ],
     ],
 
-// VerifyOtp form
+    // VerifyOtp form
     'verify_email' => [
         'required' => 'Het e-mailveld is verplicht.',
         'email' => 'Het e-mailadres moet geldig zijn.',
@@ -699,7 +699,7 @@ return [
         'password' => 'Het wachtwoord is incorrect.',
         'invalid' => 'Ongeldig wachtwoord.',
     ],
-// AuthController file
+    // AuthController file
     'auth_controller' => [
         'name_required' => 'Naam is verplicht.',
         'name_max' => 'Naam mag niet meer dan 255 tekens bevatten.',

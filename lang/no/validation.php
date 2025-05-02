@@ -145,7 +145,7 @@ return [
     Request file custom validation messages
     */
 
-//Common
+    //Common
     'settings_form' => [
         'company' => [
             'required' => 'Firmafeltet er påkrevd.',
@@ -243,7 +243,7 @@ return [
         ],
     ],
 
-//Email
+    //Email
     'custom' => [
         'password' => [
             'required_if' => 'Passordfeltet er påkrevd for den valgte e-postdriveren.',
@@ -429,7 +429,7 @@ return [
             // 'exists' => 'Det valgte staten er ugyldig.',
         ],
     ],
-//Product
+    //Product
     'subscription_form' => [
         'name' => [
             'required' => 'Navnfeltet er påkrevd.',
@@ -522,7 +522,7 @@ return [
         ],
     ],
 
-//User
+    //User
     'users' => [
         'first_name' => [
             'required' => 'Fornavn-feltet er påkrevd.',
@@ -632,7 +632,7 @@ return [
         'required' => 'Oppgi landskode (mobil).',
     ],
 
-//Invoice form
+    //Invoice form
     'invoice' => [
         'user' => [
             'required' => 'Klientfeltet er påkrevd.',
@@ -655,7 +655,7 @@ return [
         ],
     ],
 
-//LocalizedLicense form
+    //LocalizedLicense form
     'domain_form' => [
         'domain' => [
             'required' => 'Domene-feltet er påkrevd.',
@@ -663,7 +663,7 @@ return [
         ],
     ],
 
-//Product Renewal form
+    //Product Renewal form
     'product_renewal' => [
         'domain' => [
             'required' => 'Domene-feltet er påkrevd.',
@@ -671,13 +671,13 @@ return [
         ],
     ],
 
-//Language form
+    //Language form
     'language' => [
         'required' => 'Språk-feltet er påkrevd.',
         'invalid' => 'Det valgte språket er ugyldig.',
     ],
 
-//UpdateStoragePathRequest form
+    //UpdateStoragePathRequest form
     'storage_path' => [
         'disk' => [
             'required' => 'Lagringsdisk-feltet er påkrevd.',
@@ -689,7 +689,7 @@ return [
         ],
     ],
 
-//ValidateSecretRequest form
+    //ValidateSecretRequest form
     'validate_secret' => [
         'totp' => [
             'required' => 'Vennligst oppgi kode.',
@@ -697,7 +697,7 @@ return [
         ],
     ],
 
-//VerifyOtp form
+    //VerifyOtp form
     'verify_email' => [
         'required' => 'E-post-feltet er påkrevd.',
         'email' => 'E-posten må være en gyldig e-postadresse.',
@@ -722,7 +722,7 @@ return [
         'invalid' => 'Ugyldig passord.',
     ],
 
-//AuthController file
+    //AuthController file
     'auth_controller' => [
         'name_required' => 'Navn er påkrevd.',
         'name_max' => 'Navn kan ikke være lengre enn 255 tegn.',

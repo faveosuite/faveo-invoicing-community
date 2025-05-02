@@ -165,5 +165,4 @@ return [
     'tooltip_timezone' => 'O fuso horário do navegador é usado inicialmente. Se necessário, selecione um fuso horário diferente.',
     'tooltip_language' => 'Idioma padrão carregado inicialmente. Se necessário, selecione um idioma diferente.',
 
-
 ];

@@ -6,7 +6,6 @@ use App\Http\Controllers\BillingInstaller\InstallerController;
 use App\Model\Common\Language;
 use App\Model\Common\Setting;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
 
 class LanguageController extends Controller
@@ -42,10 +41,11 @@ class LanguageController extends Controller
             if ($language) {
                 $language->status = $request->status;
                 $language->save();
+
                 return response()->json(['success' => true, 'message' => __('message.language_status_updated_successfully')]);
             }
 
-            return response()->json(['success' => false, 'message' =>  __('message.language_not_found')], 404);
+            return response()->json(['success' => false, 'message' => __('message.language_not_found')], 404);
         } catch (\Exception $e) {
             return redirect()->back()->with('fails', $e->getMessage());
         }

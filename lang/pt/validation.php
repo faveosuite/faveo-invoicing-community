@@ -401,7 +401,7 @@ return [
             // 'exists' => 'O estado selecionado é inválido.',
         ],
     ],
-//Product
+    //Product
     'subscription_form' => [
         'name' => [
             'required' => 'O campo nome é obrigatório.',
@@ -491,7 +491,7 @@ return [
         ],
     ],
 
-//User
+    //User
     'users' => [
         'first_name' => [
             'required' => 'O campo nome é obrigatório.',
@@ -529,7 +529,7 @@ return [
         ],
         'zip' => [
             'regex' => 'O campo estado é obrigatório quando o país for a Índia.',
-        ]
+        ],
     ],
 
     'profile_form' => [
@@ -575,7 +575,7 @@ return [
             'required_if' => 'O campo estado é obrigatório quando o país for a Índia.',
         ],
     ],
-//Password form
+    //Password form
     'old_password' => [
         'required' => 'O campo senha antiga é obrigatório.',
         'min' => 'A senha antiga deve ter pelo menos :min caracteres.',
@@ -602,7 +602,7 @@ return [
         'required' => 'Digite o código do país (celular).',
     ],
 
-//Invoice form
+    //Invoice form
     'invoice' => [
         'user' => [
             'required' => 'O campo cliente é obrigatório.',
@@ -625,7 +625,7 @@ return [
         ],
     ],
 
-//LocalizedLicense form
+    //LocalizedLicense form
     'domain_form' => [
         'domain' => [
             'required' => 'O campo domínio é obrigatório.',
@@ -633,7 +633,7 @@ return [
         ],
     ],
 
-//Product Renewal form
+    //Product Renewal form
     'product_renewal' => [
         'domain' => [
             'required' => 'O campo domínio é obrigatório.',
@@ -641,13 +641,13 @@ return [
         ],
     ],
 
-//Language form
+    //Language form
     'language' => [
         'required' => 'O campo idioma é obrigatório.',
         'invalid' => 'O idioma selecionado é inválido.',
     ],
 
-//UpdateSroragePathRequest form
+    //UpdateSroragePathRequest form
     'storage_path' => [
         'disk' => [
             'required' => 'O campo disco de armazenamento é obrigatório.',
@@ -659,7 +659,7 @@ return [
         ],
     ],
 
-//ValidateSecretRequest form
+    //ValidateSecretRequest form
     'validate_secret' => [
         'totp' => [
             'required' => 'Por favor, insira o código.',
@@ -667,7 +667,7 @@ return [
         ],
     ],
 
-//VerifyOtp form
+    //VerifyOtp form
     'verify_email' => [
         'required' => 'O campo e-mail é obrigatório.',
         'email' => 'O e-mail deve ser um endereço de e-mail válido.',
@@ -692,7 +692,7 @@ return [
         'invalid' => 'Senha inválida.',
     ],
 
-//AuthController file
+    //AuthController file
     'auth_controller' => [
         'name_required' => 'O nome é obrigatório.',
         'name_max' => 'O nome não pode ter mais de 255 caracteres.',
@@ -835,6 +835,5 @@ return [
         'app_key_size' => 'A chave do aplicativo deve ter exatamente 32 caracteres.',
         'app_secret_required' => 'O segredo do aplicativo é obrigatório.',
     ],
-
 
 ];

@@ -2302,5 +2302,4 @@ return [
     'language_status_updated_successfully' => 'Status bahasa berhasil diperbarui.',
     'language_not_found' => 'Bahasa tidak ditemukan.',
 
-
 ];

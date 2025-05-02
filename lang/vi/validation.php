@@ -175,7 +175,7 @@ return [
     Request file custom validation messages
     */
 
-// Common
+    // Common
     'settings_form' => [
         'company' => [
             'required' => 'Trường công ty là bắt buộc.',
@@ -273,7 +273,7 @@ return [
         ],
     ],
 
-// Email
+    // Email
     'custom' => [
         'password' => [
             'required_if' => 'Trường mật khẩu là bắt buộc đối với driver thư đã chọn.',
@@ -377,7 +377,7 @@ return [
         ],
     ],
 
-// Order form
+    // Order form
     'order_form' => [
         'client' => [
             'required' => 'Trường khách hàng là bắt buộc.',
@@ -405,7 +405,7 @@ return [
         ],
     ],
 
-// Payment form
+    // Payment form
     'coupon_form' => [
         'code' => [
             'required' => 'Trường mã giảm giá là bắt buộc.',
@@ -463,7 +463,7 @@ return [
         // 'exists' => 'Tiểu bang đã chọn không hợp lệ.',
     ],
 
-// Product
+    // Product
     'subscription_form' => [
         'name' => [
             'required' => 'Trường tên là bắt buộc.',
@@ -556,7 +556,7 @@ return [
         ],
     ],
 
-// User
+    // User
     'users' => [
         'first_name' => [
             'required' => 'Trường tên là bắt buộc.',
@@ -594,7 +594,7 @@ return [
         ],
         'zip' => [
             'regex' => 'Trường tiểu bang là bắt buộc khi quốc gia là Ấn Độ.',
-        ]
+        ],
     ],
 
     'profile_form' => [
@@ -666,7 +666,7 @@ return [
         'required' => 'Nhập mã quốc gia (điện thoại)',
     ],
 
-// Invoice form
+    // Invoice form
     'invoice' => [
         'user' => [
             'required' => 'Trường khách hàng là bắt buộc.',
@@ -689,7 +689,7 @@ return [
         ],
     ],
 
-// LocalizedLicense form
+    // LocalizedLicense form
     'domain_form' => [
         'domain' => [
             'required' => 'Trường tên miền là bắt buộc.',
@@ -697,7 +697,7 @@ return [
         ],
     ],
 
-// Product Renewal form
+    // Product Renewal form
     'product_renewal' => [
         'domain' => [
             'required' => 'Trường tên miền là bắt buộc.',
@@ -705,13 +705,13 @@ return [
         ],
     ],
 
-// Language form
+    // Language form
     'language' => [
         'required' => 'Trường ngôn ngữ là bắt buộc.',
         'invalid' => 'Ngôn ngữ đã chọn không hợp lệ.',
     ],
 
-// UpdateStoragePathRequest form
+    // UpdateStoragePathRequest form
     'storage_path' => [
         'disk' => [
             'required' => 'Trường đĩa lưu trữ là bắt buộc.',
@@ -723,7 +723,7 @@ return [
         ],
     ],
 
-// ValidateSecretRequest form
+    // ValidateSecretRequest form
     'validate_secret' => [
         'totp' => [
             'required' => 'Vui lòng nhập mã',
@@ -731,7 +731,7 @@ return [
         ],
     ],
 
-// VerifyOtp form
+    // VerifyOtp form
     'verify_email' => [
         'required' => 'Trường email là bắt buộc.',
         'email' => 'Email phải là một địa chỉ hợp lệ.',
@@ -755,7 +755,7 @@ return [
         'password' => 'Mật khẩu không chính xác.',
         'invalid' => 'Mật khẩu không hợp lệ.',
     ],
-//AuthController file
+    //AuthController file
     'auth_controller' => [
         'name_required' => 'Tên là bắt buộc.',
         'name_max' => 'Tên không được vượt quá 255 ký tự.',

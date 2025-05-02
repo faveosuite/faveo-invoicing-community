@@ -176,7 +176,7 @@ return [
     Request file custom validation messages
     */
 
-//Common
+    //Common
     'settings_form' => [
         'company' => [
             'required' => 'Il campo azienda è obbligatorio.',
@@ -274,7 +274,7 @@ return [
         ],
     ],
 
-//Email
+    //Email
     'custom' => [
         'password' => [
             'required_if' => 'Il campo password è obbligatorio per il driver di posta selezionato.',
@@ -377,7 +377,7 @@ return [
         ],
     ],
 
-//Order form
+    //Order form
     'order_form' => [
         'client' => [
             'required' => 'Il campo cliente è obbligatorio.',
@@ -405,7 +405,7 @@ return [
         ],
     ],
 
-//Payment form
+    //Payment form
     'coupon_form' => [
         'code' => [
             'required' => 'Il campo codice coupon è obbligatorio.',
@@ -463,7 +463,7 @@ return [
         ],
     ],
 
-//Product
+    //Product
     'subscription_form' => [
         'name' => [
             'required' => 'Il campo nome è obbligatorio.',
@@ -663,7 +663,7 @@ return [
             'required' => 'Inserisci il prefisso del paese (mobile)',
         ],
     ],
-//Modulo Fattura
+    //Modulo Fattura
     'invoice' => [
         'user' => [
             'required' => 'Il campo clienti è obbligatorio.',
@@ -686,7 +686,7 @@ return [
         ],
     ],
 
-//Modulo Licenza Localizzata
+    //Modulo Licenza Localizzata
     'domain_form' => [
         'domain' => [
             'required' => 'Il campo dominio è obbligatorio.',
@@ -694,7 +694,7 @@ return [
         ],
     ],
 
-//Modulo Rinnovo Prodotto
+    //Modulo Rinnovo Prodotto
     'product_renewal' => [
         'domain' => [
             'required' => 'Il campo dominio è obbligatorio.',
@@ -702,13 +702,13 @@ return [
         ],
     ],
 
-//Modulo Lingua
+    //Modulo Lingua
     'language' => [
         'required' => 'Il campo lingua è obbligatorio.',
         'invalid' => 'La lingua selezionata non è valida.',
     ],
 
-//Modulo Aggiornamento Percorso di Memorizzazione
+    //Modulo Aggiornamento Percorso di Memorizzazione
     'storage_path' => [
         'disk' => [
             'required' => 'Il campo disco di memorizzazione è obbligatorio.',
@@ -720,7 +720,7 @@ return [
         ],
     ],
 
-//Modulo Validazione Codice Segreto
+    //Modulo Validazione Codice Segreto
     'validate_secret' => [
         'totp' => [
             'required' => 'Inserisci il codice.',
@@ -728,7 +728,7 @@ return [
         ],
     ],
 
-//Modulo Verifica OTP
+    //Modulo Verifica OTP
     'verify_email' => [
         'required' => 'Il campo email è obbligatorio.',
         'email' => 'L\'email deve essere un indirizzo email valido.',
@@ -753,7 +753,7 @@ return [
         'invalid' => 'Password non valida.',
     ],
 
-//Controller di Autenticazione
+    //Controller di Autenticazione
     'auth_controller' => [
         'name_required' => 'Il nome è obbligatorio.',
         'name_max' => 'Il nome non può essere più lungo di 255 caratteri.',

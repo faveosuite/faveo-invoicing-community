@@ -146,7 +146,7 @@ return [
     Request file custom validation messages
     */
 
-//Common
+    //Common
     'settings_form' => [
         'company' => [
             'required' => '회사 필드는 필수 항목입니다.',
@@ -244,7 +244,7 @@ return [
         ],
     ],
 
-//Email
+    //Email
     'custom' => [
         'password' => [
             'required_if' => '선택한 메일 드라이버에 대해 비밀번호 필드는 필수 항목입니다.',
@@ -347,7 +347,7 @@ return [
         ],
     ],
 
-//Order form
+    //Order form
     'order_form' => [
         'client' => [
             'required' => '고객 필드는 필수 항목입니다.',
@@ -375,7 +375,7 @@ return [
         ],
     ],
 
-//Payment form
+    //Payment form
     'coupon_form' => [
         'code' => [
             'required' => '쿠폰 코드 필드는 필수 항목입니다.',
@@ -433,7 +433,7 @@ return [
         ],
     ],
 
-//Product
+    //Product
     'subscription_form' => [
         'name' => [
             'required' => '이름 필드는 필수 항목입니다.',
@@ -559,7 +559,7 @@ return [
         ],
         'zip' => [
             'regex' => '국가가 인도일 경우, 상태 필드는 필수입니다.',
-        ]
+        ],
     ],
 
     'profile_form' => [
@@ -630,7 +630,7 @@ return [
             'required' => '국가 코드 (휴대폰)를 입력하세요.',
         ],
     ],
-//Invoice form
+    //Invoice form
     'invoice' => [
         'user' => [
             'required' => '클라이언트 필드는 필수 항목입니다.',
@@ -653,7 +653,7 @@ return [
         ],
     ],
 
-//LocalizedLicense form
+    //LocalizedLicense form
     'domain_form' => [
         'domain' => [
             'required' => '도메인 필드는 필수 항목입니다.',
@@ -661,7 +661,7 @@ return [
         ],
     ],
 
-//Product Renewal form
+    //Product Renewal form
     'product_renewal' => [
         'domain' => [
             'required' => '도메인 필드는 필수 항목입니다.',
@@ -669,13 +669,13 @@ return [
         ],
     ],
 
-//Language form
+    //Language form
     'language' => [
         'required' => '언어 필드는 필수 항목입니다.',
         'invalid' => '선택한 언어는 유효하지 않습니다.',
     ],
 
-//UpdateSroragePathRequest form
+    //UpdateSroragePathRequest form
     'storage_path' => [
         'disk' => [
             'required' => '저장 디스크 필드는 필수 항목입니다.',
@@ -687,7 +687,7 @@ return [
         ],
     ],
 
-//ValidateSecretRequest form
+    //ValidateSecretRequest form
     'validate_secret' => [
         'totp' => [
             'required' => '코드를 입력하세요.',
@@ -695,7 +695,7 @@ return [
         ],
     ],
 
-//VerifyOtp form
+    //VerifyOtp form
     'verify_email' => [
         'required' => '이메일 필드는 필수 항목입니다.',
         'email' => '이메일은 유효한 이메일 주소여야 합니다.',
@@ -720,7 +720,7 @@ return [
         'invalid' => '잘못된 비밀번호입니다.',
     ],
 
-//AuthController file
+    //AuthController file
     'auth_controller' => [
         'name_required' => '이름은 필수 항목입니다.',
         'name_max' => '이름은 255자를 초과할 수 없습니다.',

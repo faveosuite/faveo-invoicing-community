@@ -147,7 +147,7 @@ return [
 Request file custom validation messages
 */
 
-// Common
+    // Common
     'settings_form' => [
         'company' => [
             'required' => 'El campo de la empresa es obligatorio.',
@@ -244,7 +244,7 @@ Request file custom validation messages
             'regex' => 'El formato del enlace no es válido.',
         ],
     ],
-// Email
+    // Email
     'custom' => [
         'password' => [
             'required_if' => 'El campo de contraseña es obligatorio para el controlador de correo seleccionado.',
@@ -348,7 +348,7 @@ Request file custom validation messages
         ],
     ],
 
-// Order form
+    // Order form
     'order_form' => [
         'client' => [
             'required' => 'El campo de cliente es obligatorio.',
@@ -375,7 +375,7 @@ Request file custom validation messages
             'integer' => 'La cantidad debe ser un número entero.',
         ],
     ],
-// Payment form
+    // Payment form
     'coupon_form' => [
         'code' => [
             'required' => 'El campo del código de cupón es obligatorio.',
@@ -433,7 +433,7 @@ Request file custom validation messages
         ],
     ],
 
-// Product
+    // Product
     'subscription_form' => [
         'name' => [
             'required' => 'El campo de nombre es obligatorio.',
@@ -507,9 +507,9 @@ Request file custom validation messages
             'required' => 'El campo de moneda es obligatorio.',
         ],
     ],
-// 'price' => [
-//     'required' => 'The price field is required.',
-// ],
+    // 'price' => [
+    //     'required' => 'The price field is required.',
+    // ],
     'file' => [
         'required_without_all' => 'El campo de archivo es obligatorio si no se proporcionan github_owner ni github_repository.',
         'mimes' => 'El archivo debe ser un archivo zip.',
@@ -526,7 +526,7 @@ Request file custom validation messages
         'required_if' => 'El campo del repositorio de GitHub es obligatorio si el tipo es 2.',
     ],
 
-// User
+    // User
     'users' => [
         'first_name' => [
             'required' => 'El campo de nombre es obligatorio.',
@@ -564,7 +564,7 @@ Request file custom validation messages
         ],
         'zip' => [
             'regex' => 'El campo de estado es obligatorio cuando el país es India.',
-        ]
+        ],
     ],
 
     'profile_form' => [
@@ -636,7 +636,7 @@ Request file custom validation messages
         ],
     ],
 
-// Invoice form
+    // Invoice form
     'invoice' => [
         'user' => [
             'required' => 'El campo de clientes es obligatorio.',
@@ -659,14 +659,14 @@ Request file custom validation messages
         ],
     ],
 
-// LocalizedLicense form
+    // LocalizedLicense form
     'domain_form' => [
         'domain' => [
             'required' => 'El campo de dominio es obligatorio.',
             'url' => 'El dominio debe ser una URL válida.',
         ],
     ],
-//Product Renewal form
+    //Product Renewal form
     'product_renewal' => [
         'domain' => [
             'required' => 'El campo de dominio es obligatorio.',
@@ -674,13 +674,13 @@ Request file custom validation messages
         ],
     ],
 
-//Language form
+    //Language form
     'language' => [
         'required' => 'El campo de idioma es obligatorio.',
         'invalid' => 'El idioma seleccionado no es válido.',
     ],
 
-//UpdateSroragePathRequest form
+    //UpdateSroragePathRequest form
     'storage_path' => [
         'disk' => [
             'required' => 'El campo de disco de almacenamiento es obligatorio.',
@@ -692,7 +692,7 @@ Request file custom validation messages
         ],
     ],
 
-//ValidateSecretRequest form
+    //ValidateSecretRequest form
     'validate_secret' => [
         'totp' => [
             'required' => 'Por favor, introduce el código',
@@ -700,7 +700,7 @@ Request file custom validation messages
         ],
     ],
 
-//VerifyOtp form
+    //VerifyOtp form
     'verify_email' => [
         'required' => 'El campo de correo electrónico es obligatorio.',
         'email' => 'El correo electrónico debe ser una dirección válida.',
@@ -725,7 +725,7 @@ Request file custom validation messages
         'invalid' => 'Contraseña inválida.',
     ],
 
-//AuthController file
+    //AuthController file
     'auth_controller' => [
         'name_required' => 'El nombre es obligatorio.',
         'name_max' => 'El nombre no puede tener más de 255 caracteres.',
@@ -867,6 +867,5 @@ Request file custom validation messages
         'app_key_size' => 'La clave de la aplicación debe tener exactamente 32 caracteres.',
         'app_secret_required' => 'Se requiere el secreto de la aplicación.',
     ],
-
 
 ];
