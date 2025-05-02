@@ -262,7 +262,7 @@
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         {!! Form::label('lic_client_secret',Lang::get('message.lic_client_secret'),['class'=>'required']) !!}
                         <div class="input-group">
-                            <input type= "password" value="{{$licenseClientSecret}}" name='license_client_secret' id='license_client_secret' class="form-control">
+                            <input type="password" value="{{$licenseClientSecret}}" name='license_client_secret' id='license_client_secret' class="form-control">
 
                             <div class="input-group-append">
                             <span role="button" class="input-group-text" onclick="togglePasswordVisibility(this)">
@@ -746,9 +746,25 @@
                 success: function (response) {
 
                     $('#license_api_secret').val(response['data']['licenseSecret']);
+                    let inputGroup =document.getElementById('license_api_secret');
+                    let passwordInput = inputGroup.type;
+                    let icon = inputGroup.closest('.input-group').querySelector('i');
+                    if(passwordInput==='text'){
+                        inputGroup.type='password';
+                        icon.classList.remove('fa-eye');
+                        icon.classList.add('fa-eye-slash');
+                    }
                     $('#license_api_url').val(response['data']['licenseUrl']);
                     $('#license_client_id').val(response['data']['licenseClientId']);
                     $('#license_client_secret').val(response['data']['licenseClientSecret']);
+                    let inputGroup1 =document.getElementById('license_client_secret');
+                    let passwordInput1 = inputGroup1.type;
+                    let icon1 = inputGroup1.closest('.input-group').querySelector('i');
+                    if(passwordInput1==='text'){
+                        inputGroup1.type='password';
+                        icon1.classList.remove('fa-eye');
+                        icon1.classList.add('fa-eye-slash');
+                    }
                     $('#license_grant_type').val(response['data']['licenseGrantType']);
                     $('#create-third-party-app').modal('show');
                 },
@@ -771,6 +787,14 @@
                     document.getElementById("status").innerHTML = "";
                     $('#nocaptcha_sitekey').val(response['data']['siteKey']);
                     $('#nocaptcha_secret').val(response['data']['secretKey']);
+                    let inputGroup1 =document.getElementById('nocaptcha_secret');
+                    let passwordInput1 = inputGroup1.type;
+                    let icon1 = inputGroup1.closest('.input-group').querySelector('i');
+                    if(passwordInput1==='text'){
+                        inputGroup1.type='password';
+                        icon1.classList.remove('fa-eye');
+                        icon1.classList.add('fa-eye-slash');
+                    }
                     $('#google-recaptcha').modal('show');
                 },
             });
@@ -867,9 +891,24 @@
                 success: function (response) {
                     $('#git_username').val(response['data']['githubFileds']['username']);
                     $('#git_password').val(response['data']['githubFileds']['password']);
+                    let inputGroup1 =document.getElementById('git_password');
+                    let passwordInput1 = inputGroup1.type;
+                    let icon1 = inputGroup1.closest('.input-group').querySelector('i');
+                    if(passwordInput1==='text'){
+                        inputGroup1.type='password';
+                        icon1.classList.remove('fa-eye');
+                        icon1.classList.add('fa-eye-slash');
+                    }
                     $('#git_client').val(response['data']['githubFileds']['client_id']);
                     $('#git_secret').val(response['data']['githubFileds']['client_secret']);
-
+                    let inputGroup =document.getElementById('git_secret');
+                    let passwordInput = inputGroup.type;
+                    let icon = inputGroup.closest('.input-group').querySelector('i');
+                    if(passwordInput==='text'){
+                        inputGroup.type='password';
+                        icon.classList.remove('fa-eye');
+                        icon.classList.add('fa-eye-slash');
+                    }
                     $("#githubSet").modal('show');
                 },
             });
@@ -1472,7 +1511,14 @@
                 $('#nocaptcha_sitekey').val(initial_key);
                 $('#nocaptcha_secret').val(initial_secret);
             }
-
+            let inputGroup1 =document.getElementById('nocaptcha_secret');
+            let passwordInput1 = inputGroup1.type;
+            let icon1 = inputGroup1.closest('.input-group').querySelector('i');
+            if(passwordInput1==='text'){
+                inputGroup1.type='password';
+                icon1.classList.remove('fa-eye');
+                icon1.classList.add('fa-eye-slash');
+            }
         });
 
         /**
