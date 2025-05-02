@@ -137,9 +137,9 @@ class BaseMailChimpController extends Controller
             $this->mailchimp_set->first()->update(['subscribe_status' => $request->input('subscribe_status'),
                 'list_id' => $request->input('list_id'), ]);
             $this->addListsToAgora();
-            $data=['list_id' =>1];
-            return successResponse(\Lang::get('message.github_valid'),$data);
+            $data = ['list_id' => 1];
 
+            return successResponse(\Lang::get('message.github_valid'), $data);
         } catch (\Exception $ex) {
             return errorResponse(\Lang::get('message.mailchimp_apikey_error'));
         }

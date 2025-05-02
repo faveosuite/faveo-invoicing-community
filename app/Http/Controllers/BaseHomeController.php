@@ -220,7 +220,7 @@ class BaseHomeController extends Controller
             });
             if (count($orderForLicense) > 0) {
                 if ($url) {
-                    InstallationDetail::updateOrCreate(['installation_path' => $url, 'installation_ip' => $ip ,'order_id'=>$orderForLicense->first()->id], ['last_active' => (string) \Carbon\Carbon::now(), 'installation_path' => $url, 'installation_ip' => $ip, 'version' => $request->input('version'), 'order_id' => $orderForLicense->first()->id]);
+                    InstallationDetail::updateOrCreate(['installation_path' => $url, 'installation_ip' => $ip, 'order_id' => $orderForLicense->first()->id], ['last_active' => (string) \Carbon\Carbon::now(), 'installation_path' => $url, 'installation_ip' => $ip, 'version' => $request->input('version'), 'order_id' => $orderForLicense->first()->id]);
 
                     $existingVersion = Subscription::where('order_id', $orderForLicense->first()->id)->value('version');
                     if ($existingVersion && $existingVersion < $request->input('version')) {
@@ -236,7 +236,7 @@ class BaseHomeController extends Controller
                     $installationDetails = $cont->searchInstallationPath($orderForLicense->first()->serial_key, $orderForLicense->first()->product);
                     foreach ($installationDetails['installed_path'] as $path) {
                         $ipAndDomain = explode(',', $path);
-                        InstallationDetail::updateOrCreate(['installation_path' => $ipAndDomain[0], 'installation_ip' => $ipAndDomain[1],'order_id'=>$orderForLicense->first()->id], ['installation_path' => $ipAndDomain[0], 'installation_ip' => $ipAndDomain[1], 'version' => $request->input('version'), 'order_id' => $orderForLicense->first()->id]);
+                        InstallationDetail::updateOrCreate(['installation_path' => $ipAndDomain[0], 'installation_ip' => $ipAndDomain[1], 'order_id' => $orderForLicense->first()->id], ['installation_path' => $ipAndDomain[0], 'installation_ip' => $ipAndDomain[1], 'version' => $request->input('version'), 'order_id' => $orderForLicense->first()->id]);
                     }
                     $existingVersion = Subscription::where('order_id', $orderForLicense->first()->id)->value('version');
                     if ($existingVersion && $request->input('version') > $existingVersion) {

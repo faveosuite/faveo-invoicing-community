@@ -4,7 +4,6 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-
 return new class extends Migration
 {
     /**
@@ -17,7 +16,7 @@ return new class extends Migration
         Schema::table('githubs', function (Blueprint $table) {
             $table->longText('password')->nullable()->change();
         });
-        }
+    }
 
     /**
      * Reverse the migrations.
@@ -25,7 +24,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('githubs', function (Blueprint $table) {
-        $table->string('password', 255)->nullable()->change();
+            $table->string('password', 255)->nullable()->change();
         });
     }
 };
