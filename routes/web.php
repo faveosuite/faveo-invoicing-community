@@ -4,6 +4,7 @@ use App\Http\Controllers\Api;
 use App\Http\Controllers\Auth;
 use App\Http\Controllers\Common;
 use App\Http\Controllers\Common\FileManagerController;
+use App\Http\Controllers\Common\MSG91Controller;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FreeTrailController;
 use App\Http\Controllers\Front;
@@ -620,6 +621,7 @@ Route::middleware('installAgora')->group(function () {
 
     Route::get('sms/reports', [Common\MSG91Controller::class, 'msg91Reports']);
     Route::get('getMsgReports', [Common\MSG91Controller::class, 'getMsg91Reports']);
+    Route::get('msgThirdPartyUpdate/{thirdPartyId}', [MSG91Controller::class, 'getThirdPartyMsgDetails']);
 
     //preview image
     Route::get('preview-file', [FileManagerController::class, 'previewFile']);

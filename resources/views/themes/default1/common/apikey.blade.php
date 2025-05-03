@@ -302,25 +302,53 @@
                                     </label>
 
                                 </td>
-                                <td class="col-md-4 mobileverify">
+                             <td class="col-md-4 mobileverify">
+                                 <input type="hidden" id="hiddenMobValue" value="{{$mobileauthkey}}">
 
-                                    <input type ="hidden" id="hiddenMobValue" value="{{$mobileauthkey}}">
-                                    <!-- last name -->
-                                    {!! Form::label('mobile',Lang::get('message.msg91_key')) !!}
-                                    {!! Form::text('msg91_auth_key',$mobileauthkey,['class' => 'form-control mobile_authkey','id'=>'mobile_authkey']) !!}
-                                    <h6 id="mobile_check"></h6>
-                                    <br/>
-                                    <input type ="hidden" id="hiddenSender" value="{{$msg91Sender}}">
-                                    {!! Form::label('mobile',Lang::get('message.msg91_sender')) !!}
-                                    {!! Form::text('msg91_sender',$msg91Sender,['class' => 'form-control sender','id'=>'sender']) !!}
-                                    <h6 id="sender_check"></h6>
+                                 {{-- Auth Key --}}
+                                 {!! Form::label('mobile', Lang::get('message.msg91_key')) !!}
+                                 {!! Form::text('msg91_auth_key', $mobileauthkey, ['class' => 'form-control mobile_authkey', 'id' => 'mobile_authkey']) !!}
+                                 <h6 id="mobile_check"></h6>
+                                 <br/>
 
-                                    <input type ="hidden" id="hiddenTemplate" value="{{$msg91TemplateId}}">
-                                    {!! Form::label('mobile',Lang::get('message.msg91_template_id')) !!}
-                                    {!! Form::text('msg91_template_id',$msg91TemplateId,['class' => 'form-control template_id','id'=>'template_id']) !!}
-                                    <h6 id="template_check"></h6>
-                                </td>
-                                <td class="col-md-2"><button type="submit" class="form-group btn btn-primary"  id="submit3"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button></td>
+                                 {{-- Sender --}}
+                                 <input type="hidden" id="hiddenSender" value="{{$msg91Sender}}">
+                                 {!! Form::label('mobile', Lang::get('message.msg91_sender')) !!}
+                                 {!! Form::text('msg91_sender', $msg91Sender, ['class' => 'form-control sender', 'id' => 'sender']) !!}
+                                 <h6 id="sender_check"></h6>
+
+                                 {{-- Template ID --}}
+                                 <input type="hidden" id="hiddenTemplate" value="{{$msg91TemplateId}}">
+                                 {!! Form::label('mobile', Lang::get('message.msg91_template_id')) !!}
+                                 {!! Form::text('msg91_template_id', $msg91TemplateId, ['class' => 'form-control template_id', 'id' => 'template_id']) !!}
+                                 <h6 id="template_check"></h6>
+                                 <br/>
+
+                                 @php
+                                     $thirdPartyKeys = \App\ThirdPartyApp::all()->pluck('app_name', 'id');
+                                     $selectedApp = \App\ThirdPartyApp::find($msg91ThirdPartyId);
+                                     $appKey = $selectedApp?->app_key ?? '';
+                                     $appSecret = $selectedApp?->app_secret ?? '';
+                                 @endphp
+
+                                 {{-- Select Third Party App --}}
+                                 {!! Form::label('third_party_key', 'MSG91 Third Party App Key') !!}
+                                 {!! Form::select('third_party_key', ['' => 'Select Third Party App'] + $thirdPartyKeys->toArray(), $msg91ThirdPartyId, ['class' => 'form-control', 'id' => 'third_party_key']) !!}
+                                 <h6 id="third_party_check"></h6>
+                                 <br/>
+
+                                 {{-- Field with Copy Button --}}
+                                 {!! Form::label('Webhook URL', 'Webhook URL') !!}
+                                 <div class="input-group">
+                                     {!! Form::text('copy_field', url("api/msg91/reports?app_key={$appKey}&app_secret={$appSecret}"), ['class' => 'form-control', 'id' => 'copy_field']) !!}
+                                     <div class="input-group-append">
+                                         <button type="button" class="btn btn-secondary" onclick="copyToClipboard('copy_field', this)">
+                                             <i class="fas fa-copy"></i>
+                                         </button>
+                                     </div>
+                                 </div>
+                             </td>
+                             <td class="col-md-2"><button type="submit" class="form-group btn btn-primary"  id="submit3"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button></td>
                             </tr>
 
 
@@ -524,6 +552,39 @@
         }).parentsUntil(".nav-sidebar > .nav-treeview").addClass('menu-open').prev('a').addClass('active');
     </script>
     <script>
+        function copyToClipboard(inputId, buttonElement) {
+            const input = document.getElementById(inputId);
+            input.select();
+            input.setSelectionRange(0, 99999); // For mobile
+            document.execCommand('copy');
+
+            // Change icon to check
+            const icon = buttonElement.querySelector('i');
+            icon.classList.remove('fa-copy');
+            icon.classList.add('fa-check');
+
+            // Change back after 3 seconds
+            setTimeout(() => {
+                icon.classList.remove('fa-check');
+                icon.classList.add('fa-copy');
+            }, 3000);
+        }
+        $('#third_party_key').on('change', function () {
+            const selectedId = $(this).val();
+            $.ajax({
+                url: "{{ url('msgThirdPartyUpdate/') }}" + '/' + selectedId,
+                type: 'GET',
+                success: function (data) {
+                    if (data.data.app_key && data.data.app_secret) {
+                        const fullUrl = `{{ url('api/msg91/reports') }}?app_key=${data.data.app_key}&app_secret=${data.data.app_secret}`;
+                        $('#copy_field').val(fullUrl);
+                    } else {
+                        const fullUrl = `{{ url('api/msg91/reports') }}?app_key=&app_secret=`;
+                        $('#copy_field').val(fullUrl);
+                    }
+                }
+            });
+        });
         //License Manager
         $(document).ready(function(){
             var status = $('.checkbox').val();
@@ -987,6 +1048,16 @@
                     $('#template_id').removeClass('error-border');
                     $('#template_check').hide();
                 }
+
+                // Validate Third Party ID
+                if ($('#third_party_key').val() === "") {
+                    $('#third_party_key').addClass('error-border');
+                    $('#third_party_check').show().text("Please Select Third Party Key").css({ "color": "red", "margin-top": "5px" });
+                    return false;
+                } else {
+                    $('#third_party_key').removeClass('error-border');
+                    $('#third_party_check').hide();
+                }
             } else {
                 // Reset fields when mobile is unchecked
                 $('#mobile_authkey, #sender, #template_id').removeClass('error-border');
@@ -1006,6 +1077,7 @@
                     "msg91_auth_key": $('#mobile_authkey').val(),
                     "msg91_sender": $('#sender').val(),
                     "msg91_template_id": $('#template_id').val(),
+                    "thirdPartyId": $('#third_party_key').val(),
                 },
                 success: function (data) {
                     const result = `

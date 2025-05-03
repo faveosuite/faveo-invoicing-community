@@ -53,8 +53,9 @@ trait ApiKeySettings
     {
         $status = $request->input('status');
         $key = $request->input('msg91_auth_key');
+        $thirdPartyId = $request->input('thirdPartyId');
         StatusSetting::find(1)->update(['msg91_status' => $status]);
-        ApiKey::find(1)->update(['msg91_auth_key' => $key, 'msg91_sender' => $request->input('msg91_sender'), 'msg91_template_id' => $request->input('msg91_template_id')]);
+        ApiKey::find(1)->update(['msg91_auth_key' => $key, 'msg91_sender' => $request->input('msg91_sender'), 'msg91_template_id' => $request->input('msg91_template_id'), 'msg91_third_party_id' => $thirdPartyId]);
 
         return ['message' => 'success', 'update' => 'Msg91 settings saved'];
     }

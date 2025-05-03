@@ -98,7 +98,7 @@
     <!-- Table -->
     <div class="card card-secondary card-outline">
         <div class="card-body table-responsive">
-            <table id="reports-table" class="table display" cellspacing="0" width="100%">
+            <table id="msg-report-table" class="table display" cellspacing="0" width="100%">
                 <thead>
                 <tr>
                     <th>{{ __('message.request_id') }}</th>
@@ -120,7 +120,7 @@
     <script>
         $(document).ready(function() {
             var input = document.querySelector("#mobilenum");
-            const table = $('#reports-table').DataTable({
+            const table = $('#msg-report-table').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
