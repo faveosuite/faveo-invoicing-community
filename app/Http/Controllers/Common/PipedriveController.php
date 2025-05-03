@@ -133,6 +133,7 @@ class PipedriveController extends Controller
         $this->syncFieldGroup($this->getPipedriveFields(), $groups['personId']); // Person
         $this->syncFieldGroup($this->getOrganizationFields(), $groups['organizationId']); // Organization
         $this->syncFieldGroup($this->getDealFields(), $groups['dealId']); // Deal
+
         return successResponse('Pipedrive fields synced successfully');
     }
 
@@ -146,7 +147,7 @@ class PipedriveController extends Controller
 
         // Delete fields that are no longer in the incoming fields list
         $fieldsToDelete = $existingFields->filter(function ($field) use ($newFieldKeys) {
-            return !in_array($field->field_key, $newFieldKeys);
+            return ! in_array($field->field_key, $newFieldKeys);
         });
 
         // Remove the obsolete fields
