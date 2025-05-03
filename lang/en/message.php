@@ -1208,5 +1208,9 @@ return [
     'git_username_s' => 'Please enter a valid git username.',
     'git_password_s' => 'Please enter a valid git personal access token.',
     'git_client_s' => 'Please enter a valid git client id.',
-    'git_secret_s' => 'Please enter a valid git client secret.'
+    'git_secret_s' => 'Please enter a valid git client secret.',
+
+    'list_id_error'=>'Please select a valid list id.',
+    'subscribe_status_error'=>'Please select a valid subscribe status.',
+    'recaptcha_type_error'=>'Please select a recaptcha type.',
 ];

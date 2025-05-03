@@ -62,10 +62,10 @@
 .slider.round:before {
   border-radius: 50%;
 }
-.scrollit {
-    overflow:scroll;
-    height:600px;
-}
+/*.scrollit {*/
+/*    overflow:scroll;*/
+/*    height:600px;*/
+/*}*/
         .error-border {
             border-color: red;
         }
@@ -91,8 +91,8 @@
         <!-- /.box-header -->
         <div class="card-body">
             <div id="alertMessage12"></div>
-            <div class="scrollit" style="height:1000px">
-                <div class="row">
+{{--            <div class="scrollit" style="height:1000px">--}}
+                <div class="row" style="height:960px">
                     <div class="col-md-12">
                         <table id="custom-table" class="table display" cellspacing="0" width="100%">
                             <thead>
@@ -109,7 +109,7 @@
             </div>
         </div>
         <!-- /.box-body -->
-    </div>
+{{--    </div>--}}
     <div class="modal fade" id="msg-91" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -304,15 +304,18 @@
                 <div class="modal-body">
                     <div id="alertMessage2"></div>
 
-                    <div class="form-group m-1 d-flex">
-                        <div class="custom-control custom-radio m-2">
-                            <input class="custom-control-input " type="radio" id="captchaRadioV2" name="customRadio" {{ $captchaStatus === 1 ? 'checked' : '' }}>
-                            <label for="captchaRadioV2" class="custom-control-label">{{ __('message.recaptcha_v2') }}</label>
+                    <div class="form-group m-1">
+                        <div class="d-flex align-items-center">
+                            <div class="custom-control custom-radio m-2">
+                                <input class="custom-control-input" type="radio" id="captchaRadioV2" name="customRadio" {{ $captchaStatus === 1 ? 'checked' : '' }}>
+                                <label for="captchaRadioV2" class="custom-control-label">{{ __('message.recaptcha_v2') }}</label>
+                            </div>
+                            <div class="custom-control custom-radio m-2">
+                                <input class="custom-control-input" type="radio" id="captchaRadioV3" name="customRadio" {{ $v3CaptchaStatus === 1 ? 'checked' : '' }}>
+                                <label for="captchaRadioV3" class="custom-control-label">{{ __('message.recaptcha_v3') }}</label>
+                            </div>
                         </div>
-                        <div class="custom-control custom-radio m-2">
-                            <input class="custom-control-input" type="radio" id="captchaRadioV3" name="customRadio" {{ $v3CaptchaStatus === 1 ? 'checked' : '' }}>
-                            <label for="captchaRadioV3" class="custom-control-label">{{ __('message.recaptcha_v3') }}</label>
-                        </div>
+                        <span class="system-error text-danger ml-3" id="checkboxerror"></span>
                     </div>
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         {!! Form::label('nocaptcha_sitekey',Lang::get('message.nocaptcha_sitekey'),['class'=>'required']) !!}
@@ -336,7 +339,9 @@
                         </div>
                         <h6 id="captcha_secretCheck"></h6>
                     </div>
-                    <div id="recaptcha-wrapper"></div>
+                    <div id="recaptcha-wrapper" style="display:none">
+                        <div id="recaptcha-container"></div>
+                    </div>
                 </div>
 
                 <div class="modal-footer justify-content-between">
@@ -387,14 +392,14 @@
 
                             @endforeach
                             </select>
-                            <p><i> {{Lang::get('message.enter-the-mailchimp-list-id')}}</i> </p>
+                            <span><i> {{Lang::get('message.enter-the-mailchimp-list-id')}}</i> </span>
 
                         </div>
 
                         <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                             {!! Form::label('subscribe_status',Lang::get('message.subscribe_status'),['class'=>'required']) !!}
                             {!! Form::select('subscribe_status',['subscribed'=>'Subscribed','unsubscribed'=>'Unsubscribed','cleaned'=>'Cleaned','pending'=>'Pending'],null,['class' => 'form-control','id'=>'subscribe_status']) !!}
-                            <p><i> {{Lang::get('message.enter-the-mailchimp-subscribe-status')}}</i> </p>
+                            <span><i> {{Lang::get('message.enter-the-mailchimp-subscribe-status')}}</i> </span>
                         </div>
 
                             <div id="extraInput9" style="display: none;">
@@ -636,21 +641,26 @@
 
             try {
                 grecaptcha.ready(() => {
-                    grecaptcha.execute(sitekey, { action: 'submit' })
-                        .then(token => {
-                            // Optional: Show token in console for debugging
+                    try {
+                        grecaptcha.execute(sitekey, {action: 'submit'})
+                            .then(token => {
+                                // Optional: Show token in console for debugging
 
-                            if (!token || token.length < 100) {
-                                throw new Error(@json(trans('message.invalid_recaptcha_key')));
-                            }
+                                if (!token || token.length < 100) {
+                                    throw new Error(@json(trans('message.invalid_recaptcha_key')));
+                                }
 
-                            document.getElementById("nocaptcha_sitekey").classList.remove('is-invalid');
-                            document.getElementById("status").textContent = "";
-                        })
-                        .catch(err => {
-                            document.getElementById("status").textContent = @json(trans('message.invalid_recaptcha_key'));
-                            document.getElementById("nocaptcha_sitekey").classList.add('is-invalid');
-                        });
+                                document.getElementById("nocaptcha_sitekey").classList.remove('is-invalid');
+                                document.getElementById("status").textContent = "";
+                            })
+                            .catch(err => {
+                                document.getElementById("status").textContent = @json(trans('message.invalid_recaptcha_key'));
+                                document.getElementById("nocaptcha_sitekey").classList.add('is-invalid');
+                            });
+                    }catch(err){
+                        document.getElementById("status").textContent = @json(trans('message.invalid_recaptcha_key'));
+                        document.getElementById("nocaptcha_sitekey").classList.add('is-invalid');
+                    }
                 });
             } catch (e) {
                 document.getElementById("status").textContent = @json(trans('message.invalid_recaptcha_key'));
@@ -662,6 +672,7 @@
             document.getElementById('nocaptcha_sitekey').addEventListener('input', function () {
                 const initial_id = document.querySelector('input[name="customRadio"]:checked')?.id;
                 const newSiteKey = this.value.trim();
+                resetRecaptchaContainer();
 
                 document.getElementById("status").textContent = '';
 
@@ -686,55 +697,106 @@
 
     <script>
         document.getElementById('nocaptcha_sitekey').addEventListener('input', function () {
+            resetRecaptchaContainer();
 
             var initial_id=$('input[name="customRadio"]:checked').attr('id');
 
             if(initial_id==='captchaRadioV2') {
                 const sitekey = this.value.trim();
                 if (!sitekey) return;
+                validateRecaptchaV2Key(sitekey);
 
-                // Load reCAPTCHA v3 script dynamically
-                const existing = document.querySelector('script[src*="recaptcha/api.js"]');
-                if (existing) existing.remove(); // Remove if already loaded
+            }
+            });
+        let recaptchaWidgetId = null;
 
-                const script = document.createElement('script');
-                script.src = `https://www.google.com/recaptcha/api.js?render=${sitekey}`;
-                script.async = true;
-                script.defer = true;
-                document.head.appendChild(script);
+        function validateRecaptchaV2Key(sitekey) {
+            const containerId = 'recaptcha-container';
 
-                script.onload = () => {
-                    grecaptcha.ready(() => {
-                        try {
-                            grecaptcha.execute(sitekey, {action: 'submit'})
-                                .then(token => {
-                                    // document.getElementById("status").textContent = " The Google recaptcha site key is valid.";
-                                    document.getElementById("nocaptcha_sitekey").classList.remove('is-invalid');
-                                    document.getElementById("status").innerHTML = "";
+            const oldScript = document.querySelector('script[src*="recaptcha/api.js"]');
+            if (oldScript) {
+                oldScript.remove();
+            }
+            document.getElementById("status").textContent = '';
+            document.getElementById("nocaptcha_sitekey").classList.remove('is-invalid');
+            // Clear any existing reCAPTCHA widget
+            document.getElementById(containerId).innerHTML = '';
+            recaptchaWidgetId = null;
+            delete window.grecaptcha;
 
-                                })
-                                .catch(err => {
+            // Load reCAPTCHA API script
+            const script = document.createElement('script');
+            script.src = 'https://www.google.com/recaptcha/api.js?onload=onV2Load&render=explicit';
+            script.async = true;
+            script.defer = true;
 
-                                        document.getElementById("status").innerHTML = @json(trans('message.invalid_recaptcha_key'));
-                                    document.getElementById("nocaptcha_sitekey").classList.add('is-invalid');
-
-                                });
-                        } catch (innerErr) {
-                                document.getElementById("status").innerHTML = @json(trans('message.invalid_recaptcha_key'));
-                            document.getElementById("nocaptcha_sitekey").classList.add('is-invalid');
-
+            window.onV2Load = function () {
+                try {
+                    // Render reCAPTCHA inside the container
+                    recaptchaWidgetId = grecaptcha.render(containerId, {
+                        sitekey: sitekey,
+                        callback: function (token) {
+                            console.log('Received token:', token);
+                            // Clear error messages and invalid class if reCAPTCHA succeeds
+                            document.getElementById("status").textContent = '';
+                            document.getElementById("nocaptcha_sitekey").classList.remove('is-invalid');
+                        },
+                        'error-callback': function() {
+                            // Handle error callback when reCAPTCHA fails
+                            showError();
                         }
                     });
-                };
+                    clearError();
+                } catch (e) {
+                    showError();
+                }
+            };
 
-                script.onerror = () => {
-                    // document.getElementById("status").textContent = " The Google recaptcha site key is valid.";
-                    document.getElementById("nocaptcha_sitekey").classList.remove('is-invalid');
-                    document.getElementById("status").innerHTML = "";
+            script.onerror = function () {
+                showError();
+            };
 
-                };
+            try {
+                document.head.appendChild(script);
+                clearError();
+            } catch (err) {
+                console.error('Unexpected error appending script:', err);
+                showError(); // Show error if there is an issue with appending the script tag
             }
-        });
+        }
+
+
+
+        // Function to display error messages
+        function showError() {
+            document.getElementById("status").textContent = @json(trans('message.invalid_recaptcha_key'));
+            document.getElementById("nocaptcha_sitekey").classList.add('is-invalid');
+        }
+
+        // Function to clear error messages
+        function clearError() {
+            document.getElementById("status").textContent = '';
+            document.getElementById("nocaptcha_sitekey").classList.remove('is-invalid');
+        }
+
+        function resetRecaptchaContainer() {
+                // Remove old script
+                const oldScript = document.querySelector('script[src*="recaptcha/api.js"]');
+                if (oldScript) oldScript.remove();
+
+                // Delete global grecaptcha object
+                delete window.grecaptcha;
+
+                // Remove container
+                document.getElementById('recaptcha-container')?.remove();
+                const newContainer = document.createElement('div');
+                newContainer.id = 'recaptcha-container';
+                document.getElementById('recaptcha-wrapper').appendChild(newContainer);
+
+                recaptchaWidgetId = null;
+            }
+
+
     </script>
 
     <script>
@@ -1372,7 +1434,7 @@
                         }, 3000);
                         $('#alertMessage').show();
                         var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>' + response.message + '.</div>';
-                        $('#alertMessage').html(result + ".");
+                        $('#alertMessage').html(result);
                         $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                         setInterval(function () {
                             $('#alertMessage').slideUp(3000);
@@ -1381,7 +1443,7 @@
                 error:function(response){
                     $('#alertMessage').show();
                     var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> Error! </strong>' + response.responseJSON.message + '</div>';
-                    $('#alertMessage').html(result + ".");
+                    $('#alertMessage').html(result);
                     $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function () {
                         $('#alertMessage').slideUp(3000);
@@ -1406,7 +1468,7 @@
             ,'sender','template_id','consumer_key','consumer_secret',
             'access_token','token_secret','git_username',
         'git_password','git_client','git_secret',
-        'zoho_key','pipedrive_key','terms_url','mailchimp_authkey'].forEach(id => {
+        'zoho_key','pipedrive_key','terms_url','mailchimp_authkey','list_id','subscribe_status'].forEach(id => {
 
             document.getElementById(id).addEventListener('input', function () {
                 removeErrorMessage(this);
@@ -1486,7 +1548,7 @@
                     }, 3000);
                     $('#alertMessage').show();
                     var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.update+'.</div>';
-                    $('#alertMessage').html(result+ ".");
+                    $('#alertMessage').html(result);
                     $("#submitudpate").html("<i class='fa fa-floppy-o'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
                         $('#alertMessage').slideUp(3000);
@@ -1501,7 +1563,10 @@
         var initial_key=$('#nocaptcha_sitekey').val();
         var initial_secret=$('#nocaptcha_secret').val();
         $('input[name="customRadio"]').change(function () {
+            document.getElementById('checkboxerror').textContent='';
             document.getElementById("status").textContent = "";
+            resetRecaptchaContainer();
+            document.getElementById("nocaptcha_sitekey").classList.remove('is-invalid');
 
             var selectedId = $(this).attr('id'); // Get the ID of selected radio button
             if(selectedId!==initial_id){
@@ -1578,17 +1643,21 @@
             });
 
 
-
-            // If validation fails, prevent form submission
-            if (!isValid) {
-                e.preventDefault();
-            }
             var recaptchaType='';
             if($('#captchaRadioV2').prop('checked')){
                 recaptchaType='v2';
             }
             if($('#captchaRadioV3').prop('checked')){
                 recaptchaType='v3';
+            }
+            // If validation fails, prevent form submission
+            if (!isValid) {
+                e.preventDefault();
+            }
+
+            if(recaptchaType!=='V2' && recaptchaType!=='V3'){
+                document.getElementById('checkboxerror').textContent=@json(trans('message.recaptcha_type_error'));
+                e.preventDefault();
             }
 
             $("#submit2").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
@@ -1608,7 +1677,7 @@
                     }, 3000);
                     $('#alertMessage2').show();
                     var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.message+'.</div>';
-                    $('#alertMessage2').html(result+ ".");
+                    $('#alertMessage2').html(result);
                     $("#submit2").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
                         $('#alertMessage2').slideUp(3000);
@@ -1690,7 +1759,7 @@
                 success: function (data) {
                     $('#alertMessage').show();
                     var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
-                    $('#alertMessage').html(result+ ".");
+                    $('#alertMessage').html(result);
                     $("#submit3").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
                         $('#alertMessage').slideUp(3000);
@@ -1847,7 +1916,7 @@
                     }, 3000);
                     $('#alertMessage').show();
                     var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
-                    $('#alertMessage').html(result+ ".");
+                    $('#alertMessage').html(result);
                     $("#submit4").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
                         $('#alertMessage').slideUp(3000);
@@ -1952,7 +2021,7 @@
                     }, 3000);
                     $('#alertMessage6').show();
                     var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
-                    $('#alertMessage6').html(result+ ".");
+                    $('#alertMessage6').html(result);
                     $("#submit5").html("<i class='fa fa-save'>&nbsp;</i>Save");
                     setInterval(function(){
                         $('#alertMessage6').slideUp(3000);
@@ -2162,7 +2231,7 @@
 
                     $('#alertMessage4').show();
                     var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.message+'.</div>';
-                    $('#alertMessage4').html(result+ ".");
+                    $('#alertMessage4').html(result);
                     $("#submit9").html("<i class='fa fa-save'>&nbsp;</i>Save");
                     setInterval(function(){
                         $('#alertMessage4').slideUp(3000);
@@ -2170,8 +2239,8 @@
                 },
                 error: function(data){
                     $('#alertMessage4').show();
-                    var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> error! </strong>'+data.responseJSON.message+'.</div>';
-                    $('#alertMessage4').html(result+ ".");
+                    var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> error! </strong>'+data.responseJSON.message+'.</div>';
+                    $('#alertMessage4').html(result);
                     $("#submit9").html("<i class='fa fa-save'>&nbsp;</i>Save");
                     setInterval(function(){
                         $('#alertMessage4').slideUp(3000);
@@ -2181,6 +2250,50 @@
         });
 
         $("#submit-chimp").on('click',function () { //When Submit button is checked
+
+
+
+            const userRequiredFields = {
+                name:@json(trans('message.list_id_error')),
+                type:@json(trans('message.subscribe_status_error')),
+
+            };
+
+            const userFields = {
+                name:$('#list_id'),
+                type:$('#subscribe_status'),
+
+            };
+
+
+            // Clear previous errors
+            Object.values(userFields).forEach(field => {
+                field.removeClass('is-invalid');
+                field.next().next('.error').remove();
+
+            });
+
+            let isValid = true;
+
+            const showError = (field, message) => {
+                field.addClass('is-invalid');
+                field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+            };
+
+            // Validate required fields
+            Object.keys(userFields).forEach(field => {
+                if (!userFields[field].val()) {
+                    showError(userFields[field], userRequiredFields[field]);
+                    isValid = false;
+                }
+            });
+
+            // If validation fails, prevent form submission
+            if (!isValid) {
+                preventDefault();
+            }
+
+
             var list_id=$('#list_id').val();
             var subscribe_status=$('#subscribe_status').val();
             $("#submit-chimp").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
@@ -2204,7 +2317,7 @@
 
                         $('#alertMessage4').show();
                         var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.message+'.</div>';
-                        $('#alertMessage4').html(result+ ".");
+                        $('#alertMessage4').html(result);
                         $("#submit-chimp").html("<i class='fa fa-save'>&nbsp;</i>Save");
                         setInterval(function(){
                             $('#alertMessage4').slideUp(3000);
@@ -2212,7 +2325,7 @@
                         else{
                         $('#alertMessage4').show();
                         var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> error! </strong>'+data.message+'.</div>';
-                        $('#alertMessage4').html(result+ ".");
+                        $('#alertMessage4').html(result);
                         $("#submit-chimp").html("<i class='fa fa-save'>&nbsp;</i>Save");
                         setInterval(function(){
                             $('#alertMessage4').slideUp(3000);
@@ -2313,7 +2426,7 @@
                         }, 3000);
                         $('#alertMessage5').show();
                         var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>' + data.message + '.</div>';
-                        $('#alertMessage5').html(result + ".");
+                        $('#alertMessage5').html(result);
                         $("#submit10").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                         setInterval(function () {
                             $('#alertMessage5').slideUp(3000);
@@ -2323,7 +2436,7 @@
                 error: function(data){
                     $('#alertMessage5').show();
                     var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> Error! </strong>' + data.responseJSON.message + '</div>';
-                    $('#alertMessage5').html(result + ".");
+                    $('#alertMessage5').html(result);
                     $("#submit10").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function () {
                         $('#alertMessage5').slideUp(3000);
@@ -2423,7 +2536,7 @@
                         }, 3000);
                         $('#alertMessage8').show();
                         var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>' + data.message + '.</div>';
-                        $('#alertMessage8').html(result + ".");
+                        $('#alertMessage8').html(result);
                         $("#submit13").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                         setInterval(function () {
                             $('#alertMessage8').slideUp(3000);
@@ -2432,7 +2545,7 @@
                 error: function(data){
                     $('#alertMessage8').show();
                     var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> Error! </strong>' + data.responseJSON.message + '.</div>';
-                    $('#alertMessage8').html(result + ".");
+                    $('#alertMessage8').html(result);
                     $("#submit13").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function () {
                         $('#alertMessage8').slideUp(3000);
@@ -2471,7 +2584,7 @@
                 success: function (data) {
                     $('#alertMessage').show();
                     var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
-                    $('#alertMessage').html(result+ ".");
+                    $('#alertMessage').html(result);
                     $("#submit14").html("<i class='fa fa-save'>&nbsp;</i>Save");
                     setInterval(function(){
                         $('#alertMessage').slideUp(3000);
@@ -2568,7 +2681,7 @@
                         }, 3000);
                         $('#alertMessage1').show();
                         var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>' + data.message + '.</div>';
-                        $('#alertMessage1').html(result + ".");
+                        $('#alertMessage1').html(result);
                         $("#submit").html("<i class='fa fa-save'>&nbsp;</i>Save");
                         setInterval(function () {
                             $('#alertMessage1').slideUp(3000);
@@ -2577,7 +2690,7 @@
                 error:function(data){
                     $('#alertMessage1').show();
                     var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> Error! </strong>' + data.responseJSON.message + '.</div>';
-                    $('#alertMessage1').html(result + ".");
+                    $('#alertMessage1').html(result);
                     $("#submit").html("<i class='fa fa-save'>&nbsp;</i>Save");
                     setInterval(function () {
                         $('#alertMessage1').slideUp(2000);

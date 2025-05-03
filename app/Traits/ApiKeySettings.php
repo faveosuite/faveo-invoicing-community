@@ -62,8 +62,8 @@ trait ApiKeySettings
             'mstatus'            => ['key' => 'msg91_status',         'lang' => __('message.mobile_status')],
             'mailchimpstatus'    => ['key' => 'mailchimp_status',     'lang' => __('message.mailchimp_status')],
             'gcaptchastatus'     => ['key' => 'v3_v2_recaptcha_status','lang' => __('message.google_status')],
-            'termStatus'         => ['key' => 'terms',                'lang' => __('message.terms_status')],
-            'pipedrive_status'   => ['key' => 'pipedrive_status',     'lang' => __('message.pipedrive_status')],
+            'termsStatus'         => ['key' => 'terms',                'lang' => __('message.terms_status')],
+            'pipedrivestatus'   => ['key' => 'pipedrive_status',     'lang' => __('message.pipedrive_status')],
             'githubstatus'       => ['key' => 'github_status',        'lang' => __('message.github_status')],
         ]);
 
