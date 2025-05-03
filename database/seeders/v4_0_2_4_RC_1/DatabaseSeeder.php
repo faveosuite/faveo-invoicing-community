@@ -52,7 +52,5 @@ class DatabaseSeeder extends Seeder
                 $group
             );
         }
-
-        (new PipedriveController())->syncFields();
     }
 }

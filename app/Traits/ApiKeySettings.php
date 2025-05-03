@@ -116,6 +116,7 @@ trait ApiKeySettings
         $status = $request->input('status');
         StatusSetting::find(1)->update(['pipedrive_status' => $status]);
         ApiKey::find(1)->update(['pipedrive_api_key' => $pipedriveKey]);
+        return successResponse('Pipedrive settings saved successfully');
     }
 
     public function updateMailchimpProductStatus(Request $request)
