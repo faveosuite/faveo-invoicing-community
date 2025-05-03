@@ -1655,7 +1655,7 @@
                 e.preventDefault();
             }
 
-            if(recaptchaType!=='V2' && recaptchaType!=='V3'){
+            if(recaptchaType!=='v2' && recaptchaType!=='v3'){
                 document.getElementById('checkboxerror').textContent=@json(trans('message.recaptcha_type_error'));
                 e.preventDefault();
             }
