@@ -242,7 +242,7 @@ class MSG91Controller extends Controller
     {
         $app = ThirdPartyApp::find($thirdPartyId);
 
-        if (!$app) {
+        if (! $app) {
             return errorResponse('Third party app not found');
         }
 
@@ -251,5 +251,4 @@ class MSG91Controller extends Controller
             'app_secret' => $app->app_secret,
         ]);
     }
-
 }
