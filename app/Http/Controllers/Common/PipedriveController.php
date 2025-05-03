@@ -127,16 +127,32 @@ class PipedriveController extends Controller
         return ['personId' => $personId, 'organizationId' => $organizationId, 'dealId' => $dealId];
     }
 
-    public function syncFields(): void
+    public function syncFields()
     {
         $groups = $this->getGroups();
         $this->syncFieldGroup($this->getPipedriveFields(), $groups['personId']); // Person
         $this->syncFieldGroup($this->getOrganizationFields(), $groups['organizationId']); // Organization
         $this->syncFieldGroup($this->getDealFields(), $groups['dealId']); // Deal
+        return successResponse('Pipedrive fields synced successfully');
     }
 
     private function syncFieldGroup(array $fields, int $groupId): void
     {
+        // Get all the current fields for the given group
+        $existingFields = PipedriveField::where('pipedrive_group_id', $groupId)->get();
+
+        // Extract the field keys from the incoming data
+        $newFieldKeys = collect($fields)->pluck('key')->toArray();
+
+        // Delete fields that are no longer in the incoming fields list
+        $fieldsToDelete = $existingFields->filter(function ($field) use ($newFieldKeys) {
+            return !in_array($field->field_key, $newFieldKeys);
+        });
+
+        // Remove the obsolete fields
+        PipedriveField::whereIn('id', $fieldsToDelete->pluck('id'))->delete();
+
+        // Sync the remaining fields (add or update)
         foreach ($fields as $field) {
             PipedriveField::updateOrCreate(
                 [

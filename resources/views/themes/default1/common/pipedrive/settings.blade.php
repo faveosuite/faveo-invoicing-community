@@ -136,8 +136,11 @@
                 <div class="card-body">
                     <div class="tab-content" id="fieldMappingTabsContent">
                         <div class="alert alert-info" role="alert">
-                            <i class="fas fa-info-circle"></i>
+                            <i class="fas fa-info-circle mr-2"></i>
                             {{ __('message.pipedrive_config_info') }}
+                            <a class="sync-button" role="button" data-toggle="tooltip" title="{{ __('message.sync_pipedrive_fields') }}">
+                                <strong>{{ __('message.click_pipedrive_sync') }}</strong> <i class="fas fa-sync ml-1" id="sync-icon"></i>
+                            </a>
                         </div>
                         <div class="tab-pane fade show active" id="field-mapping" role="tabpanel" aria-labelledby="field-mapping-tab">
                             <div class="d-flex flex-column align-items-center">
@@ -178,7 +181,7 @@
                                         <div class="row align-items-center justify-content-center no-gutters">
                                             <div class="col-5 text-center">
                                                 <div class="d-flex align-items-center justify-content-center">
-                                                    <img src="{{ $settings->admin_logo }}" alt="Agora logo" class="mr-2" width="24">
+                                                    <img src="{{ $settings->admin_logo }}" class="mr-2" width="24">
                                                     <span class="font-weight-medium">{{ __('message.faveo_fields') }}</span>
                                                 </div>
                                             </div>
@@ -301,6 +304,28 @@
 
                 return html;
             }
+
+            $('.sync-button').on('click', function () {
+                const icon = $('#sync-icon');
+
+                $.ajax({
+                    type: "GET",
+                    url: "{{ url('syncing/pipedriveFields') }}",
+                    beforeSend: function () {
+                        icon.addClass('fa-spin');
+                    },
+                    success: function (response) {
+                        showAlert('success', response.message);
+                    },
+                    error: function (xhr) {
+                        showAlert('error', xhr.responseJSON?.message || 'An error occurred.');
+                    },
+                    complete: function () {
+                        icon.removeClass('fa-spin');
+                    }
+                });
+            });
+
         });
     </script>
 @stop

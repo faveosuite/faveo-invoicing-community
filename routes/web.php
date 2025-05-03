@@ -631,6 +631,7 @@ Route::middleware('installAgora')->group(function () {
     Route::get('getPipedriveFields/{group_id}', [PipedriveController::class, 'getLocalFields']);
     Route::get('pipedrive/mapping/{group_id}', [PipedriveController::class, 'getMapFields']);
     Route::post('sync/pipedrive', [PipedriveController::class, 'mappingFields']);
+    Route::get('syncing/pipedriveFields', [PipedriveController::class, 'syncFields']);
     Route::post('updatePipedriveVerification', [PipedriveController::class, 'updateVerificationStatus'])->name('pipedrive');
 });
 /*

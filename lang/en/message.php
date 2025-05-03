@@ -1259,6 +1259,7 @@ return [
     'pipedrive_user_verification_tooltip' => 'Enable this if the user is allowed to add to Pipedrive only after completing verification.',
     'user_verification' => 'User Verification',
     'pipedrive_config_info' => 'Choose the fields you want to map to keep your contacts, organizations, and deals in sync between Faveo Invoicing and Pipedrive.',
+    'click_pipedrive_sync' => 'Click here to Sync',
     'faveo_fields' => 'Faveo Invoicing Fields',
     'person_fields' => 'Person Fields',
     'deal_fields' => 'Deal Fields',
@@ -1269,4 +1270,5 @@ return [
     'system_attributes_available' => 'Attributes available in the system',
     'pipedrive_attribute_available' => 'Attributes of the pipedrive app',
     'pipedrive_verification_updated' => 'Pipedrive verification status updated successfully',
+    'sync_pipedrive_fields' => 'This will sync the new fields created in Pipedrive and remove the old fields that are no longer available.',
 ];
