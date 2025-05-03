@@ -211,7 +211,6 @@ class GithubController extends Controller
 
             return view('themes.default1.github.settings', compact('model', 'githubStatus', 'githubFileds'));
         } catch (Exception $ex) {
-
             return redirect('/')->with('fails', $ex->getMessage());
         }
     }
@@ -220,32 +219,31 @@ class GithubController extends Controller
     {
         try {
             $status = $request->input('status');
-        try {
-            $client = new Client();
-            $username = $request->input('git_username');
-            $token = $request->input('git_password');
-            $response = $client->get('https://api.github.com/user', [
-                'auth' => [$username, $token],
-                'headers' => [
-                    'Accept' => 'application/vnd.github+json',
-                    'User-Agent' => 'MyApp'
-                ]
-            ]);
+            try {
+                $client = new Client();
+                $username = $request->input('git_username');
+                $token = $request->input('git_password');
+                $response = $client->get('https://api.github.com/user', [
+                    'auth' => [$username, $token],
+                    'headers' => [
+                        'Accept' => 'application/vnd.github+json',
+                        'User-Agent' => 'MyApp',
+                    ],
+                ]);
 
-            $data = json_decode($response->getBody(), true);
-            if ($data['login'] !== $username) {
+                $data = json_decode($response->getBody(), true);
+                if ($data['login'] !== $username) {
+                    return errorResponse(\Lang::get('message.github_invalid'));
+                }
+            } catch(\Exception $ex) {
                 return errorResponse(\Lang::get('message.github_invalid'));
             }
-        }catch(\Exception $ex){
-            return errorResponse(\Lang::get('message.github_invalid'));
-        }
             StatusSetting::find(1)->update(['github_status' => $status]);
             Github::find(1)->update(['username' => $request->input('git_username'),
                 'password' => $request->input('git_password'), 'client_id' => $request->input('git_client'),
                 'client_secret' => $request->input('git_secret'), ]);
+
             return successResponse(\Lang::get('message.github_valid'));
-
-
         } catch (Exception $ex) {
             return errorResponse(\Lang::get('message.github_invalid'));
         }

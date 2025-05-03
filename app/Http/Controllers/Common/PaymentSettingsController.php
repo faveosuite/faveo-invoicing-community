@@ -337,7 +337,7 @@ class PaymentSettingsController extends Controller
 
     public function updatePaymentStatus(Request $request)
     {
-        $plugs=new Plugin();
+        $plugs = new Plugin();
         $name = $request->input('name');
         $status = $request->input('status');
         $plug = $plugs->where('name', $name)->first();
@@ -349,18 +349,20 @@ class PaymentSettingsController extends Controller
         if (! $plug) {
             file_put_contents($app, implode("\n", $lines));
             $plugs->create(['name' => $name, 'path' => $name, 'status' => 1]);
+
             return successResponse(\Lang::get('message.status_change'));
         }
-            if ($status) {
-                $plug->status = 1;
-                file_put_contents($app, implode("\n", $lines));
-            } else {
-                $plug->status = 0;
-                $file_contents = file_get_contents($app);
-                $file_contents = str_replace($str, '//', $file_contents);
-                file_put_contents($app, $file_contents);
-            }
+        if ($status) {
+            $plug->status = 1;
+            file_put_contents($app, implode("\n", $lines));
+        } else {
+            $plug->status = 0;
+            $file_contents = file_get_contents($app);
+            $file_contents = str_replace($str, '//', $file_contents);
+            file_put_contents($app, $file_contents);
+        }
         $plug->save();
+
         return successResponse(\Lang::get('message.status_change'));
     }
 }
