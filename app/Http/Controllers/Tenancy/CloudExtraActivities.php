@@ -459,7 +459,8 @@ class CloudExtraActivities extends Controller
                             $price = $priceToBePaid - $priceRemaining;
                         } else {
                             $discount = $priceRemaining - $priceToBePaid;
-                            $price = 0;
+                            \Session::put('discount', round($discount));
+                            $price = $priceToBePaid;
                             $pay = \DB::table('payments')->where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('amt_to_credit');
                             $payUpdate = \DB::table('payments')->where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->get();
 
@@ -467,6 +468,7 @@ class CloudExtraActivities extends Controller
                             $payment_id = \DB::table('payments')->where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('id');
                             $orderNumber = Order::where('id', $orderId)->value('number');
                             $formattedPay = currencyFormat($pay, getCurrencyForClient(\Auth::user()->country), true);
+                            
                             if (! $payUpdate->isEmpty()) {
                                 $pay = $pay + round($discount);
                                 Payment::where('user_id', \Auth::user()->id)->where('payment_status', 'success')->update(['amt_to_credit' => $pay]);
@@ -522,6 +524,7 @@ class CloudExtraActivities extends Controller
                     }
                 }
             }
+
             \Session::put('priceRemaining', round($priceRemaining));
             \Session::put('priceToBePaid', round($priceToBePaid));
             $items = ['id' => $product_id_new, 'name' => $productNew->name, 'price' => round(abs($price)), 'planId' => $planIdNew,

@@ -294,7 +294,6 @@ class CloudActivitiesTest extends DBTestCase
             6=>'6',
         ];
         $licensetype->permissions()->attach($permissionid);
-
         $product = Product::create(['name' => 'Helpdesk Advance','description'=>'goodProduct','type'=>$licensetype->id]);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         $invoiceItem = InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
@@ -314,6 +313,43 @@ class CloudActivitiesTest extends DBTestCase
         $content=$response->json();
         $this->assertEquals('₹9,730',$content['discount']);
     }
+
+public function test_cloud_upgrade_downgrade_plan(){
+    $user=User::factory()->create();
+    $this->actingAs($user);
+    $this->withoutMiddleware();
+    $licensetype=LicenseType::create(['name'=>'DevelopmentLicense']);
+    $licensepermissiontype=LicensePermission::create(['Can be Downloaded']);
+    LicensePermission::create(['Generate License Expiry Date']);
+    LicensePermission::create(['Generate Updates Expiry Date']);
+    LicensePermission::create(['Allow Downloads Before Updates Expire']);
+    $permissionid=[
+        0 => "1",
+        1 => "2",
+        2 => "3",
+        3 => "4",
+        6=>'6',
+    ];
+    $licensetype->permissions()->attach($permissionid);
+    $product = Product::create(['name' => 'Helpdesk Advance','description'=>'goodProduct','type'=>$licensetype->id]);
+    $invoice = Invoice::factory()->create(['user_id' => $user->id]);
+    $invoiceItem = InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
+    $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
+        'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id,'serial_key'=>'eyJpdiI6IkpI0005']);
+    $installationDetail=InstallationDetail::create(['order_id'=>$order->id,'installation_path'=>'/path']);
+    $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
+    $plan2=Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 2 year', 'product' => $product->id, 'days' => 130]);
+    $planPrice=PlanPrice::factory()->create(['plan_id'=>$plan->id,'currency'=>'INR','add_price'=>5000]);
+    $planPrice2=PlanPrice::factory()->create(['plan_id'=>$plan2->id,'currency'=>'INR','add_price'=>3000,'no_of_agents'=>5]);
+
+    $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
+        'version' => 'v6.0.0', 'update_ends_at' => '','ends_at'=>Carbon::now()->addDays(65)]);
+    $subscription = Subscription::create(['plan_id' => $plan2->id, 'order_id' => $order->id, 'product_id' => $product->id,
+        'version' => 'v6.0.0', 'update_ends_at' => '','ends_at'=>Carbon::now()->addDays(130)]);
+
+    $response=$this->call('POST','upgradeDowngradeCloud',['id'=>$plan2->id,'orderId'=>$order->id,'agents'=>$planPrice2->no_of_agents]);
+}
+
 
 }
 

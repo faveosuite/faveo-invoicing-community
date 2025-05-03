@@ -306,7 +306,7 @@ $cartSubtotalWithoutCondition = 0;
                                                     @php
                                                         $parts = explode('@', $part);
                                                         $cgst = $parts[0];
-                                                        $percentage = $parts[1]; 
+                                                        $percentage = $parts[1];
                                                     @endphp
                                                     <tr class="Taxes border-top-0">
                                                         <th class="d-block  line-height-1 font-weight-semibold text-color-grey ">{{ $cgst }}
@@ -345,7 +345,6 @@ $cartSubtotalWithoutCondition = 0;
                                                         <th class="d-block  line-height-1 font-weight-semibold text-color-grey ">{{ $cgst }}  
                                                             <label style="font-size: 12px;font-weight: normal;">({{$percentage}})</label>
                                                         </th>
-
                                                         <td data-title="CGST" class="text-end">
                                                             <span class="align-top border-top-0">
                                                                 <span class="amount font-weight-medium text-color-grey"></span>{{ $taxParts[$index] }}
@@ -414,12 +413,13 @@ $cartSubtotalWithoutCondition = 0;
                                  @if(\Session::has('priceRemaining'))
                                     <tr>
                                         <td class="border-top-0">
-                                        <strong class="d-block text-color-dark line-height-1 font-weight-semibold">
+                                        <strong class="d-block text-color-dark line-height-0 font-weight-semibold">
                                     <input type="checkbox" id="billing-temp-balance" class="checkbox" checked disabled>
                                    Total Credits remaining on your current plan: 
                                     </strong></td>
                                      <td class=" align-top border-top-0 text-end">
-                                            <span class="amount font-weight-medium text-color-grey">   {{currencyFormat(\Session::get('priceRemaining'),$code = $item->attributes->currency)}}
+                                            <span class="amount font-weight-medium text-color-grey">   {{currencyFormat(\Session::get('priceRemaining'),$code = $item->attributes->currency)}}-{{currencyFormat(\Session::get('priceToBePaid'),$code = $item->attributes->currency)}}
+                                                ={{currencyFormat(\Session::get('discount'),$code = $item->attributes->currency)}}
                                             </span></td></tr>
                                 @endif
 
