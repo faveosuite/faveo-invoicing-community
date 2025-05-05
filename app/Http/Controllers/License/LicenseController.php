@@ -413,6 +413,7 @@ class LicenseController extends Controller
             $OauthDetails = $this->oauthAuthorization();
             $token = $OauthDetails->access_token;
             $getInstallId = $this->postCurl($url.'api/admin/search', "api_key_secret=$api_key_secret&search_type=installation&search_keyword=$licenseCode&isLicenseSearchApi=1", $token);
+
             return $getInstallId;
         } catch (\Exception $ex) {
             throw new \Exception('Please configure the valid license details in Apikey settings.');
@@ -460,7 +461,7 @@ class LicenseController extends Controller
             $productId = $searchLicense['productId'];
             $code = $searchLicense['code'];
             $updateLicense = $this->postCurl($url.'api/admin/license/edit', "api_key_secret=$api_key_secret&product_id=$productId&license_code=$code&license_id=$licenseId&license_order_number=$orderNo&license_domain=$domain&license_ip=$ip&license_require_domain=$requireDomain&license_status=1&license_expire_date=$licenseExpiry&license_updates_date=$expiryDate&license_support_date=$supportExpiry&license_limit=$license_limit", $token);
-        }catch (\Exception $ex) {
+        } catch (\Exception $ex) {
             throw new \Exception('Please configure the valid license details in Apikey settings.');
         }
     }
