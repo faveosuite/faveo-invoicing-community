@@ -652,19 +652,26 @@
 
                                 document.getElementById("nocaptcha_sitekey").classList.remove('is-invalid');
                                 document.getElementById("status").textContent = "";
+                                document.getElementById("submit2").disabled=false;
+
                             })
                             .catch(err => {
                                 document.getElementById("status").textContent = @json(trans('message.invalid_recaptcha_key'));
                                 document.getElementById("nocaptcha_sitekey").classList.add('is-invalid');
+                                document.getElementById("submit2").disabled=true;
                             });
                     }catch(err){
                         document.getElementById("status").textContent = @json(trans('message.invalid_recaptcha_key'));
                         document.getElementById("nocaptcha_sitekey").classList.add('is-invalid');
+                        document.getElementById("submit2").disabled=true;
+
                     }
                 });
             } catch (e) {
                 document.getElementById("status").textContent = @json(trans('message.invalid_recaptcha_key'));
                 document.getElementById("nocaptcha_sitekey").classList.add('is-invalid');
+                document.getElementById("submit2").disabled=true;
+
             }
         }
 
@@ -675,6 +682,7 @@
                 resetRecaptchaContainer();
 
                 document.getElementById("status").textContent = '';
+                document.getElementById('captchaError').textContent='';
 
                 if (initial_id === 'captchaRadioV3') {
                     if (!isLikelyV3Key(newSiteKey)) {
@@ -698,7 +706,7 @@
     <script>
         document.getElementById('nocaptcha_sitekey').addEventListener('input', function () {
             resetRecaptchaContainer();
-
+            document.getElementById('captchaError').textContent='';
             var initial_id=$('input[name="customRadio"]:checked').attr('id');
 
             if(initial_id==='captchaRadioV2') {
@@ -736,10 +744,10 @@
                     recaptchaWidgetId = grecaptcha.render(containerId, {
                         sitekey: sitekey,
                         callback: function (token) {
-                            console.log('Received token:', token);
-                            // Clear error messages and invalid class if reCAPTCHA succeeds
                             document.getElementById("status").textContent = '';
                             document.getElementById("nocaptcha_sitekey").classList.remove('is-invalid');
+                            document.getElementById("submit2").disabled=false;
+
                         },
                         'error-callback': function() {
                             // Handle error callback when reCAPTCHA fails
@@ -771,12 +779,16 @@
         function showError() {
             document.getElementById("status").textContent = @json(trans('message.invalid_recaptcha_key'));
             document.getElementById("nocaptcha_sitekey").classList.add('is-invalid');
+            document.getElementById("submit2").disabled=true;
+
         }
 
         // Function to clear error messages
         function clearError() {
             document.getElementById("status").textContent = '';
             document.getElementById("nocaptcha_sitekey").classList.remove('is-invalid');
+            document.getElementById("submit2").disabled=false;
+
         }
 
         function resetRecaptchaContainer() {
@@ -1567,17 +1579,17 @@
             document.getElementById("status").textContent = "";
             resetRecaptchaContainer();
             document.getElementById("nocaptcha_sitekey").classList.remove('is-invalid');
-
+            document.getElementById('submit2').disabled=true;
             var selectedId = $(this).attr('id'); // Get the ID of selected radio button
-            if(initial_id !== undefined) {
-                if (selectedId !== initial_id) {
-                    $('#nocaptcha_sitekey').val('');
-                    $('#nocaptcha_secret').val('');
-                } else {
-                    $('#nocaptcha_sitekey').val(initial_key);
-                    $('#nocaptcha_secret').val(initial_secret);
-                }
-            }
+            // if(initial_id !== undefined) {
+            //     if (selectedId !== initial_id) {
+            //         $('#nocaptcha_sitekey').val('');
+            //         $('#nocaptcha_secret').val('');
+            //     } else {
+            //         $('#nocaptcha_sitekey').val(initial_key);
+            //         $('#nocaptcha_secret').val(initial_secret);
+            //     }
+            // }
             let inputGroup1 =document.getElementById('nocaptcha_secret');
             let passwordInput1 = inputGroup1.type;
             let icon1 = inputGroup1.closest('.input-group').querySelector('i');
@@ -1612,8 +1624,8 @@
             }
 
             const userRequiredFields = {
-                name:@json(trans('message.site_key')),
-                type:@json(trans('message.secret_key')),
+                name:@json(trans('message.secret_key')),
+                type:@json(trans('message.site_key')),
             };
 
             const userFields = {
@@ -1633,7 +1645,7 @@
 
             const showError = (field, message) => {
                 field.addClass('is-invalid');
-                field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+                field.next().after(`<span class='error invalid-feedback' id='captchaError'>${message}</span>`);
             };
 
             // Validate required fields
