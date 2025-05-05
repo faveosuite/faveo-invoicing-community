@@ -460,7 +460,7 @@ class CloudExtraActivities extends Controller
                         } else {
                             $discount = $priceRemaining - $priceToBePaid;
                             \Session::put('discount', round($discount));
-                            $price = $priceToBePaid;
+                            $price = 0;
                             $pay = \DB::table('payments')->where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('amt_to_credit');
                             $payUpdate = \DB::table('payments')->where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->get();
 
