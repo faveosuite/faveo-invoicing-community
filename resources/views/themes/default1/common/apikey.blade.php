@@ -682,8 +682,10 @@
                 resetRecaptchaContainer();
 
                 document.getElementById("status").textContent = '';
-                document.getElementById('captchaError').textContent='';
-
+                var captchaError=document.getElementById('captchaError');
+                if(captchaError !=null) {
+                    document.getElementById('captchaError').textContent = '';
+                }
                 if (initial_id === 'captchaRadioV3') {
                     if (!isLikelyV3Key(newSiteKey)) {
                         document.getElementById("status").textContent = @json(trans('message.invalid_recaptcha_key'));
@@ -706,7 +708,10 @@
     <script>
         document.getElementById('nocaptcha_sitekey').addEventListener('input', function () {
             resetRecaptchaContainer();
-            document.getElementById('captchaError').textContent='';
+            var captchaError=document.getElementById('captchaError');
+            if(captchaError !=null) {
+                document.getElementById('captchaError').textContent = '';
+            }
             var initial_id=$('input[name="customRadio"]:checked').attr('id');
 
             if(initial_id==='captchaRadioV2') {
@@ -1579,7 +1584,6 @@
             document.getElementById("status").textContent = "";
             resetRecaptchaContainer();
             document.getElementById("nocaptcha_sitekey").classList.remove('is-invalid');
-            document.getElementById('submit2').disabled=true;
             var selectedId = $(this).attr('id'); // Get the ID of selected radio button
             // if(initial_id !== undefined) {
             //     if (selectedId !== initial_id) {
@@ -1664,7 +1668,6 @@
             if($('#captchaRadioV3').prop('checked')){
                 recaptchaType='v3';
             }
-
             if(recaptchaType!=='v2' && recaptchaType!=='v3'){
                 document.getElementById('checkboxerror').textContent=@json(trans('message.recaptcha_type_error'));
                 isValid = false;
@@ -1674,7 +1677,6 @@
             if (!isValid) {
                 e.preventDefault();
             }
-
 
             $("#submit2").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
             $.ajax({

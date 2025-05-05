@@ -346,8 +346,8 @@ class BaseSettingsController extends PaymentSettingsController
             $file_contents_secretchek = str_replace([env('NOCAPTCHA_SECRET'), env('NOCAPTCHA_SITEKEY')], [$captcha_secretCheck, $nocaptcha_sitekey], $file_contents);
             file_put_contents($path_to_file, $file_contents_secretchek);
         }
-        $recaptchaStatus = ! $status ? 0 : ($recaptchaType === 'v2' ? 1 : 0);
-        $v3RecaptchaStatus = ! $status ? 0 : ($recaptchaType === 'v3' ? 1 : 0);
+        $recaptchaStatus = ($recaptchaType === 'v2' ? 1 : 0);
+        $v3RecaptchaStatus =($recaptchaType === 'v3' ? 1 : 0);
 
         // Update StatusSetting
         StatusSetting::where('id', 1)->update([
