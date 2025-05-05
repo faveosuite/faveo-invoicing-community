@@ -339,7 +339,7 @@
                         </div>
                         <h6 id="captcha_secretCheck"></h6>
                     </div>
-                    <div id="recaptcha-wrapper" style="display:none">
+                    <div id="recaptcha-wrapper">
                         <div id="recaptcha-container"></div>
                     </div>
                 </div>
@@ -1569,12 +1569,14 @@
             document.getElementById("nocaptcha_sitekey").classList.remove('is-invalid');
 
             var selectedId = $(this).attr('id'); // Get the ID of selected radio button
-            if(selectedId!==initial_id){
-                $('#nocaptcha_sitekey').val('');
-                $('#nocaptcha_secret').val('');
-            }else{
-                $('#nocaptcha_sitekey').val(initial_key);
-                $('#nocaptcha_secret').val(initial_secret);
+            if(initial_id !== undefined) {
+                if (selectedId !== initial_id) {
+                    $('#nocaptcha_sitekey').val('');
+                    $('#nocaptcha_secret').val('');
+                } else {
+                    $('#nocaptcha_sitekey').val(initial_key);
+                    $('#nocaptcha_secret').val(initial_secret);
+                }
             }
             let inputGroup1 =document.getElementById('nocaptcha_secret');
             let passwordInput1 = inputGroup1.type;
@@ -1650,15 +1652,17 @@
             if($('#captchaRadioV3').prop('checked')){
                 recaptchaType='v3';
             }
+
+            if(recaptchaType!=='v2' && recaptchaType!=='v3'){
+                document.getElementById('checkboxerror').textContent=@json(trans('message.recaptcha_type_error'));
+                isValid = false;
+            }
+
             // If validation fails, prevent form submission
             if (!isValid) {
                 e.preventDefault();
             }
 
-            if(recaptchaType!=='v2' && recaptchaType!=='v3'){
-                document.getElementById('checkboxerror').textContent=@json(trans('message.recaptcha_type_error'));
-                e.preventDefault();
-            }
 
             $("#submit2").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
             $.ajax({
@@ -2186,6 +2190,7 @@
                     "mailchimp_auth_key": $('#mailchimp_authkey').val(),
                 },
                 success: function (data) {
+                    document.getElementById('mailchimp_authkey').disabled=true;
                     var mailchimpstatus=data['data']['mailchimpverifiedStatus'];
                     var status=data['data']['status'];
                     if(mailchimpstatus===1){
