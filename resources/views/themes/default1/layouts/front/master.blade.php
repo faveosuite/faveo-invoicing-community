@@ -11,6 +11,13 @@
     .page-transition-active {
     opacity: 1 !important; /* Setting the opacity to 1 for full visibility */
 }
+        .tooltip {
+            pointer-events: none;
+        }
+
+        .popover {
+            pointer-events: auto; /* allow interaction in popovers */
+        }
 .custom-input {
     border: 1px solid transparent;
     border-radius: 4px;

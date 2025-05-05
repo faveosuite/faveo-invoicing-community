@@ -1246,6 +1246,7 @@
                     title:$('#producttitle'),
                     dependencies:$('#dependencies'),
                     version:$('#productver'),
+                    files: $('#file-upload-list')
                 };
 
                 // Clear previous errors
@@ -1264,9 +1265,21 @@
 
                 // Validate required fields
                 Object.keys(userFields).forEach(field => {
-                    if (!userFields[field].val()) {
-                        showError(userFields[field], userRequiredFields[field]);
-                        isValid = false;
+                    if (field === 'files') {
+                        userFields[field].removeClass('is-invalid');
+                        userFields[field].next('.error').remove(); // prevent duplicate errors
+
+                        if ($('#file-upload-list li').length === 0) {
+                            userFields[field].addClass('is-invalid');
+                            userFields[field].after(`<span class='error invalid-feedback'>File upload is required.</span>`);
+                            isValid = false;
+                        }
+                    }
+                    else {
+                        if (!userFields[field].val()) {
+                            showError(userFields[field], userRequiredFields[field]);
+                            isValid = false;
+                        }
                     }
                 });
 

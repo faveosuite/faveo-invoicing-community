@@ -643,7 +643,10 @@ $(document).ready(function() {
                           success: function (data) {
                               $('#gif').html('');
                               $('#response').html(data);
-                              location.reload();
+
+                              setTimeout(function () {
+                                  location.reload();
+                              }, 5000);
                           }
                       })
                   } else {

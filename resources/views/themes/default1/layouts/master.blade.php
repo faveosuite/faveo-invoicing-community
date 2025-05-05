@@ -183,6 +183,14 @@
             font-size: 14px;
         }
 
+        .tooltip {
+            pointer-events: none;
+        }
+
+        .popover {
+            pointer-events: auto; /* allow interaction in popovers */
+        }
+
     </style>
     <?php
     $set = new \App\Model\Common\Setting();

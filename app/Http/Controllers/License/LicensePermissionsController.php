@@ -122,7 +122,7 @@ class LicensePermissionsController extends Controller
             $licenseType = LicenseType::find($request->input('licenseId'));
             $licenseType->permissions()->attach($request->input('permissionid'));
 
-            return ['message' => 'success', 'update' => 'Permissions Updated Successfully'];
+            return successResponse('Permissions Updated Successfully');
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
             $result = [$ex->getMessage()];

@@ -25,7 +25,7 @@ class PromotionControllerTest extends DBTestCase
     public function test_getPromotionDetails_whenRandomCodePassed_throwsException()
     {
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Invalid promo code');
+        $this->expectExceptionMessage('Invalid Coupon code');
         $promotion = $this->classObject->getPromotionDetails('RANDOMCODE');
     }
 
@@ -168,7 +168,7 @@ class PromotionControllerTest extends DBTestCase
     public function test_checkCode_whenCouponCodeIsEneteredForNonDiscountedProduct_throwsException()
     {
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Invalid promo code');
+        $this->expectExceptionMessage('Invalid Coupon code');
         $this->withoutMiddleware();
         $this->getLoggedInUser();
         $product1 = Product::factory()->create();

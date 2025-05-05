@@ -447,18 +447,6 @@ System Setting
                                         <i class="fas fa-exclamation-circle"></i> {{ $errors->first('logo') }}
                                     </small>
                                 @endif
-
-                                <div class="custom-file ml-3">
-                                    {!! Form::file('logo', ['class' => 'custom-file-input', 'id' => 'logo', 'role' => 'button', 'onchange' => 'previewImage("preview-logo", "logo")']) !!}
-                                    <label role="button" class="custom-file-label" for="logo">{{ __('Choose file') }}</label>
-                                </div>
-                            </div>
-                            <span class="hide system-error" id="logo-err-Msg"></span>
-                        @if($errors->has('logo'))
-                                <small class="form-text text-danger mt-1">
-                                    <i class="fas fa-exclamation-circle"></i> {{ $errors->first('logo') }}
-                                </small>
-                            @endif
                         </div>
                     </td>
 

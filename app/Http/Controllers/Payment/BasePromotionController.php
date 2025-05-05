@@ -42,7 +42,7 @@ class BasePromotionController extends Controller
         $promo = Promotion::where('code', $code)->first();
         //check promotion code is valid
         if (! $promo) {
-            throw new \Exception('Invalid promo code');
+            throw new \Exception('Invalid Coupon code');
         }
         $relation = $promo->relation()->get();
         //check the relation between code and product

@@ -115,22 +115,18 @@ Payment
                            {!! html()->hidden('hidden')->id('amount1') !!}
                        </div>
 
-                      
-
-
+                       </div>
                    </div>
-                    <button type="submit" class="btn btn-primary pull-right" onclick="multiplePayment()" id="submit"><i class="fas fa-save">&nbsp;</i>{!!Lang::get('message.save')!!}</button>
-
                </div>
-
            </div>
 
+           <div class="card-footer">
+               <button type="submit" class="btn btn-primary" onclick="multiplePayment()" id="submit">
+                   <i class="fas fa-save">&nbsp;</i>{!! Lang::get('message.save') !!}
+               </button>
+           </div>
        </div>
-
-
-
-   </div>
-   <div class= "card card-primary">
+       <div class= "card card-primary">
       
                        <div class="card-body">
                        <div class="row">
@@ -371,7 +367,7 @@ Payment
            var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
            $('#alertMessage').html(result+ ".");
              setTimeout(function () {
-                 $('#alertMessage').slideUp();
+                 window.location.reload();
              }, 10000);
            $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
          },

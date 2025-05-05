@@ -84,7 +84,10 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            @if(in_array($productid,cloudPopupProducts()))
+                                        @php
+                                           $isAgentAllowed = in_array($productid,cloudPopupProducts());
+                                        @endphp
+                                            @if($isAgentAllowed))
 
                                             <div class="row">
                                                 <div class="form-group col">
@@ -126,7 +129,9 @@
 
         const userFields = {
             planname: form.find(`#plan${formId}`),
+            @if($isAgentAllowed)
             planproduct: form.find(`#agents${formId}`)
+            @endif
         };
 
         const userRequiredFields = {
