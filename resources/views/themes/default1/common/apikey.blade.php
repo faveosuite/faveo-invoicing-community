@@ -70,20 +70,6 @@
             border-color: red;
         }
 
-        .tooltip {
-            text-align: center;
-        }
-
-        .tooltip.bs-tooltip-top .arrow {
-            left: 50% !important;
-            transform: translateX(-50%);
-        }
-
-        .tooltip-inner {
-            text-align: center;
-        }
-
-
 
     </style>
 <div class="col-sm-6 md-6">
@@ -347,7 +333,7 @@
                                  @endphp
 
                                  {{-- Third Party App Selector --}}
-                                 {!! Form::label('third_party_key', 'MSG91 Third Party App Key') !!}
+                                 {!! Form::label('third_party_key', 'MSG91 Third Party App Key') !!}&nbsp;<i class="fas fa-info-circle" data-toggle="tooltip" title="{{ __('message.pipedrive_third_party_tootip') }}"></i>
                                  {!! Form::select(
                                      'third_party_key',
                                      ['' => 'Select Third Party App'] + $thirdPartyKeys->toArray(),
@@ -362,8 +348,8 @@
                                      {!! Form::label('webhook_url', 'Webhook URL') !!}
                                      <div class="input-group">
                                          <input type="text" class="form-control" id="webhook_url" readonly>
-                                         <div class="input-group-append">
-                                             <button type="button" class="btn btn-secondary" id="copy_button" data-toggle="tooltip" data-placement="top" data-original-title="Copy to clipboard">
+                                         <div class="input-group-append" data-toggle="tooltip" data-placement="top" title="Copy to clipboard" id="copy_tooltip_div">
+                                             <button type="button" class="btn btn-secondary" id="copy_button">
                                                  <i class="fas fa-copy"></i>
                                              </button>
                                          </div>
@@ -611,12 +597,10 @@
             const input = $(inputSelector);
             const value = input.val().trim();
 
-            // Check if the field is empty and return early if so
             if (!value) return;
 
-            // Select the text in the input field
             input[0].select();
-            input[0].setSelectionRange(0, 99999); // For mobile devices
+            input[0].setSelectionRange(0, 99999);
 
             // Try to execute the copy command
             var successful = document.execCommand('copy');
@@ -624,12 +608,11 @@
             // Prepare the success or failure message for the tooltip
             var msg = successful ? 'Copied!' : 'Whoops, not copied!';
 
-            // Update the tooltip on the button with the copy status
-            const $button = $(buttonElement);
-            $button.attr('data-original-title', msg).tooltip('show');
+            const $tooltipDiv = $('#copy_tooltip_div');
+            $tooltipDiv.attr('data-original-title', msg).tooltip('show');
 
             // Change the button icon to a check mark
-            const icon = $button.find('i');
+            const icon = $(buttonElement).find('i');
             icon.removeClass('fa-copy').addClass('fa-check');
 
             // Restore the original icon after 3 seconds
@@ -637,9 +620,9 @@
                 icon.removeClass('fa-check').addClass('fa-copy');
             }, 3000);
 
-            // Restore the original tooltip text after 2 seconds
+            // Restore the original tooltip text after 3 seconds
             setTimeout(() => {
-                $button.attr('data-original-title', 'Copy to clipboard');
+                $tooltipDiv.attr('data-original-title', 'Copy to clipboard');
             }, 3000);
         }
 
@@ -658,7 +641,7 @@
             copyToClipboard('#webhook_url', this);
         });
 
-    //License Manager
+        //License Manager
         $(document).ready(function(){
             var status = $('.checkbox').val();
             if(status ==1) {

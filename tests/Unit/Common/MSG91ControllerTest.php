@@ -190,7 +190,7 @@ class MSG91ControllerTest extends DBTestCase
             'mobile_number' => '999',
             'country_iso' => 'US',
             'failure_reason' => 'none',
-            'status' => 1,
+            'status' => 'Delivered',
             'date_from' => Carbon::now()->subDays(2)->format('m/d/Y'),
             'date_to' => Carbon::now()->format('m/d/Y'),
             'email' => 'john@',
