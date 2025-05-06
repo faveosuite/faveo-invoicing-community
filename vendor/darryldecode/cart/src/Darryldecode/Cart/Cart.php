@@ -629,7 +629,6 @@ class Cart
             ->filter(function (CartCondition $cond) {
                 return $cond->getTarget() === 'total';
             });
-
         // if no conditions were added, just return the sub total
         if (!$conditions->count()) {
             return Helpers::formatValue($subTotal, $this->config['format_numbers'], $this->config);

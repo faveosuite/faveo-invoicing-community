@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Common\MailChimpController;
 use App\Http\Controllers\Common\TemplateController;
+use App\Http\Controllers\Order\ExtendedBaseInvoiceController;
 use App\Http\Controllers\Tenancy\TenantController;
 use App\Model\Common\FaveoCloud;
 use App\Model\Common\Setting;
@@ -22,6 +23,7 @@ use App\Model\Product\Subscription;
 use App\Traits\Payment\PostPaymentHandle;
 use App\Traits\TaxCalculation;
 use App\User;
+use Carbon\Carbon;
 use Cart;
 use Darryldecode\Cart\CartCondition;
 use GuzzleHttp\Client;
@@ -126,7 +128,6 @@ class CheckoutController extends InfoController
 
         $content = Cart::getContent();
         $taxConditions = $this->getAttributes($content);
-
         try {
             $domain = $request->input('domain');
             if ($domain) {//Store the Domain  in session when user Logged In
@@ -186,10 +187,9 @@ class CheckoutController extends InfoController
                     $taxConditions = $this->calculateTax($item->id, \Auth::user()->state, \Auth::user()->country); //Calculate Tax Condition by passing ProductId
                     Cart::condition($taxConditions);
                     Cart::remove($item->id);
-
                     //Return array of Product Details,attributes and their conditions
                     $items[] = ['id' => $item->id, 'name' => $item->name, 'price' => $item->price,
-                        'quantity' => $item->quantity, 'attributes' => ['currency' => $cart_currency, 'symbol' => $item->attributes->symbol, 'agents' => $item->attributes->agents, 'domain' => optional($item->attributes)->domain], 'associatedModel' => Product::find($item->id), 'conditions' => $taxConditions, ];
+                        'quantity' => $item->quantity, 'attributes' => ['currency' => $cart_currency, 'symbol' => $item->attributes->symbol, 'agents' => $item->attributes->agents, 'domain' => optional($item->attributes)->domain,'priceToBePaid'=>$item->attributes->priceToBePaid,'priceRemaining'=>$item->attributes->priceRemaining], 'associatedModel' => Product::find($item->id), 'conditions' => $taxConditions, ];
                 }
                 Cart::add($items);
 
@@ -230,8 +230,10 @@ class CheckoutController extends InfoController
 
     public function postCheckout(Request $request)
     {
+
         $isTrue = 1;
         $cost = $request->input('cost');
+        $discount=\Session::get('discount');
 
         if (\Session::has('nothingLeft')) {
             $isTrue = \Session::get('nothingLeft');
@@ -288,6 +290,31 @@ class CheckoutController extends InfoController
                         (new TenantController(new Client, new FaveoCloud()))->createTenant(new Request(['orderNo' => $orderNumber, 'domain' => $invoice->cloud_domain]));
                     }
                     $this->performCloudActions($invoice);
+
+                    $payUpdate = \DB::table('payments')->where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->get();
+                    $pay = \DB::table('payments')->where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('amt_to_credit');
+                    $formattedValue = currencyFormat(round($discount), getCurrencyForClient(\Auth::user()->country), true);
+                    $payment_id = \DB::table('payments')->where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('id');
+                    $formattedPay = currencyFormat($pay, getCurrencyForClient(\Auth::user()->country), true);
+                    $orderId=\Session::get('creditOrderId');
+                    $orderNumber = Order::where('id', $orderId)->value('number');
+
+                    if (! $payUpdate->isEmpty()) {
+                        $pay = $pay + round($discount);
+                        Payment::where('user_id', \Auth::user()->id)->where('payment_status', 'success')->update(['amt_to_credit' => $pay]);
+
+                        $messageAdmin = 'An amount of '.$formattedValue.' has been added to the existing balance due to a product downgrade. You can view the details of the downgraded order here: '.
+                            '<a href="'.config('app.url').'/orders/'.$orderId.'">'.$orderNumber.'</a>.';
+
+                        $messageClient = 'An amount of '.$formattedValue.' has been added to your existing balance due to a product downgrade. You can view the details of the downgraded order here: '.
+                            '<a href="'.config('app.url').'/my-order/'.$orderId.'">'.$orderNumber.'</a>.';
+                        \DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageAdmin, 'role' => 'admin', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
+                        \DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageClient, 'role' => 'user', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
+                    } else {
+                        $price=0;
+                        \Session::put('discount', round($discount));
+                        (new ExtendedBaseInvoiceController())->multiplePayment(\Auth::user()->id, [0 => 'Credit Balance'], 'Credit Balance', Carbon::now(), $price, null, round($discount), 'pending');
+                    }
 
                     return redirect('checkout')->with('Success', $url);
                 }

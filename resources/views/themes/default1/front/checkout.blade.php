@@ -290,7 +290,6 @@ $cartSubtotalWithoutCondition = 0;
 
                                     @endif
 
-
                                            @if(count(\Cart::getConditionsByType('tax')) == 1)
                                                     @foreach(\Cart::getConditions() as $tax)
 
@@ -342,7 +341,7 @@ $cartSubtotalWithoutCondition = 0;
                                                         $percentage = $parts[1]; 
                                                     @endphp
                                                     <tr class="Taxes border-top-0">
-                                                        <th class="d-block  line-height-1 font-weight-semibold text-color-grey ">{{ $cgst }}  
+                                                        <th class="d-block  line-height-1 font-weight-semibold text-color-grey ">{{ $cgst }}
                                                             <label style="font-size: 12px;font-weight: normal;">({{$percentage}})</label>
                                                         </th>
                                                         <td data-title="CGST" class="text-end">
@@ -358,7 +357,6 @@ $cartSubtotalWithoutCondition = 0;
                                                     
                                                     @endforeach
                                                    @endif
-
                                                  <tr id="balance-row" class="cart-subtotal" style="color: indianred; display: none;">
                                                     <th><strong class="d-block text-color-dark line-height-1 font-weight-semibold">Balance</strong></th>
                                                     <td class=" align-top border-top-0 text-end">
@@ -404,7 +402,6 @@ $cartSubtotalWithoutCondition = 0;
                                             ?>
                                         <td class="text-end" id="balance-content">
                                             <strong><span class="amount text-color-grey text-5">
-                                                {{ currencyFormat($cartTotal, $code = $item->attributes->currency) }}
                                             </span></strong>
                                         </td>
                                     </tr>
@@ -416,14 +413,29 @@ $cartSubtotalWithoutCondition = 0;
                                         <strong class="d-block text-color-dark line-height-0 font-weight-semibold">
                                     <input type="checkbox" id="billing-temp-balance" class="checkbox" checked disabled>
                                    Total Credits remaining on your current plan: 
-                                    </strong></td>
+                                    <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="{{Lang::get('message.remainingAmount')}}"></i></strong></td>
+                                        <?php $total=\Session::get('priceRemaining')-Cart::getTotal();
+                                                \Session::forget('discount');
+                                            \Session::put('discount',$total);
+                                            ?>
                                      <td class=" align-top border-top-0 text-end">
-                                            <span class="amount font-weight-medium text-color-grey">   {{currencyFormat(\Session::get('priceRemaining'),$code = $item->attributes->currency)}}-{{currencyFormat(\Session::get('priceToBePaid'),$code = $item->attributes->currency)}}
+                                            <span class="amount font-weight-medium text-color-grey">{{currencyFormat(\Session::get('priceRemaining'),$code = $item->attributes->currency)}}-{{currencyFormat(Cart::getTotal(),$code = $item->attributes->currency)}}
                                                 ={{currencyFormat(\Session::get('discount'),$code = $item->attributes->currency)}}
                                             </span></td></tr>
+                                    <tr class="totaltopay">
+
+                                        <td>
+                                            <strong class="text-color-dark text-3-5">To Pay</strong>
+                                        </td>
+                                        <td class="text-end" id="toPay">
+                                            <strong><span class="text-color-dark text-3-5">
+                                                    {{currencyFormat(0,$code = $item->attributes->currency)}}
+                                            </span></strong>
+                                        </td>
+
                                 @endif
 
-                                    @if(Cart::getTotal()>0) 
+                                    @if(Cart::getTotal()>0 && !\Session::has('priceRemaining'))
                                     <?php
                                     $gateways = \App\Http\Controllers\Common\SettingsController::checkPaymentGateway($item->attributes['currency']);
 
@@ -563,22 +575,22 @@ $(document).ready(function() {
         $('#fee').show();
       }
     }
-      $(document).ready(function () {
-      $('#billing-pay-balance').on('change', function () {
-          var isChecked = $(this).prop('checked');
+      // $(document).ready(function () {
+  {{--    $('#billing-pay-balance').on('change', function () {--}}
+  {{--        var isChecked = $(this).prop('checked');--}}
 
-          $.ajax({
-              type: "POST",
-              url: "{{ route('update-session') }}",
-              data: { isChecked: isChecked },
-              headers: {
-                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-              },
-              success: function(response) {
-              }
-          });
-      });
-  });
+  {{--        $.ajax({--}}
+  {{--            type: "POST",--}}
+  {{--            url: "{{ route('update-session') }}",--}}
+  {{--            data: { isChecked: isChecked },--}}
+  {{--            headers: {--}}
+  {{--                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')--}}
+  {{--            },--}}
+  {{--            success: function(response) {--}}
+  {{--            }--}}
+  {{--        });--}}
+  {{--    });--}}
+  {{--});--}}
       $(document).ready(function () {
       $('#billing-pay-balance').on('change', function () {
           var isChecked = $(this).prop('checked');
@@ -644,7 +656,21 @@ $(document).ready(function() {
 
       // Update content when the checkbox is clicked
       $('#billing-pay-balance').on('change', function () {
-          updateContent();
+          var isChecked = $(this).prop('checked');
+
+          $.ajax({
+              type: "POST",
+              url: "{{ route('update-session') }}",
+              data: { isChecked: isChecked },
+              headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              },
+              success: function(response) {
+                  updateContent();
+
+              }
+
+          });
       });
   });
 

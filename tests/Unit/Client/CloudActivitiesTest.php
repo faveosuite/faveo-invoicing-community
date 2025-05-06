@@ -348,6 +348,8 @@ public function test_cloud_upgrade_downgrade_plan(){
         'version' => 'v6.0.0', 'update_ends_at' => '','ends_at'=>Carbon::now()->addDays(65)]);
 
     $response=$this->call('POST','upgradeDowngradeCloud',['id'=>$plan2->id,'orderId'=>$order->id,'agents'=>$planPrice2->no_of_agents]);
+    $response->assertStatus(200);
+    $response->assertJson(['redirectTo'=>url('checkout')]);
 }
 
 
