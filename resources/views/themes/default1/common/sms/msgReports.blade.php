@@ -54,9 +54,9 @@
                                 <label for="status">Status</label>
                                 <select name="status" class="form-control">
                                     <option value="">Select Status</option>
-                                    @foreach($status as $value)
-                                        <option value="{{ $value->status_code }}"
-                                                {{ request('status') === (string) $value->status_code ? 'selected' : '' }}>
+                                    @foreach($status->unique('status_label') as $value)
+                                        <option value="{{ $value->status_label }}"
+                                                {{ request('status') === (string) $value->status_label ? 'selected' : '' }}>
                                             {{ $value->status_label }}
                                         </option>
                                     @endforeach
