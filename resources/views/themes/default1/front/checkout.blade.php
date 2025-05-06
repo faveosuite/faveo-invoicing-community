@@ -57,6 +57,7 @@ Checkout
 @section('main-class') "main shop" @stop
 @section('content')
     <?php
+
       $amt_to_credit = 0;
       $curr ='';
       if(empty($content)){
@@ -406,18 +407,15 @@ $cartSubtotalWithoutCondition = 0;
                                         </td>
                                     </tr>
                                 {!! Form::open(['url'=>'checkout-and-pay','method'=>'post','id' => 'checkoutsubmitform' ]) !!}
-                                
-                                 @if(\Session::has('priceRemaining'))
+                                @if(\Session::has('priceRemaining'))
+                                 @if(\Session::get('discount')>0 )
                                     <tr>
                                         <td class="border-top-0">
                                         <strong class="d-block text-color-dark line-height-0 font-weight-semibold">
                                     <input type="checkbox" id="billing-temp-balance" class="checkbox" checked disabled>
                                    Total Credits remaining on your current plan: 
                                     <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="{{Lang::get('message.remainingAmount')}}"></i></strong></td>
-                                        <?php $total=\Session::get('priceRemaining')-Cart::getTotal();
-                                                \Session::forget('discount');
-                                            \Session::put('discount',$total);
-                                            ?>
+
                                      <td class=" align-top border-top-0 text-end">
                                             <span class="amount font-weight-medium text-color-grey">{{currencyFormat(\Session::get('priceRemaining'),$code = $item->attributes->currency)}}-{{currencyFormat(Cart::getTotal(),$code = $item->attributes->currency)}}
                                                 ={{currencyFormat(\Session::get('discount'),$code = $item->attributes->currency)}}
@@ -432,10 +430,21 @@ $cartSubtotalWithoutCondition = 0;
                                                     {{currencyFormat(0,$code = $item->attributes->currency)}}
                                             </span></strong>
                                         </td>
+                                    @else
+                                     <tr>
+                                         <td class="border-top-0">
+                                             <strong class="d-block text-color-dark line-height-0 font-weight-semibold">
+                                                 <input type="checkbox" id="billing-temp-balance" class="checkbox" checked disabled>
+                                                 Total Credits remaining on your current plan:
+                                                 </strong></td>
 
+                                         <td class=" align-top border-top-0 text-end">
+                                            <span class="amount font-weight-medium text-color-grey">
+                                                {{currencyFormat(\Session::get('discount'),$code = $item->attributes->currency)}}
+                                            </span></td></tr>
                                 @endif
-
-                                    @if(Cart::getTotal()>0 && !\Session::has('priceRemaining'))
+                                @endif
+                                    @if(Cart::getTotal()>0 && \Session::get('discount')<=0)
                                     <?php
                                     $gateways = \App\Http\Controllers\Common\SettingsController::checkPaymentGateway($item->attributes['currency']);
 

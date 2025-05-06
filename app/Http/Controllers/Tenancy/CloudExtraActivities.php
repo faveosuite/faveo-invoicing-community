@@ -222,7 +222,6 @@ class CloudExtraActivities extends Controller
             $items = $this->getThePaymentCalculationUpgradeDowngrade($agents, $oldLicense, $orderId, $planId);
 
             \Cart::add($items); //Add Items To the Cart Collection
-
             \Session::put('upgradeDowngradeProduct', \Auth::user()->id);
             \Session::put('upgradeOldLicense', $oldLicense);
             \Session::put('upgradeorderId', $orderId);
@@ -462,7 +461,10 @@ class CloudExtraActivities extends Controller
                         } else {
                             $discount = $priceRemaining - $priceToBePaid;
                             \Session::put('nothingLeft','0');
+                            \DB::table('users')->where('id', \Auth::user()->id)->update(['billing_pay_balance' => 1]);
+
                             \Session::put('discount', round($discount));
+
                             $price = $priceToBePaid;
                             $pay = \DB::table('payments')->where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('amt_to_credit');
                             $payUpdate = \DB::table('payments')->where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->get();
@@ -499,6 +501,7 @@ class CloudExtraActivities extends Controller
                         } else {
                             $discount = $priceRemaining - $priceToBePaid;
                             \Session::put('nothingLeft','0');
+                            \DB::table('users')->where('id', \Auth::user()->id)->update(['billing_pay_balance' => 1]);
                             \Session::put('discount', round($discount));
                             $price = $priceToBePaid;
                             $pay = \DB::table('payments')->where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('amt_to_credit');

@@ -75,7 +75,7 @@ class CartController extends BaseCartController
     {
         \Session::forget('priceRemaining');
         \Session::forget('priceToBePaid');
-
+        \Session::forget('discount');
         try {
             $plan = '';
             $domain = '';

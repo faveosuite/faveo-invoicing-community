@@ -152,7 +152,11 @@ class CheckoutController extends InfoController
                 }
                 \Session::put('cloud_domain', $domain);
             }
-
+            if(\Session::has('priceRemaining')){
+            $total = \Session::get('priceRemaining') > \Cart::getTotal() ? \Session::get('priceRemaining') - \Cart::getTotal() : \Session::get('discount');
+            \Session::forget('discount');
+            \Session::put('discount', $total);
+        }
             return view('themes.default1.front.checkout', compact('content', 'taxConditions', 'discountPrice', 'domain'));
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
@@ -231,11 +235,13 @@ class CheckoutController extends InfoController
     public function postCheckout(Request $request)
     {
 
+
         $isTrue = 1;
         $cost = $request->input('cost');
         $discount=\Session::get('discount');
 
         if (\Session::has('nothingLeft')) {
+            \DB::table('users')->where('id', \Auth::user()->id)->update(['billing_pay_balance'=>1]);
             $isTrue = \Session::get('nothingLeft');
         }
 
@@ -259,12 +265,15 @@ class CheckoutController extends InfoController
 
             $cost = $request->input('cost');
             $state = $this->getState();
+
             if ($paynow === false) {//When regular payment
                 $invoice = $invoice_controller->generateInvoice();
                 $amount = intval(Cart::getSubTotal());
+
                 if (\Session::has('nothingLeft')) {
                     $amount = \Session::get('nothingLeft');
                 }
+
                 if ($amount) {//If payment is for paid product
                     \Event::dispatch(new \App\Events\PaymentGateway(['request' => $request, 'invoice' => $invoice]));
                 } else {
@@ -278,6 +287,7 @@ class CheckoutController extends InfoController
                     $orderNumber = Order::where('invoice_id', $invoice->id)->value('number');
 
                     $orders = Order::where('invoice_id', $invoice->id)->get();
+
                     $url = view('themes.default1.front.postCheckoutTemplate', compact('invoice', 'date', 'product', 'items', 'orders', 'orderNumber', 'show'))->render();
                     // }
                     \Cart::clear();
@@ -298,24 +308,25 @@ class CheckoutController extends InfoController
                     $formattedPay = currencyFormat($pay, getCurrencyForClient(\Auth::user()->country), true);
                     $orderId=\Session::get('creditOrderId');
                     $orderNumber = Order::where('id', $orderId)->value('number');
+                    if($discount != null) {
+                        if (!$payUpdate->isEmpty()) {
+                            $pay = $pay + round($discount);
+                            Payment::where('user_id', \Auth::user()->id)->where('payment_status', 'success')->update(['amt_to_credit' => $pay]);
 
-                    if (! $payUpdate->isEmpty()) {
-                        $pay = $pay + round($discount);
-                        Payment::where('user_id', \Auth::user()->id)->where('payment_status', 'success')->update(['amt_to_credit' => $pay]);
+                            $messageAdmin = 'An amount of ' . $formattedValue . ' has been added to the existing balance due to a product downgrade. You can view the details of the downgraded order here: ' .
+                                '<a href="' . config('app.url') . '/orders/' . $orderId . '">' . $orderNumber . '</a>.';
 
-                        $messageAdmin = 'An amount of '.$formattedValue.' has been added to the existing balance due to a product downgrade. You can view the details of the downgraded order here: '.
-                            '<a href="'.config('app.url').'/orders/'.$orderId.'">'.$orderNumber.'</a>.';
-
-                        $messageClient = 'An amount of '.$formattedValue.' has been added to your existing balance due to a product downgrade. You can view the details of the downgraded order here: '.
-                            '<a href="'.config('app.url').'/my-order/'.$orderId.'">'.$orderNumber.'</a>.';
-                        \DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageAdmin, 'role' => 'admin', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
-                        \DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageClient, 'role' => 'user', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
-                    } else {
-                        $price=0;
-                        \Session::put('discount', round($discount));
-                        (new ExtendedBaseInvoiceController())->multiplePayment(\Auth::user()->id, [0 => 'Credit Balance'], 'Credit Balance', Carbon::now(), $price, null, round($discount), 'pending');
+                            $messageClient = 'An amount of ' . $formattedValue . ' has been added to your existing balance due to a product downgrade. You can view the details of the downgraded order here: ' .
+                                '<a href="' . config('app.url') . '/my-order/' . $orderId . '">' . $orderNumber . '</a>.';
+                            \DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageAdmin, 'role' => 'admin', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
+                            \DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageClient, 'role' => 'user', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
+                        } else {
+                            $price = 0;
+                            \Session::put('discount', round($discount));
+                            (new ExtendedBaseInvoiceController())->multiplePayment(\Auth::user()->id, [0 => 'Credit Balance'], 'Credit Balance', Carbon::now(), $price, null, round($discount), 'pending');
+                        }
                     }
-
+                    
                     return redirect('checkout')->with('Success', $url);
                 }
             } else {//When renewal, pending payments
@@ -433,6 +444,7 @@ class CheckoutController extends InfoController
             $url = '';
 
             $url = url("download/$user_id/$invoice->number");
+
             //execute the order
             if (! $agent) {
                 $payment = new \App\Http\Controllers\Order\InvoiceController();
