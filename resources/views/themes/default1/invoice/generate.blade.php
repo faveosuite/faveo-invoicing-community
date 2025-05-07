@@ -487,6 +487,10 @@ Create Invoice
                 }                
                  html += '</ul></div>';
                  $('#error').show();
+                setTimeout(function(){
+                    $("#error").slideUp(1000);
+                    $("#success").slideUp(1000);
+                },10000);
 
                   document.getElementById('error').innerHTML = html;
                   $('#plan').addClass('is-invalid');
@@ -494,10 +498,6 @@ Create Invoice
                 document.getElementById('price-msg').innerHTML = response.responseJSON.errors['price'];
                 document.getElementById('product-msg').innerHTML = response.responseJSON.errors['product'];
                 document.getElementById('user-msg').innerHTML = response.responseJSON.errors['user'];
-                setTimeout(function(){
-                    $("#error").slideUp(1000);
-                    $("#success").slideUp(1000);
-                },10000);
             }
         });
 

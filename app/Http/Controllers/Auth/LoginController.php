@@ -156,14 +156,17 @@ class LoginController extends Controller
      */
     public function redirectPath()
     {
-        $intendedUrl = Redirect()->getIntendedUrl();
-        $appUrl = url('/');
+        $auth = Auth::user();
+        $sessionUrl = Redirect()->getIntendedUrl();
 
-        if ($intendedUrl && str_starts_with($intendedUrl, $appUrl)) {
-            return substr($intendedUrl, strlen($appUrl));
+        if ($sessionUrl) {
+            $appUrl = rtrim(env('APP_URL'), '/') . '/';
+            $sessionUrl = str_replace($appUrl, '', $sessionUrl);
         }
 
-        return '/client-dashboard';
+        $defaultPath = ($auth && $auth->role !== 'user') ? '/client-dashboard' : '/';
+
+        return $sessionUrl ?: $defaultPath;
     }
 
     public function redirectToGithub($provider)//redirect to twitter ,github,google and linkedin
