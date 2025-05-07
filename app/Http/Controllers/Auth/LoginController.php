@@ -160,7 +160,7 @@ class LoginController extends Controller
         $sessionUrl = Redirect()->getIntendedUrl();
 
         if ($sessionUrl) {
-            $appUrl = rtrim(env('APP_URL'), '/') . '/';
+            $appUrl = rtrim(env('APP_URL'), '/').'/';
             $sessionUrl = str_replace($appUrl, '', $sessionUrl);
         }
 
