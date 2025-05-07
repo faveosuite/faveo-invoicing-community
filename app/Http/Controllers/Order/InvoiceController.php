@@ -361,6 +361,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             if (emailSendingStatus()) {
                 $this->sendMail($user_id, $invoice->id);
             }
+
             return $invoice;
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
