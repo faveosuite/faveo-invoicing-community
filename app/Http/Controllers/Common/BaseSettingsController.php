@@ -347,7 +347,7 @@ class BaseSettingsController extends PaymentSettingsController
             file_put_contents($path_to_file, $file_contents_secretchek);
         }
         $recaptchaStatus = ($recaptchaType === 'v2' ? 1 : 0);
-        $v3RecaptchaStatus =($recaptchaType === 'v3' ? 1 : 0);
+        $v3RecaptchaStatus = ($recaptchaType === 'v3' ? 1 : 0);
 
         // Update StatusSetting
         StatusSetting::where('id', 1)->update([
@@ -357,8 +357,8 @@ class BaseSettingsController extends PaymentSettingsController
         ]);
         ApiKey::where('id', 1)->update(['nocaptcha_sitekey' => $nocaptcha_sitekey,
             'captcha_secretCheck' => $captcha_secretCheck, ]);
-        return successResponse(\Lang::get('message.recaptcha_settings'));
 
+        return successResponse(\Lang::get('message.recaptcha_settings'));
     }
 
     //Save Google recaptcha site key and secret in Database
