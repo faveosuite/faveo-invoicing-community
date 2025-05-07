@@ -902,7 +902,6 @@ class CloudExtraActivities extends Controller
                     $daysRemain = $futureDateTime->diffInDays($currentDateTime);
                     $pricePerThatAgent = $pricePerDay * $daysRemain;
                     $price = $agentsAdded * $pricePerThatAgent;
-                    dd($pricePerDay, $pricePerThatAgent,$price);
                 }
             } else {
                 if (Carbon::now() >= $ends_at) {
