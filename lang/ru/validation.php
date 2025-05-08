@@ -120,7 +120,7 @@ return [
     Request file custom validation messages
     */
 
-//Common
+    //Common
     'settings_form' => [
         'company' => [
             'required' => 'Поле компании обязательно для заполнения.',
@@ -218,7 +218,7 @@ return [
         ],
     ],
 
-//Email
+    //Email
     'custom' => [
         'password' => [
             'required_if' => 'Поле пароля обязательно для выбранного драйвера почты.',
@@ -322,7 +322,7 @@ return [
         ],
     ],
 
-//Order form
+    //Order form
     'order_form' => [
         'client' => [
             'required' => 'Поле клиента обязательно.',
@@ -350,7 +350,7 @@ return [
         ],
     ],
 
-//Payment form
+    //Payment form
     'coupon_form' => [
         'code' => [
             'required' => 'Поле кода купона обязательно.',
@@ -408,7 +408,7 @@ return [
         // 'exists' => 'Выбранный штат недействителен.',
     ],
 
-//Product
+    //Product
     'subscription_form' => [
         'name' => [
             'required' => 'Поле имени обязательно.',
@@ -501,7 +501,7 @@ return [
         ],
     ],
 
-//User
+    //User
     'users' => [
         'first_name' => [
             'required' => 'Поле имени обязательно.',
@@ -611,7 +611,7 @@ return [
         'required' => 'Введите код страны (мобильный).',
     ],
 
-//Invoice form
+    //Invoice form
     'invoice' => [
         'user' => [
             'required' => 'Поле клиента обязательно.',
@@ -634,7 +634,7 @@ return [
         ],
     ],
 
-//LocalizedLicense form
+    //LocalizedLicense form
     'domain_form' => [
         'domain' => [
             'required' => 'Поле домена обязательно.',
@@ -642,7 +642,7 @@ return [
         ],
     ],
 
-//Product Renewal form
+    //Product Renewal form
     'product_renewal' => [
         'domain' => [
             'required' => 'Поле домена обязательно.',
@@ -650,13 +650,13 @@ return [
         ],
     ],
 
-//Language form
+    //Language form
     'language' => [
         'required' => 'Поле языка обязательно.',
         'invalid' => 'Выбранный язык недействителен.',
     ],
 
-//UpdateStoragePathRequest form
+    //UpdateStoragePathRequest form
     'storage_path' => [
         'disk' => [
             'required' => 'Поле диска хранения обязательно.',
@@ -668,7 +668,7 @@ return [
         ],
     ],
 
-//ValidateSecretRequest form
+    //ValidateSecretRequest form
     'validate_secret' => [
         'totp' => [
             'required' => 'Пожалуйста, введите код.',
@@ -676,7 +676,7 @@ return [
         ],
     ],
 
-//VerifyOtp form
+    //VerifyOtp form
     'verify_email' => [
         'required' => 'Поле электронной почты обязательно.',
         'email' => 'Введите действительный адрес электронной почты.',
@@ -700,7 +700,7 @@ return [
         'password' => 'Пароль неверен.',
         'invalid' => 'Недопустимый пароль.',
     ],
-//AuthController file
+    //AuthController file
     'auth_controller' => [
         'name_required' => 'Имя обязательно.',
         'name_max' => 'Имя не должно превышать 255 символов.',

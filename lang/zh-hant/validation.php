@@ -175,7 +175,7 @@ return [
     Request file custom validation messages
     */
 
-//Common
+    //Common
     'settings_form' => [
         'company' => [
             'required' => '公司欄位為必填項。',
@@ -273,7 +273,7 @@ return [
         ],
     ],
 
-//Email
+    //Email
     'custom' => [
         'password' => [
             'required_if' => '為所選的郵件驅動，密碼欄位為必填項。',
@@ -376,7 +376,7 @@ return [
         ],
     ],
 
-//Order form
+    //Order form
     'order_form' => [
         'client' => [
             'required' => '客戶欄位為必填項。',
@@ -404,7 +404,7 @@ return [
         ],
     ],
 
-//Payment form
+    //Payment form
     'coupon_form' => [
         'code' => [
             'required' => '優惠碼欄位為必填項。',
@@ -461,7 +461,7 @@ return [
             // 'exists' => '所選州/省無效。',
         ],
     ],
-//Product
+    //Product
     'subscription_form' => [
         'name' => [
             'required' => '名稱欄位為必填項。',
@@ -551,7 +551,7 @@ return [
         ],
     ],
 
-//User
+    //User
     'users' => [
         'first_name' => [
             'required' => '名字欄位為必填項。',
@@ -589,7 +589,7 @@ return [
         ],
         'zip' => [
             'regex' => '當國家為印度時，州欄位為必填項。',
-        ]
+        ],
     ],
 
     'profile_form' => [
@@ -661,7 +661,7 @@ return [
         'required' => '請輸入國家代碼（手機）。',
     ],
 
-//Invoice form
+    //Invoice form
     'invoice' => [
         'user' => [
             'required' => '必須填寫客戶欄位。',
@@ -684,7 +684,7 @@ return [
         ],
     ],
 
-//LocalizedLicense form
+    //LocalizedLicense form
     'domain_form' => [
         'domain' => [
             'required' => '必須填寫域名欄位。',
@@ -692,7 +692,7 @@ return [
         ],
     ],
 
-//Product Renewal form
+    //Product Renewal form
     'product_renewal' => [
         'domain' => [
             'required' => '必須填寫域名欄位。',
@@ -700,13 +700,13 @@ return [
         ],
     ],
 
-//Language form
+    //Language form
     'language' => [
         'required' => '必須填寫語言欄位。',
         'invalid' => '選擇的語言無效。',
     ],
 
-//UpdateSroragePathRequest form
+    //UpdateSroragePathRequest form
     'storage_path' => [
         'disk' => [
             'required' => '必須填寫存儲磁碟欄位。',
@@ -718,7 +718,7 @@ return [
         ],
     ],
 
-//ValidateSecretRequest form
+    //ValidateSecretRequest form
     'validate_secret' => [
         'totp' => [
             'required' => '請輸入驗證碼',
@@ -726,7 +726,7 @@ return [
         ],
     ],
 
-//VerifyOtp form
+    //VerifyOtp form
     'verify_email' => [
         'required' => '必須填寫電子郵件欄位。',
         'email' => '電子郵件必須是有效的電子郵件地址。',
@@ -750,7 +750,7 @@ return [
         'invalid' => '密碼無效。',
     ],
 
-//AuthController file
+    //AuthController file
     'auth_controller' => [
         'name_required' => '必須輸入姓名。',
         'name_max' => '姓名不得超過255個字符。',

@@ -153,7 +153,7 @@ return [
     Request file custom validation messages
     */
 
-//Common
+    //Common
     'settings_form' => [
         'company' => [
             'required' => '公司字段为必填项。',
@@ -251,7 +251,7 @@ return [
         ],
     ],
 
-//Email
+    //Email
     'custom' => [
         'password' => [
             'required_if' => '所选邮件驱动器需要密码字段。',
@@ -354,7 +354,7 @@ return [
         ],
     ],
 
-//Order form
+    //Order form
     'order_form' => [
         'client' => [
             'required' => '客户字段为必填项。',
@@ -382,7 +382,7 @@ return [
         ],
     ],
 
-//Payment form
+    //Payment form
     'coupon_form' => [
         'code' => [
             'required' => '优惠码字段为必填项。',
@@ -439,7 +439,7 @@ return [
             // 'exists' => '所选州无效。',
         ],
     ],
-//Product
+    //Product
     'subscription_form' => [
         'name' => [
             'required' => '名称字段为必填项。',
@@ -532,7 +532,7 @@ return [
         ],
     ],
 
-//User
+    //User
     'users' => [
         'first_name' => [
             'required' => '名字字段为必填项。',
@@ -570,7 +570,7 @@ return [
         ],
         'zip' => [
             'regex' => '当国家为印度时，州字段为必填项。',
-        ]
+        ],
     ],
 
     'profile_form' => [
@@ -642,7 +642,7 @@ return [
         'required' => '请输入国家区号（手机）。',
     ],
 
-//Invoice form
+    //Invoice form
     'invoice' => [
         'user' => [
             'required' => '客户字段是必填项。',
@@ -665,7 +665,7 @@ return [
         ],
     ],
 
-//LocalizedLicense form
+    //LocalizedLicense form
     'domain_form' => [
         'domain' => [
             'required' => '域名字段是必填项。',
@@ -673,7 +673,7 @@ return [
         ],
     ],
 
-//Product Renewal form
+    //Product Renewal form
     'product_renewal' => [
         'domain' => [
             'required' => '域名字段是必填项。',
@@ -681,13 +681,13 @@ return [
         ],
     ],
 
-//Language form
+    //Language form
     'language' => [
         'required' => '语言字段是必填项。',
         'invalid' => '所选语言无效。',
     ],
 
-//UpdateStoragePathRequest form
+    //UpdateStoragePathRequest form
     'storage_path' => [
         'disk' => [
             'required' => '存储磁盘字段是必填项。',
@@ -699,7 +699,7 @@ return [
         ],
     ],
 
-//ValidateSecretRequest form
+    //ValidateSecretRequest form
     'validate_secret' => [
         'totp' => [
             'required' => '请输入验证码。',
@@ -707,7 +707,7 @@ return [
         ],
     ],
 
-//VerifyOtp form
+    //VerifyOtp form
     'verify_email' => [
         'required' => '电子邮件字段是必填项。',
         'email' => '电子邮件必须是有效的电子邮件地址。',
@@ -731,7 +731,7 @@ return [
         'invalid' => '密码无效。',
     ],
 
-//AuthController file
+    //AuthController file
     'auth_controller' => [
         'name_required' => '姓名是必填项。',
         'name_max' => '姓名不能超过 255 个字符。',

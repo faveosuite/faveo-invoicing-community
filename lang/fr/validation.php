@@ -140,7 +140,7 @@ return [
     'quantity_integer_value' => 'La quantité doit être une valeur entière',
     'order_has_Expired' => 'La commande a expiré',
     'expired' => 'Expiré',
-    'eid_required' => "Le champ EID est requis.",
+    'eid_required' => 'Le champ EID est requis.',
     'eid_string' => "L'EID doit être une chaîne de caractères.",
     'otp_required' => 'Le champ OTP est requis.',
     'amt_required' => 'Le champ montant est requis',
@@ -248,7 +248,7 @@ return [
         ],
     ],
 
-//Email
+    //Email
     'custom' => [
         'password' => [
             'required_if' => 'Le champ mot de passe est requis pour le pilote de messagerie sélectionné.',
@@ -339,7 +339,7 @@ return [
             'required' => 'Le champ slug est requis.',
         ],
         'url' => [
-            'required' => "Le champ URL est requis.",
+            'required' => 'Le champ URL est requis.',
             'url' => "L'URL doit être un lien valide.",
             'regex' => "Le format de l'URL est invalide.",
         ],
@@ -351,7 +351,7 @@ return [
         ],
     ],
 
-//Order form
+    //Order form
     'order_form' => [
         'client' => [
             'required' => 'Le champ client est requis.',
@@ -379,7 +379,7 @@ return [
         ],
     ],
 
-//Payment form
+    //Payment form
     'coupon_form' => [
         'code' => [
             'required' => 'Le champ code promo est requis.',
@@ -405,7 +405,7 @@ return [
         ],
         'expiry' => [
             'required' => 'Le champ expiration est requis.',
-            'date' => "Le champ expiration doit être une date valide.",
+            'date' => 'Le champ expiration doit être une date valide.',
             'after' => "La date d'expiration doit être postérieure à la date de début.",
         ],
         'value' => [
@@ -437,7 +437,7 @@ return [
         ],
     ],
 
-//Product
+    //Product
     'subscription_form' => [
         'name' => [
             'required' => 'Le champ nom est requis.',
@@ -517,7 +517,7 @@ return [
             'mimes' => 'Le fichier doit être une archive zip.',
         ],
         'image' => [
-            'required_without_all' => "Le champ image est requis si github_owner ou github_repository ne sont pas fournis.",
+            'required_without_all' => 'Le champ image est requis si github_owner ou github_repository ne sont pas fournis.',
             'mimes' => "L'image doit être un fichier PNG.",
         ],
         'github_owner' => [
@@ -542,7 +542,7 @@ return [
         'email' => [
             'required' => 'Le champ email est requis.',
             'email' => "L'adresse email doit être valide.",
-            'unique' => "Cette adresse email est déjà utilisée.",
+            'unique' => 'Cette adresse email est déjà utilisée.',
         ],
         'address' => [
             'required' => 'Le champ adresse est requis.',
@@ -566,7 +566,7 @@ return [
         ],
         'zip' => [
             'regex' => "Le champ état est requis lorsque le pays est l'Inde.",
-        ]
+        ],
     ],
 
     'profile_form' => [
@@ -581,7 +581,7 @@ return [
         ],
         'company' => [
             'required' => 'Le nom de l’entreprise est requis.',
-            'max' => "Le nom de l’entreprise ne peut pas dépasser :max caractères.",
+            'max' => 'Le nom de l’entreprise ne peut pas dépasser :max caractères.',
         ],
         'email' => [
             'required' => 'L’adresse email est requise.',
@@ -638,7 +638,7 @@ return [
         'required' => 'Entrez le code pays (mobile)',
     ],
 
-//Invoice form
+    //Invoice form
     'invoice' => [
         'user' => [
             'required' => 'Le champ client est requis.',
@@ -661,7 +661,7 @@ return [
         ],
     ],
 
-//LocalizedLicense form
+    //LocalizedLicense form
     'domain_form' => [
         'domain' => [
             'required' => 'Le champ domaine est requis.',
@@ -669,7 +669,7 @@ return [
         ],
     ],
 
-//Product Renewal form
+    //Product Renewal form
     'product_renewal' => [
         'domain' => [
             'required' => 'Le champ domaine est requis.',
@@ -677,13 +677,13 @@ return [
         ],
     ],
 
-//Language form
+    //Language form
     'language' => [
         'required' => 'Le champ langue est requis.',
         'invalid' => 'La langue sélectionnée est invalide.',
     ],
 
-//UpdateSroragePathRequest form
+    //UpdateSroragePathRequest form
     'storage_path' => [
         'disk' => [
             'required' => 'Le champ disque de stockage est requis.',
@@ -695,7 +695,7 @@ return [
         ],
     ],
 
-//ValidateSecretRequest form
+    //ValidateSecretRequest form
     'validate_secret' => [
         'totp' => [
             'required' => 'Veuillez entrer le code',
@@ -703,7 +703,7 @@ return [
         ],
     ],
 
-//VerifyOtp form
+    //VerifyOtp form
     'verify_email' => [
         'required' => 'Le champ email est requis.',
         'email' => 'L\'email doit être une adresse email valide.',
@@ -728,7 +728,7 @@ return [
         'invalid' => 'Mot de passe invalide.',
     ],
 
-//AuthController file
+    //AuthController file
     'auth_controller' => [
         'name_required' => 'Le nom est requis.',
         'name_max' => 'Le nom ne peut pas dépasser 255 caractères.',
@@ -871,6 +871,5 @@ return [
         'app_key_size' => 'La clé de l\'application doit être exactement de 32 caractères.',
         'app_secret_required' => 'Le secret de l\'application est requis.',
     ],
-
 
 ];

@@ -2041,7 +2041,7 @@ return [
     'null' => 'Nulo',
     'choose_one_payment_gateway' => 'Elija una pasarela de pago',
 
-// Traducción de claves del controlador
+    // Traducción de claves del controlador
     'product_uploaded_successfully' => 'Producto subido con éxito',
     'token_mismatch_account_not_activated' => 'Incompatibilidad de token. La cuenta no se puede activar.',
     'email_verification_success' => 'Verificación de correo electrónico exitosa. ¡Por favor inicie sesión para acceder a su cuenta!',
@@ -2284,7 +2284,7 @@ return [
     'view_logs_from' => 'Ver registros desde',
     'view_logs_till' => 'Ver registros hasta',
     'delete_logs_from' => 'Eliminar registros desde',
-        'delete_logs_till' => 'Eliminar registros hasta',
+    'delete_logs_till' => 'Eliminar registros hasta',
     'email_logs' => 'Registros de correo electrónico',
     'till' => 'Hasta',
     'cannot_disable_language' => 'No se puede desactivar el idioma predeterminado',

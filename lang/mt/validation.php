@@ -424,7 +424,7 @@ return [
             'required' => 'Il-qasam tal-istat huwa meħtieġ.',
         ],
     ],
-//Product
+    //Product
     'subscription_form' => [
         'name' => [
             'required' => 'Il-qasam tal-isem huwa meħtieġ.',
@@ -514,7 +514,7 @@ return [
         ],
     ],
 
-//User
+    //User
     'users' => [
         'first_name' => [
             'required' => 'Il-qasam tal-isem huwa meħtieġ.',
@@ -552,7 +552,7 @@ return [
         ],
         'zip' => [
             'regex' => 'Il-qasam tal-istat huwa meħtieġ meta l-pajjiż ikun l-Indja.',
-        ]
+        ],
     ],
 
     'profile_form' => [
@@ -637,7 +637,7 @@ return [
         'required' => 'Daħħal il-kodiċi tal-pajjiż (mobile).',
     ],
 
-//Invoice form
+    //Invoice form
     'invoice' => [
         'user' => [
             'required' => 'Il-qasam tal-klijenti huwa meħtieġ.',
@@ -660,7 +660,7 @@ return [
         ],
     ],
 
-//LocalizedLicense form
+    //LocalizedLicense form
     'domain_form' => [
         'domain' => [
             'required' => 'Il-qasam tal-dominju huwa meħtieġ.',
@@ -668,7 +668,7 @@ return [
         ],
     ],
 
-//Product Renewal form
+    //Product Renewal form
     'product_renewal' => [
         'domain' => [
             'required' => 'Il-qasam tal-dominju huwa meħtieġ.',
@@ -676,13 +676,13 @@ return [
         ],
     ],
 
-//Language form
+    //Language form
     'language' => [
         'required' => 'Il-qasam tal-lingwa huwa meħtieġ.',
         'invalid' => 'Il-lingwa magħżula hija invalidu.',
     ],
 
-//UpdateSroragePathRequest form
+    //UpdateSroragePathRequest form
     'storage_path' => [
         'disk' => [
             'required' => 'Il-qasam tad-disk tal-ħażna huwa meħtieġ.',
@@ -694,7 +694,7 @@ return [
         ],
     ],
 
-//ValidateSecretRequest form
+    //ValidateSecretRequest form
     'validate_secret' => [
         'totp' => [
             'required' => 'Daħħal il-kodiċi.',
@@ -702,7 +702,7 @@ return [
         ],
     ],
 
-//VerifyOtp form
+    //VerifyOtp form
     'verify_email' => [
         'required' => 'Il-qasam tal-email huwa meħtieġ.',
         'email' => 'L-email għandha tkun indirizz email validu.',
@@ -726,7 +726,7 @@ return [
         'password' => 'Il-password hija ħażina.',
         'invalid' => 'Password invalidu.',
     ],
-//AuthController file
+    //AuthController file
     'auth_controller' => [
         'name_required' => 'L-isem huwa meħtieġ.',
         'name_max' => 'L-isem ma jistax ikun aktar minn 255 karattri.',

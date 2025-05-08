@@ -2306,6 +2306,6 @@ return [
     'allow_social_media_icons' => 'Cho phép biểu tượng mạng xã hội',
     'unlimited_agents' => 'Đại lý không giới hạn',
     'language_status_updated_successfully' => 'Trạng thái ngôn ngữ đã được cập nhật thành công.',
-    'language_not_found' => 'Ngôn ngữ không được tìm thấy.'
+    'language_not_found' => 'Ngôn ngữ không được tìm thấy.',
 
 ];

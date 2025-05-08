@@ -175,7 +175,7 @@ return [
     Request file custom validation messages
     */
 
-//Common
+    //Common
     'settings_form' => [
         'company' => [
             'required' => 'Kolom perusahaan wajib diisi.',
@@ -273,7 +273,7 @@ return [
         ],
     ],
 
-//Email
+    //Email
     'custom' => [
         'password' => [
             'required_if' => 'Kolom kata sandi wajib diisi untuk driver email yang dipilih.',
@@ -376,7 +376,7 @@ return [
         ],
     ],
 
-//Order form
+    //Order form
     'order_form' => [
         'client' => [
             'required' => 'Kolom klien wajib diisi.',
@@ -404,7 +404,7 @@ return [
         ],
     ],
 
-//Payment form
+    //Payment form
     'coupon_form' => [
         'code' => [
             'required' => 'Kolom kode kupon wajib diisi.',
@@ -462,7 +462,7 @@ return [
         ],
     ],
 
-//Product
+    //Product
     'subscription_form' => [
         'name' => [
             'required' => 'Kolom nama wajib diisi.',
@@ -551,7 +551,7 @@ return [
         ],
     ],
 
-//User
+    //User
     'users' => [
         'first_name' => [
             'required' => 'Kolom nama depan wajib diisi.',
@@ -589,7 +589,7 @@ return [
         ],
         'zip' => [
             'regex' => 'Kolom provinsi wajib diisi jika negara adalah India.',
-        ]
+        ],
     ],
 
     'profile_form' => [
@@ -661,7 +661,7 @@ return [
         'required' => 'Masukkan kode negara (ponsel)',
     ],
 
-//Invoice form
+    //Invoice form
     'invoice' => [
         'user' => [
             'required' => 'Kolom klien wajib diisi.',
@@ -684,7 +684,7 @@ return [
         ],
     ],
 
-//LocalizedLicense form
+    //LocalizedLicense form
     'domain_form' => [
         'domain' => [
             'required' => 'Kolom domain wajib diisi.',
@@ -692,7 +692,7 @@ return [
         ],
     ],
 
-//Product Renewal form
+    //Product Renewal form
     'product_renewal' => [
         'domain' => [
             'required' => 'Kolom domain wajib diisi.',
@@ -700,13 +700,13 @@ return [
         ],
     ],
 
-//Language form
+    //Language form
     'language' => [
         'required' => 'Kolom bahasa wajib diisi.',
         'invalid' => 'Bahasa yang dipilih tidak valid.',
     ],
 
-//UpdateSroragePathRequest form
+    //UpdateSroragePathRequest form
     'storage_path' => [
         'disk' => [
             'required' => 'Kolom penyimpanan wajib diisi.',
@@ -718,7 +718,7 @@ return [
         ],
     ],
 
-//ValidateSecretRequest form
+    //ValidateSecretRequest form
     'validate_secret' => [
         'totp' => [
             'required' => 'Silakan masukkan kode',
@@ -726,7 +726,7 @@ return [
         ],
     ],
 
-//VerifyOtp form
+    //VerifyOtp form
     'verify_email' => [
         'required' => 'Kolom email wajib diisi.',
         'email' => 'Email harus berupa alamat email yang valid.',
@@ -751,7 +751,7 @@ return [
         'invalid' => 'Kata sandi tidak valid.',
     ],
 
-//AuthController file
+    //AuthController file
     'auth_controller' => [
         'name_required' => 'Nama wajib diisi.',
         'name_max' => 'Nama tidak boleh lebih dari 255 karakter.',

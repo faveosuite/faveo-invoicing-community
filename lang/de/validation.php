@@ -210,7 +210,7 @@ return [
             'regex' => 'Das Linkformat ist ungültig.',
         ],
     ],
-// Email
+    // Email
     'custom' => [
         'password' => [
             'required_if' => 'Das Passwortfeld ist für den ausgewählten Mail-Treiber erforderlich.',
@@ -314,7 +314,7 @@ return [
         ],
     ],
 
-// Order form
+    // Order form
     'order_form' => [
         'client' => [
             'required' => 'Das Kundenfeld ist erforderlich.',
@@ -341,7 +341,7 @@ return [
             'integer' => 'Die Menge muss eine ganze Zahl sein.',
         ],
     ],
-// Payment form
+    // Payment form
     'coupon_form' => [
         'code' => [
             'required' => 'Das Gutscheincode-Feld ist erforderlich.',
@@ -399,7 +399,7 @@ return [
         ],
     ],
 
-// Product
+    // Product
     'subscription_form' => [
         'name' => [
             'required' => 'Das Namensfeld ist erforderlich.',
@@ -473,9 +473,9 @@ return [
             'required' => 'Das Währungsfeld ist erforderlich.',
         ],
     ],
-// 'price' => [
-//     'required' => 'The price field is required.',
-// ],
+    // 'price' => [
+    //     'required' => 'The price field is required.',
+    // ],
     'file' => [
         'required_without_all' => 'Das Dateifeld ist erforderlich, wenn weder github_owner noch github_repository angegeben sind.',
         'mimes' => 'Die Datei muss eine ZIP-Datei sein.',
@@ -492,7 +492,7 @@ return [
         'required_if' => 'Das GitHub-Repository-Feld ist erforderlich, wenn der Typ 2 ist.',
     ],
 
-// User
+    // User
     'users' => [
         'first_name' => [
             'required' => 'Das Vornamefeld ist erforderlich.',
@@ -530,7 +530,7 @@ return [
         ],
         'zip' => [
             'regex' => 'Das Bundeslandfeld ist erforderlich, wenn das Land Indien ist.',
-        ]
+        ],
     ],
 
     'profile_form' => [
@@ -602,7 +602,7 @@ return [
         ],
     ],
 
-// Invoice form
+    // Invoice form
     'invoice' => [
         'user' => [
             'required' => 'Das Kundenfeld ist erforderlich.',
@@ -625,14 +625,14 @@ return [
         ],
     ],
 
-// LocalizedLicense form
+    // LocalizedLicense form
     'domain_form' => [
         'domain' => [
             'required' => 'Das Domainfeld ist erforderlich.',
             'url' => 'Die Domain muss eine gültige URL sein.',
         ],
     ],
-//Product Renewal form
+    //Product Renewal form
     'product_renewal' => [
         'domain' => [
             'required' => 'Das Domainfeld ist erforderlich.',
@@ -640,13 +640,13 @@ return [
         ],
     ],
 
-//Language form
+    //Language form
     'language' => [
         'required' => 'Das Sprachfeld ist erforderlich.',
         'invalid' => 'Die ausgewählte Sprache ist ungültig.',
     ],
 
-//UpdateStoragePathRequest form
+    //UpdateStoragePathRequest form
     'storage_path' => [
         'disk' => [
             'required' => 'Das Speicherlaufwerksfeld ist erforderlich.',
@@ -658,7 +658,7 @@ return [
         ],
     ],
 
-//ValidateSecretRequest form
+    //ValidateSecretRequest form
     'validate_secret' => [
         'totp' => [
             'required' => 'Bitte Code eingeben',
@@ -666,7 +666,7 @@ return [
         ],
     ],
 
-//VerifyOtp form
+    //VerifyOtp form
     'verify_email' => [
         'required' => 'Das E-Mail-Feld ist erforderlich.',
         'email' => 'Die E-Mail muss eine gültige E-Mail-Adresse sein.',
@@ -691,7 +691,7 @@ return [
         'invalid' => 'Ungültiges Passwort.',
     ],
 
-//AuthController file
+    //AuthController file
     'auth_controller' => [
         'name_required' => 'Name ist erforderlich.',
         'name_max' => 'Name darf nicht länger als 255 Zeichen sein.',

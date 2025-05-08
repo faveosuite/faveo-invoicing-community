@@ -2300,6 +2300,6 @@ return [
     'allow_social_media_icons' => 'Consenti le icone dei social media',
     'unlimited_agents' => 'Agenti illimitati',
     'language_status_updated_successfully' => 'Lo stato della lingua è stato aggiornato con successo.',
-    'language_not_found' => 'Lingua non trovata.'
+    'language_not_found' => 'Lingua non trovata.',
 
 ];

@@ -613,7 +613,7 @@ return [
         ],
     ],
 
-//Invoice form
+    //Invoice form
     'invoice' => [
         'user' => [
             'required' => 'שדה הלקוחות נדרש.',
@@ -636,7 +636,7 @@ return [
         ],
     ],
 
-//LocalizedLicense form
+    //LocalizedLicense form
     'domain_form' => [
         'domain' => [
             'required' => 'שדה הדומיין נדרש.',
@@ -644,7 +644,7 @@ return [
         ],
     ],
 
-//Product Renewal form
+    //Product Renewal form
     'product_renewal' => [
         'domain' => [
             'required' => 'שדה הדומיין נדרש.',
@@ -652,13 +652,13 @@ return [
         ],
     ],
 
-//Language form
+    //Language form
     'language' => [
         'required' => 'שדה השפה נדרש.',
         'invalid' => 'השפה שנבחרה אינה תקפה.',
     ],
 
-//UpdateSroragePathRequest form
+    //UpdateSroragePathRequest form
     'storage_path' => [
         'disk' => [
             'required' => 'שדה הדיסק נדרש.',
@@ -670,7 +670,7 @@ return [
         ],
     ],
 
-//ValidateSecretRequest form
+    //ValidateSecretRequest form
     'validate_secret' => [
         'totp' => [
             'required' => 'אנא הזן קוד',
@@ -678,7 +678,7 @@ return [
         ],
     ],
 
-//VerifyOtp form
+    //VerifyOtp form
     'verify_email' => [
         'required' => 'שדה הדוא"ל נדרש.',
         'email' => 'הדוא"ל חייב להיות כתובת דוא"ל תקפה.',
@@ -703,7 +703,7 @@ return [
         'invalid' => 'סיסמא לא תקפה.',
     ],
 
-//AuthController file
+    //AuthController file
     'auth_controller' => [
         'name_required' => 'שם נדרש.',
         'name_max' => 'שם לא יכול להיות ארוך יותר מ-255 תווים.',
