@@ -2304,5 +2304,8 @@ return [
     'unlimited_agents' => 'Agentes ilimitados',
     'language_status_updated_successfully' => 'El estado del idioma se actualizó correctamente.',
     'language_not_found' => 'Idioma no encontrado.',
+    'please_enter_auth_code' => 'Por favor, ingrese el código de autenticación',
+    'faveo_enterprise_advance' => 'Faveo Enterprise Avanzado',
+    'please_enter_recovery_code' => 'Por favor, ingrese el código de recuperación',
 
 ];

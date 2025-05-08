@@ -172,7 +172,7 @@ $status =  App\Model\Common\StatusSetting::select('recaptcha_status','v3_recaptc
             const alertClass = isSuccess ? 'alert-success' : 'alert-danger';
 
             // Extract message and errors
-            const message = response.message || response || '{{ __('message.error_occurred') }}';
+            const message = response.message || response || 'An error occurred. Please try again.';
             const errors = response.errors || null;
 
             // Build base HTML

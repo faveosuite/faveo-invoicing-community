@@ -2230,6 +2230,9 @@ return [
     'allow_social_media_icons' => 'Dozvoli ikone društvenih mreža',
     'unlimited_agents' => 'Neograničeni agenti',
     'language_status_updated_successfully' => 'Status jezika uspješno ažuriran.',
-    'language_not_found' => 'Jezik nije pronađen'
+    'language_not_found' => 'Jezik nije pronađen',
+    'please_enter_auth_code' => 'Unesite kod za autentifikaciju',
+    'faveo_enterprise_advance' => 'Faveo Enterprise Advance',
+    'please_enter_recovery_code' => 'Unesite kod za oporavak',
 
 ];

@@ -1,12 +1,12 @@
 @extends('themes.default1.layouts.front.master')
 @section('title')
-Contact Us
+{{ __('message.contact_us') }}
 @stop
 @section('page-header')
-Cart
+{{ __('message.cart') }}
 @stop
 @section('page-heading')
-Contact us
+    {{ __('message.contact_us') }}
 @stop
 @section('breadcrumb')
 @if(Auth::check())
@@ -184,7 +184,7 @@ $(document).ready(function() {
         const alertClass = isSuccess ? 'alert-success' : 'alert-danger';
 
         // Extract message and errors
-        const message = response.message || response || '{{ __('message.error_occurred') }}';
+        const message = response.message || response || 'An error occurred. Please try again.';
         const errors = response.errors || null;
 
         // Build base HTML

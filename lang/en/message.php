@@ -2393,5 +2393,8 @@ return [
     'unlimited_agents' => 'Unlimited Agents',
     'language_status_updated_successfully' => 'Language status updated successfully.',
     'language_not_found' => 'Language not found.',
+    'please_enter_auth_code' => 'Please enter the authentication code',
+    'faveo_enterprise_advance' => 'Faveo Enterprise Advance',
+    'please_enter_recovery_code' => 'Please enter the recovery code',
 
 ];

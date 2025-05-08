@@ -1,12 +1,12 @@
 @extends('themes.default1.layouts.front.master')
 @section('title')
-Two-factor authentication
+{{ __('message.two_factor') }}
 @stop
 @section('page-heading')
-Two-factor authentication
+    {{ __('message.two_factor') }}
 @stop
 @section('page-header')
-Forgot Password
+{{ __('message.forgot-password') }}
 @stop
 @section('breadcrumb')
     @if(Auth::check())
@@ -60,7 +60,7 @@ main
 
                             <div class="form-group col">
 
-                                <button type="submit" class="btn btn-dark btn-modern w-100 text-uppercase font-weight-bold text-3 py-3" data-loading-text="Loading...">{{ __('message.verify')}}</button>
+                                <button type="submit" class="btn btn-dark btn-modern w-100 text-uppercase font-weight-bold text-3 py-3" data-loading-text="{{ __('message.loading') }}">{{ __('message.verify')}}</button>
                             </div>
                         </div>
                     {!! Form::close() !!}
@@ -85,7 +85,7 @@ main
                 },
                 messages: {
                     totp: {
-                        required: "Please enter the authentication code"
+                        required: "{{ __('message.please_enter_auth_code') }}"
                     },
                 },
                 unhighlight: function (element) {

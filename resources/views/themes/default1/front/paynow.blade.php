@@ -1,9 +1,9 @@
 @extends('themes.default1.layouts.front.master')
 @section('title')
-Checkout
+{{ __('message.checkout') }}
 @stop
 @section('page-heading')
-Checkout
+    {{ __('message.checkout') }}
 @stop
 @section('breadcrumb')
  @if(Auth::check())
@@ -101,7 +101,7 @@ Checkout
 
                                         <div class="product-thumbnail-wrapper">
 
-                                            <span class="product-thumbnail-image" data-bs-toggle="tooltip" title="Faveo Enterprise Advance">
+                                            <span class="product-thumbnail-image" data-bs-toggle="tooltip" title="{{ __('message.faveo_enterprise_advance') }}">
 
                                                     <img width="90" height="90" alt="" class="img-fluid" src="{{$product->image}}">
                                                 </span>
@@ -215,7 +215,7 @@ Checkout
 
                                 <tr class="total">
                                     <th>
-                                        <strong>Balance</strong>
+                                        <strong>{{ __('message.balance') }}</strong>
                                     </th>
                                     <td class="text-end align-top border-top-0"><span class="amount font-weight-medium text-color-grey">
                                         {{currencyFormat($invoice->grand_total,$code = $currency)}}

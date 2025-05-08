@@ -274,10 +274,10 @@ $cartSubtotalWithoutCondition = 0;
                                                  <?php
                                             if (strpos(\Session::get('codevalue'), '%') == true) {
                                                     $discountValue = currencyFormat($discountPrice,$code = $item->attributes->currency);
-                                                    echo $discountValue . '(<strong title="Coupon code">' . (\Session::get('code')) . '</strong>)';
+                                                    echo $discountValue . '(<strong title="'. __('message.coupon-code').'">' . (\Session::get('code')) . '</strong>)';
                                                 } else {
                                                     $discountValue = currencyFormat(\Session::get('codevalue'),$code = $item->attributes->currency);
-                                                    echo $discountValue . '(<strong title="Coupon code">' . (\Session::get('code')) . '</strong>)';
+                                                    echo $discountValue . '(<strong title="'. __('message.coupon-code').'">' . (\Session::get('code')) . '</strong>)';
                                                 }
                                             ?>
                                             </span>

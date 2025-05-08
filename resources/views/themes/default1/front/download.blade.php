@@ -1,9 +1,9 @@
 @extends('themes.default1.layouts.front.master')
 @section('title')
-Cart
+{{ __('message.cart') }}
 @stop
 @section('page-heading')
-Faveo Download
+Faveo {{ __('message.download') }}
 @stop
 @section('breadcrumb')
 <li><a href="{{url('home')}}">{{ __('message.home')}}</a></li>

@@ -2138,5 +2138,8 @@ return [
     'unlimited_agents' => 'وكلاء غير محدودين',
     'language_status_updated_successfully' => 'تم تحديث حالة اللغة بنجاح.',
     'language_not_found' => 'اللغة غير موجودة.',
+    'please_enter_auth_code' => 'يرجى إدخال رمز المصادقة',
+    'faveo_enterprise_advance' => 'فافيـو إنتربرايز أدفانس',
+    'please_enter_recovery_code' => 'يرجى إدخال رمز الاسترداد',
 
 ];
