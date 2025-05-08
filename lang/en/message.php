@@ -1140,6 +1140,6 @@ return [
     'renew_payment_method' => 'Please select a payment method.',
     'payment_details_delete' => 'Are you sure you want to delete this payment detail.?',
     'sweet_payment' => 'Please select at least one payment detail.',
-    'no-invoice-id'=>'Invoice ID is required.',
-    'remainingAmount'=>'The remaining credits in your current plan will be added to the credit balance.'
+    'no-invoice-id' => 'Invoice ID is required.',
+    'remainingAmount' => 'The remaining credits in your current plan will be added to the credit balance.',
 ];

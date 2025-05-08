@@ -152,11 +152,12 @@ class CheckoutController extends InfoController
                 }
                 \Session::put('cloud_domain', $domain);
             }
-            if(\Session::has('priceRemaining')){
-            $total = \Session::get('priceRemaining') > \Cart::getTotal() ? \Session::get('priceRemaining') - \Cart::getTotal() : \Session::get('discount');
-            \Session::forget('discount');
-            \Session::put('discount', $total);
-        }
+            if (\Session::has('priceRemaining')) {
+                $total = \Session::get('priceRemaining') > \Cart::getTotal() ? \Session::get('priceRemaining') - \Cart::getTotal() : \Session::get('discount');
+                \Session::forget('discount');
+                \Session::put('discount', $total);
+            }
+
             return view('themes.default1.front.checkout', compact('content', 'taxConditions', 'discountPrice', 'domain'));
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
@@ -193,7 +194,7 @@ class CheckoutController extends InfoController
                     Cart::remove($item->id);
                     //Return array of Product Details,attributes and their conditions
                     $items[] = ['id' => $item->id, 'name' => $item->name, 'price' => $item->price,
-                        'quantity' => $item->quantity, 'attributes' => ['currency' => $cart_currency, 'symbol' => $item->attributes->symbol, 'agents' => $item->attributes->agents, 'domain' => optional($item->attributes)->domain,'priceToBePaid'=>$item->attributes->priceToBePaid,'priceRemaining'=>$item->attributes->priceRemaining], 'associatedModel' => Product::find($item->id), 'conditions' => $taxConditions, ];
+                        'quantity' => $item->quantity, 'attributes' => ['currency' => $cart_currency, 'symbol' => $item->attributes->symbol, 'agents' => $item->attributes->agents, 'domain' => optional($item->attributes)->domain, 'priceToBePaid' => $item->attributes->priceToBePaid, 'priceRemaining' => $item->attributes->priceRemaining], 'associatedModel' => Product::find($item->id), 'conditions' => $taxConditions, ];
                 }
                 Cart::add($items);
 
@@ -225,23 +226,23 @@ class CheckoutController extends InfoController
                     $product = $this->product($invoiceid);
                 }
             }
+
             return view('themes.default1.front.paynow', compact('invoice', 'items', 'product', 'paid'));
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
+
             return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
 
     public function postCheckout(Request $request)
     {
-
-
         $isTrue = 1;
         $cost = $request->input('cost');
-        $discount=\Session::get('discount');
+        $discount = \Session::get('discount');
 
         if (\Session::has('nothingLeft')) {
-            \DB::table('users')->where('id', \Auth::user()->id)->update(['billing_pay_balance'=>1]);
+            \DB::table('users')->where('id', \Auth::user()->id)->update(['billing_pay_balance' => 1]);
             $isTrue = \Session::get('nothingLeft');
         }
 
@@ -306,18 +307,18 @@ class CheckoutController extends InfoController
                     $formattedValue = currencyFormat(round($discount), getCurrencyForClient(\Auth::user()->country), true);
                     $payment_id = \DB::table('payments')->where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('id');
                     $formattedPay = currencyFormat($pay, getCurrencyForClient(\Auth::user()->country), true);
-                    $orderId=\Session::get('creditOrderId');
+                    $orderId = \Session::get('creditOrderId');
                     $orderNumber = Order::where('id', $orderId)->value('number');
-                    if($discount != null) {
-                        if (!$payUpdate->isEmpty()) {
+                    if ($discount != null) {
+                        if (! $payUpdate->isEmpty()) {
                             $pay = $pay + round($discount);
                             Payment::where('user_id', \Auth::user()->id)->where('payment_status', 'success')->update(['amt_to_credit' => $pay]);
 
-                            $messageAdmin = 'An amount of ' . $formattedValue . ' has been added to the existing balance due to a product downgrade. You can view the details of the downgraded order here: ' .
-                                '<a href="' . config('app.url') . '/orders/' . $orderId . '">' . $orderNumber . '</a>.';
+                            $messageAdmin = 'An amount of '.$formattedValue.' has been added to the existing balance due to a product downgrade. You can view the details of the downgraded order here: '.
+                                '<a href="'.config('app.url').'/orders/'.$orderId.'">'.$orderNumber.'</a>.';
 
-                            $messageClient = 'An amount of ' . $formattedValue . ' has been added to your existing balance due to a product downgrade. You can view the details of the downgraded order here: ' .
-                                '<a href="' . config('app.url') . '/my-order/' . $orderId . '">' . $orderNumber . '</a>.';
+                            $messageClient = 'An amount of '.$formattedValue.' has been added to your existing balance due to a product downgrade. You can view the details of the downgraded order here: '.
+                                '<a href="'.config('app.url').'/my-order/'.$orderId.'">'.$orderNumber.'</a>.';
                             \DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageAdmin, 'role' => 'admin', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
                             \DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageClient, 'role' => 'user', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
                         } else {
@@ -326,7 +327,7 @@ class CheckoutController extends InfoController
                             (new ExtendedBaseInvoiceController())->multiplePayment(\Auth::user()->id, [0 => 'Credit Balance'], 'Credit Balance', Carbon::now(), $price, null, round($discount), 'pending');
                         }
                     }
-                    
+
                     return redirect('checkout')->with('Success', $url);
                 }
             } else {//When renewal, pending payments
