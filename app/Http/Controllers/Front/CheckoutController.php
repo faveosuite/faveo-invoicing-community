@@ -293,7 +293,9 @@ class CheckoutController extends InfoController
                     // }
                     \Cart::clear();
                     if (\Session::has('nothingLeft')) {
-                        $this->doTheDeed($invoice);
+                        $do=(\Session::get('priceToBePaid')<\Session::get('priceRemaining'))?false:true;
+
+                        $this->doTheDeed($invoice,$do);
                         \Session::forget('nothingLeft');
                     }
                     if (! empty($invoice->cloud_domain)) {
@@ -309,6 +311,7 @@ class CheckoutController extends InfoController
                     $formattedPay = currencyFormat($pay, getCurrencyForClient(\Auth::user()->country), true);
                     $orderId=\Session::get('creditOrderId');
                     $orderNumber = Order::where('id', $orderId)->value('number');
+
                     if($discount != null) {
                         if (!$payUpdate->isEmpty()) {
                             $pay = $pay + round($discount);
