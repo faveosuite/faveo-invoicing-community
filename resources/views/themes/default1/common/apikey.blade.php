@@ -637,6 +637,7 @@
         let scriptLoaded = false;
 
         function isLikelyV3Key(sitekey) {
+
             return sitekey.length > 35 && !sitekey.includes('localhost');
 
         }
@@ -685,8 +686,8 @@
                                 // Optional: Show token in console for debugging
 
                                 if (!token || token.length < 100) {
-                                    throw new Error(@json(trans('message.invalid_recaptcha_key')));
                                     document.getElementById("submit2").disabled=true;
+                                    throw new Error(@json(trans('message.invalid_recaptcha_key')));
                                 }
 
                                 document.getElementById("nocaptcha_sitekey").classList.remove('is-invalid');
@@ -726,9 +727,14 @@
                     document.getElementById('captchaError').textContent = '';
                 }
                 if (initial_id === 'captchaRadioV3') {
+                    if (!newSiteKey){
+                        document.getElementById("submit2").disabled=true;
+                        return;
+                    }
                     if (!isLikelyV3Key(newSiteKey)) {
                         document.getElementById("status").textContent = @json(trans('message.invalid_recaptcha_key'));
-                        this.classList.add('is-invalid');
+                        document.getElementById("nocaptcha_sitekey").classList.add('is-invalid');
+                        document.getElementById("submit2").disabled=true;
                         return;
                     }
 
@@ -755,7 +761,10 @@
 
             if(initial_id==='captchaRadioV2') {
                 const sitekey = this.value.trim();
-                if (!sitekey) return;
+                if (!sitekey){
+                    document.getElementById("submit2").disabled=true;
+                    return;
+                }
                 validateRecaptchaV2Key(sitekey);
 
             }
@@ -857,21 +866,26 @@
             var initial_key=$('#nocaptcha_sitekey').val();
             var initial_secret=$('#nocaptcha_secret').val();
             var initial_id=$('input[name="customRadio"]:checked').attr('id');
+            document.getElementById("submit2").disabled=true;
             document.getElementById('checkboxerror').textContent='';
+            document.getElementById("status").textContent = '';
             document.getElementById("nocaptcha_sitekey").classList.remove('is-invalid');
             const newSiteKey = initial_key;
             resetRecaptchaContainer();
-            document.getElementById("submit2").disabled=false;
 
-            document.getElementById("status").textContent = '';
             var captchaError=document.getElementById('captchaError');
             if(captchaError !=null) {
                 document.getElementById('captchaError').textContent = '';
             }
             if (initial_id === 'captchaRadioV3') {
+                if (!newSiteKey){
+                    document.getElementById("submit2").disabled=true;
+                    return;
+                }
                 if (!isLikelyV3Key(newSiteKey)) {
                     document.getElementById("status").textContent = @json(trans('message.invalid_recaptcha_key'));
-                    this.classList.add('is-invalid');
+                    document.getElementById("nocaptcha_sitekey").classList.add('is-invalid');
+                    document.getElementById("submit2").disabled=true;
                     return;
                 }
 
@@ -884,7 +898,10 @@
             }
             if(initial_id==='captchaRadioV2') {
                 const sitekey = initial_key;
-                if (!sitekey) return;
+                if (!sitekey){
+
+                    document.getElementById("submit2").disabled=true;
+                    return;}
                 validateRecaptchaV2Key(sitekey);
 
             }
@@ -1812,6 +1829,7 @@
 
             // If validation fails, prevent form submission
             if (!isValid) {
+                document.getElementById("status").textContent='';
                 e.preventDefault();
             }
 
