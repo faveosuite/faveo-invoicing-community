@@ -1192,7 +1192,7 @@ return [
     'terms_error' => 'The provided terms and condition url is invalid.',
     'github_invalid' => 'Authentication failed. Please check your GitHub username and personal access token.',
     'github_valid' => 'Github settings successfully saved.',
-    'pat' => 'Personal Access Token.',
+    'pat' => 'Personal Access Token',
     'invalid_recaptcha_key' => 'The Google reCAPTCHA site key is invalid',
     'status_change' => 'Status has changed',
     'google_description'=>'The Google reCAPTCHA integration adds a reCAPTCHA feature to all unauthenticated pages, helping to protect your forms from bots and automated submissions, ensuring that only genuine users can submit information',

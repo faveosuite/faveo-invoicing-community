@@ -491,8 +491,8 @@ class ClientController extends BaseClientController
             $countExpiry = 0;
             $link = $this->github_api->getCurl1($url);
             $link = $link['body'];
-            $countVersions = 10; //because we are taking only the first 10 versions
-            $link = array_slice($link, 0, 10, true);
+            $countVersions = 3; //because we are taking only the first 10 versions
+            $link = array_slice($link, 0, 3, true);
             $order = Order::where('invoice_id', '=', $invoiceid)->first();
             $order_id = $order->id;
             $orderEndDate = Subscription::select('update_ends_at')
