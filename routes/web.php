@@ -26,7 +26,7 @@ use App\Http\Controllers\User;
 use App\Http\Controllers\WelcomeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\Common\MSG91Controller;
 /*
 |--------------------------------------------------------------------------
 | Web Routes

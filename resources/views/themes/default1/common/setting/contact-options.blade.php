@@ -180,8 +180,8 @@
                     $('#alertMessage').html(result);
                     $("#submit4").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
-                        $('#alertMessage').slideUp(3000);
-                    }, 1000);
+                        $('#alertMessage').slideUp(1000);
+                    }, 4000);
                 },
             });
         });
@@ -207,8 +207,8 @@
                     $('#alertMessage').html(result);
                     $("#submit4").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
                     setInterval(function(){
-                        $('#alertMessage').slideUp(3000);
-                    }, 1000);
+                        $('#alertMessage').slideUp(1000);
+                    }, 4000);
                 },
             });
         });

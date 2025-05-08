@@ -152,7 +152,7 @@
                     @endphp
 
                     {{-- Third Party App Selector --}}
-                    {!! Form::label('third_party_key', 'MSG91 Third Party App Key') !!}&nbsp;<i class="fas fa-info-circle" data-toggle="tooltip" title="{{ __('message.pipedrive_third_party_tootip') }}"></i>
+                    {!! Form::label('third_party_key', 'MSG91 Third Party App Key') !!}&nbsp;<i class="fas fa-info-circle required" data-toggle="tooltip" title="{{ __('message.pipedrive_third_party_tootip') }}"></i>
                     {!! Form::select(
                         'third_party_key',
                         ['' => 'Select Third Party App'] + $thirdPartyKeys->toArray(),
@@ -985,6 +985,7 @@
                     $('#mobile_authkey').val(response['data']['mobileauthkey']);
                     $('#sender').val(response['data']['msg91Sender']);
                     $('#template_id').val(response['data']['msg91TemplateId']);
+                    $('#third_party_key').val(response['data']['selectedApp']['id']);
                     $('#msg-91').modal('show');
                 },
             });
@@ -1388,23 +1389,26 @@
                 stateSave: false,
 
                 ajax: "{{ route('datatable.data') }}", // Calls the separate function
-                "oLanguage": {
-                    "sLengthMenu": "_MENU_ Records per page",
-                    "sSearch": "<span style='right: 180px;'>Search:</span> ",
-                    "sProcessing": ' <div class="overlay dataTables_processing"><i class="fas fa-3x fa-sync-alt fa-spin" style=" margin-top: -25px;"></i><div class="text-bold pt-2">Loading...</div></div>'
+
+                oLanguage: {
+                    sLengthMenu: "_MENU_ Records per page",
+                    sSearch: "<span style='right: 180px;'>Search:</span> ",
+                    sProcessing: ' <div class="overlay dataTables_processing"><i class="fas fa-3x fa-sync-alt fa-spin" style=" margin-top: -25px;"></i><div class="text-bold pt-2">Loading...</div></div>'
                 },
+
+                // Apply 'no-sort' class only to specific targets (3rd and 4th columns)
                 columnDefs: [
                     {
-                        targets: 'no-sort',
-                        orderable: false,
-                        order: []
+                        targets: [2, 3], // Status and Action columns
+                        orderable: false
                     }
                 ],
+
                 columns: [
-                    { data: 'options', name: 'Name' },
-                    {data:'description',name:'Description'},
-                    { data: 'status', name: 'Status', orderable: false, searchable: false },
-                    { data: 'action', name: 'Action', orderable: false, searchable: false }
+                    { data: 'options', name: 'options', orderable: true, searchable: true },
+                    { data: 'description', name: 'description', orderable: true, searchable: true },
+                    { data: 'status', name: 'status', orderable: false, searchable: false },
+                    { data: 'action', name: 'action', orderable: false, searchable: false }
                 ]
             });
         });
@@ -1959,13 +1963,16 @@
                 name:@json(trans('message.mobile_authkey')),
                 type:@json(trans('message.sender')),
                 template:@json(trans('message.templateId')),
+                template1:@json(trans('message.third_party_key_error')),
 
             };
 
             const userFields = {
                 name:$('#mobile_authkey'),
                 type:$('#sender'),
-                template:$('#template_id')
+                template:$('#template_id'),
+                template1:$('#third_party_key'),
+
             };
 
 
@@ -2014,6 +2021,7 @@
                     "msg91_auth_key": $('#mobile_authkey').val(),
                     "msg91_sender": $('#sender').val(),
                     "msg91_template_id": $('#template_id').val(),
+                    'thirdPartyId':$('#third_party_key').val(),
                 },
                 success: function (data) {
                     setTimeout(function() {

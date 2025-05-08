@@ -1239,4 +1239,5 @@ return [
     'list_id_error'=>'Please select a valid list id.',
     'subscribe_status_error'=>'Please select a valid subscribe status.',
     'recaptcha_type_error'=>'Please select a recaptcha type.',
+    'third_party_key_error'=>'Please select a valid Msg91 app key.',
 ];

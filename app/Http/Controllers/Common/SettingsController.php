@@ -102,12 +102,14 @@ class SettingsController extends BaseSettingsController
 
     public function mobileVerification(ApiKey $apikeys)
     {
-        [$mobileauthkey,$msg91Sender,$msg91TemplateId] = array_values($apikeys->select( 'msg91_auth_key', 'msg91_sender','msg91_template_id')->first()->toArray());
+        [$mobileauthkey,$msg91Sender,$msg91TemplateId,$msg91ThirdPartyId] = array_values($apikeys->select( 'msg91_auth_key', 'msg91_sender','msg91_template_id','msg91_third_party_id')->first()->toArray());
+        $selectedApp = \App\ThirdPartyApp::find($msg91ThirdPartyId);
 
         $data=[
             'mobileauthkey' => $mobileauthkey,
             'msg91Sender' => $msg91Sender,
             'msg91TemplateId' => $msg91TemplateId,
+            'selectedApp'=>$selectedApp,
         ];
         return successResponse('',$data);
 
@@ -274,8 +276,10 @@ class SettingsController extends BaseSettingsController
             $model = new Github();
             $github = $model->firstOrFail();
             $githubStatus = StatusSetting::first()->github_status;
+            $msg91ThirdPartyId = $apikeys->pluck('msg91_third_party_id')->first();
+
             return view('themes.default1.common.apikey', compact('model', 'status', 'licenseSecret', 'licenseUrl', 'siteKey', 'secretKey', 'captchaStatus', 'v3CaptchaStatus', 'updateStatus', 'updateSecret', 'updateUrl', 'mobileStatus', 'mobileauthkey', 'msg91Sender', 'msg91TemplateId', 'emailStatus', 'twitterStatus', 'twitterKeys', 'zohoStatus', 'zohoKey', 'rzpStatus', 'rzpKeys', 'mailchimpSetting', 'mailchimpKey', 'termsStatus', 'termsUrl', 'pipedriveKey', 'pipedriveStatus', 'domainCheckStatus', 'mailSendingStatus',
-                'licenseClientId', 'licenseClientSecret', 'licenseGrantType','allists', 'selectedList','set','githubStatus'));
+                'licenseClientId', 'licenseClientSecret', 'licenseGrantType','allists', 'selectedList','set','githubStatus','msg91ThirdPartyId'));
         } catch (\Exception $ex) {
             return redirect('/')->with('fails', $ex->getMessage());
         }

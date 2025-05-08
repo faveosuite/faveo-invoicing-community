@@ -11,7 +11,7 @@
         <ol class="breadcrumb float-sm-right">
             <li class="breadcrumb-item"><a href="{{ url('/') }}"><i class="fa fa-dashboard"></i> Home</a></li>
             <li class="breadcrumb-item"><a href="{{ url('settings') }}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item"><a href="{{ url('payment-gateway-integration') }}"><i class="fa fa-dashboard"></i> Payment Gateways</a></li>
+            <li class="breadcrumb-item"><a href="{{ url('payment-gateway-integration') }}"><i class="fa fa-dashboard"></i> Payment Gateway Integrations</a></li>
             <li class="breadcrumb-item active">Stripe</li>
         </ol>
     </div>
