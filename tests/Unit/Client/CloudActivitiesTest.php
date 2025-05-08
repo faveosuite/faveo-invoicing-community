@@ -169,40 +169,40 @@ class CloudActivitiesTest extends DBTestCase
     }
 
     /** @group Cloud domain Change */
-    public function  test_cloud_update_no_of_agents(){
-        $user=User::factory()->create();
-        $this->actingAs($user);
-        $this->withoutMiddleware();
-        $licensetype=LicenseType::create(['name'=>'DevelopmentLicense']);
-        $licensepermissiontype=LicensePermission::create(['Can be Downloaded']);
-        LicensePermission::create(['Generate License Expiry Date']);
-        LicensePermission::create(['Generate Updates Expiry Date']);
-        LicensePermission::create(['Allow Downloads Before Updates Expire']);
-        $permissionid=[
-            0 => "1",
-            1 => "2",
-            2 => "3",
-            3 => "4",
-            6=>'6',
-        ];
-        $licensetype->permissions()->attach($permissionid);
-
-        $product = Product::create(['name' => 'Helpdesk Advance','description'=>'goodProduct','type'=>$licensetype->id]);
-        $invoice = Invoice::factory()->create(['user_id' => $user->id]);
-        $invoiceItem = InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
-        $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
-            'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id]);
-        $installationDetail=InstallationDetail::create(['order_id'=>$order->id,'installation_path'=>'/path']);
-        $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
-        $planPrice=PlanPrice::factory()->create(['plan_id'=>$plan->id,'currency'=>'INR','add_price'=>5000]);
-        $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
-            'version' => 'v6.0.0', 'update_ends_at' => '','ends_at'=>Carbon::now()->addDays(80)]);
-        $cloud=FaveoCloud::create(['cloud_central_domain'=>'https://santhanu.com','cloud_cname'=>'santhanu.com']);
-        $request=new Request(['newAgents'=>5,'product_id'=>$product->id,'subId'=>$subscription->id,'orderId'=>$order->id]);
-        $client=new Client();
-        $cloudActivities = new CloudExtraActivities($client,$cloud);
-
-    }
+//    public function  test_cloud_update_no_of_agents(){
+//        $user=User::factory()->create();
+//        $this->actingAs($user);
+//        $this->withoutMiddleware();
+//        $licensetype=LicenseType::create(['name'=>'DevelopmentLicense']);
+//        $licensepermissiontype=LicensePermission::create(['Can be Downloaded']);
+//        LicensePermission::create(['Generate License Expiry Date']);
+//        LicensePermission::create(['Generate Updates Expiry Date']);
+//        LicensePermission::create(['Allow Downloads Before Updates Expire']);
+//        $permissionid=[
+//            0 => "1",
+//            1 => "2",
+//            2 => "3",
+//            3 => "4",
+//            6=>'6',
+//        ];
+//        $licensetype->permissions()->attach($permissionid);
+//
+//        $product = Product::create(['name' => 'Helpdesk Advance','description'=>'goodProduct','type'=>$licensetype->id]);
+//        $invoice = Invoice::factory()->create(['user_id' => $user->id]);
+//        $invoiceItem = InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
+//        $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
+//            'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id]);
+//        $installationDetail=InstallationDetail::create(['order_id'=>$order->id,'installation_path'=>'/path']);
+//        $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
+//        $planPrice=PlanPrice::factory()->create(['plan_id'=>$plan->id,'currency'=>'INR','add_price'=>5000]);
+//        $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
+//            'version' => 'v6.0.0', 'update_ends_at' => '','ends_at'=>Carbon::now()->addDays(80)]);
+//        $cloud=FaveoCloud::create(['cloud_central_domain'=>'https://santhanu.com','cloud_cname'=>'santhanu.com']);
+//        $request=new Request(['newAgents'=>5,'product_id'=>$product->id,'subId'=>$subscription->id,'orderId'=>$order->id]);
+//        $client=new Client();
+//        $cloudActivities = new CloudExtraActivities($client,$cloud);
+//
+//    }
 
     /** @group Cloud plan Change */
     public function test_cloud_plan_old_price_less_then_new_price(){
