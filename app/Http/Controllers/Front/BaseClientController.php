@@ -67,23 +67,23 @@ class BaseClientController extends Controller
 
     public function getActionButton($countExpiry, $countVersions, $link, $orderEndDate, $productid)
     {
-
         $downloadPermission = LicensePermissionsController::getPermissionsForProduct($productid);
         if ($downloadPermission['allowDownloadTillExpiry'] == 1) {
             if (strtotime($link['created_at']) < strtotime($orderEndDate->update_ends_at)) {
                 $githubApi = new \App\Http\Controllers\Github\GithubApiController();
                 $link1 = $githubApi->getCurl1($link['zipball_url']);
-                if($link1['body'] == null) {
-                    return '<p><a href=' . $link['zipball_url'] . " 
+                if ($link1['body'] == null) {
+                    return '<p><a href='.$link['zipball_url']." 
             class='btn btn-sm btn-primary'><i class='fa fa-download'>
-            </i>&nbsp;&nbsp;Download</a>" . '&nbsp;
+            </i>&nbsp;&nbsp;Download</a>".'&nbsp;
 
       </p>';
-                }else{
-                    $string= $link1['body']['message'];
+                } else {
+                    $string = $link1['body']['message'];
                     preg_match_all('/https:\/\/[^\s,"]+/', $string, $matches);
                     $url = $matches[0][0];
-                    return '<p><a href="' . $url . '" class="btn btn-sm btn-primary">
+
+                    return '<p><a href="'.$url.'" class="btn btn-sm btn-primary">
                     <i class="fa fa-download"></i>&nbsp;&nbsp;Download</a>&nbsp;</p>';
                 }
             } else {
