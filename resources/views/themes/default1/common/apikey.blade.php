@@ -1002,7 +1002,7 @@
                     $('#mobile_authkey').val(response['data']['mobileauthkey']);
                     $('#sender').val(response['data']['msg91Sender']);
                     $('#template_id').val(response['data']['msg91TemplateId']);
-                    $('#third_party_key').val(response['data']['selectedApp']['id']);
+                    $('#third_party_key').val(response['data']['selectedApp']);
                     $('#msg-91').modal('show');
                 },
             });

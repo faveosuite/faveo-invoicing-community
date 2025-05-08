@@ -140,7 +140,7 @@ Settings
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">Payment Gateways</div>
+                        <div class="text-center text-sm fw_400">Payment Gateway Integrations</div>
                     </div>
                 </div>
 
@@ -502,7 +502,7 @@ Settings
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">Third Party Integration</div>
+                        <div class="text-center text-sm fw_400">Third Party Integrations</div>
                     </div>
                 </div>
         </div>

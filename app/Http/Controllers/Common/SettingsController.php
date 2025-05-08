@@ -103,13 +103,12 @@ class SettingsController extends BaseSettingsController
     public function mobileVerification(ApiKey $apikeys)
     {
         [$mobileauthkey,$msg91Sender,$msg91TemplateId,$msg91ThirdPartyId] = array_values($apikeys->select( 'msg91_auth_key', 'msg91_sender','msg91_template_id','msg91_third_party_id')->first()->toArray());
-        $selectedApp = \App\ThirdPartyApp::find($msg91ThirdPartyId);
 
         $data=[
             'mobileauthkey' => $mobileauthkey,
             'msg91Sender' => $msg91Sender,
             'msg91TemplateId' => $msg91TemplateId,
-            'selectedApp'=>$selectedApp,
+            'selectedApp'=>$msg91ThirdPartyId,
         ];
         return successResponse('',$data);
 
