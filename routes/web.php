@@ -619,14 +619,10 @@ Route::middleware('installAgora')->group(function () {
     //preview image
     Route::get('preview-file', [FileManagerController::class, 'previewFile']);
 
-    //Pipedrive
-    Route::get('pipedrive', [PipedriveController::class, 'pipedriveSettings'])->name('pipedrive');
-
     Route::get('getPipedriveFields/{group_id}', [PipedriveController::class, 'getLocalFields']);
     Route::get('pipedrive/mapping/{group_id}', [PipedriveController::class, 'getMapFields']);
     Route::post('sync/pipedrive', [PipedriveController::class, 'mappingFields']);
     Route::get('syncing/pipedriveFields', [PipedriveController::class, 'syncFields']);
-    Route::post('updatePipedriveVerification', [PipedriveController::class, 'updateVerificationStatus'])->name('pipedrive');
 });
 /*
 * Faveo APIs

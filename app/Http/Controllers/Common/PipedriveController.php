@@ -33,6 +33,9 @@ class PipedriveController extends Controller
     public function __construct()
     {
         $this->middleware(['auth', 'admin']);
+        if (! StatusSetting::value('pipedrive_status')) {
+            abort(404);
+        }
         $token = ApiKey::value('pipedrive_api_key');
 
         $config = new PipedriveConfiguration();
@@ -215,29 +218,30 @@ class PipedriveController extends Controller
     {
         $groupID = $request->input('group_id');
         $group_name = PipedriveGroups::where('id', $groupID)->value('group_name');
+
         $data = collect($request->all())->filter();
 
-        $required = $data->filter(function ($value) {
-            return $value === 'title';
-        })->isEmpty();
+        $select1 = $data->get('select1', []);
+        $select2 = $data->get('select2', []);
 
-        if ($group_name === 'Deal' && $required) {
-            return errorResponse('The name field is required for deals.');
+        // Check if any selected field has 'field_key' = 'title'
+        $hasTitleField = PipedriveField::whereIn('id', $select1)
+            ->where('field_key', 'title')
+            ->exists();
+
+        if ($group_name === 'Deal' && !$hasTitleField) {
+            return errorResponse('The title field is required for deals.');
         }
 
-        $localFields = PipedriveLocalFields::whereIn('field_key', $data->keys())->pluck('id', 'field_key');
+        // Update selected fields
+        foreach ($select1 as $key => $value) {
+            PipedriveField::where('id', $value)->update([
+                'local_field_id' => $select2[$key] ?? null
+            ]);
+        }
 
-        $data->each(function ($pipedriveKey, $localKey) use ($groupID, $localFields) {
-            if (isset($localFields[$localKey])) {
-                PipedriveField::updateOrCreate(
-                    ['field_key' => $pipedriveKey, 'pipedrive_group_id' => $groupID],
-                    ['local_field_id' => $localFields[$localKey]]
-                );
-            }
-        });
-
-        PipedriveField::where('pipedrive_group_id', $groupID)
-            ->whereNotIn('field_key', $data->values())->update(['local_field_id' => null]);
+        // Reset non-selected fields
+        PipedriveField::where('pipedrive_group_id', $groupID)->whereNotIn('id', $select1)->update(['local_field_id' => null]);
 
         return successResponse('Fields mapped successfully');
     }
@@ -246,6 +250,8 @@ class PipedriveController extends Controller
     {
         $group_name = PipedriveGroups::where('id', $group_id)->value('group_name');
 
+        $groups = $this->getGroups();
+
         $title = match ($group_name) {
             'Person' => \Lang::get('message.contact_mapping'),
             'Organization' => \Lang::get('message.organization_mapping'),
@@ -253,7 +259,7 @@ class PipedriveController extends Controller
             default => '',
         };
 
-        return view('themes.default1.common.pipedrive.map', compact('group_id', 'title'));
+        return view('themes.default1.common.pipedrive.settings', compact('group_id', 'title', 'groups'));
     }
 
     private function transformPipedriveData(User $user, int $groupId, array $customFields = []): array
@@ -282,13 +288,5 @@ class PipedriveController extends Controller
             'country' => Country::where('country_code_char2', $user->country)->value('nicename'),
             default => $user->{$userField},
         };
-    }
-
-    public function updateVerificationStatus(Request $request)
-    {
-        $verificationStatus = (bool) $request->input('require_pipedrive_user_verification');
-        ApiKey::find(1)->update(['require_pipedrive_user_verification' => $verificationStatus]);
-
-        return successResponse(__('message.pipedrive_verification_updated'));
     }
 }

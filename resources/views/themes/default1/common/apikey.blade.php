@@ -495,6 +495,13 @@
                                     <h6 id="pipedrive_keycheck"></h6>
                                     <br/>
 
+                                    <label>{{ __('message.user_verification') }}</label>&nbsp;&nbsp;<i class="fas fa-info-circle" data-toggle="tooltip" data-placement="top" title="{{ __('message.pipedrive_user_verification_tooltip') }}"></i>
+                                    <select class="form-control mt-2" id="pipedrive_key_status" name="pipedrive_key_status">
+                                        <option value="1" {{ $isPipedriveVerificationEnabled == 1 ? 'selected' : '' }}>Yes</option>
+                                        <option value="0" {{ $isPipedriveVerificationEnabled == 0 ? 'selected' : '' }}>No</option>
+                                    </select>
+                                    <br/>
+
 
                                 </td>
                                 <td class="col-md-2"><button type="submit" class="form-group btn btn-primary"  id="submit13"><i class="fa fa-save">&nbsp;&nbsp;</i>{!!Lang::get('message.save')!!}</button></td>
@@ -514,6 +521,9 @@
 
     {!! Form::close() !!}
     <script>
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
         $('ul.nav-sidebar a').filter(function() {
             return this.id == 'setting';
         }).addClass('active');
@@ -1433,6 +1443,7 @@
                 data: {
                     "status": pipedrivestatus,
                     "pipedrive_key": $('#pipedrive_key').val(),
+                    "require_pipedrive_user_verification": $('#pipedrive_key_status').val(),
                 },
                 success: function (data) {
                     $('#alertMessage').show();
