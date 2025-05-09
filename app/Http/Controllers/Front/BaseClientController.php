@@ -74,7 +74,7 @@ class BaseClientController extends Controller
                 $githubApi = new \App\Http\Controllers\Github\GithubApiController();
                 $link1 = $githubApi->getCurl1($link['zipball_url']);
                 if($link1['body'] == null) {
-                    return '<p><a href=' . $link['zipball_url'] . " 
+                    return '<p><a href=' . $link1['header']['location'] . " 
             class='btn btn-sm btn-primary'><i class='fa fa-download'>
             </i>&nbsp;&nbsp;Download</a>" . '&nbsp;
 
