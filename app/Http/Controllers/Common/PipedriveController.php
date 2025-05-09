@@ -8,7 +8,6 @@ use App\Model\Common\Country;
 use App\Model\Common\PipedriveField;
 use App\Model\Common\PipedriveGroups;
 use App\Model\Common\PipedriveLocalFields;
-use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\User;
 use GuzzleHttp\Client;
@@ -254,7 +253,7 @@ class PipedriveController extends Controller
             'pipedrive_fields' => PipedriveField::where('pipedrive_group_id', $group_id)->get(),
         ];
 
-        return view('themes.default1.common.pipedrive.settings', compact('group_id', 'title', 'groups' , 'pipedriveData'));
+        return view('themes.default1.common.pipedrive.settings', compact('group_id', 'title', 'groups', 'pipedriveData'));
     }
 
     private function transformPipedriveData(User $user, int $groupId, array $customFields = []): array
