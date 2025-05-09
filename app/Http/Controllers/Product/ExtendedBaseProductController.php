@@ -179,8 +179,38 @@ class ExtendedBaseProductController extends Controller
 
     public function adminDownload($id, $invoice = '', $api = false, $beta = 1)
     {
+        $product=Product::where('id',$id)->get();
+        $product=$product->toArray();
         try {
             if ($this->downloadValidation(true, $id, $invoice, $api)) {
+                if($product[0]['github_owner'] && $product[0]['github_repository']) {
+                    $repo=$product[0]['github_repository'];
+                    $owner=$product[0]['github_owner'];
+                    $githubApi = new \App\Http\Controllers\Github\GithubApiController();
+                    $url = "https://api.github.com/repos/$owner/$repo/releases";
+                    $countExpiry = 0;
+                    $link = $githubApi->getCurl1($url);
+                    $link = $link['body'];
+                    $countVersions = 3; //because we are taking only the first 10 versions
+                    $link = array_slice($link, 0, 1, true);
+                    $link1 = $githubApi->getCurl1($link[0]['zipball_url']);
+                    if ($link1['body'] == null) {
+
+                        $fileName = 'faveo.zip';
+                        $url=$link1['header']['location'];
+                        return response()->streamDownload(function () use ($url) {
+                            echo file_get_contents($url);
+                        }, $fileName);
+                    }else{
+                        $string= $link1['body']['message'];
+                        preg_match_all('/https:\/\/[^\s,"]+/', $string, $matches);
+                        $url = $matches[0][0];
+                        $fileName = 'faveo.zip';
+                        return response()->streamDownload(function () use ($url) {
+                            echo file_get_contents($url);
+                        }, $fileName);
+                    }
+                }
                 $release = $this->downloadProductAdmin($id, $beta);
                 $name = Product::where('id', $id)->value('name');
                 if (isS3Enabled()) {
@@ -202,7 +232,6 @@ class ExtendedBaseProductController extends Controller
                             $customFileName
                         )
                     );
-
                     return $release;
                 }
             } else {
