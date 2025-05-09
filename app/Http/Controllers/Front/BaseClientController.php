@@ -92,14 +92,21 @@ class BaseClientController extends Controller
             }
         } elseif ($downloadPermission['allowDownloadTillExpiry'] == 0) {
             if ($countExpiry == $countVersions) {
-//                $githubApi = new \App\Http\Controllers\Github\GithubApiController();
-//                $link = $githubApi->getCurl1($link['zipball_url']);
-
-                return '<p><a href='.$link['zipball_url']." 
+                $githubApi = new \App\Http\Controllers\Github\GithubApiController();
+                $link1 = $githubApi->getCurl1($link['zipball_url']);
+                if($link1['body'] == null) {
+                    return '<p><a href=' . $link['zipball_url'] . " 
             class='btn btn-sm btn-primary'><i class='fa fa-download'>
-            </i>&nbsp;&nbsp;Download</a>".'&nbsp;
+            </i>&nbsp;&nbsp;Download</a>" . '&nbsp;
 
       </p>';
+                }else{
+                    $string= $link1['body']['message'];
+                    preg_match_all('/https:\/\/[^\s,"]+/', $string, $matches);
+                    $url = $matches[0][0];
+                    return '<p><a href="' . $url . '" class="btn btn-sm btn-primary">
+                    <i class="fa fa-download"></i>&nbsp;&nbsp;Download</a>&nbsp;</p>';
+                }
             } else {
                 return '<button class="btn btn-primary btn-sm disabled tooltip">
             <span class="tooltiptex">Please Renew!!</span></button>';

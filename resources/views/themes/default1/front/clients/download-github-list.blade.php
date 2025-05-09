@@ -43,7 +43,7 @@
     <div class="modal-dialog">
         <div class="modal-content" style="width:700px;">
          <div class="modal-body" >
-         <button type="button" class="close" data-dismiss="alert" aria-label="Close" onclick="hideModal()"><span aria-hidden="true">&times;</span></button>
+         <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="hideModal()"><span aria-hidden="true">&times;</span></button>
                 <?php
                 //All the versions of Uploades Files
                 $products = \App\Model\Product\Product::where('id', $productid)->pluck( 'name')->toArray();
@@ -88,9 +88,7 @@
                 <script src="//cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
                 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
                 <script type="text/javascript">
-                        function hideModal(){
-                        $('#lists').modal('hide');
-                        }
+
 
 
                        function readmore(){
@@ -161,6 +159,10 @@
 
 
 <script>
+    function hideModal(){
+        $('#lists').modal({'show':false});
+    }
+
     $(document).on('click','#github-version-table tbody tr td .read-more',function(){
         var text=$(this).siblings(".more-text").text().replace('read more...','');
         console.log(text)
