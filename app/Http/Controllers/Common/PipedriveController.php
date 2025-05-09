@@ -229,14 +229,14 @@ class PipedriveController extends Controller
             ->where('field_key', 'title')
             ->exists();
 
-        if ($group_name === 'Deal' && !$hasTitleField) {
+        if ($group_name === 'Deal' && ! $hasTitleField) {
             return errorResponse('The title field is required for deals.');
         }
 
         // Update selected fields
         foreach ($select1 as $key => $value) {
             PipedriveField::where('id', $value)->update([
-                'local_field_id' => $select2[$key] ?? null
+                'local_field_id' => $select2[$key] ?? null,
             ]);
         }
 
