@@ -1248,7 +1248,7 @@ return [
     'please_enable_cron_deletion' => 'Please Enable Msg Reports Deletion Cron',
     'pipedrive_third_party_tootip' => 'Generate third party key from Settings >> Third party apps to use MSG91 webhook.',
 
-    'contact_mapping' => 'Contact Mapping',
+    'contact_mapping' => 'Person Mapping',
     'organization_mapping' => 'Organization Mapping',
     'deal_mapping' => 'Deal Mapping',
 
@@ -1257,7 +1257,7 @@ return [
     'pipedrive_settings' => 'Pipedrive Settings',
     'field_mapping' => 'Field Mapping',
     'pipedrive_user_verification_tooltip' => 'Enable this if the user is allowed to add to Pipedrive only after completing verification.',
-    'user_verification' => 'User Verification',
+    'user_verification' => 'Needs verification to add user in Pipedrive',
     'pipedrive_config_info' => 'Choose the fields you want to map to keep your contacts, organizations, and deals in sync between Faveo Invoicing and Pipedrive.',
     'click_pipedrive_sync' => 'Click here to Sync',
     'faveo_fields' => 'Faveo Invoicing Fields',
@@ -1271,4 +1271,5 @@ return [
     'pipedrive_attribute_available' => 'Attributes of the pipedrive app',
     'pipedrive_verification_updated' => 'Pipedrive verification status updated successfully',
     'sync_pipedrive_fields' => 'This will sync the new fields created in Pipedrive and remove the old fields that are no longer available.',
+    'deal_title_required' => 'The Pipedrive title field is required to update deals in Pipedrive. Make sure to map the title field.'
 ];

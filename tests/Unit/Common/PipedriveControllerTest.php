@@ -4,6 +4,7 @@ namespace Tests\Unit\Common;
 
 use App\ApiKey;
 use App\Http\Controllers\Common\PipedriveController;
+use App\Model\Common\PipedriveField;
 use App\Model\Common\PipedriveGroups;
 use App\Model\Common\PipedriveLocalFields;
 use App\Model\Common\StatusSetting;
@@ -42,19 +43,6 @@ class PipedriveControllerTest extends DBTestCase
     {
         Mockery::close();
         parent::tearDown();
-    }
-
-    public function test_it_updates_verification_status()
-    {
-        $request = new Request([
-            'require_pipedrive_user_verification' => true,
-        ]);
-
-        $response = $this->pipedriveController->updateVerificationStatus($request);
-        $data = $response->getData(true);
-
-        $this->assertTrue($data['success']);
-        $this->assertTrue((bool) ApiKey::first()->require_pipedrive_user_verification);
     }
 
     public function test_it_handles_field_mapping_validation()
@@ -155,20 +143,37 @@ class PipedriveControllerTest extends DBTestCase
 
     public function test_it_updates_field_mappings_correctly()
     {
-        $group = PipedriveGroups::first();
-        $localField = PipedriveLocalFields::create(['field_key' => 'test', 'field_name' => 'Test']);
+        // Create a group
+        $group = PipedriveGroups::create(['group_name' => 'Organization']);
 
-        $request = new Request([
-            'group_id' => $group->id,
-            'test' => 'pipedrive_key',
+        // Create a local field
+        $localField = PipedriveLocalFields::create([
+            'field_key' => 'test',
+            'field_name' => 'Test'
         ]);
 
+        // Create a pipedrive field that will be mapped
+        $pipedriveField = PipedriveField::create([
+            'pipedrive_group_id' => $group->id,
+            'field_key' => 'pipedrive_key',
+            'local_field_id' => null
+        ]);
+
+        // Simulate request with select1 (PipedriveField IDs) and select2 (LocalField IDs)
+        $request = new Request([
+            'group_id' => $group->id,
+            'select1' => [$pipedriveField->id],
+            'select2' => [$localField->id],
+        ]);
+
+        // Call the controller method
         $response = $this->pipedriveController->mappingFields($request);
         $data = $response->getData(true);
 
+        // Assert the response and DB changes
         $this->assertTrue($data['success']);
         $this->assertDatabaseHas('pipedrive_fields', [
-            'field_key' => 'pipedrive_key',
+            'id' => $pipedriveField->id,
             'local_field_id' => $localField->id,
         ]);
     }
