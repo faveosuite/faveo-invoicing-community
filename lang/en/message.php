@@ -1164,5 +1164,5 @@ return [
     'pipedrive_attribute_available' => 'Attributes of the pipedrive app',
     'pipedrive_verification_updated' => 'Pipedrive verification status updated successfully',
     'sync_pipedrive_fields' => 'This will sync the new fields created in Pipedrive and remove the old fields that are no longer available.',
-    'deal_title_required' => 'The Pipedrive title field is required to update deals in Pipedrive. Make sure to map the title field.'
+    'deal_title_required' => 'The Pipedrive title field is required to update deals in Pipedrive. Make sure to map the title field.',
 ];

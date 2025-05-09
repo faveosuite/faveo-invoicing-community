@@ -149,14 +149,14 @@ class PipedriveControllerTest extends DBTestCase
         // Create a local field
         $localField = PipedriveLocalFields::create([
             'field_key' => 'test',
-            'field_name' => 'Test'
+            'field_name' => 'Test',
         ]);
 
         // Create a pipedrive field that will be mapped
         $pipedriveField = PipedriveField::create([
             'pipedrive_group_id' => $group->id,
             'field_key' => 'pipedrive_key',
-            'local_field_id' => null
+            'local_field_id' => null,
         ]);
 
         // Simulate request with select1 (PipedriveField IDs) and select2 (LocalField IDs)
