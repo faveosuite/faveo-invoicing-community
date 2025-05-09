@@ -194,16 +194,6 @@ class PipedriveController extends Controller
         }
     }
 
-    public function pipedriveSettings()
-    {
-        $groups = $this->getGroups();
-        $apiKey = ApiKey::value('pipedrive_api_key');
-        $isVerificationEnabled = ApiKey::value('require_pipedrive_user_verification');
-        $settings = Setting::first();
-
-        return view('themes.default1.common.pipedrive.settings', compact('apiKey', 'groups', 'settings', 'isVerificationEnabled'));
-    }
-
     public function getLocalFields($group_id)
     {
         $pipedriveFields = PipedriveField::where('pipedrive_group_id', $group_id)->get();
@@ -259,7 +249,12 @@ class PipedriveController extends Controller
             default => '',
         };
 
-        return view('themes.default1.common.pipedrive.settings', compact('group_id', 'title', 'groups'));
+        $pipedriveData = [
+            'local_fields' => PipedriveLocalFields::get(),
+            'pipedrive_fields' => PipedriveField::where('pipedrive_group_id', $group_id)->get(),
+        ];
+
+        return view('themes.default1.common.pipedrive.settings', compact('group_id', 'title', 'groups' , 'pipedriveData'));
     }
 
     private function transformPipedriveData(User $user, int $groupId, array $customFields = []): array
