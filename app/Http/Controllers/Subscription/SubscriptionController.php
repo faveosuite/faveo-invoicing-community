@@ -147,9 +147,9 @@ class SubscriptionController extends Controller
             $endDate = Carbon::now()->addDays($day)->toDateString();
 
             $subscriptionsForDay = Subscription::where(function ($query) use ($endDate) {
-                $query->where('update_ends_at', 'LIKE', $endDate . '%')
-                    ->orWhere('support_ends_at', 'LIKE', $endDate . '%')
-                    ->orWhere('ends_at', 'LIKE', $endDate . '%');
+                $query->where('update_ends_at', 'LIKE', $endDate.'%')
+                    ->orWhere('support_ends_at', 'LIKE', $endDate.'%')
+                    ->orWhere('ends_at', 'LIKE', $endDate.'%');
             })
                 ->where(function ($query) {
                     $query->where('is_subscribed', 2)
@@ -478,7 +478,7 @@ class SubscriptionController extends Controller
         $yesterday = Carbon::yesterday()->format('Y-m-d');
         $product_name = Product::where('id', $subscription->product_id)->value('name');
         $invoiceid = \DB::table('order_invoice_relations')->where('order_id', $subscription->order_id)->latest()->value('invoice_id');
-        $invoiceItem = \DB::table('invoice_items')->where('invoice_id', $invoiceid)->where('product_id',  $subscription->product_id)->first();
+        $invoiceItem = \DB::table('invoice_items')->where('invoice_id', $invoiceid)->where('product_id', $subscription->product_id)->first();
         $invoice = Invoice::where('id', $invoiceItem->invoice_id)->where('status', 'pending')->first();
         $order = Order::where('id', $subscription->order_id)->first();
 
@@ -493,7 +493,7 @@ class SubscriptionController extends Controller
             $invoiceCost = $this->calculateReverseUnitCost($currency, $invoices->amount);
             $cost = $cost == intval($invoiceCost) ? $cost : intval($invoiceCost);
             Invoice::where('id', $invoiceItem->invoice_id)->where('status', 'pending')->update(['grand_total' => $cost]);
-            \DB::table('invoice_items')->where('invoice_id', $invoiceid)->where('product_id',  $subscription->product_id)->update(['regular_price' => $cost]);
+            \DB::table('invoice_items')->where('invoice_id', $invoiceid)->where('product_id', $subscription->product_id)->update(['regular_price' => $cost]);
             // Refresh the invoice and invoice item instances
             $invoice = Invoice::find($invoiceItem->invoice_id);
             $invoiceItem = InvoiceItem::where('invoice_id', $invoiceid)->where('product_id', $subscription->product_id)->first();
