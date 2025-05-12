@@ -375,6 +375,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
         try {
             $planid = 0;
             $product_name = $cart->name;
+            $product_id = $cart->id;
             $regular_price = (\Session::has('priceToBePaid')) ? \Session::get('priceToBePaid') : $cart->price;
             $quantity = $cart->quantity;
             $agents = $cart->attributes->agents;
@@ -392,6 +393,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             $invoiceItem = $this->invoiceItem->create([
                 'invoice_id' => $invoiceid,
                 'product_name' => $product_name,
+                'product_id' => $product_id,
                 'regular_price' => $regular_price,
                 'quantity' => $quantity,
                 'tax_name' => $tax_name,
@@ -496,6 +498,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             $items = $this->invoiceItem->create([
                 'invoice_id' => $invoiceid,
                 'product_name' => $product->name,
+                'product_id' => $productid,
                 'regular_price' => $price,
                 'quantity' => $qty,
                 'subtotal' => rounding($subtotal),

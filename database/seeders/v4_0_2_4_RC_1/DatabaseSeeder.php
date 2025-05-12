@@ -4,6 +4,9 @@ namespace Database\Seeders\v4_0_2_4_RC_1;
 
 use App\Model\Common\Msg91Status;
 use App\Model\Common\PipedriveLocalFields;
+use App\Model\Order\InvoiceItem;
+use App\Model\Order\Order;
+use App\Model\Product\Product;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -14,6 +17,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->addMsgStatus();
+        $this->invoiceItemProductIDChange();
     }
 
     public function addMsgStatus()
@@ -33,6 +37,23 @@ class DatabaseSeeder extends Seeder
                 ['status_code' => $status['status_code']],
                 ['status_label' => $status['status_label']]
             );
+        }
+    }
+
+    public function invoiceItemProductIDChange()
+    {
+        $orders = Order::all();
+        foreach ($orders as $order) {
+            // Make sure invoice_item_id and product_id exist in the order
+            if ($order->invoice_item_id && $order->product) {
+                // Find the invoice item
+                $invoiceItem = InvoiceItem::find($order->invoice_item_id);
+                $product = Product::find($order->product);
+                if ($invoiceItem && $product) {
+                    $invoiceItem->product_id = $product->id;
+                    $invoiceItem->save();
+                }
+            }
         }
     }
 }
