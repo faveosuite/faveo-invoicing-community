@@ -44,7 +44,6 @@ class BaseCartController extends Controller
      */
     public function updateAgentQty(Request $request)
     {
-
         try {
             $id = $request->input('productid');
             $planid = $request->input('planid');
