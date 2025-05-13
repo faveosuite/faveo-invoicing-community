@@ -651,3 +651,7 @@ Route::get('404', function () {
 Route::get('/api/download/agents', [Product\BaseProductController::class, 'agentProductDownload']);
 Route::get('/product/detail', [Product\BaseProductController::class, 'getProductUsingLicenseCode']);
 // });
+  /*
+   * Widget Api's
+   */
+Route::get('footer1',[Front\WidgetController::class, 'footer1']);
