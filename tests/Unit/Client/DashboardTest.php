@@ -10,6 +10,7 @@ use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\User;
 use Tests\DBTestCase;
+use Carbon\Carbon;
 
 class DashboardTest extends DBTestCase
 {
@@ -92,7 +93,7 @@ class DashboardTest extends DBTestCase
         $invoice=Invoice::factory()->create(['user_id'=>$user->id,'status'=>'pending']);
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
         $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
-            'version' => 'v6.0.0', 'update_ends_at' => $date]);
+            'version' => 'v6.0.0', 'update_ends_at' => Carbon::now()]);
         $response=$this->call('get','client-dashboard');
         $content=$response->getOriginalContent()->getData();
         $this->assertEquals($content['renewalCount'],0);

@@ -226,7 +226,12 @@ class ClientController extends BaseClientController
     public function invoices(Request $request)
     {
         try {
-            return view('themes.default1.front.clients.invoice', compact('request'));
+            $amt = \DB::table('payments')->where('user_id',\Auth::user()->id)->where('payment_method','Credit Balance')->where('payment_status','success')->value('amt_to_credit');
+            $formattedValue = currencyFormat($amt, getCurrencyForClient(\Auth::user()->country) , true);
+            $payment_id = \DB::table('payments')->where('user_id',\Auth::user()->id)->where('payment_method','Credit Balance')->where('payment_status','success')->value('id');
+            $payment_activity=\DB::table('credit_activity')->where('payment_id',$payment_id)->where('role','user')->orderBy('created_at', 'desc')->get();
+
+            return view('themes.default1.front.clients.invoice', compact('request','formattedValue','payment_activity'));
         } catch (Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }
