@@ -207,7 +207,7 @@ class SubscriptionController extends Controller
                 $priceRow = PlanPrice::where('plan_id', $subscription->plan_id)
                     ->where('currency', $currency)
                     ->whereIn('country_id', [$country, 0])
-                    ->orderByRaw("FIELD(country_id, ?, 0)", [$country])
+                    ->orderByRaw('FIELD(country_id, ?, 0)', [$country])
                     ->first();
 
                 $price = $priceRow->renew_price ?? 0;
