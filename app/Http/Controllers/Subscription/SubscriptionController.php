@@ -203,17 +203,36 @@ class SubscriptionController extends Controller
                 $countryids = \App\Model\Common\Country::where('country_code_char2', $user->country)->first();
                 $currency = getCurrencyForClient($user->country);
                 $country = $countryids->country_id;
-                $price = PlanPrice::where('plan_id', $subscription->plan_id)->where('currency', $currency)->where('country_id', $country)->value('renew_price');
-                if (empty($price)) {
-                    $price = PlanPrice::where('plan_id', $subscription->plan_id)->where('currency', $currency)->where('country_id', 0)->value('renew_price');
+
+                $priceRow = PlanPrice::where('plan_id', $subscription->plan_id)
+                    ->where('currency', $currency)
+                    ->where('country_id', $country)
+                    ->first();
+
+                if (empty($priceRow)) {
+                    $priceRow = PlanPrice::where('plan_id', $subscription->plan_id)
+                        ->where('currency', $currency)
+                        ->where('country_id', 0)
+                        ->first();
                 }
+
+                $price = $priceRow->renew_price ?? 0;
+
+                if(in_array($subscription->product_id, cloudPopupProducts()) || $product_details->can_modify_agent){
+                    $noOfAgents = $priceRow->no_of_agents;
+                    $priceForAgents = $price/$noOfAgents;
+                    $cost = $this->getPriceforCloud($order, $priceForAgents);
+                }
+                else{
+                    $cost = $price;
+                }
+
                 // add processing fee for stripe payment
                 if ($payment_method == 'stripe') {
                     $processingFee = \DB::table(strtolower('stripe'))->where('currencies', $currency)->value('processing_fee');
                     $processingFee = (float) $processingFee / 100;
-                    $price += ($price * $processingFee);
+                    $price = $cost + ($cost * $processingFee);
                 }
-                $cost = in_array($subscription->product_id, cloudPopupProducts()) || $product_details->can_modify_agent ? $this->getPriceforCloud($order, $price) : $price;
 
                 if ($this->shouldCancelSubscription($product_details, $price)) {
                     Subscription::where('id', $subscription->id)->update(['is_subscribed' => 0]);
