@@ -218,12 +218,11 @@ class SubscriptionController extends Controller
 
                 $price = $priceRow->renew_price ?? 0;
 
-                if(in_array($subscription->product_id, cloudPopupProducts()) || $product_details->can_modify_agent){
+                if (in_array($subscription->product_id, cloudPopupProducts()) || $product_details->can_modify_agent) {
                     $noOfAgents = $priceRow->no_of_agents;
-                    $priceForAgents = $price/$noOfAgents;
+                    $priceForAgents = $price / $noOfAgents;
                     $cost = $this->getPriceforCloud($order, $priceForAgents);
-                }
-                else{
+                } else {
                     $cost = $price;
                 }
 
