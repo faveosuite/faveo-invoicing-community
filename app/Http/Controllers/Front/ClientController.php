@@ -226,12 +226,12 @@ class ClientController extends BaseClientController
     public function invoices(Request $request)
     {
         try {
-            $amt = \DB::table('payments')->where('user_id',\Auth::user()->id)->where('payment_method','Credit Balance')->where('payment_status','success')->value('amt_to_credit');
-            $formattedValue = currencyFormat($amt, getCurrencyForClient(\Auth::user()->country) , true);
-            $payment_id = \DB::table('payments')->where('user_id',\Auth::user()->id)->where('payment_method','Credit Balance')->where('payment_status','success')->value('id');
-            $payment_activity=\DB::table('credit_activity')->where('payment_id',$payment_id)->where('role','user')->orderBy('created_at', 'desc')->get();
+            $amt = \DB::table('payments')->where('user_id', \Auth::user()->id)->where('payment_method', 'Credit Balance')->where('payment_status', 'success')->value('amt_to_credit');
+            $formattedValue = currencyFormat($amt, getCurrencyForClient(\Auth::user()->country), true);
+            $payment_id = \DB::table('payments')->where('user_id', \Auth::user()->id)->where('payment_method', 'Credit Balance')->where('payment_status', 'success')->value('id');
+            $payment_activity = \DB::table('credit_activity')->where('payment_id', $payment_id)->where('role', 'user')->orderBy('created_at', 'desc')->get();
 
-            return view('themes.default1.front.clients.invoice', compact('request','formattedValue','payment_activity'));
+            return view('themes.default1.front.clients.invoice', compact('request', 'formattedValue', 'payment_activity'));
         } catch (Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }
@@ -249,6 +249,7 @@ class ClientController extends BaseClientController
         if ($status == 'pending') {
             $invoices->where('invoices.status', '=', 'pending');
         }
+
         return \DataTables::of($invoices)
                     ->orderColumn('number', '-invoices.date $1')
                     ->orderColumn('orderNo', '-invoices.date $1')
@@ -441,6 +442,7 @@ class ClientController extends BaseClientController
                 ->first();
 
             $downloadPermission = LicensePermissionsController::getPermissionsForProduct($productid);
+
             return \DataTables::of($versions)
                 ->addColumn('id', function ($version) {
                     return ucfirst($version->id);
@@ -766,6 +768,7 @@ class ClientController extends BaseClientController
                 ->select('id', 'invoice_id', 'user_id', 'amount', 'payment_method', 'payment_status', 'created_at')
                 ->orderByDesc('created_at')
                 ->first();
+
             return view(
                 'themes.default1.front.clients.show-order',
                 compact('invoice', 'order', 'user', 'product', 'subscription', 'licenseStatus', 'installationDetails', 'allowDomainStatus', 'date', 'licdate', 'versionLabel', 'installationDetails', 'id', 'statusAutorenewal', 'status', 'payment_log', 'recentPayment')
@@ -890,7 +893,8 @@ class ClientController extends BaseClientController
             $query->where('update_ends_at', '<', now());
         })
         ->count();
-            return view('themes.default1.front.clients.index', compact('pendingInvoicesCount', 'ordersCount', 'renewalCount'));
+
+        return view('themes.default1.front.clients.index', compact('pendingInvoicesCount', 'ordersCount', 'renewalCount'));
     }
 
     /**

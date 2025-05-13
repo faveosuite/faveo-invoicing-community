@@ -9,7 +9,6 @@ use App\Plugins\Stripe\Model\StripePayment;
 use App\Traits\Payment\PostPaymentHandle;
 use Cartalyst\Stripe\Laravel\Facades\Stripe;
 use Illuminate\Http\Request;
-use Schema;
 
 class SettingsController extends Controller
 {
