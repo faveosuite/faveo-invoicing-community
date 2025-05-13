@@ -460,7 +460,7 @@ class CloudExtraActivities extends Controller
                             $price = $priceToBePaid - $priceRemaining;
                         } else {
                             $discount = $priceRemaining - $priceToBePaid;
-                            \Session::put('nothingLeft','0');
+                            \Session::put('nothingLeft', '0');
                             \DB::table('users')->where('id', \Auth::user()->id)->update(['billing_pay_balance' => 1]);
 
                             \Session::put('discount', round($discount));
@@ -473,7 +473,7 @@ class CloudExtraActivities extends Controller
                             $payment_id = \DB::table('payments')->where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('id');
                             $orderNumber = Order::where('id', $orderId)->value('number');
                             $formattedPay = currencyFormat($pay, getCurrencyForClient(\Auth::user()->country), true);
-                            
+
 //                            if (! $payUpdate->isEmpty()) {
 //                                $pay = $pay + round($discount);
 //                                Payment::where('user_id', \Auth::user()->id)->where('payment_status', 'success')->update(['amt_to_credit' => $pay]);
@@ -500,7 +500,7 @@ class CloudExtraActivities extends Controller
                             $price = $priceToBePaid - $priceRemaining;
                         } else {
                             $discount = $priceRemaining - $priceToBePaid;
-                            \Session::put('nothingLeft','0');
+                            \Session::put('nothingLeft', '0');
                             \DB::table('users')->where('id', \Auth::user()->id)->update(['billing_pay_balance' => 1]);
                             \Session::put('discount', round($discount));
                             $price = $priceToBePaid;
@@ -537,7 +537,7 @@ class CloudExtraActivities extends Controller
             \Session::put('priceToBePaid', round($priceToBePaid));
             $items = ['id' => $product_id_new, 'name' => $productNew->name, 'price' => round(abs($price)), 'planId' => $planIdNew,
                 'quantity' => 1, 'attributes' => ['currency' => $currencyNew['currency'], 'symbol' => $currencyNew['symbol'], 'agents' => $newAgents,
-                    'priceRemaining'=>$priceRemaining,'priceToBePaid'=>$priceToBePaid], 'associatedModel' => $productNew];
+                    'priceRemaining' => $priceRemaining, 'priceToBePaid' => $priceToBePaid], 'associatedModel' => $productNew];
 
             return $items;
         } catch(\Exception $e) {
@@ -680,7 +680,6 @@ class CloudExtraActivities extends Controller
 
     public function formatCurrency(Request $request)
     {
-
         $amount = $request->input('amount');
         $currency = $request->input('currency');
         if (! $amount && User::where('id', \Auth::user()->id)->value('billing_pay_balance')) {
@@ -930,6 +929,7 @@ class CloudExtraActivities extends Controller
                     }
                 }
             }
+
             return ['pricePerAgent' => currencyFormat($base_price, $currency['currency'], true), 'totalPrice' => currencyFormat($base_price * $newAgents, $currency['currency'], true), 'priceToPay' => currencyFormat($price, $currency['currency'], true)];
         } catch(\Exception $e) {
             app('log')->error($e->getMessage());
