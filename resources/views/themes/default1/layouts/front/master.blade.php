@@ -140,6 +140,7 @@ foreach($scripts as $script) {
 
 </head>
 <?php
+
 $domain = [];
 $set = new \App\Model\Common\Setting();
 $set = $set->findOrFail(1);

@@ -14,7 +14,7 @@ use Tests\DBTestCase;
 
 class ClientInvoiceController extends DBTestCase
 {
-
+    /** @group invoice */
     public function test_return_invoice_details_correctly(){
         $user=User::factory()->create();
         $this->actingAs($user);
@@ -34,6 +34,7 @@ class ClientInvoiceController extends DBTestCase
         $this->assertEquals($content['data'][0]['user_id'],$user->id);
     }
 
+    /** @group invoice */
     public function test_deleting_invoice(){
         $user=User::factory()->create();
         $this->actingAs($user);
@@ -51,7 +52,7 @@ class ClientInvoiceController extends DBTestCase
         ]);
     }
 
-
+    /** @group invoice */
     public function test_delete_fails_when_invoice_item_does_not_exist(){
         $user=User::factory()->create();
         $this->actingAs($user);
@@ -67,7 +68,7 @@ class ClientInvoiceController extends DBTestCase
         ]);
     }
 
-
+    /** @group invoice */
     public function test_returns_individual_invoice(){
         $user=User::factory()->create();
         $this->actingAs($user);
@@ -79,6 +80,7 @@ class ClientInvoiceController extends DBTestCase
         $response->assertSessionHas('fails','Invoice not found.');
     }
 
+    /** @group invoice */
     public function test_when_user_id_is_not_same_as_authorized_user(){
         $user=User::factory()->create();
         $user1=User::factory()->create();
@@ -90,6 +92,7 @@ class ClientInvoiceController extends DBTestCase
         $response->assertSessionHas('fails','Cannot view invoice. Invalid modification of data.');
     }
 
+    /** @group invoice */
     public function test_when_user_invoice_id_are_correct(){
         $user=User::factory()->create();
         $this->actingAs($user);
@@ -117,7 +120,7 @@ class ClientInvoiceController extends DBTestCase
         $response->assertViewIs('themes.default1.front.clients.show-invoice');
     }
 
-
+    /** @group invoice */
     public function test_individual_data_in_datatable(){
         $user=User::factory()->create();
         $this->actingAs($user);
@@ -134,6 +137,7 @@ class ClientInvoiceController extends DBTestCase
         $this->assertEquals($content['data'][0]['currency'],$invoice->currency);
     }
 
+    /** @group invoice */
     public function test_invoice_generate_pdf(){
         $user=User::factory()->create();
         $this->actingAs($user);
@@ -143,7 +147,7 @@ class ClientInvoiceController extends DBTestCase
         $response->assertSessionHas('fails','Invoice ID is required.');
     }
 
-
+    /** @group invoice */
     public function test_when_wrong_id_given(){
         $user=User::factory()->create();
         $this->actingAs($user);
@@ -153,6 +157,7 @@ class ClientInvoiceController extends DBTestCase
         $response->assertSessionHas('fails','Invalid Invoice');
 }
 
+    /** @group invoice */
     public function test_generate_invoice_when_all_data_given(){
         $user=User::factory()->create();
         $this->actingAs($user);

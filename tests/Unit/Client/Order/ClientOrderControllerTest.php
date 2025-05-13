@@ -76,6 +76,7 @@ use App\Payment_log;
             ]);
     }
 
+    /** @group order  */
     public function test_while_selecting_plan_provides_price(){
         $user=User::factory()->create();
         $this->actingAs($user);
@@ -90,7 +91,7 @@ use App\Payment_log;
         $this->assertEquals($content[1],$product->can_modify_agent);
     }
 
-
+    /** @group order  */
     public function test_fails_due_to_invalid_license_key(){
         $user=User::factory()->create();
         $this->actingAs($user);
@@ -117,8 +118,7 @@ use App\Payment_log;
         $response->assertSessionHas('fails',"Please configure the valid license details in Apikey settings.");
     }
 
-
-
+        /** @group order  */
         public function test_successful_when_license_mocked(){
             $user=User::factory()->create();
             $this->actingAs($user);
@@ -153,7 +153,7 @@ use App\Payment_log;
             $response->assertViewIs('themes.default1.front.clients.show-order');
         }
 
-
+        /** @group order  */
         public function test_auto_renewal(){
             $user=User::factory()->create();
             $this->actingAs($user);
@@ -173,6 +173,7 @@ use App\Payment_log;
             $response->assertSessionHas('plan_id');
         }
 
+        /** @group order  */
         public function test_to_payNow_exception(){
             $user=User::factory()->create();
             $this->actingAs($user);
@@ -193,7 +194,7 @@ use App\Payment_log;
             $response->assertSessionHas('fails', 'Cannot initiate payment. Invalid modification of data');
         }
 
-
+        /** @group order  */
         public function test_to_payNow_redirection(){
             $user = User::factory()->create();
             $this->actingAs($user);
@@ -214,6 +215,7 @@ use App\Payment_log;
             $response->assertViewIs('themes.default1.front.paynow');
         }
 
+        /** @group order  */
         public function test_download_version(){
             $user=User::factory()->create();
             $this->actingAs($user);
@@ -259,6 +261,7 @@ use App\Payment_log;
                 ]);
     }
 
+        /** @group order  */
         public function  test_my_orders_datatable_individual_data(){
             $user=User::factory()->create();
             $this->actingAs($user);

@@ -44,6 +44,7 @@ class BaseCartController extends Controller
      */
     public function updateAgentQty(Request $request)
     {
+
         try {
             $id = $request->input('productid');
             $planid = $request->input('planid');
@@ -67,7 +68,8 @@ class BaseCartController extends Controller
         $cart = \Cart::get($productId);
         if ($cart) {
             $agtqty = $cart->attributes->agents;
-            $price = \Cart::getTotal();
+            $price = $cart->price;
+
             $currency = $cart->attributes->currency;
             $symbol = $cart->attributes->currency;
         } else {
@@ -75,11 +77,11 @@ class BaseCartController extends Controller
         }
 
         if ($canReduceAgent) {
-            $price = \Cart::getTotal() / $agtqty;
+            $price = $cart->price / $agtqty;
             $agtqty = $agtqty - 1;
-            $price = \Cart::getTotal() - $price;
+            $price = $cart->price - $price;
         } else {
-            $price = \Cart::getTotal() / $agtqty;
+            $price = $cart->price / $agtqty;
 
             $agtqty = $agtqty + 1;
 

@@ -27,6 +27,7 @@ class ClientFooterGeneralTest extends DBTestCase
 
     }
 
+    /** @group demo */
     public function test_request_demo_required_field_not_given(){
         $user = User::factory()->create();
         $this->withoutMiddleware();
@@ -34,6 +35,7 @@ class ClientFooterGeneralTest extends DBTestCase
         $response->assertSessionHasErrors('demoname','The name field is required');
     }
 
+    /** @group demo */
     public function test_request_demo_fields_are_given(){
         $this->withoutMiddleware();
         $response=$this->call('POST','demo-request',['demoname'=>'test',
@@ -46,6 +48,7 @@ class ClientFooterGeneralTest extends DBTestCase
         $response->assertJson(['message'=>'Your message was sent successfully. Thanks.']);
     }
 
+    /** @group demo */
     public function test_request_demo_spam_detected(){
         $this->withoutMiddleware();
         $response=$this->call('POST','demo-request',['demoname'=>'test',
@@ -56,6 +59,7 @@ class ClientFooterGeneralTest extends DBTestCase
         $response->assertJson(['error'=>'Spam detected.']);
     }
 
+    /** @group demo */
     public function test_request_demo_when_spam_name_given(){
         $this->withoutMiddleware();
         $response=$this->call('POST','demo-request',['demoname'=>'test',
@@ -67,13 +71,14 @@ class ClientFooterGeneralTest extends DBTestCase
         $response->assertJson(['error'=>'Spam detected.']);
     }
 
-
+    /** @group trial */
     public function test_start_free_trial_domain_is_wrong(){
         $this->withoutMiddleware();
         $response=$this->call('POST','first-login',['domain'=>'test@123.com',]);
         $response->assertSessionHasErrors('domain',"Special characters are not allowed in domain name");
     }
 
+    /** @group trial */
     public function test_start_free_trial_tenant_not_created(){
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -87,7 +92,7 @@ class ClientFooterGeneralTest extends DBTestCase
         $this->assertEquals($content['status'],'false');
     }
 
-
+    /** @group trial */
     public function test_start_free_trial_tenant_created(){
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -118,7 +123,7 @@ class ClientFooterGeneralTest extends DBTestCase
 
     }
 
-
+    /** @group trial */
     public function test_free_trial_attempt_more_then_one(){
         $user = User::factory()->create();
         $this->actingAs($user);

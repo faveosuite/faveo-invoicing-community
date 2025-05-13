@@ -157,6 +157,7 @@ class CheckoutController extends InfoController
             \Session::forget('discount');
             \Session::put('discount', $total);
         }
+
             return view('themes.default1.front.checkout', compact('content', 'taxConditions', 'discountPrice', 'domain'));
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
@@ -180,7 +181,7 @@ class CheckoutController extends InfoController
                     \Session::put('cart_currency', $cart_currency);
                     $currency = getCurrencyForClient(\Auth::user()->country) != $cart_currency ? getCurrencyForClient(\Auth::user()->country) : $cart_currency; //If User Currency and cart currency are different the currency es set to user currency.
                     if ($cart_currency != $currency) {
-                        $id = $item->associatedModel->id;
+                        $id = $item->id;
                         Cart::remove($id);
                     }
                     $require_domain = $item->associatedModel->require_domain;
@@ -193,7 +194,7 @@ class CheckoutController extends InfoController
                     Cart::remove($item->id);
                     //Return array of Product Details,attributes and their conditions
                     $items[] = ['id' => $item->id, 'name' => $item->name, 'price' => $item->price,
-                        'quantity' => $item->quantity, 'attributes' => ['currency' => $cart_currency, 'symbol' => $item->attributes->symbol, 'agents' => $item->attributes->agents, 'domain' => optional($item->attributes)->domain,'priceToBePaid'=>$item->attributes->priceToBePaid,'priceRemaining'=>$item->attributes->priceRemaining], 'associatedModel' => Product::find($item->id), 'conditions' => $taxConditions, ];
+                        'quantity' => $item->quantity, 'attributes' => ['currency' => $cart_currency, 'symbol' => $item->attributes->symbol, 'agents' => $item->attributes->agents, 'domain' => optional($item->attributes)->domain,'priceToBePaid'=>$item->attributes->priceToBePaid,'priceRemaining'=>$item->attributes->priceRemaining], 'associatedModel' => Product::find($item->associatedModel->id), 'conditions' => $taxConditions, ];
                 }
                 Cart::add($items);
 
@@ -453,8 +454,10 @@ class CheckoutController extends InfoController
             if (! $agent) {
                 $payment = new \App\Http\Controllers\Order\InvoiceController();
                 $payment->postRazorpayPayment($invoice);
+
                 $order = new \App\Http\Controllers\Order\OrderController();
                 $order->executeOrder($invoice->id, $order_status = 'executed');
+
             }
 
             return 'success';
@@ -483,7 +486,6 @@ class CheckoutController extends InfoController
     private function doTheDeed($invoice, $do = true)
     {
         Payment::where('user_id', \Auth::user()->id)->where('payment_method', 'Credit Balance')->latest()->update(['payment_status' => 'success']);
-
         $amt_to_credit = Payment::where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('amt_to_credit');
         if ($amt_to_credit && $do) {
             $amt_to_credit = (int) $amt_to_credit - (int) $invoice->billing_pay;
