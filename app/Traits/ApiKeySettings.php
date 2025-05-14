@@ -20,7 +20,6 @@ use Illuminate\Support\Facades\Http;
 
 trait ApiKeySettings
 {
-
     public function licenseDetails(Request $request)
     {
         $status = $request->input('status');
@@ -37,34 +36,31 @@ trait ApiKeySettings
             'grant_type' => $licenseApiGrantType,
         ];
 
-
         try {
             $response = Http::withoutVerifying()->asForm()->post($licenseApiUrl.'oauth/token', $data);
             $response = json_decode($response);
             $token = $response->access_token;
-        }catch(\Exception $e){
+        } catch(\Exception $e) {
             return errorResponse(\Lang::get('message.license_invalid'));
-
         }
         StatusSetting::where('id', 1)->update(['license_status' => $status]);
         ApiKey::where('id', 1)->update(['license_api_secret' => $licenseApiSecret, 'license_api_url' => $licenseApiUrl,
             'license_client_id' => $licenseApiClientId, 'license_client_secret' => $licenseApiClientSecret,
             'license_grant_type' => $licenseApiGrantType, ]);
+
         return successResponse(\Lang::get('message.license_setting'));
-
     }
-
 
     public function licenseStatus(Request $request)
     {
         $statusData = collect([
-            'status'             => ['key' => 'license_status',       'lang' => __('message.license_status')],
-            'mstatus'            => ['key' => 'msg91_status',         'lang' => __('message.mobile_status')],
-            'mailchimpstatus'    => ['key' => 'mailchimp_status',     'lang' => __('message.mailchimp_status')],
-            'gcaptchastatus'     => ['key' => 'v3_v2_recaptcha_status','lang' => __('message.google_status')],
-            'termsStatus'         => ['key' => 'terms',                'lang' => __('message.terms_status')],
-            'pipedrivestatus'   => ['key' => 'pipedrive_status',     'lang' => __('message.pipedrive_status')],
-            'githubstatus'       => ['key' => 'github_status',        'lang' => __('message.github_status')],
+            'status' => ['key' => 'license_status',       'lang' => __('message.license_status')],
+            'mstatus' => ['key' => 'msg91_status',         'lang' => __('message.mobile_status')],
+            'mailchimpstatus' => ['key' => 'mailchimp_status',     'lang' => __('message.mailchimp_status')],
+            'gcaptchastatus' => ['key' => 'v3_v2_recaptcha_status', 'lang' => __('message.google_status')],
+            'termsStatus' => ['key' => 'terms',                'lang' => __('message.terms_status')],
+            'pipedrivestatus' => ['key' => 'pipedrive_status',     'lang' => __('message.pipedrive_status')],
+            'githubstatus' => ['key' => 'github_status',        'lang' => __('message.github_status')],
         ]);
 
         try {
@@ -75,25 +71,22 @@ trait ApiKeySettings
                 return array_key_exists($inputKey, $input);
             });
 
-            if (!$statusEntry) {
+            if (! $statusEntry) {
                 return errorResponse(\Lang::get('message.invalid_key'));
             }
-
 
             $inputKey = array_key_first(array_intersect_key($input, $statusData->toArray()));
             $statusValue = $input[$inputKey];
 
             StatusSetting::where('id', 1)->update([
-                $statusEntry['key'] => $statusValue
+                $statusEntry['key'] => $statusValue,
             ]);
 
             return successResponse($statusEntry['lang']);
-
         } catch (\Exception $e) {
             return errorResponse(\Lang::get('message.invalid_key'));
         }
     }
-
 
     public function mobileStatus(Request $request)
     {
@@ -125,6 +118,7 @@ trait ApiKeySettings
         StatusSetting::find(1)->update(['msg91_status' => $status]);
 
         ApiKey::find(1)->update(['msg91_auth_key' => $key, 'msg91_sender' => $request->input('msg91_sender'), 'msg91_template_id' => $request->input('msg91_template_id'), 'msg91_third_party_id' => $thirdPartyId]);
+
         return successResponse(\Lang::get('message.mobile_setting'));
     }
 
@@ -184,28 +178,24 @@ trait ApiKeySettings
         try {
             $pipedriveKey = $request->input('pipedrive_key');
 
-            $response = Http::get("https://api.pipedrive.com/v1/users/me", [
-                'api_token' => $pipedriveKey
+            $response = Http::get('https://api.pipedrive.com/v1/users/me', [
+                'api_token' => $pipedriveKey,
             ]);
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return errorResponse(\Lang::get('message.pipedrive_error'));
-
             }
 
             $result = json_decode($response, true);
             if (isset($result['success']) && $result['success'] !== true) {
                 return errorResponse(\Lang::get('message.pipedrive_error'));
-
             }
             $status = $request->input('status');
             StatusSetting::find(1)->update(['pipedrive_status' => $status]);
             ApiKey::find(1)->update(['pipedrive_api_key' => $pipedriveKey]);
 
             return successResponse(\Lang::get('message.pipedrive_setting'));
-
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return errorResponse(\Lang::get('message.pipedrive_error'));
-
         }
     }
 
@@ -246,16 +236,16 @@ trait ApiKeySettings
                 $allists = $mailchimp->get('lists?count=20')['lists'];
                 $selectedList[] = $set->list_id;
                 $subscribe_status = MailchimpSetting::pluck('subscribe_status')->first();
-                $data=['mailchimpverifiedStatus' => $mailchimpverifiedStatus,
+                $data = ['mailchimpverifiedStatus' => $mailchimpverifiedStatus,
                     'status' => $status,
                     'allLists' => $allists,
                     'selectedList' => $selectedList,
-                    'subscribe_status' => $subscribe_status,];
-                return successResponse(\Lang::get('message.mailchimp_setting'),$data);
+                    'subscribe_status' => $subscribe_status, ];
 
+                return successResponse(\Lang::get('message.mailchimp_setting'), $data);
             }
-                return errorResponse(\Lang::get('message.mailchimp_apikey_error'));
 
+            return errorResponse(\Lang::get('message.mailchimp_apikey_error'));
         } catch(\Exception $e) {
             return errorResponse(\Lang::get('message.mailchimp_apikey_error'));
         }
@@ -270,11 +260,12 @@ trait ApiKeySettings
             if ($response == false) {
                 return errorResponse(\Lang::get('message.terms_error'));
             }
-            $status = (int)$request->input('status');
+            $status = (int) $request->input('status');
             StatusSetting::find(1)->update(['terms' => $status]);
             ApiKey::find(1)->update(['terms_url' => $terms_url]);
+
             return successResponse(\Lang::get('message.terms_setting'));
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             return errorResponse(\Lang::get('message.terms_error'));
         }
     }
