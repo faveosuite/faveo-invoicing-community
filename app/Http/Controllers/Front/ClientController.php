@@ -25,8 +25,8 @@ use App\Plugins\Stripe\Controllers\SettingsController;
 use App\User;
 use Exception;
 use Illuminate\Http\Request;
-use Razorpay\Api\Api;
 use Illuminate\Support\Str;
+use Razorpay\Api\Api;
 
 class ClientController extends BaseClientController
 {
@@ -439,6 +439,7 @@ class ClientController extends BaseClientController
                 ->first();
 
             $downloadPermission = LicensePermissionsController::getPermissionsForProduct($productid);
+
             return \DataTables::of($versions)
                 ->addColumn('id', function ($version) {
                     return ucfirst($version->id);
@@ -477,7 +478,6 @@ class ClientController extends BaseClientController
      */
     public function getGithubVersionList($productid, $clientid, $invoiceid)
     {
-
         try {
             $products = $this->product::where('id', $productid)
             ->select('name', 'version', 'github_owner', 'github_repository')->get();
@@ -504,6 +504,7 @@ class ClientController extends BaseClientController
                     }
                 }
             }
+
             return \DataTables::of($link)
                             ->addColumn('version', function ($link) {
                                 return ucfirst($link['tag_name']);
@@ -512,8 +513,10 @@ class ClientController extends BaseClientController
                                 return ucfirst($link['name']);
                             })
                             ->addColumn('description', function ($link) {
-                                $markdown = Str::markdown((ucfirst($link['body'])));
-                                return '<div class="markdown-output">' . $markdown . '</div>';                            })
+                                $markdown = Str::markdown(ucfirst($link['body']));
+
+                                return '<div class="markdown-output">'.$markdown.'</div>';
+                            })
                             ->addColumn('file', function ($link) use ($countExpiry, $countVersions, $invoiceid, $productid) {
                                 $order = Order::where('invoice_id', '=', $invoiceid)->first();
                                 $order_id = $order->id;
@@ -608,7 +611,7 @@ class ClientController extends BaseClientController
                                 $url = '';
                                 $deleteCloud = '';
                                 $listUrl = '';
-                                if ($status == 'success' && $model->price != '0' && $model->type=='4') {
+                                if ($status == 'success' && $model->price != '0' && $model->type == '4') {
                                     $deleteCloud = $this->getCloudDeletePopup($model, $model->product_id);
                                     $listUrl = $this->getPopup($model, $model->product_id);
                                 } elseif ($status == 'success' && $model->price == '0' && $model->type != '4') {
@@ -760,11 +763,11 @@ class ClientController extends BaseClientController
                 ->select('id', 'invoice_id', 'user_id', 'amount', 'payment_method', 'payment_status', 'created_at')
                 ->orderByDesc('created_at')
                 ->first();
+
             return view(
                 'themes.default1.front.clients.show-order',
                 compact('invoice', 'order', 'user', 'product', 'subscription', 'licenseStatus', 'installationDetails', 'allowDomainStatus', 'date', 'licdate', 'versionLabel', 'installationDetails', 'id', 'statusAutorenewal', 'status', 'payment_log', 'recentPayment')
             );
-
         } catch (Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }
