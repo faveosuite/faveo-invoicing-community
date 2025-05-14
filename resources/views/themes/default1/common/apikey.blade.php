@@ -128,7 +128,7 @@
                         <h6 id="mobile_check"></h6>
                     </div>
 
-                    {!! html()->hidden('hiddenSender', $msg91Sender)->id('hiddenSender') !!}
+                    <input type ="hidden" id="hiddenSender" value="{{$msg91Sender}}">
 
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         {!! html()->label(__('message.msg91_sender'), 'msg91_sender')->class('required') !!}
@@ -136,7 +136,7 @@
                         <h6 id="sender_check"></h6>
                     </div>
 
-                    {!! html()->hidden('hiddenTemplate', $msg91TemplateId)->id('hiddenTemplate') !!}
+                    <input type ="hidden" id="hiddenTemplate" value="{{$msg91TemplateId}}">
 
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         {!! html()->label(__('message.msg91_template_id'), 'msg91_template_id')->class('required') !!}
@@ -153,12 +153,11 @@
 
                     {{-- Third Party App Selector --}}
                     {{ html()->label('MSG91 Third Party App Key', 'third_party_key')->class('required') }}
-                    &nbsp;<i class="fas fa-info-circle" data-toggle="tooltip" title="{{ __('message.pipedrive_third_party_tootip') }}"></i>
                     {{ html()->select('third_party_key',
-                        ['' => 'Select Third Party App'] + $thirdPartyKeys->toArray(),
-                        $msg91ThirdPartyId)
-                        ->class('form-control')
-                        ->id('third_party_key') }}
+                                         ['' => 'Select Third Party App'] + $thirdPartyKeys->toArray(),
+                                         $msg91ThirdPartyId)
+                                         ->class('form-control')
+                                         ->id('third_party_key') }}
                     <h6 id="third_party_check"></h6>
                     <br/>
 
@@ -200,16 +199,15 @@
                 <div class="modal-body">
                     <div id="alertMessage1"></div>
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-
                         {!! html()->label(Lang::get('message.username'))->class('required')->for('git_username') !!}
-                        {!! html()->text('username', $githubFileds->username)->class('form-control git_username'. ($errors->has('username') ? ' is-invalid' : ''))->id('git_username') !!}
-
+                        {!! html()->text('username')->class('form-control git_username'. ($errors->has('username') ? ' is-invalid' : ''))->id('git_username') !!}
                         <h6 id="user"></h6>
                     </div>
 
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         <!-- last name -->
                         {!! html()->label(Lang::get('message.pat'))->class('required')->for('password') !!}
+
                         <div class="input-group">
                             <input type= "password" name="password" id="git_password" class="form-control git_password">
 
@@ -225,8 +223,7 @@
 
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}" style="display:none">
                         {!! html()->label(Lang::get('message.client_id'))->class('required')->for('client_id') !!}
-                        {!! html()->text('client_id', $githubFileds->client_id)->class('form-control git_client'. ($errors->has('client_id') ? ' is-invalid' : ''))->id('git_client') !!}
-
+                        {!! html()->text('client_id')->class('form-control git_client'. ($errors->has('client_id') ? ' is-invalid' : ''))->id('git_client') !!}
                         <h6 id="c_id"></h6>
                     </div>
 
@@ -405,7 +402,7 @@
 
                         <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                             <input type ="hidden" id="hiddenMailChimpValue" value="{{$mailchimpKey}}">
-                            {!! html()->label(__('message.mailchimp_key'), 'mailchimp')->class('required') !!}
+                            {!! html()->label(__('message.mailchimp_key'), 'mailchimp')->class('required me-2') !!}
                             {!! html()->text('mailchimp', $mailchimpKey)->class('form-control mailchimp_authkey')->id('mailchimp_authkey') !!}
 
                             <h6 id="mailchimp_check" style="margin: 0;"></h6>
@@ -415,9 +412,8 @@
 
 
                         <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                            {!! html()->hidden('api_key')->class('form-control') !!}
-                            {!! html()->label(__('message.list_id'), 'list_id')->class('required') !!}
 
+                            {!! html()->label(Lang::get('message.list_id'), 'list_id')->class('required') !!}
                             <select name="list_id" class="form-control" id="list_id" style="width:100%">
                             <option value="">Choose</option>
                             @foreach($allists as $list)
@@ -458,7 +454,7 @@
                     </div>
 
                 </div>
-                {!! Form::close() !!}
+{{--                {!! Form::close() !!}--}}
 
                 <div id="extraInput5" style="display: block;">
                 <div class="modal-footer justify-content-between">
@@ -490,13 +486,12 @@
                         {!! html()->text('terms', $termsUrl)->class('form-control terms_url')->id('terms_url') !!}
                         <h6 id="terms_check"></h6>
                  </div>
-
+                </div>
                 <div class="modal-footer justify-content-between">
                     <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
                     <button type="submit" class="form-group btn btn-primary"  id="submit10"><i class="fa fa-save">&nbsp;</i>{!!Lang::get('message.save')!!}</button>
 
                 </div>
-            </div>
         </div>
     </div>
     </div>
@@ -518,14 +513,14 @@
                     <input type ="hidden" id="hidden_token_secret" value="{{$twitterKeys->access_tooken_secret}}">
 
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                        {!! Form::label('consumer_key',Lang::get('message.consumer_key'),['class'=>'required']) !!}
-                        {!! Form::text('consumer_key',$twitterKeys->twitter_consumer_key,['class' => 'form-control consumer_key','id'=>'consumer_key']) !!}
+                        {!! html()->label(__('message.consumer_key'), 'consumer_key') !!}
+                        {!! html()->text('consumer_key', $twitterKeys->twitter_consumer_key)->class('form-control consumer_key')->id('consumer_key') !!}
                         <h6 id="consumer_keycheck"></h6>
                     </div>
 
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         <!-- last name -->
-                        {!! Form::label('consumer_secret',Lang::get('message.consumer_secret'),['class'=>'required']) !!}
+                        {!! html()->label(__('message.consumer_secret'), 'consumer_secret') !!}
                         <div class="input-group">
                             <input type= "password" value="{{$twitterKeys->twitter_consumer_secret}}" name='consumer_secret' id='consumer_secret' class="form-control consumer_secret">
 
@@ -539,14 +534,15 @@
                     </div>
 
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                        {!! Form::label('access_token',Lang::get('message.access_token'),['class'=>'required']) !!}
-                        {!! Form::text('access_token',$twitterKeys->twitter_access_token,['class' => 'form-control access_token','id'=>'access_token']) !!}
+
+                        {!! html()->label(__('message.access_token'), 'access_token') !!}
+                        {!! html()->text('access_token', $twitterKeys->twitter_access_token)->class('form-control access_token')->id('access_token') !!}
                         <h6 id="access_tokencheck"></h6>
                     </div>
 
 
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                        {!! Form::label('token_secret',Lang::get('message.token_secret'),['class'=>'required']) !!}
+                        {!! html()->label(__('message.token_secret'), 'token_secret') !!}
                         <div class="input-group">
                             <input type= "password" value="{{$twitterKeys->access_tooken_secret}}" name='token_secret' id='token_secret' class="form-control token_secret">
 
@@ -583,8 +579,8 @@
                     <input type ="hidden" id="hidden_zoho_key" value="{{$zohoKey}}">
 
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                        {!! Form::label('zoho_key',Lang::get('message.zoho_crm'),['class'=>'required']) !!}
-                        {!! Form::text('zoho_key',$zohoKey,['class' => 'form-control zoho_key','id'=>'zoho_key']) !!}
+                        {!! html()->label(__('message.zoho_crm'), 'zoho_key') !!}
+                        {!! html()->text('zoho_key', $zohoKey)->class('form-control zoho_key')->id('zoho_key') !!}
                         <h6 id="zoho_keycheck"></h6>
                     </div>
 
@@ -613,8 +609,7 @@
                     <div class= "form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         {!! html()->label(__('message.pipedrive_key'), 'pipedrive_key')->class('required') !!}
                         {!! html()->text('pipedrive_key', $pipedriveKey)->class('form-control pipedrive_key')->id('pipedrive_key') !!}
-
-                        <h6 id="pipedrive_keycheck"></h6>
+                         <h6 id="pipedrive_keycheck"></h6>
                     </div>
 
                 </div>
@@ -627,7 +622,7 @@
             </div>
         </div>
     </div>
-    {!! Form::close() !!}
+{{--    {!! Form::close() !!}--}}
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css">
