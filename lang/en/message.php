@@ -1218,11 +1218,10 @@ return [
     'recaptcha_settings' => 'Recaptcha Settings Updated',
     'invalid_key' => 'Invalid status key',
 
-
     'list_id_error' => 'Please select a valid list id.',
     'subscribe_status_error' => 'Please select a valid subscribe status.',
     'recaptcha_type_error' => 'Please select a recaptcha type.',
     'third_party_key_error' => 'Please select a valid Msg91 app key.',
 
-    'empty_group'=>"No items are available in this Group at the moment, Check out other Groups.",
+    'empty_group' => 'No items are available in this Group at the moment, Check out other Groups.',
 ];
