@@ -992,7 +992,6 @@ return [
         'link' => 'Please enter a valid link(https://example.com).',
     ],
 
-<<<<<<< HEAD
     'valid_zip' => 'Please enter a valid zip code.',
     'payment_amount' => 'Please enter a payment amount.',
     'payment_method' => 'Please select a payment method.',
@@ -1035,10 +1034,7 @@ return [
     'please_enable_cron_deletion' => 'Please Enable Msg Reports Deletion Cron',
     'pipedrive_third_party_tootip' => 'Generate third party key from Settings >> Third party apps to use MSG91 webhook.',
     'source' => 'Source',
-    'check' => 'Check',
 
-    'verify_email_tooltip' => 'Enable this setting to prevent users from logging in until they verify their email address. If no checkbox is selected, users will be allowed to log in without email verification.',
-=======
     'image_allowed' => 'Only PNG, JPG, and JPEG files are allowed.',
     'image_max' => 'The image may not be greater than 2 MB.',
     'image_invalid_message' => 'Please upload a file in JPEG, JPG, or PNG format only.',
@@ -1178,7 +1174,6 @@ return [
     'check' => 'Check',
 
     'verify_email_tooltip' => 'Use this settings if you want to restrict users from login into the system until they verify their email address,If you do not check any checkbox then users will be allowed to login without restriction.',
->>>>>>> d8d4ced72 (initialChanges)
     'license_status' => 'License manager status successfully saved',
     'mobile_status' => 'Msg91 Mobile verification status successfully saved',
     'mailchimp_status' => 'Mailchimp status successfully saved',
@@ -1199,7 +1194,6 @@ return [
     'mailchimp_group_error' => 'This page requires a Mailchimp group to function properly. Please create a group in Mailchimp before proceeding.',
     'pipedrive_setting' => 'Pipedrive settings successfully saved',
     'pipedrive_error' => 'Pipedrive API key is invalid.',
-<<<<<<< HEAD
     'terms_error' => 'The provided terms and condition url is invalid.',
     'github_invalid' => 'Authentication failed. Please check your GitHub username and personal access token.',
     'github_valid' => 'Github settings successfully saved.',
@@ -1224,38 +1218,11 @@ return [
     'recaptcha_settings' => 'Recaptcha Settings Updated',
     'invalid_key' => 'Invalid status key',
 
-    'license_api_secret' => 'Please enter a valid license api secret.',
-    'license_client_id' => 'Please enter a valid client id.',
-    'license_client_secret' => 'Please enter a valid client secret.',
-    'license_api_url' => 'Please enter a valid api url.',
-    'license_grant_type' => 'Please enter license grant type.',
-    'site_key' => 'Please enter a valid site key.',
-    'secret_key' => 'Please enter a valid secret key.',
-    'mobile_authkey' => 'Please enter a valid Msg91 authkey.',
-    'sender' => 'Please enter sender name.',
-    'templateId' => 'Please enter a valid template id.',
-    'consumer_key_s' => 'Please enter a valid consumer key.',
-    'consumer_secret_s' => 'Please enter a valid consumer secret.',
-    'access_tokens_s' => 'Please enter a valid access token.',
-    'token_secret_s' => 'Please enter a valid access token secret.',
-    'zoho_key_s' => 'Please enter a valid zoho key.',
-    'mailchimp_authkey_s' => 'Please enter a valid mailchimp authkey.',
-    'terms_url_s' => 'Please enter a valid terms url.',
-    'pipedrive_key_s' => 'Please enter a valid pipedrive key.',
-    'git_username_s' => 'Please enter a valid git username.',
-    'git_password_s' => 'Please enter a valid git personal access token.',
-    'git_client_s' => 'Please enter a valid git client id.',
-    'git_secret_s' => 'Please enter a valid git client secret.',
 
     'list_id_error' => 'Please select a valid list id.',
     'subscribe_status_error' => 'Please select a valid subscribe status.',
     'recaptcha_type_error' => 'Please select a recaptcha type.',
     'third_party_key_error' => 'Please select a valid Msg91 app key.',
-=======
-    'terms_error'=>'The provided terms and condition url is invalid.',
-    'github_invalid'=>'Authentication failed. Please check your GitHub username and personal access token.',
-    'github_valid'=>'Github settings successfully saved.',
-    'pat'=>"Personal Access Token.",
+
     'empty_group'=>"No items are available in this Group at the moment, Check out other Groups.",
->>>>>>> d8d4ced72 (initialChanges)
 ];
