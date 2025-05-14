@@ -4,6 +4,7 @@ use App\Http\Controllers\Api;
 use App\Http\Controllers\Auth;
 use App\Http\Controllers\Common;
 use App\Http\Controllers\Common\FileManagerController;
+use App\Http\Controllers\Common\MSG91Controller;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FreeTrailController;
 use App\Http\Controllers\Front;
@@ -14,8 +15,8 @@ use App\Http\Controllers\Jobs;
 use App\Http\Controllers\License;
 use App\Http\Controllers\License\LocalizedLicenseController;
 use App\Http\Controllers\Order;
-use App\Http\Controllers\Payment;
 //use App\Http\Controllers\PhoneVerificationController;
+use App\Http\Controllers\Payment;
 use App\Http\Controllers\Product;
 use App\Http\Controllers\RazorpayController;
 use App\Http\Controllers\Report\ReportController;
@@ -26,7 +27,7 @@ use App\Http\Controllers\User;
 use App\Http\Controllers\WelcomeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Common\MSG91Controller;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
