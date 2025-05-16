@@ -783,7 +783,6 @@ class ClientController extends BaseClientController
             $displayCurrency = getCurrencyForClient(\Auth::user()->country);
             $symbol = getCurrencyForClient(\Auth::user()->country);
 
-            if ($symbol == 'INR'){
                 $exchangeRate= '';
                 $orderData = [
                     'receipt'         => '3456',
@@ -792,22 +791,12 @@ class ClientController extends BaseClientController
                     'currency'        => getCurrencyForClient(\Auth::user()->country),
                     'payment_capture' => 0 // auto capture
                 ];
-            } else {
-                $exchangeRate = '';
-                $orderData = [
-                    'receipt'         => '3456',
-                    'amount'          =>  round(1.00*100), // 2000 rupees in paise
 
-                    'currency'        => getCurrencyForClient(\Auth::user()->country),
-                    'payment_capture' => 0 // auto capture
-
-                ];
-            }
             $razorpayOrder=($rzp_key && $rzp_secret )?$api->order->create($orderData):"";
 
             $razorpayOrderId=($razorpayOrder != null)?$razorpayOrder['id']:"";
 
-            $_SESSION['razorpay_order_id'] = $razorpayOrderId;
+            session('razorpay_order_id', $razorpayOrderId);
             $displayAmount = $amount = $orderData['amount'];
 
             $data = [

@@ -638,6 +638,8 @@ Route::middleware('installAgora')->group(function () {
 
     //preview image
     Route::get('preview-file', [FileManagerController::class, 'previewFile']);
+    //contact-option
+    Route::get('contact-option', [Common\SettingsController::class, 'contactOption'])->name('contact-option');
 });
 /*
 * Faveo APIs
@@ -666,5 +668,3 @@ Route::get('404', function () {
 Route::get('/api/download/agents', [Product\BaseProductController::class, 'agentProductDownload']);
 Route::get('/product/detail', [Product\BaseProductController::class, 'getProductUsingLicenseCode']);
 // });
-//contact-option
-Route::get('contact-option', [Common\SettingsController::class, 'contactOption'])->name('contact-option');

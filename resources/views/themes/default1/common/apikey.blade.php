@@ -826,7 +826,6 @@
                 document.head.appendChild(script);
                 clearError();
             } catch (err) {
-                console.error('Unexpected error appending script:', err);
                 showError(); // Show error if there is an issue with appending the script tag
             }
         }
@@ -2058,7 +2057,6 @@
                     $('#alertMessage3').show().html(result);
                     $("#submit3").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
 
-                    console.log("in");
 
                     setInterval(function(){
                         $('#alertMessage3').slideUp(3000);
