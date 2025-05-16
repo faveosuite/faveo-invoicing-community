@@ -10,8 +10,8 @@ use App\Model\Mailjob\ActivityLogDay;
 use App\Model\Mailjob\ExpiryMailDay;
 use App\Traits\ApiKeySettings;
 use Illuminate\Http\Request;
-use Spatie\Activitylog\Models\Activity;
 use Illuminate\Support\Facades\Http;
+use Spatie\Activitylog\Models\Activity;
 
 class BaseSettingsController extends PaymentSettingsController
 {
@@ -299,7 +299,7 @@ class BaseSettingsController extends PaymentSettingsController
         return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
     }
 
-    public function verifyToken($token,$secretkey)
+    public function verifyToken($token, $secretkey)
     {
         $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
             'secret' => $secretkey,
