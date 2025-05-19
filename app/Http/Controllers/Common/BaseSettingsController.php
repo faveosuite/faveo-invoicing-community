@@ -299,15 +299,6 @@ class BaseSettingsController extends PaymentSettingsController
         return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
     }
 
-    public function verifyToken($token,$secretkey)
-    {
-        $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
-            'secret' => $secretkey,
-            'response' => $token,
-        ]);
-
-        return $response->json();
-    }
 
     //Save Google recaptch site key and secret in Database
     public function captchaDetails(Request $request)

@@ -263,7 +263,7 @@ class PlanController extends ExtendedPlanController
         $renew_prices = $request->renew_price;
         $offer_prices = $request->input('offer_price');
         $plan->fill($request->input())->save();
-
+        //To change the plan days,whenever we update plan
         if ($request->input('days') != '') {
             $period = Period::where('days', $request->input('days'))->first()->id;
             $plan->periods()->sync($period);
