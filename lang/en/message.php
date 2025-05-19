@@ -1218,14 +1218,12 @@ return [
     'recaptcha_settings' => 'Recaptcha Settings Updated',
     'invalid_key' => 'Invalid status key',
 
-
     'list_id_error' => 'Please select a valid list id.',
     'subscribe_status_error' => 'Please select a valid subscribe status.',
     'recaptcha_type_error' => 'Please select a recaptcha type.',
     'third_party_key_error' => 'Please select a valid Msg91 app key.',
-    'user_delete'=>'Are you sure you want to delete this user?',
-    'empty_group'=>"No items are available in this Group at the moment, Check out other Groups.",
-
+    'user_delete' => 'Are you sure you want to delete this user?',
+    'empty_group' => 'No items are available in this Group at the moment, Check out other Groups.',
 
     'app_delete' => 'Are you sure you want to delete this thirdparty app?',
     'activity_log_delete' => 'Are you sure you want to delete this activity log?',
@@ -1255,13 +1253,5 @@ return [
     'sweet_file' => 'Please select at least one file.',
     'sweet_report' => 'Please select at least one report.',
     'sweet_social' => 'Please select at least one social media.',
-
-
-
-
-
-
-
-
 
 ];
