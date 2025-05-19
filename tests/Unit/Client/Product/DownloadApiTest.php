@@ -2,20 +2,15 @@
 
 namespace Tests\Unit\Client\Product;
 
-use App\Model\License\LicensePermission;
-use App\Model\License\LicenseType;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
-use App\Model\Payment\Plan;
-use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
-use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
 use App\User;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Mockery;
 use Tests\DBTestCase;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class DownloadApiTest extends DBTestCase
 {
@@ -92,7 +87,6 @@ class DownloadApiTest extends DBTestCase
         $this->assertEquals($response, true);
     }
 
-
     /** @group order  */
     public function test_successful_when_license_mocked()
     {
@@ -128,5 +122,4 @@ class DownloadApiTest extends DBTestCase
         $response->assertStatus(200);
         $response->assertViewIs('themes.default1.front.clients.show-order');
     }
-
 }
