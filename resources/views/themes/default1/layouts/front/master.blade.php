@@ -59,7 +59,7 @@
 <?php 
  $dataCenters = \App\Model\CloudDataCenters::all();
 ?>
-<?php 
+<?php
 $setting = \App\Model\Common\Setting::where('id', 1)->first();
 $everyPageScripts = ''; 
 $scripts = \App\Model\Common\ChatScript::where('on_every_page', 1)->get();
