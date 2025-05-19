@@ -795,8 +795,7 @@ class ClientController extends BaseClientController
             $razorpayOrder=($rzp_key && $rzp_secret )?$api->order->create($orderData):"";
 
             $razorpayOrderId=($razorpayOrder != null)?$razorpayOrder['id']:"";
-
-            session('razorpay_order_id', $razorpayOrderId);
+            \Session::put('razorpay_order_id', $razorpayOrderId);
             $displayAmount = $amount = $orderData['amount'];
 
             $data = [
