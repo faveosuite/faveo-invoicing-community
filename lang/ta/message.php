@@ -2329,5 +2329,4 @@ return [
     'copy_to_clipboard' => 'கிளிப்போர்டுக்கு நகலெடுக்கவும்',
     'github_settings' => 'Github அமைப்புகள்',
 
-
 ];

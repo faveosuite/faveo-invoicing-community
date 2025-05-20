@@ -2330,5 +2330,4 @@ return [
     'copy_to_clipboard' => 'Salin ke papan klip',
     'github_settings' => 'Pengaturan GitHub',
 
-
 ];
