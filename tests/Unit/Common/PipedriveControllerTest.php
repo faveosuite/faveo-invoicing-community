@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Common;
+namespace Tests\Unit\Http\Controllers\Common;
 
 use App\ApiKey;
 use App\Http\Controllers\Common\PipedriveController;
@@ -18,7 +18,6 @@ class PipedriveControllerTest extends DBTestCase
 {
     use DatabaseTransactions;
 
-    protected $user;
     protected $pipedriveController;
 
     protected function setUp(): void
@@ -35,6 +34,8 @@ class PipedriveControllerTest extends DBTestCase
         ]);
 
         ApiKey::create(['pipedrive_api_key' => 'test_key']);
+
+        StatusSetting::first()->update(['pipedrive_status' => 1]);
 
         $this->pipedriveController = new PipedriveController();
     }
@@ -61,9 +62,15 @@ class PipedriveControllerTest extends DBTestCase
 
     public function test_it_adds_user_to_pipedrive_when_enabled()
     {
-        StatusSetting::create(['pipedrive_status' => 1]);
-
-        $mockController = Mockery::mock(PipedriveController::class)->makePartial();
+        $mockController = Mockery::mock(PipedriveController::class)->makePartial()->shouldAllowMockingProtectedMethods();
+        $reflection = new \ReflectionClass($mockController);
+        $property = $reflection->getProperty('groups');
+        $property->setAccessible(true);
+        $property->setValue($mockController, [
+            'personId' => 1,
+            'organizationId' => 2,
+            'dealId' => 3,
+        ]);
         $mockController->shouldReceive('addOrGetOrganization')->andReturn(123);
         $mockController->shouldReceive('addPerson')->andReturn(456);
         $mockController->shouldReceive('addDeal')->andReturn(789);
@@ -76,7 +83,7 @@ class PipedriveControllerTest extends DBTestCase
 
     public function test_it_skips_adding_user_when_pipedrive_disabled()
     {
-        StatusSetting::create(['pipedrive_status' => 0]);
+        StatusSetting::first()->update(['pipedrive_status' => 0]);
 
         $mockController = Mockery::mock(PipedriveController::class)->makePartial();
         $mockController->shouldNotReceive('addOrGetOrganization');
@@ -90,15 +97,39 @@ class PipedriveControllerTest extends DBTestCase
     public function test_it_syncs_fields_from_pipedrive()
     {
         $mockController = Mockery::mock(PipedriveController::class)->makePartial();
+        $reflection = new \ReflectionClass($mockController);
+        $property = $reflection->getProperty('groups');
+        $property->setAccessible(true);
+        $property->setValue($mockController, [
+            'personId' => 1,
+            'organizationId' => 2,
+            'dealId' => 3,
+        ]);
         $mockController->shouldReceive('getPipedriveFields')->andReturn([
-            (object) ['key' => 'person_field', 'name' => 'Person Field', 'field_type' => 'text'],
+            (object) [
+                'key' => 'person_field',
+                'name' => 'Person Field',
+                'field_type' => 'text',
+                'bulk_edit_allowed' => true,  // << ADD THIS
+            ],
         ]);
         $mockController->shouldReceive('getOrganizationFields')->andReturn([
-            (object) ['key' => 'org_field', 'name' => 'Org Field', 'field_type' => 'text'],
+            (object) [
+                'key' => 'org_field',
+                'name' => 'Org Field',
+                'field_type' => 'text',
+                'bulk_edit_allowed' => true,
+            ],
         ]);
         $mockController->shouldReceive('getDealFields')->andReturn([
-            (object) ['key' => 'deal_field', 'name' => 'Deal Field', 'field_type' => 'text'],
+            (object) [
+                'key' => 'deal_field',
+                'name' => 'Deal Field',
+                'field_type' => 'text',
+                'bulk_edit_allowed' => true,
+            ],
         ]);
+
 
         $mockController->syncFields();
 
@@ -163,7 +194,12 @@ class PipedriveControllerTest extends DBTestCase
         $request = new Request([
             'group_id' => $group->id,
             'select1' => [$pipedriveField->id],
-            'select2' => [$localField->id],
+            'select2' => [
+                [
+                    'id' => $localField->id,
+                    'faveo_fields' => 'true',
+                ],
+            ],
         ]);
 
         // Call the controller method

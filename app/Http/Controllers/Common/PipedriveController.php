@@ -59,7 +59,7 @@ class PipedriveController extends Controller
     /**
      * Get Pipedrive group IDs.
      */
-    private function getGroups(): array
+    protected function getGroups(): array
     {
         return [
             'personId' => PipedriveGroups::where('group_name', 'Person')->value('id'),
