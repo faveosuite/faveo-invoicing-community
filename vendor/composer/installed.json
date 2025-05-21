@@ -8763,6 +8763,63 @@
             "install-path": "../pion/laravel-chunk-upload"
         },
         {
+            "name": "pipedrive/pipedrive",
+            "version": "11.0.0",
+            "version_normalized": "11.0.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/pipedrive/client-php.git",
+                "reference": "f0f788ad9bdd5c758086b44e72380a5d6d00be11"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/pipedrive/client-php/zipball/f0f788ad9bdd5c758086b44e72380a5d6d00be11",
+                "reference": "f0f788ad9bdd5c758086b44e72380a5d6d00be11",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-json": "*",
+                "ext-mbstring": "*",
+                "guzzlehttp/guzzle": "^7.3",
+                "guzzlehttp/psr7": "^2.0",
+                "php": "^7.4 || ^8.0"
+            },
+            "require-dev": {
+                "pestphp/pest": "^1.23",
+                "phpstan/phpstan": "^1.10"
+            },
+            "time": "2025-05-09T09:24:16+00:00",
+            "type": "library",
+            "installation-source": "dist",
+            "autoload": {
+                "psr-4": {
+                    "Pipedrive\\": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Pipedrive REST client for PHP",
+            "homepage": "https://github.com/pipedrive/client-php",
+            "keywords": [
+                "contacts",
+                "crm",
+                "customers",
+                "deals",
+                "pipedrive",
+                "pipeline",
+                "sales",
+                "sales pipeline"
+            ],
+            "support": {
+                "issues": "https://github.com/pipedrive/client-php/issues",
+                "source": "https://github.com/pipedrive/client-php/tree/11.0.0"
+            },
+            "install-path": "../pipedrive/pipedrive"
+        },
+        {
             "name": "pragmarx/google2fa",
             "version": "v8.0.3",
             "version_normalized": "8.0.3.0",

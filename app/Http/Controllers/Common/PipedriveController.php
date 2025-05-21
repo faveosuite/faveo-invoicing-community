@@ -39,7 +39,7 @@ class PipedriveController extends Controller
         $token = ApiKey::value('pipedrive_api_key');
 
         $config = new PipedriveConfiguration();
-        $config->setApiKey('api_token', $token);
+        $config->setApiKey('x-api-token', $token);
 
         $this->client = new Client();
 
@@ -78,6 +78,7 @@ class PipedriveController extends Controller
 
             return is_array($result) ? $result : (array) $result;
         } catch (\Exception $e) {
+            dd($e->getMessage());
             Log::error('Pipedrive API error: '.$e->getMessage());
 
             return [];
