@@ -130,7 +130,6 @@ class PipedriveControllerTest extends DBTestCase
             ],
         ]);
 
-
         $mockController->syncFields();
 
         $this->assertDatabaseHas('pipedrive_fields', ['field_key' => 'person_field']);
