@@ -29,4 +29,9 @@ class PipedriveField extends Model
     {
         return $this->belongsTo(PipedriveGroups::class, 'pipedrive_group_id');
     }
+
+    public function pipedriveOptions()
+    {
+        return $this->hasMany(PipedriveFieldOption::class, 'pipedrive_field_id');
+    }
 }

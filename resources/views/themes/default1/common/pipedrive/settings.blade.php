@@ -25,8 +25,9 @@
         $localFields = $pipedriveData['local_fields'] ?? [];
         $pipedriveFields = $pipedriveData['pipedrive_fields'] ?? [];
         $mappedFields = collect($pipedriveFields)->filter(function($field) {
-            return $field['local_field_id'] !== null;
-        })->values()->all();
+            return !empty($field['selected_field']);
+        })->values()->toArray();
+        $addCount = count($pipedriveFields) - count($mappedFields);
 
     @endphp
 
@@ -37,6 +38,12 @@
 
         .invalid-feedback {
             display: block;
+        }
+
+        a.disabled {
+            pointer-events: none;
+            opacity: 0.5;
+            cursor: not-allowed;
         }
     </style>
 
@@ -120,14 +127,26 @@
                                                 <div class="col-5">
                                                     <div class="form-group">
                                                         <label>Faveo Invoicing Fields</label>
-                                                        <select class="form-control select_fields" name="select2[]">
+                                                            <?php
+                                                            $isLocalField = empty($field['pipedrive_options']);
+                                                            ?>
+                                                        <select class="form-control select_fields" name="select2[]" faveo-field="{{ !$isLocalField ? "false" : "true" }}">
                                                             <option value="">-- Select --</option>
-                                                            @foreach($localFields as $localField)
-                                                                <option value="{{ $localField['id'] }}"
-                                                                        {{ $localField['id'] == $field['local_field_id'] ? 'selected' : '' }}>
-                                                                    {{ $localField['field_name'] }}
-                                                                </option>
-                                                            @endforeach
+                                                            @if(!$isLocalField)
+                                                                @foreach($field['pipedrive_options'] as $pipedrive)
+                                                                    <option value="{{ $pipedrive['id'] }}"
+                                                                            {{ $pipedrive['id'] == $field['selected_field']['id'] ? 'selected' : '' }}>
+                                                                        {{ $pipedrive['value'] }}
+                                                                    </option>
+                                                                @endforeach
+                                                            @else
+                                                                @foreach($field['local_field_options'] as $pipedrive)
+                                                                    <option value="{{ $pipedrive['id'] }}"
+                                                                            {{ $pipedrive['id'] == ($field['selected_field']['id'] ?? null) ? 'selected' : '' }}>
+                                                                        {{ $pipedrive['field_name'] }}
+                                                                    </option>
+                                                                @endforeach
+                                                            @endif
                                                         </select>
                                                     </div>
                                                 </div>
@@ -160,7 +179,7 @@
                                             <div class="col-5">
                                                 <div class="form-group">
                                                     <label>Faveo Invoicing Fields</label>
-                                                    <select class="form-control select_fields" name="select2[]">
+                                                    <select class="form-control select_fields" name="select2[]" faveo-field="true">
                                                         <option value="">-- Select --</option>
                                                         @foreach($localFields as $localField)
                                                             <option value="{{ $localField['id'] }}">
@@ -183,8 +202,8 @@
                                 </div>
                             </div>
                             <div class="card-footer">
-                                <button type="submit" class="btn btn-primary pull-right">
-                                    <i class="fa fa-save">&nbsp;&nbsp;</i>Save
+                                <button type="submit" class="btn btn-primary pull-right" id="saveBtn">
+                                    <i class="fa fa-save btn-icon"></i>&nbsp;&nbsp;<span class="btn-text">Save</span>
                                 </button>
                             </div>
                         </div>
@@ -195,12 +214,24 @@
     </div>
     <script>
         $(function () {
+            let addCount = {{ $addCount }};
             // Initialize Select2
-            $('.select_fields').select2();
+            $('.select_fields').select2({
+                allowClear: true,
+                placeholder: "Select an option"
+            });
+
+            // Re-initialize Select2 on window resize
+            $(window).on('resize', function() {
+                $('.select_fields').select2({
+                    allowClear: true,
+                    placeholder: "Select an option"
+                });
+            });
 
             let alertTimeout;
 
-            // Store template elements for adding new rows with ALL options
+            // Store template elements for adding new rows
             const allPipedriveOptions = [];
             @foreach($pipedriveFields as $field)
             allPipedriveOptions.push({
@@ -208,13 +239,6 @@
                 text: '{{ $field['field_name'] }}'
             });
             @endforeach
-
-            const localOptionsHtml = `
-        <option value="">-- Select --</option>
-        @foreach($localFields as $localField)
-            <option value="{{ $localField['id'] }}">{{ $localField['field_name'] }}</option>
-        @endforeach
-            `;
 
             // Helper function for showing alerts
             function showAlert(type, message) {
@@ -233,8 +257,130 @@
                 alertTimeout = setTimeout(() => $('#alert-container-pipe').slideUp('slow'), 5000);
             }
 
+            // Add form validation function
+            function validateForm() {
+                let isValid = true;
+
+                $('#select-container').find('.mapping-row').each(function () {
+                    const $row = $(this);
+                    const $select1 = $row.find('select[name="select1[]"]');
+                    const $select2 = $row.find('select[name="select2[]"]');
+
+                    const val1 = $select1.val();
+                    const val2 = $select2.val();
+
+                    // Reset feedback
+                    $row.find('.invalid-feedback').remove();
+
+                    // Remove is-invalid from Select2 container
+                    $select1.next('.select2').find('.select2-selection').removeClass('is-invalid');
+                    $select2.next('.select2').find('.select2-selection').removeClass('is-invalid');
+
+                    // Validation for select1
+                    if (!val1) {
+                        isValid = false;
+                        $select1.addClass('is-invalid');
+                        $select1.parent().append('<div class="invalid-feedback">Please select a Field.</div>');
+                    }
+
+                    // Validation for select2
+                    if (!val2) {
+                        isValid = false;
+                        $select2.addClass('is-invalid');
+                        $select2.parent().append('<div class="invalid-feedback">Please select a Field.</div>');
+                    }
+                });
+
+                return isValid;
+            }
+
+
+            // Handle change of Pipedrive dropdown
+            $('#select-container').on('change', 'select[name="select1[]"]', function () {
+                const $select = $(this);
+                $select.removeClass('is-invalid'); // Clear any validation errors
+                $select.parent().find('.invalid-feedback').remove();
+
+                const $row = $select.closest('.mapping-row');
+                const $faveoSelect = $row.find('select[name="select2[]"]');
+                const selectedPipedriveFieldId = $select.val();
+
+                // Update options visibility for all dropdowns
+                updateSelectOptions();
+
+                // If no value is selected, just reset the second dropdown to default options
+                if (!selectedPipedriveFieldId) {
+                    resetFaveoDropdown($faveoSelect);
+                    return;
+                }
+
+                // Make AJAX call to get corresponding fields
+                $.ajax({
+                    url: "{{ url('pipedrive/get-dropdown') }}",
+                    type: 'POST',
+                    data: {
+                        pipedrive_field_id: selectedPipedriveFieldId,
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function (response) {
+                        // Clear existing options and add new ones
+                        $faveoSelect.empty().append('<option value="">-- Select --</option>');
+
+                        if (response.data.options && response.data.options.length > 0) {
+                            // Add new options from API response
+                            response.data.options.forEach(field => {
+                                $faveoSelect.append(`<option value="${field.id}">${field.value}</option>`);
+                            });
+
+                            // Set the faveo-field attribute based on response
+                            const isFaveoField = response.data.is_faveo_options;
+                            $faveoSelect.attr('faveo-field', isFaveoField.toString());
+                        } else {
+                            // If no matching fields, show default options
+                            resetFaveoDropdown($faveoSelect);
+                        }
+
+                        // Refresh Select2
+                        $faveoSelect.trigger('change.select2');
+                    },
+                    error: function(xhr) {
+                        resetFaveoDropdown($faveoSelect);
+                    }
+                });
+            });
+
+            if(addCount <= 0 ){
+                document.getElementById('add-new').classList.add('disabled');
+            }
+
+            // Handle faveo field change to clear validation errors
+            $('#select-container').on('change', 'select[name="select2[]"]', function () {
+                $(this).removeClass('is-invalid');
+                $(this).parent().find('.invalid-feedback').remove();
+            });
+
+            // Function to reset Faveo dropdown to default options
+            function resetFaveoDropdown($select) {
+                $select.empty().append(`
+            <option value="">-- Select --</option>
+            @foreach($localFields as $localField)
+                <option value="{{ $localField['id'] }}">{{ $localField['field_name'] }}</option>
+            @endforeach
+                `);
+
+                // Set as a faveo field by default
+                $select.attr('faveo-field', 'true');
+
+                // Refresh Select2
+                $select.trigger('change.select2');
+            }
+
             // Add new row
             $('#add-new').on('click', function () {
+                addCount--;
+                if(addCount <= 0 ){
+                    document.getElementById('add-new').classList.add('disabled');
+                }
                 const $selectContainer = $('#select-container');
                 const index = $selectContainer.children('.mapping-row').length;
 
@@ -245,45 +391,54 @@
                     pipedriveOptionsHtml += `<option value="${option.id}">${option.text}</option>`;
                 });
 
+                const localOptionsHtml = `
+            <option value="">-- Select --</option>
+            @foreach($localFields as $localField)
+                <option value="{{ $localField['id'] }}">{{ $localField['field_name'] }}</option>
+            @endforeach
+                `;
+
                 const newRow = `
-        <div class="row mapping-row" data-index="${index}">
-            <div class="col-5">
-                <div class="form-group">
-                    <label>Pipedrive Fields</label>
-                    <select class="form-control pipedrive-select select_fields" name="select1[]">
-                        ${pipedriveOptionsHtml}
-                    </select>
+            <div class="row mapping-row" data-index="${index}">
+                <div class="col-5">
+                    <div class="form-group">
+                        <label>Pipedrive Fields</label>
+                        <select class="form-control pipedrive-select select_fields" name="select1[]">
+                            ${pipedriveOptionsHtml}
+                        </select>
+                    </div>
                 </div>
-            </div>
-            <div class="col-5">
-                <div class="form-group">
-                    <label>Faveo Invoicing Fields</label>
-                    <select class="form-control select_fields" name="select2[]">
-                        ${localOptionsHtml}
-                    </select>
+                <div class="col-5">
+                    <div class="form-group">
+                        <label>Faveo Invoicing Fields</label>
+                        <select class="form-control select_fields" name="select2[]" faveo-field="true">
+                            ${localOptionsHtml}
+                        </select>
+                    </div>
                 </div>
-            </div>
-            <div class="col-2 delete-row-col">
-                <button type="button" class="btn btn-default delete-row" data-toggle="tooltip" title="Delete Attribute">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </div>
-        </div>`;
+                <div class="col-2 delete-row-col">
+                    <button type="button" class="btn btn-default delete-row" data-toggle="tooltip" title="Delete Attribute">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>`;
 
                 $selectContainer.append(newRow);
-                $('.select_fields').select2();
+                $('.select_fields').select2({
+                    allowClear: true,
+                    placeholder: "Select an option"
+                });
                 $('[data-toggle="tooltip"]').tooltip();
             });
 
             // Delete row
             $('#select-container').on('click', '.delete-row', function () {
+                addCount++;
+                if(addCount >= 1 ){
+                    document.getElementById('add-new').classList.remove('disabled');
+                }
                 $(this).tooltip('dispose');
                 $(this).closest('.mapping-row').remove();
-                updateSelectOptions();
-            });
-
-            // Handle field change
-            $('#select-container').on('change', 'select[name="select1[]"]', function () {
                 updateSelectOptions();
             });
 
@@ -337,52 +492,74 @@
                 });
             }
 
-
-            function validateForm() {
-                let isValid = true;
-
-                $('#pipedrive-form').find('select[name="select1[]"], select[name="select2[]"]').each(function () {
-                    const $field = $(this);
-                    const $formGroup = $field.closest('.form-group');
-                    const value = $field.val();
-                    const errorMessage = $field.data('error-message') || 'Please select an option.';
-                    const hasError = !value || value === '' || value === '0';
-
-                    $formGroup.find('.invalid-feedback').remove();
-                    $field.removeClass('is-valid is-invalid');
-
-                    if (hasError) {
-                        isValid = false;
-                        $field.addClass('is-invalid');
-                        $formGroup.append(`<div class="invalid-feedback">${errorMessage}</div>`);
-                    }
-                });
-
-                return isValid;
-            }
-
-
-            // Form submission with AJAX
+            // Custom form submission with proper handling of faveo_field attribute
             $('#pipedrive-form').on('submit', function (event) {
                 event.preventDefault();
 
-                if(!validateForm()){
+                if (!validateForm()) {
                     return false;
                 }
 
+                // Create a data object to hold our form data
+                const formData = {
+                    group_id: $('input[name="group_id"]').val(),
+                    select1: [],
+                    select2: []
+                };
+
+                // Process each mapping row
+                $('#select-container').find('.mapping-row').each(function(index) {
+                    const $row = $(this);
+                    const $select1 = $row.find('select[name="select1[]"]');
+                    const $select2 = $row.find('select[name="select2[]"]');
+
+                    const select1Value = $select1.val();
+                    const select2Value = $select2.val();
+
+
+                    // Skip empty rows
+                    if (!select1Value || !select2Value) {
+                        return;
+                    }
+
+                    // Add select1 with id attribute
+                    formData.select1.push({
+                        id: select1Value
+                    });
+
+                    // Add select2 with id and faveo_field attribute
+                    formData.select2.push({
+                        id: select2Value,
+                        faveo_fields: $select2.attr('faveo-field') === 'true'
+                    });
+                });
+
+                var $btn = $('#saveBtn');
+                var $icon = $btn.find('.btn-icon');
+                var $text = $btn.find('.btn-text');
+
+                // Send the data via AJAX
                 $.ajax({
                     url: $(this).attr('action'),
                     type: 'POST',
-                    data: $(this).serialize(),
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    data: formData,
+                    beforeSend: function () {
+                        $btn.prop('disabled', true);                         // Disable the button
+                        $icon.removeClass('fa-save').addClass('fa-spinner fa-spin');  // Show spinner icon
+                        $text.text('Saving...');                             // Update text
                     },
                     success: function (response) {
-                        showAlert('success', response.message);
+                        showAlert('success', response.message || 'Mapping saved successfully.');
                     },
                     error: function (xhr) {
                         const response = xhr.responseJSON || {};
-                        showAlert('error', response.message || 'An error occurred.');
+                        showAlert('error', response.message || 'An error occurred while saving the mapping.');
+                        console.error('Form submission error:', xhr);
+                    },
+                    complete: function () {
+                        $btn.prop('disabled', false);                        // Re-enable button
+                        $icon.removeClass('fa-spinner fa-spin').addClass('fa-save'); // Restore save icon
+                        $text.text('Save');                                  // Restore text
                     }
                 });
             });
@@ -398,12 +575,14 @@
                         icon.addClass('fa-spin');
                     },
                     success: function (response) {
-                        showAlert('success', response.message);
+                        showAlert('success', response.message || 'Fields synchronized successfully.');
                         // Reload page to reflect updated fields
                         setTimeout(() => location.reload(), 1500);
                     },
                     error: function (xhr) {
-                        showAlert('error', xhr.responseJSON?.message || 'An error occurred.');
+                        const response = xhr.responseJSON || {};
+                        showAlert('error', response.message || 'An error occurred during synchronization.');
+                        console.error('Sync error:', xhr);
                     },
                     complete: function () {
                         icon.removeClass('fa-spin');

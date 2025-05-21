@@ -307,14 +307,14 @@ class AuthController extends BaseAuthController
 
             $user->mobile_verified = 1;
 
+            $user->save();
+
             if (! \Auth::check() && StatusSetting::first()->value('emailverification_status') !== 1) {
                 //dispatch the job to add user to external services
                 AddUserToExternalService::dispatch($user);
 
                 \Session::flash('success', __('message.registration_complete'));
             }
-
-            $user->save();
 
             return successResponse(__('message.otp_verified'));
         } catch (\Exception $e) {
@@ -510,6 +510,11 @@ class AuthController extends BaseAuthController
                 $this->addUserToMailchimp($user, $status->mailchimp_status);
             }
         } catch (\Exception $exception) {
+            \Log::error('Failed to add user to external services', [
+                'user_id' => $user->email,
+                'message' => $exception->getMessage(),
+                'trace' => $exception->getTraceAsString(),
+            ]);
         }
     }
 

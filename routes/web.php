@@ -629,6 +629,7 @@ Route::middleware('installAgora')->group(function () {
     Route::get('pipedrive/mapping/{group_id}', [PipedriveController::class, 'getMapFields']);
     Route::post('sync/pipedrive', [PipedriveController::class, 'mappingFields']);
     Route::get('syncing/pipedriveFields', [PipedriveController::class, 'syncFields']);
+    Route::post('pipedrive/get-dropdown', [PipedriveController::class, 'getDropdown']);
 });
 /*
 * Faveo APIs
