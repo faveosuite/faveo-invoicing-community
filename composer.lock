@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0cdaf5526af54f26e1fa6674875e46d3",
+    "content-hash": "b05b5a7aa106d3d0b69092949f27da0c",
     "packages": [
         {
             "name": "anhskohbo/no-captcha",
@@ -6710,6 +6710,60 @@
                 }
             ],
             "time": "2024-03-25T15:50:07+00:00"
+        },
+        {
+            "name": "pipedrive/pipedrive",
+            "version": "11.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/pipedrive/client-php.git",
+                "reference": "f0f788ad9bdd5c758086b44e72380a5d6d00be11"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/pipedrive/client-php/zipball/f0f788ad9bdd5c758086b44e72380a5d6d00be11",
+                "reference": "f0f788ad9bdd5c758086b44e72380a5d6d00be11",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-json": "*",
+                "ext-mbstring": "*",
+                "guzzlehttp/guzzle": "^7.3",
+                "guzzlehttp/psr7": "^2.0",
+                "php": "^7.4 || ^8.0"
+            },
+            "require-dev": {
+                "pestphp/pest": "^1.23",
+                "phpstan/phpstan": "^1.10"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Pipedrive\\": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Pipedrive REST client for PHP",
+            "homepage": "https://github.com/pipedrive/client-php",
+            "keywords": [
+                "contacts",
+                "crm",
+                "customers",
+                "deals",
+                "pipedrive",
+                "pipeline",
+                "sales",
+                "sales pipeline"
+            ],
+            "support": {
+                "issues": "https://github.com/pipedrive/client-php/issues",
+                "source": "https://github.com/pipedrive/client-php/tree/11.0.0"
+            },
+            "time": "2025-05-09T09:24:16+00:00"
         },
         {
             "name": "pragmarx/google2fa",
@@ -16682,6 +16736,6 @@
         "php": "^8.2",
         "ext-pcntl": "*"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "plugin-api-version": "2.6.0"
 }

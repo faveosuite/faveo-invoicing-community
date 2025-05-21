@@ -463,6 +463,18 @@ foreach($scripts as $script) {
 
     <script type="text/javascript">
 
+        @php
+            $success = session('success') ?? '';
+        @endphp
+
+        @if ($success === __('message.registration_complete'))
+        window.addEventListener('DOMContentLoaded', function () {
+            const input = document.getElementById('username');
+            input?.focus();
+        });
+        @endif
+
+
         var input = document.querySelector("#mobilenum");
 
         function updateToMobile(value) {
