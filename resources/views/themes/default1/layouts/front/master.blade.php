@@ -529,6 +529,7 @@ $days = $pay->where('product','117')->value('days');
                     </button>
                 </div>
             @endif
+
             @if(Session::has('warning'))
 
                 <div class="alert alert-warning alert-dismissable">
@@ -938,7 +939,6 @@ $days = $pay->where('product','117')->value('days');
         </div>
     </footer>
 </div>
-
 
 <!-- Vendor -->
 <script src="{{asset('client/porto/js-2/plugins.min.js')}}"></script>

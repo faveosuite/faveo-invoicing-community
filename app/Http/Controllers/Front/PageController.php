@@ -461,7 +461,7 @@ class PageController extends Controller
      *
      * @param  int  $groupid  Group id
      * @param  int  $templateid  Id of the Template
-     * @return longtext The Template to be displayed
+     * @return
      */
     public function pageTemplates(?int $templateid = null, int $groupid)
     {
@@ -522,7 +522,6 @@ class PageController extends Controller
                 $description = self::getPriceDescription($product->id);
                 $status = Product::find($product->id);
             }
-
             return view('themes.default1.common.template.shoppingcart', compact('templates', 'headline', 'tagline', 'description', 'status'));
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());

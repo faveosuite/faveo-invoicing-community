@@ -224,9 +224,7 @@ class SettingsController extends BaseSettingsController
     public function getKeys(ApiKey $apikeys)
     {
         try {
-            $licenseClientId = ApiKey::pluck('license_client_id')->first();
-            $licenseClientSecret = ApiKey::pluck('license_client_secret')->first();
-            $licenseGrantType = ApiKey::pluck('license_grant_type')->first();
+
             $licenseSecret = $apikeys->pluck('license_api_secret')->first();
             $licenseUrl = $apikeys->pluck('license_api_url')->first();
             $licenseClientId = $apikeys->pluck('license_client_id')->first();
@@ -244,7 +242,6 @@ class SettingsController extends BaseSettingsController
             $msg91Sender = $apikeys->pluck('msg91_sender')->first();
             $msg91TemplateId = $apikeys->pluck('msg91_template_id')->first();
             $updateUrl = $apikeys->pluck('update_api_url')->first();
-            $emailStatus = StatusSetting::pluck('emailverification_status')->first();
             $twitterKeys = $apikeys->select('twitter_consumer_key', 'twitter_consumer_secret',
                 'twitter_access_token', 'access_tooken_secret')->first();
             $twitterStatus = $this->statusSetting->pluck('twitter_status')->first();
@@ -278,7 +275,7 @@ class SettingsController extends BaseSettingsController
             $githubStatus = StatusSetting::first()->github_status;
             $msg91ThirdPartyId = $apikeys->pluck('msg91_third_party_id')->first();
 
-            return view('themes.default1.common.apikey', compact('model', 'status', 'licenseSecret', 'licenseUrl', 'siteKey', 'secretKey', 'captchaStatus', 'v3CaptchaStatus', 'updateStatus', 'updateSecret', 'updateUrl', 'mobileStatus', 'mobileauthkey', 'msg91Sender', 'msg91TemplateId', 'emailStatus', 'twitterStatus', 'twitterKeys', 'zohoStatus', 'zohoKey', 'rzpStatus', 'rzpKeys', 'mailchimpSetting', 'mailchimpKey', 'termsStatus', 'termsUrl', 'pipedriveKey', 'pipedriveStatus', 'domainCheckStatus', 'mailSendingStatus',
+            return view('themes.default1.common.apikey', compact('model', 'status', 'licenseSecret', 'licenseUrl', 'siteKey', 'secretKey', 'captchaStatus', 'v3CaptchaStatus', 'updateStatus', 'updateSecret', 'updateUrl', 'mobileStatus', 'mobileauthkey', 'msg91Sender', 'msg91TemplateId', 'twitterStatus', 'twitterKeys', 'zohoStatus', 'zohoKey', 'rzpStatus', 'rzpKeys', 'mailchimpSetting', 'mailchimpKey', 'termsStatus', 'termsUrl', 'pipedriveKey', 'pipedriveStatus', 'domainCheckStatus', 'mailSendingStatus',
                 'licenseClientId', 'licenseClientSecret', 'licenseGrantType', 'allists', 'selectedList', 'set', 'githubStatus', 'msg91ThirdPartyId'));
         } catch (\Exception $ex) {
             return redirect('/')->with('fails', $ex->getMessage());
