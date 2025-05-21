@@ -13,11 +13,11 @@ use App\Model\Common\StatusSetting;
 use App\User;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Facades\Log;
 use Pipedrive\versions\v1\Api;
 use Pipedrive\versions\v1\ApiException;
 use Pipedrive\versions\v1\Configuration as PipedriveConfiguration;
-use Illuminate\Support\Facades\Lang;
-use Illuminate\Support\Facades\Log;
 
 class PipedriveController extends Controller
 {
@@ -32,7 +32,7 @@ class PipedriveController extends Controller
     {
         $this->middleware(['auth', 'admin']);
 
-        if (!StatusSetting::value('pipedrive_status')) {
+        if (! StatusSetting::value('pipedrive_status')) {
             abort(404);
         }
 
@@ -64,7 +64,7 @@ class PipedriveController extends Controller
         return [
             'personId' => PipedriveGroups::where('group_name', 'Person')->value('id'),
             'organizationId' => PipedriveGroups::where('group_name', 'Organization')->value('id'),
-            'dealId' => PipedriveGroups::where('group_name', 'Deal')->value('id')
+            'dealId' => PipedriveGroups::where('group_name', 'Deal')->value('id'),
         ];
     }
 
@@ -75,9 +75,11 @@ class PipedriveController extends Controller
     {
         try {
             $result = $this->apiClients[$apiClient]->$method(...$args)->getRawData();
-            return is_array($result) ? $result : (array)$result;
+
+            return is_array($result) ? $result : (array) $result;
         } catch (\Exception $e) {
-            Log::error("Pipedrive API error: " . $e->getMessage());
+            Log::error('Pipedrive API error: '.$e->getMessage());
+
             return [];
         }
     }
@@ -91,7 +93,8 @@ class PipedriveController extends Controller
             $response = $this->apiClients[$apiClient]->$method(...$args);
 
             if (method_exists($response, 'getRawData')) {
-                $rawData = (array)$response->getRawData();
+                $rawData = (array) $response->getRawData();
+
                 return $rawData['id'] ?? $response;
             }
 
@@ -99,7 +102,8 @@ class PipedriveController extends Controller
         } catch (ApiException $e) {
             return json_decode($e->getResponseBody());
         } catch (\Exception $e) {
-            Log::error("Pipedrive action error: " . $e->getMessage());
+            Log::error('Pipedrive action error: '.$e->getMessage());
+
             return null;
         }
     }
@@ -166,8 +170,8 @@ class PipedriveController extends Controller
     public function addOrGetOrganization($organization)
     {
         try {
-            if (!isset($organization['name'])) {
-                return (object)[
+            if (! isset($organization['name'])) {
+                return (object) [
                     'success' => false,
                     'error' => 'Organization name is required',
                 ];
@@ -178,7 +182,7 @@ class PipedriveController extends Controller
             $orgId = $orgSearchResult['items'][0]['item']['id'] ?? null;
 
             // Create new organization if not found
-            if (!$orgId) {
+            if (! $orgId) {
                 $orgResponse = $this->fetchApiData('organizations', 'addOrganization', $organization);
                 $orgId = $orgResponse['id'] ?? null;
             }
@@ -187,7 +191,8 @@ class PipedriveController extends Controller
         } catch (ApiException $e) {
             return json_decode($e->getResponseBody());
         } catch (\Exception $e) {
-            Log::error("Add/Get organization error: " . $e->getMessage());
+            Log::error('Add/Get organization error: '.$e->getMessage());
+
             return null;
         }
     }
@@ -225,9 +230,9 @@ class PipedriveController extends Controller
             return
                 isset($field->bulk_edit_allowed) && $field->bulk_edit_allowed === true &&
                 (
-                    !isset($field->use_field) || $field->use_field === 'id'
+                    ! isset($field->use_field) || $field->use_field === 'id'
                 ) && (
-                !in_array($field->key, $this->excludeKeysFromPipedrive($groupId))
+                    ! in_array($field->key, $this->excludeKeysFromPipedrive($groupId))
                 );
         });
 
@@ -236,7 +241,7 @@ class PipedriveController extends Controller
 
         // Delete obsolete fields
         $fieldsToDelete = $existingFields->filter(function ($field) use ($newFieldKeys) {
-            return !in_array($field->field_key, $newFieldKeys);
+            return ! in_array($field->field_key, $newFieldKeys);
         });
 
         if ($fieldsToDelete->count() > 0) {
@@ -245,7 +250,7 @@ class PipedriveController extends Controller
 
         // Insert new fields
         foreach ($allowedFields as $field) {
-            if (!in_array($field->key, $existingKeys)) {
+            if (! in_array($field->key, $existingKeys)) {
                 $pipedrive = PipedriveField::create([
                     'field_key' => $field->key,
                     'pipedrive_group_id' => $groupId,
@@ -262,7 +267,7 @@ class PipedriveController extends Controller
                         ];
                     })->toArray();
 
-                    if (!empty($options)) {
+                    if (! empty($options)) {
                         PipedriveFieldOption::insert($options);
                     }
                 }
@@ -280,14 +285,13 @@ class PipedriveController extends Controller
         };
     }
 
-
     /**
      * Create a new Pipedrive person, organization, and deal.
      */
     public function addUserToPipedrive(User $user): void
     {
         try {
-            if (!StatusSetting::value('pipedrive_status')) {
+            if (! StatusSetting::value('pipedrive_status')) {
                 return;
             }
 
@@ -302,11 +306,11 @@ class PipedriveController extends Controller
             // Create deal with both references
             $deal = $this->transformPipedriveData($user, $this->groups['dealId'], [
                 'org_id' => $orgID,
-                'person_id' => $personID
+                'person_id' => $personID,
             ]);
             $this->addDeal($deal);
         } catch (\Exception $e) {
-            throw new \Exception('Error adding user to Pipedrive: ' . $e->getMessage());
+            throw new \Exception('Error adding user to Pipedrive: '.$e->getMessage());
         }
     }
 
@@ -337,7 +341,7 @@ class PipedriveController extends Controller
         $select2 = $request->input('select2', []);
 
         // Validate title field for deals
-        if ($group_name === 'Deal' && !PipedriveField::whereIn('id', $select1)
+        if ($group_name === 'Deal' && ! PipedriveField::whereIn('id', $select1)
                 ->where('field_key', 'title')
                 ->exists()) {
             return errorResponse('The title field is required for deals.');
@@ -349,7 +353,7 @@ class PipedriveController extends Controller
                 foreach ($select1 as $key => $fieldId) {
                     $localField = $select2[$key];
 
-                    if ($localField['faveo_fields'] === "true") {
+                    if ($localField['faveo_fields'] === 'true') {
                         PipedriveField::where('id', $fieldId)->update([
                             'local_field_id' => $localField['id'],
                         ]);
@@ -387,7 +391,6 @@ class PipedriveController extends Controller
         return successResponse('Fields mapped successfully');
     }
 
-
     /**
      * Test Pipedrive mapping with a temporary user.
      */
@@ -414,6 +417,7 @@ class PipedriveController extends Controller
 
                 // Delete the test user
                 $user->delete();
+
                 return true;
             } elseif (isset($response->success) && $response->success === false) {
                 return $response->error;
@@ -422,6 +426,7 @@ class PipedriveController extends Controller
             return true;
         } catch (\Exception $e) {
             $user->delete();
+
             return $e->getMessage();
         }
     }
@@ -534,7 +539,7 @@ class PipedriveController extends Controller
                 'localField',
                 'pipedriveOptions' => function ($q) {
                     $q->where('status', 1);
-                }
+                },
             ])
             ->get();
 
@@ -545,7 +550,7 @@ class PipedriveController extends Controller
             $localFieldKey = $field->localField->field_key ?? null;
 
             // Use local field mapping if available
-            if ($localFieldKey && !empty($user->{$localFieldKey})) {
+            if ($localFieldKey && ! empty($user->{$localFieldKey})) {
                 $result[$fieldKey] = $this->userTransform($user, $localFieldKey);
             }
             // Otherwise use option if available
@@ -566,7 +571,7 @@ class PipedriveController extends Controller
     private function userTransform(User $user, string $userField): mixed
     {
         return match ($userField) {
-            'mobile' => '+' . $user->mobile_code . ' ' . $user->mobile,
+            'mobile' => '+'.$user->mobile_code.' '.$user->mobile,
             'country' => Country::where('country_code_char2', $user->country)->value('nicename'),
             default => $user->{$userField},
         };
