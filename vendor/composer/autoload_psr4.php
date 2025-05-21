@@ -100,6 +100,7 @@ return array(
     'PragmaRX\\Google2FAQRCode\\' => array($vendorDir . '/pragmarx/google2fa-qrcode/src'),
     'PragmaRX\\Google2FALaravel\\Tests\\' => array($vendorDir . '/pragmarx/google2fa-laravel/tests'),
     'PragmaRX\\Google2FALaravel\\' => array($vendorDir . '/pragmarx/google2fa-laravel/src'),
+    'Pipedrive\\' => array($vendorDir . '/pipedrive/pipedrive/lib'),
     'Pion\\Laravel\\ChunkUpload\\' => array($vendorDir . '/pion/laravel-chunk-upload/src'),
     'PhpParser\\' => array($vendorDir . '/nikic/php-parser/lib/PhpParser'),
     'PhpOption\\' => array($vendorDir . '/phpoption/phpoption/src/PhpOption'),

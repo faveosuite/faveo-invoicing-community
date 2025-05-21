@@ -177,6 +177,8 @@ trait ApiKeySettings
     {
         try {
             $pipedriveKey = $request->input('pipedrive_key');
+            $status = $request->input('status');
+            $verificationStatus = (bool) $request->input('require_pipedrive_user_verification');
 
             $response = Http::get('https://api.pipedrive.com/v1/users/me', [
                 'api_token' => $pipedriveKey,
@@ -189,9 +191,9 @@ trait ApiKeySettings
             if (isset($result['success']) && $result['success'] !== true) {
                 return errorResponse(\Lang::get('message.pipedrive_error'));
             }
-            $status = $request->input('status');
             StatusSetting::find(1)->update(['pipedrive_status' => $status]);
             ApiKey::find(1)->update(['pipedrive_api_key' => $pipedriveKey]);
+            ApiKey::find(1)->update(['require_pipedrive_user_verification' => $verificationStatus]);
 
             return successResponse(\Lang::get('message.pipedrive_setting'));
         } catch (\Exception $exception) {

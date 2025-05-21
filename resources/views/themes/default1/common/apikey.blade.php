@@ -611,6 +611,13 @@
                         {!! html()->text('pipedrive_key', $pipedriveKey)->class('form-control pipedrive_key')->id('pipedrive_key') !!}
                          <h6 id="pipedrive_keycheck"></h6>
                     </div>
+                    <div class="form-group">
+                        <label>{{ __('message.user_verification') }}</label>&nbsp;&nbsp;<i class="fas fa-info-circle" data-toggle="tooltip" data-placement="top" title="{{ __('message.pipedrive_user_verification_tooltip') }}"></i>
+                        <select class="form-control mt-2" id="pipedrive_key_status" name="pipedrive_key_status">
+                            <option value="1" {{ $isPipedriveVerificationEnabled == 1 ? 'selected' : '' }}>Yes</option>
+                            <option value="0" {{ $isPipedriveVerificationEnabled == 0 ? 'selected' : '' }}>No</option>
+                        </select>
+                    </div>
 
                 </div>
 
@@ -2712,6 +2719,7 @@
                 data: {
                     "status": pipedrivestatus,
                     "pipedrive_key": $('#pipedrive_key').val(),
+                    "require_pipedrive_user_verification": $('#pipedrive_key_status').val(),
                 },
                 success: function (data) {
                         setTimeout(function () {
