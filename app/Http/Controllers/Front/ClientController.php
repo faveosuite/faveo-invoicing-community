@@ -1115,25 +1115,6 @@ class ClientController extends BaseClientController
             $paymentIntent = $stripe->paymentIntents->retrieve($request->input('payment_intent'));
             if ($paymentIntent->status === 'succeeded') {
                 $response=$this->stripePaymentUpdateSub($stripe,$paymentIntent,$orderid);
-//                $refund = $stripe->refunds->create([
-//                    'payment_intent' => $paymentIntent->id,
-//                    'amount' => $paymentIntent->amount,
-//                ]);
-//                $invoice_id = OrderInvoiceRelation::where('order_id', $orderid)->value('invoice_id');
-//                $number = Invoice::where('id', $invoice_id)->value('number');
-//                $customer_details = [
-//                    'user_id' => \Auth::user()->id,
-//                    'customer_id' => $paymentIntent->customer,
-//                    'payment_method' => 'stripe',
-//                    'order_id' => $orderid,
-//                    'payment_intent_id' => $paymentIntent->payment_method,
-//                ];
-//                Auto_renewal::create($customer_details);
-//                Subscription::where('order_id', $orderid)->update(['is_subscribed' => '1', 'autoRenew_status' => '1']);
-//                $mail = new \App\Http\Controllers\Common\PhpMailController();
-//                $mail->payment_log(\Auth::user()->email, 'stripe', 'success', Order::where('id', $orderid)->value('number'), null, $amount, 'Payment method updated');
-//                $response = ['type' => 'success', 'message' => 'Your Card details are updated successfully.'];
-
                 return response()->json($response);
             } else {
                 $response = ['type' => 'fails', 'message' => 'Something went wrong.'];

@@ -11,7 +11,11 @@ use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
 use App\Model\Product\ProductGroup;
 use App\User;
+use Illuminate\Http\Request;
+use Spatie\Html\Html;
 use Tests\DBTestCase;
+use Mockery;
+
 
 class StoreTest extends DBTestCase
 {
@@ -22,6 +26,11 @@ class StoreTest extends DBTestCase
         parent::setUp();
         $this->con = new TemplateController();
         $this->con1 = new PageController();
+        $this->request = app(Request::class);
+        $this->html = Mockery::mock(Html::class, [$this->request])->makePartial();
+        $this->html->shouldReceive('token')->andReturn('mocked-token');
+        $this->app->instance(Html::class, $this->html);
+
     }
     /** @group store */
     public function test_store_has_groups(){

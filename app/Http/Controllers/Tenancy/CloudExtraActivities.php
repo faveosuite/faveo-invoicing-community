@@ -508,6 +508,19 @@ class CloudExtraActivities extends Controller
         }
     }
 
+    /**
+     *  This function is used for the calculation when change the plan(when new price is less than old price).
+     *
+     * @param $ends_at
+     * @param $base_price_new
+     * @param $base_priceOld
+     * @param $planDaysNew
+     * @param $planDaysOld
+     * @param $orderId
+     *
+     * @return array
+     * @throws
+     */
     private function newPriceLessThanOld($ends_at,$base_price_new,$base_priceOld,$planDaysNew,$planDaysOld,$orderId){
         if (Carbon::now() >= $ends_at) {
             $price = $base_price_new;
@@ -530,7 +543,7 @@ class CloudExtraActivities extends Controller
                 $priceToBePaid=$variables['priceToBePaid'];
 
             } else {
-                $variables=$this->lessPriceNewDaysEqualToOldDays($daysRemain,$planDaysNew,$planDaysOld,$pricePerDayForNewPlan,$pricePerDayForOldPlan,$orderId);
+                $variables=$this->lessPriceNewDaysEqualToOldDays($daysRemain,$pricePerDayForNewPlan,$pricePerDayForOldPlan,$orderId);
                 $price=$variables['price'];
                 $priceRemaining=$variables['priceRemaining'];
                 $priceToBePaid=$variables['priceToBePaid'];
@@ -541,6 +554,18 @@ class CloudExtraActivities extends Controller
 
     }
 
+
+    /**
+     *  This function is used for the calculation when the price is less and the new plan days is equal to old plan days.
+     *
+     * @param $daysRemain
+     * @param $pricePerDayForNewPlan
+     * @param $pricePerDayForOldPlan
+     * @param $orderId
+     *
+     * @return array
+     * @throws
+     */
     private function lessPriceNewDaysEqualToOldDays($daysRemain,$pricePerDayForNewPlan,$pricePerDayForOldPlan,$orderId){
         $priceToBePaid = $pricePerDayForNewPlan * $daysRemain;
         $priceRemaining = $pricePerDayForOldPlan * $daysRemain;
@@ -560,7 +585,17 @@ class CloudExtraActivities extends Controller
     }
 
 
-
+    /**
+     *  This function is used for the calculation when the price is less and the new plan days is not equal to old plan days.
+     *
+     * @param $daysRemain
+     * @param $pricePerDayForNewPlan
+     * @param $pricePerDayForOldPlan
+     * @param $orderId
+     *
+     * @return array
+     * @throws
+     */
         private function lessPriceNewDaysNotEqualToOldDays($daysRemain,$planDaysNew,$planDaysOld,$pricePerDayForNewPlan,$pricePerDayForOldPlan,$orderId){
         if ($daysRemain <= $planDaysNew && $planDaysOld > $planDaysNew) {
             $priceToBePaid = $pricePerDayForNewPlan * $daysRemain;
@@ -586,6 +621,18 @@ class CloudExtraActivities extends Controller
 
     }
 
+    /**
+     *  This function is used for the calculation when the old price is greater than the new plan price.
+     *
+     * @param $ends_at
+     * @param $base_price_new
+     * @param $planDaysNew
+     * @param $base_priceOld
+     * @param $planDaysOld
+     * @param $orderId
+     * @return array
+     * @throws
+     */
     private function newPriceGreaterThanOld($ends_at,$base_price_new,$planDaysNew,$base_priceOld,$planDaysOld,$orderId){
         if (Carbon::now() >= $ends_at) {
             $price = $base_price_new;
@@ -616,6 +663,17 @@ class CloudExtraActivities extends Controller
 
     }
 
+    /**
+     *  This function is used for the calculation when the new plan days is not equal to old plan days.
+     *
+     * @param $planDaysNew
+     * @param $planDaysOld
+     * @param $daysRemain
+     * @param $pricePerDayNew
+     * @param $pricePerDayOld
+     * @return array
+     * @throws
+     */
     private function newPlanDaysNotEqualToOld($planDaysNew,$planDaysOld,$daysRemain,$pricePerDayNew,$pricePerDayOld){
         $daysRemainNew = $planDaysOld - $daysRemain;
         $daysRemainNewFinal = $planDaysNew - $daysRemainNew;
@@ -628,6 +686,16 @@ class CloudExtraActivities extends Controller
         return ['price'=>$price,'priceRemaining'=>$priceRemaining,'priceToBePaid'=>$priceToBePaid];
     }
 
+    /**
+     *  This function is used for the calculation when the new plan days is equal to old plan days.
+     *
+     * @param $daysRemain
+     * @param $pricePerDayNew
+     * @param $pricePerDayOld
+     * @param $orderId
+     * @return array
+     * @throws
+     */
     private function newPlanDaysEqualToOld($daysRemain,$pricePerDayNew,$pricePerDayOld,$orderId){
         $pricePerThatAgentNew = $pricePerDayNew * $daysRemain;
         $pricePerThatAgentOld = $pricePerDayOld * $daysRemain;
@@ -638,6 +706,17 @@ class CloudExtraActivities extends Controller
         return ['price'=>$price,'priceRemaining'=>$priceRemaining,'priceToBePaid'=>$priceToBePaid];
     }
 
+    /**
+     *  This function is used for the calculation when the old price is greater than the new plan price.
+     *
+     * @param $ends_at
+     * @param $base_price_new
+     * @param $planDaysNew
+     * @param $planDaysOld
+     * @param $orderId
+     * @return array
+     * @throws
+     */
     private function newPriceEqualToOld($ends_at,$base_price_new,$planDaysNew,$planDaysOld,$orderId){
 
         if (Carbon::now() >= $ends_at) {
@@ -657,6 +736,16 @@ class CloudExtraActivities extends Controller
         return ['price'=>$price,'priceRemaining'=>$priceRemaining,'priceToBePaid'=>$priceToBePaid];
     }
 
+    /**
+     *  This function is used for the calculation when the current date is less than the subscription end date.
+     *
+     * @param $daysRemain
+     * @param $planDaysNew
+     * @param $planDaysOld
+     * @param $orderId
+     * @return array
+     * @throws
+     */
     private function currentDateLessThanEndDate($planDaysNew,$planDaysOld,$daysRemain,$orderId){
 
         if ($planDaysNew !== $planDaysOld) {

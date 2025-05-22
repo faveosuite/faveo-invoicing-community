@@ -439,7 +439,6 @@ public function test_cloud_get_cost_upgrade_plan(){
             'version' => 'v6.0.0', 'update_ends_at' => '','ends_at'=>Carbon::now()->addDays(65)]);
 
         $response=$this->getPrivateMethod($this->cloudactivities,'getThePaymentCalculationUpgradeDowngrade',[$planPrice2->no_of_agents,$order->serial_key,$order->id,$plan2->id]);
-
         $this->assertTrue($response['attributes']['priceToBePaid']<$response['attributes']['priceRemaining']);
         $this->assertEquals(\Session::get('priceToBePaid'),$response['price']);
         $this->assertEquals($plan2->product,$response['id']);

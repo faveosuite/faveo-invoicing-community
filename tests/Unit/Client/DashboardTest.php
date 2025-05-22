@@ -9,11 +9,24 @@ use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\User;
+use Illuminate\Http\Request;
+use Spatie\Html\Html;
 use Tests\DBTestCase;
 use Carbon\Carbon;
+use Mockery;
 
 class DashboardTest extends DBTestCase
 {
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->request = app(Request::class);
+        $this->html = Mockery::mock(Html::class, [$this->request])->makePartial();
+        $this->html->shouldReceive('token')->andReturn('mocked-token');
+        $this->app->instance(Html::class, $this->html);
+
+    }
 
     /** @group dashboard */
     public function test_dashboard_returning_correct_view(){

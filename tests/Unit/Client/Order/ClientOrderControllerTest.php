@@ -18,14 +18,22 @@ use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Order\Invoice;
 use Mockery;
-use Tests\TestCase;
-use Illuminate\Support\Facades\Auth;
-use App\Model\Common\StatusSetting;
-use App\Payment_log;
+use Illuminate\Http\Request;
+use Spatie\Html\Html;
+
 
     class ClientOrderControllerTest extends DBTestCase
 {
 
+        protected function setUp(): void
+        {
+            parent::setUp();
+            $this->request = app(Request::class);
+            $this->html = Mockery::mock(Html::class, [$this->request])->makePartial();
+            $this->html->shouldReceive('token')->andReturn('mocked-token');
+            $this->app->instance(Html::class, $this->html);
+
+        }
 
 /** @group order  */
 

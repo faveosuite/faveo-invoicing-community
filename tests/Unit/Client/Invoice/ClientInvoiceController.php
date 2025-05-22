@@ -10,10 +10,24 @@ use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
 use App\User;
+use Illuminate\Http\Request;
+use Spatie\Html\Html;
 use Tests\DBTestCase;
+use Mockery;
 
 class ClientInvoiceController extends DBTestCase
 {
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->request = app(Request::class);
+        $this->html = Mockery::mock(Html::class, [$this->request])->makePartial();
+        $this->html->shouldReceive('token')->andReturn('mocked-token');
+        $this->app->instance(Html::class, $this->html);
+
+    }
+
     /** @group invoice */
     public function test_return_invoice_details_correctly(){
         $user=User::factory()->create();
