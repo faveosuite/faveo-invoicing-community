@@ -99,7 +99,7 @@ class BaseRenewController extends Controller
             $price = $planDetails['plan']->renew_price;
 
             if (Product::where('id', $plan->product)->value('can_modify_agent')) {
-                $price = $price/$planDetails['plan']->no_of_agents;
+                $price = $price / $planDetails['plan']->no_of_agents;
                 $isAgents = true;
             }
 

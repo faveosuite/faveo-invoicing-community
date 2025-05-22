@@ -180,7 +180,7 @@ class CartController extends BaseCartController
                 }
             }
 
-            $cartCollection = Cart::getContent()->sortByDesc(function($item) {
+            $cartCollection = Cart::getContent()->sortByDesc(function ($item) {
                 return (int) $item->id;
             });
 
