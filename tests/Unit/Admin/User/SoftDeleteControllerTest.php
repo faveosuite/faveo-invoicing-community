@@ -54,8 +54,8 @@ class SoftDeleteControllerTest extends DBTestCase
         $invoice = Invoice::create(['user_id' => $user1->id, 'number' => '234435']);
         $comment = Comment::create(['user_id' => $user2->id, 'updated_by_user_id' => $user1->id, 'description' => 'TesComment']);
         $order = Order::create(['client' => $user1->id, 'order_status' => 'executed', 'product' => $product->id]);
-        $auto_renewal=Auto_renewal::create(['user_id' => $user1->id, 'order_id' => $order->id,'customer_id' => $user1->id,
-            'invoice_number' => $invoice->number,'payment_method'=>'Razorpay','payment_intent_id'=>1]);
+        $auto_renewal = Auto_renewal::create(['user_id' => $user1->id, 'order_id' => $order->id, 'customer_id' => $user1->id,
+            'invoice_number' => $invoice->number, 'payment_method' => 'Razorpay', 'payment_intent_id' => 1]);
         $user1->delete();
         $this->expectOutputRegex('/Deleted Successfully/');
         $data = $this->call('DELETE', 'permanent-delete-client', ['select' => [$user1->id]]);
@@ -75,8 +75,8 @@ class SoftDeleteControllerTest extends DBTestCase
         $invoice = Invoice::create(['user_id' => $user1->id, 'number' => '234435']);
         $comment = Comment::create(['user_id' => $user2->id, 'updated_by_user_id' => $user1->id, 'description' => 'TesComment']);
         $order = Order::create(['client' => $user1->id, 'order_status' => 'executed', 'product' => $product->id]);
-        $auto_renewal=Auto_renewal::create(['user_id' => $user2->id, 'order_id' => $order->id,'customer_id' => $user2->id,
-            'invoice_number' => $invoice->number,'payment_method'=>'Razorpay','payment_intent_id'=>1]);
+        $auto_renewal = Auto_renewal::create(['user_id' => $user2->id, 'order_id' => $order->id, 'customer_id' => $user2->id,
+            'invoice_number' => $invoice->number, 'payment_method' => 'Razorpay', 'payment_intent_id' => 1]);
         $user1->delete();
         $this->expectOutputRegex('/Deleted Successfully/');
         $data = $this->call('DELETE', 'permanent-delete-client', ['select' => [$user1->id]]);
