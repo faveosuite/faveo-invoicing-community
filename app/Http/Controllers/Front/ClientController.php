@@ -848,14 +848,17 @@ class ClientController extends BaseClientController
      */
     private function planPriceProductRelation($product){
 
-        $plans = Plan::join('products', 'plans.product', '=', 'products.id')
-            ->leftJoin('plan_prices','plans.id','=','plan_prices.plan_id')
-            ->where('plans.product','!=',$product->id)
-            ->where('products.type',4)
-            ->where('products.can_modify_agent',1)
-            ->where('plan_prices.renew_price','!=','0')
-            ->pluck('plans.name', 'plans.id')
-            ->toArray();
+    $plans = Plan::where('product', '!=', $product->id)
+        ->whereHas('product', function ($query) {
+        $query->where('type', 4)
+              ->where('can_modify_agent', 1);
+        })
+        ->whereHas('planPrice', function ($query) {
+        $query->where('renew_price', '!=', 0);
+        })
+        ->pluck('name', 'id')
+        ->toArray();
+
 
         return $plans;
     }
