@@ -290,4 +290,9 @@ class BaseCartControllerTest extends DBTestCase
         $response->assertViewHas('templates');
         $response->assertViewIs('themes.default1.common.template.shoppingcart');
     }
+
+    public function test_generating_string(){
+        $response=$this->getPrivateMethod($this->classObject1,'generateMerchantRandomString');
+        dd($response);
+    }
 }
