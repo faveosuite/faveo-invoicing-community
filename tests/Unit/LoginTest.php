@@ -104,7 +104,6 @@ class LoginTest extends DBTestCase
         $request->setLaravelSession(app('session')->driver());
         $controller = new LoginController();
         $response = $controller->login($request);
-        dd($response);
         $this->assertEquals($user->id, session('2fa:user:id'));
     }
 
