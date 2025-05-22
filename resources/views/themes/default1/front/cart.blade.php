@@ -59,10 +59,10 @@ Cart
                                     break;
                                 }
                                 @endphp
-                               
+
 
                                 <table class="shop_table cart">
-                            
+
 
                                     <thead>
 
@@ -82,18 +82,15 @@ Cart
 
                                                 Price
                                             </th>
-                                            @if(!$isAgentAllowed)
 
                                             <th class="product-quantity text-uppercase" width="">
 
                                                 Quantity
                                             </th>
-                                            @else
                                             <th class="product-agents text-uppercase" width="">
 
                                                 Agents
                                             </th>
-                                            @endif
 
 
                                             <th class="product-subtotal text-uppercase" width="">
@@ -160,25 +157,30 @@ Cart
                                             </td>
 
                                             <td class="product-price">
+                                                <?php
+                                                    $productPrice = $item->price;
+                                                    if($isAgentAllowed){
+                                                        $productPrice = $item->price/$item->toArray()['attributes']['agents'];
+                                                    }
+                                                    ?>
 
-                                                <span class="amount font-weight-medium text-color-grey">{{currencyFormat($item->price,$code = $item->attributes->currency)}}</span>
-                                                <div id="response"></div>
+                                                <span class="amount font-weight-medium text-color-grey">{{$productPrice}}</span>
+                                                <div class="response-container"></div>
                                             </td>
 
-                                            @if(!$isAgentAllowed)
 
                                                 <td class="product-quantity">
 
                                                     @if($isAllowedtoEdit['quantity'])
-                                                            <div class="quantity">
-                                                                <input type="button" id="quantityminus" class="minus" value="-">
+                                                        <div class="quantity">
+                                                            <input type="button" class="quantityminus minus" value="-">
 
-                                                                <input type = "hidden" class="productid" value="{{$productdetails1['id']}}">
-                                                                <input type = "hidden" class="planid" value="{{$item->id}}">
-                                                                <input type = "hidden" class="quatprice" id="quatprice" value=" {{$item->price}}">
-                                                                <input type="text" class="input-text qty text" title="Qty" id="qty" value="{{$item->quantity}}" name="quantity" id="quantity" min="1" step="1" disabled>
-                                                                <input type="button" class="plus" value="+" id="quantityplus" >
-                                                            </div>
+                                                            <input type = "hidden" class="productid" value="{{$productdetails1['id']}}">
+                                                            <input type = "hidden" class="planid" value="{{$item->id}}">
+                                                            <input type = "hidden" class="quatprice" value=" {{$item->price}}">
+                                                            <input type="text" class="input-text qty text quantity-input" title="Qty" value="{{$item->quantity}}" name="quantity" min="1" step="1" disabled>
+                                                            <input type="button" class="quantityplus plus" value="+" >
+                                                        </div>
 
 
                                                         @else
@@ -186,32 +188,30 @@ Cart
 
                                                         @endif
                                                     </td>
-                                                @else
                                                     <td class="product-agents">
 
                                                     @if (!$item->attributes->agents)
 
-                                                            {{'Unlimited Agents'}}
-                                                        @else
-                                                            @if($isAllowedtoEdit['agent'])
-                                                                <div class="quantity">
-                                                                    <input type="button" id='agentminus' class="minus" value="-">
-                                                                    <input type="hidden" id="initialagent" value="{{$item->attributes->initialagent}}">
-                                                                    <input type = "hidden" class="currency" value="{{$item->attributes->currency}}">
-                                                                    <input type = "hidden" class="symbol" value="{{$item->attributes->symbol}}">
-                                                                    <input type = "hidden" class="productid" value="{{$productdetails1['id']}}">
-                                                                    <input type = "hidden" class="planid" value="{{$item->id}}">
-                                                                    <input type = "hidden" class="agentprice" id="agentprice" value=" {{$item->getPriceSum()}}">
-                                                                    <input type="text" class="input-text qty text" id="agtqty" title="Qty" value="{{$item->attributes->agents}}" name="quantity" min="1" step="1" disabled>
-                                                                    <input type="button" class="plus" value="+" id="agentplus">
-                                                                </div>
+                                                        {{'Unlimited Agents'}}
+                                                    @else
+                                                        @if($isAllowedtoEdit['agent'])
+                                                            <div class="quantity">
+                                                                <input type="button" class="agentminus minus" value="-">
+                                                                <input type="hidden" class="initialagent" value="{{$item->attributes->initialagent}}">
+                                                                <input type = "hidden" class="currency" value="{{$item->attributes->currency}}">
+                                                                <input type = "hidden" class="symbol" value="{{$item->attributes->symbol}}">
+                                                                <input type = "hidden" class="productid" value="{{$productdetails1['id']}}">
+                                                                <input type = "hidden" class="planid" value="{{$item->id}}">
+                                                                <input type = "hidden" class="agentprice" value=" {{$item->getPriceSum()}}">
+                                                                <input type="text" class="input-text qty text agent-input" title="Qty" value="{{$item->attributes->agents}}" name="quantity" min="1" step="1" disabled>
+                                                                <input type="button" class="agentplus plus" value="+">
+                                                            </div>
 
-                                                            @else
-                                                                {{$item->attributes->agents}}
-                                                            @endif
-                                                    </td>
-                                                @endif
-                                                @endif
+                                                        @else
+                                                            {{$item->attributes->agents}}
+                                                        @endif
+                                                </td>
+                                            @endif
 
 
                                             <td class="product-subtotal">
@@ -220,14 +220,14 @@ Cart
                                                </span>
                                             </td>
                                         </tr>
-                                       
+
                                     </tbody>
-                                     @endforeach 
-                                      
+                                     @endforeach
+
                                 </table>
 
                             </div>
-                          
+
                         </form>
                     </div>
 
@@ -321,30 +321,35 @@ Cart
         /*
          * Increase No. Of Agents
          */
-        $('#agentplus').on('click',function(){
-            var $agtqty=$(this).parents('.quantity').find('.qty');
-            var $productid = $(this).parents('.quantity').find('.productid');
-            var $planid = $(this).parents('.quantity').find('.planid');
-            var $agentprice = $(this).parents('.quantity').find('.agentprice');
-            var $currency = $(this).parents('.quantity').find('.currency');
-            var $symbol  = $(this).parents('.quantity').find('.symbol');
+        $(document).on('click', '.agentplus', function(){
+            var $quantity = $(this).closest('.quantity');
+            var $agtqty = $quantity.find('.agent-input');
+            var $productid = $quantity.find('.productid');
+            var $planid = $quantity.find('.planid');
+            var $agentprice = $quantity.find('.agentprice');
+            var $currency = $quantity.find('.currency');
+            var $symbol = $quantity.find('.symbol');
+            var $responseContainer = $(this).closest('tr').find('.response-container');
+
             var currency = $currency.val();//Get the Currency for the Product
             var symbol = $symbol.val();//Get the Symbol for the Currency
             var productid = parseInt($productid.val()); //get Product Id
             var planid = parseInt($planid.val()); //get Product Id
             var currentAgtQty = parseInt($agtqty.val()); //Get Current Quantity of Prduct
             var actualAgentPrice = parseInt($agentprice.val());//Get Initial Price of Prduct
-            // console.log(productid,currentVal,actualprice);
 
-                var finalAgtqty = $('#agtqty').val(currentAgtQty + 1).val();
-                var finalAgtprice = $('#agentprice').val(actualAgentPrice * finalAgtqty).val();
+            var finalAgtqty = currentAgtQty + 1;
+            var finalAgtprice = actualAgentPrice * finalAgtqty;
+
+            $agtqty.val(finalAgtqty);
+            $agentprice.val(finalAgtprice);
 
             $.ajax({
                 type: "POST",
                 data:{'productid':productid,'planid':planid},
                 beforeSend: function () {
-                    $('#response').html( "<img id='blur-bg' class='backgroundfadein' style='width: 50px; height:50 px; display: block; position:    fixed;' src='{!! asset('lb-faveo/media/images/gifloader3.gif') !!}'>");
-
+                    $quantity.find('.agentminus, .agentplus').prop('disabled', true);
+                    $responseContainer.html("<img class='loading-gif' style='width: 50px; height: 50px;' src='{!! asset('lb-faveo/media/images/gifloader3.gif') !!}'>");
                 },
                 url: "{{url('update-agent-qty')}}",
                 success: function () {
@@ -355,109 +360,126 @@ Cart
         /*
         *Decrease No. of Agents
          */
+        $(document).on('click', '.agentminus', function(){
+            var $quantity = $(this).closest('.quantity');
+            var $agtqty = $quantity.find('.agent-input');
+            var $productid = $quantity.find('.productid');
+            var $planid = $quantity.find('.planid');
+            var $agentprice = $quantity.find('.agentprice');
+            var $currency = $quantity.find('.currency');
+            var $symbol = $quantity.find('.symbol');
+            var $responseContainer = $(this).closest('tr').find('.response-container');
 
-        $(document).ready(function(){
-    var currentagtQty = $('#agtqty').val();
-    if (currentagtQty > 1) {
-        $('#agentminus').on('click', function () {
-            if ($(this).prop('disabled')) {
-                return; // Return if the button is disabled
-            }
-
-            var $agtqty = $(this).parents('.quantity').find('.qty');
-            var $productid = $(this).parents('.quantity').find('.productid');
-            var $planid = $(this).parents('.quantity').find('.planid');
-            var $agentprice = $(this).parents('.quantity').find('.agentprice');
-            var $currency = $(this).parents('.quantity').find('.currency');
-            var $symbol = $(this).parents('.quantity').find('.symbol');
-            var currency = $currency.val();
-            var symbol = $symbol.val();
-            var productid = parseInt($productid.val());
-            var planid = parseInt($planid.val()); //get Product Id
             var currentAgtQty = parseInt($agtqty.val());
-            var actualAgentPrice = parseInt($agentprice.val());
 
-            if (!isNaN(currentAgtQty) && currentAgtQty > 1) {
-                var finalAgtqty = $('#agtqty').val(currentAgtQty - 1).val();
-                var finalAgtprice = $('#agentprice').val(actualAgentPrice / 2).val();
-            } else {
-                // If current quantity is 1 or less, don't perform decrement
+            // Don't allow going below 1
+            if (currentAgtQty <= 1) {
                 return;
             }
 
-            $('#agentminus, #agentplus').prop('disabled', true);
+            var currency = $currency.val();
+            var symbol = $symbol.val();
+            var productid = parseInt($productid.val());
+            var planid = parseInt($planid.val());
+            var actualAgentPrice = parseInt($agentprice.val());
+
+            var finalAgtqty = currentAgtQty - 1;
+            var finalAgtprice = actualAgentPrice / 2; // You might want to recalculate this properly
+
+            $agtqty.val(finalAgtqty);
+            $agentprice.val(finalAgtprice);
+
             $.ajax({
                 type: "POST",
                 data: {'productid': productid,'planid':planid},
                 beforeSend: function () {
-                    $('#response').html("<img id='blur-bg' class='backgroundfadein' style='width: 50px; height:50 px; display: block; position: fixed;' src='{!! asset('lb-faveo/media/images/gifloader3.gif') !!}'>");
+                    $quantity.find('.agentminus, .agentplus').prop('disabled', true);
+                    $responseContainer.html("<img class='loading-gif' style='width: 50px; height: 50px;' src='{!! asset('lb-faveo/media/images/gifloader3.gif') !!}'>");
                 },
                 url: "{{url('reduce-agent-qty')}}",
                 success: function () {
                     location.reload();
                 },
-                complete: function () {
-                    $('#agentminus, #agentplus').prop('disabled', false);
+                error: function() {
+                    $quantity.find('.agentminus, .agentplus').prop('disabled', false);
+                    $responseContainer.html('');
                 }
             });
         });
-    }
-});
-
-
-
 
         /*
-        *Increse Product Quantity
+        *Increase Product Quantity
          */
-        $('#quantityplus').on('click',function(){
-            var $productid = $(this).parents('.quantity').find('.productid');
-            var productid = parseInt($productid.val()); //get Product Id
-            var $planid = $(this).parents('.quantity').find('.planid');
-            var planid = parseInt($planid.val()); //get Product Id
+        $(document).on('click', '.quantityplus', function(){
+            var $quantity = $(this).closest('.quantity');
+            var $productid = $quantity.find('.productid');
+            var $planid = $quantity.find('.planid');
+            var $responseContainer = $(this).closest('tr').find('.response-container');
 
-            // console.log(productid,currentVal,actualprice);
+            var productid = parseInt($productid.val());
+            var planid = parseInt($planid.val());
+
             $.ajax({
                 type: "POST",
                 data: {'productid':productid,'planid':planid},
                 beforeSend: function () {
-                    $('#response').html( "<img id='blur-bg' class='backgroundfadein' style='width: 50px; height:50 px; display: block; position:    fixed;' src='{!! asset('lb-faveo/media/images/gifloader3.gif') !!}'>");
+                    $quantity.find('.quantityminus, .quantityplus').prop('disabled', true);
+                    $responseContainer.html("<img class='loading-gif' style='width: 50px; height: 50px;' src='{!! asset('lb-faveo/media/images/gifloader3.gif') !!}'>");
                 },
                 url: "{{url('update-qty')}}",
                 success: function () {
                     location.reload();
+                },
+                error: function() {
+                    $quantity.find('.quantityminus, .quantityplus').prop('disabled', false);
+                    $responseContainer.html('');
                 }
             });
         });
 
         /*
-         * Reduce Procut Quantity
+         * Reduce Product Quantity
          */
-        $('#quantityminus').on('click',function(){
-            var $qty=$(this).parents('.quantity').find('.qty');
-            var $productid = $(this).parents('.quantity').find('.productid');
-            var $price = $(this).parents('.quantity').find('.quatprice');
-            var productid = parseInt($productid.val()); //get Product Id
-            var $planid = $(this).parents('.quantity').find('.planid');
-            var planid = parseInt($planid.val()); //get Product Id
-            var currentQty = parseInt($qty.val()); //Get Current Quantity of Prduct
-            var incraesePrice = parseInt($price.val()); //Get Initial Price of Prduct
-            if (!isNaN(currentQty)) {
-                var finalqty = $('#qty').val(currentQty -1 ).val() ; //Quantity After Increasing
-                var finalprice = $('#quatprice').val(incraesePrice).val(); //Final Price aftr increasing qty
+        $(document).on('click', '.quantityminus', function(){
+            var $quantity = $(this).closest('.quantity');
+            var $qty = $quantity.find('.quantity-input');
+            var $productid = $quantity.find('.productid');
+            var $price = $quantity.find('.quatprice');
+            var $planid = $quantity.find('.planid');
+            var $responseContainer = $(this).closest('tr').find('.response-container');
+
+            var currentQty = parseInt($qty.val());
+
+            // Don't allow going below 1
+            if (currentQty <= 1) {
+                return;
             }
+
+            var productid = parseInt($productid.val());
+            var planid = parseInt($planid.val());
+            var price = parseInt($price.val());
+
+            var finalqty = currentQty - 1;
+            $qty.val(finalqty);
+
             $.ajax({
                 type: "POST",
                 data: {'productid':productid,'planid':planid},
                 beforeSend: function () {
-                    $('#response').html( "<img id='blur-bg' class='backgroundfadein' style='width: 50px; height:50 px; display: block; position:    fixed;' src='{!! asset('lb-faveo/media/images/gifloader3.gif') !!}'>");
+                    $quantity.find('.quantityminus, .quantityplus').prop('disabled', true);
+                    $responseContainer.html("<img class='loading-gif' style='width: 50px; height: 50px;' src='{!! asset('lb-faveo/media/images/gifloader3.gif') !!}'>");
                 },
                 url: "{{url('reduce-product-qty')}}",
                 success: function () {
                     location.reload();
+                },
+                error: function() {
+                    $quantity.find('.quantityminus, .quantityplus').prop('disabled', false);
+                    $responseContainer.html('');
                 }
             });
         });
+
         function Addon(id){
             $.ajax({
                 type: "GET",

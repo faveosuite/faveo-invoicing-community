@@ -94,11 +94,14 @@ class BaseRenewController extends Controller
             }
             $userid = $request->input('user');
             $plan = Plan::find($planid);
-            if (Product::where('id', $plan->product)->value('can_modify_agent')) {
-                $isAgents = true;
-            }
+
             $planDetails = userCurrencyAndPrice($userid, $plan);
             $price = $planDetails['plan']->renew_price;
+
+            if (Product::where('id', $plan->product)->value('can_modify_agent')) {
+                $price = $price/$planDetails['plan']->no_of_agents;
+                $isAgents = true;
+            }
 
             return [$price, $isAgents];
         } catch (Exception $ex) {

@@ -338,14 +338,14 @@
                                 <td>
 
                                     <div><label>
-                                            {!! html()->radio('show_agent', null, 1)->id('agent') !!}
+                                            {!! html()->radio('show_agent', true, 1)->id('agent') !!}
                                             <!-- <input type ="radio" id="agent" value="0" name="cartquantity" hidden>   -->
                                             Agents
                                         </label></div>
 
                                     <br/>
                                     <div class="col-md-10" id="allowmulagent" style="display:none">
-                                        <p>{!! html()->checkbox('can_modify_agent', 1, null)->id('agent_multiple_quantity') !!} {{Lang::get('message.allow_multiple_agents_quantity')}} </p>
+                                        <p>{!! html()->checkbox('can_modify_agent', $canModifyAgent)->id('agent_multiple_quantity') !!} {{Lang::get('message.allow_multiple_agents_quantity')}} </p>
                                     </div>
 
                                 </td>
@@ -355,13 +355,13 @@
                             <td>
                                 <div>
                                     <label>
-                                        {!! html()->radio('show_agent', false, null)->id('quantity') !!}
+                                        {!! html()->radio('show_agent', false, 0)->id('quantity') !!}
                                         Product Quantity
                                     </label>
                                 </div>
                                 <br/>
                                 <div class="col-md-10" id="allowmulproduct" style="display:none">
-                                    <p>{!! html()->checkbox('can_modify_quantity', 1, null)->id('product_multiple_quantity') !!}  {{Lang::get('message.allow_multiple_product_quantity')}} </p>
+                                    <p>{!! html()->checkbox('can_modify_quantity', $canModifyQuantity)->id('product_multiple_quantity') !!}  {{Lang::get('message.allow_multiple_product_quantity')}} </p>
                                 </div>
 
                             </td>
