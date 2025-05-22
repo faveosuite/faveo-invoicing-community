@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Tenancy;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Front\CartController;
 use App\Http\Controllers\License\LicenseController;
-use App\Http\Controllers\Order\ExtendedBaseInvoiceController;
 use App\Http\Controllers\Order\RenewController;
 use App\Model\CloudDataCenters;
 use App\Model\Common\Country;
@@ -25,7 +24,6 @@ use App\User;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class CloudExtraActivities extends Controller
@@ -38,14 +36,13 @@ class CloudExtraActivities extends Controller
         $this->middleware('auth', ['except' => ['verifyThirdPartyToken', 'storeTenantTillPurchase']]);
     }
 
-
     /**
      *  This function returns if there are any active agents before we change the number of agents.
      *
-     * @param $numberOfAgents
-     * @param $domain
-     *
+     * @param  $numberOfAgents
+     * @param  $domain
      * @return JsonResponse
+     *
      * @throws
      */
     private function checktheAgent($numberOfAgents, $domain)
@@ -67,11 +64,10 @@ class CloudExtraActivities extends Controller
      *  This function is used to autofill a field(company) and to change the format.
      *
      * @param
-     *
      * @return JsonResponse
+     *
      * @throws
      */
-
     public function domainCloudAutofill()
     {
         // Fetch the company value from the database
@@ -90,9 +86,9 @@ class CloudExtraActivities extends Controller
     /**
      *  This function checks if the installation path is present or not, and returns installation the path if present.
      *
-     * @param Request $request
-     *
+     * @param  Request  $request
      * @return JsonResponse
+     *
      * @throws
      */
     public function orderDomainCloudAutofill(Request $request)
@@ -109,9 +105,9 @@ class CloudExtraActivities extends Controller
     /**
      *  This function provides upgraded cost when we change the plan .
      *
-     * @param Request $request
-     *
+     * @param  Request  $request
      * @return array
+     *
      * @throws
      */
     public function getUpgradeCost(Request $request)
@@ -140,9 +136,9 @@ class CloudExtraActivities extends Controller
     /**
      *  This function is used to change the domain.
      *
-     * @param Request $request
-     *
+     * @param  Request  $request
      * @return
+     *
      * @throws
      */
     public function changeDomain(Request $request)
@@ -213,12 +209,11 @@ class CloudExtraActivities extends Controller
     /**
      *  This function is used to change number of agents of cloud product.
      *
-     * @param Request $request
-     *
+     * @param  Request  $request
      * @return string
+     *
      * @throws
      */
-
     public function agentAlteration(Request $request)
     {
         try {
@@ -262,12 +257,11 @@ class CloudExtraActivities extends Controller
     /**
      *  This function is used to get upgrade and downgrade plans value.
      *
-     * @param Request $request
-     *
+     * @param  Request  $request
      * @return JsonResponse|string
+     *
      * @throws
      */
-
     public function upgradeDowngradeCloud(Request $request)
     {
         try {
@@ -297,16 +291,15 @@ class CloudExtraActivities extends Controller
         }
     }
 
-
     /**
      *  This function is used for the calculation when we do agent alteration.
      *
-     * @param $newAgents
-     * @param $oldAgents
-     * @param $orderId
-     * @param $planId
-     *
+     * @param  $newAgents
+     * @param  $oldAgents
+     * @param  $orderId
+     * @param  $planId
      * @return array|\Illuminate\Http\Response
+     *
      * @throws
      */
     private function getThePaymentCalculation($newAgents, $oldAgents, $orderId, $planId = null)
@@ -338,9 +331,9 @@ class CloudExtraActivities extends Controller
             }
             $oldAgents = substr($oldAgents, 12, 16);
             if ($newAgents > $oldAgents) {
-                $price=$this->newAgentgreaterthenOld($ends_at,$base_price,$newAgents,$oldAgents,$planDays);
+                $price = $this->newAgentgreaterthenOld($ends_at, $base_price, $newAgents, $oldAgents, $planDays);
             } else {
-                $price=$this->newAgentlessthenOld($ends_at,$base_price,$newAgents,$oldAgents,$planDays);
+                $price = $this->newAgentlessthenOld($ends_at, $base_price, $newAgents, $oldAgents, $planDays);
             }
             $items = ['id' => $product_id, 'name' => $product->name, 'price' => round($price), 'planId' => $planId,
                 'quantity' => 1, 'attributes' => ['currency' => $currency['currency'], 'symbol' => $currency['symbol'], 'agents' => $newAgents], 'associatedModel' => $product];
@@ -356,16 +349,17 @@ class CloudExtraActivities extends Controller
     /**
      *  This function is used for the calculation when new agents are greater than older agents.
      *
-     * @param $newAgents
-     * @param $oldAgents
-     * @param $planDays
-     * @param $base_price
-     * @param $ends_at
-     *
+     * @param  $newAgents
+     * @param  $oldAgents
+     * @param  $planDays
+     * @param  $base_price
+     * @param  $ends_at
      * @return int
+     *
      * @throws
      */
-    private function newAgentgreaterthenOld($ends_at,$base_price,$newAgents,$oldAgents,$planDays){
+    private function newAgentgreaterthenOld($ends_at, $base_price, $newAgents, $oldAgents, $planDays)
+    {
         if (Carbon::now() >= $ends_at) {
             $price = $base_price * $newAgents;
             \Session::put('agentIncreaseDate', 'do-it');
@@ -385,16 +379,17 @@ class CloudExtraActivities extends Controller
     /**
      *  This function is used for the calculation when new agents are less than older agents.
      *
-     * @param $newAgents
-     * @param $oldAgents
-     * @param $planDays
-     * @param $base_price
-     * @param $ends_at
-     *
+     * @param  $newAgents
+     * @param  $oldAgents
+     * @param  $planDays
+     * @param  $base_price
+     * @param  $ends_at
      * @return int
+     *
      * @throws
      */
-    private function newAgentlessthenOld($ends_at,$base_price,$newAgents,$oldAgents,$planDays){
+    private function newAgentlessthenOld($ends_at, $base_price, $newAgents, $oldAgents, $planDays)
+    {
         if (Carbon::now() >= $ends_at) {
             $price = $base_price * $newAgents;
             \Session::put('agentIncreaseDate', 'do-it');
@@ -415,18 +410,19 @@ class CloudExtraActivities extends Controller
                 $price = 0;
             }
         }
+
         return $price;
     }
 
     /**
      *  This function is used for the calculation when change the plan.
      *
-     * @param $newAgents
-     * @param $oldAgents
-     * @param $orderId
-     * @param $planIdNew
-     *
+     * @param  $newAgents
+     * @param  $oldAgents
+     * @param  $orderId
+     * @param  $planIdNew
      * @return array|\Illuminate\Http\Response
+     *
      * @throws
      */
     private function getThePaymentCalculationUpgradeDowngrade($newAgents, $oldAgents, $orderId, $planIdNew)
@@ -476,29 +472,27 @@ class CloudExtraActivities extends Controller
             \Session::put('plan', $planIdNew);
 
             if ($base_price_new > $base_priceOld) {
-                $variables=$this->newPriceGreaterThanOld($ends_at,$base_price_new,$planDaysNew,$base_priceOld,$planDaysOld,$orderId);
-                $price=$variables['price'];
-                $priceRemaining=$variables['priceRemaining'];
-                $priceToBePaid=$variables['priceToBePaid'];
-
+                $variables = $this->newPriceGreaterThanOld($ends_at, $base_price_new, $planDaysNew, $base_priceOld, $planDaysOld, $orderId);
+                $price = $variables['price'];
+                $priceRemaining = $variables['priceRemaining'];
+                $priceToBePaid = $variables['priceToBePaid'];
             } elseif ($base_price_new == $base_priceOld) {
-                $variables=$this->newPriceEqualToOld($ends_at,$base_price_new,$planDaysNew,$planDaysOld,$orderId);
-                $price=$variables['price'];
-                $priceRemaining=$variables['priceRemaining'];
-                $priceToBePaid=$variables['priceToBePaid'];
-
+                $variables = $this->newPriceEqualToOld($ends_at, $base_price_new, $planDaysNew, $planDaysOld, $orderId);
+                $price = $variables['price'];
+                $priceRemaining = $variables['priceRemaining'];
+                $priceToBePaid = $variables['priceToBePaid'];
             } else {
-               $variables=$this->newPriceLessThanOld($ends_at,$base_price_new,$base_priceOld,$planDaysNew,$planDaysOld,$orderId);
-               $price=$variables['price'];
-               $priceRemaining=$variables['priceRemaining'];
-               $priceToBePaid=$variables['priceToBePaid'];
+                $variables = $this->newPriceLessThanOld($ends_at, $base_price_new, $base_priceOld, $planDaysNew, $planDaysOld, $orderId);
+                $price = $variables['price'];
+                $priceRemaining = $variables['priceRemaining'];
+                $priceToBePaid = $variables['priceToBePaid'];
             }
 
             \Session::put('priceRemaining', round($priceRemaining));
             \Session::put('priceToBePaid', round($priceToBePaid));
             $items = ['id' => $product_id_new, 'name' => $productNew->name, 'price' => round(abs($price)), 'planId' => $planIdNew,
                 'quantity' => 1, 'attributes' => ['currency' => $currencyNew['currency'], 'symbol' => $currencyNew['symbol'], 'agents' => $newAgents,
-                    'priceRemaining'=>$priceRemaining,'priceToBePaid'=>$priceToBePaid], 'associatedModel' => $productNew];
+                    'priceRemaining' => $priceRemaining, 'priceToBePaid' => $priceToBePaid], 'associatedModel' => $productNew];
 
             return $items;
         } catch(\Exception $e) {
@@ -508,7 +502,8 @@ class CloudExtraActivities extends Controller
         }
     }
 
-    private function newPriceLessThanOld($ends_at,$base_price_new,$base_priceOld,$planDaysNew,$planDaysOld,$orderId){
+    private function newPriceLessThanOld($ends_at, $base_price_new, $base_priceOld, $planDaysNew, $planDaysOld, $orderId)
+    {
         if (Carbon::now() >= $ends_at) {
             $price = $base_price_new;
             $priceRemaining = 0;
@@ -524,24 +519,23 @@ class CloudExtraActivities extends Controller
             $pricePerDayForOldPlan = $base_priceOld / $planDaysOld;
 
             if ($planDaysOld !== $planDaysNew) {
-                $variables=$this->lessPriceNewDaysNotEqualToOldDays($daysRemain,$planDaysNew,$planDaysOld,$pricePerDayForNewPlan,$pricePerDayForOldPlan,$orderId);
-                $price=$variables['price'];
-                $priceRemaining=$variables['priceRemaining'];
-                $priceToBePaid=$variables['priceToBePaid'];
-
+                $variables = $this->lessPriceNewDaysNotEqualToOldDays($daysRemain, $planDaysNew, $planDaysOld, $pricePerDayForNewPlan, $pricePerDayForOldPlan, $orderId);
+                $price = $variables['price'];
+                $priceRemaining = $variables['priceRemaining'];
+                $priceToBePaid = $variables['priceToBePaid'];
             } else {
-                $variables=$this->lessPriceNewDaysEqualToOldDays($daysRemain,$planDaysNew,$planDaysOld,$pricePerDayForNewPlan,$pricePerDayForOldPlan,$orderId);
-                $price=$variables['price'];
-                $priceRemaining=$variables['priceRemaining'];
-                $priceToBePaid=$variables['priceToBePaid'];
-
+                $variables = $this->lessPriceNewDaysEqualToOldDays($daysRemain, $planDaysNew, $planDaysOld, $pricePerDayForNewPlan, $pricePerDayForOldPlan, $orderId);
+                $price = $variables['price'];
+                $priceRemaining = $variables['priceRemaining'];
+                $priceToBePaid = $variables['priceToBePaid'];
             }
         }
-        return ['price'=>$price,'priceRemaining'=>$priceRemaining,'priceToBePaid'=>$priceToBePaid];
 
+        return ['price' => $price, 'priceRemaining' => $priceRemaining, 'priceToBePaid' => $priceToBePaid];
     }
 
-    private function lessPriceNewDaysEqualToOldDays($daysRemain,$pricePerDayForNewPlan,$pricePerDayForOldPlan,$orderId){
+    private function lessPriceNewDaysEqualToOldDays($daysRemain, $pricePerDayForNewPlan, $pricePerDayForOldPlan, $orderId)
+    {
         $priceToBePaid = $pricePerDayForNewPlan * $daysRemain;
         $priceRemaining = $pricePerDayForOldPlan * $daysRemain;
         \Session::put('increase-decrease-days-dont-cloud', $orderId);
@@ -550,18 +544,17 @@ class CloudExtraActivities extends Controller
             $price = $priceToBePaid - $priceRemaining;
         } else {
             $discount = $priceRemaining - $priceToBePaid;
-            \Session::put('nothingLeft','0');
+            \Session::put('nothingLeft', '0');
             \DB::table('users')->where('id', \Auth::user()->id)->update(['billing_pay_balance' => 1]);
             \Session::put('discount', round($discount));
             $price = $priceToBePaid;
         }
-        return ['price'=>$price,'priceRemaining'=>$priceRemaining,'priceToBePaid'=>$priceToBePaid];
 
+        return ['price' => $price, 'priceRemaining' => $priceRemaining, 'priceToBePaid' => $priceToBePaid];
     }
 
-
-
-        private function lessPriceNewDaysNotEqualToOldDays($daysRemain,$planDaysNew,$planDaysOld,$pricePerDayForNewPlan,$pricePerDayForOldPlan,$orderId){
+    private function lessPriceNewDaysNotEqualToOldDays($daysRemain, $planDaysNew, $planDaysOld, $pricePerDayForNewPlan, $pricePerDayForOldPlan, $orderId)
+    {
         if ($daysRemain <= $planDaysNew && $planDaysOld > $planDaysNew) {
             $priceToBePaid = $pricePerDayForNewPlan * $daysRemain;
             $priceRemaining = $pricePerDayForOldPlan * $daysRemain;
@@ -577,16 +570,17 @@ class CloudExtraActivities extends Controller
             $price = $priceToBePaid - $priceRemaining;
         } else {
             $discount = $priceRemaining - $priceToBePaid;
-            \Session::put('nothingLeft','0');
+            \Session::put('nothingLeft', '0');
             \DB::table('users')->where('id', \Auth::user()->id)->update(['billing_pay_balance' => 1]);
             \Session::put('discount', round($discount));
             $price = $priceToBePaid;
         }
-        return ['price'=>$price,'priceRemaining'=>$priceRemaining,'priceToBePaid'=>$priceToBePaid];
 
+        return ['price' => $price, 'priceRemaining' => $priceRemaining, 'priceToBePaid' => $priceToBePaid];
     }
 
-    private function newPriceGreaterThanOld($ends_at,$base_price_new,$planDaysNew,$base_priceOld,$planDaysOld,$orderId){
+    private function newPriceGreaterThanOld($ends_at, $base_price_new, $planDaysNew, $base_priceOld, $planDaysOld, $orderId)
+    {
         if (Carbon::now() >= $ends_at) {
             $price = $base_price_new;
             $priceRemaining = 0;
@@ -600,23 +594,23 @@ class CloudExtraActivities extends Controller
             $daysRemain = $futureDateTime->diffInDays($currentDateTime);
 
             if ($planDaysNew !== $planDaysOld) {
-                $variables=$this->newPlanDaysNotEqualToOld($planDaysNew,$planDaysOld,$daysRemain,$pricePerDayNew,$pricePerDayOld);
-                $price=$variables['price'];
-                $priceRemaining=$variables['priceRemaining'];
-                $priceToBePaid=$variables['priceToBePaid'];
-
+                $variables = $this->newPlanDaysNotEqualToOld($planDaysNew, $planDaysOld, $daysRemain, $pricePerDayNew, $pricePerDayOld);
+                $price = $variables['price'];
+                $priceRemaining = $variables['priceRemaining'];
+                $priceToBePaid = $variables['priceToBePaid'];
             } else {
-                $variables=$this->newPlanDaysEqualToOld($daysRemain,$pricePerDayNew,$pricePerDayOld,$orderId);
-                $price=$variables['price'];
-                $priceRemaining=$variables['priceRemaining'];
-                $priceToBePaid=$variables['priceToBePaid'];
+                $variables = $this->newPlanDaysEqualToOld($daysRemain, $pricePerDayNew, $pricePerDayOld, $orderId);
+                $price = $variables['price'];
+                $priceRemaining = $variables['priceRemaining'];
+                $priceToBePaid = $variables['priceToBePaid'];
             }
         }
-        return ['price'=>$price,'priceRemaining'=>$priceRemaining,'priceToBePaid'=>$priceToBePaid];
 
+        return ['price' => $price, 'priceRemaining' => $priceRemaining, 'priceToBePaid' => $priceToBePaid];
     }
 
-    private function newPlanDaysNotEqualToOld($planDaysNew,$planDaysOld,$daysRemain,$pricePerDayNew,$pricePerDayOld){
+    private function newPlanDaysNotEqualToOld($planDaysNew, $planDaysOld, $daysRemain, $pricePerDayNew, $pricePerDayOld)
+    {
         $daysRemainNew = $planDaysOld - $daysRemain;
         $daysRemainNewFinal = $planDaysNew - $daysRemainNew;
         $pricePerThatAgentNew = $pricePerDayNew * $daysRemainNewFinal;
@@ -625,21 +619,24 @@ class CloudExtraActivities extends Controller
         $priceRemaining = $pricePerThatAgentOld;
         $priceToBePaid = $pricePerThatAgentNew;
         \Session::put('increase-decrease-days', $daysRemainNewFinal);
-        return ['price'=>$price,'priceRemaining'=>$priceRemaining,'priceToBePaid'=>$priceToBePaid];
+
+        return ['price' => $price, 'priceRemaining' => $priceRemaining, 'priceToBePaid' => $priceToBePaid];
     }
 
-    private function newPlanDaysEqualToOld($daysRemain,$pricePerDayNew,$pricePerDayOld,$orderId){
+    private function newPlanDaysEqualToOld($daysRemain, $pricePerDayNew, $pricePerDayOld, $orderId)
+    {
         $pricePerThatAgentNew = $pricePerDayNew * $daysRemain;
         $pricePerThatAgentOld = $pricePerDayOld * $daysRemain;
         $price = $pricePerThatAgentNew - $pricePerThatAgentOld;
         $priceRemaining = $pricePerThatAgentOld;
         $priceToBePaid = $pricePerThatAgentNew;
         \Session::put('increase-decrease-days-dont-cloud', $orderId);
-        return ['price'=>$price,'priceRemaining'=>$priceRemaining,'priceToBePaid'=>$priceToBePaid];
+
+        return ['price' => $price, 'priceRemaining' => $priceRemaining, 'priceToBePaid' => $priceToBePaid];
     }
 
-    private function newPriceEqualToOld($ends_at,$base_price_new,$planDaysNew,$planDaysOld,$orderId){
-
+    private function newPriceEqualToOld($ends_at, $base_price_new, $planDaysNew, $planDaysOld, $orderId)
+    {
         if (Carbon::now() >= $ends_at) {
             $price = $base_price_new;
             $priceRemaining = 0;
@@ -649,16 +646,17 @@ class CloudExtraActivities extends Controller
             $futureDateTime = Carbon::createFromFormat('Y-m-d H:i:s', $ends_at);
             $currentDateTime = Carbon::now();
             $daysRemain = $futureDateTime->diffInDays($currentDateTime);
-            $variables=$this->currentDateLessThanEndDate($planDaysNew,$planDaysOld,$daysRemain,$orderId);
-            $price=$variables['price'];
-            $priceRemaining=$variables['priceRemaining'];
-            $priceToBePaid=$variables['priceToBePaid'];
+            $variables = $this->currentDateLessThanEndDate($planDaysNew, $planDaysOld, $daysRemain, $orderId);
+            $price = $variables['price'];
+            $priceRemaining = $variables['priceRemaining'];
+            $priceToBePaid = $variables['priceToBePaid'];
         }
-        return ['price'=>$price,'priceRemaining'=>$priceRemaining,'priceToBePaid'=>$priceToBePaid];
+
+        return ['price' => $price, 'priceRemaining' => $priceRemaining, 'priceToBePaid' => $priceToBePaid];
     }
 
-    private function currentDateLessThanEndDate($planDaysNew,$planDaysOld,$daysRemain,$orderId){
-
+    private function currentDateLessThanEndDate($planDaysNew, $planDaysOld, $daysRemain, $orderId)
+    {
         if ($planDaysNew !== $planDaysOld) {
             if ($planDaysOld < $planDaysNew) {
                 $daysRemainNew = $planDaysOld - $daysRemain;
@@ -683,12 +681,11 @@ class CloudExtraActivities extends Controller
             $price = 0;
             \Session::put('increase-decrease-days-dont-cloud', $orderId);
         }
-        return ['price'=>$price,'priceRemaining'=>$priceRemaining,'priceToBePaid'=>$priceToBePaid];
 
+        return ['price' => $price, 'priceRemaining' => $priceRemaining, 'priceToBePaid' => $priceToBePaid];
     }
 
-
-        public function checkAgentAlteration()
+    public function checkAgentAlteration()
     {
         $cloud = false;
         if (\Session::has('AgentAlteration')) {
@@ -701,13 +698,13 @@ class CloudExtraActivities extends Controller
     /**
      *  This function is used to do agent altering in cloud level.
      *
-     * @param $newAgents
-     * @param $oldLicense
-     * @param $orderId
-     * @param $installation_path
-     * @param $product_id
-     *
+     * @param  $newAgents
+     * @param  $oldLicense
+     * @param  $orderId
+     * @param  $installation_path
+     * @param  $product_id
      * @return
+     *
      * @throws
      */
     public function doTheAgentAltering($newAgents, $oldLicense, $orderId, $installation_path, $product_id)
@@ -769,19 +766,17 @@ class CloudExtraActivities extends Controller
         }
     }
 
-
     /**
      *  This function is used to do agent altering in cloud level.
      *
-     * @param $licenseCode
-     * @param $installationPath
-     * @param $productID
-     * @param $oldLicenseCode
-     *
+     * @param  $licenseCode
+     * @param  $installationPath
+     * @param  $productID
+     * @param  $oldLicenseCode
      * @return
+     *
      * @throws
      */
-
     public function doTheProductUpgradeDowngrade($licenseCode, $installationPath, $productID, $oldLicenseCode)
     {
         \Session::forget('priceRemaining');
@@ -844,18 +839,16 @@ class CloudExtraActivities extends Controller
         return response()->json(['message' => 'Your a developer that\'s why you\'re checking this']);
     }
 
-
     /**
      *  This function is used to when we select to pay from balance.
      *
-     * @param Request $request
-     *
+     * @param  Request  $request
      * @return JsonResponse
+     *
      * @throws
      */
     public function formatCurrency(Request $request)
     {
-
         $amount = $request->input('amount');
         $currency = $request->input('currency');
         if (! $amount && User::where('id', \Auth::user()->id)->value('billing_pay_balance')) {
@@ -875,13 +868,12 @@ class CloudExtraActivities extends Controller
         return response()->json(['formatted_value' => $formattedValue]);
     }
 
-
     /**
      *  This function is used when we downgrade a plan, it will add the messages how much amount has been added to the credit balance.
      *
      * @param
-     *
      * @return
+     *
      * @throws
      */
     private function doTheActivity()
@@ -920,14 +912,14 @@ class CloudExtraActivities extends Controller
     /**
      *  This function is used to provide the actual cost before upgrading and downgrading a plan, it will be displayed.
      *
-     * @param $newAgents
-     * @param $oldAgents
-     * @param $orderId
-     * @param $planIdNew
-     * @param $actualPrice
-     * @param $pricePerAgent
-     *
+     * @param  $newAgents
+     * @param  $oldAgents
+     * @param  $orderId
+     * @param  $planIdNew
+     * @param  $actualPrice
+     * @param  $pricePerAgent
      * @return array
+     *
      * @throws
      */
     private function getThePaymentCalculationUpgradeDowngradeDisplay($newAgents, $oldAgents, $orderId, $planIdNew, $actualPrice, $pricePerAgent)
@@ -967,11 +959,10 @@ class CloudExtraActivities extends Controller
             }
 
             if ($base_price_new > $base_priceOld) {
-                $variables=$this->displayPriceNewGreaterThanOld($ends_at,$base_price_new,$base_priceOld,$planDaysNew,$planDaysOld);
-                $price=$variables['price'];
-                $priceToBePaid=$variables['priceToBePaid'];
-                $priceRemaining=$variables['priceRemaining'];
-
+                $variables = $this->displayPriceNewGreaterThanOld($ends_at, $base_price_new, $base_priceOld, $planDaysNew, $planDaysOld);
+                $price = $variables['price'];
+                $priceToBePaid = $variables['priceToBePaid'];
+                $priceRemaining = $variables['priceRemaining'];
             } elseif ($base_price_new == $base_priceOld) {
                 if (Carbon::now() >= $ends_at) {
                     $price = $base_price_new;
@@ -983,11 +974,11 @@ class CloudExtraActivities extends Controller
                     $price = 0;
                 }
             } else {
-                $variables=$this->displayPriceNewLessThanOld($ends_at,$base_price_new,$base_priceOld,$planDaysNew,$planDaysOld);
-                $price=$variables['price'];
-                $priceToBePaid=$variables['priceToBePaid'];
-                $priceRemaining=$variables['priceRemaining'];
-                $discount=$variables['discount'];
+                $variables = $this->displayPriceNewLessThanOld($ends_at, $base_price_new, $base_priceOld, $planDaysNew, $planDaysOld);
+                $price = $variables['price'];
+                $priceToBePaid = $variables['priceToBePaid'];
+                $priceRemaining = $variables['priceRemaining'];
+                $discount = $variables['discount'];
             }
             $items = ['priceoldplan' => currencyFormat($priceRemaining, $currencyNew['currency'], true), 'pricenewplan' => currencyFormat($priceToBePaid, $currencyNew['currency'], true), 'price_to_be_paid' => currencyFormat(abs($price), $currencyNew['currency'], true), 'discount' => currencyFormat($discount, $currencyNew['currency'], true), 'priceperagent' => currencyFormat($pricePerAgent, $currencyNew['currency'], true)];
 
@@ -999,8 +990,7 @@ class CloudExtraActivities extends Controller
         }
     }
 
-
-    private function displayPriceNewGreaterThanOld($ends_at,$base_price_new,$base_priceOld,$planDaysNew,$planDaysOld)
+    private function displayPriceNewGreaterThanOld($ends_at, $base_price_new, $base_priceOld, $planDaysNew, $planDaysOld)
     {
         if (Carbon::now() >= $ends_at) {
             $price = $base_price_new;
@@ -1028,14 +1018,14 @@ class CloudExtraActivities extends Controller
                 $priceRemaining = $pricePerThatAgentOld;
                 $priceToBePaid = $pricePerThatAgentNew;
             }
-
         }
-        return ['price'=>$price,'priceRemaining'=>$priceRemaining,'priceToBePaid'=>$priceToBePaid];
+
+        return ['price' => $price, 'priceRemaining' => $priceRemaining, 'priceToBePaid' => $priceToBePaid];
     }
 
-
-    private function displayPriceNewLessThanOld($ends_at,$base_price_new,$base_priceOld,$planDaysNew,$planDaysOld){
-        $discount=0;
+    private function displayPriceNewLessThanOld($ends_at, $base_price_new, $base_priceOld, $planDaysNew, $planDaysOld)
+    {
+        $discount = 0;
         if (Carbon::now() >= $ends_at) {
             $price = $base_price_new;
             $priceRemaining = 0;
@@ -1048,11 +1038,11 @@ class CloudExtraActivities extends Controller
             $pricePerDayForOldPlan = $base_priceOld / $planDaysOld;
 
             if ($planDaysOld !== $planDaysNew) {
-                $variables=$this->displayNewPlanDaysNotEqualOld($daysRemain,$planDaysNew,$planDaysOld,$pricePerDayForNewPlan,$pricePerDayForOldPlan);
-                $price=$variables['price'];
-                $priceToBePaid=$variables['priceToBePaid'];
-                $priceRemaining=$variables['priceRemaining'];
-                $discount=$variables['discount'];
+                $variables = $this->displayNewPlanDaysNotEqualOld($daysRemain, $planDaysNew, $planDaysOld, $pricePerDayForNewPlan, $pricePerDayForOldPlan);
+                $price = $variables['price'];
+                $priceToBePaid = $variables['priceToBePaid'];
+                $priceRemaining = $variables['priceRemaining'];
+                $discount = $variables['discount'];
             } else {
                 $priceToBePaid = $pricePerDayForNewPlan * $daysRemain;
                 $priceRemaining = $pricePerDayForOldPlan * $daysRemain;
@@ -1064,12 +1054,13 @@ class CloudExtraActivities extends Controller
                 }
             }
         }
-        return ['price'=>$price,'priceRemaining'=>$priceRemaining,'priceToBePaid'=>$priceToBePaid,'discount'=>$discount];
 
+        return ['price' => $price, 'priceRemaining' => $priceRemaining, 'priceToBePaid' => $priceToBePaid, 'discount' => $discount];
     }
 
-    private function displayNewPlanDaysNotEqualOld($daysRemain,$planDaysNew,$planDaysOld,$pricePerDayForNewPlan,$pricePerDayForOldPlan){
-        $discount=0;
+    private function displayNewPlanDaysNotEqualOld($daysRemain, $planDaysNew, $planDaysOld, $pricePerDayForNewPlan, $pricePerDayForOldPlan)
+    {
+        $discount = 0;
         if ($daysRemain <= $planDaysNew && $planDaysOld > $planDaysNew) {
             $priceToBePaid = $pricePerDayForNewPlan * $daysRemain;
             $priceRemaining = $pricePerDayForOldPlan * $daysRemain;
@@ -1085,23 +1076,21 @@ class CloudExtraActivities extends Controller
             $discount = $priceRemaining - $priceToBePaid;
             $price = 0;
         }
-        return ['price'=>$price,'priceRemaining'=>$priceRemaining,'priceToBePaid'=>$priceToBePaid,'discount'=>$discount];
 
+        return ['price' => $price, 'priceRemaining' => $priceRemaining, 'priceToBePaid' => $priceToBePaid, 'discount' => $discount];
     }
-
 
     public function processFormat(Request $request)
     {
         return currencyFormat($request->get('totalPrice'), getCurrencyForClient(\Auth::user()->country), true);
     }
 
-
     /**
      *  This function is used to provide the actual cost before changing number of agents, it will be displayed.
      *
-     * @param request $request
-     *
+     * @param  request  $request
      * @return array
+     *
      * @throws
      */
     public function getThePaymentCalculationDisplay(Request $request)
@@ -1131,11 +1120,11 @@ class CloudExtraActivities extends Controller
                 return ['pricePerAgent' => currencyFormat($base_price, $currency['currency'], true), 'totalPrice' => 0, 'priceToPay' => 0];
             }
             if ($newAgents > $oldAgents) {
-                $price=$this->newAgentgreaterthenOld($ends_at,$base_price,$newAgents,$oldAgents,$planDays);
+                $price = $this->newAgentgreaterthenOld($ends_at, $base_price, $newAgents, $oldAgents, $planDays);
             } else {
-                $price=$this->newAgentlessthenOld($ends_at,$base_price,$newAgents,$oldAgents,$planDays);
-
+                $price = $this->newAgentlessthenOld($ends_at, $base_price, $newAgents, $oldAgents, $planDays);
             }
+
             return ['pricePerAgent' => currencyFormat($base_price, $currency['currency'], true), 'totalPrice' => currencyFormat($base_price * $newAgents, $currency['currency'], true), 'priceToPay' => currencyFormat($price, $currency['currency'], true)];
         } catch(\Exception $e) {
             app('log')->error($e->getMessage());
