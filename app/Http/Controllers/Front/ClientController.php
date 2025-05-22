@@ -7,8 +7,8 @@ use App\Auto_renewal;
 use App\Http\Controllers\Github\GithubApiController;
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\Http\Controllers\Order\RenewController;
-use App\Model\Common\StatusSetting;
 use App\Model\Common\Setting;
+use App\Model\Common\StatusSetting;
 use App\Model\Github\Github;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
@@ -25,12 +25,9 @@ use App\Payment_log;
 use App\Plugins\Stripe\Controllers\SettingsController;
 use App\User;
 use Exception;
-use GrahamCampbell\Markdown\Facades\Markdown;
-use http\Env\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use phpDocumentor\Reflection\Types\Boolean;
 use Illuminate\Support\Str;
 use Razorpay\Api\Api;
 
@@ -80,12 +77,10 @@ class ClientController extends BaseClientController
         $this->client_secret = $this->github->client_secret;
     }
 
-
     /**
      * Create new Auto renewal and update auto-renewal status.
      *
-     * @param  Request $request
-
+     * @param  Request  $request
      * @return array{type:string,message:string}|JsonResponse
      */
     public function enableAutorenewalStatus(Request $request)
@@ -138,12 +133,10 @@ class ClientController extends BaseClientController
         }
     }
 
-
     /**
      *  Delete Auto renewal and update auto-renewal status.
      *
-     * @param  Request $request
-
+     * @param  Request  $request
      * @return JsonResponse
      */
     public function disableAutorenewalStatus(Request $request)
@@ -153,7 +146,7 @@ class ClientController extends BaseClientController
             $userid = Subscription::where('order_id', $orderid)->value('user_id');
             $user = User::find($userid);
             $subscription = Subscription::where('order_id', $orderid)->first();
-            $this->autoRenewalSubOps($subscription,$orderid);
+            $this->autoRenewalSubOps($subscription, $orderid);
             $response = ['type' => 'success', 'message' => 'Auto subscription Disabled successfully'];
 
             return response()->json($response);
@@ -164,7 +157,8 @@ class ClientController extends BaseClientController
         }
     }
 
-    private function autoRenewalSubOps($subscription,$orderid){
+    private function autoRenewalSubOps($subscription, $orderid)
+    {
         if ($subscription->rzp_subscription && $subscription->is_subscribed && $subscription->subscribe_id) {
             $rzp_key = ApiKey::where('id', 1)->value('rzp_key');
             $rzp_secret = ApiKey::where('id', 1)->value('rzp_secret');
@@ -185,8 +179,7 @@ class ClientController extends BaseClientController
     /**
      *  Setup razorpay , create auto renewal and update auto renewal status.
      *
-     * @param Request $request
-     *
+     * @param  Request  $request
      * @return RedirectResponse
      */
     public function enableRzpStatus(Request $request)
@@ -237,7 +230,6 @@ class ClientController extends BaseClientController
      *  Auto-renew by id and redirect to paynow page.
      *
      * @param
-     *
      * @return RedirectResponse
      */
     public function autoRenewbyid()
@@ -265,31 +257,29 @@ class ClientController extends BaseClientController
     /**
      *  Show the invoice to the client.
      *
-     * @param request $request
-     *
+     * @param  request  $request
      * @return \Illuminate\Contracts\View\View|RedirectResponse
      */
     public function invoices(Request $request)
     {
         try {
-            $amt = \DB::table('payments')->where('user_id',\Auth::user()->id)->where('payment_method','Credit Balance')->where('payment_status','success')->value('amt_to_credit');
-            $formattedValue = currencyFormat($amt, getCurrencyForClient(\Auth::user()->country) , true);
-            $payment_id = \DB::table('payments')->where('user_id',\Auth::user()->id)->where('payment_method','Credit Balance')->where('payment_status','success')->value('id');
-            $payment_activity=\DB::table('credit_activity')->where('payment_id',$payment_id)->where('role','user')->orderBy('created_at', 'desc')->get();
+            $amt = \DB::table('payments')->where('user_id', \Auth::user()->id)->where('payment_method', 'Credit Balance')->where('payment_status', 'success')->value('amt_to_credit');
+            $formattedValue = currencyFormat($amt, getCurrencyForClient(\Auth::user()->country), true);
+            $payment_id = \DB::table('payments')->where('user_id', \Auth::user()->id)->where('payment_method', 'Credit Balance')->where('payment_status', 'success')->value('id');
+            $payment_activity = \DB::table('credit_activity')->where('payment_id', $payment_id)->where('role', 'user')->orderBy('created_at', 'desc')->get();
 
-            return view('themes.default1.front.clients.invoice', compact('request','formattedValue','payment_activity'));
+            return view('themes.default1.front.clients.invoice', compact('request', 'formattedValue', 'payment_activity'));
         } catch (Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
 
-
     /**
      *  Get all the invoices in data table.
      *
-     * @param request $request
-     *
+     * @param  request  $request
      * @return \Yajra\DataTables\DataTableAbstract
+     *
      * @throws Exception
      */
     public function getInvoices(Request $request)
@@ -429,13 +419,12 @@ class ClientController extends BaseClientController
                     ->make(true);
     }
 
-
     /**
      *  Show the invoice to the client.
      *
-     * @param $id
-     *
+     * @param  $id
      * @return \Illuminate\Contracts\View\View|RedirectResponse
+     *
      * @throws \Exception
      */
     public function getInvoice($id)
@@ -476,8 +465,9 @@ class ClientController extends BaseClientController
                     $statusText = 'Unpaid';
                     break;
             }
+
             return view('themes.default1.front.clients.show-invoice', compact('invoice', 'items',
-                        'user', 'currency', 'symbol', 'order', 'payments','set','date','statusClass','statusText'));
+                'user', 'currency', 'symbol', 'order', 'payments', 'set', 'date', 'statusClass', 'statusText'));
         } catch (Exception $ex) {
             return redirect()->route('my-invoices')->with('fails', $ex->getMessage());
         }
@@ -636,12 +626,11 @@ class ClientController extends BaseClientController
     /**
      *  Get all the orders in data table.
      *
-     * @param request $request
-     *
+     * @param  request  $request
      * @return \Yajra\DataTables\DataTableAbstract
+     *
      * @throws Exception
      */
-
     public function getOrders(Request $request)
     {
         try {
@@ -753,8 +742,8 @@ class ClientController extends BaseClientController
      *  Gets all the order details for a particular user.
      *
      * @param
-     *
      * @return \Illuminate\Database\Eloquent\Builder
+     *
      * @throws
      */
     public function getClientPanelOrdersData()
@@ -773,8 +762,8 @@ class ClientController extends BaseClientController
      *  Returns to client profile page with needed variables.
      *
      * @param
-     *
      * @return \Illuminate\Contracts\View\View|RedirectResponse
+     *
      * @throws Exception
      */
     public function profile()
@@ -821,12 +810,11 @@ class ClientController extends BaseClientController
     /**
      *  Returns to individual order page.
      *
-     * @param int $id
-     *
+     * @param  int  $id
      * @return \Illuminate\Contracts\View\View|RedirectResponse
+     *
      * @throws Exception
      */
-
     public function getOrder($id)
     {
         try {
@@ -899,10 +887,10 @@ class ClientController extends BaseClientController
     /**
      *  Returns to admin individual orders with payment details as datatable.
      *
-     * @param $orderid
-     * @param $userid
-     *
+     * @param  $orderid
+     * @param  $userid
      * @return \Yajra\DataTables\DataTableAbstract|RedirectResponse
+     *
      * @throws Exception
      */
     public function getPaymentByOrderId($orderid, $userid)
@@ -954,10 +942,10 @@ class ClientController extends BaseClientController
     /**
      *  Returns to client individual orders with payment details as datatable.
      *
-     * @param $orderid
-     * @param $userid
-     *
+     * @param  $orderid
+     * @param  $userid
      * @return \Yajra\DataTables\DataTableAbstract|RedirectResponse
+     *
      * @throws Exception
      */
     public function getPaymentByOrderIdClient($orderid, $userid)
@@ -1023,8 +1011,8 @@ class ClientController extends BaseClientController
      *  Returns to client dashboard.
      *
      * @param
-     *
      * @return \Illuminate\Contracts\View\View
+     *
      * @throws
      */
     public function index()
@@ -1037,7 +1025,8 @@ class ClientController extends BaseClientController
             $query->where('update_ends_at', '<', now());
         })
         ->count();
-            return view('themes.default1.front.clients.index', compact('pendingInvoicesCount', 'ordersCount', 'renewalCount'));
+
+        return view('themes.default1.front.clients.index', compact('pendingInvoicesCount', 'ordersCount', 'renewalCount'));
     }
 
     /**
@@ -1066,9 +1055,9 @@ class ClientController extends BaseClientController
     /**
      *  Checks if Invoice can be deleted or not.
      *
-     * @param $invoice
-     *
+     * @param  $invoice
      * @return bool
+     *
      * @throws
      */
     private function canDeleteInvoice($invoice)
@@ -1087,9 +1076,9 @@ class ClientController extends BaseClientController
     /**
      *  Deletes the invoice.
      *
-     * @param $invoice
-     *
+     * @param  $invoice
      * @return
+     *
      * @throws
      */
     private function deleteInvoice($invoice)
@@ -1114,7 +1103,8 @@ class ClientController extends BaseClientController
             $stripe = new \Stripe\StripeClient($stripeSecretKey);
             $paymentIntent = $stripe->paymentIntents->retrieve($request->input('payment_intent'));
             if ($paymentIntent->status === 'succeeded') {
-                $response=$this->stripePaymentUpdateSub($stripe,$paymentIntent,$orderid);
+                $response = $this->stripePaymentUpdateSub($stripe, $paymentIntent, $orderid);
+
                 return response()->json($response);
             } else {
                 $response = ['type' => 'fails', 'message' => 'Something went wrong.'];
@@ -1131,7 +1121,8 @@ class ClientController extends BaseClientController
         }
     }
 
-    private function stripePaymentUpdateSub($stripe,$paymentIntent,$orderid){
+    private function stripePaymentUpdateSub($stripe, $paymentIntent, $orderid)
+    {
         $refund = $stripe->refunds->create([
             'payment_intent' => $paymentIntent->id,
             'amount' => $paymentIntent->amount,
@@ -1149,6 +1140,7 @@ class ClientController extends BaseClientController
         Subscription::where('order_id', $orderid)->update(['is_subscribed' => '1', 'autoRenew_status' => '1']);
         $mail = new \App\Http\Controllers\Common\PhpMailController();
         $mail->payment_log(\Auth::user()->email, 'stripe', 'success', Order::where('id', $orderid)->value('number'), null, $amount, 'Payment method updated');
+
         return ['type' => 'success', 'message' => 'Your Card details are updated successfully.'];
     }
 }
