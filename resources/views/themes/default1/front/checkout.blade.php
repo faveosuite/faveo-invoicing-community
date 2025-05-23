@@ -181,7 +181,7 @@ $cartSubtotalWithoutCondition = 0;
 
                                     ?>
 
-                                    <span class="amount text-color-dark font-weight-bold text-4" style="font-family: Arial;">
+                                   <strong> <span class="amount font-weight-bold text-color-dark text-4" style="font-family: Arial;">
 
                                            @if ($item->conditions && $item->conditions->getType() === 'coupon')
                                            <?php
@@ -189,12 +189,13 @@ $cartSubtotalWithoutCondition = 0;
                                            ?>
 
                                                 {{ $item->quantity * $item->conditions->getName() }}
-                                           
+
                                            
 
                                             @else
                                                 {{currencyFormat($item->quantity * $price,$code = $item->attributes->currency)}}
                                             @endif
+                                       </span></strong>
                                     </td>
                                 </tr>
                                   @empty
@@ -247,7 +248,7 @@ $cartSubtotalWithoutCondition = 0;
                                             <strong class="d-block text-color-dark line-height-1 font-weight-semibold bo">Cart Subtotal</strong>
                                         </td>
                                         <td class=" align-top border-top-0 text-end">
-                                            <span class="amount font-weight-medium text-color-grey">                                
+                                            <span class="amount font-weight-medium text-color-grey">
                                             {{currencyFormat($cartSubtotalWithoutCondition,$code = $item->attributes->currency)}}
                                            </span>
                                         </td>
