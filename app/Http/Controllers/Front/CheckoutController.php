@@ -103,9 +103,9 @@ class CheckoutController extends InfoController
     /**
      *  This function returns to the checkout page with necessary data.
      *
-     * @param Request $request
-
+     * @param  Request  $request
      * @return \Illuminate\Contracts\View\View|RedirectResponse
+     *
      * @throws
      */
     public function checkoutForm(Request $request)
@@ -158,32 +158,30 @@ class CheckoutController extends InfoController
                 }
                 \Session::put('cloud_domain', $domain);
             }
-            if(\Session::has('priceRemaining')){
-            $total = \Session::get('priceRemaining') > \Cart::getTotal() ? \Session::get('priceRemaining') - \Cart::getTotal() : \Session::get('discount');
-            \Session::forget('discount');
-            \Session::put('discount', $total);
-        }
+            if (\Session::has('priceRemaining')) {
+                $total = \Session::get('priceRemaining') > \Cart::getTotal() ? \Session::get('priceRemaining') - \Cart::getTotal() : \Session::get('discount');
+                \Session::forget('discount');
+                \Session::put('discount', $total);
+            }
             $amt_to_credit = \DB::table('payments')
                 ->where('user_id', \Auth::user()->id)
-                ->where('payment_method','Credit Balance')
-                ->where('payment_status','success')
-                ->where('amt_to_credit','!=',0)
+                ->where('payment_method', 'Credit Balance')
+                ->where('payment_status', 'success')
+                ->where('amt_to_credit', '!=', 0)
                 ->value('amt_to_credit');
 
-            $curr ='';
-            if(empty($content)){
+            $curr = '';
+            if (empty($content)) {
                 $curr = '';
-            }
-            else{
-                foreach ($content as $item){
+            } else {
+                foreach ($content as $item) {
                     $curr = $item->attributes->currency;
                 }
             }
 
-            \DB::table('users')->where('id', \Auth::user()->id)->update(['billing_pay_balance'=>0]);
+            \DB::table('users')->where('id', \Auth::user()->id)->update(['billing_pay_balance' => 0]);
 
-
-            return view('themes.default1.front.checkout', compact('content', 'taxConditions', 'discountPrice', 'domain','amt_to_credit','curr'));
+            return view('themes.default1.front.checkout', compact('content', 'taxConditions', 'discountPrice', 'domain', 'amt_to_credit', 'curr'));
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
 
@@ -219,7 +217,7 @@ class CheckoutController extends InfoController
                     Cart::remove($item->id);
                     //Return array of Product Details,attributes and their conditions
                     $items[] = ['id' => $item->id, 'name' => $item->name, 'price' => $item->price,
-                        'quantity' => $item->quantity, 'attributes' => ['currency' => $cart_currency, 'symbol' => $item->attributes->symbol, 'agents' => $item->attributes->agents, 'domain' => optional($item->attributes)->domain,'priceToBePaid'=>$item->attributes->priceToBePaid,'priceRemaining'=>$item->attributes->priceRemaining], 'associatedModel' => Product::find($item->associatedModel->id), 'conditions' => $taxConditions, ];
+                        'quantity' => $item->quantity, 'attributes' => ['currency' => $cart_currency, 'symbol' => $item->attributes->symbol, 'agents' => $item->attributes->agents, 'domain' => optional($item->attributes)->domain, 'priceToBePaid' => $item->attributes->priceToBePaid, 'priceRemaining' => $item->attributes->priceRemaining], 'associatedModel' => Product::find($item->associatedModel->id), 'conditions' => $taxConditions, ];
                 }
                 Cart::add($items);
 
@@ -235,9 +233,9 @@ class CheckoutController extends InfoController
     /**
      *  This function returns paynow page(scenario:when order renewal).
      *
-     * @param $invoiceid
-
+     * @param  $invoiceid
      * @return \Illuminate\Contracts\View\View|RedirectResponse
+     *
      * @throws
      */
     public function payNow($invoiceid)
@@ -259,6 +257,7 @@ class CheckoutController extends InfoController
                     $product = $this->product($invoiceid);
                 }
             }
+
             return view('themes.default1.front.paynow', compact('invoice', 'items', 'product', 'paid'));
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
@@ -267,23 +266,22 @@ class CheckoutController extends InfoController
         }
     }
 
-
     /**
      *  This function contains post checkout operations(adding credit balance,initiating payment, creating order,invoice generation,create invoice items,create subscription).
      *
-     * @param Request $request
-
+     * @param  Request  $request
      * @return RedirectResponse
+     *
      * @throws
      */
     public function postCheckout(Request $request)
     {
         $isTrue = 1;
         $cost = $request->input('cost');
-        $discount=\Session::get('discount');
+        $discount = \Session::get('discount');
 
         if (\Session::has('nothingLeft')) {
-            \DB::table('users')->where('id', \Auth::user()->id)->update(['billing_pay_balance'=>1]);
+            \DB::table('users')->where('id', \Auth::user()->id)->update(['billing_pay_balance' => 1]);
             $isTrue = \Session::get('nothingLeft');
         }
 
@@ -310,8 +308,7 @@ class CheckoutController extends InfoController
 
             if ($paynow === false) {//When regular payment
                 $invoice = $invoice_controller->generateInvoice();
-                $amount=(\Session::has('nothingLeft'))?\Session::get('nothingLeft'):intval(Cart::getSubTotal());
-
+                $amount = (\Session::has('nothingLeft')) ? \Session::get('nothingLeft') : intval(Cart::getSubTotal());
 
                 if ($amount) {//If payment is for paid product
                     \Event::dispatch(new \App\Events\PaymentGateway(['request' => $request, 'invoice' => $invoice]));
@@ -331,9 +328,9 @@ class CheckoutController extends InfoController
                     // }
                     \Cart::clear();
                     if (\Session::has('nothingLeft')) {
-                        $do= !((\Session::get('priceToBePaid') < \Session::get('priceRemaining')));
+                        $do = ! (\Session::get('priceToBePaid') < \Session::get('priceRemaining'));
 
-                        $this->doTheDeed($invoice,$do);
+                        $this->doTheDeed($invoice, $do);
                         \Session::forget('nothingLeft');
                     }
                     if (! empty($invoice->cloud_domain)) {
@@ -342,7 +339,7 @@ class CheckoutController extends InfoController
                     }
                     $this->performCloudActions($invoice);
 
-                    if($discount != null) {
+                    if ($discount != null) {
                         $this->updateCredit($discount);
                     }
 
@@ -404,33 +401,33 @@ class CheckoutController extends InfoController
         }
     }
 
-
     /**
      *  This function updates the credit balance.
      *
-     * @param $discount
-
+     * @param  $discount
      * @return
+     *
      * @throws
      */
-    private function updateCredit($discount){
+    private function updateCredit($discount)
+    {
         $payUpdate = \DB::table('payments')->where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->get();
         $pay = \DB::table('payments')->where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('amt_to_credit');
         $formattedValue = currencyFormat(round($discount), getCurrencyForClient(\Auth::user()->country), true);
         $payment_id = \DB::table('payments')->where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('id');
         $formattedPay = currencyFormat($pay, getCurrencyForClient(\Auth::user()->country), true);
-        $orderId=\Session::get('creditOrderId');
+        $orderId = \Session::get('creditOrderId');
         $orderNumber = Order::where('id', $orderId)->value('number');
 
-        if (!$payUpdate->isEmpty()) {
+        if (! $payUpdate->isEmpty()) {
             $pay = $pay + round($discount);
             Payment::where('user_id', \Auth::user()->id)->where('payment_status', 'success')->update(['amt_to_credit' => $pay]);
 
-            $messageAdmin = 'An amount of ' . $formattedValue . ' has been added to the existing balance due to a product downgrade. You can view the details of the downgraded order here: ' .
-                '<a href="' . config('app.url') . '/orders/' . $orderId . '">' . $orderNumber . '</a>.';
+            $messageAdmin = 'An amount of '.$formattedValue.' has been added to the existing balance due to a product downgrade. You can view the details of the downgraded order here: '.
+                '<a href="'.config('app.url').'/orders/'.$orderId.'">'.$orderNumber.'</a>.';
 
-            $messageClient = 'An amount of ' . $formattedValue . ' has been added to your existing balance due to a product downgrade. You can view the details of the downgraded order here: ' .
-                '<a href="' . config('app.url') . '/my-order/' . $orderId . '">' . $orderNumber . '</a>.';
+            $messageClient = 'An amount of '.$formattedValue.' has been added to your existing balance due to a product downgrade. You can view the details of the downgraded order here: '.
+                '<a href="'.config('app.url').'/my-order/'.$orderId.'">'.$orderNumber.'</a>.';
             \DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageAdmin, 'role' => 'admin', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
             \DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageClient, 'role' => 'user', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
         } else {
@@ -470,9 +467,9 @@ class CheckoutController extends InfoController
     /**
      *  This function checks if it is a regular payment or renewal.
      *
-     * @param $invoiceid
-
+     * @param  $invoiceid
      * @return bool
+     *
      * @throws
      */
     public function checkregularPaymentOrRenewal($invoiceid)
@@ -492,9 +489,10 @@ class CheckoutController extends InfoController
     /**
      *  This function is called in postcheckout here execution of order and post razorpay operation are done here.
      *
-     * @param $invoice
-     * @param $agent
+     * @param  $invoice
+     * @param  $agent
      * @return string|RedirectResponse
+     *
      * @throws
      */
     public function checkoutAction($invoice, $agent = false)
@@ -523,7 +521,6 @@ class CheckoutController extends InfoController
 
                 $order = new \App\Http\Controllers\Order\OrderController();
                 $order->executeOrder($invoice->id, $order_status = 'executed');
-
             }
 
             return 'success';
@@ -553,8 +550,9 @@ class CheckoutController extends InfoController
      *  This function is called in postcheckout this function is executed when user paid using credit balance and while changing cloud plan
      *   if the payable amount is less than old plans remaining amount in this we update the amt_to_credit.
      *
-     * @param $invoice
-     * @param $do
+     * @param  $invoice
+     * @param  $do
+     *
      * @throws
      */
     private function doTheDeed($invoice, $do = true)
@@ -580,12 +578,11 @@ class CheckoutController extends InfoController
         }
     }
 
-
     /**
-     *  This function performs multiple cloud operations(UpgradeDowngradePlan,AgentAlteration,AgentAlterationForRenewal)
+     *  This function performs multiple cloud operations(UpgradeDowngradePlan,AgentAlteration,AgentAlterationForRenewal).
      *
-     * @param $invoice
-
+     * @param  $invoice
+     *
      * @throws
      */
     private function performCloudActions($invoice)
@@ -593,24 +590,24 @@ class CheckoutController extends InfoController
         $cloud = new \App\Http\Controllers\Tenancy\CloudExtraActivities(new Client, new FaveoCloud());
 
         if ($cloud->checkUpgradeDowngrade()) {
-            $this->cloudUpDownGradeOps($cloud,$invoice);
+            $this->cloudUpDownGradeOps($cloud, $invoice);
         } elseif ($cloud->checkAgentAlteration()) {
-            $this->cloudAgentAlterationOps($cloud,$invoice);
+            $this->cloudAgentAlterationOps($cloud, $invoice);
         } elseif (\Session::has('AgentAlterationRenew')) { // Added missing parentheses
-            $this->cloudAgentAlterationRenew($cloud,$invoice);
+            $this->cloudAgentAlterationRenew($cloud, $invoice);
         }
     }
 
     /**
      *  This function performs upgrading and downgrading cloud plan.
      *
-     * @param $invoice
-     * @param $cloud
-
+     * @param  $invoice
+     * @param  $cloud
+     *
      * @throws
      */
-
-    private function cloudUpDownGradeOps($cloud,$invoice){
+    private function cloudUpDownGradeOps($cloud, $invoice)
+    {
         $oldLicense = \Session::get('upgradeOldLicense');
         $installationPath = \Session::get('upgradeInstallationPath');
         $productId = \Session::get('upgradeProductId');
@@ -623,11 +620,13 @@ class CheckoutController extends InfoController
     /**
      *  This function performs agent alteration for cloud plan.
      *
-     * @param $invoice
-     * @param $cloud
+     * @param  $invoice
+     * @param  $cloud
+     *
      * @throws
      */
-    private function cloudAgentAlterationOps($cloud,$invoice){
+    private function cloudAgentAlterationOps($cloud, $invoice)
+    {
         $subId = \Session::get('AgentAlteration'); // use if needed in the future
         $newAgents = \Session::get('newAgents');
         $orderId = \Session::get('orderId');
@@ -641,11 +640,13 @@ class CheckoutController extends InfoController
     /**
      *  This function performs agent alteration for cloud renewal plan.
      *
-     * @param $invoice
-     * @param $cloud
+     * @param  $invoice
+     * @param  $cloud
+     *
      * @throws
      */
-    private function cloudAgentAlterationRenew($cloud,$invoice){
+    private function cloudAgentAlterationRenew($cloud, $invoice)
+    {
         $newAgents = \Session::get('newAgentsRenew');
         $orderId = \Session::get('orderIdRenew');
         $installationPath = \Session::get('installation_pathRenew');

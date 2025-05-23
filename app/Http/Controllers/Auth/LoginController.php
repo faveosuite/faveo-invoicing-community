@@ -108,14 +108,17 @@ class LoginController extends Controller
             }
             if ($attempts && ($attempts->mobile_attempt >= 2 || $attempts->email_attempt >= 3)) {
                 $remainingTime = Carbon::parse($attempts->updated_at)->addHours(6)->diffInSeconds(Carbon::now());
+
                 return redirect()->back()->withErrors(__('message.verify_time_limit_exceed', ['time' => formatDuration($remainingTime)]));
             }
+
             return redirect('verify')->with('user', $user);
         }
         // Check if 2FA is enabled
         if ($user->is_2fa_enabled) {
             $request->session()->put('2fa:user:id', $user->id);
             $request->session()->put('remember:user:id', $request->has('remember'));
+
             return redirect('2fa/validate');
         }
 

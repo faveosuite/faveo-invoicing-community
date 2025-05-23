@@ -236,9 +236,8 @@ class BaseCartControllerTest extends DBTestCase
         $this->classObject->reduceProductQty(new Request(['productid' => $product->id]));
     }
 
-
-    public function test_cart_has_same_product_with_different_plans(){
-
+    public function test_cart_has_same_product_with_different_plans()
+    {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
         $product = Product::factory()->create();
@@ -270,9 +269,9 @@ class BaseCartControllerTest extends DBTestCase
         }
     }
 
-
-    public function test_when_we_session_not_set_payment_gateway_not_selected(){
-        $user=User::factory()->create(['billing_pay_balance'=>0]);
+    public function test_when_we_session_not_set_payment_gateway_not_selected()
+    {
+        $user = User::factory()->create(['billing_pay_balance' => 0]);
         $this->actingAs($user);
         $this->withoutMiddleware();
         $product = Product::factory()->create();
@@ -287,42 +286,42 @@ class BaseCartControllerTest extends DBTestCase
             'attributes' => ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
         ]);
 
-        $response=$this->withSession(['nothingLeft'=>1,'discount'=>300,])->call('post','checkout-and-pay',['cost'=>0,'payment_gateway'=>'']);
+        $response = $this->withSession(['nothingLeft' => 1, 'discount' => 300])->call('post', 'checkout-and-pay', ['cost' => 0, 'payment_gateway' => '']);
         $response->assertSessionHasErrors('payment_gateway');
     }
 
-
-    public function test_post_checkout_cart(){
-        $user=User::factory()->create(['billing_pay_balance'=>0]);
+    public function test_post_checkout_cart()
+    {
+        $user = User::factory()->create(['billing_pay_balance' => 0]);
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $licensetype=LicenseType::create(['name'=>'DevelopmentLicense']);
-        $licensepermissiontype=LicensePermission::create(['Can be Downloaded']);
+        $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
+        $licensepermissiontype = LicensePermission::create(['Can be Downloaded']);
         LicensePermission::create(['Generate License Expiry Date']);
         LicensePermission::create(['Generate Updates Expiry Date']);
         LicensePermission::create(['Allow Downloads Before Updates Expire']);
-        $permissionid=[
-            0 => "1",
-            1 => "2",
-            2 => "3",
-            3 => "4",
-            6=>'6',
+        $permissionid = [
+            0 => '1',
+            1 => '2',
+            2 => '3',
+            3 => '4',
+            6 => '6',
         ];
         $licensetype->permissions()->attach($permissionid);
 
-        $product = Product::create(['name' => 'Helpdesk Advance','description'=>'goodProduct','type'=>$licensetype->id]);
+        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         $invoiceItem = InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
             'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, ]);
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
-        $planPrice=PlanPrice::factory()->create(['plan_id'=>$plan->id]);
+        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id]);
         $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => '']);
         $currency = 'INR';
-        $taxes=TaxOption::create(['tax_enable'=>0,'inclusive'=>0,'shop_inclusive'=>0,'cart_inclusive'=>0,'rounding'=>1]);
-        $payment=Payment::create(['user_id'=>$user->id,'payment_method'=>'Credit Balance','payment_status'=>'success','amt_to_credit'=>10000]);
-        Setting::create(['sending_status'=>0,'mailchimp_status'=>0]);
+        $taxes = TaxOption::create(['tax_enable' => 0, 'inclusive' => 0, 'shop_inclusive' => 0, 'cart_inclusive' => 0, 'rounding' => 1]);
+        $payment = Payment::create(['user_id' => $user->id, 'payment_method' => 'Credit Balance', 'payment_status' => 'success', 'amt_to_credit' => 10000]);
+        Setting::create(['sending_status' => 0, 'mailchimp_status' => 0]);
         \Cart::add([
             'id' => 55,
             'name' => $product->name,
@@ -331,14 +330,12 @@ class BaseCartControllerTest extends DBTestCase
             'attributes' => ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
             'associatedModel' => $product,
         ]);
-        $checkoutController=new CheckoutController();
+        $checkoutController = new CheckoutController();
         $checkoutController->getAttributes(\Cart::getContent());
-        $response=$this->withSession(['nothingLeft'=>0,'discount'=>300,'priceRemaining'=>1,'priceToBePaid'=>0])->call('post','checkout-and-pay',['cost'=>0,'payment_gateway'=>'','invoice_id'=>0]);
+        $response = $this->withSession(['nothingLeft' => 0, 'discount' => 300, 'priceRemaining' => 1, 'priceToBePaid' => 0])->call('post', 'checkout-and-pay', ['cost' => 0, 'payment_gateway' => '', 'invoice_id' => 0]);
         $response->assertStatus(302);
         $response->assertRedirect('checkout');
-        $amount=Payment::where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('amt_to_credit');
-        $this->assertEquals(10300,$amount);
+        $amount = Payment::where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('amt_to_credit');
+        $this->assertEquals(10300, $amount);
     }
-
-
 }

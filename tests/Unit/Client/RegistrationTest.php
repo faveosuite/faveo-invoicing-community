@@ -4,7 +4,6 @@ namespace Tests\Unit\Client;
 
 use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Testing\Fluent\AssertableJson;
 use phpmock\MockBuilder;
 use Tests\DBTestCase;
 
@@ -62,7 +61,7 @@ class RegistrationTest extends DBTestCase
             'password' => $user->password,
             'password_confirmation' => $user->password,
         ]);
-        $response->assertSessionHasErrors('email',"The email field is required.");
+        $response->assertSessionHasErrors('email', 'The email field is required.');
     }
 
     #[Group('postRegister')]
@@ -97,12 +96,13 @@ class RegistrationTest extends DBTestCase
     }
 
     /** @group postRegister */
-    public function test_when_confirm_password_does_not_match(){
+    public function test_when_confirm_password_does_not_match()
+    {
         $user = User::factory()->create();
         $this->withoutMiddleware();
         $response = $this->call('POST', 'auth/register', ['first_name' => $user->first_name,
             'last_name' => $user->last_name,
-            'email'=>'santhanu@gmail.com',
+            'email' => 'santhanu@gmail.com',
             'company' => $user->company,
             'bussiness' => $user->bussiness,
             'company_type' => $user->company_type,
@@ -121,12 +121,13 @@ class RegistrationTest extends DBTestCase
     }
 
     /** @group postRegister */
-    public function test_registration_success_message(){
+    public function test_registration_success_message()
+    {
         $user = User::factory()->create();
         $this->withoutMiddleware();
         $response = $this->call('POST', 'auth/register', ['first_name' => $user->first_name,
             'last_name' => $user->last_name,
-            'email'=>'santhanu@gmail.com',
+            'email' => 'santhanu@gmail.com',
             'company' => $user->company,
             'bussiness' => $user->bussiness,
             'company_type' => $user->company_type,
@@ -141,17 +142,18 @@ class RegistrationTest extends DBTestCase
             'password_confirmation' => $user->password,
         ]);
         $response->assertJsonStructure([
-                    'success','message','data'
+            'success', 'message', 'data',
         ]);
     }
 
     /** @group postRegister */
-    public function test_when_mobile_code_is_not_sent(){
+    public function test_when_mobile_code_is_not_sent()
+    {
         $user = User::factory()->create();
         $this->withoutMiddleware();
         $response = $this->call('POST', 'auth/register', ['first_name' => $user->first_name,
             'last_name' => $user->last_name,
-            'email'=>'santhanu@gmail.com',
+            'email' => 'santhanu@gmail.com',
             'company' => $user->company,
             'bussiness' => $user->bussiness,
             'company_type' => $user->company_type,
@@ -168,12 +170,13 @@ class RegistrationTest extends DBTestCase
     }
 
     /** @group postRegister */
-    public function test_when_user_registered_present_in_database(){
-        $user = User::factory()->create(['bussiness'=>'--','company_type'=>'--']);
+    public function test_when_user_registered_present_in_database()
+    {
+        $user = User::factory()->create(['bussiness' => '--', 'company_type' => '--']);
         $this->withoutMiddleware();
         $response = $this->call('POST', 'auth/register', ['first_name' => $user->first_name,
             'last_name' => $user->last_name,
-            'email'=>'santhanu@gmail.com',
+            'email' => 'santhanu@gmail.com',
             'company' => $user->company,
             'bussiness' => '--',
             'company_type' => '--',
