@@ -223,54 +223,58 @@ class PipedriveController extends Controller
      */
     private function syncFieldGroup(array $fields, int $groupId): void
     {
-        // Get existing fields
-        $existingFields = PipedriveField::where('pipedrive_group_id', $groupId)->get();
+        $existingFields = PipedriveField::where('pipedrive_group_id', $groupId)->get()->keyBy('field_key');
 
         // Filter bulk-edit-allowed fields
         $allowedFields = collect($fields)->filter(function ($field) use ($groupId) {
-            return
-                isset($field->bulk_edit_allowed) && $field->bulk_edit_allowed === true &&
-                (
-                    ! isset($field->use_field) || $field->use_field === 'id'
-                ) && (
-                    ! in_array($field->key, $this->excludeKeysFromPipedrive($groupId))
-                );
+            return isset($field->bulk_edit_allowed) && $field->bulk_edit_allowed === true &&
+                (!isset($field->use_field) || $field->use_field === 'id') &&
+                !in_array($field->key, $this->excludeKeysFromPipedrive($groupId));
         });
 
         $newFieldKeys = $allowedFields->pluck('key')->toArray();
-        $existingKeys = $existingFields->pluck('field_key')->toArray();
+        $existingKeys = $existingFields->keys()->toArray();
 
-        // Delete obsolete fields
-        $fieldsToDelete = $existingFields->filter(function ($field) use ($newFieldKeys) {
-            return ! in_array($field->field_key, $newFieldKeys);
-        });
-
-        if ($fieldsToDelete->count() > 0) {
+        // Delete fields
+        $fieldsToDelete = $existingFields->filter(fn($field, $key) => !in_array($key, $newFieldKeys));
+        if ($fieldsToDelete->isNotEmpty()) {
             PipedriveField::whereIn('id', $fieldsToDelete->pluck('id'))->delete();
         }
 
-        // Insert new fields
         foreach ($allowedFields as $field) {
-            if (! in_array($field->key, $existingKeys)) {
-                $pipedrive = PipedriveField::create([
-                    'field_key' => $field->key,
-                    'pipedrive_group_id' => $groupId,
-                    'field_name' => $field->name,
-                    'field_type' => $field->field_type,
-                ]);
+            $fieldData = [
+                'field_name' => $field->name,
+                'field_type' => $field->field_type,
+                'pipedrive_group_id' => $groupId,
+            ];
 
-                if (isset($field->options)) {
-                    $options = collect($field->options)->map(function ($option) use ($pipedrive) {
-                        return [
-                            'pipedrive_field_id' => $pipedrive->id,
-                            'key' => $option->id,
-                            'value' => $option->label,
-                        ];
-                    })->toArray();
+            $pipedriveField = PipedriveField::updateOrCreate(
+                ['field_key' => $field->key, 'pipedrive_group_id' => $groupId],
+                $fieldData
+            );
 
-                    if (! empty($options)) {
-                        PipedriveFieldOption::insert($options);
-                    }
+            // Sync field options
+            if (isset($field->options)) {
+                $newOptions = collect($field->options)->keyBy('id');
+
+                // Get existing options
+                $existingOptions = PipedriveFieldOption::where('pipedrive_field_id', $pipedriveField->id)->get()->keyBy('key');
+
+                $newOptionKeys = $newOptions->keys()->toArray();
+                $existingOptionKeys = $existingOptions->keys()->toArray();
+
+                // Delete options
+                $optionsToDelete = $existingOptions->filter(fn($opt, $key) => !in_array($key, $newOptionKeys));
+                if ($optionsToDelete->isNotEmpty()) {
+                    PipedriveFieldOption::whereIn('id', $optionsToDelete->pluck('id'))->delete();
+                }
+
+                // Create or update options
+                foreach ($newOptions as $optionId => $option) {
+                    PipedriveFieldOption::updateOrCreate(
+                        ['pipedrive_field_id' => $pipedriveField->id, 'key' => $optionId],
+                        ['value' => $option->label]
+                    );
                 }
             }
         }

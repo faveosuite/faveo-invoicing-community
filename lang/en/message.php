@@ -1252,7 +1252,7 @@ return [
     'field_mapping' => 'Field Mapping',
     'pipedrive_user_verification_tooltip' => 'Enable this if the user is allowed to add to Pipedrive only after completing verification.',
     'user_verification' => 'Needs verification to add user in Pipedrive',
-    'pipedrive_config_info' => 'Choose the fields you want to map to keep your contacts, organizations, and deals in sync between Faveo Invoicing and Pipedrive.',
+    'pipedrive_config_info' => ' Choose the fields you want to map to keep your contacts, organizations, and deals in sync between Faveo Invoicing and Pipedrive. Some Pipedrive fields have default dropdown options, which we display during mapping. For all other fields, you will see the available Faveo Invoicing fields for mapping.',
     'click_pipedrive_sync' => 'Click here to Sync',
     'faveo_fields' => 'Faveo Invoicing Fields',
     'person_fields' => 'Person Fields',

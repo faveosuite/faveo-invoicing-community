@@ -222,12 +222,13 @@
             });
 
             // Re-initialize Select2 on window resize
-            $(window).on('resize', function() {
+            const formElement = document.getElementById('pipedrive-form');
+            new ResizeObserver(() => {
                 $('.select_fields').select2({
                     allowClear: true,
                     placeholder: "Select an option"
                 });
-            });
+            }).observe(formElement);
 
             let alertTimeout;
 
