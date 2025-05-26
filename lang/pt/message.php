@@ -2590,6 +2590,8 @@ return [
     'placeholder_your-queue-name' => 'seu-nome-da-fila',
 
     'waiting' => 'Aguarde...',
+    'tick-to-hide-from-invoice' => 'Marque para ocultar da página de criação de faturas',
+
     'remainingAmount' => 'Os créditos restantes do seu plano atual serão adicionados ao saldo de créditos.',
 
     'user-suspend-successfully' => 'Usuário suspenso com sucesso',

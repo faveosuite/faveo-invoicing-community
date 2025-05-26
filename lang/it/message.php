@@ -2607,6 +2607,8 @@ return [
     'placeholder_your-queue-name' => 'il nome della tua coda',
 
     'waiting' => 'Attendere...',
+    'tick-to-hide-from-invoice' => 'Seleziona per nascondere dalla pagina di creazione fattura',
+
     'remainingAmount' => 'I crediti rimanenti del tuo piano attuale verranno aggiunti al saldo dei crediti.',
 
     'user-suspend-successfully' => 'Utente sospeso con successo',

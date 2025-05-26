@@ -222,6 +222,8 @@
                                         <label data-toggle="tooltip" data-placement="top" title="">{{ __('message.hidden') }}</label>
 
                                         <p>{!! html()->checkbox('hidden', false ,1) !!}  {{Lang::get('message.tick-to-hide-from-order-form')}}</p>
+                                        <p>{!! html()->checkbox('invoice_hidden', false ,1) !!}  {{Lang::get('message.tick-to-hide-from-invoice')}}</p>
+
 
                                     </div>
                                 </li>

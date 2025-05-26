@@ -2611,6 +2611,8 @@ return [
     'placeholder_your-queue-name' => 'tên hàng đợi của bạn',
 
     'waiting' => 'Vui lòng đợi...',
+    'tick-to-hide-from-invoice' => 'Chọn để ẩn khỏi trang tạo hóa đơn',
+
     'remainingAmount' => 'Số tín dụng còn lại trong gói hiện tại của bạn sẽ được cộng vào số dư tín dụng.',
 
     'user-suspend-successfully' => 'Người dùng đã bị đình chỉ thành công',

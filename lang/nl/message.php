@@ -2581,6 +2581,7 @@ return [
     'placeholder_your-queue-name' => 'jouw‑wachtrij‑naam',
 
     'waiting' => 'Wacht...',
+    'tick-to-hide-from-invoice' => 'Vink aan om te verbergen op de factuurpagina',
     'remainingAmount' => 'De resterende credits van je huidige plan worden toegevoegd aan het credittegoed.',
     'user-suspend-successfully' => 'Gebruiker succesvol geschorst',
     'incorrect_password' => 'Onjuist wachtwoord. Probeer het opnieuw.',

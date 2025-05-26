@@ -2616,6 +2616,8 @@ return [
     'placeholder_your-queue-name' => 'שם‑התור‑שלך',
 
     'waiting' => 'חכה...',
+    'tick-to-hide-from-invoice' => 'סמן כדי להסתיר מדף יצירת החשבונית',
+
     'remainingAmount' => 'הקרדיטים שנותרו בתוכנית הנוכחית שלך יתווספו ליתרת הקרדיטים.',
 
     'user-suspend-successfully' => 'המשתמש הושעה בהצלחה',

@@ -2616,6 +2616,8 @@ return [
     'placeholder_your-queue-name' => 'ditt kønavn',
 
     'waiting' => 'Vent...',
+    'tick-to-hide-from-invoice' => 'Merk av for å skjule fra fakturasiden',
+
     'remainingAmount' => 'De gjenværende kredittene i din nåværende plan blir lagt til kredittsaldoen.',
 
     'user-suspend-successfully' => 'Bruker suspendert',

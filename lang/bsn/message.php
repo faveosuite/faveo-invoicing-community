@@ -2540,6 +2540,8 @@ return [
     'placeholder_your-queue-name' => 'vaš-naziv-reda',
 
     'waiting' => 'Sačekajte...',
+    'tick-to-hide-from-invoice' => 'Označi da sakriješ sa stranice za kreiranje fakture',
+
     'remainingAmount' => 'Preostali krediti iz vašeg trenutnog plana biće dodani na stanje kredita.',
 
     'user-suspend-successfully' => 'Korisnik uspješno suspendovan',
