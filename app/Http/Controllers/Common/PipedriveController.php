@@ -77,8 +77,11 @@ class PipedriveController extends Controller
             $result = $this->apiClients[$apiClient]->$method(...$args)->getRawData();
 
             return is_array($result) ? $result : (array) $result;
-        } catch (\Exception $e) {
-            dd($e->getMessage());
+        }
+        catch (ApiException $e) {
+           throw new \Exception(json_decode($e->getResponseBody())->error);
+        }
+        catch (\Exception $e) {
             Log::error('Pipedrive API error: '.$e->getMessage());
 
             return [];
@@ -189,12 +192,10 @@ class PipedriveController extends Controller
             }
 
             return $orgId;
-        } catch (ApiException $e) {
-            return json_decode($e->getResponseBody());
         } catch (\Exception $e) {
             Log::error('Add/Get organization error: '.$e->getMessage());
 
-            return null;
+            throw new \Exception($e->getMessage());
         }
     }
 
@@ -403,7 +404,16 @@ class PipedriveController extends Controller
      */
     private function testPipedriveMapping(int $groupId)
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create([
+            'user_name' => 'Test User',
+            'first_name' => 'Test',
+            'last_name' => 'User',
+            'email' => 'test@gamil.com',
+            'mobile' => '1234567890',
+            'company' => 'Test Company',
+            'address' => 'Test Address',
+            'town' => 'Test Town',
+        ]);
 
         try {
             $response = match ($groupId) {
