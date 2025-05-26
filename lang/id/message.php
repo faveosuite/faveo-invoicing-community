@@ -2605,6 +2605,8 @@ return [
     'placeholder_your-queue-name' => 'nama-antrian-anda',
 
     'waiting' => 'Tunggu...',
+    'tick-to-hide-from-invoice' => 'Centang untuk menyembunyikan dari halaman pembuatan faktur',
+
     'remainingAmount' => 'Sisa kredit dalam paket Anda saat ini akan ditambahkan ke saldo kredit.',
 
 ];

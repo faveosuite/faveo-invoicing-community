@@ -60,7 +60,7 @@ class SoftDeleteController extends ClientController
                             return getDateHtml($model->created_at);
                         })
                         ->addColumn('active', function ($model) {
-                            return $this->getActiveLabel($model->mobile_verified, $model->active, $model->is_2fa_enabled);
+                            return $this->getActiveLabel($model->mobile_verified, $model->email_verified, $model->is_2fa_enabled);
                         })
                         ->addColumn('action', function ($model) {
                             return '<a href='.url('clients/'.$model->id.'/restore')

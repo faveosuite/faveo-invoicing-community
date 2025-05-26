@@ -2615,6 +2615,8 @@ return [
     'placeholder_your-queue-name' => 'your-queue-name',
 
     'waiting' => 'お待ちください...',
+    'tick-to-hide-from-invoice' => '請求書作成ページから非表示にするにはチェックしてください',
+
     'remainingAmount' => '現在のプランで残っているクレジットはクレジット残高に追加されます。',
 
 ];
