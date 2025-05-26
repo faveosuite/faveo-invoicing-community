@@ -261,14 +261,19 @@
                                             <!-- first name -->
                                             {!! html()->label(trans('message.hidden'), 'hidden') !!}
                                             {!! html()->hidden('hidden', 0) !!}
+                                            {!! html()->hidden('invoice_hidden', 0) !!}
                                             <?php
                                             $value=  "";
+                                            $value1="";
                                             if ($product->hidden==1) {
                                                 $value = 'true';
                                             }
+                                            if($product->invoice_hidden==1){
+                                                $value1=1;
+                                            }
                                             ?>
                                             <p>{!! html()->checkbox('hidden', $value, 1) !!}  {{Lang::get('message.tick-to-hide-from-order-form')}}</p>
-
+                                            <p>{!! html()->checkbox('invoice_hidden', $value1 ,1) !!}  {{Lang::get('message.tick-to-hide-from-invoice')}}</p>
                                         </div>
 
                                     </div>

@@ -21,13 +21,13 @@
 <div class="card card-secondary card-outline">
 
     <div class="card-header">
-         @if($user!='')
-            {!! html()->form('POST', url('generate/invoice/' . $user->id))->id('formoid')->open() !!}
-            <input type="hidden" name="user" value="{{$user->id}}">
-            <h5>{{ucfirst($user->first_name)}} {{ucfirst($user->last_name)}}, ({{$user->email}}) </h5>
-            @else
+{{--         @if($user!='')--}}
+{{--            {!! html()->form('POST', url('generate/invoice/' . $user->id))->id('formoid')->open() !!}--}}
+{{--            <input type="hidden" name="user" value="{{$user->id}}">--}}
+{{--            <h5>{{ucfirst($user->first_name)}} {{ucfirst($user->last_name)}}, ({{$user->email}}) </h5>--}}
+{{--            @else--}}
             {!! html()->form('POST', url('generate/invoice'))->id('formoid')->open() !!}
-        @endif
+{{--        @endif--}}
         <div id="error">
         </div>
         <div id="successs">
@@ -38,7 +38,7 @@
     <div class="card-body">
 
         <div class="row">
-                @if($user=='')
+{{--                @if($user=='')--}}
                 <?php
                 $users = [];
                 ?>
@@ -51,12 +51,20 @@
 
                 <div class="col-sm-4 form-group">
                     {!! html()->label(Lang::get('message.clients'))->class('required') !!}
-                    {!! html()->select('user', [Lang::get('message.user') => $users])->multiple()->class("form-control select2". ($errors->has('user') ? ' is-invalid' : ''))->id('users')->attribute('name', 'user') !!}
+{{--                    {!! html()->select('user', [Lang::get('message.user') => $users])->multiple()->class("form-control select2". ($errors->has('user') ? ' is-invalid' : ''))->id('users')->attribute('name', 'user') !!}--}}
+                    <select name="user[]" id="users" class="form-control select2" multiple>
+                        @if($user)
+                            <option value="{{ $user->id }}" selected>
+                                {{ $user->first_name . ' ' . $user->last_name }}
+                            </option>
+                        @endif
+                    </select>
+
 
                     <span class="error-message" id="user-msg"></span>
                     <h6 id ="productusercheck"></h6>
                 </div>
-                @endif
+{{--                @endif--}}
                 <div class="col-md-4 lg-4 form-group {{ $errors->has('invoice_status') ? 'has-error' : '' }}">
                             <!-- first name -->
                     {!! html()->label(Lang::get('message.date'))->class('required') !!}
@@ -301,7 +309,8 @@
     });
 
     function getPrice(val) {
-         var user = document.getElementsByName('user')[0].value;
+        var user = $('#users').val()?.[0]; // Get first selected user ID
+
 
         var plan = "";
         var product = "";
@@ -392,7 +401,7 @@
         /* get the action attribute from the <form action=""> element */
         var $form = $(this),
         url = $form.attr('action');
-        var user = document.getElementsByName('user')[0].value;
+        var user = $('#users').val()?.[0];
         var plan = "";
         var subscription = 'false';
         var description = "";
@@ -536,7 +545,7 @@
                         text:value.first_name+" "+value.last_name,
                         id: value.id,
                         email:value.text
-                    }               
+                    }
                  })
                   }
             },

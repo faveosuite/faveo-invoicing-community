@@ -2602,6 +2602,8 @@ return [
     'placeholder_your-queue-name' => 'votre-nom-de-queue',
 
     'waiting' => 'Attendez...',
+    'tick-to-hide-from-invoice' => 'Cochez pour masquer de la page de création de facture',
+
     'remainingAmount' => 'Les crédits restants de votre plan actuel seront ajoutés au solde des crédits.',
 
 ];

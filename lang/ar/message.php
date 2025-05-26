@@ -2451,6 +2451,7 @@ return [
     'placeholder_your-queue-name' => 'اسم طابورك',
 
     'waiting' => 'انتظر...',
+    'tick-to-hide-from-invoice' => 'حدد لإخفائه من صفحة إنشاء الفاتورة',
     'remainingAmount' => 'سيتم إضافة الأرصدة المتبقية في خطتك الحالية إلى رصيد الأرصدة.',
 
 ];
