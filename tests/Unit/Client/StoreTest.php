@@ -50,7 +50,6 @@ class StoreTest extends DBTestCase
     /** @group store */
     public function test_store_get_monthly_price(){
         $user=User::factory()->create();
-        $user=User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
         $group=ProductGroup::create(['name'=>'consumer-products','hidden'=>0,'pricing_templates_id'=>1]);
@@ -63,7 +62,6 @@ class StoreTest extends DBTestCase
 
     /** @group store */
     public function test_store_monthly_price_more_days(){
-        $user=User::factory()->create();
         $user=User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
@@ -78,7 +76,6 @@ class StoreTest extends DBTestCase
     /** @group store */
     public function test_store_yearly_price(){
         $user=User::factory()->create();
-        $user=User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
         $group=ProductGroup::create(['name'=>'consumer-products','hidden'=>0,'pricing_templates_id'=>1]);
@@ -91,7 +88,6 @@ class StoreTest extends DBTestCase
 
     /** @group store */
     public function test_store_get_price_description(){
-        $user=User::factory()->create();
         $user=User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
@@ -106,7 +102,6 @@ class StoreTest extends DBTestCase
     /** @group store */
     public function test_store_get_number_of_agents_monthly(){
         $user=User::factory()->create();
-        $user=User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
         $group=ProductGroup::create(['name'=>'consumer-products','hidden'=>0,'pricing_templates_id'=>1]);
@@ -119,7 +114,6 @@ class StoreTest extends DBTestCase
 
     /** @group store */
     public function test_store_get_url(){
-        $user=User::factory()->create();
         $user=User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
@@ -135,7 +129,6 @@ class StoreTest extends DBTestCase
 
     /** @group store */
     public function test_store_when_product_registered_in_cloud(){
-        $user=User::factory()->create();
         $user=User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
@@ -155,7 +148,6 @@ class StoreTest extends DBTestCase
     /** @group store */
     public function test_store_get_offer_price_monthly(){
         $user=User::factory()->create();
-        $user=User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
         $group=ProductGroup::create(['name'=>'consumer-products','hidden'=>0,'pricing_templates_id'=>1]);
@@ -171,7 +163,6 @@ class StoreTest extends DBTestCase
 
     /** @group store */
     public function test_store_get_offer_price_yearly(){
-        $user=User::factory()->create();
         $user=User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();

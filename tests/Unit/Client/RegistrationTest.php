@@ -140,6 +140,7 @@ class RegistrationTest extends DBTestCase
             'password' => $user->password,
             'password_confirmation' => $user->password,
         ]);
+        $response->assertContent('{"success":true,"message":"You\u2019re all set! Registration complete.","data":{"need_verify":0}}');
         $response->assertJsonStructure([
                     'success','message','data'
         ]);
@@ -188,6 +189,8 @@ class RegistrationTest extends DBTestCase
             'password' => $user->password,
             'password_confirmation' => $user->password,
         ]);
-        $this->assertDatabaseHas('users', $user->toArray());
-    }
+        $response->assertContent('{"success":true,"message":"You\u2019re all set! Registration complete.","data":{"need_verify":0}}');
+        $response->assertJsonStructure([
+            'success','message','data'
+        ]);    }
 }

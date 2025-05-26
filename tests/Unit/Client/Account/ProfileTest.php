@@ -114,8 +114,10 @@ class ProfileTest extends DBTestCase
             'mobile' => $user->mobile,
             'address' => $user->address,
         ]);
+        $response->assertContent('{"success":true,"message":"Updated Successfully"}');
         $response->assertJsonStructure([
             'success','message']);
+
     }
 
     public function test_when_mandatory_field_not_filled(){
@@ -160,6 +162,7 @@ class ProfileTest extends DBTestCase
         $response->assertJsonStructure([
             'success','message']);
         $this->assertEquals(true, $content['success']);
+        $this->assertTrue(20==strlen($content['message']['code']));
     }
 
     public function test_when_2fa_verify_password(){
