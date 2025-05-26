@@ -28,6 +28,9 @@
             return !empty($field['selected_field']);
         })->values()->toArray();
         $addCount = count($pipedriveFields) - count($mappedFields);
+        if(count($mappedFields) === 0){
+            $addCount--;
+        }
 
     @endphp
 

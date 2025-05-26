@@ -376,7 +376,9 @@ class PipedriveController extends Controller
 
                 // Reset non-selected options
                 $fieldIds = PipedriveField::where('pipedrive_group_id', $groupID)->pluck('id')->toArray();
-                $selectedOptionIds = collect($select2)->pluck('id')->toArray();
+                $selectedOptionIds = collect($select2)->filter(function ($item) {
+                    return isset($item['id']) && $item['faveo_fields'] !== 'true';
+                })->pluck('id')->toArray();
 
                 PipedriveFieldOption::whereIn('pipedrive_field_id', $fieldIds)
                     ->whereNotIn('id', $selectedOptionIds)
