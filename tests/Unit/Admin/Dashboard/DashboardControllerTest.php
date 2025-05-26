@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
 use App\Model\Order\Payment;
+use App\Model\Payment\Currency;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\User;
@@ -307,4 +308,50 @@ class DashboardControllerTest extends DBTestCase
 
         return $order;
     }
+
+    #[Group('Dashboard')]
+    public function testGetConversionRateBasedOnOrders(){
+        $product = Product::create(['name' => "Helpdesk v3.0.0'"]);
+        $this->withoutMiddleware();
+        $this->getLoggedInUser();
+        $user = $this->user;
+        $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
+            'product' => $product->id, 'number' => mt_rand(100000, 999999), 'price_override' => 1000, ]);
+
+        $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
+            'product' => $product->id, 'number' => mt_rand(100000, 999999), 'price_override' => 0, ]);
+        $response = $this->getPrivateMethod($this->classObject, 'getConversionRate');
+        $this->assertEquals('50.0',$response['rate']);
+        $this->assertEquals('2',$response['all_orders']);
+        $this->assertEquals('1',$response['paid_orders']);
+    }
+
+
+    public function  test_get_pending_payments(){
+        $this->withoutMiddleware();
+        $this->getLoggedInUser();
+        $user = $this->user;
+        $invoice = Invoice::factory()->create(['user_id' => $user->id,'status' => 'Pending']);
+        $allowedCurrencies2 = 'INR';
+        $response = $this->getPrivateMethod($this->classObject, 'getPendingPayments',[$allowedCurrencies2]);
+        $this->assertEquals(10000, $response);
+    }
+
+
+    public function test_to_get_recent_invoices(){
+        $this->withoutMiddleware();
+        $this->getLoggedInUser();
+        $user = $this->user;
+        $invoice = Invoice::factory()->create(['user_id' => $user->id,'status' => 'Pending']);
+        Payment::create(['invoice_id' => $invoice->id, 'user_id' => $user->id, 'amount' => '50000']);
+        $invoice1 = Invoice::factory()->create(['user_id' => $user->id,'status' => 'success']);
+        Payment::create(['invoice_id' => $invoice1->id, 'user_id' => $user->id, 'amount' => '20000']);
+        $invoice2= Invoice::factory()->create(['user_id' => $user->id,'status' => 'Pending']);
+        Payment::create(['invoice_id' => $invoice2->id, 'user_id' => $user->id, 'amount' => '80000']);
+        $currencies=Currency::create(['code'=>'INR','symbol'=>'₹','name'=>'Indian Rupees','dashboard_currency=0']);
+        $response = $this->getPrivateMethod($this->classObject, 'getRecentInvoices',);
+        dd($response);
+
+    }
+
 }
