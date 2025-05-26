@@ -77,11 +77,9 @@ class PipedriveController extends Controller
             $result = $this->apiClients[$apiClient]->$method(...$args)->getRawData();
 
             return is_array($result) ? $result : (array) $result;
-        }
-        catch (ApiException $e) {
-           throw new \Exception(json_decode($e->getResponseBody())->error);
-        }
-        catch (\Exception $e) {
+        } catch (ApiException $e) {
+            throw new \Exception(json_decode($e->getResponseBody())->error);
+        } catch (\Exception $e) {
             Log::error('Pipedrive API error: '.$e->getMessage());
 
             return [];
