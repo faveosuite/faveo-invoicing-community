@@ -13,7 +13,6 @@ use Cartalyst\Stripe\Laravel\Facades\Stripe;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Razorpay\Api\Api;
-use Schema;
 use Validator;
 
 class SettingsController extends Controller
@@ -27,7 +26,6 @@ class SettingsController extends Controller
     public function Settings()
     {
         try {
-
             $razorpay1 = new RazorpayPayment();
             // //dd($ccavanue);
             $razorpay = $razorpay1->where('id', '1')->first();
