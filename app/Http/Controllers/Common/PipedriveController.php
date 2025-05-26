@@ -228,15 +228,15 @@ class PipedriveController extends Controller
         // Filter bulk-edit-allowed fields
         $allowedFields = collect($fields)->filter(function ($field) use ($groupId) {
             return isset($field->bulk_edit_allowed) && $field->bulk_edit_allowed === true &&
-                (!isset($field->use_field) || $field->use_field === 'id') &&
-                !in_array($field->key, $this->excludeKeysFromPipedrive($groupId));
+                (! isset($field->use_field) || $field->use_field === 'id') &&
+                ! in_array($field->key, $this->excludeKeysFromPipedrive($groupId));
         });
 
         $newFieldKeys = $allowedFields->pluck('key')->toArray();
         $existingKeys = $existingFields->keys()->toArray();
 
         // Delete fields
-        $fieldsToDelete = $existingFields->filter(fn($field, $key) => !in_array($key, $newFieldKeys));
+        $fieldsToDelete = $existingFields->filter(fn ($field, $key) => ! in_array($key, $newFieldKeys));
         if ($fieldsToDelete->isNotEmpty()) {
             PipedriveField::whereIn('id', $fieldsToDelete->pluck('id'))->delete();
         }
@@ -264,7 +264,7 @@ class PipedriveController extends Controller
                 $existingOptionKeys = $existingOptions->keys()->toArray();
 
                 // Delete options
-                $optionsToDelete = $existingOptions->filter(fn($opt, $key) => !in_array($key, $newOptionKeys));
+                $optionsToDelete = $existingOptions->filter(fn ($opt, $key) => ! in_array($key, $newOptionKeys));
                 if ($optionsToDelete->isNotEmpty()) {
                     PipedriveFieldOption::whereIn('id', $optionsToDelete->pluck('id'))->delete();
                 }
