@@ -3,6 +3,7 @@
 namespace Tests\Unit\Admin\Dashboard;
 
 use App\Http\Controllers\DashboardController;
+use App\Model\Common\Setting;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
 use App\Model\Order\Payment;
@@ -13,6 +14,9 @@ use App\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
+use Illuminate\Http\Request;
+use Mockery;
+use Spatie\Html\Html;
 
 class DashboardControllerTest extends DBTestCase
 {
@@ -20,10 +24,10 @@ class DashboardControllerTest extends DBTestCase
 
     private $classObject;
 
+
     protected function setUp(): void
     {
         parent::setUp();
-
         $this->classObject = new DashboardController();
     }
 
@@ -326,7 +330,7 @@ class DashboardControllerTest extends DBTestCase
         $this->assertEquals('1',$response['paid_orders']);
     }
 
-
+    #[Group('Dashboard')]
     public function  test_get_pending_payments(){
         $this->withoutMiddleware();
         $this->getLoggedInUser();
@@ -337,7 +341,7 @@ class DashboardControllerTest extends DBTestCase
         $this->assertEquals(10000, $response);
     }
 
-
+    #[Group('Dashboard')]
     public function test_to_get_recent_invoices(){
         $this->withoutMiddleware();
         $this->getLoggedInUser();
@@ -355,5 +359,44 @@ class DashboardControllerTest extends DBTestCase
         $this->assertEquals($invoice1->id,$content[1]['invoice_id']);
         $this->assertEquals($invoice2->id,$content[2]['invoice_id']);
     }
+
+    #[Group('Dashboard')]
+    public function test_to_get_monthly_sales(){
+        $this->withoutMiddleware();
+        $this->getLoggedInUser();
+        $user = $this->user;
+        $invoice = Invoice::factory()->create(['user_id' => $user->id,'status' => 'success','date'=>Carbon::now(),'currency'=>'INR']);
+        Payment::create(['invoice_id' => $invoice->id, 'user_id' => $user->id, 'amount' => '50000']);
+        $response = $this->getPrivateMethod($this->classObject, 'getMonthlySales',['INR']);
+        $this->assertEquals(50000, $response);
+    }
+    #[Group('Dashboard')]
+    public function test_to_check_overall_operation_dashboard(){
+        $this->withoutMiddleware();
+        $this->getLoggedInUser();
+        $user = $this->user;
+        Setting::create(['default_currency' => 'INR','default_symbol'=>'₹']);
+        $invoice = Invoice::factory()->create(['user_id' => $user->id,'status' => 'pending','date'=>Carbon::now()]);
+        Payment::create(['invoice_id' => $invoice->id, 'user_id' => $user->id, 'amount' => '50000']);
+        $invoice1 = Invoice::factory()->create(['user_id' => $user->id,'status' => 'success','date'=>Carbon::now()]);
+        Payment::create(['invoice_id' => $invoice1->id, 'user_id' => $user->id, 'amount' => '20000']);
+        $invoice2= Invoice::factory()->create(['user_id' => $user->id,'status' => 'pending','date'=>Carbon::now()]);
+        Payment::create(['invoice_id' => $invoice2->id, 'user_id' => $user->id, 'amount' => '80000']);
+        $currencies=Currency::create(['code'=>'INR','symbol'=>'₹','name'=>'Indian Rupees','dashboard_currency=1']);
+        $product = Product::create(['name' => "Helpdesk v3.0.0'"]);
+        Order::create(['client' => $user->id, 'order_status' => 'executed',
+            'product' => $product->id, 'number' => mt_rand(100000, 999999), 'price_override' => 1000, ]);
+
+        Order::create(['client' => $user->id, 'order_status' => 'executed',
+            'product' => $product->id, 'number' => mt_rand(100000, 999999), 'price_override' => 0, ]);
+
+        $response=$this->call('get','/');
+        $response->assertStatus(200);
+        $response->assertViewIs('themes.default1.common.dashboard');
+        $response->assertViewHas('productSoldInLast30Days');
+    }
+
+
+
 
 }

@@ -3,9 +3,15 @@
 namespace Tests\Unit\Admin\User;
 
 use App\Http\Controllers\User\ClientController;
+use App\Model\Order\Invoice;
+use App\Model\Order\Payment;
 use App\ReportColumn;
 use App\User;
 use App\UserLinkReport;
+use App\Model\Product\Product;
+use App\Model\Order\InvoiceItem;
+use App\Model\Order\Order;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Tests\DBTestCase;
 
@@ -128,10 +134,12 @@ class ClientControllerTest extends DBTestCase
         $this->assertTrue($firstUser->is_2fa_enabled == 0);
     }
 
-    public function test_Admin_Can_Add_User_successfully()
+    public function test_Admin_error_when_address_is_not_present()
     {
         $admin = User::factory()->create(['role' => 'admin']);
         $this->actingAs($admin);
+        $this->withoutMiddleware();
+        $this->expectException(\Illuminate\Validation\ValidationException::class);
         $response = $this->call('POST', url('clients'), [
             'first_name' => 'Abc',
             'user_name' => 'demopass',
@@ -142,24 +150,85 @@ class ClientControllerTest extends DBTestCase
             'country' => 'IN',
             'email' => 'test@test.com',
             'state' => 'karnataka',
-            'timezone_id' => '79',
             'mobile' => '9898789887',
             'mobile_code' => '91',
-            'address' => 'bangalore',
             'role' => 'user',
             'bussiness' => 'abcd',
             'company_type' => 'public_company',
             'company_size' => '2-50',
-            'country' => 'IN',
             'timezone_id' => 79,
-            'state' => 'Tamilnadu',
             'currency' => 'INR',
             'town' => 'trichy',
             'zip' => '621651',
-            'address' => 'abce',
         ]);
-        $this->assertDatabaseHas('users', ['id' => $admin->id]);
+        $response->assertRedirect();
+        $response->assertStatus(302);
+        $response->assertJsonValidationErrors('The address field is required');
     }
+
+    public function test_when_admin_user_creation_successFull(){
+        $admin = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($admin);
+        $this->withoutMiddleware();
+        $response = $this->call('POST', url('clients'), [
+            'first_name' => 'Abc',
+            'user_name' => 'demopass',
+            'active' => '1',
+            'mobile_verified' => 1,
+            'last_name' => 'Xyz',
+            'company' => 'demo',
+            'country' => 'IN',
+            'email' => 'test@test.com',
+            'state' => 'karnataka',
+            'address'=>'Home',
+            'mobile' => '9898789887',
+            'mobile_code' => '91',
+            'role' => 'user',
+            'bussiness' => 'abcd',
+            'company_type' => 'public_company',
+            'company_size' => '2-50',
+            'timezone_id' => 79,
+            'currency' => 'INR',
+            'town' => 'trichy',
+            'zip' => '621651',
+        ]);
+        $response->assertRedirect();
+        $response->assertSessionHas('success','Saved Successfully');
+    }
+
+
+    public function test_admin_when_zip_is_given_wrong(){
+        $admin = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($admin);
+        $this->withoutMiddleware();
+        $this->expectException(\Illuminate\Validation\ValidationException::class);
+        $response = $this->call('POST', url('clients'), [
+            'first_name' => 'Abc',
+            'user_name' => 'demopass',
+            'active' => '1',
+            'mobile_verified' => 1,
+            'last_name' => 'Xyz',
+            'company' => 'demo',
+            'country' => 'IN',
+            'email' => 'test@test.com',
+            'state' => 'karnataka',
+            'address'=>'Home',
+            'mobile' => '9898789887',
+            'mobile_code' => '91',
+            'role' => 'user',
+            'bussiness' => 'abcd',
+            'company_type' => 'public_company',
+            'company_size' => '2-50',
+            'timezone_id' => 79,
+            'currency' => 'INR',
+            'town' => 'trichy',
+            'zip' => '621@#$#651',
+        ]);
+        $response->assertRedirect();
+        $response->assertStatus(302);
+        $response->assertJsonValidationErrors('he zip/postal code in invalid');
+    }
+
 
     public function test_add_columns_to_db_successfully()
     {
@@ -188,4 +257,86 @@ class ClientControllerTest extends DBTestCase
         $response = $this->call('GET', 'get-columns');
         $response->assertStatus(302);
     }
+
+
+    public function test_when_editing_user(){
+        $admin = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($admin);
+        $this->withoutMiddleware();
+        $user=User::factory()->create();
+        $response = $this->call('PATCH', url('clients/'.$user->id), [
+            'first_name' => $user->first_name,
+            'user_name' => $user->user_name,
+            'active' => $user->active,
+            'mobile_verified' => $user->mobile_verified,
+            'last_name' => $user->last_name,
+            'company' => $user->company,
+            'country' => $user->country,
+            'email' => 'test@test.com',
+            'state' => $user->state,
+            'address'=>$user->address,
+            'mobile' => $user->mobile,
+            'mobile_code' => $user->mobile_code,
+            'role' => $user->role,
+            'bussiness' => $user->bussiness,
+            'company_type' => $user->company_type,
+            'company_size' => $user->company_size,
+            'timezone_id' => $user->timezone_id,
+            'currency' => $user->currency,
+            'town' => $user->town,
+            'zip' => $user->zip,
+        ]);
+        $updatedUser=\DB::table('users')->where('id',$user->id)->first();
+        $response->assertRedirect();
+        $response->assertSessionHas('success','Updated Successfully');
+        $this->assertTrue($updatedUser->email==='test@test.com');
+    }
+
+
+    public function test_get_active_inactive_label(){
+        $mobileActive=1;
+        $emailActive=0;
+        $twoFaActive=1;
+        $response = $this->getPrivateMethod($this->classObject, 'getActiveLabel', [$mobileActive,$emailActive,$twoFaActive]);
+
+        $this->assertEquals("<i class='fas fa-envelope'  style='color:red'  <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title='Unverified email'> 
+                            </label></i>&nbsp;&nbsp;<i class='fas fa-phone'  style='color:green'  <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title='Mobile verified'>
+                            </label></i>&nbsp;&nbsp;<i class='fas fa-qrcode'  style='color:green'  <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title='2FA Enabled'> </label></i>"
+                            ,$response);
+    }
+
+    public function test_show_individual_user(){
+        $user = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        $product = Product::factory()->create();
+        $invoice = Invoice::factory()->create(['user_id' => $user->id]);
+        $invoiceItem = InvoiceItem::create([
+            'invoice_id' => $invoice->id,
+            'product_name' => 'Helpdesk Advance',
+            'regular_price' => 10000,
+            'quantity' => 1,
+            'tax_name' => 'CGST+SGST',
+            'tax_percentage' => 18,
+            'subtotal' => 11800,
+            'domain' => 'faveo.com',
+            'plan_id' => 1,
+        ]);
+        $order = Order::factory()->create(['invoice_id' => $invoice->id,
+            'invoice_item_id' => $invoiceItem->id, 'client' => $user->id, 'product' => $product->id]);
+        Payment::create(['invoice_id' => $invoice->id, 'user_id' => $user->id, 'amount' => '50000']);
+
+        $response=$this->call('GET', url('clients/'.$user->id));
+        $data=$response->original->gatherData();
+        $response->assertViewIs('themes.default1.user.client.show');
+        $response->assertStatus(200);
+        $response->assertViewHas('client');
+        $this->assertEquals(10000,$data['invoiceSum']);
+        $this->assertEquals(50000,$data['amountReceived']);
+    }
+
+
+
+
+
 }
