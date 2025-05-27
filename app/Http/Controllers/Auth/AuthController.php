@@ -483,7 +483,7 @@ class AuthController extends BaseAuthController
     public function verify()
     {
         $sessionUser = \Session::get('user');
-        if (!$sessionUser) {
+        if (! $sessionUser) {
             return redirect('login');
         }
 
@@ -498,8 +498,8 @@ class AuthController extends BaseAuthController
             'v3_v2_recaptcha_status'
         )->first();
 
-        $isMobileVerified = !($setting->msg91_status == 1 && $user->mobile_verified != 1);
-        $isEmailVerified = !($setting->emailverification_status == 1 && $user->email_verified != 1);
+        $isMobileVerified = ! ($setting->msg91_status == 1 && $user->mobile_verified != 1);
+        $isEmailVerified = ! ($setting->emailverification_status == 1 && $user->email_verified != 1);
 
         $verification_preference = ApiKey::value('verification_preference') ?? ($isEmailVerified ? 'email' : 'mobile');
 

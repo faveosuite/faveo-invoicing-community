@@ -1052,5 +1052,4 @@ class SettingsController extends BaseSettingsController
 
         return successResponse('Contact Settings Updated Successfully');
     }
-
 }
