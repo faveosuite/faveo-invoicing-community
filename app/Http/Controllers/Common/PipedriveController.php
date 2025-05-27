@@ -283,7 +283,7 @@ class PipedriveController extends Controller
     {
         return match ($groupID) {
             $this->groups['personId'] => ['label_ids'],
-            $this->groups['organizationId'] => ['label_ids'],
+            $this->groups['organizationId'] => ['label_ids', 'website', 'linkedin'],
             $this->groups['dealId'] => ['user_id'],
             default => [],
         };
@@ -430,9 +430,6 @@ class PipedriveController extends Controller
                     default => null,
                 };
 
-                // Delete the test user
-                $user->delete();
-
                 return true;
             } elseif (isset($response->success) && $response->success === false) {
                 return $response->error;
@@ -440,9 +437,9 @@ class PipedriveController extends Controller
 
             return true;
         } catch (\Exception $e) {
-            $user->delete();
-
             return $e->getMessage();
+        } finally {
+            $user->forceDelete();
         }
     }
 
