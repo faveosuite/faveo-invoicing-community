@@ -342,16 +342,18 @@ class DashboardControllerTest extends DBTestCase
         $this->withoutMiddleware();
         $this->getLoggedInUser();
         $user = $this->user;
-        $invoice = Invoice::factory()->create(['user_id' => $user->id,'status' => 'Pending']);
+        $invoice = Invoice::factory()->create(['user_id' => $user->id,'status' => 'Pending','date'=>Carbon::now()]);
         Payment::create(['invoice_id' => $invoice->id, 'user_id' => $user->id, 'amount' => '50000']);
-        $invoice1 = Invoice::factory()->create(['user_id' => $user->id,'status' => 'success']);
+        $invoice1 = Invoice::factory()->create(['user_id' => $user->id,'status' => 'success','date'=>Carbon::now()]);
         Payment::create(['invoice_id' => $invoice1->id, 'user_id' => $user->id, 'amount' => '20000']);
-        $invoice2= Invoice::factory()->create(['user_id' => $user->id,'status' => 'Pending']);
+        $invoice2= Invoice::factory()->create(['user_id' => $user->id,'status' => 'Pending','date'=>Carbon::now()]);
         Payment::create(['invoice_id' => $invoice2->id, 'user_id' => $user->id, 'amount' => '80000']);
         $currencies=Currency::create(['code'=>'INR','symbol'=>'₹','name'=>'Indian Rupees','dashboard_currency=0']);
         $response = $this->getPrivateMethod($this->classObject, 'getRecentInvoices',);
-        dd($response);
-
+        $content=$response->toArray();
+        $this->assertEquals($invoice->id,$content[0]['invoice_id']);
+        $this->assertEquals($invoice1->id,$content[1]['invoice_id']);
+        $this->assertEquals($invoice2->id,$content[2]['invoice_id']);
     }
 
 }
