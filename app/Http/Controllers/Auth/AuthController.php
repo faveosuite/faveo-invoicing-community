@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\ApiKey;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\License\LicenseController;
 use App\Model\Common\StatusSetting;
@@ -303,8 +304,7 @@ class AuthController extends BaseAuthController
             }
 
             $user->mobile_verified = 1;
-
-            if (! \Auth::check() && StatusSetting::first()->value('emailverification_status') !== 1) {
+            if (! \Auth::check() && $this->userNeedVerified($user)) {
                 $this->addUserToExternalServices($user);
                 \Session::flash('success', __('message.registration_complete'));
             }
@@ -355,9 +355,8 @@ class AuthController extends BaseAuthController
             $user->email_verified = 1;
             $user->save();
 
-            $this->addUserToExternalServices($user);
-
-            if (! \Auth::check() && StatusSetting::first()->value('emailverification_status') === 1) {
+            if (! \Auth::check() && $this->userNeedVerified($user)) {
+                $this->addUserToExternalServices($user);
                 \Session::flash('success', __('message.registration_complete'));
             }
 
@@ -477,15 +476,30 @@ class AuthController extends BaseAuthController
 
     public function verify()
     {
-        $user = \Session::get('user');
-        if ($user) {
-            $eid = Crypt::encrypt($user->email);
-            $setting = StatusSetting::first(['recaptcha_status', 'v3_recaptcha_status', 'emailverification_status', 'msg91_status', 'v3_v2_recaptcha_status']);
-
-            return view('themes.default1.user.verify', compact('user', 'eid', 'setting'));
+        $sessionUser = \Session::get('user');
+        if (!$sessionUser) {
+            return redirect('login');
         }
 
-        return redirect('login');
+        $user = User::find($sessionUser->id);
+        $eid = Crypt::encrypt($user->email);
+
+        $setting = StatusSetting::select(
+            'recaptcha_status',
+            'v3_recaptcha_status',
+            'emailverification_status',
+            'msg91_status',
+            'v3_v2_recaptcha_status'
+        )->first();
+
+        $isMobileVerified = !($setting->msg91_status == 1 && $user->mobile_verified != 1);
+        $isEmailVerified = !($setting->emailverification_status == 1 && $user->email_verified != 1);
+
+        $verification_preference = ApiKey::value('verification_preference') ?? ($isEmailVerified ? 'email' : 'mobile');
+
+        return view('themes.default1.user.verify', compact(
+            'user', 'eid', 'setting', 'isMobileVerified', 'isEmailVerified', 'verification_preference'
+        ));
     }
 
     public function addUserToExternalServices($user)
@@ -498,4 +512,16 @@ class AuthController extends BaseAuthController
         } catch (\Exception $exception) {
         }
     }
+
+    private function userNeedVerified($user)
+    {
+        $setting = StatusSetting::first(['emailverification_status', 'msg91_status']);
+
+        return !(
+            ($setting->emailverification_status && !$user->email_verified) ||
+            ($setting->msg91_status && !$user->mobile_verified) ||
+            !$user->active
+        );
+    }
+
 }
