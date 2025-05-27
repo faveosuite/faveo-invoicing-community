@@ -554,10 +554,10 @@ class AuthController extends BaseAuthController
     {
         $setting = StatusSetting::first(['emailverification_status', 'msg91_status']);
 
-        return !(
-            ($setting->emailverification_status && !$user->email_verified) ||
-            ($setting->msg91_status && !$user->mobile_verified) ||
-            !$user->active
+        return ! (
+            ($setting->emailverification_status && ! $user->email_verified) ||
+            ($setting->msg91_status && ! $user->mobile_verified) ||
+            ! $user->active
         );
     }
 }
