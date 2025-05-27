@@ -2664,6 +2664,11 @@ return [
     'allowed_estatus' => 'İzin verilen e-posta durumları',
     'file_not_upload' => '(dosya yüklenemedi: ',
     'completed' => 'Tamamlandı',
+    'enable_verification' => 'Doğrulamaları etkinleştir',
+    'preferred_verification' => 'Tercih edilen doğrulama yöntemi',
+    'email_first' => 'Önce e-posta',
+    'mobile_first' => 'Önce mobil',
+    'contact_setting_update' => 'İletişim ayarları başarıyla güncellendi',
 
     'user-suspend-successfully' => 'Kullanıcı Başarıyla Askıya Alındı',
     'incorrect_password' => 'Yanlış şifre. Tekrar deneyin',

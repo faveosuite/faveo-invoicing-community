@@ -2653,4 +2653,9 @@ return [
     'new_code_generated' => '新的恢复码已成功生成。',
     'please_enter_code' => '请输入验证码。',
     '2fa_verifying' => '正在验证...',
+    'enable_verification' => '启用验证',
+    'preferred_verification' => '首选验证方式',
+    'email_first' => '优先使用邮箱',
+    'mobile_first' => '优先使用手机',
+    'contact_setting_update' => '联系设置已成功更新',
 ];

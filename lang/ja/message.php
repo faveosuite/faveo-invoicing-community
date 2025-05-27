@@ -2661,4 +2661,9 @@ return [
     'new_code_generated' => 'Nuovo codice di recupero generato con successo.',
     'please_enter_code' => 'Per favore, inserisci il codice',
     '2fa_verifying' => 'Verifica in corso...',
+    'enable_verification' => '認証を有効にする',
+    'preferred_verification' => '優先認証方法',
+    'email_first' => 'メールを優先',
+    'mobile_first' => '携帯を優先',
+    'contact_setting_update' => '連絡先設定が正常に更新されました',
 ];

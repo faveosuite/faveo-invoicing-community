@@ -2663,10 +2663,16 @@ return [
 
     'checkbox_error' => 'कृपया कम से कम एक स्थिति विकल्प चुनें।',
     'allowed_estatus' => 'अनुमत ईमेल स्थितियाँ',
+    'remainingAmount' => 'आपकी वर्तमान योजना में शेष क्रेडिट्स को क्रेडिट बैलेंस में जोड़ा जाएगा।',
     'user-suspend-successfully' => 'उपयोगकर्ता को सफलतापूर्वक निलंबित कर दिया गया',
     'incorrect_password' => 'गलत पासवर्ड। कृपया पुनः प्रयास करें।',
     'wrong_code' => 'गलत कोड। कृपया पुनः प्रयास करें।',
     'new_code_generated' => 'नया रिकवरी कोड सफलतापूर्वक जनरेट किया गया है।',
     'please_enter_code' => 'कृपया कोड दर्ज करें',
     '2fa_verifying' => 'सत्यापित किया जा रहा है...',
+    'enable_verification' => 'सत्यापन सक्षम करें',
+    'preferred_verification' => 'पसंदीदा सत्यापन',
+    'email_first' => 'ईमेल पहले',
+    'mobile_first' => 'मोबाइल पहले',
+    'contact_setting_update' => 'संपर्क सेटिंग सफलतापूर्वक अपडेट की गई',
 ];

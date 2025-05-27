@@ -2625,5 +2625,10 @@ return [
     'new_code_generated' => 'Nieuwe herstelcode succesvol gegenereerd.',
     'please_enter_code' => 'Voer de code in.',
     '2fa_verifying' => 'Bezig met verifiëren...',
+    'enable_verification' => 'Verificaties inschakelen',
+    'preferred_verification' => 'Voorkeursverificatie',
+    'email_first' => 'E-mail eerst',
+    'mobile_first' => 'Mobiel eerst',
+    'contact_setting_update' => 'Contactinstellingen succesvol bijgewerkt',
 
 ];

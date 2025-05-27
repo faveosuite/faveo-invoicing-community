@@ -2664,4 +2664,9 @@ return [
     'new_code_generated' => 'קוד שחזור חדש נוצר בהצלחה.',
     'please_enter_code' => 'אנא הזן את הקוד',
     '2fa_verifying' => 'מאמת...',
+    'enable_verification' => 'הפעל אימותים',
+    'preferred_verification' => 'אימות מועדף',
+    'email_first' => 'דוא"ל תחילה',
+    'mobile_first' => 'נייד תחילה',
+    'contact_setting_update' => 'הגדרות הקשר עודכנו בהצלחה',
 ];

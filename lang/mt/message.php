@@ -2583,4 +2583,9 @@
      'new_code_generated' => 'Kodiċi ta’ rkupru ġdid ġie ġġenerat b’suċċess.',
      'please_enter_code' => 'Jekk jogħġbok daħħal il-kodiċi',
      '2fa_verifying' => 'Qiegħed tivverifika...',
+     'enable_verification' => 'Attiva l-verifiki',
+     'preferred_verification' => 'Verifika preferuta',
+     'email_first' => 'Email l-ewwel',
+     'mobile_first' => 'Mobile l-ewwel',
+     'contact_setting_update' => 'Is-settings tal-kuntatt ġew aġġornati b’suċċess',
  ];

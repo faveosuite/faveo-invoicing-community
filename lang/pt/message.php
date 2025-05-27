@@ -2638,4 +2638,9 @@ return [
     '2fa_verifying' => 'Verificando...',
     'file_not_upload' => '(não foi possível carregar o arquivo: ',
     'completed' => 'Concluído',
+    'enable_verification' => 'Ativar verificações',
+    'preferred_verification' => 'Verificação preferida',
+    'email_first' => 'Email primeiro',
+    'mobile_first' => 'Telemóvel primeiro',
+    'contact_setting_update' => 'Definições de contacto atualizadas com sucesso',
 ];

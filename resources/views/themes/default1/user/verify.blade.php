@@ -1,8 +1,4 @@
 @extends('themes.default1.layouts.front.master')
-<?php
-$isMobileVerified = ($setting->msg91_status == 1 && $user->mobile_verified != 1) ? false : true;
-$isEmailVerified = ($setting->emailverification_status == 1 && $user->email_verified != 1) ?false : true;
-?>
 @section('title')
     @if(!$isMobileVerified && !$isEmailVerified)
         {{ __('message.email_mobile_faveo') }}
@@ -53,11 +49,6 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
 
         .form-card {
             text-align: left;
-        }
-
-        /*Hide all except first fieldset*/
-        #msform fieldset:not(:first-of-type) {
-            display: none;
         }
 
         #msform input, #msform textarea {
@@ -117,18 +108,18 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
             margin-bottom: 30px;
             overflow: hidden;
             color: lightgrey;
-            display: flex; /* Use flexbox to center items */
-            justify-content: center; /* Center the progress bar horizontally */
+            display: flex;
+            justify-content: center;
             padding: 0;
-            margin-left: 0; /* Reset margin-left */
+            margin-left: 0;
         }
 
         /* Styling the progress steps */
         #progressbar li {
             list-style-type: none;
             font-size: 15px;
-            width: 33.33%; /* Distribute steps evenly */
-            text-align: center; /* Center the text */
+            width: 33.33%;
+            text-align: center;
             font-weight: 400;
             position: relative;
         }
@@ -241,6 +232,9 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
               text-align:right;
          }
 
+        .hidden {
+            display: none !important;
+        }
     </style>
     <div class="container-fluid">
         <div class="row justify-content-center">
@@ -250,11 +244,18 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
                     <form id="msform">
                         <!-- progressbar -->
                         <ul id="progressbar">
-                            @if(!$isMobileVerified)
+                            @if(!$isMobileVerified && !$isEmailVerified)
+                                @if($verification_preference === 'email')
+                                    <li class="active" id="email_li"><strong>{{ __('message.verify_email') }}</strong></li>
+                                    <li id="otp_li"><strong>{{ __('message.verify_mobile') }}</strong></li>
+                                @else
+                                    <li class="active" id="otp_li"><strong>{{ __('message.verify_mobile') }}</strong></li>
+                                    <li id="email_li"><strong>{{ __('message.verify_email') }}</strong></li>
+                                @endif
+                            @elseif(!$isMobileVerified && $isEmailVerified)
                                 <li class="active" id="otp_li"><strong>{{ __('message.verify_mobile') }}</strong></li>
-                            @endif
-                            @if(!$isEmailVerified)
-                                <li id="email_li"><strong>{{ __('message.verify_email') }}</strong></li>
+                            @elseif(!$isEmailVerified && $isMobileVerified)
+                                <li class="active" id="email_li"><strong>{{ __('message.verify_email') }}</strong></li>
                             @endif
                             <li id="success_li"><strong>{{ __('message.all_set') }}</strong></li>
                         </ul>
@@ -262,11 +263,8 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
                         <!-- fieldsets -->
                         <fieldset id="fieldset_otp">
                             <div class="form-card">
-
                                 <div id="alert-container"></div>
-
                                 <p class="text-left text-color-dark text-3">{{ __('message.enter_code') }} <span class="text-color-danger"> *</span></p>
-
                                 <input class="form-control h-100" type="text" id="otp" name="otp" placeholder="{{ __('message.otp_placeholder') }}"/>
                                 <p class="mt-3">{{ __('message.otp_description') }}</p>
 
@@ -295,9 +293,9 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
                                             </div>
                                         </div>
                                         <div class="col-6 px-0">
-                                            <button type="button" onclick="submitOtp()" name="next" id="mobileOtp"
-                                                    class="next float-right btn btn-primary">{{\Lang::get('message.verify')}}</button>
-
+                                            <button type="button" id="mobileVerifyBtn" onclick="submitOtp()" class="btn btn-primary btn-flat float-right btn-lg">
+                                                <span id="mobileVerifyBtnText">{{ __('message.verify') }}</span>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -305,19 +303,16 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
                         </fieldset>
                         <fieldset id="fieldset_email">
                             <div class="form-card">
-
                                 <div id="alert-container-email"></div>
-
                                 <p class="text-left text-color-dark text-3">{{ __('message.enter_code') }} <span class="text-color-danger"> *</span></p>
-
                                 <input class="form-control h-100" type="text" id="email_otp" name="email_otp" placeholder="{{ __('message.otp_placeholder') }}"/>
                                 <p class="mt-3">{{ __('message.email_otp_description') }}</p>
                                 @if($setting->v3_v2_recaptcha_status)
-                                @if ($setting->recaptcha_status === 1)
-                                    <div id="recaptchaEmail"></div>
-                                @elseif($setting->v3_recaptcha_status === 1)
-                                    <input type="hidden" id="g-recaptcha-email" class="g-recaptcha-token" name="g-recaptcha-response">
-                                @endif
+                                    @if ($setting->recaptcha_status === 1)
+                                        <div id="recaptchaEmail"></div>
+                                    @elseif($setting->v3_recaptcha_status === 1)
+                                        <input type="hidden" id="g-recaptcha-email" class="g-recaptcha-token" name="g-recaptcha-response">
+                                    @endif
                                 @endif
                                 <div class="col-12 mt-4">
                                     <div class="row">
@@ -332,8 +327,9 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
                                             </div>
                                         </div>
                                         <div class="col-6 px-0">
-                                            <button onclick="isEmailVerified()" type="button" name="next" id="otpVerify"
-                                                    class="next float-right btn btn-primary">{{\Lang::get('message.verify')}}</button>
+                                            <button type="button" id="emailVerifyBtn" onclick="isEmailVerified()" class="btn btn-primary btn-flat float-right btn-lg">
+                                                <span id="emailVerifyBtnText">{{ __('message.verify') }}</span>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -359,29 +355,39 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
 @section('script')
     @extends('mini_views.recaptcha')
     <script>
-
         const otpButton = document.getElementById("otpButton");
         const additionalButton = document.getElementById("additionalButton");
         const timerDisplay = document.getElementById("timer");
         const emailOtpButton = document.getElementById("otpButtonn");
         const emailTimerDisplay = document.getElementById("timerEmail");
         let timerInterval;
+        let emailTimerInterval;
         const eid = @json($eid);
 
-        let countdown = 120;
+        const TIMER_DURATION = 120;
+        let mobileCountdown = TIMER_DURATION;
+        let emailCountdown = TIMER_DURATION;
 
         let mobile_recaptcha_id;
         let email_recaptcha_id;
         let recaptcha;
         let recaptchaToken;
 
-        @if($setting->recaptcha_status === 1 && $setting->v3_v2_recaptcha_status)
+        // Verification state tracking
+        let verificationState = {
+            isMobileVerified: @json($isMobileVerified),
+            isEmailVerified: @json($isEmailVerified),
+            verificationPreference: @json($verification_preference ?? 'mobile')
+        };
+
+        @if($setting->recaptcha_status === 1)
         recaptchaFunctionToExecute.push(() => {
             mobile_recaptcha_id = grecaptcha.render('recaptchaMobile', { 'sitekey': siteKey });
             email_recaptcha_id = grecaptcha.render('recaptchaEmail', { 'sitekey': siteKey });
         });
-            @endif
+        @endif
 
+        // Restrict input to 6 digits only
         ['email_otp', 'otp'].forEach(id => {
             document.getElementById(id).addEventListener('input', function () {
                 this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6);
@@ -398,33 +404,45 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
             display.textContent = countdown.toString().padStart(2, '0') + " seconds";
         }
 
-        function startTimer(button, display, duration) {
-            clearInterval(timerInterval);
-            var countdown = countdown;
-            button.disabled = true;
-            additionalButton.disabled = true;
-            display.style.display = "block";
-            countdown = duration;
-            updateTimer(display, countdown);
-            timerInterval = setInterval(() => {
-                countdown--;
-                if (countdown <= 0) {
-                    clearInterval(timerInterval);
-                    button.disabled = false;
-                    additionalButton.disabled = false;
-                    display.style.display = "none";
-                }
-                updateTimer(display, countdown);
-            }, 1000);
+        function startTimer(button, display, duration, type = 'mobile') {
+            if (type === 'mobile') {
+                clearInterval(timerInterval);
+                mobileCountdown = duration;
+                button.disabled = true;
+                additionalButton.disabled = true;
+                display.style.display = "block";
+                updateTimer(display, mobileCountdown);
+
+                timerInterval = setInterval(() => {
+                    mobileCountdown--;
+                    if (mobileCountdown <= 0) {
+                        clearInterval(timerInterval);
+                        button.disabled = false;
+                        additionalButton.disabled = false;
+                        display.style.display = "none";
+                    }
+                    updateTimer(display, mobileCountdown);
+                }, 1000);
+            } else if (type === 'email') {
+                clearInterval(emailTimerInterval);
+                emailCountdown = duration;
+                button.disabled = true;
+                display.style.display = "block";
+                updateTimer(display, emailCountdown);
+
+                emailTimerInterval = setInterval(() => {
+                    emailCountdown--;
+                    if (emailCountdown <= 0) {
+                        clearInterval(emailTimerInterval);
+                        button.disabled = false;
+                        display.style.display = "none";
+                    }
+                    updateTimer(display, emailCountdown);
+                }, 1000);
+            }
         }
 
         function resendOTP(default_type, type) {
-            if(default_type=='email'){
-                document.getElementById('email_otp').value='';
-            }
-            if(default_type=='mobile'){
-                document.getElementById('otp').value='';
-            }
             const data = {eid, default_type, type};
             $.ajax({
                 url: '{{ url('resend_otp') }}',
@@ -432,10 +450,10 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
                 data: data,
                 success: function (response) {
                     if (default_type === 'mobile') {
-                        startTimer(otpButton, timerDisplay, countdown);
+                        startTimer(otpButton, timerDisplay, TIMER_DURATION, 'mobile');
                         showAlert('success', response.message, '#alert-container');
                     } else if (default_type === 'email') {
-                        startTimer(emailOtpButton, emailTimerDisplay, countdown);
+                        startTimer(emailOtpButton, emailTimerDisplay, TIMER_DURATION, 'email');
                         showAlert('success', response.message, '#alert-container-email');
                     }
                 },
@@ -450,13 +468,13 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
         }
 
         function sendOTP() {
+            startTimer(otpButton, timerDisplay, TIMER_DURATION, 'mobile');
             const data = {eid};
             $.ajax({
                 url: '{{ url('otp/send') }}',
                 type: 'POST',
                 data: data,
                 success: function (response) {
-                    startTimer(otpButton, timerDisplay, countdown);
                     showAlert('success', response.message, '#alert-container');
                 },
                 error: function (error) {
@@ -482,7 +500,7 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
                 showError(otpField, "{{ __('message.otp_invalid_format') }}");
                 return;
             }
-            @if($setting->v3_v2_recaptcha_status)
+
             @if($setting->recaptcha_status === 1)
                 recaptcha = $('#recaptchaMobile');
             recaptchaToken = getRecaptchaTokenFromId(mobile_recaptcha_id);
@@ -494,61 +512,36 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
             updateRecaptchaTokens();
             recaptchaToken = $('#g-recaptcha-mobile').val();
             @endif
-            @endif
+
             const data = {eid, otp: otpValue, 'g-recaptcha-response': recaptchaToken ?? ''};
-            $('#mobileOtp').attr('disabled',true)
-            $("#mobileOtp").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
 
             $.ajax({
                 url: '{{ url('otp/verify') }}',
                 type: 'POST',
                 data: data,
+                beforeSend: function () {
+                    toggleButtonState('mobileVerifyBtn', 'mobileVerifyBtnText', true); // Disable and show "Verifying..."
+                },
                 success: function (response) {
-                    @if(!$isEmailVerified)
-                    activateFieldset("fieldSetTwo");
-                    startTimer(emailOtpButton, emailTimerDisplay, countdown);
-                    @else
-                        window.location.href = "{{ url('/login') }}";
-                    @endif
+                    verificationState.isMobileVerified = true;
+                    updateProgressBar('mobile', 'completed');
+
+                    if (!verificationState.isEmailVerified) {
+                        showNextVerificationStep();
+                    } else {
+                        showSuccessAndRedirect();
+                    }
                 },
                 error: function (error) {
                     showAlert('danger', error.responseJSON.message, '#alert-container');
-                    $('#mobileOtp').attr('disabled',false)
-                    $("#mobileOtp").html("{{ __('message.verify') }}");
+
+                },
+                complete: function () {
+                    toggleButtonState('mobileVerifyBtn', 'mobileVerifyBtnText', false); // Re-enable and reset text to "Verify"
                 }
             });
         }
 
-        function activateFieldset(fieldSet) {
-            const fieldsets = {
-                fieldSetOne: document.getElementById('fieldset_otp'),
-                fieldSetTwo: document.getElementById('fieldset_email'),
-                fieldSetThree: document.getElementById('fieldset_success')
-            };
-
-            const progressList = {
-                fieldSetOne: document.getElementById('otp_li'),
-                fieldSetTwo: document.getElementById('email_li'),
-                fieldSetThree: document.getElementById('success_li')
-            };
-
-            Object.values(fieldsets).forEach(fieldset => fieldset.style.display = 'none');
-            // Object.values(progressList).forEach(progress => progress.classList.remove('active'));
-
-            if (fieldsets[fieldSet] && progressList[fieldSet]) {
-                if(fieldSet === 'fieldSetOne'){
-                    startTimer(otpButton, timerDisplay, countdown);
-                    sendOTP();
-                }
-                else if(fieldSet === 'fieldSetTwo'){
-                    startTimer(emailOtpButton, emailTimerDisplay, countdown);
-                    sendEmail();
-                }
-                fieldsets[fieldSet].style.display = 'block';
-                progressList[fieldSet].classList.add('active');
-                autoFocus();
-            }
-        }
 
         function autoFocus() {
             // Focus on OTP if it's active
@@ -582,7 +575,6 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
             }
         }
 
-
         function sendEmail() {
             const data = {eid: eid};
             $.ajax({
@@ -590,6 +582,7 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
                 type: 'POST',
                 data: data,
                 success: function (response) {
+                    startTimer(emailOtpButton, emailTimerDisplay, TIMER_DURATION, 'email');
                     showAlert('success', response.message, '#alert-container-email');
                 },
                 error: function (error) {
@@ -629,26 +622,111 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
             @endif
 
             const data = {eid, otp: otpValue, 'g-recaptcha-response':recaptchaToken ?? ''};
-            $('#otpVerify').attr('disabled',true)
-            $("#otpVerify").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
-
             $.ajax({
                 url: '{{ url('email/verify') }}',
                 type: 'POST',
                 data: data,
+                beforeSend: function () {
+                    toggleButtonState('emailVerifyBtn', 'emailVerifyBtnText', true); // Disable and show "Verifying..."
+                },
                 success: function (response) {
-                    window.location.href = "{{ url('/login') }}";
+                    verificationState.isEmailVerified = true;
+                    updateProgressBar('email', 'completed');
+
+                    if (!verificationState.isMobileVerified) {
+                        showNextVerificationStep();
+                    } else {
+                        showSuccessAndRedirect();
+                    }
                 },
                 error: function (error) {
                     showAlert('danger', error.responseJSON.message, '#alert-container-email');
-                    $('#otpVerify').attr('disabled',false)
-                    $("#otpVerify").html("{{ __('message.verify') }}");
+                },
+                complete: function () {
+                    toggleButtonState('emailVerifyBtn', 'emailVerifyBtnText', false); // Re-enable and reset text to "Verify"
                 }
             });
         }
 
+        function toggleButtonState(buttonId, textSpanId, isLoading = true) {
+            const button = document.getElementById(buttonId);
+            const textSpan = document.getElementById(textSpanId);
+
+            if (!button || !textSpan) return;
+
+            if (isLoading) {
+                button.disabled = true;
+                textSpan.textContent = 'Verifying...';
+            } else {
+                button.disabled = false;
+                textSpan.textContent = 'Verify';
+            }
+        }
+
+        function updateProgressBar(type, status) {
+            const element = document.getElementById(type === 'mobile' ? 'otp_li' : 'email_li');
+            if (element) {
+                element.classList.add(status);
+            }
+        }
+
+        function showNextVerificationStep() {
+            if (!verificationState.isMobileVerified && verificationState.isEmailVerified) {
+                // Show mobile verification next
+                activateFieldset('fieldSetOne');
+            } else if (!verificationState.isEmailVerified && verificationState.isMobileVerified) {
+                // Show email verification next
+                activateFieldset('fieldSetTwo');
+            }
+        }
+
+        function showSuccessAndRedirect() {
+            window.location.href = "{{ url('/login') }}";
+        }
+
+        function activateFieldset(fieldSet) {
+            const fieldsets = {
+                fieldSetOne: document.getElementById('fieldset_otp'),
+                fieldSetTwo: document.getElementById('fieldset_email'),
+                fieldSetThree: document.getElementById('fieldset_success')
+            };
+
+            const progressList = {
+                fieldSetOne: document.getElementById('otp_li'),
+                fieldSetTwo: document.getElementById('email_li'),
+                fieldSetThree: document.getElementById('success_li')
+            };
+
+            // Hide all fieldsets
+            Object.values(fieldsets).forEach(fieldset => {
+                if (fieldset) fieldset.classList.add('hidden');
+            });
+
+            // Show the target fieldset and update progress
+            if (fieldsets[fieldSet]) {
+                fieldsets[fieldSet].classList.remove('hidden');
+
+                if (fieldSet === 'fieldSetOne' && !verificationState.isMobileVerified) {
+                    if (progressList[fieldSet]) {
+                        progressList[fieldSet].classList.add('active');
+                    }
+                    autoFocus();
+                    sendOTP();
+                } else if (fieldSet === 'fieldSetTwo' && !verificationState.isEmailVerified) {
+                    if (progressList[fieldSet]) {
+                        progressList[fieldSet].classList.add('active');
+                    }
+                    autoFocus();
+                    sendEmail();
+                } else if (fieldSet === 'fieldSetThree') {
+                    if (progressList[fieldSet]) {
+                        progressList[fieldSet].classList.add('active');
+                    }
+                }
+            }
+        }
+
         function showAlert(type, message, container) {
-            console.log(type, message);
             const icon = type === 'success' ? 'fa-check-circle' : 'fa-ban';
             const alertType = type === 'success' ? 'alert-success' : 'alert-danger';
 
@@ -671,12 +749,26 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
             field.addClass('is-invalid').css('border-color', 'red');
             field.after(`<span class="error invalid-feedback">${message}</span>`);
         }
-        @if(!$isMobileVerified)
-        activateFieldset('fieldSetOne');
-        @elseif(!$isEmailVerified)
-        activateFieldset('fieldSetTwo');
-        @else
-        activateFieldset('fieldSetOne');
-        @endif
+
+        // Initialize the appropriate verification step on page load
+        $(document).ready(function() {
+            if (verificationState.isMobileVerified && verificationState.isEmailVerified) {
+                // Both verified - should not reach here, but redirect just in case
+                window.location.href = "{{ url('/login') }}";
+            } else if (!verificationState.isMobileVerified && !verificationState.isEmailVerified) {
+                // Neither verified - show based on preference
+                if (verificationState.verificationPreference === 'email') {
+                    activateFieldset('fieldSetTwo');
+                } else {
+                    activateFieldset('fieldSetOne');
+                }
+            } else if (!verificationState.isMobileVerified && verificationState.isEmailVerified) {
+                // Only mobile needs verification
+                activateFieldset('fieldSetOne');
+            } else if (!verificationState.isEmailVerified && verificationState.isMobileVerified) {
+                // Only email needs verification
+                activateFieldset('fieldSetTwo');
+            }
+        });
     </script>
 @stop

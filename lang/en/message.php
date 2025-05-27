@@ -2670,5 +2670,10 @@ return [
     'new_code_generated' => 'New recovery code generated successfully.',
     'please_enter_code' => 'Please enter the code',
     '2fa_verifying' => 'Verifying...',
+    'enable_verification' => 'Enable Verifications',
+    'preferred_verification' => 'Preferred Verification',
+    'email_first' => 'Email First',
+    'mobile_first' => 'Mobile First',
+    'contact_setting_update' => 'Contact Settings Updated Successfully',
 
 ];

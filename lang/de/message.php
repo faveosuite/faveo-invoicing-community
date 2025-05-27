@@ -2649,6 +2649,11 @@ return [
     'allowed_estatus' => 'Erlaubte E-Mail-Status',
     'file_not_upload' => '(Datei konnte nicht hochgeladen werden: ',
     'completed' => 'Abgeschlossen',
+    'enable_verification' => 'Verifizierungen aktivieren',
+    'preferred_verification' => 'Bevorzugte Verifizierung',
+    'email_first' => 'E-Mail zuerst',
+    'mobile_first' => 'Handy zuerst',
+    'contact_setting_update' => 'Kontakteinstellungen wurden erfolgreich aktualisiert',
 
     'user-suspend-successfully' => 'Benutzer erfolgreich gesperrt',
     'incorrect_password' => 'Falsches Passwort. Versuchen Sie es erneut.',

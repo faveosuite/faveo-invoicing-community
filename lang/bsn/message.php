@@ -2588,4 +2588,9 @@ return [
     'new_code_generated' => 'Novi kod za oporavak uspješno generisan.',
     'please_enter_code' => 'Molimo unesite kod.',
     '2fa_verifying' => 'Provjera...',
+    'enable_verification' => 'Omogući verifikacije',
+    'preferred_verification' => 'Preferirani način verifikacije',
+    'email_first' => 'Email prvo',
+    'mobile_first' => 'Mobilni prvo',
+    'contact_setting_update' => 'Postavke kontakta su uspješno ažurirane',
 ];
