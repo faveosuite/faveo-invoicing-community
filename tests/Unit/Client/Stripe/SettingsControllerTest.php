@@ -147,24 +147,24 @@ class SettingsControllerTest extends DBTestCase
         $this->assertEquals($status, $response->status);
     }
 
-    // Test case for handling autopay for non 3ds with active status
-//    public function test_handle_autoPayment_3ds_card()
-//    {
-//        $stripePaymentDetails = (object) ['payment_intent_id' => 'pm_1OyTcJI0SyY30M2QznXTOvZH'];
-//
-//        $productDetails = (object) ['name' => 'Sample Product'];
-//        $unitCost = 50;
-//        $currency = 'INR';
-//        $plan = (object) ['days' => 30];
-//        $expectedArguments = ['id' => 'sub_1OyXYHI0SyY30M2QDkWSfCb2',
-//            'object' => 'subscription', ];
-//        $status = 'active';
-//        $stripeClientConstructorMock = $this->setupStripeClientMock($expectedArguments, $status);
-//        $this->SetAuthUser();
-//        $controller = new SettingsController($stripeClientConstructorMock);
-//        $response = $controller->handleStripeAutoPay($stripePaymentDetails, $productDetails, $unitCost, $currency, $plan);
-//        $this->assertEquals($status, $response->status);
-//    }
+//     Test case for handling autopay for non 3ds with active status
+    public function test_handle_autoPayment_3ds_card()
+    {
+        $stripePaymentDetails = (object) ['payment_intent_id' => 'pm_1OyTcJI0SyY30M2QznXTOvZH'];
+
+        $productDetails = (object) ['name' => 'Sample Product'];
+        $unitCost = 50;
+        $currency = 'INR';
+        $plan = (object) ['days' => 30];
+        $expectedArguments = ['id' => 'sub_1OyXYHI0SyY30M2QDkWSfCb2',
+            'object' => 'subscription', ];
+        $status = 'active';
+        $stripeClientConstructorMock = $this->setupStripeClientMock($expectedArguments, $status);
+        $this->SetAuthUser();
+        $controller = new SettingsController($stripeClientConstructorMock);
+        $response = $controller->handleStripeAutoPay($stripePaymentDetails, $productDetails, $unitCost, $currency, $plan);
+        $this->assertEquals($status, $response->status);
+    }
 
     //Testcase for handle razorpay api for subscription
     public function test_handleRzpAutoPay_correctly()
