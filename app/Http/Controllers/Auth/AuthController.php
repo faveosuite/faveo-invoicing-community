@@ -309,7 +309,7 @@ class AuthController extends BaseAuthController
 
             $user->save();
 
-            if (! \Auth::check() && StatusSetting::first()->value('emailverification_status') !== 1) {
+            if (! \Auth::check() && $this->userNeedVerified($user)) {
                 //dispatch the job to add user to external services
                 AddUserToExternalService::dispatch($user);
 
@@ -362,7 +362,7 @@ class AuthController extends BaseAuthController
 
             AddUserToExternalService::dispatch($user);
 
-            if (! \Auth::check() && StatusSetting::first()->value('emailverification_status') === 1) {
+            if (! \Auth::check() && $this->userNeedVerified($user)) {
                 \Session::flash('success', __('message.registration_complete'));
             }
 
@@ -548,5 +548,16 @@ class AuthController extends BaseAuthController
             'skip_zoho' => $skipZoho,
             'skip_mailchimp' => $skipMailchimp,
         ]);
+    }
+
+    private function userNeedVerified($user)
+    {
+        $setting = StatusSetting::first(['emailverification_status', 'msg91_status']);
+
+        return !(
+            ($setting->emailverification_status && !$user->email_verified) ||
+            ($setting->msg91_status && !$user->mobile_verified) ||
+            !$user->active
+        );
     }
 }
