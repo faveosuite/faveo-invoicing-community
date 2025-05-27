@@ -2619,4 +2619,9 @@ return [
     'new_code_generated' => '新的恢復碼已成功生成。',
     'please_enter_code' => '請輸入驗證碼。',
     '2fa_verifying' => '正在驗證...',
+    'enable_verification' => '啟用驗證',
+    'preferred_verification' => '偏好驗證方式',
+    'email_first' => '優先使用電子郵件',
+    'mobile_first' => '優先使用手機',
+    'contact_setting_update' => '聯絡設定已成功更新',
 ];

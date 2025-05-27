@@ -2646,6 +2646,11 @@ return [
     'allowed_estatus' => 'Status Email yang Diizinkan',
     'file_not_upload' => '(file tidak dapat diunggah: ',
     'completed' => 'Selesai',
+    'enable_verification' => 'Aktifkan Verifikasi',
+    'preferred_verification' => 'Verifikasi yang Disukai',
+    'email_first' => 'Email Terlebih Dahulu',
+    'mobile_first' => 'Ponsel Terlebih Dahulu',
+    'contact_setting_update' => 'Pengaturan kontak berhasil diperbarui',
 
     'user-suspend-successfully' => 'Pengguna Ditangguhkan Berhasil',
     'incorrect_password' => 'Kata sandi salah. Silakan coba lagi.',

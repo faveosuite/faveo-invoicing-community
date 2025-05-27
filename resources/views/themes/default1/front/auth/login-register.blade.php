@@ -199,7 +199,7 @@ foreach($scripts as $script) {
 
                             <div class="form-group col">
 
-                                <button type="submit" class="btn btn-dark btn-modern w-100 text-uppercase font-weight-bold text-3 py-3" data-loading-text="{{ __('message.loading') }}">{{ __('message.login')}}</button>
+                                <button type="submit" id="login-btn" class="btn btn-dark btn-modern w-100 text-uppercase font-weight-bold text-3 py-3" data-loading-text="{{ __('message.loading') }}">{{ __('message.login')}}</button>
                                 @if($google_status == 1 || $twitter_status == 1 || $github_status == 1 ||$linkedin_status == 1)
 
                                 <div class="divider">

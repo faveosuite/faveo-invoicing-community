@@ -2653,6 +2653,11 @@ return [
     'allowed_estatus' => 'Trạng thái email được phép',
     'file_not_upload' => '(không thể tải tệp lên: ',
     'completed' => 'Hoàn thành',
+    'enable_verification' => 'Bật xác minh',
+    'preferred_verification' => 'Phương thức xác minh ưu tiên',
+    'email_first' => 'Ưu tiên email',
+    'mobile_first' => 'Ưu tiên điện thoại',
+    'contact_setting_update' => 'Cài đặt liên hệ đã được cập nhật thành công',
 
     'user-suspend-successfully' => 'Người dùng đã bị đình chỉ thành công',
     'incorrect_password' => 'Mật khẩu không chính xác. Vui lòng thử lại.',

@@ -662,6 +662,7 @@
     <script src="{{asset('admin/plugins/jquery-file-upload/jquery.iframe-transport.js')}}"></script>
     <script src="{{asset('admin/plugins/jquery-file-upload/resumable.js')}}"></script>
     <script src="{{asset('admin/plugins-1/bootstrap-switch.min.js')}}"></script>
+    <script src="{{ asset('common/js/helper.js') }}"></script>
 
     <script>
 

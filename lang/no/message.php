@@ -2664,4 +2664,9 @@ return [
     'new_code_generated' => 'Ny gjenopprettingskode generert.',
     'please_enter_code' => 'Vennligst skriv inn koden',
     '2fa_verifying' => 'Verifiserer...',
+    'enable_verification' => 'Aktiver verifisering',
+    'preferred_verification' => 'Foretrukket verifisering',
+    'email_first' => 'E-post først',
+    'mobile_first' => 'Mobil først',
+    'contact_setting_update' => 'Kontaktinnstillinger ble oppdatert',
 ];

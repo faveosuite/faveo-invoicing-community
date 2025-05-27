@@ -2661,4 +2661,9 @@ return [
     'new_code_generated' => 'Новый код восстановления успешно сгенерирован.',
     'please_enter_code' => 'Пожалуйста, введите код',
     '2fa_verifying' => 'Проверка...',
+    'enable_verification' => 'Включить проверку',
+    'preferred_verification' => 'Предпочтительный способ проверки',
+    'email_first' => 'Сначала электронная почта',
+    'mobile_first' => 'Сначала мобильный',
+    'contact_setting_update' => 'Настройки контактов успешно обновлены',
 ];

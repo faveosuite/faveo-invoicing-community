@@ -2659,4 +2659,9 @@ return [
     'new_code_generated' => 'Nuevo código de recuperación generado con éxito.',
     'please_enter_code' => 'Por favor, introduce el código.',
     '2fa_verifying' => 'Verificando...',
+    'enable_verification' => 'Habilitar verificaciones',
+    'preferred_verification' => 'Verificación preferida',
+    'email_first' => 'Correo electrónico primero',
+    'mobile_first' => 'Móvil primero',
+    'contact_setting_update' => 'Configuración de contacto actualizada con éxito',
 ];

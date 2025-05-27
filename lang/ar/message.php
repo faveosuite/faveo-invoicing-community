@@ -2463,6 +2463,11 @@ return [
     'please_enter_code' => 'يرجى إدخال الرمز',
     '2fa_verifying' => 'جارٍ التحقق...',
     'renew_your_order' => 'قم بتجديد طلبك',
+    'enable_verification' => 'تفعيل التحققات',
+    'preferred_verification' => 'طريقة التحقق المفضلة',
+    'email_first' => 'البريد الإلكتروني أولاً',
+    'mobile_first' => 'رقم الجوال أولاً',
+    'contact_setting_update' => 'تم تحديث إعدادات الاتصال بنجاح',
 
     // Arabic
     'reoon' => 'ريون',

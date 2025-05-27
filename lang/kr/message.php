@@ -2679,4 +2679,9 @@ return [
     'new_code_generated' => '새 복구 코드가 성공적으로 생성되었습니다.',
     'please_enter_code' => '코드를 입력하세요.',
     '2fa_verifying' => '확인 중...',
+    'enable_verification' => '인증 활성화',
+    'preferred_verification' => '선호하는 인증 방법',
+    'email_first' => '이메일 우선',
+    'mobile_first' => '모바일 우선',
+    'contact_setting_update' => '연락처 설정이 성공적으로 업데이트되었습니다',
 ];

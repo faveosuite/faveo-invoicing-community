@@ -145,4 +145,38 @@ class SettingsControllerTest extends DBTestCase
         $this->assertEquals(false, $content['success']);
         $this->assertEquals('Please enter a valid Reoon Api key.', $content['message']);
     }
+    public function test_post_contact_option_successfully_updates_settings()
+    {
+        $this->getLoggedInUser('admin');
+        $this->withoutMiddleware();
+        $statusSetting = StatusSetting::first();
+        $apiKey = ApiKey::first();
+
+        $payload = [
+            'email_enabled' => 1,
+            'mobile_enabled' => 0,
+            'preferred_verification' => 'email',
+        ];
+
+        // Act
+        $response = $this->postJson('verificationSettings', $payload);
+
+        // Assert
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'message' => __('message.contact_setting_update'),
+            ]);
+
+        $this->assertDatabaseHas('status_settings', [
+            'id' => $statusSetting->id,
+            'emailverification_status' => 1,
+            'msg91_status' => 0,
+        ]);
+
+        $this->assertDatabaseHas('api_keys', [
+            'id' => $apiKey->id,
+            'verification_preference' => 'email',
+        ]);
+    }
 }
