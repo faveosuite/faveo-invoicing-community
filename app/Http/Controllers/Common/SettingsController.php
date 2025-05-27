@@ -1037,7 +1037,24 @@ class SettingsController extends BaseSettingsController
     {
         $mailSendingStatus = Setting::value('sending_status');
         $emailStatus = StatusSetting::pluck('emailverification_status')->first();
+        $mobileStatus = StatusSetting::pluck('msg91_status')->first();
+        $preferred_verification = ApiKey::pluck('verification_preference')->first();
 
-        return view('themes.default1.common.setting.contact-options', compact('mailSendingStatus', 'emailStatus'));
+        return view('themes.default1.common.setting.contact-options', compact('mailSendingStatus', 'emailStatus', 'mobileStatus', 'preferred_verification'));
+    }
+
+    public function postContactOption(Request $request)
+    {
+        $data = $request->only(['email_enabled', 'mobile_enabled', 'preferred_verification']);
+
+        StatusSetting::query()->first()?->update([
+            'emailverification_status' => $data['email_enabled'],
+            'msg91_status' => $data['mobile_enabled'],
+        ]);
+        ApiKey::query()->first()?->update([
+            'verification_preference' => $data['preferred_verification'] ?? null,
+        ]);
+
+        return successResponse('Contact Settings Updated Successfully');
     }
 }

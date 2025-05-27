@@ -177,6 +177,7 @@ Route::middleware('installAgora')->group(function () {
 
     //contact-option
     Route::get('contact-option', [Common\SettingsController::class, 'contactOption'])->name('contact-option');
+    Route::post('verificationSettings', [Common\SettingsController::class, 'postContactOption']);
 
     /*
      * Profile Process

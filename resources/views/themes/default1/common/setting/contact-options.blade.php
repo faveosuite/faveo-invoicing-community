@@ -3,90 +3,6 @@
     {{ __('message.contact-options') }}
 @stop
 @section('content-header')
-    <style>
-        .col-2, .col-lg-2, .col-lg-4, .col-md-2, .col-md-4,.col-sm-2 {
-            width: 0px;
-        }
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 60px;
-            height: 34px;
-        }
-
-        .switch input {display:none;}
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            -webkit-transition: .4s;
-            transition: .4s;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 26px;
-            width: 26px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            -webkit-transition: .4s;
-            transition: .4s;
-        }
-
-        input:checked + .slider {
-            background-color: #2196F3;
-        }
-
-        input:focus + .slider {
-            box-shadow: 0 0 1px #2196F3;
-        }
-
-        input:checked + .slider:before {
-            -webkit-transform: translateX(26px);
-            -ms-transform: translateX(26px);
-            transform: translateX(26px);
-        }
-
-        /* Rounded sliders */
-        .slider.round {
-            border-radius: 34px;
-        }
-
-        .slider.round:before {
-            border-radius: 50%;
-        }
-        .scrollit {
-            overflow:scroll;
-            height:600px;
-        }
-        .error-border {
-            border-color: red;
-        }
-
-        .custom-tooltip {
-            font-size: 1.2rem; /* Adjust size to match h3 */
-            margin-top: 3px;  /* Align with heading */
-        }
-        .tooltip-inner {
-            background-color: black !important; /* Dark background */
-            color: white !important;         /* Yellow text */
-            font-size: 14px !important;        /* Change font size */
-            font-weight: bold !important;      /* Bold text */
-            font-family: Arial, sans-serif !important; /* Custom font */
-            text-align: center !important;     /* Center align */
-            padding: 10px 15px !important;     /* Adjust padding */
-            border-radius: 5px !important;     /* Rounded corners */
-            max-width: 250px !important;       /* Set max width */
-            white-space: normal !important;    /* Allow text wrapping */
-        }
-    </style>
     <div class="col-sm-6 md-6">
         <h1>{{ __('message.contact_options') }}</h1>
     </div>
@@ -101,115 +17,120 @@
 
 
 @section('content')
-
-
-    <div class="card card-secondary card-outline" >
-
-        <!-- /.box-header -->
+    <div id="alertContainer"></div>
+    <div class="card card-secondary card-outline">
+        <div class="card-header">
+            <h3 class="card-title">Settings</h3>
+        </div>
+        <!-- /.card-header -->
+        <!-- form start -->
+        {!! html()->form()->id('verification-form')->open() !!}
         <div class="card-body">
-            <div id="alertMessage"></div>
+                <!-- Email & Mobile Toggles on the Same Row -->
+                <div class="form-group row">
+                    <label class="col-sm-4 col-form-label">Enable Verifications</label>
+                    <div class="col-sm-4 d-flex align-items-center">
+                        <div class="custom-control custom-switch mr-3">
+                            {!! html()->checkbox('email_enabled')->checked($emailStatus)->value(1)->id('email_enabled')->class('custom-control-input') !!}
+                            <label class="custom-control-label" for="email_enabled">Email</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-4 d-flex align-items-center">
+                        <div class="custom-control custom-switch">
+                            {!! html()->checkbox('mobile_enabled')->checked($mobileStatus)->value(1)->id('mobile_enabled')->class('custom-control-input') !!}
+                            <label class="custom-control-label" for="mobile_enabled">Mobile</label>
+                        </div>
+                    </div>
+                </div>
 
-            <div class="d-flex align-items-center">
-                <h4 class="mb-0 me-2">{{ __('message.allow_login_only_user_verified') }}</h4>
-                <i class="fas fa-question-circle  custom-tooltip" data-toggle="tooltip" data-placement="top" style="margin-left: 7px" title="{{Lang::get('message.verify_email_tooltip')}}"></i>
+                <!-- Preference Dropdown (Initially Visible or Hidden) -->
+                <div class="form-group row" id="preference_group">
+                    <label for="preferred_verification" class="col-sm-4 col-form-label">Preferred Verification</label>
+                    <div class="col-sm-8">
+                        {!! html()->select('preferred_verification')->options(['' => 'Select Preference','email' => 'Email First','mobile' => 'Mobile First',])->class('form-control')->id('preferred_verification')->value($preferred_verification) !!}
+                    </div>
+                </div>
             </div>
-            <div class="form-check mt-2">
-                <input type="checkbox" class="form-check-input checkbox5" id="email" value="{{$emailStatus}}" name="email_settings">
-                <label class="form-check-label" for="email_set">{{ __('message.verified_email') }}</label>
+
+            <!-- /.card-body -->
+
+            <div class="card-footer">
+                <button type="submit" class="btn btn-primary pull-right" id="contact-form-option"
+                        data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving...">
+                    <i class="fa fa-save">&nbsp;&nbsp;</i>{{ trans('message.save') }}
+                </button>
             </div>
+        {!! html()->form()->close() !!}
     </div>
-    </div>
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.0.3/css/buttons.dataTables.min.css">
-    <script src="https://cdn.datatables.net/buttons/1.0.3/js/dataTables.buttons.min.js"></script>
-
-    <script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
 
 
     <script>
         $(document).ready(function () {
             $('[data-toggle="tooltip"]').tooltip();
 
-            // Force tooltip to update styles after rendering
-            $('[data-toggle="tooltip"]').on('shown.bs.tooltip', function () {
-                $('.tooltip-inner').css({
-                    'background-color': '#222',
-                    'color': '#ffcc00',
-                    'font-size': '14px',
-                    'font-weight': 'bold',
-                    'border-radius': '8px',
-                    'padding': '10px 15px'
+            function updatePreferredDropdown() {
+                let emailEnabled = $('#email_enabled').is(':checked');
+                let mobileEnabled = $('#mobile_enabled').is(':checked');
+                let $dropdown = $('select[name="preferred_verification"]');
+                if (emailEnabled && mobileEnabled) {
+                    $dropdown.prop('disabled', false);
+                } else {
+                    $dropdown.prop('disabled', true);
+
+                    if (emailEnabled) {
+                        $dropdown.val('email');
+                    } else if (mobileEnabled) {
+                        $dropdown.val('mobile');
+                    } else {
+                        $dropdown.val('');
+                    }
+                }
+            }
+
+            // Call once on load
+            updatePreferredDropdown();
+
+            // Bind change events
+            $('#email_enabled, #mobile_enabled').change(updatePreferredDropdown);
+
+            // Form submit handler
+            $('#verification-form').submit(function (e) {
+                e.preventDefault(); // Prevent default form submission
+                const submitButton = $('#contact-form-option');
+
+                $.ajax({
+                    url: "{{ url('verificationSettings') }}",
+                    type: 'POST',
+                    data: {
+                        email_enabled: $('#email_enabled').is(':checked') ? 1 : 0,
+                        mobile_enabled: $('#mobile_enabled').is(':checked') ? 1 : 0,
+                        preferred_verification: $('#preferred_verification').val(),
+                    },
+                    beforeSend: function () {
+                        submitButton.prop('disabled', true).html(submitButton.data('loading-text'));
+                    },
+                    success: function (response) {
+                        helper.showAlert({
+                            id: 'my-alert',
+                            message: response.message,
+                            type: 'success',
+                            autoDismiss: 5000,
+                            containerSelector: '#alertContainer',
+                        });
+                    },
+                    error: function (xhr) {
+                        helper.showAlert({
+                            id: 'my-alert',
+                            message: 'Error Occurred: ' + xhr.responseJSON.message,
+                            type: 'error',
+                            autoDismiss: 5000,
+                            containerSelector: '#alertContainer',
+                        });
+                    },
+                    complete: function () {
+                        submitButton.prop('disabled', false).html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ trans('message.save') }}");
+                    }
                 });
-
-                $('.tooltip-arrow').css({
-                    'border-top-color': '#222',
-                    'border-bottom-color': '#222',
-                    'border-left-color': '#222',
-                    'border-right-color': '#222'
-                });
-            });
-        });
-
-        $(document).ready(function(){
-            var status = $('.checkbox5').val();
-            if(status ==1) {
-                $('#email').prop('checked', true);
-            }
-        });
-        document.getElementById("email").addEventListener("change", function() {
-            if (this.checked) {
-                var emailstatus = 1;
-            } else {
-                var emailstatus = 0;
-            }
-
-            $.ajax ({
-                url: '{{url("updateemailDetails")}}',
-                type : 'post',
-                data: {
-                    "status": emailstatus,
-                },
-                success: function (data) {
-                    setTimeout(function() {
-                        location.reload();
-                    }, 3000);
-                    $('#alertMessage').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+data.update+'.</div>';
-                    $('#alertMessage').html(result);
-                    $("#submit4").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save')}}");
-                    setInterval(function(){
-                        $('#alertMessage').slideUp(1000);
-                    }, 4000);
-                },
-            });
-        });
-        $("#submit4").on('click',function (){ //When Submit button is checked
-            if ($('#email').prop('checked')) {//if button is on
-                var emailstatus = 1;
-            } else {
-                var emailstatus = 0;
-            }
-            $("#submit4").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
-            $.ajax ({
-                url: '{{url("updateemailDetails")}}',
-                type : 'post',
-                data: {
-                    "status": emailstatus,
-                },
-                success: function (data) {
-                    setTimeout(function() {
-                        location.reload();
-                    }, 3000);
-                    $('#alertMessage').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+data.update+'.</div>';
-                    $('#alertMessage').html(result);
-                    $("#submit4").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save')}}");
-                    setInterval(function(){
-                        $('#alertMessage').slideUp(1000);
-                    }, 4000);
-                },
             });
         });
     </script>

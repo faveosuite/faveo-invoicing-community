@@ -52,7 +52,6 @@ class AuthController extends BaseAuthController
         $this->middleware('guest', ['except' => 'getLogout']);
         $license = new LicenseController();
         $this->licensing = $license;
-        $this->pipedrive = new PipedriveController();
     }
 
     public function activate($token, AccountActivate $activate, Request $request, User $user)
@@ -520,15 +519,30 @@ class AuthController extends BaseAuthController
 
     public function verify()
     {
-        $user = \Session::get('user');
-        if ($user) {
-            $eid = Crypt::encrypt($user->email);
-            $setting = StatusSetting::first(['recaptcha_status', 'v3_recaptcha_status', 'emailverification_status', 'msg91_status', 'v3_v2_recaptcha_status']);
-
-            return view('themes.default1.user.verify', compact('user', 'eid', 'setting'));
+        $sessionUser = \Session::get('user');
+        if (! $sessionUser) {
+            return redirect('login');
         }
 
-        return redirect('login');
+        $user = User::find($sessionUser->id);
+        $eid = Crypt::encrypt($user->email);
+
+        $setting = StatusSetting::select(
+            'recaptcha_status',
+            'v3_recaptcha_status',
+            'emailverification_status',
+            'msg91_status',
+            'v3_v2_recaptcha_status'
+        )->first();
+
+        $isMobileVerified = ! ($setting->msg91_status == 1 && $user->mobile_verified != 1);
+        $isEmailVerified = ! ($setting->emailverification_status == 1 && $user->email_verified != 1);
+
+        $verification_preference = ApiKey::value('verification_preference') ?? ($isEmailVerified ? 'email' : 'mobile');
+
+        return view('themes.default1.user.verify', compact(
+            'user', 'eid', 'setting', 'isMobileVerified', 'isEmailVerified', 'verification_preference'
+        ));
     }
 
     public function addUserToExternalServices($user, $options = [])
@@ -537,7 +551,7 @@ class AuthController extends BaseAuthController
             $status = StatusSetting::select('mailchimp_status', 'pipedrive_status', 'zoho_status')->first();
 
             if (! ($options['skip_pipedrive'] ?? false)) {
-                $this->pipedrive->addUserToPipedrive($user);
+                (new PipedriveController())->addUserToPipedrive($user);
             }
 
             if (! ($options['skip_zoho'] ?? false)) {
