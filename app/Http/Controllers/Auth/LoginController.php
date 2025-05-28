@@ -50,6 +50,15 @@ class LoginController extends Controller
         $this->middleware('guest')->except(['logout', 'store-basic-details']);
     }
 
+
+    /**
+     * This function returns to the login page.
+     *
+     * @param
+     * @param
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     * @throws
+     */
     public function showLoginForm()
     {
         try {
@@ -71,6 +80,15 @@ class LoginController extends Controller
         }
     }
 
+
+    /**
+     * This function performs login operations checks the validates email,password and redirects 2fa status of the user.
+     *
+     * @param Request $request
+     * @param
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws
+     */
     public function login(Request $request)
     {
         $this->validate($request, [
@@ -158,7 +176,16 @@ class LoginController extends Controller
         return $sessionUrl ?: $defaultPath;
     }
 
-    public function redirectToGithub($provider)//redirect to twitter ,github,google and linkedin
+
+    /**
+     * This function redirects to the social login based on the provider(twitter,gitHub).
+     *
+     * @param $provider
+     * @param
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws
+     */
+    public function redirectToGithub($provider)
     {
         $details = SocialLogin::where('type', $provider)->first();
 
@@ -169,6 +196,14 @@ class LoginController extends Controller
         return Socialite::driver($provider)->redirect();
     }
 
+    /**
+     * This function performs the whole social login operations(creating new user, if existing user just logging in).
+     *
+     * @param $provider
+     * @param
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws
+     */
     public function handler($provider)
     {
         $details = SocialLogin::where('type', $provider)->first();
@@ -231,7 +266,14 @@ class LoginController extends Controller
         }
     }
 
-    //stores basic details for social logins
+    /**
+     * This function stores basic details for social logins.
+     *
+     * @param Request $request
+     * @param
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws
+     */
     public function storeBasicDetailsss(Request $request)
     {
         try {
@@ -250,6 +292,15 @@ class LoginController extends Controller
             Session::flash('error', 'Please Enter the Details');
         }
     }
+
+    /**
+     * This function performs operation on cart after logging in(scenario:when we add products to the cart before logging in, to convert it for the logged-in user).
+     *
+     * @param
+     * @param
+     *
+     * @throws
+     */
 
     private function convertCart()
     {
@@ -273,6 +324,14 @@ class LoginController extends Controller
         Session::forget('toggleState');
     }
 
+    /**
+     * This function is used to check if the users number and email verified or not.
+     *
+     * @param $user
+     * @param
+     * @return bool
+     * @throws
+     */
     private function userNeedVerified($user)
     {
         $setting = StatusSetting::first(['emailverification_status', 'msg91_status']);

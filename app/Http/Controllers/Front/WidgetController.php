@@ -211,6 +211,15 @@ class WidgetController extends Controller
         }
     }
 
+
+    /**
+     * This function returns the rendered widget.
+     *
+     * @param
+     * @param
+     * @return \HTTP
+     * @throws
+     */
     public function footer1(){
 
         $set = new \App\Model\Common\Setting();
@@ -229,7 +238,15 @@ class WidgetController extends Controller
         return successResponse('success', $data);
     }
 
-
+    /**
+     * This function renders the footer widget.
+     *
+     * @param $widget
+     * @param $set
+     * @param $social
+     * @param $mailchimpKey
+     * @return string
+     */
     function renderWidget($widget, $set, $social, $mailchimpKey)
                 {
                     $tweetDetails = $widget->allow_tweets == 1 ? '<div id="tweets" class="twitter"></div>' : '';

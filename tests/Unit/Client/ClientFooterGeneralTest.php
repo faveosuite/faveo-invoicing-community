@@ -5,7 +5,9 @@ namespace Tests\Unit\Client;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\FreeTrailController;
 use App\Http\Controllers\Tenancy\TenantController;
+use App\Model\Common\CreditActivity;
 use App\Model\Common\FaveoCloud;
+use App\Model\Common\StatesSubdivisions;
 use App\Model\Order\Invoice;
 use App\Model\Payment\Plan;
 use App\Model\Product\CloudProducts;
@@ -149,7 +151,6 @@ class ClientFooterGeneralTest extends DBTestCase
         $this->assertEquals($content['status'],'false');
         $this->assertEquals($content['message'],'It has come to our notice that you have crossed the free trial limit, please delete your existing instances to proceed further.');
     }
-
 
 
 }

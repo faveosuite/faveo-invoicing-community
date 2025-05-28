@@ -613,7 +613,7 @@ class CloudExtraActivities extends Controller
         } else {
             $discount = $priceRemaining - $priceToBePaid;
             \Session::put('nothingLeft','0');
-            \DB::table('users')->where('id', \Auth::user()->id)->update(['billing_pay_balance' => 1]);
+            User::where('id', \Auth::user()->id)->update(['billing_pay_balance' => 1]);
             \Session::put('discount', round($discount));
             $price = $priceToBePaid;
         }

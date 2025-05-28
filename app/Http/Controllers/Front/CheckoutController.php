@@ -6,6 +6,7 @@ use App\Http\Controllers\Common\MailChimpController;
 use App\Http\Controllers\Common\TemplateController;
 use App\Http\Controllers\Order\ExtendedBaseInvoiceController;
 use App\Http\Controllers\Tenancy\TenantController;
+use App\Model\Common\CreditActivity;
 use App\Model\Common\FaveoCloud;
 use App\Model\Common\Setting;
 use App\Model\Common\Template;
@@ -163,8 +164,8 @@ class CheckoutController extends InfoController
             \Session::forget('discount');
             \Session::put('discount', $total);
         }
-            $amt_to_credit = \DB::table('payments')
-                ->where('user_id', \Auth::user()->id)
+
+            $amt_to_credit= Payment::where('user_id', \Auth::user()->id)
                 ->where('payment_method','Credit Balance')
                 ->where('payment_status','success')
                 ->where('amt_to_credit','!=',0)
@@ -180,8 +181,7 @@ class CheckoutController extends InfoController
                 }
             }
 
-            \DB::table('users')->where('id', \Auth::user()->id)->update(['billing_pay_balance'=>0]);
-
+            User::where('id', \Auth::user()->id)->update(['billing_pay_balance'=>0]);
 
             return view('themes.default1.front.checkout', compact('content', 'taxConditions', 'discountPrice', 'domain','amt_to_credit','curr'));
         } catch (\Exception $ex) {
@@ -283,7 +283,7 @@ class CheckoutController extends InfoController
         $discount=\Session::get('discount');
 
         if (\Session::has('nothingLeft')) {
-            \DB::table('users')->where('id', \Auth::user()->id)->update(['billing_pay_balance'=>1]);
+            User::where('id', \Auth::user()->id)->update(['billing_pay_balance'=>1]);
             $isTrue = \Session::get('nothingLeft');
         }
 
@@ -414,10 +414,11 @@ class CheckoutController extends InfoController
      * @throws
      */
     private function updateCredit($discount){
-        $payUpdate = \DB::table('payments')->where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->get();
-        $pay = \DB::table('payments')->where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('amt_to_credit');
+        $payUpdate = Payment::where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->get();
+
+        $pay = Payment::where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('amt_to_credit');
         $formattedValue = currencyFormat(round($discount), getCurrencyForClient(\Auth::user()->country), true);
-        $payment_id = \DB::table('payments')->where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('id');
+        $payment_id = Payment::where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('id');
         $formattedPay = currencyFormat($pay, getCurrencyForClient(\Auth::user()->country), true);
         $orderId=\Session::get('creditOrderId');
         $orderNumber = Order::where('id', $orderId)->value('number');
@@ -431,8 +432,8 @@ class CheckoutController extends InfoController
 
             $messageClient = 'An amount of ' . $formattedValue . ' has been added to your existing balance due to a product downgrade. You can view the details of the downgraded order here: ' .
                 '<a href="' . config('app.url') . '/my-order/' . $orderId . '">' . $orderNumber . '</a>.';
-            \DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageAdmin, 'role' => 'admin', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
-            \DB::table('credit_activity')->insert(['payment_id' => $payment_id, 'text' => $messageClient, 'role' => 'user', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
+            CreditActivity::insert(['payment_id' => $payment_id, 'text' => $messageAdmin, 'role' => 'admin', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
+            CreditActivity::insert(['payment_id' => $payment_id, 'text' => $messageClient, 'role' => 'user', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
         } else {
             $price = 0;
             \Session::put('discount', round($discount));
