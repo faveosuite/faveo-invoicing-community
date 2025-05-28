@@ -37,7 +37,8 @@ class ProfileRequest extends Request
                 'user_name' => 'required|unique:users,user_name,'.$userid,
                 'timezone_id' => 'required',
                 'profile_pic' => 'sometimes|mimes:jpeg,png,jpg|max:2048',
-
+                'country'=>'required',
+                'state'=>'required',
             ];
         }
 
@@ -52,6 +53,7 @@ class ProfileRequest extends Request
                 'company' => 'required|max:50',
                 'address' => 'required',
                 'country' => 'required|exists:countries,country_code_char2',
+                'state' => 'required_if:country,IN',
                 'profile_pic' => 'sometimes|mimes:jpeg,png,jpg|max:2048',
 
             ];
@@ -74,8 +76,7 @@ class ProfileRequest extends Request
                 'last_name' => 'required|max:30',
                 'email' => 'required|email|unique:users',
                 'company' => 'required|max:50',
-                'mobile' => 'required|regex:/[0-9]/|min:5|max:20',
-                'mobile_code'=>'required',
+                'mobile' => 'required',
                 'address' => 'required',
                 'terms' => 'sometimes',
                 'password' => [

@@ -12,6 +12,7 @@ use Exception;
 use Facades\Spatie\Referer\Referer;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\Mime\Email;
@@ -57,6 +58,9 @@ class RegisterController extends Controller
      */
     public function postRegister(ProfileRequest $request, User $user)
     {
+        Log::info('request-data', (array)$request->all());
+        Log::info('request-headers', (array)$request->headers->all());
+
         $this->validate($request, [
             'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation()],
         ]);
