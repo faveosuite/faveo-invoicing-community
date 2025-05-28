@@ -24,7 +24,7 @@ class ClientControllerTest extends DBTestCase
         parent::setUp();
         $this->classObject = new ClientController();
     }
-
+    #[Group('User')]
     public function test_getBaseQueryForUserSearch_whenCountryIsPresentInTheRequest_filtersResultByThatCountry()
     {
         $request = new Request(['country' => 'US']);
@@ -35,7 +35,7 @@ class ClientControllerTest extends DBTestCase
         $this->assertEquals(1, $users->count());
         $this->assertEquals('UNITED STATES', $users->first()->country);
     }
-
+    #[Group('User')]
     public function test_getBaseQueryForUserSearch_whenIndustryIsPresentInTheRequest_filtersResultByThatIndustry()
     {
         $request = new Request(['industry' => 'testOne']);
@@ -46,7 +46,7 @@ class ClientControllerTest extends DBTestCase
         $this->assertEquals(1, $users->count());
         $this->assertEquals($userOne->id, $users->first()->id);
     }
-
+    #[Group('User')]
     public function test_getBaseQueryForUserSearch_whenRoleIsPresentInTheRequest_filtersResultByThatRole()
     {
         $request = new Request(['role' => 'user']);
@@ -57,7 +57,7 @@ class ClientControllerTest extends DBTestCase
         $this->assertEquals(1, $users->count());
         $this->assertEquals($userOne->id, $users->first()->id);
     }
-
+    #[Group('User')]
     public function test_getBaseQueryForUserSearch_whenPositionIsPresentInTheRequest_filtersResultByThatPosition()
     {
         $request = new Request(['position' => 'positionOne']);
@@ -68,7 +68,7 @@ class ClientControllerTest extends DBTestCase
         $this->assertEquals(1, $users->count());
         $this->assertEquals($userOne->id, $users->first()->id);
     }
-
+    #[Group('User')]
     public function test_getBaseQueryForUserSearch_whenAccountManagerIsPresentInTheRequest_filtersResultByThatAccountManager()
     {
         $managerOneId = User::factory()->create()->id;
@@ -81,7 +81,7 @@ class ClientControllerTest extends DBTestCase
         $this->assertEquals(1, $users->count());
         $this->assertEquals($userOne->id, $users->first()->id);
     }
-
+    #[Group('User')]
     public function test_getBaseQueryForUserSearch_whenSalesManagerIsPresentInTheRequest_filtersResultByThatSalesManager()
     {
         $managerOneId = User::factory()->create()->id;
@@ -94,7 +94,7 @@ class ClientControllerTest extends DBTestCase
         $this->assertEquals(1, $users->count());
         $this->assertEquals($userOne->id, $users->first()->id);
     }
-
+    #[Group('User')]
     public function test_getBaseQueryForUserSearch_GivesPhoneNumberFormattedWithCountryCode()
     {
         $request = new Request(['country' => 'US']);
@@ -103,7 +103,7 @@ class ClientControllerTest extends DBTestCase
         $users = $methodResponse->get();
         $this->assertEquals('+1 9087654321', $users->first()->mobile);
     }
-
+    #[Group('User')]
     public function test_getBaseQueryForUserSearch_whenMobilestatusIsPresentInTheRequest_filtersResultByThatMobilestatus()
     {
         $request = new Request(['mobile_verified' => 1]);
@@ -123,7 +123,7 @@ class ClientControllerTest extends DBTestCase
         $firstUser = $users->first();
         $this->assertTrue($firstUser->active == 1);
     }
-
+    #[Group('User')]
     public function test_getBaseQueryForUserSearch_when2FAstatusIsPresentInTheRequest_filtersResultByThat2FAstatus()
     {
         $request = new Request(['is_2fa_enabled' => 0]);
@@ -133,7 +133,7 @@ class ClientControllerTest extends DBTestCase
         $firstUser = $users->first();
         $this->assertTrue($firstUser->is_2fa_enabled == 0);
     }
-
+    #[Group('User')]
     public function test_Admin_error_when_address_is_not_present()
     {
         $admin = User::factory()->create(['role' => 'admin']);
@@ -165,7 +165,7 @@ class ClientControllerTest extends DBTestCase
         $response->assertStatus(302);
         $response->assertJsonValidationErrors('The address field is required');
     }
-
+    #[Group('User')]
     public function test_when_admin_user_creation_successFull(){
         $admin = User::factory()->create(['role' => 'admin']);
         $this->actingAs($admin);
@@ -196,7 +196,7 @@ class ClientControllerTest extends DBTestCase
         $response->assertSessionHas('success','Saved Successfully');
     }
 
-
+    #[Group('User')]
     public function test_admin_when_zip_is_given_wrong(){
         $admin = User::factory()->create(['role' => 'admin']);
         $this->actingAs($admin);
@@ -229,7 +229,7 @@ class ClientControllerTest extends DBTestCase
         $response->assertJsonValidationErrors('he zip/postal code in invalid');
     }
 
-
+    #[Group('User')]
     public function test_add_columns_to_db_successfully()
     {
         $admin = User::factory()->create(['role' => 'admin']);
@@ -241,7 +241,7 @@ class ClientControllerTest extends DBTestCase
         ]);
         $this->assertDatabaseHas('users_link_reports', ['user_id' => $admin->id]);
     }
-
+    #[Group('User')]
     public function test_get_columns_with_user_columns()
     {
         $admin = User::factory()->create(['role' => 'admin']);
@@ -258,7 +258,7 @@ class ClientControllerTest extends DBTestCase
         $response->assertStatus(302);
     }
 
-
+    #[Group('User')]
     public function test_when_editing_user(){
         $admin = User::factory()->create(['role' => 'admin']);
         $this->actingAs($admin);
@@ -292,7 +292,7 @@ class ClientControllerTest extends DBTestCase
         $this->assertTrue($updatedUser->email==='test@test.com');
     }
 
-
+    #[Group('User')]
     public function test_get_active_inactive_label(){
         $mobileActive=1;
         $emailActive=0;
@@ -304,7 +304,7 @@ class ClientControllerTest extends DBTestCase
                             </label></i>&nbsp;&nbsp;<i class='fas fa-qrcode'  style='color:green'  <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title='2FA Enabled'> </label></i>"
                             ,$response);
     }
-
+    #[Group('User')]
     public function test_show_individual_user(){
         $user = User::factory()->create(['role' => 'admin']);
         $this->actingAs($user);
@@ -335,8 +335,34 @@ class ClientControllerTest extends DBTestCase
         $this->assertEquals(50000,$data['amountReceived']);
     }
 
-
-
-
+    #[Group('User')]
+    public function test_get_user_in_table(){
+        $user = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        User::factory(10)->create();
+        $response=$this->call('GET','get-clients');
+        $response->assertStatus(200);
+        $response->assertJsonStructure(['draw','recordsTotal','recordsFiltered','data'=>
+                                                                            ['*'=>['id',
+                                                                                'first_name',
+                                                                                'last_name',
+                                                                                'email',
+                                                                                'mobile',
+                                                                                'name',
+                                                                                'country',
+                                                                                'created_at',
+                                                                                'mobile_verified',
+                                                                                'email_verified',
+                                                                                'is_2fa_enabled',
+                                                                                'role',
+                                                                                'position',
+                                                                                'checkbox',
+                                                                                'company',
+                                                                                'action']
+                                                                            ]
+            ]
+        );
+    }
 
 }
