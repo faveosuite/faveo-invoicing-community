@@ -890,6 +890,7 @@ return [
         'add_valid_lastname' => 'Please enter a valid last name using only letters and spaces.',
         'add_user_name' => 'Please enter a username.',
         'add_country' => 'Please select  a country.',
+        'add_state'=>'Please select a state.',
         'add_timezone' => 'Please select a timezone.',
         'add_mobile' => 'Please enter a mobile number.',
         'add_valid_company' => 'Please enter a valid company name using only letters and spaces.',

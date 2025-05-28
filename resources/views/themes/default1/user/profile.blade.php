@@ -236,6 +236,8 @@ input:checked + .slider:before {
                         @error('country')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
+                        <div class="input-group-append">
+                        </div>
                     </div>
                     <div class="col-md-6 form-group {{ $errors->has('state') ? 'has-error' : '' }}">
                         <!-- name -->
@@ -253,6 +255,8 @@ input:checked + .slider:before {
                         @error('state')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
+                        <div class="input-group-append">
+                        </div>
                     </div>
 
 
@@ -536,6 +540,9 @@ input:checked + .slider:before {
             address:@json(trans('message.user_edit_details.add_address')),
             mobile_code:@json(trans('message.user_edit_details.add_mobile')),
             user_name:@json(trans('message.user_edit_details.add_user_name')),
+            country:@json(trans('message.user_edit_details.add_country')),
+            state:@json(trans('message.user_edit_details.add_state')),
+
         };
 
         $('#submit').on('click', function (e) {
@@ -546,6 +553,8 @@ input:checked + .slider:before {
                 company: $('#company'),
                 address: $('#address'),
                 user_name: $('#user_name'),
+                country:$('#country'),
+                state:$('#state-list'),
             };
 
 
@@ -603,15 +612,12 @@ input:checked + .slider:before {
             };
 
             // Add input event listeners for all fields
-            ['first_name','last_name','email','company','user_name','address','mobile','zip1'].forEach(id => {
+            ['first_name','last_name','email','company','user_name','address','mobile','zip1','country','state-list'].forEach(id => {
                 document.getElementById(id).addEventListener('input', function () {
                     removeErrorMessage(this);
 
             });
         });
-
-
-
 
         function validName(string){
             const nameRegex=/^[A-Za-z][A-Za-z-\s]+$/;
