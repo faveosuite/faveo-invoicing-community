@@ -896,5 +896,12 @@ return [
         'app_key_size' => 'La chiave dell\'app deve essere esattamente di 32 caratteri.',
         'app_secret_required' => 'Il segreto dell\'app è richiesto.',
     ],
+    'plan_request' => [
+        'name_required' => 'Il campo nome è obbligatorio',
+        'product_quant_req' => 'Il campo quantità prodotto è obbligatorio quando il numero di agenti non è presente.',
+        'no_agent_req' => 'Il campo numero di agenti è obbligatorio quando la quantità prodotto non è presente.',
+        'pro_req' => 'Il campo prodotto è obbligatorio',
+        'offer_price' => 'Il prezzo dell\'offerta non deve essere superiore a 100',
+    ],
 
 ];

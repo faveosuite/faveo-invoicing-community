@@ -99,7 +99,7 @@
                             <!-- last name -->
                             {!! html()->label(Lang::get('message.payment-method'))->for('payment_method')->class('required') !!}
                             {!! html()->select('payment_method', [
-                                '' => 'Choose',
+                                '' => __('message.choose'),
                                'cash' => 'Cash',
                                'check' => 'Check',
                                'online payment' => 'Online Payment',
@@ -408,13 +408,13 @@
             // console.log(response)
             var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+response.message+'.</div>';
             $('#alertMessage').html(result+ ".");
-              $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+              $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
           },
           error: function (ex) {
                var errors = ex.responseJSON;
                $('#error1').show();
             var html = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i>{{ __('message.alert') }}! </strong>'+ex.responseJSON.message+' <br><ul>';
-             $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+             $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
             for (var key in ex.responseJSON.errors)
             {
                 html += '<li>' + ex.responseJSON.errors[key][0] + '</li>'

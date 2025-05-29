@@ -1,9 +1,9 @@
 @extends('themes.default1.layouts.front.master')
 @section('title')
-    Razorpay
+    {{ __('message.razorpay') }}
 @stop
 @section('page-heading')
-    Razorpay
+    {{ __('message.razorpay') }}
 @stop
 @section('page-heading')
  {{ __('message.checkout') }}

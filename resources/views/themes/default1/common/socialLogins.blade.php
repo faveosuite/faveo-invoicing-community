@@ -76,11 +76,10 @@
                                     <td>{{$item->type}}</td>
                                     <td>
                                         @if($item->status == 1)
-                                        {{ __('message.active') }}
+                                            <span class="badge bg-success text-white p-2">{{ __('message.active') }}</span>
                                         @else
-                                        {{ __('message.deactive') }}
-                                        @endif
-                                    </td>
+                                            <span class="badge bg-danger text-white p-2">{{ __('message.deactive') }}</span>
+                                    @endif
                                     <td>
                                         <a href="edit/SocialLogins/{{$item->id}}" class="btn btn-secondary a-btn-slide-text">
                                             <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>

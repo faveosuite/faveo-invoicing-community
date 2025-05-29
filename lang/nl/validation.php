@@ -841,5 +841,12 @@ return [
         'app_key_size' => 'App sleutel moet precies 32 tekens zijn.',
         'app_secret_required' => 'App secret is verplicht.',
     ],
+    'plan_request' => [
+        'name_required' => 'Het naamveld is verplicht',
+        'product_quant_req' => 'Het veld producthoeveelheid is verplicht als het aantal agenten niet is ingevuld.',
+        'no_agent_req' => 'Het veld aantal agenten is verplicht als de producthoeveelheid niet is ingevuld.',
+        'pro_req' => 'Het productveld is verplicht',
+        'offer_price' => 'Aanbiedingsprijzen mogen niet hoger zijn dan 100',
+    ],
 
 ];

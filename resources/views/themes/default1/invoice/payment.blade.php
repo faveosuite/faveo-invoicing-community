@@ -71,7 +71,7 @@
                         <!-- payment method -->
                         {!! html()->label(Lang::get('message.payment-method'), 'payment_method') !!}
                         {!! html()->select('payment_method', [
-                            '' => 'Choose',
+                            '' => __('message.choose'),
                             'cash' => 'Cash',
                             'check' => 'Check',
                             'online payment' => 'Online Payment',

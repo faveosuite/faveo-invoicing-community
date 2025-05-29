@@ -51,9 +51,9 @@
                                 <input type="tel" name="mobile_number" id="mobilenum" class="form-control" value="{{ old('mobile_number', request('mobile_number')) }}">
                             </div>
                             <div class="col-md-3 form-group">
-                                <label for="status">Status</label>
+                                <label for="status">{{ __('message.status') }}</label>
                                 <select name="status" class="form-control">
-                                    <option value="">Select Status</option>
+                                    <option value="">{{ __('message.select_status') }}</option>
                                     @foreach($status->unique('status_label') as $value)
                                         <option value="{{ $value->status_label }}"
                                                 {{ request('status') === (string) $value->status_label ? 'selected' : '' }}>
@@ -87,8 +87,8 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-secondary"><i class="fa fa-search"></i> Search</button>
-                        <a href="{{ url()->current() }}" class="btn btn-secondary"><i class="fas fa-sync-alt"></i> Reset</a>
+                        <button type="submit" class="btn btn-secondary"><i class="fa fa-search"></i> {{ __('message.search') }}</button>
+                        <a href="{{ url()->current() }}" class="btn btn-secondary"><i class="fas fa-sync-alt"></i> {{ __('message.reset') }}</a>
                     </form>
                 </div>
             </div>
@@ -141,9 +141,20 @@
                     }
                 },
                 language: {
-                    lengthMenu: "_MENU_ Records per page",
-                    search: "<span style='margin-right: 10px;'>Search:</span>",
-                    processing: '<div class="overlay dataTables_processing"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">Loading...</div></div>'
+                    search: "<span style='margin-right: 10px;'>{{ __('message.table_search') }}</span>",
+                    processing: '<div class="overlay dataTables_processing"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading_records') }}</div></div>',
+                    paginate: {
+                        first:      "{{ __('message.paginate_first') }}",
+                        last:       "{{ __('message.paginate_last') }}",
+                        next:       "{{ __('message.paginate_next') }}",
+                        previous:   "{{ __('message.paginate_previous') }}"
+                    },
+                    emptyTable:     "{{ __('message.empty_table') }}",
+                    info:           "{{ __('message.datatable_info') }}",
+                    zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
+                    infoEmpty:      "{{ __('message.info_empty') }}",
+                    infoFiltered:   "{{ __('message.info_filtered') }}",
+                    lengthMenu:     "{{ __('message.length_menu') }}",
                 },
                 columnDefs: [{
                     targets: 'no-sort',
@@ -234,7 +245,7 @@
             });
 
             $('.dataTables_filter').append(`
-     <button id="refresh-table-btn" class="btn btn-link p-2" data-toggle="tooltip" title="Refresh Table" style="text-decoration: none;">
+     <button id="refresh-table-btn" class="btn btn-link p-2" data-toggle="tooltip" title="{{ __('message.refresh_table') }}" style="text-decoration: none;">
          <i class="fas fa-sync-alt text-secondary" id="refresh-icon" style="font-size: 1.2rem; transition: transform 0.5s ease;"></i>
      </button>
  `);

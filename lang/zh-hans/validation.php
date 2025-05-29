@@ -874,5 +874,12 @@ return [
         'app_key_size' => '应用密钥必须正好为32个字符。',
         'app_secret_required' => '应用密钥是必填的。',
     ],
+    'plan_request' => [
+        'name_required' => '名称字段是必填项',
+        'product_quant_req' => '当未填写代理人数时，产品数量字段是必填项。',
+        'no_agent_req' => '当未填写产品数量时，代理人数字段是必填项。',
+        'pro_req' => '产品字段是必填项',
+        'offer_price' => '优惠价格不能大于 100',
+    ],
 
 ];

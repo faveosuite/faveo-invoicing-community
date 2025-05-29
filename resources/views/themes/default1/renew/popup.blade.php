@@ -139,7 +139,7 @@
 
             @if(in_array($productid, cloudPopupProducts()))
                 userFields.planproduct = agentsField;
-            userRequiredFields.planproduct = @json(trans('message.agents'));
+            userRequiredFields.planproduct = @json(trans('message.agents-error-message'));
             @endif
 
             Object.values(userFields).forEach(field => {

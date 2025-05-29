@@ -97,7 +97,7 @@
                             <input type="text" id="recoverycode" class="form-control" disabled>
                             @component('mini_views.copied_flash_text', [
                            'navigations' => [
-                              ['btnName' => 'rec_code', 'slot' => 'recovery', 'style' => '<span class="input-group-text" id="copyBtn" data-bs-toggle="tooltip" title="Click to copy to clipboard" onclick="copyRecoveryCode()" ><i id="copy_icon_recovery" class="fa fa-clipboard"></i></span>'],
+                              ['btnName' => 'rec_code', 'slot' => 'recovery', 'style' => '<span class="input-group-text" id="copyBtn" data-bs-toggle="tooltip" title="'. __('message.copy_clipboard').'" onclick="copyRecoveryCode()" ><i id="copy_icon_recovery" class="fa fa-clipboard"></i></span>'],
                            ]
                         ])
                             @endcomponent

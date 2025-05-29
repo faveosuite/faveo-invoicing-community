@@ -87,7 +87,7 @@
                     <div class="col-md-4 form-group {{ $errors->has('parent_page_id') ? 'has-error' : '' }}">
                         <!-- parent_page_id -->
                         {!! html()->label(Lang::get('message.parent-page'), 'parent_page_id') !!}
-                        {!! html()->select('parent_page_id', ['0' => 'Choose', 'Parent Pages' => $parents])->class('form-control'.($errors->has('parent_page_id') ? ' is-invalid' : '')) !!}
+                        {!! html()->select('parent_page_id', ['0' => __('message.choose'), 'Parent Pages' => $parents])->class('form-control'.($errors->has('parent_page_id') ? ' is-invalid' : '')) !!}
                         @error('parent_page_id')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
@@ -106,6 +106,11 @@
 
                 <div class="row">
                     <div class="col-md-12 form-group">
+                        @php
+                            $locale = app()->getLocale();
+                            $rtlLocales = ['ar', 'he'];
+                            $isRtl = in_array($locale, $rtlLocales);
+                        @endphp
 
                         <script src="//cdn.tinymce.com/4/tinymce.min.js"></script>
                         <script>
@@ -116,6 +121,10 @@
                           relative_urls: true,
                           remove_script_host: false,
                           convert_urls: false,
+                          language: '{{ $locale }}',
+                          @if($locale !== 'en')
+                          language_url: 'https://cdn.tiny.cloud/1/no-api-key/tinymce/5/langs/{{$locale}}.js',
+                          @endif
                           plugins: [
                               'advlist autolink lists link image charmap print preview hr anchor pagebreak',
                               'searchreplace wordcount visualblocks visualchars code fullscreen',
