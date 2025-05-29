@@ -867,5 +867,12 @@ Request file custom validation messages
         'app_key_size' => 'La clave de la aplicación debe tener exactamente 32 caracteres.',
         'app_secret_required' => 'Se requiere el secreto de la aplicación.',
     ],
+    'plan_request' => [
+        'name_required' => 'El campo nombre es obligatorio',
+        'product_quant_req' => 'El campo cantidad de producto es obligatorio cuando el número de agentes no está presente.',
+        'no_agent_req' => 'El campo número de agentes es obligatorio cuando la cantidad de producto no está presente.',
+        'pro_req' => 'El campo producto es obligatorio',
+        'offer_price' => 'Los precios de oferta no deben ser mayores a 100',
+    ],
 
 ];

@@ -101,20 +101,80 @@
         .d-flex.justify-content-between {
             margin-bottom: 1rem;
         }
-        
+
         #order-table_wrapper input[type="search"]  {
             position: relative;
-            right: 130px;
-        }
-        
-        .dataTables_filter {
-            position: relative;
-            z-index: 1;
-            right: 50px; 
+            right: 150px;
         }
 
+   .dataTables_filter {
+       position: relative;
+       z-index: 1;
+   }
+
+
    .dropdown-menu {
-       max-height: none !important;
+       z-index: 1050;
+   }
+   [dir="rtl"] .custom-dropdown .form-check {
+       padding-right: 46px !important;
+       position: relative !important;
+       left: -15px !important;
+   }
+
+   [dir="rtl"] .dataTables_wrapper .dataTables_filter input {
+       margin-left: 126px;
+   }
+
+   .datatable-search-label {
+       position: relative;
+       right: 152px;
+   }
+
+   [dir="rtl"] .datatable-search-label {
+       position: relative;
+       right: -7px;
+   }
+
+   [dir="rtl"]  #order-table_wrapper input[type="search"] {
+       position: relative;
+       right:2px;
+   }
+
+   [dir="rtl"] #swal2-title {
+       text-align: right !important;
+   }
+
+   [dir="rtl"] #saveColumnsBtn{
+       float:right;
+       right:10px !important;
+       bottom:10px;
+   }
+
+   .table-responsive {
+       position: relative;
+   }
+
+   .dropdown-menu.order-column-dropdown.show{
+       position: absolute !important;
+       transform: translate3d(-32px, 90px, 0px) !important;
+       top: 7px !important;
+       left: 0px !important;
+       will-change: transform !important;
+       min-width: 11rem !important;
+   }
+
+   [dir="rtl"] .dropdown-menu.order-column-dropdown.show {
+       position: absolute !important;
+       transform: translate3d(70px, 90px, 0px) !important;
+       top: 7px !important;
+       right: 0px !important;
+       will-change: transform !important;
+       inset: 0px auto auto 0px;
+       margin: 0px;
+       z-index: 1050;
+       padding-bottom:30px;
+        /*width: 11rem !important;*/
    }
 
 </style>
@@ -233,7 +293,7 @@
                       <button name="Search" type="submit"  class="btn btn-secondary"><i class="fa fa-search"></i>&nbsp;{!!Lang::get('message.search')!!}</button>
                       &nbsp;
                     <!-- <a class="btn btn-secondary" href="{!! url('/orders') !!}"><i class="fas fa-sync-alt"></i>&nbsp;{!!Lang::get('message.reset')!!}</a> -->
-                    {!! html()->button('Reset')->type('submit')->class('btn btn-secondary')->id('reset') !!}
+                    {!! html()->button( __('message.reset'))->type('submit')->class('btn btn-secondary')->id('reset') !!}
                 </div>
         </div>
     </div>
@@ -244,10 +304,10 @@
     <div class="card-header">
         <h3 class="card-title">{{ __('message.orders') }}</h3>
         <div class="card-tools">
-            <button type="button" id="order_export-report-btn" class="btn btn-sm pull-right" data-toggle="tooltip" title="{{ __('message.export') }}" style="position: relative;top: 0px;left: -1px;">
+            <button type="button" id="order_export-report-btn" class="btn btn-sm pull-right" data-toggle="tooltip" title="{{ __('message.export') }}" style="position: absolute; top: 13px; {{ isRtlForLang() ? 'right: 95.5%;' : 'left: 95.5%;' }}">
                 <i class="fas fa-paper-plane"></i>
             </button>
-            <a href="{{url('invoice/generate')}}" class="btn btn-sm pull-right" data-toggle="tooltip" title="{{ __('message.create-invoice') }}" style="position: relative; right: 0px;">
+            <a href="{{url('invoice/generate')}}" class="btn btn-sm pull-right" data-toggle="tooltip" title="{{ __('message.create-invoice') }}" style="position: absolute; {{ isRtlForLang() ? 'right: 97.5%;' : 'left: 97.5%;' }}">
                 <span class="fas fa-plus"></span>
             </a>
         </div>
@@ -266,7 +326,7 @@
                         <button class="btn btn-default" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="position: relative;top: 53px;">
                             <span class="fa fa-columns"></span>&nbsp;&nbsp;{{ __('message.selected_columns') }}&nbsp;&nbsp;<span class="fas fa-caret-down"></span>
                         </button>
-                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <div class="dropdown-menu order-column-dropdown" aria-labelledby="dropdownMenuButton">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="client" id="clientCheckbox">
                                 <label class="form-check-label" for="clientCheckbox">{{ __('message.user') }}</label>
@@ -424,7 +484,7 @@
 
             "oLanguage": {
               "sLengthMenu": "_MENU_ Records per page",
-              "sSearch": "<span style='position: relative;right: 140px;'>{!! __('message.search') !!}:</span> ",
+                "sSearch": "<span class='datatable-search-label'>{{ __('message.search') }}:</span> ",
                 "sProcessing": ' <div class="overlay dataTables_processing"><i class="fas fa-3x fa-sync-alt fa-spin" style=" margin-top: -25px;"></i><div class="text-bold pt-2">{!! __('message.loading') !!}</div></div>'
             },
                 language: {
@@ -667,41 +727,31 @@
          if(id.length<=0){
              e.preventDefault();
              swal.fire({
-                 title:"<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
-                 html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
-                     "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
-                     "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_order')}}</p>"+"</div>" +
+                 title:"<h2 class='swal2-title custom-title'>{{Lang::get('message.Select')}}</h2>",
+                 html: "<div  class='swal2-html-container custom-content'>" +
+                     "<div class='section-sa'>" +
+                     "<p>{{Lang::get('message.sweet_order')}}</p>"+"</div>" +
                      "</div>",
                  position: 'top',
-                 confirmButtonText: "OK",
+                 confirmButtonText: "{{ __('message.ok') }}",
                  showCloseButton: true,
                  confirmButtonColor: "#007bff",
                  width:"600px",
-                 buttonsStyling: false,
-                 customClass: {
-                     confirmButton: 'btn btn-primary btn-sm custom-confirm',
-                 }
              })
          }else{
          var swl=swal.fire({
-             title:"<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Delete')}}</h2>",
-             html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
-                 "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
-                 "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.order_delete')}}</p>"+"</div>" +
+             title:"<h2 class='swal2-title custom-title'>{{Lang::get('message.Delete')}}</h2>",
+             html: "<div class='swal2-html-container custom-content'>" +
+                 "<div class='section-sa'>" +
+                 "<p>{{Lang::get('message.order_delete')}}</p>"+"</div>" +
                  "</div>",
              showCancelButton: true,
              showCloseButton: true,
              position:"top",
              width:"600px",
              confirmButtonText: @json(trans('message.Delete')),
+             cancelButtonText: "{{ __('message.cancel') }}",
              confirmButtonColor: "#007bff",
-             buttonsStyling: false,
-             reverseButtons: true,
-             customClass: {
-                 actions: 'swal2-actions-custom-fix',
-                 confirmButton: 'btn btn-primary btn-sm custom-confirm',
-                 cancelButton: 'btn btn-secondary btn-sm custom-cancel'
-             }
          }).then((result)=> {
              if (result.isConfirmed) {
 
@@ -726,10 +776,10 @@
                  }
                  else {
                      swal.fire({
-                         title:"<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
-                         html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
-                             "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
-                             "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_order')}}</p>"+"</div>" +
+                         title:"<h2 class='swal2-title custom-title'>{{Lang::get('message.Select')}}</h2>",
+                         html: "<div class='swal2-html-container custom-content'>" +
+                             "<div class='section-sa'>" +
+                             "<p>{{Lang::get('message.sweet_order')}}</p>"+"</div>" +
                              "</div>",
                          position: 'top',
                          confirmButtonText: "OK",

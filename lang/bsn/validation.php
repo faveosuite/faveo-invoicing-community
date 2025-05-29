@@ -883,5 +883,12 @@ return [
         'app_key_size' => 'App ključ mora biti tačno 32 karaktera.',
         'app_secret_required' => 'App tajna je obavezna.',
     ],
+    'plan_request' => [
+        'name_required' => 'Polje za ime je obavezno',
+        'product_quant_req' => 'Polje za količinu proizvoda je obavezno kada broj agenata nije unesen.',
+        'no_agent_req' => 'Polje za broj agenata je obavezno kada količina proizvoda nije unesena.',
+        'pro_req' => 'Polje za proizvod je obavezno',
+        'offer_price' => 'Cijena ponude ne smije biti veća od 100',
+    ],
 
 ];

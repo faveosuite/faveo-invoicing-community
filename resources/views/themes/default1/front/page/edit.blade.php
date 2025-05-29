@@ -137,6 +137,11 @@
 
                 <div class="row">
                     <div class="col-md-12 form-group">
+                        @php
+                            $locale = app()->getLocale();
+                            $rtlLocales = ['ar', 'he'];
+                            $isRtl = in_array($locale, $rtlLocales);
+                        @endphp
 
                         <script src="//cdn.tinymce.com/4/tinymce.min.js"></script>
                         <script>
@@ -147,6 +152,10 @@
                           relative_urls: true,
                           remove_script_host: false,
                           convert_urls: false,
+                          language: '{{ $locale }}',
+                          @if($locale !== 'en')
+                          language_url: 'https://cdn.tiny.cloud/1/no-api-key/tinymce/5/langs/{{$locale}}.js',
+                          @endif
                           plugins: [
                               'advlist autolink lists link image charmap print preview hr anchor pagebreak',
                               'searchreplace wordcount visualblocks visualchars code fullscreen',

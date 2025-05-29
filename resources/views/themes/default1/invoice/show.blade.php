@@ -82,12 +82,12 @@
                                 {{ __('message.email') }}: {{$set->company_email}}
                             </address>
                              @if($set->gstin)
-                            <b>GSTIN:</b>  &nbsp; #{{$set->gstin}}
+                            <b>{{ __('message.gstin') }}:</b>  &nbsp; #{{$set->gstin}}
                             <br>
                             @endif
 
                             @if($set->cin_no)
-                            <b>CIN:</b>  &nbsp; #{{$set->cin_no}}
+                            <b>{{ __('message.cin') }}:</b>  &nbsp; #{{$set->cin_no}}
                             <br>
                             @endif<br>
 
@@ -108,7 +108,7 @@
                                 {{ __('message.email') }}: {{$user->email}}
                             </address>
                              @if($user->gstin)
-                            <b>GSTIN:</b>  &nbsp; #{{$user->gstin}}
+                            <b>{{ __('message.gstin') }}:</b>  &nbsp; #{{$user->gstin}}
                             <br>
                             @endif
                         </div><!-- /.col -->

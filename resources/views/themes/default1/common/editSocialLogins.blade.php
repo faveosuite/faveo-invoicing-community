@@ -142,7 +142,7 @@ $httpOrigin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : null;
                     </div>
 
                     <button type="submit" class="btn btn-primary btn-sm mt-3">
-                        <i class="fa fa-sync-alt"></i> &nbspUpdate
+                        <i class="fa fa-sync-alt"></i> &nbsp;{{ __('message.update') }}
                     </button>
                 </form>
             </div>
@@ -166,7 +166,7 @@ $httpOrigin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : null;
             api_id:@json(trans('message.socialLogin_details.api_id')),
             api_pwd:@json(trans('message.socialLogin_details.api_secret')),
         };
-        if(text==='API Key') {
+        if(text=== "{{ __('message.key')}}") {
             $('#socialLoginForm').on('submit', function (e) {
                 const userFields = {
                     redirect_url: $('#redirect'),
