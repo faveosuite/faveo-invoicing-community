@@ -857,5 +857,12 @@ return [
         'app_key_size' => 'Uygulama anahtarı tam olarak 32 karakter olmalıdır.',
         'app_secret_required' => 'Uygulama gizli anahtarı gereklidir.',
     ],
+    'plan_request' => [
+        'name_required' => 'İsim alanı zorunludur',
+        'product_quant_req' => 'Ürün miktarı alanı, ajan sayısı yoksa zorunludur.',
+        'no_agent_req' => 'Ajan sayısı alanı, ürün miktarı yoksa zorunludur.',
+        'pro_req' => 'Ürün alanı zorunludur',
+        'offer_price' => 'Teklif fiyatları 100’den büyük olmamalıdır',
+    ],
 
 ];

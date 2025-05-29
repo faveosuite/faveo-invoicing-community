@@ -863,5 +863,12 @@ return [
         'app_key_size' => '앱 키는 정확히 32자여야 합니다.',
         'app_secret_required' => '앱 비밀키는 필수입니다.',
     ],
+    'plan_request' => [
+        'name_required' => '이름 필드는 필수입니다',
+        'product_quant_req' => '에이전트 수가 없는 경우 제품 수량 필드는 필수입니다.',
+        'no_agent_req' => '제품 수량이 없는 경우 에이전트 수 필드는 필수입니다.',
+        'pro_req' => '제품 필드는 필수입니다',
+        'offer_price' => '할인 가격은 100보다 클 수 없습니다',
+    ],
 
 ];

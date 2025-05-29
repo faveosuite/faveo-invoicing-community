@@ -112,9 +112,9 @@ $status =  App\Model\Common\StatusSetting::select('recaptcha_status','v3_recaptc
 
                 <div class="modal-footer">
 
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">{{ __('message.close')}}</button>&nbsp;&nbsp;&nbsp;
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times">&nbsp;&nbsp;</i>{{ __('message.close')}}</button>&nbsp;&nbsp;&nbsp;
 
-                    <button type="submit" class="btn btn-primary" name="demoregister" id="demoregister">{{ __('message.book_a_demo')}}</button>
+                    <button type="submit" class="btn btn-primary" name="demoregister" id="demoregister"><i class="fa fa-book">&nbsp;&nbsp;</i>{{ __('message.book_a_demo')}}</button>
                 </div>
             </div>
             </form>

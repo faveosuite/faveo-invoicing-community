@@ -48,9 +48,12 @@
                 </div>  
             </div>
             </div>
-                </div> 
-     <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css" />
-<script src="//cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+                </div>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.0.3/css/buttons.dataTables.min.css">
+<script src="https://cdn.datatables.net/buttons/1.0.3/js/dataTables.buttons.min.js"></script>
+
+<script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
 <script>
      $('ul.nav-sidebar a').filter(function() {
         return this.id == 'setting';
@@ -80,8 +83,8 @@
             },
             "oLanguage": {
                 "sLengthMenu": "_MENU_ Records per page",
-                "sSearch"    : "Search: ",
-                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
+                "sSearch"    : "{{ __('message.table_search') }}",
+                "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>',
             },
             language: {
                 paginate: {
@@ -97,6 +100,7 @@
                 infoFiltered:   "{{ __('message.info_filtered') }}",
                 lengthMenu:     "{{ __('message.length_menu') }}",
                 loadingRecords: "{{ __('message.loading_records') }}",
+                search:         "{{ __('message.table_search') }}",
             },
     
             columns: [

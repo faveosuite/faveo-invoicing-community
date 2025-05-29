@@ -239,7 +239,6 @@
                                         },
                                         emptyTable:     "{{ __('message.empty_table') }}",
                                         info:           "{{ __('message.datatable_info') }}",
-                                        search:         "{{ __('message.datatable_search') }} ",
                                         zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
                                         infoEmpty:      "{{ __('message.info_empty') }}",
                                         infoFiltered:   "{{ __('message.info_filtered') }}",
@@ -293,25 +292,26 @@
                              });
                              if(id.length<=0){
                                  swal.fire({
-                                     title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
-                                     html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
-                                         "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
-                                         "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_invoice')}}</p>" + "</div>" +
+                                     title: "<h2 class='swal2-title custom-title'>{{ Lang::get('message.Select') }}</h2>",
+                                     html: "<div class='swal2-html-container custom-content'>" +
+                                         "<div class='section-sa'>" +
+                                         "<p>{{Lang::get('message.sweet_invoice')}}</p>" + "</div>" +
                                          "</div>",
                                      position: 'top',
-                                     confirmButtonText: "OK",
+                                     confirmButtonText: "{{ __('message.ok') }}",
                                      showCloseButton: true,
                                      confirmButtonColor: "#007bff",
                                      width: "600px",
                                  });
                              }else {
                                  var swl = swal.fire({
-                                     title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Delete')}}</h2>",
-                                     html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
-                                         "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
-                                         "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.invoice_delete')}}</p>" + "</div>" +
+                                     title: "<h2  class='swal2-title custom-title'>{{Lang::get('message.Delete')}}</h2>",
+                                     html: "<div  class='swal2-html-container custom-content'>" +
+                                         "<div class='section-sa'>" +
+                                         "<p>{{Lang::get('message.invoice_delete')}}</p>" + "</div>" +
                                          "</div>",
                                      showCancelButton: true,
+                                     cancelButtonText: "{{ __('message.cancel') }}",
                                      showCloseButton: true,
                                      position: "top",
                                      width: "600px",
@@ -342,13 +342,13 @@
                                              })
                                          } else {
                                              swal.fire({
-                                                 title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
-                                                 html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
-                                                     "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
-                                                     "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_invoice')}}</p>" + "</div>" +
+                                                 title: "<h2  class='swal2-title custom-title'>{{Lang::get('message.Select')}}</h2>",
+                                                 html: "<div  class='swal2-html-container custom-content'>" +
+                                                     "<div class='section-sa'>" +
+                                                     "<p>{{Lang::get('message.sweet_invoice')}}</p>" + "</div>" +
                                                      "</div>",
                                                  position: 'top',
-                                                 confirmButtonText: "OK",
+                                                 confirmButtonText: "{{ __('message.ok') }}",
                                                  showCloseButton: true,
                                                  confirmButtonColor: "#007bff",
                                                  width: "600px",
@@ -536,7 +536,6 @@
                                         infoFiltered:   "{{ __('message.info_filtered') }}",
                                         lengthMenu:     "{{ __('message.sLengthMenu') }}",
                                         loadingRecords: "{{ __('message.loading_records') }}",
-                                        search:         "{{ __('message.table_search') }}",
                                     },
 
                                     columnDefs: [
@@ -584,13 +583,13 @@
                                 });
                                 if(id.length<=0){
                                     swal.fire({
-                                        title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
-                                        html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
-                                            "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
-                                            "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_payment_details')}}</p>" + "</div>" +
+                                        title: "<h2 class='swal2-title custom-title'>{{ Lang::get('message.Select') }}</h2>",
+                                        html: "<div class='swal2-html-container custom-content'>" +
+                                            "<div class='section-sa'>" +
+                                            "<p>{{Lang::get('message.sweet_payment_details')}}</p>" + "</div>" +
                                             "</div>",
                                         position: 'top',
-                                        confirmButtonText: "OK",
+                                        confirmButtonText: "{{ __('message.ok') }}",
                                         showCloseButton: true,
                                         confirmButtonColor: "#007bff",
                                         width: "600px",
@@ -598,12 +597,13 @@
                                 }
                                 else {
                                     var swl = swal.fire({
-                                        title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Delete')}}</h2>",
-                                        html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
-                                            "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
-                                            "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.payment_delete')}}</p>" + "</div>" +
+                                        title: "<h2 class='swal2-title custom-title'>{{Lang::get('message.Delete')}}</h2>",
+                                        html: "<div class='swal2-html-container custom-content'>" +
+                                            "<div class='section-sa'>" +
+                                            "<p>{{Lang::get('message.payment_delete')}}</p>" + "</div>" +
                                             "</div>",
                                         showCancelButton: true,
+                                        cancelButtonText: "{{ __('message.cancel') }}",
                                         showCloseButton: true,
                                         position: "top",
                                         width: "600px",
@@ -634,13 +634,13 @@
                                                 })
                                             } else {
                                                 swal.fire({
-                                                    title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
-                                                    html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
-                                                        "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
-                                                        "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_payment_details')}}</p>" + "</div>" +
+                                                    title: "<h2 class='swal2-title custom-title'>{{ Lang::get('message.Select') }}</h2>",
+                                                    html: "<div class='swal2-html-container custom-content'>" +
+                                                        "<div class='section-sa'>" +
+                                                        "<p>{{Lang::get('message.sweet_payment_details')}}</p>" + "</div>" +
                                                         "</div>",
                                                     position: 'top',
-                                                    confirmButtonText: "OK",
+                                                    confirmButtonText: "{{ __('message.ok') }}",
                                                     showCloseButton: true,
                                                     confirmButtonColor: "#007bff",
                                                     width: "600px",
@@ -721,7 +721,6 @@
                                             infoFiltered:   "{{ __('message.info_filtered') }}",
                                             lengthMenu:     "{{ __('message.sLengthMenu') }}",
                                             loadingRecords: "{{ __('message.loading_records') }}",
-                                            search:         "{{ __('message.table_search') }}",
                                         },
 
                                         columnDefs: [
@@ -772,25 +771,26 @@
                                     });
                                     if(id.length<=0){
                                         swal.fire({
-                                            title:"<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
-                                            html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
-                                                "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
-                                                "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_order_details')}}</p>"+"</div>" +
+                                            title: "<h2 class='swal2-title custom-title'>{{ Lang::get('message.Select') }}</h2>",
+                                            html: "<div class='swal2-html-container custom-content'>" +
+                                                "<div class='section-sa'>" +
+                                                "<p>{{Lang::get('message.sweet_order_details')}}</p>"+"</div>" +
                                                 "</div>",
                                             position: 'top',
-                                            confirmButtonText: "OK",
+                                            confirmButtonText: "{{ __('message.ok') }}",
                                             showCloseButton: true,
                                             confirmButtonColor: "#007bff",
                                             width:"600px",
                                         })
                                     }else {
                                         var swl = swal.fire({
-                                            title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Delete')}}</h2>",
-                                            html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
-                                                "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
-                                                "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.order_delete')}}</p>" + "</div>" +
+                                            title: "<h2 class='swal2-title custom-title'>{{Lang::get('message.Delete')}}</h2>",
+                                            html: "<div class='swal2-html-container custom-content'>" +
+                                                "<div class='section-sa'>" +
+                                                "<p>{{Lang::get('message.order_delete')}}</p>" + "</div>" +
                                                 "</div>",
                                             showCancelButton: true,
+                                            cancelButtonText: "{{ __('message.cancel') }}",
                                             showCloseButton: true,
                                             position: "top",
                                             width: "600px",
@@ -821,13 +821,13 @@
                                                     })
                                                 } else {
                                                     swal.fire({
-                                                        title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
-                                                        html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
-                                                            "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
-                                                            "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_order_details')}}</p>" + "</div>" +
+                                                        title: "<h2 class='swal2-title custom-title'>{{ Lang::get('message.Select') }}</h2>",
+                                                        html: "<div class='swal2-html-container custom-content'>" +
+                                                            "<div class='section-sa'>" +
+                                                            "<p>{{Lang::get('message.sweet_order_details')}}</p>" + "</div>" +
                                                             "</div>",
                                                         position: 'top',
-                                                        confirmButtonText: "OK",
+                                                        confirmButtonText: "{{ __('message.ok') }}",
                                                         showCloseButton: true,
                                                         confirmButtonColor: "#007bff",
                                                         width: "600px",
@@ -1047,12 +1047,13 @@
             var id=[];
 
         var swl=swal.fire({
-            title:"<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Delete')}}</h2>",
-            html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
-                "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
-                "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.comment_delete')}}</p>"+"</div>" +
+            title:"<h2 class='swal2-title custom-title'>{{Lang::get('message.Delete')}}</h2>",
+            html: "<div class='swal2-html-container custom-content'>" +
+                "<div class='section-sa'>" +
+                "<p>{{Lang::get('message.comment_delete')}}</p>"+"</div>" +
                 "</div>",
             showCancelButton: true,
+            cancelButtonText: "{{ __('message.cancel') }}",
             showCloseButton: true,
             position:"top",
             width:"600px",
@@ -1085,13 +1086,13 @@
                     })
                 } else {
                     swal.fire({
-                        title:"<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
-                        html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
-                            "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
-                            "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_checkbox')}}</p>"+"</div>" +
+                        title: "<h2 class='swal2-title custom-title'>{{ Lang::get('message.Select') }}</h2>",
+                        html: "<div class='swal2-html-container custom-content'>" +
+                            "<div class='section-sa'>" +
+                            "<p>{{Lang::get('message.sweet_checkbox')}}</p>"+"</div>" +
                             "</div>",
                         position: 'top',
-                        confirmButtonText: "OK",
+                        confirmButtonText: "{{ __('message.ok') }}",
                         showCloseButton: true,
                         confirmButtonColor: "#007bff",
                         width:"600px",
@@ -1103,7 +1104,7 @@
         })
         return false;
     })
-  
+
 
 
     $(function () {

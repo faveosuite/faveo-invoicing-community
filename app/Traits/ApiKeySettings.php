@@ -102,7 +102,7 @@ trait ApiKeySettings
         StatusSetting::where('id', 1)->update(['update_settings' => $status]);
         ApiKey::where('id', 1)->update(['update_api_secret' => $updateApiSecret, 'update_api_url' => $updateApiUrl]);
 
-        return ['message' => 'success', 'update' => 'Auto update settings saved'];
+        return ['message' => 'success', 'update' => __('message.auto_update_settings_saved')];
     }
 
     /*
@@ -154,7 +154,7 @@ trait ApiKeySettings
         $status = $request->input('status');
         StatusSetting::find(1)->update(['domain_check' => $status]);
 
-        return ['message' => 'success', 'update' => 'Domain check status saved'];
+        return ['message' => 'success', 'update' => __('message.domain_check_status_saved')];
     }
 
     /*
@@ -203,14 +203,14 @@ trait ApiKeySettings
     {
         StatusSetting::first()->update(['mailchimp_product_status' => $request->input('status')]);
 
-        return ['message' => 'success', 'update' => 'Mailchimp products group status saved'];
+        return ['message' => 'success', 'update' => __('message.mailchimp_products_group_status_saved')];
     }
 
     public function updateMailchimpIsPaidStatus(Request $request)
     {
         StatusSetting::first()->update(['mailchimp_ispaid_status' => $request->input('status')]);
 
-        return ['message' => 'success', 'update' => 'Mailchimp is paid status saved'];
+        return ['message' => 'success', 'update' => __('message.mailchimp_is_paid_status_saved')];
     }
 
     public function updateMailchimpDetails(Request $request)

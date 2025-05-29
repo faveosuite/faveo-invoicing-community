@@ -834,5 +834,12 @@ return [
         'app_key_size' => 'Der App-Schlüssel muss genau 32 Zeichen lang sein.',
         'app_secret_required' => 'App-Geheimnis ist erforderlich.',
     ],
+    'plan_request' => [
+        'name_required' => 'Das Namensfeld ist erforderlich',
+        'product_quant_req' => 'Das Feld Produktmenge ist erforderlich, wenn keine Agentenanzahl vorhanden ist.',
+        'no_agent_req' => 'Das Feld Agentenanzahl ist erforderlich, wenn keine Produktmenge vorhanden ist.',
+        'pro_req' => 'Das Produktfeld ist erforderlich',
+        'offer_price' => 'Der Angebotspreis darf 100 nicht überschreiten',
+    ],
 
 ];

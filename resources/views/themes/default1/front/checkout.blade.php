@@ -510,7 +510,7 @@ $cartSubtotalWithoutCondition = 0;
                                     </tbody>
                                 </table>
                             </div>
-                            <button type="submit" id="proceed" class="btn btn-dark btn-modern w-100 text-uppercase text-3 py-3">{{ __('message.proceed')}} <i class="fas fa-arrow-right ms-2"></i></button>
+                            <button type="submit" id="proceed" class="btn btn-dark btn-modern w-100 text-uppercase text-3 py-3">{{ __('message.proceed')}} <i class="fas {{ isRtlForLang() ? 'fa-arrow-left me-2' : 'fa-arrow-right ms-2' }}"></i></button>
                      
                              {!! html()->form()->close() !!}
 

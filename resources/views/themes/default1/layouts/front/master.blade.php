@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html dir="{{ in_array(app()->getLocale(), ['ar', 'he']) ? 'rtl' : 'ltr' }}">
 <head>
     <style>
         .list-styled.columns-lg-2.px-2 li a {
@@ -97,10 +97,27 @@ foreach($scripts as $script) {
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
+@if(in_array(app()->getLocale(), ['ar', 'he']))
+    <link rel="stylesheet" href="{{asset('client/porto/css-2/all.rtl.min.css')}}">
+    <link rel="stylesheet" href="{{asset('admin/css-1/sweet-alert-rtl.css')}}">
+    <link rel="stylesheet" href="{{asset('client/porto/css-2/bootstrap.rtl.min.css')}}">
+    <link id="default-styles" rel="stylesheet" href="{{asset('client/porto/css-2/rtl-theme.css')}}">
+    <link id="default-styles-2" rel="stylesheet" href="{{asset('client/porto/css-2/rtl-theme-elements.css')}}">
+    <link id="default-styles-3" rel="stylesheet" href="{{asset('client/porto/css-2/rtl-theme-blog.css')}}">
+    <link id="default-styles-4" rel="stylesheet" href="{{asset('client/porto/css-2/rtl-theme-shop.css')}}">
+
+@else
+    <link rel="stylesheet" href="{{asset('client/porto/css-2/all.min.css')}}">
+    <link rel="stylesheet" href="{{asset('admin/css-1/sweet-alert-ltr.css')}}">
+    <link rel="stylesheet" href="{{asset('client/porto/css-2/bootstrap.min.css')}}">
+    <link id="default-styles" rel="stylesheet" href="{{asset('client/porto/css-2/theme.css')}}">
+    <link id="default-styles-2" rel="stylesheet" href="{{asset('client/porto/css-2/theme-elements.css')}}">
+    <link id="default-styles-3" rel="stylesheet" href="{{asset('client/porto/css-2/theme-blog.css')}}">
+    <link id="default-styles-4" rel="stylesheet" href="{{asset('client/porto/css-2/theme-shop.css')}}">
+@endif
+
 
     <!-- Vendor CSS -->
-    <link rel="stylesheet" href="{{asset('client/porto/css-2/bootstrap.min.css')}}">
-    <link rel="stylesheet" href="{{asset('client/porto/css-2/all.min.css')}}">
     <link rel="stylesheet" href="{{asset('client/porto/css-2/animate.compat.css')}}">
     <link rel="stylesheet" href="{{asset('client/porto/css-2/simple-line-icons.min.css')}}">
     <link rel="stylesheet" href="{{asset('client/porto/css-2/owl.carousel.min.css')}}">
@@ -108,11 +125,6 @@ foreach($scripts as $script) {
     <link rel="stylesheet" href="{{asset('client/porto/css-2/magnific-popup.min.css')}}">
     <link rel="stylesheet" href="{{asset('admin/css-1/flag-icons.min.css')}}">
 
-    <!-- Theme CSS -->
-    <link id="default-styles" rel="stylesheet" href="{{asset('client/porto/css-2/theme.css')}}">
-    <link id="default-styles-2" rel="stylesheet" href="{{asset('client/porto/css-2/theme-elements.css')}}">
-    <link id="default-styles-3" rel="stylesheet" href="{{asset('client/porto/css-2/theme-blog.css')}}">
-    <link id="default-styles-4" rel="stylesheet" href="{{asset('client/porto/css-2/theme-shop.css')}}">
 
 
 
@@ -1548,8 +1560,8 @@ setTimeout(function() {
                         const isSelected = value.locale === currentLocale ? 'selected' : '';
                         $('#language-dropdown').append(
                             '<a href="javascript:;" class="dropdown-item" data-locale="' + value.locale + '" ' + isSelected + '>' +
-                            '<i class="flag-icon flag-icon-' + mappedLocale + ' ' + (curLang === 'ar' ? 'ml-2' : 'mr-2') + '"></i> ' +
-                            value.name + ' (' + value.translation + ')' +
+                            '<i class="flag-icon flag-icon-' + mappedLocale +  ' me-2"></i> '  +
+                            value.name + '&nbsp;&rlm;(' + value.translation + ')' +
                             '</a>'
                         );
                     }

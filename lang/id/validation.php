@@ -894,5 +894,12 @@ return [
         'app_key_size' => 'Kunci aplikasi harus tepat 32 karakter.',
         'app_secret_required' => 'Rahasia aplikasi wajib diisi.',
     ],
+    'plan_request' => [
+        'name_required' => 'Field nama wajib diisi',
+        'product_quant_req' => 'Field jumlah produk wajib diisi jika jumlah agen tidak ada.',
+        'no_agent_req' => 'Field jumlah agen wajib diisi jika jumlah produk tidak ada.',
+        'pro_req' => 'Field produk wajib diisi',
+        'offer_price' => 'Harga penawaran tidak boleh lebih dari 100',
+    ],
 
 ];

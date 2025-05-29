@@ -35,10 +35,10 @@ class PlanRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required' => 'The name field is required',
-            'product_quantity.required_without' => 'The product quantity field is required when no of agents is not present.',
-            'no_of_agents.required_without' => 'The no of agents field is required when product quantity is not present.',
-            'product.required' => 'the product field is required',
+            'name.required' => __('validation.plan_request.name_required'),
+            'product_quantity.required_without' => __('validation.plan_request.product_quant_req'),
+            'no_of_agents.required_without' => __('validation.plan_request.no_agent_req'),
+            'product.required' => __('validation.plan_request.pro_req'),
             'country_id.*.required' => trans('message.country_missing'),
             'add_price.*.max' => trans('message.regular_price_numeric'),
             'add_price.*.required_with_all' => trans('message.add_price_required'),
@@ -49,8 +49,8 @@ class PlanRequest extends FormRequest
             'renew_price.array_size_equals' => trans('message.renew_price_array_equals'),
             'add_price.array_size_equals' => trans('message.add_price_array_equals'),
             'currency.*.required_with' => trans('message.currency_missing'),
-            'offer_price.*.between' => 'Offer prices must not be must not be greater than 100',
-            'offer_price.*.numeric' => 'Offer prices must not be must not be greater than 100',
+            'offer_price.*.between' => __('validation.plan_request.offer_price'),
+            'offer_price.*.numeric' => __('validation.plan_request.offer_price'),
 
         ];
     }

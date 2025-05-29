@@ -127,6 +127,7 @@
                 infoFiltered:   "{{ __('message.info_filtered') }}",
                 lengthMenu:     "{{ __('message.length_menu') }}",
                 loadingRecords: "{{ __('message.loading_records') }}",
+                search:         "{{ __('message.table_search') }}",
             },
 
             columnDefs: [

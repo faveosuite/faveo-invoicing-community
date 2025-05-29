@@ -47,7 +47,7 @@
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
     }
-    
+
    .custom-dropdown {
     position: relative;
     z-index: 1050;
@@ -60,15 +60,15 @@
         position: relative;
         right: -15px; 
     }
-    
+
     .dropdown-menu {
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         position: absolute;
         max-height: 150px;
         overflow-y: auto;
-        overflow-x: hidden; 
+        overflow-x: hidden;
     }
-    
+
     #invoice_export-report-btn,
     .custom-dropdown {
         z-index: 1000;
@@ -92,7 +92,7 @@
     
     #invoice-table_wrapper input[type="search"] {
         position: relative;
-        right: 180px; /* Adjust as needed */
+        right: 150px; /* Adjust as needed */
     }
     
     .dataTables_filter {
@@ -100,9 +100,70 @@
         z-index: 1;
     }
 
-.dropdown-menu {
-    max-height: none !important;
-}
+    [dir="rtl"] .custom-dropdown .form-check {
+        padding-right: 46px !important;
+        position: relative !important;
+        left: -15px !important;
+    }
+
+    [dir="rtl"] .dataTables_wrapper .dataTables_filter input {
+        margin-left: 67px;
+    }
+
+    .datatable-search-label {
+        position: relative;
+        right: 152px;
+    }
+
+    [dir="rtl"] .datatable-search-label {
+        position: relative;
+        right: -63px;
+    }
+
+    [dir="rtl"]  #invoice-table_wrapper input[type="search"] {
+        position: relative;
+        right: -55px !important;
+    }
+
+    [dir="rtl"] #swal2-title {
+        text-align: right !important;
+    }
+
+    [dir="rtl"] #insaveColumnsBtn{
+        float:right;
+        right:10px !important;
+        bottom:10px;
+    }
+
+    .table-responsive {
+        position: relative;
+    }
+
+    .dropdown-menu {
+        z-index: 1050;
+    }
+
+    .dropdown-menu.common-column-dropdown.show{
+        position: absolute !important;
+        transform: translate3d(-32px, 90px, 0px) !important;
+        top: 7px !important;
+        left: 0px !important;
+        will-change: transform !important;
+        min-width: 11rem !important;
+    }
+
+    [dir="rtl"] .dropdown-menu.common-column-dropdown.show {
+        position: absolute !important;
+        transform: translate3d(70px, 90px, 0px) !important;
+        top: 7px !important;
+        right: 0px !important;
+        will-change: transform !important;
+        inset: 0px auto auto 0px;
+        margin: 0px;
+        z-index: 1050;
+        padding-bottom:30px;
+        width: 11rem !important;
+    }
 
 </style>
     <div class="col-sm-6">
@@ -212,7 +273,7 @@
                     <!-- {!! html()->submit('Search')->class('btn btn-primary') !!} -->
                     <button name="Search" type="submit"  class="btn btn-secondary"><i class="fa fa-search">&nbsp;</i>{!!Lang::get('message.search')!!}</button>
                      &nbsp;&nbsp;
-                    {!! html()->submit('Reset')->class('btn btn-secondary')->id('reset') !!}
+                    {!! html()->submit( __('message.reset'))->class('btn btn-secondary')->id('reset') !!}
                 </div>
             </div>
 
@@ -228,10 +289,10 @@
       
         <h3 class="card-title">{{ Lang::get('message.invoices') }}</h3>
         <div class="card-tools">
-        <button type="button" id="invoice_export-report-btn" class="btn btn-sm pull-right" data-toggle="tooltip" title="{{ __('message.export') }}" style="position: absolute; left: 94%; top: 13px; z-index: 10;">
+        <button type="button" id="invoice_export-report-btn" class="btn btn-sm pull-right" data-toggle="tooltip" title="{{ __('message.export') }}" style="position: absolute; top: 13px; {{ isRtlForLang() ? 'right: 95.5%;' : 'left: 95.5%;' }}">
             <i class="fas fa-paper-plane"></i>
         </button>
-        <a href="{{ url('invoice/generate') }}" class="btn btn-sm pull-right" data-toggle="tooltip" title="{{ __('message.create-invoice') }}" style="position: absolute; left: 97%; top: 13px;right: 0px;">
+        <a href="{{ url('invoice/generate') }}" class="btn btn-sm pull-right" data-toggle="tooltip" title="{{ __('message.create-invoice') }}" style="position: absolute; {{ isRtlForLang() ? 'right: 97.5%;' : 'left: 97.5%;' }}">
             <i class="fas fa-plus"></i>
         </a>
     </div>
@@ -239,9 +300,9 @@
     </div>
       <div id="response"></div>
 
-    <div class="card-body table-responsive"><br >
+    <div class="card-body table-responsive">
 
-           <div class="d-flex justify-content-between mb-3">
+           <div class="d-flex justify-content-between mt-3">
                 <button value="" class="btn btn-secondary btn-sm btn-alldell" id="bulk_delete">
                         <i class="fa fa-trash"></i>&nbsp;&nbsp;{{ __('message.delmultiple') }}
                     </button>
@@ -250,7 +311,7 @@
                         <button class="btn btn-default pull-right" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="position: relative;top: 52px;">
                             <span class="fa fa-columns"></span>&nbsp;&nbsp;{{ __('message.selected_columns') }}&nbsp;&nbsp;<span class="fas fa-caret-down"></span>
                         </button>
-                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <div class="dropdown-menu common-column-dropdown" aria-labelledby="dropdownMenuButton">
 
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="user_id" id="nameCheckbox">
@@ -369,7 +430,7 @@
             },
             "oLanguage": {
                 "sLengthMenu": "_MENU_ Records per page",
-                "sSearch": "<span style='position: relative;right: 180px;'>{{ __('message.search') }}:</span> ",
+                "sSearch": "<span class='datatable-search-label'>{{ __('message.search') }}:</span> ",
                 "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
             },
             language: {
@@ -576,42 +637,32 @@
 
          if(id.length<=0){
              swal.fire({
-                 title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
-                 html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
-                     "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
+                 title: "<h2 class='swal2-title custom-title'>{{Lang::get('message.Select')}}</h2>",
+                 html: "<div  class='swal2-html-container custom-content'>" +
+                     "<div class='section-sa'>" +
                      "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_invoice')}}</p>" + "</div>" +
                      "</div>",
                  position: 'top',
-                 confirmButtonText: "OK",
+                 confirmButtonText: "{{ __('message.ok') }}",
                  showCloseButton: true,
                  confirmButtonColor: "#007bff",
                  width: "600px",
-                 buttonsStyling: false,
-                 customClass: {
-                     confirmButton: 'btn btn-primary btn-sm custom-confirm',
-                 }
              })
          }
          else {
              var swl = swal.fire({
-                 title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Delete')}}</h2>",
-                 html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
-                     "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
-                     "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.invoice_delete')}}</p>" + "</div>" +
+                 title: "<h2 class='swal2-title custom-title'>{{Lang::get('message.Delete')}}</h2>",
+                 html: "<div class='swal2-html-container custom-content'>" +
+                     "<div class='section-sa'>" +
+                     "<p>{{Lang::get('message.invoice_delete')}}</p>" + "</div>" +
                      "</div>",
                  showCancelButton: true,
                  showCloseButton: true,
                  position: "top",
                  width: "600px",
                  confirmButtonText: @json(trans('message.Delete')),
+                 cancelButtonText: "{{ __('message.cancel') }}",
                  confirmButtonColor: "#007bff",
-                 buttonsStyling: false,
-                 reverseButtons: true,
-                 customClass: {
-                     actions: 'swal2-actions-custom-fix',
-                     confirmButton: 'btn btn-primary btn-sm custom-confirm',
-                     cancelButton: 'btn btn-secondary btn-sm custom-cancel'
-                 }
              }).then((result) => {
                  if (result.isConfirmed) {
                      $('.invoice_checkbox:checked').each(function () {
@@ -633,13 +684,13 @@
                          })
                      } else {
                          swal.fire({
-                             title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
-                             html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
-                                 "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
-                                 "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_invoice')}}</p>" + "</div>" +
+                             title: "<h2 class='swal2-title custom-title'>{{Lang::get('message.Select')}}</h2>",
+                             html: "<div class='swal2-html-container custom-content'>" +
+                                 "<div class='section-sa'>" +
+                                 "<p>{{Lang::get('message.sweet_invoice')}}</p>" + "</div>" +
                                  "</div>",
                              position: 'top',
-                             confirmButtonText: "OK",
+                             confirmButtonText: "{{ __('message.ok') }}",
                              showCloseButton: true,
                              confirmButtonColor: "#007bff",
                              width: "600px",

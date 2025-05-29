@@ -218,7 +218,7 @@ input:checked + .slider:before {
                                                                <form method="GET" action="{{url('uploadFile')}}" id="domain_id">
                                                                    {!! csrf_field() !!}
                                                                    <div class="form-group">
-                                                                       <label for="recipient-name" class="col-form-label required">Domain Name</label>
+                                                                       <label for="recipient-name" class="col-form-label required">{{ __('message.domain-name') }}</label>
                                                                        <input type="text" class="form-control" id="recipient-name" placeholder="https://example.com/public" name="domain" value="">
                                                                        {!! html()->hidden('orderNo', $order->number) !!}
                                                                        {!! html()->hidden('userId', $user->id) !!}
@@ -253,7 +253,7 @@ input:checked + .slider:before {
                                                    <td id="" data-type="serialkey">{{($order->serial_key)}}</td>
 
                                                    <td> @component('mini_views.copied_flash_text',
-                                                        ['navigations'=>[['btnName'=>'lic_btn','slot'=>'license','style'=>'<span data-type="copy" style="font-size: 12px; pointer-events: initial; cursor: pointer; display: inline-block;height: 28px;width: 24px;" id="copyBtn" data-toggle="tooltip"  title="Click to copy to clipboard" class="btn btn-sm btn-secondary btn-xs" style="width:max-content;border:none;margin-left: 20px;"><i class="fas fa-copy"></i></span><span class="badge badge-success badge-xs pull-right" id="copied1" style="display:none;margin-top:-40px;margin-left:-20px;position: absolute;">Copied</span>'],
+                                                        ['navigations'=>[['btnName'=>'lic_btn','slot'=>'license','style'=>'<span data-type="copy" style="font-size: 12px; pointer-events: initial; cursor: pointer; display: inline-block;height: 28px;width: 24px;" id="copyBtn" data-toggle="tooltip"  title="'. __('message.copy_clipboard') .'" class="btn btn-sm btn-secondary btn-xs" style="width:max-content;border:none;margin-left: 20px;"><i class="fas fa-copy"></i></span><span class="badge badge-success badge-xs pull-right" id="copied1" style="display:none;margin-top:-40px;margin-left:-20px;position: absolute;">'.__('message.copied').'</span>'],
                                                         ]
                                                         ])                    
                                                         @endcomponent
@@ -273,7 +273,7 @@ input:checked + .slider:before {
                                                            {{$noOfAllowedInstallation}}
                                                        </td>
                                                        <td>
-                                                           <button class="btn btn-sm btn-secondary btn-xs"  id="installlimit" limit-id="{{$order->id}}" install-limit="{{$noOfAllowedInstallation}}"><i class="fa fa-edit" style='color:white;' {!! tooltip('Edit') !!}</i></button>
+                                                           <button class="btn btn-sm btn-secondary btn-xs"  id="installlimit" limit-id="{{$order->id}}" install-limit="{{$noOfAllowedInstallation}}"><i class="fa fa-edit" style='color:white;' {!! tooltip( __('message.edit')) !!}</i></button>
 
                                                        </td>
 
@@ -298,7 +298,7 @@ input:checked + .slider:before {
                                                    <td class="brtags"> {!! $date !!} </td>
                                                    <td>
                                                        @if($date != '--')
-                                                           <button class="btn btn-sm btn-secondary btn-xs" id="updates_end" updates-id="{{$order->id}}" data-date="{{getTimeInLoggedInUserTimeZone($subscription->update_ends_at,'m/d/Y')}}"><i class="fa fa-edit" style='color:white;' {!! tooltip('Edit') !!}</i></button>
+                                                           <button class="btn btn-sm btn-secondary btn-xs" id="updates_end" updates-id="{{$order->id}}" data-date="{{getTimeInLoggedInUserTimeZone($subscription->update_ends_at,'m/d/Y')}}"><i class="fa fa-edit" style='color:white;' {!! tooltip( __('message.edit')) !!}</i></button>
                                                        @endif
                                                    </td>
                                                </tr>
@@ -308,7 +308,7 @@ input:checked + .slider:before {
                                                    <td class="brtags">{!! $licdate !!} </td>
                                                    <td>
                                                        @if($licdate != '--')
-                                                           <button class="btn btn-sm btn-secondary btn-xs" id="license_end" license-id="{{$order->id}}" license-date="{{getTimeInLoggedInUserTimeZone($subscription->ends_at,'m/d/Y')}}"><i class="fa fa-edit" style='color:white;' {!! tooltip('Edit') !!}</i>
+                                                           <button class="btn btn-sm btn-secondary btn-xs" id="license_end" license-id="{{$order->id}}" license-date="{{getTimeInLoggedInUserTimeZone($subscription->ends_at,'m/d/Y')}}"><i class="fa fa-edit" style='color:white;' {!! tooltip( __('message.edit')) !!}</i>
                                                            </button>
                                                        @endif
                                                    </td>
@@ -320,7 +320,7 @@ input:checked + .slider:before {
                                                    <td class="brtags">{!! $supdate !!}</td>
                                                    <td>
                                                        @if($supdate != '--')
-                                                           <button class="btn btn-sm btn-secondary btn-xs" id="support_end" support-id="{{$order->id}}" support-date="{{getTimeInLoggedInUserTimeZone($subscription->support_ends_at,'m/d/Y')}}" ><i class="fa fa-edit" style='color:white;' {!! tooltip('Edit') !!}</i></button>
+                                                           <button class="btn btn-sm btn-secondary btn-xs" id="support_end" support-id="{{$order->id}}" support-date="{{getTimeInLoggedInUserTimeZone($subscription->support_ends_at,'m/d/Y')}}" ><i class="fa fa-edit" style='color:white;' {!! tooltip( __('message.edit')) !!}</i></button>
                                                              </button>
                                                        @endif
                                                    </td>
@@ -850,13 +850,13 @@ input:checked + .slider:before {
          });
          if(id.length<=0){
              swal.fire({
-                 title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
-                 html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
-                     "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
-                     "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_payment')}}</p>" + "</div>" +
+                 title: "<h2 class='swal2-title custom-title'>{{Lang::get('message.Select')}}</h2>",
+                 html: "<div class='swal2-html-container custom-content'>" +
+                     "<div class='section-sa'>" +
+                     "<p>{{Lang::get('message.sweet_payment')}}</p>" + "</div>" +
                      "</div>",
                  position: 'top',
-                 confirmButtonText: "OK",
+                 confirmButtonText: "{{ __('message.ok') }}",
                  showCloseButton: true,
                  confirmButtonColor: "#007bff",
                  width: "600px",
@@ -864,10 +864,10 @@ input:checked + .slider:before {
          }
          else {
              var swl = swal.fire({
-                 title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Delete')}}</h2>",
-                 html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
-                     "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
-                     "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.payment_details_delete')}}</p>" + "</div>" +
+                 title: "<h2 class='swal2-title custom-title'>{{Lang::get('message.Delete')}}</h2>",
+                 html: "<div class='swal2-html-container custom-content'>" +
+                     "<div class='section-sa'>" +
+                     "<p>{{Lang::get('message.payment_details_delete')}}</p>" + "</div>" +
                      "</div>",
                  showCancelButton: true,
                  showCloseButton: true,
@@ -875,6 +875,7 @@ input:checked + .slider:before {
                  width: "600px",
 
                  confirmButtonText: @json(trans('message.Delete')),
+                 cancelButtonText: "{{ __('message.cancel') }}",
                  confirmButtonColor: "#007bff",
 
              }).then((result) => {
@@ -899,13 +900,13 @@ input:checked + .slider:before {
                          })
                      } else {
                          swal.fire({
-                             title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
-                             html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
-                                 "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
-                                 "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_checkbox')}}</p>" + "</div>" +
+                             title: "<h2 class='swal2-title custom-title'>{{Lang::get('message.Select')}}</h2>",
+                             html: "<div  class='swal2-html-container custom-content'>" +
+                                 "<div class='section-sa'>" +
+                                 "<p>{{Lang::get('message.sweet_checkbox')}}</p>" + "</div>" +
                                  "</div>",
                              position: 'top',
-                             confirmButtonText: "OK",
+                             confirmButtonText: "{{ __('message.ok') }}",
                              showCloseButton: true,
                              confirmButtonColor: "#007bff",
                              width: "600px",

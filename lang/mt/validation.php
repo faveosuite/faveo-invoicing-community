@@ -869,5 +869,12 @@ return [
         'app_key_size' => 'Il-kodiċi tal-applikazzjoni għandu jkun eżattament 32 karattru.',
         'app_secret_required' => 'Il-kodiċi sigriet tal-applikazzjoni huwa meħtieġ.',
     ],
+    'plan_request' => [
+        'name_required' => 'Il-qasam tal-isem huwa meħtieġ',
+        'product_quant_req' => 'Il-qasam tal-kwantità tal-prodott huwa meħtieġ jekk in-numru ta’ aġenti mhuwiex preżenti.',
+        'no_agent_req' => 'Il-qasam tan-numru ta’ aġenti huwa meħtieġ jekk il-kwantità tal-prodott mhijiex preżenti.',
+        'pro_req' => 'Il-qasam tal-prodott huwa meħtieġ',
+        'offer_price' => 'Il-prezz tal-offerta ma jistax ikun ogħla minn 100',
+    ],
 
 ];

@@ -4,7 +4,7 @@
     $set = $set->findOrFail(1);
     $page_count = DB::table('frontend_pages')->count();
     ?>
-<html>
+<html dir="{{ in_array(app()->getLocale(), ['ar', 'he']) ? 'rtl' : 'ltr' }}">
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -44,8 +44,10 @@
         <link rel="stylesheet" href="{{ asset('common/intl-tel-input/css/intlTelInput.css') }}">
         @if(in_array(app()->getLocale(), ['ar', 'he']))
             <link rel="stylesheet" href="{{asset('admin/css-1/adminlte-rtl.css')}}">
+            <link rel="stylesheet" href="{{asset('admin/css-1/sweet-alert-rtl.css')}}">
         @else
             <link rel="stylesheet" href="{{asset('admin/css-1/adminlte.min.css')}}">
+            <link rel="stylesheet" href="{{asset('admin/css-1/sweet-alert-ltr.css')}}">
         @endif
 
         <script src="{{asset('https://code.jquery.com/ui/1.12.1/jquery-ui.min.js')}}"></script>
@@ -86,21 +88,6 @@
             padding-right:0 !important;
         }
 
-        .swal2-actions {
-            display: flex !important;
-            justify-content: flex-end !important; /* Align buttons to the right */
-            width: 100% !important; /* Ensure full width */
-            padding-right:10px !important;
-            padding-top:5px !important;
-            margin-top: 0 !important;
-        }
-
-        .swal2-actions-custom-fix {
-            display: flex !important;
-            justify-content: space-between !important;
-            width: 100% !important;
-            padding: 0 1rem;
-        }
 
         .custom-confirm,
         .custom-cancel {
@@ -195,6 +182,11 @@
         }
         #language-dropdown{
             z-index: 9999;
+            max-height: none !important;
+        }
+
+        [dir="rtl"] #language-dropdown{
+            margin-right: -150px !important;
         }
 
     </style>
@@ -206,7 +198,7 @@
 
     <!-- ADD THE CLASS fixed TO GET A FIXED HEADER AND SIDEBAR LAYOUT -->
     <!-- the fixed layout is not compatible with sidebar-mini -->
-    <body class="hold-transition sidebar-mini layout-fixed">
+    <body class="hold-transition sidebar-mini layout-fixed" dir="{{ in_array(app()->getLocale(), ['ar', 'he']) ? 'rtl' : 'ltr' }}">
     <div class="wrapper">
 
         <!-- Navbar -->
@@ -769,8 +761,8 @@ $("document").ready(function(){
                                 const isSelected = value.locale === currentLocale ? 'selected' : '';
                                 $('#language-dropdown').append(
                                     '<a href="javascript:;" class="dropdown-item" data-locale="' + value.locale + '" ' + isSelected + '>' +
-                                    '<i class="flag-icon flag-icon-' + mappedLocale + ' ' + (curLang === 'ar' ? 'ml-2' : 'mr-2') + '"></i> ' +
-                                    value.name + ' (' + value.translation + ')' +
+                                    '<i class="flag-icon flag-icon-' + mappedLocale +' mr-2"></i> ' +
+                                    value.name + '&nbsp;&rlm;(' + value.translation + ')' +
                                     '</a>'
                                 );
                             }

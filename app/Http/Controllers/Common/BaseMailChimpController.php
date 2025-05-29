@@ -139,7 +139,7 @@ class BaseMailChimpController extends Controller
             $this->addListsToAgora();
             $data = ['list_id' => 1];
 
-            return successResponse(\Lang::get('message.mailchimp_setting'), $data);
+            return successResponse(\Lang::get('message.mailchimp_setting_successfully_saved'), $data);
         } catch (\Exception $ex) {
             return errorResponse(\Lang::get('message.mailchimp_apikey_error'));
         }

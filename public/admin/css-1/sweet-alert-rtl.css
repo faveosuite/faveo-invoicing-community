@@ -1,0 +1,82 @@
+.swal2-title.custom-title {
+    text-align: right;
+    padding-right: 17px !important;
+    margin-bottom: 10px;
+    font-size: 2rem;
+    font-weight:500;
+    padding:0;
+}
+.swal2-html-container.custom-content {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    margin: 0 !important;
+    padding:0;
+}
+
+.swal2-html-container.custom-content .section-sa {
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    padding-top: 13px;
+}
+
+.swal2-html-container.custom-content .section-sa p {
+    text-align: right;
+    margin-right: 17px;
+}
+.swal2-actions{
+    padding-left:8px;
+}
+
+.dataTables_wrapper .dataTables_length {
+    float: right !important;
+}
+
+.dataTables_wrapper .dataTables_filter {
+    float: left !important;
+}
+
+.dataTables_info{
+    float:right !important;
+}
+
+.dataTables_paginate{
+    float:left !important;
+}
+
+th.sorting,
+th.sorting_asc,
+th.sorting_desc {
+    padding-left: 20px;
+    padding-right: auto;
+    background-position: left center !important;
+    background-repeat: no-repeat;
+}
+
+.swal2-actions:has(.swal2-cancel):has(.swal2-confirm) {
+    display: flex !important;
+    flex-direction: row-reverse !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    padding: 0 10px !important;
+    box-sizing: border-box !important;
+}
+
+.swal2-popup {
+    --swal2-padding: 0 0 0.25em;
+    --swal2-title-padding: 0.5em 1em 0;
+    --swal2-html-container-padding: 0.4em 1.6em 0.3em;
+}
+
+div:where(.swal2-container) button:where(.swal2-close) {
+    margin-bottom: -5.2em;
+    margin-top: 8px;
+}
+
+.tox{
+    direction: rtl !important;
+    text-align: right !important;
+}
+
+

@@ -9,7 +9,6 @@
     {{ __('message.forgot-password') }}
 @stop
 @section('breadcrumb')
-@section('breadcrumb')
     @if(Auth::check())
         <li><a class="text-primary" href="{{url('my-invoices')}}">{{ __('message.home')}}</a></li>
     @else
@@ -122,7 +121,7 @@ main
             const alertClass = isSuccess ? 'alert-success' : 'alert-danger';
 
             // Extract message and errors
-            const message = response.message || response || '{{ __('message.error_occurred') }}';
+            const message = response.message || response || 'An error occurred. Please try again.';
 
             // Build base HTML
             let html = `<div class="alert ${alertClass} alert-dismissible">` +
