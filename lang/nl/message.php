@@ -2484,6 +2484,6 @@ return [
     'paginate_all' => 'Alles',
     'select2_input_too_short' => 'Voer 1 of meer tekens in',
     'select2_no_results' => 'Geen resultaten gevonden',
-    'select2_searching' => 'Bezig met zoeken...'
+    'select2_searching' => 'Bezig met zoeken...',
 
 ];
