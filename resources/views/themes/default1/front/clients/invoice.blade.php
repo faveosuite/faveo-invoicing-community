@@ -61,9 +61,13 @@
             $formattedValue = currencyFormat($amt, getCurrencyForClient(\Auth::user()->country) , true);
 
         @endphp
-        <button class="btn-credit open-createCreditDialog" style="background-color: white; border: none; margin-left: 960px; margin-bottom: 10px;">
-            <i class="fas fa-credit-card"></i> {{ __('message.credits')}} {!! $formattedValue !!}
-        </button>
+        <div class="d-flex justify-content-end mb-2">
+            <button class="btn-credit open-createCreditDialog text-truncate"
+                    style="background-color: white; border: none; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                <i class="fas fa-credit-card me-1"></i>
+                {{ __('message.credits') }} {!! $formattedValue !!}
+            </button>
+        </div>
         <script>
             $(document).ready(function () {
                 $(document).on("click", ".open-createCreditDialog", function () {
@@ -356,6 +360,7 @@
                 infoFiltered:   "{{ __('message.info_filtered') }}",
                 lengthMenu:     "{{ __('message.length_menu') }}",
                 loadingRecords: "{{ __('message.loading_records') }}",
+                search:         "{{ __('message.table_search') }}",
             },
 
             columns: [

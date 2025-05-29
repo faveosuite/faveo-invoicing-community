@@ -529,10 +529,9 @@ class ClientController extends BaseClientController
                                 } elseif (! $orderEndDate) {
                                     $link = $this->github_api->getCurl1($link['zipball_url']);
 
-                                    return '<p><a href='.$link['header']['Location']
-                                    ." class='btn btn-sm btn-primary'>'. __('message.download').'  </a>"
-                                            .'&nbsp;
-                                   </p>';
+                                    return '<p><a href="' . $link['header']['Location'] . '" class="btn btn-sm btn-primary">'
+                                        . __('message.download') .
+                                        '</a>&nbsp;</p>';
                                 }
                             })
                             ->rawColumns(['version', 'name', 'description', 'file'])
@@ -598,9 +597,10 @@ class ClientController extends BaseClientController
 
                             ->addColumn('Action', function ($model) {
                                 if ($model->order_status == 'Terminated') {
-                                    return '<a href='.url('my-order/'.$model->id)." 
-                                class='btn btn-light-scale-2 btn-sm text-dark' style='margin-right:5px;'>
-                                <i class='fa fa-eye' data-toggle='tooltip' data-placement='top' title='Click here to view'></i></a>";
+                                    return '<a href="' . url('my-order/' . $model->id) . '" 
+                                     class="btn btn-light-scale-2 btn-sm text-dark" style="margin-right:5px;">
+                                     <i class="fa fa-eye" data-toggle="tooltip" data-placement="top" title="' . __('message.click_here_view') . '"></i>
+                                     </a>';
                                 }
                                 $plan = Plan::where('product', $model->product_id)->value('id');
                                 $whatIsSub = Subscription::where('order_id', $model->id)->value('plan_id');
@@ -633,9 +633,10 @@ class ClientController extends BaseClientController
 
                                 $changeDomain = $this->changeDomain($model, $model->product_id); // Need to add this if the client requirement intensifies.
 
-                                return '<a href='.url('my-order/'.$model->id)." 
-                                class='btn btn-light-scale-2 btn-sm text-dark' style='margin-right:5px;'>
-                                <i class='fa fa-eye' data-toggle='tooltip' data-placement='top' title='Click here to view'></i>&nbsp; $listUrl $url $deleteCloud</a>";
+                                return '<a href="' . url('my-order/' . $model->id) . '" 
+                                class="btn btn-light-scale-2 btn-sm text-dark" style="margin-right:5px;">
+                                <i class="fa fa-eye" data-toggle="tooltip" data-placement="top" title="' . __('message.click_here_view') . '"></i>&nbsp; '
+                                    . $listUrl . ' ' . $url . ' ' . $deleteCloud . ' </a>';
                             })
                             ->filterColumn('product_name', function ($query, $keyword) {
                                 $sql = 'product.name like ?';

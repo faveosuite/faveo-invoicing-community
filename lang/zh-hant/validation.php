@@ -893,5 +893,12 @@ return [
         'app_key_size' => '應用程式金鑰必須恰好為 32 個字符。',
         'app_secret_required' => '應用程式密鑰是必需的。',
     ],
+    'plan_request' => [
+        'name_required' => '名稱欄位為必填項目',
+        'product_quant_req' => '當未填寫代理人數時，產品數量欄位為必填項目。',
+        'no_agent_req' => '當未填寫產品數量時，代理人數欄位為必填項目。',
+        'pro_req' => '產品欄位為必填項目',
+        'offer_price' => '優惠價格不得高於 100',
+    ],
 
 ];

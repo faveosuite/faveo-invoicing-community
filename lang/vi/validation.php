@@ -898,5 +898,12 @@ return [
         'app_key_size' => 'Khóa ứng dụng phải có đúng 32 ký tự.',
         'app_secret_required' => 'Mật khẩu ứng dụng là bắt buộc.',
     ],
+    'plan_request' => [
+        'name_required' => 'Trường tên là bắt buộc',
+        'product_quant_req' => 'Trường số lượng sản phẩm là bắt buộc khi số lượng đại lý không có.',
+        'no_agent_req' => 'Trường số lượng đại lý là bắt buộc khi không có số lượng sản phẩm.',
+        'pro_req' => 'Trường sản phẩm là bắt buộc',
+        'offer_price' => 'Giá ưu đãi không được lớn hơn 100',
+    ],
 
 ];

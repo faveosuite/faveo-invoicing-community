@@ -545,9 +545,9 @@ function emailSendingStatus()
 
 function installationStatusLabel($installedPath)
 {
-    return $installedPath ? "&nbsp;<span class='badge badge-primary' style='background-color:darkcyan !important;' <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title='Installation is Active'>
-                     </label>Active</span>" : "&nbsp;<span class='badge badge-info' <label data-toggle='tooltip' style='font-weight:500;background-color:crimson;' data-placement='top' title='Installation is inactive'>
-                    </label>Inactive</span>";
+    return $installedPath ? "&nbsp;<span class='badge badge-primary' style='background-color:darkcyan !important;' <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title='" .__('message.installation_is_active'). "'>
+                     </label>". __('message.active')."</span>" : "&nbsp;<span class='badge badge-info' <label data-toggle='tooltip' style='font-weight:500;background-color:crimson;' data-placement='top' title='" .__('message.installation_is_inactive'). "'>
+                    </label>". __('message.inactive')."</span>";
 }
 
 //return root url from long url (http://www.domain.com/path/file.php?aa=xx becomes http://www.domain.com/path/), remove scheme, www. and last slash if needed
@@ -845,4 +845,14 @@ function getUrl()
     $path = dirname($_SERVER['SCRIPT_NAME']);
 
     return $protocol.'://'.$host.$path;
+}
+
+/**
+ * Check if the current locale is RTL (Right-to-Left) or LTR (Left-to-Right).
+ *
+ * @return bool True if the locale is RTL, false otherwise.
+ */
+function isRtlForLang()
+{
+    return in_array(app()->getLocale(), ['ar', 'he']);
 }

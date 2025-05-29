@@ -1,0 +1,52 @@
+.swal2-title.custom-title {
+    text-align: left;
+    padding-left: 17px !important;
+    margin-bottom: 10px;
+    font-size: 1.8rem;
+    font-weight:500;
+    padding:0;
+}
+.swal2-html-container.custom-content {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    margin: 0 !important;
+    padding:0;
+}
+
+.swal2-html-container.custom-content .section-sa {
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    padding-top: 13px;
+}
+
+.swal2-html-container.custom-content .section-sa p {
+    text-align: left;
+    margin-left: 17px;
+    font-weight:400;
+    font-size: 1.1rem;
+}
+
+.swal2-actions {
+    display: flex !important;
+    flex-direction: row-reverse !important;
+    justify-content: space-between !important;
+    padding: 0 3px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.swal2-popup {
+    --swal2-padding: 0 0 0.25em;
+    --swal2-title-padding: 0.5em 1em 0;
+    --swal2-html-container-padding: 0.4em 1.6em 0.3em;
+}
+
+div:where(.swal2-container) button:where(.swal2-close) {
+    margin-bottom: -5.2em;
+    margin-top: 8px;
+}
+
+
+

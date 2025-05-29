@@ -314,9 +314,9 @@
                                     <div class="col-md-auto px-0">
                                         @if(count($domain)>0)
 
-                                       <a href="#domain" data-toggle="modal" data-target="#domain" class="btn btn-dark btn-modern text-2 text-uppercase checkout">{{ __('message.checkout') }} <i class="fas fa-arrow-right ms-2"></i></a>
+                                       <a href="#domain" data-toggle="modal" data-target="#domain" class="btn btn-dark btn-modern text-2 text-uppercase checkout">{{ __('message.checkout') }} <i class="fas {{ isRtlForLang() ? 'fa-arrow-left me-2' : 'fa-arrow-right ms-2' }}"></i></a>
                                          @else
-                                         <a href="{{url('checkout')}}" class="btn btn-dark btn-modern text-2 text-uppercase checkout">{{ __('message.checkout') }} <i class="fas fa-arrow-right ms-2"></i></a>
+                                         <a href="{{url('checkout')}}" class="btn btn-dark btn-modern text-2 text-uppercase checkout">{{ __('message.checkout') }} <i class="fas {{ isRtlForLang() ? 'fa-arrow-left me-2' : 'fa-arrow-right ms-2' }}"></i></a>
                                           @endif
                                     </div>
                                 </div>

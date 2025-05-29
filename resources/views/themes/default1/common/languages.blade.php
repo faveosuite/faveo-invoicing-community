@@ -219,7 +219,23 @@ input:checked + .slider:before {
     $(document).ready(function() {
 
         $('#language-table').DataTable({
-            "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]]
+            "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "{{ __('message.paginate_all') }}"]],
+            language: {
+                paginate: {
+                    first:      "{{ __('message.paginate_first') }}",
+                    last:       "{{ __('message.paginate_last') }}",
+                    next:       "{{ __('message.paginate_next') }}",
+                    previous:   "{{ __('message.paginate_previous') }}"
+                },
+                emptyTable:     "{{ __('message.empty_table') }}",
+                info:           "{{ __('message.datatable_info') }}",
+                zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
+                infoEmpty:      "{{ __('message.info_empty') }}",
+                infoFiltered:   "{{ __('message.info_filtered') }}",
+                lengthMenu:     "{{ __('message.length_menu') }}",
+                loadingRecords: "{{ __('message.loading_records') }}",
+                search:         "{{ __('message.table_search') }}",
+            },
         });
     });
 
@@ -240,28 +256,25 @@ input:checked + .slider:before {
         toggle.addEventListener('change', function () {
             const locale = this.dataset.locale;
             const status = this.checked ? 1 : 0;
-            const slider = this.nextElementSibling;
+            const toggleElement = this; // this refers to the checkbox that was clicked whether success or error
 
-            fetch('{{ url("/language-toggle") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            $.ajax({
+                url: '{{ url("/language-toggle") }}',
+                type: 'POST',
+                data: {
+                    locale: locale,
+                    status: status,
+                    _token: '{{ csrf_token() }}'
                 },
-                body: JSON.stringify({ locale: locale, status: status })
-            })
-                .then(response =>{
-
-                    console.log(response);
-                    if(response.status === 200){
-                        window.location.reload();
-                    }
-                    })
-                .catch(error => {
-                    // alert('Something went wrong.');
-                    console.error(error);
-                    this.checked = !this.checked; // revert the toggle
-                });
+                success: function(response) {
+                    console.log(response.message || 'Language toggled successfully');
+                    window.location.reload();
+                },
+                error: function(xhr) {
+                    console.error('Error toggling language:', xhr.responseText);
+                    toggleElement.checked = !status;
+                }
+            });
         });
     });
 </script>

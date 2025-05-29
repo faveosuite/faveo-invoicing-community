@@ -865,5 +865,12 @@ return [
         'app_key_size' => 'Appnøkkelen må være nøyaktig 32 tegn.',
         'app_secret_required' => 'Apphemmelighet er påkrevd.',
     ],
+    'plan_request' => [
+        'name_required' => 'Feltet navn er påkrevd',
+        'product_quant_req' => 'Produktmengdefeltet er påkrevd når antall agenter ikke er til stede.',
+        'no_agent_req' => 'Antall agenter-feltet er påkrevd når produktmengde ikke er til stede.',
+        'pro_req' => 'Produktfeltet er påkrevd',
+        'offer_price' => 'Tilbudspriser må ikke være større enn 100',
+    ],
 
 ];

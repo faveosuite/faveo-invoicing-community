@@ -161,22 +161,24 @@ foreach($scripts as $script) {
                             </div>
                         </div>
 
-                        <div class="row justify-content-between">
-
-                            <div class="form-group col-md-auto">
-
-                                <div class="custom-control custom-checkbox" style="padding-right: 100px;">
-
-                                    {!! html()->checkbox('remember', false)->class('custom-control-input')->id('rememberme') !!}
-                                    <label class="form-label custom-control-label cur-pointer text-2" for="rememberme">{{ __('message.remember-me') }}</label>
-                                </div>
-                            </div>
-
-                            <div class="form-group col-md-auto {{ $errors->has('password1') ? 'has-error' : '' }}">
-
-                                <a class="text-decoration-none text-color-primary font-weight-semibold text-2" href="{{url('password/reset')}}" style="padding-left: 100px;">{{ __('message.forgot-my-password')}}</a>
-                            </div>
-                        </div>
+                                              <div class="row mb-3 align-items-center">
+                                                  <div class="col-6">
+                                                      <div class="custom-control custom-checkbox">
+                                                          {!! html()->checkbox('remember', false)->class('custom-control-input')->id('rememberme') !!}
+                                                          <label class="custom-control-label text-2 cur-pointer" for="rememberme">
+                                                              {{ __('message.remember-me') }}
+                                                          </label>
+                                                      </div>
+                                                  </div>
+                                                  <div class="col-6">
+                                                      <div class="{{ $errors->has('password1') ? 'has-error' : '' }} {{ in_array(app()->getLocale(), ['ar', 'he']) ? 'float-start' : 'float-end' }}">
+                                                          <a class="text-decoration-none text-color-primary font-weight-semibold text-2 text-break"
+                                                             href="{{ url('password/reset') }}">
+                                                              {{ __('message.forgot-my-password') }}
+                                                          </a>
+                                                      </div>
+                                                  </div>
+                                              </div>
                          <?php
                          use App\Model\Common\StatusSetting;
                          $gcaptcha = StatusSetting::pluck('v3_v2_recaptcha_status')->first();

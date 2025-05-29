@@ -60,15 +60,15 @@
         .table-responsive {
             position: relative; 
         }
-        
-  /*      .custom-dropdown {
-            z-index: 1050; 
-        }*/
-        
-        .btn-alldell, #export-report-btn {
-            z-index: 1000; 
+
+        .custom-dropdown {
+            z-index: 1033;
         }
-        
+
+        .btn-alldell, #export-report-btn {
+            z-index: 1000;
+        }
+
         .d-flex.justify-content-between {
             margin-bottom: 1rem;
         }
@@ -76,20 +76,68 @@
         .dropdown-menu {
             z-index: 1050;
         }
-        
+
         #user-table_wrapper input[type="search"] {
             position: relative;
-            right: 180px;
+            right: 150px;
         }
-        
+
         .dataTables_filter {
             position: relative;
             z-index: 1;
         }
 
+        [dir="rtl"] .custom-dropdown .form-check {
+            padding-right: 46px !important;
+            position: relative !important;
+            left: -15px !important;
+        }
+
+        [dir="rtl"] #saveColumnsBtn{
+            float:right;
+            right:10px !important;
+            bottom:10px;
+        }
+
+        .dropdown-menu.user-column-dropdown.show {
+            top:6px !important;
+        }
+
+        [dir="rtl"] .dropdown-menu.user-column-dropdown.show {
+            position: absolute;
+            inset: 0px auto auto 0px;
+            margin: 0px;
+            transform: translate3d(18px, 90px, 0px) !important;
+            z-index: 1050;
+            padding-bottom:30px;
+            top:29px !important;
+        }
+
+        [dir="rtl"] .dataTables_wrapper .dataTables_filter input {
+            margin-left: 67px;
+        }
+
+        .datatable-search-label {
+            position: relative;
+            right: 152px;
+        }
+
+        [dir="rtl"] .datatable-search-label {
+            position: relative;
+            right: -63px;
+        }
+
+        [dir="rtl"] #user-table_wrapper input[type="search"] {
+            position: relative;
+            right: -55px !important;
+        }
+
+        [dir="rtl"] #swal2-title {
+            text-align: right !important;
+        }
      </style>
 @stop
-    
+
 @section('content')
 <div id="export-message"></div>
 
@@ -103,7 +151,7 @@
                     <div class="card-tools">
                         <button type="button" class="btn btn-tool" id="tip-search" title="{{ __('message.expand') }}"> <i id="search-icon" class="fas fa-plus"></i>
                             </button>
-                       
+
                     </div>
                 </div>
                 <div class="card-body" id="advance-search" style="display:none;">
@@ -182,10 +230,10 @@
                             <!-- first name -->
                             {!! html()->label( __('message.registered_from'), 'reg_from') !!}
                             <div class="input-group date" id="reservationdate_from" data-target-input="nearest">
-                              <input type="text" name="reg_from" class="form-control datetimepicker-input" autocomplete="off" value="{!! $request->reg_from !!}" data-target="#reservationdate_from"/>                            
+                              <input type="text" name="reg_from" class="form-control datetimepicker-input" autocomplete="off" value="{!! $request->reg_from !!}" data-target="#reservationdate_from"/>
                               <div class="input-group-append" data-target="#reservationdate_from" data-toggle="datetimepicker">
                                     <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                            
+
                             </div>
 
                         </div>
@@ -209,7 +257,7 @@
                         <div class="col-md-3 form-group">
                             <!-- first name -->
                             {!! html()->label( __('message.users_account_manager'), 'from') !!}
-                            <select name="actmanager"  class="form-control selectpicker" data-live-search="true",data-live-search-placeholder="Search" data-dropup-auto="false"  data-size="10" id="actmanager" >
+                            <select name="actmanager"  class="form-control selectpicker" data-live-search="true" data-live-search-placeholder="Search" data-dropup-auto="false"  data-size="10" id="actmanager" >
                                 <option value="">{{ __('message.choose') }}</option>
                                 @foreach($acctManagers as $key=>$acct)
                                     @if($key == $request->actmanager)
@@ -265,7 +313,7 @@
                     <button name="Search" type="submit" id="search"  class="btn btn-secondary"><i class="fa fa-search"></i>&nbsp;{!!Lang::get('message.search')!!}</button>
                     &nbsp;
                     <!-- <a href="{!! url('clients') !!}" id="reset" class="btn btn-secondary"><i class="fas fa-sync-alt"></i>&nbsp;{!!Lang::get('Reset')!!}</a> -->
-                    {!! html()->submit('message.reset')
+                    {!! html()->submit( __('message.reset'))
     ->class('btn btn-secondary')
     ->id('reset') !!}
 
@@ -280,15 +328,15 @@
         <h3 class="card-title">{{ __('message.users') }}</h3>
         <div class="card-tools">
             
-        <button type="button" id="export-report-btn" class="btn btn-sm pull-right" data-toggle="tooltip" title="{{ __('message.export') }}" style="position: absolute;left: 95.5%;top: 13px;">
+        <button type="button" id="export-report-btn" class="btn btn-sm pull-right" data-toggle="tooltip" title="{{ __('message.export') }}" style="position: absolute; top: 13px; {{ isRtlForLang() ? 'right: 95.5%;' : 'left: 95.5%;' }}">
             <i class="fas fa-paper-plane"></i>
         </button>
-            <a href="{{url('clients/create')}}" class="btn btn-sm pull-right" data-toggle="tooltip" title="{{ __('message.create_new_user') }}" style="position: absolute;left: 97.5%;">
+            <a href="{{url('clients/create')}}" class="btn btn-sm pull-right" data-toggle="tooltip" title="{{ __('message.create_new_user') }}" style="position: absolute; {{ isRtlForLang() ? 'right: 97.5%;' : 'left: 97.5%;' }}">
                 <span class="fas fa-plus"></span>
             </a>
         </div>
     </div>
-    
+
     <div id="response"></div>
 
     <div class="card-body table-responsive">
@@ -363,7 +411,7 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css">
         <!-- <script src="https://code.jquery.com/jquery-3.5.1.js"></script> -->
                 <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.0.3/css/buttons.dataTables.min.css">
-<script src="https://cdn.datatables.net/buttons/1.0.3/js/dataTables.buttons.min.js"></script> 
+<script src="https://cdn.datatables.net/buttons/1.0.3/js/dataTables.buttons.min.js"></script>
 
     <script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
  <script type="text/javascript">
@@ -394,7 +442,7 @@ $(document).ready(function() {
         },
         "oLanguage": {
             "sLengthMenu": "_MENU_ Records per page",
-            "sSearch": "<span style='position: relative;right: 180px;'>{{ __('message.search') }}:</span> ",
+            "sSearch": "<span class='datatable-search-label'>{{ __('message.search') }}:</span> ",
             "sProcessing": ' <div class="overlay dataTables_processing"><i class="fas fa-3x fa-sync-alt fa-spin" style=" margin-top: -25px;"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
         },
         language: {
@@ -608,42 +656,32 @@ $(document).ready(function() {
       if(id.length<=0){
           e.preventDefault();
           swal.fire({
-              title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
-              html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
-                  "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
-                  "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_checkbox')}}</p>" + "</div>" +
+              title: "<h2 class='swal2-title custom-title'>{{Lang::get('message.Select')}}</h2>",
+              html: "<div  class='swal2-html-container custom-content'>" +
+                  "<div class='section-sa'>" +
+                  "<p >{{Lang::get('message.sweet_checkbox')}}</p>" + "</div>" +
                   "</div>",
               position: 'top',
-              confirmButtonText: "OK",
+              confirmButtonText: "{{ __('message.ok') }}",
               showCloseButton: true,
               confirmButtonColor: "#007bff",
               width: "600px",
-              buttonsStyling: false,
-              customClass: {
-                  confirmButton: 'btn btn-primary btn-sm custom-confirm',
-              }
           })
       }
       else {
           var swl = swal.fire({
-              title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Suspend')}}</h2>",
-              html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
-                  "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
-                  "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.user_sweet_suspend')}}</p>" + "</div>" +
+              title: "<h2 class='swal2-title custom-title'>{{Lang::get('message.Suspend')}}</h2>",
+              html: "<div  class='swal2-html-container custom-content'>" +
+                  "<div class='section-sa'>" +
+                  "<p >{{Lang::get('message.user_sweet_suspend')}}</p>" + "</div>" +
                   "</div>",
               showCancelButton: true,
+              cancelButtonText: "{{ __('message.cancel') }}",
               showCloseButton: true,
               position: "top",
               width: "600px",
               confirmButtonText: @json(trans('message.Suspend')),
               confirmButtonColor: "#007bff",
-              reverseButtons: true,
-              buttonsStyling: false,
-              customClass: {
-                  actions: 'swal2-actions-custom-fix',
-                  confirmButton: 'btn btn-primary btn-sm custom-confirm',
-                  cancelButton: 'btn btn-secondary btn-sm custom-cancel'
-              }
           }).then((result) => {
               if (result.isConfirmed) {
                   $('.user_checkbox:checked').each(function () {
@@ -668,13 +706,13 @@ $(document).ready(function() {
                       })
                   } else {
                       swal.fire({
-                          title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
-                          html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
-                              "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
-                              "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_checkbox')}}</p>" + "</div>" +
+                          title: "<h2 class='swal2-title custom-title'>{{Lang::get('message.Select')}}</h2>",
+                          html: "<div  class='swal2-html-container custom-content'>" +
+                              "<div class='section-sa'>" +
+                              "<p >{{Lang::get('message.sweet_checkbox')}}</p>" + "</div>" +
                               "</div>",
                           position: 'top',
-                          confirmButtonText: "OK",
+                          confirmButtonText: "{{ __('message.ok') }}",
                           showCloseButton: true,
                           confirmButtonColor: "#007bff",
                           width: "600px",

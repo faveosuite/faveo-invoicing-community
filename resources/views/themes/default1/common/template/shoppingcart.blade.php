@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.front.master')
 @section('title')
-Pricing | Faveo Helpdesk
+{{ __('message.pricing_faveo_helpdesk') }}
 @stop
 @section('page-heading')
  {{$headline}}

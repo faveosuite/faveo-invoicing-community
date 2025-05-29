@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-    Contact-Options
+    {{ __('message.contact-options') }}
 @stop
 @section('content-header')
     <style>
@@ -92,9 +92,9 @@
     </div>
     <div class="col-sm-6 md-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('settings')}}"> Settings</a></li>
-            <li class="breadcrumb-item active">Contact Options</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}"> {{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.contact_options') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -110,12 +110,12 @@
             <div id="alertMessage"></div>
 
             <div class="d-flex align-items-center">
-                <h4 class="mb-0 me-2">Allow user to login only if they have verified their email</h4>
+                <h4 class="mb-0 me-2">{{ __('message.allow_login_only_user_verified') }}</h4>
                 <i class="fas fa-question-circle  custom-tooltip" data-toggle="tooltip" data-placement="top" style="margin-left: 7px" title="{{Lang::get('message.verify_email_tooltip')}}"></i>
             </div>
             <div class="form-check mt-2">
                 <input type="checkbox" class="form-check-input checkbox5" id="email" value="{{$emailStatus}}" name="email_settings">
-                <label class="form-check-label" for="email_set">Verified Email</label>
+                <label class="form-check-label" for="email_set">{{ __('messsage.verified_email') }}</label>
             </div>
     </div>
     </div>
@@ -176,9 +176,9 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+data.update+'.</div>';
                     $('#alertMessage').html(result);
-                    $("#submit4").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    $("#submit4").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save')}}");
                     setInterval(function(){
                         $('#alertMessage').slideUp(1000);
                     }, 4000);
@@ -191,7 +191,7 @@
             } else {
                 var emailstatus = 0;
             }
-            $("#submit4").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+            $("#submit4").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
             $.ajax ({
                 url: '{{url("updateemailDetails")}}',
                 type : 'post',
@@ -203,9 +203,9 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+data.update+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+data.update+'.</div>';
                     $('#alertMessage').html(result);
-                    $("#submit4").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    $("#submit4").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save')}}");
                     setInterval(function(){
                         $('#alertMessage').slideUp(1000);
                     }, 4000);

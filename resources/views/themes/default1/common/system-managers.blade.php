@@ -63,7 +63,7 @@
                         ->id('users')
                         ->required()
                         ->style('width:100%!important;')
-                        ->attribute('oninvalid', "setCustomValidity('Please Select Client'])")
+                        ->attribute('oninvalid', "setCustomValidity('{{ __('message.please_select_client') }}'])")
                         ->attribute('onchange', "setCustomValidity('')") !!}
                     <div class="input-group-append">
                     </div>
@@ -108,7 +108,7 @@
                         ->id('sales')
                         ->required()
                         ->style('width:100%!important')
-                        ->attribute('oninvalid', "setCustomValidity('Please Select Client')")
+                        ->attribute('oninvalid', "setCustomValidity('{{ __('message.please_select_client') }}')")
                         ->attribute('onchange', "setCustomValidity('')") !!}
                     <div class="input-group-append">
                     </div>
@@ -130,9 +130,20 @@
 
 <script>
         $('#users').select2({
-        placeholder: "Search",
+        placeholder: "{{ __('message.search') }}",
         minimumInputLength: 1,
         maximumSelectionLength: 1,
+            language: {
+                inputTooShort: function () {
+                    return '{{ __("message.select2_input_too_short") }}';
+                },
+                noResults: function () {
+                    return '{{ __("message.select2_no_results") }}';
+                },
+                searching: function () {
+                    return '{{ __("message.select2_searching") }}';
+                }
+            },
         ajax: {
             url: '{{route("search-admins")}}',
             dataType: 'json',
@@ -172,9 +183,20 @@
 
 
       $('#sales').select2({
-        placeholder: "Search",
+        placeholder: "{{ __('message.search') }}",
         minimumInputLength: 1,
         maximumSelectionLength: 1,
+          language: {
+              inputTooShort: function () {
+                  return '{{ __("message.select2_input_too_short") }}';
+              },
+              noResults: function () {
+                  return '{{ __("message.select2_no_results") }}';
+              },
+              searching: function () {
+                  return '{{ __("message.select2_searching") }}';
+              }
+          },
           ajax: {
             url: '{{route("search-admins")}}',
             dataType: 'json',
