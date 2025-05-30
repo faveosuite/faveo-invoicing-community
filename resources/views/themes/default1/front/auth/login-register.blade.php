@@ -253,7 +253,7 @@ foreach($scripts as $script) {
 
                                 <label class="form-label text-color-dark text-3">{{ __('message.first_name')}} <span class="text-color-danger">*</span></label>
 
-                                {!! html()->text('first_name')
+                                {!! html()->text('first_name',e(old('first_name')))
    ->class('form-control form-control-lg text-4')
    ->id('first_name') !!}
                                 <span id="first_namecheck"></span>
@@ -276,7 +276,7 @@ foreach($scripts as $script) {
 
                                 <label class="form-label text-color-dark text-3">{{ __('message.email_address')}} <span class="text-color-danger">*</span></label>
 
-                                {!! html()->email('email')
+                                {!! html()->email('email',e(old('email')))
     ->class('form-control form-control-lg text-4')
     ->id('email') !!}
                                 <span id="emailcheck"></span>
@@ -302,7 +302,7 @@ foreach($scripts as $script) {
 
                                 <label class="form-label text-color-dark text-3">{{ __('message.address')}} <span class="text-color-danger">*</span></label>
 
-                                {!! html()->textarea('address')
+                                {!! html()->textarea('address',e(old('address')))
     ->class('form-control form-control-lg text-4')
     ->rows(5)
     ->id('address') !!}
@@ -594,7 +594,6 @@ foreach($scripts as $script) {
                 const message = response.message || response || 'An error occurred. Please try again.';
                 const errors = response.errors || null;
 
-                // Build base HTML
                 let html = `<div class="alert ${alertClass} alert-dismissible">` +
                     `<i class="fa ${iconClass}"></i> ` +
                     `${message}` +

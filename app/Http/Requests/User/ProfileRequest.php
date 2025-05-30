@@ -74,8 +74,8 @@ class ProfileRequest extends Request
                 'last_name' => 'required|max:30',
                 'email' => 'required|email|unique:users',
                 'company' => 'required|max:50',
-                'mobile' => 'required',
-                'address' => 'required',
+                'mobile' => 'required|unique:users',
+                'address' => 'required|string|regex:/^[^<>]*$/',
                 'terms' => 'sometimes',
                 'password' => [
                     'required',
@@ -136,6 +136,8 @@ class ProfileRequest extends Request
             'password_confirmation.required' => __('validation.profile_form.password_confirmation.required'),
             'password_confirmation.same' => __('validation.profile_form.password_confirmation.same'),
 
+
+            'mobile.unique' => __('message.mobile_unique'),
             'profile_pic.mimes' => __('message.image_allowed'),
             'profile_pic.max' => __('message.image_max'),
 
