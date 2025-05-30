@@ -1178,6 +1178,7 @@ return [
     'zoho_status' => 'Zoho crm status successfully saved',
     'pipedrive_status' => 'Pipedrive status successfully saved',
     'github_status' => 'Github status successfully saved',
+    'email_validation_status'=>'Email validation status successfully saved',
     'google_status' => 'Google recaptcha status successfully saved',
     'license_setting' => 'License manager settings successfully saved',
     'mobile_setting' => 'Msg91 Mobile Verification settings successfully saved',
@@ -1241,4 +1242,13 @@ return [
     'subscribe_status_error' => 'Please select a valid subscribe status.',
     'recaptcha_type_error' => 'Please select a recaptcha type.',
     'third_party_key_error' => 'Please select a valid Msg91 app key.',
+    'reoon'=>'Reoon',
+    'validation-provider'=>'Validation Provider',
+    'email_validation_heading'=>'Email Validation Status',
+    'emailApikey'=>'Email ApiKey',
+    'emailMode'=>'Email Validation Mode',
+    'email_validation_success'=>'Email validation key and mode successfully saved.',
+    'emailApikey_error'=>'Please enter a valid Reoon Api key.',
+    'email_provided_wrong'=>'For security reasons, we are unable to accept the provided email address.Please try registering with a different, valid business email.'
+
 ];

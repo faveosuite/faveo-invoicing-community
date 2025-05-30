@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\ApiKey;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\ProfileRequest;
 use App\Model\Common\Setting;
@@ -12,7 +13,7 @@ use Facades\Spatie\Referer\Referer;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\Mime\Email;
-
+use Illuminate\Support\Facades\Http;
 class RegisterController extends Controller
 {
     /*
@@ -44,12 +45,35 @@ class RegisterController extends Controller
         $this->middleware('guest');
     }
 
+    public function emailVerification($email){
+
+        [$apikey, $mode] = array_values(ApiKey::select('email_verification_key', 'email_verification_mode')->first()->toArray());
+        $response = Http::get('https://emailverifier.reoon.com/api/v1/verify', [
+            'email' => $email,
+            'key'   => $apikey,
+            'mode'  => $mode,
+        ]);
+        $content=$response->json();
+        if($content['status']=='valid' || $content['status']=='safe' && !$content['is_disposable']){
+            return true;
+        }
+        return false;
+    }
+
     public function postRegister(ProfileRequest $request, User $user)
     {
         $this->validate($request, [
             'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation()],
         ]);
         try {
+            $emailValidationStatus=StatusSetting::where('id',1)->value('email_validation_status');
+            if($emailValidationStatus) {
+                $emailVerifier = $this->emailVerification($request->input('email'));
+                if (!$emailVerifier) {
+                    return errorResponse(\Lang::get('message.email_provided_wrong'));
+                }
+            }
+
             $location = getLocation();
             $state_code = $location['iso_code'].'-'.$location['state'];
 

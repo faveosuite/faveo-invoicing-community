@@ -20,6 +20,8 @@ use App\User;
 use Illuminate\Http\Request;
 use Spatie\Activitylog\Models\Activity;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Facades\Http;
+
 
 class SettingsController extends BaseSettingsController
 {
@@ -1034,4 +1036,74 @@ class SettingsController extends BaseSettingsController
 
         return view('themes.default1.common.setting.contact-options', compact('mailSendingStatus', 'emailStatus'));
     }
+
+    public function emailVerificationProvider(){
+        $emailProvider=ApiKey::where('id',1)->value('email_verification_provider');
+        $emailStatus=StatusSetting::where('id',1)->value('email_validation_status');
+        $statusDisplay = '<label class="switch toggle_event_editing emailValidationStatus">
+                        <input type="checkbox" value="'.($emailStatus ? '1' : '0').'"  name="EmailValidationStatus"
+                               class="checkbox9" id="email_validation_status"'.($emailStatus ? 'checked' : '').'>
+                        <span class="slider round"></span>
+                    </label>';
+        return view('themes.default1.common.setting.emailVerificationProvider', compact('emailStatus','statusDisplay','emailProvider'));
+    }
+
+    public function mobileVerificationProvider(){
+        $emailProvider=ApiKey::where('id',1)->value('mobile_verification_provider');
+        $emailStatus=StatusSetting::where('id',1)->value('mobile_validation_status');
+        $statusDisplay = '<label class="switch toggle_event_editing emailValidationStatus">
+                        <input type="checkbox" value="'.($emailStatus ? '1' : '0').'"  name="EmailValidationStatus"
+                               class="checkbox9" id="email_validation_status"'.($emailStatus ? 'checked' : '').'>
+                        <span class="slider round"></span>
+                    </label>';
+        return view('themes.default1.common.setting.mobileVerificationProvider', compact('emailStatus','statusDisplay','emailProvider'));
+    }
+
+    public function emailData(Request $request){
+        [$apikey, $mode] = array_values(ApiKey::select('email_verification_key', 'email_verification_mode')->first()->toArray());
+        $label = html()->label(__('message.emailApikey'), 'emailApikey')->class('required')->toHtml();
+        $input = html()->text('emailApikey',$apikey)->class('form-control emailapikey')->id('emailApikey')->toHtml();
+        $label1 = html()->label(__('message.emailMode'), 'emailMode')->class('required')->toHtml();
+        $input1= html()->text('emailMode',$mode)->class('form-control emailMode')->id('emailMode')->toHtml();
+
+        if($request->input('value')==='reoon') {
+            $response = '<div>
+             <div class="form-group">'
+                . $label
+                . $input
+                . '</div>
+             <div class="input-group-append"></div>
+            <div class="form-group">'
+                . $label1
+                . $input1
+                . '</div>'
+                . '</div>'
+                . '<div class="input-group-append"></div>'
+                . '<h4><button type="button" class="btn btn-primary float-right" id="submitEmail">Submit</button></h4>';
+        }else{
+            $response = '';
+        }
+        return successResponse(trans('message.success'), $response);
+    }
+
+
+    public function emailSettingsSave(Request $request){
+
+        $response = Http::get('https://emailverifier.reoon.com/api/v1/check-account-balance/', [
+            'key'   => $request->input('apikey'),
+        ]);
+        $content=$response->json();
+        if($content['status']==='error'){
+            return errorResponse(trans('message.emailApikey_error'));
+        }
+        try {
+            ApiKey::where('id', 1)->update(['email_verification_key' => $request->input('apikey'), 'email_verification_mode' => $request->input('mode'),
+                'email_verification_provider' => $request->input('provider'),]);
+            return successResponse(trans('message.email_validation_success'));
+        }catch (\Exception $e) {
+            return errorResponse(\Lang::get('message.invalid_key'));
+        }
+
+    }
+
 }
