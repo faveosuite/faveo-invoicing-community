@@ -266,8 +266,37 @@ Settings
             </div>
               @endif
 
+            <div class="col-md-2 col-sm-6">
+                <div class="settingiconblue">
+                    <div class="settingdivblue">
+                        <a class="icons-color" href="{{url('emailVerificationProvider')}}">
+                            <span class="fa-stack fa-2x">
+                                <i class="fas fa-envelope-open"></i>
+                            </span>
+                        </a>
+                    </div>
+                    <div class="text-center text-sm fw_400">email-verification-providers</div>
+                </div>
             </div>
+
+
+        <div class="col-md-2 col-sm-6">
+            <div class="settingiconblue">
+                <div class="settingdivblue">
+                    <a class="icons-color" href="{{url('mobileVerificationProvider')}}">
+                            <span class="fa-stack fa-2x">
+                                <i class="fas fa-phone"></i>
+                            </span>
+                    </a>
+                </div>
+                <div class="text-center text-sm fw_400">mobile-verification-providers</div>
+            </div>
+        </div>
     </div>
+
+    </div>
+
+
         <!-- /.row -->
 
     <!-- ./box-body -->
