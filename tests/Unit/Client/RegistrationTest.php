@@ -2,6 +2,8 @@
 
 namespace Tests\Unit\Client;
 
+use App\Model\Common\EmailMobileValidationProviders;
+use App\Model\Common\StatusSetting;
 use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use phpmock\MockBuilder;
@@ -53,7 +55,7 @@ class RegistrationTest extends DBTestCase
             'company_size' => $user->company_size,
             'country' => $user->country,
             'mobile_code' => '91',
-            'mobile' => $user->mobile,
+            'mobile' => '7418934527',
             'address' => $user->address,
             'town' => $user->town,
             'state' => $user->state,
@@ -78,7 +80,7 @@ class RegistrationTest extends DBTestCase
             'company_size' => $user->company_size,
             'country' => 'IN',
             'mobile_code' => '91',
-            'mobile' => '9901541237',
+            'mobile' => '9901541239',
             'address' => $user->address,
             'town' => $user->town,
             'state' => $user->state,
@@ -91,6 +93,7 @@ class RegistrationTest extends DBTestCase
         ]);
         $errors = session('errors');
         $response->assertStatus(302);
+        // $this->assertEquals($errors->get('password_confirmation')[0], 'The password confirmation and password must match.');
         $this->mock->disable();
         $this->tearDownServerVariable();
     }
@@ -109,7 +112,7 @@ class RegistrationTest extends DBTestCase
             'company_size' => $user->company_size,
             'country' => $user->country,
             'mobile_code' => '91',
-            'mobile' => $user->mobile,
+            'mobile' => '7418934526',
             'address' => $user->address,
             'town' => $user->town,
             'state' => $user->state,
@@ -134,7 +137,7 @@ class RegistrationTest extends DBTestCase
             'company_size' => $user->company_size,
             'country' => $user->country,
             'mobile_code' => '91',
-            'mobile' => $user->mobile,
+            'mobile' => '7418934525',
             'address' => $user->address,
             'town' => $user->town,
             'zip' => $user->zip,
@@ -184,7 +187,7 @@ class RegistrationTest extends DBTestCase
             'country' => $user->country,
             'state' => 'IN-TN',
             'mobile_code' => '91',
-            'mobile' => $user->mobile,
+            'mobile' => '7418934528',
             'address' => $user->address,
             'town' => $user->town,
             'zip' => $user->zip,
@@ -195,5 +198,39 @@ class RegistrationTest extends DBTestCase
         $response->assertJsonStructure([
             'success', 'message', 'data',
         ]);
+    }
+
+    public function test_postRegister_whenEverythingMatches()
+    {   $this->withoutMiddleware();
+        $this->setUpServerVariable('192.168.12.12', 'someaddress', 'IN');
+        $user = User::factory()->create(['bussiness' => 'Accounting', 'mobile_code' => 91]);
+        $status=StatusSetting::where('id',1)->update(['email_validation_status'=>1,'mobile_validation_status'=>1]);
+        EmailMobileValidationProviders::where('provider','reoon')->update(['mode'=>'quick','api_key'=>'OUDJUBXL3xLXX39xXB5KcLTl7A1rxjZg','accepted_output'=>1]);
+        EmailMobileValidationProviders::where('provider','abstract')->update(['api_key'=>'6a060f0ef12f4ff5a914cc09a03963ab','to_use'=>1]);
+
+        $response = $this->call('POST', 'auth/register', ['first_name' => $user->first_name,
+            'last_name' => $user->last_name,
+            'email' => 'santhanuchakrapani@gmail.com',
+            'company' => $user->company,
+            'bussiness' => 'Accounting',
+            'company_type' => $user->company_type,
+            'company_size' => $user->company_size,
+            'country' => 'IN',
+            'mobile_code' => '91',
+            'mobile' => '9901541237',
+            'address' => $user->address,
+            'town' => $user->town,
+            'state' => $user->state,
+            'zip' => $user->zip,
+            'user_name' => 'testuser11',
+            'ip' => $user->ip,
+            'password' => 'Santhanu@12',
+            'password_confirmation' => 'Santhanu@12',
+            'terms' => 'on',
+        ]);
+
+        $response->assertStatus(200);
+        $content=$response->original;
+        $this->assertEquals(true,$content['success']);
     }
 }
