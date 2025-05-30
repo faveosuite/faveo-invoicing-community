@@ -3,6 +3,7 @@
 namespace Database\Seeders\v4_0_2_4_RC_1;
 
 use App\ApiKey;
+use App\Model\Common\EmailMobileValidationProviders;
 use App\Model\Common\Msg91Status;
 use App\Http\Controllers\Common\PipedriveController;
 use App\Model\Common\PipedriveGroups;
@@ -24,6 +25,7 @@ class DatabaseSeeder extends Seeder
         $this->removeOldGitPassword();
         $this->updateAppKey();
         $this->addFielsForPipedrive();
+        $this->add_providers();
         $this->invoiceItemProductIDChange();
     }
 
@@ -47,8 +49,9 @@ class DatabaseSeeder extends Seeder
         }
     }
 
-    public function removeOldGitPassword(){
-        Github::where('id',1)->update(['password' => null]);
+    public function removeOldGitPassword()
+    {
+        Github::where('id', 1)->update(['password' => null]);
     }
 
     private function updateAppKey()
@@ -64,6 +67,7 @@ class DatabaseSeeder extends Seeder
             setEnvValue(['APP_KEY_UPDATED' => 'true']);
         }
     }
+
     private function addFielsForPipedrive()
     {
         $fields = [
@@ -114,6 +118,21 @@ class DatabaseSeeder extends Seeder
                     $invoiceItem->save();
                 }
             }
+        }
+    }
+
+
+
+    public function add_providers(){
+        $providers =[ ['provider'=>'reoon','type'=>'email'],
+            ['provider'=>'vonage','type'=>'mobile'],
+            ['provider'=>'abstract','type'=>'mobile'],
+        ];
+        foreach ($providers as $provider) {
+            EmailMobileValidationProviders::updateOrCreate([
+                'provider' => $provider['provider'],
+                'type' => $provider['type'],
+            ]);
         }
     }
 }
