@@ -594,7 +594,6 @@ foreach($scripts as $script) {
                 const message = response.message || response || 'An error occurred. Please try again.';
                 const errors = response.errors || null;
 
-                // Build base HTML
                 let html = `<div class="alert ${alertClass} alert-dismissible">` +
                     `<i class="fa ${iconClass}"></i> ` +
                     `${message}` +
