@@ -258,15 +258,29 @@
 </div>
 
 <script>
-    document.addEventListener('keydown', function(e) {
 
+
+    document.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
             e.preventDefault();
-            document.getElementById('verify_password').click();
-            document.getElementById('copyNewCodeBtn').click();
-            document.getElementById('pass_btn').click();
-            document.getElementById('scan_complete').click();
 
+            const buttonIds = [
+                'verify_password',
+                'copyNewCodeBtn',
+                'pass_btn',
+                'scan_complete',
+                'next_rec_code'
+            ];
+
+            for (const id of buttonIds) {
+                const btn = document.getElementById(id);
+
+                // Check if button exists and is visible
+                if (btn && btn.offsetParent !== null) {
+                    btn.click();
+                    break; // stop after the first visible one is clicked
+                }
+            }
         }
     });
 </script>

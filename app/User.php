@@ -125,6 +125,10 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return $this->hasMany(\App\Auto_renewal::class,'user_id');
     }
 
+    public function export_details(){
+        return $this->hasMany(\App\ExportDetail::class,'user_id');
+    }
+
     // public function getCreatedAtAttribute($value)
     // {
     //     if (\Auth::user()) {

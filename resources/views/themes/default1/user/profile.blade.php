@@ -241,7 +241,7 @@ input:checked + .slider:before {
                     </div>
                     <div class="col-md-6 form-group {{ $errors->has('state') ? 'has-error' : '' }}">
                         <!-- name -->
-                        {!! html()->label(Lang::get('message.state'))->class('required') !!}
+                        {!! html()->label(Lang::get('message.state')) !!}
                         <!--{!! html()->select('state', [])->class('form-control'. ($errors->has('state') ? ' is-invalid' : ''))->id('state-list') !!} -->
                         <select name="state" id="state-list" class="form-control">
                             @if(count($state)>0)
@@ -554,7 +554,6 @@ input:checked + .slider:before {
                 address: $('#address'),
                 user_name: $('#user_name'),
                 country:$('#country'),
-                state:$('#state-list'),
             };
 
 
