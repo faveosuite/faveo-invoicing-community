@@ -823,6 +823,7 @@ foreach($scripts as $script) {
 
                             if (response.errors) {
                                 $.each(response.errors, function(field, messages) {
+
                                     var validator = $('#regiser-form').validate();
 
                                     var fieldSelector = $(`[name="${field}"]`).attr('name');  // Get the name attribute of the selected field

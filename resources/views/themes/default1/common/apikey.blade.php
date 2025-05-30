@@ -71,7 +71,10 @@
         }
 
 
-</style>
+    </style>
+
+
+
 <div class="col-sm-6 md-6">
     <h1>{{ __('message.third_party_integrations') }}</h1>
 </div>
@@ -631,7 +634,65 @@
             </div>
         </div>
     </div>
-{{--    {!! Form::close() !!}--}}
+
+    <div class="modal fade" id="emailValidation" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Email Validation Provider</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="alertMessage22"></div>
+                    <div class="form-group" id="emailToDisp">
+                        {!! html()->label(Lang::get('message.validation-provider'), 'user')->class('required') !!}
+                        <select name="manager" id="provider" class="form-control">
+                            <option value="reoon">{{Lang::get('message.reoon')}}</option>
+                        </select>
+                        <div class="input-group-append"></div>
+                    </div>
+                    <div class="form-group" id="emailToRender">
+                    </div>
+
+                </div>
+
+            <div class="modal-footer justify-content-between">
+                <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
+                <button type="submit" class="form-group btn btn-primary"  id="submitEmail"><i class="fa fa-save">&nbsp;</i>{!!Lang::get("message.save")!!}</button>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="mobileValidation" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Mobile Validation Providers</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="alertMessage34"></div>
+                    <div class="form-group" id="mobileToDisp">
+                        {!! html()->label(Lang::get('message.validation-provider'), 'user')->class('required') !!}
+                        <select name="manager"  id="mobileProvider" class="form-control">
+                            <option value="">{!! \Lang::get('message.choose') !!}</option>
+                            <option value="vonage"{{$selectedProvider=='vonage'?'selected':''}}>{!! \Lang::get('message.vonage') !!}</option>
+                            <option value="abstract"{{$selectedProvider=='abstract'?'selected':''}}>{!! \Lang::get('message.abstract') !!}</option>
+                        </select>
+                        <div class="input-group-append"></div>
+                    </div>
+                    <div class="form-group" id="mobileToRender">
+                    </div>
+
+                </div>
+
+                <div class="modal-footer justify-content-between">
+                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
+                    <button type="submit" class="form-group btn btn-primary"  id="submitMobile"><i class="fa fa-save">&nbsp;</i>{!!Lang::get("message.save")!!}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{--    {!! Form::close() !!}--}}
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css">
@@ -643,6 +704,230 @@
     <script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit" async defer></script>
 
     <script>
+        $(document).on('click', '#submitMobile', function (e) {
+            const userRequiredFields = {
+                manager:@json(trans('message.mobileApikey_error')),
+                replace_with:@json(trans('message.mobileMode_error')),
+                replace:@json(trans('message.mobileApisecret_error')),
+                replace1:@json(trans('message.mobileApi_provider')),
+
+            }
+
+            const userFields=$('#mobileProvider').val()=='vonage'?{
+                manager: $('#mobileApikey'),
+                replace_with: $('#mobileMode'),
+                replace: $('#mobileApisecret'),
+                replace1: $('#mobileProvider'),
+            }:{
+                manager: $('#mobileApikey'),
+                replace1: $('#mobileProvider'),
+            };
+
+            console.log(userFields);
+
+            // Clear previous errors
+            Object.values(userFields).forEach(field => {
+                field.removeClass('is-invalid');
+                field.next().next('.error').remove();
+
+            });
+
+            let isValid = true;
+
+            // Validate required fields
+            Object.keys(userFields).forEach(field => {
+                const el = userFields[field];
+                const value = el.val();
+                if (!value || (typeof value === 'object' && value.length === 0)) {
+                    el.addClass('is-invalid');
+                    el.after(`<span class='error invalid-feedback'>${userRequiredFields[field]}</span>`);
+                    isValid = false;
+                }
+            });
+
+
+            // If validation fails, prevent form submission
+            if (!isValid) {
+                e.preventDefault();
+            }else{
+                let apikey=$('#mobileApikey');
+                let mode=$('#mobileMode');
+                let provider=$('#mobileProvider');
+                let apisecret=$('#mobileApisecret');
+                $('#submitMobile').attr('disabled',true)
+                $("#submitMobile").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+                $.ajax({
+                    url:'{{url('mobile-settings-save')}}',
+                    type:'post',
+                    data:{'apikey':apikey.val(),'mode':mode.val(),'provider':provider.val(),'apisecret':apisecret.val()},
+                    success:function(response){
+                        $('#submitMobile').attr('disabled',false)
+                        $("#submitMobile").html("<i class='fa fa-check'>&nbsp;&nbsp;</i> Save");
+                        setTimeout(function() {
+                            location.reload();
+                        }, 3000);
+                        $('#alertMessage34').show();
+                        var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'</div>';
+                        $('#alertMessage34').html(result);
+                        setInterval(function(){
+                            $('#alertMessage34').slideUp(3000);
+                        }, 1000);
+                    },
+                    error:function(response){
+                        $('#submitMobile').attr('disabled',false)
+                        $("#submitMobile").html("<i class='fa fa-check'>&nbsp;&nbsp;</i> Save");
+                        $('#alertMessage34').show();
+                        var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> Error! </strong>'+response.responseJSON.message+'</div>';
+                        $('#alertMessage34').html(result);
+                        setInterval(function(){
+                            $('#alertMessage34').slideUp(3000);
+                        }, 5000);
+                    },
+                })
+            }
+        });
+
+        // Function to remove error when input'id' => 'changePasswordForm'ng data
+        const removeErrorMessage = (field) => {
+            field.classList.remove('is-invalid');
+            const error = field.nextElementSibling;
+            if (error && error.classList.contains('error')) {
+                error.remove();
+            }
+        };
+
+        document.addEventListener('input', function (e) {
+            if (['emailApikey', 'emailMode','mobileProvider','mobileMode','mobileApisecret','mobileApikey'].includes(e.target.id)) {
+                removeErrorMessage(e.target);
+            }
+        });
+
+        $(document).on('change', '.mobileValidationStatus input[type="checkbox"]', function() {
+            if ($('#mobile_validation_status').prop("checked")) {
+                var checkboxvalue = 1;
+            }
+            else{
+                var checkboxvalue = 0;
+            }
+            $.ajax({
+                url : '{{url("licenseStatus")}}',
+                type : 'post',
+                data: {
+                    "mobile_validation_status": checkboxvalue,
+                },
+                success: function (response) {
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
+                    $('#alertMessage12').show();
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
+                    $('#alertMessage12').html(result);
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    setInterval(function(){
+                        $('#alertMessage12').slideUp(3000);
+                    }, 1000);
+                },
+            });
+
+        });
+
+
+
+        $(document).on('change', '#emailMode', function () {
+            var value=$(this).val();
+
+            if(value == 'power') {
+                $.ajax({
+                    url: "{{url('emailCheckboxData')}}",
+                    type: 'post',
+                    data: {
+                        'value': value,
+                    },
+                    success: function (response) {
+                        $('#checkboxToRender').html(response['data']);
+                    }
+                })
+            }else{
+                $('#checkboxToRender').html('');
+            }
+        })
+
+        $(document).on('click', '#submitEmail', function (e) {
+            const userRequiredFields = {
+                manager:@json(trans('message.emailApikey_error')),
+                replace_with:@json(trans('message.emailMode_error')),
+            }
+
+            const userFields = {
+                manager: $('#emailApikey'),
+                replace_with: $('#emailMode'),
+
+            };
+
+            // Clear previous errors
+            Object.values(userFields).forEach(field => {
+                field.removeClass('is-invalid');
+                field.next().next('.error').remove();
+
+            });
+
+            let isValid = true;
+
+            // Validate required fields
+            Object.keys(userFields).forEach(field => {
+                const el = userFields[field];
+                const value = el.val();
+                if (!value || (typeof value === 'object' && value.length === 0)) {
+                    el.addClass('is-invalid');
+                    el.after(`<span class='error invalid-feedback'>${userRequiredFields[field]}</span>`);
+                    isValid = false;
+                }
+            });
+
+
+            // If validation fails, prevent form submission
+            if (!isValid) {
+                e.preventDefault();
+            }else{
+                let apikey=$('#emailApikey');
+                let mode=$('#emailMode');
+                let provider=$('#provider');
+                const selectedCheckboxes = document.querySelectorAll('.emailStatusCheckbox:checked');
+                let selectedValues = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value));
+                let accepted_output = selectedValues.reduce((sum, val) => sum + val, 0);
+                $('#submitEmail').attr('disabled',true)
+                $("#submitEmail").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+                $.ajax({
+                    url:'{{url('email-settings-save')}}',
+                    type:'post',
+                    data:{'apikey':apikey.val(),'mode':mode.val(),'provider':provider.val(),'accepted_output':accepted_output},
+                    success:function(response){
+                        $('#submitEmail').attr('disabled',false)
+                        $("#submitEmail").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>Save");
+                        setTimeout(function() {
+                            location.reload();
+                        }, 3000);
+                        $('#alertMessage22').show();
+                        var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'</div>';
+                        $('#alertMessage22').html(result);
+                        setInterval(function(){
+                            $('#alertMessage12').slideUp(3000);
+                        }, 1000);
+                    },
+                    error:function(response){
+                        $('#submitEmail').attr('disabled',false)
+                        $("#submitEmail").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>Save");
+                        $('#alertMessage22').show();
+                        var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> Error! </strong>'+response.responseJSON.message+'</div>';
+                        $('#alertMessage22').html(result);
+                        setInterval(function(){
+                            $('#alertMessage22').slideUp(3000);
+                        }, 5000);
+                    },
+                })
+            }
+        });
+
         $('#close1').on('click',function(){
             location.reload();
         });
@@ -1125,6 +1410,88 @@
                 },
             });
         });
+
+        $(document).on('click', '#emailValidation-edit-button', function() {
+            $.ajax({
+                url: "{{url('emailData')}}",
+                type: 'post',
+                data: {
+                    'value': 'reoon',
+                },
+                success: function (response) {
+                    $('#emailToRender').html(response['data']);
+                    $("#emailValidation").modal('show');
+                }
+            })
+        })
+
+        $('#mobileProvider').on('change',function(){
+            var value=$(this).val();
+            if(value !== '') {
+                $.ajax({
+                    url: "{{url('mobileData')}}",
+                    type: 'post',
+                    data: {
+                        'value': value,
+                    },
+                    success: function (response) {
+                        $('#mobileToRender').html(response['data']);
+                    }
+                })
+            }else{
+                $('#mobileToRender').html('');
+            }
+        });
+
+        $(document).on('click', '#mobileValidation-edit-button', function() {
+            var value='{{$selectedProvider}}';
+            if(value != ''){
+            $.ajax({
+                url: "{{url('mobileData')}}",
+                type: 'post',
+                data: {
+                    'value': value,
+                },
+                success: function (response) {
+                    $('#mobileToRender').html(response['data']);
+                }
+            })
+        }else{
+            $('#mobileToRender').html('');
+        }
+            $("#mobileValidation").modal('show');
+        })
+
+            $(document).on('change', '.emailValidationStatus input[type="checkbox"]', function() {
+            if ($('#email_validation_status').prop("checked")) {
+                var checkboxvalue = 1;
+            }
+            else{
+                var checkboxvalue = 0;
+            }
+            $.ajax({
+                url : '{{url("licenseStatus")}}',
+                type : 'post',
+                data: {
+                    "email_validation_status": checkboxvalue,
+                },
+                success: function (response) {
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
+                    $('#alertMessage12').show();
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
+                    $('#alertMessage12').html(result);
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    setInterval(function(){
+                        $('#alertMessage12').slideUp(3000);
+                    }, 1000);
+                },
+            });
+
+        });
+
+
         $(document).on('change', '.licenser input[type="checkbox"]', function() {
             if ($('#License').prop("checked")) {
             var checkboxvalue = 1;
