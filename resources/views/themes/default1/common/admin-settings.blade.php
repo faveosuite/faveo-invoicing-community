@@ -279,8 +279,11 @@
             </div>
               @endif
 
-            </div>
     </div>
+
+    </div>
+
+
         <!-- /.row -->
 
     <!-- ./box-body -->

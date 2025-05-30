@@ -24,7 +24,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('githubs', function (Blueprint $table) {
-            $table->string('password', 255)->nullable()->change();
+            $table->dropColumn('password');
         });
     }
 };

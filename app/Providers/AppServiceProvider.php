@@ -2,8 +2,11 @@
 
 namespace App\Providers;
 
+use App\Events\UserOrderDelete;
+use App\Listeners\CloudDeletion;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
@@ -37,6 +40,8 @@ class AppServiceProvider extends ServiceProvider
                 ]
             );
         });
+
+        Event::listen(UserOrderDelete::class,CloudDeletion::class);
     }
 
     /**
