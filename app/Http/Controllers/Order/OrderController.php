@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Order;
 
+use App\Events\UserOrderDelete;
+use App\Http\Controllers\Tenancy\TenantController;
 use App\Http\Requests\Order\OrderRequest;
 use App\Jobs\ReportExport;
 use App\Model\Common\Country;
+use App\Model\Common\FaveoCloud;
 use App\Model\Common\StatusSetting;
 use App\Model\Mailjob\QueueService;
 use App\Model\Order\InstallationDetail;
@@ -20,6 +23,7 @@ use App\Model\Product\Subscription;
 use App\Payment_log;
 use App\User;
 use Bugsnag;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 
 class OrderController extends BaseOrderController
@@ -502,12 +506,16 @@ class OrderController extends BaseOrderController
     public function destroy(Request $request)
     {
         try {
-            // dd('df');
             $ids = $request->input('select');
             if (! empty($ids)) {
                 foreach ($ids as $id) {
                     $order = $this->order->where('id', $id)->first();
+
                     if ($order) {
+                        $installation_path = \DB::table('installation_details')->where('order_id', $order->id)->where('installation_path', '!=', cloudCentralDomain())->value('installation_path');
+                        if($installation_path){
+                            event(new UserOrderDelete($installation_path));
+                        }
                         $order->delete();
                     } else {
                         echo "<div class='alert alert-danger alert-dismissable'>

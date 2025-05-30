@@ -50,8 +50,8 @@
             <link rel="stylesheet" href="{{asset('admin/css-1/sweet-alert-ltr.css')}}">
         @endif
 
-        <script src="{{asset('https://code.jquery.com/ui/1.12.1/jquery-ui.min.js')}}"></script>
-        <script src="{{asset('https://code.jquery.com/jquery-3.5.1.min.js')}}"></script>
+        <script src="{{asset('https://code.jquery.com/ui/1.13.2/jquery-ui.min.js')}}"></script>
+        <script src="{{asset('https://code.jquery.com/jquery-3.6.0.min.js')}}"></script>
         <script src="{{ asset('js/admin/jquery.validate.js') }}"></script>
         <script>
         $(function () {
@@ -635,7 +635,9 @@
     <script src="{{asset('admin/plugins-1/moment.min.js')}}"></script>
     <script src="{{asset('admin/plugins-1/daterangepicker.js')}}"></script>
     <!-- Tempusdominus Bootstrap 4 -->
-    <script src="{{asset('admin/plugins-1/tempusdominus-bootstrap-4.min.js')}}"></script>
+{{--    <script src="{{asset('admin/plugins-1/tempusdominus-bootstrap-4.min.js')}}"></script>--}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.39.0/js/tempusdominus-bootstrap-4.min.js" integrity="sha512-k6/Bkb8Fxf/c1Tkyl39yJwcOZ1P4cRrJu77p83zJjN2Z55prbFHxPs9vN7q3l3+tSMGPDdoH51AEU8Vgo1cgAA==" crossorigin="anonymous"></script>
+
     <!-- Summernote -->
     <script src="{{asset('admin/plugins-1/summernote-bs4.min.js')}}"></script>
     <!-- overlayScrollbars -->
