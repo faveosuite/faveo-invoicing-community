@@ -25,13 +25,52 @@ Cart
 @section('content')
 
 
+    <style>
+        #global-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .cart-info {
+            position: relative;
+            display: inline-block;
+        }
+
+        .cart-qty {
+            position: absolute;
+            top: -8px;
+            right: -10px;
+            background-color: #ed5348;
+            color: #fff;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 20px;
+            text-align: center;
+            z-index: 10;
+            white-space: nowrap;
+            line-height: 1;
+        }
+    </style>
 
 
     <?php
     $cartTotal = 0;
     ?>
+    <div id="global-loader" style="display: none;">
+        <div class="global-loader-overlay">
+            <img src="{{ asset('lb-faveo/media/images/gifloader3.gif') }}" alt="Loading..." width="60" height="60">
+        </div>
+    </div>
 
-        <div role="main" class="main shop pb-4">
+    <div role="main" class="main shop pb-4">
 
             <div class="container py-4">
                 @if(!Cart::isEmpty())
@@ -132,7 +171,7 @@ Cart
 
                                     <tbody>
 
-                                        <tr class="cart_table_item">
+                                        <tr class="cart_table_item text-center align-middle">
 
                                             <td class="product-thumbnail">
 
@@ -165,7 +204,6 @@ Cart
                                                     ?>
 
                                                 <span class="amount font-weight-medium text-color-grey">{{$productPrice}}</span>
-                                                <div class="response-container"></div>
                                             </td>
 
 
@@ -329,7 +367,6 @@ Cart
             var $agentprice = $quantity.find('.agentprice');
             var $currency = $quantity.find('.currency');
             var $symbol = $quantity.find('.symbol');
-            var $responseContainer = $(this).closest('tr').find('.response-container');
 
             var currency = $currency.val();//Get the Currency for the Product
             var symbol = $symbol.val();//Get the Symbol for the Currency
@@ -349,7 +386,7 @@ Cart
                 data:{'productid':productid,'planid':planid},
                 beforeSend: function () {
                     $quantity.find('.agentminus, .agentplus').prop('disabled', true);
-                    $responseContainer.html("<img class='loading-gif' style='width: 50px; height: 50px;' src='{!! asset('lb-faveo/media/images/gifloader3.gif') !!}'>");
+                    $('#global-loader').show();
                 },
                 url: "{{url('update-agent-qty')}}",
                 success: function () {
@@ -368,7 +405,6 @@ Cart
             var $agentprice = $quantity.find('.agentprice');
             var $currency = $quantity.find('.currency');
             var $symbol = $quantity.find('.symbol');
-            var $responseContainer = $(this).closest('tr').find('.response-container');
 
             var currentAgtQty = parseInt($agtqty.val());
 
@@ -394,7 +430,7 @@ Cart
                 data: {'productid': productid,'planid':planid},
                 beforeSend: function () {
                     $quantity.find('.agentminus, .agentplus').prop('disabled', true);
-                    $responseContainer.html("<img class='loading-gif' style='width: 50px; height: 50px;' src='{!! asset('lb-faveo/media/images/gifloader3.gif') !!}'>");
+                    $('#global-loader').show();
                 },
                 url: "{{url('reduce-agent-qty')}}",
                 success: function () {
@@ -402,7 +438,7 @@ Cart
                 },
                 error: function() {
                     $quantity.find('.agentminus, .agentplus').prop('disabled', false);
-                    $responseContainer.html('');
+                    $('#global-loader').hide();
                 }
             });
         });
@@ -424,7 +460,7 @@ Cart
                 data: {'productid':productid,'planid':planid},
                 beforeSend: function () {
                     $quantity.find('.quantityminus, .quantityplus').prop('disabled', true);
-                    $responseContainer.html("<img class='loading-gif' style='width: 50px; height: 50px;' src='{!! asset('lb-faveo/media/images/gifloader3.gif') !!}'>");
+                    $('#global-loader').show();
                 },
                 url: "{{url('update-qty')}}",
                 success: function () {
@@ -432,7 +468,7 @@ Cart
                 },
                 error: function() {
                     $quantity.find('.quantityminus, .quantityplus').prop('disabled', false);
-                    $responseContainer.html('');
+                    $('#global-loader').hide();
                 }
             });
         });
@@ -467,7 +503,7 @@ Cart
                 data: {'productid':productid,'planid':planid},
                 beforeSend: function () {
                     $quantity.find('.quantityminus, .quantityplus').prop('disabled', true);
-                    $responseContainer.html("<img class='loading-gif' style='width: 50px; height: 50px;' src='{!! asset('lb-faveo/media/images/gifloader3.gif') !!}'>");
+                    $('#global-loader').show();
                 },
                 url: "{{url('reduce-product-qty')}}",
                 success: function () {
@@ -475,7 +511,7 @@ Cart
                 },
                 error: function() {
                     $quantity.find('.quantityminus, .quantityplus').prop('disabled', false);
-                    $responseContainer.html('');
+                    $('#global-loader').hide();
                 }
             });
         });

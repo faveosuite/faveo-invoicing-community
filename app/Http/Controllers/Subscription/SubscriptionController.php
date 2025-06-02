@@ -225,6 +225,7 @@ class SubscriptionController extends Controller
                     $processingFee = \DB::table(strtolower('stripe'))->where('currencies', $currency)->value('processing_fee');
                     $processingFee = (float) $processingFee / 100;
                     $price = $cost + ($cost * $processingFee);
+                    $cost = $price;
                 }
 
                 if ($this->shouldCancelSubscription($product_details, $price)) {

@@ -10,6 +10,7 @@ use App\Plugins\Razorpay\Model\RazorpayPayment;
 use App\Plugins\Stripe\Model\StripePayment;
 use Darryldecode\Cart\CartCondition;
 use Illuminate\Http\Request;
+use Razorpay\Api\Api;
 
 class ProcessController extends Controller
 {
@@ -62,14 +63,16 @@ class ProcessController extends Controller
                 }
                 \Session::put('invoice', $invoice);
                 \Session::save();
-                $this->middlePage($request->input('payment_gateway'));
+                $regularPayment = \Cart::getTotal() ? true : false;
+                $json = $this->processRazorpayOrder($invoice, $regularPayment);
+                $this->middlePage($request->input('payment_gateway'), ['json' => $json]);
             }
         } catch (\Exception $ex) {
             throw new \Exception($ex->getMessage(), $ex->getCode(), $ex->getPrevious());
         }
     }
 
-    public function middlePage($gateway)
+    public function middlePage($gateway, $data = [])
     {
         try {
             $rzp_key = ApiKey::where('id', 1)->value('rzp_key');
@@ -101,7 +104,7 @@ class ProcessController extends Controller
                 }
                 \Session::put('totalToBePaid', $amount);
                 \View::addNamespace('plugins', $path);
-                echo view('plugins::middle-page', compact('total', 'invoice', 'regularPayment', 'items', 'product', 'amount', 'paid', 'creditBalance', 'gateway', 'rzp_key', 'rzp_secret', 'apilayer_key', 'stripe_key'));
+                echo view('plugins::middle-page', compact('total', 'invoice', 'regularPayment', 'items', 'product', 'amount', 'paid', 'creditBalance', 'gateway', 'rzp_key', 'rzp_secret', 'apilayer_key', 'stripe_key', 'data'));
             } else {
                 $pay = $this->payment($payment_method, $status = 'pending');
                 $payment_method = $pay['payment'];
@@ -112,7 +115,7 @@ class ProcessController extends Controller
                 $amount = rounding(\Cart::getTotal());
                 \View::addNamespace('plugins', $path);
 
-                echo view('plugins::middle-page', compact('invoice', 'amount', 'invoice_no', 'payment_method', 'invoice', 'regularPayment', 'gateway', 'rzp_key', 'rzp_secret', 'apilayer_key', 'stripe_key'))->render();
+                echo view('plugins::middle-page', compact('invoice', 'amount', 'invoice_no', 'payment_method', 'invoice', 'regularPayment', 'gateway', 'rzp_key', 'rzp_secret', 'apilayer_key', 'stripe_key', 'data'))->render();
             }
         } catch (\Exception $ex) {
             throw new \Exception($ex->getMessage());
@@ -226,5 +229,90 @@ class ProcessController extends Controller
         \Session::forget('invoiceid');
 
         return redirect($url)->with('fails', 'Thank you for your order. However,the transaction has been declined. Try again.');
+    }
+
+    protected function processRazorpayOrder($invoice, $regularPayment)
+    {
+        try {
+            $apiKey = ApiKey::first();
+            $rzp_key = $apiKey->rzp_key;
+            $rzp_secret = $apiKey->rzp_secret;
+
+            $user = auth()->user();
+
+            $merchant_orderid = $this->generateMerchantRandomString();
+
+            $cartTotal = $invoice->grand_total;
+
+            // Handle credit balance if applicable
+            if ($user->billing_pay_balance && $regularPayment) {
+                $amt_to_credit = \DB::table('payments')
+                    ->where('user_id', $user->id)
+                    ->where('payment_method', 'Credit Balance')
+                    ->where('payment_status', 'success')
+                    ->where('amt_to_credit', '!=', 0)
+                    ->value('amt_to_credit');
+
+                if ($invoice->grand_total <= $amt_to_credit) {
+                    $cartTotal = 0;
+                } else {
+                    $cartTotal = $invoice->grand_total - $amt_to_credit;
+                }
+            }
+
+            $cartTotal = intval($cartTotal);
+
+            $api = new Api($rzp_key, $rzp_secret);
+            $orderData = [
+                'receipt' => '3456',
+                'amount' => round($cartTotal * 100),
+                'currency' => $invoice->currency,
+                'payment_capture' => 0
+            ];
+
+            $razorpayOrder = $api->order->create($orderData);
+            $razorpayOrderId = $razorpayOrder['id'];
+
+            $data = [
+                "key" => $rzp_key,
+                "name" => 'Faveo Helpdesk',
+                "order_id" => $razorpayOrderId,
+                "description" => 'Order for Invoice No - ' . $invoice->number,
+                "prefill" => [
+                    "contact" => $user->mobile_code . $user->mobile,
+                    "email" => $user->email,
+                ],
+                "notes" => [
+                    "First Name" => $user->first_name,
+                    "Last Name" => $user->last_name,
+                    "Company Name" => $user->company,
+                    "Address" => $user->address,
+                    "Email" => $user->email,
+                    "Country" => $user->country,
+                    "State" => $user->state,
+                    "City" => $user->town,
+                    "Zip" => $user->zip,
+                    "Amount Paid" => $cartTotal * 100,
+                    "merchant_order_id" => $merchant_orderid,
+                ],
+                "theme" => [
+                    "color" => "#F37254"
+                ],
+            ];
+
+            return json_encode($data);
+        }catch (\Exception $ex){
+            throw new \Exception($ex->getMessage(), $ex->getCode(), $ex->getPrevious());
+        }
+    }
+
+    protected function generateMerchantRandomString($length = 10) {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+        return $randomString;
     }
 }
