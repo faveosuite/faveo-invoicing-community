@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Http\Controllers\Tenancy\TenantController;
+use App\Model\Common\FaveoCloud;
 use App\User;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 
 class SoftDeleteController extends ClientController
@@ -108,6 +111,13 @@ class SoftDeleteController extends ClientController
                 foreach ($ids as $id) {
                     $user = User::onlyTrashed()->find($id);
                     if (! is_null($user)) {
+                        $tenants=$user->order()->pluck('domain');
+
+                        foreach ($tenants as $tenant) {
+                            if($tenant !== ''){
+                            (new TenantController(new Client,new FaveoCloud))->destroyTenant(new Request(['id'=>$tenant]));
+                            }
+                        }
                         $user->invoiceItem()->delete();
                         $user->orderRelation()->delete();
                         $user->invoice()->delete();
