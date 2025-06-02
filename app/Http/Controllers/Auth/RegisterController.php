@@ -55,8 +55,8 @@ class RegisterController extends Controller
             'unknown' => 4,
         ];
 
-        ['api_key' => $apikey, 'mode' => $mode] = EmailMobileValidationProviders::where('provider', 'reoon')
-            ->select('api_key', 'mode')
+        ['api_key' => $apikey, 'mode' => $mode,'accepted_output'=>$accepted_output] = EmailMobileValidationProviders::where('provider', 'reoon')
+            ->select('api_key', 'mode','accepted_output')
             ->first()
             ->toArray();
 
@@ -66,6 +66,13 @@ class RegisterController extends Controller
             'mode'  => $mode,
         ]);
         $content=$response->json();
+        $status=$content['status'];
+        $statusBit=$map[$status]??0;
+
+        dd($statusBit & $accepted_output);
+        if($statusBit & $accepted_output){
+            return true;
+        }
         if($content['status']=='safe'){
             return true;
         }
@@ -79,6 +86,7 @@ class RegisterController extends Controller
         ]);
         try {
             $emailValidationStatus=StatusSetting::where('id',1)->value('email_validation_status');
+
             if($emailValidationStatus) {
                 $emailVerifier = $this->emailVerification($request->input('email'));
                 if (!$emailVerifier) {

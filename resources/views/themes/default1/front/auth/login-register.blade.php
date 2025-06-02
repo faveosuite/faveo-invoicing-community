@@ -264,6 +264,16 @@ foreach($scripts as $script) {
     ->id('last_name') !!}
                                 <span id="last_namecheck"></span>
                             </div>
+
+                            <div class="form-group col {{ $errors->has('last_name') ? 'has-error' : '' }}">
+
+                                <label class="form-label text-color-dark text-3">Last Name <span class="text-color-danger">*</span></label>
+
+                                {!! html()->text('last_name')
+    ->class('form-control form-control-lg text-4')
+    ->id('last_name') !!}
+                                <span id="last_namecheck"></span>
+                            </div>
                         </div>
 
                         <div class="row">
