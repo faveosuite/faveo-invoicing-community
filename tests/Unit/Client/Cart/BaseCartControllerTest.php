@@ -4,24 +4,21 @@ namespace Tests\Unit\Client\Cart;
 
 use App\Http\Controllers\Front\BaseCartController;
 use App\Http\Controllers\Front\ClientController;
-use App\Model\Product\ProductGroup;
-use App\Http\Controllers\Order\OrderSearchController;
-use App\Model\Payment\Plan;
-use App\Model\Payment\PlanPrice;
-use App\Model\Product\Product;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Http\Request;
-use App\Model\License\LicensePermission;
-use App\Model\License\LicenseType;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
-use App\Model\Product\ProductUpload;
+use App\Model\Payment\Plan;
+use App\Model\Payment\PlanPrice;
+use App\Model\Product\Product;
+use App\Model\Product\ProductGroup;
 use App\Model\Product\Subscription;
 use App\User;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Http\Request;
 use Mockery;
-use Tests\DBTestCase;
 use Spatie\Html\Html;
+use Tests\DBTestCase;
+
 class BaseCartControllerTest extends DBTestCase
 {
     use DatabaseTransactions;
@@ -30,7 +27,7 @@ class BaseCartControllerTest extends DBTestCase
     {
         parent::setUp();
         $this->classObject = new BaseCartController();
-        $this->classObject1=new ClientController();
+        $this->classObject1 = new ClientController();
         $this->request = app(Request::class);
 //        $this->html1 = new Html($this->request);
         $this->html = Mockery::mock(Html::class, [$this->request])->makePartial();
@@ -234,7 +231,6 @@ class BaseCartControllerTest extends DBTestCase
         $this->classObject->reduceProductQty(new Request(['productid' => $product->id]));
     }
 
-
     /** @group order  */
     public function test_successful_when_license_mocked()
     {
@@ -267,11 +263,9 @@ class BaseCartControllerTest extends DBTestCase
 
         $this->app->instance(\App\Http\Controllers\License\LicenseController::class, $mock);
 
-        $response=$this->getPrivateMethod($this->classObject1,'getOrder',[$order->id]);
+        $response = $this->getPrivateMethod($this->classObject1, 'getOrder', [$order->id]);
         $this->assertEquals('themes.default1.front.clients.show-order', $response->getName());
     }
-
-
 
     /** @group store */
     public function test_store_has_groups()
@@ -283,12 +277,11 @@ class BaseCartControllerTest extends DBTestCase
         $product = Product::factory()->create(['group' => $group->id]);
         $plan = Plan::factory()->create(['product' => $product->id]);
         $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id]);
-        $response = $this->withSession(['store'=>1])->get( 'group/'.$group->pricing_templates_id.'/'.$group->id.'/');
-        $data=$response->original->gatherData();
+        $response = $this->withSession(['store' => 1])->get('group/'.$group->pricing_templates_id.'/'.$group->id.'/');
+        $data = $response->original->gatherData();
         $this->assertStringContainsString('<input type="submit" value="Order Now" class="btn btn-dark btn-modern buttonsale">', $data['templates']);
         $response->assertStatus(200);
         $response->assertViewHas('templates');
         $response->assertViewIs('themes.default1.common.template.shoppingcart');
     }
-
 }
