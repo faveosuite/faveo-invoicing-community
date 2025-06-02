@@ -6,6 +6,7 @@ use App\ApiKey;
 use App\Email_log;
 use App\Facades\Attach;
 use App\Http\Requests\Common\SettingsRequest;
+use App\Model\Common\EmailMobileValidationProviders;
 use App\Model\Common\Mailchimp\MailchimpSetting;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
@@ -1038,7 +1039,9 @@ class SettingsController extends BaseSettingsController
     }
 
     public function emailVerificationProvider(){
-        $emailProvider=ApiKey::where('id',1)->value('email_verification_provider');
+
+//        $emailProvider=ApiKey::where('id',1)->value('email_verification_provider');
+        $emailProvider='reoon';
         $emailStatus=StatusSetting::where('id',1)->value('email_validation_status');
         $statusDisplay = '<label class="switch toggle_event_editing emailValidationStatus">
                         <input type="checkbox" value="'.($emailStatus ? '1' : '0').'"  name="EmailValidationStatus"
@@ -1049,6 +1052,7 @@ class SettingsController extends BaseSettingsController
     }
 
     public function mobileVerificationProvider(){
+
         $emailProvider=ApiKey::where('id',1)->value('mobile_verification_provider');
         $emailStatus=StatusSetting::where('id',1)->value('mobile_validation_status');
         $statusDisplay = '<label class="switch toggle_event_editing emailValidationStatus">
@@ -1056,30 +1060,50 @@ class SettingsController extends BaseSettingsController
                                class="checkbox9" id="email_validation_status"'.($emailStatus ? 'checked' : '').'>
                         <span class="slider round"></span>
                     </label>';
-        return view('themes.default1.common.setting.mobileVerificationProvider', compact('emailStatus','statusDisplay','emailProvider'));
+        return view('themes.default1.common.setting.mobileVerificationProvider', compact('emailStatus','statusDisplay','emailProvider','map'));
     }
 
     public function emailData(Request $request){
-        [$apikey, $mode] = array_values(ApiKey::select('email_verification_key', 'email_verification_mode')->first()->toArray());
-        $label = html()->label(__('message.emailApikey'), 'emailApikey')->class('required')->toHtml();
+
+        ['api_key' => $apikey, 'mode' => $mode] = EmailMobileValidationProviders::where('provider', 'reoon')
+            ->select('api_key', 'mode')
+            ->first()
+            ->toArray();
+
+        $map = [
+            'safe' => 1,
+            'catch_all' => 2,
+            'unknown' => 4,
+        ];
+        $current=EmailMobileValidationProviders::where('provider','reoon')->value('accepted_output')??1;
+
+        $label2 = html()->label(__('message.emailApikey'), 'emailApikey')->class('required')->toHtml();
         $input = html()->text('emailApikey',$apikey)->class('form-control emailapikey')->id('emailApikey')->toHtml();
         $label1 = html()->label(__('message.emailMode'), 'emailMode')->class('required')->toHtml();
         $input1= html()->text('emailMode',$mode)->class('form-control emailMode')->id('emailMode')->toHtml();
 
+        $statusOptions = '';
+        foreach ($map as $status => $bit) {
+            $checked = ($current & $bit) ? 'checked' : '';
+            $label = ucfirst(str_replace('_', ' ', $status));
+            $statusOptions .= '<div class="form-check">
+        <input class="form-check-input emailStatusCheckbox" type="checkbox" 
+               name="allowed_statuses[]" value="' . $bit . '" id="status_' . $status . '" ' . $checked . '>
+        <label class="form-check-label" for="status_' . $status . '">' . $label . '</label>
+    </div>';
+        }
+
+
         if($request->input('value')==='reoon') {
             $response = '<div>
-             <div class="form-group">'
-                . $label
-                . $input
-                . '</div>
-             <div class="input-group-append"></div>
-            <div class="form-group">'
-                . $label1
-                . $input1
-                . '</div>'
-                . '</div>'
-                . '<div class="input-group-append"></div>'
-                . '<h4><button type="button" class="btn btn-primary float-right" id="submitEmail">Submit</button></h4>';
+        <div class="form-group">' . $label2 . $input . '</div>
+        <div class="form-group">' . $label1 . $input1 . '</div>
+        <div class="form-group">
+            <label class="required">Allowed Email Statuses</label>'
+                . $statusOptions .
+                '</div>
+        <h4><button type="button" class="btn btn-primary float-right" id="submitEmail">Submit</button></h4>
+    </div>';
         }else{
             $response = '';
         }
@@ -1096,9 +1120,10 @@ class SettingsController extends BaseSettingsController
         if($content['status']==='error'){
             return errorResponse(trans('message.emailApikey_error'));
         }
+
         try {
-            ApiKey::where('id', 1)->update(['email_verification_key' => $request->input('apikey'), 'email_verification_mode' => $request->input('mode'),
-                'email_verification_provider' => $request->input('provider'),]);
+            EmailMobileValidationProviders::where('provider', $request->input('provider'))->update(['api_key' => $request->input('apikey'),
+                'mode' => $request->input('mode'),'accepted_output' => $request->input('accepted_output')]);
             return successResponse(trans('message.email_validation_success'));
         }catch (\Exception $e) {
             return errorResponse(\Lang::get('message.invalid_key'));

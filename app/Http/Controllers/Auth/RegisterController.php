@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\ApiKey;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\ProfileRequest;
+use App\Model\Common\EmailMobileValidationProviders;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Rules\CaptchaValidation;
@@ -28,6 +29,8 @@ class RegisterController extends Controller
     */
     use RegistersUsers;
 
+
+
     /**
      * Where to redirect users after registration.
      *
@@ -46,15 +49,24 @@ class RegisterController extends Controller
     }
 
     public function emailVerification($email){
+        $map = [
+            'safe' => 1,
+            'catch_all' => 2,
+            'unknown' => 4,
+        ];
 
-        [$apikey, $mode] = array_values(ApiKey::select('email_verification_key', 'email_verification_mode')->first()->toArray());
+        ['api_key' => $apikey, 'mode' => $mode] = EmailMobileValidationProviders::where('provider', 'reoon')
+            ->select('api_key', 'mode')
+            ->first()
+            ->toArray();
+
         $response = Http::get('https://emailverifier.reoon.com/api/v1/verify', [
             'email' => $email,
             'key'   => $apikey,
             'mode'  => $mode,
         ]);
         $content=$response->json();
-        if($content['status']=='valid' || $content['status']=='safe' && !$content['is_disposable']){
+        if($content['status']=='safe'){
             return true;
         }
         return false;

@@ -3,6 +3,7 @@
 namespace Database\Seeders\v4_0_2_4_RC_1;
 
 use App\ApiKey;
+use App\Model\Common\EmailMobileValidationProviders;
 use App\Model\Common\Msg91Status;
 use App\Model\Common\PipedriveLocalFields;
 use App\Model\Github\Github;
@@ -18,6 +19,7 @@ class DatabaseSeeder extends Seeder
         $this->addMsgStatus();
         $this->removeOldGitPassword();
         $this->updateAppKey();
+        $this->add_providers();
     }
 
     public function addMsgStatus()
@@ -56,6 +58,19 @@ class DatabaseSeeder extends Seeder
 
             setEnvValue(['APP_KEY_UPDATED' => 'true']);
 
+        }
+    }
+
+
+    public function add_providers(){
+        $providers =[ ['provider'=>'reoon'],
+                      ['provider'=>'vonage'],
+                      ['provider'=>'abstract'],
+                    ];
+        foreach ($providers as $provider) {
+                EmailMobileValidationProviders::updateOrCreate([
+                    'provider' => $provider['provider'],
+                ]);
         }
     }
 }

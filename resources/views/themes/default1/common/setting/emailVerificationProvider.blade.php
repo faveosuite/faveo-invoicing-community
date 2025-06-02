@@ -108,12 +108,13 @@
                 <div class ="row">
                     <div class="col-md-4 form-group" id="emailToDisp" style="display:none">
                         {!! html()->label(Lang::get('message.validation-provider'), 'user')->class('required') !!}
-                        <select name="manager" value= {{ $emailProvider }} id="provider" class="form-control {{$errors->has('manager') ? ' is-invalid' : ''}}">
+                        <select name="manager" id="provider" class="form-control {{$errors->has('manager') ? ' is-invalid' : ''}}">
                             <option value="">Choose</option>
                             <option value="reoon">{{Lang::get('message.reoon')}}</option>
                         </select>
                         <div class="input-group-append"></div>
                      </div>
+
                 </div>
 
             <div class ="row">
@@ -224,10 +225,14 @@
             let apikey=$('#emailApikey');
             let mode=$('#emailMode');
             let provider=$('#provider');
+            const selectedCheckboxes = document.querySelectorAll('.emailStatusCheckbox:checked');
+            let selectedValues = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value));
+            let accepted_output = selectedValues.reduce((sum, val) => sum + val, 0);
+
             $.ajax({
                 url:'{{url('email-settings-save')}}',
                 type:'post',
-                data:{'apikey':apikey.val(),'mode':mode.val(),'provider':provider.val()},
+                data:{'apikey':apikey.val(),'mode':mode.val(),'provider':provider.val(),'accepted_output':accepted_output},
                 success:function(response){
                     setTimeout(function() {
                         location.reload();
