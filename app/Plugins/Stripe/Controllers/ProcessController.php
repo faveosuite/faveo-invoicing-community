@@ -267,52 +267,54 @@ class ProcessController extends Controller
                 'receipt' => '3456',
                 'amount' => round($cartTotal * 100),
                 'currency' => $invoice->currency,
-                'payment_capture' => 0
+                'payment_capture' => 0,
             ];
 
             $razorpayOrder = $api->order->create($orderData);
             $razorpayOrderId = $razorpayOrder['id'];
 
             $data = [
-                "key" => $rzp_key,
-                "name" => 'Faveo Helpdesk',
-                "order_id" => $razorpayOrderId,
-                "description" => 'Order for Invoice No - ' . $invoice->number,
-                "prefill" => [
-                    "contact" => $user->mobile_code . $user->mobile,
-                    "email" => $user->email,
+                'key' => $rzp_key,
+                'name' => 'Faveo Helpdesk',
+                'order_id' => $razorpayOrderId,
+                'description' => 'Order for Invoice No - '.$invoice->number,
+                'prefill' => [
+                    'contact' => $user->mobile_code.$user->mobile,
+                    'email' => $user->email,
                 ],
-                "notes" => [
-                    "First Name" => $user->first_name,
-                    "Last Name" => $user->last_name,
-                    "Company Name" => $user->company,
-                    "Address" => $user->address,
-                    "Email" => $user->email,
-                    "Country" => $user->country,
-                    "State" => $user->state,
-                    "City" => $user->town,
-                    "Zip" => $user->zip,
-                    "Amount Paid" => $cartTotal * 100,
-                    "merchant_order_id" => $merchant_orderid,
+                'notes' => [
+                    'First Name' => $user->first_name,
+                    'Last Name' => $user->last_name,
+                    'Company Name' => $user->company,
+                    'Address' => $user->address,
+                    'Email' => $user->email,
+                    'Country' => $user->country,
+                    'State' => $user->state,
+                    'City' => $user->town,
+                    'Zip' => $user->zip,
+                    'Amount Paid' => $cartTotal * 100,
+                    'merchant_order_id' => $merchant_orderid,
                 ],
-                "theme" => [
-                    "color" => "#F37254"
+                'theme' => [
+                    'color' => '#F37254',
                 ],
             ];
 
             return json_encode($data);
-        }catch (\Exception $ex){
+        } catch (\Exception $ex) {
             throw new \Exception($ex->getMessage(), $ex->getCode(), $ex->getPrevious());
         }
     }
 
-    protected function generateMerchantRandomString($length = 10) {
+    protected function generateMerchantRandomString($length = 10)
+    {
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $charactersLength = strlen($characters);
         $randomString = '';
         for ($i = 0; $i < $length; $i++) {
             $randomString .= $characters[rand(0, $charactersLength - 1)];
         }
+
         return $randomString;
     }
 }
