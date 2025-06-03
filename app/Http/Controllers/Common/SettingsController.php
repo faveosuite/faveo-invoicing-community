@@ -1142,6 +1142,7 @@ class SettingsController extends BaseSettingsController
 
 
     public function emailSettingsSave(Request $request){
+        $emailSave=new EmailMobileValidationProviders();
 
         $response = Http::get('https://emailverifier.reoon.com/api/v1/check-account-balance/', [
             'key'   => $request->input('apikey'),
@@ -1150,10 +1151,11 @@ class SettingsController extends BaseSettingsController
         if($content['status']==='error'){
             return errorResponse(trans('message.emailApikey_error'));
         }
+        $emailSave->where('type','email')->update(['to_use'=>0]);
 
         try {
             EmailMobileValidationProviders::where('provider', $request->input('provider'))->update(['api_key' => $request->input('apikey'),
-                'mode' => $request->input('mode'),'accepted_output' => $request->input('accepted_output')]);
+                'mode' => $request->input('mode'),'accepted_output' => $request->input('accepted_output'),'to_use'=>1]);
             return successResponse(trans('message.email_validation_success'));
         }catch (\Exception $e) {
             return errorResponse(\Lang::get('message.invalid_key'));
@@ -1163,6 +1165,7 @@ class SettingsController extends BaseSettingsController
 
 
     public function mobileSettingsSave(Request $request){
+        $emailSave=new EmailMobileValidationProviders();
         $provider=$request->input('provider');
         if($provider=='vonage'){
             $response = Http::get('https://rest.nexmo.com/account/get-balance/', [
@@ -1172,8 +1175,8 @@ class SettingsController extends BaseSettingsController
             if(!$response->successful() && !$response->json('value')){
                 return errorResponse(trans('message.mobileApikey_error'));
             }
-
-            EmailMobileValidationProviders::where('provider', $request->input('provider'))->update(['api_key' => $request->input('apikey'),
+            $emailSave->where('type','mobile')->update(['to_use'=>0]);
+            $emailSave->where('provider', $request->input('provider'))->update(['api_key' => $request->input('apikey'),
                 'mode' => $request->input('mode'),'api_secret' => $request->input('apisecret'),'to_use'=>1]);
             return successResponse(\Lang::get('message.mobile_validation_success'));
         }
@@ -1188,7 +1191,9 @@ class SettingsController extends BaseSettingsController
                 if(!$response->successful() && $response->json('error')){
                     return errorResponse(trans('message.mobileApikey_error'));
                 }
-            EmailMobileValidationProviders::where('provider', $request->input('provider'))->update(['api_key' => $request->input('apikey'),'to_use'=>1]);
+            $emailSave->where('type','mobile')->update(['to_use'=>0]);
+
+            $emailSave->where('provider', $request->input('provider'))->update(['api_key' => $request->input('apikey'),'to_use'=>1]);
 
             return successResponse(\Lang::get('message.mobile_validation_success_abstract'));
 
