@@ -2419,7 +2419,7 @@ return [
     'license_description' => 'Faveo 授權管理整合功能允許您在 Faveo 開票平台中管理授權與更新，可直接於平台中追蹤、啟用及更新授權',
     'msg91_description' => 'MSG91.com 服務用於在註冊時發送一次性密碼 (OTP)，以驗證聯絡人的手機號碼，確保聯絡方式安全可靠。',
     'mailchimp_description' => 'Mailchimp 外掛可在聯絡人註冊與編輯個人資料時，自動將所有聯絡人資料從 Faveo Invoicing 推送至 Mailchimp。也可以同步購買資料，並透過專屬對應頁面自訂哪些資料應該同步。',
-    'terms_description' => "啟用「在註冊頁面顯示條款」選項後，註冊頁面會顯示一個核取方塊，要求用戶在完成註冊前同意條款與條件。",
+    'terms_description' => '啟用「在註冊頁面顯示條款」選項後，註冊頁面會顯示一個核取方塊，要求用戶在完成註冊前同意條款與條件。',
     'pipedrive_description' => 'Pipedrive CRM 外掛會在聯絡人註冊與編輯個人資料時，自動將聯絡人資料從 Faveo Invoicing 推送至 Pipedrive CRM，並可透過對應頁面自訂同步欄位。',
     'github_description' => 'GitHub 整合功能可直接從 GitHub 儲存庫擷取與下載產品，簡化從 GitHub 專案中存取與管理檔案的流程',
     'license_heading' => '自動 Faveo 授權與更新管理',
