@@ -2455,7 +2455,7 @@ return [
     'status_change' => 'Trạng thái đã được thay đổi',
     'google_description' => 'Tích hợp Google reCAPTCHA giúp bảo vệ biểu mẫu khỏi bot và gửi tự động, đảm bảo chỉ người dùng thực sự mới có thể gửi thông tin.',
     'license_description' => 'Tích hợp Trình quản lý Giấy phép Faveo cho phép quản lý giấy phép và cập nhật phần mềm ngay trong Faveo Invoicing.',
-    'msg91_description' => "Dịch vụ MSG91.com được sử dụng để gửi mã OTP xác minh số điện thoại trong quá trình đăng ký, đảm bảo phương thức xác minh an toàn.",
+    'msg91_description' => 'Dịch vụ MSG91.com được sử dụng để gửi mã OTP xác minh số điện thoại trong quá trình đăng ký, đảm bảo phương thức xác minh an toàn.',
     'mailchimp_description' => 'Plugin Mailchimp sẽ đẩy tất cả dữ liệu liên hệ từ Faveo Invoicing sang Mailchimp khi đăng ký hoặc chỉnh sửa hồ sơ. Dữ liệu mua hàng cũng có thể được ánh xạ.',
     'terms_description' => "Khi bật tùy chọn 'Hiển thị Điều khoản trên Trang Đăng ký', một hộp kiểm sẽ xuất hiện yêu cầu người dùng đồng ý với Điều khoản và Điều kiện.",
     'pipedrive_description' => 'Plugin Pipedrive CRM tự động đẩy dữ liệu liên hệ từ Faveo Invoicing sang Pipedrive CRM khi đăng ký hoặc chỉnh sửa hồ sơ.',
