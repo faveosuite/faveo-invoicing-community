@@ -110,8 +110,8 @@
                         {!! html()->label(Lang::get('message.validation-provider'), 'user')->class('required') !!}
                         <select name="manager"  id="provider" class="form-control {{$errors->has('manager') ? ' is-invalid' : ''}}">
                             <option value="">Choose</option>
-                            <option value="vonage">Vonage</option>
-                            <option value="abstract">Abstract</option>
+                            <option value="vonage"{{$selectedProvider=='vonage'?'selected':''}}>Vonage</option>
+                            <option value="abstract"{{$selectedProvider=='abstract'?'selected':''}}>Abstract</option>
                         </select>
                         <div class="input-group-append"></div>
                     </div>

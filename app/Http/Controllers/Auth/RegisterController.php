@@ -69,12 +69,12 @@ class RegisterController extends Controller
         $status=$content['status'];
         $statusBit=$map[$status]??0;
 
-        if($statusBit & $accepted_output || $content['status']=='valid'){
+        if(($statusBit & $accepted_output) || $content['status']=='valid'){
             return true;
         }
-        if($content['status']=='safe'){
-            return true;
-        }
+//        if($content['status']=='safe'){
+//            return true;
+//        }
         return false;
     }
 

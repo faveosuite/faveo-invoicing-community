@@ -1055,12 +1055,13 @@ class SettingsController extends BaseSettingsController
 
         $mobileProvider=['abstract','vonage'];
         $mobileStatus=StatusSetting::where('id',1)->value('mobile_validation_status');
+        $selectedProvider=EmailMobileValidationProviders::where('type','mobile')->where('to_use',1)->value('provider');
         $statusDisplay = '<label class="switch toggle_event_editing emailValidationStatus">
                         <input type="checkbox" value="'.($mobileStatus ? '1' : '0').'"  name="EmailValidationStatus"
                                class="checkbox9" id="email_validation_status"'.($mobileStatus ? 'checked' : '').'>
                         <span class="slider round"></span>
                     </label>';
-        return view('themes.default1.common.setting.mobileVerificationProvider', compact('mobileStatus','statusDisplay','mobileProvider'));
+        return view('themes.default1.common.setting.mobileVerificationProvider', compact('mobileStatus','statusDisplay','mobileProvider','selectedProvider'));
     }
 
     public function emailData(Request $request){
@@ -1070,17 +1071,39 @@ class SettingsController extends BaseSettingsController
             ->first()
             ->toArray();
 
-        $map = [
-            'safe' => 1,
-            'catch_all' => 2,
-            'unknown' => 4,
-        ];
-        $current=EmailMobileValidationProviders::where('provider','reoon')->value('accepted_output')??1;
 
         $label2 = html()->label(__('message.emailApikey'), 'emailApikey')->class('required')->toHtml();
         $input = html()->text('emailApikey',$apikey)->class('form-control emailapikey')->id('emailApikey')->toHtml();
         $label1 = html()->label(__('message.emailMode'), 'emailMode')->class('required')->toHtml();
         $input1= html()->text('emailMode',$mode)->class('form-control emailMode')->id('emailMode')->toHtml();
+        $input3 = '<select class="form-control emailMode" id="emailMode" name="emailMode">'
+            . '<option value="quick"' . ($mode == 'quick' ? ' selected' : '') . '>Quick</option>'
+            . '<option value="power"' . ($mode == 'power' ? ' selected' : '') . '>Power</option>'
+            . '</select>';
+
+
+
+        if($request->input('value')==='reoon') {
+            $response = '<div>
+        <div class="form-group">' . $label2 . $input . '</div>
+        <div class="form-group">' . $label1 . $input3 . '</div>
+         <div class="form-group" id="checkboxToRender">
+                </div>
+         <h4><button type="button" class="btn btn-primary float-right" id="submitEmail">Submit</button></h4>
+            </div>';
+        }else{
+            $response = '';
+        }
+        return successResponse(trans('message.success'), $response);
+    }
+
+    public function emailCheckboxData(){
+        $current=EmailMobileValidationProviders::where('provider','reoon')->value('accepted_output')??1;
+        $map = [
+            'safe' => 1,
+            'catch_all' => 2,
+            'unknown' => 4,
+        ];
 
         $statusOptions = '';
         foreach ($map as $status => $bit) {
@@ -1093,21 +1116,14 @@ class SettingsController extends BaseSettingsController
     </div>';
         }
 
+        $response = '<div class="form-group">
+            <label class="required" for="allowed_statuses">Allowed Email Statuses</label>'
+            . $statusOptions .
+            '</div>';
 
-        if($request->input('value')==='reoon') {
-            $response = '<div>
-        <div class="form-group">' . $label2 . $input . '</div>
-        <div class="form-group">' . $label1 . $input1 . '</div>'
-        .'<div class="form-group">
-            <label class="required">Allowed Email Statuses</label>'
-                . $statusOptions .
-                '</div>
-        <h4><button type="button" class="btn btn-primary float-right" id="submitEmail">Submit</button></h4>
-    </div>';
-        }else{
-            $response = '';
-        }
+
         return successResponse(trans('message.success'), $response);
+
     }
 
     public function mobileData(Request $request){
@@ -1123,11 +1139,16 @@ class SettingsController extends BaseSettingsController
         $input1= html()->text('apisecret',$apisecret)->class('form-control emailMode')->id('mobileApisecret')->toHtml();
         $label3 = html()->label(__('message.mobileMode'), 'mobileMode')->class('required')->toHtml();
         $input3= html()->text('mobileMode',$mode)->class('form-control mobileMode')->id('mobileMode')->toHtml();
+        $input4='<select class="form-control emailMode" id="mobileMode" name="mobileMode">'
+            . '<option value="basic"' . ($mode == 'basic' ? ' selected' : '') . '>Basic</option>'
+            . '<option value="standard"' . ($mode == 'standard' ? ' selected' : '') . '>Standard</option>'
+            . '<option value="advanced/async"' . ($mode == 'advanced/async' ? ' selected' : '') . '>Advanced</option>'
+            . '</select>';
         if($provider=='vonage'){
             $response = '<div>
         <div class="form-group">' . $label2 . $input . '</div>
         <div class="form-group">' . $label1 . $input1 . '</div>
-        <div class="form-group">' . $label3 . $input3 . '</div>
+        <div class="form-group">' . $label3 . $input4 . '</div>
         <h4><button type="button" class="btn btn-primary float-right" id="submitMobile">Submit</button></h4>
     </div>';
         }else{

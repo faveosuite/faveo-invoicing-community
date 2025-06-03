@@ -178,6 +178,8 @@ Route::middleware('installAgora')->group(function () {
     Route::get('emailVerificationProvider',[Common\SettingsController::class,'emailVerificationProvider']);
     Route::get('mobileVerificationProvider',[Common\SettingsController::class,'mobileVerificationProvider']);
     Route::post('emailData',[Common\SettingsController::class,'emailData']);
+    Route::post('emailCheckboxData',[Common\SettingsController::class,'emailCheckboxData']);
+
     Route::post('mobileData',[Common\SettingsController::class,'mobileData']);
     Route::post('email-settings-save',[Common\SettingsController::class,'emailSettingsSave']);
     Route::post('mobile-settings-save',[Common\SettingsController::class,'mobileSettingsSave']);

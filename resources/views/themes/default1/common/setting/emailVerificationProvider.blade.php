@@ -120,6 +120,7 @@
             <div class ="row">
                 <div class="col-md-4 form-group" id="emailToRender">
                 </div>
+
             </div>
 
             </div>
@@ -155,6 +156,26 @@
             $('#emailToRender').html('');
         }
     });
+
+    $(document).on('change', '#emailMode', function () {
+        var value=$(this).val();
+
+        if(value == 'power') {
+            $.ajax({
+                url: "{{url('emailCheckboxData')}}",
+                type: 'post',
+                data: {
+                    'value': value,
+                },
+                success: function (response) {
+                    $('#checkboxToRender').html(response['data']);
+                }
+            })
+        }else{
+            $('#checkboxToRender').html('');
+        }
+    })
+
 
     $(document).on('change', '.emailValidationStatus input[type="checkbox"]', function() {
         if ($('#email_validation_status').prop("checked")) {
