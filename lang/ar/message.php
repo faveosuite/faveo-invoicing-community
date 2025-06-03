@@ -2247,5 +2247,8 @@ return [
     'select2_input_too_short' => 'يرجى إدخال حرف واحد أو أكثر',
     'select2_no_results' => 'لم يتم العثور على نتائج',
     'select2_searching' => 'جارٍ البحث...',
+    'log_out' => 'تسجيل الخروج',
+    'agora' => 'الآن',
+    'collapse' => 'ينهار',
 
 ];

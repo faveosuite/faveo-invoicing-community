@@ -983,8 +983,8 @@ return [
     'enter_valid_domain' => '請輸入有效的域名',
     'view_invoice' => '查看發票',
     'from' => '來自',
-    'gstin' => 'GSTIN：',
-    'cin' => 'CIN：',
+    'gstin' => 'GSTIN',
+    'cin' => 'CIN',
     'sub_total' => '小計',
     'renewed' => '已續訂',
     'discount' => '折扣',
@@ -2476,5 +2476,7 @@ return [
     'select2_input_too_short' => '請輸入 1 個字元以上',
     'select2_no_results' => '查無結果',
     'select2_searching' => '搜尋中...',
+    'log_out' => '退出',
+    'collapse' => '坍塌',
 
 ];

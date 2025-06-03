@@ -932,8 +932,8 @@ return [
     'enter_valid_domain' => 'Molimo unesite važeći domen',
     'view_invoice' => 'Pogledajte račun',
     'from' => 'Od',
-    'gstin' => 'GSTIN:',
-    'cin' => 'CIN:',
+    'gstin' => 'GSTIN',
+    'cin' => 'CIN',
     'sub_total' => 'Međusobni iznos',
     'renewed' => 'Obnovljeno',
     'discount' => 'Popust',
@@ -2442,5 +2442,7 @@ return [
     'select2_input_too_short' => 'Unesite 1 ili više karaktera',
     'select2_no_results' => 'Nema rezultata',
     'select2_searching' => 'Pretraživanje...',
+    'log_out' => 'Odjavite se',
+    'collapse' => 'Kolaps',
 
 ];

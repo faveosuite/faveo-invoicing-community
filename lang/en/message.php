@@ -2538,4 +2538,8 @@ return [
     'select2_input_too_short' => 'Please enter 1 or more characters',
     'select2_no_results' => 'No results found',
     'select2_searching' => 'Searching...',
+    'log_out' => 'Log out',
+    'collapse' => 'Collapse',
+    'file_upload_required' => 'File upload is required.',
+
 ];

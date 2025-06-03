@@ -1001,8 +1001,8 @@ return [
     'enter_valid_domain' => '유효한 도메인을 입력해 주세요.',
     'view_invoice' => '인보이스 보기',
     'from' => '출처',
-    'gstin' => 'GSTIN:',
-    'cin' => 'CIN:',
+    'gstin' => 'GSTIN',
+    'cin' => 'CIN',
     'sub_total' => '소계',
     'renewed' => '갱신됨',
     'discount' => '할인',
@@ -2536,5 +2536,7 @@ return [
     'select2_input_too_short' => '1자 이상 입력하세요',
     'select2_no_results' => '결과가 없습니다',
     'select2_searching' => '검색 중...',
+    'log_out' => '로그아웃',
+    'collapse' => '무너지다',
 
 ];

@@ -1207,8 +1207,8 @@ return [
     'enter_valid_domain' => 'אנא הזן דומיין תקני',
     'view_invoice' => 'הצג חשבונית',
     'from' => 'מ',
-    'gstin' => 'GSTIN:',
-    'cin' => 'CIN:',
+    'gstin' => 'GSTIN',
+    'cin' => 'CIN',
     'sub_total' => 'סכום ביניים',
     'renewed' => 'חודש',
     'discount' => 'הנחה',
@@ -2519,5 +2519,7 @@ return [
     'select2_input_too_short' => 'אנא הזן תו אחד או יותר',
     'select2_no_results' => 'לא נמצאו תוצאות',
     'select2_searching' => 'מחפש...',
+    'log_out' => 'התנתק',
+    'collapse' => 'הִתמוֹטְטוּת',
 
 ];

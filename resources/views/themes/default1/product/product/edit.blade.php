@@ -552,13 +552,13 @@
             });
             if(id.length<=0){
                 swal.fire({
-                    title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
-                    html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
-                        "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
-                        "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_file')}}</p>" + "</div>" +
+                    title: "<h2 class='swal2-title custom-title'>{{Lang::get('message.Select')}}</h2>",
+                    html: "<div class='swal2-html-container custom-content'>" +
+                        "<div class='section-sa'>" +
+                        "<p>{{Lang::get('message.sweet_file')}}</p>" + "</div>" +
                         "</div>",
                     position: 'top',
-                    confirmButtonText: "OK",
+                    confirmButtonText: "{{ __('message.ok') }}",
                     showCloseButton: true,
                     confirmButtonColor: "#007bff",
                     width: "600px",
@@ -566,10 +566,10 @@
             }
             else {
                 var swl = swal.fire({
-                    title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Delete')}}</h2>",
-                    html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
-                        "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
-                        "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.file_delete')}}</p>" + "</div>" +
+                    title: "<h2 class='swal2-title custom-title'>{{Lang::get('message.Delete')}}</h2>",
+                    html: "<div class='swal2-html-container custom-content'>" +
+                        "<div class='section-sa'>" +
+                        "<p>{{Lang::get('message.file_delete')}}</p>" + "</div>" +
                         "</div>",
                     showCancelButton: true,
                     showCloseButton: true,
@@ -577,6 +577,7 @@
                     width: "600px",
 
                     confirmButtonText: @json(trans('message.Delete')),
+                    cancelButtonText: "{{ __('message.cancel') }}",
                     confirmButtonColor: "#007bff",
 
                 }).then((result) => {
@@ -601,13 +602,13 @@
                             })
                         } else {
                             swal.fire({
-                                title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
-                                html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
-                                    "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
-                                    "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_file')}}</p>" + "</div>" +
+                                title: "<h2 class='swal2-title custom-title'>{{Lang::get('message.Select')}}</h2>",
+                                html: "<div class='swal2-html-container custom-content'>" +
+                                    "<div class='section-sa'>" +
+                                    "<p>{{Lang::get('message.sweet_file')}}</p>" + "</div>" +
                                     "</div>",
                                 position: 'top',
-                                confirmButtonText: "OK",
+                                confirmButtonText: "{{ __('message.ok') }}",
                                 showCloseButton: true,
                                 confirmButtonColor: "#007bff",
                                 width: "600px",
@@ -641,7 +642,7 @@
 
     {{--<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script> -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>--}}
-    <script src="{{asset('https://code.jquery.com/jquery-3.5.1.min.js')}}"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="//cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.tiny.cloud/1/oiio010oipuw2n6qyq3li1h993tyg25lu28kgt1trxnjczpn/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
 
@@ -1287,7 +1288,7 @@
 
                         if ($('#file-upload-list li').length === 0) {
                             userFields[field].addClass('is-invalid');
-                            userFields[field].after(`<span class='error invalid-feedback'>File upload is required.</span>`);
+                            userFields[field].after(`<span class='error invalid-feedback'>${__('message.file_upload_required')}</span>`);
                             isValid = false;
                         }
                     }

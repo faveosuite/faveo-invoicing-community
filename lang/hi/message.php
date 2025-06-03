@@ -1212,8 +1212,8 @@ return [
     'enter_valid_domain' => 'कृपया एक वैध डोमेन दर्ज करें',
     'view_invoice' => 'चालान देखें',
     'from' => 'से',
-    'gstin' => 'GSTIN:',
-    'cin' => 'CIN:',
+    'gstin' => 'GSTIN',
+    'cin' => 'CIN',
     'sub_total' => 'सबटोटल',
     'renewed' => 'नवीनीकरण',
     'discount' => 'छूट',
@@ -2524,5 +2524,7 @@ return [
     'select2_input_too_short' => 'कृपया 1 या अधिक अक्षर दर्ज करें',
     'select2_no_results' => 'कोई परिणाम नहीं मिला',
     'select2_searching' => 'खोज रहा है...',
+    'log_out' => 'लॉग आउट',
+    'collapse' => 'गिर जाना',
 
 ];

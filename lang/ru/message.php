@@ -1004,8 +1004,8 @@ return [
     'enter_valid_domain' => 'Пожалуйста, введите действительный домен',
     'view_invoice' => 'Посмотреть счет',
     'from' => 'От',
-    'gstin' => 'GSTIN:',
-    'cin' => 'CIN:',
+    'gstin' => 'GSTIN',
+    'cin' => 'CIN',
     'sub_total' => 'Промежуточный итог',
     'renewed' => 'Продлено',
     'discount' => 'Скидка',
@@ -2515,5 +2515,7 @@ return [
     'select2_input_too_short' => 'Пожалуйста, введите 1 или более символов',
     'select2_no_results' => 'Результаты не найдены',
     'select2_searching' => 'Поиск...',
+    'log_out' => 'Выйти',
+    'collapse' => 'Крах',
 
 ];
