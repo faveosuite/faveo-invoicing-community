@@ -1203,8 +1203,8 @@ return [
     'enter_valid_domain' => 'ஒரு செல்லுபடியான டொமைனை உள்ளிடவும்',
     'view_invoice' => 'ரசீதை பார்க்கவும்',
     'from' => 'இிலிருந்து',
-    'gstin' => 'GSTIN:',
-    'cin' => 'CIN:',
+    'gstin' => 'GSTIN',
+    'cin' => 'CIN',
     'sub_total' => 'சுற்று மொத்தம்',
     'renewed' => 'புதுப்பிக்கப்பட்டது',
     'discount' => 'தள்ளுபடி',
@@ -2507,5 +2507,7 @@ return [
     'select2_input_too_short' => 'தயவுசெய்து 1 அல்லது அதற்கு மேற்பட்ட எழுத்துக்களை உள்ளிடவும்',
     'select2_no_results' => 'தேடல் முடிவுகள் இல்லை',
     'select2_searching' => 'தேடுகிறது...',
+    'log_out' => 'வெளியேறு',
+    'collapse' => 'சுருக்கு',
 
 ];

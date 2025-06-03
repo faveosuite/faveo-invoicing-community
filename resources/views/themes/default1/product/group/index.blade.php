@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Groups
+{{ __('message.groups') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
@@ -80,6 +80,22 @@ Groups
                 "sSearch"    : "Search: ",
                 "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
             },
+            language: {
+                paginate: {
+                    first:      "{{ __('message.paginate_first') }}",
+                    last:       "{{ __('message.paginate_last') }}",
+                    next:       "{{ __('message.paginate_next') }}",
+                    previous:   "{{ __('message.paginate_previous') }}"
+                },
+                emptyTable:     "{{ __('message.empty_table') }}",
+                info:           "{{ __('message.datatable_info') }}",
+                zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
+                infoEmpty:      "{{ __('message.info_empty') }}",
+                infoFiltered:   "{{ __('message.info_filtered') }}",
+                lengthMenu:     "{{ __('message.length_menu') }}",
+                loadingRecords: "{{ __('message.loading_records') }}",
+                search:         "{{ __('message.table_search') }}",
+            },
              columnDefs: [
                 { 
                     targets: 'no-sort', 
@@ -134,41 +150,31 @@ Groups
          });
          if(id.length<=0){
              swal.fire({
-                 title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
-                 html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
-                     "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
-                     "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_group')}}</p>" + "</div>" +
+                 title: "<h2 class='swal2-title custom-title'>{{Lang::get('message.Select')}}</h2>",
+                 html: "<div class='swal2-html-container custom-content'>" +
+                     "<div class='section-sa'>" +
+                     "<p>{{Lang::get('message.sweet_group')}}</p>" + "</div>" +
                      "</div>",
                  position: 'top',
-                 confirmButtonText: "OK",
+                 confirmButtonText: "{{ __('message.ok') }}",
                  showCloseButton: true,
                  confirmButtonColor: "#007bff",
                  width: "600px",
-                 buttonsStyling: false,
-                 customClass: {
-                     confirmButton: 'btn btn-primary btn-sm custom-confirm',
-                 }
              })
          }else {
              var swl = swal.fire({
-                 title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Delete')}}</h2>",
-                 html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
-                     "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
-                     "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.group_delete')}}</p>" + "</div>" +
+                 title: "<h2 class='swal2-title custom-title'>{{Lang::get('message.Delete')}}</h2>",
+                 html: "<div class='swal2-html-container custom-content'>" +
+                     "<div class='section-sa'>" +
+                     "<p>{{Lang::get('message.group_delete')}}</p>" + "</div>" +
                      "</div>",
                  showCancelButton: true,
                  showCloseButton: true,
                  position: "top",
                  width: "600px",
                  confirmButtonText: @json(trans('message.Delete')),
+                 cancelButtonText: "{{ __('message.cancel') }}",
                  confirmButtonColor: "#007bff",
-                 buttonsStyling: false,
-                 reverseButtons: true,
-                 customClass: {
-                     actions: 'swal2-actions-custom-fix',
-                     confirmButton: 'btn btn-primary btn-sm custom-confirm',
-                     cancelButton: 'btn btn-secondary btn-sm custom-cancel'
-                 }
              }).then((result) => {
                  if (result.isConfirmed) {
                      $('.group_checkbox:checked').each(function () {
@@ -190,13 +196,13 @@ Groups
                          })
                      } else {
                          swal.fire({
-                             title: "<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
-                             html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
-                                 "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
-                                 "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_group')}}</p>" + "</div>" +
+                             title: "<h2 class='swal2-title custom-title'>{{Lang::get('message.Select')}}</h2>",
+                             html: "<div class='swal2-html-container custom-content'>" +
+                                 "<div class='section-sa'>" +
+                                 "<p>{{Lang::get('message.sweet_group')}}</p>" + "</div>" +
                                  "</div>",
                              position: 'top',
-                             confirmButtonText: "OK",
+                             confirmButtonText: "{{ __('message.ok') }}",
                              showCloseButton: true,
                              confirmButtonColor: "#007bff",
                              width: "600px",

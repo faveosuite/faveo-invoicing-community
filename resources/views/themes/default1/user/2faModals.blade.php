@@ -15,6 +15,9 @@
     [dir="ltr"] .button-content {
         flex-direction: row;
     }
+    [dir="rtl"] .modal-header .close {
+        margin: -1rem 19rem -1rem auto !important;
+    }
 </style>
 
 @php

@@ -9,7 +9,7 @@ return [
     'database_setup' => 'Database Instelling',
     'getting_started' => 'Aan de Slag',
     'final' => 'Finale',
-    'directory' => 'Map',
+    'directory' => 'Directory',
     'permissions' => 'Machtigingen',
     'requisites' => 'Vereisten',
     'status' => 'Status',

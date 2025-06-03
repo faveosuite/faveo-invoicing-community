@@ -21,11 +21,11 @@
 
        @include('themes.default1.licence.permissions.create')
        <div class="card-body table-responsive">
-             
+
              <div class="row">
-            
+
             <div class="col-md-12">
-               
+
                  <table id="permissions-table" class="table display" cellspacing="0" width="100%" styleClass="borderless">
                     <thead><tr>
                             <th>{{ __('message.license-type') }}</th>
@@ -90,13 +90,11 @@
                 infoEmpty:      "{{ __('message.info_empty') }}",
                 infoFiltered:   "{{ __('message.info_filtered') }}",
                 lengthMenu:     "{{ __('message.sLengthMenu') }}",
-                loadingRecords: "{{ __('message.loading_records') }}",
-                search:         "{{ __('message.table_search') }}"
             },
 
             columnDefs: [
-                { 
-                     targets: 'no-sort', 
+                {
+                     targets: 'no-sort',
                     orderable: false,
                     order: []
                 }
@@ -123,7 +121,7 @@
       radioClass   : 'iradio_minimal-blue'
   })
   })
-    
+
 
     //Add Permissions for a License
 
@@ -150,7 +148,7 @@
                         });
                       });
                     $("#all-permissions").modal('show');
-                    }               
+                    }
                 }
               });
 
@@ -181,7 +179,7 @@
                           }
                       });
                   } else {
-                      showAlert('error', '{{ __("message.select_at_least_one_permission") }}'));
+                      showAlert('error', 'Please select at least one permission');
                   }
               });
           });

@@ -1215,8 +1215,8 @@ return [
     'enter_valid_domain' => 'Lütfen geçerli bir alan adı girin',
     'view_invoice' => 'Faturayı Görüntüle',
     'from' => 'Kimden',
-    'gstin' => 'GSTIN:',
-    'cin' => 'CIN:',
+    'gstin' => 'GSTIN',
+    'cin' => 'CIN',
     'sub_total' => 'Ara Toplam',
     'renewed' => 'Yenilendi',
     'discount' => 'İndirim',
@@ -2526,5 +2526,7 @@ return [
     'select2_input_too_short' => 'Lütfen 1 veya daha fazla karakter girin',
     'select2_no_results' => 'Sonuç bulunamadı',
     'select2_searching' => 'Aranıyor...',
+    'log_out' => 'Oturumu kapat',
+    'collapse' => 'Yıkılmak',
 
 ];

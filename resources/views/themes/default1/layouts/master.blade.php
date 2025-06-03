@@ -274,7 +274,7 @@
                         </li>
                         <li>
                             <a href="{{url('auth/logout')}}" class="dropdown-item dp-data mb-4 mt-1">
-                                <i class="fas fa-sign-out-alt pr-2"></i>{{ __('message.signout') }}</a>
+                                <i class="fas fa-sign-out-alt pr-2"></i>{{ __('message.log_out') }}</a>
                         </li>
                     </ul>
                 </li>
@@ -591,7 +591,7 @@
         </div>
         <!-- /.content-wrapper -->
         <footer class="main-footer">
-            <strong>{{ __('message.copyright') }} &copy; {{date('Y')}} <a href="{{$set->website}}">{{$set->company}}</a>.</strong>
+            <strong>{{ __('message.copyright') }} &copy; {{date('Y')}} <a href="{{$set->website}}" target="_blank">{{$set->company}}</a>.</strong>
             {{ __('message.all_rights') }} <a href="{{$set->website}}" class="text-color-grey text-color-hover-primary font-weight-bold" target="_blank">Faveo</a>
             <div class="float-right d-none d-sm-inline-block">
                 <b>{{Lang::get('message.version')}}</b> {{Config::get('app.version')}}

@@ -999,8 +999,8 @@ return [
     'enter_valid_domain' => 'Per favore inserisci un dominio valido',
     'view_invoice' => 'Visualizza fattura',
     'from' => 'Da',
-    'gstin' => 'GSTIN:',
-    'cin' => 'CIN:',
+    'gstin' => 'GSTIN',
+    'cin' => 'CIN',
     'sub_total' => 'Subtotale',
     'renewed' => 'Rinnovato',
     'discount' => 'Sconto',
@@ -2508,5 +2508,7 @@ return [
     'select2_input_too_short' => 'Inserisci almeno 1 carattere',
     'select2_no_results' => 'Nessun risultato trovato',
     'select2_searching' => 'Ricerca in corso...',
+    'log_out' => 'Esci',
+    'collapse' => 'Crollo',
 
 ];

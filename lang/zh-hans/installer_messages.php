@@ -160,5 +160,6 @@ return [
     'language' => '语言',
     'tooltip_timezone' => '默认使用浏览器时区。如有需要，可以选择不同的时区。',
     'tooltip_language' => '初始加载的默认语言。如有需要，可以选择不同的语言。',
+    'password_not_match' => '密码不匹配',
 
 ];
