@@ -156,5 +156,4 @@ return [
     'password_not_match' => 'كلمات المرور غير متطابقة',
     'enter_magic_phrase' => 'أدخل العبارة السحرية',
 
-
 ];

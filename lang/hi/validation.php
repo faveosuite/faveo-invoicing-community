@@ -857,7 +857,7 @@ return [
         'app_key_size' => 'ऐप कुंजी बिल्कुल 32 वर्ण होनी चाहिए।',
         'app_secret_required' => 'ऐप सीक्रेट आवश्यक है।',
     ],
-    'plan_request' =>[
+    'plan_request' => [
         'name_required' => 'नाम फ़ील्ड आवश्यक है',
         'product_quant_req' => 'उत्पाद मात्रा फ़ील्ड आवश्यक है',
         'plan_quant_req' => 'योजना मात्रा फ़ील्ड आवश्यक है',
