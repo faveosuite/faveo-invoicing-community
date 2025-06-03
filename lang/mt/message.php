@@ -2380,7 +2380,7 @@
      'status_change' => 'L-istatus inbidel',
      'google_description' => 'L-integrazzjoni ta’ Google reCAPTCHA iżżid karatteristika ta’ reCAPTCHA mal-paġni kollha mhux awtentikati biex tipproteġi kontra bots u sottomissjonijiet awtomatizzati.',
      'license_description' => 'L-integrazzjoni tal-Faveo License Manager tippermetti ġestjoni u aġġornament bla xkiel tal-liċenzji tas-softwer direttament minn Faveo.',
-     'msg91_description' => "Is-servizz MSG91.com jintuża biex jibgħat OTPs għall-verifika tan-numru tal-mowbajl waqt ir-reġistrazzjoni.",
+     'msg91_description' => 'Is-servizz MSG91.com jintuża biex jibgħat OTPs għall-verifika tan-numru tal-mowbajl waqt ir-reġistrazzjoni.',
      'mailchimp_description' => 'Il-plugin ta’ Mailchimp jissinkronizza l-informazzjoni tal-kuntatti minn Faveo Invoicing lejn Mailchimp b’mod awtomatiku, inkluż id-dejta tax-xiri.',
      'terms_description' => "Meta l-għażla 'Uri Termini fil-Paġna tar-Reġistrazzjoni' tkun attivata, jintwera checkbox li jeħtieġ li l-utent jaqbel mat-Termini u Kundizzjonijiet.",
      'pipedrive_description' => 'Il-plugin ta’ Pipedrive CRM jissinkronizza l-informazzjoni tal-kuntatti minn Faveo Invoicing lejn Pipedrive waqt ir-reġistrazzjoni u l-editjar tal-profil.',

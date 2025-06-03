@@ -108,7 +108,7 @@ return [
     'user_name' => 'Isem tal-utent',
     'user_email' => 'Email tal-utent',
     'password_not_match' => 'Il-passwords ma jaqblux',
-// new
+    // new
     'installation_check' => 'Dan it-test jiċċekkja r-rekwiżiti meħtieġa biex tinstalla Agora Invoice Community',
     'db_setup_error_1' => 'Dan ifisser li l-informazzjoni tal-isem tal-utent u l-password hija żbaljata jew il-host tiegħek mhux aċċessibbli',
     'db_setup_error_2' => 'Żgur li għandek database diġà eżistenti bl-isem tal-Database ipprovdut?',

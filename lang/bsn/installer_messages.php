@@ -146,5 +146,4 @@ return [
     'tooltip_language' => 'Početno učitani zadani jezik. Odaberite drugi jezik ako je potrebno',
     'user_name_regex' => 'Korisničko ime mora imati 3-20 znakova i može sadržavati samo slova, brojeve, razmake, donje crte, crtice, tačke i simbol @',
 
-
 ];

@@ -93,7 +93,7 @@ class PromotionController extends BasePromotionController
                         })
                         ->addColumn('action', function ($model) {
                             return '<a href='.url('promotions/'.$model->id.'/edit')
-                            ." class='btn btn-sm btn-secondary btn-xs'".tooltip( __('message.edit'))."<i class='fa fa-edit' 
+                            ." class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.edit'))."<i class='fa fa-edit' 
                             style='color:white;'> </i></a>";
                         })
                          ->filterColumn('code', function ($query, $keyword) {
@@ -275,7 +275,7 @@ class PromotionController extends BasePromotionController
             $codevalue = Promotion::where('code', $code)->first();
 
             if (! $codevalue) {
-                throw new \Exception( __('message.invalid_coupon_code'));
+                throw new \Exception(__('message.invalid_coupon_code'));
             }
             $promotion = $this->promotion->where('code', $code)->first();
             $uses = $promotion->uses;
@@ -331,7 +331,7 @@ class PromotionController extends BasePromotionController
 
                 return redirect()->back()->with('success', __('message.coupon_code_applied_successfully'));
             } else {
-                throw new \Exception( __('message.invalid_coupon_code'));
+                throw new \Exception(__('message.invalid_coupon_code'));
             }
         } catch (\Exception $ex) {
             throw new \Exception($ex->getMessage());

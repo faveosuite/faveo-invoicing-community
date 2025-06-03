@@ -910,7 +910,7 @@ return [
         'app_key_size' => 'App key must be exactly 32 characters.',
         'app_secret_required' => 'App secret is required.',
     ],
-    'plan_request' =>[
+    'plan_request' => [
         'name_required' => 'The name field is required',
         'product_quant_req' => 'The product quantity field is required when no of agents is not present.',
         'no_agent_req' => 'The no of agents field is required when product quantity is not present.',
