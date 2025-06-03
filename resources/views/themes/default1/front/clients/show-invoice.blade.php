@@ -134,7 +134,7 @@ active
               
                 <div class="col-lg-6 mb-4 mb-lg-0">
 
-                    <h2 class="text-color-dark font-weight-bold text-4 mb-1">To</h2>
+                    <h2 class="text-color-dark font-weight-bold text-4 mb-1">{{ __('message.to') }}</h2>
 
                     <ul class="list list-unstyled text-2 mb-0">
 

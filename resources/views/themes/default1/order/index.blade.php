@@ -216,7 +216,7 @@
 
               <div class="col-md-3 form-group">
                   {!! html()->label( __('message.product'))->for('product_id') !!} <br>
-                  {!! html()->select('product_id', [null => 'Choose'] + $paidUnpaidOptions + $products, $request->product_id)
+                  {!! html()->select('product_id', [null => __('message.choose')] + $paidUnpaidOptions + $products, $request->product_id)
                       ->class('form-control select2')
                       ->style('width:100%')
                       ->id('product_id')
@@ -262,14 +262,14 @@
 
               <div class="col-md-3 form-group">
                   {!! html()->label( __('message.installations'))->for('act_inst') !!}
-                  {!! html()->select('act_inst', [null => 'Choose'] + $insNotIns + $activeInstallationOptions + $inactiveInstallationOptions, $request->act_inst)
+                  {!! html()->select('act_inst', [null => __('message.choose')] + $insNotIns + $activeInstallationOptions + $inactiveInstallationOptions, $request->act_inst)
                       ->class('form-control')
                       ->id('act_inst') !!}
               </div>
 
               <div class="col-md-3 form-group">
                   {!! html()->label( __('message.subscriptions'))->for('renewal') !!}
-                  {!! html()->select('renewal', [null => 'Choose'] + $renewal, $request->renewal)
+                  {!! html()->select('renewal', [null => __('message.choose')] + $renewal, $request->renewal)
                       ->class('form-control')
                       ->id('renewal') !!}
               </div>

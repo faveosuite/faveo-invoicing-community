@@ -44,9 +44,9 @@ class QueueService extends Model
     public function getStatus()
     {
         $status = $this->attributes['status'];
-        $html = "<span class='badge badge-primary' style='background-color:crimson !important;'>Inactive</span>";
+        $html = "<span class='badge badge-primary' style='background-color:crimson !important;'>". __('message.inactive') ."</span>";
         if ($status == 1) {
-            $html = "<span class='badge badge-primary' style='background-color:darkcyan !important;'>Active</span>";
+            $html = "<span class='badge badge-primary' style='background-color:darkcyan !important;'>". __('message.active') ."</span>";
         }
 
         return $html;

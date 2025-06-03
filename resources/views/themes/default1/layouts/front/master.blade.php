@@ -984,7 +984,7 @@ $days = $pay->where('product','117')->value('days');
 
                         <p class="text-center text-3 mb-0 text-color-grey">{{ __('message.copyright') }} © <?php echo date('Y') ?> .
 
-                            <a href="{{$set->website}}" class="text-color-grey text-color-hover-primary font-weight-bold">{{$set->company}}. </a>
+                            <a href="{{$set->website}}" class="text-color-grey text-color-hover-primary font-weight-bold" target="_blank">{{$set->company}}. </a>
 
                             {{ __('message.all_rights') }}
 

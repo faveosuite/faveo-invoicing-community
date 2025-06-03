@@ -1003,8 +1003,8 @@ return [
     'enter_valid_domain' => 'Vui lòng nhập tên miền hợp lệ',
     'view_invoice' => 'Xem hóa đơn',
     'from' => 'Từ',
-    'gstin' => 'GSTIN:',
-    'cin' => 'CIN:',
+    'gstin' => 'GSTIN',
+    'cin' => 'CIN',
     'sub_total' => 'Tổng phụ',
     'renewed' => 'Đã gia hạn',
     'discount' => 'Giảm giá',
@@ -2514,5 +2514,7 @@ return [
     'select2_input_too_short' => 'Vui lòng nhập 1 ký tự trở lên',
     'select2_no_results' => 'Không tìm thấy kết quả',
     'select2_searching' => 'Đang tìm kiếm...',
+    'log_out' => 'Đăng xuất',
+    'collapse' => 'Sụp đổ',
 
 ];

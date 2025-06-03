@@ -53,7 +53,7 @@
                     <div class="col-md-3 form-group {{ $errors->has('subscription') ? 'has-error' : '' }}">
                         <!-- subscription -->
                         {!! html()->label(Lang::get('message.subscription'))->class('required')->for('subscription') !!}
-                        {!! html()->select('subscription', ['' => 'Select', 'Subscription' => $subscription])->class('form-control') !!}
+                        {!! html()->select('subscription', ['' => __('message.select'), 'Subscription' => $subscription])->class('form-control') !!}
                     </div>
 
                     <div class="col-md-3 form-group {{ $errors->has('regular_price') ? 'has-error' : '' }}">
@@ -111,7 +111,7 @@
                     <div class="col-md-6 form-group {{ $errors->has('products') ? 'has-error' : '' }}">
                         <!-- applicable products -->
                         {!! html()->label(Lang::get('message.applicable-products'))->for('products') !!}
-                        {!! html()->select('products[]', ['' => 'Select', 'Products' => $product])->class('form-control')->multiple() !!}
+                        {!! html()->select('products[]', ['' => __('message.select'), 'Products' => $product])->class('form-control')->multiple() !!}
                     </div>
 
                 </div>

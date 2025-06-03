@@ -999,8 +999,8 @@ return [
     'enter_valid_domain' => 'Por favor, ingresa un dominio válido',
     'view_invoice' => 'Ver factura',
     'from' => 'De',
-    'gstin' => 'GSTIN:',
-    'cin' => 'CIN:',
+    'gstin' => 'GSTIN',
+    'cin' => 'CIN',
     'sub_total' => 'Subtotal',
     'renewed' => 'Renovado',
     'discount' => 'Descuento',
@@ -2511,5 +2511,7 @@ return [
     'select2_input_too_short' => 'Por favor, introduce 1 o más caracteres',
     'select2_no_results' => 'No se encontraron resultados',
     'select2_searching' => 'Buscando...',
+    'log_out' => 'Finalizar la sesión',
+    'collapse' => 'Colapsar',
 
 ];

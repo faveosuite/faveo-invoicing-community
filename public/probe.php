@@ -191,7 +191,7 @@ $currentLang = $fetchLang['currentLang'];
                                                    class="form-control <?= $showError ? 'is-invalid' : '' ?>"
                                                    id="phrase"
                                                    name="passPhrase"
-                                                   placeholder="Enter magic phrase"
+                                                   placeholder="<?= $lang['enter_magic_phrase'] ?>"
                                                    value="<?= isset($_POST['passPhrase']) ? htmlspecialchars($_POST['passPhrase']) : '' ?>">
 
                                             <?php if (isset($showError) && $showError): ?>
