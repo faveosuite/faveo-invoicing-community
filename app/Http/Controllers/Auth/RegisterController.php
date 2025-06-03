@@ -69,8 +69,7 @@ class RegisterController extends Controller
         $status=$content['status'];
         $statusBit=$map[$status]??0;
 
-        dd($statusBit & $accepted_output);
-        if($statusBit & $accepted_output){
+        if($statusBit & $accepted_output || $content['status']=='valid'){
             return true;
         }
         if($content['status']=='safe'){
@@ -79,17 +78,43 @@ class RegisterController extends Controller
         return false;
     }
 
+    private function phoneVerification($phone){
+
+
+        $response=Http::get('https://api.nexmo.com/ni/standard/json',[
+            'api_key'=>'5893b993',
+            'api_secret'=>'GocK1cEngwswz24j',
+            'number'=>9074887707,
+            'country'=>'US',
+
+        ]);
+        $content=$response->json();
+        if($content['valid']==true){
+            return true;
+        }
+        return false;
+    }
+
+
+
     public function postRegister(ProfileRequest $request, User $user)
     {
         $this->validate($request, [
             'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation()],
         ]);
         try {
-            $emailValidationStatus=StatusSetting::where('id',1)->value('email_validation_status');
+            [$emailValidationStatus, $mobileValidationStatus] = array_values(StatusSetting::select('email_validation_status', 'mobile_validation_status')->first()->toArray());
 
             if($emailValidationStatus) {
                 $emailVerifier = $this->emailVerification($request->input('email'));
                 if (!$emailVerifier) {
+                    return errorResponse(\Lang::get('message.email_provided_wrong'));
+                }
+            }
+
+            if($mobileValidationStatus) {
+                $mobileVerifier = $this->emailVerification($request->input('email'));
+                if (!$mobileVerifier) {
                     return errorResponse(\Lang::get('message.email_provided_wrong'));
                 }
             }

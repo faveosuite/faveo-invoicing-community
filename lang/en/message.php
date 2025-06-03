@@ -1245,10 +1245,18 @@ return [
     'reoon'=>'Reoon',
     'validation-provider'=>'Validation Provider',
     'email_validation_heading'=>'Email Validation Status',
+    'mobile_validation_heading'=>'Mobile Validation Status',
     'emailApikey'=>'Email ApiKey',
     'emailMode'=>'Email Validation Mode',
+    'mobileMode'=>'Mobile Validation Mode',
+    'mobileApikey'=>'Mobile ApiKey',
+    'mobileApisecret'=>'Mobile ApiSecret',
     'email_validation_success'=>'Email validation key and mode successfully saved.',
+    'mobile_validation_success'=>'Mobile validation apikey,apisecret and mode successfully saved.',
+    'mobile_validation_success_abstract'=>'Mobile validation apikey successfully saved.',
+    'mobile_validation_status'=>'Mobile validation status saved successfully',
     'emailApikey_error'=>'Please enter a valid Reoon Api key.',
+    'mobileApikey_error'=>'Please enter valid credentials.',
     'email_provided_wrong'=>'For security reasons, we are unable to accept the provided email address.Please try registering with a different, valid business email.'
 
 ];

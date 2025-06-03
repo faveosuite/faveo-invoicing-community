@@ -1053,14 +1053,14 @@ class SettingsController extends BaseSettingsController
 
     public function mobileVerificationProvider(){
 
-        $emailProvider=ApiKey::where('id',1)->value('mobile_verification_provider');
-        $emailStatus=StatusSetting::where('id',1)->value('mobile_validation_status');
+        $mobileProvider=['abstract','vonage'];
+        $mobileStatus=StatusSetting::where('id',1)->value('mobile_validation_status');
         $statusDisplay = '<label class="switch toggle_event_editing emailValidationStatus">
-                        <input type="checkbox" value="'.($emailStatus ? '1' : '0').'"  name="EmailValidationStatus"
-                               class="checkbox9" id="email_validation_status"'.($emailStatus ? 'checked' : '').'>
+                        <input type="checkbox" value="'.($mobileStatus ? '1' : '0').'"  name="EmailValidationStatus"
+                               class="checkbox9" id="email_validation_status"'.($mobileStatus ? 'checked' : '').'>
                         <span class="slider round"></span>
                     </label>';
-        return view('themes.default1.common.setting.mobileVerificationProvider', compact('emailStatus','statusDisplay','emailProvider','map'));
+        return view('themes.default1.common.setting.mobileVerificationProvider', compact('mobileStatus','statusDisplay','mobileProvider'));
     }
 
     public function emailData(Request $request){
@@ -1097,8 +1097,8 @@ class SettingsController extends BaseSettingsController
         if($request->input('value')==='reoon') {
             $response = '<div>
         <div class="form-group">' . $label2 . $input . '</div>
-        <div class="form-group">' . $label1 . $input1 . '</div>
-        <div class="form-group">
+        <div class="form-group">' . $label1 . $input1 . '</div>'
+        .'<div class="form-group">
             <label class="required">Allowed Email Statuses</label>'
                 . $statusOptions .
                 '</div>
@@ -1108,6 +1108,36 @@ class SettingsController extends BaseSettingsController
             $response = '';
         }
         return successResponse(trans('message.success'), $response);
+    }
+
+    public function mobileData(Request $request){
+        $provider=$request->input('value');
+
+        ['api_key' => $apikey, 'mode' => $mode,'api_secret'=>$apisecret] = EmailMobileValidationProviders::where('provider',$provider)
+            ->select('api_key', 'mode','api_secret')
+            ->first()
+            ->toArray();
+        $label2 = html()->label(__('message.mobileApikey'), 'emailApikey')->class('required')->toHtml();
+        $input = html()->text('apikey',$apikey)->class('form-control emailapikey')->id('mobileApikey')->toHtml();
+        $label1 = html()->label(__('message.mobileApisecret'), 'apisecret')->class('required')->toHtml();
+        $input1= html()->text('apisecret',$apisecret)->class('form-control emailMode')->id('mobileApisecret')->toHtml();
+        $label3 = html()->label(__('message.mobileMode'), 'mobileMode')->class('required')->toHtml();
+        $input3= html()->text('mobileMode',$mode)->class('form-control mobileMode')->id('mobileMode')->toHtml();
+        if($provider=='vonage'){
+            $response = '<div>
+        <div class="form-group">' . $label2 . $input . '</div>
+        <div class="form-group">' . $label1 . $input1 . '</div>
+        <div class="form-group">' . $label3 . $input3 . '</div>
+        <h4><button type="button" class="btn btn-primary float-right" id="submitMobile">Submit</button></h4>
+    </div>';
+        }else{
+            $response = '<div>
+        <div class="form-group">' . $label2 . $input . '</div>
+        <h4><button type="button" class="btn btn-primary float-right" id="submitMobile">Submit</button></h4>
+    </div>';
+        }
+        return successResponse(trans('message.success'), $response);
+
     }
 
 
@@ -1131,4 +1161,39 @@ class SettingsController extends BaseSettingsController
 
     }
 
+
+    public function mobileSettingsSave(Request $request){
+        $provider=$request->input('provider');
+        if($provider=='vonage'){
+            $response = Http::get('https://rest.nexmo.com/account/get-balance/', [
+                'api_key'   => $request->input('apikey'),
+                'api_secret' => $request->input('apisecret'),
+            ]);
+            if(!$response->successful() && !$response->json('value')){
+                return errorResponse(trans('message.mobileApikey_error'));
+            }
+
+            EmailMobileValidationProviders::where('provider', $request->input('provider'))->update(['api_key' => $request->input('apikey'),
+                'mode' => $request->input('mode'),'api_secret' => $request->input('apisecret'),'to_use'=>1]);
+            return successResponse(\Lang::get('message.mobile_validation_success'));
+        }
+
+        if($provider=='abstract'){
+
+                $response = Http::get('https://phonevalidation.abstractapi.com/v1/', [
+                    'api_key' => $request->input('apikey'),
+                    'phone' => '+14155552671',
+                ]);
+
+                if(!$response->successful() && $response->json('error')){
+                    return errorResponse(trans('message.mobileApikey_error'));
+                }
+            EmailMobileValidationProviders::where('provider', $request->input('provider'))->update(['api_key' => $request->input('apikey'),'to_use'=>1]);
+
+            return successResponse(\Lang::get('message.mobile_validation_success_abstract'));
+
+        }
+
+
+    }
 }

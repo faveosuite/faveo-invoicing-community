@@ -98,7 +98,7 @@
                 <div class="row">
                     <div class="col-md-4 form-group d-flex align-items-center">
                         <label class="ETitle mb-0 me-5" style="min-width: 150px;">
-                            {{ __('message.email_validation_heading') }}
+                            {{ __('message.mobile_validation_heading') }}
                         </label>
                         <div class="d-flex align-items-center">
                             {!! $statusDisplay !!}
@@ -108,9 +108,10 @@
                 <div class ="row">
                     <div class="col-md-4 form-group" id="emailToDisp" style="display:none">
                         {!! html()->label(Lang::get('message.validation-provider'), 'user')->class('required') !!}
-                        <select name="manager" value= {{ $emailProvider }} id="provider" class="form-control {{$errors->has('manager') ? ' is-invalid' : ''}}">
+                        <select name="manager"  id="provider" class="form-control {{$errors->has('manager') ? ' is-invalid' : ''}}">
                             <option value="">Choose</option>
-                            <option value="reoon">{{Lang::get('message.reoon')}}</option>
+                            <option value="vonage">Vonage</option>
+                            <option value="abstract">Abstract</option>
                         </select>
                         <div class="input-group-append"></div>
                     </div>
@@ -141,7 +142,7 @@
             var value=$(this).val();
             if(value !== '') {
                 $.ajax({
-                    url: "{{url('emailData')}}",
+                    url: "{{url('mobileData')}}",
                     type: 'post',
                     data: {
                         'value': value,
@@ -166,7 +167,7 @@
                 url : '{{url("licenseStatus")}}',
                 type : 'post',
                 data: {
-                    "email_validation_status": checkboxvalue,
+                    "mobile_validation_status": checkboxvalue,
                 },
                 success: function (response) {
                     setTimeout(function() {
@@ -185,16 +186,26 @@
         });
 
 
-        $(document).on('click', '#submitEmail', function (e) {
+        $(document).on('click', '#submitMobile', function (e) {
             const userRequiredFields = {
                 manager:@json(trans('message.system_manager.account_manager')),
                 replace_with:@json(trans('message.system_manager.replacement')),
+                replace:@json(trans('message.system_manager.replacement')),
+
+            }
+            const userFields = {
+                manager: $('#mobileApikey'),
+            };
+
+            if($('#provider').val()=='vonage') {
+                const userFields = {
+                    manager: $('#mobileApikey'),
+                    replace_with: $('#mobileMode'),
+                    replace: $('#mobileApisecret'),
+                };
             }
 
-            const userFields = {
-                manager: $('#emailApikey'),
-                replace_with: $('#emailMode'),
-            };
+
 
             // Clear previous errors
             Object.values(userFields).forEach(field => {
@@ -221,13 +232,14 @@
             if (!isValid) {
                 e.preventDefault();
             }else{
-                let apikey=$('#emailApikey');
-                let mode=$('#emailMode');
+                let apikey=$('#mobileApikey');
+                let mode=$('#mobileMode');
                 let provider=$('#provider');
+                let apisecret=$('#mobileApisecret');
                 $.ajax({
-                    url:'{{url('email-settings-save')}}',
+                    url:'{{url('mobile-settings-save')}}',
                     type:'post',
-                    data:{'apikey':apikey.val(),'mode':mode.val(),'provider':provider.val()},
+                    data:{'apikey':apikey.val(),'mode':mode.val(),'provider':provider.val(),'apisecret':apisecret.val()},
                     success:function(response){
                         setTimeout(function() {
                             location.reload();

@@ -62,6 +62,7 @@ trait ApiKeySettings
             'pipedrivestatus' => ['key' => 'pipedrive_status',     'lang' => __('message.pipedrive_status')],
             'githubstatus' => ['key' => 'github_status',        'lang' => __('message.github_status')],
             'email_validation_status'=>['key'=>'email_validation_status','lang'=>__('message.email_validation_status')],
+            'mobile_validation_status'=>['key'=>'mobile_validation_status','lang'=>__('message.mobile_validation_status')],
         ]);
 
         try {

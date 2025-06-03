@@ -171,7 +171,7 @@ class RegistrationTest extends DBTestCase
         $this->setUpServerVariable('192.168.12.12', 'someaddress', 'IN');
         $user = User::factory()->create(['bussiness' => 'Accounting', 'mobile_code' => 91]);
         $status=StatusSetting::where('id',1)->update(['email_validation_status'=>1]);
-        EmailMobileValidationProviders::where('provider','reoon')->update(['mode'=>'power','api_key'=>'OUDJUBXL3xLXX39xXB5KcLTl7A1rxjZg','accepted_output'=>1]);
+        EmailMobileValidationProviders::where('provider','reoon')->update(['mode'=>'quick','api_key'=>'OUDJUBXL3xLXX39xXB5KcLTl7A1rxjZg','accepted_output'=>1]);
         $response = $this->call('POST', 'auth/register', ['first_name' => $user->first_name,
             'last_name' => $user->last_name,
             'email' => 'santhanuchakrapani@gmail.com',
