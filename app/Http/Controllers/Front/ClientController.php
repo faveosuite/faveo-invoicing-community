@@ -529,8 +529,8 @@ class ClientController extends BaseClientController
                                 } elseif (! $orderEndDate) {
                                     $link = $this->github_api->getCurl1($link['zipball_url']);
 
-                                    return '<p><a href="' . $link['header']['Location'] . '" class="btn btn-sm btn-primary">'
-                                        . __('message.download') .
+                                    return '<p><a href="'.$link['header']['Location'].'" class="btn btn-sm btn-primary">'
+                                        .__('message.download').
                                         '</a>&nbsp;</p>';
                                 }
                             })
@@ -597,9 +597,9 @@ class ClientController extends BaseClientController
 
                             ->addColumn('Action', function ($model) {
                                 if ($model->order_status == 'Terminated') {
-                                    return '<a href="' . url('my-order/' . $model->id) . '" 
+                                    return '<a href="'.url('my-order/'.$model->id).'" 
                                      class="btn btn-light-scale-2 btn-sm text-dark" style="margin-right:5px;">
-                                     <i class="fa fa-eye" data-toggle="tooltip" data-placement="top" title="' . __('message.click_here_view') . '"></i>
+                                     <i class="fa fa-eye" data-toggle="tooltip" data-placement="top" title="'.__('message.click_here_view').'"></i>
                                      </a>';
                                 }
                                 $plan = Plan::where('product', $model->product_id)->value('id');
@@ -633,10 +633,10 @@ class ClientController extends BaseClientController
 
                                 $changeDomain = $this->changeDomain($model, $model->product_id); // Need to add this if the client requirement intensifies.
 
-                                return '<a href="' . url('my-order/' . $model->id) . '" 
+                                return '<a href="'.url('my-order/'.$model->id).'" 
                                 class="btn btn-light-scale-2 btn-sm text-dark" style="margin-right:5px;">
-                                <i class="fa fa-eye" data-toggle="tooltip" data-placement="top" title="' . __('message.click_here_view') . '"></i>&nbsp; '
-                                    . $listUrl . ' ' . $url . ' ' . $deleteCloud . ' </a>';
+                                <i class="fa fa-eye" data-toggle="tooltip" data-placement="top" title="'.__('message.click_here_view').'"></i>&nbsp; '
+                                    .$listUrl.' '.$url.' '.$deleteCloud.' </a>';
                             })
                             ->filterColumn('product_name', function ($query, $keyword) {
                                 $sql = 'product.name like ?';
