@@ -890,7 +890,7 @@ return [
         'add_valid_lastname' => 'Please enter a valid last name using only letters and spaces.',
         'add_user_name' => 'Please enter a username.',
         'add_country' => 'Please select  a country.',
-        'add_state'=>'Please select a state.',
+        'add_state' => 'Please select a state.',
         'add_timezone' => 'Please select a timezone.',
         'add_mobile' => 'Please enter a mobile number.',
         'add_valid_company' => 'Please enter a valid company name using only letters and spaces.',
@@ -1219,14 +1219,12 @@ return [
     'recaptcha_settings' => 'Recaptcha Settings Updated',
     'invalid_key' => 'Invalid status key',
 
-
     'list_id_error' => 'Please select a valid list id.',
     'subscribe_status_error' => 'Please select a valid subscribe status.',
     'recaptcha_type_error' => 'Please select a recaptcha type.',
     'third_party_key_error' => 'Please select a valid Msg91 app key.',
-    'user_delete'=>'Are you sure you want to delete this user?',
-    'empty_group'=>"No items are available in this Group at the moment, Check out other Groups.",
-
+    'user_delete' => 'Are you sure you want to delete this user?',
+    'empty_group' => 'No items are available in this Group at the moment, Check out other Groups.',
 
     'app_delete' => 'Are you sure you want to delete this thirdparty app?',
     'activity_log_delete' => 'Are you sure you want to delete this activity log?',
@@ -1256,8 +1254,8 @@ return [
     'sweet_file' => 'Please select at least one file.',
     'sweet_report' => 'Please select at least one report.',
     'sweet_social' => 'Please select at least one social media.',
-    'order_error_modification'=>'Cannot view order. Invalid modification of data.',
-    'v2_tooltip'=>'Validate Requests with checkbox.',
-    'v3_tooltip'=>'Validate Requests with score.',
-    'user-suspend-successfully'=>'User Suspended Successfully',
+    'order_error_modification' => 'Cannot view order. Invalid modification of data.',
+    'v2_tooltip' => 'Validate Requests with checkbox.',
+    'v3_tooltip' => 'Validate Requests with score.',
+    'user-suspend-successfully' => 'User Suspended Successfully',
 ];
