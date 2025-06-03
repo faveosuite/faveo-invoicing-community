@@ -1259,4 +1259,5 @@ return [
     'order_error_modification'=>'Cannot view order. Invalid modification of data.',
     'v2_tooltip'=>'Validate Requests with checkbox.',
     'v3_tooltip'=>'Validate Requests with score.',
+    'user-suspend-successfully'=>'User Suspended Successfully',
 ];
