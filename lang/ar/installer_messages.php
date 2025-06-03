@@ -16,7 +16,7 @@ return [
     'php_extensions' => 'إضافات PHP',
     'not_enabled' => 'غير مُمكّن',
     'extension_not_enabled' => 'غير مُمكّن: لتمكين هذا، يرجى تثبيت الإضافة على الخادم الخاص بك وتحديث :php_ini_file لتمكين :extensionName. <a href=":url" target="_blank">كيفية تثبيت إضافات PHP على الخادم؟</a>',
-    'mod_rewrite' => 'إعادة كتابة الوحدات (Mod Rewrite)',
+    'mod_rewrite' => 'إعادة كتابة وزارة الدفاع',
     'off_apache' => 'معطّل (إذا كنت تستخدم Apache، تأكد من أن <var><strong>AllowOverride</strong></var> مضبوطة على <var><strong>All</strong></var> في إعدادات Apache)',
     'rewrite_engine' => 'محرك إعادة الكتابة',
     'user_url' => 'رابط صديق للمستخدم',
@@ -153,5 +153,8 @@ return [
     'language' => 'اللغة',
     'tooltip_timezone' => 'يتم استخدام المنطقة الزمنية للمتصفح في البداية. اختر منطقة زمنية مختلفة إذا لزم الأمر.',
     'tooltip_language' => 'يتم تحميل اللغة الافتراضية في البداية. اختر لغة مختلفة إذا لزم الأمر.',
+    'password_not_match' => 'كلمات المرور غير متطابقة',
+    'enter_magic_phrase' => 'أدخل العبارة السحرية',
+
 
 ];

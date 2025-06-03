@@ -105,6 +105,7 @@ class InstallDB extends Command
             createDB($database);
             config(['database.connections.mysql.database' => $database]);
             DB::reconnect();
+            DB::purge();
             $this->checkDBVersion();
         }
     }

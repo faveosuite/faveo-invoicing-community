@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-Edit Group
+    {{ __('message.edit_group') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">

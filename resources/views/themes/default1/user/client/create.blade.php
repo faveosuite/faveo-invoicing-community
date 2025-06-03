@@ -325,7 +325,7 @@
                     
                     <div class="col-md-3 form-group {{ $errors->has('manager') ? 'has-error' : '' }}">
                         <!-- mobile -->
-                        {!! html()->label('manager', __('message.sales_manager')) !!}
+                        {!! html()->label( __('message.sales_manager'), 'manager') !!}
                          <select name="manager" value= "Choose" class="form-control">
                              <option value="">{{ __('message.choose') }}</option>
                            @foreach($managers as $key=>$manager)

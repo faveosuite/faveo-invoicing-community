@@ -1206,8 +1206,8 @@ return [
     'enter_valid_domain' => '有効なドメインを入力してください',
     'view_invoice' => '請求書を表示',
     'from' => '差出人',
-    'gstin' => 'GSTIN:',
-    'cin' => 'CIN:',
+    'gstin' => 'GSTIN',
+    'cin' => 'CIN',
     'sub_total' => '小計',
     'renewed' => '更新済み',
     'discount' => '割引',
@@ -2518,5 +2518,7 @@ return [
     'allow_login_only_user_verified' => 'メールを確認したユーザーのみログインを許可する',
     'verified_email' => '確認済みのメール',
     'pricing_faveo_helpdesk' => '価格設定 | Faveoヘルプデスク',
+    'log_out' => 'ログアウト',
+    'collapse' => '崩壊',
 
 ];

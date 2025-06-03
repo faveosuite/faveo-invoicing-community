@@ -70,7 +70,7 @@
                     <div class="col-md-6 form-group {{ $errors->has('items.0') ? 'has-error' : '' }}">
 
                         {!! html()->label(Lang::get('message.bundle-items'), 'items')->class('required') !!}
-                        {!! html()->select('items[]', ['' => 'Select', 'Products' => $products])
+                        {!! html()->select('items[]', ['' => __('message.select'), 'Products' => $products])
                             ->class('form-control')
                             ->multiple() !!}
 

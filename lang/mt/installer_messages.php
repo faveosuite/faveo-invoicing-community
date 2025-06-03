@@ -57,7 +57,7 @@ return [
     'production' => 'Produzzjoni',
     'development' => 'Żvilupp',
     'testing' => 'Ittestjar',
-    'cache_driver' => 'Cache Driver',
+    'cache_driver' => 'Sewwieq tal-Cache',
     'cache_driver_required' => 'Cache Driver huwa meħtieġ',
     'file' => 'Fajl',
     'redis' => 'Redis',

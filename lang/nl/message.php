@@ -984,8 +984,8 @@ return [
     'enter_valid_domain' => 'Voer een geldig domein in',
     'view_invoice' => 'Bekijk Factuur',
     'from' => 'Van',
-    'gstin' => 'GSTIN:',
-    'cin' => 'CIN:',
+    'gstin' => 'GSTIN',
+    'cin' => 'CIN',
     'sub_total' => 'Subtotaal',
     'renewed' => 'Vernieuwd',
     'discount' => 'Korting',
@@ -2484,6 +2484,8 @@ return [
     'paginate_all' => 'Alles',
     'select2_input_too_short' => 'Voer 1 of meer tekens in',
     'select2_no_results' => 'Geen resultaten gevonden',
-    'select2_searching' => 'Bezig met zoeken...'
+    'select2_searching' => 'Bezig met zoeken...',
+    'log_out' => 'Uitloggen',
+    'collapse' => 'Instorten',
 
 ];
