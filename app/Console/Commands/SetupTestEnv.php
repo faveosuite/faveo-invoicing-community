@@ -90,7 +90,7 @@ class SetupTestEnv extends Command
     private function createEnv(string $dbUsername, string $dbPassword, string $dbName)
     {
         $testingEnv = [
-            'APP_ENV'     => 'testing',
+            'APP_ENV' => 'testing',
             'DB_USERNAME' => $dbUsername,
             'DB_PASSWORD' => $dbPassword,
             'DB_DATABASE' => $dbName,
@@ -99,11 +99,11 @@ class SetupTestEnv extends Command
         $this->createEnvFile($testingEnv, '.env.testing');
 
         $duskEnv = [
-            'APP_ENV'     => 'testing',
+            'APP_ENV' => 'testing',
             'DB_USERNAME' => $dbUsername,
             'DB_PASSWORD' => $dbPassword,
             'DB_DATABASE' => $dbName,
-            'DB_INSTALL'  => 1,
+            'DB_INSTALL' => 1,
         ];
 
         $this->createEnvFile($duskEnv, '.env.dusk.testing');
@@ -116,7 +116,7 @@ class SetupTestEnv extends Command
             $config .= "{$key}={$val}\n";
         }
 
-        $envLocation = base_path(DIRECTORY_SEPARATOR . $envFile);
+        $envLocation = base_path(DIRECTORY_SEPARATOR.$envFile);
         file_put_contents($envLocation, $config);
     }
 

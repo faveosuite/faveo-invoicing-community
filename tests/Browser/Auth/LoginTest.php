@@ -5,7 +5,6 @@ namespace Tests\Browser\Auth;
 use App\ApiKey;
 use App\Model\Common\StatusSetting;
 use App\User;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Laravel\Dusk\Browser;
 use Tests\DuskTestCase;
 
@@ -35,20 +34,19 @@ class LoginTest extends DuskTestCase
         $this->user->forceDelete();
         parent::tearDown();
     }
+
     /**
      * A Dusk test example.
      */
     public function test_user_with_invalid_details(): void
     {
         $this->browse(function (Browser $browser) {
-
             $browser->visit('/login');
 
             try {
                 $browser->click('#details-button')
                     ->click('#proceed-link');
             } catch (\Exception $e) {
-
             }
 
             $browser->press('#login-btn');
@@ -72,14 +70,12 @@ class LoginTest extends DuskTestCase
     public function test_user_with_invalid_username_details(): void
     {
         $this->browse(function (Browser $browser) {
-
             $browser->visit('/login');
 
             try {
                 $browser->click('#details-button')
                     ->click('#proceed-link');
             } catch (\Exception $e) {
-
             }
 
             $browser->type('#username', 'test@example.com')
@@ -87,21 +83,19 @@ class LoginTest extends DuskTestCase
                 ->press('#login-btn');
 
             $browser->assertSee('Please Enter a valid Email');
-
         });
     }
 
     public function testLoginWithRecaptchaEnabled()
     {
         $this->browse(function (Browser $browser) {
-
             StatusSetting::first()->update([
                 'v3_v2_recaptcha_status' => 1,
                 'v3_recaptcha_status' => 1,
             ]);
 
             ApiKey::first()->update([
-                'nocaptcha_sitekey' =>  $this->data['nocaptcha_sitekey'],
+                'nocaptcha_sitekey' => $this->data['nocaptcha_sitekey'],
                 'captcha_secretCheck' => $this->data['captcha_secretCheck'],
             ]);
 
@@ -111,7 +105,6 @@ class LoginTest extends DuskTestCase
                 $browser->click('#details-button')
                     ->click('#proceed-link');
             } catch (\Exception $e) {
-
             }
 
             $browser->pause(2000);
@@ -123,7 +116,6 @@ class LoginTest extends DuskTestCase
             $browser->pause(1000);
 
             $browser->assertPathIs('*/my-invoices');
-
         });
     }
 }
