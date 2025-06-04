@@ -89,23 +89,35 @@ class SetupTestEnv extends Command
      */
     private function createEnv(string $dbUsername, string $dbPassword, string $dbName)
     {
-        $env['DB_USERNAME'] = $dbUsername;
-        $env['DB_PASSWORD'] = $dbPassword;
-        $env['DB_DATABASE'] = $dbName;
-        $env['APP_ENV'] = 'development';
+        $testingEnv = [
+            'APP_ENV'     => 'testing',
+            'DB_USERNAME' => $dbUsername,
+            'DB_PASSWORD' => $dbPassword,
+            'DB_DATABASE' => $dbName,
+        ];
 
+        $this->createEnvFile($testingEnv, '.env.testing');
+
+        $duskEnv = [
+            'APP_ENV'     => 'testing',
+            'DB_USERNAME' => $dbUsername,
+            'DB_PASSWORD' => $dbPassword,
+            'DB_DATABASE' => $dbName,
+            'DB_INSTALL'  => 1,
+        ];
+
+        $this->createEnvFile($duskEnv, '.env.dusk.testing');
+    }
+
+    private function createEnvFile(array $settings, string $envFile)
+    {
         $config = '';
-
-        foreach ($env as $key => $val) {
+        foreach ($settings as $key => $val) {
             $config .= "{$key}={$val}\n";
         }
 
-        $envLocation = base_path().DIRECTORY_SEPARATOR.'.env.testing';
-
-        // Write environment file
-        $fp = fopen(base_path().DIRECTORY_SEPARATOR.'.env.testing', 'w');
-        fwrite($fp, $config);
-        fclose($fp);
+        $envLocation = base_path(DIRECTORY_SEPARATOR . $envFile);
+        file_put_contents($envLocation, $config);
     }
 
     /**
