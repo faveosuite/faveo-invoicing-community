@@ -138,7 +138,7 @@
             };
 
             @if(in_array($productid, cloudPopupProducts()))
-                userFields.planproduct = agentsField;
+            userFields.planproduct =  form.find(`#agents${formId}`);
             userRequiredFields.planproduct = @json(trans('message.agents'));
             @endif
 
