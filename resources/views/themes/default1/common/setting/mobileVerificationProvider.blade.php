@@ -108,7 +108,7 @@
                 <div class ="row">
                     <div class="col-md-4 form-group" id="emailToDisp" style="display:none">
                         {!! html()->label(Lang::get('message.validation-provider'), 'user')->class('required') !!}
-                        <select name="manager"  id="provider" class="form-control {{$errors->has('manager') ? ' is-invalid' : ''}}">
+                        <select name="manager"  id="provider" class="form-control">
                             <option value="">Choose</option>
                             <option value="vonage"{{$selectedProvider=='vonage'?'selected':''}}>Vonage</option>
                             <option value="abstract"{{$selectedProvider=='abstract'?'selected':''}}>Abstract</option>

@@ -108,9 +108,9 @@
                 <div class ="row">
                     <div class="col-md-4 form-group" id="emailToDisp" style="display:none">
                         {!! html()->label(Lang::get('message.validation-provider'), 'user')->class('required') !!}
-                        <select name="manager" id="provider" class="form-control {{$errors->has('manager') ? ' is-invalid' : ''}}">
+                        <select name="manager" id="provider" class="form-control">
                             <option value="">Choose</option>
-                            <option value="reoon">{{Lang::get('message.reoon')}}</option>
+                            <option value="reoon"{{$selectedProvider=='reoon'?'selected':''}}>{{Lang::get('message.reoon')}}</option>
                         </select>
                         <div class="input-group-append"></div>
                      </div>

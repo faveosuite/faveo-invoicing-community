@@ -1043,12 +1043,14 @@ class SettingsController extends BaseSettingsController
 //        $emailProvider=ApiKey::where('id',1)->value('email_verification_provider');
         $emailProvider='reoon';
         $emailStatus=StatusSetting::where('id',1)->value('email_validation_status');
+        $selectedProvider=EmailMobileValidationProviders::where('type','email')->where('to_use',1)->value('provider');
+
         $statusDisplay = '<label class="switch toggle_event_editing emailValidationStatus">
                         <input type="checkbox" value="'.($emailStatus ? '1' : '0').'"  name="EmailValidationStatus"
                                class="checkbox9" id="email_validation_status"'.($emailStatus ? 'checked' : '').'>
                         <span class="slider round"></span>
                     </label>';
-        return view('themes.default1.common.setting.emailVerificationProvider', compact('emailStatus','statusDisplay','emailProvider'));
+        return view('themes.default1.common.setting.emailVerificationProvider', compact('emailStatus','statusDisplay','emailProvider','selectedProvider'));
     }
 
     public function mobileVerificationProvider(){
@@ -1066,7 +1068,7 @@ class SettingsController extends BaseSettingsController
 
     public function emailData(Request $request){
 
-        ['api_key' => $apikey, 'mode' => $mode] = EmailMobileValidationProviders::where('provider', 'reoon')
+        ['api_key' => $apikey, 'mode' => $mode] = EmailMobileValidationProviders::where('provider', $request->input('value'))
             ->select('api_key', 'mode')
             ->first()
             ->toArray();

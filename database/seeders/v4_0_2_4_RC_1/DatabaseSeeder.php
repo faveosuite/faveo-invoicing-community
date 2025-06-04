@@ -63,13 +63,14 @@ class DatabaseSeeder extends Seeder
 
 
     public function add_providers(){
-        $providers =[ ['provider'=>'reoon'],
-                      ['provider'=>'vonage'],
-                      ['provider'=>'abstract'],
+        $providers =[ ['provider'=>'reoon','type'=>'email'],
+                      ['provider'=>'vonage','type'=>'mobile'],
+                      ['provider'=>'abstract','type'=>'mobile'],
                     ];
         foreach ($providers as $provider) {
                 EmailMobileValidationProviders::updateOrCreate([
                     'provider' => $provider['provider'],
+                    'type' => $provider['type'],
                 ]);
         }
     }

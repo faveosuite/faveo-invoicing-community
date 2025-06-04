@@ -69,12 +69,10 @@ class RegisterController extends Controller
         $status=$content['status'];
         $statusBit=$map[$status]??0;
 
-        if(($statusBit & $accepted_output) || $content['status']=='valid'){
+        if(($statusBit & $accepted_output) || $content['status']=='valid' || $content['reason']=='Not enough credits available. Please recharge.'){
             return true;
         }
-//        if($content['status']=='safe'){
-//            return true;
-//        }
+
         return false;
     }
 
@@ -89,8 +87,7 @@ class RegisterController extends Controller
             'api_secret'=>$apisecret,
             'number'=>$phone,
         ]);
-
-        if($response->successful() && $response->json('valid')){
+        if($response->successful() && $response->json('status_message')=='Success' || $response->json('status_message')=='Partner quota exceeded'){
             return true;
         }
         return false;
@@ -114,7 +111,7 @@ class RegisterController extends Controller
     private function phoneVerification($phone){
         $provider=EmailMobileValidationProviders::where('type','mobile')
             ->where('to_use',1)
-            ->pluck('provider');
+            ->value('provider');
 
         if($provider=='vonage'){
             $response=$this->vonagePhoneVerification($provider,$phone);
@@ -145,7 +142,7 @@ class RegisterController extends Controller
             if($mobileValidationStatus) {
                 $mobileVerifier= $this->phoneVerification($request->input('mobile_code').$request->input('mobile'));
                 if (!$mobileVerifier) {
-                    return errorResponse(\Lang::get('message.email_provided_wrong'));
+                    return errorResponse(\Lang::get('message.mobile_provided_wrong'));
                 }
             }
 

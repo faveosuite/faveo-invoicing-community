@@ -170,8 +170,10 @@ class RegistrationTest extends DBTestCase
     {   $this->withoutMiddleware();
         $this->setUpServerVariable('192.168.12.12', 'someaddress', 'IN');
         $user = User::factory()->create(['bussiness' => 'Accounting', 'mobile_code' => 91]);
-        $status=StatusSetting::where('id',1)->update(['email_validation_status'=>1]);
+        $status=StatusSetting::where('id',1)->update(['email_validation_status'=>1,'mobile_validation_status'=>1]);
         EmailMobileValidationProviders::where('provider','reoon')->update(['mode'=>'quick','api_key'=>'OUDJUBXL3xLXX39xXB5KcLTl7A1rxjZg','accepted_output'=>1]);
+        EmailMobileValidationProviders::where('provider','abstract')->update(['api_key'=>'6a060f0ef12f4ff5a914cc09a03963ab','to_use'=>1]);
+
         $response = $this->call('POST', 'auth/register', ['first_name' => $user->first_name,
             'last_name' => $user->last_name,
             'email' => 'santhanuchakrapani@gmail.com',
@@ -193,11 +195,8 @@ class RegistrationTest extends DBTestCase
             'terms' => 'on',
         ]);
 
-        dd($response);
-//        $errors = session('errors');
-//        $response->assertStatus(302);
-        // $this->assertEquals($errors->get('password_confirmation')[0], 'The password confirmation and password must match.');
-//        $this->mock->disable();
-//        $this->tearDownServerVariable();
+        $response->assertStatus(200);
+        $content=$response->original;
+        $this->assertEquals(true,$content['success']);
     }
 }
