@@ -162,7 +162,7 @@ $days = $pay->where('product','117')->value('days');
 <body>
 <?php
 $bussinesses = App\Model\Common\Bussiness::pluck('name', 'short')->toArray();
-$status =  App\Model\Common\StatusSetting::select('recaptcha_status','v3_recaptcha_status', 'msg91_status', 'emailverification_status', 'terms')->first();
+$status =  App\Model\Common\StatusSetting::select('v3_v2_recaptcha_status','recaptcha_status','v3_recaptcha_status', 'msg91_status', 'emailverification_status', 'terms')->first();
 $apiKeys = App\ApiKey::select('nocaptcha_sitekey', 'captcha_secretCheck', 'msg91_auth_key', 'terms_url')->first();
 $analyticsTag = App\Model\Common\ChatScript::where('google_analytics', 1)->where('on_registration', 1)->value('google_analytics_tag');
 $location = getLocation();
@@ -846,21 +846,7 @@ foreach ($footerWidgetTypes as $widgetType) {
 ?>
 <script>
 
-    $(document).ready(function(){
-    $.ajax({
-        type: "GET",
-        url: "{{url('footer1')}}",
-        success: function (data) {
-            var data1=data['data']['footer1'];
-            var data2=data['data']['footer2'];
-            var data3=data['data']['footer3'];
-            var target=document.getElementById('footer1');
-            target.insertAdjacentHTML('beforeend', data1);
-            target.insertAdjacentHTML('beforeend', data2);
-            target.insertAdjacentHTML('beforeend', data3);
-        }
-    });
-    })
+
 </script>
 <!-- Vendor -->
 <script src="{{asset('client/porto/js-2/plugins.min.js')}}"></script>
@@ -953,14 +939,46 @@ setTimeout(function() {
 </script>
 
   <script>
+      $(document).ready(function(){
+          $.ajax({
+              type: "GET",
+              url: "{{url('footer1')}}",
+              success: function (data) {
+                  var data1=data['data']['footer1'];
+                  var data2=data['data']['footer2'];
+                  var data3=data['data']['footer3'];
+                  var target=document.getElementById('footer1');
+                  target.insertAdjacentHTML('beforeend', data1);
+                  target.insertAdjacentHTML('beforeend', data2);
+                  target.insertAdjacentHTML('beforeend', data3);
+                  mailchimp_render();
+              }
+          });
+      })
 
-      let mailchimp_recaptcha_id;
-      let recaptchaTokenMailChimp;
-      @if(!Auth::check() && $status->recaptcha_status === 1 && isset($isV2RecaptchaEnabledForNewsletter) && $isV2RecaptchaEnabledForNewsletter === 1)
-      recaptchaFunctionToExecute.push(() => {
-          mailchimp_recaptcha_id = grecaptcha.render('mailchimp_recaptcha', { 'sitekey': siteKey });
-      });
-      @endif
+      function mailchimp_render() {
+          @if(!Auth::check() && $status->recaptcha_status === 1 && $status->v3_v2_recatcha_status && isset($isV2RecaptchaEnabledForNewsletter) && $isV2RecaptchaEnabledForNewsletter === 1)
+
+          const el = document.getElementById('mailchimp_recaptcha');
+          if (el) {
+              const renderFn = () => {
+                  grecaptcha.render('mailchimp_recaptcha', {
+                      sitekey: siteKey
+                  });
+              };
+
+              if (grecaptchaLoaded && window.grecaptcha) {
+                  renderFn(); // grecaptcha is already ready, run immediately
+              } else {
+                  recaptchaFunctionToExecute.push(renderFn); // queue it for later
+              }
+          } else {
+              console.warn('mailchimp_recaptcha not found in DOM yet');
+          }
+          @endif
+      }
+
+
     </script>
 <script>
 

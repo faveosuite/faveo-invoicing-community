@@ -282,8 +282,8 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
                                             </div>
                                         </div>
                                         <div class="col-6 px-0">
-                                            <input type="button" onclick="submitOtp()" name="next"
-                                                   class="next action-button float-right" value="{{ __('message.verify') }}"/>
+                                            <button type="button" onclick="submitOtp()" name="next" id="mobileOtp"
+                                                    class="next float-right btn btn-primary">{{\Lang::get('message.verify')}}</button>
 
                                         </div>
                                     </div>
@@ -319,8 +319,8 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
                                             </div>
                                         </div>
                                         <div class="col-6 px-0">
-                                            <input onclick="isEmailVerified()" type="button" name="next"
-                                                   class="next action-button float-right" value="{{ __('message.verify') }}"/>
+                                            <button onclick="isEmailVerified()" type="button" name="next" id="otpVerify"
+                                                    class="next float-right btn btn-primary">{{\Lang::get('message.verify')}}</button>
                                         </div>
                                     </div>
                                 </div>
@@ -362,7 +362,7 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
         let recaptcha;
         let recaptchaToken;
 
-        @if($setting->recaptcha_status === 1)
+        @if($setting->recaptcha_status === 1 && $setting->v3_v2_recaptcha_status)
         recaptchaFunctionToExecute.push(() => {
             mobile_recaptcha_id = grecaptcha.render('recaptchaMobile', { 'sitekey': siteKey });
             email_recaptcha_id = grecaptcha.render('recaptchaEmail', { 'sitekey': siteKey });
@@ -463,7 +463,7 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
                 showError(otpField, "{{ __('message.otp_invalid_format') }}");
                 return;
             }
-
+            @if($setting->v3_v2_recaptcha_status)
             @if($setting->recaptcha_status === 1)
                 recaptcha = $('#recaptchaMobile');
             recaptchaToken = getRecaptchaTokenFromId(mobile_recaptcha_id);
@@ -475,8 +475,10 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
             updateRecaptchaTokens();
             recaptchaToken = $('#g-recaptcha-mobile').val();
             @endif
-
+            @endif
             const data = {eid, otp: otpValue, 'g-recaptcha-response': recaptchaToken ?? ''};
+            $('#mobileOtp').attr('disabled',true)
+            $("#mobileOtp").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
 
             $.ajax({
                 url: '{{ url('otp/verify') }}',
@@ -492,6 +494,8 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
                 },
                 error: function (error) {
                     showAlert('danger', error.responseJSON.message, '#alert-container');
+                    $('#mobileOtp').attr('disabled',false)
+                    $("#mobileOtp").html("Verify");
                 }
             });
         }
@@ -572,6 +576,9 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
             @endif
 
             const data = {eid, otp: otpValue, 'g-recaptcha-response':recaptchaToken ?? ''};
+            $('#otpVerify').attr('disabled',true)
+            $("#otpVerify").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+
             $.ajax({
                 url: '{{ url('email/verify') }}',
                 type: 'POST',
@@ -581,6 +588,8 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
                 },
                 error: function (error) {
                     showAlert('danger', error.responseJSON.message, '#alert-container-email');
+                    $('#otpVerify').attr('disabled',false)
+                    $("#otpVerify").html("Verify");
                 }
             });
         }
