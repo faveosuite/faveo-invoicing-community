@@ -356,7 +356,6 @@ class PageController extends Controller
             $description = self::getPriceDescription($id);
             $month_offer_price = $offerprice['30_days'] ?? null;
             $year_offer_price = $offerprice['365_days'] ?? null;
-
             if (Product::find($id)->add_to_contact == 1) {
                 $data = str_replace('{{strike-price}}', '', $data);
                 $data = str_replace('{{strike-priceyear}}', '', $data);

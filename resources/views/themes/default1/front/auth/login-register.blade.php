@@ -300,7 +300,7 @@ foreach($scripts as $script) {
 
                                 {!! html()->textarea('address')
     ->class('form-control form-control-lg text-4')
-    ->rows(4)
+    ->rows(5)
     ->id('address') !!}
                                 <span id="addresscheck"></span>
                             </div>

@@ -272,7 +272,7 @@ $status =  App\Model\Common\StatusSetting::select('recaptcha_status','v3_recaptc
                 $('#demoregister').attr('disabled',true)
                 $("#demoregister").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
                 $.ajax({
-                    url: 'demo-request',
+                    url: '{{url('demo-request')}}',
                     type: 'POST',
                     data: formData,
                     beforeSend: function() {
