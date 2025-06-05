@@ -10,6 +10,7 @@ use App\Model\Payment\Currency;
 use App\Model\Payment\Period;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
+use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use Illuminate\Http\Request;
@@ -174,7 +175,9 @@ class PlanController extends ExtendedPlanController
      */
     public function store(PlanRequest $request)
     {
+
         try {
+
             $add_prices = $request->add_price;
             $renew_prices = $request->renew_price;
             $offer_prices = $request->offer_price;
@@ -346,6 +349,18 @@ class PlanController extends ExtendedPlanController
     public function checkSubscription(Request $request)
     {
         try {
+            $cloudProduct=CloudProducts::where('cloud_product',$request->product_id)->value('cloud_product');
+
+            if($cloudProduct){
+                $plans= Plan::where('product',$cloudProduct)->get();
+                if($plans) {
+                    foreach ($plans as $plan) {
+                        if ($plan->days == '30' && !$plan->days='365' || $plan->days == '365' || $plan->days == '366') {
+                            return errorResponse('days is already exist');
+                        }
+                    }
+                }
+            }
             $product_id = $request->input('product_id');
             $permissions = LicensePermissionsController::getPermissionsForProduct($product_id);
             $checkSubscription = $permissions['generateUpdatesxpiryDate'] != 0 || $permissions['generateLicenseExpiryDate'] != 0

@@ -1226,20 +1226,21 @@ setTimeout(function() {
 
         demotelInput.on('input blur', function () {
             resetdemo();
-            if ($.trim(demotelInput.val())) {
-                if (validatePhoneNumber(demotelInput.get(0))) {
-                    $('#mobilenumdemo').css("border-color","");
-                    $("#error-msgdemo").html('');
-                    errorMsgdemo.classList.add("hide");
-                    $('#demoregister').attr('disabled',false);
-                } else {
-                    errorMsgdemo.classList.remove("hide");
-                    errorMsgdemo.innerHTML = "Please enter a valid number";
-                    $('#mobilenumdemo').css("border-color","red");
-                    $('#error-msgdemo').css({"color":"red","margin-top":"5px"});
-                    $('#demoregister').attr('disabled',true);
-                }
-            }
+            // if ($.trim(demotelInput.val())) {
+            //     if (validatePhoneNumber(demotelInput.get(0))) {
+            //         $('#mobilenumdemo').css("border-color","");
+            //         $("#error-msgdemo").html('');
+            //         errorMsgdemo.classList.add("hide");
+            //         $('#demoregister').attr('disabled',false);
+            //     } else {
+            //         errorMsgdemo.classList.remove("hide");
+            //
+            //         errorMsgdemo.innerHTML = "Please enter a valid number";
+            //         $('#mobilenumdemo').css("border-color","red");
+            //         $('#error-msgdemo').css({"color":"red","margin-top":"5px"});
+            //         $('#demoregister').attr('disabled',true);
+            //     }
+            // }
         });
         $('input').on('focus', function () {
             $(this).parent().removeClass('has-error');
@@ -1422,7 +1423,13 @@ setTimeout(function() {
         color: red;
     }
 
+    .widget-container {
+        margin-top:30px !important;
+    }
 
+    .modal-footer {
+        justify-content: space-between !important;
+    }
 
 </style>
 </body>
