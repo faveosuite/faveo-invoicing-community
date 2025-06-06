@@ -52,15 +52,16 @@ class RegisterController extends Controller
     /**
      * This function performs post registration operations(creating user,add user to pipedrive,mailchimp).
      *
-     * @param ProfileRequest $request
-     * @param User $user
+     * @param  ProfileRequest  $request
+     * @param  User  $user
      * @return \HTTP|JsonResponse
+     *
      * @throws ValidationException
      */
     public function postRegister(ProfileRequest $request, User $user)
     {
-        Log::info('request-data', (array)$request->all());
-        Log::info('request-headers', (array)$request->headers->all());
+        Log::info('request-data', (array) $request->all());
+        Log::info('request-headers', (array) $request->headers->all());
 
         $this->validate($request, [
             'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation()],
@@ -121,9 +122,9 @@ class RegisterController extends Controller
      * @param
      * @param
      * @return int
+     *
      * @throws
      */
-
     protected function getEmailMobileStatusResponse()
     {
         $response = StatusSetting::first(['emailverification_status', 'msg91_status']);
@@ -131,13 +132,13 @@ class RegisterController extends Controller
         return ($response->emailverification_status || $response->msg91_status) ? 1 : 0;
     }
 
-
     /**
      * This function returns the default currency.
      *
      * @param
      * @param
      * @return int
+     *
      * @throws
      */
     protected function getUserCurrency($userCountry)
@@ -154,11 +155,10 @@ class RegisterController extends Controller
      * This function returns the default currency symbol.
      *
      * @param
-     *
      * @return int
+     *
      * @throws
      */
-
     protected function getUserCurrencySymbol($userCountry)
     {
         $currency_symbol = Setting::find(1)->default_symbol;
