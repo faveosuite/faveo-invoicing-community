@@ -616,7 +616,7 @@ foreach($scripts as $script) {
 
             $.validator.addMethod("regex", function(value, element, regexp) {
                 var re = new RegExp(regexp);
-                return this.optional(element) || re.test(value);mas
+                return this.optional(element) || re.test(value);
             }, "Invalid format.");
 
             $.validator.addMethod("validPhone", function(value, element) {
