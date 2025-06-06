@@ -135,7 +135,6 @@ trait CoupCodeAndInvoiceSearch
 
     public function updateInvoicePayment($invoiceid, $payment_method, $payment_status, $payment_date, $amount)
     {
-
         try {
             $invoice = Invoice::find($invoiceid);
             $processingFee = '';
