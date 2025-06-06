@@ -88,7 +88,7 @@
         }
     </style>
     <div class="col-sm-6 md-6">
-        <h1>Contact Options</h1>
+        <h1>{{ __('message.contact_options') }}</h1>
     </div>
     <div class="col-sm-6 md-6">
         <ol class="breadcrumb float-sm-right">
@@ -115,7 +115,7 @@
             </div>
             <div class="form-check mt-2">
                 <input type="checkbox" class="form-check-input checkbox5" id="email" value="{{$emailStatus}}" name="email_settings">
-                <label class="form-check-label" for="email_set">{{ __('messsage.verified_email') }}</label>
+                <label class="form-check-label" for="email_set">{{ __('message.verified_email') }}</label>
             </div>
     </div>
     </div>

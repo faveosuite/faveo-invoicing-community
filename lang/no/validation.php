@@ -872,5 +872,15 @@ return [
         'pro_req' => 'Produktfeltet er påkrevd',
         'offer_price' => 'Tilbudspriser må ikke være større enn 100',
     ],
+    'razorpay_val' => [
+        'business_required' => 'Feltet for virksomhet er påkrevd.',
+        'cmd_required' => 'Feltet for kommando er påkrevd.',
+        'paypal_url_required' => 'PayPal-nettadressen er påkrevd.',
+        'paypal_url_invalid' => 'PayPal-nettadressen må være en gyldig URL.',
+        'success_url_invalid' => 'Suksess-URLen må være en gyldig URL.',
+        'cancel_url_invalid' => 'Avbryt-URLen må være en gyldig URL.',
+        'notify_url_invalid' => 'Varslings-URLen må være en gyldig URL.',
+        'currencies_required' => 'Feltet for valutaer er påkrevd.',
+    ],
 
 ];

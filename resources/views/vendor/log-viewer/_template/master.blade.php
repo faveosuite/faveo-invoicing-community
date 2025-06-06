@@ -3,7 +3,7 @@
 $set = new \App\Model\Common\Setting();
 $set = $set->findOrFail(1);
 ?>
-<html>
+<html dir="{{ in_array(app()->getLocale(), ['ar', 'he']) ? 'rtl' : 'ltr' }}">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -25,7 +25,12 @@ $set = $set->findOrFail(1);
     <!-- JQVMap -->
     <link rel="stylesheet" href="{{asset('admin/css/jqvmap.min.css')}}">
     <!-- Theme style -->
-    <link rel="stylesheet" href="{{asset('admin/css/adminlte.min.css')}}">
+    @if(in_array(app()->getLocale(), ['ar', 'he']))
+        <link rel="stylesheet" href="{{asset('admin/css-1/adminlte-rtl.css')}}">
+    @else
+        <link rel="stylesheet" href="{{asset('admin/css/adminlte.min.css')}}">
+    @endif
+
     <!-- overlayScrollbars -->
     <link rel="stylesheet" href="{{asset('admin/css/OverlayScrollbars.min.css')}}">
     <!-- Daterange picker -->
@@ -36,6 +41,7 @@ $set = $set->findOrFail(1);
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
 
     <link rel="stylesheet" href="{{asset('admin/css/icheck-bootstrap.min.css')}}">
+    <link rel="stylesheet" href="{{asset('admin/css-1/flag-icons.min.css')}}">
     <!-- Custom style/js -->
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
@@ -55,6 +61,18 @@ $set = $set->findOrFail(1);
 
 
 </head>
+<style>
+    .dropdown-menu-arrow:before {
+        content: ""!important;
+        position: absolute!important;
+        top: -10px!important;
+        left: 88%;
+        transform: translate(-50%);
+        border-width: 3px 7px 8px;
+        border-style: solid;
+        border-color: transparent transparent #3e4d5d
+    }
+</style>
 <?php
 $set = new \App\Model\Common\Setting();
 $set = $set->findOrFail(1);
@@ -84,6 +102,44 @@ $set = $set->findOrFail(1);
         <!-- Right navbar links -->
         <ul class="navbar-nav ml-auto">
             <!-- Messages Dropdown Menu -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="false">
+                        <?php
+                        $localeMap = [
+                            'ar' => 'ae',
+                            'bsn' => 'bs',
+                            'de' => 'de',
+                            'en' => 'us',
+                            'en-gb' => 'gb',
+                            'es' => 'es',
+                            'fr' => 'fr',
+                            'id' => 'id',
+                            'it' => 'it',
+                            'kr' => 'kr',
+                            'mt' => 'mt',
+                            'nl' => 'nl',
+                            'no' => 'no',
+                            'pt' => 'pt',
+                            'ru' => 'ru',
+                            'vi' => 'vn',
+                            'zh-hans' => 'cn',
+                            'zh-hant' => 'cn',
+                            'ja' => 'jp',
+                            'ta' => 'in',
+                            'hi' => 'in',
+                            'he' => 'il',
+                            'tr' => 'tr',
+                        ];
+
+                        $currentLanguage = app()->getLocale();
+                        $flagClass = 'flag-icon flag-icon-' . $localeMap[$currentLanguage];
+                        ?>
+                        <i id="flagIcon" class="<?= $flagClass ?>"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right p-0" style="left: inherit; right: 0px;" id="language-dropdown">
+                        <!-- Language options will be populated here -->
+                    </div>
+                </li>
             <li class="nav-item dropdown">
                 <a class="nav-link" data-toggle="dropdown" href="#">
                     <?php
@@ -451,7 +507,69 @@ $set = $set->findOrFail(1);
 <!-- <script src="{{asset('plugins/jquery-file-upload/main.js')}}"></script> -->
 <script src="{{asset('admin/plugins/jquery-file-upload/jquery.iframe-transport.js')}}"></script>
 <script src="{{asset('admin/plugins/jquery-file-upload/resumable.js')}}"></script>
+<script>
+    //handle language api
+    const flagIcon = document.getElementById('flagIcon');
+    const languageDropdown = document.getElementById('language-dropdown');
+    const curLang = '{{ app()->getLocale() }}';
 
+
+    $(document).ready(function() {
+        const localeMap = { 'ar': 'ae', 'bsn': 'bs', 'de': 'de', 'en': 'us', 'en-gb': 'gb', 'es': 'es', 'fr': 'fr', 'id': 'id', 'it': 'it', 'kr': 'kr', 'mt': 'mt', 'nl': 'nl', 'no': 'no', 'pt': 'pt', 'ru': 'ru', 'vi': 'vn', 'zh-hans': 'cn', 'zh-hant': 'cn', 'ja': 'jp', 'ta': 'in', 'hi': 'in', 'he': 'il', 'tr': 'tr' };
+        const currentLocale = '{{ app()->getLocale() }}';
+        const mappedLocale = localeMap[currentLocale] || 'us';
+        $('#flagIcon').addClass('flag-icon flag-icon-' + mappedLocale);
+
+        $.ajax({
+            url: '<?php echo getUrl(); ?>/language/control',
+            type: 'GET',
+            dataType: 'JSON',
+            success: function(response) {
+                $.each(response.data, function(key, value) {
+                    // Only include languages where enable_disable == 1
+                    if (value.status == 1) {
+                        const mappedLocale = localeMap[value.locale] || value.locale;
+                        const isSelected = value.locale === currentLocale ? 'selected' : '';
+                        $('#language-dropdown').append(
+                            '<a href="javascript:;" class="dropdown-item" data-locale="' + value.locale + '" ' + isSelected + '>' +
+                            '<i class="flag-icon flag-icon-' + mappedLocale +' mr-2"></i> ' +
+                            value.name + '&nbsp;&rlm;(' + value.translation + ')' +
+                            '</a>'
+                        );
+                    }
+                });
+
+                // Add event listeners for the dynamically added language options
+                $(document).on('click', '.dropdown-item', function() {
+                    const selectedLanguage = $(this).data('locale');
+                    const mappedLocale = localeMap[selectedLanguage] || selectedLanguage;
+                    const flagClass = 'flag-icon flag-icon-' + mappedLocale;
+                    const dir = selectedLanguage === 'ar' ? 'rtl' : 'ltr';
+
+                    updateLanguage(selectedLanguage, flagClass);
+                });
+            },
+            error: function(error) {
+                console.error('Error fetching languages:', error);
+            }
+        });
+    });
+
+    function updateLanguage(language, flagClass) {
+        $('#flagIcon').attr('class', flagClass);
+        $.ajax({
+            url: '<?php echo getUrl(); ?>/lang/update',
+            type: 'POST',
+            data: { language: language },
+            success: function(response) {
+                window.location.reload();
+            },
+            error: function(xhr, status, error) {
+                console.error('Error updating language:', xhr.responseText);
+            }
+        });
+    }
+</script>
 
 @yield('icheck')
 @yield('datepicker')

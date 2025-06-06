@@ -435,7 +435,7 @@
                                         </li>
 
                                         <li class="list-group-item">
-                                            <b>IP</b>: <span class="pull-right clientip" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};"></span>
+                                            <b>{{ __('message.user_ip') }}</b>: <span class="pull-right clientip" style="float: {{ app()->getLocale() === 'ar' ? 'left' : 'right' }};"></span>
                                         </li>
                                         @if($client && $client->skype)
                                         <li class="list-group-item">

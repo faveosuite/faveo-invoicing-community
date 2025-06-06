@@ -842,5 +842,15 @@ return [
         'pro_req' => 'O campo produto é obrigatório',
         'offer_price' => 'Os preços promocionais não devem ser maiores que 100',
     ],
+    'razorpay_val' => [
+        'business_required' => 'O campo empresa é obrigatório.',
+        'cmd_required' => 'O campo comando é obrigatório.',
+        'paypal_url_required' => 'A URL do PayPal é obrigatória.',
+        'paypal_url_invalid' => 'A URL do PayPal deve ser uma URL válida.',
+        'success_url_invalid' => 'A URL de sucesso deve ser uma URL válida.',
+        'cancel_url_invalid' => 'A URL de cancelamento deve ser uma URL válida.',
+        'notify_url_invalid' => 'A URL de notificação deve ser uma URL válida.',
+        'currencies_required' => 'O campo de moedas é obrigatório.',
+    ],
 
 ];

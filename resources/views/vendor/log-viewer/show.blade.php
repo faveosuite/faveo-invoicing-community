@@ -91,7 +91,7 @@
                         {!! $entries->appends(compact('query'))->render() !!}
 
                         <span class="label label-info pull-right">
-                            Page {!! $entries->currentPage() !!} of {!! $entries->lastPage() !!}
+                            {{ __('message.page') }} {!! $entries->currentPage() !!} {{ __('message.boot_of') }} {!! $entries->lastPage() !!}
                         </span>
                     </div>
                 @endif
@@ -100,7 +100,7 @@
                     <table id="entries" class="table table-condensed">
                         <thead>
                             <tr>
-                                <th>ENV</th>
+                                <th>{{ __('message.caps_env') }}</th>
                                 <th style="width: 120px;">{{ __('message.level') }}</th>
                                 <th style="width: 65px;">{{ __('message.time') }}</th>
                                 <th>{{ __('message.header') }}</th>

@@ -179,7 +179,7 @@
                           }
                       });
                   } else {
-                      showAlert('error', 'Please select at least one permission');
+                      showAlert('error', '{{ __('message.select_at_least_one_permission') }}');
                   }
               });
           });

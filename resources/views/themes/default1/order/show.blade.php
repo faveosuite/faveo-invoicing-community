@@ -257,7 +257,7 @@ input:checked + .slider:before {
                                                         ]
                                                         ])                    
                                                         @endcomponent
-                                                    <button class='class="btn btn-sm btn-secondary btn-xs' style="width:max-content;border:none;margin-left: 20px;" id="reissueLic" data-id="{{$order->id}}" data-name="{{$order->domain}}"><i class="fas fa-id-card-alt" style='color:white;' {!! tooltip('Reissue&nbsp;License') !!}</i>
+                                                    <button class='class="btn btn-sm btn-secondary btn-xs' style="width:max-content;border:none;margin-left: 20px;" id="reissueLic" data-id="{{$order->id}}" data-name="{{$order->domain}}"><i class="fas fa-id-card-alt" style='color:white;' {!! tooltip( __('message.tooltip_reissue_license')) !!}</i>
                                                      </button>
 
                                                    </td>

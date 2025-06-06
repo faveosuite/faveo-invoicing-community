@@ -850,4 +850,14 @@ return [
         'pro_req' => 'Поле продукт обязательно для заполнения',
         'offer_price' => 'Скидочная цена не должна превышать 100',
     ],
+    'razorpay_val' => [
+        'business_required' => 'Поле "Бизнес" обязательно для заполнения.',
+        'cmd_required' => 'Поле "Команда" обязательно для заполнения.',
+        'paypal_url_required' => 'URL PayPal обязателен.',
+        'paypal_url_invalid' => 'URL PayPal должен быть действительным URL.',
+        'success_url_invalid' => 'URL успешного завершения должен быть действительным URL.',
+        'cancel_url_invalid' => 'URL отмены должен быть действительным URL.',
+        'notify_url_invalid' => 'URL уведомления должен быть действительным URL.',
+        'currencies_required' => 'Поле валют обязательно для заполнения.',
+    ],
 ];

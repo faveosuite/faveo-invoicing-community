@@ -68,6 +68,15 @@ class SettingsController extends Controller
             'cancel_url' => 'url',
             'notify_url' => 'url',
             'currencies' => 'required',
+        ], [
+            'business.required' => __('validation.razorpay_val.business_required'),
+            'cmd.required' => __('validation.razorpay_val.cmd_required'),
+            'paypal_url.required' => __('validation.razorpay_val.paypal_url_required'),
+            'paypal_url.url' => __('validation.razorpay_val.paypal_url_invalid'),
+            'success_url.url' => __('validation.razorpay_val.success_url_invalid'),
+            'cancel_url.url' => __('validation.razorpay_val.cancel_url_invalid'),
+            'notify_url.url' => __('validation.razorpay_val.notify_url_invalid'),
+            'currencies.required' => __('validation.razorpay_val.currencies_required'),
         ]);
 
         try {
@@ -114,7 +123,7 @@ class SettingsController extends Controller
             StatusSetting::find(1)->update(['rzp_status' => $status]);
             ApiKey::find(1)->update(['rzp_key' => $rzp_key, 'rzp_secret' => $rzp_secret, 'apilayer_key' => $apilayer_key]);
 
-            return successResponse(['success' => 'true', 'message' => 'Razorpay Settings updated successfully']);
+            return successResponse(['success' => 'true', 'message' => __('message.razorpay_settings_updated_successfully')]);
         } catch (\Razorpay\Api\Errors\BadRequestError $e) {
             return errorResponse($e->getMessage());
         } catch (\Exception $e) {
@@ -155,7 +164,7 @@ class SettingsController extends Controller
             $amount = rounding(\Cart::getTotal());
             if (! $amount) {//During renewal
                 if (rounding($request->input('amount')) != rounding($invoiceTotal)) {
-                    throw new \Exception('Invalid modification of data');
+                    throw new \Exception( __('message.invalid_modification'));
                 }
                 $amount = rounding($request->input('amount'));
             }
@@ -170,7 +179,7 @@ class SettingsController extends Controller
                 ],
             ]);
             if (! isset($token['id'])) {
-                \Session::put('error', 'The Stripe Token was not generated correctly');
+                \Session::put('error', __('message.stripe_token_not_generated_correctly'));
 
                 return redirect()->route('stripform');
             }
@@ -264,14 +273,14 @@ class SettingsController extends Controller
 
                 return redirect('checkout')->with($status, $message);
             } else {
-                return redirect('checkout')->with('fails', 'Your Payment was declined. Please try making payment with other gateway');
+                return redirect('checkout')->with('fails', __('message.payment_declined_try_other_gateway'));
             }
         } catch (\Cartalyst\Stripe\Exception\ApiLimitExceededException|\Cartalyst\Stripe\Exception\BadRequestException|\Cartalyst\Stripe\Exception\MissingParameterException|\Cartalyst\Stripe\Exception\NotFoundException|\Cartalyst\Stripe\Exception\ServerErrorException|\Cartalyst\Stripe\Exception\StripeException|\Cartalyst\Stripe\Exception\UnauthorizedException $e) {
             if (emailSendingStatus()) {
                 $this->sendFailedPaymenttoAdmin($request['amount'], $e->getMessage());
             }
 
-            return redirect('checkout')->with('fails', 'Your Payment was declined. '.$e->getMessage().'. Please try again or try the other gateway');
+            return redirect('checkout')->with('fails', __('message.payment_declined_error', ['error' => $e->getMessage()]));
         } catch (\Cartalyst\Stripe\Exception\CardErrorException $e) {
             if (emailSendingStatus()) {
                 $this->sendFailedPaymenttoAdmin($request['amount'], $e->getMessage());
@@ -281,7 +290,7 @@ class SettingsController extends Controller
 
             return redirect()->route('checkout');
         } catch (\Exception $e) {
-            return redirect('checkout')->with('fails', 'Your payment was declined. '.$e->getMessage().'. Please try again or try the other gateway.');
+            return redirect('checkout')->with('fails', __('message.payment_declined_error', ['error' => $e->getMessage()]));
         }
     }
 

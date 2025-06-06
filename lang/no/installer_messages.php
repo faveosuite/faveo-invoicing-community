@@ -163,5 +163,6 @@ return [
     'language' => 'Språk',
     'tooltip_timezone' => 'Nettleserens tidssone brukes initialt. Velg en annen tidssone hvis nødvendig.',
     'tooltip_language' => 'Initialt lastet standard språk. Velg et annet språk hvis nødvendig.',
+    'enter_magic_phrase' => 'Skriv inn magisk setning',
 
 ];

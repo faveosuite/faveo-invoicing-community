@@ -870,5 +870,15 @@ return [
         'pro_req' => '제품 필드는 필수입니다',
         'offer_price' => '할인 가격은 100보다 클 수 없습니다',
     ],
+    'razorpay_val' => [
+        'business_required' => '비즈니스 필드는 필수입니다.',
+        'cmd_required' => '명령어 필드는 필수입니다.',
+        'paypal_url_required' => 'PayPal URL은 필수입니다.',
+        'paypal_url_invalid' => 'PayPal URL은 유효한 URL이어야 합니다.',
+        'success_url_invalid' => '성공 URL은 유효한 URL이어야 합니다.',
+        'cancel_url_invalid' => '취소 URL은 유효한 URL이어야 합니다.',
+        'notify_url_invalid' => '알림 URL은 유효한 URL이어야 합니다.',
+        'currencies_required' => '통화 필드는 필수입니다.',
+    ],
 
 ];

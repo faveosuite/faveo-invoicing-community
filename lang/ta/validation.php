@@ -860,5 +860,15 @@ return [
         'pro_req' => 'பொருள் புலம் தேவையானது',
         'offer_price' => 'சலுகை விலை 100 க்கும் மேல் இருக்கக்கூடாது',
     ],
+    'razorpay_val' => [
+        'business_required' => 'வணிக புலம் அவசியம்.',
+        'cmd_required' => 'கட்டளை புலம் அவசியம்.',
+        'paypal_url_required' => 'பேபால் URL அவசியம்.',
+        'paypal_url_invalid' => 'பேபால் URL சரியான URL ஆக இருக்க வேண்டும்.',
+        'success_url_invalid' => 'வெற்றிக் URL சரியான URL ஆக இருக்க வேண்டும்.',
+        'cancel_url_invalid' => 'ரத்து URL சரியான URL ஆக இருக்க வேண்டும்.',
+        'notify_url_invalid' => 'அறிவிப்பு URL சரியான URL ஆக இருக்க வேண்டும்.',
+        'currencies_required' => 'நாணய புலம் அவசியம்.',
+    ],
 
 ];

@@ -874,5 +874,15 @@ Request file custom validation messages
         'pro_req' => 'El campo producto es obligatorio',
         'offer_price' => 'Los precios de oferta no deben ser mayores a 100',
     ],
+    'razorpay_val' => [
+        'business_required' => 'El campo de negocio es obligatorio.',
+        'cmd_required' => 'El campo de comando es obligatorio.',
+        'paypal_url_required' => 'La URL de PayPal es obligatoria.',
+        'paypal_url_invalid' => 'La URL de PayPal debe ser una URL válida.',
+        'success_url_invalid' => 'La URL de éxito debe ser una URL válida.',
+        'cancel_url_invalid' => 'La URL de cancelación debe ser una URL válida.',
+        'notify_url_invalid' => 'La URL de notificación debe ser una URL válida.',
+        'currencies_required' => 'El campo de monedas es obligatorio.',
+    ],
 
 ];

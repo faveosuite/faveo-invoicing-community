@@ -900,5 +900,15 @@ return [
         'pro_req' => '產品欄位為必填項目',
         'offer_price' => '優惠價格不得高於 100',
     ],
+    'razorpay_val' => [
+        'business_required' => '商業欄位為必填。',
+        'cmd_required' => '命令欄位為必填。',
+        'paypal_url_required' => '必須提供 PayPal 網址。',
+        'paypal_url_invalid' => 'PayPal 網址必須是有效的網址。',
+        'success_url_invalid' => '成功網址必須是有效的網址。',
+        'cancel_url_invalid' => '取消網址必須是有效的網址。',
+        'notify_url_invalid' => '通知網址必須是有效的網址。',
+        'currencies_required' => '貨幣欄位為必填。',
+    ],
 
 ];

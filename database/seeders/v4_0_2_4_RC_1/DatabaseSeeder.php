@@ -86,7 +86,12 @@ class DatabaseSeeder extends Seeder
             ["locale" => "vi", "name" => "Vietnamese", "translation" => "Tiếng Việt"],
         ];
 
-        \DB::table('languages')->insert($languages);
+        foreach ($languages as $lang) {
+            \DB::table('languages')->updateOrInsert(
+                ['locale' => $lang['locale']],
+                ['name' => $lang['name'], 'translation' => $lang['translation']]
+            );
+        }
 
     }
 }

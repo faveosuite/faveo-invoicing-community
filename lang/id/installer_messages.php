@@ -157,5 +157,6 @@ return [
     'language' => 'Bahasa',
     'tooltip_timezone' => 'Zona waktu browser digunakan sebagai default. Pilih zona waktu lain jika diperlukan',
     'tooltip_language' => 'Bahasa default yang dimuat awalnya. Pilih bahasa lain jika diperlukan',
+    'enter_magic_phrase' => 'Masukkan frasa ajaib',
 
 ];
