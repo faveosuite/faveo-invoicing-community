@@ -5,7 +5,6 @@ namespace App\Rules;
 use App\ApiKey;
 use App\Model\Common\StatusSetting;
 use Closure;
-use GuzzleHttp\Client;
 use Illuminate\Contracts\Validation\ValidationRule;
 
 class CaptchaValidation implements ValidationRule
@@ -37,7 +36,7 @@ class CaptchaValidation implements ValidationRule
                 return; // Skip validation if disabled
             }
             // Get the secret key
-            $secretKey = config('services.recaptcha.secret')  ?? ApiKey::find(1)?->captcha_secretCheck;
+            $secretKey = config('services.recaptcha.secret') ?? ApiKey::find(1)?->captcha_secretCheck;
             $expectedHostname = request()->getHost();
             $minScore = config('services.recaptcha.score', 0.5);
 
@@ -50,18 +49,19 @@ class CaptchaValidation implements ValidationRule
 
             $responseBody = $response->json();
 
-            if (isset($responseBody['success']) && !$responseBody['success']) {
+            if (isset($responseBody['success']) && ! $responseBody['success']) {
                 $fail($this->message);
+
                 return;
             }
 
             if ($v3Enabled && isset($responseBody['score'])) {
-                if ( $responseBody['score'] < $minScore || $this->action !== $responseBody['action'] || ($responseBody['hostname'] ?? null) !== $expectedHostname) {
+                if ($responseBody['score'] < $minScore || $this->action !== $responseBody['action'] || ($responseBody['hostname'] ?? null) !== $expectedHostname) {
                     $fail($this->message);
+
                     return;
                 }
             }
-
         } catch (\Exception $e) {
             $fail($this->message);
         }
