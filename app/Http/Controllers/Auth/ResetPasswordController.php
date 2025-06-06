@@ -86,7 +86,7 @@ class ResetPasswordController extends Controller
                 'confirmed',
                 new StrongPassword(),
             ],
-            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation()],
+            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('reset-password')],
         ], ['g-recaptcha-response.required' => 'Please verify that you are not a robot.',
         ]);
         try {

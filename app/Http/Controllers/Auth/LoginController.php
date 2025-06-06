@@ -76,7 +76,7 @@ class LoginController extends Controller
         $this->validate($request, [
             'email_username' => 'required',
             'password1' => 'required',
-            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation()],
+            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('login')],
         ], [
             'g-recaptcha-response.required' => 'Robot Verification Failed. Please Try Again.',
             'email_username.required' => 'Please Enter an Email',
