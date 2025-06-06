@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\BillingInstaller\InstallerController;
 use App\Model\Common\Language;
 use App\Model\Common\Setting;
 use Illuminate\Http\Request;
@@ -12,18 +11,11 @@ class LanguageController extends Controller
 {
     public function viewLanguage()
     {
-        $response = (new InstallerController())->languageList();
-        $apiLanguages = $response->getData()->data ?? [];
-        $defaultLang = optional(Setting::first())->content;
-
-        $dbLanguages = \App\Model\Common\Language::pluck('status', 'locale')->toArray();
-
-        foreach ($apiLanguages as $language) {
-            $language->status = $dbLanguages[$language->locale] ?? 0;
-        }
+        $dbLanguages = \App\Model\Common\Language::all();
+        $defaultLang = Setting::first()->value('content') ?? 'en';
 
         return view('themes.default1.common.languages', [
-            'languages' => $apiLanguages,
+            'languages' => $dbLanguages,
             'defaultLang' => $defaultLang,
         ]);
     }
@@ -36,13 +28,20 @@ class LanguageController extends Controller
                 'status' => 'required|boolean',
             ]);
 
-            $language = \App\Model\Common\Language::where('locale', $request->locale)->first();
+            $language = Language::where('locale', $request->locale)->first();
 
             if ($language) {
-                $language->status = $request->status;
-                $language->save();
+                $languageById = Language::find($language->id);
 
-                return response()->json(['success' => true, 'message' => __('message.language_status_updated_successfully')]);
+                if ($languageById) {
+                    $languageById->status = $request->status;
+                    $languageById->save();
+
+                    return response()->json([
+                        'success' => true,
+                        'message' => __('message.language_status_updated_successfully')
+                    ]);
+                }
             }
 
             return response()->json(['success' => false, 'message' => __('message.language_not_found')], 404);

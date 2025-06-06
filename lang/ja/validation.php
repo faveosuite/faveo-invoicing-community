@@ -859,4 +859,14 @@ return [
         'pro_req' => '製品フィールドは必須です',
         'offer_price' => 'オファー価格は100を超えてはなりません',
     ],
+    'razorpay_val' => [
+        'business_required' => 'ビジネスフィールドは必須です。',
+        'cmd_required' => 'コマンドフィールドは必須です。',
+        'paypal_url_required' => 'PayPalのURLは必須です。',
+        'paypal_url_invalid' => 'PayPalのURLは有効なURLでなければなりません。',
+        'success_url_invalid' => '成功URLは有効なURLでなければなりません。',
+        'cancel_url_invalid' => 'キャンセルURLは有効なURLでなければなりません。',
+        'notify_url_invalid' => '通知URLは有効なURLでなければなりません。',
+        'currencies_required' => '通貨フィールドは必須です。',
+    ],
 ];

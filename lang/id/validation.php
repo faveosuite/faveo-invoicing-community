@@ -901,5 +901,15 @@ return [
         'pro_req' => 'Field produk wajib diisi',
         'offer_price' => 'Harga penawaran tidak boleh lebih dari 100',
     ],
+    'razorpay_val' => [
+        'business_required' => 'Kolom bisnis wajib diisi.',
+        'cmd_required' => 'Kolom perintah wajib diisi.',
+        'paypal_url_required' => 'URL PayPal wajib diisi.',
+        'paypal_url_invalid' => 'URL PayPal harus berupa URL yang valid.',
+        'success_url_invalid' => 'URL sukses harus berupa URL yang valid.',
+        'cancel_url_invalid' => 'URL pembatalan harus berupa URL yang valid.',
+        'notify_url_invalid' => 'URL notifikasi harus berupa URL yang valid.',
+        'currencies_required' => 'Kolom mata uang wajib diisi.',
+    ],
 
 ];

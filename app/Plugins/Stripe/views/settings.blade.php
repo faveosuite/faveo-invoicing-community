@@ -9,10 +9,10 @@
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{ url('/') }}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{ url('settings') }}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item"><a href="{{ url('payment-gateway-integration') }}"><i class="fa fa-dashboard"></i> Payment Gateway Integrations</a></li>
-            <li class="breadcrumb-item active">Stripe</li>
+            <li class="breadcrumb-item"><a href="{{ url('/') }}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ url('settings') }}"><i class="fa fa-dashboard"></i> {{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ url('payment-gateway-integration') }}"><i class="fa fa-dashboard"></i> {{ __('message.payment_gateway_integrations') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.stripe') }}</li>
         </ol>
     </div>
 @stop
@@ -28,27 +28,27 @@
     <div class="col-md-12">
         <div class="card card-secondary card-outline">
             <div class="card-header">
-                <h3 class="card-title">API Keys</h3>
+                <h3 class="card-title">{{ __('message.key') }}</h3>
             </div>
             <div class="card-body">
                 <div id="alertMessage"></div>
                 <form id="stripeForm">
                     <div class="form-group col-lg-5">
-                        <label for="stripe_key" class="required">Stripe Publishable Key</label>
+                        <label for="stripe_key" class="required">{{ __('message.stripe_publishable_key') }}</label>
                         <input
                                 type="text"
                                 id="stripe_key"
                                 name="stripe_key"
                                 value="{{ $stripeKeys->stripe_key }}"
                                 class="form-control {{$errors->has('stripe_key') ? ' is-invalid' : ''}}"
-                                placeholder="Enter Stripe Key">
+                                placeholder="{{ __('message.enter_stripe_key') }}">
                         @error('stripe_key')
                         <small class="text-danger">{{ $message }}</small>
                         @enderror
                         <small id="stripe_keycheck" class="text-danger"></small>
                     </div>
                     <div class="form-group col-lg-5">
-                        <label for="stripe_secret" class="required">Stripe Secret Key</label>
+                        <label for="stripe_secret" class="required">{{ __('message.stripe_secret_key') }}</label>
                         <div class="input-group">
                         <input
                                 type="password"
@@ -56,7 +56,7 @@
                                 name="stripe_secret"
                                 value="{{ $stripeKeys->stripe_secret }}"
                                 class="form-control {{$errors->has('stripe_secret') ? ' is-invalid' : ''}}"
-                                placeholder="Enter Stripe Secret Key">
+                                placeholder="{{ __('message.enter_stripe_secret_key') }}">
                         <div class="input-group-append">
                                         <span class="input-group-text" role="button" onclick="togglePasswordVisibility(this)">
                                             <i class="fa fa-eye-slash"></i>
@@ -69,7 +69,7 @@
                         <small id="stripe_secretcheck" class="text-danger"></small>
                     </div>
                     <button type="submit" class="btn btn-primary" id="key_update">
-                        <i class="fa fa-sync-alt"></i> Update
+                        <i class="fa fa-sync-alt"></i> {{ __('message.update') }}
                     </button>
                 </form>
             </div>
@@ -122,7 +122,7 @@
 
                 submitHandler: function(form, event) {
                     event.preventDefault();
-                    $('#key_update').html("<i class='fas fa-circle-notch fa-spin'></i> Please Wait...");
+                    $('#key_update').html("<i class='fas fa-circle-notch fa-spin'></i> {{ __('message.please_wait') }}");
                     $("#key_update").attr('disabled', true);
 
                     // AJAX Request if validation passes
@@ -136,17 +136,17 @@
                         success: function(data) {
                             $('#alertMessage').html(`<div class="alert alert-success alert-dismissable">
                         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                        <strong><i class="fa fa-check"></i> Success! </strong>${data.message.message}.
+                        <strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>${data.message.message}.
                     </div>`).slideDown();
-                        $("#key_update").html("<i class='fa fa-sync-alt'></i> Update").attr('disabled', false);
+                        $("#key_update").html("<i class='fa fa-sync-alt'></i> {{ __('message.update') }}").attr('disabled', false);
                         setTimeout(function () { $('#alertMessage').slideUp(); }, 3000);
                     },
                     error: function (data) {
                         $('#alertMessage').html(`<div class="alert alert-danger alert-dismissable">
                         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                        <strong><i class="fa fa-ban"></i> Failed! </strong>${data.responseJSON.message}
+                        <strong><i class="fa fa-ban"></i> {{ __('message.failed') }}! </strong>${data.responseJSON.message}
                     </div>`).slideDown();
-                            $("#key_update").html("<i class='fa fa-sync-alt'></i> Update").attr('disabled', false);
+                            $("#key_update").html("<i class='fa fa-sync-alt'></i> {{ __('message.update') }}").attr('disabled', false);
                         }
                     });
                 },

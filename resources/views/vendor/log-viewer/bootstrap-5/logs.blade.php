@@ -1,17 +1,17 @@
 @extends('log-viewer::_template.master')
 @section('title')
-    Log-Viewer
+    {{ __('message.logs_viewer') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
-        <h1>Log-Viewer</h1>
+        <h1>{{ __('message.logs_viewer') }}</h1>
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> Settings</a></li>
-            <li class="breadcrumb-item"><a href="{{url('log-viewer')}}"><i class="fa fa-dashboard"></i> Log Viewer</a></li>
-            <li class="breadcrumb-item active">Logs</li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('settings')}}"><i class="fa fa-dashboard"></i> {{ __('message.settings') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('log-viewer')}}"><i class="fa fa-dashboard"></i> {{ __('message.Log_viewer') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('message.logs') }}</li>
         </ol>
     </div><!-- /.col -->
 @stop
@@ -23,7 +23,7 @@
 
     <div class="card card-primary card-outline">
         <div class="card-body">
-            <h4 class="card-header">Logs</h4>
+            <h4 class="card-header">{{ __('message.logs') }}</h4>
 
             {!! $rows->render() !!}
 
@@ -42,7 +42,7 @@
                                 @endif
                             </th>
                         @endforeach
-                        <th class="text-right">Actions</th>
+                        <th class="text-right">{{ __('message.actions') }}</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -64,15 +64,15 @@
                                 @endforeach
                                 <td class="text-right">
                                     <a href="{{ route('log-viewer::logs.show', [$date]) }}" class="btn btn-xs btn-info"
-                                       data-toggle="tooltip" title="View Logs">
+                                       data-toggle="tooltip" title="{{ __('message.view_logs') }}">
                                         <i class="fa fa-search"></i>
                                     </a>
                                     <a href="{{ route('log-viewer::logs.download', [$date]) }}"
-                                       class="btn btn-xs btn-success" data-toggle="tooltip" title="Download Logs">
+                                       class="btn btn-xs btn-success" data-toggle="tooltip" title="{{ __('message.download_logs') }}">
                                         <i class="fa fa-download"></i>
                                     </a>
-                                    <a href="#delete-log-modal" class="btn btn-xs btn-danger"
-                                       data-log-date="{{ $date }}" data-toggle="tooltip" title="Delete Logs">
+                                    <a href="#delete-log-modal" class="btn btn-xs btn-danger delete"
+                                       data-log-date="{{ $date }}" data-toggle="tooltip" title="{{ __('message.delete_logs') }}">
                                         <i class="fa fa-trash"></i>
                                     </a>
                                 </td>
@@ -100,17 +100,17 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Confirm Delete</h4>
+                <h4 class="modal-title">{{ __('message.confirm_delete') }}</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <p>Are you sure you want to delete this log file?</p>
+                <p>{{ __('message.delete_log_file') }}</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-sm btn-default pull-left" data-dismiss="modal">Cancel</button>
-                <button id="confirmDelete" class="btn btn-sm btn-danger">Delete</button>
+                <button type="button" class="btn btn-sm btn-default pull-left" data-dismiss="modal">{{ __('message.cancel') }}</button>
+                <button id="confirmDelete" class="btn btn-sm btn-danger">{{ __('message.delete') }}</button>
             </div>
         </div>
     </div>
@@ -141,14 +141,14 @@
                     date: logDate
                 },
                 success: function(data) {
-                    $('#success-message').text('Log file deleted successfully.').show();
+                    $('#success-message').text(@json(__('message.log_file_deleted_successfully'))).show();
                     $('#delete-log-modal').modal('hide');
                     setTimeout(function() {
                         location.reload();
                     }, 3000);
                 },
                 error: function(xhr, textStatus, errorThrown) {
-                    $('#fail-message').text('Something went wrong.').show();
+                    $('#fail-message').text(@json(__('message.oops'))).show();
                     $('#delete-log-modal').modal('hide');
                     setTimeout(function() {
                         location.reload();

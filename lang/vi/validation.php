@@ -905,5 +905,15 @@ return [
         'pro_req' => 'Trường sản phẩm là bắt buộc',
         'offer_price' => 'Giá ưu đãi không được lớn hơn 100',
     ],
+    'razorpay_val' => [
+        'business_required' => 'Trường doanh nghiệp là bắt buộc.',
+        'cmd_required' => 'Trường lệnh là bắt buộc.',
+        'paypal_url_required' => 'URL PayPal là bắt buộc.',
+        'paypal_url_invalid' => 'URL PayPal phải là URL hợp lệ.',
+        'success_url_invalid' => 'URL thành công phải là URL hợp lệ.',
+        'cancel_url_invalid' => 'URL hủy phải là URL hợp lệ.',
+        'notify_url_invalid' => 'URL thông báo phải là URL hợp lệ.',
+        'currencies_required' => 'Trường tiền tệ là bắt buộc.',
+    ],
 
 ];

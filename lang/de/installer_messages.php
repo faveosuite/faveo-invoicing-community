@@ -162,5 +162,6 @@ return [
     'language' => 'Sprache',
     'tooltip_timezone' => 'Die Browser-Zeitzone wird zunächst verwendet. Wählen Sie eine andere Zeitzone, falls erforderlich',
     'tooltip_language' => 'Zunächst geladene Standardsprache. Wählen Sie eine andere Sprache, falls erforderlich',
+    'enter_magic_phrase' => 'Magischen Satz eingeben',
 
 ];

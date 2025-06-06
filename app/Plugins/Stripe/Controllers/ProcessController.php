@@ -44,22 +44,22 @@ class ProcessController extends Controller
             }
             if ($request->input('payment_gateway') == 'Stripe') {
                 if (! \Schema::hasTable('stripe')) {
-                    throw new \Exception('Stripe is not configured');
+                    throw new \Exception( __('message.stripe_not_configured'));
                 }
                 $stripe = $this->stripe->where('id', 1)->first();
                 if (! $stripe) {
-                    throw new \Exception('Stripe Fields not given');
+                    throw new \Exception(__('message.stripe_fields_not_given'));
                 }
                 \Session::put('invoice', $invoice);
                 \Session::save();
                 $this->middlePage($request->input('payment_gateway'));
             } elseif ($request->input('payment_gateway') == 'Razorpay') {
                 if (! \Schema::hasTable('razorpay')) {
-                    throw new \Exception('Razorpay is not configured');
+                    throw new \Exception(__('message.razorpay_not_configured'));
                 }
                 $stripe = $this->razorpay->where('id', 1)->first();
                 if (! $stripe) {
-                    throw new \Exception('Razorpay Fields not given');
+                    throw new \Exception(__('message.razorpay_fields_not_given'));
                 }
                 \Session::put('invoice', $invoice);
                 \Session::save();
@@ -170,7 +170,7 @@ class ProcessController extends Controller
                 return $paymentMethod == 'razorpay' ? 0 : \DB::table(strtolower($paymentMethod))->where('currencies', $currency)->value('processing_fee');
             }
         } catch (\Exception $e) {
-            throw new \Exception('Invalid modification of data');
+            throw new \Exception(__('message.invalid_modification'));
         }
     }
 
@@ -228,7 +228,7 @@ class ProcessController extends Controller
         }
         \Session::forget('invoiceid');
 
-        return redirect($url)->with('fails', 'Thank you for your order. However,the transaction has been declined. Try again.');
+        return redirect($url)->with('fails', __('message.order_transaction_declined'));
     }
 
     protected function processRazorpayOrder($invoice, $regularPayment)

@@ -890,5 +890,15 @@ return [
         'pro_req' => 'Polje za proizvod je obavezno',
         'offer_price' => 'Cijena ponude ne smije biti veća od 100',
     ],
+    'razorpay_val' => [
+        'business_required' => 'Polje za poslovanje je obavezno.',
+        'cmd_required' => 'Polje za naredbu je obavezno.',
+        'paypal_url_required' => 'URL PayPal-a je obavezan.',
+        'paypal_url_invalid' => 'URL PayPal-a mora biti validan URL.',
+        'success_url_invalid' => 'URL za uspjeh mora biti validan URL.',
+        'cancel_url_invalid' => 'URL za otkazivanje mora biti validan URL.',
+        'notify_url_invalid' => 'URL za obavještenje mora biti validan URL.',
+        'currencies_required' => 'Polje valuta je obavezno.',
+    ],
 
 ];

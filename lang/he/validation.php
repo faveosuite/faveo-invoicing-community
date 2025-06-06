@@ -858,5 +858,15 @@ return [
         'pro_req' => 'שדה המוצר הוא שדה חובה',
         'offer_price' => 'מחירי הצעה לא יכולים להיות גבוהים מ-100',
     ],
+    'razorpay_val' => [
+        'business_required' => 'שדה העסק נדרש.',
+        'cmd_required' => 'שדה הפקודה נדרש.',
+        'paypal_url_required' => 'נדרש URL של PayPal.',
+        'paypal_url_invalid' => 'ה-URL של PayPal חייב להיות כתובת תקינה.',
+        'success_url_invalid' => 'כתובת ההצלחה חייבת להיות URL תקין.',
+        'cancel_url_invalid' => 'כתובת הביטול חייבת להיות URL תקין.',
+        'notify_url_invalid' => 'כתובת ההתראה חייבת להיות URL תקין.',
+        'currencies_required' => 'שדה המטבעות נדרש.',
+    ],
 
 ];

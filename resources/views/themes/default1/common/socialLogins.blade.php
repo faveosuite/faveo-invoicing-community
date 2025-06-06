@@ -104,7 +104,22 @@
 <script>
     $(document).ready(function() {
         $('#social-table').DataTable({
-            "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]]
+            "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+            language: {
+                paginate: {
+                    first:      "{{ __('message.paginate_first') }}",
+                    last:       "{{ __('message.paginate_last') }}",
+                    next:       "{{ __('message.paginate_next') }}",
+                    previous:   "{{ __('message.paginate_previous') }}"
+                },
+                emptyTable:     "{{ __('message.empty_table') }}",
+                info:           "{{ __('message.datatable_info') }}",
+                search:         "{{ __('message.datatable_search') }} ",
+                zeroRecords:    "{{ __('message.no_matching_records_found') }} ",
+                infoEmpty:      "{{ __('message.info_empty') }}",
+                infoFiltered:   "{{ __('message.info_filtered') }}",
+                lengthMenu:     "{{ __('message.sLengthMenu') }}",
+            },
         });
     });
 </script>

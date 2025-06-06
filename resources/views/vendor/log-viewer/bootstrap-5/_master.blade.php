@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="LogViewer">
     <meta name="author" content="ARCANEDEV">
-    <title>LogViewer - Created by ARCANEDEV</title>
+    <title>{{ __('message.logviewere_created') }}</title>
     {{-- Styles --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
@@ -219,9 +219,9 @@
 <body>
     <nav class="navbar navbar-expand-md navbar-dark sticky-top bg-dark p-0">
         <a href="{{ route('log-viewer::dashboard') }}" class="navbar-brand mr-0">
-            <i class="fa fa-fw fa-book"></i> LogViewer
+            <i class="fa fa-fw fa-book"></i> {{ __('message.logviewer') }}
         </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="{{ __('message.toggle_navigation') }}">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
@@ -250,10 +250,10 @@
     <footer class="main-footer">
         <div class="container-fluid">
             <p class="text-muted pull-left">
-                LogViewer - <span class="badge text-bg-info">version {{ log_viewer()->version() }}</span>
+                {{ __('message.logviewer') }} - <span class="badge text-bg-info">{{ __('message.version') }} {{ log_viewer()->version() }}</span>
             </p>
             <p class="text-muted pull-right">
-                Created with <i class="fa fa-heart"></i> by ARCANEDEV <sup>&copy;</sup>
+                {{ __('message.created_with') }} <i class="fa fa-heart"></i> {{ __('message.by_arcanedev') }} <sup>&copy;</sup>
             </p>
         </div>
     </footer>

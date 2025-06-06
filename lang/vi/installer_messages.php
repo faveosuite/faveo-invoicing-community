@@ -163,4 +163,6 @@ return [
     'language' => 'Ngôn ngữ',
     'tooltip_timezone' => 'Múi giờ của trình duyệt được sử dụng ban đầu. Chọn một múi giờ khác nếu cần.',
     'tooltip_language' => 'Ngôn ngữ mặc định được tải ban đầu. Chọn một ngôn ngữ khác nếu cần.',
+    'enter_magic_phrase' => 'Nhập cụm từ bí mật',
+
 ];
