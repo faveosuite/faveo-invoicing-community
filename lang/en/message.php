@@ -1241,8 +1241,8 @@ return [
     'subscribe_status_error' => 'Please select a valid subscribe status.',
     'recaptcha_type_error' => 'Please select a recaptcha type.',
     'third_party_key_error' => 'Please select a valid Msg91 app key.',
-    'no-invoice-id'=>'Invoice ID is required.',
-    'remainingAmount'=>'The remaining credits in your current plan will be added to the credit balance.',
+    'no-invoice-id' => 'Invoice ID is required.',
+    'remainingAmount' => 'The remaining credits in your current plan will be added to the credit balance.',
 
     'contact_mapping' => 'Person Mapping',
     'organization_mapping' => 'Organization Mapping',
