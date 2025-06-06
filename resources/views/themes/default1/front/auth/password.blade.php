@@ -52,7 +52,7 @@ main
                                 <div id="recaptchaEmail"></div>
                                 <span id="passcaptchacheck"></span><br>
                             @elseif($status->v3_recaptcha_status === 1)
-                                 <input type="hidden" id="g-recaptcha-email" class="g-recaptcha-token" name="g-recaptcha-response" data-recaptcha-action="forgot-password">
+                                 <input type="hidden" id="g-recaptcha-email" class="g-recaptcha-token" name="g-recaptcha-response" data-recaptcha-action="forgotPassword">
                              @endif
 
                         <div class="row">

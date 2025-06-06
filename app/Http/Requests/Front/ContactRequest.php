@@ -29,7 +29,7 @@ class ContactRequest extends FormRequest
                 'conmessage' => 'required',
                 'Mobile' => 'required',
                 'country_code' => 'required',
-                'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('contact-us')],
+                'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('contactUs')],
             ];
         } elseif ($this->is('demo-request')) {
             return [
@@ -38,7 +38,7 @@ class ContactRequest extends FormRequest
                 'country_code' => 'required',
                 'Mobile' => 'required',
                 'demomessage' => 'required',
-                'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('request-demo')],
+                'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('requestDemo')],
             ];
         }
     }

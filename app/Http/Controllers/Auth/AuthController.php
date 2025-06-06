@@ -130,6 +130,7 @@ class AuthController extends BaseAuthController
     {
         $request->validate([
             'eid' => 'required|string',
+            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('sendOtp')],
         ]);
 
         try {
@@ -187,6 +188,7 @@ class AuthController extends BaseAuthController
         $request->validate([
             'eid' => 'required|string',
             'type' => 'required|string|in:text,voice',
+            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('resendOtp')],
         ]);
         try {
             $email = Crypt::decrypt($request->eid);
@@ -231,6 +233,7 @@ class AuthController extends BaseAuthController
     {
         $request->validate([
             'eid' => 'required|string',
+            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('sendEmail')],
         ]);
         try {
             $email = Crypt::decrypt($request->eid);
@@ -281,7 +284,7 @@ class AuthController extends BaseAuthController
         $request->validate([
             'eid' => 'required|string',
             'otp' => 'required|string|size:6',
-            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('verify-mobile-otp')],
+            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('verifyMobileOtp')],
         ]);
         try {
             // Decrypt the email
@@ -327,7 +330,7 @@ class AuthController extends BaseAuthController
         $request->validate([
             'eid' => 'required|string',
             'otp' => 'required|string|size:6',
-            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('verify-email-otp')],
+            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('verifyEmailOtp')],
         ]);
 
         try {

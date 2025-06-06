@@ -8,7 +8,7 @@ $apiKeys = ApiKey::find(1);
 
 @if(isCaptchaRequired()['status'])
     <script>
-        const siteKey = "{{ !empty(env('NOCAPTCHA_SITEKEY')) ? env('NOCAPTCHA_SITEKEY') : $apiKeys->nocaptcha_sitekey }}";
+        const siteKey = "{{ config('services.recaptcha.sitekey')  ?? $apiKeys->nocaptcha_sitekey }}";
         let recaptchaFunctionToExecute = [];
         var recaptchaEnabled = {{ $statusSetting->recaptcha_status === 1 ? 'true' : 'false' }};
         var recaptchaV3Enabled = {{ $statusSetting->v3_recaptcha_status === 1 ? 'true' : 'false' }};
