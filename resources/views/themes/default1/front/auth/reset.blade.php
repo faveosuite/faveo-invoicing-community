@@ -78,12 +78,12 @@ main
                             </div>
                             </div>
                         </div>
-
+                    {!! honeypotField('reset') !!}
                     @if ($status->recaptcha_status === 1)
                         <div id="recaptchaReset"></div>
                         <div class="loginrobot-verification"></div><br>
                     @elseif($status->v3_recaptcha_status === 1)
-                        <input type="hidden" id="g-recaptcha-password" class="g-recaptcha-token" name="g-recaptcha-response">
+                        <input type="hidden" id="g-recaptcha-password" class="g-recaptcha-token" name="g-recaptcha-response" data-recaptcha-action="resetPassword">
                     @endif
 
                         <div class="row">

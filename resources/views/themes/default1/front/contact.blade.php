@@ -88,16 +88,13 @@ $country = \DB::table('countries')->where('country_code_char2',$set->country)->v
                             </div>
                         </div>
                          <!-- Honeypot fields (hidden) -->
-                                <div style="display: none;">
-                                    <label>{{ __('message.contact_leave')}}</label>
-                                    <input type="text" name="conatcthoneypot_field" value="">
-                                </div>
+                                {!! honeypotField('contact') !!}
 
                          @if ($status->recaptcha_status === 1)
                              <div id="recaptchaContact"></div>
                              <span id="captchacheck"></span>
                          @elseif($status->v3_recaptcha_status === 1)
-                             <input type="hidden" id="g-recaptcha-contact" class="g-recaptcha-token" name="g-recaptcha-response">
+                             <input type="hidden" id="g-recaptcha-contact" class="g-recaptcha-token" name="g-recaptcha-response" data-recaptcha-action="contactUs">
                          @endif
                                 <br>
 
@@ -217,7 +214,7 @@ $(document).ready(function() {
         return value.trim() !== "";
     }, "{{ __('message.recaptcha_required') }}");
     $('#contactForm').validate({
-        ignore: ":hidden:not(.g-recaptcha-response)",
+        ignore: ":hidden:not(.g-recaptcha-response):not([name^='contact'])",
         rules: {
             conName: {
                 required: true
@@ -298,6 +295,10 @@ $(document).ready(function() {
 
                     if (response.errors) {
                         $.each(response.errors, function(field, messages) {
+                            if (field === 'contact' || field === 'g-recaptcha-response') {
+                                showAlert('error', messages[0]);
+                                return;
+                            }
                             var validator = $('#contactForm').validate();
 
                             var fieldSelector = $(`[name="${field}"]`).attr('name');  // Get the name attribute of the selected field

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Front;
 
 use App\Rules\CaptchaValidation;
+use App\Rules\Honeypot;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ContactRequest extends FormRequest
@@ -29,7 +30,8 @@ class ContactRequest extends FormRequest
                 'conmessage' => 'required',
                 'Mobile' => 'required',
                 'country_code' => 'required',
-                'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation()],
+                'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('contactUs')],
+                'contact' => [new Honeypot()],
             ];
         } elseif ($this->is('demo-request')) {
             return [
@@ -38,7 +40,8 @@ class ContactRequest extends FormRequest
                 'country_code' => 'required',
                 'Mobile' => 'required',
                 'demomessage' => 'required',
-                'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation()],
+                'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('requestDemo')],
+                'demo' => [new Honeypot()],
             ];
         }
     }

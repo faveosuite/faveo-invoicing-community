@@ -8,7 +8,7 @@ $apiKeys = ApiKey::find(1);
 
 @if(isCaptchaRequired()['status'])
     <script>
-        const siteKey = "{{ !empty(env('NOCAPTCHA_SITEKEY')) ? env('NOCAPTCHA_SITEKEY') : $apiKeys->nocaptcha_sitekey }}";
+        const siteKey = "{{ config('services.recaptcha.sitekey')  ?? $apiKeys->nocaptcha_sitekey }}";
         let recaptchaFunctionToExecute = [];
         var recaptchaEnabled = {{ $statusSetting->recaptcha_status === 1 ? 'true' : 'false' }};
         var recaptchaV3Enabled = {{ $statusSetting->v3_recaptcha_status === 1 ? 'true' : 'false' }};
@@ -54,13 +54,13 @@ $apiKeys = ApiKey::find(1);
             });
         };
 
-        const generateRecaptchaToken = () => {
+        const generateRecaptchaToken = (action = 'default') => {
             return new Promise((resolve, reject) => {
                 if (!grecaptcha) {
                     return reject('reCAPTCHA not loaded');
                 }
                 grecaptcha.ready(() => {
-                    grecaptcha.execute(siteKey)
+                    grecaptcha.execute(siteKey, { action })
                         .then(resolve)
                         .catch(reject);
                 });
@@ -72,7 +72,8 @@ $apiKeys = ApiKey::find(1);
                 await loadRecaptchaScript(); // Ensure the reCAPTCHA script is loaded
                 const recaptchaInputs = document.querySelectorAll('.g-recaptcha-token');
                 for (const input of recaptchaInputs) {
-                    const token = await generateRecaptchaToken();
+                    const action = input.dataset.recaptchaAction || 'default';
+                    const token = await generateRecaptchaToken(action);
                     input.value = token; // Assign the generated token to the input value
                 }
             } catch (error) {
@@ -84,7 +85,8 @@ $apiKeys = ApiKey::find(1);
             try {
                 const recaptchaInputs = document.querySelectorAll('.g-recaptcha-token');
                 for (const input of recaptchaInputs) {
-                    const token = await generateRecaptchaToken();
+                    const action = input.dataset.recaptchaAction || 'default';
+                    const token = await generateRecaptchaToken(action);
                     input.value = token; // Update the input field with the new token
                 }
             } catch (error) {
