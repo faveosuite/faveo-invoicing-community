@@ -6,7 +6,6 @@ use App\Http\Controllers\Common\PHPController as Controller;
 use App\Http\Requests\Queue\QueueRequest;
 use App\Model\Mailjob\FaveoQueue;
 use App\Model\Mailjob\QueueService;
-use Form;
 use Illuminate\Http\Request;
 
 class QueueController extends Controller
@@ -76,7 +75,7 @@ class QueueController extends Controller
             $queues = new QueueService();
             $queue = $queues->find($id);
             if (! $queue) {
-                throw new Exception( __('message.sorry_cannot_find_request'));
+                throw new Exception(__('message.sorry_cannot_find_request'));
             }
 
             return view('themes.default1.queue.edit', compact('queue'));
@@ -93,7 +92,7 @@ class QueueController extends Controller
             $queue = $queues->find($id);
 
             if (! $queue) {
-                throw new Exception( __('message.sorry_cannot_find_request'));
+                throw new Exception(__('message.sorry_cannot_find_request'));
             }
             $setting = new FaveoQueue();
             $settings = $setting->where('service_id', $id)->get();
@@ -235,10 +234,10 @@ class QueueController extends Controller
         $queue = $queues->find($queueid);
         if ($queue) {
             $form = "<div class='".$class."'>".html()->label($label)->for($name)."<span class='text-red'> *</span>".
-                html()->text($name, $queue->getExtraField($name))->class('form-control')->placeholder($placeholder) .'</div>';
+                html()->text($name, $queue->getExtraField($name))->class('form-control')->placeholder($placeholder).'</div>';
         } else {
             $form = "<div class='".$class."'>".html()->label($label)->for($name)."<span class='text-red'> *</span>".
-                html()->text($name)->class('form-control')->placeholder($placeholder) .'</div>';
+                html()->text($name)->class('form-control')->placeholder($placeholder).'</div>';
         }
 
         return $form;

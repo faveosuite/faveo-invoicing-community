@@ -164,7 +164,7 @@ class SettingsController extends Controller
             $amount = rounding(\Cart::getTotal());
             if (! $amount) {//During renewal
                 if (rounding($request->input('amount')) != rounding($invoiceTotal)) {
-                    throw new \Exception( __('message.invalid_modification'));
+                    throw new \Exception(__('message.invalid_modification'));
                 }
                 $amount = rounding($request->input('amount'));
             }
