@@ -2658,4 +2658,6 @@ return [
     'new_code_generated' => 'Kode pemulihan baru berhasil dibuat.',
     'please_enter_code' => 'Silakan masukkan kode',
     '2fa_verifying' => 'Memverifikasi...',
+    'captcha_failed' => 'Verifikasi reCAPTCHA gagal. Harap pastikan kunci rahasia reCAPTCHA Anda valid.',
+    'captcha_message' => 'Verifikasi reCAPTCHA gagal. Silakan coba lagi.',
 ];

@@ -2675,5 +2675,6 @@ return [
     'email_first' => 'Email First',
     'mobile_first' => 'Mobile First',
     'contact_setting_update' => 'Contact Settings Updated Successfully',
-
+    'captcha_failed' => 'reCAPTCHA verification failed. Please ensure your reCAPTCHA secret key are valid.',
+    'captcha_message' => 'reCAPTCHA verification failed. Please try again.',
 ];

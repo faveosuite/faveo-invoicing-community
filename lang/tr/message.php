@@ -2676,4 +2676,6 @@ return [
     'new_code_generated' => 'Yeni kurtarma kodu başarıyla oluşturuldu.',
     'please_enter_code' => 'Lütfen kodu girin',
     '2fa_verifying' => 'Doğrulanıyor...',
+    'captcha_failed' => 'reCAPTCHA doğrulaması başarısız oldu. Lütfen reCAPTCHA gizli anahtarınızın geçerli olduğundan emin olun.',
+    'captcha_message' => 'reCAPTCHA doğrulaması başarısız oldu. Lütfen tekrar deneyin.',
 ];

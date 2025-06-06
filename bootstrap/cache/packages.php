@@ -193,6 +193,11 @@ return  [
             0 => 'Spatie\\Activitylog\\ActivitylogServiceProvider',
         ],
     ],
+    'spatie/laravel-csp' => [
+        'providers' => [
+            0 => 'Spatie\\Csp\\CspServiceProvider',
+        ],
+    ],
     'spatie/laravel-html' => [
         'providers' => [
             0 => 'Spatie\\Html\\HtmlServiceProvider',

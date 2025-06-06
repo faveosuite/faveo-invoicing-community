@@ -2630,5 +2630,6 @@ return [
     'email_first' => 'E-mail eerst',
     'mobile_first' => 'Mobiel eerst',
     'contact_setting_update' => 'Contactinstellingen succesvol bijgewerkt',
-
+    'captcha_failed' => 'reCAPTCHA-verificatie is mislukt. Zorg ervoor dat je geheime reCAPTCHA-sleutel geldig is.',
+    'captcha_message' => 'reCAPTCHA-verificatie mislukt. Probeer het opnieuw.',
 ];

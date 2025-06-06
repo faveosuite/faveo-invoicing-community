@@ -2669,4 +2669,6 @@ return [
     'email_first' => 'E-post først',
     'mobile_first' => 'Mobil først',
     'contact_setting_update' => 'Kontaktinnstillinger ble oppdatert',
+    'captcha_failed' => 'reCAPTCHA-verifiseringen mislyktes. Vennligst sørg for at din hemmelige reCAPTCHA-nøkkel er gyldig.',
+    'captcha_message' => 'reCAPTCHA-verifisering mislyktes. Prøv igjen.',
 ];

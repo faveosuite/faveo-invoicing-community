@@ -2666,4 +2666,6 @@ return [
     '2fa_verifying' => 'Verifying...',
     'checkbox_error' => 'Please select at least one status option.',
     'allowed_estatus' => 'Permitted Email Statuses',
+    'captcha_failed' => 'reCAPTCHA verification failed. Please ensure your reCAPTCHA secret key is valid.',
+    'captcha_message' => 'reCAPTCHA verification failed. Please try again.',
 ];

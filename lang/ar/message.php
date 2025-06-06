@@ -2468,6 +2468,8 @@ return [
     'email_first' => 'البريد الإلكتروني أولاً',
     'mobile_first' => 'رقم الجوال أولاً',
     'contact_setting_update' => 'تم تحديث إعدادات الاتصال بنجاح',
+    'captcha_failed' => 'فشل التحقق من reCAPTCHA. يرجى التأكد من أن مفتاح reCAPTCHA السري صالح.',
+    'captcha_message' => 'فشل التحقق من reCAPTCHA. يرجى المحاولة مرة أخرى.',
 
     // Arabic
     'reoon' => 'ريون',

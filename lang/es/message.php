@@ -2664,4 +2664,6 @@ return [
     'email_first' => 'Correo electrónico primero',
     'mobile_first' => 'Móvil primero',
     'contact_setting_update' => 'Configuración de contacto actualizada con éxito',
+    'captcha_failed' => 'La verificación de reCAPTCHA ha fallado. Por favor, asegúrate de que tu clave secreta de reCAPTCHA sea válida.',
+    'captcha_message' => 'La verificación de reCAPTCHA falló. Por favor, inténtalo de nuevo.',
 ];

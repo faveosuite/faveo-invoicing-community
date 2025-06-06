@@ -2624,4 +2624,6 @@ return [
     'email_first' => '優先使用電子郵件',
     'mobile_first' => '優先使用手機',
     'contact_setting_update' => '聯絡設定已成功更新',
+    'captcha_failed' => 'reCAPTCHA 驗證失敗。請確保您的 reCAPTCHA 密鑰是有效的。',
+    'captcha_message' => 'reCAPTCHA 驗證失敗，請重試。',
 ];

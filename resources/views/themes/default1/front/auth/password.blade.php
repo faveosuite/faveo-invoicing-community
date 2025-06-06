@@ -46,11 +46,13 @@ main
                                 <a class="text-decoration-none text-color-primary font-weight-semibold text-2" href="{{url('login')}}">{{ __('message.know_password')}}</a>
                             </div>
                         </div>
+
+                        {!! honeypotField('forgot') !!}
                            @if ($status->recaptcha_status == 1)
                                 <div id="recaptchaEmail"></div>
                                 <span id="passcaptchacheck"></span><br>
                             @elseif($status->v3_recaptcha_status === 1)
-                                 <input type="hidden" id="g-recaptcha-email" class="g-recaptcha-token" name="g-recaptcha-response">
+                                 <input type="hidden" id="g-recaptcha-email" class="g-recaptcha-token" name="g-recaptcha-response" data-recaptcha-action="forgotPassword">
                              @endif
 
                         <div class="row">

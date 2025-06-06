@@ -271,7 +271,7 @@
                                 @if ($setting->recaptcha_status === 1)
                                     <div id="recaptchaMobile"></div>
                                 @elseif($setting->v3_recaptcha_status === 1)
-                                    <input type="hidden" id="g-recaptcha-mobile" class="g-recaptcha-token" name="g-recaptcha-response">
+                                    <input type="hidden" id="g-recaptcha-mobile" class="g-recaptcha-token" name="g-recaptcha-response"  data-recaptcha-action="verifyMobileOtp">
                                 @endif
                                 <div class="col-12">
                                     <div class="row">
@@ -311,7 +311,7 @@
                                     @if ($setting->recaptcha_status === 1)
                                         <div id="recaptchaEmail"></div>
                                     @elseif($setting->v3_recaptcha_status === 1)
-                                        <input type="hidden" id="g-recaptcha-email" class="g-recaptcha-token" name="g-recaptcha-response">
+                                        <input type="hidden" id="g-recaptcha-email" class="g-recaptcha-token" name="g-recaptcha-response"  data-recaptcha-action="verifyEmailOtp">
                                     @endif
                                 @endif
                                 <div class="col-12 mt-4">
@@ -441,9 +441,20 @@
                 }, 1000);
             }
         }
+        async function generateV3Token(data, action = 'default') {
+            @if($setting->v3_recaptcha_status === 1)
+                try {
+                const token = await generateRecaptchaToken(action);
+                data['g-recaptcha-response'] = token;
+            } catch (error) {
+                // handle token error silently
+            }
+            @endif
+                return data;
+        }
 
-        function resendOTP(default_type, type) {
-            const data = {eid, default_type, type};
+        async function resendOTP(default_type, type) {
+            const data = await generateV3Token({eid, default_type, type}, 'resendOtp');
             $.ajax({
                 url: '{{ url('resend_otp') }}',
                 type: 'POST',
@@ -467,9 +478,9 @@
             });
         }
 
-        function sendOTP() {
+        async function sendOTP() {
             startTimer(otpButton, timerDisplay, TIMER_DURATION, 'mobile');
-            const data = {eid};
+            const data = await generateV3Token({eid : eid}, 'sendOtp');
             $.ajax({
                 url: '{{ url('otp/send') }}',
                 type: 'POST',
@@ -575,8 +586,8 @@
             }
         }
 
-        function sendEmail() {
-            const data = {eid: eid};
+        async function sendEmail() {
+            const data = await generateV3Token({eid: eid}, 'sendEmail');
             $.ajax({
                 url: '{{ url('/send-email') }}',
                 type: 'POST',
@@ -711,13 +722,17 @@
                         progressList[fieldSet].classList.add('active');
                     }
                     autoFocus();
-                    sendOTP();
+                    setTimeout(() => {
+                        sendOTP();
+                    }, 500);
                 } else if (fieldSet === 'fieldSetTwo' && !verificationState.isEmailVerified) {
                     if (progressList[fieldSet]) {
                         progressList[fieldSet].classList.add('active');
                     }
                     autoFocus();
-                    sendEmail();
+                    setTimeout(() => {
+                        sendEmail();
+                    }, 500);
                 } else if (fieldSet === 'fieldSetThree') {
                     if (progressList[fieldSet]) {
                         progressList[fieldSet].classList.add('active');

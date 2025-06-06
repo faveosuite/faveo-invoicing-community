@@ -97,7 +97,7 @@ class MailChimpController extends BaseMailChimpController
     {
         $this->validate($request, [
             'newsletterEmail' => 'required|email',
-            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation()],
+            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('mailChimp')],
         ], [
             'mailchimp-recaptcha-response-1.required' => __('message.robot_verification_failed'),
             'newsletterEmail.required' => __('validation.newsletterEmail.email'),

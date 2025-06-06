@@ -140,6 +140,7 @@ class AuthController extends BaseAuthController
     {
         $request->validate([
             'eid' => 'required|string',
+            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('sendOtp')],
         ],
             [
                 'eid.required' => __('validation.eid_required'),
@@ -201,6 +202,7 @@ class AuthController extends BaseAuthController
         $request->validate([
             'eid' => 'required|string',
             'type' => 'required|string|in:text,voice',
+            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('resendOtp')],
         ], [
             'eid.required' => __('validation.resend_otp.eid_required'),
             'eid.string' => __('validation.resend_otp.eid_string'),
@@ -251,6 +253,7 @@ class AuthController extends BaseAuthController
     {
         $request->validate([
             'eid' => 'required|string',
+            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('sendEmail')],
         ], [
             'eid.required' => __('validation.eid_required'),
             'eid.string' => __('validation.eid_string'),
@@ -304,7 +307,7 @@ class AuthController extends BaseAuthController
         $request->validate([
             'eid' => 'required|string',
             'otp' => 'required|string|size:6',
-            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation()],
+            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('verifyMobileOtp')],
         ],
             [
                 'eid.required' => __('validation.verify_otp.eid_required'),  // Translating for eid field
@@ -357,7 +360,7 @@ class AuthController extends BaseAuthController
         $request->validate([
             'eid' => 'required|string',
             'otp' => 'required|string|size:6',
-            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation()],
+            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('verifyEmailOtp')],
         ],
             [
                 'eid.required' => __('validation.verify_otp.eid_required'),  // Translating for eid field

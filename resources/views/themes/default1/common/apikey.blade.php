@@ -69,6 +69,19 @@
         .error-border {
             border-color: red;
         }
+        .loading-indicator {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0,0,0,.1);
+            border-radius: 50%;
+            border-top-color: #3498db;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
 
 
     </style>
@@ -377,8 +390,14 @@
                         </div>
                         <h6 id="captcha_secretCheck"></h6>
                     </div>
+                    <!-- Loading Indicator -->
+                    <div id="loading-indicator" style="display: none;">
+                        <span class="loading-indicator"></span>
+                    </div>
                     <div id="recaptcha-wrapper">
-                        <div id="recaptcha-container"></div>
+                        <div id="recaptcha-container" class="mb-3">
+                            <div id="recaptcha-box"></div>
+                        </div>
                     </div>
                 </div>
 
@@ -695,7 +714,7 @@
     {{--    {!! Form::close() !!}--}}
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
+    <script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
     <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
 
@@ -944,291 +963,271 @@
         $('#close1').on('click',function(){
             location.reload();
         });
-
-        let currentSiteKey = '';
-        let scriptLoaded = false;
-
-        function isLikelyV3Key(sitekey) {
-
-            return sitekey.length > 35 && !sitekey.includes('localhost');
-
-        }
-
-        function loadRecaptchaScript(sitekey, callback) {
-            // Remove old script if present
-            const existingScript = document.querySelector('script[src*="google.com/recaptcha/api.js"]');
-            if (existingScript) {
-                existingScript.remove();
-                scriptLoaded = false;
-                delete window.grecaptcha;
-            }
-
-            const script = document.createElement('script');
-            script.src = `https://www.google.com/recaptcha/api.js?render=${sitekey}`;
-            script.async = true;
-            script.defer = true;
-
-            script.onload = () => {
-                scriptLoaded = true;
-                callback();
-            };
-
-            script.onerror = () => {
-                document.getElementById("nocaptcha_sitekey").classList.add('is-invalid');
-                document.getElementById("status").textContent = @json(trans('message.invalid_recaptcha_key'));
-                document.getElementById("submit2").disabled=true;
-
-            };
-
-            document.head.appendChild(script);
-        }
-
-        function verifyWithRecaptchaV3(sitekey) {
-            if (!window.grecaptcha) {
-                document.getElementById("status").textContent = @json(trans('message.invalid_recaptcha_key'));
-                document.getElementById("submit2").disabled=true;
-                return;
-            }
-
-            try {
-                grecaptcha.ready(() => {
-                    try {
-                        grecaptcha.execute(sitekey, {action: 'submit'})
-                            .then(token => {
-                                // Optional: Show token in console for debugging
-
-                                if (!token || token.length < 100) {
-                                    document.getElementById("submit2").disabled=true;
-                                    throw new Error(@json(trans('message.invalid_recaptcha_key')));
-                                }
-
-                                document.getElementById("nocaptcha_sitekey").classList.remove('is-invalid');
-                                document.getElementById("status").textContent = "";
-                                document.getElementById("submit2").disabled=false;
-
-                            })
-                            .catch(err => {
-                                document.getElementById("status").textContent = @json(trans('message.invalid_recaptcha_key'));
-                                document.getElementById("nocaptcha_sitekey").classList.add('is-invalid');
-                                document.getElementById("submit2").disabled=true;
-                            });
-                    }catch(err){
-                        document.getElementById("status").textContent = @json(trans('message.invalid_recaptcha_key'));
-                        document.getElementById("nocaptcha_sitekey").classList.add('is-invalid');
-                        document.getElementById("submit2").disabled=true;
-
-                    }
-                });
-            } catch (e) {
-                document.getElementById("status").textContent = @json(trans('message.invalid_recaptcha_key'));
-                document.getElementById("nocaptcha_sitekey").classList.add('is-invalid');
-                document.getElementById("submit2").disabled=true;
-
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            document.getElementById('nocaptcha_sitekey').addEventListener('input', function () {
-                const initial_id = document.querySelector('input[name="customRadio"]:checked')?.id;
-                const newSiteKey = this.value.trim();
-                resetRecaptchaContainer();
-
-                document.getElementById("status").textContent = '';
-                var captchaError=document.getElementById('captchaError');
-                if(captchaError !=null) {
-                    document.getElementById('captchaError').textContent = '';
-                }
-                if (initial_id === 'captchaRadioV3') {
-                    if (!newSiteKey){
-                        document.getElementById("submit2").disabled=true;
-                        return;
-                    }
-                    if (!isLikelyV3Key(newSiteKey)) {
-                        document.getElementById("status").textContent = @json(trans('message.invalid_recaptcha_key'));
-                        document.getElementById("nocaptcha_sitekey").classList.add('is-invalid');
-                        document.getElementById("submit2").disabled=true;
-                        return;
-                    }
-
-                    if (newSiteKey && newSiteKey !== currentSiteKey) {
-                        currentSiteKey = newSiteKey;
-                        loadRecaptchaScript(newSiteKey, () => {
-                            verifyWithRecaptchaV3(newSiteKey);
-                        });
-                    }
-                }
-            });
-        });
     </script>
 
+<script>
+    class ReCAPTCHAManager {
+        constructor() {
+            this.siteKeyInput = document.getElementById('nocaptcha_sitekey');
+            this.typeRadios = document.querySelectorAll('input[name="customRadio"]');
+            this.recaptchaContainer = document.getElementById('recaptcha-container');
+            this.recaptchaBox = document.getElementById('recaptcha-box');
+            this.submitBtn = document.getElementById('submit2');
+            this.loadingIndicator = document.getElementById('loading-indicator');
 
-    <script>
-        document.getElementById('nocaptcha_sitekey').addEventListener('input', function () {
-            resetRecaptchaContainer();
-            var captchaError=document.getElementById('cterms_headingaptchaError');
-            if(captchaError !=null) {
-                document.getElementById('captchaError').textContent = '';
-            }
-            var initial_id=$('input[name="customRadio"]:checked').attr('id');
+            window.recaptchaToken = '';
+            this.widgetId = null;
+            this.isLoading = false;
+            this.scriptLoadPromise = null;
 
-            if(initial_id==='captchaRadioV2') {
-                const sitekey = this.value.trim();
-                if (!sitekey){
-                    document.getElementById("submit2").disabled=true;
+            this.init();
+        }
+
+        init() {
+            // Set up event listeners
+            this.typeRadios.forEach(radio => {
+                radio.addEventListener('change', () => this.handleVersionChange());
+            });
+
+            this.siteKeyInput.addEventListener('input', () => {
+                if (this.siteKeyInput.value.trim()) {
+                    clearTimeout(this.inputTimeout);
+                    this.inputTimeout = setTimeout(() => this.loadRecaptcha(), 500);
+                }
+            });
+
+            // Initial load
+            this.loadRecaptcha();
+        }
+
+        async handleVersionChange() {
+            await this.loadRecaptcha();
+        }
+
+        async loadRecaptcha() {
+            if (this.isLoading) return;
+
+            this.isLoading = true;
+            this.submitBtn.disabled = true;
+            this.showLoading();
+
+            try {
+                await this.cleanup();
+
+                const siteKey = this.siteKeyInput.value.trim();
+                if (!siteKey) {
+                    this.isLoading = false;
+                    this.hideLoading();
                     return;
                 }
-                validateRecaptchaV2Key(sitekey);
 
+                const selectedVersion = document.querySelector('input[name="customRadio"]:checked');
+
+                if (selectedVersion.id === 'captchaRadioV3') {
+                    await this.loadV3Recaptcha(siteKey);
+                } else {
+                    await this.loadV2Recaptcha(siteKey);
+                }
+            } catch (error) {
+            } finally {
+                this.isLoading = false;
+                this.hideLoading();
             }
+        }
+
+        async cleanup() {
+            // Reset UI
+            this.recaptchaBox.innerHTML = '';
+            this.recaptchaContainer.style.display = 'none';
+            this.submitBtn.disabled = true;
+            window.recaptchaToken = '';
+
+            // Remove script
+            const oldScript = document.getElementById('recaptcha-script');
+            if (oldScript) oldScript.remove();
+
+            // Remove all reCAPTCHA elements
+            document.querySelectorAll('iframe[src*="recaptcha"]').forEach(el => el.remove());
+            document.querySelectorAll('.grecaptcha-badge').forEach(el => el.remove());
+            document.querySelectorAll('div[style*="visibility: hidden"]').forEach(el => {
+                if (el.innerHTML && el.innerHTML.includes('recaptcha')) el.remove();
             });
-        let recaptchaWidgetId = null;
 
-        function validateRecaptchaV2Key(sitekey) {
-            const containerId = 'recaptcha-container';
+            // Reset global reCAPTCHA objects
+            window.___grecaptcha_cfg = undefined;
+            window.grecaptcha = undefined;
 
-            const oldScript = document.querySelector('script[src*="recaptcha/api.js"]');
-            if (oldScript) {
-                oldScript.remove();
-            }
-            document.getElementById("status").textContent = '';
-            document.getElementById("nocaptcha_sitekey").classList.remove('is-invalid');
-            // Clear any existing reCAPTCHA widget
-            document.getElementById(containerId).innerHTML = '';
-            recaptchaWidgetId = null;
-            delete window.grecaptcha;
+            // Wait before reloading
+            // return new Promise(resolve => setTimeout(resolve, 500));
+        }
 
-            // Load reCAPTCHA API script
-            const script = document.createElement('script');
-            script.src = 'https://www.google.com/recaptcha/api.js?onload=onV2Load&render=explicit';
-            script.async = true;
-            script.defer = true;
+        async loadScript(src) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.id = 'recaptcha-script';
+                script.async = true;
+                script.defer = true;
 
-            window.onV2Load = function () {
-                try {
-                    // Render reCAPTCHA inside the container
-                    recaptchaWidgetId = grecaptcha.render(containerId, {
-                        sitekey: sitekey,
-                        callback: function (token) {
-                            document.getElementById("status").textContent = '';
-                            document.getElementById("nocaptcha_sitekey").classList.remove('is-invalid');
-                            document.getElementById("submit2").disabled=false;
+                script.onload = () => resolve();
+                script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
 
+                document.head.appendChild(script);
+            });
+        }
+
+        async loadV2Recaptcha(siteKey) {
+            this.recaptchaContainer.style.display = 'block';
+
+            try {
+                await this.loadScript('https://www.google.com/recaptcha/api.js?render=explicit');
+
+                await this.waitForGrecaptcha();
+
+                if (window.grecaptcha && window.grecaptcha.render) {
+                    validateSiteKey(true, '')
+                    try {
+                    this.widgetId = window.grecaptcha.render('recaptcha-box', {
+                        'sitekey': siteKey,
+                        'callback': (token) => {
+                            window.recaptchaToken = token;
+                            this.submitBtn.disabled = false;
                         },
-                        'error-callback': function() {
-                            // Handle error callback when reCAPTCHA fails
-                            showError();
+                        'error-callback': () => {
+                            validateSiteKey(false, @json(trans('message.invalid_recaptcha_key')))
+                            window.recaptchaToken = '';
+                            this.submitBtn.disabled = true;
+                        },
+                        'expired-callback': () => {
+                            // Disable button and clear token when captcha expires
+                            window.recaptchaToken = '';
+                            this.submitBtn.disabled = true;
                         }
                     });
-                    clearError();
-                } catch (e) {
-                    showError();
+                    } catch (e) {
+                        validateSiteKey(false, @json(trans('message.invalid_recaptcha_key')))
+                    }
                 }
-            };
+            } catch (error) {
+                validateSiteKey(false, @json(trans('message.invalid_recaptcha_key')))
+            }
+        }
 
-            script.onerror = function () {
-                showError();
-            };
+        async loadV3Recaptcha(siteKey) {
+            this.recaptchaContainer.style.display = 'none';
 
             try {
-                document.head.appendChild(script);
-                clearError();
-            } catch (err) {
-                showError(); // Show error if there is an issue with appending the script tag
-            }
-        }
+                await this.loadScript(`https://www.google.com/recaptcha/api.js?render=${siteKey}`);
+                await this.waitForGrecaptchaV3();
 
-
-
-        // Function to display error messages
-        function showError() {
-            document.getElementById("status").textContent = @json(trans('message.invalid_recaptcha_key'));
-            document.getElementById("nocaptcha_sitekey").classList.add('is-invalid');
-            document.getElementById("submit2").disabled=true;
-
-        }
-
-        // Function to clear error messages
-        function clearError() {
-            document.getElementById("status").textContent = '';
-            document.getElementById("nocaptcha_sitekey").classList.remove('is-invalid');
-            document.getElementById("submit2").disabled=false;
-
-        }
-
-        function resetRecaptchaContainer() {
-                // Remove old script
-                const oldScript = document.querySelector('script[src*="recaptcha/api.js"]');
-                if (oldScript) oldScript.remove();
-
-                // Delete global grecaptcha object
-                delete window.grecaptcha;
-
-                // Remove container
-                document.getElementById('recaptcha-container')?.remove();
-                const newContainer = document.createElement('div');
-                newContainer.id = 'recaptcha-container';
-                document.getElementById('recaptcha-wrapper').appendChild(newContainer);
-
-                recaptchaWidgetId = null;
-            }
-
-
-        $('input[name="customRadio"]').change(function () {
-            var initial_key=$('#nocaptcha_sitekey').val();
-            var initial_secret=$('#nocaptcha_secret').val();
-            var initial_id=$('input[name="customRadio"]:checked').attr('id');
-            document.getElementById("submit2").disabled=true;
-            document.getElementById('checkboxerror').textContent='';
-            document.getElementById("status").textContent = '';
-            document.getElementById("nocaptcha_sitekey").classList.remove('is-invalid');
-            const newSiteKey = initial_key;
-            resetRecaptchaContainer();
-
-            var captchaError=document.getElementById('captchaError');
-            if(captchaError !=null) {
-                document.getElementById('captchaError').textContent = '';
-            }
-            if (initial_id === 'captchaRadioV3') {
-                if (!newSiteKey){
-                    document.getElementById("submit2").disabled=true;
-                    return;
-                }
-                if (!isLikelyV3Key(newSiteKey)) {
-                    document.getElementById("status").textContent = @json(trans('message.invalid_recaptcha_key'));
-                    document.getElementById("nocaptcha_sitekey").classList.add('is-invalid');
-                    document.getElementById("submit2").disabled=true;
-                    return;
-                }
-
-                if (newSiteKey) {
-                    currentSiteKey = newSiteKey;
-                    loadRecaptchaScript(newSiteKey, () => {
-                        verifyWithRecaptchaV3(newSiteKey);
+                if (window.grecaptcha && window.grecaptcha.ready) {
+                    window.grecaptcha.ready(() => {
+                        try {
+                            window.grecaptcha.execute(siteKey, {action: 'captcha_settings'})
+                                .then(token => {
+                                    if (!token || token.length < 30) {
+                                        // Possibly invalid or rejected token
+                                        throw new Error(@json(trans('message.invalid_recaptcha_key')));
+                                    }
+                                    validateSiteKey(true, '');
+                                    window.recaptchaToken = token;
+                                    this.submitBtn.disabled = false;
+                                })
+                                .catch(err => {
+                                    validateSiteKey(false, @json(trans('message.invalid_recaptcha_key')))
+                                    window.recaptchaToken = '';
+                                    this.submitBtn.disabled = true;
+                                });
+                        } catch (err) {
+                            validateSiteKey(false, @json(trans('message.invalid_recaptcha_key')))
+                            window.recaptchaToken = '';
+                            this.submitBtn.disabled = true;
+                        }
                     });
                 }
+            } catch (error) {
+                validateSiteKey(false, @json(trans('message.invalid_recaptcha_key')))
+                window.recaptchaToken = '';
+                this.submitBtn.disabled = true;
             }
-            if(initial_id==='captchaRadioV2') {
-                const sitekey = initial_key;
-                if (!sitekey){
+        }
 
-                    document.getElementById("submit2").disabled=true;
-                    return;}
-                validateRecaptchaV2Key(sitekey);
 
-            }
-            var selectedId = $(this).attr('id'); // Get the ID of selected radio button
+        async waitForGrecaptcha() {
+            return new Promise(resolve => {
+                const checkInterval = setInterval(() => {
+                    if (window.grecaptcha && window.grecaptcha.render) {
+                        clearInterval(checkInterval);
+                        resolve();
+                    }
+                }, 100);
 
-            let inputGroup1 =document.getElementById('nocaptcha_secret');
-            let passwordInput1 = inputGroup1.type;
-            let icon1 = inputGroup1.closest('.input-group').querySelector('i');
-            if(passwordInput1==='text'){
-                inputGroup1.type='password';
-                icon1.classList.remove('fa-eye');
-                icon1.classList.add('fa-eye-slash');
-            }
-        });
+                setTimeout(() => {
+                    clearInterval(checkInterval);
+                    resolve();
+                }, 5000);
+            });
+        }
 
-    </script>
+        async waitForGrecaptchaV3() {
+            return new Promise(resolve => {
+                const checkInterval = setInterval(() => {
+                    if (window.grecaptcha && window.grecaptcha.ready) {
+                        clearInterval(checkInterval);
+                        resolve();
+                    }
+                }, 100);
+
+                setTimeout(() => {
+                    clearInterval(checkInterval);
+                    resolve();
+                }, 5000);
+            });
+        }
+
+        showLoading() {
+            this.loadingIndicator.style.display = 'block';
+        }
+
+        hideLoading() {
+            this.loadingIndicator.style.display = 'none';
+        }
+    }
+
+    const showSiteKeyError = (message) => {
+        const siteKeyInput = document.getElementById('nocaptcha_sitekey');
+
+        // Remove existing error if any
+        const existingError = document.getElementById('captchaError');
+        if (existingError) existingError.remove();
+
+        siteKeyInput.classList.add('is-invalid');
+
+        const errorHtml = `<span class="error invalid-feedback d-block" id="captchaError">${message}</span>`;
+        siteKeyInput.insertAdjacentHTML('afterend', errorHtml);
+    };
+
+    const hideSiteKeyError = () => {
+        const siteKeyInput = document.getElementById('nocaptcha_sitekey');
+        siteKeyInput.classList.remove('is-invalid');
+
+        const existingError = document.getElementById('captchaError');
+        if (existingError) existingError.remove();
+    };
+
+    const validateSiteKey = (isValid, error) => {
+        if (!isValid) {
+            showSiteKeyError(error);
+        } else {
+            hideSiteKeyError();
+        }
+    };
+
+    // Initialize when the DOM is fully loaded
+    document.addEventListener('DOMContentLoaded', () => {
+        window.recaptchaManager = new ReCAPTCHAManager();
+    });
+</script>
 
     <script>
         $(document).on('click', '#license-edit-button', function() {
@@ -2181,6 +2180,21 @@
             }
         });
 
+        function generateAlertHtml(type, response) {
+            const isSuccess = type === 'success';
+            const iconClass = isSuccess ? 'fa-check-circle' : 'fa-ban';
+            const alertClass = isSuccess ? 'alert-success' : 'alert-danger';
+
+            const message = response.message || response || 'An error occurred. Please try again.';
+            const errors = response.errors || null;
+
+            let html = `<div class="alert ${alertClass} alert-dismissible">` +
+                `<i class="fa ${iconClass}"></i> ${message}` +
+                '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+            return html;
+        }
+
+
         function captchaDetails(e){
       
             if ($('#captcha').prop("checked")) {
@@ -2245,28 +2259,31 @@
 
             $("#submit2").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
             $.ajax({
-
-                url : '{{url("captchaDetails")}}',
-                type : 'post',
+                url: '{{ url("captchaDetails") }}',
+                type: 'post',
                 data: {
                     "status": checkboxvalue,
                     "recaptcha_type": recaptchaType,
                     "nocaptcha_sitekey": $('#nocaptcha_sitekey').val(),
-                    "nocaptcha_secret" :$('#nocaptcha_secret').val(),
+                    "nocaptcha_secret": $('#nocaptcha_secret').val(),
+                    'g-recaptcha-response': window.recaptchaToken,
                 },
                 success: function (data) {
-                    setTimeout(function() {
-                        location.reload();
-                    }, 3000);
-                    $('#alertMessage2').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+data.message+'.</div>';
-                    $('#alertMessage2').html(result);
+                    const alertHtml = generateAlertHtml('success', data);
+                    $('#alertMessage2').html(alertHtml).show();
                     $("#submit2").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
-                    setInterval(function(){
-                        $('#alertMessage2').slideUp(3000);
-                    }, 1000);
-                },
 
+                    setTimeout(() => location.reload(), 3000);
+                    setTimeout(() => $('#alertMessage2').slideUp(3000), 2000);
+                },
+                error: function (data, status, error) {
+                    var response = data.responseJSON ? data.responseJSON : JSON.parse(data.responseText);
+
+                    const alertHtml = generateAlertHtml('error', response);
+                    $('#alertMessage2').html(alertHtml).show();
+                    $("#submit2").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
+                    setTimeout(() => $('#alertMessage2').slideUp(3000), 3000);
+                }
             });
         };
 
