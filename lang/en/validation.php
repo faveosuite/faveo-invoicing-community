@@ -926,5 +926,5 @@ return [
         'cancel_url_invalid' => 'The cancel URL must be a valid URL.',
         'notify_url_invalid' => 'The notify URL must be a valid URL.',
         'currencies_required' => 'The currencies field is required.',
-        ],
+    ],
 ];
