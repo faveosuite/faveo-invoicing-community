@@ -154,7 +154,7 @@ class ProcessController extends Controller
                 return $paymentMethod == 'razorpay' ? 0 : \DB::table(strtolower($paymentMethod))->where('currencies', $currency)->value('processing_fee');
             }
         } catch (\Exception $e) {
-            throw new \Exception( __('message.invalid_modification'));
+            throw new \Exception(__('message.invalid_modification'));
         }
     }
 

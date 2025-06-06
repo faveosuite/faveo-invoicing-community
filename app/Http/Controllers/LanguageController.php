@@ -39,7 +39,7 @@ class LanguageController extends Controller
 
                     return response()->json([
                         'success' => true,
-                        'message' => __('message.language_status_updated_successfully')
+                        'message' => __('message.language_status_updated_successfully'),
                     ]);
                 }
             }
