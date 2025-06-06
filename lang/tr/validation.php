@@ -864,5 +864,15 @@ return [
         'pro_req' => 'Ürün alanı zorunludur',
         'offer_price' => 'Teklif fiyatları 100’den büyük olmamalıdır',
     ],
+    'razorpay_val' => [
+        'business_required' => 'İşletme alanı gereklidir.',
+        'cmd_required' => 'Komut alanı gereklidir.',
+        'paypal_url_required' => 'PayPal URL\'si gereklidir.',
+        'paypal_url_invalid' => 'PayPal URL\'si geçerli bir URL olmalıdır.',
+        'success_url_invalid' => 'Başarı URL\'si geçerli bir URL olmalıdır.',
+        'cancel_url_invalid' => 'İptal URL\'si geçerli bir URL olmalıdır.',
+        'notify_url_invalid' => 'Bildirim URL\'si geçerli bir URL olmalıdır.',
+        'currencies_required' => 'Para birimleri alanı gereklidir.',
+    ],
 
 ];

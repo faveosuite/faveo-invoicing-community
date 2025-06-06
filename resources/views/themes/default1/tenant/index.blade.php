@@ -245,7 +245,7 @@
                     {!! html()->label(Lang::get('message.cloud_free_plan'))->class('required') !!}
                     <div class="form-group">
                         <select name="cloud_free_plan" class="form-control select2" id="saas-free-product">
-                            <option value="">Choose</option>
+                            <option value="">{{ __('message.choose') }}</option>
 
                         @foreach($plans as $plan)
                             <option value="{!! $plan->id !!}">{!! $plan->name !!}</option>
@@ -381,10 +381,10 @@
                     <div class="form-group">
                         {!! html()->label(Lang::get('message.cloud_free_trial'), 'debug') !!}
                         <div class="row">
-                            <div class="col-sm-3">
+                            <div class="col-sm-4">
                                 <input type="radio" name="debug" value="true" @if($cloudButton == 1) checked="true" @endif > {{Lang::get('message.enable')}}
                             </div>
-                            <div class="col-sm-3">
+                            <div class="col-sm-4">
                                 <input type="radio" name="debug" value="false" @if($cloudButton == 0) checked="true" @endif > {{Lang::get('message.disable')}}
                             </div>
                         </div>
@@ -780,7 +780,13 @@
         $(document).ready(function () {
             var map = L.map('map', {
                 minZoom: 2, // Set the minimum zoom level to 2
+                zoomControl: false
             }).setView([0, 0], 2); // Initialize the map with a center and zoom level.
+
+            L.control.zoom({
+                zoomInTitle: '{{ __("message.zoom_in") }}',
+                zoomOutTitle: '{{ __("message.zoom_out") }}'
+            }).addTo(map);
 
             // Add an OpenStreetMap tile layer.
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -862,7 +868,6 @@
                     infoFiltered:   "{{ __('message.info_filtered') }}",
                     lengthMenu:     "{{ __('message.sLengthMenu') }}",
                     loadingRecords: "{{ __('message.loading_records') }}",
-                    search:         "{{ __('message.table_search') }}",
                 },
 
                 columnDefs: [
@@ -886,10 +891,10 @@
         function popProduct(id) {
             var id = id;
     var swl=swal.fire({
-        title:"<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Delete')}}</h2>",
-        html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
-            "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
-            "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.cloud_delete')}}</p>"+"</div>" +
+        title:"<h2 class='swal2-title custom-title'>{{Lang::get('message.Delete')}}</h2>",
+        html: "<div class='swal2-html-container custom-content'>" +
+            "<div class='section-sa'>" +
+            "<p>{{Lang::get('message.cloud_delete')}}</p>"+"</div>" +
             "</div>",
         showCancelButton: true,
         showCloseButton: true,
@@ -897,6 +902,7 @@
         width:"600px",
 
         confirmButtonText: @json(trans('message.Delete')),
+        cancelButtonText: "{{ __('message.cancel') }}",
         confirmButtonColor: "#007bff",
         buttonsStyling: false,
         reverseButtons: true,
@@ -949,13 +955,13 @@
                 });
             } else {
                 swal.fire({
-                    title:"<h2 style='text-align: left; padding-left: 17px !important; margin-bottom:10px !important;'>{{Lang::get('message.Select')}}</h2>",
-                    html: "<div  style='display: flex; flex-direction: column; align-items:stretch; width:100%; margin:0px !important'>" +
-                        "<div style='border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;padding-top: 13px;'>" +
-                        "<p style='text-align: left; margin-left:17px'>{{Lang::get('message.sweet_checkbox')}}</p>"+"</div>" +
+                    title:"<h2 class='swal2-title custom-title'>{{Lang::get('message.Select')}}</h2>",
+                    html: "<div class='swal2-html-container custom-content'>" +
+                        "<div class='section-sa'>" +
+                        "<p>{{Lang::get('message.sweet_checkbox')}}</p>"+"</div>" +
                         "</div>",
                     position: 'top',
-                    confirmButtonText: "OK",
+                    confirmButtonText: "{{ __('message.ok') }}",
                     showCloseButton: true,
                     confirmButtonColor: "#007bff",
                     width:"600px",

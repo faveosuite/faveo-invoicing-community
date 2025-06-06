@@ -157,5 +157,6 @@ return [
     'language' => 'Lingua',
     'tooltip_timezone' => 'Il fuso orario del browser viene utilizzato inizialmente. Se necessario, seleziona un fuso orario diverso',
     'tooltip_language' => 'Lingua predefinita caricata inizialmente. Se necessario, seleziona una lingua diversa',
+    'enter_magic_phrase' => 'Inserisci la frase magica',
 
 ];

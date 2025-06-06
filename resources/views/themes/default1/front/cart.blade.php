@@ -298,11 +298,11 @@
                                     </table>
                                 </div>
 
-                                <div class="row justify-content-between mx-0">
+                                <div class="row justify-content-between mx-0 flex-wrap">
 
                                     <div class="col-md-auto px-0 mb-3 mb-md-0">
 
-                                        <div class="d-flex align-items-center">
+                                        <div class="d-flex align-items-center mb-2">
                                             <form action="{{url('cart/clear')}}" method="post">
                                             {{ csrf_field() }}
 

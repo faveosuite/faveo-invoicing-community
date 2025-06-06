@@ -154,7 +154,7 @@ class ProcessController extends Controller
                 return $paymentMethod == 'razorpay' ? 0 : \DB::table(strtolower($paymentMethod))->where('currencies', $currency)->value('processing_fee');
             }
         } catch (\Exception $e) {
-            throw new \Exception('Invalid modification of data');
+            throw new \Exception( __('message.invalid_modification'));
         }
     }
 
@@ -212,6 +212,6 @@ class ProcessController extends Controller
         }
         \Session::forget('invoiceid');
 
-        return redirect($url)->with('fails', 'Thank you for your order. However,the transaction has been declined. Try again.');
+        return redirect($url)->with('fails', __('message.order_transaction_declined'));
     }
 }

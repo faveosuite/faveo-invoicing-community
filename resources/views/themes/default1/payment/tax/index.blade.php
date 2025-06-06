@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-    {{ __('message.Tax') }}
+    {{ __('message.tax') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
@@ -24,7 +24,7 @@
 
 .btn-default.btn-off-1.active{background-color: #DA4F49;color: white;}
 .btn-default.btn-on-2.active{background-color: #006FFC;color: white;}
-
+6
 .btn-default.btn-off-2.active{background-color: #DA4F49;color: white;}
 .btn-default.btn-on-3.active{background-color: #006FFC;color: white;}
 
@@ -258,7 +258,6 @@ $('.btn-off-3').css("background-color", "#DA4F49","color", "white");
                     infoFiltered:   "{{ __('message.info_filtered') }}",
                     lengthMenu:     "{{ __('message.sLengthMenu') }}",
                     loadingRecords: "{{ __('message.loading_records') }}",
-                    search:         "{{ __('message.table_search') }}",
                 },
 
 

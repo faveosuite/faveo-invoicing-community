@@ -75,7 +75,7 @@ class QueueController extends Controller
             $queues = new QueueService();
             $queue = $queues->find($id);
             if (! $queue) {
-                throw new Exception('Sorry we can not find your request');
+                throw new Exception( __('message.sorry_cannot_find_request'));
             }
 
             return view('themes.default1.queue.edit', compact('queue'));
@@ -92,7 +92,7 @@ class QueueController extends Controller
             $queue = $queues->find($id);
 
             if (! $queue) {
-                throw new Exception('Sorry we can not find your request');
+                throw new Exception( __('message.sorry_cannot_find_request'));
             }
             $setting = new FaveoQueue();
             $settings = $setting->where('service_id', $id)->get();
@@ -111,7 +111,7 @@ class QueueController extends Controller
                 }
             }
 
-            return redirect()->back()->with('success', 'Updated');
+            return redirect()->back()->with('success', __('message.updated'));
         } catch (Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }
@@ -131,7 +131,7 @@ class QueueController extends Controller
             $activeQueue = QueueService::where('status', 1)->first();
 
             if ($queue->isActivate() == false && $queue->id != 1 && $queue->id != 2) {
-                return redirect()->back()->with('fails', "To activate $queue->name , Please configure it first");
+                return redirect()->back()->with('fails', __('message.activate_configure_first', ['name' => $queue->name]));
             }
             if ($activeQueue) {
                 $activeQueue->status = 0;
@@ -140,7 +140,7 @@ class QueueController extends Controller
             $queue->status = 1;
             $queue->save();
             // $this->updateSnapShotJob($queue);
-            $result = $queue->name.' '.'Activated successfully';
+            $result = __('message.activated_successfully', ['name' => $queue->name]);
 
             return redirect()->back()->with('success', $result);
         } catch (Exception $ex) {
@@ -184,28 +184,28 @@ class QueueController extends Controller
             switch ($short) {
                 case 'beanstalkd':
                     $form .= "<div class='row'>";
-                    $form .= $this->form($short, 'Driver', 'driver', 'col-md-6 form-group', 'beanstalkd');
-                    $form .= $this->form($short, 'Host', 'host', 'col-md-6 form-group', 'localhost');
-                    $form .= $this->form($short, 'Queue', 'queue', 'col-md-6 form-group', 'default');
+                    $form .= $this->form($short, __('message.driver'), 'driver', 'col-md-6 form-group', 'beanstalkd');
+                    $form .= $this->form($short, __('message.host'), 'host', 'col-md-6 form-group', 'localhost');
+                    $form .= $this->form($short, __('message.queue'), 'queue', 'col-md-6 form-group', 'default');
                     $form .= '</div>';
 
                     return $form;
                 case 'sqs':
                     $form .= "<div class='row'>";
-                    $form .= $this->form($short, 'Driver', 'driver', 'col-md-6 form-group', 'sqs');
-                    $form .= $this->form($short, 'Key', 'key', 'col-md-6 form-group', 'your-public-key');
-                    $form .= $this->form($short, 'Secret', 'secret', 'col-md-6 form-group', 'your-queue-url');
-                    $form .= $this->form($short, 'Region', 'region', 'col-md-6 form-group', 'us-east-1');
+                    $form .= $this->form($short, __('message.driver'), 'driver', 'col-md-6 form-group', 'sqs');
+                    $form .= $this->form($short, __('message.db_key'), 'key', 'col-md-6 form-group', 'your-public-key');
+                    $form .= $this->form($short, __('message.secret'), 'secret', 'col-md-6 form-group', 'your-queue-url');
+                    $form .= $this->form($short, __('message.region'), 'region', 'col-md-6 form-group', 'us-east-1');
                     $form .= '</div>';
 
                     return $form;
                 case 'iron':
                     $form .= "<div class='row'>";
-                    $form .= $this->form($short, 'Driver', 'driver', 'col-md-6 form-group', 'iron');
-                    $form .= $this->form($short, 'Host', 'host', 'col-md-6 form-group', 'mq-aws-us-east-1.iron.io');
-                    $form .= $this->form($short, 'Token', 'token', 'col-md-6 form-group', 'your-token');
-                    $form .= $this->form($short, 'Project', 'project', 'col-md-6 form-group', 'your-project-id');
-                    $form .= $this->form($short, 'Queue', 'queue', 'col-md-6 form-group', 'your-queue-name');
+                    $form .= $this->form($short, __('message.driver'), 'driver', 'col-md-6 form-group', 'iron');
+                    $form .= $this->form($short, __('message.host'), 'host', 'col-md-6 form-group', 'mq-aws-us-east-1.iron.io');
+                    $form .= $this->form($short, __('message.db_token'), 'token', 'col-md-6 form-group', 'your-token');
+                    $form .= $this->form($short, __('message.db_project'), 'project', 'col-md-6 form-group', 'your-project-id');
+                    $form .= $this->form($short, __('message.queue'), 'queue', 'col-md-6 form-group', 'your-queue-name');
                     $form .= '</div>';
 
                     return $form;
@@ -214,8 +214,8 @@ class QueueController extends Controller
                         return errorResponse(\Lang::get('message.extension_required_error', ['extension' => 'redis']), 500);
                     }
                     $form .= "<div class='row'>";
-                    $form .= $this->form($short, 'Driver', 'driver', 'col-md-6 form-group', 'redis');
-                    $form .= $this->form($short, 'Queue', 'queue', 'col-md-6 form-group', 'default');
+                    $form .= $this->form($short, __('message.driver'), 'driver', 'col-md-6 form-group', __('message.redis_place'));
+                    $form .= $this->form($short, __('message.queue'), 'queue', 'col-md-6 form-group', __('message.default_place'));
                     $form .= '</div>';
 
                     return $form;

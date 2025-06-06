@@ -80,7 +80,7 @@
                     <form action="{{ route('log-viewer::logs.search', [$log->date, $level]) }}" method="GET">
                         <div class=form-group">
                             <div class="input-group">
-                                <input id="query" name="query" class="form-control"  value="{!! request('query') !!}" placeholder="Type here to search">
+                                <input id="query" name="query" class="form-control"  value="{!! request('query') !!}" placeholder="{{ __('message.type_here_search') }}">
                                 <span class="input-group-btn">
                                     @if (request()->has('query'))
                                         <a href="{{ route('log-viewer::logs.show', [$log->date]) }}" class="btn btn-default"><span class="glyphicon glyphicon-remove"></span></a>

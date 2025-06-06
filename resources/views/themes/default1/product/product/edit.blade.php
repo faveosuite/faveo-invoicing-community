@@ -373,7 +373,7 @@
                     </table>
 
                     <tr>
-                        <td><b>{!! html()->label('tax', trans('message.taxes')) !!}</b></td>
+                        <td><b>{!! html()->label(trans('message.taxes'), 'tax') !!}</b></td>
                         <td>
                             <div class="form-group {{ $errors->has('taxes') ? 'has-error' : '' }}">
                                 <div class="row">
@@ -1150,7 +1150,18 @@
         $(document).ready(function() {
             $("#editTax").select2({
                 placeholder: '{{ __('message.select_taxes') }}',
-                tags:true
+                tags:true,
+                language: {
+                    inputTooShort: function () {
+                        return '{{ __("message.select2_input_too_short") }}';
+                    },
+                    noResults: function () {
+                        return '{{ __("message.select2_no_results") }}';
+                    },
+                    searching: function () {
+                        return '{{ __("message.select2_searching") }}';
+                    }
+                },
             });
         });
     </script>

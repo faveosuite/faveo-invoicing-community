@@ -49,7 +49,7 @@
                     <div class="col-md-4 form-group {{ $errors->has('publish') ? 'has-error' : '' }}">
                         <!-- publish -->
                         {!! html()->label(Lang::get('message.publish'), 'publish')->class('required') !!}
-                        {!! html()->select('publish', [1 => 'Yes', 0 => 'No'])->class('form-control'.($errors->has('publish') ? ' is-invalid' : '')) !!}
+                        {!! html()->select('publish', [1 => __('message.yes'), 0 => __('message.no')])->class('form-control'.($errors->has('publish') ? ' is-invalid' : '')) !!}
                         @error('publish')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
@@ -96,7 +96,7 @@
                     <div class="col-md-4 form-group {{ $errors->has('parent_page_id') ? 'has-error' : '' }}">
                         <!-- type -->
                         {!! html()->label(Lang::get('message.page_type'), 'type') !!}
-                        {!! html()->select('type', ['none' => 'None', 'contactus' => 'Contact Us'])->class('form-control'.($errors->has('type') ? ' is-invalid' : '')) !!}
+                        {!! html()->select('type', ['none' => __('message.none'), 'contactus' => __('message.contact_us')])->class('form-control'.($errors->has('type') ? ' is-invalid' : '')) !!}
                         @error('type')
                         <span class="error-message"> {{$message}}</span>
                         @enderror

@@ -687,6 +687,39 @@ return [
         ],
     ],
 
+    // ValidateSecretRequest form
+    'validate_secret' => [
+        'totp' => [
+            'required' => 'يرجى إدخال الرمز',
+            'digits' => 'يرجى إدخال رمز مكون من 6 أرقام بشكل صحيح',
+        ],
+    ],
+
+// VerifyOtp form
+    'verify_email' => [
+        'required' => 'حقل البريد الإلكتروني مطلوب.',
+        'email' => 'يجب أن يكون البريد الإلكتروني عنوان بريد إلكتروني صالح.',
+        'verify_email' => 'فشل التحقق من البريد الإلكتروني.',
+    ],
+
+    'verify_country_code' => [
+        'required' => 'رمز الدولة مطلوب.',
+        'numeric' => 'يجب أن يكون رمز الدولة رقمًا صحيحًا.',
+        'verify_country_code' => 'فشل التحقق من رمز الدولة.',
+    ],
+
+    'verify_number' => [
+        'required' => 'رقم الهاتف مطلوب.',
+        'numeric' => 'يجب أن يكون الرقم رقمًا صحيحًا.',
+        'verify_number' => 'فشل التحقق من الرقم.',
+    ],
+
+    'password_otp' => [
+        'required' => 'حقل كلمة المرور مطلوب.',
+        'password' => 'كلمة المرور غير صحيحة.',
+        'invalid' => 'كلمة المرور غير صالحة.',
+    ],
+
     //AuthController file
     'auth_controller' => [
         'name_required' => 'الاسم مطلوب.',
@@ -836,6 +869,16 @@ return [
         'no_agent_req' => 'حقل عدد الوكلاء مطلوب عندما لا تكون كمية المنتج موجودة.',
         'pro_req' => 'حقل المنتج مطلوب',
         'offer_price' => 'يجب ألا تكون أسعار العرض أكبر من 100',
+    ],
+    'razorpay_val' => [
+        'business_required' => 'حقل النشاط التجاري مطلوب.',
+        'cmd_required' => 'حقل الأمر مطلوب.',
+        'paypal_url_required' => 'رابط PayPal مطلوب.',
+        'paypal_url_invalid' => 'يجب أن يكون رابط PayPal رابطًا صالحًا.',
+        'success_url_invalid' => 'يجب أن يكون رابط النجاح رابطًا صالحًا.',
+        'cancel_url_invalid' => 'يجب أن يكون رابط الإلغاء رابطًا صالحًا.',
+        'notify_url_invalid' => 'يجب أن يكون رابط الإشعار رابطًا صالحًا.',
+        'currencies_required' => 'حقل العملات مطلوب.',
     ],
 
 ];

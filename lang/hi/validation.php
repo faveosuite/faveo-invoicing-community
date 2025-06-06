@@ -865,5 +865,15 @@ return [
         'end_date_req' => 'समाप्ति तिथि आवश्यक है',
         'invalid_date' => 'अमान्य तिथि',
     ],
+    'razorpay_val' => [
+        'business_required' => 'व्यवसाय फ़ील्ड आवश्यक है।',
+        'cmd_required' => 'कमांड फ़ील्ड आवश्यक है।',
+        'paypal_url_required' => 'PayPal URL आवश्यक है।',
+        'paypal_url_invalid' => 'PayPal URL एक मान्य URL होना चाहिए।',
+        'success_url_invalid' => 'सफलता URL एक मान्य URL होना चाहिए।',
+        'cancel_url_invalid' => 'रद्द करने का URL एक मान्य URL होना चाहिए।',
+        'notify_url_invalid' => 'सूचना URL एक मान्य URL होना चाहिए।',
+        'currencies_required' => 'मुद्राओं का फ़ील्ड आवश्यक है।',
+    ],
 
 ];

@@ -155,10 +155,9 @@ function getDateHtmlcopy(?string $dateTimeString = null)
 function getExpiryLabel($expiryDate, $badge = 'badge')
 {
     if ($expiryDate < (new Carbon())->toDateTimeString()) {
-        return getDateHtml($expiryDate).'&nbsp;<span class="'.$badge.' '.$badge.'-danger"  <label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="Order has Expired">
-
-                         </label>
-            Expired</span>';
+        return getDateHtml($expiryDate).'&nbsp;<span class="'.$badge.' '.$badge.'-danger">
+        <label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="'.__('validation.order_has_Expired').'">
+        </label>' . __('message.expired') . '</span>';
     } else {
         return getDateHtml($expiryDate);
     }
@@ -193,16 +192,16 @@ function getStatusLabel($status, $badge = 'badge')
 {
     switch ($status) {
         case 'Success':
-            return '<span class='.'"'.$badge.' '.$badge.'-success">Paid</span>';
+            return '<span class='.'"'.$badge.' '.$badge.'-success">'.__('message.amount_received').'</span>';
 
         case 'Pending':
-            return '<span class='.'"'.$badge.' '.$badge.'-danger">Unpaid</span>';
+            return '<span class='.'"'.$badge.' '.$badge.'-danger">'.__('message.unpaid').'</span>';
 
         case 'renewed':
-            return '<span class='.'"'.$badge.' '.$badge.'-primary">Renewed</span>';
+            return '<span class='.'"'.$badge.' '.$badge.'-primary">'.__('message.renewed').'</span>';
 
         default:
-            return '<span class='.'"'.$badge.' '.$badge.'-warning">Partially paid</span>';
+            return '<span class='.'"'.$badge.' '.$badge.'-warning">'.__('message.partially_paid').'</span>';
     }
 }
 
@@ -641,13 +640,13 @@ function getPreReleaseStatusLabel($status, $badge = 'badge')
 {
     switch ($status) {
         case 'official':
-            return '<span class='.'"'.$badge.' '.$badge.'-success">Official Release</span>';
+            return '<span class='.'"'.$badge.' '.$badge.'-success">'. __('message.official_release').'</span>';
 
         case 'pre_release':
-            return '<span class='.'"'.$badge.' '.$badge.'-warning">Pre Release</span>';
+            return '<span class='.'"'.$badge.' '.$badge.'-warning">'.__('message.pre_release').'</span>';
 
         case 'beta':
-            return '<span class='.'"'.$badge.' '.$badge.'-info">Beta</span>';
+            return '<span class='.'"'.$badge.' '.$badge.'-info">'. __('message.beta').'</span>';
     }
 }
 

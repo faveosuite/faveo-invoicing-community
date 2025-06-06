@@ -159,5 +159,6 @@ return [
     'language' => 'Dil',
     'tooltip_timezone' => 'Başlangıçta tarayıcı zaman dilimi kullanılır. Gerekirse farklı bir zaman dilimi seçin.',
     'tooltip_language' => 'Başlangıçta yüklenen varsayılan dil. Gerekirse farklı bir dil seçin.',
+    'enter_magic_phrase' => 'Sihirli ifadeyi girin',
 
 ];
