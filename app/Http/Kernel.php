@@ -4,6 +4,7 @@ namespace App\Http;
 
 use App\Http\Middleware\SecurityEnforcer;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
+use Spatie\Csp\AddCspHeaders;
 
 class Kernel extends HttpKernel
 {
@@ -25,6 +26,7 @@ class Kernel extends HttpKernel
         // \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         \App\Http\Middleware\LanguageMiddleware::class,
         SecurityEnforcer::class,
+        AddCspHeaders::class,
     ];
 
     /**

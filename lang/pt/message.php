@@ -2643,4 +2643,6 @@ return [
     'email_first' => 'Email primeiro',
     'mobile_first' => 'Telemóvel primeiro',
     'contact_setting_update' => 'Definições de contacto atualizadas com sucesso',
+    'captcha_failed' => 'A verificação do reCAPTCHA falhou. Por favor, certifique-se de que a sua chave secreta do reCAPTCHA é válida.',
+    'captcha_message' => 'Falha na verificação do reCAPTCHA. Tente novamente.',
 ];

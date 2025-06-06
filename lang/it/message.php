@@ -2659,4 +2659,6 @@ return [
     'email_first' => 'Email per prima',
     'mobile_first' => 'Cellulare per primo',
     'contact_setting_update' => 'Impostazioni di contatto aggiornate con successo',
+    'captcha_failed' => 'Verifica reCAPTCHA non riuscita. Assicurati che la tua chiave segreta reCAPTCHA sia valida.',
+    'captcha_message' => 'Verifica reCAPTCHA non riuscita. Riprova.',
 ];

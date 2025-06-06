@@ -2684,4 +2684,6 @@ return [
     'email_first' => '이메일 우선',
     'mobile_first' => '모바일 우선',
     'contact_setting_update' => '연락처 설정이 성공적으로 업데이트되었습니다',
+    'captcha_failed' => 'reCAPTCHA 확인에 실패했습니다. reCAPTCHA 비밀 키가 유효한지 확인해 주세요.',
+    'captcha_message' => 'reCAPTCHA 확인 실패. 다시 시도해 주세요.',
 ];

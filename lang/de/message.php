@@ -2661,4 +2661,6 @@ return [
     'new_code_generated' => 'Neuer Wiederherstellungscode erfolgreich generiert.',
     'please_enter_code' => 'Bitte geben Sie den Code ein.',
     '2fa_verifying' => 'Überprüfung...',
+    'captcha_failed' => 'reCAPTCHA-Überprüfung fehlgeschlagen. Bitte stellen Sie sicher, dass Ihr geheimer reCAPTCHA-Schlüssel gültig ist.',
+    'captcha_message' => 'reCAPTCHA-Überprüfung fehlgeschlagen. Bitte versuchen Sie es erneut.',
 ];

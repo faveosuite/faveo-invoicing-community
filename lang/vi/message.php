@@ -2665,4 +2665,6 @@ return [
     'new_code_generated' => 'Mã khôi phục mới đã được tạo thành công.',
     'please_enter_code' => 'Vui lòng nhập mã.',
     '2fa_verifying' => 'Đang xác minh...',
+    'captcha_failed' => 'Xác minh reCAPTCHA không thành công. Vui lòng đảm bảo khóa bí mật reCAPTCHA của bạn hợp lệ.',
+    'captcha_message' => 'Xác minh reCAPTCHA thất bại. Vui lòng thử lại.',
 ];

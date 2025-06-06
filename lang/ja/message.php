@@ -2666,4 +2666,6 @@ return [
     'email_first' => 'メールを優先',
     'mobile_first' => '携帯を優先',
     'contact_setting_update' => '連絡先設定が正常に更新されました',
+    'captcha_failed' => 'reCAPTCHA の検証に失敗しました。reCAPTCHA のシークレットキーが有効であることを確認してください。',
+    'captcha_message' => 'reCAPTCHA の検証に失敗しました。もう一度お試しください。',
 ];

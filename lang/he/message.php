@@ -2669,4 +2669,6 @@ return [
     'email_first' => 'דוא"ל תחילה',
     'mobile_first' => 'נייד תחילה',
     'contact_setting_update' => 'הגדרות הקשר עודכנו בהצלחה',
+    'captcha_failed' => 'אימות reCAPTCHA נכשל. אנא ודא שמפתח ה-reCAPTCHA הסודי שלך תקף.',
+    'captcha_message' => 'אימות reCAPTCHA נכשל. אנא נסה שוב.',
 ];

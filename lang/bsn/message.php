@@ -2593,4 +2593,6 @@ return [
     'email_first' => 'Email prvo',
     'mobile_first' => 'Mobilni prvo',
     'contact_setting_update' => 'Postavke kontakta su uspješno ažurirane',
+    'captcha_failed' => 'reCAPTCHA provjera nije uspjela. Molimo provjerite da li je vaš reCAPTCHA tajni ključ ispravan.',
+    'captcha_message' => 'reCAPTCHA provjera nije uspjela. Pokušajte ponovo.',
 ];

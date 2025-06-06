@@ -162,6 +162,7 @@ foreach($scripts as $script) {
                                 <div id="error-login-password"></div>
                             </div>
                         </div>
+                                              {!! honeypotField('login') !!}
 
                                               <div class="row mb-3 align-items-center">
                                                   <div class="col-6">
@@ -192,7 +193,7 @@ foreach($scripts as $script) {
                               <div id="loginrobot-verification"></div><br>
                         @elseif($status->v3_recaptcha_status === 1)
 
-                              <input type="hidden" class="g-recaptcha-token" name="g-recaptcha-response">
+                              <input type="hidden" class="g-recaptcha-token" name="g-recaptcha-response" data-recaptcha-action="login">
                         @endif
                         @endif
                         <div class="row">
@@ -418,10 +419,12 @@ foreach($scripts as $script) {
                                <div id="register_recaptcha"></div>
                                 <span id="captchacheck"></span>
                             @elseif($status->v3_recaptcha_status === 1)
-                                <input type="hidden" id="g-recaptcha-register" class="g-recaptcha-token" name="g-recaptcha-response">
+                                <input type="hidden" id="g-recaptcha-register" class="g-recaptcha-token" name="g-recaptcha-response" data-recaptcha-action="register">
                             @endif
                         </div>
                     </div>
+
+                        {!! honeypotField('registerForm') !!}
 
                         <div class="row">
                                 @if($status->terms == 1)
@@ -682,7 +685,7 @@ foreach($scripts as $script) {
             });
 
             $("#regiser-form").validate({
-                ignore: ":hidden:not(.g-recaptcha-response)",
+                ignore: ":hidden:not(.g-recaptcha-response):not([name^='register'])",
                 rules: {
                     first_name: {
                         required: true,
@@ -822,6 +825,10 @@ foreach($scripts as $script) {
 
                             if (response.errors) {
                                 $.each(response.errors, function(field, messages) {
+                                    if (field === 'register' || field === 'g-recaptcha-response') {
+                                        showAlert('error', messages[0]);
+                                        return;
+                                    }
                                     var validator = $('#regiser-form').validate();
 
                                     var fieldSelector = $(`[name="${field}"]`).attr('name');  // Get the name attribute of the selected field

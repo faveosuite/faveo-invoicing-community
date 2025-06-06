@@ -2646,6 +2646,8 @@ return [
     'allowed_estatus' => '允许的电子邮件状态',
     'file_not_upload' => '(文件无法上传: ',
     'completed' => '已完成',
+    'captcha_failed' => 'reCAPTCHA 验证失败。请确保您的 reCAPTCHA 密钥是有效的。',
+    'captcha_message' => 'reCAPTCHA 验证失败，请重试。',
 
     'user-suspend-successfully' => '用户暂停成功',
     'incorrect_password' => '密码错误，请重试。',

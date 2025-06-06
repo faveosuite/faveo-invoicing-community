@@ -42,7 +42,10 @@ class ClientFooterGeneralTest extends DBTestCase
             'country_code' => '91',
             'Mobile' => 4335544354,
             'demomessage' => 'This is a demo message',
-            'honeypot_field' => '']);
+            'demo' => [
+                'pot_field' => '',     // valid
+                'time_field' => encrypt(time() - 10), // valid
+            ], ]);
         $response->assertStatus(200);
         $response->assertJson(['message' => 'Your message was sent successfully. Thanks.']);
     }
@@ -55,8 +58,14 @@ class ClientFooterGeneralTest extends DBTestCase
             'demoemail' => 'test@gmail.com',
             'country_code' => '91',
             'Mobile' => 4335544354,
-            'demomessage' => 'This is a demo message']);
-        $response->assertJson(['error' => 'Spam detected.']);
+            'demomessage' => 'This is a demo message',
+            'demo' => [
+                'pot_field' => 'ghfhkgj',     // valid
+                'time_field' => encrypt(time() - 10), // valid
+            ],
+        ]);
+        $response->assertRedirect();
+        $response->assertSessionHasErrors('demo');
     }
 
     /** @group demo */
@@ -68,8 +77,12 @@ class ClientFooterGeneralTest extends DBTestCase
             'country_code' => '91',
             'Mobile' => 4335544354,
             'demomessage' => 'This is a demo message!!!!!!!!!!',
-            'honeypot_field' => '']);
-        $response->assertJson(['error' => 'Spam detected.']);
+            'demo' => [
+                'pot_field' => 'ghfhkgj',     // valid
+                'time_field' => encrypt(time() - 10), // valid
+            ]]);
+        $response->assertRedirect();
+        $response->assertSessionHasErrors('demo');
     }
 
     /** @group trial */

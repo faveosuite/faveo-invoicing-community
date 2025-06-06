@@ -2654,4 +2654,6 @@ return [
     'email_first' => 'Email en premier',
     'mobile_first' => 'Mobile en premier',
     'contact_setting_update' => 'Paramètres de contact mis à jour avec succès',
+    'captcha_failed' => 'La vérification reCAPTCHA a échoué. Veuillez vous assurer que votre clé secrète reCAPTCHA est valide.',
+    'captcha_message' => 'Échec de la vérification reCAPTCHA. Veuillez réessayer.',
 ];

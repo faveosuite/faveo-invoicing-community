@@ -2675,4 +2675,6 @@ return [
     'email_first' => 'ईमेल पहले',
     'mobile_first' => 'मोबाइल पहले',
     'contact_setting_update' => 'संपर्क सेटिंग सफलतापूर्वक अपडेट की गई',
+    'captcha_failed' => 'reCAPTCHA सत्यापन विफल रहा। कृपया सुनिश्चित करें कि आपकी reCAPTCHA सीक्रेट कुंजी मान्य है।',
+    'captcha_message' => 'reCAPTCHA सत्यापन विफल रहा। कृपया पुनः प्रयास करें।',
 ];

@@ -2588,4 +2588,6 @@
      'email_first' => 'Email l-ewwel',
      'mobile_first' => 'Mobile l-ewwel',
      'contact_setting_update' => 'Is-settings tal-kuntatt ġew aġġornati b’suċċess',
+     'captcha_failed' => 'Falliet il-verifika taʼ reCAPTCHA. Jekk jogħġbok kun żgur li ċ-ċavetta sigrieta reCAPTCHA tiegħek hija valida.',
+     'captcha_message' => 'Il-verifika reCAPTCHA falliet. Erġaʼ ipprova.',
  ];

@@ -9,6 +9,7 @@ use App\Model\Common\EmailMobileValidationProviders;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Rules\CaptchaValidation;
+use App\Rules\Honeypot;
 use App\User;
 use Exception;
 use Facades\Spatie\Referer\Referer;
@@ -141,7 +142,8 @@ class RegisterController extends Controller
     public function postRegister(ProfileRequest $request, User $user)
     {
         $this->validate($request, [
-            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation()],
+            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('register')],
+            'registerForm' => [new Honeypot()],
         ]);
         try {
             [$emailValidationStatus, $mobileValidationStatus] = array_values(StatusSetting::select('email_validation_status', 'mobile_validation_status')->first()->toArray());
@@ -205,9 +207,8 @@ class RegisterController extends Controller
             return successResponse(__('message.registration_complete'), ['need_verify' => $need_verify]);
         } catch (Exception $ex) {
             app('log')->error($ex->getMessage());
-            $result = [$ex->getMessage()];
 
-            return response()->json($result);
+            return errorResponse($ex->getMessage());
         }
     }
 
