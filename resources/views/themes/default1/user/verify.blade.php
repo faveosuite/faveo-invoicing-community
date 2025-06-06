@@ -260,7 +260,7 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
                                 @if ($setting->recaptcha_status === 1)
                                     <div id="recaptchaMobile"></div>
                                 @elseif($setting->v3_recaptcha_status === 1)
-                                    <input type="hidden" id="g-recaptcha-mobile" class="g-recaptcha-token" name="g-recaptcha-response">
+                                    <input type="hidden" id="g-recaptcha-mobile" class="g-recaptcha-token" name="g-recaptcha-response" data-recaptcha-action="verify-mobile-otp">
                                 @endif
                                 <div class="col-12">
                                     <div class="row">
@@ -303,7 +303,7 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
                                 @if ($setting->recaptcha_status === 1)
                                     <div id="recaptchaEmail"></div>
                                 @elseif($setting->v3_recaptcha_status === 1)
-                                    <input type="hidden" id="g-recaptcha-email" class="g-recaptcha-token" name="g-recaptcha-response">
+                                    <input type="hidden" id="g-recaptcha-email" class="g-recaptcha-token" name="g-recaptcha-response" data-recaptcha-action="verify-email-otp">
                                 @endif
                                 @endif
                                 <div class="col-12 mt-4">

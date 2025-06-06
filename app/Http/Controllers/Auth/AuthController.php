@@ -281,7 +281,7 @@ class AuthController extends BaseAuthController
         $request->validate([
             'eid' => 'required|string',
             'otp' => 'required|string|size:6',
-            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation()],
+            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('verify-mobile-otp')],
         ]);
         try {
             // Decrypt the email
@@ -327,7 +327,7 @@ class AuthController extends BaseAuthController
         $request->validate([
             'eid' => 'required|string',
             'otp' => 'required|string|size:6',
-            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation()],
+            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('verify-email-otp')],
         ]);
 
         try {

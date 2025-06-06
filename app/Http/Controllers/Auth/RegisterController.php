@@ -48,7 +48,7 @@ class RegisterController extends Controller
     public function postRegister(ProfileRequest $request, User $user)
     {
         $this->validate($request, [
-            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation()],
+            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('register')],
         ]);
         try {
             $location = getLocation();

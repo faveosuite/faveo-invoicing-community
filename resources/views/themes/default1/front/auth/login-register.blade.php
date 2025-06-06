@@ -188,7 +188,7 @@ foreach($scripts as $script) {
                               <div id="loginrobot-verification"></div><br>
                         @elseif($status->v3_recaptcha_status === 1)
 
-                              <input type="hidden" class="g-recaptcha-token" name="g-recaptcha-response">
+                              <input type="hidden" class="g-recaptcha-token" name="g-recaptcha-response" data-recaptcha-action="login">
                         @endif
                         @endif
                         <div class="row">
@@ -418,7 +418,7 @@ foreach($scripts as $script) {
                                <div id="register_recaptcha"></div>
                                 <span id="captchacheck"></span>
                             @elseif($status->v3_recaptcha_status === 1)
-                                <input type="hidden" id="g-recaptcha-register" class="g-recaptcha-token" name="g-recaptcha-response">
+                                <input type="hidden" id="g-recaptcha-register" class="g-recaptcha-token" name="g-recaptcha-response" data-recaptcha-action="register">
                             @endif
                         </div>
                     </div>
