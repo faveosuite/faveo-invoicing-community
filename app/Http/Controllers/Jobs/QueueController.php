@@ -75,7 +75,7 @@ class QueueController extends Controller
             $queues = new QueueService();
             $queue = $queues->find($id);
             if (! $queue) {
-                throw new Exception( __('message.sorry_cannot_find_request'));
+                throw new Exception(__('message.sorry_cannot_find_request'));
             }
 
             return view('themes.default1.queue.edit', compact('queue'));
@@ -92,7 +92,7 @@ class QueueController extends Controller
             $queue = $queues->find($id);
 
             if (! $queue) {
-                throw new Exception( __('message.sorry_cannot_find_request'));
+                throw new Exception(__('message.sorry_cannot_find_request'));
             }
             $setting = new FaveoQueue();
             $settings = $setting->where('service_id', $id)->get();

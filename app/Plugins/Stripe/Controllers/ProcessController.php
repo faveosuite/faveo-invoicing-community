@@ -44,7 +44,7 @@ class ProcessController extends Controller
             }
             if ($request->input('payment_gateway') == 'Stripe') {
                 if (! \Schema::hasTable('stripe')) {
-                    throw new \Exception( __('message.stripe_not_configured'));
+                    throw new \Exception(__('message.stripe_not_configured'));
                 }
                 $stripe = $this->stripe->where('id', 1)->first();
                 if (! $stripe) {
