@@ -695,7 +695,7 @@ return [
         ],
     ],
 
-// VerifyOtp form
+    // VerifyOtp form
     'verify_email' => [
         'required' => 'حقل البريد الإلكتروني مطلوب.',
         'email' => 'يجب أن يكون البريد الإلكتروني عنوان بريد إلكتروني صالح.',

@@ -157,7 +157,7 @@ function getExpiryLabel($expiryDate, $badge = 'badge')
     if ($expiryDate < (new Carbon())->toDateTimeString()) {
         return getDateHtml($expiryDate).'&nbsp;<span class="'.$badge.' '.$badge.'-danger">
         <label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="'.__('validation.order_has_Expired').'">
-        </label>' . __('message.expired') . '</span>';
+        </label>'.__('message.expired').'</span>';
     } else {
         return getDateHtml($expiryDate);
     }
@@ -640,13 +640,13 @@ function getPreReleaseStatusLabel($status, $badge = 'badge')
 {
     switch ($status) {
         case 'official':
-            return '<span class='.'"'.$badge.' '.$badge.'-success">'. __('message.official_release').'</span>';
+            return '<span class='.'"'.$badge.' '.$badge.'-success">'.__('message.official_release').'</span>';
 
         case 'pre_release':
             return '<span class='.'"'.$badge.' '.$badge.'-warning">'.__('message.pre_release').'</span>';
 
         case 'beta':
-            return '<span class='.'"'.$badge.' '.$badge.'-info">'. __('message.beta').'</span>';
+            return '<span class='.'"'.$badge.' '.$badge.'-info">'.__('message.beta').'</span>';
     }
 }
 
