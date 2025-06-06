@@ -37,8 +37,8 @@ class ProfileRequest extends Request
                 'user_name' => 'required|unique:users,user_name,'.$userid,
                 'timezone_id' => 'required',
                 'profile_pic' => 'sometimes|mimes:jpeg,png,jpg|max:2048',
-                'country'=>'required',
-                'state'=>'required',
+                'country' => 'required',
+                'state' => 'required',
             ];
         }
 

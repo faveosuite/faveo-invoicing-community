@@ -161,7 +161,7 @@ Route::middleware('installAgora')->group(function () {
 
     Route::auth();
     Route::post('auth/register', [Auth\RegisterController::class, 'postRegister'])->name('auth/register');
-    Route::get('footer1',[Front\WidgetController::class, 'footer1'])->withoutMiddleware(['auth','admin']);
+    Route::get('footer1', [Front\WidgetController::class, 'footer1'])->withoutMiddleware(['auth', 'admin']);
     Route::get('auth/logout', [Auth\LoginController::class, 'logout'])->name('logout');
     Route::get('/', [DashboardController::class, 'index']);
 
@@ -670,6 +670,6 @@ Route::get('404', function () {
 Route::get('/api/download/agents', [Product\BaseProductController::class, 'agentProductDownload']);
 Route::get('/product/detail', [Product\BaseProductController::class, 'getProductUsingLicenseCode']);
 // });
-  /*
-   * Widget Api's
-   */
+/*
+ * Widget Api's
+ */
