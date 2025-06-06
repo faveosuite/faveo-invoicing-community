@@ -235,7 +235,7 @@
                     $('.loader-wrapper').hide();
                     $('.overlay').hide();
                     $('.modal-body').css('pointer-events', 'auto');
-                    alert("Failed to fetch cost. Please try again.");
+                    alert(@json(__('message.failed_fetch_cost')));
                 }
             });
         };

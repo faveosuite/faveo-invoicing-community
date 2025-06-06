@@ -158,5 +158,6 @@ return [
     'language' => 'Langue',
     'tooltip_timezone' => 'Le fuseau horaire du navigateur est utilisé initialement. Sélectionnez un autre fuseau horaire si nécessaire',
     'tooltip_language' => 'Langue par défaut chargée initialement. Sélectionnez une autre langue si nécessaire',
+    'enter_magic_phrase' => 'Entrez la phrase magique',
 
 ];

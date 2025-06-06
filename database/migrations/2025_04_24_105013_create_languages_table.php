@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('translation');
-            $table->string('locale');
+            $table->string('locale')->unique();
             $table->integer('status')->default(1);
             $table->timestamps();
         });

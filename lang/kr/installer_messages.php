@@ -160,5 +160,6 @@ return [
     'language' => '언어',
     'tooltip_timezone' => '브라우저 시간대가 처음에 사용됩니다. 필요에 따라 다른 시간대를 선택하세요.',
     'tooltip_language' => '기본 언어가 처음에 로드됩니다. 필요에 따라 다른 언어를 선택하세요.',
+    'enter_magic_phrase' => '매직 문구 입력',
 
 ];

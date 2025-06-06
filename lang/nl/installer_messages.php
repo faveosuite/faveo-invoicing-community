@@ -163,5 +163,6 @@ return [
     'language' => 'Taal',
     'tooltip_timezone' => 'De tijdzone van de browser wordt aanvankelijk gebruikt. Selecteer een andere tijdzone indien nodig.',
     'tooltip_language' => 'Standaardtaal wordt aanvankelijk geladen. Selecteer een andere taal indien nodig.',
+    'enter_magic_phrase' => 'Voer magische zin in',
 
 ];

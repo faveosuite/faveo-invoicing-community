@@ -903,5 +903,15 @@ return [
         'pro_req' => 'Il campo prodotto è obbligatorio',
         'offer_price' => 'Il prezzo dell\'offerta non deve essere superiore a 100',
     ],
+    'razorpay_val' => [
+        'business_required' => 'Il campo azienda è obbligatorio.',
+        'cmd_required' => 'Il campo comando è obbligatorio.',
+        'paypal_url_required' => 'L\'URL di PayPal è obbligatorio.',
+        'paypal_url_invalid' => 'L\'URL di PayPal deve essere un URL valido.',
+        'success_url_invalid' => 'L\'URL di successo deve essere un URL valido.',
+        'cancel_url_invalid' => 'L\'URL di annullamento deve essere un URL valido.',
+        'notify_url_invalid' => 'L\'URL di notifica deve essere un URL valido.',
+        'currencies_required' => 'Il campo valute è obbligatorio.',
+    ],
 
 ];

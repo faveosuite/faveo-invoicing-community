@@ -917,5 +917,14 @@ return [
         'pro_req' => 'The product field is required',
         'offer_price' => 'Offer prices  must not be greater than 100',
     ],
-
+    'razorpay_val' => [
+        'business_required' => 'The business field is required.',
+        'cmd_required' => 'The command field is required.',
+        'paypal_url_required' => 'The PayPal URL is required.',
+        'paypal_url_invalid' => 'The PayPal URL must be a valid URL.',
+        'success_url_invalid' => 'The success URL must be a valid URL.',
+        'cancel_url_invalid' => 'The cancel URL must be a valid URL.',
+        'notify_url_invalid' => 'The notify URL must be a valid URL.',
+        'currencies_required' => 'The currencies field is required.',
+        ],
 ];

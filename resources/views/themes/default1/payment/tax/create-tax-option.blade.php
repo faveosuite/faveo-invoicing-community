@@ -55,13 +55,13 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-md-3 form-group {{ $errors->has('active') ? 'has-error' : '' }}">
+                    <div class="col-md-4 form-group {{ $errors->has('active') ? 'has-error' : '' }}">
                         <!-- Active -->
                         {{ html()->label(Lang::get('message.active'))->for('active') }}
                         {{ html()->radio('active', 1, true) }}
                     </div>
 
-                    <div class="col-md-3 form-group {{ $errors->has('active') ? 'has-error' : '' }}">
+                    <div class="col-md-4 form-group {{ $errors->has('active') ? 'has-error' : '' }}">
                         <!-- Inactive -->
                         {{ html()->label(Lang::get('message.inactive'))->for('inactive') }}
                         {{ html()->radio('active', 0) }}

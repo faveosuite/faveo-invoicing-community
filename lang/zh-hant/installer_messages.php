@@ -161,5 +161,6 @@ return [
     'tooltip_timezone' => '瀏覽器時區初始使用。需要時可選擇不同的時區。',
     'tooltip_language' => '初始加載的默認語言。需要時可選擇不同的語言。',
     'password_not_match' => '密碼不匹配',
+    'enter_magic_phrase' => '輸入神奇短語',
 
 ];

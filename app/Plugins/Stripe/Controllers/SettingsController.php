@@ -65,6 +65,15 @@ class SettingsController extends Controller
             'cancel_url' => 'url',
             'notify_url' => 'url',
             'currencies' => 'required',
+        ], [
+            'business.required' => __('validation.razorpay_val.business_required'),
+            'cmd.required' => __('validation.razorpay_val.cmd_required'),
+            'paypal_url.required' => __('validation.razorpay_val.paypal_url_required'),
+            'paypal_url.url' => __('validation.razorpay_val.paypal_url_invalid'),
+            'success_url.url' => __('validation.razorpay_val.success_url_invalid'),
+            'cancel_url.url' => __('validation.razorpay_val.cancel_url_invalid'),
+            'notify_url.url' => __('validation.razorpay_val.notify_url_invalid'),
+            'currencies.required' => __('validation.razorpay_val.currencies_required'),
         ]);
 
         try {
@@ -94,7 +103,11 @@ class SettingsController extends Controller
         $request->validate([
             'stripe_secret' => 'required|string',
             'stripe_key' => 'required|string',
+        ], [
+            'stripe_secret.required' => __('message.stripe_secret_required'),
+            'stripe_key.required' => __('message.stripe_key_required'),
         ]);
+
         try {
             $stripe = Stripe::make($request->input('stripe_secret'));
             $response = $stripe->customers()->create(['description' => 'Test Customer to Validate Secret Key']);
@@ -104,7 +117,7 @@ class SettingsController extends Controller
                 'stripe_key' => $request->input('stripe_key'),
             ]);
 
-            return successResponse(['success' => 'true', 'message' => 'Stripe settings updated successfully']);
+            return successResponse(['success' => 'true', 'message' => __('message.stripe_settings_updated_successfully')]);
         } catch (\Cartalyst\Stripe\Exception\UnauthorizedException  $e) {
             return errorResponse($e->getMessage());
         } catch (\Exception $e) {
@@ -142,9 +155,9 @@ class SettingsController extends Controller
         } catch (\Cartalyst\Stripe\Exception\ApiLimitExceededException|\Cartalyst\Stripe\Exception\BadRequestException|\Cartalyst\Stripe\Exception\MissingParameterException|\Cartalyst\Stripe\Exception\NotFoundException|\Cartalyst\Stripe\Exception\ServerErrorException|\Cartalyst\Stripe\Exception\StripeException|\Cartalyst\Stripe\Exception\UnauthorizedException $e) {
             $control = new \App\Http\Controllers\Order\RenewController();
             if ($control->checkRenew($invoice->is_renewed) != true) {
-                return redirect('checkout')->with('fails', 'Your Payment was declined. '.$e->getMessage().'. Please try with another card or gateway');
+                return redirect('checkout')->with('fails', __('message.stripe_payment_declined', ['error' => $e->getMessage()]));
             } else {
-                return redirect('paynow/'.$invoice->id)->with('fails', 'Your Payment was declined. '.$e->getMessage().'. Please try with another card or gateway');
+                return redirect('paynow/'.$invoice->id)->with('fails', __('message.stripe_payment_declined', ['error' => $e->getMessage()]));
             }
         } catch (\Cartalyst\Stripe\Exception\CardErrorException $e) {
             if (emailSendingStatus()) {
@@ -156,7 +169,7 @@ class SettingsController extends Controller
 
             return redirect()->route('checkout');
         } catch (\Exception $e) {
-            return redirect('checkout')->with('fails', 'Your payment was declined. '.$e->getMessage().'. Please try with another card or gateway.');
+            return redirect('checkout')->with('fails', __('message.stripe_payment_declined', ['error' => $e->getMessage()]));
         }
     }
 
@@ -164,6 +177,8 @@ class SettingsController extends Controller
     {
         $request->validate([
             'stripeToken' => 'required|string',
+        ], [
+            'stripeToken.required' => __('message.stripe_token_required'),
         ]);
 
         $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();

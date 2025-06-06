@@ -881,5 +881,15 @@ return [
         'pro_req' => '产品字段是必填项',
         'offer_price' => '优惠价格不能大于 100',
     ],
+    'razorpay_val' => [
+        'business_required' => '业务字段是必填项。',
+        'cmd_required' => '命令字段是必填项。',
+        'paypal_url_required' => 'PayPal URL 是必填项。',
+        'paypal_url_invalid' => 'PayPal URL 必须是有效的 URL。',
+        'success_url_invalid' => '成功 URL 必须是有效的 URL。',
+        'cancel_url_invalid' => '取消 URL 必须是有效的 URL。',
+        'notify_url_invalid' => '通知 URL 必须是有效的 URL。',
+        'currencies_required' => '货币字段是必填项。',
+    ],
 
 ];

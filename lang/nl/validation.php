@@ -848,5 +848,15 @@ return [
         'pro_req' => 'Het productveld is verplicht',
         'offer_price' => 'Aanbiedingsprijzen mogen niet hoger zijn dan 100',
     ],
+    'razorpay_val' => [
+        'business_required' => 'Het veld bedrijfsnaam is vereist.',
+        'cmd_required' => 'Het opdrachtveld is vereist.',
+        'paypal_url_required' => 'De PayPal-URL is vereist.',
+        'paypal_url_invalid' => 'De PayPal-URL moet een geldige URL zijn.',
+        'success_url_invalid' => 'De succes-URL moet een geldige URL zijn.',
+        'cancel_url_invalid' => 'De annuleer-URL moet een geldige URL zijn.',
+        'notify_url_invalid' => 'De notificatie-URL moet een geldige URL zijn.',
+        'currencies_required' => 'Het valutaveld is vereist.',
+    ],
 
 ];

@@ -876,5 +876,15 @@ return [
         'pro_req' => 'Il-qasam tal-prodott huwa meħtieġ',
         'offer_price' => 'Il-prezz tal-offerta ma jistax ikun ogħla minn 100',
     ],
+    'razorpay_val' => [
+        'business_required' => 'Il-kamp tan-negozju huwa meħtieġ.',
+        'cmd_required' => 'Il-kamp tal-kmand huwa meħtieġ.',
+        'paypal_url_required' => 'Meħtieġa l-URL ta’ PayPal.',
+        'paypal_url_invalid' => 'L-URL ta’ PayPal trid tkun URL valida.',
+        'success_url_invalid' => 'L-URL ta’ suċċess trid tkun URL valida.',
+        'cancel_url_invalid' => 'L-URL tal-kanċellazzjoni trid tkun URL valida.',
+        'notify_url_invalid' => 'L-URL tan-notifika trid tkun URL valida.',
+        'currencies_required' => 'Il-kamp tal-muniti huwa meħtieġ.',
+    ],
 
 ];

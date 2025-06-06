@@ -158,4 +158,6 @@ return [
     'language' => 'Lingwa',
     'tooltip_timezone' => 'Żona tal-ħin tal-browser tintuża inizjalment. Agħżel żona tal-ħin differenti jekk meħtieġ',
     'tooltip_language' => 'Lingwa default inizjali. Agħżel lingwa differenti jekk meħtieġ',
+    'enter_magic_phrase' => 'Daħħal frażi maġika',
+
 ];
