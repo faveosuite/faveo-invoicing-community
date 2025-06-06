@@ -97,7 +97,7 @@ $country = \DB::table('countries')->where('country_code_char2',$set->country)->v
                              <div id="recaptchaContact"></div>
                              <span id="captchacheck"></span>
                          @elseif($status->v3_recaptcha_status === 1)
-                             <input type="hidden" id="g-recaptcha-contact" class="g-recaptcha-token" name="g-recaptcha-response" data-recaptcha-action="contact-us">
+                             <input type="hidden" id="g-recaptcha-contact" class="g-recaptcha-token" name="g-recaptcha-response" data-recaptcha-action="contactUs">
                          @endif
                                 <br>
 

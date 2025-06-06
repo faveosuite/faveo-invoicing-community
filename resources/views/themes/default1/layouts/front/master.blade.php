@@ -869,7 +869,7 @@ $days = $pay->where('product','117')->value('days');
         ';
                              } elseif ($status->v3_recaptcha_status === 1) {
                                  $mailchimpSection .= '
-                <input type="hidden" id="g-recaptcha-mailchimp" class="g-recaptcha-token" name="g-recaptcha-response" data-recaptcha-action="mail-chimp">
+                <input type="hidden" id="g-recaptcha-mailchimp" class="g-recaptcha-token" name="g-recaptcha-response" data-recaptcha-action="mailChimp">
         ';
                              }
                          }

@@ -260,7 +260,7 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
                                 @if ($setting->recaptcha_status === 1)
                                     <div id="recaptchaMobile"></div>
                                 @elseif($setting->v3_recaptcha_status === 1)
-                                    <input type="hidden" id="g-recaptcha-mobile" class="g-recaptcha-token" name="g-recaptcha-response" data-recaptcha-action="verify-mobile-otp">
+                                    <input type="hidden" id="g-recaptcha-mobile" class="g-recaptcha-token" name="g-recaptcha-response" data-recaptcha-action="verifyMobileOtp">
                                 @endif
                                 <div class="col-12">
                                     <div class="row">
@@ -303,7 +303,7 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
                                 @if ($setting->recaptcha_status === 1)
                                     <div id="recaptchaEmail"></div>
                                 @elseif($setting->v3_recaptcha_status === 1)
-                                    <input type="hidden" id="g-recaptcha-email" class="g-recaptcha-token" name="g-recaptcha-response" data-recaptcha-action="verify-email-otp">
+                                    <input type="hidden" id="g-recaptcha-email" class="g-recaptcha-token" name="g-recaptcha-response" data-recaptcha-action="verifyEmailOtp">
                                 @endif
                                 @endif
                                 <div class="col-12 mt-4">
@@ -405,8 +405,21 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
             }, 1000);
         }
 
-        function resendOTP(default_type, type) {
-            const data = {eid, default_type, type};
+        async function generateV3Token(data, action = 'default') {
+            @if($setting->v3_recaptcha_status === 1)
+                try {
+                const token = await generateRecaptchaToken(action);
+                data['g-recaptcha-response'] = token;
+            } catch (error) {
+                // handle token error silently
+            }
+            @endif
+                return data;
+        }
+
+        async function resendOTP(default_type, type) {
+            const data = await generateV3Token({eid, default_type, type}, 'resendOtp');
+
             $.ajax({
                 url: '{{ url('resend_otp') }}',
                 type: 'POST',
@@ -430,8 +443,8 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
             });
         }
 
-        function sendOTP() {
-            const data = {eid};
+        async function sendOTP() {
+            const data = await generateV3Token({eid : eid}, 'sendOtp');
             $.ajax({
                 url: '{{ url('otp/send') }}',
                 type: 'POST',
@@ -515,11 +528,15 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
             if (fieldsets[fieldSet] && progressList[fieldSet]) {
                 if(fieldSet === 'fieldSetOne'){
                     startTimer(otpButton, timerDisplay, countdown);
-                    sendOTP();
+                    setTimeout(() => {
+                        sendOTP();
+                    }, 500);
                 }
                 else if(fieldSet === 'fieldSetTwo'){
                     startTimer(emailOtpButton, emailTimerDisplay, countdown);
-                    sendEmail();
+                    setTimeout(() => {
+                        sendEmail();
+                    }, 500);
                 }
                 fieldsets[fieldSet].style.display = 'block';
                 progressList[fieldSet].classList.add('active');
@@ -560,8 +577,8 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
         }
 
 
-        function sendEmail() {
-            const data = {eid: eid};
+        async function sendEmail() {
+            const data = await generateV3Token({eid: eid}, 'sendEmail');
             $.ajax({
                 url: '{{ url('/send-email') }}',
                 type: 'POST',
@@ -620,7 +637,6 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
         }
 
         function showAlert(type, message, container) {
-            console.log(type, message);
             const icon = type === 'success' ? 'fa-check-circle' : 'fa-ban';
             const alertType = type === 'success' ? 'alert-success' : 'alert-danger';
 

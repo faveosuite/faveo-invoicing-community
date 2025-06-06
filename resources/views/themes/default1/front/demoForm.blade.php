@@ -101,7 +101,7 @@ $status =  App\Model\Common\StatusSetting::select('recaptcha_status','v3_recaptc
                                     <div id="demo_recaptcha"></div>
                                     <span id="democaptchacheck"></span>
                                 @elseif($status->v3_recaptcha_status === 1)
-                                    <input type="hidden" id="g-recaptcha-demo" class="g-recaptcha-token" name="g-recaptcha-response" data-recaptcha-action="request-demo">
+                                    <input type="hidden" id="g-recaptcha-demo" class="g-recaptcha-token" name="g-recaptcha-response" data-recaptcha-action="requestDemo">
                                 @endif
                             @endif
                             <br>
