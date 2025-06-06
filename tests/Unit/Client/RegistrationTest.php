@@ -147,7 +147,7 @@ class RegistrationTest extends DBTestCase
     }
 
     /** @group postRegister */
-    public function test_when_mobile_code_is_not_sent(){
+    public function test_when_mobile_number_is_not_sent(){
         $user = User::factory()->create();
         $this->withoutMiddleware();
         $response = $this->call('POST', 'auth/register', ['first_name' => $user->first_name,
@@ -158,14 +158,13 @@ class RegistrationTest extends DBTestCase
             'company_type' => $user->company_type,
             'company_size' => $user->company_size,
             'country' => $user->country,
-            'mobile' => $user->mobile,
             'address' => $user->address,
             'town' => $user->town,
             'zip' => $user->zip,
             'password' => $user->password,
             'password_confirmation' => $user->password,
         ]);
-        $response->assertSessionHasErrors('mobile_code');
+        $response->assertSessionHasErrors('mobile');
     }
 
     /** @group postRegister */
