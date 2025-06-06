@@ -5,16 +5,17 @@ namespace App\Rules;
 use App\ApiKey;
 use App\Model\Common\StatusSetting;
 use Closure;
-use GuzzleHttp\Client;
 use Illuminate\Contracts\Validation\ValidationRule;
 
 class CaptchaValidation implements ValidationRule
 {
     protected $message;
+    protected $action;
 
-    public function __construct($message = null)
+    public function __construct($action = 'default', $message = null)
     {
         $this->message = $message ?? __('message.hacking_attempt');
+        $this->action = $action;
     }
 
     /**
@@ -29,25 +30,38 @@ class CaptchaValidation implements ValidationRule
         try {
             // Check if reCAPTCHA is enabled
             $settings = StatusSetting::find(1);
-            if ($settings->v3_recaptcha_status !== 1 && $settings->recaptcha_status !== 1 && $settings->v3_v2_recaptcha_status !== 1) {
+            $v2Enabled = $settings->recaptcha_status === 1;
+            $v3Enabled = $settings->v3_recaptcha_status === 1;
+            $V2V3Enabled = $settings->v3_v2_recaptcha_status === 1;
+            if (! $v2Enabled && ! $v3Enabled && ! $V2V3Enabled) {
                 return; // Skip validation if disabled
             }
             // Get the secret key
-            $secretKey = ! empty(env('NOCAPTCHA_SECRET')) ? env('NOCAPTCHA_SECRET') : ApiKey::find(1)->captcha_secretCheck;
+            $secretKey = config('services.recaptcha.secret') ?? ApiKey::find(1)?->captcha_secretCheck;
+            $expectedHostname = request()->getHost();
+            $minScore = config('services.recaptcha.score', 0.5);
 
             // Make the reCAPTCHA request
-            $client = new Client();
-            $response = $client->post('https://www.google.com/recaptcha/api/siteverify', [
-                'form_params' => [
-                    'secret' => $secretKey,
-                    'response' => $value,
-                ],
+            $response = \Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+                'secret' => $secretKey,
+                'response' => $value,
+                'remoteip' => request()->ip(),
             ]);
 
-            $responseBody = json_decode($response->getBody(), true);
-            // Validate response
-            if (! $responseBody['success']) {
+            $responseBody = $response->json();
+
+            if (isset($responseBody['success']) && ! $responseBody['success']) {
                 $fail($this->message);
+
+                return;
+            }
+
+            if ($v3Enabled && isset($responseBody['score'])) {
+                if ($responseBody['score'] < $minScore || $this->action !== $responseBody['action'] || ($responseBody['hostname'] ?? null) !== $expectedHostname) {
+                    $fail($this->message);
+
+                    return;
+                }
             }
         } catch (\Exception $e) {
             $fail($this->message);

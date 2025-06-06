@@ -300,15 +300,6 @@ function userCurrencyAndPrice($userid, $plan, $productid = '')
 
         $currencyAndSymbol = getCurrencySymbolAndPriceForPlans($country, $plan);
 
-        // Check if the user is not authenticated
-        if (! auth()->check()) {
-            echo '<script>';
-            echo "localStorage.setItem('currency', '{$currencyAndSymbol['currency']}');";
-            echo "localStorage.setItem('symbol', '{$currencyAndSymbol['currency_symbol']}');";
-            echo "localStorage.setItem('plan', '".json_encode($currencyAndSymbol['userPlan'])."');";
-            echo '</script>';
-        }
-
         return [
             'currency' => $currencyAndSymbol['currency'],
             'symbol' => $currencyAndSymbol['currency_symbol'],
@@ -797,7 +788,7 @@ function handleArrayStoreRateLimit($IpKey, $maxAttempts, $decaySeconds)
 function isCaptchaRequired()
 {
     $settings = StatusSetting::find(1);
-    $status = ($settings->v3_recaptcha_status === 1 || $settings->recaptcha_status === 1 && $settings->v3_v2_recaptcha_status) && ! Auth::check();
+    $status = ($settings->v3_recaptcha_status === 1 || $settings->recaptcha_status === 1) && $settings->v3_v2_recaptcha_status && ! Auth::check();
 
     return $status ? ['status' => 1, 'is_required' => 'required'] : ['status' => 0, 'is_required' => 'sometimes'];
 }
@@ -854,4 +845,25 @@ function getUrl()
 function isRtlForLang()
 {
     return in_array(app()->getLocale(), ['ar', 'he']);
+}
+function honeypotField(string $name = 'honeypot'): string
+{
+    $potFieldName = 'p'.Str::random();
+    $timeFieldName = 't'.Str::random();
+    $encryptedTime = Crypt::encrypt(time());
+
+    return sprintf(
+        '<div style="display:none">
+            <label for="%s">Do not fill this field</label>
+            <input type="text" name="%s[%s]" id="%s" autocomplete="off">
+            <input type="hidden" name="%s[%s]" value="%s">
+        </div>',
+        $potFieldName,
+        $name,
+        $potFieldName,
+        $potFieldName,
+        $name,
+        $timeFieldName,
+        $encryptedTime
+    );
 }

@@ -260,7 +260,7 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
                                 @if ($setting->recaptcha_status === 1)
                                     <div id="recaptchaMobile"></div>
                                 @elseif($setting->v3_recaptcha_status === 1)
-                                    <input type="hidden" id="g-recaptcha-mobile" class="g-recaptcha-token" name="g-recaptcha-response">
+                                    <input type="hidden" id="g-recaptcha-mobile" class="g-recaptcha-token" name="g-recaptcha-response" data-recaptcha-action="verifyMobileOtp">
                                 @endif
                                 <div class="col-12">
                                     <div class="row">
@@ -282,8 +282,8 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
                                             </div>
                                         </div>
                                         <div class="col-6 px-0">
-                                            <button type="button" onclick="submitOtp()" name="next" id="mobileOtp"
-                                                    class="next float-right btn btn-primary">{{\Lang::get('message.verify')}}</button>
+                                            <input type="button" onclick="submitOtp()" name="next"
+                                                   class="next action-button float-right" value="{{ __('message.verify') }}"/>
 
                                         </div>
                                     </div>
@@ -300,11 +300,11 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
                                 <input class="form-control h-100" type="text" id="email_otp" name="email_otp" placeholder="{{ __('message.otp_placeholder') }}"/>
                                 <p class="mt-3">{{ __('message.email_otp_description') }}</p>
                                 @if($setting->v3_v2_recaptcha_status)
-                                @if ($setting->recaptcha_status === 1)
-                                    <div id="recaptchaEmail"></div>
-                                @elseif($setting->v3_recaptcha_status === 1)
-                                    <input type="hidden" id="g-recaptcha-email" class="g-recaptcha-token" name="g-recaptcha-response">
-                                @endif
+                                    @if ($setting->recaptcha_status === 1)
+                                        <div id="recaptchaEmail"></div>
+                                    @elseif($setting->v3_recaptcha_status === 1)
+                                        <input type="hidden" id="g-recaptcha-email" class="g-recaptcha-token" name="g-recaptcha-response" data-recaptcha-action="verifyEmailOtp">
+                                    @endif
                                 @endif
                                 <div class="col-12 mt-4">
                                     <div class="row">
@@ -319,8 +319,8 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
                                             </div>
                                         </div>
                                         <div class="col-6 px-0">
-                                            <button onclick="isEmailVerified()" type="button" name="next" id="otpVerify"
-                                                    class="next float-right btn btn-primary">{{\Lang::get('message.verify')}}</button>
+                                            <input onclick="isEmailVerified()" type="button" name="next"
+                                                   class="next action-button float-right" value="{{ __('message.verify') }}"/>
                                         </div>
                                     </div>
                                 </div>
@@ -362,7 +362,7 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
         let recaptcha;
         let recaptchaToken;
 
-        @if($setting->recaptcha_status === 1 && $setting->v3_v2_recaptcha_status)
+        @if($setting->recaptcha_status === 1)
         recaptchaFunctionToExecute.push(() => {
             mobile_recaptcha_id = grecaptcha.render('recaptchaMobile', { 'sitekey': siteKey });
             email_recaptcha_id = grecaptcha.render('recaptchaEmail', { 'sitekey': siteKey });
@@ -405,14 +405,21 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
             }, 1000);
         }
 
-        function resendOTP(default_type, type) {
-            if(default_type=='email'){
-                document.getElementById('email_otp').value='';
+        async function generateV3Token(data, action = 'default') {
+            @if($setting->v3_recaptcha_status === 1)
+                try {
+                const token = await generateRecaptchaToken(action);
+                data['g-recaptcha-response'] = token;
+            } catch (error) {
+                // handle token error silently
             }
-            if(default_type=='mobile'){
-                document.getElementById('otp').value='';
-            }
-            const data = {eid, default_type, type};
+            @endif
+                return data;
+        }
+
+        async function resendOTP(default_type, type) {
+            const data = await generateV3Token({eid, default_type, type}, 'resendOtp');
+
             $.ajax({
                 url: '{{ url('resend_otp') }}',
                 type: 'POST',
@@ -436,8 +443,8 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
             });
         }
 
-        function sendOTP() {
-            const data = {eid};
+        async function sendOTP() {
+            const data = await generateV3Token({eid : eid}, 'sendOtp');
             $.ajax({
                 url: '{{ url('otp/send') }}',
                 type: 'POST',
@@ -483,8 +490,6 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
             @endif
             @endif
             const data = {eid, otp: otpValue, 'g-recaptcha-response': recaptchaToken ?? ''};
-            $('#mobileOtp').attr('disabled',true)
-            $("#mobileOtp").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
 
             $.ajax({
                 url: '{{ url('otp/verify') }}',
@@ -500,8 +505,6 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
                 },
                 error: function (error) {
                     showAlert('danger', error.responseJSON.message, '#alert-container');
-                    $('#mobileOtp').attr('disabled',false)
-                    $("#mobileOtp").html("Verify");
                 }
             });
         }
@@ -525,11 +528,15 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
             if (fieldsets[fieldSet] && progressList[fieldSet]) {
                 if(fieldSet === 'fieldSetOne'){
                     startTimer(otpButton, timerDisplay, countdown);
-                    sendOTP();
+                    setTimeout(() => {
+                        sendOTP();
+                    }, 500);
                 }
                 else if(fieldSet === 'fieldSetTwo'){
                     startTimer(emailOtpButton, emailTimerDisplay, countdown);
-                    sendEmail();
+                    setTimeout(() => {
+                        sendEmail();
+                    }, 500);
                 }
                 fieldsets[fieldSet].style.display = 'block';
                 progressList[fieldSet].classList.add('active');
@@ -570,8 +577,8 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
         }
 
 
-        function sendEmail() {
-            const data = {eid: eid};
+        async function sendEmail() {
+            const data = await generateV3Token({eid: eid}, 'sendEmail');
             $.ajax({
                 url: '{{ url('/send-email') }}',
                 type: 'POST',
@@ -616,9 +623,6 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
             @endif
 
             const data = {eid, otp: otpValue, 'g-recaptcha-response':recaptchaToken ?? ''};
-            $('#otpVerify').attr('disabled',true)
-            $("#otpVerify").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
-
             $.ajax({
                 url: '{{ url('email/verify') }}',
                 type: 'POST',
@@ -628,14 +632,11 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
                 },
                 error: function (error) {
                     showAlert('danger', error.responseJSON.message, '#alert-container-email');
-                    $('#otpVerify').attr('disabled',false)
-                    $("#otpVerify").html("Verify");
                 }
             });
         }
 
         function showAlert(type, message, container) {
-            console.log(type, message);
             const icon = type === 'success' ? 'fa-check-circle' : 'fa-ban';
             const alertType = type === 'success' ? 'alert-success' : 'alert-danger';
 

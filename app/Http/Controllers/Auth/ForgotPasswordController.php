@@ -6,6 +6,7 @@ use App\ApiKey;
 use App\Http\Controllers\Controller;
 use App\Model\Common\StatusSetting;
 use App\Rules\CaptchaValidation;
+use App\Rules\Honeypot;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 use Illuminate\Http\Request;
 
@@ -53,7 +54,8 @@ class ForgotPasswordController extends Controller
         try {
             $this->validate($request,
                 ['email' => 'required|email|exists:users,email',
-                    'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation()],
+                     'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('forgotPassword')],
+                    'forgot' => [new Honeypot()],
                 ],
                 [
                     'email.required' => __('validation.custom_email.required'),
