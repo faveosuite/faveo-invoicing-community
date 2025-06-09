@@ -273,7 +273,6 @@ class TaxController extends Controller
                         $taxClass->tax_product_relation()->delete();
                         $taxClass->delete();
                         $tax->delete();
-
                     } else {
                         echo "<div class='alert alert-danger alert-dismissable'>
                         <i class='fa fa-ban'></i>
