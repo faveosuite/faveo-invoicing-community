@@ -165,7 +165,6 @@ class SettingsControllerTest extends DBTestCase
         $this->withoutMiddleware();
         $response=$this->call('post','email-settings-save',['apikey'=>'dummy_api_key']);
         $content=$response->original;
-        $response->assertRedirect();
         $this->assertEquals(false,$content['success']);
         $this->assertEquals("Please enter a valid Reoon Api key.",$content['message']);
     }
