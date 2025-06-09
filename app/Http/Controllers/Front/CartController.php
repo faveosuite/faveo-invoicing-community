@@ -15,7 +15,6 @@ use App\Model\Product\Product;
 use App\User;
 use Cart;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Redirect;
 use Session;
 
 class CartController extends BaseCartController
@@ -67,10 +66,10 @@ class CartController extends BaseCartController
 
     /**
      * The first request to the cart Page comes here
-     * Get Plan id and Product id as Request
+     * Get Plan id and Product id as Request.
      *
-     * @param  int  $plan   Planid;
-     * @param  int  $id     Productid;
+     * @param  int  $plan  Planid;
+     * @param  int  $id  Productid;
      */
     public function cart(Request $request)
     {
@@ -193,7 +192,7 @@ class CartController extends BaseCartController
     /**
      * Checks the unpaid invoice of authorized user.
      *
-     * @param $item
+     * @param  $item
      * @return null|array
      */
     private function checkUnpaidInvoices($item)
@@ -220,7 +219,7 @@ class CartController extends BaseCartController
     /**
      * This function removes cart content based on id.
      *
-     * @param Request $request
+     * @param  Request  $request
      * @return string
      */
     public function cartRemove(Request $request)
@@ -266,6 +265,7 @@ class CartController extends BaseCartController
      * @param  int  $userid
      * @param  int  $planid
      * @return int
+     *
      * @throws \Exception
      */
     public function cost($productid, $planid = '', $userid = '', $admin = false)
@@ -393,7 +393,7 @@ class CartController extends BaseCartController
     /**
      * This function is used to validate coupon and update it.
      *
-     * @param Request $request
+     * @param  Request  $request
      * @return string
      */
     public function addCouponUpdate(Request $request)
@@ -415,7 +415,7 @@ class CartController extends BaseCartController
     /**
      * This function is used to remove coupon.
      *
-     * @param Request $request
+     * @param  Request  $request
      * @return string
      */
     public function removeCoupon(Request $request)

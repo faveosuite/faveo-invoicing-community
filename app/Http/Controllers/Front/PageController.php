@@ -11,8 +11,8 @@ use App\Http\Requests\Front\ContactRequest;
 use App\Http\Requests\Front\PageRequest;
 use App\Model\Common\Country;
 use App\Model\Common\PricingTemplate;
-use App\Model\Common\StatesSubdivisions;
 use App\Model\Common\Setting;
+use App\Model\Common\StatesSubdivisions;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
@@ -21,7 +21,6 @@ use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
 use App\Model\Product\ProductGroup;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class PageController extends Controller
@@ -541,6 +540,7 @@ class PageController extends Controller
      * @param
      * @param
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse
+     *
      * @throws
      */
     public function contactUs()
@@ -551,9 +551,10 @@ class PageController extends Controller
             $set = new \App\Model\Common\Setting();
             $set = $set->findOrFail(1);
             $address = preg_replace("/^\R+|\R+\z/", '', $set->address);
-            $state = StatesSubdivisions::where('state_subdivision_code',$set->state)->value('state_subdivision_name');
-            $country = Country::where('country_code_char2',$set->country)->value('country_name');
-            return view('themes.default1.front.contact', compact('status', 'apiKeys','set','state','country','address'));
+            $state = StatesSubdivisions::where('state_subdivision_code', $set->state)->value('state_subdivision_name');
+            $country = Country::where('country_code_char2', $set->country)->value('country_name');
+
+            return view('themes.default1.front.contact', compact('status', 'apiKeys', 'set', 'state', 'country', 'address'));
         } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }

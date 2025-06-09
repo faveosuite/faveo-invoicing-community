@@ -148,7 +148,6 @@ trait PaymentsAndInvoices
 
     public function postRazorpayPayment($invoice)
     {
-
         try {
             $payment_method = \Session::get('payment_method');
             $totalPayment = ($payment_method == 'Credits')
