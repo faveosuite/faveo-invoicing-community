@@ -69,7 +69,7 @@ class RegisterController extends Controller
         $status=$content['status'];
         $statusBit=$map[$status]??0;
 
-        if(($statusBit & $accepted_output) || $content['status']=='valid' || $content['reason']=='Not enough credits available. Please recharge.'){
+        if(($statusBit & $accepted_output) || $content['status']=='valid' || isset($content['reason']) &&  $content['reason']=='Not enough credits available. Please recharge.'){
             return true;
         }
 
