@@ -275,7 +275,7 @@ Settings
                             </span>
                         </a>
                     </div>
-                    <div class="text-center text-sm fw_400">email-verification-providers</div>
+                    <div class="text-center text-sm fw_400">{{Lang::get('message.email_settings_heading')}}</div>
                 </div>
             </div>
 
@@ -289,7 +289,7 @@ Settings
                             </span>
                     </a>
                 </div>
-                <div class="text-center text-sm fw_400">mobile-verification-providers</div>
+                <div class="text-center text-sm fw_400">{{Lang::get('message.mobile_settings_heading')}}</div>
             </div>
         </div>
     </div>

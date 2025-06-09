@@ -1301,5 +1301,7 @@ return [
     'emailMode_error'=>'please select a email validation mode.',
     'mobileMode_error'=>'please select a mobile validation mode.',
     'mobileApisecret_error'=>'Please enter a valid mobile apisecret.',
-
+    'mobile_provided_wrong'=>'For security reasons, we are unable to accept the provided phone number,Please try registering with a different, valid mobile number.',
+    'email_settings_heading'=>'email-validation-providers',
+    'mobile_settings_heading'=>'mobile-validation-providers',
 ];
