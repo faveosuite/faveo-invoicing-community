@@ -41,7 +41,7 @@ class AppServiceProvider extends ServiceProvider
             );
         });
 
-        Event::listen(UserOrderDelete::class,CloudDeletion::class);
+        Event::listen(UserOrderDelete::class, CloudDeletion::class);
     }
 
     /**

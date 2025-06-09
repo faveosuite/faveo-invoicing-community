@@ -7,10 +7,10 @@ use App\Http\Controllers\Common\SettingsController;
 use App\Model\Common\EmailMobileValidationProviders;
 use App\Model\Common\StatusSetting;
 use App\User;
-use Tests\DBTestCase;
 use Illuminate\Http\Request;
 use Mockery;
 use Spatie\Html\Html;
+use Tests\DBTestCase;
 
 class SettingsControllerTest extends DBTestCase
 {
@@ -110,67 +110,66 @@ class SettingsControllerTest extends DBTestCase
         $this->assertNotEmpty($methodResponse->content());
     }
 
-    public function test_redirecting_to_email_provider(){
+    public function test_redirecting_to_email_provider()
+    {
         $user = User::factory()->create(['role' => 'admin']);
         $this->actingAs($user);
         $this->withoutMiddleware();
-        StatusSetting::where('id',1)->create(['email_setting_status'=>1]);
-        $response=$this->call('get','emailVerificationProvider');
+        StatusSetting::where('id', 1)->create(['email_setting_status' => 1]);
+        $response = $this->call('get', 'emailVerificationProvider');
         $response->assertStatus(200);
         $response->assertViewIs('themes.default1.common.setting.emailVerificationProvider');
         $response->assertViewHas('statusDisplay');
     }
 
-    public function test_redirecting_to_mobile_provider(){
+    public function test_redirecting_to_mobile_provider()
+    {
         $user = User::factory()->create(['role' => 'admin']);
         $this->actingAs($user);
         $this->withoutMiddleware();
-        StatusSetting::where('id',1)->create(['mobile_setting_status'=>1]);
-        EmailMobileValidationProviders::where('provider','vonage')->update(['to_use'=>1]);
-        $response=$this->call('get','mobileVerificationProvider');
+        StatusSetting::where('id', 1)->create(['mobile_setting_status' => 1]);
+        EmailMobileValidationProviders::where('provider', 'vonage')->update(['to_use' => 1]);
+        $response = $this->call('get', 'mobileVerificationProvider');
         $response->assertStatus(200);
         $response->assertViewIs('themes.default1.common.setting.mobileVerificationProvider');
         $response->assertViewHas('statusDisplay');
         $response->assertViewHas('mobileProvider');
     }
 
-
-    public function test_get_email_data(){
+    public function test_get_email_data()
+    {
         $user = User::factory()->create(['role' => 'admin']);
         $this->actingAs($user);
         $this->withoutMiddleware();
-        EmailMobileValidationProviders::where('provider','reoon')->update(['to_use'=>1,'api_key'=>'dummy_api_key','mode'=>'quick']);
-        $response=$this->call('post','emailData',['value'=>'reoon']);
+        EmailMobileValidationProviders::where('provider', 'reoon')->update(['to_use' => 1, 'api_key' => 'dummy_api_key', 'mode' => 'quick']);
+        $response = $this->call('post', 'emailData', ['value' => 'reoon']);
         $response->assertStatus(200);
-        $content=$response->original;
-        $this->assertEquals(true,$content['success']);
+        $content = $response->original;
+        $this->assertEquals(true, $content['success']);
     }
 
-    public function test_get_mobile_data(){
+    public function test_get_mobile_data()
+    {
         $user = User::factory()->create(['role' => 'admin']);
         $this->actingAs($user);
         $this->withoutMiddleware();
-        EmailMobileValidationProviders::where('provider','vonage')->update(['to_use'=>1,'api_key'=>'dummy_api_key',
-            'mode'=>'standard','api_secret'=>'dummy_api_secret']);
-        $response=$this->call('post','mobileData',['value'=>'vonage']);
+        EmailMobileValidationProviders::where('provider', 'vonage')->update(['to_use' => 1, 'api_key' => 'dummy_api_key',
+            'mode' => 'standard', 'api_secret' => 'dummy_api_secret']);
+        $response = $this->call('post', 'mobileData', ['value' => 'vonage']);
         $response->assertStatus(200);
-        $content=$response->original;
-        $this->assertEquals(true,$content['success']);
+        $content = $response->original;
+        $this->assertEquals(true, $content['success']);
     }
 
-
-    public function  test_when_api_key_is_wrong(){
+    public function test_when_api_key_is_wrong()
+    {
         $user = User::factory()->create(['role' => 'admin']);
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $response=$this->call('post','email-settings-save',['apikey'=>'dummy_api_key']);
-        $content=$response->original;
+        $response = $this->call('post', 'email-settings-save', ['apikey' => 'dummy_api_key']);
+        $content = $response->original;
         $response->assertRedirect();
-        $this->assertEquals(false,$content['success']);
-        $this->assertEquals("Please enter a valid Reoon Api key.",$content['message']);
+        $this->assertEquals(false, $content['success']);
+        $this->assertEquals('Please enter a valid Reoon Api key.',$content['message']);
     }
-
-
-
-
 }

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\ApiKey;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\ProfileRequest;
 use App\Jobs\AddUserToExternalService;
@@ -13,9 +12,10 @@ use App\Rules\CaptchaValidation;
 use App\User;
 use Facades\Spatie\Referer\Referer;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\Mime\Email;
-use Illuminate\Support\Facades\Http;
+
 class RegisterController extends Controller
 {
     /*
@@ -29,8 +29,6 @@ class RegisterController extends Controller
     |
     */
     use RegistersUsers;
-
-
 
     /**
      * Where to redirect users after registration.
@@ -49,81 +47,84 @@ class RegisterController extends Controller
         $this->middleware('guest');
     }
 
-    public function emailVerification($email){
+    public function emailVerification($email)
+    {
         $map = [
             'safe' => 1,
             'catch_all' => 2,
             'unknown' => 4,
         ];
 
-        ['api_key' => $apikey, 'mode' => $mode,'accepted_output'=>$accepted_output] = EmailMobileValidationProviders::where('provider', 'reoon')
-            ->select('api_key', 'mode','accepted_output')
+        ['api_key' => $apikey, 'mode' => $mode,'accepted_output' => $accepted_output] = EmailMobileValidationProviders::where('provider', 'reoon')
+            ->select('api_key', 'mode', 'accepted_output')
             ->first()
             ->toArray();
 
         $response = Http::get('https://emailverifier.reoon.com/api/v1/verify', [
             'email' => $email,
-            'key'   => $apikey,
-            'mode'  => $mode,
+            'key' => $apikey,
+            'mode' => $mode,
         ]);
-        $content=$response->json();
-        $status=$content['status'];
-        $statusBit=$map[$status]??0;
+        $content = $response->json();
+        $status = $content['status'];
+        $statusBit = $map[$status] ?? 0;
 
-        if(($statusBit & $accepted_output) || $content['status']=='valid' || isset($content['reason']) &&  $content['reason']=='Not enough credits available. Please recharge.'){
+        if (($statusBit & $accepted_output) || $content['status'] == 'valid' || isset($content['reason']) && $content['reason'] == 'Not enough credits available. Please recharge.') {
             return true;
         }
 
         return false;
     }
 
-    private function vonagePhoneVerification($provider,$phone){
-        ['api_key' => $apikey, 'mode' => $mode,'api_secret'=>$apisecret] = EmailMobileValidationProviders::where('provider',$provider)
-            ->select('api_key', 'mode','api_secret')
+    private function vonagePhoneVerification($provider, $phone)
+    {
+        ['api_key' => $apikey, 'mode' => $mode,'api_secret' => $apisecret] = EmailMobileValidationProviders::where('provider', $provider)
+            ->select('api_key', 'mode', 'api_secret')
             ->first()
             ->toArray();
 
-        $response=Http::get('https://api.nexmo.com/ni/'.$mode.'/json',[
-            'api_key'=>$apikey,
-            'api_secret'=>$apisecret,
-            'number'=>$phone,
+        $response = Http::get('https://api.nexmo.com/ni/'.$mode.'/json', [
+            'api_key' => $apikey,
+            'api_secret' => $apisecret,
+            'number' => $phone,
         ]);
-        if($response->successful() && $response->json('status_message')=='Success' || $response->json('status_message')=='Partner quota exceeded'){
+        if ($response->successful() && $response->json('status_message') == 'Success' || $response->json('status_message') == 'Partner quota exceeded') {
             return true;
         }
+
         return false;
     }
 
-    private function abstractPhoneVerification($provider,$phone){
-        $apikey=EmailMobileValidationProviders::where('provider',$provider)->value('api_key');
+    private function abstractPhoneVerification($provider, $phone)
+    {
+        $apikey = EmailMobileValidationProviders::where('provider', $provider)->value('api_key');
 
         $response = Http::get('https://phonevalidation.abstractapi.com/v1/', [
             'api_key' => $apikey,
             'phone' => $phone,
         ]);
 
-        if($response->successful() && $response->json('valid')){
+        if ($response->successful() && $response->json('valid')) {
             return true;
         }
+
         return false;
     }
 
-
-    private function phoneVerification($phone){
-        $provider=EmailMobileValidationProviders::where('type','mobile')
-            ->where('to_use',1)
+    private function phoneVerification($phone)
+    {
+        $provider = EmailMobileValidationProviders::where('type', 'mobile')
+            ->where('to_use', 1)
             ->value('provider');
 
-        if($provider=='vonage'){
-            $response=$this->vonagePhoneVerification($provider,$phone);
-        }else{
-            $response=$this->abstractPhoneVerification($provider,$phone);
+        if ($provider == 'vonage') {
+            $response = $this->vonagePhoneVerification($provider, $phone);
+        } else {
+            $response = $this->abstractPhoneVerification($provider, $phone);
         }
 
         return $response;
     }
-
-
 
     public function postRegister(ProfileRequest $request, User $user)
     {
@@ -133,16 +134,16 @@ class RegisterController extends Controller
         try {
             [$emailValidationStatus, $mobileValidationStatus] = array_values(StatusSetting::select('email_validation_status', 'mobile_validation_status')->first()->toArray());
 
-            if($emailValidationStatus) {
+            if ($emailValidationStatus) {
                 $emailVerifier = $this->emailVerification($request->input('email'));
-                if (!$emailVerifier) {
+                if (! $emailVerifier) {
                     return errorResponse(\Lang::get('message.email_provided_wrong'));
                 }
             }
 
-            if($mobileValidationStatus) {
-                $mobileVerifier= $this->phoneVerification($request->input('mobile_code').$request->input('mobile'));
-                if (!$mobileVerifier) {
+            if ($mobileValidationStatus) {
+                $mobileVerifier = $this->phoneVerification($request->input('mobile_code').$request->input('mobile'));
+                if (! $mobileVerifier) {
                     return errorResponse(\Lang::get('message.mobile_provided_wrong'));
                 }
             }
