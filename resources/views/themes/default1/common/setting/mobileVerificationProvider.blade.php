@@ -104,14 +104,20 @@
                             {!! $statusDisplay !!}
                         </div>
                     </div>
+                    <div class="col-md-4 form-group pull-md-right d-flex align-items-center">
+                        {!! html()->label('SelectedProvider', 'provide')->class("ETitle mb-0 me-5")->style('min-width:150px') !!}
+                        <div class="d-flex align-items-center">
+                        <input type="text" name="provider" disabled value="{{ucfirst($selectedProvider)}}"/>
+                        </div>
+                    </div>
                 </div>
                 <div class ="row">
                     <div class="col-md-4 form-group" id="emailToDisp" style="display:none">
                         {!! html()->label(Lang::get('message.validation-provider'), 'user')->class('required') !!}
                         <select name="manager"  id="provider" class="form-control">
                             <option value="">Choose</option>
-                            <option value="vonage"{{$selectedProvider=='vonage'?'selected':''}}>Vonage</option>
-                            <option value="abstract"{{$selectedProvider=='abstract'?'selected':''}}>Abstract</option>
+                            <option value="vonage">Vonage</option>
+                            <option value="abstract">Abstract</option>
                         </select>
                         <div class="input-group-append"></div>
                     </div>
@@ -135,6 +141,7 @@
             if ($('#email_validation_status').prop("checked")) {
                 document.getElementById('emailToDisp').style.display='block';
             }
+
         });
 
 
@@ -188,24 +195,33 @@
 
         $(document).on('click', '#submitMobile', function (e) {
             const userRequiredFields = {
-                manager:@json(trans('message.system_manager.account_manager')),
-                replace_with:@json(trans('message.system_manager.replacement')),
-                replace:@json(trans('message.system_manager.replacement')),
+                manager:@json(trans('message.mobileApikey_error')),
+                replace_with:@json(trans('message.mobileMode_error')),
+                replace:@json(trans('message.mobileApisecret_error')),
 
             }
-            const userFields = {
+
+            // if($('#provider').val()=='vonage') {
+            //     const userFields = {
+            //         manager: $('#mobileApikey'),
+            //         replace_with: $('#mobileMode'),
+            //         replace: $('#mobileApisecret'),
+            //     };
+            // }else{
+            //     const userFields = {
+            //         manager: $('#mobileApikey'),
+            //     };
+            // }
+
+            const userFields=$('#provider').val()=='vonage'?{
+                manager: $('#mobileApikey'),
+                replace_with: $('#mobileMode'),
+                replace: $('#mobileApisecret'),
+            }:{
                 manager: $('#mobileApikey'),
             };
 
-            if($('#provider').val()=='vonage') {
-                const userFields = {
-                    manager: $('#mobileApikey'),
-                    replace_with: $('#mobileMode'),
-                    replace: $('#mobileApisecret'),
-                };
-            }
-
-
+            console.log(userFields);
 
             // Clear previous errors
             Object.values(userFields).forEach(field => {
@@ -236,11 +252,15 @@
                 let mode=$('#mobileMode');
                 let provider=$('#provider');
                 let apisecret=$('#mobileApisecret');
+                $('#submitMobile').attr('disabled',true)
+                $("#submitMobile").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
                 $.ajax({
                     url:'{{url('mobile-settings-save')}}',
                     type:'post',
                     data:{'apikey':apikey.val(),'mode':mode.val(),'provider':provider.val(),'apisecret':apisecret.val()},
                     success:function(response){
+                        $('#submitMobile').attr('disabled',false)
+                        $("#submitMobile").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>Submit");
                         setTimeout(function() {
                             location.reload();
                         }, 3000);
@@ -252,7 +272,8 @@
                         }, 1000);
                     },
                     error:function(response){
-                        console.log(response)
+                        $('#submitMobile').attr('disabled',false)
+                        $("#submitMobile").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>Submit");
                         $('#alertMessage12').show();
                         var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> Error! </strong>'+response.responseJSON.message+'</div>';
                         $('#alertMessage12').html(result);

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Order;
 
+use App\Events\UserOrderDelete;
 use App\Http\Controllers\Tenancy\TenantController;
 use App\Http\Requests\Order\OrderRequest;
 use App\Jobs\ReportExport;
@@ -505,7 +506,6 @@ class OrderController extends BaseOrderController
     public function destroy(Request $request)
     {
         try {
-            // dd('df');
             $ids = $request->input('select');
             if (! empty($ids)) {
                 foreach ($ids as $id) {
@@ -513,7 +513,7 @@ class OrderController extends BaseOrderController
 
                     if ($order) {
                         if($order->domain){
-                            (new TenantController(new Client,new FaveoCloud))->destroyTenant(new Request(['id'=>$order->domain]));
+                            event(new UserOrderDelete($order->domain));
                         }
                         $order->delete();
                     } else {

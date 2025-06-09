@@ -104,13 +104,19 @@
                         {!! $statusDisplay !!}
                     </div>
                 </div>
+                <div class="col-md-4 form-group pull-md-right d-flex align-items-center">
+                    {!! html()->label('Selected Provider', 'provide')->class("ETitle mb-0 me-5")->style('min-width:150px') !!}
+                    <div class="d-flex align-items-center">
+                        <input type="text" name="provider" disabled value="{{ucfirst($selectedProvider)}}"/>
+                    </div>
+                </div>
             </div>
                 <div class ="row">
                     <div class="col-md-4 form-group" id="emailToDisp" style="display:none">
                         {!! html()->label(Lang::get('message.validation-provider'), 'user')->class('required') !!}
                         <select name="manager" id="provider" class="form-control">
                             <option value="">Choose</option>
-                            <option value="reoon"{{$selectedProvider=='reoon'?'selected':''}}>{{Lang::get('message.reoon')}}</option>
+                            <option value="reoon">{{Lang::get('message.reoon')}}</option>
                         </select>
                         <div class="input-group-append"></div>
                      </div>
@@ -135,6 +141,9 @@
     $(document).ready(function(){
         if ($('#email_validation_status').prop("checked")) {
             document.getElementById('emailToDisp').style.display='block';
+            // if($('#provider').val()!=''){
+            //     emailData();
+            // }
         }
     });
 
@@ -142,20 +151,35 @@
     $('#provider').on('change',function(){
         var value=$(this).val();
         if(value !== '') {
-            $.ajax({
-                url: "{{url('emailData')}}",
-                type: 'post',
-                data: {
-                    'value': value,
-                },
-                success: function (response) {
-                    $('#emailToRender').html(response['data']);
-                }
-            })
+            emailData();
+            {{--$.ajax({--}}
+            {{--    url: "{{url('emailData')}}",--}}
+            {{--    type: 'post',--}}
+            {{--    data: {--}}
+            {{--        'value': value,--}}
+            {{--    },--}}
+            {{--    success: function (response) {--}}
+            {{--        $('#emailToRender').html(response['data']);--}}
+            {{--    }--}}
+            {{--})--}}
         }else{
             $('#emailToRender').html('');
         }
     });
+
+    function emailData(){
+        var value=$('#provider').val();
+        $.ajax({
+            url: "{{url('emailData')}}",
+            type: 'post',
+            data: {
+                'value': value,
+            },
+            success: function (response) {
+                $('#emailToRender').html(response['data']);
+            }
+        })
+    }
 
     $(document).on('change', '#emailMode', function () {
         var value=$(this).val();
@@ -209,13 +233,14 @@
 
     $(document).on('click', '#submitEmail', function (e) {
         const userRequiredFields = {
-            manager:@json(trans('message.system_manager.account_manager')),
-            replace_with:@json(trans('message.system_manager.replacement')),
+            manager:@json(trans('message.emailApikey_error')),
+            replace_with:@json(trans('message.emailMode_error')),
         }
 
         const userFields = {
             manager: $('#emailApikey'),
             replace_with: $('#emailMode'),
+
         };
 
         // Clear previous errors
@@ -249,12 +274,15 @@
             const selectedCheckboxes = document.querySelectorAll('.emailStatusCheckbox:checked');
             let selectedValues = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value));
             let accepted_output = selectedValues.reduce((sum, val) => sum + val, 0);
-
+            $('#submitEmail').attr('disabled',true)
+            $("#submitEmail").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
             $.ajax({
                 url:'{{url('email-settings-save')}}',
                 type:'post',
                 data:{'apikey':apikey.val(),'mode':mode.val(),'provider':provider.val(),'accepted_output':accepted_output},
                 success:function(response){
+                    $('#submitEmail').attr('disabled',false)
+                    $("#submitEmail").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>Submit");
                     setTimeout(function() {
                         location.reload();
                     }, 3000);
@@ -266,7 +294,8 @@
                     }, 1000);
                 },
                 error:function(response){
-                    console.log(response)
+                    $('#submitEmail').attr('disabled',false)
+                    $("#submitEmail").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>Submit");
                     $('#alertMessage12').show();
                     var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> Error! </strong>'+response.responseJSON.message+'</div>';
                     $('#alertMessage12').html(result);

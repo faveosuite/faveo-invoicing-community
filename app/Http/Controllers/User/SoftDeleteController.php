@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Events\UserOrderDelete;
 use App\Http\Controllers\Tenancy\TenantController;
 use App\Model\Common\FaveoCloud;
 use App\User;
@@ -115,7 +116,7 @@ class SoftDeleteController extends ClientController
 
                         foreach ($tenants as $tenant) {
                             if($tenant !== ''){
-                            (new TenantController(new Client,new FaveoCloud))->destroyTenant(new Request(['id'=>$tenant]));
+                            event(new UserOrderDelete($tenant));
                             }
                         }
                         $user->invoiceItem()->delete();

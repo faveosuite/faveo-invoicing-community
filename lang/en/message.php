@@ -1257,6 +1257,9 @@ return [
     'mobile_validation_status'=>'Mobile validation status saved successfully',
     'emailApikey_error'=>'Please enter a valid Reoon Api key.',
     'mobileApikey_error'=>'Please enter valid credentials.',
-    'email_provided_wrong'=>'For security reasons, we are unable to accept the provided email address.Please try registering with a different, valid business email.'
+    'email_provided_wrong'=>'For security reasons, we are unable to accept the provided email address.Please try registering with a different, valid business email.',
+    'emailMode_error'=>'please select a email validation mode.',
+    'mobileMode_error'=>'please select a mobile validation mode.',
+    'mobileApisecret_error'=>'Please enter a valid mobile apisecret.',
 
 ];

@@ -1068,8 +1068,8 @@ class SettingsController extends BaseSettingsController
 
     public function emailData(Request $request){
 
-        ['api_key' => $apikey, 'mode' => $mode] = EmailMobileValidationProviders::where('provider', $request->input('value'))
-            ->select('api_key', 'mode')
+        ['api_key' => $apikey, 'mode' => $mode,'accepted_output'=>$current] = EmailMobileValidationProviders::where('provider', $request->input('value'))
+            ->select('api_key', 'mode','accepted_output')
             ->first()
             ->toArray();
 
@@ -1093,6 +1093,20 @@ class SettingsController extends BaseSettingsController
                 </div>
          <h4><button type="button" class="btn btn-primary float-right" id="submitEmail">Submit</button></h4>
             </div>';
+            if($mode == 'power') {
+                $statusOptions=$this->setStatus($current);
+                $response = '<div>
+        <div class="form-group">' . $label2 . $input . '</div>
+        <div class="form-group">' . $label1 . $input3 . '</div>
+         <div class="form-group" id="checkboxToRender">
+         <div class="form-group">
+            <label class="required" for="allowed_statuses">Allowed Email Statuses</label>'
+                    . $statusOptions .
+                    '</div>
+                </div>
+         <h4><button type="button" class="btn btn-primary float-right" id="submitEmail">Submit</button></h4>
+            </div>';
+            }
         }else{
             $response = '';
         }
@@ -1101,6 +1115,19 @@ class SettingsController extends BaseSettingsController
 
     public function emailCheckboxData(){
         $current=EmailMobileValidationProviders::where('provider','reoon')->value('accepted_output')??1;
+        $statusOptions=$this->setStatus($current);
+
+        $response = '<div class="form-group">
+            <label class="required" for="allowed_statuses">Allowed Email Statuses</label>'
+            . $statusOptions .
+            '</div>';
+
+
+        return successResponse(trans('message.success'), $response);
+
+    }
+
+    private function setStatus($current){
         $map = [
             'safe' => 1,
             'catch_all' => 2,
@@ -1118,14 +1145,7 @@ class SettingsController extends BaseSettingsController
     </div>';
         }
 
-        $response = '<div class="form-group">
-            <label class="required" for="allowed_statuses">Allowed Email Statuses</label>'
-            . $statusOptions .
-            '</div>';
-
-
-        return successResponse(trans('message.success'), $response);
-
+        return $statusOptions;
     }
 
     public function mobileData(Request $request){
