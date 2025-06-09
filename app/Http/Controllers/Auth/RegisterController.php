@@ -103,6 +103,7 @@ class RegisterController extends Controller
         ]);
 
         if($response->successful() && $response->json('valid')){
+
             return true;
         }
         return false;

@@ -77,7 +77,7 @@
 
     </style>
     <div class="col-sm-6 md-6">
-        <h1>Email Verification Providers</h1>
+        <h1>Mobile Validation Providers</h1>
     </div>
     <div class="col-sm-6 md-6">
         <ol class="breadcrumb float-sm-right">
