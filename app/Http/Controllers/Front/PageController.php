@@ -352,7 +352,7 @@ class PageController extends Controller
             $array1 = $this->keyArray($array[$i]);
             $array2 = $this->valueArray($array[$i]);
             $id = Product::where('name', $array2[0])->value('id');
-            $data = Product::where('name', $array2[0])->value('highlight') ? PricingTemplate::findorFail(3)->data : PricingTemplate::findorFail(4)->data;
+            $data = Product::where('name', $array2[0])->value('highlight') ? PricingTemplate::findorFail(1)->data : PricingTemplate::findorFail(2)->data;
             $offerprice = $this->getOfferprice($id);
             $description = self::getPriceDescription($id);
             $month_offer_price = $offerprice['30_days'] ?? null;
