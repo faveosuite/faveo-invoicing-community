@@ -35,7 +35,7 @@ return [
     /*
      * Set to false to disable automatic nonce generation and handling.
      * This is useful when you want to use 'unsafe-inline' for scripts/styles
-     * and cannot add inline nonces. 
+     * and cannot add inline nonces.
      * Note that this will make your CSP policy less secure.
      */
     'nonce_enabled' => env('CSP_NONCE_ENABLED', true),
