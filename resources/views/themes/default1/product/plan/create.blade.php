@@ -442,16 +442,6 @@ $("#close-plan").click(function() {
           document.getElementById("prodquant").disabled = true;
         }
       },
-
-        error: function(data){
-            document.getElementById('planproduct').value='';
-            $('#alertMessage').show();
-            var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> error! </strong>'+data.responseJSON.message+'.</div>';
-            $('#alertMessage').html(result);
-            setInterval(function(){
-                $('#alertMessage').slideUp(1000);
-            }, 7000);
-        },
     });
   }
 </script>

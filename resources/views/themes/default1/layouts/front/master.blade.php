@@ -948,13 +948,16 @@ setTimeout(function() {
               type: "GET",
               url: "{{url('footer1')}}",
               success: function (data) {
+
                   var data1=data['data']['footer1'];
                   var data2=data['data']['footer2'];
                   var data3=data['data']['footer3'];
                   var target=document.getElementById('footer1');
-                  target.insertAdjacentHTML('beforeend', data1);
-                  target.insertAdjacentHTML('beforeend', data2);
-                  target.insertAdjacentHTML('beforeend', data3);
+                  [data1, data2, data3].forEach(data => {
+                      if (data !== undefined) {
+                          target.insertAdjacentHTML('beforeend', data);
+                      }
+                  });
                   mailchimp_render();
               }
           });
