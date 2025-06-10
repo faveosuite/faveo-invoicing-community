@@ -61,6 +61,7 @@ class ComposerStaticInit2955b800a3d45855083212747d565e16
         'd7354eb4c8441fbf08eec280b61c7c73' => __DIR__ . '/..' . '/rachidlaasri/laravel-installer/src/Helpers/functions.php',
         '13906c19e3d8fcd1341b24ed4d51cf72' => __DIR__ . '/..' . '/razorpay/razorpay/Deprecated.php',
         '72b1e3f4a2af9b30b3f137b3ec2057fc' => __DIR__ . '/..' . '/spatie/laravel-activitylog/src/helpers.php',
+        'd1661eee51f445744684bc596e61def0' => __DIR__ . '/..' . '/spatie/laravel-csp/src/helpers.php',
         'eed9c7469f94573c0d97cc45de79b754' => __DIR__ . '/..' . '/spatie/laravel-html/src/helpers.php',
         '320163ac6b93aebe3dc25b60a0533d56' => __DIR__ . '/..' . '/spatie/laravel-ignition/src/helpers.php',
         '2c102faa651ef8ea5874edb585946bce' => __DIR__ . '/..' . '/swiftmailer/swiftmailer/lib/swift_required.php',
@@ -165,6 +166,7 @@ class ComposerStaticInit2955b800a3d45855083212747d565e16
             'Spatie\\Html\\' => 12,
             'Spatie\\FlareClient\\' => 19,
             'Spatie\\ErrorSolutions\\' => 22,
+            'Spatie\\Csp\\' => 11,
             'Spatie\\Backtrace\\' => 17,
             'Spatie\\Activitylog\\' => 19,
             'SimpleSoftwareIO\\QrCode\\' => 24,
@@ -626,6 +628,10 @@ class ComposerStaticInit2955b800a3d45855083212747d565e16
         'Spatie\\ErrorSolutions\\' => 
         array (
             0 => __DIR__ . '/..' . '/spatie/error-solutions/src',
+        ),
+        'Spatie\\Csp\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/spatie/laravel-csp/src',
         ),
         'Spatie\\Backtrace\\' => 
         array (
@@ -12526,6 +12532,21 @@ class ComposerStaticInit2955b800a3d45855083212747d565e16
         'Spatie\\Backtrace\\CodeSnippets\\NullSnippetProvider' => __DIR__ . '/..' . '/spatie/backtrace/src/CodeSnippets/NullSnippetProvider.php',
         'Spatie\\Backtrace\\CodeSnippets\\SnippetProvider' => __DIR__ . '/..' . '/spatie/backtrace/src/CodeSnippets/SnippetProvider.php',
         'Spatie\\Backtrace\\Frame' => __DIR__ . '/..' . '/spatie/backtrace/src/Frame.php',
+        'Spatie\\Csp\\AddCspHeaders' => __DIR__ . '/..' . '/spatie/laravel-csp/src/AddCspHeaders.php',
+        'Spatie\\Csp\\CspServiceProvider' => __DIR__ . '/..' . '/spatie/laravel-csp/src/CspServiceProvider.php',
+        'Spatie\\Csp\\Directive' => __DIR__ . '/..' . '/spatie/laravel-csp/src/Directive.php',
+        'Spatie\\Csp\\Exceptions\\InvalidCspPolicy' => __DIR__ . '/..' . '/spatie/laravel-csp/src/Exceptions/InvalidCspPolicy.php',
+        'Spatie\\Csp\\Exceptions\\InvalidDirective' => __DIR__ . '/..' . '/spatie/laravel-csp/src/Exceptions/InvalidDirective.php',
+        'Spatie\\Csp\\Exceptions\\InvalidValueSet' => __DIR__ . '/..' . '/spatie/laravel-csp/src/Exceptions/InvalidValueSet.php',
+        'Spatie\\Csp\\Exceptions\\MissingCspMetaTagPolicy' => __DIR__ . '/..' . '/spatie/laravel-csp/src/Exceptions/MissingCspMetaTagPolicy.php',
+        'Spatie\\Csp\\Keyword' => __DIR__ . '/..' . '/spatie/laravel-csp/src/Keyword.php',
+        'Spatie\\Csp\\Nonce\\NonceGenerator' => __DIR__ . '/..' . '/spatie/laravel-csp/src/Nonce/NonceGenerator.php',
+        'Spatie\\Csp\\Nonce\\RandomString' => __DIR__ . '/..' . '/spatie/laravel-csp/src/Nonce/RandomString.php',
+        'Spatie\\Csp\\Policies\\Basic' => __DIR__ . '/..' . '/spatie/laravel-csp/src/Policies/Basic.php',
+        'Spatie\\Csp\\Policies\\Policy' => __DIR__ . '/..' . '/spatie/laravel-csp/src/Policies/Policy.php',
+        'Spatie\\Csp\\PolicyFactory' => __DIR__ . '/..' . '/spatie/laravel-csp/src/PolicyFactory.php',
+        'Spatie\\Csp\\Scheme' => __DIR__ . '/..' . '/spatie/laravel-csp/src/Scheme.php',
+        'Spatie\\Csp\\Value' => __DIR__ . '/..' . '/spatie/laravel-csp/src/Value.php',
         'Spatie\\ErrorSolutions\\Contracts\\BaseSolution' => __DIR__ . '/..' . '/spatie/error-solutions/src/Contracts/BaseSolution.php',
         'Spatie\\ErrorSolutions\\Contracts\\HasSolutionsForThrowable' => __DIR__ . '/..' . '/spatie/error-solutions/src/Contracts/HasSolutionsForThrowable.php',
         'Spatie\\ErrorSolutions\\Contracts\\ProvidesSolution' => __DIR__ . '/..' . '/spatie/error-solutions/src/Contracts/ProvidesSolution.php',
@@ -14787,7 +14808,6 @@ class ComposerStaticInit2955b800a3d45855083212747d565e16
         'Tests\\Unit\\Client\\Stripe\\SettingsControllerTest' => __DIR__ . '/../..' . '/tests/Unit/Client/Stripe/SettingsControllerTest.php',
         'Tests\\Unit\\Common\\HelpersTest' => __DIR__ . '/../..' . '/tests/Unit/Common/HelpersTest.php',
         'Tests\\Unit\\Common\\MSG91ControllerTest' => __DIR__ . '/../..' . '/tests/Unit/Common/MSG91ControllerTest.php',
-        'Tests\\Unit\\Common\\PipedriveControllerTest' => __DIR__ . '/../..' . '/tests/Unit/Common/PipedriveControllerTest.php',
         'Tests\\Unit\\Common\\SettingsControllerTest' => __DIR__ . '/../..' . '/tests/Unit/Common/SettingsControllerTest.php',
         'Tests\\Unit\\Common\\SocialMediaControllerTest' => __DIR__ . '/../..' . '/tests/Unit/Common/SocialMediaControllerTest.php',
         'Tests\\Unit\\EmailSettingsTest' => __DIR__ . '/../..' . '/tests/Unit/EmailSettingsTest.php',

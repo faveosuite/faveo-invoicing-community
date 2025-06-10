@@ -610,6 +610,7 @@ Route::middleware('installAgora')->group(function () {
          * Unautherised requests
          */
         Route::get('check-url', [Api\ApiController::class, 'checkDomain']);
+        Route::post('/csp-report', [Api\ApiController::class, 'logCSP']);
     });
 
     /*
