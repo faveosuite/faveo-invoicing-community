@@ -177,7 +177,14 @@ class PlanController extends ExtendedPlanController
     {
 
         try {
+            $product_is = CloudProducts::where('cloud_product', $request->product)->value('cloud_product');
+            if($product_is){
+                $plans=Plan::where('product',$request->product)->where('days',$request->days)->exists();
+                if($plans){
+                    return back()->withErrors(['product' => 'Plan already exist']);
+                }
 
+            }
             $add_prices = $request->add_price;
             $renew_prices = $request->renew_price;
             $offer_prices = $request->offer_price;
