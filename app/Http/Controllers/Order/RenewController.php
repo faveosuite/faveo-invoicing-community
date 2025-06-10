@@ -360,6 +360,7 @@ class RenewController extends BaseRenewController
             $items = $this->invoiceBySubscriptionId($id, $planid, $cost, $currency, $agents);
             $invoiceid = $items->invoice_id;
             $this->setSession($id, $planid);
+
             return redirect('paynow/'.$invoiceid);
         } catch (\Exception $ex) {
             throw new \Exception($ex->getMessage());
