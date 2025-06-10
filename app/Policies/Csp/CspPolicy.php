@@ -2,7 +2,6 @@
 
 namespace App\Policies\Csp;
 
-use App\User;
 use Spatie\Csp\Directive;
 use Spatie\Csp\Keyword;
 use Spatie\Csp\Policies\Policy;
@@ -68,7 +67,7 @@ class CspPolicy extends Policy
                 'www.googletagmanager.com',
                 'wss://*.tawk.to',
                 'stats.g.doubleclick.net',
-                'cdn.tiny.cloud'
+                'cdn.tiny.cloud',
             ])
             ->addDirective(Directive::FONT, [
                 Keyword::SELF,
