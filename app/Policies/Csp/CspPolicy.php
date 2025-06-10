@@ -103,6 +103,7 @@ class CspPolicy extends Policy
                 Keyword::SELF,
                 'embed.tawk.to',
             ])
-            ->addDirective(Directive::WORKER, [Keyword::SELF]);
+            ->addDirective(Directive::WORKER, [Keyword::SELF])
+            ->reportTo((url(config('csp.report_uri'))));
     }
 }
