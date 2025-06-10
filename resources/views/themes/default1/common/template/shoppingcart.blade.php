@@ -248,6 +248,9 @@ main
 
 
 <script>
+    $('.owl-carousel select').on('mousedown touchstart', function (e) {
+        e.stopPropagation();
+    });
   $(document).ready(function() {
     $('.toggle_event_editing input').on('change', function() {
       const toggleValue = $(this).prop('checked');
