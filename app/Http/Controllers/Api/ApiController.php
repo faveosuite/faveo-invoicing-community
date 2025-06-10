@@ -41,4 +41,15 @@ class ApiController extends Controller
             return response()->json(compact('error'));
         }
     }
+
+    public function logCSP(Request $request)
+    {
+        $content = $request->getContent();
+
+        $json = json_decode($content, true);
+
+        \Log::channel('csp')->info('CSP Report Received', $json ?? ['raw' => $content]);
+
+        return successResponse('CSP report received successfully', 200);
+    }
 }

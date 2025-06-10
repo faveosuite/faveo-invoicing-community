@@ -23,6 +23,7 @@ class VerifyCsrfToken extends BaseVerifier
         'renewurl',
         'pricing/data',
         'group/data',
+        'api/csp-report',
     ];
 
     /**
