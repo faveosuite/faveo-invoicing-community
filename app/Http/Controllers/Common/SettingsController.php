@@ -302,7 +302,7 @@ class SettingsController extends BaseSettingsController
         $v3_v2_recaptcha_status = $this->statusSetting->value('v3_v2_recaptcha_status');
         $checkboxValue = $v3_v2_recaptcha_status ? '1' : '0';
         $checked = $v3_v2_recaptcha_status ? 'checked' : '';
-
+        $emailStatus=$this->statusSetting->value('email_validation_status');
         $toggleSwitch = '
         <label class="switch toggle_event_editing gcaptcha">
             <input type="checkbox" value="'.$checkboxValue.'"  
@@ -318,6 +318,8 @@ class SettingsController extends BaseSettingsController
         $pipedriveAction = $pipedriveStatus ? '<button id="pipedrive-edit-button" class="btn btn-sm btn-secondary btn-xs"><span class="nav-icon fa fa-fw fa-edit"></span></button>' : '';
         $githubAction = $githubStatus ? '<button id="github-edit-button" class="btn btn-sm btn-secondary btn-xs"><span class="nav-icon fa fa-fw fa-edit"></span></button>' : '';
         $recaptchaAction = $v3_v2_recaptcha_status ? '<button id="captcha-edit-button" class="btn btn-sm btn-secondary btn-xs" ><span class="nav-icon fa fa-fw fa-edit"></span></button>' : '';
+        $emailValidationAction = $emailStatus ? '<button id="emailValidation-edit-button" class="btn btn-sm btn-secondary btn-xs" ><span class="nav-icon fa fa-fw fa-edit"></span></button>' : '';
+
         if ($request->ajax()) {
             $dataTable = collect([
                 ['options' => \Lang::get('message.license_heading'), 'description' => \Lang::get('message.license_description'), 'status' => '
@@ -360,6 +362,12 @@ class SettingsController extends BaseSettingsController
                             <input type="checkbox" value="'.($githubStatus ? '1' : '0').'" name="github_settings" class="checkbox" id="github"'.($githubStatus ? 'checked' : '').'>
                             <span class="slider round"></span>
                         </label>', 'action' => $githubAction,
+                ],
+                ['options' => 'Email Validation Provider', 'description' => \Lang::get('message.github_description'), 'status' => '<label class="switch toggle_event_editing emailValidationStatus">
+                        <input type="checkbox" value="'.($emailStatus ? '1' : '0').'"  name="EmailValidationStatus"
+                               class="checkboxEmail" id="email_validation_status"'.($emailStatus ? 'checked' : '').'>
+                        <span class="slider round"></span>
+                    </label>', 'action' => $emailValidationAction,
                 ],
             ]);
 
@@ -1105,7 +1113,6 @@ class SettingsController extends BaseSettingsController
                     . $statusOptions .
                     '</div>
                 </div>
-         <h4><button type="button" class="btn btn-primary float-right" id="submitEmail">Submit</button></h4>
             </div>';
             }
         }else{
