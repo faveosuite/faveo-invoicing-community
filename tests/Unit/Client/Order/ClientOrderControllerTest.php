@@ -169,7 +169,7 @@ use Spatie\Html\Html;
             $date = '2025-03-02 18:15:02';
             $product = Product::create(['name' => 'Helpdesk Advance']);
             $invoice = Invoice::factory()->create(['user_id' => $user->id]);
-            $invoiceItem = InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
+            $invoiceItem = InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name,'product_id'=>$product->id]);
             $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
                 'product' => 'Helpdesk Advance', 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, ]);
             $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
