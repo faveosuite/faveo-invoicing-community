@@ -2555,7 +2555,7 @@ return [
     'organization_mapping' => 'Organisationszuordnung',
     'deal_mapping' => 'Deal-Zuordnung',
 
-// pipedrive fields
+    // pipedrive fields
     'pipedrive' => 'Pipedrive',
     'pipedrive_settings' => 'Pipedrive-Einstellungen',
     'field_mapping' => 'Feldzuordnung',
@@ -2592,7 +2592,7 @@ return [
     'title_field_deals' => 'Das Titelfeld ist für Deals erforderlich.',
     'fields_mapped_successfully' => 'Felder erfolgreich zugeordnet',
 
-// placeholders
+    // placeholders
     'placeholder_beanstalkd' => 'beanstalkd',
     'placeholder_localhost' => 'localhost',
     'placeholder_default' => 'standard',
