@@ -2401,7 +2401,7 @@ return [
     'organization_mapping' => 'تعيين المؤسسة',
     'deal_mapping' => 'تعيين الصفقة',
 
-// pipedrive fields
+    // pipedrive fields
     'pipedrive' => 'بايب درايف',
     'pipedrive_settings' => 'إعدادات Pipedrive',
     'field_mapping' => 'تعيين الحقول',

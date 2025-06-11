@@ -2558,7 +2558,7 @@ return [
     'organization_mapping' => '组织映射',
     'deal_mapping' => '交易映射',
 
-// pipedrive fields
+    // pipedrive fields
     'pipedrive_settings' => 'Pipedrive 设置',
     'field_mapping' => '字段映射',
     'pipedrive_user_verification_tooltip' => '仅当用户完成验证后才允许将其添加到 Pipedrive，请启用此选项。',

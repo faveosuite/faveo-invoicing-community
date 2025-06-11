@@ -2541,7 +2541,7 @@ return [
     'organization_mapping' => 'Mapeamento de Organização',
     'deal_mapping' => 'Mapeamento de Negócio',
 
-// campos do Pipedrive
+    // campos do Pipedrive
     'pipedrive_settings' => 'Configurações do Pipedrive',
     'field_mapping' => 'Mapeamento de Campos',
     'pipedrive_user_verification_tooltip' => 'Habilite isso se o usuário só puder adicionar ao Pipedrive após concluir a verificação.',

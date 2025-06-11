@@ -2551,7 +2551,7 @@ return [
     'organization_mapping' => 'Correspondance des organisations',
     'deal_mapping' => 'Correspondance des transactions',
 
-//    pipedrive fields
+    //    pipedrive fields
     'pipedrive_settings' => 'Paramètres de Pipedrive',
     'field_mapping' => 'Correspondance des champs',
     'pipedrive_user_verification_tooltip' => 'Activez ceci si l’utilisateur est autorisé à ajouter à Pipedrive uniquement après vérification.',
@@ -2587,7 +2587,7 @@ return [
     'title_field_deals' => 'Le champ titre est requis pour les transactions.',
     'fields_mapped_successfully' => 'Champs mappés avec succès',
 
-// placeholders
+    // placeholders
     'placeholder_beanstalkd' => 'beanstalkd',
     'placeholder_localhost' => 'hôte local',
     'placeholder_default' => 'par défaut',

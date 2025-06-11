@@ -2572,7 +2572,7 @@ return [
     'organization_mapping' => 'संगठन मैपिंग',
     'deal_mapping' => 'सौदा मैपिंग',
 
-// pipedrive fields
+    // pipedrive fields
     'pipedrive_settings' => 'पाइपड्राइव सेटिंग्स',
     'field_mapping' => 'फ़ील्ड मैपिंग',
     'pipedrive_user_verification_tooltip' => 'यदि उपयोगकर्ता को केवल सत्यापन पूरा करने के बाद पाइपड्राइव में जोड़ने की अनुमति है, तो इसे सक्षम करें।',

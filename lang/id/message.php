@@ -2556,7 +2556,7 @@ return [
     'organization_mapping' => 'Pemetaan Organisasi',
     'deal_mapping' => 'Pemetaan Transaksi',
 
-// pipedrive fields
+    // pipedrive fields
     'pipedrive_settings' => 'Pengaturan Pipedrive',
     'field_mapping' => 'Pemetaan Kolom',
     'pipedrive_user_verification_tooltip' => 'Aktifkan ini jika pengguna hanya diizinkan untuk menambahkan ke Pipedrive setelah menyelesaikan verifikasi.',

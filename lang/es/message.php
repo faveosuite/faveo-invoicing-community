@@ -2559,7 +2559,7 @@ return [
     'organization_mapping' => 'Asignación de Organización',
     'deal_mapping' => 'Asignación de Trato',
 
-//    pipedrive fields
+    //    pipedrive fields
     'pipedrive' => 'Pipedrive',
     'pipedrive_settings' => 'Configuración de Pipedrive',
     'field_mapping' => 'Asignación de Campos',
@@ -2596,7 +2596,7 @@ return [
     'title_field_deals' => 'El campo de título es obligatorio para los tratos.',
     'fields_mapped_successfully' => 'Campos asignados con éxito',
 
-// placeholders
+    // placeholders
     'placeholder_beanstalkd' => 'beanstalkd',
     'placeholder_localhost' => 'localhost',
     'placeholder_default' => 'predeterminado',
