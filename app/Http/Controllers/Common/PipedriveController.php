@@ -215,7 +215,7 @@ class PipedriveController extends Controller
         $this->syncFieldGroup($this->getOrganizationFields(), $this->groups['organizationId']);
         $this->syncFieldGroup($this->getDealFields(), $this->groups['dealId']);
 
-        return successResponse( __('message.pipedrive_fields_synced'));
+        return successResponse(__('message.pipedrive_fields_synced'));
     }
 
     /**
@@ -328,7 +328,7 @@ class PipedriveController extends Controller
             ->where('pipedrive_group_id', $group_id)
             ->get();
 
-        return successResponse( __('message.local_fields_retrieved'), [
+        return successResponse(__('message.local_fields_retrieved'), [
             'local_fields' => PipedriveLocalFields::get(),
             'pipedrive_fields' => $pipedriveFields,
         ]);
@@ -349,7 +349,7 @@ class PipedriveController extends Controller
         if ($group_name === 'Deal' && ! PipedriveField::whereIn('id', $select1)
                 ->where('field_key', 'title')
                 ->exists()) {
-            return errorResponse( __('message.title_field_deals'));
+            return errorResponse(__('message.title_field_deals'));
         }
 
         try {
@@ -395,7 +395,7 @@ class PipedriveController extends Controller
             return errorResponse($e->getMessage());
         }
 
-        return successResponse( __('message.fields_mapped_successfully'));
+        return successResponse(__('message.fields_mapped_successfully'));
     }
 
     /**

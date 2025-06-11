@@ -2567,7 +2567,7 @@ return [
     'organization_mapping' => 'מיפוי ארגון',
     'deal_mapping' => 'מיפוי עסקה',
 
-// pipedrive fields
+    // pipedrive fields
     'pipedrive_settings' => 'הגדרות Pipedrive',
     'field_mapping' => 'מיפוי שדות',
     'pipedrive_user_verification_tooltip' => 'הפעל אפשרות זו אם המשתמש יכול להתווסף ל‑Pipedrive רק לאחר אימות.',
