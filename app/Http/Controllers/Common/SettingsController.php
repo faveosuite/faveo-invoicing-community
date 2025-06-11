@@ -278,9 +278,10 @@ class SettingsController extends BaseSettingsController
             $githubStatus = StatusSetting::first()->github_status;
             $msg91ThirdPartyId = $apikeys->pluck('msg91_third_party_id')->first();
             $isPipedriveVerificationEnabled = ApiKey::value('require_pipedrive_user_verification');
+            $selectedProvider=EmailMobileValidationProviders::where('type','mobile')->where('to_use',1)->value('provider');
 
             return view('themes.default1.common.apikey', compact('model', 'status', 'licenseSecret', 'licenseUrl', 'siteKey', 'secretKey', 'captchaStatus', 'v3CaptchaStatus', 'updateStatus', 'updateSecret', 'updateUrl', 'mobileStatus', 'mobileauthkey', 'msg91Sender', 'msg91TemplateId', 'emailStatus', 'twitterStatus', 'twitterKeys', 'zohoStatus', 'zohoKey', 'rzpStatus', 'rzpKeys', 'mailchimpSetting', 'mailchimpKey', 'termsStatus', 'termsUrl', 'pipedriveKey', 'pipedriveStatus', 'domainCheckStatus', 'mailSendingStatus',
-                'licenseClientId', 'licenseClientSecret', 'licenseGrantType', 'allists', 'selectedList', 'set', 'githubStatus', 'msg91ThirdPartyId', 'isPipedriveVerificationEnabled'));
+                'licenseClientId', 'licenseClientSecret', 'licenseGrantType', 'allists', 'selectedList', 'set', 'githubStatus', 'msg91ThirdPartyId', 'isPipedriveVerificationEnabled','selectedProvider'));
         } catch (\Exception $ex) {
             return redirect('/')->with('fails', $ex->getMessage());
         }
@@ -303,6 +304,7 @@ class SettingsController extends BaseSettingsController
         $checkboxValue = $v3_v2_recaptcha_status ? '1' : '0';
         $checked = $v3_v2_recaptcha_status ? 'checked' : '';
         $emailStatus=$this->statusSetting->value('email_validation_status');
+        $mobileValStatus=$this->statusSetting->value('mobile_validation_status');
         $toggleSwitch = '
         <label class="switch toggle_event_editing gcaptcha">
             <input type="checkbox" value="'.$checkboxValue.'"  
@@ -319,6 +321,7 @@ class SettingsController extends BaseSettingsController
         $githubAction = $githubStatus ? '<button id="github-edit-button" class="btn btn-sm btn-secondary btn-xs"><span class="nav-icon fa fa-fw fa-edit"></span></button>' : '';
         $recaptchaAction = $v3_v2_recaptcha_status ? '<button id="captcha-edit-button" class="btn btn-sm btn-secondary btn-xs" ><span class="nav-icon fa fa-fw fa-edit"></span></button>' : '';
         $emailValidationAction = $emailStatus ? '<button id="emailValidation-edit-button" class="btn btn-sm btn-secondary btn-xs" ><span class="nav-icon fa fa-fw fa-edit"></span></button>' : '';
+        $mobileValidationAction = $mobileValStatus ? '<button id="mobileValidation-edit-button" class="btn btn-sm btn-secondary btn-xs" ><span class="nav-icon fa fa-fw fa-edit"></span></button>' : '';
 
         if ($request->ajax()) {
             $dataTable = collect([
@@ -363,11 +366,17 @@ class SettingsController extends BaseSettingsController
                             <span class="slider round"></span>
                         </label>', 'action' => $githubAction,
                 ],
-                ['options' => 'Email Validation Provider', 'description' => \Lang::get('message.github_description'), 'status' => '<label class="switch toggle_event_editing emailValidationStatus">
+                ['options' => 'Email Validation Providers', 'description' => \Lang::get('message.email_validation_description'), 'status' => '<label class="switch toggle_event_editing emailValidationStatus">
                         <input type="checkbox" value="'.($emailStatus ? '1' : '0').'"  name="EmailValidationStatus"
                                class="checkboxEmail" id="email_validation_status"'.($emailStatus ? 'checked' : '').'>
                         <span class="slider round"></span>
                     </label>', 'action' => $emailValidationAction,
+                ],
+                ['options' => 'Mobile Validation Providers', 'description' => \Lang::get('message.mobile_validation_description'), 'status' => '<label class="switch toggle_event_editing mobileValidationStatus">
+                        <input type="checkbox" value="'.($mobileValStatus ? '1' : '0').'"  name="mobileValidationStatus"
+                               class="checkbox9" id="mobile_validation_status"'.($mobileValStatus ? 'checked' : '').'>
+                        <span class="slider round"></span>
+                    </label>', 'action' => $mobileValidationAction,
                 ],
             ]);
 
@@ -1100,7 +1109,7 @@ class SettingsController extends BaseSettingsController
         <div class="form-group">' . $label1 . $input3 . '</div>
          <div class="form-group" id="checkboxToRender">
                 </div>
-         <h4><button type="button" class="btn btn-primary float-right" id="submitEmail">Submit</button></h4>
+        
             </div>';
             if($mode == 'power') {
                 $statusOptions=$this->setStatus($current);
@@ -1179,12 +1188,10 @@ class SettingsController extends BaseSettingsController
         <div class="form-group">' . $label2 . $input . '</div>
         <div class="form-group">' . $label1 . $input1 . '</div>
         <div class="form-group">' . $label3 . $input4 . '</div>
-        <h4><button type="button" class="btn btn-primary float-right" id="submitMobile">Submit</button></h4>
     </div>';
         }else{
             $response = '<div>
         <div class="form-group">' . $label2 . $input . '</div>
-        <h4><button type="button" class="btn btn-primary float-right" id="submitMobile">Submit</button></h4>
     </div>';
         }
         return successResponse(trans('message.success'), $response);

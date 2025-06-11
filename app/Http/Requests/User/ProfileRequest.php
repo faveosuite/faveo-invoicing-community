@@ -76,7 +76,7 @@ class ProfileRequest extends Request
                 'last_name' => 'required|max:30',
                 'email' => 'required|email|unique:users',
                 'company' => 'required|max:50',
-                'mobile' => 'required',
+                'mobile' => 'required|unique:users',
                 'address' => 'required',
                 'terms' => 'sometimes',
                 'password' => [
@@ -92,6 +92,7 @@ class ProfileRequest extends Request
     public function messages()
     {
         return[
+            'mobile.unique' => \Lang::get('message.mobile_unique'),
             'new_password.different' => \Lang::get('message.new_password_different'),
             'mobile_code.required' => 'Enter Country code (mobile)',
             'state.required_if' => 'The state field is required when country is India.',

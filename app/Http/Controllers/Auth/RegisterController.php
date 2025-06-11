@@ -175,7 +175,6 @@ class RegisterController extends Controller
                 'ip' => $location['ip'],
                 'timezone_id' => getTimezoneByName($location['timezone']),
                 'referrer' => Referer::get(),
-
             ];
 
             $userInput = User::create($user);
