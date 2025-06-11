@@ -2555,7 +2555,7 @@ return [
     'organization_mapping' => 'நிறுவன பொருத்தம்',
     'deal_mapping' => 'ஒப்பந்த பொருத்தம்',
 
-// pipedrive fields
+    // pipedrive fields
     'pipedrive_settings' => 'PipeDrive அமைப்புகள்',
     'field_mapping' => 'புல பொருத்தம்',
     'pipedrive_user_verification_tooltip' => 'பயனர் சரிபார்ப்பை முடித்த பிறகு மட்டுமே PipeDrive-இல் சேர அனுமதிக்க இந்த விருப்பத்தை இயக்கவும்.',

@@ -2490,7 +2490,7 @@ return [
     'organization_mapping' => 'Preslikavanje organizacije',
     'deal_mapping' => 'Preslikavanje ponude',
 
-// pipedrive fields
+    // pipedrive fields
     'pipedrive' => 'Pipedrive',
     'pipedrive_settings' => 'Pipedrive postavke',
     'field_mapping' => 'Preslikavanje polja',

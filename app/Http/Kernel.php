@@ -23,7 +23,7 @@ class Kernel extends HttpKernel
         // \Voerro\Laravel\VisitorTracker\Middleware\RecordVisits::class,
         // \Torann\Currency\Middleware\CurrencyMiddleware::class,
         // \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
-         \App\Http\Middleware\LanguageMiddleware::class,
+        \App\Http\Middleware\LanguageMiddleware::class,
         SecurityEnforcer::class,
     ];
 
