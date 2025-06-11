@@ -182,6 +182,13 @@ main
     justify-content: center !important;
 }
 
+select {
+    width: 175px !important; /* Set your desired width */
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+ }
+
 /* Firefox-only CSS */
 @-moz-document url-prefix() {
     /* Firefox-specific CSS rules here */
