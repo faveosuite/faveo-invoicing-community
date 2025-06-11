@@ -366,13 +366,13 @@ class SettingsController extends BaseSettingsController
                             <span class="slider round"></span>
                         </label>', 'action' => $githubAction,
                 ],
-                ['options' => 'Email Validation Providers', 'description' => \Lang::get('message.email_validation_description'), 'status' => '<label class="switch toggle_event_editing emailValidationStatus">
+                ['options' => \Lang::get('message.email_provider'), 'description' => \Lang::get('message.email_validation_description'), 'status' => '<label class="switch toggle_event_editing emailValidationStatus">
                         <input type="checkbox" value="'.($emailStatus ? '1' : '0').'"  name="EmailValidationStatus"
                                class="checkboxEmail" id="email_validation_status"'.($emailStatus ? 'checked' : '').'>
                         <span class="slider round"></span>
                     </label>', 'action' => $emailValidationAction,
                 ],
-                ['options' => 'Mobile Validation Providers', 'description' => \Lang::get('message.mobile_validation_description'), 'status' => '<label class="switch toggle_event_editing mobileValidationStatus">
+                ['options' => \Lang::get('message.mobile_provider'), 'description' => \Lang::get('message.mobile_validation_description'), 'status' => '<label class="switch toggle_event_editing mobileValidationStatus">
                         <input type="checkbox" value="'.($mobileValStatus ? '1' : '0').'"  name="mobileValidationStatus"
                                class="checkbox9" id="mobile_validation_status"'.($mobileValStatus ? 'checked' : '').'>
                         <span class="slider round"></span>

@@ -674,9 +674,9 @@
                     <div class="form-group" id="mobileToDisp">
                         {!! html()->label(Lang::get('message.validation-provider'), 'user')->class('required') !!}
                         <select name="manager"  id="mobileProvider" class="form-control">
-                            <option value="">Choose</option>
-                            <option value="vonage"{{$selectedProvider=='vonage'?'selected':''}}>Vonage</option>
-                            <option value="abstract"{{$selectedProvider=='abstract'?'selected':''}}>Abstract</option>
+                            <option value="">{!! \Lang::get('message.choose') !!}</option>
+                            <option value="vonage"{{$selectedProvider=='vonage'?'selected':''}}>{!! \Lang::get('message.vonage') !!}</option>
+                            <option value="abstract"{{$selectedProvider=='abstract'?'selected':''}}>{!! \Lang::get('message.abstract') !!}</option>
                         </select>
                         <div class="input-group-append"></div>
                     </div>
@@ -759,7 +759,7 @@
                     data:{'apikey':apikey.val(),'mode':mode.val(),'provider':provider.val(),'apisecret':apisecret.val()},
                     success:function(response){
                         $('#submitMobile').attr('disabled',false)
-                        $("#submitMobile").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>Submit");
+                        $("#submitMobile").html("<i class='fa fa-check'>&nbsp;&nbsp;</i> Save");
                         setTimeout(function() {
                             location.reload();
                         }, 3000);
@@ -772,7 +772,7 @@
                     },
                     error:function(response){
                         $('#submitMobile').attr('disabled',false)
-                        $("#submitMobile").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>Submit");
+                        $("#submitMobile").html("<i class='fa fa-check'>&nbsp;&nbsp;</i> Save");
                         $('#alertMessage12').show();
                         var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> Error! </strong>'+response.responseJSON.message+'</div>';
                         $('#alertMessage12').html(result);
@@ -900,7 +900,7 @@
                     data:{'apikey':apikey.val(),'mode':mode.val(),'provider':provider.val(),'accepted_output':accepted_output},
                     success:function(response){
                         $('#submitEmail').attr('disabled',false)
-                        $("#submitEmail").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>Submit");
+                        $("#submitEmail").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>Save");
                         setTimeout(function() {
                             location.reload();
                         }, 3000);
@@ -913,7 +913,7 @@
                     },
                     error:function(response){
                         $('#submitEmail').attr('disabled',false)
-                        $("#submitEmail").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>Submit");
+                        $("#submitEmail").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>Save");
                         $('#alertMessage22').show();
                         var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> Error! </strong>'+response.responseJSON.message+'</div>';
                         $('#alertMessage22').html(result);
