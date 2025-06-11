@@ -266,32 +266,6 @@ Settings
             </div>
               @endif
 
-            <div class="col-md-2 col-sm-6">
-                <div class="settingiconblue">
-                    <div class="settingdivblue">
-                        <a class="icons-color" href="{{url('emailVerificationProvider')}}">
-                            <span class="fa-stack fa-2x">
-                                <i class="fas fa-envelope-open"></i>
-                            </span>
-                        </a>
-                    </div>
-                    <div class="text-center text-sm fw_400">{{Lang::get('message.email_settings_heading')}}</div>
-                </div>
-            </div>
-
-
-        <div class="col-md-2 col-sm-6">
-            <div class="settingiconblue">
-                <div class="settingdivblue">
-                    <a class="icons-color" href="{{url('mobileVerificationProvider')}}">
-                            <span class="fa-stack fa-2x">
-                                <i class="fas fa-phone"></i>
-                            </span>
-                    </a>
-                </div>
-                <div class="text-center text-sm fw_400">{{Lang::get('message.mobile_settings_heading')}}</div>
-            </div>
-        </div>
     </div>
 
     </div>

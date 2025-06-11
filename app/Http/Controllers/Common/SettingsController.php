@@ -1056,34 +1056,6 @@ class SettingsController extends BaseSettingsController
         return view('themes.default1.common.setting.contact-options', compact('mailSendingStatus', 'emailStatus'));
     }
 
-    public function emailVerificationProvider(){
-
-//        $emailProvider=ApiKey::where('id',1)->value('email_verification_provider');
-        $emailProvider='reoon';
-        $emailStatus=StatusSetting::where('id',1)->value('email_validation_status');
-        $selectedProvider=EmailMobileValidationProviders::where('type','email')->where('to_use',1)->value('provider');
-
-        $statusDisplay = '<label class="switch toggle_event_editing emailValidationStatus">
-                        <input type="checkbox" value="'.($emailStatus ? '1' : '0').'"  name="EmailValidationStatus"
-                               class="checkbox9" id="email_validation_status"'.($emailStatus ? 'checked' : '').'>
-                        <span class="slider round"></span>
-                    </label>';
-        return view('themes.default1.common.setting.emailVerificationProvider', compact('emailStatus','statusDisplay','emailProvider','selectedProvider'));
-    }
-
-    public function mobileVerificationProvider(){
-
-        $mobileProvider=['abstract','vonage'];
-        $mobileStatus=StatusSetting::where('id',1)->value('mobile_validation_status');
-        $selectedProvider=EmailMobileValidationProviders::where('type','mobile')->where('to_use',1)->value('provider');
-        $statusDisplay = '<label class="switch toggle_event_editing emailValidationStatus">
-                        <input type="checkbox" value="'.($mobileStatus ? '1' : '0').'"  name="EmailValidationStatus"
-                               class="checkbox9" id="email_validation_status"'.($mobileStatus ? 'checked' : '').'>
-                        <span class="slider round"></span>
-                    </label>';
-        return view('themes.default1.common.setting.mobileVerificationProvider', compact('mobileStatus','statusDisplay','mobileProvider','selectedProvider'));
-    }
-
     public function emailData(Request $request){
 
         ['api_key' => $apikey, 'mode' => $mode,'accepted_output'=>$current] = EmailMobileValidationProviders::where('provider', $request->input('value'))

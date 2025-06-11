@@ -670,7 +670,7 @@
                     <h4 class="modal-title">Mobile Validation Providers</h4>
                 </div>
                 <div class="modal-body">
-                    <div id="alertMessage22"></div>
+                    <div id="alertMessage34"></div>
                     <div class="form-group" id="mobileToDisp">
                         {!! html()->label(Lang::get('message.validation-provider'), 'user')->class('required') !!}
                         <select name="manager"  id="mobileProvider" class="form-control">
@@ -763,21 +763,21 @@
                         setTimeout(function() {
                             location.reload();
                         }, 3000);
-                        $('#alertMessage12').show();
+                        $('#alertMessage34').show();
                         var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'</div>';
-                        $('#alertMessage12').html(result);
+                        $('#alertMessage34').html(result);
                         setInterval(function(){
-                            $('#alertMessage12').slideUp(3000);
+                            $('#alertMessage34').slideUp(3000);
                         }, 1000);
                     },
                     error:function(response){
                         $('#submitMobile').attr('disabled',false)
                         $("#submitMobile").html("<i class='fa fa-check'>&nbsp;&nbsp;</i> Save");
-                        $('#alertMessage12').show();
+                        $('#alertMessage34').show();
                         var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> Error! </strong>'+response.responseJSON.message+'</div>';
-                        $('#alertMessage12').html(result);
+                        $('#alertMessage34').html(result);
                         setInterval(function(){
-                            $('#alertMessage12').slideUp(3000);
+                            $('#alertMessage34').slideUp(3000);
                         }, 5000);
                     },
                 })
