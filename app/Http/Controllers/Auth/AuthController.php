@@ -498,7 +498,7 @@ class AuthController extends BaseAuthController
             $status = StatusSetting::select('mailchimp_status', 'pipedrive_status', 'zoho_status')->first();
 
             if (! ($options['skip_pipedrive'] ?? false)) {
-                (new PipedriveController())->$this->pipedrive->addUserToPipedrive($user);
+                (new PipedriveController())->addUserToPipedrive($user);
             }
 
             if (! ($options['skip_zoho'] ?? false)) {
