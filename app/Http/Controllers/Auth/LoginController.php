@@ -50,13 +50,13 @@ class LoginController extends Controller
         $this->middleware('guest')->except(['logout', 'store-basic-details']);
     }
 
-
     /**
      * This function returns to the login page.
      *
      * @param
      * @param
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     *
      * @throws
      */
     public function showLoginForm()
@@ -80,13 +80,13 @@ class LoginController extends Controller
         }
     }
 
-
     /**
      * This function performs login operations checks the validates email,password and redirects 2fa status of the user.
      *
-     * @param Request $request
+     * @param  Request  $request
      * @param
      * @return \Illuminate\Http\RedirectResponse
+     *
      * @throws
      */
     public function login(Request $request)
@@ -126,14 +126,17 @@ class LoginController extends Controller
             }
             if ($attempts && ($attempts->mobile_attempt >= 2 || $attempts->email_attempt >= 3)) {
                 $remainingTime = Carbon::parse($attempts->updated_at)->addHours(6)->diffInSeconds(Carbon::now());
+
                 return redirect()->back()->withErrors(__('message.verify_time_limit_exceed', ['time' => formatDuration($remainingTime)]));
             }
+
             return redirect('verify')->with('user', $user);
         }
         // Check if 2FA is enabled
         if ($user->is_2fa_enabled) {
             $request->session()->put('2fa:user:id', $user->id);
             $request->session()->put('remember:user:id', $request->has('remember'));
+
             return redirect('2fa/validate');
         }
 
@@ -175,13 +178,13 @@ class LoginController extends Controller
         return $sessionUrl ?: $defaultPath;
     }
 
-
     /**
      * This function redirects to the social login based on the provider(twitter,gitHub).
      *
-     * @param $provider
+     * @param  $provider
      * @param
      * @return \Illuminate\Http\RedirectResponse
+     *
      * @throws
      */
     public function redirectToGithub($provider)
@@ -198,9 +201,10 @@ class LoginController extends Controller
     /**
      * This function performs the whole social login operations(creating new user, if existing user just logging in).
      *
-     * @param $provider
+     * @param  $provider
      * @param
      * @return \Illuminate\Http\RedirectResponse
+     *
      * @throws
      */
     public function handler($provider)
@@ -268,9 +272,10 @@ class LoginController extends Controller
     /**
      * This function stores basic details for social logins.
      *
-     * @param Request $request
+     * @param  Request  $request
      * @param
      * @return \Illuminate\Http\RedirectResponse
+     *
      * @throws
      */
     public function storeBasicDetailsss(Request $request)
@@ -300,7 +305,6 @@ class LoginController extends Controller
      *
      * @throws
      */
-
     private function convertCart()
     {
         $contents = \Cart::getContent();
@@ -326,9 +330,10 @@ class LoginController extends Controller
     /**
      * This function is used to check if the users number and email verified or not.
      *
-     * @param $user
+     * @param  $user
      * @param
      * @return bool
+     *
      * @throws
      */
     private function userNeedVerified($user)
