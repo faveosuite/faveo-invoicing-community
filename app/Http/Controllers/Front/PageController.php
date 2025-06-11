@@ -579,13 +579,13 @@ class PageController extends Controller
         if ($product->add_to_contact != 1) {
             if (in_array($product->id, cloudPopupProducts())) {
                 return '<button class="btn '.$orderButton.' btn-modern buttonsale" data-toggle="modal" data-target="#tenancy" data-mydata="'.$product->id.'">
-                                <span style="white-space: nowrap;">'.__('messages.order_now').'/span>
+                                <span style="white-space: nowrap;">'.__('message.order_now').'/span>
                             </button>';
             } else {
                 return '<input type="submit" value="Order Now" class="btn '.$orderButton.' btn-modern buttonsale"></form>';
             }
         } else {
-            return '<a class="btn '.$orderButton.' btn-modern sales buttonsale" href="https://www.faveohelpdesk.com/contact-us/">'.__('messages.contact_sales').'</a>';
+            return '<a class="btn '.$orderButton.' btn-modern sales buttonsale" href="https://www.faveohelpdesk.com/contact-us/">'.__('message.contact_sales').'</a>';
         }
     }
 

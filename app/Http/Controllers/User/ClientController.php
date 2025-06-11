@@ -291,7 +291,7 @@ class ClientController extends AdvanceSearchController
     {
         try {
             if (User::onlyTrashed()->find($id)) {
-                throw new \Exception(\Lang::get('messages.user_suspend'));
+                throw new \Exception(\Lang::get('message.user_suspend'));
             }
             $invoice = new Invoice();
             $order = new Order();
@@ -432,12 +432,12 @@ class ClientController extends AdvanceSearchController
                     $isAccountManager = User::where('account_manager', $id)->get();
                     $isSalesManager = User::where('manager', $id)->get();
                     if (count($isSalesManager) > 0) {
-                        throw new \Exception(__('messages.admin_delete_restricted', [
+                        throw new \Exception(__('message.admin_delete_restricted', [
                             'name' => $user->first_name.' '.$user->last_name,
                         ]));
                     }
                     if (count($isAccountManager) > 0) {
-                        throw new \Exception(__('messages.cannot_delete_admin', [
+                        throw new \Exception(__('message.cannot_delete_admin', [
                             'name' => $user->first_name.' '.$user->last_name,
                         ]));
                     }

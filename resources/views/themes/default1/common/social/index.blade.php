@@ -168,7 +168,7 @@
                     "<p>{{Lang::get('message.sweet_social')}}</p>" + "</div>" +
                     "</div>",
                 position: 'top',
-                confirmButtonText: "OK",
+                confirmButtonText: "{{ __('message.ok') }}",
                 showCloseButton: true,
                 confirmButtonColor: "#007bff",
                 width: "600px",
@@ -215,7 +215,7 @@
                                 "<p>{{Lang::get('message.sweet_social')}}</p>" + "</div>" +
                                 "</div>",
                             position: 'top',
-                            confirmButtonText: "OK",
+                            confirmButtonText: "{{ __('message.ok') }}",
                             showCloseButton: true,
                             confirmButtonColor: "#007bff",
                             width: "600px",

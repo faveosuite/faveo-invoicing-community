@@ -260,6 +260,7 @@
                                     relative_urls: true,
                                     remove_script_host: false,
                                     convert_urls: false,
+                                    directionality: '{{isRtlForLang() ? 'rtl' : 'ltr'}}',
                                     plugins: [
                                         'advlist autolink lists link image charmap print preview hr anchor pagebreak',
                                         'searchreplace wordcount visualblocks visualchars code fullscreen',
@@ -542,7 +543,12 @@
             $(document).ready(function() {
                 $("#Tax").select2({
                     placeholder: '{{ __('message.select_taxes') }}',
-                    tags:true
+                    tags:true,
+                    language: {
+                        noResults: function() {
+                            return '{{ __('message.select2_no_results') }}';
+                        }
+                    }
                 });
             });
 

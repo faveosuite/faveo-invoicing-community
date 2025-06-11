@@ -32,7 +32,7 @@
 
 .custom-input:focus {
     border-color: #777;
-    outline: none; 
+    outline: none;
 }
 
         .markdown-output p {
@@ -56,12 +56,12 @@
 
 </style>
   <html>
-<?php 
+<?php
  $dataCenters = \App\Model\CloudDataCenters::all();
 ?>
-<?php 
+<?php
 $setting = \App\Model\Common\Setting::where('id', 1)->first();
-$everyPageScripts = ''; 
+$everyPageScripts = '';
 $scripts = \App\Model\Common\ChatScript::where('on_every_page', 1)->get();
 
 foreach($scripts as $script) {
@@ -97,6 +97,15 @@ foreach($scripts as $script) {
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
+    <!-- Vendor CSS -->
+
+    <link rel="stylesheet" href="{{asset('client/porto/css-2/animate.compat.css')}}">
+    <link rel="stylesheet" href="{{asset('client/porto/css-2/simple-line-icons.min.css')}}">
+    <link rel="stylesheet" href="{{asset('client/porto/css-2/owl.carousel.min.css')}}">
+    <link rel="stylesheet" href="{{asset('client/porto/css-2/owl.theme.default.min.css')}}">
+    <link rel="stylesheet" href="{{asset('client/porto/css-2/magnific-popup.min.css')}}">
+    <link rel="stylesheet" href="{{asset('admin/css-1/flag-icons.min.css')}}">
+
 @if(in_array(app()->getLocale(), ['ar', 'he']))
     <link rel="stylesheet" href="{{asset('client/porto/css-2/all.rtl.min.css')}}">
     <link rel="stylesheet" href="{{asset('admin/css-1/sweet-alert-rtl.css')}}">
@@ -115,16 +124,6 @@ foreach($scripts as $script) {
     <link id="default-styles-3" rel="stylesheet" href="{{asset('client/porto/css-2/theme-blog.css')}}">
     <link id="default-styles-4" rel="stylesheet" href="{{asset('client/porto/css-2/theme-shop.css')}}">
 @endif
-
-
-    <!-- Vendor CSS -->
-    <link rel="stylesheet" href="{{asset('client/porto/css-2/animate.compat.css')}}">
-    <link rel="stylesheet" href="{{asset('client/porto/css-2/simple-line-icons.min.css')}}">
-    <link rel="stylesheet" href="{{asset('client/porto/css-2/owl.carousel.min.css')}}">
-    <link rel="stylesheet" href="{{asset('client/porto/css-2/owl.theme.default.min.css')}}">
-    <link rel="stylesheet" href="{{asset('client/porto/css-2/magnific-popup.min.css')}}">
-    <link rel="stylesheet" href="{{asset('admin/css-1/flag-icons.min.css')}}">
-
 
 
 
@@ -471,11 +470,11 @@ $days = $pay->where('product','117')->value('days');
 
                                                             <li>
                                                                 <div class="actions">
-                                                                    <a class="btn btn-dark btn-modern text-uppercase font-weight-semi-bold"
+                                                                    <a class="btn btn-dark btn-modern text-uppercase font-weight-semi-bold col-5"
                                                                        href="{{ url('show/cart') }}">{{ __('message.view_cart') }}</a>
                                                                     @if (count($domain) > 0)
                                                                         <a href="#domain" data-toggle="modal" data-target="#domain"
-                                                                           class="btn btn-primary">{{ __('message.proceed_checkout') }}</a>
+                                                                           class="btn btn-primary col-5">{{ __('message.proceed_checkout') }}</a>
                                                                     @else
                                                                         <a href="{{ url('checkout') }}" class="btn btn-primary">{{ __('message.checkout') }}</a>
                                                                     @endif
@@ -622,7 +621,7 @@ $days = $pay->where('product','117')->value('days');
                 <div class="alert alert-danger alert-dismissable" role="alert">
 
                     <button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true">&times;</span></button>
-                    
+
                     @if ($errors->count() > 1)
                         <ul>
                             @foreach ($errors->all() as $error)

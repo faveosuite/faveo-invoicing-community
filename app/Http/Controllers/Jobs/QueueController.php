@@ -184,28 +184,28 @@ class QueueController extends Controller
             switch ($short) {
                 case 'beanstalkd':
                     $form .= "<div class='row'>";
-                    $form .= $this->form($short, __('message.driver'), 'driver', 'col-md-6 form-group', 'beanstalkd');
-                    $form .= $this->form($short, __('message.host'), 'host', 'col-md-6 form-group', 'localhost');
-                    $form .= $this->form($short, __('message.queue'), 'queue', 'col-md-6 form-group', 'default');
+                    $form .= $this->form($short, __('message.driver'), 'driver', 'col-md-6 form-group', __('message.placeholder_beanstalkd'));
+                    $form .= $this->form($short, __('message.host'), 'host', 'col-md-6 form-group', __('message.placeholder_localhost'));
+                    $form .= $this->form($short, __('message.queue'), 'queue', 'col-md-6 form-group', __('message.placeholder_default'));
                     $form .= '</div>';
 
                     return $form;
                 case 'sqs':
                     $form .= "<div class='row'>";
-                    $form .= $this->form($short, __('message.driver'), 'driver', 'col-md-6 form-group', 'sqs');
-                    $form .= $this->form($short, __('message.db_key'), 'key', 'col-md-6 form-group', 'your-public-key');
-                    $form .= $this->form($short, __('message.secret'), 'secret', 'col-md-6 form-group', 'your-queue-url');
-                    $form .= $this->form($short, __('message.region'), 'region', 'col-md-6 form-group', 'us-east-1');
+                    $form .= $this->form($short, __('message.driver'), 'driver', 'col-md-6 form-group', __('message.placeholder_sqs'));
+                    $form .= $this->form($short, __('message.db_key'), 'key', 'col-md-6 form-group', __('message.placeholder_your-public-key'));
+                    $form .= $this->form($short, __('message.secret'), 'secret', 'col-md-6 form-group', __('message.placeholder_your-queue-url'));
+                    $form .= $this->form($short, __('message.region'), 'region', 'col-md-6 form-group', __('message.placeholder_us-east-1'));
                     $form .= '</div>';
 
                     return $form;
                 case 'iron':
                     $form .= "<div class='row'>";
-                    $form .= $this->form($short, __('message.driver'), 'driver', 'col-md-6 form-group', 'iron');
-                    $form .= $this->form($short, __('message.host'), 'host', 'col-md-6 form-group', 'mq-aws-us-east-1.iron.io');
-                    $form .= $this->form($short, __('message.db_token'), 'token', 'col-md-6 form-group', 'your-token');
-                    $form .= $this->form($short, __('message.db_project'), 'project', 'col-md-6 form-group', 'your-project-id');
-                    $form .= $this->form($short, __('message.queue'), 'queue', 'col-md-6 form-group', 'your-queue-name');
+                    $form .= $this->form($short, __('message.driver'), 'driver', 'col-md-6 form-group', __('message.placeholder_iron'));
+                    $form .= $this->form($short, __('message.host'), 'host', 'col-md-6 form-group', __('message.placeholder_mq_aws'));
+                    $form .= $this->form($short, __('message.db_token'), 'token', 'col-md-6 form-group', __('message.placeholder_your-token'));
+                    $form .= $this->form($short, __('message.db_project'), 'project', 'col-md-6 form-group', __('message.placeholder_your-project-id'));
+                    $form .= $this->form($short, __('message.queue'), 'queue', 'col-md-6 form-group', __('message.placeholder_your-queue-name'));
                     $form .= '</div>';
 
                     return $form;

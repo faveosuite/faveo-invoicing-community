@@ -25,6 +25,10 @@
 
         }
 
+   [dir="rtl"] #place_order_razor {
+       margin-right : 104px !important;
+     }
+
 </style>
 <?php
 $taxAmt = 0;
@@ -415,7 +419,7 @@ $json = json_encode($data);
                                 </table>
 
 
-                                <input type="submit" name="submit" value="Place Your Order And Pay" id="rzp-button1"  class="btn btn-dark btn-modern w-100 text-uppercase text-3 py-3" data-loading-text="{{ __('message.loading') }}">
+                                <input type="submit" name="submit" value="{{ __('message.place_your_order_pay') }}" id="rzp-button1"  class="btn btn-dark btn-modern w-100 text-uppercase text-3 py-3" data-loading-text="{{ __('message.loading') }}">
 
                             </div>
                         </div>
@@ -530,7 +534,7 @@ $json = json_encode($data);
 
                 <div class="col-lg-5 position-relative">
 
-                        <div class="card border-width-3 border-radius-0 border-color-hover-dark" data-plugin-sticky data-plugin-options="{'minWidth': 991, 'containerSelector': '.row', 'padding': {'top': 85}}">
+                        <div class="card border-width-3 border-radius-0 border-color-hover-dark" id="place_order_razor" data-plugin-sticky data-plugin-options="{'minWidth': 991, 'containerSelector': '.row', 'padding': {'top': 85}}">
 
                             <div class="card-body">
 
@@ -609,7 +613,7 @@ $json = json_encode($data);
 
                                         <tr class="total">
                                          <td class="border-top-0">
-                                            <strong class="d-block text-color-dark line-height-1 font-weight-semibold">Paid</strong>
+                                            <strong class="d-block text-color-dark line-height-1 font-weight-semibold">{{ __('message.paid') }}</strong>
                                         </td>
                                            <td class="border-top-0 text-end">
                                             <span class="amount font-weight-medium">
@@ -676,7 +680,7 @@ $json = json_encode($data);
                                     </tbody>
                                 </table>
 
-                                 <input type="submit" name="submit" value="Place Your Order And Pay" id="rzp-button1"  class="btn btn-dark btn-modern w-100 text-uppercase text-3 py-3" data-loading-text="{{ __('message.loading') }}">
+                                 <input type="submit" name="submit" value="{{ __('message.place_your_order_pay') }}" id="rzp-button1"  class="btn btn-dark btn-modern w-100 text-uppercase text-3 py-3" data-loading-text="{{ __('message.loading') }}">
                                                              </div>
                         </div>
                     </div>
