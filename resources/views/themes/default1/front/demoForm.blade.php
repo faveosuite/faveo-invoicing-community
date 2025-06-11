@@ -9,7 +9,7 @@ $status =  App\Model\Common\StatusSetting::select('recaptcha_status','v3_recaptc
                 $apiKeys = \App\ApiKey::select('nocaptcha_sitekey', 'captcha_secretCheck', 'msg91_auth_key', 'terms_url')->first();
                 ?>
     
-            <form  id="demoForm" method="post">
+            <form  id="demoForm">
             <div class="modal-content">
 
                 <div class="modal-header">
