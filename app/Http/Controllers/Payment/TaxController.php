@@ -337,7 +337,7 @@ class TaxController extends Controller
                 echo '<option value='.$state->state_subdivision_code.'>'.$state->state_subdivision_name.'</option>';
             }
         } catch (\Exception $ex) {
-            echo "<option value=''>".__('messages.problem_while_loading').'</option>';
+            echo "<option value=''>".__('message.problem_while_loading').'</option>';
 
             return redirect()->back()->with('fails', $ex->getMessage());
         }

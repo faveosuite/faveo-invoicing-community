@@ -313,7 +313,7 @@ $json = json_encode($data);
         <br />
         <div class="form-group">
                    <div class="col-md-12" id="not-razor">
-        <input type="submit" name="submit" value="Place Your Order And Pay" id="rzp-button1" class="btn btn-primary " data-loading-text="{{ __('message.loading') }}" style="width:100%">
+        <input type="submit" name="submit" value="{{ __('message.place_your_order_pay') }}" id="rzp-button1" class="btn btn-primary " data-loading-text="{{ __('message.loading') }}" style="width:100%">
     </div>
                 </div>
     </div>

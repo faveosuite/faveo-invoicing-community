@@ -84,6 +84,9 @@
         .StripeElement--invalid {
             border: 1px solid #df1b41 !important;
         }
+        [dir="rtl"] #place_order_stripe {
+            margin-right : 104px !important;
+        }
  </style>
 <script src="https://js.stripe.com/v3/"></script>
 
@@ -408,7 +411,7 @@ $feeAmount = intval(ceil($invoice->grand_total*$processingFee));
                                     </tbody>
                                 </table>
 
-                              <input type="submit" name="submit" value="Place Your Order And Pay" id="{{ strtolower($gateway) === 'stripe' ? 'stripe-button1' : 'rzp-button1' }}" class="btn btn-dark btn-modern w-100 text-uppercase text-3 py-3" data-loading-text="{{ __('message.loading') }}">
+                              <input type="submit" name="submit" value="{{ __('message.place_your_order_pay') }}" id="{{ strtolower($gateway) === 'stripe' ? 'stripe-button1' : 'rzp-button1' }}" class="btn btn-dark btn-modern w-100 text-uppercase text-3 py-3" data-loading-text="{{ __('message.loading') }}">
 
 
                             </div>
@@ -524,7 +527,7 @@ $feeAmount = intval(ceil($invoice->grand_total*$processingFee));
 
                 <div class="col-lg-5 position-relative">
 
-                        <div class="card border-width-3 border-radius-0 border-color-hover-dark" data-plugin-sticky data-plugin-options="{'minWidth': 991, 'containerSelector': '.row', 'padding': {'top': 85}}">
+                        <div class="card border-width-3 border-radius-0 border-color-hover-dark" id="place_order_stripe" data-plugin-sticky data-plugin-options="{'minWidth': 991, 'containerSelector': '.row', 'padding': {'top': 85}}">
 
                             <div class="card-body">
 
@@ -677,7 +680,7 @@ $feeAmount = intval(ceil($invoice->grand_total*$processingFee));
                                     </tr>
                                     </tbody>
                                 </table>
-                              <input type="submit" name="submit" value="Place Your Order And Pay" id="{{ strtolower($gateway) === 'stripe' ? 'stripe-button1' : 'rzp-button1' }}" class="btn btn-dark btn-modern w-100 text-uppercase text-3 py-3" data-loading-text="{{ __('message.loading') }}">
+                              <input type="submit" name="submit" value="{{ __('message.place_your_order_pay') }}" id="{{ strtolower($gateway) === 'stripe' ? 'stripe-button1' : 'rzp-button1' }}" class="btn btn-dark btn-modern w-100 text-uppercase text-3 py-3" data-loading-text="{{ __('message.loading') }}">
 
                             </div>
                         </div>

@@ -102,7 +102,7 @@ class OrderSearchController extends Controller
 
             return $options;
         } catch (\Exception $ex) {
-            return "<option value=''>".__('messages.problem_while_loading').'</option>';
+            return "<option value=''>".__('message.problem_while_loading').'</option>';
         }
     }
 

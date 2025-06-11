@@ -87,7 +87,7 @@
                     <div class="col-md-4 form-group {{ $errors->has('parent_page_id') ? 'has-error' : '' }}">
                         <!-- parent_page_id -->
                         {!! html()->label(Lang::get('message.parent-page'), 'parent_page_id') !!}
-                        {!! html()->select('parent_page_id', ['0' => __('message.choose'), 'Parent Pages' => $parents])->class('form-control'.($errors->has('parent_page_id') ? ' is-invalid' : '')) !!}
+                        {!! html()->select('parent_page_id', ['0' => __('message.choose'), __('message.parent-page') => $parents])->class('form-control'.($errors->has('parent_page_id') ? ' is-invalid' : '')) !!}
                         @error('parent_page_id')
                         <span class="error-message"> {{$message}}</span>
                         @enderror
