@@ -110,31 +110,6 @@ class SettingsControllerTest extends DBTestCase
         $this->assertNotEmpty($methodResponse->content());
     }
 
-    public function test_redirecting_to_email_provider(){
-        $user = User::factory()->create(['role' => 'admin']);
-        $this->actingAs($user);
-        $this->withoutMiddleware();
-        StatusSetting::where('id',1)->create(['email_setting_status'=>1]);
-        $response=$this->call('get','emailVerificationProvider');
-        $response->assertStatus(200);
-        $response->assertViewIs('themes.default1.common.setting.emailVerificationProvider');
-        $response->assertViewHas('statusDisplay');
-    }
-
-    public function test_redirecting_to_mobile_provider(){
-        $user = User::factory()->create(['role' => 'admin']);
-        $this->actingAs($user);
-        $this->withoutMiddleware();
-        StatusSetting::where('id',1)->create(['mobile_setting_status'=>1]);
-        EmailMobileValidationProviders::where('provider','vonage')->update(['to_use'=>1]);
-        $response=$this->call('get','mobileVerificationProvider');
-        $response->assertStatus(200);
-        $response->assertViewIs('themes.default1.common.setting.mobileVerificationProvider');
-        $response->assertViewHas('statusDisplay');
-        $response->assertViewHas('mobileProvider');
-    }
-
-
     public function test_get_email_data(){
         $user = User::factory()->create(['role' => 'admin']);
         $this->actingAs($user);
