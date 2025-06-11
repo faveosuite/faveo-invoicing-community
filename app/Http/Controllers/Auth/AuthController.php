@@ -52,7 +52,6 @@ class AuthController extends BaseAuthController
         $this->middleware('guest', ['except' => 'getLogout']);
         $license = new LicenseController();
         $this->licensing = $license;
-        $this->pipedrive = new PipedriveController();
     }
 
     public function activate($token, AccountActivate $activate, Request $request, User $user)
@@ -499,7 +498,7 @@ class AuthController extends BaseAuthController
             $status = StatusSetting::select('mailchimp_status', 'pipedrive_status', 'zoho_status')->first();
 
             if (! ($options['skip_pipedrive'] ?? false)) {
-                $this->pipedrive->addUserToPipedrive($user);
+                (new PipedriveController())->$this->pipedrive->addUserToPipedrive($user);
             }
 
             if (! ($options['skip_zoho'] ?? false)) {

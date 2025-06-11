@@ -308,6 +308,7 @@ $(document).ready(function() {
       document.querySelectorAll(".content-switcher").forEach(function (switcher) {
           const card = switcher.closest(".card");
           const priceElement = card.querySelector(".price");
+          const priceLabel=card.querySelector(".price-label");
           const priceUnit = priceElement.querySelector(".price-unit");
           const stylePlanSelect = card.querySelector(".stylePlan");
 
@@ -319,10 +320,11 @@ $(document).ready(function() {
                   const selectedOption = this.options[this.selectedIndex];
                   const newPrice = selectedOption.getAttribute("data-price");
                   const newCurrency = selectedOption.textContent.trim().charAt(0);
-
+                  const newLabel= selectedOption.getAttribute("data-description");
                   if (priceUnit && newPrice) {
                       priceUnit.textContent = newCurrency;
                       priceUnit.nextSibling.textContent = newPrice;
+                      priceLabel.textContent=newLabel;
                   }
               });
           }
