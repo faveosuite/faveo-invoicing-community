@@ -201,18 +201,6 @@
 
             }
 
-            // if($('#provider').val()=='vonage') {
-            //     const userFields = {
-            //         manager: $('#mobileApikey'),
-            //         replace_with: $('#mobileMode'),
-            //         replace: $('#mobileApisecret'),
-            //     };
-            // }else{
-            //     const userFields = {
-            //         manager: $('#mobileApikey'),
-            //     };
-            // }
-
             const userFields=$('#provider').val()=='vonage'?{
                 manager: $('#mobileApikey'),
                 replace_with: $('#mobileMode'),
