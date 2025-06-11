@@ -23,7 +23,7 @@ class Kernel extends HttpKernel
         // \Voerro\Laravel\VisitorTracker\Middleware\RecordVisits::class,
         // \Torann\Currency\Middleware\CurrencyMiddleware::class,
         // \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
-        // \App\Http\Middleware\LanguageMiddleware::class,
+         \App\Http\Middleware\LanguageMiddleware::class,
         SecurityEnforcer::class,
     ];
 
@@ -43,7 +43,6 @@ class Kernel extends HttpKernel
             // \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            \App\Http\Middleware\LanguageMiddleware::class,
 
         ],
         'installer' => [
@@ -81,5 +80,6 @@ class Kernel extends HttpKernel
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         '2fa' => \PragmaRX\Google2FALaravel\Middleware::class,
         'pulse.enabled' => \App\Http\Middleware\CheckPulseEnabled::class,
+        'language' => \App\Http\Middleware\LanguageMiddleware::class,
     ];
 }
