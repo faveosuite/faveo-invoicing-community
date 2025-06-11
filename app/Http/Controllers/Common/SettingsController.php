@@ -19,10 +19,9 @@ use App\Model\Plugin;
 use App\Payment_log;
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Spatie\Activitylog\Models\Activity;
 use Yajra\DataTables\DataTables;
-use Illuminate\Support\Facades\Http;
-
 
 class SettingsController extends BaseSettingsController
 {
@@ -278,10 +277,10 @@ class SettingsController extends BaseSettingsController
             $githubStatus = StatusSetting::first()->github_status;
             $msg91ThirdPartyId = $apikeys->pluck('msg91_third_party_id')->first();
             $isPipedriveVerificationEnabled = ApiKey::value('require_pipedrive_user_verification');
-            $selectedProvider=EmailMobileValidationProviders::where('type','mobile')->where('to_use',1)->value('provider');
+            $selectedProvider = EmailMobileValidationProviders::where('type', 'mobile')->where('to_use', 1)->value('provider');
 
             return view('themes.default1.common.apikey', compact('model', 'status', 'licenseSecret', 'licenseUrl', 'siteKey', 'secretKey', 'captchaStatus', 'v3CaptchaStatus', 'updateStatus', 'updateSecret', 'updateUrl', 'mobileStatus', 'mobileauthkey', 'msg91Sender', 'msg91TemplateId', 'emailStatus', 'twitterStatus', 'twitterKeys', 'zohoStatus', 'zohoKey', 'rzpStatus', 'rzpKeys', 'mailchimpSetting', 'mailchimpKey', 'termsStatus', 'termsUrl', 'pipedriveKey', 'pipedriveStatus', 'domainCheckStatus', 'mailSendingStatus',
-                'licenseClientId', 'licenseClientSecret', 'licenseGrantType', 'allists', 'selectedList', 'set', 'githubStatus', 'msg91ThirdPartyId', 'isPipedriveVerificationEnabled','selectedProvider'));
+                'licenseClientId', 'licenseClientSecret', 'licenseGrantType', 'allists', 'selectedList', 'set', 'githubStatus', 'msg91ThirdPartyId', 'isPipedriveVerificationEnabled', 'selectedProvider'));
         } catch (\Exception $ex) {
             return redirect('/')->with('fails', $ex->getMessage());
         }
@@ -303,8 +302,8 @@ class SettingsController extends BaseSettingsController
         $v3_v2_recaptcha_status = $this->statusSetting->value('v3_v2_recaptcha_status');
         $checkboxValue = $v3_v2_recaptcha_status ? '1' : '0';
         $checked = $v3_v2_recaptcha_status ? 'checked' : '';
-        $emailStatus=$this->statusSetting->value('email_validation_status');
-        $mobileValStatus=$this->statusSetting->value('mobile_validation_status');
+        $emailStatus = $this->statusSetting->value('email_validation_status');
+        $mobileValStatus = $this->statusSetting->value('mobile_validation_status');
         $toggleSwitch = '
         <label class="switch toggle_event_editing gcaptcha">
             <input type="checkbox" value="'.$checkboxValue.'"  
@@ -1056,67 +1055,65 @@ class SettingsController extends BaseSettingsController
         return view('themes.default1.common.setting.contact-options', compact('mailSendingStatus', 'emailStatus'));
     }
 
-    public function emailData(Request $request){
-
-        ['api_key' => $apikey, 'mode' => $mode,'accepted_output'=>$current] = EmailMobileValidationProviders::where('provider', $request->input('value'))
-            ->select('api_key', 'mode','accepted_output')
+    public function emailData(Request $request)
+    {
+        ['api_key' => $apikey, 'mode' => $mode,'accepted_output' => $current] = EmailMobileValidationProviders::where('provider', $request->input('value'))
+            ->select('api_key', 'mode', 'accepted_output')
             ->first()
             ->toArray();
 
-
         $label2 = html()->label(__('message.emailApikey'), 'emailApikey')->class('required')->toHtml();
-        $input = html()->text('emailApikey',$apikey)->class('form-control emailapikey')->id('emailApikey')->toHtml();
+        $input = html()->text('emailApikey', $apikey)->class('form-control emailapikey')->id('emailApikey')->toHtml();
         $label1 = html()->label(__('message.emailMode'), 'emailMode')->class('required')->toHtml();
-        $input1= html()->text('emailMode',$mode)->class('form-control emailMode')->id('emailMode')->toHtml();
+        $input1 = html()->text('emailMode', $mode)->class('form-control emailMode')->id('emailMode')->toHtml();
         $input3 = '<select class="form-control emailMode" id="emailMode" name="emailMode">'
-            . '<option value="quick"' . ($mode == 'quick' ? ' selected' : '') . '>Quick</option>'
-            . '<option value="power"' . ($mode == 'power' ? ' selected' : '') . '>Power</option>'
-            . '</select>';
+            .'<option value="quick"'.($mode == 'quick' ? ' selected' : '').'>Quick</option>'
+            .'<option value="power"'.($mode == 'power' ? ' selected' : '').'>Power</option>'
+            .'</select>';
 
-
-
-        if($request->input('value')==='reoon') {
+        if ($request->input('value') === 'reoon') {
             $response = '<div>
-        <div class="form-group">' . $label2 . $input . '</div>
-        <div class="form-group">' . $label1 . $input3 . '</div>
+        <div class="form-group">'.$label2.$input.'</div>
+        <div class="form-group">'.$label1.$input3.'</div>
          <div class="form-group" id="checkboxToRender">
                 </div>
         
             </div>';
-            if($mode == 'power') {
-                $statusOptions=$this->setStatus($current);
+            if ($mode == 'power') {
+                $statusOptions = $this->setStatus($current);
                 $response = '<div>
-        <div class="form-group">' . $label2 . $input . '</div>
-        <div class="form-group">' . $label1 . $input3 . '</div>
+        <div class="form-group">'.$label2.$input.'</div>
+        <div class="form-group">'.$label1.$input3.'</div>
          <div class="form-group" id="checkboxToRender">
          <div class="form-group">
             <label class="required" for="allowed_statuses">Allowed Email Statuses</label>'
-                    . $statusOptions .
+                    .$statusOptions.
                     '</div>
                 </div>
             </div>';
             }
-        }else{
+        } else {
             $response = '';
         }
+
         return successResponse(trans('message.success'), $response);
     }
 
-    public function emailCheckboxData(){
-        $current=EmailMobileValidationProviders::where('provider','reoon')->value('accepted_output')??1;
-        $statusOptions=$this->setStatus($current);
+    public function emailCheckboxData()
+    {
+        $current = EmailMobileValidationProviders::where('provider', 'reoon')->value('accepted_output') ?? 1;
+        $statusOptions = $this->setStatus($current);
 
         $response = '<div class="form-group">
             <label class="required" for="allowed_statuses">Allowed Email Statuses</label>'
-            . $statusOptions .
+            .$statusOptions.
             '</div>';
 
-
         return successResponse(trans('message.success'), $response);
-
     }
 
-    private function setStatus($current){
+    private function setStatus($current)
+    {
         $map = [
             'safe' => 1,
             'catch_all' => 2,
@@ -1129,106 +1126,104 @@ class SettingsController extends BaseSettingsController
             $label = ucfirst(str_replace('_', ' ', $status));
             $statusOptions .= '<div class="form-check">
         <input class="form-check-input emailStatusCheckbox" type="checkbox" 
-               name="allowed_statuses[]" value="' . $bit . '" id="status_' . $status . '" ' . $checked . '>
-        <label class="form-check-label" for="status_' . $status . '">' . $label . '</label>
+               name="allowed_statuses[]" value="'.$bit.'" id="status_'.$status.'" '.$checked.'>
+        <label class="form-check-label" for="status_'.$status.'">'.$label.'</label>
     </div>';
         }
 
         return $statusOptions;
     }
 
-    public function mobileData(Request $request){
-        $provider=$request->input('value');
+    public function mobileData(Request $request)
+    {
+        $provider = $request->input('value');
 
-        ['api_key' => $apikey, 'mode' => $mode,'api_secret'=>$apisecret] = EmailMobileValidationProviders::where('provider',$provider)
-            ->select('api_key', 'mode','api_secret')
+        ['api_key' => $apikey, 'mode' => $mode,'api_secret' => $apisecret] = EmailMobileValidationProviders::where('provider', $provider)
+            ->select('api_key', 'mode', 'api_secret')
             ->first()
             ->toArray();
         $label2 = html()->label(__('message.mobileApikey'), 'emailApikey')->class('required')->toHtml();
-        $input = html()->text('apikey',$apikey)->class('form-control emailapikey')->id('mobileApikey')->toHtml();
+        $input = html()->text('apikey', $apikey)->class('form-control emailapikey')->id('mobileApikey')->toHtml();
         $label1 = html()->label(__('message.mobileApisecret'), 'apisecret')->class('required')->toHtml();
-        $input1= html()->text('apisecret',$apisecret)->class('form-control emailMode')->id('mobileApisecret')->toHtml();
+        $input1 = html()->text('apisecret', $apisecret)->class('form-control emailMode')->id('mobileApisecret')->toHtml();
         $label3 = html()->label(__('message.mobileMode'), 'mobileMode')->class('required')->toHtml();
-        $input3= html()->text('mobileMode',$mode)->class('form-control mobileMode')->id('mobileMode')->toHtml();
-        $input4='<select class="form-control emailMode" id="mobileMode" name="mobileMode">'
-            . '<option value="basic"' . ($mode == 'basic' ? ' selected' : '') . '>Basic</option>'
-            . '<option value="standard"' . ($mode == 'standard' ? ' selected' : '') . '>Standard</option>'
-            . '<option value="advanced/async"' . ($mode == 'advanced/async' ? ' selected' : '') . '>Advanced</option>'
-            . '</select>';
-        if($provider=='vonage'){
+        $input3 = html()->text('mobileMode', $mode)->class('form-control mobileMode')->id('mobileMode')->toHtml();
+        $input4 = '<select class="form-control emailMode" id="mobileMode" name="mobileMode">'
+            .'<option value="basic"'.($mode == 'basic' ? ' selected' : '').'>Basic</option>'
+            .'<option value="standard"'.($mode == 'standard' ? ' selected' : '').'>Standard</option>'
+            .'<option value="advanced/async"'.($mode == 'advanced/async' ? ' selected' : '').'>Advanced</option>'
+            .'</select>';
+        if ($provider == 'vonage') {
             $response = '<div>
-        <div class="form-group">' . $label2 . $input . '</div>
-        <div class="form-group">' . $label1 . $input1 . '</div>
-        <div class="form-group">' . $label3 . $input4 . '</div>
+        <div class="form-group">'.$label2.$input.'</div>
+        <div class="form-group">'.$label1.$input1.'</div>
+        <div class="form-group">'.$label3.$input4.'</div>
     </div>';
-        }else{
+        } else {
             $response = '<div>
-        <div class="form-group">' . $label2 . $input . '</div>
+        <div class="form-group">'.$label2.$input.'</div>
     </div>';
         }
-        return successResponse(trans('message.success'), $response);
 
+        return successResponse(trans('message.success'), $response);
     }
 
-
-    public function emailSettingsSave(Request $request){
-        $emailSave=new EmailMobileValidationProviders();
+    public function emailSettingsSave(Request $request)
+    {
+        $emailSave = new EmailMobileValidationProviders();
 
         $response = Http::get('https://emailverifier.reoon.com/api/v1/check-account-balance/', [
-            'key'   => $request->input('apikey'),
+            'key' => $request->input('apikey'),
         ]);
-        $content=$response->json();
-        if($content['status']==='error'){
+        $content = $response->json();
+        if ($content['status'] === 'error') {
             return errorResponse(trans('message.emailApikey_error'));
         }
-        $emailSave->where('type','email')->update(['to_use'=>0]);
+        $emailSave->where('type', 'email')->update(['to_use' => 0]);
 
         try {
             EmailMobileValidationProviders::where('provider', $request->input('provider'))->update(['api_key' => $request->input('apikey'),
-                'mode' => $request->input('mode'),'accepted_output' => $request->input('accepted_output'),'to_use'=>1]);
+                'mode' => $request->input('mode'), 'accepted_output' => $request->input('accepted_output'), 'to_use' => 1]);
+
             return successResponse(trans('message.email_validation_success'));
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             return errorResponse(\Lang::get('message.invalid_key'));
         }
-
     }
 
-
-    public function mobileSettingsSave(Request $request){
-        $emailSave=new EmailMobileValidationProviders();
-        $provider=$request->input('provider');
-        if($provider=='vonage'){
+    public function mobileSettingsSave(Request $request)
+    {
+        $emailSave = new EmailMobileValidationProviders();
+        $provider = $request->input('provider');
+        if ($provider == 'vonage') {
             $response = Http::get('https://rest.nexmo.com/account/get-balance/', [
-                'api_key'   => $request->input('apikey'),
+                'api_key' => $request->input('apikey'),
                 'api_secret' => $request->input('apisecret'),
             ]);
-            if(!$response->successful() && !$response->json('value')){
+            if (! $response->successful() && ! $response->json('value')) {
                 return errorResponse(trans('message.mobileApikey_error'));
             }
-            $emailSave->where('type','mobile')->update(['to_use'=>0]);
+            $emailSave->where('type', 'mobile')->update(['to_use' => 0]);
             $emailSave->where('provider', $request->input('provider'))->update(['api_key' => $request->input('apikey'),
-                'mode' => $request->input('mode'),'api_secret' => $request->input('apisecret'),'to_use'=>1]);
+                'mode' => $request->input('mode'), 'api_secret' => $request->input('apisecret'), 'to_use' => 1]);
+
             return successResponse(\Lang::get('message.mobile_validation_success'));
         }
 
-        if($provider=='abstract'){
+        if ($provider == 'abstract') {
+            $response = Http::get('https://phonevalidation.abstractapi.com/v1/', [
+                'api_key' => $request->input('apikey'),
+                'phone' => '+14155552671',
+            ]);
 
-                $response = Http::get('https://phonevalidation.abstractapi.com/v1/', [
-                    'api_key' => $request->input('apikey'),
-                    'phone' => '+14155552671',
-                ]);
+            if (! $response->successful() && $response->json('error')) {
+                return errorResponse(trans('message.mobileApikey_error'));
+            }
+            $emailSave->where('type', 'mobile')->update(['to_use' => 0]);
 
-                if(!$response->successful() && $response->json('error')){
-                    return errorResponse(trans('message.mobileApikey_error'));
-                }
-            $emailSave->where('type','mobile')->update(['to_use'=>0]);
-
-            $emailSave->where('provider', $request->input('provider'))->update(['api_key' => $request->input('apikey'),'to_use'=>1]);
+            $emailSave->where('provider', $request->input('provider'))->update(['api_key' => $request->input('apikey'), 'to_use' => 1]);
 
             return successResponse(\Lang::get('message.mobile_validation_success_abstract'));
-
         }
-
-
     }
 }
