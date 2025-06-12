@@ -827,34 +827,34 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        {{--$(document).on('change', '.checkbox9', function () {--}}
-        {{--    let isChecked = $(this).is(':checked');           // true or false--}}
-        {{--    let status = isChecked ? 1 : 0;--}}
-        {{--    let checkboxId = $(this).attr('id');              // e.g., "checkbox_12"--}}
-        {{--    let modelId = checkboxId.split('_')[1];           // assuming ID format like "checkbox_12"--}}
+        $(document).on('change', '.checkbox9', function () {
+            let isChecked = $(this).is(':checked');           // true or false
+            let status = isChecked ? 1 : 0;
+            let checkboxId = $(this).attr('id');              // e.g., "checkbox_12"
+            let modelId = checkboxId.split('_')[1];           // assuming ID format like "checkbox_12"
 
-        {{--    $.ajax({--}}
+            $.ajax({
 
-        {{--        url : '{{url("update-trial-status")}}',--}}
-        {{--        type : 'post',--}}
-        {{--        data: {--}}
-        {{--            "id": checkboxId,'status':status,--}}
-        {{--        },--}}
-        {{--        success: function (response) {--}}
-        {{--            setTimeout(function() {--}}
-        {{--                location.reload();--}}
-        {{--            }, 3000);--}}
-        {{--            $('#successmsgpop').show();--}}
-        {{--            var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';--}}
-        {{--            $('#successmsgpop').html(result);--}}
-        {{--            setInterval(function(){--}}
-        {{--                $('#successmsgpop').slideUp(3000);--}}
-        {{--            }, 1000);--}}
+                url : '{{url("update-trial-status")}}',
+                type : 'post',
+                data: {
+                    "id": checkboxId,'status':status,
+                },
+                success: function (response) {
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
+                    $('#successmsgpop').show();
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
+                    $('#successmsgpop').html(result);
+                    setInterval(function(){
+                        $('#successmsgpop').slideUp(3000);
+                    }, 1000);
 
-        {{--        },--}}
-        {{--    });--}}
+                },
+            });
 
-        {{--});--}}
+        });
 
         $(document).ready(function () {
             var map = L.map('map', {
@@ -958,7 +958,7 @@
                 let status = checkbox.attr('data-status');
                 let checked = status === '1';
                 checkbox.prop('checked', checked);
-                checkbox.trigger('change');
+                // checkbox.trigger('change');
             });
         }
 
