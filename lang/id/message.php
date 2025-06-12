@@ -2606,6 +2606,11 @@ return [
 
     'waiting' => 'Tunggu...',
 
+    'trial_status_updated' => 'Status uji coba gratis berhasil diperbarui',
+    'trial_status_error' => 'Terjadi kesalahan saat memperbarui status uji coba gratis',
+    'free_trial_status_tooltip' => 'Gunakan tombol ini untuk mengatur produk mana yang akan ditampilkan di popup Mulai Uji Coba Gratis.',
+    'trial_status_heading' => 'Status Uji Coba Gratis',
+
     'reoon' => 'Reoon',
     'vonage' => 'Vonage',
     'abstract' => 'Abstract',
@@ -2642,6 +2647,7 @@ return [
     'tick-to-hide-from-invoice' => 'Centang untuk menyembunyikan dari halaman pembuatan faktur',
 
     'remainingAmount' => 'Sisa kredit dalam paket Anda saat ini akan ditambahkan ke saldo kredit.',
+    'tenant_deletion' => 'Apakah Anda yakin ingin menghapus penyewa ini ',
     'checkbox_error' => 'Silakan pilih setidaknya satu opsi status.',
     'allowed_estatus' => 'Status Email yang Diizinkan',
     'file_not_upload' => '(file tidak dapat diunggah: ',
@@ -2658,4 +2664,10 @@ return [
     'new_code_generated' => 'Kode pemulihan baru berhasil dibuat.',
     'please_enter_code' => 'Silakan masukkan kode',
     '2fa_verifying' => 'Memverifikasi...',
+
+    'domain_already_taken' => 'Domain sudah digunakan. Silakan pilih domain lain',
+    'instance_successfully_created' => 'Instansi cloud Anda berhasil dibuat. Silakan kunjungi situs web Anda di :installationUrl. Anda akan menerima kata sandi ke email terdaftar.',
+    'instance_not_created' => 'Instansi cloud Anda berhasil dibuat tetapi instalasi lisensi gagal.<b>:reason.</b> Silakan kunjungi situs web Anda di :installationUrl',
+    'cloud_deleted_successfully' => 'Tenant berhasil dihapus',
+    'cloud_deleted_failed' => 'Penghapusan tenant gagal',
 ];

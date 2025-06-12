@@ -2573,6 +2573,12 @@ return [
     'placeholder_your-queue-name' => '你的隊列名稱',
 
     'waiting' => '請稍候...',
+
+    'trial_status_updated' => '免費試用狀態已成功更新',
+    'trial_status_error' => '更新免費試用狀態時發生錯誤',
+    'free_trial_status_tooltip' => '使用此開關以控制在開始免費試用的彈出視窗中顯示哪個產品。',
+    'trial_status_heading' => '免費試用狀態',
+
     'mobile_validation_success' => '手機驗證的 apikey、apisecret 和模式已成功儲存。',
     'mobile_validation_success_abstract' => '手機驗證的 apikey 已成功儲存。',
     'mobile_validation_status' => '手機驗證狀態已成功儲存。',
@@ -2612,6 +2618,7 @@ return [
     'allowed_estatus' => '允許的電子郵件狀態',
     'file_not_upload' => '(檔案無法上傳: ',
     'completed' => '已完成',
+    'tenant_deletion' => '您確定要刪除此租戶嗎 ',
 
     'user-suspend-successfully' => '用戶暫停成功',
     'incorrect_password' => '密碼錯誤，請重試。',
@@ -2624,4 +2631,10 @@ return [
     'email_first' => '優先使用電子郵件',
     'mobile_first' => '優先使用手機',
     'contact_setting_update' => '聯絡設定已成功更新',
+
+    'domain_already_taken' => '網域已被佔用。請選擇其他網域',
+    'instance_successfully_created' => '您的雲端實例已成功建立。請造訪您的網站：:installationUrl。密碼將寄送到您註冊的電子郵件。',
+    'instance_not_created' => '您的雲端實例已成功建立，但授權安裝失敗。<b>:reason。</b>請造訪您的網站：:installationUrl',
+    'cloud_deleted_successfully' => '租戶已成功刪除',
+    'cloud_deleted_failed' => '租戶刪除失敗',
 ];

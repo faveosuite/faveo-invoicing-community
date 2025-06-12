@@ -2607,6 +2607,11 @@ return [
     'placeholder_your-queue-name' => 'il nome della tua coda',
 
     'waiting' => 'Attendere...',
+
+    'trial_status_updated' => 'Lo stato della prova gratuita è stato aggiornato con successo',
+    'trial_status_error' => 'Si è verificato un errore durante l\'aggiornamento dello stato della prova gratuita',
+    'free_trial_status_tooltip' => 'Usa questo interruttore per controllare quale prodotto mostrare nel popup di avvio della prova gratuita.',
+    'trial_status_heading' => 'Stato della prova gratuita',
     'reoon' => 'Reoon',
     'vonage' => 'Vonage',
     'abstract' => 'Abstract',
@@ -2643,6 +2648,7 @@ return [
     'tick-to-hide-from-invoice' => 'Seleziona per nascondere dalla pagina di creazione fattura',
 
     'remainingAmount' => 'I crediti rimanenti del tuo piano attuale verranno aggiunti al saldo dei crediti.',
+    'tenant_deletion' => 'Sei sicuro di voler eliminare questo inquilino ',
     'checkbox_error' => 'Seleziona almeno un’opzione di stato.',
     'allowed_estatus' => 'Stati email consentiti',
     'file_not_upload' => '(impossibile caricare il file: ',
@@ -2654,6 +2660,12 @@ return [
     'new_code_generated' => 'Nuovo codice di recupero generato con successo.',
     'please_enter_code' => 'Per favore, inserisci il codice',
     '2fa_verifying' => 'Verifica in corso...',
+
+    'domain_already_taken' => 'Dominio già preso. Seleziona un dominio diverso',
+    'instance_successfully_created' => 'La tua istanza cloud è stata creata con successo. Visita il tuo sito web su :installationUrl. Riceverai la password via email registrata.',
+    'instance_not_created' => 'La tua istanza cloud è stata creata con successo ma l’installazione della licenza non è riuscita.<b>:reason.</b> Visita il tuo sito web su :installationUrl',
+    'cloud_deleted_successfully' => 'Tenant eliminato con successo',
+    'cloud_deleted_failed' => 'Rimozione del tenant fallita',
     'enable_verification' => 'Abilita verifiche',
     'preferred_verification' => 'Verifica preferita',
     'email_first' => 'Email per prima',

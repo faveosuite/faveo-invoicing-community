@@ -90,28 +90,33 @@ class PhpMailController extends Controller
         try {
             $contact = getContactData();
             $day = ExpiryMailDay::value('cloud_days');
-            $today = new Carbon('today');
-            $sub = Subscription::whereNotNull('update_ends_at')
-            ->whereIn('product_id', cloudPopupProducts())
-            ->where(function ($query) use ($today, $day) {
-                $query->whereDate('update_ends_at', '<', $today)
-                    ->orWhereDate('update_ends_at', $today->subDays($day + 1));
-            })
-            ->get();
+            $today = Carbon::today();
+
+            $sub = Subscription::whereNotNull('ends_at')
+                ->where('is_deleted', 0)
+                ->whereIn('product_id', cloudPopupProducts())
+                ->whereDate(
+                    \DB::raw("DATE_ADD(ends_at, INTERVAL {$day} DAY)"),
+                    '<=',
+                    $today
+                )
+                ->get();
 
             foreach ($sub as $data) {
                 $cron = new CronController();
                 $user = \DB::table('users')->find($data->user_id);
                 $product = Product::find($data->product_id);
                 $order = $cron->getOrderById($data->order_id);
-
+                $data->is_deleted=1;
+                $data->save();
                 if (empty($order)) {
                     continue;
                 }
                 $id = \DB::table('installation_details')->where('order_id', $order->id)->value('installation_path');
 
                 if (is_null($id) || $id == cloudCentralDomain()) {
-                    $order->delete();
+//                    $order->delete();
+                    continue;
                 } else {
                     //Destroy the tenat
                     $destroy = (new TenantController(new Client, new FaveoCloud()))->destroyTenant(new Request(['id' => $id]));
@@ -144,11 +149,10 @@ class PhpMailController extends Controller
                             $type = $temp_type->where('id', $type_id)->first()->name;
                         }
                         $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $replace, $type);
-                        $order->delete();
                     }
                 }
             }
-        } catch(\Exception $e) {
+        } catch(\Exception $ex) {
             \Log::error($ex->getMessage());
         }
     }

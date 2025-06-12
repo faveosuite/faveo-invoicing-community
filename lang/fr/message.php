@@ -2602,6 +2602,10 @@ return [
     'placeholder_your-queue-name' => 'votre-nom-de-queue',
 
     'waiting' => 'Attendez...',
+    'trial_status_updated' => 'Le statut de l’essai gratuit a été mis à jour avec succès',
+    'trial_status_error' => 'Une erreur s’est produite lors de la mise à jour du statut de l’essai gratuit',
+    'free_trial_status_tooltip' => 'Utilisez ce commutateur pour contrôler quel produit afficher dans la fenêtre contextuelle de démarrage de l’essai gratuit.',
+    'trial_status_heading' => 'Statut de l’essai gratuit',
 
     'reoon' => 'Reoon',
     'vonage' => 'Vonage',
@@ -2639,6 +2643,7 @@ return [
     'tick-to-hide-from-invoice' => 'Cochez pour masquer de la page de création de facture',
 
     'remainingAmount' => 'Les crédits restants de votre plan actuel seront ajoutés au solde des crédits.',
+    'tenant_deletion' => 'Êtes-vous sûr de vouloir supprimer ce locataire  ',
     'checkbox_error' => 'Veuillez sélectionner au moins une option de statut.',
     'allowed_estatus' => 'Statuts d’e-mail autorisés',
     'file_not_upload' => '(le fichier n’a pas pu être téléchargé : ',
@@ -2649,6 +2654,12 @@ return [
     'new_code_generated' => 'Nouveau code de récupération généré avec succès.',
     'please_enter_code' => 'Veuillez entrer le code.',
     '2fa_verifying' => 'Vérification en cours...',
+
+    'domain_already_taken' => 'Domaine déjà pris. Veuillez sélectionner un autre domaine',
+    'instance_successfully_created' => 'Votre instance cloud a été créée avec succès. Veuillez visiter votre site à :installationUrl. Vous recevrez le mot de passe sur votre email enregistré.',
+    'instance_not_created' => 'Votre instance cloud a été créée avec succès mais l’installation de la licence a échoué.<b>:reason.</b> Veuillez visiter votre site à :installationUrl',
+    'cloud_deleted_successfully' => 'Locataire supprimé avec succès',
+    'cloud_deleted_failed' => 'Échec de la suppression du locataire',
     'enable_verification' => 'Activer les vérifications',
     'preferred_verification' => 'Vérification préférée',
     'email_first' => 'Email en premier',

@@ -2616,6 +2616,12 @@ return [
     'placeholder_your-queue-name' => 'ditt kønavn',
 
     'waiting' => 'Vent...',
+
+    'trial_status_updated' => 'Statusen for gratis prøveperiode ble oppdatert',
+    'trial_status_error' => 'Det oppsto en feil under oppdatering av status for gratis prøveperiode',
+    'free_trial_status_tooltip' => 'Bruk denne bryteren for å kontrollere hvilket produkt som vises i popup-vinduet for gratis prøveperiode.',
+    'trial_status_heading' => 'Status for gratis prøveperiode',
+
     'reoon' => 'Reoon',
     'vonage' => 'Vonage',
     'abstract' => 'Abstract',
@@ -2653,6 +2659,7 @@ return [
     'tick-to-hide-from-invoice' => 'Merk av for å skjule fra fakturasiden',
 
     'remainingAmount' => 'De gjenværende kredittene i din nåværende plan blir lagt til kredittsaldoen.',
+    'tenant_deletion' => 'Er du sikker på at du vil slette denne leietakeren ',
     'checkbox_error' => 'Vennligst velg minst ett statusalternativ.',
     'allowed_estatus' => 'Tillatte e-poststatuser',
     'file_not_upload' => '(filen kunne ikke lastes opp: ',
@@ -2669,4 +2676,10 @@ return [
     'email_first' => 'E-post først',
     'mobile_first' => 'Mobil først',
     'contact_setting_update' => 'Kontaktinnstillinger ble oppdatert',
+
+    'domain_already_taken' => 'Domenet er allerede tatt. Vennligst velg et annet domene',
+    'instance_successfully_created' => 'Din sky-instans ble opprettet vellykket. Besøk nettstedet ditt på :installationUrl. Du vil motta passordet på din registrerte e‑post.',
+    'instance_not_created' => 'Din sky-instans ble opprettet vellykket, men lisensinstallasjonen mislyktes.<b>:reason.</b> Vennligst besøk nettstedet ditt på :installationUrl',
+    'cloud_deleted_successfully' => 'Leietaker ble slettet vellykket',
+    'cloud_deleted_failed' => 'Sletting av leietaker mislyktes',
 ];

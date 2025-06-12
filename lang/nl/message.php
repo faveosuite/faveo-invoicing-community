@@ -2631,4 +2631,15 @@ return [
     'mobile_first' => 'Mobiel eerst',
     'contact_setting_update' => 'Contactinstellingen succesvol bijgewerkt',
 
+    'trial_status_updated' => 'De status van de gratis proefperiode is succesvol bijgewerkt',
+    'trial_status_error' => 'Er is een fout opgetreden bij het bijwerken van de status van de gratis proefperiode',
+    'free_trial_status_tooltip' => 'Gebruik deze schakelaar om te bepalen welk product wordt weergegeven in de pop-up voor de gratis proefperiode.',
+    'trial_status_heading' => 'Status van de gratis proefperiode',
+    'tenant_deletion' => 'Weet je zeker dat je deze huurder wilt verwijderen ',
+
+    'domain_already_taken' => 'Domein is al in gebruik. Kies een ander domein',
+    'instance_successfully_created' => 'Uw cloud‑instantie is succesvol aangemaakt. Bezoek uw website op :installationUrl. U ontvangt het wachtwoord op uw geregistreerde e‑mail.',
+    'instance_not_created' => 'Uw cloud‑instantie is succesvol aangemaakt, maar licentie-installatie is mislukt.<b>:reason.</b> Bezoek uw website op :installationUrl',
+    'cloud_deleted_successfully' => 'Huurder succesvol verwijderd',
+    'cloud_deleted_failed' => 'Verwijderen van huurder mislukt',
 ];

@@ -2612,6 +2612,12 @@ return [
 
     'waiting' => 'Vui lòng đợi...',
 
+    'trial_status_updated' => 'Trạng thái dùng thử miễn phí đã được cập nhật thành công',
+    'trial_status_error' => 'Đã xảy ra lỗi khi cập nhật trạng thái dùng thử miễn phí',
+    'free_trial_status_tooltip' => 'Sử dụng công tắc này để kiểm soát sản phẩm nào sẽ hiển thị trong cửa sổ bật lên Bắt đầu Dùng thử Miễn phí.',
+    'trial_status_heading' => 'Trạng thái Dùng thử Miễn phí',
+
+
     'reoon' => 'Reoon',
     'vonage' => 'Vonage',
     'abstract' => 'Abstract',
@@ -2649,6 +2655,7 @@ return [
     'tick-to-hide-from-invoice' => 'Chọn để ẩn khỏi trang tạo hóa đơn',
 
     'remainingAmount' => 'Số tín dụng còn lại trong gói hiện tại của bạn sẽ được cộng vào số dư tín dụng.',
+    'tenant_deletion' => 'Bạn có chắc chắn muốn xóa người thuê này không ',
     'checkbox_error' => 'Vui lòng chọn ít nhất một tùy chọn trạng thái.',
     'allowed_estatus' => 'Trạng thái email được phép',
     'file_not_upload' => '(không thể tải tệp lên: ',
@@ -2665,4 +2672,10 @@ return [
     'new_code_generated' => 'Mã khôi phục mới đã được tạo thành công.',
     'please_enter_code' => 'Vui lòng nhập mã.',
     '2fa_verifying' => 'Đang xác minh...',
+
+    'domain_already_taken' => 'Tên miền đã được sử dụng. Vui lòng chọn tên miền khác',
+    'instance_successfully_created' => 'Đã tạo phiên bản đám mây của bạn thành công. Vui lòng truy cập trang web của bạn tại :installationUrl. Mật khẩu sẽ được gửi đến email đã đăng ký.',
+    'instance_not_created' => 'Phiên bản đám mây của bạn đã được tạo thành công nhưng cài đặt giấy phép thất bại.<b>:reason.</b> Vui lòng truy cập trang web của bạn tại :installationUrl',
+    'cloud_deleted_successfully' => 'Xóa tenant thành công',
+    'cloud_deleted_failed' => 'Xóa tenant thất bại',
 ];

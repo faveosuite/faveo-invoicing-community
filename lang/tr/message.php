@@ -2623,6 +2623,12 @@ return [
     'placeholder_your-queue-name' => 'kuyruk-adınız',
 
     'waiting' => 'Bekleyin...',
+
+    'trial_status_updated' => 'Ücretsiz deneme durumu başarıyla güncellendi',
+    'trial_status_error' => 'Ücretsiz deneme durumu güncellenirken bir hata oluştu',
+    'free_trial_status_tooltip' => 'Ücretsiz deneme açılır penceresinde hangi ürünün gösterileceğini kontrol etmek için bu anahtarı kullanın.',
+    'trial_status_heading' => 'Ücretsiz Deneme Durumu',
+
     'reoon' => 'Reoon',
     'vonage' => 'Vonage',
     'abstract' => 'Abstract',
@@ -2660,6 +2666,7 @@ return [
     'tick-to-hide-from-invoice' => 'Fatura oluşturma sayfasından gizlemek için işaretleyin',
 
     'remainingAmount' => 'Mevcut planınızdaki kalan krediler, kredi bakiyenize eklenecektir.',
+    'tenant_deletion' => 'Bu kiracıyı silmek istediğinizden emin misiniz ',
     'checkbox_error' => 'Lütfen en az bir durum seçeneği seçin.',
     'allowed_estatus' => 'İzin verilen e-posta durumları',
     'file_not_upload' => '(dosya yüklenemedi: ',
@@ -2676,4 +2683,10 @@ return [
     'new_code_generated' => 'Yeni kurtarma kodu başarıyla oluşturuldu.',
     'please_enter_code' => 'Lütfen kodu girin',
     '2fa_verifying' => 'Doğrulanıyor...',
+
+    'domain_already_taken' => 'Alan adı zaten alınmış. Lütfen farklı bir alan adı seçin',
+    'instance_successfully_created' => 'Bulut örneğiniz başarıyla oluşturuldu. Web sitenizi ziyaret edin: :installationUrl. Şifre kayıtlı e‑postanıza gönderilecektir.',
+    'instance_not_created' => 'Bulut örneğiniz başarıyla oluşturuldu ancak lisans kurulumu başarısız oldu.<b>:reason.</b> Web sitenizi ziyaret edin: :installationUrl',
+    'cloud_deleted_successfully' => 'Tenant başarıyla silindi',
+    'cloud_deleted_failed' => 'Tenant silme başarısız oldu',
 ];

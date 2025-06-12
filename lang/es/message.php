@@ -2612,6 +2612,11 @@ return [
 
     'waiting' => 'Espera...',
 
+    'trial_status_updated' => 'El estado de la prueba gratuita se actualizó correctamente',
+    'trial_status_error' => 'Ocurrió un error al actualizar el estado de la prueba gratuita',
+    'free_trial_status_tooltip' => 'Usa este interruptor para controlar qué producto se mostrará en la ventana emergente de prueba gratuita.',
+    'trial_status_heading' => 'Estado de la prueba gratuita',
+
     'reoon' => 'Reoon',
     'vonage' => 'Vonage',
     'abstract' => 'Abstract',
@@ -2648,6 +2653,7 @@ return [
     'tick-to-hide-from-invoice' => 'Marca para ocultar en la página de creación de facturas',
 
     'remainingAmount' => 'Los créditos restantes de tu plan actual se añadirán al saldo de créditos.',
+    'tenant_deletion' => '¿Estás seguro de que deseas eliminar este inquilino ',
     'file_not_upload' => '(no se pudo subir el archivo: ',
     'completed' => 'Completado',
     'checkbox_error' => 'Por favor, seleccione al menos una opción de estado.',
@@ -2659,6 +2665,12 @@ return [
     'new_code_generated' => 'Nuevo código de recuperación generado con éxito.',
     'please_enter_code' => 'Por favor, introduce el código.',
     '2fa_verifying' => 'Verificando...',
+
+    'domain_already_taken' => 'Dominio ya en uso. Por favor, seleccione un dominio diferente',
+    'instance_successfully_created' => 'Su instancia en la nube se ha creado correctamente. Visite su sitio web en :installationUrl. Recibirá la contraseña en su correo electrónico registrado.',
+    'instance_not_created' => 'Su instancia en la nube se ha creado correctamente pero la instalación de la licencia falló.<b>:reason.</b> Visite su sitio web en :installationUrl',
+    'cloud_deleted_successfully' => 'Inquilino eliminado con éxito',
+    'cloud_deleted_failed' => 'Error al eliminar el inquilino',
     'enable_verification' => 'Habilitar verificaciones',
     'preferred_verification' => 'Verificación preferida',
     'email_first' => 'Correo electrónico primero',

@@ -2607,6 +2607,12 @@ return [
     'placeholder_your-queue-name' => '你的队列名称',
 
     'waiting' => '请稍候...',
+
+    'trial_status_updated' => '免费试用状态已成功更新',
+    'trial_status_error' => '更新免费试用状态时发生错误',
+    'free_trial_status_tooltip' => '使用此开关控制在开始免费试用的弹窗中显示哪个产品。',
+    'trial_status_heading' => '免费试用状态',
+
     'reoon' => 'Reoon',
     'vonage' => 'Vonage',
     'abstract' => 'Abstract',
@@ -2642,6 +2648,7 @@ return [
     'tick-to-hide-from-invoice' => '勾选以从发票创建页面隐藏',
 
     'remainingAmount' => '您当前方案中剩余的积分将被添加到积分余额中。',
+    'tenant_deletion' => '您确定要删除此租户吗 ',
     'checkbox_error' => '请选择至少一个状态选项。',
     'allowed_estatus' => '允许的电子邮件状态',
     'file_not_upload' => '(文件无法上传: ',
@@ -2658,4 +2665,10 @@ return [
     'email_first' => '优先使用邮箱',
     'mobile_first' => '优先使用手机',
     'contact_setting_update' => '联系设置已成功更新',
+
+    'domain_already_taken' => '域名已被占用。请选择其他域名',
+    'instance_successfully_created' => '您的云实例已成功创建。请访问您的网站：:installationUrl。密码将发送到您注册的邮箱。',
+    'instance_not_created' => '您的云实例已成功创建，但许可证安装失败。<b>:reason。</b>请访问您的网站：:installationUrl',
+    'cloud_deleted_successfully' => '租户已成功删除',
+    'cloud_deleted_failed' => '租户删除失败',
 ];
