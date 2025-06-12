@@ -222,9 +222,7 @@ class TemplateController extends Controller
             $plan_options = '';
 
             foreach ($priceList as $planId => $planPrice) {
-
                 $plan_options .= '<option value="'.$planId.'" data-price="'.$planPrice.'" data-description="'.$plans[$planId]['description'].'">'.$plans[$planId]['price'].'</option>';
-
             }
 
             $plan_class = ($plans && $status->status != 1) ? 'stylePlan' : 'planhide';
@@ -285,7 +283,7 @@ class TemplateController extends Controller
         $months = $cost == 0 ? $priceDescription : $months;
         $priceDescription = $priceDescription == '' ? $months : $priceDescription;
         $price[$value->id]['price'] = $price1.' '.$priceDescription;
-        $price[$value->id]['description'] = $priceDescription !=''?$priceDescription:'';
+        $price[$value->id]['description'] = $priceDescription != '' ? $priceDescription : '';
 
         return $price;
     }
