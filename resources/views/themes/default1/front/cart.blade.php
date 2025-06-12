@@ -58,6 +58,13 @@ Cart
             white-space: nowrap;
             line-height: 1;
         }
+
+        td.product-name {
+            max-width: 85px !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
     </style>
 
 
@@ -198,7 +205,7 @@ Cart
                                             <td class="product-price">
                                                 <?php
                                                     $productPrice = $item->price;
-                                                    if($isAgentAllowed){
+                                                    if($isAgentAllowed && $item->toArray()['attributes']['agents']!=0){
                                                         $productPrice = $item->price/$item->toArray()['attributes']['agents'];
                                                     }
                                                     ?>
@@ -339,7 +346,7 @@ Cart
                                             @endphp
                                         
                                            @if(!is_null($data))
-                                            <a href="{{url("group/$data->pricing_templates_id/$data->id")}}" class="btn border-0 px-4 py-2 line-height-9 btn-tertiary me-2">CONTINUE SHOPPING
+                                                <a href="{{url("group/$data->pricing_templates_id/$data->id")}}" class="btn border-0 px-4 py-2 line-height-9 btn-tertiary me-2">CONTINUE SHOPPING</a>
                                                 @endif
 
                                                 @else
