@@ -1552,7 +1552,7 @@ setTimeout(function() {
         $('#flagIcon').addClass('flag-icon flag-icon-' + mappedLocale);
 
         $.ajax({
-            url: '<?php echo getUrl(); ?>/language/control',
+            url: '{{ url('language/control') }}',
             type: 'GET',
             dataType: 'JSON',
             success: function(response) {
@@ -1589,7 +1589,7 @@ setTimeout(function() {
     function updateLanguage(language, flagClass) {
         $('#flagIcon').attr('class', flagClass);
         $.ajax({
-            url: '<?php echo getUrl(); ?>/lang/update',
+            url: '{{ url('lang/update') }}',
             type: 'POST',
             data: { language: language },
             success: function(response) {

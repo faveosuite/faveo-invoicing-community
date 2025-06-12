@@ -98,6 +98,7 @@
                                          @if($locale !== 'en')
                                          language_url: 'https://cdn.tiny.cloud/1/no-api-key/tinymce/5/langs/{{$locale}}.js',
                                          @endif
+                                         directionality: '{{ $isRtl ? 'rtl' : 'ltr' }}',
                                          plugins: [
                                           'advlist autolink lists link image charmap print preview hr anchor pagebreak',
                                           'searchreplace wordcount visualblocks visualchars code fullscreen',

@@ -1,4 +1,4 @@
-@extends('log-viewer::_template.master')
+@extends('themes.default1.layouts.master')
 @section('title')
     {{ __('message.logs_viewer') }}
 @stop
@@ -92,34 +92,34 @@
     </div>
 
     {!! $rows->render() !!}
-@endsection
 
 
-{{-- DELETE MODAL --}}
-<div id="delete-log-modal" class="modal fade">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">{{ __('message.confirm_delete') }}</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p>{{ __('message.delete_log_file') }}</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-sm btn-default pull-left" data-dismiss="modal">{{ __('message.cancel') }}</button>
-                <button id="confirmDelete" class="btn btn-sm btn-danger">{{ __('message.delete') }}</button>
+    {{-- DELETE MODAL --}}
+    <div id="delete-log-modal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">{{ __('message.confirm_delete') }}</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>{{ __('message.delete_log_file') }}</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-default pull-left" data-dismiss="modal">{{ __('message.cancel') }}</button>
+                    <button id="confirmDelete" class="btn btn-sm btn-danger">{{ __('message.delete') }}</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
+@endsection
 
 
 
 
-
+@section('scripts')
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
@@ -161,4 +161,6 @@
         $('[data-toggle="tooltip"]').tooltip()
     })
 </script>
+
+@endsection
 
