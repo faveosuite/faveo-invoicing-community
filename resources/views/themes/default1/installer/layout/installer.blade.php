@@ -193,7 +193,7 @@
 
     $(document).ready(function() {
         $.ajax({
-            url: '<?php echo getUrl() ?>/language/settings',
+            url: '{{ url('language/settings') }}',
             type: 'GET',
             dataType: 'JSON',
             success: function(response) {
@@ -254,7 +254,7 @@
     function updateLanguage(language, flagClass) {
         $('#flagIcon').attr('class', flagClass);
         $.ajax({
-            url: '<?php echo getUrl() ?>/update/language',
+            url: '{{ url('update/language') }}',
             type: 'POST',
             data: { language: language },
             success: function(response) {

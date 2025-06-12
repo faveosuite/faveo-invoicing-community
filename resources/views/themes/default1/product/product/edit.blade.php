@@ -663,6 +663,7 @@
                 relative_urls: true,
                 remove_script_host: false,
                 convert_urls: false,
+                directionality: '{{ isRtlForLang() ? "rtl" : "ltr" }}',
                 plugins: [
                     'advlist autolink lists link image charmap print preview hr anchor pagebreak',
                     'searchreplace wordcount visualblocks visualchars code fullscreen',
@@ -700,6 +701,7 @@
                 relative_urls: true,
                 remove_script_host: false,
                 convert_urls: false,
+                directionality: '{{ isRtlForLang() ? "rtl" : "ltr" }}',
                 plugins: [
                     'advlist autolink lists link image charmap print preview hr anchor pagebreak',
                     'searchreplace wordcount visualblocks visualchars code fullscreen',
@@ -725,6 +727,7 @@
                 relative_urls: true,
                 remove_script_host: false,
                 convert_urls: false,
+                directionality: '{{ isRtlForLang() ? "rtl" : "ltr" }}',
                 plugins: [
                     'advlist autolink lists link image charmap print preview hr anchor pagebreak',
                     'searchreplace wordcount visualblocks visualchars code fullscreen',

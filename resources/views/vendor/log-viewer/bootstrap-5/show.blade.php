@@ -1,4 +1,4 @@
-@extends('log-viewer::_template.master')
+@extends('themes.default1.layouts.master')
 @section('title')
     {{ __('message.logs_viewer') }}
 @stop
@@ -183,33 +183,31 @@
         </div>
     </div>
 
-@endsection
+    {{-- DELETE MODAL --}}
 
-
-{{-- DELETE MODAL --}}
-
-<div id="delete-log-modal" class="modal fade">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">{{ __('message.confirm_delete') }}</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p>{{ __('message.are_you_want') }} <span class="label label-danger">{{ __('message.caps_delete')}}</span> {{ __('message.this_log_file') }} <span class="label label-primary">{{ $log->date }}</span> ?</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-sm btn-default pull-left" data-dismiss="modal">{{ __('message.cancel') }}</button>
-                <button id="confirmDelete" class="btn btn-sm btn-danger">{{ __('message.delete') }}</button>
+    <div id="delete-log-modal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">{{ __('message.confirm_delete') }}</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>{{ __('message.are_you_want') }} <span class="label label-danger">{{ __('message.caps_delete')}}</span> {{ __('message.this_log_file') }} <span class="label label-primary">{{ $log->date }}</span> ?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-default pull-left" data-dismiss="modal">{{ __('message.cancel') }}</button>
+                    <button id="confirmDelete" class="btn btn-sm btn-danger">{{ __('message.delete') }}</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
+@endsection
 
 
-
+@section('scripts')
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
@@ -260,3 +258,5 @@
 
 
 </script>
+
+@endsection
