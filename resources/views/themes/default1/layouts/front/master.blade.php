@@ -77,6 +77,7 @@ foreach($scripts as $script) {
 
 }
 ?>
+
             <!-- Basic -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -99,7 +100,6 @@ foreach($scripts as $script) {
     <link id="googleFonts" href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800%7CShadows+Into+Light&display=swap" rel="stylesheet" type="text/css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
 
     <!-- Vendor CSS -->
 
@@ -694,15 +694,19 @@ $days = $pay->where('product','117')->value('days');
                                     <label class="form-label">{!!optional(cloudPopUpDetails())->cloud_label_radio !!}</label>
 
                                     <br>
-                                    <?php $cloudProducts = \App\Model\Product\CloudProducts::get(); ?>
-                                    @foreach($cloudProducts as $cloudProduct)
-                                    <div class="form-check">
-                                        <label class="form-check-label">
-                                            <input type="radio" name="option" class="product" value="{!! $cloudProduct->cloud_product_key !!}" checked>
-                                            {!! \App\Model\Product\Product::where('id',$cloudProduct->cloud_product)->value('name') !!}
-                                        </label>
-                                    </div>
-                                    @endforeach
+{{--                                    <?php $cloudProducts = \App\Model\Product\CloudProducts::where('trial_status',1)->get(); ?>--}}
+{{--                                    @foreach($cloudProducts as $cloudProduct)--}}
+{{--                                    <div class="form-check">--}}
+{{--                                        <label class="form-check-label">--}}
+{{--                                            <input type="radio" name="option" class="product" value="{!! $cloudProduct->cloud_product_key !!}" checked>--}}
+{{--                                            {!! \DB::table('products')->where('id',$cloudProduct->cloud_product)->value('name') !!}--}}
+{{--                                        </label>--}}
+{{--                                    </div>--}}
+{{--                                    @endforeach--}}
+                                    <select id="serviceType" class="form-control">
+                                        <option value="">-- Select Product --</option>
+                                    </select>
+                                    <div id="toappend"></div>
 
                                 </div>
                             </div>
@@ -1164,8 +1168,7 @@ setTimeout(function() {
         $("#createTenant").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
         var domain = $('#userdomain').val();
         var password = $('#password').val();
-        var product = $('input[name="option"]:checked').val();
-
+        var product = $('#serviceType').val();
         $.ajax({
             type: 'POST',
             data: {'id':id,'password': password,'domain' : domain,'product':product},
@@ -1237,8 +1240,23 @@ setTimeout(function() {
 
 
     $(document).on("click", ".open-createTenantDialog", function () {
+        $.ajax({
+            url: "{{url('trial-cloud-products')}}",
+            type: "POST",
+            success: function(response){
+                    var data=response['data'];
+                    const select = document.getElementById('serviceType');
 
-        $('#tenant').modal('show');
+                    Object.entries(data).forEach(([key, value]) => {
+                        const option = document.createElement('option');
+                        option.value = key;
+                        option.textContent = value;
+                        select.appendChild(option);
+                    });
+
+                $('#tenant').modal('show');
+            }
+        })
     });
     $('.closebutton').on('click',function(){
         location.reload();
@@ -1305,21 +1323,6 @@ setTimeout(function() {
 
         demotelInput.on('input blur', function () {
             resetdemo();
-            // if ($.trim(demotelInput.val())) {
-            //     if (validatePhoneNumber(demotelInput.get(0))) {
-            //         $('#mobilenumdemo').css("border-color","");
-            //         $("#error-msgdemo").html('');
-            //         errorMsgdemo.classList.add("hide");
-            //         $('#demoregister').attr('disabled',false);
-            //     } else {
-            //         errorMsgdemo.classList.remove("hide");
-            //
-            //         errorMsgdemo.innerHTML = "Please enter a valid number";
-            //         $('#mobilenumdemo').css("border-color","red");
-            //         $('#error-msgdemo').css({"color":"red","margin-top":"5px"});
-            //         $('#demoregister').attr('disabled',true);
-            //     }
-            // }
             if ($.trim(demotelInput.val())) {
                 if (validatePhoneNumber(demotelInput.get(0))) {
                     $('#mobilenumdemo').css("border-color","");

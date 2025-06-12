@@ -2540,6 +2540,12 @@ return [
     'placeholder_your-queue-name' => 'vaš-naziv-reda',
 
     'waiting' => 'Sačekajte...',
+
+    'trial_status_updated' => 'Status besplatne probe je uspješno ažuriran',
+    'trial_status_error' => 'Došlo je do greške prilikom ažuriranja statusa besplatne probe',
+    'free_trial_status_tooltip' => 'Koristite ovu opciju da kontrolišete koji će se proizvod prikazati u prozoru za pokretanje besplatne probe.',
+    'trial_status_heading' => 'Status besplatne probe',
+
     'remainingAmount' => 'Preostali krediti iz vašeg trenutnog plana biće dodani na stanje kredita.',
 
 ];

@@ -2607,6 +2607,12 @@ return [
     'placeholder_your-queue-name' => '你的队列名称',
 
     'waiting' => '请稍候...',
+
+    'trial_status_updated' => '免费试用状态已成功更新',
+    'trial_status_error' => '更新免费试用状态时发生错误',
+    'free_trial_status_tooltip' => '使用此开关控制在开始免费试用的弹窗中显示哪个产品。',
+    'trial_status_heading' => '免费试用状态',
+
     'remainingAmount' => '您当前方案中剩余的积分将被添加到积分余额中。',
 
 ];

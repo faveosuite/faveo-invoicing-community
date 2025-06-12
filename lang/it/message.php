@@ -2607,6 +2607,11 @@ return [
     'placeholder_your-queue-name' => 'il nome della tua coda',
 
     'waiting' => 'Attendere...',
+
+    'trial_status_updated' => 'Lo stato della prova gratuita è stato aggiornato con successo',
+    'trial_status_error' => 'Si è verificato un errore durante l\'aggiornamento dello stato della prova gratuita',
+    'free_trial_status_tooltip' => 'Usa questo interruttore per controllare quale prodotto mostrare nel popup di avvio della prova gratuita.',
+    'trial_status_heading' => 'Stato della prova gratuita',
     'remainingAmount' => 'I crediti rimanenti del tuo piano attuale verranno aggiunti al saldo dei crediti.',
 
 ];

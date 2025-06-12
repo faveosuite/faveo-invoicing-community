@@ -1262,7 +1262,6 @@ class CloudExtraActivities extends Controller
     public function fetchData()
     {
         $collection = collect(CloudProducts::cursor());
-
         return \DataTables::collection($collection)
             ->addColumn('Cloud Product', function ($model) {
                 return "<p><a href='".url('/products/'.$model->product->id.'/edit')."'>".$model->product->name.'</a></p>';
@@ -1279,8 +1278,33 @@ class CloudExtraActivities extends Controller
                 class='btn btn-sm btn-dark btn-xs delTenant' ".tooltip(__('message.delete'))."<i class='fa fa-trash'
                 style='color:white;'> </i></button>&nbsp;</p>";
             })
-            ->rawColumns(['Cloud Product', 'Cloud free plan', 'Cloud product key', 'action'])
+            ->addColumn('status', function ($model) {
+                return '<label class="switch toggle_event_editing trialStatus">
+                        <input type="checkbox" value="'.($model->trial_status ? '1' : '0').'"  name="trialStatus" data-status='.$model->trial_status.'
+                               class="checkbox9" id="'.$model->id.'"  '.($model->trial_status ? 'checked' : '').'>
+                        <span class="slider round"></span>
+                    </label>';
+            })
+            ->rawColumns(['Cloud Product', 'Cloud free plan', 'Cloud product key', 'action','status'])
             ->make(true);
+    }
+
+    public function updateTrialStatus(Request $request)
+    {
+        try {
+            $id = $request->input('id');
+            $status = $request->input('status');
+            CloudProducts::where('id', $id)->update(['trial_status' => $status]);
+            return successResponse(\Lang::get('message.trial_status_updated'));
+        }catch (\Exception $e) {
+            return errorResponse(\Lang::get('message.trial_status_error'));
+        }
+    }
+
+    public function trialCloudProducts(){
+        $cloud=CloudProducts::where('trial_status','1')->with('product')->get();
+        $product=$cloud->pluck('product.name','cloud_product_key')->filter()->all();
+        return successResponse('Products',$product);
     }
 
     public function DeleteProductConfig(Request $request)

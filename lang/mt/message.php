@@ -2536,6 +2536,12 @@
      'placeholder_your-queue-name' => 'isem il-queue tiegħek',
 
      'waiting' => 'Stenna...',
+
+     'trial_status_updated' => 'L-istatus tal-prova bla ħlas ġie aġġornat b’suċċess',
+     'trial_status_error' => 'Seħħet żball waqt l-aġġornament tal-istatus tal-prova bla ħlas',
+     'free_trial_status_tooltip' => 'Uża dan l-iskambjatur biex tikkontrolla liema prodott jintwera fil-popup tal-bidu tal-prova bla ħlas.',
+     'trial_status_heading' => 'L-Istatus tal-Prova Bla Ħlas',
+
      'remainingAmount' => 'Il-krediti li jifdal fil-pjan kurrenti tiegħek se jiġu miżjuda mal-bilanċ tal-kreditu.',
 
  ];
