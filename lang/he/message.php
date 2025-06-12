@@ -2616,6 +2616,10 @@ return [
     'placeholder_your-queue-name' => 'שם‑התור‑שלך',
 
     'waiting' => 'חכה...',
+    'trial_status_updated' => 'סטטוס תקופת הניסיון עודכן בהצלחה',
+    'trial_status_error' => 'אירעה שגיאה בעת עדכון סטטוס תקופת הניסיון',
+    'free_trial_status_tooltip' => 'השתמש במתג זה כדי לשלוט איזה מוצר יוצג בחלון הקופץ של תחילת תקופת הניסיון.',
+    'trial_status_heading' => 'סטטוס תקופת הניסיון',
 
     'reoon' => 'Reoon',
     'vonage' => 'Vonage',
@@ -2653,6 +2657,7 @@ return [
     'tick-to-hide-from-invoice' => 'סמן כדי להסתיר מדף יצירת החשבונית',
 
     'remainingAmount' => 'הקרדיטים שנותרו בתוכנית הנוכחית שלך יתווספו ליתרת הקרדיטים.',
+    'tenant_deletion' => 'האם אתה בטוח שברצונך למחוק את הדייר הזה ',
     'checkbox_error' => 'אנא בחר לפחות אפשרות סטטוס אחת.',
     'allowed_estatus' => 'מצבי דוא"ל מותרים',
     'file_not_upload' => '(לא ניתן להעלות את הקובץ: ',
@@ -2664,4 +2669,10 @@ return [
     'new_code_generated' => 'קוד שחזור חדש נוצר בהצלחה.',
     'please_enter_code' => 'אנא הזן את הקוד',
     '2fa_verifying' => 'מאמת...',
+
+    'domain_already_taken' => 'הדומיין כבר תפוס. אנא בחר דומיין אחר',
+    'instance_successfully_created' => 'המופע בענן שלך נוצר בהצלחה. אנא בקר באתר שלך ב־:installationUrl. תקבל סיסמה למייל הרשום שלך.',
+    'instance_not_created' => 'המופע בענן שלך נוצר בהצלחה אך התקנת הרישיון נכשלה.<b>:reason.</b> אנא בקר באתר שלך ב־:installationUrl',
+    'cloud_deleted_successfully' => 'שוכר נמחק בהצלחה',
+    'cloud_deleted_failed' => 'מחיקת השוכר נכשלה',
 ];

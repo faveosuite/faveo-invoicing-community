@@ -2464,6 +2464,16 @@ return [
     '2fa_verifying' => 'جارٍ التحقق...',
     'renew_your_order' => 'قم بتجديد طلبك',
 
+    'trial_status_updated' => 'تم تحديث حالة النسخة التجريبية المجانية بنجاح',
+    'trial_status_error' => 'حدث خطأ أثناء تحديث حالة النسخة التجريبية المجانية',
+    'free_trial_status_tooltip' => 'استخدم هذا الزر للتحكم في المنتج الذي سيتم عرضه في نافذة بدء النسخة التجريبية المجانية.',
+    'trial_status_heading' => 'حالة النسخة التجريبية المجانية',
+    'tenant_deletion' => 'هل أنت متأكد أنك تريد حذف هذا المستأجر ',
+    'domain_already_taken' => 'النطاق محجوز بالفعل. يرجى اختيار نطاق مختلف',
+    'instance_successfully_created' => 'تم إنشاء مثيل السحابة بنجاح. يرجى زيارة موقعك على :installationUrl. ستتلقى كلمة المرور على بريدك الإلكتروني المسجل.',
+    'instance_not_created' => 'تم إنشاء مثيل السحابة بنجاح ولكن فشل تثبيت الترخيص.<b>:reason.</b> يرجى زيارة موقعك على :installationUrl',
+    'cloud_deleted_successfully' => 'تم حذف المستأجر بنجاح',
+    'cloud_deleted_failed' => 'فشل حذف المستأجر',
     // Arabic
     'reoon' => 'ريون',
     'vonage' => 'فوناج',

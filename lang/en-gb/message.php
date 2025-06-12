@@ -2645,9 +2645,15 @@ return [
     'email_validation_status' => 'Email validation status successfully saved',
     'mobileApi_provider' => 'Please select a mobile validation provider.',
 
+
+    'trial_status_updated' => 'Free trial status updated successfully',
+    'trial_status_error' => 'An error occurred while updating the free trial status',
+    'free_trial_status_tooltip' => 'Use this switch to control which product appears in the Start Free Trial popup',
+    'trial_status_heading' => 'Free Trial Status',
     'tick-to-hide-from-invoice' => 'Tick to hide from the invoice creation page',
 
     'remainingAmount' => 'The remaining credits in your current plan will be added to the credit balance.',
+    'tenant_deletion' => 'Are you sure you want to delete this tenant ',
 
     'file_invalid' => 'It appears to be corrupted or invalid. Please verify the file and try again.',
     'file_not_upload' => '(file could not be uploaded: ',
@@ -2659,6 +2665,13 @@ return [
     'new_code_generated' => 'New recovery code generated successfully.',
     'please_enter_code' => 'Please enter the code',
     '2fa_verifying' => 'Verifying...',
+
+    'domain_already_taken' => 'Domain already taken. Please select a different domain',
+    'instance_successfully_created' => 'Your cloud instance has been created successfully. Please visit your website at :installationUrl. You will receive the password at your registered email.',
+    'instance_not_created' => 'Your cloud instance has been successfully created but licence installation failed.<b>:reason.</b> Please visit your website at :installationUrl',
+    'cloud_deleted_successfully' => 'Tenant deleted successfully',
+    'cloud_deleted_failed' => 'Tenant deletion failed',
+
     'checkbox_error' => 'Please select at least one status option.',
     'allowed_estatus' => 'Permitted Email Statuses',
 ];

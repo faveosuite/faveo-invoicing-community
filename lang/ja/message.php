@@ -2615,6 +2615,11 @@ return [
     'placeholder_your-queue-name' => 'your-queue-name',
 
     'waiting' => 'お待ちください...',
+
+    'trial_status_updated' => '無料トライアルのステータスが正常に更新されました',
+    'trial_status_error' => '無料トライアルのステータスを更新中にエラーが発生しました',
+    'free_trial_status_tooltip' => 'このスイッチを使用して、無料トライアルのポップアップに表示する製品を制御します。',
+    'trial_status_heading' => '無料トライアルのステータス',
     'mobile_validation_success' => 'モバイルのAPIキー、APIシークレット、およびモードが正常に保存されました。',
     'mobile_validation_success_abstract' => 'モバイルのAPIキーが正常に保存されました。',
     'mobile_validation_status' => 'モバイル検証ステータスが正常に保存されました。',
@@ -2650,6 +2655,7 @@ return [
     'tick-to-hide-from-invoice' => '請求書作成ページから非表示にするにはチェックしてください',
 
     'remainingAmount' => '現在のプランで残っているクレジットはクレジット残高に追加されます。',
+    'tenant_deletion' => 'このテナントを削除してもよろしいですか ',
     'checkbox_error' => '少なくとも1つのステータスオプションを選択してください。',
     'allowed_estatus' => '許可されたメールステータス',
     'file_not_upload' => '(ファイルをアップロードできませんでした: ',
@@ -2661,4 +2667,10 @@ return [
     'new_code_generated' => 'Nuovo codice di recupero generato con successo.',
     'please_enter_code' => 'Per favore, inserisci il codice',
     '2fa_verifying' => 'Verifica in corso...',
+
+    'domain_already_taken' => 'ドメインはすでに使用されています。他のドメインを選択してください',
+    'instance_successfully_created' => 'クラウドインスタンスが正常に作成されました。:installationUrl にアクセスしてください。パスワードは登録されたメールに送信されます。',
+    'instance_not_created' => 'クラウドインスタンスは正常に作成されましたが、ライセンスのインストールに失敗しました。<b>:reason。</b>:installationUrl にアクセスしてください',
+    'cloud_deleted_successfully' => 'テナントが正常に削除されました',
+    'cloud_deleted_failed' => 'テナントの削除に失敗しました',
 ];
