@@ -594,7 +594,8 @@ Route::middleware('installAgora')->group(function () {
     Route::post('/update-session', [Tenancy\CloudExtraActivities::class, 'updateSession'])->name('update-session');
 
     Route::get('fetch-data', [Tenancy\CloudExtraActivities::class, 'fetchData'])->name('fetch-data');
-
+    Route::post('update-trial-status',[Tenancy\CloudExtraActivities::class, 'updateTrialStatus'])->name('update-trial-status');
+    Route::post('trial-cloud-products',[Tenancy\CloudExtraActivities::class, 'trialCloudProducts']);
     Route::delete('delete-cloud-product', [Tenancy\CloudExtraActivities::class, 'DeleteProductConfig'])->name('delete-cloud-product');
 
     Route::delete('remove-location', [Tenancy\CloudExtraActivities::class, 'removeLocation'])->name('remove-location');

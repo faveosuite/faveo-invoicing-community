@@ -2602,7 +2602,12 @@ return [
     'placeholder_your-queue-name' => 'votre-nom-de-queue',
 
     'waiting' => 'Attendez...',
+    'trial_status_updated' => 'Le statut de l’essai gratuit a été mis à jour avec succès',
+    'trial_status_error' => 'Une erreur s’est produite lors de la mise à jour du statut de l’essai gratuit',
+    'free_trial_status_tooltip' => 'Utilisez ce commutateur pour contrôler quel produit afficher dans la fenêtre contextuelle de démarrage de l’essai gratuit.',
+    'trial_status_heading' => 'Statut de l’essai gratuit',
     'remainingAmount' => 'Les crédits restants de votre plan actuel seront ajoutés au solde des crédits.',
+    'tenant_deletion' => 'Êtes-vous sûr de vouloir supprimer ce locataire ?',
     'user-suspend-successfully' => 'Utilisateur suspendu avec succès',
     'incorrect_password' => 'Mot de passe incorrect. Veuillez réessayer.',
     'wrong_code' => 'Code erroné. Veuillez réessayer.',

@@ -2611,7 +2611,13 @@ return [
     'placeholder_your-queue-name' => 'tu-nombre-de-cola',
 
     'waiting' => 'Espera...',
+
+    'trial_status_updated' => 'El estado de la prueba gratuita se actualizó correctamente',
+    'trial_status_error' => 'Ocurrió un error al actualizar el estado de la prueba gratuita',
+    'free_trial_status_tooltip' => 'Usa este interruptor para controlar qué producto se mostrará en la ventana emergente de prueba gratuita.',
+    'trial_status_heading' => 'Estado de la prueba gratuita',
     'remainingAmount' => 'Los créditos restantes de tu plan actual se añadirán al saldo de créditos.',
+    'tenant_deletion' => '¿Estás seguro de que deseas eliminar este inquilino?',
 
     'user-suspend-successfully' => 'Usuario suspendido exitosamente',
     'incorrect_password' => 'Contraseña incorrecta. Inténtalo de nuevo.',

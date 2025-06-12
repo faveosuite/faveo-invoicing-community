@@ -2607,7 +2607,13 @@ return [
     'placeholder_your-queue-name' => 'Ihr Queue-Name',
 
     'waiting' => 'Warten...',
+
+    'trial_status_updated' => 'Der Status der kostenlosen Testversion wurde erfolgreich aktualisiert',
+    'trial_status_error' => 'Beim Aktualisieren des Status der kostenlosen Testversion ist ein Fehler aufgetreten',
+    'free_trial_status_tooltip' => 'Verwenden Sie diesen Schalter, um zu steuern, welches Produkt im Fenster für die kostenlose Testversion angezeigt wird.',
+    'trial_status_heading' => 'Status der kostenlosen Testversion',
     'remainingAmount' => 'Die verbleibenden Guthaben Ihres aktuellen Tarifs werden dem Kreditguthaben hinzugefügt.',
+    'tenant_deletion' => 'Sind Sie sicher, dass Sie diesen Mieter löschen möchten?',
 
     'user-suspend-successfully' => 'Benutzer erfolgreich gesperrt',
     'incorrect_password' => 'Falsches Passwort. Versuchen Sie es erneut.',

@@ -2616,7 +2616,12 @@ return [
     'placeholder_your-queue-name' => 'שם‑התור‑שלך',
 
     'waiting' => 'חכה...',
+    'trial_status_updated' => 'סטטוס תקופת הניסיון עודכן בהצלחה',
+    'trial_status_error' => 'אירעה שגיאה בעת עדכון סטטוס תקופת הניסיון',
+    'free_trial_status_tooltip' => 'השתמש במתג זה כדי לשלוט איזה מוצר יוצג בחלון הקופץ של תחילת תקופת הניסיון.',
+    'trial_status_heading' => 'סטטוס תקופת הניסיון',
     'remainingAmount' => 'הקרדיטים שנותרו בתוכנית הנוכחית שלך יתווספו ליתרת הקרדיטים.',
+    'tenant_deletion' => 'האם אתה בטוח שברצונך למחוק את הדייר הזה?',
 
     'user-suspend-successfully' => 'המשתמש הושעה בהצלחה',
     'incorrect_password' => 'סיסמה שגויה. נסה שוב',

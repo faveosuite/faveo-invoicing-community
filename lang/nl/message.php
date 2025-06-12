@@ -2589,4 +2589,10 @@ return [
     'please_enter_code' => 'Voer de code in.',
     '2fa_verifying' => 'Bezig met verifiëren...',
 
+    'trial_status_updated' => 'De status van de gratis proefperiode is succesvol bijgewerkt',
+    'trial_status_error' => 'Er is een fout opgetreden bij het bijwerken van de status van de gratis proefperiode',
+    'free_trial_status_tooltip' => 'Gebruik deze schakelaar om te bepalen welk product wordt weergegeven in de pop-up voor de gratis proefperiode.',
+    'trial_status_heading' => 'Status van de gratis proefperiode',
+    'tenant_deletion' => 'Weet je zeker dat je deze huurder wilt verwijderen?',
+
 ];
