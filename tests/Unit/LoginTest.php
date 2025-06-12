@@ -13,7 +13,7 @@ class LoginTest extends DBTestCase
     use DatabaseTransactions;
 
     /**
-     * Helper method to mock captcha requirement
+     * Helper method to mock captcha requirement.
      */
     private function mockCaptchaRequired()
     {
@@ -77,6 +77,7 @@ class LoginTest extends DBTestCase
         $response->assertStatus(302);
         // $this->assertStringContainsSubstring($response->getTargetUrl(), '/verify');
     }
+
     #[Group('postLogin')]
     public function test_it_fails_when_honeypot_field_is_filled()
     {
@@ -136,5 +137,4 @@ class LoginTest extends DBTestCase
 
         $this->assertAuthenticated();
     }
-
 }
