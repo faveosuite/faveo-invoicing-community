@@ -2608,6 +2608,11 @@ return [
 
     'waiting' => 'Warten...',
 
+    'trial_status_updated' => 'Der Status der kostenlosen Testversion wurde erfolgreich aktualisiert',
+    'trial_status_error' => 'Beim Aktualisieren des Status der kostenlosen Testversion ist ein Fehler aufgetreten',
+    'free_trial_status_tooltip' => 'Verwenden Sie diesen Schalter, um zu steuern, welches Produkt im Fenster für die kostenlose Testversion angezeigt wird.',
+    'trial_status_heading' => 'Status der kostenlosen Testversion',
+
     'reoon' => 'Reoon',
     'vonage' => 'Vonage',
     'abstract' => 'Abstract',
@@ -2645,6 +2650,7 @@ return [
     'tick-to-hide-from-invoice' => 'Ankreuzen, um auf der Rechnungserstellungsseite auszublenden',
 
     'remainingAmount' => 'Die verbleibenden Guthaben Ihres aktuellen Tarifs werden dem Kreditguthaben hinzugefügt.',
+    'tenant_deletion' => 'Sind Sie sicher, dass Sie diesen Mieter löschen möchten ',
     'checkbox_error' => 'Bitte wählen Sie mindestens eine Statusoption aus.',
     'allowed_estatus' => 'Erlaubte E-Mail-Status',
     'file_not_upload' => '(Datei konnte nicht hochgeladen werden: ',
@@ -2663,4 +2669,10 @@ return [
     '2fa_verifying' => 'Überprüfung...',
     'captcha_failed' => 'reCAPTCHA-Überprüfung fehlgeschlagen. Bitte stellen Sie sicher, dass Ihr geheimer reCAPTCHA-Schlüssel gültig ist.',
     'captcha_message' => 'reCAPTCHA-Überprüfung fehlgeschlagen. Bitte versuchen Sie es erneut.',
+
+    'domain_already_taken' => 'Domain bereits vergeben. Bitte wählen Sie eine andere Domain',
+    'instance_successfully_created' => 'Ihre Cloud‑Instanz wurde erfolgreich erstellt. Bitte besuchen Sie Ihre Website unter :installationUrl. Sie erhalten das Passwort an Ihre registrierte E‑Mail.',
+    'instance_not_created' => 'Ihre Cloud‑Instanz wurde erfolgreich erstellt, aber die Lizenzinstallation ist fehlgeschlagen.<b>:reason.</b> Bitte besuchen Sie Ihre Website unter :installationUrl',
+    'cloud_deleted_successfully' => 'Mandant erfolgreich gelöscht',
+    'cloud_deleted_failed' => 'Löschen des Mandanten fehlgeschlagen',
 ];

@@ -2541,6 +2541,12 @@ return [
 
     'waiting' => 'Sačekajte...',
 
+    'trial_status_updated' => 'Status besplatne probe je uspješno ažuriran',
+    'trial_status_error' => 'Došlo je do greške prilikom ažuriranja statusa besplatne probe',
+    'free_trial_status_tooltip' => 'Koristite ovu opciju da kontrolišete koji će se proizvod prikazati u prozoru za pokretanje besplatne probe.',
+    'trial_status_heading' => 'Status besplatne probe',
+
+
     // Bosnian
     'reoon' => 'Reoon',
     'vonage' => 'Vonage',
@@ -2577,6 +2583,7 @@ return [
     'tick-to-hide-from-invoice' => 'Označi da sakriješ sa stranice za kreiranje fakture',
 
     'remainingAmount' => 'Preostali krediti iz vašeg trenutnog plana biće dodani na stanje kredita.',
+    'tenant_deletion' => 'Jeste li sigurni da želite obrisati ovog stanara ',
     'file_not_upload' => '(datoteka nije mogla biti prenesena: ',
     'completed' => 'Završeno',
     'checkbox_error' => 'Molimo odaberite barem jednu statusnu opciju.',
@@ -2588,6 +2595,12 @@ return [
     'new_code_generated' => 'Novi kod za oporavak uspješno generisan.',
     'please_enter_code' => 'Molimo unesite kod.',
     '2fa_verifying' => 'Provjera...',
+
+    'domain_already_taken' => 'Domen je već zauzet. Molimo odaberite drugi domen',
+    'instance_successfully_created' => 'Vaš oblačni instance je uspješno kreirana. Posjetite svoju web lokaciju na :installationUrl. Lozinku ćete dobiti na svoj registrirani e‑mail.',
+    'instance_not_created' => 'Vaš oblačni instance je uspješno kreirana, ali instalacija licence nije uspjela.<b>:reason.</b> Posjetite svoju web lokaciju na :installationUrl',
+    'cloud_deleted_successfully' => 'Najmoprimac je uspješno obrisan',
+    'cloud_deleted_failed' => 'Brisanje najmoprimca nije uspjelo',
     'enable_verification' => 'Omogući verifikacije',
     'preferred_verification' => 'Preferirani način verifikacije',
     'email_first' => 'Email prvo',

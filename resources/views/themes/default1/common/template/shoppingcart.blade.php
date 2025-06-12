@@ -189,6 +189,10 @@ select {
     text-overflow: ellipsis !important;
  }
 
+ #serviceType{
+    width:100% !important;
+}
+
 /* Firefox-only CSS */
 @-moz-document url-prefix() {
     /* Firefox-specific CSS rules here */

@@ -2627,6 +2627,11 @@ return [
     'tick-to-hide-from-invoice' => 'Marque para ocultar da página de criação de faturas',
 
     'remainingAmount' => 'Os créditos restantes do seu plano atual serão adicionados ao saldo de créditos.',
+    'trial_status_updated' => 'Status da avaliação gratuita atualizado com sucesso',
+    'trial_status_error' => 'Ocorreu um erro ao atualizar o status da avaliação gratuita',
+    'free_trial_status_tooltip' => 'Use esta opção para controlar qual produto aparece no pop-up de Iniciar Avaliação Gratuita',
+    'trial_status_heading' => 'Status da Avaliação Gratuita',
+    'tenant_deletion' => 'Tem certeza de que deseja excluir este inquilino ',
     'checkbox_error' => 'Por favor, selecione pelo menos uma opção de status.',
     'allowed_estatus' => 'Status de e-mail permitidos',
 
@@ -2636,6 +2641,12 @@ return [
     'new_code_generated' => 'Novo código de recuperação gerado com sucesso.',
     'please_enter_code' => 'Por favor, insira o código.',
     '2fa_verifying' => 'Verificando...',
+
+    'domain_already_taken' => 'Domínio já está em uso. Por favor, selecione um domínio diferente',
+    'instance_successfully_created' => 'A sua instância cloud foi criada com sucesso. Visite o seu site em :installationUrl. A password será enviada para o seu email registado.',
+    'instance_not_created' => 'A sua instância cloud foi criada com sucesso mas a instalação da licença falhou.<b>:reason.</b> Visite o seu site em :installationUrl',
+    'cloud_deleted_successfully' => 'Tenant eliminado com sucesso',
+    'cloud_deleted_failed' => 'Falha ao eliminar o tenant',
     'file_not_upload' => '(não foi possível carregar o arquivo: ',
     'completed' => 'Concluído',
     'enable_verification' => 'Ativar verificações',
