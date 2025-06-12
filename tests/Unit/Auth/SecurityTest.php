@@ -2,8 +2,6 @@
 
 namespace Tests\Unit\Auth;
 
-use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Config;
 use Tests\DBTestCase;
 
@@ -32,10 +30,10 @@ class SecurityTest extends DBTestCase
             // --- CSP Headers ---
             $response->assertHeader('Content-Security-Policy');
             $csp = $response->headers->get('Content-Security-Policy');
-            $this->assertStringContainsString("default-src", $csp);
-            $this->assertStringContainsString("script-src", $csp);
-            $this->assertStringContainsString("style-src", $csp);
-            $this->assertStringContainsString("cdn.datatables.net", $csp);
+            $this->assertStringContainsString('default-src', $csp);
+            $this->assertStringContainsString('script-src', $csp);
+            $this->assertStringContainsString('style-src', $csp);
+            $this->assertStringContainsString('cdn.datatables.net', $csp);
 
 //            // --- X-Content-Type-Options ---
 //            $response->assertHeader('X-Content-Type-Options', 'nosniff');
