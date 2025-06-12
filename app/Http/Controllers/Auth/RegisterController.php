@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\User\ProfileRequest;
 use App\Jobs\AddUserToExternalService;
 use App\Model\Common\Setting;
-use App\Model\Common\SocialMedia;
 use App\Model\Common\StatusSetting;
 use App\Rules\CaptchaValidation;
 use App\User;
@@ -14,7 +13,6 @@ use Exception;
 use Facades\Spatie\Referer\Referer;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\Mime\Email;
@@ -53,9 +51,10 @@ class RegisterController extends Controller
     /**
      * This function performs post registration operations(creating user,add user to pipedrive,mailchimp).
      *
-     * @param ProfileRequest $request
-     * @param User $user
+     * @param  ProfileRequest  $request
+     * @param  User  $user
      * @return \HTTP|JsonResponse
+     *
      * @throws ValidationException
      */
     public function postRegister(ProfileRequest $request, User $user)
@@ -119,9 +118,9 @@ class RegisterController extends Controller
      * @param
      * @param
      * @return int
+     *
      * @throws
      */
-
     protected function getEmailMobileStatusResponse()
     {
         $response = StatusSetting::first(['emailverification_status', 'msg91_status']);
@@ -129,13 +128,13 @@ class RegisterController extends Controller
         return ($response->emailverification_status || $response->msg91_status) ? 1 : 0;
     }
 
-
     /**
      * This function returns the default currency.
      *
      * @param
      * @param
      * @return int
+     *
      * @throws
      */
     protected function getUserCurrency($userCountry)
@@ -152,11 +151,10 @@ class RegisterController extends Controller
      * This function returns the default currency symbol.
      *
      * @param
-     *
      * @return int
+     *
      * @throws
      */
-
     protected function getUserCurrencySymbol($userCountry)
     {
         $currency_symbol = Setting::find(1)->default_symbol;
@@ -196,7 +194,4 @@ class RegisterController extends Controller
         //     'password' => bcrypt($data['password']),
         // ]);
     }
-
-
-
 }
