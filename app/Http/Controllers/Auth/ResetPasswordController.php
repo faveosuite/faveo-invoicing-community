@@ -88,7 +88,7 @@ class ResetPasswordController extends Controller
                 new StrongPassword(),
             ],
             'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('resetPassword')],
-            'reset' => [new Honeypot()]
+            'reset' => [new Honeypot()],
         ], ['g-recaptcha-response.required' => 'Please verify that you are not a robot.',
         ]);
         try {

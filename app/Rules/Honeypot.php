@@ -25,34 +25,37 @@ class Honeypot implements ValidationRule
     /**
      * Run the validation rule.
      *
-     * @param string $attribute
-     * @param mixed $value
-     * @param Closure $fail
+     * @param  string  $attribute
+     * @param  mixed  $value
+     * @param  Closure  $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (!is_array($value) || count($value) !== 2) {
+        if (! is_array($value) || count($value) !== 2) {
             $fail($this->message);
+
             return;
         }
 
         // Detect pot field
-        $pot = \Arr::first($value, fn($val, $key) => \Str::startsWith($key, 'p'));
+        $pot = \Arr::first($value, fn ($val, $key) => \Str::startsWith($key, 'p'));
         if ($pot !== '' && $pot !== null) {
             $fail($this->message);
+
             return;
         }
 
         // Detect and validate encrypted time
-        $time = \Arr::first($value, fn($val, $key) => \Str::startsWith($key, 't'));
+        $time = \Arr::first($value, fn ($val, $key) => \Str::startsWith($key, 't'));
 
-        if (!$this->validateTimeField($time)) {
+        if (! $this->validateTimeField($time)) {
             $fail($this->message);
         }
     }
+
     private function validateTimeField($value): bool
     {
-        if (!$value) {
+        if (! $value) {
             return false;
         }
 
@@ -62,6 +65,6 @@ class Honeypot implements ValidationRule
             return false;
         }
 
-        return (is_numeric($decrypted) && time() >= ($decrypted + $this->minTime));
+        return is_numeric($decrypted) && time() >= ($decrypted + $this->minTime);
     }
 }
