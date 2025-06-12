@@ -18,10 +18,10 @@ $status =  App\Model\Common\StatusSetting::select('recaptcha_status','v3_recaptc
 
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true">&times;</button>
                 </div>
-                <div id="alert-container-demo"></div>
+
 
                 <div class="modal-body">
-
+                    <div id="alert-container-demo"></div>
                     <div class="row">
 
                         <div class="col">

@@ -33,8 +33,8 @@
                         <span id="passerror"></span>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" id="verify_password" class="btn btn-primary"><i class="fa fa-check">&nbsp;&nbsp;</i>Validate</button>
+                <div class="modal-footer d-flex">
+                    <button type="button" id="verify_password" class="btn btn-primary ms-auto"><i class="fa fa-check">&nbsp;&nbsp;</i>Validate</button>
                 </div>
             </div>
         </div>
@@ -57,8 +57,8 @@
                         <p><b>To continue, please click on Verify to verify it's you</b></p>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="submit" id="verify_password" class="btn btn-primary"><i class="fa fa-check">&nbsp;&nbsp;</i>Validate</button>
+                <div class="modal-footer d-flex">
+                    <button type="submit" id="verify_password" class="btn btn-primary ms-auto"><i class="fa fa-check">&nbsp;&nbsp;</i>Validate</button>
                 </div>
             </div>
         </div>
@@ -97,8 +97,8 @@
                 </div>
                 <span id="passerror"></span>
             </div>
-            <div class="modal-footer">
-                <button type="button" id="next_rec_code" class="btn btn-primary">Next&nbsp;&nbsp;<i class="fa fa-arrow-right"></i></button>
+            <div class="modal-footer d-flex">
+                <button type="button" id="next_rec_code" class="btn btn-primary ms-auto">Next&nbsp;&nbsp;<i class="fa fa-arrow-right"></i></button>
             </div>
         </div>
     </div>
@@ -142,8 +142,8 @@
                     <a href="javascript:;" id="scanbarcode">SCAN BARCODE?</a>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" id="scan_complete" class="btn btn-primary">Next&nbsp;&nbsp;<i class="fa fa-arrow-right"></i></button>
+            <div class="modal-footer d-flex">
+                <button type="button" id="scan_complete" class="btn btn-primary ms-auto">Next&nbsp;&nbsp;<i class="fa fa-arrow-right"></i></button>
             </div>
         </div>
     </div>

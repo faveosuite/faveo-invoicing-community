@@ -406,6 +406,12 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
         }
 
         function resendOTP(default_type, type) {
+            if(default_type=='email'){
+                document.getElementById('email_otp').value='';
+            }
+            if(default_type=='mobile'){
+                document.getElementById('otp').value='';
+            }
             const data = {eid, default_type, type};
             $.ajax({
                 url: '{{ url('resend_otp') }}',

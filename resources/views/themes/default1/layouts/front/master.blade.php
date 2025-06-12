@@ -699,7 +699,7 @@ $days = $pay->where('product','117')->value('days');
 
                     <div class="modal-footer">
 
-                        <button type="button" class="btn btn-default pull-left closebutton" id="closebutton" data-dismiss="modal"><i class="fa fa-times">&nbsp;&nbsp;</i>Close</button>
+                        <button type="button" class="btn btn-light pull-left closebutton" id="closebutton" data-dismiss="modal">Close</button>
                         <button type="submit"  class="btn btn-primary createTenant" id="createTenant" onclick="firstlogin({{Auth::user()->id}})"><i class="fa fa-check">&nbsp;&nbsp;</i>Submit</button>
 
                         {!! html()->form()->close()  !!}
