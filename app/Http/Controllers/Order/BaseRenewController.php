@@ -103,7 +103,6 @@ class BaseRenewController extends Controller
                 }
                 $isAgents = true;
             }
-
             return [$price, $isAgents];
         } catch (Exception $ex) {
             throw new \Exception($ex->getMessage());
