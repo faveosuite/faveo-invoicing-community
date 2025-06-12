@@ -78,7 +78,7 @@ main
                             </div>
                             </div>
                         </div>
-
+                    {!! honeypotField('reset') !!}
                     @if ($status->recaptcha_status === 1)
                         <div id="recaptchaReset"></div>
                         <div class="loginrobot-verification"></div><br>

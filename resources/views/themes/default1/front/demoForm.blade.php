@@ -89,10 +89,7 @@ $status =  App\Model\Common\StatusSetting::select('recaptcha_status','v3_recaptc
                                 </div>
                                 
                                   <!-- Honeypot fields (hidden) -->
-                                <div style="display: none;">
-                                    <label>Leave this field empty</label>
-                                    <input type="text" name="honeypot_field" value="">
-                                </div>
+                                {!! honeypotField('demo') !!}
 
                             @if (Auth::check())
                                 {{-- Authenticated user, no reCAPTCHA required --}}
@@ -285,7 +282,24 @@ $status =  App\Model\Common\StatusSetting::select('recaptcha_status','v3_recaptc
                     },
                     error: function(data) {
                         var response = data.responseJSON ? data.responseJSON : JSON.parse(data.responseText);
-                        showAlert('error', response);
+
+                        if (response.errors) {
+                            $.each(response.errors, function(field, messages) {
+                                if (field === 'demo' || field === 'g-recaptcha-response') {
+                                    showAlert('error', messages[0]);
+                                    return;
+                                }
+                                var validator = $('#demoForm').validate();
+
+                                var fieldSelector = $(`[name="${field}"]`).attr('name');  // Get the name attribute of the selected field
+
+                                validator.showErrors({
+                                    [fieldSelector]: messages[0]
+                                });
+                            });
+                        } else {
+                            showAlert('error', response);
+                        }
                     },
                     complete: function() {
                         submitButton.prop('disabled', false).html(submitButton.data('original-text'));

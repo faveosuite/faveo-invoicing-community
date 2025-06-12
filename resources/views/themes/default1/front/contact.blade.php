@@ -88,10 +88,7 @@ $country = \DB::table('countries')->where('country_code_char2',$set->country)->v
                             </div>
                         </div>
                          <!-- Honeypot fields (hidden) -->
-                                <div style="display: none;">
-                                    <label>Leave this field empty</label>
-                                    <input type="text" name="conatcthoneypot_field" value="">
-                                </div>
+                                {!! honeypotField('contact') !!}
 
                          @if ($status->recaptcha_status === 1)
                              <div id="recaptchaContact"></div>
@@ -217,7 +214,7 @@ $(document).ready(function() {
         return value.trim() !== "";
     }, "Please verify that you are not a robot.");
     $('#contactForm').validate({
-        ignore: ":hidden:not(.g-recaptcha-response)",
+        ignore: ":hidden:not(.g-recaptcha-response):not([name^='contact'])",
         rules: {
             conName: {
                 required: true
@@ -298,6 +295,10 @@ $(document).ready(function() {
 
                     if (response.errors) {
                         $.each(response.errors, function(field, messages) {
+                            if (field === 'contact' || field === 'g-recaptcha-response') {
+                                showAlert('error', messages[0]);
+                                return;
+                            }
                             var validator = $('#contactForm').validate();
 
                             var fieldSelector = $(`[name="${field}"]`).attr('name');  // Get the name attribute of the selected field

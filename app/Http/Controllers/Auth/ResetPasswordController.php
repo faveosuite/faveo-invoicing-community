@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Model\Common\StatusSetting;
 use App\Rules\CaptchaValidation;
+use App\Rules\Honeypot;
 use App\Rules\StrongPassword;
 use App\User;
 use Carbon\Carbon;
@@ -87,6 +88,7 @@ class ResetPasswordController extends Controller
                 new StrongPassword(),
             ],
             'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('resetPassword')],
+            'reset' => [new Honeypot()]
         ], ['g-recaptcha-response.required' => 'Please verify that you are not a robot.',
         ]);
         try {

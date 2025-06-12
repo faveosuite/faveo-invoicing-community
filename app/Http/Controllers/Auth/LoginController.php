@@ -9,6 +9,7 @@ use App\Model\Common\ChatScript;
 use App\Model\Common\Country;
 use App\Model\Common\StatusSetting;
 use App\Rules\CaptchaValidation;
+use App\Rules\Honeypot;
 use App\SocialLogin;
 use App\User;
 use App\VerificationAttempt;
@@ -77,6 +78,7 @@ class LoginController extends Controller
             'email_username' => 'required',
             'password1' => 'required',
             'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('login')],
+            'login' => [new Honeypot()],
         ], [
             'g-recaptcha-response.required' => 'Robot Verification Failed. Please Try Again.',
             'email_username.required' => 'Please Enter an Email',

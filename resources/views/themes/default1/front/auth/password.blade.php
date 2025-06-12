@@ -48,6 +48,8 @@ main
                                 <a class="text-decoration-none text-color-primary font-weight-semibold text-2" href="{{url('login')}}">I know my password</a>
                             </div>
                         </div>
+
+                        {!! honeypotField('forgot') !!}
                            @if ($status->recaptcha_status == 1)
                                 <div id="recaptchaEmail"></div>
                                 <span id="passcaptchacheck"></span><br>
