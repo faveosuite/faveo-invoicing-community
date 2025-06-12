@@ -8,6 +8,7 @@ use App\Jobs\AddUserToExternalService;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Rules\CaptchaValidation;
+use App\Rules\Honeypot;
 use App\User;
 use Facades\Spatie\Referer\Referer;
 use Illuminate\Foundation\Auth\RegistersUsers;
@@ -49,6 +50,7 @@ class RegisterController extends Controller
     {
         $this->validate($request, [
             'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('register')],
+            'register' => [new Honeypot()],
         ]);
         try {
             $location = getLocation();

@@ -160,6 +160,7 @@ foreach($scripts as $script) {
                                 <div id="error-login-password"></div>
                             </div>
                         </div>
+                                              {!! honeypotField('login') !!}
 
                         <div class="row justify-content-between">
 
@@ -423,6 +424,8 @@ foreach($scripts as $script) {
                         </div>
                     </div>
 
+                        {!! honeypotField('register') !!}
+
                         <div class="row">
                                 @if($status->terms == 1)
                                 <div class="form-group col-md-auto">
@@ -684,7 +687,7 @@ foreach($scripts as $script) {
             });
 
             $("#regiser-form").validate({
-                ignore: ":hidden:not(.g-recaptcha-response)",
+                ignore: ":hidden:not(.g-recaptcha-response):not([name^='register'])",
                 rules: {
                     first_name: {
                         required: true,
@@ -822,6 +825,10 @@ foreach($scripts as $script) {
 
                             if (response.errors) {
                                 $.each(response.errors, function(field, messages) {
+                                    if (field === 'register' || field === 'g-recaptcha-response') {
+                                        showAlert('error', messages[0]);
+                                        return;
+                                    }
                                     var validator = $('#regiser-form').validate();
 
                                     var fieldSelector = $(`[name="${field}"]`).attr('name');  // Get the name attribute of the selected field
