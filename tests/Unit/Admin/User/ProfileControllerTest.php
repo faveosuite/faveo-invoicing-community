@@ -19,7 +19,7 @@ class ProfileControllerTest extends DBTestCase
 
     public function testUpdateProfileWithoutAnyErrors()
     {
-        $response=$this->call('PATCH', 'profile', [
+        $response = $this->call('PATCH', 'profile', [
             'first_name' => 'update first',
             'last_name' => 'update last',
             'company' => 'update company',
@@ -28,7 +28,7 @@ class ProfileControllerTest extends DBTestCase
             'timezone_id' => '1',
             'user_name' => 'update name',
             'email' => 'updated@example.com',
-            'country'=>'USA',
+            'country' => 'USA',
         ]);
 
         // Asserting all fields
