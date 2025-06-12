@@ -990,7 +990,8 @@ setTimeout(function() {
 <script>
 
     $(document).ready(function() {
-        $('#mailchimp-subscription').on('click', function(e) {
+        $(document).on('click', '#mailchimp-subscription', function (e) {
+
             e.preventDefault();
 
             // Select elements using jQuery

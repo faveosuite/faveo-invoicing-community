@@ -162,7 +162,7 @@ Route::middleware('installAgora')->group(function () {
 
     Route::auth();
     Route::post('auth/register', [Auth\RegisterController::class, 'postRegister'])->name('auth/register');
-    Route::get('footer1',[Front\WidgetController::class, 'footer1'])->withoutMiddleware(['auth','admin']);
+    Route::get('footer1',[Auth\RegisterController::class, 'footer1'])->name('footer1')->withoutMiddleware('guest');
     Route::get('auth/logout', [Auth\LoginController::class, 'logout'])->name('logout');
     Route::get('/', [DashboardController::class, 'index']);
 
