@@ -957,6 +957,7 @@ class CloudExtraActivities extends Controller
     public function fetchData()
     {
         $collection = collect(CloudProducts::cursor());
+
         return \DataTables::collection($collection)
             ->addColumn('Cloud Product', function ($model) {
                 return "<p><a href='".url('/products/'.$model->product->id.'/edit')."'>".$model->product->name.'</a></p>';
@@ -980,7 +981,7 @@ class CloudExtraActivities extends Controller
                         <span class="slider round"></span>
                     </label>';
             })
-            ->rawColumns(['Cloud Product', 'Cloud free plan', 'Cloud product key', 'action','status'])
+            ->rawColumns(['Cloud Product', 'Cloud free plan', 'Cloud product key', 'action', 'status'])
             ->make(true);
     }
 
@@ -990,8 +991,9 @@ class CloudExtraActivities extends Controller
             $id = $request->input('id');
             $status = $request->input('status');
             CloudProducts::where('id', $id)->update(['trial_status' => $status]);
+
             return successResponse(\Lang::get('message.trial_status_updated'));
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             return errorResponse(\Lang::get('message.trial_status_error'));
         }
     }
