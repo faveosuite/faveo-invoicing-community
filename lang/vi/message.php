@@ -2611,9 +2611,16 @@ return [
     'placeholder_your-queue-name' => 'tên hàng đợi của bạn',
 
     'waiting' => 'Vui lòng đợi...',
+
+    'trial_status_updated' => 'Trạng thái dùng thử miễn phí đã được cập nhật thành công',
+    'trial_status_error' => 'Đã xảy ra lỗi khi cập nhật trạng thái dùng thử miễn phí',
+    'free_trial_status_tooltip' => 'Sử dụng công tắc này để kiểm soát sản phẩm nào sẽ hiển thị trong cửa sổ bật lên Bắt đầu Dùng thử Miễn phí.',
+    'trial_status_heading' => 'Trạng thái Dùng thử Miễn phí',
+
     'tick-to-hide-from-invoice' => 'Chọn để ẩn khỏi trang tạo hóa đơn',
 
     'remainingAmount' => 'Số tín dụng còn lại trong gói hiện tại của bạn sẽ được cộng vào số dư tín dụng.',
+    'tenant_deletion' => 'Bạn có chắc chắn muốn xóa người thuê này không?',
 
     'user-suspend-successfully' => 'Người dùng đã bị đình chỉ thành công',
     'incorrect_password' => 'Mật khẩu không chính xác. Vui lòng thử lại.',

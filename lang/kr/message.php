@@ -2636,6 +2636,12 @@ return [
 
     'remainingAmount' => '현재 요금제의 남은 크레딧이 크레딧 잔액에 추가됩니다.',
 
+    'trial_status_updated' => '무료 체험 상태가 성공적으로 업데이트되었습니다',
+    'trial_status_error' => '무료 체험 상태를 업데이트하는 중 오류가 발생했습니다',
+    'free_trial_status_tooltip' => '이 스위치를 사용하여 무료 체험 팝업에 표시할 제품을 선택하세요.',
+    'trial_status_heading' => '무료 체험 상태',
+    'tenant_deletion' => '이 세입자를 삭제하시겠습니까?',
+
     'user-suspend-successfully' => '사용자가 성공적으로 일시 중단되었습니다',
     'incorrect_password' => '비밀번호가 잘못되었습니다. 다시 시도하세요.',
     'wrong_code' => '코드가 잘못되었습니다. 다시 시도하세요.',

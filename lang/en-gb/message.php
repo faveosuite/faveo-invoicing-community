@@ -2612,9 +2612,15 @@ return [
     'placeholder_your-queue-name' => 'your-queue-name',
 
     'waiting' => 'Wait...',
+
+    'trial_status_updated' => 'Free trial status updated successfully',
+    'trial_status_error' => 'An error occurred while updating the free trial status',
+    'free_trial_status_tooltip' => 'Use this switch to control which product appears in the Start Free Trial popup',
+    'trial_status_heading' => 'Free Trial Status',
     'tick-to-hide-from-invoice' => 'Tick to hide from the invoice creation page',
 
     'remainingAmount' => 'The remaining credits in your current plan will be added to the credit balance.',
+    'tenant_deletion' => 'Are you sure you want to delete this tenant?',
 
     'user-suspend-successfully' => 'User Suspended Successfully',
     'incorrect_password' => 'Incorrect Password. Try again',

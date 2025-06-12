@@ -2615,9 +2615,15 @@ return [
     'placeholder_your-queue-name' => 'your-queue-name',
 
     'waiting' => 'お待ちください...',
+
+    'trial_status_updated' => '無料トライアルのステータスが正常に更新されました',
+    'trial_status_error' => '無料トライアルのステータスを更新中にエラーが発生しました',
+    'free_trial_status_tooltip' => 'このスイッチを使用して、無料トライアルのポップアップに表示する製品を制御します。',
+    'trial_status_heading' => '無料トライアルのステータス',
     'tick-to-hide-from-invoice' => '請求書作成ページから非表示にするにはチェックしてください',
 
     'remainingAmount' => '現在のプランで残っているクレジットはクレジット残高に追加されます。',
+    'tenant_deletion' => 'このテナントを削除してもよろしいですか？',
 
     'user-suspend-successfully' => 'ユーザーは正常に停止されました',
     'incorrect_password' => 'Password errata. Riprova',

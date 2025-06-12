@@ -1276,6 +1276,10 @@ return [
     'v2_tooltip' => 'Validate Requests with checkbox.',
     'v3_tooltip' => 'Validate Requests with score.',
     'user-suspend-successfully' => 'User Suspended Successfully',
+    'trial_status_updated'=>'Free Trial Status Updated Successfully',
+    'trial_status_error'=>'Error occurred while updating free trial status',
+    'free_trial_status_tooltip'=>'Use this switch to control which product to show in Start Free Trial popup.',
+    'trial_status_heading'=>'Free Trial Status',
     'tick-to-hide-from-invoice' => 'Check to hide from invoice creation page',
     //email templates
 
@@ -2630,6 +2634,8 @@ return [
     'placeholder_your-queue-name' => 'your-queue-name',
 
     'waiting' => 'Wait...',
+    'provider_select'=>'Please select a cloud product.',
+    'file_invalid'=>'It appears to be corrupted or invalid. Please verify the file and try again.',
     'incorrect_password' => 'Incorrect Password. Try again',
     'wrong_code' => 'Wrong Code. Try again',
     'new_code_generated' => 'New recovery code generated successfully.',
