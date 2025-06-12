@@ -59,11 +59,12 @@
                         {!! html()->text('cost')->class('form-control')->id('price') !!}
                     </div>
                 </div>
+
                 @if(in_array($productid,cloudPopupProducts()))
                 <div class="row">
                     <div class="col-md-4 form-group">
                         {!! html()->label( __('message.agents'))->class('col-form-label required')->for('agents') !!}
-                        {!! html()->number('agents', $agents)->class('form-control')->id('agents')->min(1)->placeholder('')->required() !!}
+                        {!! html()->number('agents', $agents)->class('form-control')->id('agents')->placeholder('')->required() !!}
                     </div>
                 </div>
                 @endif
@@ -82,6 +83,23 @@
 
 
 {!! html()->form()->close() !!}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const agentsInput = document.getElementById('agents');
+
+        if (agentsInput.value < 1) {
+            agentsInput.value = 1;
+        }
+
+        agentsInput.addEventListener('input', function () {
+            if (this.value < 1) {
+                this.value = 1;
+            }
+        });
+    });
+</script>
+
+
  <script>
      $(document).ready(function() {
          const userRequiredFields = {

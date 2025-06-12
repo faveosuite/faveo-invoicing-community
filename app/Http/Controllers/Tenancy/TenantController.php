@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tenancy;
 
 use App\CloudPopUp;
+use App\Http\Controllers\BaseHomeController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\License\LicenseController;
 use App\Jobs\ReportExport;
@@ -12,6 +13,7 @@ use App\Model\Common\FaveoCloud;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Model\Mailjob\QueueService;
+use App\Model\Order\InstallationDetail;
 use App\Model\Order\Order;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\CloudProducts;
@@ -241,11 +243,10 @@ class TenantController extends Controller
                        }
 
                        $user = User::find($userId);
-                       $country = Country::where('country_code_char2', $user->country)->value('nicename');
                        if (! $user) {
                            return '--';
                        }
-
+                       $country = Country::where('country_code_char2', $user->country)->value('nicename');
                        return $country ?? '';
                    })
 
@@ -402,7 +403,8 @@ class TenantController extends Controller
             $result = json_decode($response);
             if ($result->status == 'fails') {
                 if ($result->message == 'Domain already taken. Please select a different domain') {
-                    $newRandomDomain = substr($product.str_shuffle('abcdefghijklmnopqrstuvwxyz0123456789'), 0, 28);
+                    $toDisplay = preg_replace('/\s+/', '', $product);
+                    $newRandomDomain = substr($toDisplay.str_shuffle('abcdefghijklmnopqrstuvwxyz0123456789'), 0, 28);
 
                     return $this->createTenantWithRandomDomain($newRandomDomain, $request);
                 }
@@ -440,9 +442,12 @@ class TenantController extends Controller
                     $type = $temp_type->where('id', $type_id)->first()->name;
                 }
                 $subject = 'Your '.$order[0]->product()->value('name').' is now ready for use. Get started!';
-                $result->message = str_replace('website', strtolower($product), $result->message);
-                $result->message = str_replace('You will receive password on your registered email', '', $result->message);
-                $userData = $result->message.'<br><br> Email:'.' '.$userEmail.'<br>'.'Password:'.' '.$result->password;
+                $message=(isset($result->reason) && $result->reason != '')?__('message.'.$result->message,['installationUrl'=>$result->installationUrl,'reason'=>$result->reason]):
+                                        __('message.'.$result->message,['installationUrl'=>$result->installationUrl]);
+
+                $message = str_replace('website', strtolower($product), $message);
+                $message = str_replace('. You will receive password on your registered email', '', $message);
+                $userData = $message.'<br><br> Email:'.' '.$userEmail.'<br>'.'Password:'.' '.$result->password;
 
                 $replace = [
                     'message' => $userData,
@@ -456,10 +461,13 @@ class TenantController extends Controller
 
                 ];
 
+
                 $this->prepareMessages($faveoCloud, $userEmail, true);
                 $mail->SendEmail($settings->email, $userEmail, $template->data, $subject, $replace, $type);
-
-                return ['status' => $result->status, 'message' => $result->message.trans('message.cloud_created_successfully')];
+                if(isset($result->reason) && $result->reason !=''){
+                    return ['status' => $result->status, 'message' => $result->message.trans('message.cloud_created_successfully'),'installationUrl'=>$result->installationUrl,'reason'=>$result->reason];
+                }
+                return ['status' => $result->status, 'message' => $result->message.trans('message.cloud_created_successfully'),'installationUrl'=>$result->installationUrl];
             }
         } catch (Exception $e) {
             $message = $e->getMessage().' Domain: '.$faveoCloud.' Email: '.$userEmail;
@@ -516,9 +524,9 @@ class TenantController extends Controller
 
                 $this->googleChat('Hello, it has come to my notice that '.$user.' has deleted this cloud instance '.$request->input('id'));
 
-                return successResponse($response->message);
+                return successResponse(__('message.cloud_deleted_successfully'));
             } else {
-                return errorResponse($response->message);
+                return errorResponse(__('message.cloud_deleted_failed'));
             }
         } catch (Exception $e) {
             return errorResponse($e->getMessage());

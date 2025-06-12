@@ -48,7 +48,7 @@
         height: 100%;
         background-color: rgba(0, 0, 0, 0.5);
         display: flex;
-        align-items: center;
+        align-items: center;left
         justify-content: center;
         z-index: 9999;
     }
@@ -123,6 +123,82 @@
     position: relative;
 }
 
+   .col-2, .col-lg-2, .col-lg-4, .col-md-2, .col-md-4,.col-sm-2 {
+       width: 0px;
+   }
+   .swich {
+       position: relative;
+       display: inline-block;
+       width: 60px;
+       height: 34px;
+   }
+
+   .swich input {display:none;}
+
+   .swich input:checked + .slider {
+       background-color: #2196F3;
+   }
+
+    .slidr {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+    .slidr:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+    input:checked + .slidr {
+        background-color: #2196F3;
+    }
+
+    input:focus + .slidr {
+        box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked + .slidr:before {
+        -webkit-transform: translateX(26px);
+        -ms-transform: translateX(26px);
+        transform: translateX(26px);
+    }
+
+    /* Rounded sliders */
+    .slidr.rund {
+        border-radius: 34px;
+    }
+
+    .slidr.rund:before {
+        border-radius: 50%;
+    }
+
+
+   [dir="rtl"] .search-text {
+       position: relative;
+       right: -300px;
+   }
+
+       [dir="rtl"] .dataTables_wrapper .dataTables_filter input{
+           margin-right:-170px
+       }
+   [dir="rtl"] #tenat_export-report-btn {
+       right: auto !important;
+       left: 10px !important;
+   }
 </style>
 
     <div class="col-sm-6">
@@ -286,6 +362,7 @@
                     <th>{{ __('message.free_plan_cloud') }}</th>
                     <th>{{ __('message.cloud_prod_key') }}</th>
                     <th>{{ __('message.action') }}</th>
+                    <th>{{ __('message.trial_status_heading') }}<i class="fas fa-question-circle  custom-tooltip" data-toggle="tooltip" data-placement="top" style="margin-left: 7px" title="{{Lang::get('message.free_trial_status_tooltip')}}"></i></th>
                 </tr>
                 </thead>
             </table>
@@ -410,7 +487,7 @@
     <div id="successmsg"></div>
     <div id="error"></div>
 
-        <button type="button" id="tenat_export-report-btn" class="btn btn-sm pull-right" data-toggle="tooltip" title="{{ __('message.export') }}" style="position: absolute;right: 10px;top: 10px;">
+        <button type="button" id="tenat_export-report-btn" class="btn btn-sm tenant_export" data-toggle="tooltip" title="{{ __('message.export') }}" style="position: absolute;right: 10px;top: 10px;">
             <i class="fas fa-paper-plane"></i>
         </button>
         <br />
@@ -423,14 +500,14 @@
                 <button class="btn btn-default float-right" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="position: relative;top: 32px;">
                     <span class="fa fa-columns"></span>&nbsp;&nbsp;{{ __('message.selected_columns') }}&nbsp;&nbsp;<span class="fas fa-caret-down"></span>
                 </button>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <div class="dropdown-menu order-column-dropdown" aria-labelledby="dropdownMenuButton" id="specific-container">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="Order" id="OrderCheckbox">
+                        <input class="form-check-input " type="checkbox" value="Order" id="OrderCheckbox">
                         <label class="form-check-label" for="Order">{{ __('message.order') }}</label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" value="name" id="nameCheckbox">
-                        <label class="form-check-label" for="name">{{ __('message.name_page') }}</label>
+                        <label class="form-check-label" for="name">{{ __('message.user') }}</label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" value="email" id="emailCheckbox">
@@ -483,7 +560,8 @@
 
         </div>
 
-        <div style="position: relative;">
+        <div style="
+        position: relative;">
             <table id="tenant-table" class="table display" cellspacing="0" width="100%" styleClass="borderless">
                 <thead>
                     <tr>
@@ -547,11 +625,11 @@
                     return data;
                 }
                 },
+
                 "oLanguage": {
                     "sLengthMenu": "_MENU_ Records per page",
-                   "sSearch": "<span style='position: relative;right: 175px;'>{{ __('message.search') }}:</span> ",
-
-                    "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
+                    "sSearch": "<span class='datatable-search-label'>{{ __('message.search') }}:</span> ",
+                    "sProcessing": ' <div class="overlay dataTables_processing"><i class="fas fa-3x fa-sync-alt fa-spin" style=" margin-top: -25px;"></i><div class="text-bold pt-2">{!! __('message.loading') !!}</div></div>'
                 },
                 language: {
                     paginate: {
@@ -588,7 +666,13 @@
                     { data: 'db_username', name: 'db_username' },
                     { data: 'action', name: 'action' },
                 ],
+                initComplete: function () {
+                    $('#tenant-table_filter label').addClass('search-text');
+                },
                 "fnDrawCallback": function (oSettings) {
+                    $('[data-toggle="tooltip"]').tooltip({
+                        container: 'body'
+                    });
                     $('.loader').css('display', 'none');
                 },
                 "fnPreDrawCallback": function (oSettings, json) {
@@ -653,7 +737,7 @@
                     }
                 });
 
-                $('input[type="checkbox"]').each(function() {
+                $('#specific-container input[type="checkbox"]').each(function() {
                     var checkboxValue = $(this).val();
                     if (selectedColumns.includes(checkboxValue)) {
                         $(this).prop('checked', true);
@@ -703,7 +787,6 @@
                     }, 5000);
                 },
                 error: function(xhr, status, error) {
-                    console.log(error);
                     var result = '<div class="alert alert-danger">' +
                         '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
                         '<span aria-hidden="true">&times;</span></button>' +
@@ -729,54 +812,106 @@
         function deleteTenant(id, orderId = "") {
             var id = id;
             var orderId = orderId;
-            if (confirm("Are you sure you want to destroy this tenant?")) {
-                var loadingElement = document.getElementById("loading");
-                loadingElement.style.display = "flex";
-                $.ajax({
-                    url: "{!! url('delete-tenant') !!}",
-                    method: "delete",
-                    data: { 'id': id, 'orderId': orderId },
-                    success: function (data) {
-                        if (data.success === true) {
-                            console.log(data.message);
-                            var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true">&times;</span></button><strong><i class="fa fa-check"></i>{{ __('message.success') }}! </strong>' + data.message + '!</div>';
-                            $('#successmsg').show();
-                            $('#error').hide();
-                            $('#successmsg').html(result);
-                            setInterval(function () {
-                                $('#successmsg').slideUp(5000);
-                                location.reload();
-                            }, 3000);
-                        } else if (data.success === false) {
-                            $('#successmsg').hide();
-                            $('#error').show();
-                            var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true">&times;</span></button><strong><i class="fa fa-ban"></i>{{ __('message.whoops') }} </strong> {{ __('message.something_wrong') }}<br>' + data.message + '!</div>';
-                            $('#error').html(result);
-                            setInterval(function () {
-                                $('#error').slideUp(5000);
-                                location.reload();
-                            }, 10000);
-                        }
-                    },
-                    error: function (data) {
-                        $('#successmsg').hide();
-                        $('#error').show();
-                        var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true">&times;</span></button><strong><i class="fa fa-ban"></i>{{ __('message.whoops') }} </strong> {{ __('message.something_wrong') }}<br>' + data.responseJSON.message + '!</div>';
-                        $('#error').html(result);
-                        setInterval(function () {
-                            $('#error').slideUp(5000);
-                            location.reload();
-                        }, 10000);
-                    },
-                    complete: function () {
-                        loadingElement.style.display = "none"; // Hide the loading indicator
+            var swl=swal.fire({
+                title:"<h2 class='swal2-title custom-title'>{{Lang::get('message.Delete')}}",
+                html: "<div class='swal2-html-container custom-content'>" +
+                    "<div class='section-sa'>" +
+                    "<p>{{Lang::get('message.tenant_deletion')}}<span class='text-danger'>"+id+"</span>" +"?</p></div>"+
+                    "</div>",
+                showCancelButton: true,
+                cancelButtonText: "{{ __('message.cancel') }}",
+                showCloseButton: true,
+                position:"top",
+                width:"600px",
+
+                confirmButtonText: @json(trans('message.Delete')),
+                confirmButtonColor: "#007bff",
+
+            }).then((result)=> {
+                if(id.length > 0){
+                    if (result.isConfirmed) {
+                        var loadingElement = document.getElementById("loading");
+                        loadingElement.style.display = "flex";
+                        $.ajax({
+                            url: "{!! url('delete-tenant') !!}",
+                            method: "delete",
+                            data: { 'id': id, 'orderId': orderId },
+                            success: function (data) {
+                                if (data.success === true) {
+                                    console.log(data.message);
+                                    var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true">&times;</span></button><strong><i class="fa fa-check"></i>{{ __('message.success') }}! </strong>' + data.message + '!</div>';
+                                    $('#successmsg').show();
+                                    $('#error').hide();
+                                    $('#successmsg').html(result);
+                                    setInterval(function () {
+                                        $('#successmsg').slideUp(5000);
+                                        location.reload();
+                                    }, 3000);
+                                } else if (data.success === false) {
+                                    $('#successmsg').hide();
+                                    $('#error').show();
+                                    var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true">&times;</span></button><strong><i class="fa fa-ban"></i>{{ __('message.whoops') }} </strong> {{ __('message.something_wrong') }}<br>' + data.message + '!</div>';
+                                    $('#error').html(result);
+                                    setInterval(function () {
+                                        $('#error').slideUp(5000);
+                                        location.reload();
+                                    }, 10000);
+                                }
+                            },
+                            error: function (data) {
+                                $('#successmsg').hide();
+                                $('#error').show();
+                                var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true">&times;</span></button><strong><i class="fa fa-ban"></i>{{ __('message.whoops') }} </strong> {{ __('message.something_wrong') }}<br>' + data.responseJSON.message + '!</div>';
+                                $('#error').html(result);
+                                setInterval(function () {
+                                    $('#error').slideUp(5000);
+                                    location.reload();
+                                }, 10000);
+                            },
+                            complete: function () {
+                                loadingElement.style.display = "none"; // Hide the loading indicator
+                            }
+                        });
+                    } else {
+                        window.close();
                     }
-                });
-            }
+                }else if (result.dismiss === Swal.DismissReason.cancel) {
+                    // Action if "No" is clicked
+                    window.close();             }
+            })
+            return false;
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        $(document).on('change', '.checkbox9', function () {
+            let isChecked = $(this).is(':checked');           // true or false
+            let status = isChecked ? 1 : 0;
+            let checkboxId = $(this).attr('id');              // e.g., "checkbox_12"
+
+            $.ajax({
+
+                url : '{{url("update-trial-status")}}',
+                type : 'post',
+                data: {
+                    "id": checkboxId,'status':status,
+                },
+                success: function (response) {
+                    // setTimeout(function() {
+                    //     location.reload();
+                    // }, 3000);
+                    $('#successmsgpop').show();
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+response.message+'.</div>';
+                    $('#successmsgpop').html(result);
+                    setInterval(function(){
+                        $('#successmsgpop').slideUp(3000);
+                    }, 1000);
+
+                },
+            });
+
+        });
+
         $(document).ready(function () {
             var map = L.map('map', {
                 minZoom: 2, // Set the minimum zoom level to 2
@@ -878,15 +1013,31 @@
                     { data: 'Cloud free plan', name: 'Cloud free plan' },
                     { data: 'Cloud product key', name: 'Cloud product key' },
                     {data: 'action', name: 'action'},
-                ],
+                    {
+                        data: 'status',name:'status'
+                    },            ],
+
                 fnDrawCallback: function (oSettings) {
                     $('.loader').css('display', 'none');
                 },
                 fnPreDrawCallback: function (oSettings, json) {
                     $('.loader').css('display', 'block');
                 },
+
             });
         });
+
+        function applyToggleStatus() {
+            $('.checkbox9').each(function () {
+                let checkbox = $(this);
+                let status = checkbox.attr('data-status');
+                let checked = status === '1';
+                checkbox.prop('checked', checked); // ✅ now this works as expected
+            });
+        }
+
+
+
 
         function popProduct(id) {
             var id = id;
@@ -897,20 +1048,14 @@
             "<p>{{Lang::get('message.cloud_delete')}}</p>"+"</div>" +
             "</div>",
         showCancelButton: true,
+        cancelButtonText: "{{ __('message.cancel') }}",
         showCloseButton: true,
         position:"top",
         width:"600px",
 
         confirmButtonText: @json(trans('message.Delete')),
-        cancelButtonText: "{{ __('message.cancel') }}",
         confirmButtonColor: "#007bff",
-        buttonsStyling: false,
-        reverseButtons: true,
-        customClass: {
-            actions: 'swal2-actions-custom-fix',
-            confirmButton: 'btn btn-primary btn-sm custom-confirm',
-            cancelButton: 'btn btn-secondary btn-sm custom-cancel'
-        }
+
     }).then((result)=> {
         if (result.isConfirmed) {
             if (id.length > 0) {

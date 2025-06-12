@@ -10,9 +10,12 @@ use App\Model\Common\PipedriveGroups;
 use App\Model\Common\PipedriveLocalFields;
 use App\Model\Common\PricingTemplate;
 use App\Model\Github\Github;
+use App\Model\Mailjob\ExpiryMailDay;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
 use App\Model\Product\Product;
+use App\Model\Product\Subscription;
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -29,7 +32,7 @@ class DatabaseSeeder extends Seeder
         $this->add_providers();
         $this->invoiceItemProductIDChange();
         $this->langSeeder();
-
+        $this->update_is_deleted();
         PricingTemplate::where('id',1)->update(['data' => '<div class="">
         <div class="card border-radius-0 bg-color-light box-shadow-6 anim-hover-translate-top-10px transition-3ms">
             <div class="card-body py-5">
@@ -172,7 +175,6 @@ class DatabaseSeeder extends Seeder
             setEnvValue(['APP_KEY_UPDATED' => 'true']);
         }
     }
-
     private function addFielsForPipedrive()
     {
         $fields = [
@@ -261,6 +263,17 @@ class DatabaseSeeder extends Seeder
             );
         }
 
+    }
+
+    public function update_is_deleted(){
+        $today= Carbon::today();
+        $day = ExpiryMailDay::value('cloud_days');
+        Subscription::whereNotNull('ends_at')
+        ->whereIn('product_id',cloudPopupProducts())->whereDate(
+            \DB::raw("DATE_ADD(ends_at, INTERVAL {$day} DAY)"),
+            '<',
+            $today
+        )->update(['is_deleted'=>1]);
     }
 
 

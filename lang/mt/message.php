@@ -2536,6 +2536,12 @@
      'placeholder_your-queue-name' => 'isem il-queue tiegħek',
 
      'waiting' => 'Stenna...',
+
+     'trial_status_updated' => 'L-istatus tal-prova bla ħlas ġie aġġornat b’suċċess',
+     'trial_status_error' => 'Seħħet żball waqt l-aġġornament tal-istatus tal-prova bla ħlas',
+     'free_trial_status_tooltip' => 'Uża dan l-iskambjatur biex tikkontrolla liema prodott jintwera fil-popup tal-bidu tal-prova bla ħlas.',
+     'trial_status_heading' => 'L-Istatus tal-Prova Bla Ħlas',
+
      'reoon' => 'Reoon',
      'vonage' => 'Vonage',
      'abstract' => 'Abstract',
@@ -2572,6 +2578,7 @@
      'tick-to-hide-from-invoice' => 'Iċċekkja biex taħbi mill-paġna tal-ħolqien tal-fattura',
 
      'remainingAmount' => 'Il-krediti li jifdal fil-pjan kurrenti tiegħek se jiġu miżjuda mal-bilanċ tal-kreditu.',
+     'tenant_deletion' => 'Int żgur li trid tħassar dan il-kerrej ',
      'checkbox_error' => 'Jekk jogħġbok agħżel mill-inqas għażla waħda ta’ status.',
      'allowed_estatus' => 'Statusijiet tal-email permessi',
      'file_not_upload' => '(il-fajl ma setax jitella’: ',
@@ -2583,6 +2590,12 @@
      'new_code_generated' => 'Kodiċi ta’ rkupru ġdid ġie ġġenerat b’suċċess.',
      'please_enter_code' => 'Jekk jogħġbok daħħal il-kodiċi',
      '2fa_verifying' => 'Qiegħed tivverifika...',
+
+     'domain_already_taken' => 'Id-dominju diġà intuża. Jekk jogħġbok agħżel dominju differenti',
+     'instance_successfully_created' => 'L‑istanza tal-cloud ġiet maħluqa b’suċċess. Żur il-websajt tiegħek fuq :installationUrl. Tirċievi l-password fl‑email reġistrata tiegħek.',
+     'instance_not_created' => 'L‑istanza tal-cloud ġewwaġgħet b’suċċess imma l‑installazzjoni tal-liċenzja falliet.<b>:reason.</b> Żur il-websajt tiegħek fuq :installationUrl',
+     'cloud_deleted_successfully' => 'Tenant imħassar b’suċċess',
+     'cloud_deleted_failed' => 'Falliet tħassar tenant',
      'enable_verification' => 'Attiva l-verifiki',
      'preferred_verification' => 'Verifika preferuta',
      'email_first' => 'Email l-ewwel',
