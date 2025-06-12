@@ -643,7 +643,7 @@ $days = $pay->where('product','117')->value('days');
                                     <label class="form-label">{!!optional(cloudPopUpDetails())->cloud_label_radio !!}</label>
 
                                     <br>
-                                    <?php $cloudProducts = \App\Model\Product\CloudProducts::get(); ?>
+                                    <?php $cloudProducts = \App\Model\Product\CloudProducts::where('trial_status',1)->get(); ?>
                                     @foreach($cloudProducts as $cloudProduct)
                                     <div class="form-check-inline">
                                         <label class="form-check-label">

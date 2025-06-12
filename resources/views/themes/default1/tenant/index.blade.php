@@ -123,6 +123,71 @@
     position: relative;
 }
 
+   .col-2, .col-lg-2, .col-lg-4, .col-md-2, .col-md-4,.col-sm-2 {
+       width: 0px;
+   }
+   .switch {
+       position: relative;
+       display: inline-block;
+       width: 60px;
+       height: 34px;
+   }
+
+   .switch input {display:none;}
+
+   .switch input:checked + .slider {
+       background-color: #2196F3;
+   }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+    input:checked + .slider {
+        background-color: #2196F3;
+    }
+
+    input:focus + .slider {
+        box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked + .slider:before {
+        -webkit-transform: translateX(26px);
+        -ms-transform: translateX(26px);
+        transform: translateX(26px);
+    }
+
+    /* Rounded sliders */
+    .slider.round {
+        border-radius: 34px;
+    }
+
+    .slider.round:before {
+        border-radius: 50%;
+    }
+
+
+
 </style>
 
     <div class="col-sm-6">
@@ -286,6 +351,7 @@
                     <th>Cloud free plan</th>
                     <th>Cloud product key</th>
                     <th>Action</th>
+                    <th>Free Trial Status</th>
                 </tr>
                 </thead>
             </table>
@@ -515,6 +581,7 @@
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 
           <script>
+
                  $(document).ready(function(){
     $('[data-toggle="tooltip"]').tooltip();
 });
@@ -760,6 +827,35 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        {{--$(document).on('change', '.checkbox9', function () {--}}
+        {{--    let isChecked = $(this).is(':checked');           // true or false--}}
+        {{--    let status = isChecked ? 1 : 0;--}}
+        {{--    let checkboxId = $(this).attr('id');              // e.g., "checkbox_12"--}}
+        {{--    let modelId = checkboxId.split('_')[1];           // assuming ID format like "checkbox_12"--}}
+
+        {{--    $.ajax({--}}
+
+        {{--        url : '{{url("update-trial-status")}}',--}}
+        {{--        type : 'post',--}}
+        {{--        data: {--}}
+        {{--            "id": checkboxId,'status':status,--}}
+        {{--        },--}}
+        {{--        success: function (response) {--}}
+        {{--            setTimeout(function() {--}}
+        {{--                location.reload();--}}
+        {{--            }, 3000);--}}
+        {{--            $('#successmsgpop').show();--}}
+        {{--            var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';--}}
+        {{--            $('#successmsgpop').html(result);--}}
+        {{--            setInterval(function(){--}}
+        {{--                $('#successmsgpop').slideUp(3000);--}}
+        {{--            }, 1000);--}}
+
+        {{--        },--}}
+        {{--    });--}}
+
+        {{--});--}}
+
         $(document).ready(function () {
             var map = L.map('map', {
                 minZoom: 2, // Set the minimum zoom level to 2
@@ -840,7 +936,13 @@
                     { data: 'Cloud free plan', name: 'Cloud free plan' },
                     { data: 'Cloud product key', name: 'Cloud product key' },
                     {data: 'action', name: 'action'},
+                    {data:'status', name:'Free Trial Status'},
                 ],
+                drawCallback: function () {
+                    setTimeout(() => {
+                        applyToggleStatus();
+                    }, 100);
+                },
                 fnDrawCallback: function (oSettings) {
                     $('.loader').css('display', 'none');
                 },
@@ -849,6 +951,18 @@
                 },
             });
         });
+
+        function applyToggleStatus() {
+            $('.checkbox9').each(function () {
+                let checkbox = $(this);
+                let status = checkbox.attr('data-status');
+                let checked = status === '1';
+                checkbox.prop('checked', checked);
+                checkbox.trigger('change');
+            });
+        }
+
+
 
         function popProduct(id) {
             var id = id;
