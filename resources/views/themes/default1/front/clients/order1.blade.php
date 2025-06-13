@@ -13,6 +13,12 @@ active
  My Orders
 @stop
 @section('breadcrumb')
+    <style>
+        option
+        {
+            font-size: 13px !important;
+        }
+    </style>
     @if(Auth::check())
         <li><a class="text-primary" href="{{url('my-invoices')}}">Home</a></li>
     @else
