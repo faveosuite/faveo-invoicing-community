@@ -197,66 +197,61 @@
                 <div class="modal-body">
                     <p>{{ __('message.are_you_want') }} <span class="label label-danger">{{ __('message.caps_delete')}}</span> {{ __('message.this_log_file') }} <span class="label label-primary">{{ $log->date }}</span> ?</p>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer d-flex justify-content-between">
                     <button type="button" class="btn btn-sm btn-default pull-left" data-dismiss="modal">{{ __('message.cancel') }}</button>
                     <button id="confirmDelete" class="btn btn-sm btn-danger">{{ __('message.delete') }}</button>
                 </div>
             </div>
         </div>
     </div>
-@endsection
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
-
-@section('scripts')
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-
-<script>
-    $(document).ready(function() {
-        $('#delete').on('click', function(e) {
-            var logDate = $(this).data('log-date');
-            $('#delete-log-form input[name="date"]').val(logDate);
-            $('#delete-log-modal').modal('show');
+    <script>
+        $(document).ready(function() {
+            $('#delete').on('click', function(e) {
+                var logDate = $(this).data('log-date');
+                $('#delete-log-form input[name="date"]').val(logDate);
+                $('#delete-log-modal').modal('show');
+            });
         });
-    });
-</script>
-<script>
-    $(document).ready(function() {
-        $('#delete-log-modal').on('show.bs.modal', function(event) {
-            var logDate = $('#delete').data('log-date');
-            var modal = $(this);
+    </script>
+    <script>
+        $(document).ready(function() {
+            $('#delete-log-modal').on('show.bs.modal', function(event) {
+                var logDate = $('#delete').data('log-date');
+                var modal = $(this);
 
-            modal.find('#delete-log-form input[name="date"]').val(logDate);
+                modal.find('#delete-log-form input[name="date"]').val(logDate);
 
-            $('#confirmDelete').on('click', function() {
-                $.ajax({
-                    type: 'DELETE', // Use DELETE method
-                    url: '{{ route('log-viewer::logs.delete') }}',
-                    data: {
-                        date: logDate // Pass the log date as data
-                    },
-                    success: function(data) {
+                $('#confirmDelete').on('click', function() {
+                    $.ajax({
+                        type: 'DELETE', // Use DELETE method
+                        url: '{{ route('log-viewer::logs.delete') }}',
+                        data: {
+                            date: logDate // Pass the log date as data
+                        },
+                        success: function(data) {
 
-                        $('#success-message').text(@json(__('message.log_file_deleted_successfully'))).show();
-                        $('#delete-log-modal').modal('hide');
-                        setTimeout(function() {
-                            window.location.href = '{{ route('log-viewer::logs.list') }}';
-                        }, 2000);
+                            $('#success-message').text(@json(__('message.log_file_deleted_successfully'))).show();
+                            $('#delete-log-modal').modal('hide');
+                            setTimeout(function() {
+                                window.location.href = '{{ route('log-viewer::logs.list') }}';
+                            }, 2000);
 
-                    },
-                    error: function(xhr, textStatus, errorThrown) {
-                        $('#fail-message').text(@json(__('message.oops'))).show();
-                        $('#delete-log-modal').modal('hide');
-                        setTimeout(function() {
-                            window.location.href = '{{ route('log-viewer::logs.list') }}';
-                        }, 2000);
-                    }
+                        },
+                        error: function(xhr, textStatus, errorThrown) {
+                            $('#fail-message').text(@json(__('message.oops'))).show();
+                            $('#delete-log-modal').modal('hide');
+                            setTimeout(function() {
+                                window.location.href = '{{ route('log-viewer::logs.list') }}';
+                            }, 2000);
+                        }
+                    });
                 });
             });
         });
-    });
 
 
-</script>
-
+    </script>
 @endsection
