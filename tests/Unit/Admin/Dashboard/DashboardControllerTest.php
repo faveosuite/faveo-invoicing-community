@@ -355,6 +355,7 @@ class DashboardControllerTest extends DBTestCase
         $currencies=Currency::create(['code'=>'INR','symbol'=>'₹','name'=>'Indian Rupees','dashboard_currency=0']);
         $response = $this->getPrivateMethod($this->classObject, 'getRecentInvoices',);
         $content=$response->toArray();
+        dd($invoice->id,$invoice1->id,$invoice2->id,$content);
         $this->assertEquals($invoice->id,$content[0]['invoice_id']);
         $this->assertEquals($invoice1->id,$content[1]['invoice_id']);
         $this->assertEquals($invoice2->id,$content[2]['invoice_id']);
