@@ -351,7 +351,7 @@
                     <th>Cloud free plan</th>
                     <th>Cloud product key</th>
                     <th>Action</th>
-                    <th>Free Trial Status</th>
+                    <th>Free Trial Status<i class="fas fa-question-circle  custom-tooltip" data-toggle="tooltip" data-placement="top" style="margin-left: 7px" title="{{Lang::get('message.free_trial_status_tooltip')}}"></i></th>
                 </tr>
                 </thead>
             </table>

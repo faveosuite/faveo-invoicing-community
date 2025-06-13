@@ -1283,4 +1283,5 @@ return [
     'user-suspend-successfully' => 'User Suspended Successfully',
     'trial_status_updated'=>'Free Trial Status Updated Successfully',
     'trial_status_error'=>'Error occurred while updating free trial status',
+    'free_trial_status_tooltip'=>'Use this switch to control which product to show in Start Free Trial popup.'
 ];

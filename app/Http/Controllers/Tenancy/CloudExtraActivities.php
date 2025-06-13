@@ -996,6 +996,12 @@ class CloudExtraActivities extends Controller
         }
     }
 
+    public function trialCloudProducts(){
+        $cloud=CloudProducts::where('trial_status','1')->with('product')->get();
+        $product=$cloud->pluck('product.name','cloud_product_key')->filter()->all();
+        return successResponse('Products',$product);
+    }
+
     public function DeleteProductConfig(Request $request)
     {
         try {
