@@ -424,7 +424,7 @@ foreach($scripts as $script) {
                         </div>
                     </div>
 
-                        {!! honeypotField('register') !!}
+                        {!! honeypotField('registerForm') !!}
 
                         <div class="row">
                                 @if($status->terms == 1)

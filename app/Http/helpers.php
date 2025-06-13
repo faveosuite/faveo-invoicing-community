@@ -828,3 +828,25 @@ function isJson($string)
 
     return json_last_error() === JSON_ERROR_NONE;
 }
+
+function honeypotField(string $name = 'honeypot'): string
+{
+    $potFieldName = 'p' . Str::random();
+    $timeFieldName = 't' . Str::random();
+    $encryptedTime = Crypt::encrypt(time());
+
+    return sprintf(
+        '<div style="display:none">
+            <label for="%s">Do not fill this field</label>
+            <input type="text" name="%s[%s]" id="%s" autocomplete="off">
+            <input type="hidden" name="%s[%s]" value="%s">
+        </div>',
+        $potFieldName,
+        $name,
+        $potFieldName,
+        $potFieldName,
+        $name,
+        $timeFieldName,
+        $encryptedTime
+    );
+}

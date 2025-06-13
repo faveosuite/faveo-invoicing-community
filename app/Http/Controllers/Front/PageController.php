@@ -964,10 +964,6 @@ class PageController extends Controller
     public function postDemoReq(ContactRequest $request)
     {
         try {
-            // Check if the honeypot field is filled
-            if ($request->input('honeypot_field') !== '') {
-                return response()->json(['error' => 'Spam detected.'], 403);
-            }
             $contact = getContactData();
             $isSpam = $this->detectSpam($request->input('demoemail'), $request->input('demomessage'));
 
