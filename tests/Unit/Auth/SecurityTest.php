@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Auth;
 
-use Illuminate\Support\Facades\Config;
 use Tests\DBTestCase;
 
 class SecurityTest extends DBTestCase
@@ -22,17 +21,16 @@ class SecurityTest extends DBTestCase
      */
     public function test_security_headers_exist_on_each_url(): void
     {
-
         foreach ($this->urls as $url) {
             $response = $this->get($url);
 
             // --- CSP Headers ---
             $response->assertHeader('Content-Security-Policy');
             $csp = $response->headers->get('Content-Security-Policy');
-            $this->assertStringContainsString("default-src", $csp);
-            $this->assertStringContainsString("script-src", $csp);
-            $this->assertStringContainsString("style-src", $csp);
-            $this->assertStringContainsString("cdn.datatables.net", $csp);
+            $this->assertStringContainsString('default-src', $csp);
+            $this->assertStringContainsString('script-src', $csp);
+            $this->assertStringContainsString('style-src', $csp);
+            $this->assertStringContainsString('cdn.datatables.net', $csp);
         }
     }
 
@@ -41,7 +39,6 @@ class SecurityTest extends DBTestCase
      */
     public function test_security_headers_fail_on_missing_csp(): void
     {
-
         foreach ($this->urls as $url) {
             $response = $this->get($url);
 
@@ -54,9 +51,8 @@ class SecurityTest extends DBTestCase
             $csp = $response->headers->get('Content-Security-Policy');
 
             // Failing assertions
-            $this->assertStringNotContainsString("cdn.unknown.com", $csp);
-            $this->assertStringNotContainsString("malicious-site.com", $csp);
+            $this->assertStringNotContainsString('cdn.unknown.com', $csp);
+            $this->assertStringNotContainsString('malicious-site.com', $csp);
         }
     }
-
 }

@@ -831,8 +831,8 @@ function isJson($string)
 
 function honeypotField(string $name = 'honeypot'): string
 {
-    $potFieldName = 'p' . Str::random();
-    $timeFieldName = 't' . Str::random();
+    $potFieldName = 'p'.Str::random();
+    $timeFieldName = 't'.Str::random();
     $encryptedTime = Crypt::encrypt(time());
 
     return sprintf(

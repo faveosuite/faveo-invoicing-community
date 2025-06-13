@@ -98,6 +98,7 @@ class RegisterController extends Controller
             return successResponse(__('message.registration_complete'), ['need_verify' => $need_verify]);
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
+
             return errorResponse($ex->getMessage());
         }
     }
