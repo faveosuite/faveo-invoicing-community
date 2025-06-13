@@ -299,9 +299,7 @@ class ClientControllerTest extends DBTestCase
         $twoFaActive=1;
         $response = $this->getPrivateMethod($this->classObject, 'getActiveLabel', [$mobileActive,$emailActive,$twoFaActive]);
 
-        $this->assertEquals("<i class='fas fa-envelope'  style='color:red'  <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title='Unverified email'> 
-                            </label></i>&nbsp;&nbsp;<i class='fas fa-phone'  style='color:green'  <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title='Mobile verified'>
-                            </label></i>&nbsp;&nbsp;<i class='fas fa-qrcode'  style='color:green'  <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title='2FA Enabled'> </label></i>"
+        $this->assertEquals("<i class='fas fa-envelope'  style='color:red'  <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title='Unverified email'> </label></i>&nbsp;&nbsp;<i class='fas fa-phone'  style='color:green'  <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title='Mobile verified'></label></i>&nbsp;&nbsp;<i class='fas fa-qrcode'  style='color:green'  <label data-toggle='tooltip' style='font-weight:500;' data-placement='top' title='2FA Enabled'> </label></i>"
                             ,$response);
     }
     #[Group('User')]
