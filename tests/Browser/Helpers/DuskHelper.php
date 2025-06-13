@@ -31,7 +31,7 @@ trait DuskHelper
             ->press('#login-btn');
     }
 
-    public function enableRecaptcha($siteKey , $secretKey, string $version = 'v3'): void
+    public function enableRecaptcha($siteKey, $secretKey, string $version = 'v3'): void
     {
         $recaptchaVersions = [
             'v2' => ['recaptcha_status' => true, 'v3_recaptcha_status' => false],
@@ -41,14 +41,14 @@ trait DuskHelper
         $status = $recaptchaVersions[$version] ?? $recaptchaVersions['v3'];
 
         \App\Model\Common\StatusSetting::first()->update([
-            'recaptcha_status'         => $status['recaptcha_status'],
-            'v3_v2_recaptcha_status'   => 1,
-            'v3_recaptcha_status'      => $status['v3_recaptcha_status'],
+            'recaptcha_status' => $status['recaptcha_status'],
+            'v3_v2_recaptcha_status' => 1,
+            'v3_recaptcha_status' => $status['v3_recaptcha_status'],
         ]);
 
         \App\ApiKey::first()->update([
-            'nocaptcha_sitekey'     => $siteKey,
-            'captcha_secretCheck'   => $secretKey,
+            'nocaptcha_sitekey' => $siteKey,
+            'captcha_secretCheck' => $secretKey,
         ]);
     }
 
@@ -79,6 +79,4 @@ trait DuskHelper
         );
     ");
     }
-
-
 }

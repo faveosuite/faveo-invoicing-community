@@ -2,17 +2,13 @@
 
 namespace Tests\Browser\Auth;
 
-use App\ApiKey;
-use App\Model\Common\StatusSetting;
 use App\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Dusk\Browser;
 use Tests\Browser\Helpers\DuskHelper;
 use Tests\DuskTestCase;
 
 class LoginTest extends DuskTestCase
 {
-
     use DuskHelper;
 
     protected $user;
@@ -44,7 +40,6 @@ class LoginTest extends DuskTestCase
     public function test_user_with_invalid_details(): void
     {
         $this->browse(function (Browser $browser) {
-
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -66,7 +61,6 @@ class LoginTest extends DuskTestCase
     public function test_user_with_invalid_password()
     {
         $this->browse(function (Browser $browser) {
-
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -86,7 +80,6 @@ class LoginTest extends DuskTestCase
     public function test_user_with_invalid_username_details(): void
     {
         $this->browse(function (Browser $browser) {
-
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -107,10 +100,9 @@ class LoginTest extends DuskTestCase
 
     public function test_login_with_recaptcha_enabled()
     {
-        $this->enableRecaptcha($this->data['v3']['nocaptcha_sitekey'],$this->data['v3']['captcha_secretCheck'],'v3');
+        $this->enableRecaptcha($this->data['v3']['nocaptcha_sitekey'], $this->data['v3']['captcha_secretCheck'], 'v3');
 
         $this->browse(function (Browser $browser) {
-
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -119,7 +111,7 @@ class LoginTest extends DuskTestCase
 
             $browser->pause(1000);
 
-            $browser->type('#username',  $this->user->email)
+            $browser->type('#username', $this->user->email)
                 ->type('#pass', 'Demopass@1234')
                 ->pause(3000)
                 ->press('#login-btn');
@@ -135,17 +127,16 @@ class LoginTest extends DuskTestCase
 
     public function test_login_with_v2_recaptcha_enabled()
     {
-        $this->enableRecaptcha($this->data['v2']['nocaptcha_sitekey'],$this->data['v2']['captcha_secretCheck'],'v2');
+        $this->enableRecaptcha($this->data['v2']['nocaptcha_sitekey'], $this->data['v2']['captcha_secretCheck'], 'v2');
 
         $this->browse(function (Browser $browser) {
-
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
 
             $this->showCaption($browser, 'Test login with v2 reCAPTCHA');
 
-            $browser->type('#username',  $this->user->email)
+            $browser->type('#username', $this->user->email)
                 ->type('#pass', 'Demopass@1234')
                 ->press('#login-btn');
 
@@ -154,7 +145,6 @@ class LoginTest extends DuskTestCase
             $browser->assertSee('Please verify that you are not a robot.');
 
             $browser->pause(5000);
-
         });
     }
 }
