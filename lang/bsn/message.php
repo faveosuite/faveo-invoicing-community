@@ -2539,4 +2539,5 @@ return [
     'placeholder_your-project-id' => 'vaš-id-projekta',
     'placeholder_your-queue-name' => 'vaš-naziv-reda',
 
+    'waiting' => 'Sačekajte...'
 ];

@@ -1168,7 +1168,7 @@ setTimeout(function() {
                 processData: false,  // Required for FormData
                 contentType: false,  // Required for FormData
                 beforeSend: function() {
-                    $('#mailchimp-subscription').html('Wait ...')
+                    $('#mailchimp-subscription').html(@json(__('message.waiting')));
                 },
                 success: function(data) {
                     showAlert('success', data.message);
@@ -1181,7 +1181,7 @@ setTimeout(function() {
                     showAlert('error', errorMsg);
                 },
                 complete: function() {
-                    $('#mailchimp-subscription').html('GO!')
+                    $('#mailchimp-subscription').html(@json(__('message.caps_go')));
                 }
             });
         });

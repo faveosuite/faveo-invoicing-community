@@ -2450,4 +2450,6 @@ return [
     'placeholder_your-project-id' => 'معرف مشروعك',
     'placeholder_your-queue-name' => 'اسم طابورك',
 
+    'waiting' => 'انتظر...'
+
 ];

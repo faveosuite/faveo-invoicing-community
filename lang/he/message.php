@@ -2615,4 +2615,5 @@ return [
     'placeholder_your-project-id' => 'מזהה‑הפרויקט‑שלך',
     'placeholder_your-queue-name' => 'שם‑התור‑שלך',
 
+    'waiting' => 'חכה...'
 ];

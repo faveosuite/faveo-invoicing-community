@@ -15,7 +15,6 @@
          <li><a class="text-primary" href="{{url('login')}}">{{ __('message.home')}}</a></li>
     @endif
      <li class="active text-dark">{{ __('message.forgot_password')}}</li>
-@stop  
 @stop
 @section('main-class') 
 main
