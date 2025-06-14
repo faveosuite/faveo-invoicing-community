@@ -2604,4 +2604,5 @@ return [
     'placeholder_your-project-id' => 'id-proyek-anda',
     'placeholder_your-queue-name' => 'nama-antrian-anda',
 
+    'waiting' => 'Tunggu...'
 ];

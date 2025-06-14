@@ -2601,4 +2601,5 @@ return [
     'placeholder_your-project-id' => 'votre-id-de-projet',
     'placeholder_your-queue-name' => 'votre-nom-de-queue',
 
+    'waiting' => 'Attendez...'
 ];

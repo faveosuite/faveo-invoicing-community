@@ -2610,4 +2610,5 @@ return [
     'placeholder_your-project-id' => 'ID dự án của bạn',
     'placeholder_your-queue-name' => 'tên hàng đợi của bạn',
 
+    'waiting' => 'Vui lòng đợi...'
 ];

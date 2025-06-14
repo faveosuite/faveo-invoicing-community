@@ -2603,4 +2603,5 @@ return [
     'placeholder_your-project-id' => 'உங்கள் திட்ட அடையாளம்',
     'placeholder_your-queue-name' => 'உங்கள் வரிசை பெயர்',
 
+    'waiting' => 'காத்திருக்கவும்...'
 ];
