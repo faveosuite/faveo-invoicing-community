@@ -2580,6 +2580,6 @@ return [
     'placeholder_your-project-id' => 'jouw‑project‑id',
     'placeholder_your-queue-name' => 'jouw‑wachtrij‑naam',
 
-    'waiting' => 'Wacht...'
+    'waiting' => 'Wacht...',
 
 ];

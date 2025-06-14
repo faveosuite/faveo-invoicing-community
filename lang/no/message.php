@@ -2615,5 +2615,5 @@ return [
     'placeholder_your-project-id' => 'ditt prosjekt-ID',
     'placeholder_your-queue-name' => 'ditt kønavn',
 
-    'waiting' => 'Vent...'
+    'waiting' => 'Vent...',
 ];

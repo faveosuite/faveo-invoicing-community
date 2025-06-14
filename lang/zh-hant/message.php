@@ -2572,5 +2572,5 @@ return [
     'placeholder_your-project-id' => '你的項目 ID',
     'placeholder_your-queue-name' => '你的隊列名稱',
 
-    'waiting' => '請稍候...'
+    'waiting' => '請稍候...',
 ];

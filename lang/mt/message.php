@@ -2535,5 +2535,5 @@
      'placeholder_your-project-id' => 'l-ID tal-proġett tiegħek',
      'placeholder_your-queue-name' => 'isem il-queue tiegħek',
 
-     'waiting' => 'Stenna...'
+     'waiting' => 'Stenna...',
  ];

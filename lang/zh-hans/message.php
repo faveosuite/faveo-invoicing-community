@@ -2606,5 +2606,5 @@ return [
     'placeholder_your-project-id' => '你的项目 ID',
     'placeholder_your-queue-name' => '你的队列名称',
 
-    'waiting' => '请稍候...'
+    'waiting' => '请稍候...',
 ];
