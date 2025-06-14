@@ -2610,5 +2610,5 @@ return [
     'placeholder_your-project-id' => 'tu-id-de-proyecto',
     'placeholder_your-queue-name' => 'tu-nombre-de-cola',
 
-    'waiting' => 'Espera...'
+    'waiting' => 'Espera...',
 ];

@@ -2621,5 +2621,5 @@ return [
     'placeholder_your-project-id' => 'आपका-प्रोजेक्ट-आईडी',
     'placeholder_your-queue-name' => 'आपका-क्यू-नाम',
 
-    'waiting' => 'रुकिए...'
+    'waiting' => 'रुकिए...',
 ];

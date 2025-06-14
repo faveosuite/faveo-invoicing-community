@@ -2589,5 +2589,5 @@ return [
     'placeholder_your-project-id' => 'seu-project-id',
     'placeholder_your-queue-name' => 'seu-nome-da-fila',
 
-    'waiting' => 'Aguarde...'
+    'waiting' => 'Aguarde...',
 ];
