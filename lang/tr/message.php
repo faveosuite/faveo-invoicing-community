@@ -2622,5 +2622,5 @@ return [
     'placeholder_your-project-id' => 'proje-id’niz',
     'placeholder_your-queue-name' => 'kuyruk-adınız',
 
-    'waiting' => 'Bekleyin...'
+    'waiting' => 'Bekleyin...',
 ];

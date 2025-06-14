@@ -2611,5 +2611,5 @@ return [
     'placeholder_your-project-id' => 'ваш ID проекта',
     'placeholder_your-queue-name' => 'ваше имя очереди',
 
-    'waiting' => 'Подождите...'
+    'waiting' => 'Подождите...',
 ];
