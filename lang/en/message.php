@@ -2627,5 +2627,10 @@ return [
     'placeholder_your-queue-name' => 'your-queue-name',
 
     'waiting' => 'Wait...',
+    'enable_verification' => 'Enable Verifications',
+    'preferred_verification' => 'Preferred Verification',
+    'email_first' => 'Email First',
+    'mobile_first' => 'Mobile First',
+    'contact_setting_update' => 'Contact Settings Updated Successfully',
 
 ];

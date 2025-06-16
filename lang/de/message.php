@@ -2607,4 +2607,10 @@ return [
     'placeholder_your-queue-name' => 'Ihr Queue-Name',
 
     'waiting' => 'Warten...',
+    'enable_verification' => 'Verifizierungen aktivieren',
+    'preferred_verification' => 'Bevorzugte Verifizierung',
+    'email_first' => 'E-Mail zuerst',
+    'mobile_first' => 'Handy zuerst',
+    'contact_setting_update' => 'Kontakteinstellungen wurden erfolgreich aktualisiert',
+
 ];

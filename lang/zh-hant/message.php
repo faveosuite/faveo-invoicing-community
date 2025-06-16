@@ -2573,4 +2573,9 @@ return [
     'placeholder_your-queue-name' => '你的隊列名稱',
 
     'waiting' => '請稍候...',
+    'enable_verification' => '啟用驗證',
+    'preferred_verification' => '偏好驗證方式',
+    'email_first' => '優先使用電子郵件',
+    'mobile_first' => '優先使用手機',
+    'contact_setting_update' => '聯絡設定已成功更新',
 ];

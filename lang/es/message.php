@@ -2611,4 +2611,9 @@ return [
     'placeholder_your-queue-name' => 'tu-nombre-de-cola',
 
     'waiting' => 'Espera...',
+    'enable_verification' => 'Habilitar verificaciones',
+    'preferred_verification' => 'Verificación preferida',
+    'email_first' => 'Correo electrónico primero',
+    'mobile_first' => 'Móvil primero',
+    'contact_setting_update' => 'Configuración de contacto actualizada con éxito',
 ];

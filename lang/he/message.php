@@ -2616,4 +2616,9 @@ return [
     'placeholder_your-queue-name' => 'שם‑התור‑שלך',
 
     'waiting' => 'חכה...',
+    'enable_verification' => 'הפעל אימותים',
+    'preferred_verification' => 'אימות מועדף',
+    'email_first' => 'דוא"ל תחילה',
+    'mobile_first' => 'נייד תחילה',
+    'contact_setting_update' => 'הגדרות הקשר עודכנו בהצלחה',
 ];

@@ -2623,4 +2623,10 @@ return [
     'placeholder_your-queue-name' => 'kuyruk-adınız',
 
     'waiting' => 'Bekleyin...',
+    'enable_verification' => 'Doğrulamaları etkinleştir',
+    'preferred_verification' => 'Tercih edilen doğrulama yöntemi',
+    'email_first' => 'Önce e-posta',
+    'mobile_first' => 'Önce mobil',
+    'contact_setting_update' => 'İletişim ayarları başarıyla güncellendi',
+
 ];

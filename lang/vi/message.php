@@ -2611,4 +2611,10 @@ return [
     'placeholder_your-queue-name' => 'tên hàng đợi của bạn',
 
     'waiting' => 'Vui lòng đợi...',
+    'enable_verification' => 'Bật xác minh',
+    'preferred_verification' => 'Phương thức xác minh ưu tiên',
+    'email_first' => 'Ưu tiên email',
+    'mobile_first' => 'Ưu tiên điện thoại',
+    'contact_setting_update' => 'Cài đặt liên hệ đã được cập nhật thành công',
+
 ];

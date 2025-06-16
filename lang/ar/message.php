@@ -2451,5 +2451,10 @@ return [
     'placeholder_your-queue-name' => 'اسم طابورك',
 
     'waiting' => 'انتظر...',
+    'enable_verification' => 'تفعيل التحققات',
+    'preferred_verification' => 'طريقة التحقق المفضلة',
+    'email_first' => 'البريد الإلكتروني أولاً',
+    'mobile_first' => 'رقم الجوال أولاً',
+    'contact_setting_update' => 'تم تحديث إعدادات الاتصال بنجاح',
 
 ];

@@ -2540,4 +2540,9 @@ return [
     'placeholder_your-queue-name' => 'vaš-naziv-reda',
 
     'waiting' => 'Sačekajte...',
+    'enable_verification' => 'Omogući verifikacije',
+    'preferred_verification' => 'Preferirani način verifikacije',
+    'email_first' => 'Email prvo',
+    'mobile_first' => 'Mobilni prvo',
+    'contact_setting_update' => 'Postavke kontakta su uspješno ažurirane',
 ];

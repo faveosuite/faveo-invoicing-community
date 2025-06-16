@@ -1055,6 +1055,6 @@ class SettingsController extends BaseSettingsController
             'verification_preference' => $data['preferred_verification'] ?? null,
         ]);
 
-        return successResponse('Contact Settings Updated Successfully');
+        return successResponse(__('message.contact_setting_update'));
     }
 }

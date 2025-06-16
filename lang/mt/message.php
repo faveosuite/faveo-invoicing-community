@@ -2536,4 +2536,9 @@
      'placeholder_your-queue-name' => 'isem il-queue tiegħek',
 
      'waiting' => 'Stenna...',
+     'enable_verification' => 'Attiva l-verifiki',
+     'preferred_verification' => 'Verifika preferuta',
+     'email_first' => 'Email l-ewwel',
+     'mobile_first' => 'Mobile l-ewwel',
+     'contact_setting_update' => 'Is-settings tal-kuntatt ġew aġġornati b’suċċess',
  ];

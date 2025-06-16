@@ -2581,5 +2581,10 @@ return [
     'placeholder_your-queue-name' => 'jouw‑wachtrij‑naam',
 
     'waiting' => 'Wacht...',
+    'enable_verification' => 'Verificaties inschakelen',
+    'preferred_verification' => 'Voorkeursverificatie',
+    'email_first' => 'E-mail eerst',
+    'mobile_first' => 'Mobiel eerst',
+    'contact_setting_update' => 'Contactinstellingen succesvol bijgewerkt',
 
 ];

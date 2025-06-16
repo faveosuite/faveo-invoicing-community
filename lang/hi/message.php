@@ -2622,4 +2622,9 @@ return [
     'placeholder_your-queue-name' => 'आपका-क्यू-नाम',
 
     'waiting' => 'रुकिए...',
+    'enable_verification' => 'सत्यापन सक्षम करें',
+    'preferred_verification' => 'पसंदीदा सत्यापन',
+    'email_first' => 'ईमेल पहले',
+    'mobile_first' => 'मोबाइल पहले',
+    'contact_setting_update' => 'संपर्क सेटिंग सफलतापूर्वक अपडेट की गई',
 ];

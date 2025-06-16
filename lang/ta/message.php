@@ -2604,4 +2604,9 @@ return [
     'placeholder_your-queue-name' => 'உங்கள் வரிசை பெயர்',
 
     'waiting' => 'காத்திருக்கவும்...',
+    'enable_verification' => 'சரிபார்ப்புகளை இயக்கு',
+    'preferred_verification' => 'விருப்பமான சரிபார்ப்பு முறை',
+    'email_first' => 'முதலில் மின்னஞ்சல்',
+    'mobile_first' => 'முதலில் மொபைல்',
+    'contact_setting_update' => 'தொடர்பு அமைப்புகள் வெற்றிகரமாக புதுப்பிக்கப்பட்டன',
 ];

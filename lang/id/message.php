@@ -2605,4 +2605,10 @@ return [
     'placeholder_your-queue-name' => 'nama-antrian-anda',
 
     'waiting' => 'Tunggu...',
+    'enable_verification' => 'Aktifkan Verifikasi',
+    'preferred_verification' => 'Verifikasi yang Disukai',
+    'email_first' => 'Email Terlebih Dahulu',
+    'mobile_first' => 'Ponsel Terlebih Dahulu',
+    'contact_setting_update' => 'Pengaturan kontak berhasil diperbarui',
+
 ];

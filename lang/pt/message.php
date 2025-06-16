@@ -2590,4 +2590,9 @@ return [
     'placeholder_your-queue-name' => 'seu-nome-da-fila',
 
     'waiting' => 'Aguarde...',
+    'enable_verification' => 'Ativar verificações',
+    'preferred_verification' => 'Verificação preferida',
+    'email_first' => 'Email primeiro',
+    'mobile_first' => 'Telemóvel primeiro',
+    'contact_setting_update' => 'Definições de contacto atualizadas com sucesso',
 ];

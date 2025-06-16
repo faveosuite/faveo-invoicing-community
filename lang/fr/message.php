@@ -2602,4 +2602,9 @@ return [
     'placeholder_your-queue-name' => 'votre-nom-de-queue',
 
     'waiting' => 'Attendez...',
+    'enable_verification' => 'Activer les vérifications',
+    'preferred_verification' => 'Vérification préférée',
+    'email_first' => 'Email en premier',
+    'mobile_first' => 'Mobile en premier',
+    'contact_setting_update' => 'Paramètres de contact mis à jour avec succès',
 ];

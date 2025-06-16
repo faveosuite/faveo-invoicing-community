@@ -2616,4 +2616,9 @@ return [
     'placeholder_your-queue-name' => 'ditt kønavn',
 
     'waiting' => 'Vent...',
+    'enable_verification' => 'Aktiver verifisering',
+    'preferred_verification' => 'Foretrukket verifisering',
+    'email_first' => 'E-post først',
+    'mobile_first' => 'Mobil først',
+    'contact_setting_update' => 'Kontaktinnstillinger ble oppdatert',
 ];

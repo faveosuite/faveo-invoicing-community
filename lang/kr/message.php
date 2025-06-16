@@ -2632,4 +2632,9 @@ return [
     'placeholder_your-queue-name' => 'your-queue-name',
 
     'waiting' => '기다려 주세요...',
+    'enable_verification' => '인증 활성화',
+    'preferred_verification' => '선호하는 인증 방법',
+    'email_first' => '이메일 우선',
+    'mobile_first' => '모바일 우선',
+    'contact_setting_update' => '연락처 설정이 성공적으로 업데이트되었습니다',
 ];

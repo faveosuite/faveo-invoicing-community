@@ -28,26 +28,26 @@
         <div class="card-body">
                 <!-- Email & Mobile Toggles on the Same Row -->
                 <div class="form-group row">
-                    <label class="col-sm-4 col-form-label">Enable Verifications</label>
+                    <label class="col-sm-4 col-form-label">{{ __('message.enable_verification') }}</label>
                     <div class="col-sm-4 d-flex align-items-center">
                         <div class="custom-control custom-switch mr-3">
                             {!! html()->checkbox('email_enabled')->checked($emailStatus)->value(1)->id('email_enabled')->class('custom-control-input') !!}
-                            <label class="custom-control-label" for="email_enabled">Email</label>
+                            <label class="custom-control-label" for="email_enabled">{{ __('message.email') }}</label>
                         </div>
                     </div>
                     <div class="col-sm-4 d-flex align-items-center">
                         <div class="custom-control custom-switch">
                             {!! html()->checkbox('mobile_enabled')->checked($mobileStatus)->value(1)->id('mobile_enabled')->class('custom-control-input') !!}
-                            <label class="custom-control-label" for="mobile_enabled">Mobile</label>
+                            <label class="custom-control-label" for="mobile_enabled">{{ __('message.mobile') }}</label>
                         </div>
                     </div>
                 </div>
 
                 <!-- Preference Dropdown (Initially Visible or Hidden) -->
                 <div class="form-group row" id="preference_group">
-                    <label for="preferred_verification" class="col-sm-4 col-form-label">Preferred Verification</label>
+                    <label for="preferred_verification" class="col-sm-4 col-form-label">{{ __('message.preferred_verification') }}</label>
                     <div class="col-sm-8">
-                        {!! html()->select('preferred_verification')->options(['' => 'Select Preference','email' => 'Email First','mobile' => 'Mobile First',])->class('form-control')->id('preferred_verification')->value($preferred_verification) !!}
+                        {!! html()->select('preferred_verification')->options(['' => __('message.select'),'email' => __('message.email_first'),'mobile' => __('message.mobile_first'),])->class('form-control')->id('preferred_verification')->value($preferred_verification) !!}
                     </div>
                 </div>
             </div>

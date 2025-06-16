@@ -2612,4 +2612,9 @@ return [
     'placeholder_your-queue-name' => 'ваше имя очереди',
 
     'waiting' => 'Подождите...',
+    'enable_verification' => 'Включить проверку',
+    'preferred_verification' => 'Предпочтительный способ проверки',
+    'email_first' => 'Сначала электронная почта',
+    'mobile_first' => 'Сначала мобильный',
+    'contact_setting_update' => 'Настройки контактов успешно обновлены',
 ];

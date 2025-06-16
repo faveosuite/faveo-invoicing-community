@@ -2607,4 +2607,9 @@ return [
     'placeholder_your-queue-name' => 'il nome della tua coda',
 
     'waiting' => 'Attendere...',
+    'enable_verification' => 'Abilita verifiche',
+    'preferred_verification' => 'Verifica preferita',
+    'email_first' => 'Email per prima',
+    'mobile_first' => 'Cellulare per primo',
+    'contact_setting_update' => 'Impostazioni di contatto aggiornate con successo',
 ];

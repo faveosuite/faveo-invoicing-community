@@ -2615,4 +2615,9 @@ return [
     'placeholder_your-queue-name' => 'your-queue-name',
 
     'waiting' => 'お待ちください...',
+    'enable_verification' => '認証を有効にする',
+    'preferred_verification' => '優先認証方法',
+    'email_first' => 'メールを優先',
+    'mobile_first' => '携帯を優先',
+    'contact_setting_update' => '連絡先設定が正常に更新されました',
 ];
