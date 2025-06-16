@@ -89,7 +89,6 @@ class SetupTestEnv extends Command
      */
     private function createEnv(string $dbUsername, string $dbPassword, string $dbName)
     {
-
         $testingEnv = [
             'APP_ENV' => 'testing',
             'DB_USERNAME' => $dbUsername,
