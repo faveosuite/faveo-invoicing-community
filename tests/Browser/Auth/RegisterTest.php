@@ -3,7 +3,6 @@
 namespace Tests\Browser\Auth;
 
 use App\User;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Laravel\Dusk\Browser;
 use Tests\Browser\Helpers\DuskHelper;
 use Tests\DuskTestCase;
@@ -39,9 +38,7 @@ class RegisterTest extends DuskTestCase
 
     public function test_new_register_with_duplicate_values()
     {
-
         $this->browse(function (Browser $browser) {
-
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -64,12 +61,9 @@ class RegisterTest extends DuskTestCase
         });
     }
 
-
     public function test_new_register_with_mandatory_fields_left_blank()
     {
-
         $this->browse(function (Browser $browser) {
-
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -90,11 +84,9 @@ class RegisterTest extends DuskTestCase
         });
     }
 
-
     public function test_register_with_invalid_first_and_last_name()
     {
         $this->browse(function (Browser $browser) {
-
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -121,7 +113,6 @@ class RegisterTest extends DuskTestCase
     public function test_register_with_valid_details()
     {
         $this->browse(function (Browser $browser) {
-
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -144,13 +135,11 @@ class RegisterTest extends DuskTestCase
         });
     }
 
-
     public function test_register_with_v2_recaptcha()
     {
         $this->enableRecaptcha($this->data['v2']['nocaptcha_sitekey'], $this->data['v2']['captcha_secretCheck'], 'v2');
 
         $this->browse(function (Browser $browser) {
-
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
@@ -173,13 +162,11 @@ class RegisterTest extends DuskTestCase
         });
     }
 
-
     public function test_register_with_v3_recaptcha()
     {
         $this->enableRecaptcha($this->data['v3']['nocaptcha_sitekey'], $this->data['v3']['captcha_secretCheck'], 'v3');
 
         $this->browse(function (Browser $browser) {
-
             $browser->visit('/login');
 
             $this->bypassInsecurePage($browser);
