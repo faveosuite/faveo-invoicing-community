@@ -55,7 +55,10 @@
             <!-- /.card-body -->
 
             <div class="card-footer">
-                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="submit" class="btn btn-primary pull-right" id="contact-form-option"
+                        data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> Saving...">
+                    <i class="fa fa-save">&nbsp;&nbsp;</i>{{ trans('message.save') }}
+                </button>
             </div>
         {!! html()->form()->close() !!}
     </div>
@@ -93,6 +96,7 @@
             // Form submit handler
             $('#verification-form').submit(function (e) {
                 e.preventDefault(); // Prevent default form submission
+                const submitButton = $('#contact-form-option');
 
                 $.ajax({
                     url: "{{ url('verificationSettings') }}",
@@ -101,6 +105,9 @@
                         email_enabled: $('#email_enabled').is(':checked') ? 1 : 0,
                         mobile_enabled: $('#mobile_enabled').is(':checked') ? 1 : 0,
                         preferred_verification: $('#preferred_verification').val(),
+                    },
+                    beforeSend: function () {
+                        submitButton.prop('disabled', true).html(submitButton.data('loading-text'));
                     },
                     success: function (response) {
                         helper.showAlert({
@@ -119,6 +126,9 @@
                             autoDismiss: 5000,
                             containerSelector: '#alertContainer',
                         });
+                    },
+                    complete: function () {
+                        submitButton.prop('disabled', false).html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ trans('message.save') }}");
                     }
                 });
             });

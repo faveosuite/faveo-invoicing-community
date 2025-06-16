@@ -696,11 +696,13 @@
                     if (progressList[fieldSet]) {
                         progressList[fieldSet].classList.add('active');
                     }
+                    autoFocus();
                     sendOTP();
                 } else if (fieldSet === 'fieldSetTwo' && !verificationState.isEmailVerified) {
                     if (progressList[fieldSet]) {
                         progressList[fieldSet].classList.add('active');
                     }
+                    autoFocus();
                     sendEmail();
                 } else if (fieldSet === 'fieldSetThree') {
                     if (progressList[fieldSet]) {

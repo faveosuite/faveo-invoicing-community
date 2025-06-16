@@ -3,9 +3,12 @@
 namespace Tests\Browser\Helpers;
 
 use Laravel\Dusk\Browser;
+use Symfony\Component\Console\Output\NullOutput;
 
 trait DuskHelper
 {
+    protected static $isSetUpCompleted = false;
+
     public function visitLoginPage(Browser $browser): void
     {
         $browser->visit('/login');
@@ -78,5 +81,22 @@ trait DuskHelper
             </div>`
         );
     ");
+    }
+
+    protected function dbSetupClean()
+    {
+        ob_start();
+        \Artisan::call('testing-setup', [], new NullOutput);
+        ob_end_clean();
+    }
+
+    protected function runDbSetup()
+    {
+        if (static::$isSetUpCompleted) {
+            return;
+        }
+
+        $this->dbSetupClean();
+        static::$isSetUpCompleted = true;
     }
 }

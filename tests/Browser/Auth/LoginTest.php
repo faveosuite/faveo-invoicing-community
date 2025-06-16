@@ -19,6 +19,8 @@ class LoginTest extends DuskTestCase
     {
         parent::setUp();
 
+        $this->runDbSetup();
+
         $this->user = User::factory()->create([
             'password' => bcrypt('Demopass@1234'),
         ]);
@@ -65,13 +67,15 @@ class LoginTest extends DuskTestCase
 
             $this->bypassInsecurePage($browser);
 
-            $this->showCaption($browser, 'Test user with invalid password');
+            $this->showCaption($browser, 'TC0091 - Login as Admin valid user name and invalid password');
 
             $browser->type('#username', $this->user->email)
                 ->type('#pass', 'Demopass@123')
                 ->press('#login-btn');
 
-            $this->showCaption($browser, 'Test user with invalid password');
+            $this->showCaption($browser, 'TC0091 - Login as Admin valid user name and invalid password');
+
+            $browser->pause(3000);
 
             $browser->assertSee('Please Enter a valid Password');
         });
@@ -84,13 +88,13 @@ class LoginTest extends DuskTestCase
 
             $this->bypassInsecurePage($browser);
 
-            $this->showCaption($browser, 'Test user with invalid Email');
+            $this->showCaption($browser, 'TC0090 - Login as Admin with invalid user name and valid password');
 
             $browser->type('#username', 'test@example.com')
                 ->type('#pass', 'Demopass@123')
                 ->press('#login-btn');
 
-            $this->showCaption($browser, 'Test user with invalid Email');
+            $this->showCaption($browser, 'TC0090 - Login as Admin with invalid user name and valid password');
 
             $browser->pause(2000);
 
@@ -107,7 +111,7 @@ class LoginTest extends DuskTestCase
 
             $this->bypassInsecurePage($browser);
 
-            $this->showCaption($browser, 'Test login with v3 reCAPTCHA');
+            $this->showCaption($browser, 'TC0087 - Login as Admin with valid user name and password');
 
             $browser->pause(1000);
 
@@ -116,7 +120,7 @@ class LoginTest extends DuskTestCase
                 ->pause(3000)
                 ->press('#login-btn');
 
-            $this->showCaption($browser, 'Test login with v3 reCAPTCHA');
+            $this->showCaption($browser, 'TC0087 - Login as Admin with valid user name and password');
 
             $browser->pause(5000)
                 ->assertPathIs('*/my-invoices');
@@ -134,13 +138,13 @@ class LoginTest extends DuskTestCase
 
             $this->bypassInsecurePage($browser);
 
-            $this->showCaption($browser, 'Test login with v2 reCAPTCHA');
+            $this->showCaption($browser, 'TC0092 - Login as Admin without check reCaptcha');
 
             $browser->type('#username', $this->user->email)
                 ->type('#pass', 'Demopass@1234')
                 ->press('#login-btn');
 
-            $this->showCaption($browser, 'Test login with v2 reCAPTCHA');
+            $this->showCaption($browser, 'TC0092 - Login as Admin without check reCaptcha');
 
             $browser->assertSee('Please verify that you are not a robot.');
 
