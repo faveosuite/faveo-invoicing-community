@@ -54,7 +54,7 @@ class ForgotPasswordController extends Controller
         try {
             $this->validate($request,
                 ['email' => 'required|email|exists:users,email',
-                     'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('forgotPassword')],
+                    'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('forgotPassword')],
                     'forgot' => [new Honeypot()],
                 ],
                 [
