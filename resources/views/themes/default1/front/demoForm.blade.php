@@ -16,7 +16,7 @@ $status =  App\Model\Common\StatusSetting::select('recaptcha_status','v3_recaptc
 
                     <h4 class="modal-title" id="demoModalLabel">{{ __('message.book_a_demo')}}</h4>
 
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true">&times;</button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
                 </div>
 
 
@@ -187,7 +187,7 @@ $status =  App\Model\Common\StatusSetting::select('recaptcha_status','v3_recaptc
             let html = `<div class="alert ${alertClass} alert-dismissible">` +
                 `<i class="fa ${iconClass}"></i> ` +
                 `${message}` +
-                '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+                '<button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true" ></button>';
 
             html += '</div>';
 
@@ -270,7 +270,7 @@ $status =  App\Model\Common\StatusSetting::select('recaptcha_status','v3_recaptc
                 var formData = $(form).serialize();
                 var submitButton = $('#demoregister');
                 $('#demoregister').attr('disabled',true)
-                $("#demoregister").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+                $("#demoregister").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
                 $.ajax({
                     url: '{{url('demo-request')}}',
                     type: 'POST',
@@ -280,7 +280,7 @@ $status =  App\Model\Common\StatusSetting::select('recaptcha_status','v3_recaptc
                     },
                     success: function(response) {
                         $('#demoregister').attr('disabled',false)
-                        $("#demoregister").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>Book a Demo");
+                        $("#demoregister").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>{{ __('message.book_a_demo') }}");
                         form.reset();
                         showAlert('success', response.message);
                         // setTimeout(function() {

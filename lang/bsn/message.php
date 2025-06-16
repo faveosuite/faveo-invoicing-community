@@ -2542,4 +2542,10 @@ return [
     'waiting' => 'Sačekajte...',
     'remainingAmount' => 'Preostali krediti iz vašeg trenutnog plana biće dodani na stanje kredita.',
 
+    'user-suspend-successfully' => 'Korisnik uspješno suspendovan',
+    'incorrect_password' => 'Pogrešna lozinka. Pokušajte ponovo.',
+    'wrong_code' => 'Pogrešan kod. Pokušajte ponovo.',
+    'new_code_generated' => 'Novi kod za oporavak uspješno generisan.',
+    'please_enter_code' => 'Molimo unesite kod.',
+    '2fa_verifying' => 'Provjera...',
 ];

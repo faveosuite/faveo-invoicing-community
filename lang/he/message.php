@@ -1917,7 +1917,7 @@ return [
     'mandatory_tax' => 'שדות חובה חסרים במסך המיסים.',
     'info' => 'מידע',
     'product_quantity' => 'כמות מוצר',
-    'table_search' => 'חיפוש:',
+    'table_search' => 'חיפוש: ',
     //validation message
     'enter_valid_otp' => 'אנא הזן OTP תקף',
     'verifying' => 'מאמת',
@@ -2618,4 +2618,10 @@ return [
     'waiting' => 'חכה...',
     'remainingAmount' => 'הקרדיטים שנותרו בתוכנית הנוכחית שלך יתווספו ליתרת הקרדיטים.',
 
+    'user-suspend-successfully' => 'המשתמש הושעה בהצלחה',
+    'incorrect_password' => 'סיסמה שגויה. נסה שוב',
+    'wrong_code' => 'קוד שגוי. נסה שוב',
+    'new_code_generated' => 'קוד שחזור חדש נוצר בהצלחה.',
+    'please_enter_code' => 'אנא הזן את הקוד',
+    '2fa_verifying' => 'מאמת...',
 ];

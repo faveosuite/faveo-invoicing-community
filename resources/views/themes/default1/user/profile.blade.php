@@ -453,6 +453,21 @@ input:checked + .slider:before {
 
 
 {!! html()->form()->close() !!}
+<script>
+    window.trans = {
+        please_enter_password: "{{ __('message.please_enter_password') }}",
+        verifying: "{{ __('message.2fa_verifying') }}",
+        incorrect_password: "{{ __('message.incorrect_password') }}",
+        please_enter_code: "{{ __('message.please_enter_code') }}",
+        wrong_code: "{{ __('message.wrong_code') }}",
+        turned_off: "{{ __('message.caps_turned_off') }}",
+        please_wait: "{{ __('message.please_wait') }}",
+        new_code_generated: "{{ __('message.new_code_generated') }}",
+        validate: "{{ __('message.validate') }}",
+        verify: "{{ __('message.verify') }}",
+        generate_new: "{{ __('message.generate_new') }}",
+    };
+</script>
 <script src="{{asset('common/js/2fa1.js')}}"></script>
 <script>
     $('#submit').on('click',function(e) {

@@ -92,6 +92,10 @@ foreach($scripts as $script) {
         font-size: 0.85rem;*/
         line-height: normal;
     }
+        [dir="rtl"] #forgot_password_rtl{
+            text-align:left !important;
+            display:block !important;
+        }
 
 
 
@@ -151,11 +155,9 @@ foreach($scripts as $script) {
     ->id('pass')
     ->style('height: calc(1.5em + 0.75rem + 2px);') !!}
 
-                                    <div class="input-group-append">
                                         <span class="input-group-text" role="button" onclick="togglePasswordVisibility(this)">
                                             <i class="fa fa-eye-slash"></i>
                                         </span>
-                                    </div>
                                 </div>
                                 <div id="error-login-password"></div>
                             </div>
@@ -171,7 +173,7 @@ foreach($scripts as $script) {
                                                       </div>
                                                   </div>
                                                   <div class="col-6">
-                                                      <div class="{{ $errors->has('password1') ? 'has-error' : '' }} {{ in_array(app()->getLocale(), ['ar', 'he']) ? 'float-start' : 'float-end' }}">
+                                                      <div class="{{ $errors->has('password1') ? 'has-error' : '' }}" id="forgot_password_rtl" style="text-align: right; display: block;">
                                                           <a class="text-decoration-none text-color-primary font-weight-semibold text-2 text-break"
                                                              href="{{ url('password/reset') }}">
                                                               {{ __('message.forgot-my-password') }}
@@ -379,11 +381,9 @@ foreach($scripts as $script) {
                                     {!! html()->password('password')
         ->class('form-control form-control-lg text-4')
         ->id('password') !!}
-                                    <div class="input-group-append">
                                         <span class="input-group-text pointer" role="button" onclick="togglePasswordVisibility(this)">
                                             <i class="fa fa-eye-slash"></i>
                                         </span>
-                                    </div>
                                 </div>
                                 <span id="password1check"></span>
                             </div>
@@ -395,11 +395,9 @@ foreach($scripts as $script) {
                                     {!! html()->password('password_confirmation')
          ->class('form-control form-control-lg text-4')
          ->id('confirm_pass') !!}
-                                    <div class="input-group-append">
                                         <span class="input-group-text pointer" role="button" onclick="togglePasswordVisibility(this)">
                                             <i class="fa fa-eye-slash"></i>
                                         </span>
-                                    </div>
                                 </div>
                                 <span id="conpasscheck"></span>
                             </div>
@@ -428,7 +426,7 @@ foreach($scripts as $script) {
                         <div class="row">
                                 @if($status->terms == 1)
                                 <div class="form-group col-md-auto">
-                                    <div class="custom-control custom-checkbox" style="padding-right: 100px;">
+                                    <div class="custom-control custom-checkbox" style="padding-right: {{ isRtlForLang() ? '0px' : '100px' }};">
                                         <input type="checkbox" value="false" name="terms" id="term" class="custom-control-input">
                                         <label class="custom-control-label text-2 cur-pointer" for="term">
                                             <a href="{{$apiKeys->terms_url}}" target="_blank" class="text-decoration-none">{{ __('message.agree_term')}}</a>
@@ -600,7 +598,7 @@ foreach($scripts as $script) {
                 let html = `<div class="alert ${alertClass} alert-dismissible">` +
                     `<i class="fa ${iconClass}"></i> ` +
                     `${message}` +
-                    '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+                    '<button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true"></button>';
 
                 html += '</div>';
 
@@ -697,6 +695,7 @@ foreach($scripts as $script) {
                     },
                     email: {
                         required: true,
+                        email: true,
                         regex: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
                     },
                     company: {
@@ -736,11 +735,12 @@ foreach($scripts as $script) {
                     },
                     last_name: {
                         required: "{{ __('message.login_validation.lastname_required') }}",
-                        regex: "{{ __('message.login_validation.firstname_regex') }}"
+                        regex: "{{ __('message.login_validation.lastname_regex') }}"
                     },
                     email: {
                         required: "{{ __('message.login_validation.email_required') }}",
-                        regex: "{{ __('message.login_validation.lastname_regex') }}"
+                        email: "{{ __('message.contact_error_email') }}",
+                        regex: "{{ __('message.login_validation.email_regex') }}"
                     },
                     company: {
                         required: "{{ __('message.login_validation.company_required') }}"

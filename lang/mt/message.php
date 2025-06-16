@@ -2538,4 +2538,10 @@
      'waiting' => 'Stenna...',
      'remainingAmount' => 'Il-krediti li jifdal fil-pjan kurrenti tiegħek se jiġu miżjuda mal-bilanċ tal-kreditu.',
 
+     'user-suspend-successfully' => 'Utent Sospiż b\'Suċċess',
+     'incorrect_password' => 'Password ħażina. Ipprova mill-ġdid',
+     'wrong_code' => 'Kodiċi ħażin. Ipprova mill-ġdid',
+     'new_code_generated' => 'Kodiċi ta’ rkupru ġdid ġie ġġenerat b’suċċess.',
+     'please_enter_code' => 'Jekk jogħġbok daħħal il-kodiċi',
+     '2fa_verifying' => 'Qiegħed tivverifika...',
  ];

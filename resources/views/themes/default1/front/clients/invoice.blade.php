@@ -52,6 +52,9 @@
         padding: 4px;
         border-radius: 4px;
     }
+        [dir="rtl"] .close {
+            margin: -1rem -1rem -1rem !important;
+        }
 
 </style>
 
@@ -228,9 +231,9 @@
                     },
                     success: function (response) {
                         // Display success message
-                        var successMessage = '<div class="alert alert-success">' +
-                            '<button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}">' +
-                            '<span aria-hidden="true">&times;</span></button>' +
+                        var successMessage = '<div class="alert alert-success alert-dismissible">' +
+                            '<button type="button" class="btn-close" data-dismiss="alert" aria-label="{{ __('message.close') }}">' +
+                            '<span aria-hidden="true"></span></button>' +
                             '<strong><i class="far fa-thumbs-up"></i> {{ __('message.well_done') }} </strong>' +
                             response.message + '!</div>';
                         messageContainer.html(successMessage);
@@ -244,9 +247,9 @@
                     error: function (xhr, status, error) {
 
                         // Display error message
-                        var errorMessage = '<div class="alert alert-danger">' +
-                            '<button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}">' +
-                            '<span aria-hidden="true">&times;</span></button>' +
+                        var errorMessage = '<div class="alert alert-danger alert-dismissible">' +
+                            '<button type="button" class="btn-close" data-dismiss="alert" aria-label="{{ __('message.close') }}">' +
+                            '<span aria-hidden="true"></span></button>' +
                             '<strong>{{ __('message.oh_snap') }} </strong>{{ __('message.something_wrong') }}<br><br><ul>';
                         var errors = xhr.responseJSON.errors;
                         $.each(errors, function (key, value) {

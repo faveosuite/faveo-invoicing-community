@@ -228,6 +228,19 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
             font-size: 13px;
         }
 
+       [dir="rtl"] #otpButton{
+           width: 125px !important;
+       }
+         [dir="rtl"] #otpButtonn{
+              width: 135px !important;
+         }
+       #otpAlertMsg{
+           text-align:left;
+       }
+         [dir="rtl"] #otpAlertMsg{
+              text-align:right;
+         }
+
     </style>
     <div class="container-fluid">
         <div class="row justify-content-center">
@@ -273,7 +286,7 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
                                                 </button>
                                                 <div id="timer"></div>
                                             </div>
-                                            <div class="mt-1">
+                                            <div class="mt-1 float-left">
                                                 <button id="additionalButton" type="button"
                                                         onclick="resendOTP('mobile','voice')"
                                                         class="border-0 px-1 background-transparent"
@@ -484,7 +497,7 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
             @endif
             const data = {eid, otp: otpValue, 'g-recaptcha-response': recaptchaToken ?? ''};
             $('#mobileOtp').attr('disabled',true)
-            $("#mobileOtp").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+            $("#mobileOtp").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
 
             $.ajax({
                 url: '{{ url('otp/verify') }}',
@@ -501,7 +514,7 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
                 error: function (error) {
                     showAlert('danger', error.responseJSON.message, '#alert-container');
                     $('#mobileOtp').attr('disabled',false)
-                    $("#mobileOtp").html("Verify");
+                    $("#mobileOtp").html("{{ __('message.verify') }}");
                 }
             });
         }
@@ -617,7 +630,7 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
 
             const data = {eid, otp: otpValue, 'g-recaptcha-response':recaptchaToken ?? ''};
             $('#otpVerify').attr('disabled',true)
-            $("#otpVerify").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+            $("#otpVerify").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
 
             $.ajax({
                 url: '{{ url('email/verify') }}',
@@ -629,7 +642,7 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
                 error: function (error) {
                     showAlert('danger', error.responseJSON.message, '#alert-container-email');
                     $('#otpVerify').attr('disabled',false)
-                    $("#otpVerify").html("Verify");
+                    $("#otpVerify").html("{{ __('message.verify') }}");
                 }
             });
         }
@@ -639,12 +652,13 @@ $isEmailVerified = ($setting->emailverification_status == 1 && $user->email_veri
             const icon = type === 'success' ? 'fa-check-circle' : 'fa-ban';
             const alertType = type === 'success' ? 'alert-success' : 'alert-danger';
 
-            $(container).html(`
-            <div class="alert ${alertType} alert-dismissable">
-                <i class="fa ${icon}"></i> ${message}
-                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-            </div>
-        `);
+
+            const html = `<div class="alert ${alertType} alert-dismissible" id="otpAlertMsg">
+                    <i class="fa ${icon}"></i> ${message}
+                    <button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true"></button>
+                  </div>`;
+
+            $(container).html(html);
 
             setTimeout(() => {
                 $(container).find('.alert').fadeOut('slow', function () {

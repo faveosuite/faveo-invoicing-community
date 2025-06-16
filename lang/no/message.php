@@ -2618,4 +2618,10 @@ return [
     'waiting' => 'Vent...',
     'remainingAmount' => 'De gjenværende kredittene i din nåværende plan blir lagt til kredittsaldoen.',
 
+    'user-suspend-successfully' => 'Bruker suspendert',
+    'incorrect_password' => 'Feil passord. Prøv igjen',
+    'wrong_code' => 'Feil kode. Prøv igjen',
+    'new_code_generated' => 'Ny gjenopprettingskode generert.',
+    'please_enter_code' => 'Vennligst skriv inn koden',
+    '2fa_verifying' => 'Verifiserer...',
 ];

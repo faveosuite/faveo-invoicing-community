@@ -2617,4 +2617,10 @@ return [
     'waiting' => 'お待ちください...',
     'remainingAmount' => '現在のプランで残っているクレジットはクレジット残高に追加されます。',
 
+    'user-suspend-successfully' => 'ユーザーは正常に停止されました',
+    'incorrect_password' => 'Password errata. Riprova',
+    'wrong_code' => 'Codice errato. Riprova',
+    'new_code_generated' => 'Nuovo codice di recupero generato con successo.',
+    'please_enter_code' => 'Per favore, inserisci il codice',
+    '2fa_verifying' => 'Verifica in corso...',
 ];

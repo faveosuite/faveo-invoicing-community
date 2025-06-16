@@ -184,7 +184,7 @@ $(document).ready(function() {
         let html = `<div class="alert ${alertClass} alert-dismissible">` +
             `<i class="fa ${iconClass}"></i> ` +
             `${message}` +
-            '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+            '<button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true"></button>';
 
         html += '</div>';
 

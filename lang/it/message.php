@@ -2609,4 +2609,10 @@ return [
     'waiting' => 'Attendere...',
     'remainingAmount' => 'I crediti rimanenti del tuo piano attuale verranno aggiunti al saldo dei crediti.',
 
+    'user-suspend-successfully' => 'Utente sospeso con successo',
+    'incorrect_password' => 'Password errata. Riprova',
+    'wrong_code' => 'Codice errato. Riprova',
+    'new_code_generated' => 'Nuovo codice di recupero generato con successo.',
+    'please_enter_code' => 'Per favore, inserisci il codice',
+    '2fa_verifying' => 'Verifica in corso...',
 ];

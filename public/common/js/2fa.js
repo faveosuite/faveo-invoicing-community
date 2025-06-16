@@ -55,16 +55,16 @@ $('#2fa').on('change',function () {
                 var login_type = $('#login_type').val();
                 
                 if(password.length == 0 && login_type == 'login') {
-                $("#verify_password").html("<i class='fa fa-check'></i> Validate");
+                $("#verify_password").html("<i class='fa fa-check'></i>" + window.trans.validate);
                 $('#passerror').show();
-                $('#passerror').html("Please Enter Password");
+                $('#passerror').html(window.trans.please_enter_password);
                 $('#passerror').focus();
                 $('#user_password').css("border-color","red");
                 $('#passerror').css({"color":"red"});
                 return false;
                 }
                 $("#verify_password").attr('disabled',true);
-                $("#verify_password").html("<i class='fa fa-circle-o-notch fa-spin fa-1x fa-fw'></i>Verifying...");
+                $("#verify_password").html("<i class='fa fa-circle-o-notch fa-spin fa-1x fa-fw'></i>" + window.trans.verifying);
                 
                 $.ajax({
                     url : "verify-password",
@@ -115,14 +115,14 @@ $('#2fa').on('change',function () {
                                                     var code = $('#passcode').val();
                                                     if(code.length == 0) {
                                                         $('#passcodeerror').show();
-                                                        $('#passcodeerror').html("Please Enter the code");
+                                                        $('#passcodeerror').html(window.trans.please_enter_code);
                                                         $('#passcodeerror').focus();
                                                       $('#passcode').css("border-color","red");
                                                       $('#passcodeerror').css({"color":"red"});
                                                       return false;
                                                     }
                                                     $("#pass_btn").attr('disabled',true);
-                                                    $("#pass_btn").html("<i class='fa fa-circle-o-notch fa-spin fa-1x fa-fw'></i>Verifying...");
+                                                    $("#pass_btn").html("<i class='fa fa-circle-o-notch fa-spin fa-1x fa-fw'></i>" + window.trans.verifying);
                                                     $.ajax({
                                                         url : "2fa/setupValidate",
                                                         method : 'POST',
@@ -139,9 +139,9 @@ $('#2fa').on('change',function () {
                                                     },
                                                     error: function (data) {
                                                         $("#pass_btn").attr('disabled',false);
-                                                    $("#pass_btn").html("<i class='fa fa-check'></i> Verify");
+                                                    $("#pass_btn").html("<i class='fa fa-check'></i>" + window.trans.verify);
                                                     $('#passcodeerror').show();
-                                                    $('#passcodeerror').html("Wrong Code. Try again");
+                                                    $('#passcodeerror').html(window.trans.wrong_code);
                                                      $('#passcodeerror').focus();
                                                       $('#passcode').css("border-color","red");
                                                      $('#passcodeerror').css({"color":"red"});
@@ -164,9 +164,9 @@ $('#2fa').on('change',function () {
                         error: function (data) {
                             
                                         $("#verify_password").attr('disabled',false);
-                                        $("#verify_password").html("<i class='fa fa-check'></i> Validate");
+                                        $("#verify_password").html("<i class='fa fa-check'></i>" + window.trans.validate);
                                         $('#passerror').show();
-                                        $('#passerror').html("Incorrect Password. Try again");
+                                        $('#passerror').html(window.trans.incorrect_password);
                                          $('#passerror').focus();
                                           $('#user_password').css("border-color","red");
                                          $('#passerror').css({"color":"red"});
@@ -180,17 +180,17 @@ $('#2fa').on('change',function () {
             $('#2fa-modal5').modal('show');
             $('#turnoff2fa').on('click', function () {
                 $("#turnoff2fa").attr('disabled', true);
-                $("#turnoff2fa").html("<i class='fa fa-circle-o-notch fa-spin fa-1x fa-fw'></i>Please Wait..");
+                $("#turnoff2fa").html("<i class='fa fa-circle-o-notch fa-spin fa-1x fa-fw'></i>" + window.trans.please_wait);
 
                 $.ajax({
                     url: "2fa/disable",
                     method: 'post',
                     success: function (response) {
                         $("#turnoff2fa").attr('disabled', false);
-                        $("#turnoff2fa").html("<i class='fa fa-power-off'></i>TURNED OFF");
+                        $("#turnoff2fa").html("<i class='fa fa-power-off'></i>" + window.trans.turned_off);
 
-                        var result = '<div class="alert alert-success alert-dismissable">' +
-                            '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' +
+                        var result = '<div class="alert alert-success alert-dismissible">' +
+                            '<button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true"></button>' +
                             '<strong></strong>' + response.message + '.</div>';
 
                         $('#alertMessage').html(result);
@@ -221,7 +221,7 @@ $('#2fa').on('change',function () {
         $('#generateNewCode').on('click',function(){
 
             $("#generateNewCode").attr('disabled',true)
-            $("#generateNewCode").html("<i class='fa fa-circle-o-notch fa-spin fa-1x fa-fw'></i>Please Wait...");
+            $("#generateNewCode").html("<i class='fa fa-circle-o-notch fa-spin fa-1x fa-fw'></i>" + window.trans.please_wait);
             $.ajax({
                 url: "2fa-recovery-code",
                 method: 'post',
@@ -231,8 +231,10 @@ $('#2fa').on('change',function () {
                     $('#alertMessage3').show();
 
                     $("#generateNewCode").attr('disabled',false);
-                    $("#generateNewCode").html("Generate New");
-                     var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong></strong>New recovery code generated successfully.</div>';
+                    $("#generateNewCode").html(window.trans.generate_new);
+                    var result = '<div class="alert alert-success alert-dismissable">' +
+                        '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' +
+                        '<strong></strong>' + window.trans.new_code_generated + '</div>';
                         $('#alertMessage3').html(result);
 
                     },

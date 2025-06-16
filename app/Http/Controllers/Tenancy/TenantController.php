@@ -350,9 +350,7 @@ class TenantController extends Controller
                 'domain' => 'required||regex:/^[a-zA-Z0-9]+$/u',
             ],
             [
-                'domain.regex' => __('validation.special_characters_not_allowed'),
-                'orderNo.required' => __('validation.orderno_required'),
-                'domain.required' => __('validation.domain_form.domain.required'),
+                'domain.regex' => 'Special characters are not allowed in domain name',
             ]);
 
         $settings = Setting::find(1);

@@ -2629,5 +2629,10 @@ return [
     'placeholder_your-queue-name' => 'your-queue-name',
 
     'waiting' => 'Wait...',
+    'incorrect_password' => 'Incorrect Password. Try again',
+    'wrong_code' => 'Wrong Code. Try again',
+    'new_code_generated' => 'New recovery code generated successfully.',
+    'please_enter_code' => 'Please enter the code',
+    '2fa_verifying' => 'Verifying...',
 
 ];

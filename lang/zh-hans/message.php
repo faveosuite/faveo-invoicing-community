@@ -2609,4 +2609,10 @@ return [
     'waiting' => '请稍候...',
     'remainingAmount' => '您当前方案中剩余的积分将被添加到积分余额中。',
 
+    'user-suspend-successfully' => '用户暂停成功',
+    'incorrect_password' => '密码错误，请重试。',
+    'wrong_code' => '验证码错误，请重试。',
+    'new_code_generated' => '新的恢复码已成功生成。',
+    'please_enter_code' => '请输入验证码。',
+    '2fa_verifying' => '正在验证...',
 ];

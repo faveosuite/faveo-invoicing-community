@@ -2607,4 +2607,10 @@ return [
     'waiting' => 'Tunggu...',
     'remainingAmount' => 'Sisa kredit dalam paket Anda saat ini akan ditambahkan ke saldo kredit.',
 
+    'user-suspend-successfully' => 'Pengguna Ditangguhkan Berhasil',
+    'incorrect_password' => 'Kata sandi salah. Silakan coba lagi.',
+    'wrong_code' => 'Kode salah. Silakan coba lagi.',
+    'new_code_generated' => 'Kode pemulihan baru berhasil dibuat.',
+    'please_enter_code' => 'Silakan masukkan kode',
+    '2fa_verifying' => 'Memverifikasi...',
 ];

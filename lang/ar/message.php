@@ -1652,7 +1652,7 @@ return [
     'mandatory_tax' => 'الحقول الإلزامية مفقودة في شاشة الضريبة.',
     'info' => 'معلومات',
     'product_quantity' => 'كمية المنتج',
-    'table_search' => 'بحث:',
+    'table_search' => 'بحث: ',
     'enter_valid_otp' => 'يرجى إدخال رمز OTP صالح',
     'verifying' => 'جارٍ التحقق',
     'resending' => 'إعادة الإرسال',
@@ -1708,7 +1708,7 @@ return [
     'info_filtered' => '(تمت التصفية من إجمالي _MAX_ مدخل)',
     'length_menu' => 'عرض _MENU_ مدخل',
     'loading_records' => 'جارٍ التحميل...',
-    'datatable_search' => 'بحث:',
+    'datatable_search' => 'بحث: ',
     'sLengthMenu' => '_MENU_ سجلات لكل صفحة',
     'order_no_colon' => 'رقم الطلب:',
     'domain2' => 'النطاق',
@@ -2452,5 +2452,12 @@ return [
 
     'waiting' => 'انتظر...',
     'remainingAmount' => 'سيتم إضافة الأرصدة المتبقية في خطتك الحالية إلى رصيد الأرصدة.',
+    'user-suspend-successfully' => 'تم تعليق المستخدم بنجاح',
+    'incorrect_password' => 'كلمة المرور غير صحيحة. حاول مرة أخرى',
+    'wrong_code' => 'رمز خاطئ. حاول مرة أخرى',
+    'new_code_generated' => 'تم إنشاء رمز الاسترداد الجديد بنجاح.',
+    'please_enter_code' => 'يرجى إدخال الرمز',
+    '2fa_verifying' => 'جارٍ التحقق...',
+    'renew_your_order' => 'قم بتجديد طلبك',
 
 ];
