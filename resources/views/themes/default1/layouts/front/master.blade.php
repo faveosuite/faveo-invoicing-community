@@ -578,16 +578,16 @@ $days = $pay->where('product','117')->value('days');
             @if(request()->has('message'))
                 <div class="alert alert-info alert-dismissible fade show alert-cloud" role="alert">
                     {{ urldecode(request('message')) }}
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+                    <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true"></span>
                     </button>
                 </div>
             @endif
 
             @if(Session::has('warning'))
 
-                <div class="alert alert-warning alert-dismissable">
-                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                <div class="alert alert-warning alert-dismissible">
+                    <button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true"></button>
                     {{Session::get('warning')}}
                 </div>
             @endif
@@ -603,8 +603,8 @@ $days = $pay->where('product','117')->value('days');
             @if(!Session::has('Success'))
                 @if(Session::has('success'))
 
-                    <div class="alert alert-success">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}"> <span aria-hidden="true">&times;</span></button>
+                    <div class="alert alert-success alert-dismissible">
+                        <button type="button" class="btn-close" data-dismiss="alert" aria-label="{{ __('message.close') }}"> <span aria-hidden="true"></span></button>
                         <strong><i class="far fa-thumbs-up"></i> {{ __('message.well_done') }}</strong>
 
                         {!!Session::get('success')!!}
@@ -615,16 +615,16 @@ $days = $pay->where('product','117')->value('days');
             <!--fail message -->
             @if(Session::has('fails') )
 
-                <div class="alert alert-danger alert-dismissable" role="alert">
-                    <button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true">&times;</span></button>
+                <div class="alert alert-danger alert-dismissible" role="alert">
+                    <button type="button" class="btn-close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true"></span></button>
                     {{Session::get('fails')}}
                 </div>
 
             @endif
             @if (isset($errors) && $errors->any())
-                <div class="alert alert-danger alert-dismissable" role="alert">
+                <div class="alert alert-danger alert-dismissible" role="alert">
 
-                    <button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true">&times;</span></button>
+                    <button type="button" class="btn-close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true"></span></button>
 
                     @if ($errors->count() > 1)
                         <ul>
@@ -661,7 +661,8 @@ $days = $pay->where('product','117')->value('days');
 
                         <h4 class="modal-title" id="trialModalLabel">{{optional(cloudPopUpDetails())->cloud_top_message}}</h4>
 
-                        <button type="button" class="btn-close closebutton" data-bs-dismiss="modal" aria-hidden="true" id="closebutton">&times;</button>
+
+                        <button type="button" class="btn-close closebutton" data-bs-dismiss="modal" aria-hidden="true" id="closebutton"></button>
                     </div>
 
                     <div class="modal-body">
@@ -1072,7 +1073,7 @@ setTimeout(function() {
                 var $alertDiv = $(`
         <div class="alert alert-${alertType} alert-dismissible">
           <i class="fa ${alertType === 'success' ? 'fa-check-circle' : 'fa-ban'}"></i> ${message}
-          <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+          <button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true"></button>
         </div>
       `);
                 // Clear any previous message and display the new alert
@@ -1175,7 +1176,7 @@ setTimeout(function() {
                 $("#createTenant").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>{{ __('message.submit') }}");
                 if(data.status == 'validationFailure') {
 
-                    var html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<ul>';
+                    var html = '<div class="alert alert-danger alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true"></button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<ul>';
                     for (var key in data.message)
                     {
                         html += '<li>' + data.message[key][0] + '</li>'
@@ -1187,18 +1188,18 @@ setTimeout(function() {
                 } else if(data.status == 'false') {
                     $('#clouderror').show();
                     $('#cloudsuccess').hide();
-                    var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true">&times;</span></button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}!!<br><ul><li>'+data.message+'</li></ul></div>';
+                    var result =  '<div class="alert alert-danger alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true"></span></button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}!!<br><ul><li>'+data.message+'</li></ul></div>';
                     $('#clouderror').html(result);
                 } else if(data.status == 'success_with_warning') {
                     console.log('here');
                     $('#clouderror').show();
                     $('#cloudsuccess').hide();
-                    var result =  '<div class="alert alert-warning alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true">&times;</span></button><strong>{{ __('message.whoops') }} </strong><br><ul><li>'+data.message+'</li></ul></div>';
+                    var result =  '<div class="alert alert-warning alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true"></span></button><strong>{{ __('message.whoops') }} </strong><br><ul><li>'+data.message+'</li></ul></div>';
                     $('#clouderror').html(result);
                 } else {
                     $('#clouderror').hide();
                     $('#cloudsuccess').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true">&times;</span></button><strong>{{ __('message.success') }}! </strong>'+data.message+'!</div>';
+                    var result =  '<div class="alert alert-success alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true"></span></button><strong>{{ __('message.success') }}! </strong>'+data.message+'!</div>';
                     $('#cloudsuccess').html(result);
                 }
             },error: function (response) {
@@ -1206,8 +1207,8 @@ setTimeout(function() {
                 $("#createTenant").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>{{ __('message.submit') }}");
                 $("#generate").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>{{ __('message.submit') }}");
 
-                var html = '<div class="alert alert-danger alert-dismissable">' +
-                    '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' +
+                var html = '<div class="alert alert-danger alert-dismissible">' +
+                    '<button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true"></button>' +
                     '<strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<ul>';
 
                 if (response.status == 422) {
@@ -1400,7 +1401,7 @@ setTimeout(function() {
                     $("#createtenancy").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>{{ __('message.submit') }}");
                     if(data.status == 'validationFailure') {
 
-                        var html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<ul>';
+                        var html = '<div class="alert alert-danger alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true"></button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<ul>';
                         for (var key in data.message)
                         {
                             html += '<li>' + data.message[key][0] + '</li>'
@@ -1412,13 +1413,13 @@ setTimeout(function() {
                     } else if(data.status == 'false') {
                         $('#error').show();
                         $('#success').hide();
-                        var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}!<br><ul><li>'+data.message+'</li></ul></div>';
+                        var result =  '<div class="alert alert-danger alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true"></span></button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}!<br><ul><li>'+data.message+'</li></ul></div>';
                         $('#error').html(result);
                     } else if(data.status == 'success_with_warning') {
                         console.log('here');
                         $('#error').show();
                         $('#success').hide();
-                        var result =  '<div class="alert alert-warning alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>{{ __('message.whoops') }} </strong><br><ul><li>'+data.message+'</li></ul></div>';
+                        var result =  '<div class="alert alert-warning alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true"></span></button><strong>{{ __('message.whoops') }} </strong><br><ul><li>'+data.message+'</li></ul></div>';
                         $('#error').html(result);
                     } else {
                         window.location.href = data.redirectTo;
@@ -1429,14 +1430,14 @@ setTimeout(function() {
                     $("#generate").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>{{ __('message.submit') }}");
                     if(response.status == 422) {
 
-                        var html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<ul>';
+                        var html = '<div class="alert alert-danger alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true"></button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<ul>';
                         for (var key in response.responseJSON.errors)
                         {
                             html += '<li>' + response.responseJSON.errors[key][0] + '</li>'
                         }
 
                     } else {
-                        var html = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<ul>';
+                        var html = '<div class="alert alert-danger alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true"></button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<ul>';
                         html += '<li>' + response.responseJSON.message + '</li>'
                     }
 

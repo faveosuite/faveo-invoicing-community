@@ -286,11 +286,9 @@ input:checked + .slider:before {
                                         <div class="col-lg-9">
                                             <div class="input-group">
                                                 {!! html()->password('old_password')->class('form-control text-3 h-auto py-2')->id('old_password') !!}
-                                                <div class="input-group-append">
                                         <span class="input-group-text" role="button" onclick="togglePasswordVisibility(this)">
                                             <i class="fa fa-eye-slash"></i>
                                         </span>
-                                                </div>
                                             </div>
                                              <h6 id="oldpasswordcheck"></h6>
                                         </div>
@@ -301,11 +299,9 @@ input:checked + .slider:before {
                                         <div class="col-lg-9">
                                             <div class="input-group">
                                                 {!! html()->password('new_password')->class('form-control text-3 h-auto py-2')->id('new_password') !!}
-                                                <div class="input-group-append">
                                         <span class="input-group-text" role="button" onclick="togglePasswordVisibility(this)">
                                             <i class="fa fa-eye-slash"></i>
                                         </span>
-                                                </div>
                                             </div>
                                             <h6 id="newpasswordcheck"></h6>
                                             <small class="text-sm text-muted" id="pswd_info" style="display: none;">
@@ -324,11 +320,9 @@ input:checked + .slider:before {
                                         <div class="col-lg-9">
                                             <div class="input-group">
                                                 {!! html()->password('confirm_password')->class('form-control text-3 h-auto py-2')->id('confirm_password') !!}
-                                                <div class="input-group-append">
                                         <span class="input-group-text" role="button" onclick="togglePasswordVisibility(this)">
                                             <i class="fa fa-eye-slash"></i>
                                         </span>
-                                                </div>
                                             </div>
                                             <h6 id ="confirmpasswordcheck"></h6>
                                         </div>
@@ -381,7 +375,21 @@ input:checked + .slider:before {
             </div>
 
         </div>
-
+<script>
+    window.trans = {
+        please_enter_password: "{{ __('message.please_enter_password') }}",
+        verifying: "{{ __('message.2fa_verifying') }}",
+        incorrect_password: "{{ __('message.incorrect_password') }}",
+        please_enter_code: "{{ __('message.please_enter_code') }}",
+        wrong_code: "{{ __('message.wrong_code') }}",
+        turned_off: "{{ __('message.caps_turned_off') }}",
+        please_wait: "{{ __('message.please_wait') }}",
+        new_code_generated: "{{ __('message.new_code_generated') }}",
+        validate: "{{ __('message.validate') }}",
+        verify: "{{ __('message.verify') }}",
+        generate_new: "{{ __('message.generate_new') }}",
+    };
+</script>
 
 <script src="{{asset('common/js/2fa.js')}}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/js/bootstrap-select.min.js"></script>
@@ -537,7 +545,7 @@ input:checked + .slider:before {
             let html = `<div class="alert ${alertClass} alert-dismissible">` +
                 `<i class="fa ${iconClass}"></i> ` +
                 `${message}` +
-                '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+                '<button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true"></button>';
 
             html += '</div>';
 

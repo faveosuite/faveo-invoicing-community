@@ -2634,4 +2634,10 @@ return [
     'waiting' => '기다려 주세요...',
     'remainingAmount' => '현재 요금제의 남은 크레딧이 크레딧 잔액에 추가됩니다.',
 
+    'user-suspend-successfully' => '사용자가 성공적으로 일시 중단되었습니다',
+    'incorrect_password' => '비밀번호가 잘못되었습니다. 다시 시도하세요.',
+    'wrong_code' => '코드가 잘못되었습니다. 다시 시도하세요.',
+    'new_code_generated' => '새 복구 코드가 성공적으로 생성되었습니다.',
+    'please_enter_code' => '코드를 입력하세요.',
+    '2fa_verifying' => '확인 중...',
 ];

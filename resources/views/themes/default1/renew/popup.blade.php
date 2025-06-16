@@ -10,7 +10,7 @@
 
                                         <h4 class="modal-title" id="renewModalLabel">{{ __('message.renew_your_order') }}</h4>
 
-                                        <button type="button" class="btn-close closebutton" data-dismiss="modal"  aria-hidden="true">&times;</button>
+                                        <button type="button" class="close closebutton" data-dismiss="modal"  aria-hidden="true">&times;</button>
                                     </div>
 
                                     <div class="modal-body">
@@ -299,6 +299,9 @@
         height: 100%;
         background: transparent;
         z-index: 9998; /* Below the loader */
+    }
+    [dir="rtl"] .close {
+        margin: -1rem -1rem -1rem !important;
     }
 
 

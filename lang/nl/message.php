@@ -2582,5 +2582,11 @@ return [
 
     'waiting' => 'Wacht...',
     'remainingAmount' => 'De resterende credits van je huidige plan worden toegevoegd aan het credittegoed.',
+    'user-suspend-successfully' => 'Gebruiker succesvol geschorst',
+    'incorrect_password' => 'Onjuist wachtwoord. Probeer het opnieuw.',
+    'wrong_code' => 'Onjuiste code. Probeer het opnieuw.',
+    'new_code_generated' => 'Nieuwe herstelcode succesvol gegenereerd.',
+    'please_enter_code' => 'Voer de code in.',
+    '2fa_verifying' => 'Bezig met verifiëren...',
 
 ];

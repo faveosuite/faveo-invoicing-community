@@ -2575,4 +2575,10 @@ return [
     'waiting' => '請稍候...',
     'remainingAmount' => '您目前方案中的剩餘點數將被加入點數餘額中。',
 
+    'user-suspend-successfully' => '用戶暫停成功',
+    'incorrect_password' => '密碼錯誤，請重試。',
+    'wrong_code' => '驗證碼錯誤，請重試。',
+    'new_code_generated' => '新的恢復碼已成功生成。',
+    'please_enter_code' => '請輸入驗證碼。',
+    '2fa_verifying' => '正在驗證...',
 ];

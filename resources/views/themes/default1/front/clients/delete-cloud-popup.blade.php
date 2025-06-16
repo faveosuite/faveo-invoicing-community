@@ -23,4 +23,9 @@
         </div>
     </div>
 </div>
+<style>
+    [dir="rtl"] .close {
+        margin: -1rem -1rem -1rem !important;
+    }
+</style>
 

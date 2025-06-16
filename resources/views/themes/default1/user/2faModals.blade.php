@@ -16,7 +16,7 @@
         flex-direction: row;
     }
     [dir="rtl"] .modal-header .close {
-        margin: -1rem 19rem -1rem auto !important;
+        margin: -1rem -1rem -1rem !important;
     }
 </style>
 
@@ -39,11 +39,9 @@
                         {!! html()->label(trans('message.varify_password'))->class('required') !!}
                         <div class="input-group">
                             <input type="password" name="password" id="user_password" placeholder="{{ __('message.enter_password') }}" class="form-control" required="required">
-                            <div class="input-group-append">
                             <span role="button" class="input-group-text" onclick="togglePasswordVisibility(this)">
                                 <i class="fa fa-eye-slash"></i>
                             </span>
-                            </div>
                         </div>
                         <input type="hidden" name="login_type" id="login_type" value="login">
                         <span id="passerror"></span>
@@ -193,13 +191,13 @@
                     <span id="passcodeerror"></span>
                 </div>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer justify-content-between">
                 <button type="button" id="prev_button" class="btn btn-default" dir="{{ in_array(app()->getLocale(), ['ar', 'he']) ? 'rtl' : 'ltr' }}">
                  <span class="button-content">
                     <i class="fa {{ in_array(app()->getLocale(), ['ar', 'he']) ? 'fa-arrow-left' : 'fa-arrow-left' }}" style="margin-right: 8px;"></i>{{ __('message.previous') }}
                  </span>
                 </button>
-                <button type="button" id="pass_btn" class="btn ml-auto btn-primary pull-right float-right">
+                <button type="button" id="pass_btn" class="btn ms-auto btn-primary pull-right float-right">
                     <i class="fa fa-check"></i> {{ __('message.verify') }}
                 </button>
             </div>

@@ -126,7 +126,7 @@ main
             let html = `<div class="alert ${alertClass} alert-dismissible">` +
                 `<i class="fa ${iconClass}"></i> ` +
                 `${message}` +
-                '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+                '<button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true"></button>';
 
             html += '</div>';
 
@@ -152,6 +152,7 @@ main
             rules: {
                 email: {
                     required: true,
+                    email: true,
                     regex: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
                 },
                 "g-recaptcha-response": {
@@ -161,6 +162,7 @@ main
             messages: {
                 email: {
                     required: "{{ __('message.error_email_address') }}",
+                    email: "{{ __('message.contact_error_email') }}",
                     regex: "{{ __('message.contact_error_email') }}"
                 },
                 "g-recaptcha-response": {

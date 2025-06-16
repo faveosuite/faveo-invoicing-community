@@ -2609,4 +2609,10 @@ return [
     'waiting' => 'Warten...',
     'remainingAmount' => 'Die verbleibenden Guthaben Ihres aktuellen Tarifs werden dem Kreditguthaben hinzugefügt.',
 
+    'user-suspend-successfully' => 'Benutzer erfolgreich gesperrt',
+    'incorrect_password' => 'Falsches Passwort. Versuchen Sie es erneut.',
+    'wrong_code' => 'Falscher Code. Versuchen Sie es erneut.',
+    'new_code_generated' => 'Neuer Wiederherstellungscode erfolgreich generiert.',
+    'please_enter_code' => 'Bitte geben Sie den Code ein.',
+    '2fa_verifying' => 'Überprüfung...',
 ];

@@ -2625,4 +2625,10 @@ return [
     'waiting' => 'Bekleyin...',
     'remainingAmount' => 'Mevcut planınızdaki kalan krediler, kredi bakiyenize eklenecektir.',
 
+    'user-suspend-successfully' => 'Kullanıcı Başarıyla Askıya Alındı',
+    'incorrect_password' => 'Yanlış şifre. Tekrar deneyin',
+    'wrong_code' => 'Yanlış kod. Tekrar deneyin',
+    'new_code_generated' => 'Yeni kurtarma kodu başarıyla oluşturuldu.',
+    'please_enter_code' => 'Lütfen kodu girin',
+    '2fa_verifying' => 'Doğrulanıyor...',
 ];

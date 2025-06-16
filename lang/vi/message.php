@@ -2613,4 +2613,10 @@ return [
     'waiting' => 'Vui lòng đợi...',
     'remainingAmount' => 'Số tín dụng còn lại trong gói hiện tại của bạn sẽ được cộng vào số dư tín dụng.',
 
+    'user-suspend-successfully' => 'Người dùng đã bị đình chỉ thành công',
+    'incorrect_password' => 'Mật khẩu không chính xác. Vui lòng thử lại.',
+    'wrong_code' => 'Mã không chính xác. Vui lòng thử lại.',
+    'new_code_generated' => 'Mã khôi phục mới đã được tạo thành công.',
+    'please_enter_code' => 'Vui lòng nhập mã.',
+    '2fa_verifying' => 'Đang xác minh...',
 ];

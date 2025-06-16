@@ -87,6 +87,9 @@
         [dir="rtl"] #place_order_stripe {
             margin-right : 104px !important;
         }
+        [dir="rtl"] #your_order_rtl{
+            width:88% !important;
+        }
  </style>
 <script src="https://js.stripe.com/v3/"></script>
 
@@ -127,7 +130,7 @@ $feeAmount = intval(ceil($invoice->grand_total*$processingFee));
 
                             <div class="totals-cart">
 
-                                <table class="shop_table cart">
+                                <table class="shop_table cart" id="your_order_rtl">
 
                                     <thead>
 
