@@ -1304,6 +1304,7 @@ return [
     'mobile_unique'=>"The mobile number you entered is already registered,Please provide different mobile number.",
     'email_validation_description'=>'The Reoon Email Verifier integration enables real-time validation of email addresses, helping you identify invalid, disposable, or risky addresses before they are stored or used. This ensures cleaner email lists, reduces bounce rates, and improves overall email deliverability across the platform.',
     'mobile_validation_description'=>'The mobile validator integration uses Abstract and Vonage APIs to verify phone numbers in real time by checking their format, validity, carrier details, and reachability—ensuring only accurate and deliverable mobile numbers are accepted within the platform.',
+    'mobileApi_provider'=>'Please select a mobile validation provider.',
     //email templates
 
     'choose_password' => 'Click here to reset your password: ',

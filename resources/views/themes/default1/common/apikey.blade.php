@@ -709,15 +709,18 @@
                 manager:@json(trans('message.mobileApikey_error')),
                 replace_with:@json(trans('message.mobileMode_error')),
                 replace:@json(trans('message.mobileApisecret_error')),
+                replace1:@json(trans('message.mobileApi_provider')),
 
             }
 
-            const userFields=$('#mobilerovider').val()=='vonage'?{
+            const userFields=$('#mobileProvider').val()=='vonage'?{
                 manager: $('#mobileApikey'),
                 replace_with: $('#mobileMode'),
                 replace: $('#mobileApisecret'),
+                replace1: $('#mobileProvider'),
             }:{
                 manager: $('#mobileApikey'),
+                replace1: $('#mobileProvider'),
             };
 
             console.log(userFields);
@@ -794,7 +797,7 @@
         };
 
         document.addEventListener('input', function (e) {
-            if (['emailApikey', 'emailMode'].includes(e.target.id)) {
+            if (['emailApikey', 'emailMode','mobileProvider','mobileMode','mobileApisecret','mobileApikey'].includes(e.target.id)) {
                 removeErrorMessage(e.target);
             }
         });

@@ -1095,7 +1095,7 @@ class SettingsController extends BaseSettingsController
         <div class="form-group">' . $label1 . $input3 . '</div>
          <div class="form-group" id="checkboxToRender">
          <div class="form-group">
-            <label class="required" for="allowed_statuses">Allowed Email Statuses</label>'
+            <label for="allowed_statuses">Allowed Email Statuses</label>'
                     . $statusOptions .
                     '</div>
                 </div>
