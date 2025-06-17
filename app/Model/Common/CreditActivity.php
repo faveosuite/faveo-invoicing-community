@@ -8,5 +8,5 @@ class CreditActivity extends Model
 {
     protected $table = 'credit_activity';
 
-    protected $fillable = ['payment_id','text','role','created_at','updated_at'];
+    protected $fillable = ['payment_id', 'text', 'role', 'created_at', 'updated_at'];
 }

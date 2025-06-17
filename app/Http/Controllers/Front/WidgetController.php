@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
-use App\Model\Common\StatusSetting;
 use App\Model\Common\SocialMedia;
+use App\Model\Common\StatusSetting;
 use App\Model\Front\Widgets;
 use Illuminate\Http\Request;
 
@@ -225,43 +225,44 @@ class WidgetController extends Controller
         }
     }
 
-
     /**
      * This function returns the rendered widget.
      *
      * @param
      * @param
      * @return \HTTP
+     *
      * @throws
      */
-    public function footer1(){
-
+    public function footer1()
+    {
         $set = new \App\Model\Common\Setting();
         $set = $set->findOrFail(1);
         $social = SocialMedia::get();
-        $footerWidgetTypes = ['footer1','footer2','footer3'];
-        $isV2RecaptchaEnabledForNewsletter=0;
+        $footerWidgetTypes = ['footer1', 'footer2', 'footer3'];
+        $isV2RecaptchaEnabledForNewsletter = 0;
         foreach ($footerWidgetTypes as $widgetType) {
             $widget = \App\Model\Front\Widgets::where('publish', 1)->where('type', $widgetType)->select('name', 'content', 'allow_tweets', 'allow_mailchimp', 'allow_social_media')->first();
             $mailchimpKey = \App\Model\Common\Mailchimp\MailchimpSetting::value('api_key');
 
             if ($widget) {
-                $data[$widgetType]=$this->renderWidget($widget, $set, $social, $mailchimpKey);
+                $data[$widgetType] = $this->renderWidget($widget, $set, $social, $mailchimpKey);
             }
         }
+
         return successResponse('success', $data);
     }
 
     /**
      * This function renders the footer widget.
      *
-     * @param $widget
-     * @param $set
-     * @param $social
-     * @param $mailchimpKey
+     * @param  $widget
+     * @param  $set
+     * @param  $social
+     * @param  $mailchimpKey
      * @return string
      */
-    function renderWidget($widget, $set, $social, $mailchimpKey)
+    public function renderWidget($widget, $set, $social, $mailchimpKey)
     {
         $tweetDetails = $widget->allow_tweets == 1 ? '<div id="tweets" class="twitter"></div>' : '';
 
@@ -272,13 +273,13 @@ class WidgetController extends Controller
             if ($set->company_email) {
                 $socialMedia .= '<li class="d-flex align-items-center mb-4">
                                     <i class="fa-regular fa-envelope fa-xl"></i>&nbsp;&nbsp;
-                                    <a href="mailto:' . $set->company_email . '" class="d-inline-flex align-items-center text-decoration-none text-color-grey text-color-hover-primary font-weight-semibold text-4-5">' . $set->company_email . '</a>
+                                    <a href="mailto:'.$set->company_email.'" class="d-inline-flex align-items-center text-decoration-none text-color-grey text-color-hover-primary font-weight-semibold text-4-5">'.$set->company_email.'</a>
                                 </li>';
             }
             if ($set->phone) {
                 $socialMedia .= '<li class="d-flex align-items-center mb-4">
                                     <i class="fas fa-phone text-4 p-relative top-2"></i>&nbsp;
-                                    <a href="tel:' . $set->phone . '" class="d-inline-flex align-items-center text-decoration-none text-color-grey text-color-hover-primary font-weight-semibold text-4-5">+' . $set->phone_code . ' ' . $set->phone . '</a>
+                                    <a href="tel:'.$set->phone.'" class="d-inline-flex align-items-center text-decoration-none text-color-grey text-color-hover-primary font-weight-semibold text-4-5">+'.$set->phone_code.' '.$set->phone.'</a>
                                 </li>';
             }
             $socialMedia .= '</ul>';
@@ -286,16 +287,16 @@ class WidgetController extends Controller
             // Social Icons
             $socialMedia .= '<ul class="social-icons social-icons-clean social-icons-medium">';
             foreach ($social as $media) {
-                $socialMedia .= '<li class="social-icons-' . strtolower($media->name) . '">
-                                    <a href="' . $media->link . '" target="_blank" data-bs-toggle="tooltip" title="' . ucfirst($media->name) . '">
-                                        <i class="fab fa-' . strtolower($media->name) . ' text-color-grey-lighten"></i>
+                $socialMedia .= '<li class="social-icons-'.strtolower($media->name).'">
+                                    <a href="'.$media->link.'" target="_blank" data-bs-toggle="tooltip" title="'.ucfirst($media->name).'">
+                                        <i class="fab fa-'.strtolower($media->name).' text-color-grey-lighten"></i>
                                     </a>
                                 </li>';
             }
             $socialMedia .= '</ul>';
         }
 
-        $status =  StatusSetting::select('recaptcha_status','v3_recaptcha_status', 'msg91_status', 'emailverification_status', 'terms')->first();
+        $status = StatusSetting::select('recaptcha_status', 'v3_recaptcha_status', 'msg91_status', 'emailverification_status', 'terms')->first();
 
         $mailchimpSection = '';
         if ($mailchimpKey !== null && $widget->allow_mailchimp == 1) {
@@ -311,7 +312,6 @@ class WidgetController extends Controller
                                                             <input type="text" name="mailhoneypot_field" value="">
                                                         </div>';
             if ($status->recaptcha_status === 1 || $status->v3_recaptcha_status === 1) {
-
                 if ($status->recaptcha_status === 1) {
                     $mailchimpSection .= '
             <div class="mb-3">
@@ -341,15 +341,14 @@ class WidgetController extends Controller
 
         return '<div class="col-lg-4">
                     <div class="widget-container">
-                        <h4 class="text-color-dark font-weight-bold mb-3">' . $widget->name . '</h4>
+                        <h4 class="text-color-dark font-weight-bold mb-3">'.$widget->name.'</h4>
                         <div class="widget-content">
-                            <p class="text-3-5 font-weight-medium pe-lg-2">' . $widget->content . '</p>
-                            ' . $tweetDetails . '
-                            ' . ($widget->allow_social_media ? $socialMedia : '') . '
+                            <p class="text-3-5 font-weight-medium pe-lg-2">'.$widget->content.'</p>
+                            '.$tweetDetails.'
+                            '.($widget->allow_social_media ? $socialMedia : '').'
                         </div>
-                        ' . $mailchimpSection . '
+                        '.$mailchimpSection.'
                     </div>
                 </div>';
     }
-
 }
