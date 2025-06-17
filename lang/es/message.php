@@ -2643,5 +2643,4 @@ return [
     'mobile_validation_description' => 'La integración del validador de móviles utiliza las APIs de Abstract y Vonage para verificar números de teléfono en tiempo real comprobando su formato, validez, detalles del operador y disponibilidad, asegurando que solo se acepten números de móvil precisos y entregables dentro de la plataforma.',
     'email_validation_status' => 'El estado de validación del correo electrónico se ha guardado correctamente.',
 
-
 ];
