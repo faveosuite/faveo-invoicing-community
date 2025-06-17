@@ -132,7 +132,7 @@ class ProfileTest extends DBTestCase
             'mobile' => $user->mobile,
             'address' => $user->address,
         ]);
-        $response->assertSessionHasErrors(['first_name'=>"The first name field is required."]);
+        $response->assertSessionHasErrors(['first_name'=>"First name is required."]);
     }
 
     public function test_when_email_already_present(){
