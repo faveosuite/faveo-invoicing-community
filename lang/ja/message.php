@@ -2615,4 +2615,9 @@ return [
     'placeholder_your-queue-name' => 'your-queue-name',
 
     'waiting' => 'お待ちください...',
+
+    'trial_status_updated' => '無料トライアルのステータスが正常に更新されました',
+    'trial_status_error' => '無料トライアルのステータスを更新中にエラーが発生しました',
+    'free_trial_status_tooltip' => 'このスイッチを使用して、無料トライアルのポップアップに表示する製品を制御します。',
+    'trial_status_heading' => '無料トライアルのステータス',
 ];

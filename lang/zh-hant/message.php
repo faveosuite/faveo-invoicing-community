@@ -2573,4 +2573,10 @@ return [
     'placeholder_your-queue-name' => '你的隊列名稱',
 
     'waiting' => '請稍候...',
+
+    'trial_status_updated' => '免費試用狀態已成功更新',
+    'trial_status_error' => '更新免費試用狀態時發生錯誤',
+    'free_trial_status_tooltip' => '使用此開關以控制在開始免費試用的彈出視窗中顯示哪個產品。',
+    'trial_status_heading' => '免費試用狀態',
+
 ];

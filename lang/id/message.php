@@ -2605,4 +2605,9 @@ return [
     'placeholder_your-queue-name' => 'nama-antrian-anda',
 
     'waiting' => 'Tunggu...',
+
+    'trial_status_updated' => 'Status uji coba gratis berhasil diperbarui',
+    'trial_status_error' => 'Terjadi kesalahan saat memperbarui status uji coba gratis',
+    'free_trial_status_tooltip' => 'Gunakan tombol ini untuk mengatur produk mana yang akan ditampilkan di popup Mulai Uji Coba Gratis.',
+    'trial_status_heading' => 'Status Uji Coba Gratis',
 ];

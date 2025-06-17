@@ -2623,4 +2623,10 @@ return [
     'placeholder_your-queue-name' => 'kuyruk-adınız',
 
     'waiting' => 'Bekleyin...',
+
+    'trial_status_updated' => 'Ücretsiz deneme durumu başarıyla güncellendi',
+    'trial_status_error' => 'Ücretsiz deneme durumu güncellenirken bir hata oluştu',
+    'free_trial_status_tooltip' => 'Ücretsiz deneme açılır penceresinde hangi ürünün gösterileceğini kontrol etmek için bu anahtarı kullanın.',
+    'trial_status_heading' => 'Ücretsiz Deneme Durumu',
+
 ];

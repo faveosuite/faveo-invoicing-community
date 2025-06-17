@@ -2611,4 +2611,10 @@ return [
     'placeholder_your-queue-name' => 'tên hàng đợi của bạn',
 
     'waiting' => 'Vui lòng đợi...',
+
+    'trial_status_updated' => 'Trạng thái dùng thử miễn phí đã được cập nhật thành công',
+    'trial_status_error' => 'Đã xảy ra lỗi khi cập nhật trạng thái dùng thử miễn phí',
+    'free_trial_status_tooltip' => 'Sử dụng công tắc này để kiểm soát sản phẩm nào sẽ hiển thị trong cửa sổ bật lên Bắt đầu Dùng thử Miễn phí.',
+    'trial_status_heading' => 'Trạng thái Dùng thử Miễn phí',
+
 ];

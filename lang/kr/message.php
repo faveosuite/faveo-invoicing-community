@@ -2632,4 +2632,10 @@ return [
     'placeholder_your-queue-name' => 'your-queue-name',
 
     'waiting' => '기다려 주세요...',
+
+    'trial_status_updated' => '무료 체험 상태가 성공적으로 업데이트되었습니다',
+    'trial_status_error' => '무료 체험 상태를 업데이트하는 중 오류가 발생했습니다',
+    'free_trial_status_tooltip' => '이 스위치를 사용하여 무료 체험 팝업에 표시할 제품을 선택하세요.',
+    'trial_status_heading' => '무료 체험 상태',
+
 ];

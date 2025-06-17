@@ -2616,4 +2616,10 @@ return [
     'placeholder_your-queue-name' => 'ditt kønavn',
 
     'waiting' => 'Vent...',
+
+    'trial_status_updated' => 'Statusen for gratis prøveperiode ble oppdatert',
+    'trial_status_error' => 'Det oppsto en feil under oppdatering av status for gratis prøveperiode',
+    'free_trial_status_tooltip' => 'Bruk denne bryteren for å kontrollere hvilket produkt som vises i popup-vinduet for gratis prøveperiode.',
+    'trial_status_heading' => 'Status for gratis prøveperiode',
+
 ];
