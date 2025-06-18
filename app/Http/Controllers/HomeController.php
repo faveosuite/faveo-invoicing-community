@@ -675,8 +675,8 @@ class HomeController extends BaseHomeController
         $uniqueElements = array_merge(array_diff($product, $productsLinked), array_diff($productsLinked, $product));
 
         $uniqueElements = array_values($uniqueElements);
-        
-        $uniqueElements = array_merge($uniqueElements,$product);
+
+        $uniqueElements = array_merge($uniqueElements, $product);
 
         $licenses = Order::where('client', $user)->whereIn('product', $uniqueElements)
             ->pluck('serial_key')
@@ -711,7 +711,6 @@ class HomeController extends BaseHomeController
 
         return json_encode($updatedProducts);
     }
-
 
     public function getProductRelease(Request $request)
     {
