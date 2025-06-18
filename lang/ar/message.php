@@ -2452,7 +2452,7 @@ return [
 
     'waiting' => 'انتظر...',
 
-// Arabic
+    // Arabic
     'reoon' => 'ريون',
     'vonage' => 'فوناج',
     'abstract' => 'أبستراكت',
