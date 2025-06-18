@@ -2637,5 +2637,5 @@ return [
     'email_validation_description' => 'Reoon 电子邮件验证集成可实现电子邮件地址的实时验证，帮助您在保存或使用前识别无效、一次性或高风险地址。这可确保更清洁的邮件列表，减少退信率，并提升整体邮件送达率。',
     'mobile_validation_description' => '手机验证集成使用 Abstract 和 Vonage API 实时验证手机号，检查其格式、有效性、运营商信息和可达性，从而确保平台只接受准确且可送达的手机号码。',
     'email_validation_status' => '电子邮件验证状态已成功保存。',
-
+    'mobileApi_provider' => '请选择一个手机验证服务提供商。',
 ];

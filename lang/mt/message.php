@@ -2566,5 +2566,6 @@
      'email_validation_description' => 'L-integrazzjoni Reoon Email Verifier tippermetti l-verifika f’ħin reali ta’ indirizzi elettronici, tgħin biex jiġu identifikati indirizzi invalidi, temporanji, jew riskjużi qabel ma jinħażnu jew jintużaw. Dan jiżgura listi ta’ email aktar nodfa, inaqqas ir-rata ta’ ritorn, u jtejjeb il-konsenja ġenerali tal-email fil-pjattaforma.',
      'mobile_validation_description' => 'L-integrazzjoni tal-verifikatur tal-mowbajl tuża l-APIs ta’ Abstract u Vonage biex tivverifika n-numri tat-telefon f’ħin reali permezz ta’ kontroll tal-format, validità, dettalji tal-fornitur, u l-possibbiltà ta’ kuntatt—biex jiġi żgurat li jintlaqgħu biss numri mobbli preċiżi u li jistgħu jitwasslu fil-pjattaforma.',
      'email_validation_status' => 'L-istatus tal-verifika tal-email ġie salvat b’suċċess.',
+     'mobileApi_provider' => 'Jekk jogħġbok agħżel fornitur ta’ validazzjoni mobbli.',
 
  ];

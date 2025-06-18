@@ -2642,5 +2642,6 @@ return [
     'email_validation_description' => 'Tích hợp Reoon Email Verifier cho phép xác thực địa chỉ email theo thời gian thực, giúp bạn xác định các địa chỉ không hợp lệ, tạm thời hoặc rủi ro trước khi được lưu hoặc sử dụng. Điều này đảm bảo danh sách email sạch hơn, giảm tỷ lệ trả lại và cải thiện khả năng gửi email tổng thể trên nền tảng.',
     'mobile_validation_description' => 'Tích hợp xác thực di động sử dụng API Abstract và Vonage để xác minh số điện thoại theo thời gian thực bằng cách kiểm tra định dạng, tính hợp lệ, thông tin nhà mạng và khả năng liên lạc — đảm bảo chỉ những số di động chính xác và có thể gửi đến mới được chấp nhận trên nền tảng.',
     'email_validation_status' => 'Trạng thái xác thực email đã được lưu thành công.',
+    'mobileApi_provider' => 'Vui lòng chọn nhà cung cấp xác thực di động.',
 
 ];

@@ -2570,5 +2570,6 @@ return [
     'mobile_settings_heading' => 'provajderi-za-provjeru-mobilnih-brojeva',
     'mobile_unique' => 'Uneseni broj mobilnog telefona je već registrovan. Molimo unesite drugi broj.',
     'email_validation_status' => 'Status provjere emaila je uspješno sačuvan.',
+    'mobileApi_provider' => 'Molimo odaberite pružatelja validacije mobilnog telefona.',
 
 ];

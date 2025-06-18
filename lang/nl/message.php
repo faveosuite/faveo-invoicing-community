@@ -2611,5 +2611,6 @@ return [
     'email_validation_description' => 'De Reoon Email Verifier-integratie maakt realtime validatie van e-mailadressen mogelijk, waardoor u ongeldige, tijdelijke of risicovolle adressen kunt identificeren voordat ze worden opgeslagen of gebruikt. Dit zorgt voor schonere e-maillijsten, vermindert bouncepercentages en verbetert de algehele e-mailbezorgbaarheid op het platform.',
     'mobile_validation_description' => 'De mobiele validator-integratie maakt gebruik van Abstract- en Vonage-API’s om telefoonnummers in realtime te verifiëren door hun formaat, geldigheid, providergegevens en bereikbaarheid te controleren – zodat alleen nauwkeurige en bezorgbare mobiele nummers op het platform worden geaccepteerd.',
     'email_validation_status' => 'Status van e-mailvalidatie succesvol opgeslagen',
+    'mobileApi_provider' => 'Selecteer een provider voor mobiele validatie.',
 
 ];

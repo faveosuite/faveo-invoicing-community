@@ -2603,5 +2603,5 @@ return [
     'mobileApikey' => '手機 API 金鑰',
     'mobileApisecret' => '手機 API 密鑰',
     'email_validation_success' => '電子郵件驗證金鑰與模式已成功儲存。',
-
+    'mobileApi_provider' => '請選擇一個手機驗證服務提供者。',
 ];

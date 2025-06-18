@@ -2653,5 +2653,6 @@ return [
     'email_validation_description' => 'Reoon Email Verifier entegrasyonu, e-posta adreslerinin gerçek zamanlı doğrulanmasını sağlar; geçersiz, tek kullanımlık veya riskli adresleri saklanmadan veya kullanılmadan önce tanımlamanıza yardımcı olur. Bu, daha temiz e-posta listeleri, daha düşük geri dönme oranları ve platform genelinde daha iyi e-posta teslim edilebilirliği sağlar.',
     'mobile_validation_description' => 'Mobil doğrulayıcı entegrasyonu, Abstract ve Vonage API’lerini kullanarak telefon numaralarını gerçek zamanlı olarak biçim, geçerlilik, operatör bilgileri ve erişilebilirlik açısından kontrol ederek doğrular—yalnızca doğru ve teslim edilebilir mobil numaraların platformda kabul edilmesini sağlar.',
     'email_validation_status' => 'E-posta doğrulama durumu başarıyla kaydedildi.',
+    'mobileApi_provider' => 'Lütfen bir mobil doğrulama sağlayıcısı seçin.',
 
 ];

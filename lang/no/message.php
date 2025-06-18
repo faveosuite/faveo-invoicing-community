@@ -2646,5 +2646,6 @@ return [
     'email_validation_description' => 'Integrasjonen med Reoon Email Verifier muliggjør sanntidsvalidering av e-postadresser, og hjelper deg med å identifisere ugyldige, midlertidige eller risikable adresser før de lagres eller brukes. Dette sikrer renere e-postlister, reduserer sprettfrekvensen og forbedrer den generelle leveransen av e-post på plattformen.',
     'mobile_validation_description' => 'Mobilvalideringsintegrasjonen bruker Abstract og Vonage API-er for å verifisere telefonnumre i sanntid ved å sjekke format, gyldighet, operatørinformasjon og tilgjengelighet — noe som sikrer at kun nøyaktige og leverbare mobilnumre aksepteres på plattformen.',
     'email_validation_status' => 'Status for e-postvalidering ble lagret.',
+    'mobileApi_provider' => 'Vennligst velg en mobilvalideringsleverandør.',
 
 ];

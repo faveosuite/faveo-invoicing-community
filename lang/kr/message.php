@@ -2662,5 +2662,5 @@ return [
     'email_validation_description' => 'Reoon 이메일 검증 통합은 이메일 주소를 실시간으로 검증하여 잘못된 주소, 일회용 주소 또는 위험한 주소를 식별할 수 있도록 도와줍니다. 이를 통해 이메일 리스트의 품질을 높이고, 반송률을 줄이며 플랫폼 전반의 전달율을 향상시킬 수 있습니다.',
     'mobile_validation_description' => '모바일 검증 통합은 Abstract 및 Vonage API를 사용하여 전화번호의 형식, 유효성, 통신사 정보 및 도달 가능성을 실시간으로 확인함으로써 정확하고 전달 가능한 번호만 플랫폼에 수락되도록 합니다.',
     'email_validation_status' => '이메일 검증 상태가 성공적으로 저장되었습니다.',
-
+    'mobileApi_provider' => '모바일 검증 제공자를 선택하세요.',
 ];

@@ -2636,5 +2636,6 @@ return [
     'email_validation_description' => 'Integrasi Reoon Email Verifier memungkinkan validasi alamat email secara real-time, membantu Anda mengidentifikasi alamat yang tidak valid, sementara, atau berisiko sebelum disimpan atau digunakan. Ini memastikan daftar email yang lebih bersih, mengurangi bounce rate, dan meningkatkan deliverability secara keseluruhan di seluruh platform.',
     'mobile_validation_description' => 'Integrasi validasi mobile menggunakan API Abstract dan Vonage untuk memverifikasi nomor telepon secara real-time dengan memeriksa format, validitas, detail operator, dan jangkauan — memastikan hanya nomor mobile yang akurat dan dapat dikirim yang diterima di platform.',
     'email_validation_status' => 'Status validasi email berhasil disimpan.',
+    'mobileApi_provider' => 'Silakan pilih penyedia validasi seluler.',
 
 ];

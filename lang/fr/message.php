@@ -2633,4 +2633,6 @@ return [
     'email_validation_description' => 'L’intégration de Reoon Email Verifier permet la validation en temps réel des adresses e-mail, vous aidant à identifier les adresses invalides, jetables ou à risque avant qu’elles ne soient stockées ou utilisées. Cela garantit des listes de diffusion plus propres, réduit les taux de rebond et améliore la délivrabilité globale des e-mails sur la plateforme.',
     'mobile_validation_description' => 'L’intégration du validateur mobile utilise les API Abstract et Vonage pour vérifier les numéros de téléphone en temps réel en vérifiant leur format, leur validité, les détails de l’opérateur et leur joignabilité — garantissant que seuls les numéros mobiles précis et joignables sont acceptés sur la plateforme.',
     'email_validation_status' => 'Statut de validation des e-mails enregistré avec succès',
+    'mobileApi_provider' => 'Veuillez sélectionner un fournisseur de validation mobile.',
+
 ];

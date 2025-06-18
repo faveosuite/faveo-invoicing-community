@@ -2642,6 +2642,7 @@ return [
     'email_validation_description' => 'La integración de Reoon Email Verifier permite la validación en tiempo real de direcciones de correo electrónico, ayudándole a identificar direcciones inválidas, temporales o de riesgo antes de que sean almacenadas o utilizadas. Esto asegura listas de correo más limpias, reduce las tasas de rebote y mejora la entregabilidad general del correo electrónico en toda la plataforma.',
     'mobile_validation_description' => 'La integración del validador de móviles utiliza las APIs de Abstract y Vonage para verificar números de teléfono en tiempo real comprobando su formato, validez, detalles del operador y disponibilidad, asegurando que solo se acepten números de móvil precisos y entregables dentro de la plataforma.',
     'email_validation_status' => 'El estado de validación del correo electrónico se ha guardado correctamente.',
+    'mobileApi_provider' => 'Por favor, seleccione un proveedor de validación móvil.',
 
 
 ];

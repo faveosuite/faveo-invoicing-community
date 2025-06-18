@@ -2645,5 +2645,5 @@ return [
     'mobileApikey' => 'モバイルAPIキー',
     'mobileApisecret' => 'モバイルAPIシークレット',
     'email_validation_success' => 'メール検証キーとモードが正常に保存されました。',
-
+    'mobileApi_provider' => 'モバイル検証プロバイダーを選択してください。',
 ];
