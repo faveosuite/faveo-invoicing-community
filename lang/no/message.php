@@ -2616,4 +2616,6 @@ return [
     'placeholder_your-queue-name' => 'ditt kønavn',
 
     'waiting' => 'Vent...',
+    'remainingAmount' => 'De gjenværende kredittene i din nåværende plan blir lagt til kredittsaldoen.',
+
 ];

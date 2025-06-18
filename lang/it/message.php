@@ -2607,4 +2607,6 @@ return [
     'placeholder_your-queue-name' => 'il nome della tua coda',
 
     'waiting' => 'Attendere...',
+    'remainingAmount' => 'I crediti rimanenti del tuo piano attuale verranno aggiunti al saldo dei crediti.',
+
 ];

@@ -2590,4 +2590,6 @@ return [
     'placeholder_your-queue-name' => 'seu-nome-da-fila',
 
     'waiting' => 'Aguarde...',
+    'remainingAmount' => 'Os créditos restantes do seu plano atual serão adicionados ao saldo de créditos.',
+
 ];

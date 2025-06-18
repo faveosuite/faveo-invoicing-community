@@ -2607,4 +2607,6 @@ return [
     'placeholder_your-queue-name' => '你的队列名称',
 
     'waiting' => '请稍候...',
+    'remainingAmount' => '您当前方案中剩余的积分将被添加到积分余额中。',
+
 ];

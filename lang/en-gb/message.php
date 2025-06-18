@@ -2612,4 +2612,6 @@ return [
     'placeholder_your-queue-name' => 'your-queue-name',
 
     'waiting' => 'Wait...',
+    'remainingAmount' => 'The remaining credits in your current plan will be added to the credit balance.',
+
 ];

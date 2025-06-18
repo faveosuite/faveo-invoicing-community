@@ -2540,4 +2540,6 @@ return [
     'placeholder_your-queue-name' => 'vaš-naziv-reda',
 
     'waiting' => 'Sačekajte...',
+    'remainingAmount' => 'Preostali krediti iz vašeg trenutnog plana biće dodani na stanje kredita.',
+
 ];

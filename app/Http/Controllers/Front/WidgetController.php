@@ -307,7 +307,7 @@ class WidgetController extends Controller
                                                         </div>
                                                         <!-- Honeypot fields (hidden) -->
                                                         <div class="mb-3" style="display: none;">
-                                                            <label>Leave this field empty</label>
+                                                            <label>'.__('message.contact_leave').'</label>
                                                             <input type="text" name="mailhoneypot_field" value="">
                                                         </div>';
             if ($status->recaptcha_status === 1 || $status->v3_recaptcha_status === 1) {
@@ -326,7 +326,7 @@ class WidgetController extends Controller
         ';
                 }
             }
-            $mailchimpSection .= '<button class="btn btn-primary mb-3" id="mailchimp-subscription" type="submit"><strong>GO!</strong></button>
+            $mailchimpSection .= '<button class="btn btn-primary mb-3" id="mailchimp-subscription" type="submit"><strong>'.__('message.caps_go').'</strong></button>
                                             </form>
                                           </div>';
         }

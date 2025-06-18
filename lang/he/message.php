@@ -2616,4 +2616,6 @@ return [
     'placeholder_your-queue-name' => 'שם‑התור‑שלך',
 
     'waiting' => 'חכה...',
+    'remainingAmount' => 'הקרדיטים שנותרו בתוכנית הנוכחית שלך יתווספו ליתרת הקרדיטים.',
+
 ];

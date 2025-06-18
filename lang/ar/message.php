@@ -2451,5 +2451,7 @@ return [
     'placeholder_your-queue-name' => 'اسم طابورك',
 
     'waiting' => 'انتظر...',
+    'remainingAmount' => 'سيتم إضافة الأرصدة المتبقية في خطتك الحالية إلى رصيد الأرصدة.',
+
 
 ];

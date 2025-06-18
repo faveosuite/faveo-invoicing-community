@@ -2623,4 +2623,6 @@ return [
     'placeholder_your-queue-name' => 'kuyruk-adınız',
 
     'waiting' => 'Bekleyin...',
+    'remainingAmount' => 'Mevcut planınızdaki kalan krediler, kredi bakiyenize eklenecektir.',
+
 ];
