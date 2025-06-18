@@ -10,7 +10,6 @@ use App\Model\Order\Invoice;
 use App\Model\Order\Order;
 use App\Model\Product\Product;
 use Exception;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -47,32 +46,30 @@ class BaseClientController extends Controller
         return view('themes.default1.front.clients.deploy-popup', compact('orderNumber'));
     }
 
-
     /**
      *  This returns the popup with different version download link.
      *
-     * @param $clientid
-     * @param $invoiceid
-     * @param $productid
-     *
+     * @param  $clientid
+     * @param  $invoiceid
+     * @param  $productid
      * @return \Illuminate\Contracts\View\View
+     *
      * @throws
      */
     public function downloadPopup($clientid, $invoiceid, $productid)
     {
         return view('themes.default1.front.clients.download-list',
             compact('clientid', 'invoiceid', 'productid'));
-
     }
 
     /**
      *  This returns the popup with different version of github download link.
      *
-     * @param $clientid
-     * @param $invoiceid
-     * @param $productid
-     *
+     * @param  $clientid
+     * @param  $invoiceid
+     * @param  $productid
      * @return \Illuminate\Contracts\View\View
+     *
      * @throws
      */
     public function downloadGithubPopup($clientid, $invoiceid, $productid)
@@ -81,16 +78,15 @@ class BaseClientController extends Controller
             compact('clientid', 'invoiceid', 'productid'));
     }
 
-
     /**
      *  This returns the renewal popup in client panel orders.
      *
-     * @param $id
-     * @param $productid
-     * @param $agents
-     * @param $planName
-     *
+     * @param  $id
+     * @param  $productid
+     * @param  $agents
+     * @param  $planName
      * @return \Illuminate\Contracts\View\View
+     *
      * @throws
      */
     public function renewPopup($id, $productid, $agents, $planName)
@@ -101,13 +97,13 @@ class BaseClientController extends Controller
     /**
      *  This returns the action button for download links.
      *
-     * @param $countExpiry
-     * @param $productid
-     * @param $countVersions
-     * @param $link
-     * @param $orderEndDate
-     *
+     * @param  $countExpiry
+     * @param  $productid
+     * @param  $countVersions
+     * @param  $link
+     * @param  $orderEndDate
      * @return string
+     *
      * @throws
      */
     public function getActionButton($countExpiry, $countVersions, $link, $orderEndDate, $productid)
@@ -163,9 +159,9 @@ class BaseClientController extends Controller
     /**
      *  This function is to update profile.
      *
-     * @param ProfileRequest $request
-     *
+     * @param  ProfileRequest  $request
      * @return
+     *
      * @throws
      */
     public function postProfile(ProfileRequest $request)
@@ -194,15 +190,16 @@ class BaseClientController extends Controller
             $user->company_type = $request->input('company_type');
             $user->bussiness = $request->input('bussiness');
             $user->save();
-    /**
-     *  Returns to client individual orders with payment details as datatable.
-     *
-     * @param $orderid
-     * @param $userid
-     *
-     * @return \Yajra\DataTables\DataTableAbstract|RedirectResponse
-     * @throws \Exception
-     */
+
+            /**
+             *  Returns to client individual orders with payment details as datatable.
+             *
+             * @param  $orderid
+             * @param  $userid
+             * @return \Yajra\DataTables\DataTableAbstract|RedirectResponse
+             *
+             * @throws \Exception
+             */
             return successResponse(__('message.updated-successfully'));
         } catch (Exception $ex) {
             return errorResponse(__('message.failed_to_update_profile'));
@@ -212,9 +209,9 @@ class BaseClientController extends Controller
     /**
      *  This function is to update password.
      *
-     * @param ProfileRequest $request
-     *
+     * @param  ProfileRequest  $request
      * @return
+     *
      * @throws
      */
     public function postPassword(ProfileRequest $request)
@@ -248,10 +245,11 @@ class BaseClientController extends Controller
     /**
      *  This function returns invoice using order id.
      *
-     * @param $orderid
-     * @param $userid
-     * @param $admin
+     * @param  $orderid
+     * @param  $userid
+     * @param  $admin
      * @return \Yajra\DataTables\DataTableAbstract|RedirectResponse
+     *
      * @throws Exception
      */
     public function getInvoicesByOrderId($orderid, $userid, $admin = null)
@@ -330,9 +328,10 @@ class BaseClientController extends Controller
     /**
      *  This function returns individual invoice opening link.
      *
-     * @param $invoiceId
-     * @param $admin
+     * @param  $invoiceId
+     * @param  $admin
      * @return string
+     *
      * @throws
      */
     public function getInvoiceLinkUrl($invoiceId, $admin = null)
@@ -357,12 +356,13 @@ class BaseClientController extends Controller
     /**
      *  This function returns download link when update end date is greater than created date, when download permission(allowDownloadTillExpiry) is 1.
      *
-     * @param $updateEndDate
-     * @param $productid
-     * @param $versions
-     * @param $clientid
-     * @param $invoiceid
+     * @param  $updateEndDate
+     * @param  $productid
+     * @param  $versions
+     * @param  $clientid
+     * @param  $invoiceid
      * @return string
+     *
      * @throws
      */
     public function whenDownloadTillExpiry($updateEndDate, $productid, $versions, $clientid, $invoiceid)
@@ -381,18 +381,18 @@ class BaseClientController extends Controller
         }
     }
 
-
     /**
      *  This function returns download link when download permission(allowDownloadTillExpiry) is 0.
      *
-     * @param $updatesEndDate
-     * @param $productid
-     * @param $versions
-     * @param $clientid
-     * @param $invoiceid
-     * @param $countExpiry
-     * @param $countVersions
+     * @param  $updatesEndDate
+     * @param  $productid
+     * @param  $versions
+     * @param  $clientid
+     * @param  $invoiceid
+     * @param  $countExpiry
+     * @param  $countVersions
      * @return string
+     *
      * @throws
      */
     public function whenDownloadExpiresAfterExpiry($countExpiry, $countVersions, $updatesEndDate, $productid, $versions, $clientid, $invoiceid)
@@ -413,10 +413,9 @@ class BaseClientController extends Controller
     /**
      *  This returns to the client panel orders page.
      *
-     * @param Request $request
-
-     *
+     * @param  Request  $request
      * @return \Illuminate\Contracts\View\View|RedirectResponse
+     *
      * @throws Exception
      */
     public function orders(Request $request)
@@ -446,9 +445,9 @@ class BaseClientController extends Controller
     /**
      *  This returns to the cloud popup deletion.
      *
-     * @param $orderNumber
-     *
+     * @param  $orderNumber
      * @return \Illuminate\Contracts\View\View
+     *
      * @throws Exception
      */
     public function deleteCloudPopup($orderNumber)

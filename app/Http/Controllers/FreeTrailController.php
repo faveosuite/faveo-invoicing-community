@@ -27,7 +27,8 @@ class FreeTrailController extends Controller
 {
     public $orderNo = null;
     public $tenantController;
-    public function __construct(TenantController $tenantController = null)
+
+    public function __construct(?TenantController $tenantController = null)
     {
         $this->middleware('auth');
 
