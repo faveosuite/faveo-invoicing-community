@@ -5,7 +5,6 @@ namespace Tests\Browser\Helpers;
 use App\ApiKey;
 use App\Http\Controllers\Common\EmailSettingsController;
 use App\Http\Requests\Email\EmailSettingRequest;
-use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use Illuminate\Http\Request;
 use Laravel\Dusk\Browser;
@@ -14,7 +13,6 @@ use Symfony\Component\Console\Output\NullOutput;
 trait DuskHelper
 {
     protected static $isSetUpCompleted = false;
-
 
     protected function configs(): array
     {
@@ -43,7 +41,6 @@ trait DuskHelper
             ],
         ];
     }
-
 
     public function visitLoginPage(Browser $browser): void
     {
@@ -75,23 +72,23 @@ trait DuskHelper
         $settings = $this->recaptchaSettings($version);
 
         StatusSetting::first()?->update([
-            'recaptcha_status'        => $settings['recaptcha_status'],
-            'v3_recaptcha_status'     => $settings['v3_recaptcha_status'],
-            'v3_v2_recaptcha_status'  => 1,
+            'recaptcha_status' => $settings['recaptcha_status'],
+            'v3_recaptcha_status' => $settings['v3_recaptcha_status'],
+            'v3_v2_recaptcha_status' => 1,
         ]);
 
         \App\ApiKey::first()?->update([
-            'nocaptcha_sitekey'       => $settings['site_key'],
-            'captcha_secretCheck'     => $settings['secret_key'],
+            'nocaptcha_sitekey' => $settings['site_key'],
+            'captcha_secretCheck' => $settings['secret_key'],
         ]);
     }
 
     public function disableRecaptcha(): void
     {
         StatusSetting::first()?->update([
-            'recaptcha_status'        => 0,
-            'v3_recaptcha_status'     => 0,
-            'v3_v2_recaptcha_status'  => 0,
+            'recaptcha_status' => 0,
+            'v3_recaptcha_status' => 0,
+            'v3_v2_recaptcha_status' => 0,
         ]);
     }
 
@@ -180,7 +177,7 @@ trait DuskHelper
 
     protected function setUpMobile(bool $enable = true): void
     {
-        if (!$setting = ApiKey::first()) {
+        if (! $setting = ApiKey::first()) {
             return;
         }
 

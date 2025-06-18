@@ -4,9 +4,9 @@ namespace Tests\Browser\Auth;
 
 use App\User;
 use Laravel\Dusk\Browser;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\Browser\Helpers\DuskHelper;
 use Tests\DuskTestCase;
-use PHPUnit\Framework\Attributes\Group;
 
 class LoginTest extends DuskTestCase
 {
@@ -32,7 +32,6 @@ class LoginTest extends DuskTestCase
         ]);
     }
 
-
     #[Group('forgot_password')]
     #[Group('login_test_group')]
     public function test_for_forgot_password_by_giving_incorrect_email_id()
@@ -57,7 +56,6 @@ class LoginTest extends DuskTestCase
             $browser->assertSee(__('message.reset_instructions', ['email' => 'testuser@gmail.com']));
         });
     }
-
 
     #[Group('forgot_password')]
     #[Group('login_test_group')]
@@ -217,7 +215,6 @@ class LoginTest extends DuskTestCase
         });
     }
 
-
     #[Group('login')]
     #[Group('login_test_group')]
     public function test_login_as_admin_with_invalid_user_name_and_password(): void
@@ -277,7 +274,6 @@ class LoginTest extends DuskTestCase
         });
     }
 
-
     #[Group('login')]
     #[Group('login_test_group')]
     public function test_login_as_admin_with_valid_user_name_and_password()
@@ -307,11 +303,10 @@ class LoginTest extends DuskTestCase
                 ->assertPathIs('*/client-dashboard');
 
             $browser->logout();
-            
+
             $browser->pause(5000);
         });
     }
-
 
     #[Group('login')]
     #[Group('login_test_group')]
@@ -396,7 +391,6 @@ class LoginTest extends DuskTestCase
         });
     }
 
-
     #[Group('login')]
     #[Group('login_test_group')]
     public function test_login_as_client_with_invalid_user_name_and_password(): void
@@ -455,7 +449,6 @@ class LoginTest extends DuskTestCase
             $browser->logout();
         });
     }
-
 
     #[Group('login')]
     #[Group('login_test_group')]

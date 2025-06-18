@@ -183,7 +183,7 @@ class RegisterTest extends DuskTestCase
 
             $this->showCaption($browser, 'TC0126 - Check for the registration');
 
-            $email = \Str::random(10) . '@gmail.com';
+            $email = \Str::random(10).'@gmail.com';
 
             $browser->type('#first_name', 'Demo')
                 ->type('#last_name', 'admin')
@@ -239,7 +239,6 @@ class RegisterTest extends DuskTestCase
 
         $this->enableOrDisableTerms(false);
     }
-
 
     #[Group('register')]
     public function test_for_terms_and_condition_field_validation()
@@ -302,9 +301,7 @@ class RegisterTest extends DuskTestCase
 
             $browser->pause(3000);
         });
-
     }
-
 
     #[Group('register')]
     public function test_invalid_re_enter_password_field()
@@ -400,7 +397,7 @@ class RegisterTest extends DuskTestCase
 
             $browser->type('#first_name', 'Demo')
                 ->type('#last_name', 'admin')
-                ->type('#email', \Str::random(10) . '@gmail.com')
+                ->type('#email', \Str::random(10).'@gmail.com')
                 ->type('#company', 'Test Inc')
                 ->type('#address', '123 Test Street')
                 ->select('#country', 'India')
@@ -428,7 +425,7 @@ class RegisterTest extends DuskTestCase
 
             $browser->type('#first_name', 'Demo')
                 ->type('#last_name', 'admin')
-                ->type('#email', \Str::random(10) . '@gmail.com')
+                ->type('#email', \Str::random(10).'@gmail.com')
                 ->type('#company', 'Test Inc')
                 ->type('#address', '123 Test Street')
                 ->select('#country', 'India')
@@ -453,7 +450,7 @@ class RegisterTest extends DuskTestCase
 
             $browser->type('#first_name', 'Demo')
                 ->type('#last_name', 'admin')
-                ->type('#email', \Str::random(10) . '@gmail.com')
+                ->type('#email', \Str::random(10).'@gmail.com')
                 ->type('#company', 'Test Inc')
                 ->type('#address', '123 Test Street')
                 ->select('#country', 'India')
@@ -481,7 +478,7 @@ class RegisterTest extends DuskTestCase
 
             $browser->type('#first_name', 'Demo')
                 ->type('#last_name', 'admin')
-                ->type('#email', \Str::random(10) . '@gmail.com')
+                ->type('#email', \Str::random(10).'@gmail.com')
                 ->type('#company', 'Test Inc')
                 ->type('#address', '123 Test Street')
                 ->select('#country', 'India')
@@ -509,7 +506,7 @@ class RegisterTest extends DuskTestCase
 
             $browser->type('#first_name', 'Demo')
                 ->type('#last_name', 'admin')
-                ->type('#email', \Str::random(10) . '@gmail.com')
+                ->type('#email', \Str::random(10).'@gmail.com')
                 ->type('#address', '123 Test Street')
                 ->select('#country', 'India')
                 ->type('#mobilenum', '9876543210')
@@ -534,7 +531,7 @@ class RegisterTest extends DuskTestCase
 
             $browser->type('#first_name', 'Demo')
                 ->type('#last_name', 'admin')
-                ->type('#email', \Str::random(10) . '@gmail.com')
+                ->type('#email', \Str::random(10).'@gmail.com')
                 ->type('#company', \Str::random(51))
                 ->type('#address', '123 Test Street')
                 ->select('#country', 'India')
@@ -561,7 +558,7 @@ class RegisterTest extends DuskTestCase
 
             $browser->type('#first_name', 'Demo')
                 ->type('#last_name', 'admin')
-                ->type('#email', \Str::random(10) . '@gmail.com')
+                ->type('#email', \Str::random(10).'@gmail.com')
                 ->type('#company', 'Test Inc')
                 ->type('#address', '123 Test Street')
                 ->select('#country', 'India')
@@ -667,7 +664,7 @@ class RegisterTest extends DuskTestCase
 
             $browser->type('#first_name', 'Demo')
                 ->type('#last_name', 'admin')
-                ->type('#email', \Str::random(10) . '@gmail.com')
+                ->type('#email', \Str::random(10).'@gmail.com')
                 ->type('#company', 'Test Inc')
                 ->type('#address', '123 Test Street')
                 ->select('#country', 'India')
@@ -694,7 +691,7 @@ class RegisterTest extends DuskTestCase
             $this->showCaption($browser, 'TC0108 - Check for error message if Last name field left blank');
 
             $browser->type('#first_name', 'Demo')
-                ->type('#email', \Str::random(10) . '@gmail.com')
+                ->type('#email', \Str::random(10).'@gmail.com')
                 ->type('#company', 'Test Inc')
                 ->type('#address', '123 Test Street')
                 ->select('#country', 'India')
@@ -708,7 +705,6 @@ class RegisterTest extends DuskTestCase
         });
     }
 
-
     #[Group('register')]
     public function test_for_invalid_last_name_validation()
     {
@@ -721,7 +717,7 @@ class RegisterTest extends DuskTestCase
 
             $browser->type('#first_name', 'Demo')
                 ->type('#last_name', '123456789')
-                ->type('#email', \Str::random(10) . '@gmail.com')
+                ->type('#email', \Str::random(10).'@gmail.com')
                 ->type('#company', 'Test Inc')
                 ->type('#address', '123 Test Street')
                 ->select('#country', 'India')
@@ -747,7 +743,7 @@ class RegisterTest extends DuskTestCase
 
             $browser->type('#first_name', 'Demo')
                 ->type('#last_name', 'admin')
-                ->type('#email', \Str::random(10) . '@gmail.com')
+                ->type('#email', \Str::random(10).'@gmail.com')
                 ->type('#company', 'Test Inc')
                 ->type('#address', '123 Test Street')
                 ->select('#country', 'India')
@@ -773,7 +769,7 @@ class RegisterTest extends DuskTestCase
 
             $this->showCaption($browser, 'TC0105 - Check for error message if first name field left blank');
 
-            $browser->type('#email', \Str::random(10) . '@gmail.com')
+            $browser->type('#email', \Str::random(10).'@gmail.com')
                 ->type('#company', 'Test Inc')
                 ->type('#address', '123 Test Street')
                 ->select('#country', 'India')
@@ -802,7 +798,7 @@ class RegisterTest extends DuskTestCase
 
             $browser->type('#first_name', 'Demo')
                 ->type('#last_name', 'admin')
-                ->type('#email', \Str::random(10) . '@gmail.com')
+                ->type('#email', \Str::random(10).'@gmail.com')
                 ->type('#company', 'Test Inc')
                 ->type('#address', '123 Test Street')
                 ->select('#country', 'India')
@@ -860,7 +856,7 @@ class RegisterTest extends DuskTestCase
 
             $browser->type('#first_name', 'Demo')
                 ->type('#last_name', 'admin')
-                ->type('#email', \Str::random(8) . '@gmail.com')
+                ->type('#email', \Str::random(8).'@gmail.com')
                 ->type('#company', 'Test Inc')
                 ->type('#address', '123 Test Street')
                 ->select('#country', 'India')
