@@ -736,11 +736,11 @@ foreach($scripts as $script) {
                     },
                     last_name: {
                         required: "{{ __('message.login_validation.lastname_required') }}",
-                        regex: "{{ __('message.login_validation.firstname_regex') }}"
+                        regex: "{{ __('message.login_validation.lastname_regex') }}"
                     },
                     email: {
                         required: "{{ __('message.login_validation.email_required') }}",
-                        regex: "{{ __('message.login_validation.lastname_regex') }}"
+                        regex: "{{ __('message.login_validation.email_regex') }}"
                     },
                     company: {
                         required: "{{ __('message.login_validation.company_required') }}"

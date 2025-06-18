@@ -105,6 +105,7 @@ class SetupTestEnv extends Command
             'DB_PASSWORD' => $dbPassword,
             'DB_DATABASE' => $dbName,
             'DB_INSTALL' => 1,
+            'APP_KEY' => 'base64:G4WSQduFNvk9rYtoLS1ozg==',
         ];
 
         $this->createEnvFile($duskEnv, '.env.dusk.testing');

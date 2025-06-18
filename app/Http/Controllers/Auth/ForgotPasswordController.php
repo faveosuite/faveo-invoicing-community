@@ -116,7 +116,7 @@ class ForgotPasswordController extends Controller
 
             return successResponse(__('message.reset_instructions', ['email' => $user->email]));
         } catch (\Exception $ex) {
-            return successResponse(__('message.reset_instructions', ['email' => $user->email]));
+            return successResponse(__('message.reset_instructions', ['email' => $request->email]));
         }
     }
 }
