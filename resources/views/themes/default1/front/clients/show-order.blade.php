@@ -12,7 +12,7 @@
     <style>
         option
         {
-            font-size: 13px;
+            font-size: 12px;
         }
 
         .switch {

@@ -16,7 +16,7 @@ active
     <style>
         option
         {
-            font-size: 13px !important;
+            font-size: 11px !important;
         }
     </style>
     @if(Auth::check())

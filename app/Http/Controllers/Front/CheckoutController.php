@@ -216,6 +216,7 @@ class CheckoutController extends InfoController
                     }
                     $taxConditions = $this->calculateTax($item->associatedModel->id, \Auth::user()->state, \Auth::user()->country); //Calculate Tax Condition by passing ProductId
                     Cart::condition($taxConditions);
+
                     Cart::remove($item->id);
                     //Return array of Product Details,attributes and their conditions
                     $items[] = ['id' => $item->id, 'name' => $item->name, 'price' => $item->price,
@@ -316,6 +317,7 @@ class CheckoutController extends InfoController
                 if ($amount) {//If payment is for paid product
                     \Event::dispatch(new \App\Events\PaymentGateway(['request' => $request, 'invoice' => $invoice]));
                 } else {
+
                     $show = true;
                     $date = getDateHtml($invoice->date);
                     $product = $this->product($invoice->id);
@@ -340,11 +342,13 @@ class CheckoutController extends InfoController
                         $orderNumber = Order::where('invoice_id', $invoice->id)->whereIn('product', cloudPopupProducts())->value('number');
                         (new TenantController(new Client, new FaveoCloud()))->createTenant(new Request(['orderNo' => $orderNumber, 'domain' => $invoice->cloud_domain]));
                     }
-                    $this->performCloudActions($invoice);
-
                     if($discount != null) {
                         $this->updateCredit($discount);
                     }
+
+                    $this->performCloudActions($invoice);
+
+
 
                     return redirect('checkout')->with('Success', $url);
                 }

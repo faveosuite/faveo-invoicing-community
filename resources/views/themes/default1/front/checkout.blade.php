@@ -290,7 +290,7 @@ $cartSubtotalWithoutCondition = 0;
 
                                                      @if($tax->getName()!= 'null')
                                                       <?php
-                                                        $bifurcateTax = bifurcateTax($tax->getName(), $tax->getValue(), $item->attributes->currency, \Auth::user()->state, \Cart::getContent()->sum('price'));
+                                                        $bifurcateTax = bifurcateTax($tax->getName(), $tax->getValue(), $item->attributes->currency, \Auth::user()->state, \Cart::getSubTotalWithoutConditions());
                                                         $partsHtml = explode('<br>', $bifurcateTax['html']);
                                                         $taxParts = explode('<br>', $bifurcateTax['tax']);
                                                         ?>
