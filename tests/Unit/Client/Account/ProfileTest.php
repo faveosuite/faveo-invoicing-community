@@ -59,7 +59,6 @@ class ProfileTest extends DBTestCase
             'address',
             'country',
         ]);
-
     }
 
     public function test_postPassword_successful_update()
@@ -100,15 +99,15 @@ class ProfileTest extends DBTestCase
         ]);
     }
 
-
-    public function test_my_profile_successful_update(){
+    public function test_my_profile_successful_update()
+    {
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
         $response = $this->call('PATCH', 'my-profile', [
             'first_name' => $user->first_name,
             'last_name' => $user->last_name,
-            'email'=>'santhanu@gmail.com',
+            'email' => 'santhanu@gmail.com',
             'company' => $user->company,
             'country' => $user->country,
             'mobile' => $user->mobile,
@@ -116,74 +115,76 @@ class ProfileTest extends DBTestCase
         ]);
         $response->assertContent('{"success":true,"message":"Updated Successfully"}');
         $response->assertJsonStructure([
-            'success','message']);
-
+            'success', 'message']);
     }
 
-    public function test_when_mandatory_field_not_filled(){
+    public function test_when_mandatory_field_not_filled()
+    {
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
         $response = $this->call('PATCH', 'my-profile', [
             'last_name' => $user->last_name,
-            'email'=>'santhanu@gmail.com',
+            'email' => 'santhanu@gmail.com',
             'company' => $user->company,
             'country' => $user->country,
             'mobile' => $user->mobile,
             'address' => $user->address,
         ]);
-        $response->assertSessionHasErrors(['first_name'=>"First name is required."]);
+        $response->assertSessionHasErrors(['first_name' => 'First name is required.']);
     }
 
-    public function test_when_email_already_present(){
-        $user1 = User::factory()->create(['email'=>'santhanu@gmail.com']);
+    public function test_when_email_already_present()
+    {
+        $user1 = User::factory()->create(['email' => 'santhanu@gmail.com']);
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
         $response = $this->call('PATCH', 'my-profile', [
             'first_name' => $user1->first_name,
             'last_name' => $user->last_name,
-            'email'=>'santhanu@gmail.com',
+            'email' => 'santhanu@gmail.com',
             'company' => $user->company,
             'country' => $user->country,
             'mobile' => $user->mobile,
             'address' => $user->address,
         ]);
-        $response->assertSessionHasErrors(['email'=>"The email address has already been taken. Please choose a different email."]);
+        $response->assertSessionHasErrors(['email' => 'The email address has already been taken. Please choose a different email.']);
     }
 
-    public function test_when_2fa_update_recovery_code(){
+    public function test_when_2fa_update_recovery_code()
+    {
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
         $response = $this->call('POST', '2fa-recovery-code');
-        $content=$response->json();
+        $content = $response->json();
         $response->assertStatus(200);
         $response->assertJsonStructure([
-            'success','message']);
+            'success', 'message']);
         $this->assertEquals(true, $content['success']);
-        $this->assertTrue(20==strlen($content['message']['code']));
+        $this->assertTrue(20 == strlen($content['message']['code']));
     }
 
-    public function test_when_2fa_verify_password(){
+    public function test_when_2fa_verify_password()
+    {
         $user = User::factory()->create(['password' => Hash::make('password')]);
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $response = $this->call('GET', 'verify-password',['user_password'=>'password','login_type'=>'login']);
+        $response = $this->call('GET', 'verify-password', ['user_password' => 'password', 'login_type' => 'login']);
         $response->assertStatus(200);
         $response->assertJsonStructure([
-            'success','message']);
+            'success', 'message']);
     }
 
-    public function test_when_password_is_wrong(){
+    public function test_when_password_is_wrong()
+    {
         $user = User::factory()->create(['password' => Hash::make('password')]);
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $response = $this->call('GET', 'verify-password',['user_password'=>'passwor','login_type'=>'login']);
-        $content=$response->json();
+        $response = $this->call('GET', 'verify-password', ['user_password' => 'passwor', 'login_type' => 'login']);
+        $content = $response->json();
         $response->assertStatus(400);
-        $this->assertEquals('password_incorrect',$content['message']);
+        $this->assertEquals('password_incorrect', $content['message']);
     }
-
-
 }
