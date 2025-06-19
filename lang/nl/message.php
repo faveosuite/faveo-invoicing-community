@@ -2583,6 +2583,4 @@ return [
     'waiting' => 'Wacht...',
     'remainingAmount' => 'De resterende credits van je huidige plan worden toegevoegd aan het credittegoed.',
 
-
-
 ];
