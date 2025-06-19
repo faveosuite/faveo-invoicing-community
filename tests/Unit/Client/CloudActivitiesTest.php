@@ -451,7 +451,7 @@ class CloudActivitiesTest extends DBTestCase
         $this->assertTrue($response['attributes']['priceToBePaid'] < $response['attributes']['priceRemaining']);
         $this->assertEquals(\Session::get('priceToBePaid'), $response['price']);
         $this->assertEquals($plan2->product, $response['id']);
-        $this->assertEquals(1, User::where('id',\Auth::user()->id)->value('billing_pay_balance'));
-        $this->assertEquals(0,\Session::get('nothingLeft'));
+        $this->assertEquals(1, User::where('id', \Auth::user()->id)->value('billing_pay_balance'));
+        $this->assertEquals(0, \Session::get('nothingLeft'));
     }
 }
