@@ -2451,5 +2451,6 @@ return [
     'placeholder_your-queue-name' => 'اسم طابورك',
 
     'waiting' => 'انتظر...',
+    'tick-to-hide-from-invoice' => 'حدد لإخفائه من صفحة إنشاء الفاتورة',
 
 ];

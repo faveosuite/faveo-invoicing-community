@@ -2612,4 +2612,6 @@ return [
     'placeholder_your-queue-name' => 'your-queue-name',
 
     'waiting' => 'Wait...',
+    'tick-to-hide-from-invoice' => 'Tick to hide from the invoice creation page',
+
 ];

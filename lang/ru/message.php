@@ -2612,4 +2612,6 @@ return [
     'placeholder_your-queue-name' => 'ваше имя очереди',
 
     'waiting' => 'Подождите...',
+    'tick-to-hide-from-invoice' => 'Отметьте, чтобы скрыть со страницы создания счета',
+
 ];

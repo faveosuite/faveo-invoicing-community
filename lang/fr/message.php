@@ -2602,4 +2602,6 @@ return [
     'placeholder_your-queue-name' => 'votre-nom-de-queue',
 
     'waiting' => 'Attendez...',
+    'tick-to-hide-from-invoice' => 'Cochez pour masquer de la page de création de facture',
+
 ];

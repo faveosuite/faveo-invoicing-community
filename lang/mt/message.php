@@ -2536,4 +2536,6 @@
      'placeholder_your-queue-name' => 'isem il-queue tiegħek',
 
      'waiting' => 'Stenna...',
+     'tick-to-hide-from-invoice' => 'Iċċekkja biex taħbi mill-paġna tal-ħolqien tal-fattura',
+
  ];

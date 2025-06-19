@@ -2616,4 +2616,6 @@ return [
     'placeholder_your-queue-name' => 'שם‑התור‑שלך',
 
     'waiting' => 'חכה...',
+    'tick-to-hide-from-invoice' => 'סמן כדי להסתיר מדף יצירת החשבונית',
+
 ];

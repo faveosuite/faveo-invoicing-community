@@ -2540,4 +2540,6 @@ return [
     'placeholder_your-queue-name' => 'vaš-naziv-reda',
 
     'waiting' => 'Sačekajte...',
+    'tick-to-hide-from-invoice' => 'Označi da sakriješ sa stranice za kreiranje fakture',
+
 ];

@@ -2622,4 +2622,6 @@ return [
     'placeholder_your-queue-name' => 'आपका-क्यू-नाम',
 
     'waiting' => 'रुकिए...',
+    'tick-to-hide-from-invoice' => 'चेक करें ताकि इनवॉइस निर्माण पेज से छिपाया जा सके',
+
 ];

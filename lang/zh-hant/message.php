@@ -2573,4 +2573,6 @@ return [
     'placeholder_your-queue-name' => '你的隊列名稱',
 
     'waiting' => '請稍候...',
+    'tick-to-hide-from-invoice' => '勾選以從發票建立頁面隱藏',
+
 ];

@@ -2623,4 +2623,6 @@ return [
     'placeholder_your-queue-name' => 'kuyruk-adınız',
 
     'waiting' => 'Bekleyin...',
+    'tick-to-hide-from-invoice' => 'Fatura oluşturma sayfasından gizlemek için işaretleyin',
+
 ];

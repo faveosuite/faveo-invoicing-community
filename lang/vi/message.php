@@ -2611,4 +2611,6 @@ return [
     'placeholder_your-queue-name' => 'tên hàng đợi của bạn',
 
     'waiting' => 'Vui lòng đợi...',
+    'tick-to-hide-from-invoice' => 'Chọn để ẩn khỏi trang tạo hóa đơn',
+
 ];

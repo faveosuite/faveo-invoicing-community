@@ -2611,4 +2611,6 @@ return [
     'placeholder_your-queue-name' => 'tu-nombre-de-cola',
 
     'waiting' => 'Espera...',
+    'tick-to-hide-from-invoice' => 'Marca para ocultar en la página de creación de facturas',
+
 ];

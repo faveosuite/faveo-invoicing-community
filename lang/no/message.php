@@ -2616,4 +2616,6 @@ return [
     'placeholder_your-queue-name' => 'ditt kønavn',
 
     'waiting' => 'Vent...',
+    'tick-to-hide-from-invoice' => 'Merk av for å skjule fra fakturasiden',
+
 ];

@@ -2590,4 +2590,6 @@ return [
     'placeholder_your-queue-name' => 'seu-nome-da-fila',
 
     'waiting' => 'Aguarde...',
+    'tick-to-hide-from-invoice' => 'Marque para ocultar da página de criação de faturas',
+
 ];

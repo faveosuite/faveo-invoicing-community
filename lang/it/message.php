@@ -2607,4 +2607,6 @@ return [
     'placeholder_your-queue-name' => 'il nome della tua coda',
 
     'waiting' => 'Attendere...',
+    'tick-to-hide-from-invoice' => 'Seleziona per nascondere dalla pagina di creazione fattura',
+
 ];

@@ -2607,4 +2607,6 @@ return [
     'placeholder_your-queue-name' => 'Ihr Queue-Name',
 
     'waiting' => 'Warten...',
+    'tick-to-hide-from-invoice' => 'Ankreuzen, um auf der Rechnungserstellungsseite auszublenden',
+
 ];
