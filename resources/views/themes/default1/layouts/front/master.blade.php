@@ -661,7 +661,7 @@ $days = $pay->where('product','117')->value('days');
 
                         <h4 class="modal-title" id="trialModalLabel">{{optional(cloudPopUpDetails())->cloud_top_message}}</h4>
 
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true">&times;</button>
+                        <button type="button" class="btn-close closebutton" data-bs-dismiss="modal" aria-hidden="true" id="closebutton">&times;</button>
                     </div>
 
                     <div class="modal-body">
