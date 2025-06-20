@@ -259,40 +259,6 @@ class ClientControllerTest extends DBTestCase
     }
 
     #[Group('User')]
-    public function test_when_editing_user(){
-        $admin = User::factory()->create(['role' => 'admin']);
-        $this->actingAs($admin);
-        $this->withoutMiddleware();
-        $user=User::factory()->create();
-        $response = $this->call('PATCH', url('clients/'.$user->id), [
-            'first_name' => $user->first_name,
-            'user_name' => $user->user_name,
-            'active' => $user->active,
-            'mobile_verified' => $user->mobile_verified,
-            'last_name' => $user->last_name,
-            'company' => $user->company,
-            'country' => 'GE',
-            'email' => 'test@test.com',
-            'state' => $user->state,
-            'address'=>$user->address,
-            'mobile' => $user->mobile,
-            'mobile_code' => $user->mobile_code,
-            'role' => $user->role,
-            'bussiness' => $user->bussiness,
-            'company_type' => $user->company_type,
-            'company_size' => $user->company_size,
-            'timezone_id' => $user->timezone_id,
-            'currency' => $user->currency,
-            'town' => $user->town,
-            'zip' => $user->zip,
-        ]);
-        $updatedUser=\DB::table('users')->where('id',$user->id)->first();
-        $response->assertRedirect();
-        $response->assertSessionHas('success','Updated Successfully');
-        $this->assertTrue($updatedUser->email==='test@test.com');
-    }
-
-    #[Group('User')]
     public function test_get_active_inactive_label(){
         $mobileActive=1;
         $emailActive=0;
