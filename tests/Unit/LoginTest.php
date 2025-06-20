@@ -2,8 +2,8 @@
 
 namespace Tests\Unit;
 
-use App\Http\Controllers\Auth\LoginController;
 use App\ApiKey;
+use App\Http\Controllers\Auth\LoginController;
 use App\Model\Common\StatusSetting;
 use App\User;
 use App\VerificationAttempt;
