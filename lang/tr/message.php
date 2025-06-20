@@ -2623,9 +2623,13 @@ return [
     'placeholder_your-queue-name' => 'kuyruk-adınız',
 
     'waiting' => 'Bekleyin...',
+    'file_invalid' => 'Dosya bozulmuş veya geçersiz görünüyor. Lütfen dosyayı doğrulayın ve tekrar deneyin.',
+
     'tick-to-hide-from-invoice' => 'Fatura oluşturma sayfasından gizlemek için işaretleyin',
 
     'remainingAmount' => 'Mevcut planınızdaki kalan krediler, kredi bakiyenize eklenecektir.',
+    'file_not_upload' => '(dosya yüklenemedi: ',
+    'completed' => 'Tamamlandı',
 
     'user-suspend-successfully' => 'Kullanıcı Başarıyla Askıya Alındı',
     'incorrect_password' => 'Yanlış şifre. Tekrar deneyin',

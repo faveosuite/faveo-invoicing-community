@@ -2630,6 +2630,9 @@ return [
     'placeholder_your-queue-name' => 'your-queue-name',
 
     'waiting' => 'Wait...',
+    'file_invalid'=>'It appears to be corrupted or invalid. Please verify the file and try again.',
+    'file_not_upload'=>'(file could not be uploaded: ',
+    'completed'=>'Completed',
     'incorrect_password' => 'Incorrect Password. Try again',
     'wrong_code' => 'Wrong Code. Try again',
     'new_code_generated' => 'New recovery code generated successfully.',

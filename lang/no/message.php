@@ -2616,9 +2616,13 @@ return [
     'placeholder_your-queue-name' => 'ditt kønavn',
 
     'waiting' => 'Vent...',
+    'file_invalid' => 'Filen ser ut til å være ødelagt eller ugyldig. Vennligst verifiser filen og prøv igjen.',
+
     'tick-to-hide-from-invoice' => 'Merk av for å skjule fra fakturasiden',
 
     'remainingAmount' => 'De gjenværende kredittene i din nåværende plan blir lagt til kredittsaldoen.',
+    'file_not_upload' => '(filen kunne ikke lastes opp: ',
+    'completed' => 'Fullført',
 
     'user-suspend-successfully' => 'Bruker suspendert',
     'incorrect_password' => 'Feil passord. Prøv igjen',

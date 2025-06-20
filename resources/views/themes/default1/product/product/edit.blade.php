@@ -21,7 +21,18 @@
         .more-text{
             display:none;
         }
+
+        .resumable-file-name,
+        .resumable-file-progress {
+            display: inline-block;
+            width: 200px; /* Set desired fixed width */
+            white-space: normal; /* Allow wrapping */
+            word-wrap: break-word; /* Break long words if needed */
+            vertical-align: top;
+        }
+
     </style>
+
     <link rel="stylesheet" href="{{asset('admin/css/select2.min.css')}}">
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
@@ -523,6 +534,9 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+        $('.closebutton').on('click', function () {
+            location.reload();
+        })
         $(document).ready(function() {
             var fup = document.getElementById('image');
             var errMsg = document.getElementById('profilepic-err-Msg');
@@ -1213,19 +1227,19 @@
                         $('.resumable-progress .progress-resume-link').hide();
                         $('.resumable-progress .progress-pause-link').show();
                         // Add the file to the list
-                        $uploadList.append('<li class="resumable-file-' + file.uniqueIdentifier + '">{{ __('message.uploading') }} <span class="resumable-file-name"></span> <span class="resumable-file-progress"></span>');
+                        $uploadList.append('<li class="resumable-file-' + file.uniqueIdentifier + '">{{ __('message.uploading') }}: <span class="resumable-file-name"></span> <span class="resumable-file-progress"></span>');
                         $('.resumable-file-' + file.uniqueIdentifier + ' .resumable-file-name').html(file.fileName);
                         // Actually start the upload
                         resumable.upload();
                     });
                     resumable.on('fileSuccess', function (file, message) {
                         // Reflect that the file upload has completed
-                        $('.resumable-file-' + file.uniqueIdentifier + ' .resumable-file-progress').html('(completed)');
+                        $('.resumable-file-' + file.uniqueIdentifier + ' .resumable-file-progress').html(@json(trans('message.completed')));
                         $("#file_ids").val(JSON.parse(message).name);
                     });
                     resumable.on('fileError', function (file, message) {
                         // Reflect that the file upload has resulted in error
-                        $('.resumable-file-' + file.uniqueIdentifier + ' .resumable-file-progress').html('(file could not be uploaded: ' + message + ')');
+                        $('.resumable-file-' + file.uniqueIdentifier + ' .resumable-file-progress').html(@json(trans('message.file_not_upload')) + message + ')').addClass('error invalid-feedback');
                     });
                     resumable.on('fileProgress', function (file) {
                         // Handle progress for both the file and the overall upload
@@ -1279,6 +1293,7 @@
                 title:@json(trans('message.add_files.title')),
                 dependencies:@json(trans('message.add_files.dependencies')),
                 version:@json(trans('message.add_files.version')),
+                files:@json(trans('message.file_upload_required')),
             };
 
             $("#uploadVersion").on('click',function(e){
@@ -1311,11 +1326,12 @@
 
                         if ($('#file-upload-list li').length === 0) {
                             userFields[field].addClass('is-invalid');
-                            userFields[field].after(`<span class='error invalid-feedback'>${__('message.file_upload_required')}</span>`);
+                            userFields[field].after(`<span class='error invalid-feedback errorRemove'>@json(trans('message.file_upload_required'))</span>`);
                             isValid = false;
                         }
                     }
                     else {
+                        $('.errorRemove').val('');
                         if (!userFields[field].val()) {
                             showError(userFields[field], userRequiredFields[field]);
                             isValid = false;
@@ -1347,7 +1363,7 @@
                             $("#uploadVersion").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                             $('#alertMessage1').show();
                             $('#error').hide();
-                            var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="far fa-check"></i> {{ __('message.success') }}! </strong>'+response.message+'.</div>';
+                            var result =  '<div class="alert alert-success alert-dismissable" id="productUpload"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="far fa-check"></i> {{ __('message.success') }}! </strong>'+response.message+'.</div>';
                             $('#alertMessage1').html(result+ ".");
                             setTimeout(function() {
                                 location.reload();
@@ -1355,7 +1371,7 @@
                         } ,
                         error: function(ex) {
                             $("#uploadVersion").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
-                            var html = '<div class="alert alert-danger"><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<br><br><ul>';
+                            var html = '<div class="alert alert-danger" id="productUpload"><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<br><br><ul>';
                             for (key in ex.responseJSON.errors) {
                                 html += '<li>'+ ex.responseJSON.errors[key][0] + '</li>'
                             }
