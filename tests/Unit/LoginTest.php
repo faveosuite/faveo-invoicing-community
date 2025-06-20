@@ -44,7 +44,10 @@ class LoginTest extends DBTestCase
         $user = User::factory()->create(['password' => \Hash::make('password')]);
         $setting = StatusSetting::create(['emailverification_status' => 0, 'msg91_status' => 0, 'v3_recaptcha_status' => 0, 'recaptcha_status' => 0, 'v3_v2_recaptcha_status' => 0]);
         $this->withoutMiddleware();
-        $response = $this->call('POST', 'login', ['email_username' => $user->email, 'password1' => 'password']);
+        $response = $this->call('POST', 'login', ['email_username' => $user->email, 'password1' => 'password', 'login' => [
+            'pot_field' => '',     // valid
+            'time_field' => encrypt(time() - 10), // valid
+        ]]);
         $response->assertRedirect();
         $this->assertAuthenticatedAs($user);
     }
@@ -54,7 +57,10 @@ class LoginTest extends DBTestCase
     {
         $user = User::factory()->create(['role' => 'admin']);
         $this->withoutMiddleware();
-        $response = $this->call('POST', 'login', ['email1' => $user->email, 'password1' => 'password']);
+        $response = $this->call('POST', 'login', ['email1' => $user->email, 'password1' => 'password','login' => [
+        'pot_field' => '',     // valid
+        'time_field' => encrypt(time() - 10), // valid
+    ]]);
         $this->assertStringContainsSubstring($response->getTargetUrl(), '/');
     }
 
@@ -62,7 +68,10 @@ class LoginTest extends DBTestCase
     public function test_postLogin_when_mobile_is_Unverified()
     {
         $user = User::factory()->create(['mobile_verified' => 0]);
-        $response = $this->call('POST', 'login', ['email1' => $user->email, 'password1' => 'password']);
+        $response = $this->call('POST', 'login', ['email1' => $user->email, 'password1' => 'password','login' => [
+            'pot_field' => '',     // valid
+            'time_field' => encrypt(time() - 10), // valid
+        ]]);
         $response->assertStatus(302);
         // $this->assertStringContainsSubstring($response->getTargetUrl(), '/verify');
     }
@@ -71,7 +80,10 @@ class LoginTest extends DBTestCase
     public function test_postLogin_when_email_is_Unverified()
     {
         $user = User::factory()->create(['active' => 0]);
-        $response = $this->call('POST', 'login', ['email1' => $user->email, 'password1' => 'password']);
+        $response = $this->call('POST', 'login', ['email1' => $user->email, 'password1' => 'password','login' => [
+            'pot_field' => '',     // valid
+            'time_field' => encrypt(time() - 10), // valid
+        ]]);
         $response->assertStatus(302);
     }
 
@@ -97,7 +109,10 @@ class LoginTest extends DBTestCase
         $user = User::factory()->create(['password' => \Hash::make('password')]);
         $setting = StatusSetting::create(['emailverification_status' => 1, 'msg91_status' => 0, 'v3_recaptcha_status' => 0, 'recaptcha_status' => 0, 'v3_v2_recaptcha_status' => 0]);
         $this->withoutMiddleware();
-        $response = $this->call('POST', 'login', ['email_username' => 'santhanuchakrapa@gmail.com', 'password1' => 'password']);
+        $response = $this->call('POST', 'login', ['email_username' => 'santhanuchakrapa@gmail.com', 'password1' => 'password', 'login' => [
+            'pot_field' => '',     // valid
+            'time_field' => encrypt(time() - 10), // valid
+        ]]);
         $response->assertRedirect();
         $response->assertSessionHasErrors([
             'login' => 'Please Enter a valid Email',
@@ -110,7 +125,10 @@ class LoginTest extends DBTestCase
         $user = User::factory()->create(['password' => \Hash::make('password')]);
         $setting = StatusSetting::create(['emailverification_status' => 0, 'msg91_status' => 0, 'v3_recaptcha_status' => 0, 'recaptcha_status' => 0, 'v3_v2_recaptcha_status' => 0]);
         $this->withoutMiddleware();
-        $response = $this->call('POST', 'login', ['email_username' => $user->email, 'password1' => 'passwor']);
+        $response = $this->call('POST', 'login', ['email_username' => $user->email, 'password1' => 'passwor','login' => [
+            'pot_field' => '',     // valid
+            'time_field' => encrypt(time() - 10), // valid
+        ]]);
         $response->assertRedirect();
         $response->assertSessionHasErrors([
             'password' => 'Please Enter a valid Password',
@@ -125,6 +143,10 @@ class LoginTest extends DBTestCase
         $request = Request::create('/login', 'POST', [
             'email_username' => $user->email,
             'password1' => 'password',
+            'login' => [
+                'pot_field' => '',     // valid
+                'time_field' => encrypt(time() - 10), // valid
+            ],
         ]);
         $request->setLaravelSession(app('session')->driver());
         $controller = new LoginController();
@@ -141,7 +163,10 @@ class LoginTest extends DBTestCase
             'email_username' => 'user@example.com',
             'password1' => 'password',
             'g-recaptcha-response' => 'dummy-token',
-            'login' => 'bot-data', // Honeypot should be empty
+            'login' => [
+                'pot_field' => 'asdfghjk',     // valid
+                'time_field' => encrypt(time() - 10), // valid
+            ],
         ]);
 
         $response->assertRedirect(); // Should redirect back

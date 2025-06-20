@@ -140,6 +140,10 @@ class RegistrationTest extends DBTestCase
             'zip' => $user->zip,
             'password' => $user->password,
             'password_confirmation' => $user->password,
+            'registerForm' => [
+                'pot_field' => '',     // valid
+                'time_field' => encrypt(time() - 10), // valid
+            ],
         ]);
         $response->assertContent('{"success":true,"message":"You\u2019re all set! Registration complete.","data":{"need_verify":0}}');
         $response->assertJsonStructure([
@@ -190,6 +194,10 @@ class RegistrationTest extends DBTestCase
             'zip' => $user->zip,
             'password' => $user->password,
             'password_confirmation' => $user->password,
+            'registerForm' => [
+                'pot_field' => '',     // valid
+                'time_field' => encrypt(time() - 10), // valid
+            ],
         ]);
         $response->assertContent('{"success":true,"message":"You\u2019re all set! Registration complete.","data":{"need_verify":0}}');
         $response->assertJsonStructure([
