@@ -271,7 +271,7 @@ class ClientControllerTest extends DBTestCase
             'mobile_verified' => $user->mobile_verified,
             'last_name' => $user->last_name,
             'company' => $user->company,
-            'country' => $user->country,
+            'country' => 'GE',
             'email' => 'test@test.com',
             'state' => $user->state,
             'address'=>$user->address,
