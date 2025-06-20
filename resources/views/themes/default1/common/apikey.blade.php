@@ -723,12 +723,12 @@
                 replace1: $('#mobileProvider'),
             };
 
-            console.log(userFields);
+
 
             // Clear previous errors
             Object.values(userFields).forEach(field => {
                 field.removeClass('is-invalid');
-                field.next().next('.error').remove();
+                field.next('.error').remove();
 
             });
 
@@ -788,7 +788,7 @@
         });
 
         // Function to remove error when input'id' => 'changePasswordForm'ng data
-        const removeErrorMessage = (field) => {
+        const removeerrorMessage = (field) => {
             field.classList.remove('is-invalid');
             const error = field.nextElementSibling;
             if (error && error.classList.contains('error')) {
@@ -798,7 +798,7 @@
 
         document.addEventListener('input', function (e) {
             if (['emailApikey', 'emailMode','mobileProvider','mobileMode','mobileApisecret','mobileApikey'].includes(e.target.id)) {
-                removeErrorMessage(e.target);
+                removeerrorMessage(e.target);
             }
         });
 
@@ -867,7 +867,7 @@
             // Clear previous errors
             Object.values(userFields).forEach(field => {
                 field.removeClass('is-invalid');
-                field.next().next('.error').remove();
+                field.next('.error').remove();
 
             });
 
