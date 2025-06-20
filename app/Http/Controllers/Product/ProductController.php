@@ -220,12 +220,6 @@ class ProductController extends BaseProductController
 
             ]
         );
-        dd(gettype($request->input('filename')));
-dd($request->input('filename')->getClientOriginalName());
-        $zip = new \ZipArchive();
-        dd($zip->open($request->input('filename')));
-        $zipStatus=$zip->open($request->input('filename'));
-        dd($zipStatus);
 
         try {
             $product_id = Product::where('name', $request->input('productname'))->select('id')->first();
