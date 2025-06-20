@@ -72,7 +72,7 @@ class ClientRequest extends Request
             'mobile.required' => __('validation.users.mobile.required'),
             'country.required' => __('validation.users.country.required'),
             'country.exists' => __('validation.users.country.exists'),
-//            'state.required_if' => __('validation.users.state.required_if'),
+            //            'state.required_if' => __('validation.users.state.required_if'),
             'timezone_id.required' => __('validation.users.timezone_id.required'),
             'user_name.required' => __('validation.users.user_name.required'),
             'user_name.unique' => __('validation.users.user_name.unique'),
