@@ -2644,7 +2644,6 @@ return [
     'email_validation_status' => 'El estado de validación del correo electrónico se ha guardado correctamente.',
     'mobileApi_provider' => 'Por favor, seleccione un proveedor de validación móvil.',
 
-
     'remainingAmount' => 'Los créditos restantes de tu plan actual se añadirán al saldo de créditos.',
 
 ];
