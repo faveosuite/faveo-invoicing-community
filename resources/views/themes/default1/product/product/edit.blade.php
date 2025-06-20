@@ -21,7 +21,18 @@
         .more-text{
             display:none;
         }
+
+        .resumable-file-name,
+        .resumable-file-progress {
+            display: inline-block;
+            width: 200px; /* Set desired fixed width */
+            white-space: normal; /* Allow wrapping */
+            word-wrap: break-word; /* Break long words if needed */
+            vertical-align: top;
+        }
+
     </style>
+
     <link rel="stylesheet" href="{{asset('admin/css/select2.min.css')}}">
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
