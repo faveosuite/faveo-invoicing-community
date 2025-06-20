@@ -2540,6 +2540,9 @@ return [
     'placeholder_your-queue-name' => 'vaš-naziv-reda',
 
     'waiting' => 'Sačekajte...',
-    'remainingAmount' => 'Preostali krediti iz vašeg trenutnog plana biće dodani na stanje kredita.',
+    'file_invalid' => 'Izgleda da je datoteka oštećena ili nevažeća. Molimo provjerite datoteku i pokušajte ponovo.',
 
+    'remainingAmount' => 'Preostali krediti iz vašeg trenutnog plana biće dodani na stanje kredita.',
+    'file_not_upload' => '(datoteka nije mogla biti prenesena: ',
+    'completed' => 'Završeno',
 ];

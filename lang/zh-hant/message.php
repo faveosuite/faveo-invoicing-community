@@ -2573,6 +2573,8 @@ return [
     'placeholder_your-queue-name' => '你的隊列名稱',
 
     'waiting' => '請稍候...',
+    'file_invalid' => '檔案似乎已損壞或無效。請驗證檔案後再試一次。',
     'remainingAmount' => '您目前方案中的剩餘點數將被加入點數餘額中。',
-
+    'file_not_upload' => '(檔案無法上傳: ',
+    'completed' => '已完成',
 ];

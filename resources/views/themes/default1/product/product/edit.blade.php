@@ -21,7 +21,18 @@
         .more-text{
             display:none;
         }
+
+        .resumable-file-name,
+        .resumable-file-progress {
+            display: inline-block;
+            width: 200px; /* Set desired fixed width */
+            white-space: normal; /* Allow wrapping */
+            word-wrap: break-word; /* Break long words if needed */
+            vertical-align: top;
+        }
+
     </style>
+
     <link rel="stylesheet" href="{{asset('admin/css/select2.min.css')}}">
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
@@ -1215,12 +1226,12 @@
                     });
                     resumable.on('fileSuccess', function (file, message) {
                         // Reflect that the file upload has completed
-                        $('.resumable-file-' + file.uniqueIdentifier + ' .resumable-file-progress').html('(completed)');
+                        $('.resumable-file-' + file.uniqueIdentifier + ' .resumable-file-progress').html(@json(trans('message.completed')));
                         $("#file_ids").val(JSON.parse(message).name);
                     });
                     resumable.on('fileError', function (file, message) {
                         // Reflect that the file upload has resulted in error
-                        $('.resumable-file-' + file.uniqueIdentifier + ' .resumable-file-progress').html('(file could not be uploaded: ' + message + ')');
+                        $('.resumable-file-' + file.uniqueIdentifier + ' .resumable-file-progress').html(@json(trans('message.file_not_upload')) + message + ')').addClass('error invalid-feedback');
                     });
                     resumable.on('fileProgress', function (file) {
                         // Handle progress for both the file and the overall upload
