@@ -45,7 +45,7 @@ class ClientFooterGeneralTest extends DBTestCase
             'demo' => [
                 'pot_field' => '',     // valid
                 'time_field' => encrypt(time() - 10), // valid
-            ],]);
+            ], ]);
         $response->assertStatus(200);
         $response->assertJson(['message' => 'Your message was sent successfully. Thanks.']);
     }
@@ -62,7 +62,7 @@ class ClientFooterGeneralTest extends DBTestCase
             'demo' => [
                 'pot_field' => 'ghfhkgj',     // valid
                 'time_field' => encrypt(time() - 10), // valid
-            ]
+            ],
         ]);
         $response->assertRedirect();
         $response->assertSessionHasErrors('demo');
