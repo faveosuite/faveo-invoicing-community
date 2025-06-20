@@ -2607,9 +2607,12 @@ return [
     'placeholder_your-queue-name' => '你的队列名称',
 
     'waiting' => '请稍候...',
+    'file_invalid' => '文件似乎已损坏或无效。请验证文件并重试。',
     'tick-to-hide-from-invoice' => '勾选以从发票创建页面隐藏',
 
     'remainingAmount' => '您当前方案中剩余的积分将被添加到积分余额中。',
+    'file_not_upload' => '(文件无法上传: ',
+    'completed' => '已完成',
 
     'user-suspend-successfully' => '用户暂停成功',
     'incorrect_password' => '密码错误，请重试。',

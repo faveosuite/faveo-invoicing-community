@@ -2605,9 +2605,12 @@ return [
     'placeholder_your-queue-name' => 'nama-antrian-anda',
 
     'waiting' => 'Tunggu...',
+    'file_invalid' => 'File tampaknya rusak atau tidak valid. Silakan periksa file dan coba lagi.',
     'tick-to-hide-from-invoice' => 'Centang untuk menyembunyikan dari halaman pembuatan faktur',
 
     'remainingAmount' => 'Sisa kredit dalam paket Anda saat ini akan ditambahkan ke saldo kredit.',
+    'file_not_upload' => '(file tidak dapat diunggah: ',
+    'completed' => 'Selesai',
 
     'user-suspend-successfully' => 'Pengguna Ditangguhkan Berhasil',
     'incorrect_password' => 'Kata sandi salah. Silakan coba lagi.',

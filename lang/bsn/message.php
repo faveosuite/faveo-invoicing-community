@@ -2540,9 +2540,13 @@ return [
     'placeholder_your-queue-name' => 'vaš-naziv-reda',
 
     'waiting' => 'Sačekajte...',
+    'file_invalid' => 'Izgleda da je datoteka oštećena ili nevažeća. Molimo provjerite datoteku i pokušajte ponovo.',
+
     'tick-to-hide-from-invoice' => 'Označi da sakriješ sa stranice za kreiranje fakture',
 
     'remainingAmount' => 'Preostali krediti iz vašeg trenutnog plana biće dodani na stanje kredita.',
+    'file_not_upload' => '(datoteka nije mogla biti prenesena: ',
+    'completed' => 'Završeno',
 
     'user-suspend-successfully' => 'Korisnik uspješno suspendovan',
     'incorrect_password' => 'Pogrešna lozinka. Pokušajte ponovo.',

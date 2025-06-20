@@ -2607,9 +2607,13 @@ return [
     'placeholder_your-queue-name' => 'Ihr Queue-Name',
 
     'waiting' => 'Warten...',
+    'file_invalid' => 'Die Datei scheint beschädigt oder ungültig zu sein. Bitte überprüfen Sie die Datei und versuchen Sie es erneut.',
+
     'tick-to-hide-from-invoice' => 'Ankreuzen, um auf der Rechnungserstellungsseite auszublenden',
 
     'remainingAmount' => 'Die verbleibenden Guthaben Ihres aktuellen Tarifs werden dem Kreditguthaben hinzugefügt.',
+    'file_not_upload' => '(Datei konnte nicht hochgeladen werden: ',
+    'completed' => 'Abgeschlossen',
 
     'user-suspend-successfully' => 'Benutzer erfolgreich gesperrt',
     'incorrect_password' => 'Falsches Passwort. Versuchen Sie es erneut.',

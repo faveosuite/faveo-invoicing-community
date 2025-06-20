@@ -2536,9 +2536,12 @@
      'placeholder_your-queue-name' => 'isem il-queue tiegħek',
 
      'waiting' => 'Stenna...',
+     'file_invalid' => 'Jidher li l-fajl huwa korrott jew invalidu. Jekk jogħġbok iċċekkja l-fajl u erġa\' pprova.',
      'tick-to-hide-from-invoice' => 'Iċċekkja biex taħbi mill-paġna tal-ħolqien tal-fattura',
 
      'remainingAmount' => 'Il-krediti li jifdal fil-pjan kurrenti tiegħek se jiġu miżjuda mal-bilanċ tal-kreditu.',
+     'file_not_upload' => '(il-fajl ma setax jitella’: ',
+     'completed' => 'Kompletat',
 
      'user-suspend-successfully' => 'Utent Sospiż b\'Suċċess',
      'incorrect_password' => 'Password ħażina. Ipprova mill-ġdid',

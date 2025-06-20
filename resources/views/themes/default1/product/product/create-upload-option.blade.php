@@ -3,7 +3,7 @@
         <div class="modal-content" style="width:max-content;">
             <div class="modal-header">
                 <h4 class="modal-title">{{ __('message.all_product_details') }}</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="{{ __('message.close') }}">
+                <button type="button" class="close closebutton" data-dismiss="modal" aria-label="{{ __('message.close') }}">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -100,7 +100,7 @@
             </div>
             <input type="hidden" name="file_ids" id="file_ids" value="">
             <div class="modal-footer justify-content-between">
-                <button type="button" id="close" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;{{ __('message.close') }}</button>
+                <button type="button" id="close" class="btn btn-default closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;{{ __('message.close') }}</button>
                 <button type="submit" class="btn btn-primary" id="uploadVersion"><i class="fa fa-save"></i>&nbsp;{!!Lang::get('message.save')!!}</button>
             </div>
 
