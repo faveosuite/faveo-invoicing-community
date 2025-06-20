@@ -2615,7 +2615,10 @@ return [
     'placeholder_your-queue-name' => 'your-queue-name',
 
     'waiting' => 'お待ちください...',
+    'file_invalid' => 'ファイルが破損しているか無効なようです。ファイルを確認してもう一度お試しください。',
     'remainingAmount' => '現在のプランで残っているクレジットはクレジット残高に追加されます。',
+    'file_not_upload' => '(ファイルをアップロードできませんでした: ',
+    'completed' => '完了',
 
     'user-suspend-successfully' => 'ユーザーは正常に停止されました',
     'incorrect_password' => 'Password errata. Riprova',

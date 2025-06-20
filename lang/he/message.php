@@ -2616,7 +2616,10 @@ return [
     'placeholder_your-queue-name' => 'שם‑התור‑שלך',
 
     'waiting' => 'חכה...',
+    'file_invalid' => 'נראה שהקובץ פגום או לא תקין. אנא בדוק את הקובץ ונסה שוב.',
     'remainingAmount' => 'הקרדיטים שנותרו בתוכנית הנוכחית שלך יתווספו ליתרת הקרדיטים.',
+    'file_not_upload' => '(לא ניתן להעלות את הקובץ: ',
+    'completed' => 'הושלם',
 
     'user-suspend-successfully' => 'המשתמש הושעה בהצלחה',
     'incorrect_password' => 'סיסמה שגויה. נסה שוב',

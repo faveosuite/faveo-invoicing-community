@@ -2590,6 +2590,8 @@ return [
     'placeholder_your-queue-name' => 'seu-nome-da-fila',
 
     'waiting' => 'Aguarde...',
+    'file_invalid' => 'O arquivo parece estar corrompido ou inválido. Verifique o arquivo e tente novamente.',
+
     'remainingAmount' => 'Os créditos restantes do seu plano atual serão adicionados ao saldo de créditos.',
 
     'user-suspend-successfully' => 'Usuário suspenso com sucesso',
@@ -2598,4 +2600,6 @@ return [
     'new_code_generated' => 'Novo código de recuperação gerado com sucesso.',
     'please_enter_code' => 'Por favor, insira o código.',
     '2fa_verifying' => 'Verificando...',
+    'file_not_upload' => '(não foi possível carregar o arquivo: ',
+    'completed' => 'Concluído',
 ];

@@ -2611,7 +2611,10 @@ return [
     'placeholder_your-queue-name' => 'tu-nombre-de-cola',
 
     'waiting' => 'Espera...',
+    'file_invalid' => 'El archivo parece estar dañado o no válido. Por favor, verifique el archivo e inténtelo de nuevo.',
     'remainingAmount' => 'Los créditos restantes de tu plan actual se añadirán al saldo de créditos.',
+    'file_not_upload' => '(no se pudo subir el archivo: ',
+    'completed' => 'Completado',
 
     'user-suspend-successfully' => 'Usuario suspendido exitosamente',
     'incorrect_password' => 'Contraseña incorrecta. Inténtalo de nuevo.',

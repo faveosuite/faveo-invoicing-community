@@ -2607,7 +2607,10 @@ return [
     'placeholder_your-queue-name' => 'il nome della tua coda',
 
     'waiting' => 'Attendere...',
+    'file_invalid' => 'Il file sembra essere danneggiato o non valido. Verifica il file e riprova.',
     'remainingAmount' => 'I crediti rimanenti del tuo piano attuale verranno aggiunti al saldo dei crediti.',
+    'file_not_upload' => '(impossibile caricare il file: ',
+    'completed' => 'Completato',
 
     'user-suspend-successfully' => 'Utente sospeso con successo',
     'incorrect_password' => 'Password errata. Riprova',
