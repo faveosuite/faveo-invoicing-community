@@ -2,12 +2,12 @@
 
 namespace Tests;
 
-use App\Http\Controllers\DashboardController;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Http\Request;
-use Spatie\Html\Html;
 use Mockery;
+use Spatie\Html\Html;
+
 abstract class TestCase extends BaseTestCase
 {
     /**
