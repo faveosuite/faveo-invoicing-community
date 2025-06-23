@@ -10,14 +10,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('razorpay', function ($table) {
-            $table->increments('id');
-            $table->string('image_url');
-            $table->string('processing_fee');
-            $table->string('base_currency');
-            $table->string('currencies');
-            $table->timestamps();
-        });
+        if(!Schema::hasTable('razorpay')) {
+            Schema::create('razorpay', function ($table) {
+                $table->increments('id');
+                $table->string('image_url');
+                $table->string('processing_fee');
+                $table->string('base_currency');
+                $table->string('currencies');
+                $table->timestamps();
+            });
+        }
     }
 
     /**
