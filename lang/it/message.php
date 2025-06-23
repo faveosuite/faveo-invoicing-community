@@ -2640,5 +2640,6 @@ return [
     'mobileApi_provider' => 'Si prega di selezionare un fornitore di convalida mobile.',
 
     'remainingAmount' => 'I crediti rimanenti del tuo piano attuale verranno aggiunti al saldo dei crediti.',
-
+    'checkbox_error' => 'Seleziona almeno un’opzione di stato.',
+    'allowed_estatus' => 'Stati email consentiti',
 ];

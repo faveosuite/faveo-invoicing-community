@@ -2649,5 +2649,6 @@ return [
     'mobileApi_provider' => 'Vennligst velg en mobilvalideringsleverandør.',
 
     'remainingAmount' => 'De gjenværende kredittene i din nåværende plan blir lagt til kredittsaldoen.',
-
+    'checkbox_error' => 'Vennligst velg minst ett statusalternativ.',
+    'allowed_estatus' => 'Tillatte e-poststatuser',
 ];

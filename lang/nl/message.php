@@ -2613,5 +2613,6 @@ return [
     'email_validation_status' => 'Status van e-mailvalidatie succesvol opgeslagen',
     'mobileApi_provider' => 'Selecteer een provider voor mobiele validatie.',
     'remainingAmount' => 'De resterende credits van je huidige plan worden toegevoegd aan het credittegoed.',
-
+    'checkbox_error' => 'Selecteer ten minste één statusoptie.',
+    'allowed_estatus' => 'Toegestane e-mailstatussen',
 ];

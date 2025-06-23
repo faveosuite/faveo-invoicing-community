@@ -2569,5 +2569,6 @@
      'mobileApi_provider' => 'Jekk jogħġbok agħżel fornitur ta’ validazzjoni mobbli.',
 
      'remainingAmount' => 'Il-krediti li jifdal fil-pjan kurrenti tiegħek se jiġu miżjuda mal-bilanċ tal-kreditu.',
-
+     'checkbox_error' => 'Jekk jogħġbok agħżel mill-inqas għażla waħda ta’ status.',
+     'allowed_estatus' => 'Statusijiet tal-email permessi',
  ];

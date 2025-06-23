@@ -2636,5 +2636,6 @@ return [
     'mobileApi_provider' => 'Veuillez sélectionner un fournisseur de validation mobile.',
 
     'remainingAmount' => 'Les crédits restants de votre plan actuel seront ajoutés au solde des crédits.',
-
+    'checkbox_error' => 'Veuillez sélectionner au moins une option de statut.',
+    'allowed_estatus' => 'Statuts d’e-mail autorisés',
 ];

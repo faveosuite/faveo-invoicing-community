@@ -2639,5 +2639,6 @@ return [
     'mobileApi_provider' => 'Silakan pilih penyedia validasi seluler.',
 
     'remainingAmount' => 'Sisa kredit dalam paket Anda saat ini akan ditambahkan ke saldo kredit.',
-
+    'checkbox_error' => 'Silakan pilih setidaknya satu opsi status.',
+    'allowed_estatus' => 'Status Email yang Diizinkan',
 ];

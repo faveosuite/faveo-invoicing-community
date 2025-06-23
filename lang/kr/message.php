@@ -2664,5 +2664,6 @@ return [
     'email_validation_status' => '이메일 검증 상태가 성공적으로 저장되었습니다.',
     'mobileApi_provider' => '모바일 검증 제공자를 선택하세요.',
     'remainingAmount' => '현재 요금제의 남은 크레딧이 크레딧 잔액에 추가됩니다.',
-
+    'checkbox_error' => '하나 이상의 상태 옵션을 선택하세요.',
+    'allowed_estatus' => '허용된 이메일 상태',
 ];

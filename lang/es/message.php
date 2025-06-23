@@ -2646,5 +2646,6 @@ return [
 
 
     'remainingAmount' => 'Los créditos restantes de tu plan actual se añadirán al saldo de créditos.',
-
+    'checkbox_error' => 'Por favor, seleccione al menos una opción de estado.',
+    'allowed_estatus' => 'Estados de correo electrónico permitidos',
 ];

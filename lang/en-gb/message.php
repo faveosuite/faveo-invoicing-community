@@ -879,7 +879,7 @@ return [
     'image_invalid_message' => 'Please upload a file in JPEG, JPG, or PNG format only.',
     'Suspend' => 'Suspend',
     'user_sweet_suspend' => 'Are you sure you want to suspend this user?',
-    'order_delete' => 'Are you sure you want to delete this order?',
+    'order_delete' => 'Are you sure? Permanently deleting this order will also remove the associated cloud instance. This action cannot be undone.',
     'invoice_delete' => 'Are you sure you want to delete this invoice?',
     'page_delete' => 'Are you sure you want to delete this page?',
     'product_delete' => 'Are you sure you want to delete this product?',
@@ -927,7 +927,7 @@ return [
     'sweet_social' => 'Please select at least one social media.',
     'Cancelled' => 'Cancelled!',
     'state_field_required' => 'The State field is required when India is selected as the country.',
-    'user_delete' => 'Are you sure? Deleting user permanently will delete all invoices, orders, subscriptions and comments related to the user.',
+    'user_delete' => 'Are you sure? Permanently deleting this user will also remove all associated invoices, orders, subscriptions, cloud instances, and comments. This action cannot be undone.',
     'license_type' => 'Are you sure you want to delete this? All the Products and Permissions related to this License Type would be deleted',
     'central_domain' => 'Please enter domain name(https://example.com).',
     'cloud_name' => 'Please enter cloud cname(example.com)',
@@ -2646,5 +2646,6 @@ return [
     'mobileApi_provider' => 'Please select a mobile validation provider.',
 
     'remainingAmount' => 'The remaining credits in your current plan will be added to the credit balance.',
-
+    'checkbox_error' => 'Please select at least one status option.',
+    'allowed_estatus' => 'Permitted Email Statuses',
 ];

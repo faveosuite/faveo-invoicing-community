@@ -2647,5 +2647,6 @@ return [
     'email_validation_success' => 'メール検証キーとモードが正常に保存されました。',
     'mobileApi_provider' => 'モバイル検証プロバイダーを選択してください。',
     'remainingAmount' => '現在のプランで残っているクレジットはクレジット残高に追加されます。',
-
+    'checkbox_error' => '少なくとも1つのステータスオプションを選択してください。',
+    'allowed_estatus' => '許可されたメールステータス',
 ];

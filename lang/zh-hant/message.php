@@ -2605,5 +2605,6 @@ return [
     'email_validation_success' => '電子郵件驗證金鑰與模式已成功儲存。',
     'mobileApi_provider' => '請選擇一個手機驗證服務提供者。',
     'remainingAmount' => '您目前方案中的剩餘點數將被加入點數餘額中。',
-
+    'checkbox_error' => '請選擇至少一個狀態選項。',
+    'allowed_estatus' => '允許的電子郵件狀態',
 ];

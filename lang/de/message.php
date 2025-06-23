@@ -2642,5 +2642,7 @@ return [
     'mobileApi_provider' => 'Bitte wählen Sie einen Anbieter für die Handyüberprüfung aus.',
 
     'remainingAmount' => 'Die verbleibenden Guthaben Ihres aktuellen Tarifs werden dem Kreditguthaben hinzugefügt.',
+    'checkbox_error' => 'Bitte wählen Sie mindestens eine Statusoption aus.',
+    'allowed_estatus' => 'Erlaubte E-Mail-Status',
 
 ];

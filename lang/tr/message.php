@@ -2656,5 +2656,6 @@ return [
     'mobileApi_provider' => 'Lütfen bir mobil doğrulama sağlayıcısı seçin.',
 
     'remainingAmount' => 'Mevcut planınızdaki kalan krediler, kredi bakiyenize eklenecektir.',
-
+    'checkbox_error' => 'Lütfen en az bir durum seçeneği seçin.',
+    'allowed_estatus' => 'İzin verilen e-posta durumları',
 ];

@@ -2573,5 +2573,6 @@ return [
     'mobileApi_provider' => 'Molimo odaberite pružatelja validacije mobilnog telefona.',
 
     'remainingAmount' => 'Preostali krediti iz vašeg trenutnog plana biće dodani na stanje kredita.',
-
+    'checkbox_error' => 'Molimo odaberite barem jednu statusnu opciju.',
+    'allowed_estatus' => 'Dozvoljeni statusi e-pošte',
 ];

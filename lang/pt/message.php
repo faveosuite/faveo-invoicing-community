@@ -2623,5 +2623,6 @@ return [
     'email_validation_status' => 'Status da validação de e-mail salvo com sucesso',
 
     'remainingAmount' => 'Os créditos restantes do seu plano atual serão adicionados ao saldo de créditos.',
-
+    'checkbox_error' => 'Por favor, selecione pelo menos uma opção de status.',
+    'allowed_estatus' => 'Status de e-mail permitidos',
 ];

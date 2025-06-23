@@ -2639,5 +2639,6 @@ return [
     'email_validation_status' => '电子邮件验证状态已成功保存。',
     'mobileApi_provider' => '请选择一个手机验证服务提供商。',
     'remainingAmount' => '您当前方案中剩余的积分将被添加到积分余额中。',
-
+    'checkbox_error' => '请选择至少一个状态选项。',
+    'allowed_estatus' => '允许的电子邮件状态',
 ];

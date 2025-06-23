@@ -2645,5 +2645,6 @@ return [
     'mobileApi_provider' => 'Vui lòng chọn nhà cung cấp xác thực di động.',
 
     'remainingAmount' => 'Số tín dụng còn lại trong gói hiện tại của bạn sẽ được cộng vào số dư tín dụng.',
-
+    'checkbox_error' => 'Vui lòng chọn ít nhất một tùy chọn trạng thái.',
+    'allowed_estatus' => 'Trạng thái email được phép',
 ];
