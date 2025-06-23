@@ -847,7 +847,6 @@
             let isChecked = $(this).is(':checked');           // true or false
             let status = isChecked ? 1 : 0;
             let checkboxId = $(this).attr('id');              // e.g., "checkbox_12"
-            let modelId = checkboxId.split('_')[1];           // assuming ID format like "checkbox_12"
 
             $.ajax({
 
@@ -857,9 +856,9 @@
                     "id": checkboxId,'status':status,
                 },
                 success: function (response) {
-                    setTimeout(function() {
-                        location.reload();
-                    }, 3000);
+                    // setTimeout(function() {
+                    //     location.reload();
+                    // }, 3000);
                     $('#successmsgpop').show();
                     var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
                     $('#successmsgpop').html(result);
@@ -994,10 +993,10 @@
                 let checkbox = $(this);
                 let status = checkbox.attr('data-status');
                 let checked = status === '1';
-                checkbox.prop('checked', checked);
-                // checkbox.trigger('change');
+                checkbox.prop('checked', checked); // ✅ now this works as expected
             });
         }
+
 
 
 
