@@ -831,6 +831,10 @@
 
         });
 
+        $('.closebutton').on('click', function () {
+            location.reload();
+        })
+
         $(document).on('change', '.emailStatusCheckbox', function () {
             const checkedStatuses = document.querySelectorAll('.emailStatusCheckbox:checked');
             if (checkedStatuses.length !== 0) {

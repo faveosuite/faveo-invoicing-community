@@ -1095,7 +1095,7 @@ class SettingsController extends BaseSettingsController
         <div class="form-group">' . $label1 . $input3 . '</div>
          <div class="form-group" id="checkboxToRender">
          <div class="form-group">
-            <label for="allowed_statuses" class="required">Allowed Email Statuses</label>'
+            <label for="allowed_statuses" class="required">' . __('message.allowed_estatus') . '</label>'
                     . $statusOptions .
                     '</div>
                 </div>
@@ -1113,7 +1113,7 @@ class SettingsController extends BaseSettingsController
         $statusOptions=$this->setStatus($current);
 
         $response = '<div class="form-group">
-            <label class="required" for="allowed_statuses">Allowed Email Statuses</label>'
+            <label for="allowed_statuses" class="required">' . __('message.allowed_estatus') . '</label>'
             . $statusOptions .
             '</div>
             <span class="error invalid-feedback d-block" id="checkboxErrorMessage"></span>';

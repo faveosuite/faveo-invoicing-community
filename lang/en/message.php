@@ -2661,4 +2661,5 @@ return [
 
     'waiting' => 'Wait...',
     'checkbox_error'=>'Please select at least one status option.',
+    'allowed_estatus'=>'Allowed Email Statuses',
 ];
