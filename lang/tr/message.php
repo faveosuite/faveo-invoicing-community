@@ -2623,4 +2623,6 @@ return [
     'placeholder_your-queue-name' => 'kuyruk-adınız',
 
     'waiting' => 'Bekleyin...',
+    'file_invalid' => 'Dosya bozulmuş veya geçersiz görünüyor. Lütfen dosyayı doğrulayın ve tekrar deneyin.',
+
 ];

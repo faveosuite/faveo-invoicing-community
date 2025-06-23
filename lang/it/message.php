@@ -2607,4 +2607,6 @@ return [
     'placeholder_your-queue-name' => 'il nome della tua coda',
 
     'waiting' => 'Attendere...',
+    'file_invalid' => 'Il file sembra essere danneggiato o non valido. Verifica il file e riprova.',
+
 ];

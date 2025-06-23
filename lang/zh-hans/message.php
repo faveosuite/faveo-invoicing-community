@@ -2607,4 +2607,6 @@ return [
     'placeholder_your-queue-name' => '你的队列名称',
 
     'waiting' => '请稍候...',
+    'file_invalid' => '文件似乎已损坏或无效。请验证文件并重试。',
+
 ];

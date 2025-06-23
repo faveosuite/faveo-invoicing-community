@@ -2616,4 +2616,6 @@ return [
     'placeholder_your-queue-name' => 'ditt kønavn',
 
     'waiting' => 'Vent...',
+    'file_invalid' => 'Filen ser ut til å være ødelagt eller ugyldig. Vennligst verifiser filen og prøv igjen.',
+
 ];

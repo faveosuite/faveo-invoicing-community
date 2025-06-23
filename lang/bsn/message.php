@@ -2540,4 +2540,6 @@ return [
     'placeholder_your-queue-name' => 'vaš-naziv-reda',
 
     'waiting' => 'Sačekajte...',
+    'file_invalid' => 'Izgleda da je datoteka oštećena ili nevažeća. Molimo provjerite datoteku i pokušajte ponovo.',
+
 ];

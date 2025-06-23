@@ -2616,4 +2616,6 @@ return [
     'placeholder_your-queue-name' => 'שם‑התור‑שלך',
 
     'waiting' => 'חכה...',
+    'file_invalid' => 'נראה שהקובץ פגום או לא תקין. אנא בדוק את הקובץ ונסה שוב.',
+
 ];

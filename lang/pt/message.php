@@ -2590,4 +2590,6 @@ return [
     'placeholder_your-queue-name' => 'seu-nome-da-fila',
 
     'waiting' => 'Aguarde...',
+    'file_invalid' => 'O arquivo parece estar corrompido ou inválido. Verifique o arquivo e tente novamente.',
+
 ];

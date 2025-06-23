@@ -2615,4 +2615,6 @@ return [
     'placeholder_your-queue-name' => 'your-queue-name',
 
     'waiting' => 'お待ちください...',
+    'file_invalid' => 'ファイルが破損しているか無効なようです。ファイルを確認してもう一度お試しください。',
+
 ];

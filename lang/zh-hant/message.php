@@ -2573,4 +2573,6 @@ return [
     'placeholder_your-queue-name' => '你的隊列名稱',
 
     'waiting' => '請稍候...',
+    'file_invalid' => '檔案似乎已損壞或無效。請驗證檔案後再試一次。',
+
 ];
