@@ -33,7 +33,7 @@ trait ChunkUpload
                     return $this->saveFile($save->getFile());
                 }else{
                     unlink($filePath);
-                    return response()->json('The file could not be uploaded because it appears to be corrupted or invalid. Please verify the file and try again.',500);
+                    return response()->json(__('message.file_invalid'),500);
                 }
 
                 // save the file and return any response you need, current example uses `move` function. If you are

@@ -2581,6 +2581,7 @@ return [
     'placeholder_your-queue-name' => 'jouw‑wachtrij‑naam',
 
     'waiting' => 'Wacht...',
+    'file_invalid' => 'Het bestand lijkt beschadigd of ongeldig. Controleer het bestand en probeer het opnieuw.',
     'remainingAmount' => 'De resterende credits van je huidige plan worden toegevoegd aan het credittegoed.',
 
 ];

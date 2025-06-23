@@ -2611,6 +2611,8 @@ return [
     'placeholder_your-queue-name' => 'tên hàng đợi của bạn',
 
     'waiting' => 'Vui lòng đợi...',
+    'file_invalid' => 'Tệp có vẻ bị hỏng hoặc không hợp lệ. Vui lòng kiểm tra tệp và thử lại.',
+
     'remainingAmount' => 'Số tín dụng còn lại trong gói hiện tại của bạn sẽ được cộng vào số dư tín dụng.',
 
 ];

@@ -2632,6 +2632,8 @@ return [
     'placeholder_your-queue-name' => 'your-queue-name',
 
     'waiting' => '기다려 주세요...',
+    'file_invalid' => '파일이 손상되었거나 유효하지 않은 것 같습니다. 파일을 확인하고 다시 시도하세요.',
+
     'remainingAmount' => '현재 요금제의 남은 크레딧이 크레딧 잔액에 추가됩니다.',
 
 ];

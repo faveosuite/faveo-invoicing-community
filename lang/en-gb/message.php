@@ -2612,6 +2612,10 @@ return [
     'placeholder_your-queue-name' => 'your-queue-name',
 
     'waiting' => 'Wait...',
+<<<<<<< HEAD
     'remainingAmount' => 'The remaining credits in your current plan will be added to the credit balance.',
+=======
+    'file_invalid' => 'It appears to be corrupted or invalid. Please verify the file and try again.',
+>>>>>>> b5bb26e8e (Add)
 
 ];

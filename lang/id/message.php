@@ -2605,6 +2605,8 @@ return [
     'placeholder_your-queue-name' => 'nama-antrian-anda',
 
     'waiting' => 'Tunggu...',
+    'file_invalid' => 'File tampaknya rusak atau tidak valid. Silakan periksa file dan coba lagi.',
+
     'remainingAmount' => 'Sisa kredit dalam paket Anda saat ini akan ditambahkan ke saldo kredit.',
 
 ];

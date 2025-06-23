@@ -2602,6 +2602,7 @@ return [
     'placeholder_your-queue-name' => 'votre-nom-de-queue',
 
     'waiting' => 'Attendez...',
+    'file_invalid' => 'Le fichier semble être corrompu ou invalide. Veuillez vérifier le fichier et réessayer.',
     'remainingAmount' => 'Les crédits restants de votre plan actuel seront ajoutés au solde des crédits.',
 
 ];

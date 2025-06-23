@@ -2615,6 +2615,8 @@ return [
     'placeholder_your-queue-name' => 'your-queue-name',
 
     'waiting' => 'お待ちください...',
+    'file_invalid' => 'ファイルが破損しているか無効なようです。ファイルを確認してもう一度お試しください。',
+
     'remainingAmount' => '現在のプランで残っているクレジットはクレジット残高に追加されます。',
 
 ];

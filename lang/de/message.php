@@ -2607,6 +2607,8 @@ return [
     'placeholder_your-queue-name' => 'Ihr Queue-Name',
 
     'waiting' => 'Warten...',
+    'file_invalid' => 'Die Datei scheint beschädigt oder ungültig zu sein. Bitte überprüfen Sie die Datei und versuchen Sie es erneut.',
+
     'remainingAmount' => 'Die verbleibenden Guthaben Ihres aktuellen Tarifs werden dem Kreditguthaben hinzugefügt.',
 
 ];
