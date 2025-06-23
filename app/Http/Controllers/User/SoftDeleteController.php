@@ -3,10 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Events\UserOrderDelete;
-use App\Http\Controllers\Tenancy\TenantController;
-use App\Model\Common\FaveoCloud;
 use App\User;
-use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 
 class SoftDeleteController extends ClientController
@@ -112,11 +109,11 @@ class SoftDeleteController extends ClientController
                 foreach ($ids as $id) {
                     $user = User::onlyTrashed()->find($id);
                     if (! is_null($user)) {
-                        $tenants=$user->order()->pluck('id');
+                        $tenants = $user->order()->pluck('id');
                         foreach ($tenants as $tenant) {
                             $installation_path = \DB::table('installation_details')->where('order_id', $tenant)->where('installation_path', '!=', cloudCentralDomain())->value('installation_path');
-                            if($installation_path !== ''){
-                            event(new UserOrderDelete($installation_path));
+                            if ($installation_path !== '') {
+                                event(new UserOrderDelete($installation_path));
                             }
                         }
                         $user->invoiceItem()->delete();
