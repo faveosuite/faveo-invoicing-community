@@ -2633,5 +2633,5 @@ return [
     'placeholder_your-queue-name' => 'your-queue-name',
 
     'waiting' => 'Wait...',
-
+    'provider_select'=>'Please select a cloud product.'
 ];

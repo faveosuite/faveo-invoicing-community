@@ -1143,12 +1143,13 @@ input:checked + .slider:before {
             data: {'orderid': orderId , 'date': newdate},
             url: "{{url('edit-license-expiry')}}",
             success: function (response) {
+                console.log(response);
               $("#licenseExpSave").attr('disabled',false);
               $("#licenseExpSave").html("Save");
                 if (response.message =='success') {
                 var result =  '<div class="alert alert-success alert-dismissable"><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong> '+response.update+' <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button></div>';
-                     $('#response3').html(result);
-                     $('#response3').css('color', 'green');
+                     $('#response343').html(result);
+                     $('#response343').css('color', 'green');
                  setTimeout(function(){
                     window.location.reload();
                 },2000);
@@ -1165,7 +1166,7 @@ input:checked + .slider:before {
                           }
                          html += '</ul></div>';
                          $('#error1').show(); 
-                         $('#response3').html(''); 
+                         $('#response343').html('');
                           document.getElementById('error1').innerHTML = html;
                 }
             })

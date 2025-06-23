@@ -1163,7 +1163,46 @@ setTimeout(function() {
 
 
     function firstlogin(id)
-    {
+    {            const userRequiredFields = {
+        name:@json(trans('message.provider_select')),
+
+    };
+
+        const userFields = {
+            name:$('#serviceType'),
+        };
+
+
+        // Clear previous errors
+        Object.values(userFields).forEach(field => {
+            field.removeClass('is-invalid');
+            field.next().next('.error').remove();
+
+        });
+
+        let isValid = true;
+
+        const showError = (field, message) => {
+            field.addClass('is-invalid');
+            field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
+        };
+
+        // Validate required fields
+        Object.keys(userFields).forEach(field => {
+            if (!userFields[field].val()) {
+                showError(userFields[field], userRequiredFields[field]);
+                isValid = false;
+            }
+        });
+
+
+        // If validation fails, prevent form submission
+        if (!isValid) {
+            e.preventDefault();
+        }
+
+
+
         $('#createTenant').attr('disabled',true)
         $("#createTenant").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
         var domain = $('#userdomain').val();
