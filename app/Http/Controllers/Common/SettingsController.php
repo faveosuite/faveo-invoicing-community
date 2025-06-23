@@ -1095,10 +1095,11 @@ class SettingsController extends BaseSettingsController
         <div class="form-group">' . $label1 . $input3 . '</div>
          <div class="form-group" id="checkboxToRender">
          <div class="form-group">
-            <label for="allowed_statuses">Allowed Email Statuses</label>'
+            <label for="allowed_statuses" class="required">Allowed Email Statuses</label>'
                     . $statusOptions .
                     '</div>
                 </div>
+                <span class="error invalid-feedback d-block" id="checkboxErrorMessage"></span>
             </div>';
             }
         }else{
@@ -1114,7 +1115,8 @@ class SettingsController extends BaseSettingsController
         $response = '<div class="form-group">
             <label class="required" for="allowed_statuses">Allowed Email Statuses</label>'
             . $statusOptions .
-            '</div>';
+            '</div>
+            <span class="error invalid-feedback d-block" id="checkboxErrorMessage"></span>';
 
 
         return successResponse(trans('message.success'), $response);
@@ -1187,10 +1189,11 @@ class SettingsController extends BaseSettingsController
             return errorResponse(trans('message.emailApikey_error'));
         }
         $emailSave->where('type','email')->update(['to_use'=>0]);
-
+        $apikey=trim($request->input('apikey'));
         try {
-            EmailMobileValidationProviders::where('provider', $request->input('provider'))->update(['api_key' => $request->input('apikey'),
-                'mode' => $request->input('mode'),'accepted_output' => $request->input('accepted_output'),'to_use'=>1]);
+            $accepted_output=$request->input('mode')=='quick'?$emailSave->where('type','email')->value('accepted_output'):$request->input('accepted_output');
+            EmailMobileValidationProviders::where('provider', $request->input('provider'))->update(['api_key' => $apikey,
+                'mode' => $request->input('mode'),'accepted_output' => $accepted_output,'to_use'=>1]);
             return successResponse(trans('message.email_validation_success'));
         }catch (\Exception $e) {
             return errorResponse(\Lang::get('message.invalid_key'));
@@ -1202,17 +1205,20 @@ class SettingsController extends BaseSettingsController
     public function mobileSettingsSave(Request $request){
         $emailSave=new EmailMobileValidationProviders();
         $provider=$request->input('provider');
+        $apikey=trim($request->input('apikey'));
+        $apisecret=trim($request->input('apisecret'));
         if($provider=='vonage'){
             $response = Http::get('https://rest.nexmo.com/account/get-balance/', [
-                'api_key'   => $request->input('apikey'),
-                'api_secret' => $request->input('apisecret'),
+                'api_key'   => $apikey,
+                'api_secret' => $apisecret,
             ]);
             if(!$response->successful() && !$response->json('value')){
                 return errorResponse(trans('message.mobileApikey_error'));
             }
             $emailSave->where('type','mobile')->update(['to_use'=>0]);
-            $emailSave->where('provider', $request->input('provider'))->update(['api_key' => $request->input('apikey'),
-                'mode' => $request->input('mode'),'api_secret' => $request->input('apisecret'),'to_use'=>1]);
+
+            $emailSave->where('provider', $request->input('provider'))->update(['api_key' => $apikey,
+                'mode' => $request->input('mode'),'api_secret' => $apisecret,'to_use'=>1]);
             return successResponse(\Lang::get('message.mobile_validation_success'));
         }
 

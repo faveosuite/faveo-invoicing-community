@@ -2660,5 +2660,5 @@ return [
     'placeholder_your-queue-name' => 'your-queue-name',
 
     'waiting' => 'Wait...',
-
+    'checkbox_error'=>'Please select at least one status option.',
 ];

@@ -831,7 +831,12 @@
 
         });
 
-
+        $(document).on('change', '.emailStatusCheckbox', function () {
+            const checkedStatuses = document.querySelectorAll('.emailStatusCheckbox:checked');
+            if (checkedStatuses.length !== 0) {
+                $('#checkboxErrorMessage').text('');
+            }
+        })
 
         $(document).on('change', '#emailMode', function () {
             var value=$(this).val();
@@ -884,6 +889,12 @@
                 }
             });
 
+            const checkedStatuses = document.querySelectorAll('.emailStatusCheckbox:checked');
+            if (checkedStatuses.length === 0 && $('#emailMode').val()=='power') {
+                isValid=false;
+                e.preventDefault();
+                $('#checkboxErrorMessage').text(@json(trans('message.checkbox_error')));
+            }
 
             // If validation fails, prevent form submission
             if (!isValid) {

@@ -512,8 +512,9 @@ class OrderController extends BaseOrderController
                     $order = $this->order->where('id', $id)->first();
 
                     if ($order) {
-                        if($order->domain){
-                            event(new UserOrderDelete($order->domain));
+                        $installation_path = \DB::table('installation_details')->where('order_id', $order->id)->where('installation_path', '!=', cloudCentralDomain())->value('installation_path');
+                        if($installation_path){
+                            event(new UserOrderDelete($installation_path));
                         }
                         $order->delete();
                     } else {

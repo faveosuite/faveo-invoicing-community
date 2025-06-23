@@ -112,11 +112,11 @@ class SoftDeleteController extends ClientController
                 foreach ($ids as $id) {
                     $user = User::onlyTrashed()->find($id);
                     if (! is_null($user)) {
-                        $tenants=$user->order()->pluck('domain');
-
+                        $tenants=$user->order()->pluck('id');
                         foreach ($tenants as $tenant) {
-                            if($tenant !== ''){
-                            event(new UserOrderDelete($tenant));
+                            $installation_path = \DB::table('installation_details')->where('order_id', $tenant)->where('installation_path', '!=', cloudCentralDomain())->value('installation_path');
+                            if($installation_path !== ''){
+                            event(new UserOrderDelete($installation_path));
                             }
                         }
                         $user->invoiceItem()->delete();
