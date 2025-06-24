@@ -844,10 +844,9 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         $(document).on('change', '.checkbox9', function () {
-            let isChecked = $(this).is(':checked');
-            $(this).attr('data-status', isChecked ? '1' : '0');
+            let isChecked = $(this).is(':checked');           // true or false
             let status = isChecked ? 1 : 0;
-            let checkboxId = $(this).attr('id');
+            let checkboxId = $(this).attr('id');              // e.g., "checkbox_12"
 
             $.ajax({
 
@@ -978,7 +977,7 @@
                 drawCallback: function () {
                     setTimeout(() => {
                         applyToggleStatus();
-                    }, 100);
+                    }, 50);
                 },
                 fnDrawCallback: function (oSettings) {
                     $('.loader').css('display', 'none');

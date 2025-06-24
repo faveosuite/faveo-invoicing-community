@@ -1281,7 +1281,7 @@ class CloudExtraActivities extends Controller
             ->addColumn('status', function ($model) {
                 return '<label class="switch toggle_event_editing trialStatus">
                         <input type="checkbox" value="'.($model->trial_status ? '1' : '0').'"  name="trialStatus" data-status='.$model->trial_status.'
-                               class="checkbox9" id="'.$model->id.'"  '.($model->trial_status ? 'checked' : '').'>
+                               class="checkbox9" id="'.$model->id.'">
                         <span class="slider round"></span>
                     </label>';
             })
