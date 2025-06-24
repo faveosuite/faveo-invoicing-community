@@ -977,7 +977,7 @@
                 drawCallback: function () {
                     setTimeout(() => {
                         applyToggleStatus();
-                    }, 50);
+                    }, 200);
                 },
                 fnDrawCallback: function (oSettings) {
                     $('.loader').css('display', 'none');
