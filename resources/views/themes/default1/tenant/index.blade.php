@@ -844,9 +844,10 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         $(document).on('change', '.checkbox9', function () {
-            let isChecked = $(this).is(':checked');           // true or false
+            let isChecked = $(this).is(':checked');
+            $(this).attr('data-status', isChecked ? '1' : '0');
             let status = isChecked ? 1 : 0;
-            let checkboxId = $(this).attr('id');              // e.g., "checkbox_12"
+            let checkboxId = $(this).attr('id');
 
             $.ajax({
 
@@ -993,7 +994,7 @@
                 let checkbox = $(this);
                 let status = checkbox.attr('data-status');
                 let checked = status === '1';
-                checkbox.prop('checked', checked); // ✅ now this works as expected
+                checkbox.prop('checked', checked);
             });
         }
 
