@@ -126,20 +126,20 @@
    .col-2, .col-lg-2, .col-lg-4, .col-md-2, .col-md-4,.col-sm-2 {
        width: 0px;
    }
-   .switch {
+   .swich {
        position: relative;
        display: inline-block;
        width: 60px;
        height: 34px;
    }
 
-   .switch input {display:none;}
+   .swich input {display:none;}
 
-   .switch input:checked + .slider {
+   .swich input:checked + .slider {
        background-color: #2196F3;
    }
 
-    .slider {
+    .slidr {
         position: absolute;
         cursor: pointer;
         top: 0;
@@ -151,7 +151,7 @@
         transition: .4s;
     }
 
-    .slider:before {
+    .slidr:before {
         position: absolute;
         content: "";
         height: 26px;
@@ -163,26 +163,26 @@
         transition: .4s;
     }
 
-    input:checked + .slider {
+    input:checked + .slidr {
         background-color: #2196F3;
     }
 
-    input:focus + .slider {
+    input:focus + .slidr {
         box-shadow: 0 0 1px #2196F3;
     }
 
-    input:checked + .slider:before {
+    input:checked + .slidr:before {
         -webkit-transform: translateX(26px);
         -ms-transform: translateX(26px);
         transform: translateX(26px);
     }
 
     /* Rounded sliders */
-    .slider.round {
+    .slidr.rund {
         border-radius: 34px;
     }
 
-    .slider.round:before {
+    .slidr.rund:before {
         border-radius: 50%;
     }
 
@@ -719,14 +719,14 @@
                     }
                 });
 
-                $('input[type="checkbox"]').each(function() {
-                    var checkboxValue = $(this).val();
-                    if (selectedColumns.includes(checkboxValue)) {
-                        $(this).prop('checked', true);
-                    } else {
-                        $(this).prop('checked', false);
-                    }
-                });
+                // $('input[type="checkbox"]').each(function() {
+                //     var checkboxValue = $(this).val();
+                //     if (selectedColumns.includes(checkboxValue)) {
+                //         $(this).prop('checked', true);
+                //     } else {
+                //         $(this).prop('checked', false);
+                //     }
+                // });
             },
             error: function(xhr) {
                 console.error('Failed to load column preferences.');
@@ -972,19 +972,17 @@
                     { data: 'Cloud free plan', name: 'Cloud free plan' },
                     { data: 'Cloud product key', name: 'Cloud product key' },
                     {data: 'action', name: 'action'},
-                    {data:'status', name:'Free Trial Status'},
-                ],
-                drawCallback: function () {
-                    setTimeout(() => {
-                        applyToggleStatus();
-                    }, 200);
-                },
+                    {
+                        data: 'status',name:'status'
+                    },            ],
+
                 fnDrawCallback: function (oSettings) {
                     $('.loader').css('display', 'none');
                 },
                 fnPreDrawCallback: function (oSettings, json) {
                     $('.loader').css('display', 'block');
                 },
+
             });
         });
 
@@ -993,7 +991,7 @@
                 let checkbox = $(this);
                 let status = checkbox.attr('data-status');
                 let checked = status === '1';
-                checkbox.prop('checked', checked);
+                checkbox.prop('checked', checked); // ✅ now this works as expected
             });
         }
 

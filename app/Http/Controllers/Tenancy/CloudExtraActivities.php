@@ -1278,12 +1278,15 @@ class CloudExtraActivities extends Controller
                 class='btn btn-sm btn-dark btn-xs delTenant' ".tooltip(__('message.delete'))."<i class='fa fa-trash'
                 style='color:white;'> </i></button>&nbsp;</p>";
             })
+
             ->addColumn('status', function ($model) {
-                return '<label class="switch toggle_event_editing trialStatus">
-                        <input type="checkbox" value="'.($model->trial_status ? '1' : '0').'"  name="trialStatus" data-status='.$model->trial_status.'
-                               class="checkbox9" id="'.$model->id.'">
-                        <span class="slider round"></span>
-                    </label>';
+                $checked = $model->trial_status ? 'checked' : '';
+                return '<label class="swich toggle_event_editing trialStatus">
+                <input type="checkbox" class="checkbox9" name="trialStatus"
+                       value="1" data-status="' . $model->trial_status . '" 
+                       id="' . $model->id . '" ' . $checked . '>
+                <span class="slidr rund"></span>
+            </label>';
             })
             ->rawColumns(['Cloud Product', 'Cloud free plan', 'Cloud product key', 'action','status'])
             ->make(true);
