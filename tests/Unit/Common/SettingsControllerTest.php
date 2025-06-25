@@ -105,31 +105,33 @@ class SettingsControllerTest extends DBTestCase
         $this->assertNotEmpty($methodResponse->content());
     }
 
-    public function test_free_trial_status_updating(){
+    public function test_free_trial_status_updating()
+    {
         $user = User::factory()->create(['role' => 'admin']);
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $status=1;
-        $product=Product::factory()->create([]);
-        $plan=Plan::factory()->create();
-        $cloud=CloudProducts::create(['cloud_product'=>$product->id,'cloud_free_plan'=>$plan->id,'cloud_product_key'=>12345]);
-        $response=$this->post('update-trial-status',['id'=>$cloud->id,'status'=>$status]);
-        $content=$response->json();
-        $this->assertEquals(true,$content['success']);
-        $cloud1=CloudProducts::where('id',$cloud->id)->first();
-        $this->assertEquals(1,$cloud1->trial_status);
+        $status = 1;
+        $product = Product::factory()->create([]);
+        $plan = Plan::factory()->create();
+        $cloud = CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id, 'cloud_product_key' => 12345]);
+        $response = $this->post('update-trial-status', ['id' => $cloud->id, 'status' => $status]);
+        $content = $response->json();
+        $this->assertEquals(true, $content['success']);
+        $cloud1 = CloudProducts::where('id', $cloud->id)->first();
+        $this->assertEquals(1, $cloud1->trial_status);
     }
 
-    public function test_free_product_receiving(){
+    public function test_free_product_receiving()
+    {
         $user = User::factory()->create(['role' => 'admin']);
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $status=1;
-        $product=Product::factory()->create(['name'=>'good']);
-        $plan=Plan::factory()->create();
-        $cloud=CloudProducts::create(['cloud_product'=>$product->id,'cloud_free_plan'=>$plan->id,'cloud_product_key'=>12345,'trial_status'=>$status]);
-        $response=$this->post('trial-cloud-products');
-        $content=$response->getContent();
-        $this->assertEquals('{"success":true,"message":"Products","data":{"12345":"good"}}',$content);
+        $status = 1;
+        $product = Product::factory()->create(['name' => 'good']);
+        $plan = Plan::factory()->create();
+        $cloud = CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id, 'cloud_product_key' => 12345, 'trial_status' => $status]);
+        $response = $this->post('trial-cloud-products');
+        $content = $response->getContent();
+        $this->assertEquals('{"success":true,"message":"Products","data":{"12345":"good"}}', $content);
     }
 }

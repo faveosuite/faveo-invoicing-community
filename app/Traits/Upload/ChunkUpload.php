@@ -33,6 +33,7 @@ trait ChunkUpload
                     return $this->saveFile($save->getFile());
                 } else {
                     unlink($filePath);
+
                     return response()->json(__('message.file_invalid'), 500);
                 }
             }
