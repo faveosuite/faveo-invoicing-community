@@ -10,7 +10,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if(!Schema::hasTable('razorpay')) {
+        if (! Schema::hasTable('razorpay')) {
             Schema::create('razorpay', function ($table) {
                 $table->increments('id');
                 $table->string('image_url');
