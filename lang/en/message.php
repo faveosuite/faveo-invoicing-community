@@ -2633,5 +2633,7 @@ return [
     'placeholder_your-queue-name' => 'your-queue-name',
 
     'waiting' => 'Wait...',
-    'provider_select'=>'Please select a cloud product.'
+    'provider_select'=>'Please select a cloud product.',
+    'file_invalid'=>'It appears to be corrupted or invalid. Please verify the file and try again.',
+
 ];
