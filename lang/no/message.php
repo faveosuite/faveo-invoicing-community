@@ -2623,5 +2623,6 @@ return [
     'trial_status_heading' => 'Status for gratis prøveperiode',
 
     'remainingAmount' => 'De gjenværende kredittene i din nåværende plan blir lagt til kredittsaldoen.',
+    'tenant_deletion' => 'Er du sikker på at du vil slette denne leietakeren?',
 
 ];

@@ -2613,5 +2613,6 @@ return [
     'free_trial_status_tooltip' => 'Verwenden Sie diesen Schalter, um zu steuern, welches Produkt im Fenster für die kostenlose Testversion angezeigt wird.',
     'trial_status_heading' => 'Status der kostenlosen Testversion',
     'remainingAmount' => 'Die verbleibenden Guthaben Ihres aktuellen Tarifs werden dem Kreditguthaben hinzugefügt.',
+    'tenant_deletion' => 'Sind Sie sicher, dass Sie diesen Mieter löschen möchten?',
 
 ];

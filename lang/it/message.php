@@ -2613,5 +2613,6 @@ return [
     'free_trial_status_tooltip' => 'Usa questo interruttore per controllare quale prodotto mostrare nel popup di avvio della prova gratuita.',
     'trial_status_heading' => 'Stato della prova gratuita',
     'remainingAmount' => 'I crediti rimanenti del tuo piano attuale verranno aggiunti al saldo dei crediti.',
+    'tenant_deletion' => 'Sei sicuro di voler eliminare questo inquilino?',
 
 ];

@@ -2580,5 +2580,6 @@ return [
     'trial_status_heading' => '免費試用狀態',
 
     'remainingAmount' => '您目前方案中的剩餘點數將被加入點數餘額中。',
+    'tenant_deletion' => '您確定要刪除此租戶嗎？',
 
 ];

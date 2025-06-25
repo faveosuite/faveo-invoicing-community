@@ -2618,5 +2618,6 @@ return [
     'free_trial_status_tooltip' => 'Use this switch to control which product appears in the Start Free Trial popup',
     'trial_status_heading' => 'Free Trial Status',
     'remainingAmount' => 'The remaining credits in your current plan will be added to the credit balance.',
+    'tenant_deletion' => 'Are you sure you want to delete this tenant?',
 
 ];

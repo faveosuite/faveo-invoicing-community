@@ -2621,5 +2621,6 @@ return [
     'free_trial_status_tooltip' => 'このスイッチを使用して、無料トライアルのポップアップに表示する製品を制御します。',
     'trial_status_heading' => '無料トライアルのステータス',
     'remainingAmount' => '現在のプランで残っているクレジットはクレジット残高に追加されます。',
+    'tenant_deletion' => 'このテナントを削除してもよろしいですか？',
 
 ];

@@ -2618,5 +2618,6 @@ return [
     'trial_status_heading' => 'Trạng thái Dùng thử Miễn phí',
 
     'remainingAmount' => 'Số tín dụng còn lại trong gói hiện tại của bạn sẽ được cộng vào số dư tín dụng.',
+    'tenant_deletion' => 'Bạn có chắc chắn muốn xóa người thuê này không?',
 
 ];

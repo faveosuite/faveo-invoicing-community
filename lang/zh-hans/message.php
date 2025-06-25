@@ -2614,5 +2614,6 @@ return [
     'trial_status_heading' => '免费试用状态',
 
     'remainingAmount' => '您当前方案中剩余的积分将被添加到积分余额中。',
+    'tenant_deletion' => '您确定要删除此租户吗？',
 
 ];

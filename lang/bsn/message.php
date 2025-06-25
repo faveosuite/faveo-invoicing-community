@@ -2547,5 +2547,6 @@ return [
     'trial_status_heading' => 'Status besplatne probe',
 
     'remainingAmount' => 'Preostali krediti iz vašeg trenutnog plana biće dodani na stanje kredita.',
+    'tenant_deletion' => 'Jeste li sigurni da želite obrisati ovog stanara?',
 
 ];

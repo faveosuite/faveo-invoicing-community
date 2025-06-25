@@ -2611,5 +2611,6 @@ return [
     'free_trial_status_tooltip' => 'Gunakan tombol ini untuk mengatur produk mana yang akan ditampilkan di popup Mulai Uji Coba Gratis.',
     'trial_status_heading' => 'Status Uji Coba Gratis',
     'remainingAmount' => 'Sisa kredit dalam paket Anda saat ini akan ditambahkan ke saldo kredit.',
+    'tenant_deletion' => 'Apakah Anda yakin ingin menghapus penyewa ini?',
 
 ];

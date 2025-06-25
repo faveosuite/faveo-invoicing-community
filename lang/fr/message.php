@@ -2607,5 +2607,6 @@ return [
     'free_trial_status_tooltip' => 'Utilisez ce commutateur pour contrôler quel produit afficher dans la fenêtre contextuelle de démarrage de l’essai gratuit.',
     'trial_status_heading' => 'Statut de l’essai gratuit',
     'remainingAmount' => 'Les crédits restants de votre plan actuel seront ajoutés au solde des crédits.',
+    'tenant_deletion' => 'Êtes-vous sûr de vouloir supprimer ce locataire ?',
 
 ];

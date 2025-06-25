@@ -769,7 +769,6 @@
                     }, 5000);
                 },
                 error: function(xhr, status, error) {
-                    console.log(error);
                     var result = '<div class="alert alert-danger">' +
                         '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
                         '<span aria-hidden="true">&times;</span></button>' +
@@ -795,50 +794,132 @@
         function deleteTenant(id, orderId = "") {
             var id = id;
             var orderId = orderId;
-            if (confirm("Are you sure you want to destroy this tenant?")) {
-                var loadingElement = document.getElementById("loading");
-                loadingElement.style.display = "flex";
-                $.ajax({
-                    url: "{!! url('delete-tenant') !!}",
-                    method: "delete",
-                    data: { 'id': id, 'orderId': orderId },
-                    success: function (data) {
-                        if (data.success === true) {
-                            console.log(data.message);
-                            var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true">&times;</span></button><strong><i class="fa fa-check"></i>{{ __('message.success') }}! </strong>' + data.message + '!</div>';
-                            $('#successmsg').show();
-                            $('#error').hide();
-                            $('#successmsg').html(result);
-                            setInterval(function () {
-                                $('#successmsg').slideUp(5000);
-                                location.reload();
-                            }, 3000);
-                        } else if (data.success === false) {
-                            $('#successmsg').hide();
-                            $('#error').show();
-                            var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true">&times;</span></button><strong><i class="fa fa-ban"></i>{{ __('message.whoops') }} </strong> {{ __('message.something_wrong') }}<br>' + data.message + '!</div>';
-                            $('#error').html(result);
-                            setInterval(function () {
-                                $('#error').slideUp(5000);
-                                location.reload();
-                            }, 10000);
-                        }
-                    },
-                    error: function (data) {
-                        $('#successmsg').hide();
-                        $('#error').show();
-                        var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true">&times;</span></button><strong><i class="fa fa-ban"></i>{{ __('message.whoops') }} </strong> {{ __('message.something_wrong') }}<br>' + data.responseJSON.message + '!</div>';
-                        $('#error').html(result);
-                        setInterval(function () {
-                            $('#error').slideUp(5000);
-                            location.reload();
-                        }, 10000);
-                    },
-                    complete: function () {
-                        loadingElement.style.display = "none"; // Hide the loading indicator
+            var swl=swal.fire({
+                title:"<h2 class='swal2-title custom-title'>{{Lang::get('message.Delete')}}</h2>",
+                html: "<div class='swal2-html-container custom-content'>" +
+                    "<div class='section-sa'>" +
+                    "<p>{{Lang::get('message.tenant_deletion')}}</p>"+orderId+"</div>" +
+                    "</div>",
+                showCancelButton: true,
+                cancelButtonText: "{{ __('message.cancel') }}",
+                showCloseButton: true,
+                position:"top",
+                width:"600px",
+
+                confirmButtonText: @json(trans('message.Delete')),
+                confirmButtonColor: "#007bff",
+
+            }).then((result)=> {
+                if(id.length > 0){
+                    if (result.isConfirmed) {
+                        var loadingElement = document.getElementById("loading");
+                        loadingElement.style.display = "flex";
+                        $.ajax({
+                            url: "{!! url('delete-tenant') !!}",
+                            method: "delete",
+                            data: { 'id': id, 'orderId': orderId },
+                            success: function (data) {
+                                if (data.success === true) {
+                                    console.log(data.message);
+                                    var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true">&times;</span></button><strong><i class="fa fa-check"></i>{{ __('message.success') }}! </strong>' + data.message + '!</div>';
+                                    $('#successmsg').show();
+                                    $('#error').hide();
+                                    $('#successmsg').html(result);
+                                    setInterval(function () {
+                                        $('#successmsg').slideUp(5000);
+                                        location.reload();
+                                    }, 3000);
+                                } else if (data.success === false) {
+                                    $('#successmsg').hide();
+                                    $('#error').show();
+                                    var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true">&times;</span></button><strong><i class="fa fa-ban"></i>{{ __('message.whoops') }} </strong> {{ __('message.something_wrong') }}<br>' + data.message + '!</div>';
+                                    $('#error').html(result);
+                                    setInterval(function () {
+                                        $('#error').slideUp(5000);
+                                        location.reload();
+                                    }, 10000);
+                                }
+                            },
+                            error: function (data) {
+                                $('#successmsg').hide();
+                                $('#error').show();
+                                var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true">&times;</span></button><strong><i class="fa fa-ban"></i>{{ __('message.whoops') }} </strong> {{ __('message.something_wrong') }}<br>' + data.responseJSON.message + '!</div>';
+                                $('#error').html(result);
+                                setInterval(function () {
+                                    $('#error').slideUp(5000);
+                                    location.reload();
+                                }, 10000);
+                            },
+                            complete: function () {
+                                loadingElement.style.display = "none"; // Hide the loading indicator
+                            }
+                        });
+                    } else {
+                        swal.fire({
+                            title:"<h2 class='swal2-title custom-title'>{{Lang::get('message.Select')}}</h2>",
+                            html: "<div class='swal2-html-container custom-content'>" +
+                                "<div class='section-sa'>" +
+                                "<p>{{Lang::get('message.sweet_checkbox')}}</p>"+"</div>" +
+                                "</div>",
+                            position: 'top',
+                            confirmButtonText: "{{ __('message.ok') }}",
+                            showCloseButton: true,
+                            confirmButtonColor: "#007bff",
+                            width:"600px",
+                        })
                     }
-                });
-            }
+                }else if (result.dismiss === Swal.DismissReason.cancel) {
+                    // Action if "No" is clicked
+                    window.close();             }
+            })
+            return false;
+
+
+
+            {{--if (confirm("Are you sure you want to destroy this tenant?")) {--}}
+            {{--    var loadingElement = document.getElementById("loading");--}}
+            {{--    loadingElement.style.display = "flex";--}}
+            {{--    $.ajax({--}}
+            {{--        url: "{!! url('delete-tenant') !!}",--}}
+            {{--        method: "delete",--}}
+            {{--        data: { 'id': id, 'orderId': orderId },--}}
+            {{--        success: function (data) {--}}
+            {{--            if (data.success === true) {--}}
+            {{--                console.log(data.message);--}}
+            {{--                var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true">&times;</span></button><strong><i class="fa fa-check"></i>{{ __('message.success') }}! </strong>' + data.message + '!</div>';--}}
+            {{--                $('#successmsg').show();--}}
+            {{--                $('#error').hide();--}}
+            {{--                $('#successmsg').html(result);--}}
+            {{--                setInterval(function () {--}}
+            {{--                    $('#successmsg').slideUp(5000);--}}
+            {{--                    location.reload();--}}
+            {{--                }, 3000);--}}
+            {{--            } else if (data.success === false) {--}}
+            {{--                $('#successmsg').hide();--}}
+            {{--                $('#error').show();--}}
+            {{--                var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true">&times;</span></button><strong><i class="fa fa-ban"></i>{{ __('message.whoops') }} </strong> {{ __('message.something_wrong') }}<br>' + data.message + '!</div>';--}}
+            {{--                $('#error').html(result);--}}
+            {{--                setInterval(function () {--}}
+            {{--                    $('#error').slideUp(5000);--}}
+            {{--                    location.reload();--}}
+            {{--                }, 10000);--}}
+            {{--            }--}}
+            {{--        },--}}
+            {{--        error: function (data) {--}}
+            {{--            $('#successmsg').hide();--}}
+            {{--            $('#error').show();--}}
+            {{--            var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true">&times;</span></button><strong><i class="fa fa-ban"></i>{{ __('message.whoops') }} </strong> {{ __('message.something_wrong') }}<br>' + data.responseJSON.message + '!</div>';--}}
+            {{--            $('#error').html(result);--}}
+            {{--            setInterval(function () {--}}
+            {{--                $('#error').slideUp(5000);--}}
+            {{--                location.reload();--}}
+            {{--            }, 10000);--}}
+            {{--        },--}}
+            {{--        complete: function () {--}}
+            {{--            loadingElement.style.display = "none"; // Hide the loading indicator--}}
+            {{--        }--}}
+            {{--    });--}}
+            {{--}--}}
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -1007,19 +1088,14 @@
             "<p>{{Lang::get('message.cloud_delete')}}</p>"+"</div>" +
             "</div>",
         showCancelButton: true,
+        cancelButtonText: "{{ __('message.cancel') }}",
         showCloseButton: true,
         position:"top",
         width:"600px",
 
         confirmButtonText: @json(trans('message.Delete')),
         confirmButtonColor: "#007bff",
-        buttonsStyling: false,
-        reverseButtons: true,
-        customClass: {
-            actions: 'swal2-actions-custom-fix',
-            confirmButton: 'btn btn-primary btn-sm custom-confirm',
-            cancelButton: 'btn btn-secondary btn-sm custom-cancel'
-        }
+
     }).then((result)=> {
         if (result.isConfirmed) {
             if (id.length > 0) {

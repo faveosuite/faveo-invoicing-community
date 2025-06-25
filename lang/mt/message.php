@@ -2543,5 +2543,6 @@
      'trial_status_heading' => 'L-Istatus tal-Prova Bla Ħlas',
 
      'remainingAmount' => 'Il-krediti li jifdal fil-pjan kurrenti tiegħek se jiġu miżjuda mal-bilanċ tal-kreditu.',
+     'tenant_deletion' => 'Int żgur li trid tħassar dan il-kerrej?',
 
  ];

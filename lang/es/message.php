@@ -2617,5 +2617,6 @@ return [
     'free_trial_status_tooltip' => 'Usa este interruptor para controlar qué producto se mostrará en la ventana emergente de prueba gratuita.',
     'trial_status_heading' => 'Estado de la prueba gratuita',
     'remainingAmount' => 'Los créditos restantes de tu plan actual se añadirán al saldo de créditos.',
+    'tenant_deletion' => '¿Estás seguro de que deseas eliminar este inquilino?',
 
 ];

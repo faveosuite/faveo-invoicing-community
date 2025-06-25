@@ -2630,5 +2630,6 @@ return [
     'trial_status_heading' => 'Ücretsiz Deneme Durumu',
 
     'remainingAmount' => 'Mevcut planınızdaki kalan krediler, kredi bakiyenize eklenecektir.',
+    'tenant_deletion' => 'Bu kiracıyı silmek istediğinizden emin misiniz?',
 
 ];

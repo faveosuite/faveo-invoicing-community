@@ -1975,7 +1975,7 @@ return [
     'app_name' => 'App name',
     'app_key' => 'App key',
     'app_secret' => 'App secret',
-
+    'tenant_deletion'=>'Are you sure you want to destroy this tenant?',
     //user-client panel
     'create_new_user' => 'Create New User',
     'create_user' => 'Create User',
