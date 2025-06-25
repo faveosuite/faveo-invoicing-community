@@ -146,7 +146,6 @@ class PhpMailController extends Controller
                             $type = $temp_type->where('id', $type_id)->first()->name;
                         }
                         $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $replace, $type);
-                        $order->delete();
                     }
                 }
             }
