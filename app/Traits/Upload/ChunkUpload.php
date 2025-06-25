@@ -31,14 +31,14 @@ trait ChunkUpload
                 $res = $zip->open($filePath);
                 if ($res === true) {
                     return $this->saveFile($save->getFile());
-                }else{
+                } else {
                     unlink($filePath);
-                    return response()->json(__('message.file_invalid'),500);
+
+                    return response()->json(__('message.file_invalid'), 500);
                 }
 
                 // save the file and return any response you need, current example uses `move` function. If you are
                 // not using move, you need to manually delete the file by unlink($save->getFile()->getPathname())
-
             }
             // we are in chunk mode, lets send the current progress
             /** @var AbstractHandler $handler */
