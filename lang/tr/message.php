@@ -2626,5 +2626,6 @@ return [
     'file_invalid' => 'Dosya bozulmuş veya geçersiz görünüyor. Lütfen dosyayı doğrulayın ve tekrar deneyin.',
 
     'remainingAmount' => 'Mevcut planınızdaki kalan krediler, kredi bakiyenize eklenecektir.',
-
+    'file_not_upload' => '(dosya yüklenemedi: ',
+    'completed' => 'Tamamlandı',
 ];

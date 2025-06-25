@@ -2593,5 +2593,6 @@ return [
     'file_invalid' => 'O arquivo parece estar corrompido ou inválido. Verifique o arquivo e tente novamente.',
 
     'remainingAmount' => 'Os créditos restantes do seu plano atual serão adicionados ao saldo de créditos.',
-
+    'file_not_upload' => '(não foi possível carregar o arquivo: ',
+    'completed' => 'Concluído',
 ];

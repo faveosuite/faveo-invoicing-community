@@ -2630,5 +2630,6 @@ return [
 
     'waiting' => 'Wait...',
     'file_invalid'=>'It appears to be corrupted or invalid. Please verify the file and try again.',
-
+    'file_not_upload'=>'(file could not be uploaded: ',
+    'completed'=>'Completed'
 ];

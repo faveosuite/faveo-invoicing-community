@@ -2604,5 +2604,6 @@ return [
     'waiting' => 'Attendez...',
     'file_invalid' => 'Le fichier semble être corrompu ou invalide. Veuillez vérifier le fichier et réessayer.',
     'remainingAmount' => 'Les crédits restants de votre plan actuel seront ajoutés au solde des crédits.',
-
+    'file_not_upload' => '(le fichier n’a pas pu être téléchargé : ',
+    'completed' => 'Terminé',
 ];

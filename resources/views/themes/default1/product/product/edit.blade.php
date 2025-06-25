@@ -1226,12 +1226,12 @@
                     });
                     resumable.on('fileSuccess', function (file, message) {
                         // Reflect that the file upload has completed
-                        $('.resumable-file-' + file.uniqueIdentifier + ' .resumable-file-progress').html('(completed)');
+                        $('.resumable-file-' + file.uniqueIdentifier + ' .resumable-file-progress').html(@json(trans('message.completed'));
                         $("#file_ids").val(JSON.parse(message).name);
                     });
                     resumable.on('fileError', function (file, message) {
                         // Reflect that the file upload has resulted in error
-                        $('.resumable-file-' + file.uniqueIdentifier + ' .resumable-file-progress').html('(file could not be uploaded: ' + message + ')').addClass('error invalid-feedback');
+                        $('.resumable-file-' + file.uniqueIdentifier + ' .resumable-file-progress').html(@json(trans('message.file_not_upload')) + message + ')').addClass('error invalid-feedback');
                     });
                     resumable.on('fileProgress', function (file) {
                         // Handle progress for both the file and the overall upload

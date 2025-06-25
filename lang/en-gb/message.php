@@ -2616,6 +2616,7 @@ return [
     'remainingAmount' => 'The remaining credits in your current plan will be added to the credit balance.',
 
     'file_invalid' => 'It appears to be corrupted or invalid. Please verify the file and try again.',
-
+    'file_not_upload' => '(file could not be uploaded: ',
+    'completed' => 'Completed',
 
 ];

@@ -2608,7 +2608,7 @@ return [
 
     'waiting' => 'Attendere...',
     'file_invalid' => 'Il file sembra essere danneggiato o non valido. Verifica il file e riprova.',
-
     'remainingAmount' => 'I crediti rimanenti del tuo piano attuale verranno aggiunti al saldo dei crediti.',
-
+    'file_not_upload' => '(impossibile caricare il file: ',
+    'completed' => 'Completato',
 ];

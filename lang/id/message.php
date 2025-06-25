@@ -2606,7 +2606,7 @@ return [
 
     'waiting' => 'Tunggu...',
     'file_invalid' => 'File tampaknya rusak atau tidak valid. Silakan periksa file dan coba lagi.',
-
     'remainingAmount' => 'Sisa kredit dalam paket Anda saat ini akan ditambahkan ke saldo kredit.',
-
+    'file_not_upload' => '(file tidak dapat diunggah: ',
+    'completed' => 'Selesai',
 ];
