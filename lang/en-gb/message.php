@@ -2617,5 +2617,4 @@ return [
 
     'file_invalid' => 'It appears to be corrupted or invalid. Please verify the file and try again.',
 
-
 ];
