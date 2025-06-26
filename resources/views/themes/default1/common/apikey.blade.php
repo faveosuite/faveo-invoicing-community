@@ -656,7 +656,7 @@
                 </div>
 
             <div class="modal-footer justify-content-between">
-                <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
+                <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;{{ __('message.close') }}</button>
                 <button type="submit" class="form-group btn btn-primary"  id="submitEmail"><i class="fa fa-save">&nbsp;</i>{!!Lang::get("message.save")!!}</button>
             </div>
             </div>
@@ -686,7 +686,7 @@
                 </div>
 
                 <div class="modal-footer justify-content-between">
-                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Close</button>
+                    <button type="button" id="close" class="btn btn-default pull-left closebutton" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;{{ __('message.close') }}</button>
                     <button type="submit" class="form-group btn btn-primary"  id="submitMobile"><i class="fa fa-save">&nbsp;</i>{!!Lang::get("message.save")!!}</button>
                 </div>
             </div>
@@ -755,19 +755,19 @@
                 let provider=$('#mobileProvider');
                 let apisecret=$('#mobileApisecret');
                 $('#submitMobile').attr('disabled',true)
-                $("#submitMobile").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+                $("#submitMobile").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
                 $.ajax({
                     url:'{{url('mobile-settings-save')}}',
                     type:'post',
                     data:{'apikey':apikey.val(),'mode':mode.val(),'provider':provider.val(),'apisecret':apisecret.val()},
                     success:function(response){
                         $('#submitMobile').attr('disabled',false)
-                        $("#submitMobile").html("<i class='fa fa-check'>&nbsp;&nbsp;</i> Save");
+                        $("#submitMobile").html("<i class='fa fa-check'>&nbsp;&nbsp;</i> {{ __('message.save') }}");
                         setTimeout(function() {
                             location.reload();
                         }, 3000);
                         $('#alertMessage34').show();
-                        var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'</div>';
+                        var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }} </strong>'+response.message+'</div>';
                         $('#alertMessage34').html(result);
                         setInterval(function(){
                             $('#alertMessage34').slideUp(3000);
@@ -775,9 +775,9 @@
                     },
                     error:function(response){
                         $('#submitMobile').attr('disabled',false)
-                        $("#submitMobile").html("<i class='fa fa-check'>&nbsp;&nbsp;</i> Save");
+                        $("#submitMobile").html("<i class='fa fa-check'>&nbsp;&nbsp;</i> {{ __('message.save') }}");
                         $('#alertMessage34').show();
-                        var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> Error! </strong>'+response.responseJSON.message+'</div>';
+                        var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> {{ __('message.error') }} </strong>'+response.responseJSON.message+'</div>';
                         $('#alertMessage34').html(result);
                         setInterval(function(){
                             $('#alertMessage34').slideUp(3000);
@@ -820,9 +820,9 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage12').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }} </strong>'+response.message+'.</div>';
                     $('#alertMessage12').html(result);
-                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                     setInterval(function(){
                         $('#alertMessage12').slideUp(3000);
                     }, 1000);
@@ -911,19 +911,19 @@
                 let selectedValues = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value));
                 let accepted_output = selectedValues.reduce((sum, val) => sum + val, 0);
                 $('#submitEmail').attr('disabled',true)
-                $("#submitEmail").html("<i class='fas fa-circle-notch fa-spin'></i>  Please Wait...");
+                $("#submitEmail").html("<i class='fas fa-circle-notch fa-spin'></i> {{ __('message.please_wait') }}");
                 $.ajax({
                     url:'{{url('email-settings-save')}}',
                     type:'post',
                     data:{'apikey':apikey.val(),'mode':mode.val(),'provider':provider.val(),'accepted_output':accepted_output},
                     success:function(response){
                         $('#submitEmail').attr('disabled',false)
-                        $("#submitEmail").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>Save");
+                        $("#submitEmail").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                         setTimeout(function() {
                             location.reload();
                         }, 3000);
                         $('#alertMessage22').show();
-                        var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'</div>';
+                        var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }} </strong>'+response.message+'</div>';
                         $('#alertMessage22').html(result);
                         setInterval(function(){
                             $('#alertMessage12').slideUp(3000);
@@ -931,9 +931,9 @@
                     },
                     error:function(response){
                         $('#submitEmail').attr('disabled',false)
-                        $("#submitEmail").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>Save");
+                        $("#submitEmail").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                         $('#alertMessage22').show();
-                        var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> Error! </strong>'+response.responseJSON.message+'</div>';
+                        var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> {{ __('message.error') }} </strong>'+response.responseJSON.message+'</div>';
                         $('#alertMessage22').html(result);
                         setInterval(function(){
                             $('#alertMessage22').slideUp(3000);
@@ -1496,9 +1496,9 @@
                         location.reload();
                     }, 3000);
                     $('#alertMessage12').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }} </strong>'+response.message+'.</div>';
                     $('#alertMessage12').html(result);
-                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>Save");
+                    $("#submit").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
                     setInterval(function(){
                         $('#alertMessage12').slideUp(3000);
                     }, 1000);
