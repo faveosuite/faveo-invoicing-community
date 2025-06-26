@@ -428,7 +428,7 @@ foreach($scripts as $script) {
                         <div class="row">
                                 @if($status->terms == 1)
                                 <div class="form-group col-md-auto">
-                                    <div class="custom-control custom-checkbox" style="padding-right: 100px;">
+                                    <div class="custom-control custom-checkbox">
                                         <input type="checkbox" value="false" name="terms" id="term" class="custom-control-input">
                                         <label class="custom-control-label text-2 cur-pointer" for="term">
                                             <a href="{{$apiKeys->terms_url}}" target="_blank" class="text-decoration-none">{{ __('message.agree_term')}}</a>
@@ -596,13 +596,11 @@ foreach($scripts as $script) {
                 const message = response.message || response || 'An error occurred. Please try again.';
                 const errors = response.errors || null;
 
-                // Build base HTML
                 let html = `<div class="alert ${alertClass} alert-dismissible">` +
-                    `<i class="fa ${iconClass}"></i> ` +
+                    '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' +
+                    `<div style="margin-right:10px"><i class="fa ${iconClass}"></i> ` +
                     `${message}` +
-                    '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
-
-                html += '</div>';
+                    '</div></div>';
 
                 return html;
             }
