@@ -41,6 +41,7 @@ class FreeTrailController extends Controller
         $this->subscription = new Subscription();
 
         $this->tenantController = $tenantController ?: new TenantController(new Client, new FaveoCloud);
+        $this->product = new Product();
     }
 
     /**
@@ -236,6 +237,9 @@ class FreeTrailController extends Controller
 
             if ($plan_id) {
                 $baseorder->addSubscription($order->id, $plan_id, $version, $product, $serial_key);
+                $addOnIds = implode(',', $this->product->find($product)->productPluginGroupsAsProduct->pluck('plugin_id')->toArray());
+                $options = (new BaseOrderController())->formatConfigurableOptions($product);
+                (new LicenseController())->syncTheAddonForALicense($addOnIds, $serial_key, $options);
             }
             $mailchimpStatus = StatusSetting::pluck('mailchimp_status')->first();
             if ($mailchimpStatus) {

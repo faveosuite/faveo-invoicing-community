@@ -241,11 +241,10 @@ class TenantController extends Controller
                        }
 
                        $user = User::find($userId);
-                       $country = Country::where('country_code_char2', $user->country)->value('nicename');
                        if (! $user) {
                            return '--';
                        }
-
+                       $country = Country::where('country_code_char2', $user->country)->value('nicename');
                        return $country ?? '';
                    })
 
