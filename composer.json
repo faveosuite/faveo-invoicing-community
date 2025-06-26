@@ -80,8 +80,7 @@
         "twig/extra-bundle": "^3.4",
         "twig/twig": "^3.4",
         "vemcogroup/laravel-sparkpost-driver": "^5.0",
-        "yajra/laravel-datatables": "^11.0",
-        "ext-zip": "*"
+        "yajra/laravel-datatables": "^11.0"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.8",

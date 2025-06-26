@@ -795,10 +795,10 @@
             var id = id;
             var orderId = orderId;
             var swl=swal.fire({
-                title:"<h2 class='swal2-title custom-title'>{{Lang::get('message.Delete')}}</h2>",
+                title:"<h2 class='swal2-title custom-title'>{{Lang::get('message.Delete')}}",
                 html: "<div class='swal2-html-container custom-content'>" +
                     "<div class='section-sa'>" +
-                    "<p>{{Lang::get('message.tenant_deletion')}}</p>"+orderId+"</div>" +
+                    "<p>{{Lang::get('message.tenant_deletion')}}<span class='text-danger'>"+id+"</span></p></div>" +
                     "</div>",
                 showCancelButton: true,
                 cancelButtonText: "{{ __('message.cancel') }}",
@@ -855,18 +855,19 @@
                             }
                         });
                     } else {
-                        swal.fire({
-                            title:"<h2 class='swal2-title custom-title'>{{Lang::get('message.Select')}}</h2>",
-                            html: "<div class='swal2-html-container custom-content'>" +
-                                "<div class='section-sa'>" +
-                                "<p>{{Lang::get('message.sweet_checkbox')}}</p>"+"</div>" +
-                                "</div>",
-                            position: 'top',
-                            confirmButtonText: "{{ __('message.ok') }}",
-                            showCloseButton: true,
-                            confirmButtonColor: "#007bff",
-                            width:"600px",
-                        })
+                        window.close();
+                    {{--swal.fire({--}}
+                        {{--    title:"<h2 class='swal2-title custom-title'>{{Lang::get('message.Select')}}</h2>",--}}
+                        {{--    html: "<div class='swal2-html-container custom-content'>" +--}}
+                        {{--        "<div class='section-sa'>" +--}}
+                        {{--        "<p>{{Lang::get('message.sweet_checkbox')}}</p>"+"</div>" +--}}
+                        {{--        "</div>",--}}
+                        {{--    position: 'top',--}}
+                        {{--    confirmButtonText: "{{ __('message.ok') }}",--}}
+                        {{--    showCloseButton: true,--}}
+                        {{--    confirmButtonColor: "#007bff",--}}
+                        {{--    width:"600px",--}}
+                        {{--})--}}
                     }
                 }else if (result.dismiss === Swal.DismissReason.cancel) {
                     // Action if "No" is clicked

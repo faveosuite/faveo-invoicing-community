@@ -25,16 +25,9 @@ trait ChunkUpload
             // check if the upload has finished (in chunk mode it will send smaller files)
 
             if ($save->isFinished()) {
-                $file = $save->getFile();
-                $filePath = $file->getPathname();
-                $zip = new \ZipArchive;
-                $res = $zip->open($filePath);
-                if ($res === true) {
-                    return $this->saveFile($save->getFile());
-                } else {
-                    unlink($filePath);
-                    return response()->json(__('message.file_invalid'), 500);
-                }
+                // save the file and return any response you need, current example uses `move` function. If you are
+                // not using move, you need to manually delete the file by unlink($save->getFile()->getPathname())
+                return $this->saveFile($save->getFile());
             }
             // we are in chunk mode, lets send the current progress
             /** @var AbstractHandler $handler */
