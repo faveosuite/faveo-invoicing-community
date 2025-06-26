@@ -1276,10 +1276,10 @@ return [
     'v2_tooltip' => 'Validate Requests with checkbox.',
     'v3_tooltip' => 'Validate Requests with score.',
     'user-suspend-successfully' => 'User Suspended Successfully',
-    'trial_status_updated'=>'Free Trial Status Updated Successfully',
-    'trial_status_error'=>'Error occurred while updating free trial status',
-    'free_trial_status_tooltip'=>'Use this switch to control which product to show in Start Free Trial popup.',
-    'trial_status_heading'=>'Free Trial Status',
+    'trial_status_updated' => 'Free Trial Status Updated Successfully',
+    'trial_status_error' => 'Error occurred while updating free trial status',
+    'free_trial_status_tooltip' => 'Use this switch to control which product to show in Start Free Trial popup.',
+    'trial_status_heading' => 'Free Trial Status',
     //email templates
 
     'choose_password' => 'Click here to reset your password: ',
@@ -1975,7 +1975,7 @@ return [
     'app_name' => 'App name',
     'app_key' => 'App key',
     'app_secret' => 'App secret',
-    'tenant_deletion'=>'Are you sure you want to destroy this tenant?',
+    'tenant_deletion' => 'Are you sure you want to destroy this tenant?',
     //user-client panel
     'create_new_user' => 'Create New User',
     'create_user' => 'Create User',
@@ -2633,7 +2633,7 @@ return [
     'placeholder_your-queue-name' => 'your-queue-name',
 
     'waiting' => 'Wait...',
-    'provider_select'=>'Please select a cloud product.',
-    'file_invalid'=>'It appears to be corrupted or invalid. Please verify the file and try again.',
+    'provider_select' => 'Please select a cloud product.',
+    'file_invalid' => 'It appears to be corrupted or invalid. Please verify the file and try again.',
 
 ];
