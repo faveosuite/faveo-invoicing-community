@@ -2,16 +2,19 @@
 
 namespace Tests\Unit\Client;
 
+use App\Http\Controllers\Common\PhpMailController;
 use App\Http\Controllers\Tenancy\CloudExtraActivities;
 use App\Model\Common\FaveoCloud;
 use App\Model\License\LicensePermission;
 use App\Model\License\LicenseType;
+use App\Model\Mailjob\ExpiryMailDay;
 use App\Model\Order\InstallationDetail;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
+use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\User;
@@ -453,5 +456,50 @@ class CloudActivitiesTest extends DBTestCase
         $this->assertEquals($plan2->product, $response['id']);
         $this->assertEquals(1, User::where('id', \Auth::user()->id)->value('billing_pay_balance'));
         $this->assertEquals(0, \Session::get('nothingLeft'));
+    }
+
+    public function test_subscription_query_is_correct(){
+        $user = User::factory()->create(['billing_pay_balance' => 0]);
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
+        $licensepermissiontype = LicensePermission::create(['Can be Downloaded']);
+        LicensePermission::create(['Generate License Expiry Date']);
+        LicensePermission::create(['Generate Updates Expiry Date']);
+        LicensePermission::create(['Allow Downloads Before Updates Expire']);
+        $permissionid = [
+            0 => '1',
+            1 => '2',
+            2 => '3',
+            3 => '4',
+            6 => '6',
+        ];
+        $licensetype->permissions()->attach($permissionid);
+        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct', 'type' => $licensetype->id]);
+        $invoice = Invoice::factory()->create(['user_id' => $user->id]);
+        $invoiceItem = InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
+        $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
+            'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, 'serial_key' => 'eyJpdiI6IkpI0005']);
+        $installationDetail = InstallationDetail::create(['order_id' => $order->id, 'installation_path' => '/path']);
+        $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 65]);
+        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => 5000, 'no_of_agents' => 5]);
+        $cloudProduct=CloudProducts::create(['id'=>1,'cloud_product'=>$product->id,'cloud_free_plan'=>$plan->id,'cloud_product_key'=>'HelpDesk']);
+
+        $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
+            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Carbon::now()->subDays(8)]);
+        $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
+            'version' => 'v6.0.0', 'update_ends_at' => '', 'ends_at' => Carbon::now()->addDays(1)]);
+        $day = ExpiryMailDay::value('cloud_days');
+        $today = Carbon::today();
+        $sub = Subscription::whereNotNull('ends_at')
+            ->whereIn('product_id', cloudPopupProducts())
+            ->whereDate(
+                \DB::raw("DATE_ADD(ends_at, INTERVAL {$day} DAY)"),
+                '<=',
+                $today
+            )
+            ->get();
+        $test=(new PhpMailController())->deleteCloudDetails();
+
     }
 }

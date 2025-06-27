@@ -694,15 +694,7 @@ $days = $pay->where('product','117')->value('days');
                                     <label class="form-label">{!!optional(cloudPopUpDetails())->cloud_label_radio !!}</label>
 
                                     <br>
-{{--                                    <?php $cloudProducts = \App\Model\Product\CloudProducts::where('trial_status',1)->get(); ?>--}}
-{{--                                    @foreach($cloudProducts as $cloudProduct)--}}
-{{--                                    <div class="form-check">--}}
-{{--                                        <label class="form-check-label">--}}
-{{--                                            <input type="radio" name="option" class="product" value="{!! $cloudProduct->cloud_product_key !!}" checked>--}}
-{{--                                            {!! \DB::table('products')->where('id',$cloudProduct->cloud_product)->value('name') !!}--}}
-{{--                                        </label>--}}
-{{--                                    </div>--}}
-{{--                                    @endforeach--}}
+
                                     <select id="serviceType" class="form-control">
                                         <option value="">-- Select Product --</option>
                                     </select>

@@ -15,7 +15,7 @@
 }
 
 .switch input {display:none;}
-
+mas
 .slider {
   position: absolute;
   cursor: pointer;
@@ -1143,7 +1143,6 @@ input:checked + .slider:before {
             data: {'orderid': orderId , 'date': newdate},
             url: "{{url('edit-license-expiry')}}",
             success: function (response) {
-                console.log(response);
               $("#licenseExpSave").attr('disabled',false);
               $("#licenseExpSave").html("Save");
                 if (response.message =='success') {

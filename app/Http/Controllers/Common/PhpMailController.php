@@ -140,7 +140,7 @@ class PhpMailController extends Controller
                             'logo' => $contact['logo'],
                             'reply_email' => $setting->company_email,
                         ];
-                        if ($template) {
+                        if ($template) {order/execute
                             $type_id = $template->type;
                             $temp_type = new \App\Model\Common\TemplateType();
                             $type = $temp_type->where('id', $type_id)->first()->name;
@@ -149,7 +149,7 @@ class PhpMailController extends Controller
                     }
                 }
             }
-        } catch(\Exception $e) {
+        } catch(\Exception $ex) {
             \Log::error($ex->getMessage());
         }
     }
