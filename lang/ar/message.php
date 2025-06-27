@@ -2460,7 +2460,7 @@ return [
     '2fa_verifying' => 'جارٍ التحقق...',
     'renew_your_order' => 'قم بتجديد طلبك',
 
-// Arabic
+    // Arabic
     'reoon' => 'ريون',
     'vonage' => 'فوناج',
     'abstract' => 'أبستراكت',
@@ -2494,6 +2494,5 @@ return [
     'mobileApi_provider' => 'يرجى اختيار مزود تحقق الهاتف المحمول.',
     'checkbox_error' => 'يرجى تحديد خيار حالة واحد على الأقل.',
     'allowed_estatus' => 'الحالات المسموح بها للبريد الإلكتروني',
-
 
 ];
