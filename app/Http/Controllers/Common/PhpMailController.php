@@ -140,7 +140,7 @@ class PhpMailController extends Controller
                             'logo' => $contact['logo'],
                             'reply_email' => $setting->company_email,
                         ];
-                        if ($template) {order/execute
+                        if ($template) {
                             $type_id = $template->type;
                             $temp_type = new \App\Model\Common\TemplateType();
                             $type = $temp_type->where('id', $type_id)->first()->name;
