@@ -2617,5 +2617,6 @@ return [
 
     'waiting' => 'Vent...',
     'remainingAmount' => 'De gjenværende kredittene i din nåværende plan blir lagt til kredittsaldoen.',
+    'captcha_failed' => 'reCAPTCHA-verifiseringen mislyktes. Vennligst sørg for at din hemmelige reCAPTCHA-nøkkel er gyldig.',
 
 ];

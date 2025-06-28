@@ -2633,5 +2633,6 @@ return [
 
     'waiting' => '기다려 주세요...',
     'remainingAmount' => '현재 요금제의 남은 크레딧이 크레딧 잔액에 추가됩니다.',
+    'captcha_failed' => 'reCAPTCHA 확인에 실패했습니다. reCAPTCHA 비밀 키가 유효한지 확인해 주세요.',
 
 ];

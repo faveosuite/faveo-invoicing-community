@@ -2541,5 +2541,6 @@ return [
 
     'waiting' => 'Sačekajte...',
     'remainingAmount' => 'Preostali krediti iz vašeg trenutnog plana biće dodani na stanje kredita.',
+    'captcha_failed' => 'reCAPTCHA provjera nije uspjela. Molimo provjerite da li je vaš reCAPTCHA tajni ključ ispravan.',
 
 ];

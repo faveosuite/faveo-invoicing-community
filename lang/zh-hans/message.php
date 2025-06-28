@@ -2608,5 +2608,6 @@ return [
 
     'waiting' => '请稍候...',
     'remainingAmount' => '您当前方案中剩余的积分将被添加到积分余额中。',
+    'captcha_failed' => 'reCAPTCHA 验证失败。请确保您的 reCAPTCHA 密钥是有效的。',
 
 ];

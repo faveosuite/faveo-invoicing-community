@@ -2616,5 +2616,6 @@ return [
 
     'waiting' => 'お待ちください...',
     'remainingAmount' => '現在のプランで残っているクレジットはクレジット残高に追加されます。',
+    'captcha_failed' => 'reCAPTCHA の検証に失敗しました。reCAPTCHA のシークレットキーが有効であることを確認してください。',
 
 ];

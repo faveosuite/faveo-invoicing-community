@@ -2608,5 +2608,6 @@ return [
 
     'waiting' => 'Attendere...',
     'remainingAmount' => 'I crediti rimanenti del tuo piano attuale verranno aggiunti al saldo dei crediti.',
+    'captcha_failed' => 'Verifica reCAPTCHA non riuscita. Assicurati che la tua chiave segreta reCAPTCHA sia valida.',
 
 ];

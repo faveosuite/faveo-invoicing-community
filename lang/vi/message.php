@@ -2612,5 +2612,6 @@ return [
 
     'waiting' => 'Vui lòng đợi...',
     'remainingAmount' => 'Số tín dụng còn lại trong gói hiện tại của bạn sẽ được cộng vào số dư tín dụng.',
+    'captcha_failed' => 'Xác minh reCAPTCHA không thành công. Vui lòng đảm bảo khóa bí mật reCAPTCHA của bạn hợp lệ.',
 
 ];

@@ -2537,5 +2537,6 @@
 
      'waiting' => 'Stenna...',
      'remainingAmount' => 'Il-krediti li jifdal fil-pjan kurrenti tiegħek se jiġu miżjuda mal-bilanċ tal-kreditu.',
+     'captcha_failed' => 'Falliet il-verifika taʼ reCAPTCHA. Jekk jogħġbok kun żgur li ċ-ċavetta sigrieta reCAPTCHA tiegħek hija valida.',
 
  ];

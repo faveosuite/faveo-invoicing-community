@@ -2574,5 +2574,6 @@ return [
 
     'waiting' => '請稍候...',
     'remainingAmount' => '您目前方案中的剩餘點數將被加入點數餘額中。',
+    'captcha_failed' => 'reCAPTCHA 驗證失敗。請確保您的 reCAPTCHA 密鑰是有效的。',
 
 ];

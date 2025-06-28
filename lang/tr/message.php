@@ -2624,5 +2624,6 @@ return [
 
     'waiting' => 'Bekleyin...',
     'remainingAmount' => 'Mevcut planınızdaki kalan krediler, kredi bakiyenize eklenecektir.',
+    'captcha_failed' => 'reCAPTCHA doğrulaması başarısız oldu. Lütfen reCAPTCHA gizli anahtarınızın geçerli olduğundan emin olun.',
 
 ];

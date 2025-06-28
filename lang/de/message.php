@@ -2608,5 +2608,6 @@ return [
 
     'waiting' => 'Warten...',
     'remainingAmount' => 'Die verbleibenden Guthaben Ihres aktuellen Tarifs werden dem Kreditguthaben hinzugefügt.',
+    'captcha_failed' => 'reCAPTCHA-Überprüfung fehlgeschlagen. Bitte stellen Sie sicher, dass Ihr geheimer reCAPTCHA-Schlüssel gültig ist.',
 
 ];

@@ -2613,5 +2613,6 @@ return [
 
     'waiting' => 'Wait...',
     'remainingAmount' => 'The remaining credits in your current plan will be added to the credit balance.',
+    'captcha_failed' => 'reCAPTCHA verification failed. Please ensure your reCAPTCHA secret key is valid.',
 
 ];

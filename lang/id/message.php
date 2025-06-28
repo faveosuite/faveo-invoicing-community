@@ -2606,5 +2606,6 @@ return [
 
     'waiting' => 'Tunggu...',
     'remainingAmount' => 'Sisa kredit dalam paket Anda saat ini akan ditambahkan ke saldo kredit.',
+    'captcha_failed' => 'Verifikasi reCAPTCHA gagal. Harap pastikan kunci rahasia reCAPTCHA Anda valid.',
 
 ];

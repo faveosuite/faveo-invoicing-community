@@ -10,6 +10,7 @@ use App\Model\Mailjob\ActivityLogDay;
 use App\Model\Mailjob\ExpiryMailDay;
 use App\Traits\ApiKeySettings;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Spatie\Activitylog\Models\Activity;
 
 class BaseSettingsController extends PaymentSettingsController
@@ -301,60 +302,76 @@ class BaseSettingsController extends PaymentSettingsController
     //Save Google recaptch site key and secret in Database
     public function captchaDetails(Request $request)
     {
-        $status = $request->input('status');
-        $recaptchaType = $request->input('recaptcha_type');
-        $siteKey = $request->input('nocaptcha_sitekey');
 
-        if ($status == 1) {
-            $nocaptcha_sitekey = $request->input('nocaptcha_sitekey');
-            $captcha_secretCheck = $request->input('nocaptcha_secret');
-            $values = ['NOCAPTCHA_SITEKEY' => $nocaptcha_sitekey, 'NOCAPTCHA_SECRET' => $captcha_secretCheck];
-
-            $envFile = app()->environmentFilePath();
-            $str = file_get_contents($envFile);
-            $resultJson = json_decode($str);
-            if (count($values) > 0) {
-                foreach ($values as $envKey => $envValue) {
-                    $str .= "\n"; // In case the searched variable is in the last line without \n
-                    $keyPosition = strpos($str, "{$envKey}=");
-                    $endOfLinePosition = strpos($str, "\n", $keyPosition);
-                    $oldLine = substr($str, $keyPosition, $endOfLinePosition - $keyPosition);
-
-                    // If key does not exist, add it
-                    if (! $keyPosition || ! $endOfLinePosition || ! $oldLine) {
-                        $str .= "{$envKey}={$envValue}\n";
-                    } else {
-                        $str = str_replace($oldLine, "{$envKey}={$envValue}", $str);
-                    }
-                }
-            }
-
-            $str = substr($str, 0, -1);
-            if (! file_put_contents($envFile, $str)) {
-                return false;
-            }
-        } else {
-            $nocaptcha_sitekey = $request->input('nocaptcha_sitekey');
-            $captcha_secretCheck = $request->input('nocaptcha_secret');
-            $path_to_file = base_path('.env');
-            $file_contents = file_get_contents($path_to_file);
-            $file_contents_secretchek = str_replace([env('NOCAPTCHA_SECRET'), env('NOCAPTCHA_SITEKEY')], [$captcha_secretCheck, $nocaptcha_sitekey], $file_contents);
-            file_put_contents($path_to_file, $file_contents_secretchek);
-        }
-        $recaptchaStatus = ($recaptchaType === 'v2' ? 1 : 0);
-        $v3RecaptchaStatus = ($recaptchaType === 'v3' ? 1 : 0);
-
-        // Update StatusSetting
-        StatusSetting::where('id', 1)->update([
-            'recaptcha_status' => $recaptchaStatus,
-            'v3_recaptcha_status' => $v3RecaptchaStatus,
-            'v3_v2_recaptcha_status' => $status,
+        $validated = $request->validate([
+            'status'             => 'required|boolean',
+            'recaptcha_type'     => 'required|in:v2,v3',
+            'nocaptcha_sitekey'  => 'required|string',
+            'nocaptcha_secret'   => 'required|string',
+            'g-recaptcha-response' => ['required'],
         ]);
-        ApiKey::where('id', 1)->update(['nocaptcha_sitekey' => $nocaptcha_sitekey,
-            'captcha_secretCheck' => $captcha_secretCheck, ]);
 
-        return successResponse(\Lang::get('message.recaptcha_settings_updated'));
+        // Perform custom validation for reCAPTCHA
+        $this->validateRecaptcha(
+            $validated['g-recaptcha-response'],
+            $validated['nocaptcha_secret'],
+            $request->ip(),
+            $request->getHost()
+        );
+
+        if ($validated['status']) {
+            setEnvValue([
+                'NOCAPTCHA_SITEKEY' => $validated['nocaptcha_sitekey'],
+                'NOCAPTCHA_SECRET'  => $validated['nocaptcha_secret'],
+            ]);
+
+            $isV2 = $validated['recaptcha_type'] === 'v2';
+            $isV3 = $validated['recaptcha_type'] === 'v3';
+
+            StatusSetting::where('id', 1)->update([
+                'recaptcha_status'       => $isV2,
+                'v3_recaptcha_status'    => $isV3,
+                'v3_v2_recaptcha_status' => 1,
+            ]);
+
+            ApiKey::where('id', 1)->update([
+                'nocaptcha_sitekey'     => $validated['nocaptcha_sitekey'],
+                'captcha_secretCheck'   => $validated['nocaptcha_secret'],
+            ]);
+        }
+
+        return successResponse(__('message.recaptcha_settings_updated'));
     }
+
+    protected function validateRecaptcha(string $token, string $secret, string $ip, string $expectedHostname): void
+    {
+        $response = \Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+            'secret'   => $secret,
+            'response' => $token,
+            'remoteip' => $ip,
+        ]);
+
+        $body = $response->json();
+
+        if (!($body['success'] ?? false)) {
+            throw ValidationException::withMessages([
+                'g-recaptcha-response' => ['reCAPTCHA verification failed. Please ensure your reCAPTCHA secret key are correct.'],
+            ]);
+        }
+
+        if (isset($body['score'])) {
+            if (
+                ($body['score'] < 0.5) ||
+                (($body['action'] ?? null) !== 'captcha_settings') ||
+                (($body['hostname'] ?? null) !== $expectedHostname)
+            ) {
+                throw ValidationException::withMessages([
+                    'g-recaptcha-response' => ['reCAPTCHA verification failed. Please ensure your reCAPTCHA secret key are correct.'],
+                ]);
+            }
+        }
+    }
+
 
     //Save Google recaptcha site key and secret in Database
     public function v3captchaDetails(Request $request)
