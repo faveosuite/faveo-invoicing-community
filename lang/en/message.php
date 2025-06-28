@@ -2629,5 +2629,5 @@ return [
     'placeholder_your-queue-name' => 'your-queue-name',
 
     'waiting' => 'Wait...',
-    'captcha_failed' => 'reCAPTCHA verification failed. Please ensure your reCAPTCHA secret key are valid.'
+    'captcha_failed' => 'reCAPTCHA verification failed. Please ensure your reCAPTCHA secret key are valid.',
 ];

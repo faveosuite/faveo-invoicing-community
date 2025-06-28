@@ -13,7 +13,7 @@ class CaptchaValidation implements ValidationRule
     protected $action;
     protected $implicit;
 
-    public function __construct($action = 'default', $message = null , $implicit = false)
+    public function __construct($action = 'default', $message = null, $implicit = false)
     {
         $this->message = $message ?? __('message.hacking_attempt');
         $this->action = $action;
