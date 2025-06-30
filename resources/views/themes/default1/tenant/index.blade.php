@@ -612,9 +612,6 @@
                 processing: true,
                 serverSide: true,
                 stateSave: false,
-                sLengthMenu: "_MENU_ Records per page",
-                sSearch: "<span class='datatable-search-label'>{{ __('message.search') }}:</span> ",
-                sProcessing: ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>',
                 order: [[0, "desc"]],
                 "scrollX": true,
                "scrollCollapse": true,
@@ -637,11 +634,11 @@
                 }
                 },
 
-                {{--"oLanguage": {--}}
-                {{--    "sLengthMenu": "_MENU_ Records per page",--}}
-                {{--    "sSearch": "<span class='datatable-search-label'>{{ __('message.search') }}:</span> ",--}}
-                {{--    "sProcessing": ' <div class="overlay dataTables_processing"><i class="fas fa-3x fa-sync-alt fa-spin" style=" margin-top: -25px;"></i><div class="text-bold pt-2">{!! __('message.loading') !!}</div></div>'--}}
-                {{--},--}}
+                "oLanguage": {
+                    "sLengthMenu": "_MENU_ Records per page",
+                    "sSearch": "<span class='datatable-search-label'>{{ __('message.search') }}:</span> ",
+                    "sProcessing": ' <div class="overlay dataTables_processing"><i class="fas fa-3x fa-sync-alt fa-spin" style=" margin-top: -25px;"></i><div class="text-bold pt-2">{!! __('message.loading') !!}</div></div>'
+                },
                 language: {
                     paginate: {
                         first:      "{{ __('message.paginate_first') }}",
