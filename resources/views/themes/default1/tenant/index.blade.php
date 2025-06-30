@@ -489,14 +489,14 @@
                 <button class="btn btn-default float-right" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="position: relative;top: 32px;">
                     <span class="fa fa-columns"></span>&nbsp;&nbsp;{{ __('message.selected_columns') }}&nbsp;&nbsp;<span class="fas fa-caret-down"></span>
                 </button>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="specific-container">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="Order" id="OrderCheckbox">
+                        <input class="form-check-input " type="checkbox" value="Order" id="OrderCheckbox">
                         <label class="form-check-label" for="Order">{{ __('message.order') }}</label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" value="name" id="nameCheckbox">
-                        <label class="form-check-label" for="name">{{ __('message.name_page') }}</label>
+                        <label class="form-check-label" for="name">{{ __('message.user') }}</label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" value="email" id="emailCheckbox">
@@ -549,7 +549,8 @@
 
         </div>
 
-        <div style="position: relative;">
+        <div style="
+        position: relative;">
             <table id="tenant-table" class="table display" cellspacing="0" width="100%" styleClass="borderless">
                 <thead>
                     <tr>
@@ -655,7 +656,18 @@
                     { data: 'action', name: 'action' },
                 ],
                 "fnDrawCallback": function (oSettings) {
+                    $('[data-toggle="tooltip"]').tooltip({
+                        container: 'body'
+                    });
                     $('.loader').css('display', 'none');
+                    var urlParams = new URLSearchParams(window.location.search);
+                    var hasSearchParams = urlParams.has('Order') || urlParams.has('name') || urlParams.has('expiry') || urlParams.has('email') || urlParams.has('mobile') || urlParams.has('country') || urlParams.has('Expiry day') || urlParams.has('Deletion day') || urlParams.has('plan') || urlParams.has('domain') || urlParams.has('tenants') || urlParams.has('db_name') || urlParams.has('db_username') || urlParams.has('inact_ins') || urlParams.has('action');
+                    if (hasSearchParams) {
+                        console.log(hasSearchParams);
+                        $("#advance-search").css('display','block');
+                        $('#tip-search').attr('title', 'Collapse');
+                        $('#search-icon').removeClass('fa-plus').addClass('fa-minus');
+                    }
                 },
                 "fnPreDrawCallback": function (oSettings, json) {
                     $('.loader').css('display', 'block');
@@ -719,14 +731,14 @@
                     }
                 });
 
-                // $('input[type="checkbox"]').each(function() {
-                //     var checkboxValue = $(this).val();
-                //     if (selectedColumns.includes(checkboxValue)) {
-                //         $(this).prop('checked', true);
-                //     } else {
-                //         $(this).prop('checked', false);
-                //     }
-                // });
+                $('#specific-container input[type="checkbox"]').each(function() {
+                    var checkboxValue = $(this).val();
+                    if (selectedColumns.includes(checkboxValue)) {
+                        $(this).prop('checked', true);
+                    } else {
+                        $(this).prop('checked', false);
+                    }
+                });
             },
             error: function(xhr) {
                 console.error('Failed to load column preferences.');
@@ -883,7 +895,7 @@
                     //     location.reload();
                     // }, 3000);
                     $('#successmsgpop').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+response.message+'.</div>';
                     $('#successmsgpop').html(result);
                     setInterval(function(){
                         $('#successmsgpop').slideUp(3000);

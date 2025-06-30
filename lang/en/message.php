@@ -2640,5 +2640,5 @@ return [
     'new_code_generated' => 'New recovery code generated successfully.',
     'please_enter_code' => 'Please enter the code',
     '2fa_verifying' => 'Verifying...',
-
+    'tenant_deletion' => 'Are you sure you want to delete this tenant?',
 ];
