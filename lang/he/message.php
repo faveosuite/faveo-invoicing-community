@@ -2623,7 +2623,7 @@ return [
     'tick-to-hide-from-invoice' => 'סמן כדי להסתיר מדף יצירת החשבונית',
 
     'remainingAmount' => 'הקרדיטים שנותרו בתוכנית הנוכחית שלך יתווספו ליתרת הקרדיטים.',
-    'tenant_deletion' => 'האם אתה בטוח שברצונך למחוק את הדייר הזה?',
+    'tenant_deletion' => 'האם אתה בטוח שברצונך למחוק את הדייר הזה ',
 
     'user-suspend-successfully' => 'המשתמש הושעה בהצלחה',
     'incorrect_password' => 'סיסמה שגויה. נסה שוב',

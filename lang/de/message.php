@@ -2615,7 +2615,7 @@ return [
     'tick-to-hide-from-invoice' => 'Ankreuzen, um auf der Rechnungserstellungsseite auszublenden',
 
     'remainingAmount' => 'Die verbleibenden Guthaben Ihres aktuellen Tarifs werden dem Kreditguthaben hinzugefügt.',
-    'tenant_deletion' => 'Sind Sie sicher, dass Sie diesen Mieter löschen möchten?',
+    'tenant_deletion' => 'Sind Sie sicher, dass Sie diesen Mieter löschen möchten ',
 
     'user-suspend-successfully' => 'Benutzer erfolgreich gesperrt',
     'incorrect_password' => 'Falsches Passwort. Versuchen Sie es erneut.',

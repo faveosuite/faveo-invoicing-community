@@ -2620,7 +2620,7 @@ return [
     'tick-to-hide-from-invoice' => 'Chọn để ẩn khỏi trang tạo hóa đơn',
 
     'remainingAmount' => 'Số tín dụng còn lại trong gói hiện tại của bạn sẽ được cộng vào số dư tín dụng.',
-    'tenant_deletion' => 'Bạn có chắc chắn muốn xóa người thuê này không?',
+    'tenant_deletion' => 'Bạn có chắc chắn muốn xóa người thuê này không ',
 
     'user-suspend-successfully' => 'Người dùng đã bị đình chỉ thành công',
     'incorrect_password' => 'Mật khẩu không chính xác. Vui lòng thử lại.',

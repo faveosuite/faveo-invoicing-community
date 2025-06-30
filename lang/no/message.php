@@ -2625,7 +2625,7 @@ return [
     'tick-to-hide-from-invoice' => 'Merk av for å skjule fra fakturasiden',
 
     'remainingAmount' => 'De gjenværende kredittene i din nåværende plan blir lagt til kredittsaldoen.',
-    'tenant_deletion' => 'Er du sikker på at du vil slette denne leietakeren?',
+    'tenant_deletion' => 'Er du sikker på at du vil slette denne leietakeren ',
 
     'user-suspend-successfully' => 'Bruker suspendert',
     'incorrect_password' => 'Feil passord. Prøv igjen',

@@ -515,9 +515,9 @@ class TenantController extends Controller
 
                 $this->googleChat('Hello, it has come to my notice that '.$user.' has deleted this cloud instance '.$request->input('id'));
 
-                return successResponse($response->message);
+                return successResponse(__('message.cloud_deleted_successfully'));
             } else {
-                return errorResponse($response->message);
+                return errorResponse(__('message.cloud_deleted_failed'));
             }
         } catch (Exception $e) {
             return errorResponse($e->getMessage());

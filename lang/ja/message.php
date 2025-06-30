@@ -2623,7 +2623,7 @@ return [
     'tick-to-hide-from-invoice' => '請求書作成ページから非表示にするにはチェックしてください',
 
     'remainingAmount' => '現在のプランで残っているクレジットはクレジット残高に追加されます。',
-    'tenant_deletion' => 'このテナントを削除してもよろしいですか？',
+    'tenant_deletion' => 'このテナントを削除してもよろしいですか ',
 
     'user-suspend-successfully' => 'ユーザーは正常に停止されました',
     'incorrect_password' => 'Password errata. Riprova',

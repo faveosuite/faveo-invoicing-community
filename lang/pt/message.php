@@ -2597,7 +2597,7 @@ return [
     'trial_status_error' => 'Ocorreu um erro ao atualizar o status da avaliação gratuita',
     'free_trial_status_tooltip' => 'Use esta opção para controlar qual produto aparece no pop-up de Iniciar Avaliação Gratuita',
     'trial_status_heading' => 'Status da Avaliação Gratuita',
-    'tenant_deletion' => 'Tem certeza de que deseja excluir este inquilino?',
+    'tenant_deletion' => 'Tem certeza de que deseja excluir este inquilino ',
 
     'user-suspend-successfully' => 'Usuário suspenso com sucesso',
     'incorrect_password' => 'Senha incorreta. Tente novamente.',

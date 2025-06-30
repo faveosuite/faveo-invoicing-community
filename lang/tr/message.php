@@ -2632,7 +2632,7 @@ return [
     'tick-to-hide-from-invoice' => 'Fatura oluşturma sayfasından gizlemek için işaretleyin',
 
     'remainingAmount' => 'Mevcut planınızdaki kalan krediler, kredi bakiyenize eklenecektir.',
-    'tenant_deletion' => 'Bu kiracıyı silmek istediğinizden emin misiniz?',
+    'tenant_deletion' => 'Bu kiracıyı silmek istediğinizden emin misiniz ',
 
     'user-suspend-successfully' => 'Kullanıcı Başarıyla Askıya Alındı',
     'incorrect_password' => 'Yanlış şifre. Tekrar deneyin',

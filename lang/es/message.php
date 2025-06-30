@@ -2619,7 +2619,7 @@ return [
     'tick-to-hide-from-invoice' => 'Marca para ocultar en la página de creación de facturas',
 
     'remainingAmount' => 'Los créditos restantes de tu plan actual se añadirán al saldo de créditos.',
-    'tenant_deletion' => '¿Estás seguro de que deseas eliminar este inquilino?',
+    'tenant_deletion' => '¿Estás seguro de que deseas eliminar este inquilino ',
 
     'user-suspend-successfully' => 'Usuario suspendido exitosamente',
     'incorrect_password' => 'Contraseña incorrecta. Inténtalo de nuevo.',

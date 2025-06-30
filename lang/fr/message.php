@@ -2609,7 +2609,7 @@ return [
     'tick-to-hide-from-invoice' => 'Cochez pour masquer de la page de création de facture',
 
     'remainingAmount' => 'Les crédits restants de votre plan actuel seront ajoutés au solde des crédits.',
-    'tenant_deletion' => 'Êtes-vous sûr de vouloir supprimer ce locataire ?',
+    'tenant_deletion' => 'Êtes-vous sûr de vouloir supprimer ce locataire  ',
     'user-suspend-successfully' => 'Utilisateur suspendu avec succès',
     'incorrect_password' => 'Mot de passe incorrect. Veuillez réessayer.',
     'wrong_code' => 'Code erroné. Veuillez réessayer.',

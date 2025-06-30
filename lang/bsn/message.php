@@ -2549,7 +2549,7 @@ return [
     'tick-to-hide-from-invoice' => 'Označi da sakriješ sa stranice za kreiranje fakture',
 
     'remainingAmount' => 'Preostali krediti iz vašeg trenutnog plana biće dodani na stanje kredita.',
-    'tenant_deletion' => 'Jeste li sigurni da želite obrisati ovog stanara?',
+    'tenant_deletion' => 'Jeste li sigurni da želite obrisati ovog stanara ',
 
     'user-suspend-successfully' => 'Korisnik uspješno suspendovan',
     'incorrect_password' => 'Pogrešna lozinka. Pokušajte ponovo.',

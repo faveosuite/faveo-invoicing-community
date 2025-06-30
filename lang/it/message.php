@@ -2615,7 +2615,7 @@ return [
     'tick-to-hide-from-invoice' => 'Seleziona per nascondere dalla pagina di creazione fattura',
 
     'remainingAmount' => 'I crediti rimanenti del tuo piano attuale verranno aggiunti al saldo dei crediti.',
-    'tenant_deletion' => 'Sei sicuro di voler eliminare questo inquilino?',
+    'tenant_deletion' => 'Sei sicuro di voler eliminare questo inquilino ',
 
     'user-suspend-successfully' => 'Utente sospeso con successo',
     'incorrect_password' => 'Password errata. Riprova',

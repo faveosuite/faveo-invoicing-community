@@ -2620,7 +2620,7 @@ return [
     'tick-to-hide-from-invoice' => 'Tick to hide from the invoice creation page',
 
     'remainingAmount' => 'The remaining credits in your current plan will be added to the credit balance.',
-    'tenant_deletion' => 'Are you sure you want to delete this tenant?',
+    'tenant_deletion' => 'Are you sure you want to delete this tenant ',
 
     'user-suspend-successfully' => 'User Suspended Successfully',
     'incorrect_password' => 'Incorrect Password. Try again',

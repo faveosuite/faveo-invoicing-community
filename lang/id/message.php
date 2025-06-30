@@ -2613,7 +2613,7 @@ return [
     'tick-to-hide-from-invoice' => 'Centang untuk menyembunyikan dari halaman pembuatan faktur',
 
     'remainingAmount' => 'Sisa kredit dalam paket Anda saat ini akan ditambahkan ke saldo kredit.',
-    'tenant_deletion' => 'Apakah Anda yakin ingin menghapus penyewa ini?',
+    'tenant_deletion' => 'Apakah Anda yakin ingin menghapus penyewa ini ',
 
     'user-suspend-successfully' => 'Pengguna Ditangguhkan Berhasil',
     'incorrect_password' => 'Kata sandi salah. Silakan coba lagi.',

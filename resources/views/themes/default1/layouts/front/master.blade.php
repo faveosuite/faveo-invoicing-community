@@ -1153,7 +1153,19 @@ setTimeout(function() {
         })
     });
 
+    window.translations = {
+        instance_successfully_created: @json(__('message.instance_successfully_created')),
+        instance_not_created: @json(__('message.instance_not_created')),
+        domain_already_taken: @json(__('message.domain_already_taken')),
+    };
 
+    function translate(key, values = {}) {
+        let str = window.translations[key] || key;
+        for (const [k, v] of Object.entries(values)) {
+            str = str.replace(`:${k}`, v);
+        }
+        return str;
+    }
 
     function firstlogin(id)
     {            const userRequiredFields = {
@@ -1225,15 +1237,14 @@ setTimeout(function() {
                     var result =  '<div class="alert alert-danger alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true"></span></button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}!!<br><ul><li>'+data.message+'</li></ul></div>';
                     $('#clouderror').html(result);
                 } else if(data.status == 'success_with_warning') {
-                    console.log('here');
                     $('#clouderror').show();
                     $('#cloudsuccess').hide();
-                    var result =  '<div class="alert alert-warning alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true"></span></button><strong>{{ __('message.whoops') }} </strong><br><ul><li>'+data.message+'</li></ul></div>';
+                    var result =  '<div class="alert alert-warning alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true"></span></button><strong>{{ __('message.whoops') }} </strong><br><ul><li>'+translate(data.message.key,{'instance_not_created':data.message.installationUrl,'reason':data.message.reason})+'</li></ul></div>';
                     $('#clouderror').html(result);
                 } else {
                     $('#clouderror').hide();
-                    $('#cloudsuccess').show();
-                    var result =  '<div class="alert alert-success alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true"></span></button><strong>{{ __('message.success') }}! </strong>'+data.message+'!</div>';
+                    $('#cloudsuccess').show();installationUrl
+                    var result =  '<div class="alert alert-success alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true"></span></button><strong>{{ __('message.success') }}! </strong>'+translate(data.message.key,{'installationUrl':data.message.installationUrl})+'!</div>';
                     $('#cloudsuccess').html(result);
                 }
             },error: function (response) {

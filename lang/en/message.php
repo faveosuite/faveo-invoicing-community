@@ -878,7 +878,7 @@ return [
     'image_max' => 'The image may not be greater than 2 MB.',
     'image_invalid_message' => 'Please upload a file in JPEG, JPG, or PNG format only.',
     'Suspend' => 'Suspend',
-    'user_sweet_suspend' => 'Are you sure you want to suspend this user?',
+    'user_sweet_suspend' => 'Are you sure you want to suspend this user? :name',
     'order_delete' => 'Are you sure you want to delete this order?',
     'invoice_delete' => 'Are you sure you want to delete this invoice?',
     'page_delete' => 'Are you sure you want to delete this page?',
@@ -2641,5 +2641,10 @@ return [
     'new_code_generated' => 'New recovery code generated successfully.',
     'please_enter_code' => 'Please enter the code',
     '2fa_verifying' => 'Verifying...',
-
+    'tenant_deletion' => 'Are you sure you want to delete this tenant ',
+    'domain_already_taken' => 'Domain already taken. Please select a different domain',
+    'instance_successfully_created' => 'Your cloud instance has been created successfully. Please visit your website at :installationUrl. You will receive password on your registered email.',
+    'instance_not_created' => 'Your cloud instance has been successfully created but license installation failed.<b>:reason.</b> Please visit your website at :installationUrl',
+    'cloud_deleted_successfully'=>'Tenant Deleted Successfully',
+    'cloud_deleted_failed'=>'Tenant Deleted Failed',
 ];

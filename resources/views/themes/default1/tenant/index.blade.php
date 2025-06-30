@@ -48,7 +48,7 @@
         height: 100%;
         background-color: rgba(0, 0, 0, 0.5);
         display: flex;
-        align-items: center;
+        align-items: center;left
         justify-content: center;
         z-index: 9999;
     }
@@ -187,7 +187,18 @@
     }
 
 
+   [dir="rtl"] .search-text {
+       position: relative;
+       right: -300px;
+   }
 
+       [dir="rtl"] .dataTables_wrapper .dataTables_filter input{
+           margin-right:-170px
+       }
+   [dir="rtl"] #tenat_export-report-btn {
+       right: auto !important;
+       left: 10px !important;
+   }
 </style>
 
     <div class="col-sm-6">
@@ -476,7 +487,7 @@
     <div id="successmsg"></div>
     <div id="error"></div>
 
-        <button type="button" id="tenat_export-report-btn" class="btn btn-sm pull-right" data-toggle="tooltip" title="{{ __('message.export') }}" style="position: absolute;right: 10px;top: 10px;">
+        <button type="button" id="tenat_export-report-btn" class="btn btn-sm tenant_export" data-toggle="tooltip" title="{{ __('message.export') }}" style="position: absolute;right: 10px;top: 10px;">
             <i class="fas fa-paper-plane"></i>
         </button>
         <br />
@@ -489,14 +500,14 @@
                 <button class="btn btn-default float-right" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="position: relative;top: 32px;">
                     <span class="fa fa-columns"></span>&nbsp;&nbsp;{{ __('message.selected_columns') }}&nbsp;&nbsp;<span class="fas fa-caret-down"></span>
                 </button>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <div class="dropdown-menu order-column-dropdown" aria-labelledby="dropdownMenuButton" id="specific-container">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="Order" id="OrderCheckbox">
+                        <input class="form-check-input " type="checkbox" value="Order" id="OrderCheckbox">
                         <label class="form-check-label" for="Order">{{ __('message.order') }}</label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" value="name" id="nameCheckbox">
-                        <label class="form-check-label" for="name">{{ __('message.name_page') }}</label>
+                        <label class="form-check-label" for="name">{{ __('message.user') }}</label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" value="email" id="emailCheckbox">
@@ -549,7 +560,8 @@
 
         </div>
 
-        <div style="position: relative;">
+        <div style="
+        position: relative;">
             <table id="tenant-table" class="table display" cellspacing="0" width="100%" styleClass="borderless">
                 <thead>
                     <tr>
@@ -613,11 +625,11 @@
                     return data;
                 }
                 },
+
                 "oLanguage": {
                     "sLengthMenu": "_MENU_ Records per page",
-                   "sSearch": "<span style='position: relative;right: 175px;'>{{ __('message.search') }}:</span> ",
-
-                    "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
+                    "sSearch": "<span class='datatable-search-label'>{{ __('message.search') }}:</span> ",
+                    "sProcessing": ' <div class="overlay dataTables_processing"><i class="fas fa-3x fa-sync-alt fa-spin" style=" margin-top: -25px;"></i><div class="text-bold pt-2">{!! __('message.loading') !!}</div></div>'
                 },
                 language: {
                     paginate: {
@@ -654,7 +666,13 @@
                     { data: 'db_username', name: 'db_username' },
                     { data: 'action', name: 'action' },
                 ],
+                initComplete: function () {
+                    $('#tenant-table_filter label').addClass('search-text');
+                },
                 "fnDrawCallback": function (oSettings) {
+                    $('[data-toggle="tooltip"]').tooltip({
+                        container: 'body'
+                    });
                     $('.loader').css('display', 'none');
                 },
                 "fnPreDrawCallback": function (oSettings, json) {
@@ -719,14 +737,14 @@
                     }
                 });
 
-                // $('input[type="checkbox"]').each(function() {
-                //     var checkboxValue = $(this).val();
-                //     if (selectedColumns.includes(checkboxValue)) {
-                //         $(this).prop('checked', true);
-                //     } else {
-                //         $(this).prop('checked', false);
-                //     }
-                // });
+                $('#specific-container input[type="checkbox"]').each(function() {
+                    var checkboxValue = $(this).val();
+                    if (selectedColumns.includes(checkboxValue)) {
+                        $(this).prop('checked', true);
+                    } else {
+                        $(this).prop('checked', false);
+                    }
+                });
             },
             error: function(xhr) {
                 console.error('Failed to load column preferences.');
@@ -798,7 +816,7 @@
                 title:"<h2 class='swal2-title custom-title'>{{Lang::get('message.Delete')}}",
                 html: "<div class='swal2-html-container custom-content'>" +
                     "<div class='section-sa'>" +
-                    "<p>{{Lang::get('message.tenant_deletion')}}<span class='text-danger'>"+id+"</span></p></div>" +
+                    "<p>{{Lang::get('message.tenant_deletion')}}<span class='text-danger'>"+id+"</span>" +"?</p></div>"+
                     "</div>",
                 showCancelButton: true,
                 cancelButtonText: "{{ __('message.cancel') }}",
@@ -883,7 +901,7 @@
                     //     location.reload();
                     // }, 3000);
                     $('#successmsgpop').show();
-                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> Success! </strong>'+response.message+'.</div>';
+                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-label="{{ __('message.close') }}" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>'+response.message+'.</div>';
                     $('#successmsgpop').html(result);
                     setInterval(function(){
                         $('#successmsgpop').slideUp(3000);

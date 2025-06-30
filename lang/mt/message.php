@@ -2545,7 +2545,7 @@
      'tick-to-hide-from-invoice' => 'Iċċekkja biex taħbi mill-paġna tal-ħolqien tal-fattura',
 
      'remainingAmount' => 'Il-krediti li jifdal fil-pjan kurrenti tiegħek se jiġu miżjuda mal-bilanċ tal-kreditu.',
-     'tenant_deletion' => 'Int żgur li trid tħassar dan il-kerrej?',
+     'tenant_deletion' => 'Int żgur li trid tħassar dan il-kerrej ',
 
      'user-suspend-successfully' => 'Utent Sospiż b\'Suċċess',
      'incorrect_password' => 'Password ħażina. Ipprova mill-ġdid',

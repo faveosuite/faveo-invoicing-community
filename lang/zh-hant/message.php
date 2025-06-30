@@ -2582,7 +2582,7 @@ return [
     'tick-to-hide-from-invoice' => '勾選以從發票建立頁面隱藏',
 
     'remainingAmount' => '您目前方案中的剩餘點數將被加入點數餘額中。',
-    'tenant_deletion' => '您確定要刪除此租戶嗎？',
+    'tenant_deletion' => '您確定要刪除此租戶嗎 ',
 
     'user-suspend-successfully' => '用戶暫停成功',
     'incorrect_password' => '密碼錯誤，請重試。',

@@ -2616,7 +2616,7 @@ return [
     'tick-to-hide-from-invoice' => '勾选以从发票创建页面隐藏',
 
     'remainingAmount' => '您当前方案中剩余的积分将被添加到积分余额中。',
-    'tenant_deletion' => '您确定要删除此租户吗？',
+    'tenant_deletion' => '您确定要删除此租户吗 ',
 
     'user-suspend-successfully' => '用户暂停成功',
     'incorrect_password' => '密码错误，请重试。',
