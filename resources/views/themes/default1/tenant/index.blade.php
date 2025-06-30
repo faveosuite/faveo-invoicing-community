@@ -186,8 +186,27 @@
         border-radius: 50%;
     }
 
+   [dir="rtl"] .dropdown-menu.order-column-dropdown.show {
+       position: absolute !important;
+       transform: translate3d(70px, 90px, 0px) !important;
+       top: 7px !important;
+       right: 0px !important;
+       will-change: transform !important;
+       inset: 0px auto auto 0px;
+       margin: 0px;
+       z-index: 1050;
+       padding-bottom:30px;
+       /*width: 11rem !important;*/
+   }
 
+   [dir="rtl"] .search-text {
+       position: relative;
+       right: -300px;
+   }
 
+       [dir="rtl"] .dataTables_wrapper .dataTables_filter input{
+           margin-right:-170px
+       }
 </style>
 
     <div class="col-sm-6">
@@ -489,7 +508,7 @@
                 <button class="btn btn-default float-right" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="position: relative;top: 32px;">
                     <span class="fa fa-columns"></span>&nbsp;&nbsp;{{ __('message.selected_columns') }}&nbsp;&nbsp;<span class="fas fa-caret-down"></span>
                 </button>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="specific-container">
+                <div class="dropdown-menu order-column-dropdown" aria-labelledby="dropdownMenuButton" id="specific-container">
                     <div class="form-check">
                         <input class="form-check-input " type="checkbox" value="Order" id="OrderCheckbox">
                         <label class="form-check-label" for="Order">{{ __('message.order') }}</label>
@@ -593,6 +612,9 @@
                 processing: true,
                 serverSide: true,
                 stateSave: false,
+                sLengthMenu: "_MENU_ Records per page",
+                sSearch: "<span class='datatable-search-label'>{{ __('message.search') }}:</span> ",
+                sProcessing: ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>',
                 order: [[0, "desc"]],
                 "scrollX": true,
                "scrollCollapse": true,
@@ -614,12 +636,12 @@
                     return data;
                 }
                 },
-                "oLanguage": {
-                    "sLengthMenu": "_MENU_ Records per page",
-                   "sSearch": "<span style='position: relative;right: 175px;'>{{ __('message.search') }}:</span> ",
 
-                    "sProcessing": ' <div class="overlay"><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
-                },
+                {{--"oLanguage": {--}}
+                {{--    "sLengthMenu": "_MENU_ Records per page",--}}
+                {{--    "sSearch": "<span class='datatable-search-label'>{{ __('message.search') }}:</span> ",--}}
+                {{--    "sProcessing": ' <div class="overlay dataTables_processing"><i class="fas fa-3x fa-sync-alt fa-spin" style=" margin-top: -25px;"></i><div class="text-bold pt-2">{!! __('message.loading') !!}</div></div>'--}}
+                {{--},--}}
                 language: {
                     paginate: {
                         first:      "{{ __('message.paginate_first') }}",
@@ -655,19 +677,14 @@
                     { data: 'db_username', name: 'db_username' },
                     { data: 'action', name: 'action' },
                 ],
+                initComplete: function () {
+                    $('#tenant-table_filter label').addClass('search-text');
+                },
                 "fnDrawCallback": function (oSettings) {
                     $('[data-toggle="tooltip"]').tooltip({
                         container: 'body'
                     });
                     $('.loader').css('display', 'none');
-                    var urlParams = new URLSearchParams(window.location.search);
-                    var hasSearchParams = urlParams.has('Order') || urlParams.has('name') || urlParams.has('expiry') || urlParams.has('email') || urlParams.has('mobile') || urlParams.has('country') || urlParams.has('Expiry day') || urlParams.has('Deletion day') || urlParams.has('plan') || urlParams.has('domain') || urlParams.has('tenants') || urlParams.has('db_name') || urlParams.has('db_username') || urlParams.has('inact_ins') || urlParams.has('action');
-                    if (hasSearchParams) {
-                        console.log(hasSearchParams);
-                        $("#advance-search").css('display','block');
-                        $('#tip-search').attr('title', 'Collapse');
-                        $('#search-icon').removeClass('fa-plus').addClass('fa-minus');
-                    }
                 },
                 "fnPreDrawCallback": function (oSettings, json) {
                     $('.loader').css('display', 'block');
