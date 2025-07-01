@@ -51,7 +51,7 @@ trait ChunkUpload
         } catch (\Exception $ex) {
             $response = ['success' => 'false', 'message' => $ex->getMessage()];
 
-            return response()->json(compact('response'), 500);
+            return response()->json($ex->getMessage(), 500);
         }
     }
 
