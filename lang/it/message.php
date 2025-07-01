@@ -2620,4 +2620,10 @@ return [
     'new_code_generated' => 'Nuovo codice di recupero generato con successo.',
     'please_enter_code' => 'Per favore, inserisci il codice',
     '2fa_verifying' => 'Verifica in corso...',
+    'invalid_code_2fa' => 'Kode tidak valid. Silakan coba lagi.',
+    '6_digit_auth_code' => 'Masukkan kode autentikasi 6 digit Anda',
+    '6_code_numer' => 'Kode harus berupa angka 6 digit.',
+    '2fapopup_content' => 'Masukkan kode 2FA Anda untuk memverifikasi identitas Anda sebelum mengubah kata sandi Anda',
+    'auth_code_required' => 'Kode autentikasi diperlukan.',
+
 ];

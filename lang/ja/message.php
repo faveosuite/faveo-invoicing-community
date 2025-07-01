@@ -2628,4 +2628,9 @@ return [
     'new_code_generated' => 'Nuovo codice di recupero generato con successo.',
     'please_enter_code' => 'Per favore, inserisci il codice',
     '2fa_verifying' => 'Verifica in corso...',
+    'invalid_code_2fa' => '無効なコードです。もう一度お試しください。',
+    '6_digit_auth_code' => '6桁の認証コードを入力してください',
+    '6_code_numer' => 'コードは6桁の数字である必要があります。',
+    '2fapopup_content' => 'パスワードを変更する前に本人確認のために2FAコードを入力してください',
+    'auth_code_required' => '認証コードが必要です。',
 ];

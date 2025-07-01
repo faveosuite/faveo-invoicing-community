@@ -2626,4 +2626,9 @@ return [
     'new_code_generated' => 'New recovery code generated successfully.',
     'please_enter_code' => 'Please enter the code',
     '2fa_verifying' => 'Verifying...',
+    'invalid_code_2fa' => 'Invalid code. Please try again.',
+    '6_digit_auth_code' => 'Enter your 6-digit authentication code',
+    '6_code_numer' => 'Code must be a 6-digit number.',
+    '2fapopup_content' => 'Enter your 2FA code to verify your identity before changing your password',
+    'auth_code_required' => 'Authentication code is required.',
 ];
