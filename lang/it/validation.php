@@ -913,5 +913,8 @@ return [
         'notify_url_invalid' => 'L\'URL di notifica deve essere un URL valido.',
         'currencies_required' => 'Il campo valute è obbligatorio.',
     ],
+    'login_failed' => 'Accesso fallito, si prega di verificare che l\'email/nome utente e la password inseriti siano corretti.',
+    'forgot_email_validation' => 'Se l\'email fornita è registrata, riceverai un\'email con le istruzioni per reimpostare la password a breve.',
+    'too_many_login_attempts' => 'Sei stato bloccato dall\'applicazione a causa di troppi tentativi di accesso falliti. Riprova dopo :time.',
 
 ];

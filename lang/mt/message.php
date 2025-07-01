@@ -2583,4 +2583,9 @@
      'new_code_generated' => 'Kodiċi ta’ rkupru ġdid ġie ġġenerat b’suċċess.',
      'please_enter_code' => 'Jekk jogħġbok daħħal il-kodiċi',
      '2fa_verifying' => 'Qiegħed tivverifika...',
+     'invalid_code_2fa' => 'Kodiċi mhux validu. Jekk jogħġbok erġa\' pprova.',
+     '6_digit_auth_code' => 'Daħħal il-kodiċi ta\' awtentikazzjoni ta\' 6 ċifri tiegħek',
+     '6_code_numer' => 'Il-kodiċi għandu jkun numru ta\' 6 ċifri.',
+     '2fapopup_content' => 'Daħħal il-kodiċi 2FA tiegħek biex tivverifika l-identità tiegħek qabel tibdel il-password tiegħek',
+     'auth_code_required' => 'Kodiċi ta\' awtentikazzjoni huwa meħtieġ.',
  ];

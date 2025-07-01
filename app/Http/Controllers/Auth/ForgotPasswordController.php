@@ -109,14 +109,16 @@ class ForgotPasswordController extends Controller
                 $mail = new \App\Http\Controllers\Common\PhpMailController();
                 $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $replace, $type);
 
-                return successResponse(__('message.reset_instructions', ['email' => $request->email]));
+
+                return successResponse( __('validation.forgot_email_validation'));
             } else {
-                return errorResponse(__('message.system_email_not_configured'));
+                return errorResponse(__('validation.forgot_email_validation'));
             }
 
-            return successResponse(__('message.reset_instructions', ['email' => $request->email]));
+
+            return successResponse(__('validation.forgot_email_validation'));
         } catch (\Exception $ex) {
-            return successResponse(__('message.reset_instructions', ['email' => $request->email]));
+            return successResponse(__('validation.forgot_email_validation'));
         }
     }
 }

@@ -2659,4 +2659,9 @@ return [
     'new_code_generated' => 'Nuevo código de recuperación generado con éxito.',
     'please_enter_code' => 'Por favor, introduce el código.',
     '2fa_verifying' => 'Verificando...',
+    'invalid_code_2fa' => 'Nevažeći kod. Molimo pokušajte ponovo.',
+    '6_digit_auth_code' => 'Unesite svoj 6-cifreni autentifikacijski kod',
+    '6_code_numer' => 'Kod mora biti 6-cifreni broj.',
+    '2fapopup_content' => 'Ingrese su código 2FA para verificar su identidad antes de cambiar su contraseña',
+    'auth_code_required' => 'Se requiere el código de autenticación.',
 ];

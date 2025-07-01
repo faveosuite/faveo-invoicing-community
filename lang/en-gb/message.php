@@ -2661,4 +2661,9 @@ return [
     '2fa_verifying' => 'Verifying...',
     'checkbox_error' => 'Please select at least one status option.',
     'allowed_estatus' => 'Permitted Email Statuses',
+    'invalid_code_2fa' => 'Invalid code. Please try again.',
+    '6_digit_auth_code' => 'Enter your 6-digit authentication code',
+    '6_code_numer' => 'Code must be a 6-digit number.',
+    '2fapopup_content' => 'Enter your 2FA code to verify your identity before changing your password',
+    'auth_code_required' => 'Authentication code is required.',
 ];

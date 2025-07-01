@@ -855,3 +855,56 @@ function isRtlForLang()
 {
     return in_array(app()->getLocale(), ['ar', 'he']);
 }
+
+/**
+ * Deletes all user sessions except the current session.
+ *
+ * This function checks the session driver and deletes sessions based on the user ID.
+ * For file-based sessions, it reads session files and deletes those that match the user ID.
+ * For other drivers (like database or Redis), it uses the logoutOtherDevices method.
+ *
+ * @param  int  $userId  The ID of the user whose sessions are to be deleted.
+ * @param  string  $password  The user's password for authentication.
+ * @return void
+ */
+function deleteUserSessions(int $userId, string $password): void
+{
+    if (config('session.driver') === 'file') {
+        $currentSessionId = session()->getId();
+        $sessionPath = storage_path('framework/sessions');
+        $sessionFiles = \File::files($sessionPath);
+
+        foreach ($sessionFiles as $file) {
+            // Skip .gitignore or non-readable files
+            if ($file->getFilename() === '.gitignore' || !$file->isReadable()) {
+                continue;
+            }
+
+            // Avoid reading the current session file
+            if ($file->getFilename() === $currentSessionId) {
+                continue;
+            }
+
+            $content = @file_get_contents($file->getRealPath());
+
+            if ($content === false) {
+                continue;
+            }
+
+            $sessionData = @unserialize($content);
+            if (!is_array($sessionData)) {
+                continue;
+            }
+
+            foreach ($sessionData as $key => $value) {
+                if (str_starts_with($key, 'login_web_') && $value == $userId) {
+                    \File::delete($file->getRealPath());
+                    break;
+                }
+            }
+        }
+    } else {
+        // For database, redis, or other drivers
+        \Auth::logoutOtherDevices($password);
+    }
+}

@@ -110,6 +110,7 @@ input:checked + .slider:before {
      <div id= "alertMessage"></div>
      <div id= "error"></div>
   @include('themes.default1.user.2faModals')
+  @include('themes.default1.front.clients.2fa_popup_client')
 
 
         <div class="container pt-3 pb-2">
@@ -715,6 +716,7 @@ input:checked + .slider:before {
             }
         });
 
+        let storedFormData = null;
         $('#changePasswordForm').validate({
             rules: {
                 old_password: {
@@ -753,35 +755,75 @@ input:checked + .slider:before {
                 placeErrorMessage(error, element, errorMapping);
             },
             submitHandler: function (form) {
-                var formData = $(form).serialize();
-                $.ajax({
-                    url: '{{url('my-password')}}',
-                    type: 'PATCH',
-                    data: formData,
-                    success: function (response) {
-                        form.reset();
-                        showAlert('success', response);
-                    },
-                    error: function (data) {
-                        var response = data.responseJSON ? data.responseJSON : JSON.parse(data.responseText);
+                let is2FAEnabled = {{ $is2faEnabled ? 'true' : 'false' }};
+                let formData = $(form).serialize();
 
-                        if (response.errors) {
-                            $.each(response.errors, function(field, messages) {
-                                var validator = $('#changePasswordForm').validate();
+                if (is2FAEnabled) {
+                    storedFormData = formData;
+                    $('#twoFactorPopupModal').modal('show');
+                    return;
+                }
 
-                                var fieldSelector = $(`[name="${field}"]`).attr('name');  // Get the name attribute of the selected field
-
-                                validator.showErrors({
-                                    [fieldSelector]: messages[0]
-                                });
-                            });
-                        } else {
-                            showAlert('error', response);
-                        }
-                    }
-                });
+                submitPasswordChange(formData, form);
             }
         });
+        $('#verify2FAButton').on('click', function () {
+            const code = $('#google2fa_code').val().trim();
+            const errorBox = $('#error-message');
+
+            if (!code) {
+                errorBox.text("{{ __('message.auth_code_required') }}").show();
+                return;
+            }
+
+            if (!/^\d{6}$/.test(code)) {
+                errorBox.text("{{ __('message.6_code_numer') }}").show();
+                return;
+            }
+
+            errorBox.hide();
+
+            $.ajax({
+                url: "{{ route('verify.2fa.admin') }}",
+                method: 'POST',
+                data: {
+                    totp: code,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function (response) {
+                    $('#twoFactorPopupModal').modal('hide');
+                    submitPasswordChange(storedFormData, $('#changePasswordForm')[0]);
+                },
+                error: function (xhr) {
+                    const res = xhr.responseJSON || {};
+                    const message = res.message || "{{ __('message.invalid_2fa_code') }}";
+                    errorBox.text(message).show();
+                }
+            });
+        });
+        function submitPasswordChange(formData, form) {
+            $.ajax({
+                url: '{{url('my-password')}}',
+                type: 'PATCH',
+                data: formData,
+                success: function (response) {
+                    form.reset();
+                    showAlert('success', response);
+                    $('#twoFactorPopupModal').modal('hide');
+                },
+                error: function (data) {
+                    var response = data.responseJSON ? data.responseJSON : JSON.parse(data.responseText);
+                    if (response.errors) {
+                        $.each(response.errors, function(field, messages) {
+                            let validator = $('#changePasswordForm').validate();
+                            validator.showErrors({ [field]: messages[0] });
+                        });
+                    } else {
+                        showAlert('error', response);
+                    }
+                }
+            });
+        }
     });
 </script>
 <!-- <script src="{{asset('common/js/licCode.js')}}"></script> -->
