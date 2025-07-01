@@ -2708,4 +2708,9 @@ return [
     'msg_service_down' => 'Vi opplever for øyeblikket problemer med vår OTP-tjeneste. Vennligst prøv igjen om en liten stund. Vi jobber med å løse problemet så raskt som mulig.',
     'cloud_plan_error' => 'Vennligst fjern skyproduktet eller koble det til en alternativ plan.',
 
+    'invalid_code_2fa' => 'Ongeldige code. Probeer het opnieuw.',
+    '6_digit_auth_code' => 'Voer uw 6-cijferige authenticatiecode in',
+    '6_code_numer' => 'De code moet een 6-cijferig nummer zijn.',
+    '2fapopup_content' => 'Voer uw 2FA-code in om uw identiteit te verifiëren voordat u uw wachtwoord wijzigt',
+    'auth_code_required' => 'Authenticatiecode is vereist.',
 ];

@@ -880,5 +880,8 @@ return [
         'notify_url_invalid' => '알림 URL은 유효한 URL이어야 합니다.',
         'currencies_required' => '통화 필드는 필수입니다.',
     ],
+    'login_failed' => '로그인에 실패했습니다. 입력한 이메일/사용자 이름과 비밀번호가 올바른지 확인하세요.',
+    'forgot_email_validation' => '제공한 이메일이 등록되어 있다면, 비밀번호 재설정 지침이 포함된 이메일을 곧 받게 됩니다.',
+    'too_many_login_attempts' => '너무 많은 로그인 시도로 인해 애플리케이션에서 차단되었습니다. :time 후에 다시 시도하세요.',
 
 ];

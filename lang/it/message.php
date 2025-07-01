@@ -2677,6 +2677,11 @@ return [
     'delete_invoice_older' => 'Elimina le fatture più vecchie di...',
     'deletion_cloud_subscription' => 'Elimina gli abbonamenti cloud scaduti da più di...',
     'msg_service_down' => 'Al momento stiamo riscontrando problemi con il nostro servizio OTP. Ti preghiamo di riprovare tra poco. Stiamo lavorando per risolvere il problema il prima possibile.',
+    'invalid_code_2fa' => 'Kode tidak valid. Silakan coba lagi.',
+    '6_digit_auth_code' => 'Masukkan kode autentikasi 6 digit Anda',
+    '6_code_numer' => 'Kode harus berupa angka 6 digit.',
+    '2fapopup_content' => 'Masukkan kode 2FA Anda untuk memverifikasi identitas Anda sebelum mengubah kata sandi Anda',
+    'auth_code_required' => 'Kode autentikasi diperlukan.',
 
     'auto_assign_success' => 'La configurazione dell’assegnazione automatica è stata aggiornata con successo.',
     'system_manager_settings' => 'Impostazioni del Gestore di Sistema',

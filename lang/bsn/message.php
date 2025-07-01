@@ -2631,4 +2631,9 @@ return [
     'msg_service_down' => 'Trenutno imamo problema s OTP uslugom. Molimo pokušajte ponovo uskoro. Radimo na brzom rješenju problema.',
     'cloud_plan_error' => 'Molimo uklonite cloud proizvod ili ga povežite s alternativnim planom.',
 
+    'invalid_code_2fa' => 'Nevažeći kod. Molimo pokušajte ponovo.',
+    '6_digit_auth_code' => 'Unesite svoj 6-cifreni autentifikacijski kod',
+    '6_code_numer' => 'Kod mora biti 6-cifreni broj.',
+    '2fapopup_content' => 'Unesite svoj 2FA kod da biste potvrdili svoj identitet prije promjene lozinke',
+    'auth_code_required' => 'Potrebno je unijeti kod za autentifikaciju.',
 ];

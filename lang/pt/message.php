@@ -2680,4 +2680,9 @@ return [
     'user_position_prohibited_if' => 'O campo posição não é permitido quando o papel é usuário.',
     'cloud_plan_error' => 'Por favor, remova o produto em nuvem ou vincule-o a um plano alternativo.',
 
+    'invalid_code_2fa' => 'Código inválido. Por favor, tente novamente.',
+    '6_digit_auth_code' => 'Insira seu código de autenticação de 6 dígitos',
+    '6_code_numer' => 'O código deve ser um número de 6 dígitos.',
+    '2fapopup_content' => 'Insira seu código 2FA para verificar sua identidade antes de alterar sua senha',
+    'auth_code_required' => 'O código de autenticação é obrigatório.',
 ];
