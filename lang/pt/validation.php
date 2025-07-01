@@ -852,5 +852,8 @@ return [
         'notify_url_invalid' => 'A URL de notificação deve ser uma URL válida.',
         'currencies_required' => 'O campo de moedas é obrigatório.',
     ],
+    'login_failed' => 'Falha no login, verifique se o e-mail/nome de usuário e a senha que você inseriu estão corretos.',
+    'forgot_email_validation' => 'Se o e-mail que você forneceu estiver registrado, você receberá um e-mail com as instruções para redefinir a senha em breve.',
+    'too_many_login_attempts' => 'Você foi bloqueado do aplicativo devido a muitas tentativas de login falhadas. Por favor, tente novamente após :time.',
 
 ];

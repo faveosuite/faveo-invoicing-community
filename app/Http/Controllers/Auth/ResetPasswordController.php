@@ -114,7 +114,7 @@ class ResetPasswordController extends Controller
                         $user->save();
 
                         //logout all other session when password is updated
-                        \Auth::logoutOtherDevices($pass);
+                        deleteUserSessions($user->id, $pass);
 
                         \DB::table('password_resets')->where('email', $user->email)->delete();
 

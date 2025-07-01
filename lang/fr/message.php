@@ -2686,4 +2686,9 @@ return [
     'manager_settings_updated_successfully' => 'Les paramètres du gestionnaire ont été mis à jour avec succès.',
 
     'user_position_prohibited_if' => 'Le champ poste n’est pas autorisé lorsque le rôle est utilisateur.',
+    'invalid_code_2fa' => 'Code invalide. Veuillez réessayer.',
+    '6_digit_auth_code' => 'Entrez votre code d\'authentification à 6 chiffres',
+    '6_code_numer' => 'Le code doit être un nombre à 6 chiffres.',
+    '2fapopup_content' => 'Ingrese su código 2FA para verificar su identidad antes de cambiar su contraseña',
+    'auth_code_required' => 'Se requiere el código de autenticación.',
 ];

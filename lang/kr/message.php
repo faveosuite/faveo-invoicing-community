@@ -2717,4 +2717,9 @@ return [
     'manager_settings_updated_successfully' => '관리자 설정이 성공적으로 업데이트되었습니다.',
 
     'user_position_prohibited_if' => '역할이 사용자일 때는 직위 필드를 사용할 수 없습니다.',
+    'invalid_code_2fa' => '잘못된 코드입니다. 다시 시도해주세요.',
+    '6_digit_auth_code' => '6자리 인증 코드를 입력하세요',
+    '6_code_numer' => '코드는 6자리 숫자여야 합니다.',
+    '2fapopup_content' => '비밀번호를 변경하기 전에 본인 확인을 위해 2FA 코드를 입력하세요',
+    'auth_code_required' => '인증 코드가 필요합니다.',
 ];

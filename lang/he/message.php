@@ -2701,4 +2701,9 @@ return [
     'manager_settings_updated_successfully' => 'הגדרות המנהל עודכנו בהצלחה.',
 
     'user_position_prohibited_if' => 'השדה תפקיד אינו מותר כאשר התפקיד הוא משתמש.',
+    'invalid_code_2fa' => 'קוד שגוי. אנא נסה שוב.',
+    '6_digit_auth_code' => 'הזן את קוד האימות בן 6 הספרות שלך',
+    '6_code_numer' => 'הקוד חייב להיות מספר בן 6 ספרות.',
+    '2fapopup_content' => 'הזן את קוד ה-2FA שלך כדי לאמת את זהותך לפני שינוי הסיסמה שלך',
+    'auth_code_required' => 'נדרש קוד אימות.',
 ];

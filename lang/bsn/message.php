@@ -2626,4 +2626,9 @@ return [
     'manager_settings_updated_successfully' => 'Postavke menadžera su uspješno ažurirane.',
 
     'user_position_prohibited_if' => 'Polje pozicija nije dozvoljeno kada je uloga korisnik.',
+    'invalid_code_2fa' => 'Nevažeći kod. Molimo pokušajte ponovo.',
+    '6_digit_auth_code' => 'Unesite svoj 6-cifreni autentifikacijski kod',
+    '6_code_numer' => 'Kod mora biti 6-cifreni broj.',
+    '2fapopup_content' => 'Unesite svoj 2FA kod da biste potvrdili svoj identitet prije promjene lozinke',
+    'auth_code_required' => 'Potrebno je unijeti kod za autentifikaciju.',
 ];

@@ -102,19 +102,29 @@ class LoginController extends Controller
             'email_username.required' => __('message.password_email'),
             'password1.required' => __('message.please_enter_password'),
         ]);
+
+        $rateLimit = rateLimitForKeyIp('login'.$request->input('email_username'), 5, 30, $request->ip());
+
+        if ($rateLimit['status']) {
+            return redirect()->back()->withErrors(__('validation.too_many_login_attempts', ['time' => $rateLimit['remainingTime']]));
+        }
+
         $loginInput = $request->input('email_username');
         $password = $request->input('password1');
         // Find user by email or username
-        $user = User::where('email', $loginInput)->first();
+        $user = User::where('email', $loginInput)
+            ->orWhere('user_name', $loginInput)
+            ->first();
+
         if (! $user) {
             return redirect()->back()->withInput()->withErrors([
-                'login' => __('message.enter_a_email'),
+                'login' => __('validation.login_failed'),
             ]);
         }
         // Validate password
         if (! \Hash::check($password, $user->password)) {
             return redirect()->back()->withInput()->withErrors([
-                'password' => __('message.please_enter_valid_password'),
+                'password' => __('validation.login_failed'),
             ]);
         }
         // Check account activation and mobile verification

@@ -2697,4 +2697,9 @@ return [
     'manager_settings_updated_successfully' => 'La configuración del gerente se actualizó correctamente.',
 
     'user_position_prohibited_if' => 'El campo de posición no está permitido cuando el rol es usuario.',
+    'invalid_code_2fa' => 'Nevažeći kod. Molimo pokušajte ponovo.',
+    '6_digit_auth_code' => 'Unesite svoj 6-cifreni autentifikacijski kod',
+    '6_code_numer' => 'Kod mora biti 6-cifreni broj.',
+    '2fapopup_content' => 'Ingrese su código 2FA para verificar su identidad antes de cambiar su contraseña',
+    'auth_code_required' => 'Se requiere el código de autenticación.',
 ];

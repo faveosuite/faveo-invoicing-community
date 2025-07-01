@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Events\UserOrderDelete;
 use App\Listeners\CloudDeletion;
+use File;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Event;
@@ -42,6 +43,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Event::listen(UserOrderDelete::class, CloudDeletion::class);
+        $this->fileMacros();
     }
 
     /**
@@ -57,5 +59,61 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind('\Symfony\Component\Mailer\MailerInterface::class', 'ProviderRepository');
 
         // $this->app->bind('\Symfony\Component\Mailer\MailerInterface::class',  'Illuminate\Foundation\ProviderRepository::class');
+    }
+
+    /**
+     * Register custom file macros for session management.
+     *
+     * @return void
+     */
+    public function fileMacros()
+    {
+        // Clean directory except specified files and folders
+        File::macro('cleanDirectoryFiles', function (
+            string $directory,
+            array $excludedFiles = [],
+            array $excludedFolders = []
+        ) {
+            if (! File::isDirectory($directory)) {
+                return;
+            }
+
+            $excludedFiles = array_map('basename', $excludedFiles);
+            $excludedFolders = array_map('basename', $excludedFolders);
+
+            // Remove files
+            foreach (File::files($directory) as $file) {
+                if (! in_array($file->getFilename(), $excludedFiles, true)) {
+                    File::delete($file->getPathname());
+                }
+            }
+
+            // Remove directories
+            foreach (File::directories($directory) as $folder) {
+                if (! in_array(basename($folder), $excludedFolders, true)) {
+                    File::deleteDirectory($folder);
+                }
+            }
+        });
+
+        // Filter files based on callback condition
+        File::macro('filterFiles', function (string $directory, callable $callback) {
+            if (! File::isDirectory($directory)) {
+                return collect();
+            }
+
+            return collect(File::files($directory))->filter($callback);
+        });
+
+        // Get file data safely with optional unserialization
+        File::macro('safeGet', function (string $filePath, bool $unserialize = false) {
+            if (! File::exists($filePath)) {
+                return null;
+            }
+
+            $content = @File::get($filePath);
+
+            return $unserialize ? @unserialize($content) : $content;
+        });
     }
 }

@@ -2658,4 +2658,9 @@ return [
     'manager_settings_updated_successfully' => '管理員設定已成功更新。',
 
     'user_position_prohibited_if' => '當角色為使用者時，不允許填寫職位欄位。',
+    'invalid_code_2fa' => '無效的代碼。請再試一次。',
+    '6_digit_auth_code' => '請輸入您的6位認證代碼',
+    '6_code_numer' => '代碼必須是6位數字。',
+    '2fapopup_content' => '請輸入您的2FA代碼以驗證身份後再更改密碼',
+    'auth_code_required' => '需要認證代碼。',
 ];

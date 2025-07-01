@@ -2692,4 +2692,9 @@ return [
     'manager_settings_updated_successfully' => '管理员设置已成功更新。',
 
     'user_position_prohibited_if' => '当角色为用户时，不允许填写职位字段。',
+    'invalid_code_2fa' => '无效的代码。请再试一次。',
+    '6_digit_auth_code' => '请输入您的6位认证代码',
+    '6_code_numer' => '代码必须是6位数字。',
+    '2fapopup_content' => '请输入您的2FA代码以验证身份后再更改密码',
+    'auth_code_required' => '需要认证代码。',
 ];
