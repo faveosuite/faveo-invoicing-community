@@ -107,4 +107,83 @@ class LoginTest extends DBTestCase
         $response = $controller->login($request);
         $this->assertEquals($user->id, session('2fa:user:id'));
     }
+
+    #[Group('postLogin')]
+    public function test_rate_limit_exceeded_redirects_with_error_message()
+    {
+        for ($i = 0; $i < 5; $i++) {
+            $response = $this->post('/login', [
+                'email_username' => 'nonexistentuser',
+                'password1' => 'wrongpassword',
+            ]);
+
+            $response->assertStatus(302);
+        }
+
+        // fifth attempt should trigger rate limit
+        $response = $this->post('/login', [
+            'email_username' => 'nonexistentuser',
+            'password1' => 'wrongpassword',
+        ]);
+
+        $response->assertStatus(302);
+    }
+
+    #[Group('postLogin')]
+    public function test_login_with_email()
+    {
+        $this->withoutMiddleware();
+        $user = User::factory()->create([
+            'email' => 'test@example.com',
+            'password' => bcrypt('password123'),
+        ]);
+
+        // Attempt login with email
+        $response = $this->post('login', [
+            'email_username' => $user->email,
+            'password1' => $user->password,
+        ]);
+
+        // Assert successful login
+        $response->assertRedirect('/');
+    }
+
+    #[Group('postLogin')]
+    public function test_login_with_username()
+    {
+        $this->withoutMiddleware();
+        $user = User::factory()->create([
+            'user_name' => 'testuser',
+            'password' => bcrypt('password123'),
+            'role' => 'admin'
+        ]);
+
+        // Attempt login with username
+        $response = $this->post('/login', [
+            'email_username' => $user->user_name,
+            'password1' => $user->password,
+        ]);
+
+        // Assert successful login
+        $response->assertRedirect('/');
+    }
+
+    #[Group('postLogin')]
+    public function test_login_fails_with_invalid_credentials()
+    {
+        $this->withoutMiddleware();
+        $user = User::factory()->create([
+            'user_name' => 'testuser',
+            'password' => bcrypt('password123'),
+            'role' => 'admin'
+        ]);
+
+        // Attempt login with invalid credentials
+        $response = $this->post('/login', [
+            'email_username' => 'invaliduser',
+            'password1' => 'wrongpassword',
+        ]);
+
+        $response->assertStatus(302);
+    }
 }

@@ -610,7 +610,12 @@ foreach($scripts as $script) {
                 var emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
                 var isEmail = emailRegex.test(value);
 
-                return this.optional(element) || isEmail;
+                // Username regex (alphanumeric with optional underscores or periods)
+                var usernameRegex = /^[a-zA-Z0-9._]+$/;
+                var isUsername = usernameRegex.test(value);
+
+
+                return this.optional(element) || isEmail || isUsername;
             }, "{{ __('message.emailSettings_details.email') }}");
 
             $.validator.addMethod("regex", function(value, element, regexp) {

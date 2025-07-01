@@ -884,5 +884,8 @@ Request file custom validation messages
         'notify_url_invalid' => 'La URL de notificación debe ser una URL válida.',
         'currencies_required' => 'El campo de monedas es obligatorio.',
     ],
+    'login_failed' => 'Error de inicio de sesión, por favor verifica el correo electrónico/nombre de usuario y la contraseña que ingresaste.',
+    'forgot_email_validation' => 'Si el correo electrónico que proporcionaste está registrado, recibirás un correo con las instrucciones para restablecer la contraseña en breve.',
+    'too_many_login_attempts' => 'Has sido bloqueado de la aplicación debido a demasiados intentos fallidos de inicio de sesión. Por favor, inténtalo nuevamente después de :time.',
 
 ];
