@@ -2703,4 +2703,9 @@ return [
     'user_position_prohibited_if' => 'Trường chức vụ không được phép khi vai trò là người dùng.',
     'cloud_plan_error' => 'Vui lòng xóa sản phẩm đám mây hoặc liên kết nó với một gói khác.',
 
+    'invalid_code_2fa' => 'Mã không hợp lệ. Vui lòng thử lại.',
+    '6_digit_auth_code' => 'Nhập mã xác thực 6 chữ số của bạn',
+    '6_code_numer' => 'Mã phải là một số có 6 chữ số.',
+    '2fapopup_content' => 'Nhập mã 2FA của bạn để xác minh danh tính trước khi thay đổi mật khẩu',
+    'auth_code_required' => 'Mã xác thực là bắt buộc.',
 ];

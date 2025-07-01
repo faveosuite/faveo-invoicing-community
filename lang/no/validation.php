@@ -882,5 +882,8 @@ return [
         'notify_url_invalid' => 'Varslings-URLen må være en gyldig URL.',
         'currencies_required' => 'Feltet for valutaer er påkrevd.',
     ],
+    'login_failed' => 'Innlogging mislyktes, vennligst sjekk at e-post/brukernavn og passord du har skrevet inn er korrekte.',
+    'forgot_email_validation' => 'Hvis e-posten du oppga er registrert, vil du snart motta en e-post med instruksjoner for å tilbakestille passordet.',
+    'too_many_login_attempts' => 'Du har blitt låst ute av applikasjonen på grunn av for mange mislykkede innloggingsforsøk. Vennligst prøv igjen etter :time.',
 
 ];

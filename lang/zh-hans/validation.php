@@ -891,5 +891,8 @@ return [
         'notify_url_invalid' => '通知 URL 必须是有效的 URL。',
         'currencies_required' => '货币字段是必填项。',
     ],
+    'login_failed' => '登录失败，请检查您输入的电子邮件/用户名和密码是否正确。',
+    'forgot_email_validation' => '如果您提供的电子邮件已注册，您将很快收到一封包含重置密码说明的电子邮件。',
+    'too_many_login_attempts' => '由于多次登录失败，您已被锁定，请在 :time 后重试。',
 
 ];

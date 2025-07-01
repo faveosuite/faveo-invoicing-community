@@ -2704,4 +2704,9 @@ return [
     'msg_service_down' => 'We’re currently experiencing issues with our OTP service. Please try again shortly. We’re working to resolve this as quickly as possible.',
     'cloud_plan_error' => 'Please remove the cloud product or link it to an alternative plan.',
 
+    'invalid_code_2fa' => 'Invalid code. Please try again.',
+    '6_digit_auth_code' => 'Enter your 6-digit authentication code',
+    '6_code_numer' => 'Code must be a 6-digit number.',
+    '2fapopup_content' => 'Enter your 2FA code to verify your identity before changing your password',
+    'auth_code_required' => 'Authentication code is required.',
 ];

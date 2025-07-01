@@ -2704,4 +2704,9 @@ return [
     'user_position_prohibited_if' => '役割がユーザーの場合、ポジションフィールドは使用できません。',
     'cloud_plan_error' => 'クラウド製品を削除するか、別のプランにリンクしてください。',
 
+    'invalid_code_2fa' => '無効なコードです。もう一度お試しください。',
+    '6_digit_auth_code' => '6桁の認証コードを入力してください',
+    '6_code_numer' => 'コードは6桁の数字である必要があります。',
+    '2fapopup_content' => 'パスワードを変更する前に本人確認のために2FAコードを入力してください',
+    'auth_code_required' => '認証コードが必要です。',
 ];
