@@ -876,7 +876,7 @@ function deleteUserSessions(int $userId, string $password): void
 
         foreach ($sessionFiles as $file) {
             // Skip .gitignore or non-readable files
-            if ($file->getFilename() === '.gitignore' || !$file->isReadable()) {
+            if ($file->getFilename() === '.gitignore' || ! $file->isReadable()) {
                 continue;
             }
 
@@ -892,7 +892,7 @@ function deleteUserSessions(int $userId, string $password): void
             }
 
             $sessionData = @unserialize($content);
-            if (!is_array($sessionData)) {
+            if (! is_array($sessionData)) {
                 continue;
             }
 
