@@ -155,7 +155,7 @@ class LoginTest extends DBTestCase
         $user = User::factory()->create([
             'user_name' => 'testuser',
             'password' => bcrypt('password123'),
-            'role' => 'admin'
+            'role' => 'admin',
         ]);
 
         // Attempt login with username
@@ -175,7 +175,7 @@ class LoginTest extends DBTestCase
         $user = User::factory()->create([
             'user_name' => 'testuser',
             'password' => bcrypt('password123'),
-            'role' => 'admin'
+            'role' => 'admin',
         ]);
 
         // Attempt login with invalid credentials
