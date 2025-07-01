@@ -1276,7 +1276,7 @@ return [
     'v2_tooltip' => 'Validate Requests with checkbox.',
     'v3_tooltip' => 'Validate Requests with score.',
     'user-suspend-successfully' => 'User Suspended Successfully',
-    'tick-to-hide-from-invoice'=>'Check to hide from invoice creation page',
+    'tick-to-hide-from-invoice' => 'Check to hide from invoice creation page',
     //email templates
 
     'choose_password' => 'Click here to reset your password: ',
