@@ -2619,4 +2619,9 @@ return [
     'new_code_generated' => 'Mã khôi phục mới đã được tạo thành công.',
     'please_enter_code' => 'Vui lòng nhập mã.',
     '2fa_verifying' => 'Đang xác minh...',
+    'invalid_code_2fa' => 'Mã không hợp lệ. Vui lòng thử lại.',
+    '6_digit_auth_code' => 'Nhập mã xác thực 6 chữ số của bạn',
+    '6_code_numer' => 'Mã phải là một số có 6 chữ số.',
+    '2fapopup_content' => 'Nhập mã 2FA của bạn để xác minh danh tính trước khi thay đổi mật khẩu',
+    'auth_code_required' => 'Mã xác thực là bắt buộc.',
 ];

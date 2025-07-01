@@ -915,5 +915,8 @@ return [
         'notify_url_invalid' => 'URL thông báo phải là URL hợp lệ.',
         'currencies_required' => 'Trường tiền tệ là bắt buộc.',
     ],
+    'login_failed' => 'Đăng nhập không thành công, vui lòng kiểm tra email/tên người dùng và mật khẩu bạn đã nhập có chính xác không.',
+    'forgot_email_validation' => 'Nếu email bạn cung cấp đã được đăng ký, bạn sẽ nhận được email với hướng dẫn để đặt lại mật khẩu trong thời gian ngắn.',
+    'too_many_login_attempts' => 'Bạn đã bị khóa khỏi ứng dụng do quá nhiều lần đăng nhập không thành công. Vui lòng thử lại sau :time.',
 
 ];

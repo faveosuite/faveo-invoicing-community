@@ -927,4 +927,7 @@ return [
         'notify_url_invalid' => 'The notify URL must be a valid URL.',
         'currencies_required' => 'The currencies field is required.',
     ],
+    'login_failed' => 'Login failed, please check email/username and password you entered are correct.',
+    'forgot_email_validation' => 'If the email you provided is registered, you will receive an email with the instructions to reset the password shortly.',
+    'too_many_login_attempts' => 'You have been locked out of application due to too many failed login attempts, Please retry after :time',
 ];

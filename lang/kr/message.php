@@ -2640,4 +2640,9 @@ return [
     'new_code_generated' => '새 복구 코드가 성공적으로 생성되었습니다.',
     'please_enter_code' => '코드를 입력하세요.',
     '2fa_verifying' => '확인 중...',
+    'invalid_code_2fa' => '잘못된 코드입니다. 다시 시도해주세요.',
+    '6_digit_auth_code' => '6자리 인증 코드를 입력하세요',
+    '6_code_numer' => '코드는 6자리 숫자여야 합니다.',
+    '2fapopup_content' => '비밀번호를 변경하기 전에 본인 확인을 위해 2FA 코드를 입력하세요',
+    'auth_code_required' => '인증 코드가 필요합니다.',
 ];

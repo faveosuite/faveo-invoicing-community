@@ -2598,4 +2598,9 @@ return [
     'new_code_generated' => 'Novo código de recuperação gerado com sucesso.',
     'please_enter_code' => 'Por favor, insira o código.',
     '2fa_verifying' => 'Verificando...',
+    'invalid_code_2fa' => 'Código inválido. Por favor, tente novamente.',
+    '6_digit_auth_code' => 'Insira seu código de autenticação de 6 dígitos',
+    '6_code_numer' => 'O código deve ser um número de 6 dígitos.',
+    '2fapopup_content' => 'Insira seu código 2FA para verificar sua identidade antes de alterar sua senha',
+    'auth_code_required' => 'O código de autenticação é obrigatório.',
 ];

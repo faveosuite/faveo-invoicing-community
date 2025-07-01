@@ -229,7 +229,7 @@ class BaseClientController extends Controller
             $user->save();
 
             // Logout all other sessions if using web guard
-            \Auth::logoutOtherDevices($newPassword);
+            deleteUserSessions($user->id, $newPassword);
 
             // Remove password reset records
             \DB::table('password_resets')->where('email', $user->email)->delete();
