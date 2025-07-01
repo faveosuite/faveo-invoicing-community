@@ -76,7 +76,7 @@ class LoginTest extends DBTestCase
         $response = $this->call('POST', 'login', ['email_username' => 'santhanuchakrapa@gmail.com', 'password1' => 'password']);
         $response->assertRedirect();
         $response->assertSessionHasErrors([
-            'login' => 'Please Enter a valid Email',
+            'login' => 'Login failed, please check email/username and password you entered are correct.',
         ]);
         $this->assertTrue(session()->hasOldInput('email_username'));
     }
@@ -89,7 +89,7 @@ class LoginTest extends DBTestCase
         $response = $this->call('POST', 'login', ['email_username' => $user->email, 'password1' => 'passwor']);
         $response->assertRedirect();
         $response->assertSessionHasErrors([
-            'password' => 'Please Enter a valid Password',
+            'password' => 'Login failed, please check email/username and password you entered are correct.',
         ]);
     }
 
