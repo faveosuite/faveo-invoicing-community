@@ -2675,4 +2675,9 @@ return [
     'cloud_deleted_failed' => '租户删除失败',
     'not-found' => '无法删除该产品，因为它当前关联了一个或多个服务。请先删除所有相关服务后再尝试删除该产品。',
 
+    'invalid_code_2fa' => '无效的代码。请再试一次。',
+    '6_digit_auth_code' => '请输入您的6位认证代码',
+    '6_code_numer' => '代码必须是6位数字。',
+    '2fapopup_content' => '请输入您的2FA代码以验证身份后再更改密码',
+    'auth_code_required' => '需要认证代码。',
 ];

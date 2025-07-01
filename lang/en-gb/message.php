@@ -2682,4 +2682,9 @@ return [
     'captcha_message' => 'reCAPTCHA verification failed. Please try again.',
     'not-found' => 'This product cannot be deleted because it is currently associated with one or more services. Please remove all related services before attempting to delete this product.',
 
+    'invalid_code_2fa' => 'Invalid code. Please try again.',
+    '6_digit_auth_code' => 'Enter your 6-digit authentication code',
+    '6_code_numer' => 'Code must be a 6-digit number.',
+    '2fapopup_content' => 'Enter your 2FA code to verify your identity before changing your password',
+    'auth_code_required' => 'Authentication code is required.',
 ];

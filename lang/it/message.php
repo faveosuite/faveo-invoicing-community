@@ -2674,5 +2674,10 @@ return [
     'captcha_failed' => 'Verifica reCAPTCHA non riuscita. Assicurati che la tua chiave segreta reCAPTCHA sia valida.',
     'captcha_message' => 'Verifica reCAPTCHA non riuscita. Riprova.',
     'not-found' => 'Questo prodotto non può essere eliminato perché è attualmente associato a uno o più servizi. Rimuovere tutti i servizi correlati prima di tentare di eliminare questo prodotto.',
+    'invalid_code_2fa' => 'Kode tidak valid. Silakan coba lagi.',
+    '6_digit_auth_code' => 'Masukkan kode autentikasi 6 digit Anda',
+    '6_code_numer' => 'Kode harus berupa angka 6 digit.',
+    '2fapopup_content' => 'Masukkan kode 2FA Anda untuk memverifikasi identitas Anda sebelum mengubah kata sandi Anda',
+    'auth_code_required' => 'Kode autentikasi diperlukan.',
 
 ];

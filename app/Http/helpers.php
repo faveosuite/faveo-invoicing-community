@@ -876,5 +876,57 @@ function createUrl(string $path): string
 {
     $baseUrl = getUrl();
 
-    return rtrim($baseUrl, '/').'/'.ltrim($path, '/');
+    return rtrim($baseUrl, '/') . '/' . ltrim($path, '/');
+}
+
+/**
+ * Deletes all user sessions except the current session.
+ *
+ * This function checks the session driver and deletes sessions based on the user ID.
+ * For file-based sessions, it reads session files and deletes those that match the user ID.
+ * For other drivers (like database or Redis), it uses the logoutOtherDevices method.
+ *
+ * @param  int  $userId  The ID of the user whose sessions are to be deleted.
+ * @param  string  $password  The user's password for authentication.
+ * @return void
+ */
+function deleteUserSessions(int $userId, string $password): void
+{
+    if (config('session.driver') !== 'file') {
+        \Auth::logoutOtherDevices($password);
+
+        return;
+    }
+
+    $sessionPath = storage_path('framework/sessions');
+    $currentSessionId = session()->getId();
+
+    // Find sessions to keep (not belonging to user + current session)
+    $sessionsToKeep = File::filterFiles($sessionPath, function ($file) use ($userId, $currentSessionId) {
+        $fileName = $file->getFilename();
+
+        // Always keep current session
+        if ($fileName === $currentSessionId) {
+            return true;
+        }
+
+        // Check if session belongs to the user
+        $sessionData = File::safeGet($file->getPathname(), true);
+        if (! $sessionData) {
+            return false;
+        }
+
+        // Look for user login data
+        foreach ($sessionData as $key => $value) {
+            if (str_starts_with($key, 'login_web_') && $value == $userId) {
+                return false;
+            }
+        }
+
+        return true;
+    });
+
+    // Clean directory keeping only selected sessions
+    $keepFiles = $sessionsToKeep->map(fn ($file) => $file->getFilename())->all();
+    File::cleanDirectoryFiles($sessionPath, $keepFiles);
 }

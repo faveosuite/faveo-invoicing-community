@@ -2674,4 +2674,9 @@ return [
     'cloud_deleted_failed' => 'Penghapusan tenant gagal',
     'not-found' => 'Produk ini tidak dapat dihapus karena saat ini terkait dengan satu atau lebih layanan. Harap hapus semua layanan terkait sebelum mencoba menghapus produk ini.',
 
+    'invalid_code_2fa' => 'Kode tidak valid. Silakan coba lagi.',
+    '6_digit_auth_code' => 'Masukkan kode autentikasi 6 digit Anda',
+    '6_code_numer' => 'Kode harus berupa angka 6 digit.',
+    '2fapopup_content' => 'Masukkan kode 2FA Anda untuk memverifikasi identitas Anda sebelum mengubah kata sandi Anda',
+    'auth_code_required' => 'Kode autentikasi diperlukan.',
 ];

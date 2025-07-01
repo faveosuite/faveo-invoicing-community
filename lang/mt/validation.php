@@ -886,5 +886,8 @@ return [
         'notify_url_invalid' => 'L-URL tan-notifika trid tkun URL valida.',
         'currencies_required' => 'Il-kamp tal-muniti huwa meħtieġ.',
     ],
+    'login_failed' => 'Login fallut, jekk jogħġbok iċċekkja li l-email/username u l-password li daħħalt huma korretti.',
+    'forgot_email_validation' => 'Jekk l-email li pprovdejt hija rreġistrata, tirċievi email bl-istruzzjonijiet biex tirrisettja l-password dalwaqt.',
+    'too_many_login_attempts' => 'Inti ġejt imblukkat mill-applikazzjoni minħabba wisq tentattivi ta\' login falluti. Jekk jogħġbok erġa\' ipprova wara :time.',
 
 ];

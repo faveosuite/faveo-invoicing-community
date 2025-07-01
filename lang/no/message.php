@@ -2686,4 +2686,9 @@ return [
     'cloud_deleted_failed' => 'Sletting av leietaker mislyktes',
     'not-found' => 'Dette produktet kan ikke slettes fordi det for øyeblikket er knyttet til en eller flere tjenester. Vennligst fjern alle tilknyttede tjenester før du prøver å slette produktet.',
 
+    'invalid_code_2fa' => 'Ongeldige code. Probeer het opnieuw.',
+    '6_digit_auth_code' => 'Voer uw 6-cijferige authenticatiecode in',
+    '6_code_numer' => 'De code moet een 6-cijferig nummer zijn.',
+    '2fapopup_content' => 'Voer uw 2FA-code in om uw identiteit te verifiëren voordat u uw wachtwoord wijzigt',
+    'auth_code_required' => 'Authenticatiecode is vereist.',
 ];

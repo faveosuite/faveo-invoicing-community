@@ -2645,5 +2645,10 @@ return [
     'cloud_deleted_successfully' => 'Huurder succesvol verwijderd',
     'cloud_deleted_failed' => 'Verwijderen van huurder mislukt',
     'not-found' => 'Dit product kan niet worden verwijderd omdat het momenteel is gekoppeld aan een of meer services. Verwijder alle gerelateerde services voordat u probeert dit product te verwijderen.',
+    'invalid_code_2fa' => 'Ongeldige code. Probeer het opnieuw.',
+    '6_digit_auth_code' => 'Voer uw 6-cijferige authenticatiecode in',
+    '6_code_numer' => 'De code moet een 6-cijferig nummer zijn.',
+    '2fapopup_content' => 'Voer uw 2FA-code in om uw identiteit te verifiëren voordat u uw wachtwoord wijzigt',
+    'auth_code_required' => 'Authenticatiecode is vereist.',
 
 ];

@@ -2681,4 +2681,9 @@ return [
     'cloud_deleted_failed' => 'Xóa tenant thất bại',
     'not-found' => 'Không thể xóa sản phẩm này vì nó đang được liên kết với một hoặc nhiều dịch vụ. Vui lòng xóa tất cả các dịch vụ liên quan trước khi thử xóa sản phẩm này.',
 
+    'invalid_code_2fa' => 'Mã không hợp lệ. Vui lòng thử lại.',
+    '6_digit_auth_code' => 'Nhập mã xác thực 6 chữ số của bạn',
+    '6_code_numer' => 'Mã phải là một số có 6 chữ số.',
+    '2fapopup_content' => 'Nhập mã 2FA của bạn để xác minh danh tính trước khi thay đổi mật khẩu',
+    'auth_code_required' => 'Mã xác thực là bắt buộc.',
 ];

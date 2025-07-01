@@ -2668,4 +2668,10 @@ return [
     'captcha_failed' => 'La vérification reCAPTCHA a échoué. Veuillez vous assurer que votre clé secrète reCAPTCHA est valide.',
     'captcha_message' => 'Échec de la vérification reCAPTCHA. Veuillez réessayer.',
     'not-found' => 'Ce produit ne peut pas être supprimé car il est actuellement associé à un ou plusieurs services. Veuillez supprimer tous les services associés avant de tenter de supprimer ce produit.',
+
+    'invalid_code_2fa' => 'Code invalide. Veuillez réessayer.',
+    '6_digit_auth_code' => 'Entrez votre code d\'authentification à 6 chiffres',
+    '6_code_numer' => 'Le code doit être un nombre à 6 chiffres.',
+    '2fapopup_content' => 'Ingrese su código 2FA para verificar su identidad antes de cambiar su contraseña',
+    'auth_code_required' => 'Se requiere el código de autenticación.',
 ];

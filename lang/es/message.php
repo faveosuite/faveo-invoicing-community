@@ -2680,4 +2680,9 @@ return [
     'captcha_message' => 'La verificación de reCAPTCHA falló. Por favor, inténtalo de nuevo.',
     'not-found' => 'Este producto no puede eliminarse porque está actualmente asociado con uno o más servicios. Elimine todos los servicios relacionados antes de intentar eliminar este producto.',
 
+    'invalid_code_2fa' => 'Nevažeći kod. Molimo pokušajte ponovo.',
+    '6_digit_auth_code' => 'Unesite svoj 6-cifreni autentifikacijski kod',
+    '6_code_numer' => 'Kod mora biti 6-cifreni broj.',
+    '2fapopup_content' => 'Ingrese su código 2FA para verificar su identidad antes de cambiar su contraseña',
+    'auth_code_required' => 'Se requiere el código de autenticación.',
 ];
