@@ -75,7 +75,7 @@ class ProfileRequest extends Request
                 'email' => 'required|email|unique:users',
                 'company' => 'required|max:50',
                 'mobile' => 'required|unique:users',
-                'address' => 'required',
+                'address' => 'required|string|regex:/^[^<>]*$/',
                 'terms' => 'sometimes',
                 'password' => [
                     'required',
