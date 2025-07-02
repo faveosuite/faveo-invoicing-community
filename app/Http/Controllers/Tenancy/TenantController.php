@@ -457,8 +457,11 @@ class TenantController extends Controller
 
                 $this->prepareMessages($faveoCloud, $userEmail, true);
                 $mail->SendEmail($settings->email, $userEmail, $template->data, $subject, $replace, $type);
+                if($result->reason !=''){
+                    return ['status' => $result->status, 'message' => $result->message.trans('message.cloud_created_successfully'),'installationUrl'=>$result->installationUrl,'reason'=>$result->reason];
 
-                return ['status' => $result->status, 'message' => $result->message.trans('message.cloud_created_successfully')];
+                }
+                return ['status' => $result->status, 'message' => $result->message.trans('message.cloud_created_successfully'),'installationUrl'=>$result->installationUrl];
             }
         } catch (Exception $e) {
             $message = $e->getMessage().' Domain: '.$faveoCloud.' Email: '.$userEmail;
