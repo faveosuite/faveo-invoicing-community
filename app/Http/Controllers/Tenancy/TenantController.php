@@ -439,9 +439,12 @@ class TenantController extends Controller
                     $type = $temp_type->where('id', $type_id)->first()->name;
                 }
                 $subject = 'Your '.$order[0]->product()->value('name').' is now ready for use. Get started!';
-                $result->message = str_replace('website', strtolower($product), $result->message);
-                $result->message = str_replace('You will receive password on your registered email', '', $result->message);
-                $userData = $result->message.'<br><br> Email:'.' '.$userEmail.'<br>'.'Password:'.' '.$result->password;
+                $message=(isset($result->reason) && $result->reason != '')?__('message.'.$result->message,['installationUrl'=>$result->installationUrl,'reason'=>$result->reason]):
+                                        __('message.'.$result->message,['installationUrl'=>$result->installationUrl]);
+
+                $message = str_replace('website', strtolower($product), $message);
+                $message = str_replace('You will receive password on your registered email', '', $result->message);
+                $userData = $message.'<br><br> Email:'.' '.$userEmail.'<br>'.'Password:'.' '.$result->password;
 
                 $replace = [
                     'message' => $userData,
