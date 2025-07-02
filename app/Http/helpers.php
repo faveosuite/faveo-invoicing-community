@@ -871,6 +871,7 @@ function deleteUserSessions(int $userId, string $password): void
 {
     if (config('session.driver') !== 'file') {
         \Auth::logoutOtherDevices($password);
+
         return;
     }
     $currentSessionId = session()->getId();
