@@ -2553,4 +2553,10 @@
      'new_code_generated' => 'Kodiċi ta’ rkupru ġdid ġie ġġenerat b’suċċess.',
      'please_enter_code' => 'Jekk jogħġbok daħħal il-kodiċi',
      '2fa_verifying' => 'Qiegħed tivverifika...',
+
+     'domain_already_taken' => 'Id-dominju diġà intuża. Jekk jogħġbok agħżel dominju differenti',
+     'instance_successfully_created' => 'L‑istanza tal-cloud ġiet maħluqa b’suċċess. Żur il-websajt tiegħek fuq :installationUrl. Tirċievi l-password fl‑email reġistrata tiegħek.',
+     'instance_not_created' => 'L‑istanza tal-cloud ġewwaġgħet b’suċċess imma l‑installazzjoni tal-liċenzja falliet.<b>:reason.</b> Żur il-websajt tiegħek fuq :installationUrl',
+     'cloud_deleted_successfully' => 'Tenant imħassar b’suċċess',
+     'cloud_deleted_failed' => 'Falliet tħassar tenant',
  ];

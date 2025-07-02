@@ -2633,4 +2633,10 @@ return [
     'new_code_generated' => 'Ny gjenopprettingskode generert.',
     'please_enter_code' => 'Vennligst skriv inn koden',
     '2fa_verifying' => 'Verifiserer...',
+
+    'domain_already_taken' => 'Domenet er allerede tatt. Vennligst velg et annet domene',
+    'instance_successfully_created' => 'Din sky-instans ble opprettet vellykket. Besøk nettstedet ditt på :installationUrl. Du vil motta passordet på din registrerte e‑post.',
+    'instance_not_created' => 'Din sky-instans ble opprettet vellykket, men lisensinstallasjonen mislyktes.<b>:reason.</b> Vennligst besøk nettstedet ditt på :installationUrl',
+    'cloud_deleted_successfully' => 'Leietaker ble slettet vellykket',
+    'cloud_deleted_failed' => 'Sletting av leietaker mislyktes',
 ];

@@ -2628,4 +2628,11 @@ return [
     'new_code_generated' => 'New recovery code generated successfully.',
     'please_enter_code' => 'Please enter the code',
     '2fa_verifying' => 'Verifying...',
+
+    'domain_already_taken' => 'Domain already taken. Please select a different domain',
+    'instance_successfully_created' => 'Your cloud instance has been created successfully. Please visit your website at :installationUrl. You will receive the password at your registered email.',
+    'instance_not_created' => 'Your cloud instance has been successfully created but licence installation failed.<b>:reason.</b> Please visit your website at :installationUrl',
+    'cloud_deleted_successfully' => 'Tenant deleted successfully',
+    'cloud_deleted_failed' => 'Tenant deletion failed',
+
 ];

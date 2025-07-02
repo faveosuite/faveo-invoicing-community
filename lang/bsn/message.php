@@ -2557,4 +2557,10 @@ return [
     'new_code_generated' => 'Novi kod za oporavak uspješno generisan.',
     'please_enter_code' => 'Molimo unesite kod.',
     '2fa_verifying' => 'Provjera...',
+
+    'domain_already_taken' => 'Domen je već zauzet. Molimo odaberite drugi domen',
+    'instance_successfully_created' => 'Vaš oblačni instance je uspješno kreirana. Posjetite svoju web lokaciju na :installationUrl. Lozinku ćete dobiti na svoj registrirani e‑mail.',
+    'instance_not_created' => 'Vaš oblačni instance je uspješno kreirana, ali instalacija licence nije uspjela.<b>:reason.</b> Posjetite svoju web lokaciju na :installationUrl',
+    'cloud_deleted_successfully' => 'Najmoprimac je uspješno obrisan',
+    'cloud_deleted_failed' => 'Brisanje najmoprimca nije uspjelo',
 ];

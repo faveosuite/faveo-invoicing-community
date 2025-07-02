@@ -2638,4 +2638,10 @@ return [
     'new_code_generated' => 'नया रिकवरी कोड सफलतापूर्वक जनरेट किया गया है।',
     'please_enter_code' => 'कृपया कोड दर्ज करें',
     '2fa_verifying' => 'सत्यापित किया जा रहा है...',
+
+    'domain_already_taken' => 'डोमेन पहले से लिया गया है। कृपया एक अलग डोमेन चुनें',
+    'instance_successfully_created' => 'आपकी क्लाउड इंस्टेंस सफलतापूर्वक बनाई गई है। कृपया अपनी वेबसाइट पर जाएँ: :installationUrl। पासवर्ड आपके पंजीकृत ईमेल पर भेजा जाएगा।',
+    'instance_not_created' => 'आपकी क्लाउड इंस्टेंस सफलतापूर्वक बनाई गई है लेकिन लाइसेंस स्थापना विफल रही।<b>:reason.</b> कृपया अपनी वेबसाइट पर जाएँ: :installationUrl',
+    'cloud_deleted_successfully' => 'क्लाउड डिलीट सफल हुआ',
+    'cloud_deleted_failed' => 'क्लाउड डिलीट विफल',
 ];

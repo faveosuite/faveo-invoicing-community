@@ -2624,4 +2624,10 @@ return [
     'new_code_generated' => '新的恢复码已成功生成。',
     'please_enter_code' => '请输入验证码。',
     '2fa_verifying' => '正在验证...',
+
+    'domain_already_taken' => '域名已被占用。请选择其他域名',
+    'instance_successfully_created' => '您的云实例已成功创建。请访问您的网站：:installationUrl。密码将发送到您注册的邮箱。',
+    'instance_not_created' => '您的云实例已成功创建，但许可证安装失败。<b>:reason。</b>请访问您的网站：:installationUrl',
+    'cloud_deleted_successfully' => '租户已成功删除',
+    'cloud_deleted_failed' => '租户删除失败',
 ];

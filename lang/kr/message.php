@@ -2648,4 +2648,10 @@ return [
     'new_code_generated' => '새 복구 코드가 성공적으로 생성되었습니다.',
     'please_enter_code' => '코드를 입력하세요.',
     '2fa_verifying' => '확인 중...',
+
+    'domain_already_taken' => '도메인이 이미 사용 중입니다. 다른 도메인을 선택하세요',
+    'instance_successfully_created' => '클라우드 인스턴스가 성공적으로 생성되었습니다. 다음 주소를 방문하세요: :installationUrl. 비밀번호는 등록된 이메일로 전송됩니다.',
+    'instance_not_created' => '클라우드 인스턴스는 성공적으로 생성되었지만 라이선스 설치에 실패했습니다.<b>:reason.</b> 다음 주소를 방문하세요: :installationUrl',
+    'cloud_deleted_successfully' => '테넌트가 성공적으로 삭제되었습니다',
+    'cloud_deleted_failed' => '테넌트 삭제에 실패했습니다',
 ];

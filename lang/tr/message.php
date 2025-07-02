@@ -2640,4 +2640,10 @@ return [
     'new_code_generated' => 'Yeni kurtarma kodu başarıyla oluşturuldu.',
     'please_enter_code' => 'Lütfen kodu girin',
     '2fa_verifying' => 'Doğrulanıyor...',
+
+    'domain_already_taken' => 'Alan adı zaten alınmış. Lütfen farklı bir alan adı seçin',
+    'instance_successfully_created' => 'Bulut örneğiniz başarıyla oluşturuldu. Web sitenizi ziyaret edin: :installationUrl. Şifre kayıtlı e‑postanıza gönderilecektir.',
+    'instance_not_created' => 'Bulut örneğiniz başarıyla oluşturuldu ancak lisans kurulumu başarısız oldu.<b>:reason.</b> Web sitenizi ziyaret edin: :installationUrl',
+    'cloud_deleted_successfully' => 'Tenant başarıyla silindi',
+    'cloud_deleted_failed' => 'Tenant silme başarısız oldu',
 ];

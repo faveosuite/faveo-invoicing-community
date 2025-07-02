@@ -2628,4 +2628,10 @@ return [
     'new_code_generated' => 'Mã khôi phục mới đã được tạo thành công.',
     'please_enter_code' => 'Vui lòng nhập mã.',
     '2fa_verifying' => 'Đang xác minh...',
+
+    'domain_already_taken' => 'Tên miền đã được sử dụng. Vui lòng chọn tên miền khác',
+    'instance_successfully_created' => 'Đã tạo phiên bản đám mây của bạn thành công. Vui lòng truy cập trang web của bạn tại :installationUrl. Mật khẩu sẽ được gửi đến email đã đăng ký.',
+    'instance_not_created' => 'Phiên bản đám mây của bạn đã được tạo thành công nhưng cài đặt giấy phép thất bại.<b>:reason.</b> Vui lòng truy cập trang web của bạn tại :installationUrl',
+    'cloud_deleted_successfully' => 'Xóa tenant thành công',
+    'cloud_deleted_failed' => 'Xóa tenant thất bại',
 ];

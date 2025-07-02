@@ -2631,4 +2631,10 @@ return [
     'new_code_generated' => 'קוד שחזור חדש נוצר בהצלחה.',
     'please_enter_code' => 'אנא הזן את הקוד',
     '2fa_verifying' => 'מאמת...',
+
+    'domain_already_taken' => 'הדומיין כבר תפוס. אנא בחר דומיין אחר',
+    'instance_successfully_created' => 'המופע בענן שלך נוצר בהצלחה. אנא בקר באתר שלך ב־:installationUrl. תקבל סיסמה למייל הרשום שלך.',
+    'instance_not_created' => 'המופע בענן שלך נוצר בהצלחה אך התקנת הרישיון נכשלה.<b>:reason.</b> אנא בקר באתר שלך ב־:installationUrl',
+    'cloud_deleted_successfully' => 'שוכר נמחק בהצלחה',
+    'cloud_deleted_failed' => 'מחיקת השוכר נכשלה',
 ];

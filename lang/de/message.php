@@ -2623,4 +2623,10 @@ return [
     'new_code_generated' => 'Neuer Wiederherstellungscode erfolgreich generiert.',
     'please_enter_code' => 'Bitte geben Sie den Code ein.',
     '2fa_verifying' => 'Überprüfung...',
+
+    'domain_already_taken' => 'Domain bereits vergeben. Bitte wählen Sie eine andere Domain',
+    'instance_successfully_created' => 'Ihre Cloud‑Instanz wurde erfolgreich erstellt. Bitte besuchen Sie Ihre Website unter :installationUrl. Sie erhalten das Passwort an Ihre registrierte E‑Mail.',
+    'instance_not_created' => 'Ihre Cloud‑Instanz wurde erfolgreich erstellt, aber die Lizenzinstallation ist fehlgeschlagen.<b>:reason.</b> Bitte besuchen Sie Ihre Website unter :installationUrl',
+    'cloud_deleted_successfully' => 'Mandant erfolgreich gelöscht',
+    'cloud_deleted_failed' => 'Löschen des Mandanten fehlgeschlagen',
 ];

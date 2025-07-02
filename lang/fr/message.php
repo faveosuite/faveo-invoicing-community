@@ -2617,4 +2617,9 @@ return [
     'please_enter_code' => 'Veuillez entrer le code.',
     '2fa_verifying' => 'Vérification en cours...',
 
+    'domain_already_taken' => 'Domaine déjà pris. Veuillez sélectionner un autre domaine',
+    'instance_successfully_created' => 'Votre instance cloud a été créée avec succès. Veuillez visiter votre site à :installationUrl. Vous recevrez le mot de passe sur votre email enregistré.',
+    'instance_not_created' => 'Votre instance cloud a été créée avec succès mais l’installation de la licence a échoué.<b>:reason.</b> Veuillez visiter votre site à :installationUrl',
+    'cloud_deleted_successfully' => 'Locataire supprimé avec succès',
+    'cloud_deleted_failed' => 'Échec de la suppression du locataire',
 ];

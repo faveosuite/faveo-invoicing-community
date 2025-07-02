@@ -2644,7 +2644,7 @@ return [
     'tenant_deletion' => 'Are you sure you want to delete this tenant ',
     'domain_already_taken' => 'Domain already taken. Please select a different domain',
     'instance_successfully_created' => 'Your cloud instance has been created successfully. Please visit your website at :installationUrl. You will receive password on your registered email.',
-    'instance_not_created' => 'Your cloud instance has been successfully created but license installation failed.<b>:reason.</b> Please visit your website at :installationUrl',
+    'instance_not_created' => "Your cloud instance has been successfully created but license installation failed.<b>:reason.</b> Please visit your website at :installationUrl",
     'cloud_deleted_successfully'=>'Tenant Deleted Successfully',
-    'cloud_deleted_failed'=>'Tenant Deleted Failed',
+    'cloud_deleted_failed'=>'Tenant Deletion Failed',
 ];

@@ -2631,4 +2631,10 @@ return [
     'new_code_generated' => 'Nuovo codice di recupero generato con successo.',
     'please_enter_code' => 'Per favore, inserisci il codice',
     '2fa_verifying' => 'Verifica in corso...',
+
+    'domain_already_taken' => 'ドメインはすでに使用されています。他のドメインを選択してください',
+    'instance_successfully_created' => 'クラウドインスタンスが正常に作成されました。:installationUrl にアクセスしてください。パスワードは登録されたメールに送信されます。',
+    'instance_not_created' => 'クラウドインスタンスは正常に作成されましたが、ライセンスのインストールに失敗しました。<b>:reason。</b>:installationUrl にアクセスしてください',
+    'cloud_deleted_successfully' => 'テナントが正常に削除されました',
+    'cloud_deleted_failed' => 'テナントの削除に失敗しました',
 ];

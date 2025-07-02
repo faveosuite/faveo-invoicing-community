@@ -2621,4 +2621,10 @@ return [
     'new_code_generated' => 'Kode pemulihan baru berhasil dibuat.',
     'please_enter_code' => 'Silakan masukkan kode',
     '2fa_verifying' => 'Memverifikasi...',
+
+    'domain_already_taken' => 'Domain sudah digunakan. Silakan pilih domain lain',
+    'instance_successfully_created' => 'Instansi cloud Anda berhasil dibuat. Silakan kunjungi situs web Anda di :installationUrl. Anda akan menerima kata sandi ke email terdaftar.',
+    'instance_not_created' => 'Instansi cloud Anda berhasil dibuat tetapi instalasi lisensi gagal.<b>:reason.</b> Silakan kunjungi situs web Anda di :installationUrl',
+    'cloud_deleted_successfully' => 'Tenant berhasil dihapus',
+    'cloud_deleted_failed' => 'Penghapusan tenant gagal',
 ];

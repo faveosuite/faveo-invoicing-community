@@ -2605,4 +2605,10 @@ return [
     'new_code_generated' => 'Novo código de recuperação gerado com sucesso.',
     'please_enter_code' => 'Por favor, insira o código.',
     '2fa_verifying' => 'Verificando...',
+
+    'domain_already_taken' => 'Domínio já está em uso. Por favor, selecione um domínio diferente',
+    'instance_successfully_created' => 'A sua instância cloud foi criada com sucesso. Visite o seu site em :installationUrl. A password será enviada para o seu email registado.',
+    'instance_not_created' => 'A sua instância cloud foi criada com sucesso mas a instalação da licença falhou.<b>:reason.</b> Visite o seu site em :installationUrl',
+    'cloud_deleted_successfully' => 'Tenant eliminado com sucesso',
+    'cloud_deleted_failed' => 'Falha ao eliminar o tenant',
 ];

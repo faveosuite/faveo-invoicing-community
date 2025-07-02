@@ -2627,4 +2627,10 @@ return [
     'new_code_generated' => 'Nuevo código de recuperación generado con éxito.',
     'please_enter_code' => 'Por favor, introduce el código.',
     '2fa_verifying' => 'Verificando...',
+
+    'domain_already_taken' => 'Dominio ya en uso. Por favor, seleccione un dominio diferente',
+    'instance_successfully_created' => 'Su instancia en la nube se ha creado correctamente. Visite su sitio web en :installationUrl. Recibirá la contraseña en su correo electrónico registrado.',
+    'instance_not_created' => 'Su instancia en la nube se ha creado correctamente pero la instalación de la licencia falló.<b>:reason.</b> Visite su sitio web en :installationUrl',
+    'cloud_deleted_successfully' => 'Inquilino eliminado con éxito',
+    'cloud_deleted_failed' => 'Error al eliminar el inquilino',
 ];

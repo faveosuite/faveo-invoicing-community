@@ -2590,4 +2590,10 @@ return [
     'new_code_generated' => '新的恢復碼已成功生成。',
     'please_enter_code' => '請輸入驗證碼。',
     '2fa_verifying' => '正在驗證...',
+
+    'domain_already_taken' => '網域已被佔用。請選擇其他網域',
+    'instance_successfully_created' => '您的雲端實例已成功建立。請造訪您的網站：:installationUrl。密碼將寄送到您註冊的電子郵件。',
+    'instance_not_created' => '您的雲端實例已成功建立，但授權安裝失敗。<b>:reason。</b>請造訪您的網站：:installationUrl',
+    'cloud_deleted_successfully' => '租戶已成功刪除',
+    'cloud_deleted_failed' => '租戶刪除失敗',
 ];
