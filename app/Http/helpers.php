@@ -869,11 +869,11 @@ function isRtlForLang()
  */
 function deleteUserSessions(int $userId, string $password): void
 {
-    if (config('session.driver') === 'file') {
-        $currentSessionId = session()->getId();
-        $sessionFiles = File::getUserSessionFiles($userId, [$currentSessionId]);
-        File::deleteSessionFiles($sessionFiles);
-    } else {
+    if (config('session.driver') !== 'file') {
         \Auth::logoutOtherDevices($password);
+        return;
     }
+    $currentSessionId = session()->getId();
+    $sessionFiles = File::getUserSessionFiles($userId, [$currentSessionId]);
+    File::deleteSessionFiles($sessionFiles);
 }
