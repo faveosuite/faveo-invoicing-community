@@ -56,19 +56,21 @@ class AppServiceProvider extends ServiceProvider
 
         // $this->app->bind('\Symfony\Component\Mailer\MailerInterface::class',  'Illuminate\Foundation\ProviderRepository::class');
     }
+
     /**
      * Register custom file macros for session management.
      *
      * @return void
      */
-    public function fileMacros() {
+    public function fileMacros()
+    {
         // Delete specific session files
         File::macro('deleteSessionFiles', function ($filenames) {
             $filenames = collect($filenames)->all();
             $sessionPath = storage_path('framework/sessions');
 
             foreach ($filenames as $filename) {
-                $fullPath = $sessionPath . DIRECTORY_SEPARATOR . $filename;
+                $fullPath = $sessionPath.DIRECTORY_SEPARATOR.$filename;
                 if (File::exists($fullPath)) {
                     File::delete($fullPath);
                 }
@@ -101,7 +103,7 @@ class AppServiceProvider extends ServiceProvider
 
                     return false;
                 })
-                ->map(fn($file) => $file->getFilename())
+                ->map(fn ($file) => $file->getFilename())
                 ->values();
         });
     }
