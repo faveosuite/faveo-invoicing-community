@@ -871,40 +871,9 @@ function deleteUserSessions(int $userId, string $password): void
 {
     if (config('session.driver') === 'file') {
         $currentSessionId = session()->getId();
-        $sessionPath = storage_path('framework/sessions');
-        $sessionFiles = \File::files($sessionPath);
-
-        foreach ($sessionFiles as $file) {
-            // Skip .gitignore or non-readable files
-            if ($file->getFilename() === '.gitignore' || ! $file->isReadable()) {
-                continue;
-            }
-
-            // Avoid reading the current session file
-            if ($file->getFilename() === $currentSessionId) {
-                continue;
-            }
-
-            $content = @file_get_contents($file->getRealPath());
-
-            if ($content === false) {
-                continue;
-            }
-
-            $sessionData = @unserialize($content);
-            if (! is_array($sessionData)) {
-                continue;
-            }
-
-            foreach ($sessionData as $key => $value) {
-                if (str_starts_with($key, 'login_web_') && $value == $userId) {
-                    \File::delete($file->getRealPath());
-                    break;
-                }
-            }
-        }
+        $sessionFiles = File::getUserSessionFiles($userId, [$currentSessionId]);
+        File::deleteSessionFiles($sessionFiles);
     } else {
-        // For database, redis, or other drivers
         \Auth::logoutOtherDevices($password);
     }
 }
