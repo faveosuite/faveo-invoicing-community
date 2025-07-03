@@ -64,47 +64,51 @@ class AppServiceProvider extends ServiceProvider
      */
     public function fileMacros()
     {
-        // Delete specific session files
-        File::macro('deleteSessionFiles', function ($filenames) {
-            $filenames = collect($filenames)->all();
-            $sessionPath = storage_path('framework/sessions');
+        // Clean directory except specified files and folders
+        File::macro('cleanDirectoryFiles', function (
+            string $directory,
+            array $excludedFiles = [],
+            array $excludedFolders = []
+        ) {
+            if (!File::isDirectory($directory)) {
+                return;
+            }
 
-            foreach ($filenames as $filename) {
-                $fullPath = $sessionPath.DIRECTORY_SEPARATOR.$filename;
-                if (File::exists($fullPath)) {
-                    File::delete($fullPath);
+            $excludedFiles = array_map('basename', $excludedFiles);
+            $excludedFolders = array_map('basename', $excludedFolders);
+
+            // Remove files
+            foreach (File::files($directory) as $file) {
+                if (!in_array($file->getFilename(), $excludedFiles, true)) {
+                    File::delete($file->getPathname());
+                }
+            }
+
+            // Remove directories
+            foreach (File::directories($directory) as $folder) {
+                if (!in_array(basename($folder), $excludedFolders, true)) {
+                    File::deleteDirectory($folder);
                 }
             }
         });
 
-        // Get session files of a specific userId, excluding some sessionIds
-        File::macro('getUserSessionFiles', function (int $userId, array $exceptSessionIds = []) {
-            $sessionPath = storage_path('framework/sessions');
+        // Filter files based on callback condition
+        File::macro('filterFiles', function (string $directory, callable $callback) {
+            if (!File::isDirectory($directory)) {
+                return collect();
+            }
 
-            return collect(File::files($sessionPath))
-                ->reject(function ($file) use ($exceptSessionIds) {
-                    return $file->getFilename() === '.gitignore' ||
-                        in_array($file->getFilename(), $exceptSessionIds, true) ||
-                        ! $file->isReadable();
-                })
-                ->filter(function ($file) use ($userId) {
-                    $content = @file_get_contents($file->getRealPath());
-                    $sessionData = @unserialize($content);
+            return collect(File::files($directory))->filter($callback);
+        });
 
-                    if (! is_array($sessionData)) {
-                        return false;
-                    }
+        // Get file data safely with optional unserialization
+        File::macro('safeGet', function (string $filePath, bool $unserialize = false) {
+            if (!File::exists($filePath)) {
+                return null;
+            }
 
-                    foreach ($sessionData as $key => $value) {
-                        if (str_starts_with($key, 'login_web_') && $value == $userId) {
-                            return true;
-                        }
-                    }
-
-                    return false;
-                })
-                ->map(fn ($file) => $file->getFilename())
-                ->values();
+            $content = @File::get($filePath);
+            return $unserialize ? @unserialize($content) : $content;
         });
     }
 }
