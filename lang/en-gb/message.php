@@ -2645,7 +2645,6 @@ return [
     'email_validation_status' => 'Email validation status successfully saved',
     'mobileApi_provider' => 'Please select a mobile validation provider.',
 
-
     'trial_status_updated' => 'Free trial status updated successfully',
     'trial_status_error' => 'An error occurred while updating the free trial status',
     'free_trial_status_tooltip' => 'Use this switch to control which product appears in the Start Free Trial popup',
