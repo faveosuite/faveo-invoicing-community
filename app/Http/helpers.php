@@ -889,7 +889,7 @@ function deleteUserSessions(int $userId, string $password): void
 
         // Check if session belongs to the user
         $sessionData = File::safeGet($file->getPathname(), true);
-        if (!$sessionData) {
+        if (! $sessionData) {
             return false;
         }
 
@@ -904,6 +904,6 @@ function deleteUserSessions(int $userId, string $password): void
     });
 
     // Clean directory keeping only selected sessions
-    $keepFiles = $sessionsToKeep->map(fn($file) => $file->getFilename())->all();
+    $keepFiles = $sessionsToKeep->map(fn ($file) => $file->getFilename())->all();
     File::cleanDirectoryFiles($sessionPath, $keepFiles);
 }
