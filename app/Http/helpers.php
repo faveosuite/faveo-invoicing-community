@@ -874,7 +874,36 @@ function deleteUserSessions(int $userId, string $password): void
 
         return;
     }
+
+    $sessionPath = storage_path('framework/sessions');
     $currentSessionId = session()->getId();
-    $sessionFiles = File::getUserSessionFiles($userId, [$currentSessionId]);
-    File::deleteSessionFiles($sessionFiles);
+
+    // Find sessions to keep (not belonging to user + current session)
+    $sessionsToKeep = File::filterFiles($sessionPath, function ($file) use ($userId, $currentSessionId) {
+        $fileName = $file->getFilename();
+
+        // Always keep current session
+        if ($fileName === $currentSessionId) {
+            return true;
+        }
+
+        // Check if session belongs to the user
+        $sessionData = File::safeGet($file->getPathname(), true);
+        if (!$sessionData) {
+            return false;
+        }
+
+        // Look for user login data
+        foreach ($sessionData as $key => $value) {
+            if (str_starts_with($key, 'login_web_') && $value == $userId) {
+                return false;
+            }
+        }
+
+        return true;
+    });
+
+    // Clean directory keeping only selected sessions
+    $keepFiles = $sessionsToKeep->map(fn($file) => $file->getFilename())->all();
+    File::cleanDirectoryFiles($sessionPath, $keepFiles);
 }
