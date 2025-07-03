@@ -10,7 +10,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if(!Schema::hasTable('stripe')) {
+        if (! Schema::hasTable('stripe')) {
             Schema::create('stripe', function ($table) {
                 $table->increments('id');
                 $table->string('image_url');
