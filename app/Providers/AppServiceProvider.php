@@ -74,7 +74,7 @@ class AppServiceProvider extends ServiceProvider
             array $excludedFiles = [],
             array $excludedFolders = []
         ) {
-            if (!File::isDirectory($directory)) {
+            if (! File::isDirectory($directory)) {
                 return;
             }
 
@@ -83,14 +83,14 @@ class AppServiceProvider extends ServiceProvider
 
             // Remove files
             foreach (File::files($directory) as $file) {
-                if (!in_array($file->getFilename(), $excludedFiles, true)) {
+                if (! in_array($file->getFilename(), $excludedFiles, true)) {
                     File::delete($file->getPathname());
                 }
             }
 
             // Remove directories
             foreach (File::directories($directory) as $folder) {
-                if (!in_array(basename($folder), $excludedFolders, true)) {
+                if (! in_array(basename($folder), $excludedFolders, true)) {
                     File::deleteDirectory($folder);
                 }
             }
@@ -98,7 +98,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Filter files based on callback condition
         File::macro('filterFiles', function (string $directory, callable $callback) {
-            if (!File::isDirectory($directory)) {
+            if (! File::isDirectory($directory)) {
                 return collect();
             }
 
@@ -107,11 +107,12 @@ class AppServiceProvider extends ServiceProvider
 
         // Get file data safely with optional unserialization
         File::macro('safeGet', function (string $filePath, bool $unserialize = false) {
-            if (!File::exists($filePath)) {
+            if (! File::exists($filePath)) {
                 return null;
             }
 
             $content = @File::get($filePath);
+
             return $unserialize ? @unserialize($content) : $content;
         });
     }
