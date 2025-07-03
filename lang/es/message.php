@@ -2644,7 +2644,6 @@ return [
     'email_validation_status' => 'El estado de validación del correo electrónico se ha guardado correctamente.',
     'mobileApi_provider' => 'Por favor, seleccione un proveedor de validación móvil.',
 
-
     'file_invalid' => 'El archivo parece estar dañado o no válido. Por favor, verifique el archivo e inténtelo de nuevo.',
     'tick-to-hide-from-invoice' => 'Marca para ocultar en la página de creación de facturas',
 
