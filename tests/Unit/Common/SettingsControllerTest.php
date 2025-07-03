@@ -145,6 +145,7 @@ class SettingsControllerTest extends DBTestCase
         $this->assertEquals(false, $content['success']);
         $this->assertEquals('Please enter a valid Reoon Api key.', $content['message']);
     }
+
     public function test_post_contact_option_successfully_updates_settings()
     {
         $this->getLoggedInUser('admin');
