@@ -107,7 +107,7 @@ class PhpMailController extends Controller
                 $user = \DB::table('users')->find($data->user_id);
                 $product = Product::find($data->product_id);
                 $order = $cron->getOrderById($data->order_id);
-                $data->is_deleted=1;
+                $data->is_deleted = 1;
                 $data->save();
                 if (empty($order)) {
                     continue;
