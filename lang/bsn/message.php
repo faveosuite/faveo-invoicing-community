@@ -2546,7 +2546,6 @@ return [
     'free_trial_status_tooltip' => 'Koristite ovu opciju da kontrolišete koji će se proizvod prikazati u prozoru za pokretanje besplatne probe.',
     'trial_status_heading' => 'Status besplatne probe',
 
-
     // Bosnian
     'reoon' => 'Reoon',
     'vonage' => 'Vonage',
