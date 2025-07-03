@@ -93,6 +93,7 @@ class PhpMailController extends Controller
             $today = Carbon::today();
 
             $sub = Subscription::whereNotNull('ends_at')
+                ->where('is_deleted', 0)
                 ->whereIn('product_id', cloudPopupProducts())
                 ->whereDate(
                     \DB::raw("DATE_ADD(ends_at, INTERVAL {$day} DAY)"),
@@ -106,14 +107,16 @@ class PhpMailController extends Controller
                 $user = \DB::table('users')->find($data->user_id);
                 $product = Product::find($data->product_id);
                 $order = $cron->getOrderById($data->order_id);
-
+                $data->is_deleted=1;
+                $data->save();
                 if (empty($order)) {
                     continue;
                 }
                 $id = \DB::table('installation_details')->where('order_id', $order->id)->value('installation_path');
 
                 if (is_null($id) || $id == cloudCentralDomain()) {
-                    $order->delete();
+//                    $order->delete();
+                    continue;
                 } else {
                     //Destroy the tenat
                     $destroy = (new TenantController(new Client, new FaveoCloud()))->destroyTenant(new Request(['id' => $id]));
