@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Client;
 
-use App\Model\Common\EmailMobileValidationProviders;
 use App\Model\Common\StatusSetting;
 use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -201,10 +200,11 @@ class RegistrationTest extends DBTestCase
     }
 
     public function test_postRegister_whenEverythingMatches()
-    {   $this->withoutMiddleware();
+    {
+        $this->withoutMiddleware();
         $this->setUpServerVariable('192.168.12.12', 'someaddress', 'IN');
         $user = User::factory()->create(['bussiness' => 'Accounting', 'mobile_code' => 91]);
-        $status=StatusSetting::where('id',1)->update(['email_validation_status'=>0,'mobile_validation_status'=>0]);
+        $status = StatusSetting::where('id', 1)->update(['email_validation_status' => 0, 'mobile_validation_status' => 0]);
 
         $response = $this->call('POST', 'auth/register', ['first_name' => $user->first_name,
             'last_name' => $user->last_name,
@@ -228,7 +228,7 @@ class RegistrationTest extends DBTestCase
         ]);
 
         $response->assertStatus(200);
-        $content=$response->original;
-        $this->assertEquals(true,$content['success']);
+        $content = $response->original;
+        $this->assertEquals(true, $content['success']);
     }
 }
