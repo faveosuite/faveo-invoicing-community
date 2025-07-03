@@ -1239,7 +1239,7 @@ setTimeout(function() {
                 } else if(data.status == 'success_with_warning') {
                     $('#clouderror').show();
                     $('#cloudsuccess').hide();
-                    var result =  '<div class="alert alert-warning alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true"></span></button><strong>{{ __('message.whoops') }} </strong><br><ul><li>'+translate('instance_not_created',{'instance_not_created':data.installationUrl,'reason':data.reason})+'</li></ul></div>';
+                    var result =  '<div class="alert alert-warning alert-dismissible"><button type="button" class="btn-close" data-dismiss="alert" aria-label="{{ __('message.close') }}"><span aria-hidden="true"></span></button><strong>{{ __('message.whoops') }} </strong><br><ul><li>'+translate('instance_not_created',{'installationUrl':data.installationUrl,'reason':data.reason})+'</li></ul></div>';
                     $('#clouderror').html(result);
                 } else {
                     $('#clouderror').hide();

@@ -443,7 +443,7 @@ class TenantController extends Controller
                                         __('message.'.$result->message,['installationUrl'=>$result->installationUrl]);
 
                 $message = str_replace('website', strtolower($product), $message);
-                $message = str_replace('You will receive password on your registered email', '', $result->message);
+                $message = str_replace('You will receive password on your registered email', '', $message);
                 $userData = $message.'<br><br> Email:'.' '.$userEmail.'<br>'.'Password:'.' '.$result->password;
 
                 $replace = [
