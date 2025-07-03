@@ -214,7 +214,8 @@ class RegistrationTest extends DBTestCase
         $user = User::factory()->create(['bussiness' => 'Accounting', 'mobile_code' => 91]);
         $status = StatusSetting::where('id', 1)->update(['email_validation_status' => 0, 'mobile_validation_status' => 0]);
 
-        $response = $this->call('POST', 'auth/register', ['first_name' => $user->first_name,
+        $response = $this->call('POST', 'auth/register', [
+            'first_name' => $user->first_name,
             'last_name' => $user->last_name,
             'email' => 'santhanuchakrapani@gmail.com',
             'company' => $user->company,
@@ -233,6 +234,10 @@ class RegistrationTest extends DBTestCase
             'password' => 'Santhanu@12',
             'password_confirmation' => 'Santhanu@12',
             'terms' => 'on',
+            'registerForm' => [
+                'pot_field' => '',     // valid
+                'time_field' => encrypt(time() - 10), // valid
+            ],
         ]);
 
         $response->assertStatus(200);
