@@ -1239,7 +1239,7 @@
                     });
                     resumable.on('fileError', function (file, message) {
                         // Reflect that the file upload has resulted in error
-                        $('.resumable-file-' + file.uniqueIdentifier + ' .resumable-file-progress').html(@json(trans('message.file_not_upload')) + message + ')').addClass('error invalid-feedback');
+                        $('.resumable-file-' + file.uniqueIdentifier + ' .resumable-file-progress').html(@json(trans('message.file_not_upload')) + @json(trans('message.file_invalid')) + ')').addClass('error invalid-feedback');
                     });
                     resumable.on('fileProgress', function (file) {
                         // Handle progress for both the file and the overall upload
