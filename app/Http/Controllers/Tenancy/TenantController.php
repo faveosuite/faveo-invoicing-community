@@ -245,6 +245,7 @@ class TenantController extends Controller
                            return '--';
                        }
                        $country = Country::where('country_code_char2', $user->country)->value('nicename');
+
                        return $country ?? '';
                    })
 
@@ -439,8 +440,8 @@ class TenantController extends Controller
                     $type = $temp_type->where('id', $type_id)->first()->name;
                 }
                 $subject = 'Your '.$order[0]->product()->value('name').' is now ready for use. Get started!';
-                $message=(isset($result->reason) && $result->reason != '')?__('message.'.$result->message,['installationUrl'=>$result->installationUrl,'reason'=>$result->reason]):
-                                        __('message.'.$result->message,['installationUrl'=>$result->installationUrl]);
+                $message = (isset($result->reason) && $result->reason != '') ? __('message.'.$result->message, ['installationUrl' => $result->installationUrl, 'reason' => $result->reason]) :
+                                        __('message.'.$result->message, ['installationUrl' => $result->installationUrl]);
 
                 $message = str_replace('website', strtolower($product), $message);
                 $message = str_replace('. You will receive password on your registered email', '', $message);
@@ -460,10 +461,11 @@ class TenantController extends Controller
 
                 $this->prepareMessages($faveoCloud, $userEmail, true);
                 $mail->SendEmail($settings->email, $userEmail, $template->data, $subject, $replace, $type);
-                if(isset($result->reason) && $result->reason !=''){
-                    return ['status' => $result->status, 'message' => $result->message.trans('message.cloud_created_successfully'),'installationUrl'=>$result->installationUrl,'reason'=>$result->reason];
+                if (isset($result->reason) && $result->reason != '') {
+                    return ['status' => $result->status, 'message' => $result->message.trans('message.cloud_created_successfully'), 'installationUrl' => $result->installationUrl, 'reason' => $result->reason];
                 }
-                return ['status' => $result->status, 'message' => $result->message.trans('message.cloud_created_successfully'),'installationUrl'=>$result->installationUrl];
+
+                return ['status' => $result->status, 'message' => $result->message.trans('message.cloud_created_successfully'), 'installationUrl' => $result->installationUrl];
             }
         } catch (Exception $e) {
             $message = $e->getMessage().' Domain: '.$faveoCloud.' Email: '.$userEmail;

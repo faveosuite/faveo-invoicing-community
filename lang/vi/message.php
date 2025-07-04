@@ -2617,7 +2617,6 @@ return [
     'free_trial_status_tooltip' => 'Sử dụng công tắc này để kiểm soát sản phẩm nào sẽ hiển thị trong cửa sổ bật lên Bắt đầu Dùng thử Miễn phí.',
     'trial_status_heading' => 'Trạng thái Dùng thử Miễn phí',
 
-
     'reoon' => 'Reoon',
     'vonage' => 'Vonage',
     'abstract' => 'Abstract',
