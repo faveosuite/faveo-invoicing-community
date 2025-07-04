@@ -33,7 +33,8 @@ class Handler extends ExceptionHandler
      * @return void
      */
     public function report(Throwable $exception)
-    {dd($exception);
+    {
+        dd($exception);
         // Check if the exception is an UnauthenticatedException
         if (! $exception instanceof AuthenticationException) {
             // Send unhandled exceptions to Bugsnag
