@@ -1282,25 +1282,25 @@ setTimeout(function() {
     }
 
 
-    $(document).on("click", ".open-createTenantDialog", function () {
-        $.ajax({
-            url: "{{url('trial-cloud-products')}}",
-            type: "POST",
-            success: function(response){
-                    var data=response['data'];
-                    const select = document.getElementById('serviceType');
+    {{--$(document).on("click", ".open-createTenantDialog", function () {--}}
+    {{--    $.ajax({--}}
+    {{--        url: "{{url('trial-cloud-products')}}",--}}
+    {{--        type: "POST",--}}
+    {{--        success: function(response){--}}
+    {{--                var data=response['data'];--}}
+    {{--                const select = document.getElementById('serviceType');--}}
 
-                    Object.entries(data).forEach(([key, value]) => {
-                        const option = document.createElement('option');
-                        option.value = key;
-                        option.textContent = value;
-                        select.appendChild(option);
-                    });
+    {{--                Object.entries(data).forEach(([key, value]) => {--}}
+    {{--                    const option = document.createElement('option');--}}
+    {{--                    option.value = key;--}}
+    {{--                    option.textContent = value;--}}
+    {{--                    select.appendChild(option);--}}
+    {{--                });--}}
 
-                $('#tenant').modal('show');
-            }
-        })
-    });
+    {{--            // $('#tenant').modal('show');--}}
+    {{--        }--}}
+    {{--    })--}}
+    {{--});--}}
     $('.closebutton').on('click',function(){
         location.reload();
     });
@@ -1509,6 +1509,23 @@ setTimeout(function() {
 
             // Attach a click event handler to the "START FREE TRIAL" button
             $('.startFreeTrialBtn').on('click', function () {
+                $.ajax({
+                    url: "{{url('trial-cloud-products')}}",
+                    type: "POST",
+                    success: function(response){
+                        var data=response['data'];
+                        const select = document.getElementById('serviceType');
+
+                        Object.entries(data).forEach(([key, value]) => {
+                            const option = document.createElement('option');
+                            option.value = key;
+                            option.textContent = value;
+                            select.appendChild(option);
+                        });
+
+                        // $('#tenant').modal('show');
+                    }
+                })
                 // If the button is clicked, open the free trial dialog
                 openFreeTrialDialog();
             });
