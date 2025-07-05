@@ -2608,6 +2608,11 @@
      'deletion_cloud_subscription' => 'Ħassar abbonamenti cloud li skadew aktar minn...',
      'msg_service_down' => 'Bħalissa qed nesperjenzaw problemi bis-servizz tagħna tal-OTP. Jekk jogħġbok erġa’ pprova ftit ieħor. Qed naħdmu biex insolvu l-problema kemm jista’ jkun malajr.',
 
+     'no_available_plans_currency' => 'M’hemmx pjanijiet disponibbli għal dan il-prodott fil-munita magħżula.',
+     'unsupported_country' => 'Il-pajjiż magħżul mhux appoġġjat għal din l-ordni.',
+     'order_no_active_plan_cancelled' => 'Ir-riġenerazzjoni awtomatika ġiet ikkanċellata għax ma nstab l-ebda pjan attiv għall-ordni #:order_number.',
+     'no_matching_plans' => 'M’hemmx pjanijiet disponibbli għaż-żgħażliet tiegħek.',
+     'order_no_active_plan' => 'M’hemmx pjan attiv marbut ma’ din l-ordni.',
      'auto_assign_success' => 'Is-settings tal-assenjazzjoni awtomatika ġew aġġornati b’suċċess.',
      'system_manager_settings' => 'Settings tal-Maniġer tas-Sistema',
      'enable_account_manager' => 'Attiva assenjazzjoni awtomatika għall-Maniġers tal-Kontijiet',
@@ -2625,6 +2630,7 @@
      'manager_settings_updated_successfully' => 'Is-settings tal-maniġer ġew aġġornati b’suċċess.',
 
      'user_position_prohibited_if' => 'Il-qasam tal-pożizzjoni mhuwiex permess meta r-rwol ikun utent.',
+     'period_is_required' => 'Jekk jogħġbok agħżel perjodu.',
      'cloud_plan_error' => 'Jekk jogħġbok neħħi l-prodott cloud jew għaqqdu ma’ pjan alternattiv.',
 
  ];

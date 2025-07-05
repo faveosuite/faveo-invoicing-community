@@ -259,7 +259,7 @@ $country = findCountryByGeoip($location['iso_code']);
                             <div class="form-row">
                                 <div class="form-group col col-lg-6 {{ $errors->has('country') ? 'has-error' : '' }}">
                                     {!! html()->label(__('message.country'), 'country')->class('required') !!}
-                                    <?php $countries = \App\Model\Common\Country::pluck('nicename', 'country_code_char2')->toArray(); ?>
+                                    <?php $countries = \App\Model\Common\Country::pluck('country_name', 'country_code_char2')->toArray(); ?>
                                     {!! html()->select('country', ['' => '', 'Choose' => $countries], $country)
                                         ->class('form-control selectpicker')
                                         ->attribute('data-live-search-style', 'startsWith')

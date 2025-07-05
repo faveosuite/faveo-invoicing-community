@@ -2691,9 +2691,13 @@ return [
     'manager_role.in' => 'Peran manajer yang dipilih tidak valid. Nilai yang diperbolehkan adalah "account" atau "sales".',
     'status.required' => 'Silakan tentukan status.',
     'status.boolean' => 'Status harus berupa true (aktif) atau false (nonaktif).',
+    'no_available_plans_currency' => 'Tidak ada paket yang tersedia untuk produk ini dalam mata uang yang dipilih.',
+    'unsupported_country' => 'Negara yang dipilih tidak didukung untuk pesanan ini.',
+    'order_no_active_plan_cancelled' => 'Perpanjangan otomatis dibatalkan karena tidak ditemukan paket aktif untuk pesanan #:order_number.',
+    'no_matching_plans' => 'Tidak ada paket yang cocok dengan pilihan Anda.',
+    'order_no_active_plan' => 'Tidak ada paket aktif yang terkait dengan pesanan ini.',
     'manager_settings_updated_successfully' => 'Pengaturan manajer berhasil diperbarui.',
-
-    'user_position_prohibited_if' => 'Kolom posisi tidak diizinkan saat peran adalah pengguna.',
+    'user_position_prohibited_if' => 'Bidang posisi tidak diizinkan ketika peran adalah pengguna.',
+    'period_is_required' => 'Silakan pilih periode.',
     'cloud_plan_error' => 'Harap hapus produk cloud atau hubungkan ke paket alternatif.',
-
 ];

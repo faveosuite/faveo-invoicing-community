@@ -2703,6 +2703,11 @@ return [
     'deletion_cloud_subscription' => '다음보다 오래전에 만료된 클라우드 구독 삭제...',
     'msg_service_down' => '현재 OTP 서비스에 문제가 발생했습니다. 잠시 후 다시 시도해 주세요. 빠르게 문제를 해결 중입니다.',
 
+    'no_available_plans_currency' => '선택한 통화로는 이 제품에 사용할 수 있는 플랜이 없습니다.',
+    'unsupported_country' => '이 주문에는 선택한 국가가 지원되지 않습니다.',
+    'order_no_active_plan_cancelled' => '주문 #:order_number 에 대해 활성 플랜이 없어 자동 갱신이 취소되었습니다.',
+    'no_matching_plans' => '선택한 조건에 맞는 플랜이 없습니다.',
+    'order_no_active_plan' => '이 주문에는 활성 플랜이 없습니다.',
     'auto_assign_success' => '자동 할당 설정이 성공적으로 업데이트되었습니다.',
     'system_manager_settings' => '시스템 관리자 설정',
     'enable_account_manager' => '계정 관리자 자동 할당 활성화',
@@ -2720,6 +2725,7 @@ return [
     'manager_settings_updated_successfully' => '관리자 설정이 성공적으로 업데이트되었습니다.',
 
     'user_position_prohibited_if' => '역할이 사용자일 때는 직위 필드를 사용할 수 없습니다.',
+    'period_is_required' => '기간을 선택해 주세요.',
     'cloud_plan_error' => '클라우드 제품을 삭제하거나 다른 요금제에 연결해 주세요.',
 
 ];

@@ -2680,6 +2680,11 @@ return [
     'cloud_deleted_successfully' => 'Xóa tenant thành công',
     'cloud_deleted_failed' => 'Xóa tenant thất bại',
     'not-found' => 'Không thể xóa sản phẩm này vì nó đang được liên kết với một hoặc nhiều dịch vụ. Vui lòng xóa tất cả các dịch vụ liên quan trước khi thử xóa sản phẩm này.',
+    'no_available_plans_currency' => 'Không có gói nào khả dụng cho sản phẩm này với đơn vị tiền tệ đã chọn.',
+    'unsupported_country' => 'Quốc gia đã chọn không được hỗ trợ cho đơn hàng này.',
+    'order_no_active_plan_cancelled' => 'Gia hạn tự động đã bị hủy vì không tìm thấy gói hoạt động cho đơn hàng #:order_number.',
+    'no_matching_plans' => 'Không có gói nào phù hợp với lựa chọn của bạn.',
+    'order_no_active_plan' => 'Không có gói hoạt động nào được liên kết với đơn hàng này.',
     'delete_invoice_older' => 'Xóa hóa đơn cũ hơn...',
     'deletion_cloud_subscription' => 'Xóa đăng ký đám mây đã hết hạn hơn...',
     'msg_service_down' => 'Hiện tại chúng tôi đang gặp sự cố với dịch vụ OTP. Vui lòng thử lại sau. Chúng tôi đang cố gắng khắc phục sự cố nhanh nhất có thể.',
@@ -2701,6 +2706,7 @@ return [
     'manager_settings_updated_successfully' => 'Cài đặt quản lý đã được cập nhật thành công.',
 
     'user_position_prohibited_if' => 'Trường chức vụ không được phép khi vai trò là người dùng.',
+    'period_is_required' => 'Vui lòng chọn một khoảng thời gian.',
     'cloud_plan_error' => 'Vui lòng xóa sản phẩm đám mây hoặc liên kết nó với một gói khác.',
 
 ];

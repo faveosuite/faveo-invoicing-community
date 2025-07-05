@@ -164,6 +164,10 @@
             border: 1px solid #df1b41 !important;
         }
 
+        .auto-renew-status{
+            display: inline-block !important;
+        }
+
     </style>
     @if(Auth::check())
         <li><a class="text-primary" href="{{url('my-invoices')}}">{{ __('message.home')}}</a></li>
@@ -722,12 +726,16 @@
                                     </div>
                                 </div>
 
-                                <div class="col-sm-7">  <div class="form-check form-switch">
+                                <div class="col-sm-7">
+                                    <div class="form-check form-switch auto-renew-status" tabindex="0"
+                                         data-bs-toggle="tooltip"
+                                         data-bs-title="{{ $ExistingPlanPirce ? 'Auto renewal status' : 'No active plan available to active auto renewal' }}">
 
-                                    <input id="renew" value="{{$statusAutorenewal}}"  name="is_subscribed" class="form-check-input renewcheckbox" style="padding-right: 2rem;padding-top: 1rem!important;padding-bottom: 0rem!important;" type="checkbox" role="switch">
-                                    <input type="hidden" name="" id="order" value="{{$id}}">
+                                        <input id="renew" value="{{ $statusAutorenewal }}" name="is_subscribed"
+                                               class="form-check-input renewcheckbox" type="checkbox" role="switch"{{ !$ExistingPlanPirce ? 'disabled' : '' }}>
 
-                                </div></div>
+                                    </div>
+                                </div>
                             </div>
 
                         <div class="row"><div class="col"><hr class="solid my-3"></div></div>
@@ -887,7 +895,7 @@
 
                         <div class="overlay" style="display: none;"></div> <!-- Add this line -->
 
-                        <div class="loader-wrapper" style="display: none; background: white; height: 100%;" >
+                        <div class="loader-wrapper" style="display: none; background: white; height: 100%" >
                             <i class="fas fa-spinner fa-spin" style="font-size: 40px;"></i>
 
                         </div>
@@ -920,11 +928,7 @@
                     <div id="response-agent"></div>
                     <div id="failure-agent"></div>
                     <?php
-                    $country_idagnt = \App\Model\Common\Country::where('country_code_char2', \Auth::user()->country)->value('country_id');
-                    $ExistingPlanPirce= \App\Model\Payment\PlanPrice::where('plan_id',$planIdOld)->where('currency',getCurrencyForClient(\Auth::user()->country))->where('country_id',$country_idagnt)->latest()->value('add_price');
-                    if(!$ExistingPlanPirce){
-                        $ExistingPlanPirce= \App\Model\Payment\PlanPrice::where('plan_id',$planIdOld)->where('currency',getCurrencyForClient(\Auth::user()->country))->where('country_id',0)->latest()->value('add_price');
-                    }
+                    $ExistingPlanPirce= \App\Model\Payment\PlanPrice::where('plan_id',$planIdOld)->where('currency',getCurrencyForClient(\Auth::user()->country))->latest()->value('add_price');
                     ?>
 
                     <p class="text-black"><strong>{{ __('message.current_no_agents')}}</strong> {{$latestAgents}}</p>
@@ -1176,6 +1180,10 @@
 
     <script src="https://js.stripe.com/v3/"></script>
     <script>
+        $(function () {
+            $('[data-bs-toggle="tooltip"]').tooltip()
+        })
+
         // Initialize Stripe
         const stripe = Stripe("{{ $stripe_key }}",{
             locale: 'en' // Set locale if needed
@@ -1295,7 +1303,7 @@
 
 
             }else{
-                var id = $('#order').val();
+                var id = $('#orderID').val();
                 $.ajax({
                     url : '{{url("renewal-disable")}}',
                     method : 'post',
@@ -1329,7 +1337,7 @@
 
         function cardUpdate() {
             $('#renewal-modal').modal('show');
-            var id = $('#order').val();
+            var id = $('#orderID').val();
             var domain = window.location.href;
             $('#payment').on('click', function () {
                 var pay = $('#sel-payment').val();

@@ -190,7 +190,7 @@
                             const countryData = getAllCountryData({ iso2: iso })[0] || {};
                             var dialCode = countryData.dialCode || '';
                             var countryName = countryData.name || '';
-                            const countryIso = row.countries?.nicename || '';
+                            const countryIso = row.countries?.country_name || '';
 
                             if (data) {
                                 return `<span data-toggle="tooltip" title="${countryName}">+${dialCode} ${data}</span>`;

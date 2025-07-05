@@ -2687,6 +2687,11 @@ return [
     'deletion_cloud_subscription' => 'מחיקת מנויי ענן שפגו לפני יותר מ...',
     'msg_service_down' => 'אנחנו חווים כרגע בעיות בשירות ה-OTP שלנו. אנא נסו שוב בעוד זמן קצר. אנו פועלים לפתור את הבעיה בהקדם.',
 
+    'no_available_plans_currency' => 'לא נמצאו תוכניות זמינות עבור מוצר זה במטבע שנבחר.',
+    'unsupported_country' => 'המדינה שנבחרה אינה נתמכת להזמנה זו.',
+    'order_no_active_plan_cancelled' => 'החידוש האוטומטי בוטל מכיוון שלא נמצאה תוכנית פעילה להזמנה מספר #:order_number.',
+    'no_matching_plans' => 'אין תוכניות זמינות בהתאם לבחירתך.',
+    'order_no_active_plan' => 'אין תוכנית פעילה המשויכת להזמנה זו.',
     'auto_assign_success' => 'הגדרת השיוך האוטומטי עודכנה בהצלחה.',
     'system_manager_settings' => 'הגדרות מנהל מערכת',
     'enable_account_manager' => 'אפשר שיוך אוטומטי למנהלי חשבונות',
@@ -2706,4 +2711,5 @@ return [
     'user_position_prohibited_if' => 'השדה תפקיד אינו מותר כאשר התפקיד הוא משתמש.',
     'cloud_plan_error' => 'אנא הסר את מוצר הענן או קשר אותו לתוכנית חלופית.',
 
+    'period_is_required' => 'אנא בחר תקופה.',
 ];

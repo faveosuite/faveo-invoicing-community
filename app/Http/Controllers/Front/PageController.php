@@ -11,8 +11,7 @@ use App\Http\Requests\Front\ContactRequest;
 use App\Http\Requests\Front\PageRequest;
 use App\Model\Common\Country;
 use App\Model\Common\PricingTemplate;
-use App\Model\Common\Setting;
-use App\Model\Common\StatesSubdivisions;
+use App\Model\Common\State;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
@@ -469,48 +468,37 @@ class PageController extends Controller
     public function pageTemplates(?int $templateid = null, int $groupid)
     {
         try {
-            $productsHightlight = Product::wherehighlight(1)->get();
-
-            // $data = PricingTemplate::findorFail($templateid)->data;
             $headline = ProductGroup::findorFail($groupid)->headline;
             $tagline = ProductGroup::findorFail($groupid)->tagline;
             $currencyAndSymbol = '';
             if (! \Auth::user()) {
                 $location = getLocation();
                 $country = findCountryByGeoip($location['iso_code']);
-                $countryids = \App\Model\Common\Country::where('country_code_char2', $country)->value('country_id');
                 $currencyAndSymbol = getCurrencyForClient($country);
             }
             if (\Auth::user()) {
                 $country = \DB::table('users')->where('id', \Auth::user()->id)->value('country');
-                $countryids = \App\Model\Common\Country::where('country_code_char2', $country)->value('country_id');
                 $currencyAndSymbol = getCurrencyForClient($country);
             }
+            $productsRelatedToGroup = Product::with([
+                'planRelation' => function ($query) use ($currencyAndSymbol) {
+                    $query->where('days', '!=', 14)
+                    ->with(['planPrice' => function ($priceQuery) use ($currencyAndSymbol) {
+                        $priceQuery->where('currency', $currencyAndSymbol);
+                    }]);
+                },
+            ])
+                ->where('group', $groupid)
+                ->where('hidden', '!=', 1)
+                ->whereHas('planRelation', function ($query) use ($currencyAndSymbol) {
+                    $query->where('days', '!=', 14)
+                    ->whereHas('planPrice', function ($priceQuery) use ($currencyAndSymbol) {
+                        $priceQuery->where('currency', $currencyAndSymbol);
+                    });
+                })
+                ->orderBy('id')
+                ->get();
 
-            $defaultCurrency = Setting::first()->default_currency;
-            $productsRelatedToGroup = \App\Model\Product\Product::where('products.group', $groupid)
-                ->where('products.hidden', '!=', 1)
-                ->join('plans', 'products.id', '=', 'plans.product')
-                ->where('plans.days', '!=', 14)
-                ->join('plan_prices', 'plans.id', '=', 'plan_prices.plan_id')
-                ->select(
-                    'products.*',
-                    'plan_prices.add_price',
-                    \DB::raw("
-            CASE
-                WHEN plan_prices.currency = '$currencyAndSymbol' THEN 1
-                WHEN plan_prices.currency = '$defaultCurrency' THEN 2
-                WHEN plan_prices.currency != '' THEN 3
-                ELSE 4
-            END as currency_priority
-        ")
-                )
-                // ->orderBy('products.id')
-                ->orderBy('currency_priority')
-                ->orderByRaw('CAST(plan_prices.add_price AS DECIMAL(10, 2)) ASC')
-                // ->orderBy('plans.created_at', 'ASC')
-                ->get()
-                ->unique('id');
 
             $trasform = [];
             $templates = $this->getTemplateOne($productsRelatedToGroup, $trasform);
@@ -552,7 +540,7 @@ class PageController extends Controller
             $set = new \App\Model\Common\Setting();
             $set = $set->findOrFail(1);
             $address = preg_replace("/^\R+|\R+\z/", '', $set->address);
-            $state = StatesSubdivisions::where('state_subdivision_code', $set->state)->value('state_subdivision_name');
+            $state = State::where('country_code', $set->country)->where('iso2', $set->state)->value('state_subdivision_name');
             $country = Country::where('country_code_char2', $set->country)->value('country_name');
 
             return view('themes.default1.front.contact', compact('status', 'apiKeys', 'set', 'state', 'country', 'address'));
@@ -693,7 +681,7 @@ class PageController extends Controller
 
     public function getOfferprice(int $productid)
     {
-        $plans = Plan::where('product', $productid)->get();
+        $plans = Plan::with(['planPrice'])->where('product', $productid)->get();
 
         $offerprices = [
             '30_days' => null,
@@ -702,11 +690,24 @@ class PageController extends Controller
 
         foreach ($plans as $plan) {
             $currency = userCurrencyAndPrice('', $plan);
-            $offer_price = PlanPrice::where('plan_id', $plan->id)->where('currency', $currency)->value('offer_price');
 
-            if ($plan->days == '30' || $plan->days == '31') {
+            if (! $currency || ! $plan->planPrice) {
+                continue;
+            }
+
+            // Get offer_price directly from relation for matching currency
+            $offer_price = $plan->planPrice
+                ->where('currency', $currency['currency'])
+                ->pluck('offer_price')
+                ->first();
+
+            if (! $offer_price) {
+                continue;
+            }
+
+            if (in_array((int) $plan->days, [30, 31])) {
                 $offerprices['30_days'] = $offer_price;
-            } elseif ($plan->days == '365' || $plan->days == '366') {
+            } elseif (in_array((int) $plan->days, [365, 366])) {
                 $offerprices['365_days'] = $offer_price;
             }
         }
@@ -716,33 +717,34 @@ class PageController extends Controller
 
     public function YearlyAmount($id)
     {
-        $countryCheck = true;
         try {
-            $cost = 'Free';
-            $plans = Plan::where('product', $id)->get();
             $product = Product::find($id);
-            $offer = $this->getOfferprice($id);
-
+            $plans = Plan::where('product', $id)->get();
             $planId = Plan::where('product', $id)->pluck('id')->first();
+            $cost = 'Free';
             $prices = [];
+            $currency = '';
+
             foreach ($plans as $plan) {
-                if ($plan->days == 365 || $plan->days == 366) {
-                    $planDetails = userCurrencyAndPrice('', $plan);
-                    $prices[] = ($product->status) ? round($planDetails['plan']->add_price / 12) : $planDetails['plan']->add_price;
-                    $prices[] .= $planDetails['symbol'];
-                    $prices[] .= $planDetails['currency'];
-                } elseif (! $product->status && ! in_array($product->id, cloudPopupProducts())) {
-                    $planDetails = userCurrencyAndPrice('', $plan);
-                    $prices[] = $planDetails['plan']->add_price;
-                    $prices[] .= $planDetails['symbol'];
-                    $prices[] .= $planDetails['currency'];
+                $planDetails = userCurrencyAndPrice('', $plan);
+
+                if (! $planDetails || ($planDetails['plan']->add_price ?? 0) <= 0) {
+                    continue;
                 }
 
-                if (! empty($prices)) {
-                    $format = currencyFormat(min([$prices[0]]), $code = $prices[2]);
-                    $finalPrice = str_replace($prices[1], '', $format);
-                    $cost = '<span class="price-unit" id="'.$planId.'">'.$prices[1].'</span>'.$finalPrice;
+                if ($plan->days == 365 || $plan->days == 366) {
+                    $price = ($product->status) ? round($planDetails['plan']->add_price / 12) : $planDetails['plan']->add_price;
+                    $prices[] = $price;
+                    $currency = $planDetails['currency'];
+                } elseif (! $product->status && ! in_array($product->id, cloudPopupProducts())) {
+                    $prices[] = $planDetails['plan']->add_price;
+                    $currency = $planDetails['currency'];
                 }
+            }
+
+            if (! empty($prices)) {
+                $minPrice = min($prices);
+                $cost = $this->currencyFormatWithSpan($minPrice, $currency, $planId);
             }
 
             return $cost;
@@ -1054,5 +1056,29 @@ class PageController extends Controller
         $message = $existingData ? __('message.data_updated_successfully') : __('message.data_created_successfully');
 
         return redirect()->back()->with('success', $message);
+    }
+
+    public function currencyFormatWithSpan($amount, $currency, $id = null)
+    {
+        // number only
+        $formatted = currencyFormat($amount, $currency, false);
+
+        // formatted with symbol (actual placement)
+        $withSymbol = currencyFormat($amount, $currency);
+
+        // extract symbol by removing number part
+        $symbol = trim(str_replace($formatted, '', $withSymbol));
+
+        // prepare span
+        $span = '<span class="price-unit"'.($id ? ' id="'.$id.'"' : '').'>'.$symbol.'</span>';
+
+        // rebuild keeping correct placement
+        if (strpos($withSymbol, $symbol) === 0) {
+            // symbol is in front
+            return $span.$formatted;
+        }
+
+        // symbol at the end
+        return $formatted.$span;
     }
 }

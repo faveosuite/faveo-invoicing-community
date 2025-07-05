@@ -33,7 +33,7 @@ class ClientControllerTest extends DBTestCase
         $methodResponse = $this->getPrivateMethod($this->classObject, 'getBaseQueryForUserSearch', [$request]);
         $users = $methodResponse->get();
         $this->assertEquals(1, $users->count());
-        $this->assertEquals('UNITED STATES', $users->first()->country);
+        $this->assertEquals('United States', $users->first()->country);
     }
 
     #[Group('User')]
