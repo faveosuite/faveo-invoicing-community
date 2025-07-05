@@ -76,7 +76,6 @@
                 <table class="table table-responsive table-bordered table-hover" id="dynamic_table">
                   <thead>
                     <tr>
-                      <th class="col-sm-6" style="width:10%">{{ Lang::get('message.country') }} <span class="text-red">*</span> </th>
                       <th class="col-sm-6" style="width:10%">{{ Lang::get('message.currency') }} <span class="text-red">*</span> </th>
                       <th class="col-sm-6" style="width:10%">{{ Lang::get('message.price') }} <span class="text-red">*</span> </th>
                       <th class="col-sm-3" style="width:10%">
@@ -91,29 +90,6 @@
                   <tbody>
                     @foreach($planPrices as $row)
                       <tr id="row{{$loop->iteration}}" class="form-group {{ $errors->has('add_price.'.$key) ? 'has-error' : '' }}">
-
-                        <td>
-                          <select name="country_id[{{ $row['id'] }}]" class="form-control {{$errors->has('country_id') ? ' is-invalid' : ''}}" id="country">
-                            @if (0 === $row['country_id'])
-                                <option value="0" selected>{{ __('message.default') }}</option>
-                            @endif
-                            @if (0 !== $row['country_id'])
-                              @foreach ($countries as $country)
-                                <option value="{{$country['country_id']}}"  @if ($country['country_id'] === $row['country_id'])
-                                  {{ 'selected' }}
-                                        @endif>
-                                  {{ $country['country_name'] }}
-                                </option>
-                              @endforeach
-                            @endif
-                          </select>
-                          @error('country_id')
-                          <span class="error-message"> {{$message}}</span>
-                          @enderror
-
-                          <div class="input-group-append">
-                          </div>
-                        </td>
 
                         <td>
                           <select name="currency[{{ $row['id'] }}]" class="form-control currency1 {{$errors->has('currency') ? ' is-invalid' : ''}}" id="currency">
@@ -153,7 +129,7 @@
                         </td>
 
                         <td>
-                          <div class="{{ ($row['country_id'] != 0) ? 'input-group' : '' }}">
+                          <div class="input-group">
                             <input type="number" class="form-control renew_price1 {{$errors->has('renew_price') ? ' is-invalid' : ''}}" name="renew_price[{{ $row['id'] }}]" value="{{ $row['renew_price'] }}" id="renew_price">
                             &nbsp;&nbsp;
                             @error('renew_price')
@@ -161,9 +137,10 @@
                             @enderror
                             <div class="input-group-append">
                             </div>
-                            @if($row['country_id'] != 0)
-                              <span class="input-group-text btn_remove" id="{{$loop->iteration}}"><i class="fa fa-minus"></i></span>
-
+                            @if (! $loop->first)
+                              <span class="input-group-text btn_remove" id="{{ $loop->iteration }}">
+                                    <i class="fa fa-minus"></i>
+                              </span>
                             @endif
 
                           </div>
@@ -241,211 +218,227 @@
   {!! html()->closeModelForm() !!}
 
   <script>
+    $(document).ready(function () {
 
-    $(document).ready(function() {
+      // ===========================
+      // INIT
+      // ===========================
       const userRequiredFields = {
-        planname:@json(trans('message.plan_details.planname')),
-        planproduct:@json(trans('message.plan_details.planproduct')),
-        agentquant:@json(trans('message.plan_details.agentquant')),
-        regular_price:@json(trans('message.plan_details.regular_price')),
-        renew_price:@json(trans('message.plan_details.renewal_price')),
-        currency:@json(trans('message.plan_details.currency')),
-        country:@json(trans('message.plan_details.country')),
-
+        planname: @json(trans('message.plan_details.planname')),
+        planproduct: @json(trans('message.plan_details.planproduct')),
+        productquant: @json(trans('message.plan_details.productquant')),
+        agentquant: @json(trans('message.plan_details.agentquant')),
+        regular_price: @json(trans('message.plan_details.regular_price')),
+        renew_price: @json(trans('message.plan_details.renewal_price')),
+        currency: @json(trans('message.plan_details.currency')),
       };
 
-      $('#editPlan').on('submit', function (e) {
-        const userFields = {
-          planname:$('#planname'),
-          planproduct:$('#planproduct'),
-          regular_price:$('#regular_price'),
-          renew_price:$('#renew_price'),
-          currency:$('#currency'),
-          country:$('#country'),
-        };
+      let countries = [
+          @foreach ($currency as $code => $name)
+        { code: "{{ $code }}", name: "{{ $name }}" }
+        @if (!$loop->last),@endif
+        @endforeach
+      ];
+      let i = 1000;
 
+      // ===========================
+      // PRODUCT HANDLING
+      // ===========================
+      function myProduct() {
+        let product = $('#planproduct').val();
 
-        // Clear previous errors
-        Object.values(userFields).forEach(field => {
-          field.removeClass('is-invalid');
-          field.next().next('.error').remove();
+        $.ajax({
+          type: 'GET',
+          url: "{{url('get-period')}}",
+          data: { product_id: product },
+          success: function (data) {
+            // Handle subscription days visibility
+            if (data.subscription != 1) {
+              $('.plandays').hide();
+            } else {
+              $('.plandays').show();
+            }
 
+            // Enable/disable quantity inputs
+            if (data.agentEnable != 1) {
+              $('#prodquant').prop('disabled', false);
+              $('#agentquant').prop('disabled', true);
+            } else {
+              $('#agentquant').prop('disabled', false);
+              $('#prodquant').prop('disabled', true);
+            }
+          }
         });
+      }
 
+      $('#planproduct').on('change', myProduct);
+
+      // Run once on page load
+      myProduct();
+
+      // ===========================
+      // VALIDATION
+      // ===========================
+      function validateForm() {
         let isValid = true;
 
-        const showError = (field, message) => {
-          field.addClass('is-invalid');
-          field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
-        };
+        $('.is-invalid').removeClass('is-invalid');
+        $('.error.invalid-feedback').remove();
 
-        // Validate required fields
-        Object.keys(userFields).forEach(field => {
-          if (!userFields[field].val()) {
-            showError(userFields[field], userRequiredFields[field]);
+        // Static required fields
+        ['planname', 'planproduct'].forEach(id => {
+          let field = $(`#${id}`);
+          if (!field.val()) {
+            showError(field, userRequiredFields[id]);
             isValid = false;
           }
         });
 
-        // If validation fails, prevent form submission
-        if (!isValid) {
-          e.preventDefault();
+          // Conditional required field: period/days
+          const $days = $('#plandays');
+          if ($days.is(':visible') && !$days.val()) {
+              showError($days, @json(trans('message.period_is_required')));
+              isValid = false;
+          }
+
+        const $agent = $('#agentquant');
+        const $prod = $('#prodquant');
+        if (!$agent.prop('disabled') && !$agent.val()) {
+          showError($agent, userRequiredFields.agentquant);
+          isValid = false;
         }
-      });
-      // Function to remove error when input'id' => 'changePasswordForm'ng data
-      const removeErrorMessage = (field) => {
-        field.classList.remove('is-invalid');
-        const error = field.nextElementSibling;
-        if (error && error.classList.contains('error')) {
-          error.remove();
+        if (!$prod.prop('disabled') && !$prod.val()) {
+          showError($prod, userRequiredFields.productquant);
+          isValid = false;
         }
-      };
 
-      // Add input event listeners for all fields
-      ['planname','planproduct','country','currency','agentquant','renew_price','regular_price'].forEach(id => {
+        // Dynamic rows
+        $('tr[id^="row"], #dynamic_table tr').each(function () {
+          let currency = $(this).find('select[name="currency[]"]');
+          let regular = $(this).find('input[name="add_price[]"]');
+          let renew = $(this).find('input[name="renew_price[]"]');
 
-        document.getElementById(id).addEventListener('input', function () {
-          removeErrorMessage(this);
-
+          if (currency.length && !currency.val()) {
+            showError(currency, userRequiredFields.currency);
+            isValid = false;
+          }
+          if (regular.length && (!regular.val() || parseFloat(regular.val()) <= 0)) {
+            showError(regular, userRequiredFields.regular_price);
+            isValid = false;
+          }
+          if (renew.length && (!renew.val() || parseFloat(renew.val()) <= 0)) {
+            showError(renew, userRequiredFields.renew_price);
+            isValid = false;
+          }
         });
-      });
-    });
 
-    $(function () {
-        $('[data-toggle="tooltip"]').tooltip({
-            container : 'body'
-        });
-    });
+        return isValid;
+      }
 
-     $('ul.nav-sidebar a').filter(function() {
-        return this.id == 'plan';
-    }).addClass('active');
-
-    // for treeview
-    $('ul.nav-treeview a').filter(function() {
-        return this.id == 'plan';
-    }).parentsUntil(".nav-sidebar > .nav-treeview").addClass('menu-open').prev('a').addClass('active');
-
-
-    $( document ).ready(function() {
-      var product = document.getElementById('planproduct').value;
-      $.ajax({
-        type: 'get',
-        url : "{{url('get-period')}}",
-        data: {'product_id':product},
-        success: function (data){
-          if(data.subscription != 1 ){
-            $('.plandays').hide();
-          }
-          else{
-            $('.plandays').show();
-          }
-          if(data.agentEnable != 1) {//Check if Product quantity to be sh`own or No. of Agents
-            document.getElementById("prodquant").disabled = false;
-            document.getElementById("agentquant").disabled = true;
-
-          } else if(data.agentEnable == 1){
-            document.getElementById("agentquant").disabled = false;
-            document.getElementById("prodquant").disabled = true;
-          }
+      function showError(field, message) {
+        field.addClass('is-invalid');
+        if (field.closest('.input-group').length) {
+          field.closest('.input-group').after(`<span class="error invalid-feedback d-block">${message}</span>`);
+        } else {
+          field.after(`<span class="error invalid-feedback">${message}</span>`);
         }
+      }
+
+      $(document).on('input change', 'input, select', function () {
+        $(this).removeClass('is-invalid');
+        $(this).siblings('.error').remove();
+        $(this).closest('.input-group').next('.error').remove();
       });
 
-      var i = 1000;
+      $('#editPlan').on('submit', function (e) {
+        if (!validateForm()) e.preventDefault();
+      });
+
+      // ===========================
+      // CURRENCY HANDLING
+      // ===========================
+      function buildCurrencyOptions(exclude = []) {
+        let options = `<option value="">${@json(__('message.choose'))}</option>`;
+        countries.forEach(c => {
+          if (!exclude.includes(c.code)) {
+            options += `<option value="${c.code}">${c.name}</option>`;
+          }
+        });
+        return options;
+      }
+
+      function refreshCurrencyDropdowns() {
+        let selected = [];
+        $('select[name^="currency"]').each(function () {
+          let val = $(this).val();
+          if (val) selected.push(val);
+        });
+
+        $('select[name^="currency"]').each(function () {
+          let currentVal = $(this).val();
+          $(this).html(buildCurrencyOptions(selected.filter(v => v !== currentVal)));
+          $(this).val(currentVal);
+        });
+      }
+
       $(".add-more").click(function (e) {
         e.preventDefault();
+        let rowCount = $('select[name^="currency"]').length;
+        if (rowCount >= countries.length) {
+          $(this).prop('disabled', true);
+          return;
+        }
         i++;
         $('#dynamic_table tr:last').after(`
-        <tr id="row` + i + `">
+      <tr id="row${i}">
           <td>
-            <select name="country_id[]" class="form-control selectpicker" id="country" >
-              <option value="" selected disabled>{{ __('message.choose_country') }}</option>
-              @foreach ($countries as $country)
-                <option value="{{$country['country_id']}}">
-                  {{ $country['country_name'] }}
-                </option>
-              @endforeach
-            </select>
-          </td>
-
-          <td>
-            <select name="currency[]" class="form-control" id="currency">
-            <option value="">
-              {{ __('message.choose') }}
-            </option>
-              @foreach ($currency as $code => $name)
-                <option value="{{ $code }}">
-                  {{ $name }}
-                </option>
-              @endforeach
-            </select>
-          </td>
-
-          <td>
-            <input type="number" class="form-control" name="add_price[]" id="regular_price">
+              <select name="currency[]" class="form-control currency-dropdown">
+                  ${buildCurrencyOptions()}
+              </select>
           </td>
           <td>
-            <input type="number" class="form-control" name="offer_price[]">
+              <input type="number" class="form-control" name="add_price[]">
           </td>
-
           <td>
-            <div class="input-group">
-              <input type="number" class="form-control" name="renew_price[]" id="renew_price">&nbsp;&nbsp;
-              <button id="` + i + `" class="input-group-text btn_remove"><i class="fa fa-minus"></i></button>
-            </div>
+              <input type="number" class="form-control" name="offer_price[]">
           </td>
-
-        </tr>`)
+          <td>
+              <div class="input-group">
+                  <input type="number" class="form-control" name="renew_price[]">
+                  <button id="${i}" class="input-group-text btn_remove ml-2">
+                      <i class="fa fa-minus"></i>
+                  </button>
+              </div>
+          </td>
+      </tr>
+    `);
+        refreshCurrencyDropdowns();
+        if ($('select[name^="currency"]').length >= countries.length) {
+          $(this).prop('disabled', true);
+        }
       });
 
       $(document).on('click', '.btn_remove', function () {
-        var button_id = $(this).attr("id");
-        $('#row' + button_id + '').remove();
-
-        ['currency1','renew_price1','regular_price1'].forEach(cls => {
-          document.querySelectorAll('.' + cls).forEach(el => {
-            removeErrorMessage(el);
-          });
-        });
+        let button_id = $(this).attr("id");
+        $('#row' + button_id).remove();
+        if ($('select[name^="currency"]').length < countries.length) {
+          $('.add-more').prop('disabled', false);
+        }
+        refreshCurrencyDropdowns();
       });
-      const removeErrorMessage = (field) => {
-        $(field).removeClass('is-invalid');
-        $(field).siblings('.error-message').remove();  // Removes the error message next to the field
-      };
+
+      $(document).on('change', 'select[name="currency[]"]', function () {
+        refreshCurrencyDropdowns();
+      });
+
+      if ($('select[name^="currency"]').length >= countries.length) {
+        $('.add-more').prop('disabled', true);
+      }
+
+      refreshCurrencyDropdowns();
+
     });
 
-
-
-    function myProduct(){
-      var product = document.getElementById('planproduct').value;
-      // console.log(product)
-      $.ajax({
-        type: 'get',
-        url : "{{url('get-period')}}",
-        data: {'product_id':product},
-        success: function (data){
-          console.log(data.subscription);
-
-          if(data.subscription != 1 ){
-            $('.plandays').hide();
-          }
-          else{
-            $('.plandays').show();
-          }
-          if(data.agentEnable != 1) {//Check if Product quantity to be shown or No. of Agents
-            document.getElementById("prodquant").disabled = false;
-            document.getElementById("agentquant").disabled = true;
-
-          } else if(data.agentEnable == 1){
-            document.getElementById("agentquant").disabled = false;
-            document.getElementById("prodquant").disabled = true;
-          }
-
-          var sub = data['subscription'];
-
-        }
-      });
-    }
   </script>
 
 @stop

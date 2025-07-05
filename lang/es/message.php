@@ -2680,6 +2680,11 @@ return [
     'captcha_message' => 'La verificación de reCAPTCHA falló. Por favor, inténtalo de nuevo.',
     'not-found' => 'Este producto no puede eliminarse porque está actualmente asociado con uno o más servicios. Elimine todos los servicios relacionados antes de intentar eliminar este producto.',
 
+    'no_available_plans_currency' => 'No hay planes disponibles para este producto en la moneda seleccionada.',
+    'unsupported_country' => 'El país seleccionado no está soportado para este pedido.',
+    'order_no_active_plan_cancelled' => 'La renovación automática ha sido cancelada porque no se encontró un plan activo para el pedido #:order_number.',
+    'no_matching_plans' => 'No hay planes disponibles para los criterios seleccionados.',
+    'order_no_active_plan' => 'No hay un plan activo asociado a este pedido.',
     'auto_assign_success' => 'La configuración de asignación automática se actualizó correctamente.',
     'system_manager_settings' => 'Configuración del Gestor del Sistema',
     'enable_account_manager' => 'Habilitar la asignación automática para los gestores de cuentas',
@@ -2697,6 +2702,7 @@ return [
     'manager_settings_updated_successfully' => 'La configuración del gerente se actualizó correctamente.',
 
     'user_position_prohibited_if' => 'El campo de posición no está permitido cuando el rol es usuario.',
+    'period_is_required' => 'Por favor, selecciona un período.',
     'system_logs_deletion' => 'Eliminación de registros del sistema',
     'please_enable_system_logs_deletion' => 'Habilite el cron de registros del sistema',
     'cron_trigger_deletion_system_logs' => 'Este cron eliminará automáticamente los registros del sistema después del período especificado.',

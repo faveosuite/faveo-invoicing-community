@@ -369,7 +369,6 @@ $cartSubtotalWithoutCondition = 0;
                                                                 $cartTotal = $amt_to_credit;
                                                             }
                                                             ?>
-                                                        -{{$dd=currencyFormat($cartTotal, $item->attributes->currency)}}
                                                     </span>
                                                     </td>
                                                 </tr>
@@ -394,12 +393,13 @@ $cartSubtotalWithoutCondition = 0;
                                             ?>
                                         <td class="text-end" id="balance-content">
                                             <strong><span class="amount text-color-grey text-5">
-                                                {{ currencyFormat($cartTotal, $code = $item->attributes->currency) }}
+                                                {{ currencyFormat($cartTotal, $code = $item->attributes->currency, null, true) }}
                                             </span></strong>
                                         </td>
                                     </tr>
                                     {!! html()->form('POST', url('checkout-and-pay'))->id('checkoutsubmitform')->open() !!}
-                                @if(\Session::has('priceRemaining'))
+                                    {!! html()->hidden('checkout_token', \Str::uuid()) !!}
+                                    @if(\Session::has('priceRemaining'))
                                  @if(\Session::get('discount')>0 )
                                     <tr>
                                         <td class="border-top-0">
@@ -504,7 +504,9 @@ $cartSubtotalWithoutCondition = 0;
 
                                                     <img alt="{{$gateway}}" width="111" src="{{asset('images/logo/'.$gateway.'.png')}}">
 
+                                                    @if($processingFee)
                                                         <p class="text-color-dark" id="fee" style="display:none;font-family: sans-serif;">{{ __('message.extra_processing')}} <b>{{$processingFee}}%</b> {{ __('message.time_payment')}}</p>
+                                                    @endif
 
                                                        
 

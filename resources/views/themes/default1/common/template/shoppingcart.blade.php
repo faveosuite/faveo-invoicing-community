@@ -193,7 +193,12 @@ select {
     width:100% !important;
 }
 
-/* Firefox-only CSS */
+        .price {
+            white-space: nowrap;
+        }
+
+
+        /* Firefox-only CSS */
 @-moz-document url-prefix() {
     /* Firefox-specific CSS rules here */
     .pricing-block .plan-price .price-label {
@@ -324,8 +329,6 @@ $(document).ready(function() {
           const stylePlanSelect = card.querySelector(".stylePlan");
 
           if (stylePlanSelect && priceUnit) {
-              stylePlanSelect.value = priceUnit.id;
-
               // Listen for change event on the select element
               stylePlanSelect.addEventListener("change", function () {
                   const selectedOption = this.options[this.selectedIndex];

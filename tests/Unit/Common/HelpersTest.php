@@ -19,7 +19,7 @@ class HelpersTest extends DBTestCase
     {
         $this->getLoggedInUser('admin');
 
-        Cache::shouldReceive('remember')->once()->withArgs(['timezone_'.$this->user->id, 5, \Closure::class])->andReturn('Asia/Kolkata');
+        Cache::shouldReceive('remember')->once()->withArgs(['user_timezone_'.$this->user->id, 5, \Closure::class])->andReturn('Asia/Kolkata');
 
         getTimeInLoggedInUserTimeZone(Carbon::now()->startOfMillennium());
     }
@@ -55,8 +55,8 @@ class HelpersTest extends DBTestCase
         $this->user->country = 'IN';
         $this->withoutMiddleware();
 
-        $a = bifurcateTax('CGST+SGST', '18%', 'INR', 'IN-KA', '1000');
-        $this->assertEquals($a, ['html' => 'CGST@9%<br>SGST@9%', 'tax' => '₹90<br>₹90']);
+        $a = bifurcateTax('CGST+SGST', '18%', 'INR', 'KA', '1000');
+        $this->assertEquals($a, ['html' => 'CGST@9%<br>SGST@9%', 'tax' => '₹90.00<br>₹90.00']);
     }
 
     public function test_bifurcateTax_whenInterStateTaxPassed_returnsArrayOfTaxAndValue()
@@ -66,7 +66,7 @@ class HelpersTest extends DBTestCase
         $this->withoutMiddleware();
 
         $a = bifurcateTax('IGST', '18%', 'INR', 'IN-AP', '1000');
-        $this->assertEquals($a, ['html' => 'IGST@18%', 'tax' => '₹180']);
+        $this->assertEquals($a, ['html' => 'IGST@18%', 'tax' => '₹180.00']);
     }
 
     public function test_bifurcateTax_whenUnionTerretoryTaxPassed_returnsArrayOfTaxAndValue()
@@ -75,8 +75,8 @@ class HelpersTest extends DBTestCase
         $this->user->country = 'IN';
         $this->withoutMiddleware();
 
-        $a = bifurcateTax('CGST+UTGST', '18%', 'INR', 'IN-AN', '1000');
-        $this->assertEquals($a, ['html' => 'CGST@9%<br>UTGST@9%', 'tax' => '₹90<br>₹90']);
+        $a = bifurcateTax('CGST+UTGST', '18%', 'INR', 'AN', '1000');
+        $this->assertEquals($a, ['html' => 'CGST@9%<br>UTGST@9%', 'tax' => '₹90.00<br>₹90.00']);
     }
 
     public function test_bifurcateTax_whenUserFromOtherCountry_returnsArrayOfTaxAndValue()
@@ -86,7 +86,7 @@ class HelpersTest extends DBTestCase
         $this->withoutMiddleware();
 
         $a = bifurcateTax('VAT', '20%', 'INR', 'US-VA', '1000');
-        $this->assertEquals($a, ['html' => 'VAT@20%', 'tax' => '₹200']);
+        $this->assertEquals($a, ['html' => 'VAT@20%', 'tax' => '₹200.00']);
     }
 
     // public function test_userCurrency_whenUserIsNotLoggedIn_returnsCurrencyAndSymbol()

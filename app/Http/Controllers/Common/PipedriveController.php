@@ -584,7 +584,7 @@ class PipedriveController extends Controller
     {
         return match ($userField) {
             'mobile' => '+'.$user->mobile_code.' '.$user->mobile,
-            'country' => Country::where('country_code_char2', $user->country)->value('nicename'),
+            'country' => Country::where('country_code_char2', $user->country)->value('country_name'),
             default => $user->{$userField},
         };
     }

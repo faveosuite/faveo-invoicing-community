@@ -71,7 +71,7 @@ trait PostPaymentHandle
             $user = User::find($invoice->user_id);
             $stateCode = \Auth::user()->state;
             $cont = new \App\Http\Controllers\RazorpayController();
-            $state = $cont->getState($stateCode);
+            $state = $cont->getState(\Auth::user()->country, $stateCode);
             $currency = Currency::where('code', $currency)->pluck('symbol')->first();
 
             $control = new \App\Http\Controllers\Order\RenewController();
@@ -279,7 +279,7 @@ trait PostPaymentHandle
             $price = PlanPrice::where('plan_id', $subscription->plan_id)->where('currency', $invoice->currency)->where('country_id', 0)->value('renew_price');
         }
         $amount = $this->getPriceforCloud($order, $price, $subscription->product_id, $invoice->currency, $subscription);
-        $renewPrice = intval($this->calculateUnitCost($invoice->currency, $amount));
+        $renewPrice = intval(calculateUnitCost($invoice->currency, $amount));
 
         if ($subscription->rzp_subscription == '3' && $subscription->subscribe_id) {
             $key_id = ApiKey::pluck('rzp_key')->first();

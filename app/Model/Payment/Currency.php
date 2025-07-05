@@ -4,6 +4,7 @@ namespace App\Model\Payment;
 
 use App\BaseModel;
 use App\Traits\SystemActivityLogsTrait;
+use Illuminate\Database\Eloquent\Builder;
 
 class Currency extends BaseModel
 {
@@ -11,7 +12,7 @@ class Currency extends BaseModel
 
     protected $table = 'currencies';
 
-    protected $fillable = ['code', 'symbol', 'name', 'status'];
+    protected $fillable = ['code', 'symbol', 'name', 'status', 'id', 'dashboard_currency'];
 
     protected $logName = 'currency';
 
@@ -24,6 +25,14 @@ class Currency extends BaseModel
     protected $logUrl = [
         'segments' => ['currency'],
     ];
+    protected static function booted(): void
+    {
+        static::addGlobalScope('active_country', function (Builder $builder) {
+            $builder->whereHas('country', function ($query) {
+                $query->where('status', true);
+            });
+        });
+    }
 
     protected function getMappings(): array
     {

@@ -292,18 +292,17 @@ trait TaxCalculation
     public static function taxValue($rate, $price)
     {
         try {
-            $result = 0;
-            if ($rate) {
-                $rate = str_replace('%', '', $rate);
-                $tax = intval($price) * (intval($rate) / 100);
-                $result = $tax;
-
-                $result = rounding($result);
+            if (! $rate || ! is_numeric($price)) {
+                return 0;
             }
 
-            return $result;
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            $rate = floatval(str_replace('%', '', $rate));
+
+            $tax = $price * ($rate / 100);
+
+            return $tax;
+        } catch (\Throwable $ex) {
+            return 0;
         }
     }
 }

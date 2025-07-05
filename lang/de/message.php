@@ -2677,6 +2677,11 @@ return [
     'cloud_deleted_failed' => 'Löschen des Mandanten fehlgeschlagen',
     'not-found' => 'Dieses Produkt kann nicht gelöscht werden, da es derzeit mit einem oder mehreren Diensten verknüpft ist. Bitte entfernen Sie alle zugehörigen Dienste, bevor Sie versuchen, dieses Produkt zu löschen.',
 
+    'no_available_plans_currency' => 'Für dieses Produkt sind in der ausgewählten Währung keine Pläne verfügbar.',
+    'unsupported_country' => 'Das ausgewählte Land wird für diese Bestellung nicht unterstützt.',
+    'order_no_active_plan_cancelled' => 'Die automatische Verlängerung wurde storniert, da kein aktiver Plan für die Bestellung #:order_number gefunden wurde.',
+    'no_matching_plans' => 'Für Ihre Auswahl sind keine Pläne verfügbar.',
+    'order_no_active_plan' => 'Für diese Bestellung ist kein aktiver Plan vorhanden.',
     'auto_assign_success' => 'Die automatische Zuweisung wurde erfolgreich aktualisiert.',
     'system_manager_settings' => 'Systemmanager-Einstellungen',
     'enable_account_manager' => 'Automatische Zuweisung für Account-Manager aktivieren',
@@ -2694,6 +2699,7 @@ return [
     'manager_settings_updated_successfully' => 'Manager-Einstellungen wurden erfolgreich aktualisiert.',
 
     'user_position_prohibited_if' => 'Das Feld Position ist nicht erlaubt, wenn die Rolle Benutzer ist.',
+    'period_is_required' => 'Bitte wählen Sie einen Zeitraum aus.',
     'system_logs_deletion' => 'Systemprotokoll-Löschung',
     'please_enable_system_logs_deletion' => 'Bitte aktivieren Sie Systemprotokoll-Cron',
     'cron_trigger_deletion_system_logs' => 'Dieser Cron löscht Systemprotokolle nach dem angegebenen Zeitraum automatisch.',

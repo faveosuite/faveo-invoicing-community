@@ -4,11 +4,14 @@ namespace App\Http\Controllers\Auth;
 
 use App\ApiKey;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Front\CartController;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Model\Common\Bussiness;
 use App\Model\Common\ChatScript;
 use App\Model\Common\Country;
 use App\Model\Common\StatusSetting;
+use App\Model\Payment\Currency;
+use App\Model\Payment\Plan;
 use App\SocialLogin;
 use App\User;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
@@ -111,9 +114,6 @@ class LoginController extends Controller
         if ($user->is_2fa_enabled) {
             return $this->handleTwoFactorAuthentication($request, $user);
         }
-
-        // 5. Regenerate session for security
-        Session::regenerate();
 
         $this->convertCart();
 
@@ -233,9 +233,7 @@ class LoginController extends Controller
         $githubUser = Socialite::driver($provider)->user();
         $location = getLocation();
 
-        $state_code = $location['iso_code'].'-'.$location['state'];
-
-        $state = getStateByCode($state_code);
+        $state = getStateByCode($location['iso_code'], $location['state']);
 
         $existingUser = User::where('email', $githubUser->getEmail())->first();
 
@@ -327,25 +325,43 @@ class LoginController extends Controller
      *
      * @throws
      */
-    private function convertCart()
+    public function convertCart()
     {
         $contents = \Cart::getContent();
+        $user = \Auth::user();
+        $currencyCode = getCurrencyForClient($user->country);
+        $currencySymbol = Currency::where('code', $currencyCode)->value('symbol');
+        $cartController = new CartController();
+
         foreach ($contents as $content) {
-            $cartcont = new \App\Http\Controllers\Front\CartController();
-            $price = $cartcont->planCost($content->id, \Auth::user()->id);
-            if ($content->attributes->domain != '') {
-                $price = $price * $content->attributes->agents;
+            try {
+                $plan = Plan::find($content->id);
+
+                // If plan or product is missing, throw to remove it
+                throw_if(! $plan || ! $plan->product, new \Exception('Invalid plan or product.'));
+
+                $price = $cartController->planCost($plan->product, $user->id, $content->id);
+
+                if (! empty($content->attributes->domain)) {
+                    $price *= $content->attributes->agents;
+                }
+
+                \Cart::update($content->id, [
+                    'price' => $price,
+                    'attributes' => [
+                        'currency' => $currencyCode,
+                        'symbol' => $currencySymbol,
+                        'agents' => $content->attributes->agents,
+                        'domain' => $content->attributes->domain,
+                    ],
+                ]);
+            } catch (\Exception $e) {
+                // Remove item if any exception occurs (missing plan/product or pricing failure)
+                \Cart::remove($content->id);
+                continue;
             }
-            \Cart::update($content->id, [
-                'price' => $price,
-                'attributes' => [
-                    'currency' => getCurrencyForClient(\Auth::user()->country),
-                    'symbol' => \App\Model\Payment\Currency::where('code', getCurrencyForClient(\Auth::user()->country))->value('symbol'),
-                    'agents' => $content->attributes->agents,
-                    'domain' => $content->attributes->domain,
-                ],
-            ]);
         }
+
         Session::forget('toggleState');
     }
 
