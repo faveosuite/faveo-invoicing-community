@@ -359,7 +359,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
                 ]);
             }
         } catch (\Exception $ex) {
-            return ;
+            return;
         }
     }
 }

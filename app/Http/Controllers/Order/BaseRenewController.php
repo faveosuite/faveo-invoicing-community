@@ -91,7 +91,7 @@ class BaseRenewController extends Controller
             $userId = $request->input('user');
             $agents = $request->input('agents', 0);
 
-            if (!$planId || $planId === 'Choose') {
+            if (! $planId || $planId === 'Choose') {
                 return response()->json([
                     'formatted_price' => currencyFormat(0),
                 ]);
