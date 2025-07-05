@@ -11,8 +11,7 @@ use App\Http\Requests\Front\ContactRequest;
 use App\Http\Requests\Front\PageRequest;
 use App\Model\Common\Country;
 use App\Model\Common\PricingTemplate;
-use App\Model\Common\Setting;
-use App\Model\Common\StatesSubdivisions;
+use App\Model\Common\State;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
@@ -486,30 +485,22 @@ class PageController extends Controller
                 $countryids = \App\Model\Common\Country::where('country_code_char2', $country)->value('country_id');
                 $currencyAndSymbol = getCurrencyForClient($country);
             }
-
-            $defaultCurrency = Setting::first()->default_currency;
-            $productsRelatedToGroup = \App\Model\Product\Product::where('products.group', $groupid)
-                ->where('products.hidden', '!=', 1)
-                ->join('plans', 'products.id', '=', 'plans.product')
-                ->join('plan_prices', 'plans.id', '=', 'plan_prices.plan_id')
-                ->select(
-                    'products.*',
-                    'plan_prices.add_price',
-                    \DB::raw("
-            CASE
-                WHEN plan_prices.currency = '$currencyAndSymbol' THEN 1
-                WHEN plan_prices.currency = '$defaultCurrency' THEN 2
-                WHEN plan_prices.currency != '' THEN 3
-                ELSE 4
-            END as currency_priority
-        ")
-                )
-                ->orderBy('products.id')
-                ->orderBy('currency_priority')
-                ->orderByRaw('CAST(plan_prices.add_price AS DECIMAL(10, 2)) ASC')
-                ->orderBy('plans.created_at', 'ASC')
-                ->get()
-                ->unique('id');
+            $productsRelatedToGroup = Product::with([
+                'planRelation' => function ($query) use ($currencyAndSymbol) {
+                    $query->with(['planPrice' => function ($priceQuery) use ($currencyAndSymbol) {
+                        $priceQuery->where('currency', $currencyAndSymbol);
+                    }]);
+                },
+            ])
+                ->where('group', $groupid)
+                ->where('hidden', '!=', 1)
+                ->whereHas('planRelation', function ($query) use ($currencyAndSymbol) {
+                    $query->whereHas('planPrice', function ($priceQuery) use ($currencyAndSymbol) {
+                        $priceQuery->where('currency', $currencyAndSymbol);
+                    });
+                })
+                ->orderBy('id')
+                ->get();
 
             $trasform = [];
             $templates = $this->getTemplateOne($productsRelatedToGroup, $trasform);
@@ -551,7 +542,7 @@ class PageController extends Controller
             $set = new \App\Model\Common\Setting();
             $set = $set->findOrFail(1);
             $address = preg_replace("/^\R+|\R+\z/", '', $set->address);
-            $state = StatesSubdivisions::where('state_subdivision_code', $set->state)->value('state_subdivision_name');
+            $state = State::where('country_code', $set->country)->where('iso2', $set->state)->value('state_subdivision_name');
             $country = Country::where('country_code_char2', $set->country)->value('country_name');
 
             return view('themes.default1.front.contact', compact('status', 'apiKeys', 'set', 'state', 'country', 'address'));

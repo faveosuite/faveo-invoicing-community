@@ -15,6 +15,7 @@ use App\Model\Order\InstallationDetail;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
+use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\CloudProducts;
@@ -36,6 +37,8 @@ class CloudActivitiesTest extends DBTestCase
         parent::setUp();
 
         $this->cloudactivities = new CloudExtraActivities(new Client, new FaveoCloud);
+
+        Currency::where('code', 'INR')->update(['status' => 1]);
     }
 
     protected function tearDown(): void

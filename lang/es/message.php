@@ -2680,4 +2680,9 @@ return [
     'captcha_message' => 'La verificación de reCAPTCHA falló. Por favor, inténtalo de nuevo.',
     'not-found' => 'Este producto no puede eliminarse porque está actualmente asociado con uno o más servicios. Elimine todos los servicios relacionados antes de intentar eliminar este producto.',
 
+    'no_available_plans_currency' => 'No hay planes disponibles para este producto en la moneda seleccionada.',
+    'unsupported_country' => 'El país seleccionado no está soportado para este pedido.',
+    'order_no_active_plan_cancelled' => 'La renovación automática ha sido cancelada porque no se encontró un plan activo para el pedido #:order_number.',
+    'no_matching_plans' => 'No hay planes disponibles para los criterios seleccionados.',
+    'order_no_active_plan' => 'No hay un plan activo asociado a este pedido.',
 ];

@@ -2680,5 +2680,9 @@ return [
     'cloud_deleted_successfully' => 'Xóa tenant thành công',
     'cloud_deleted_failed' => 'Xóa tenant thất bại',
     'not-found' => 'Không thể xóa sản phẩm này vì nó đang được liên kết với một hoặc nhiều dịch vụ. Vui lòng xóa tất cả các dịch vụ liên quan trước khi thử xóa sản phẩm này.',
-
+    'no_available_plans_currency' => 'Không có gói nào khả dụng cho sản phẩm này với đơn vị tiền tệ đã chọn.',
+    'unsupported_country' => 'Quốc gia đã chọn không được hỗ trợ cho đơn hàng này.',
+    'order_no_active_plan_cancelled' => 'Gia hạn tự động đã bị hủy vì không tìm thấy gói hoạt động cho đơn hàng #:order_number.',
+    'no_matching_plans' => 'Không có gói nào phù hợp với lựa chọn của bạn.',
+    'order_no_active_plan' => 'Không có gói hoạt động nào được liên kết với đơn hàng này.',
 ];

@@ -224,16 +224,12 @@ input:checked + .slider:before {
                                         <div class="col-lg-3 {{ $errors->has('state') ? 'has-error' : '' }}">
                                            <select name="state" class="form-control text-3 h-auto py-2">
 
-                                                @if(count($state)>0)
-
-                                                    <option value="{{$state['id']}}">{{$state['name']}}</option>
-
                                                 <option value="">{{ __('message.select_state')}}</option>
-                                                @foreach($states as $key=>$value)
-
-                                                    <option value="{{$key}}">{{$value}}</option>
-                                                @endforeach
-                                               @endif
+                                                   @foreach($states as $key => $value)
+                                                       <option value="{{ $key }}" {{ (old('state', $user->state) == $key) ? 'selected' : '' }}>
+                                                           {{ $value }}
+                                                       </option>
+                                                   @endforeach
                                             </select>
                                             </div>
                                     </div>

@@ -2605,4 +2605,9 @@
      'captcha_message' => 'Il-verifika reCAPTCHA falliet. Erġaʼ ipprova.',
      'not-found' => 'Dan il-prodott ma jistax jitħassar għax huwa assoċjat ma’ servizz jew aktar. Jekk jogħġbok neħħi s-servizzi kollha relatati qabel tipprova tħassar dan il-prodott.',
 
+     'no_available_plans_currency' => 'M’hemmx pjanijiet disponibbli għal dan il-prodott fil-munita magħżula.',
+     'unsupported_country' => 'Il-pajjiż magħżul mhux appoġġjat għal din l-ordni.',
+     'order_no_active_plan_cancelled' => 'Ir-riġenerazzjoni awtomatika ġiet ikkanċellata għax ma nstab l-ebda pjan attiv għall-ordni #:order_number.',
+     'no_matching_plans' => 'M’hemmx pjanijiet disponibbli għaż-żgħażliet tiegħek.',
+     'order_no_active_plan' => 'M’hemmx pjan attiv marbut ma’ din l-ordni.',
  ];

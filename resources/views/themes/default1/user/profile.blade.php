@@ -228,7 +228,7 @@ input:checked + .slider:before {
                 </div>
 
                 <div class="row">
-                    <?php $countries = \App\Model\Common\Country::pluck('nicename', 'country_code_char2')->toArray(); ?>
+                    <?php $countries = \App\Model\Common\Country::pluck('country_name', 'country_code_char2')->toArray(); ?>
                     <div class="col-md-6 form-group {{ $errors->has('country') ? 'has-error' : '' }}">
                         {!! html()->label(Lang::get('message.country'), 'country')->class('required') !!}
                         {!! html()->select('country')->options([Lang::get('message.choose') => $countries])->class('form-control select2'. ($errors->has('country') ? ' is-invalid' : ''))->id('country')->attribute('onChange', 'getCountryAttr(this.value)')->attribute('data-live-search', 'true')->attribute('required', 'required')->attribute('data-live-search-placeholder', 'Search')->attribute('data-dropup-auto', 'false')->attribute('data-size', '10') !!}

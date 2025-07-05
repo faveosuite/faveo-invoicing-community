@@ -2668,4 +2668,10 @@ return [
     'captcha_failed' => 'La vérification reCAPTCHA a échoué. Veuillez vous assurer que votre clé secrète reCAPTCHA est valide.',
     'captcha_message' => 'Échec de la vérification reCAPTCHA. Veuillez réessayer.',
     'not-found' => 'Ce produit ne peut pas être supprimé car il est actuellement associé à un ou plusieurs services. Veuillez supprimer tous les services associés avant de tenter de supprimer ce produit.',
+
+    'no_available_plans_currency' => 'Aucun plan disponible pour ce produit dans la devise sélectionnée.',
+    'unsupported_country' => 'Le pays sélectionné n’est pas pris en charge pour cette commande.',
+    'order_no_active_plan_cancelled' => 'Le renouvellement automatique a été annulé car aucun plan actif n’a été trouvé pour la commande n°:order_number.',
+    'no_matching_plans' => 'Aucun plan disponible pour vos critères de sélection.',
+    'order_no_active_plan' => 'Aucun plan actif n’est associé à cette commande.',
 ];

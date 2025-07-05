@@ -2686,4 +2686,9 @@ return [
     'cloud_deleted_failed' => 'Sletting av leietaker mislyktes',
     'not-found' => 'Dette produktet kan ikke slettes fordi det for øyeblikket er knyttet til en eller flere tjenester. Vennligst fjern alle tilknyttede tjenester før du prøver å slette produktet.',
 
+    'no_available_plans_currency' => 'Ingen tilgjengelige planer funnet for dette produktet i den valgte valutaen.',
+    'unsupported_country' => 'Det valgte landet støttes ikke for denne bestillingen.',
+    'order_no_active_plan_cancelled' => 'Automatisk fornyelse ble kansellert fordi det ikke ble funnet noen aktiv plan for bestilling #:order_number.',
+    'no_matching_plans' => 'Ingen planer tilgjengelige for ditt valg.',
+    'order_no_active_plan' => 'Ingen aktiv plan er tilknyttet denne bestillingen.',
 ];

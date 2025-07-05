@@ -2677,4 +2677,9 @@ return [
     'cloud_deleted_failed' => 'Löschen des Mandanten fehlgeschlagen',
     'not-found' => 'Dieses Produkt kann nicht gelöscht werden, da es derzeit mit einem oder mehreren Diensten verknüpft ist. Bitte entfernen Sie alle zugehörigen Dienste, bevor Sie versuchen, dieses Produkt zu löschen.',
 
+    'no_available_plans_currency' => 'Für dieses Produkt sind in der ausgewählten Währung keine Pläne verfügbar.',
+    'unsupported_country' => 'Das ausgewählte Land wird für diese Bestellung nicht unterstützt.',
+    'order_no_active_plan_cancelled' => 'Die automatische Verlängerung wurde storniert, da kein aktiver Plan für die Bestellung #:order_number gefunden wurde.',
+    'no_matching_plans' => 'Für Ihre Auswahl sind keine Pläne verfügbar.',
+    'order_no_active_plan' => 'Für diese Bestellung ist kein aktiver Plan vorhanden.',
 ];
