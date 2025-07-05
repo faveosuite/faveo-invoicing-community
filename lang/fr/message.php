@@ -2669,6 +2669,12 @@ return [
     'captcha_message' => 'Échec de la vérification reCAPTCHA. Veuillez réessayer.',
     'not-found' => 'Ce produit ne peut pas être supprimé car il est actuellement associé à un ou plusieurs services. Veuillez supprimer tous les services associés avant de tenter de supprimer ce produit.',
 
+    'no_available_plans_currency' => 'Aucun plan disponible pour ce produit dans la devise sélectionnée.',
+    'unsupported_country' => 'Le pays sélectionné n’est pas pris en charge pour cette commande.',
+    'order_no_active_plan_cancelled' => 'Le renouvellement automatique a été annulé car aucun plan actif n’a été trouvé pour la commande n°:order_number.',
+    'no_matching_plans' => 'Aucun plan disponible pour vos critères de sélection.',
+    'order_no_active_plan' => 'Aucun plan actif n’est associé à cette commande.',
+
     'auto_assign_success' => 'Le paramètre d’attribution automatique a été mis à jour avec succès.',
     'system_manager_settings' => 'Paramètres du gestionnaire système',
     'enable_account_manager' => 'Activer l’attribution automatique pour les gestionnaires de comptes',
@@ -2685,6 +2691,8 @@ return [
     'status.boolean' => 'Le statut doit être soit true (activé), soit false (désactivé).',
     'manager_settings_updated_successfully' => 'Les paramètres du gestionnaire ont été mis à jour avec succès.',
 
+    'user_position_prohibited_if' => 'Le champ poste n\'est pas autorisé lorsque le rôle est utilisateur.',
+    'period_is_required' => 'Veuillez sélectionner une période.',
     'user_position_prohibited_if' => 'Le champ poste n’est pas autorisé lorsque le rôle est utilisateur.',
     'system_logs_deletion' => 'Suppression des journaux système',
     'please_enable_system_logs_deletion' => 'Veuillez activer le cron des journaux système',
@@ -2765,4 +2773,5 @@ return [
     'something_went_wrong_while_updating_email' => 'Quelque chose s’est mal passé lors de la mise à jour de l’adresse e-mail. Veuillez réessayer plus tard.',
     'something_wrong_try_again_later' => 'Quelque chose s’est mal passé. Veuillez réessayer plus tard.',
     'something_went_wrong_while_updating_mobile' => 'Quelque chose s’est mal passé lors de la mise à jour du numéro de mobile. Veuillez réessayer plus tard.',
+    'no_available_plans_for_user_currency' => 'La devise sélectionnée de l’utilisateur ne dispose d’aucun plan disponible pour ce produit. Veuillez ajouter un plan pour cette devise afin de continuer.',
 ];

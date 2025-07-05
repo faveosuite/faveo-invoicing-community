@@ -173,7 +173,7 @@ class SettingsController extends Controller
 
         \Stripe\Stripe::setApiKey($stripeSecretKey);
 
-        $cost = $this->calculateUnitCost($currency, $amount);
+        $cost = calculateUnitCost($currency, $amount);
 
         $user = \Auth::user();
 

@@ -2690,6 +2690,12 @@ return [
     'captcha_message' => 'reCAPTCHA verification failed. Please try again.',
     'not-found' => 'This product cannot be deleted because it is currently associated with one or more services. Please remove all related services before attempting to delete this product.',
 
+    'no_available_plans_currency' => 'No available plans found for this product in the selected currency.',
+    'unsupported_country' => 'The selected country is not supported for this order.',
+    'order_no_active_plan_cancelled' => 'Auto-renewal has been canceled because no active plan was found for Order #:order_number.',
+    'no_matching_plans' => 'No plans are available for your selected criteria.',
+    'order_no_active_plan' => 'No active plan is associated with this order.',
+
     'auto_assign_success' => 'Auto assignment setting updated successfully.',
     'system_manager_settings' => 'System Manager Settings',
     'enable_account_manager' => 'Enable Auto Assignment for Account Managers',
@@ -2707,6 +2713,8 @@ return [
     'manager_settings_updated_successfully' => 'Manager settings updated successfully.',
 
     'user_position_prohibited_if' => 'The position field is not allowed when role is user.',
+
+    'period_is_required' => 'Please select a period.',
 
     'system_logs_deletion' => 'System Logs Deletion',
     'please_enable_system_logs_deletion' => 'Please enable system logs cron',
@@ -2844,4 +2852,5 @@ return [
     'something_went_wrong_while_updating_email' => 'Something went wrong while updating the email address. Please try again later.',
     'something_wrong_try_again_later' => 'Something went wrong. Please try again later.',
     'something_went_wrong_while_updating_mobile' => 'Something went wrong while updating the mobile number. Please try again later.',
+    'no_available_plans_for_user_currency' => 'The selected user’s currency does not have any available plans for this product. Please add a plan for that currency to proceed.',
 ];

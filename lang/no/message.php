@@ -2686,6 +2686,11 @@ return [
     'cloud_deleted_failed' => 'Sletting av leietaker mislyktes',
     'not-found' => 'Dette produktet kan ikke slettes fordi det for øyeblikket er knyttet til en eller flere tjenester. Vennligst fjern alle tilknyttede tjenester før du prøver å slette produktet.',
 
+    'no_available_plans_currency' => 'Ingen tilgjengelige planer funnet for dette produktet i den valgte valutaen.',
+    'unsupported_country' => 'Det valgte landet støttes ikke for denne bestillingen.',
+    'order_no_active_plan_cancelled' => 'Automatisk fornyelse ble kansellert fordi det ikke ble funnet noen aktiv plan for bestilling #:order_number.',
+    'no_matching_plans' => 'Ingen planer tilgjengelige for ditt valg.',
+    'order_no_active_plan' => 'Ingen aktiv plan er tilknyttet denne bestillingen.',
     'auto_assign_success' => 'Automatisk tildelingsinnstilling ble oppdatert.',
     'system_manager_settings' => 'Systemansvarlig Innstillinger',
     'enable_account_manager' => 'Aktiver automatisk tildeling for kontoadministratorer',
@@ -2712,6 +2717,8 @@ return [
     'deletion_cloud_subscription' => 'Slett skytjenesteabonnementer som utløp for mer enn...',
     'msg_service_down' => 'Vi opplever for øyeblikket problemer med vår OTP-tjeneste. Vennligst prøv igjen om en liten stund. Vi jobber med å løse problemet så raskt som mulig.',
     'cloud_plan_error' => 'Vennligst fjern skyproduktet eller koble det til en alternativ plan.',
+
+    'period_is_required' => 'Vennligst velg en periode.',
     'short_description' => 'Kort beskrivelse',
     'add_short_description' => 'Vennligst skriv inn en kort beskrivelse.',
     'word_count' => 'Vennligst hold den korte beskrivelsen innen 50 ord.',
@@ -2782,4 +2789,5 @@ return [
     'something_went_wrong_while_updating_email' => 'Noe gikk galt under oppdatering av e-postadressen. Vennligst prøv igjen senere.',
     'something_wrong_try_again_later' => 'Noe gikk galt. Vennligst prøv igjen senere.',
     'something_went_wrong_while_updating_mobile' => 'Noe gikk galt under oppdatering av mobilnummeret. Vennligst prøv igjen senere.',
+    'no_available_plans_for_user_currency' => 'Den valgte brukerens valuta har ingen tilgjengelige planer for dette produktet. Vennligst legg til en plan for den valutaen for å fortsette.',
 ];

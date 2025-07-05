@@ -963,6 +963,7 @@ foreach ($footerWidgetTypes as $widgetType) {
 <script src="{{asset('common/intl-tel-input/js/intlTelInputWithUtils.js')}}"></script>
 <!-- Current Page Vendor and Views -->
 <script src="{{asset('client/porto/js-2/view.contact.js')}}"></script>
+<script src="{{ asset('common/js/helper.js') }}"></script>
 
 @extends('mini_views.intl_tel_input')
 <script type="text/javascript">
@@ -1189,14 +1190,14 @@ setTimeout(function() {
 <script>
     function removeItem(id) {
         $.ajax({
-            type: "post",
-            data:{
-                "id": id,
-                "_token": "{!! csrf_token() !!}",
+            type: "POST",
+            url: "{{ url('cart/remove') }}",
+            data: {
+                id: id,
+                _token: "{!! csrf_token() !!}"
             },
-            url: "{{url('cart/remove/')}}",
             success: function (data) {
-                location.reload();
+                window.location.href = "{{ url('show/cart') }}";
             }
         });
     }

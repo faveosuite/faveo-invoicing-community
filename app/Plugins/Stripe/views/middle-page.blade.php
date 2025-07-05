@@ -113,9 +113,9 @@ $cartSubtotalWithoutCondition = 0;
 $currency = $invoice->currency;
 
 $processingFee = \DB::table(strtolower('stripe'))->where('currencies',$currency)->value('processing_fee');
-$processingFee = (float) $processingFee / 100;
+$processingFee = $processingFee ? floatval(filter_var($processingFee, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION)) : null;
 
-$feeAmount = intval(ceil($displayProcessingFee*$processingFee));
+$feeAmount = $displayProcessingFee*($processingFee/100);
 ?>
 @if($regularPayment)
  <div role="main" class="main">
@@ -336,33 +336,29 @@ $feeAmount = intval(ceil($displayProcessingFee*$processingFee));
                                                     
                                                     @endforeach
                                                    @endif
-                                                
 
-                                                    @if(count(\Cart::getConditionsByType('fee')))
-                                                     @foreach(\Cart::getConditionsByType('fee') as $fee)
-                                                     <tr>
-                                                         <td class="border-top-0">
-                                            <strong class="d-block text-color-grey  font-weight-semibold">{!! $fee->getName() !!}
-                                                <label style="font-size: 12px;font-weight: normal;">({!! $fee->getValue() !!})</label>
-                                            </strong>
-                                        </td>
-                                         @if($fee->getValue() === '0%')
-                                                    <td class="text-end align-top border-top-0">
-                                                        <span class="amount font-weight-medium text-color-grey">
-                                                            0
-                                                        </span>
+
+                                    @if(count(\Cart::getConditionsByType('fee')))
+                                        @foreach(\Cart::getConditionsByType('fee') as $fee)
+                                            @if($fee->getValue() !== '0%')
+                                                <tr>
+                                                    <td class="border-top-0">
+                                                        <strong class="d-block text-color-grey font-weight-semibold">
+                                                            {!! $fee->getName() !!}
+                                                            <label style="font-size: 12px;font-weight: normal;">({!! $fee->getValue() !!})</label>
+                                                        </strong>
                                                     </td>
-                                                @else
+
                                                     <td class="text-end align-top border-top-0">
-                                                        <span class="amount font-weight-medium text-color-grey">
-                                                            {{ currencyFormat($feeAmount, $code = $item->attributes->currency) }}
-                                                        </span>
+                    <span class="amount font-weight-medium text-color-grey">
+                        {{ currencyFormat($feeAmount, $item->attributes->currency) }}
+                    </span>
                                                     </td>
-                                                @endif
-                                           </tr>
-                                                     @endforeach
-                                                    @endif
-                                     @if(\App\User::where('id',\Auth::user()->id)->value('billing_pay_balance'))
+                                                </tr>
+                                            @endif
+                                        @endforeach
+                                    @endif
+                                    @if(\App\User::where('id',\Auth::user()->id)->value('billing_pay_balance'))
 
                                 <tr class="cart-subtotal" style="color: indianred">
                                         <?php
@@ -646,27 +642,26 @@ $feeAmount = intval(ceil($displayProcessingFee*$processingFee));
                                             </td>
                                         </tr>
                                     @endif
-                                        @if(count(\Cart::getConditionsByType('fee')))
+                                    @if(count(\Cart::getConditionsByType('fee')))
                                         @foreach(\Cart::getConditionsByType('fee') as $fee)
-                                            <tr>
-                                                 <td class="border-top-0">
-                                            <strong class="text-color-grey font-weight-semibold">{!! $fee->getName() !!}</strong>
-                                             <label style="font-size: 12px;font-weight: normal;">({!! $fee->getValue() !!})</label>
-                                                </td>
-                                              @if($fee->getValue() === '0%')
-                                            <td class="align-top border-top-0">
-                                                <span class="amount font-weight-medium text-color-grey">
-                                                    0
-                                                </span>
-                                            </td>
-                                        @else
-                                            <td class="text-end align-top border-top-0">
-                                                <span class="amount font-weight-medium text-color-grey">
-                                                    {{ currencyFormat($feeAmount, $code = $currency) }}
-                                                </span>
-                                            </td>
-                                        @endif
-                                            </tr>
+
+                                            @if($fee->getValue() !== '0%')
+                                                <tr>
+                                                    <td class="border-top-0">
+                                                        <strong class="text-color-grey font-weight-semibold">{!! $fee->getName() !!}</strong>
+                                                        <label style="font-size: 12px;font-weight: normal;">
+                                                            ({!! $fee->getValue() !!})
+                                                        </label>
+                                                    </td>
+
+                                                    <td class="text-end align-top border-top-0">
+                    <span class="amount font-weight-medium text-color-grey">
+                        {{ currencyFormat($feeAmount, $currency) }}
+                    </span>
+                                                    </td>
+                                                </tr>
+                                            @endif
+
                                         @endforeach
                                     @endif
 

@@ -2691,7 +2691,14 @@ return [
     'manager_role.in' => 'Peran manajer yang dipilih tidak valid. Nilai yang diperbolehkan adalah "account" atau "sales".',
     'status.required' => 'Silakan tentukan status.',
     'status.boolean' => 'Status harus berupa true (aktif) atau false (nonaktif).',
+    'no_available_plans_currency' => 'Tidak ada paket yang tersedia untuk produk ini dalam mata uang yang dipilih.',
+    'unsupported_country' => 'Negara yang dipilih tidak didukung untuk pesanan ini.',
+    'order_no_active_plan_cancelled' => 'Perpanjangan otomatis dibatalkan karena tidak ditemukan paket aktif untuk pesanan #:order_number.',
+    'no_matching_plans' => 'Tidak ada paket yang cocok dengan pilihan Anda.',
+    'order_no_active_plan' => 'Tidak ada paket aktif yang terkait dengan pesanan ini.',
     'manager_settings_updated_successfully' => 'Pengaturan manajer berhasil diperbarui.',
+    'user_position_prohibited_if' => 'Bidang posisi tidak diizinkan ketika peran adalah pengguna.',
+    'period_is_required' => 'Silakan pilih periode.',
 
     'user_position_prohibited_if' => 'Kolom posisi tidak diizinkan saat peran adalah pengguna.',
     'system_logs_deletion' => 'Penghapusan Log Sistem',
@@ -2770,4 +2777,5 @@ return [
     'something_went_wrong_while_updating_email' => 'Terjadi kesalahan saat memperbarui alamat email. Silakan coba lagi nanti.',
     'something_wrong_try_again_later' => 'Terjadi kesalahan. Silakan coba lagi nanti.',
     'something_went_wrong_while_updating_mobile' => 'Terjadi kesalahan saat memperbarui nomor ponsel. Silakan coba lagi nanti.',
+    'no_available_plans_for_user_currency' => 'Mata uang yang dipilih pengguna tidak memiliki rencana apa pun untuk produk ini. Harap tambahkan rencana untuk mata uang tersebut untuk melanjutkan.',
 ];

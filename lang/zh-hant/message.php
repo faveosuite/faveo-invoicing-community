@@ -2640,6 +2640,11 @@ return [
     'cloud_deleted_successfully' => '租戶已成功刪除',
     'cloud_deleted_failed' => '租戶刪除失敗',
     'not-found' => '無法刪除此產品，因為它目前與一個或多個服務相關聯。請先移除所有相關服務後再嘗試刪除此產品。',
+    'no_available_plans_currency' => '在所選貨幣下，未找到該產品的可用方案。',
+    'unsupported_country' => '該訂單不支援所選國家。',
+    'order_no_active_plan_cancelled' => '由於訂單 #:order_number 沒有可用的活動方案，自動續訂已被取消。',
+    'no_matching_plans' => '沒有符合您選擇條件的方案。',
+    'order_no_active_plan' => '此訂單沒有關聯的活動方案。',
 
     'auto_assign_success' => '自動指派設定已成功更新。',
     'system_manager_settings' => '系統管理員設定',
@@ -2672,6 +2677,8 @@ return [
     'word_count' => '請將您的簡短描述控制在 50 個詞以內。',
     'auto_renewal_disable' => '自動續訂目前不可用。請聯繫管理員以獲取協助。',
     'auto_renewal_tooltip' => '為所有用戶啟用或停用自動續訂。',
+
+    'period_is_required' => '請選擇一個週期。',
     'invalid_code_2fa' => '無效的代碼。請再試一次。',
     '6_digit_auth_code' => '請輸入您的6位認證代碼',
     '6_code_numer' => '代碼必須是6位數字。',
@@ -2737,4 +2744,5 @@ return [
     'something_went_wrong_while_updating_email' => '更新電子郵件地址時出現問題。請稍後再試。',
     'something_wrong_try_again_later' => '發生錯誤。請稍後再試。',
     'something_went_wrong_while_updating_mobile' => '更新手機號碼時出現問題。請稍後再試。',
+    'no_available_plans_for_user_currency' => '所選使用者的貨幣沒有此產品的可用方案。請為該貨幣新增方案以繼續。',
 ];

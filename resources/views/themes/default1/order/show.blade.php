@@ -180,8 +180,8 @@ input:checked + .slider:before {
                                     <tr><td><b>{{ __('message.mobile') }}:</b></td><td>@if($user->mobile_code)(<b>+</b>{{$user->mobile_code}})@endif&nbsp;{{$user->mobile}}</td></tr>
                                     <tr><td><b>{{ __('message.address') }}:</b></td><td>{{$user->address}},
                                             {{ucfirst($user->town)}}, 
-                                            @if(key_exists('name',getStateByCode($user->state)))
-                                            {{getStateByCode($user->state)['name']}}
+                                            @if(key_exists('name',getStateByCode($user->country, $user->state)))
+                                            {{getStateByCode($user->country, $user->state)['name']}}
                                             @endif
                                         </td></tr>
                                     <tr><td><b>{{ __('message.country') }}:</b></td><td>{{getCountryByCode($user->country)}}</td></tr>

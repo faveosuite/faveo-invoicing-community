@@ -240,7 +240,12 @@ select {
     width:100% !important;
 }
 
-/* Firefox-only CSS */
+        .price {
+            white-space: nowrap;
+        }
+
+
+        /* Firefox-only CSS */
 @-moz-document url-prefix() {
     /* Firefox-specific CSS rules here */
     .pricing-block .plan-price .price-label {
@@ -265,7 +270,7 @@ select {
 
 
 
-         @if($status && $status->status == "1")
+         @if($status && (int)$status->status === 1)
          
             <div class="row mb-5">
             <div class="col text-center">
@@ -310,6 +315,11 @@ select {
         e.stopPropagation();
     });
   $(document).ready(function() {
+      if ($('.toggle_event_editing input').prop('checked')) {
+          handleSelectedState();
+      } else {
+          handleUnselectedState();
+      }
     $('.toggle_event_editing input').on('change', function() {
       const toggleValue = $(this).prop('checked');
       if (toggleValue) {
@@ -327,7 +337,10 @@ select {
       $.ajax({
         type: 'POST',
         url: "{{ url('store_toggle_state') }}",
-        data: { toggleState: 'selected' },
+          data: {
+              toggleState: 'selected',
+              _token: $('meta[name="csrf-token"]').attr('content')
+          },
         success: function(response) {
           console.log('Selected state value sent to the controller successfully.');
         },
@@ -343,7 +356,10 @@ select {
       $.ajax({
         type: 'POST',
         url: "{{ url('store_toggle_state') }}",
-        data: { toggleState: 'unselected' },
+          data: {
+              toggleState: 'selected',
+              _token: $('meta[name="csrf-token"]').attr('content')
+          },
         success: function(response) {
           console.log('Unselected state value sent to the controller successfully.');
         },
@@ -360,16 +376,13 @@ $(document).ready(function() {
     if (numberOfTemplates < 3) {
         $('.owl-carousel.nav-outside').addClass('center-templates');
     }
-    var status={!! $status->status !!};
-
-
 });
 
 
 
   document.addEventListener("DOMContentLoaded", function () {
       document.querySelectorAll(".content-switcher").forEach(function (switcher) {
-          var status={!! $status->status !!};
+          var status={!! $status && (int)$status->status === 1 !!};
           const card = switcher.closest(".card");
           const priceElement = card.querySelector(".price");
           const priceLabel=card.querySelector(".price-label");

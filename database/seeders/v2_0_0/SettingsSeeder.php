@@ -21,7 +21,7 @@ class SettingsSeeder extends Seeder
         \App\Model\Common\Setting::create([
             'company' => '',
             'city' => 'Bangalore',
-            'state' => 'IN-KA',
+            'state' => 'KA',
             'country' => 'IN',
             'default_currency' => 'USD',
             'default_symbol' => '$',
