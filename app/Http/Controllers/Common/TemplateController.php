@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Common;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Front\PageController;
 use App\Http\Controllers\Product\ProductController;
 use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
-use App\Model\Payment\Period;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
@@ -205,34 +205,46 @@ class TemplateController extends Controller
     public function plans($url, $id)
     {
         try {
-            $plan = new Plan();
-            $plan_form = 'Free'; //No Subscription
-            $plans = $plan->where('product', '=', $id)->pluck('name', 'id')->toArray();
             $product = Product::find($id);
-            $type = Product::find($id);
-            $planid = Plan::where('product', $id)->value('id');
-            $price = PlanPrice::where('plan_id', $planid)->value('renew_price');
-
-            $plans = $this->prices($id);
-            $status = Product::find($id);
-            if ($plans == []) {
+            if (! $product || $product->add_to_contact == 1) {
                 return '';
             }
-            $priceList = $this->getPriceList($id);
-            $plan_options = '';
 
-            foreach ($priceList as $planId => $planPrice) {
-                $plan_options .= '<option value="'.$planId.'" data-price="'.$planPrice.'" data-description="'.$plans[$planId]['description'].'">'.$plans[$planId]['price'].'</option>';
+            $plansData = $this->prices($id);
+            if (empty($plansData)) {
+                return '';
             }
 
-            $plan_class = ($plans && $status->status != 1) ? 'stylePlan' : 'planhide';
-            $plan_form = '<select name="subscription" class="'.$plan_class.'">'.$plan_options.'</select>';
+            $list = $this->getPriceList($id);
 
-            $form = html()->form('GET', $url)->open().
-            $plan_form.
-            html()->input('hidden', 'id')->value($id);
+            $priceList = $list['prices'];
 
-            return $product['add_to_contact'] == 1 ? '' : $form;
+            $cheapestPlanId = $list['cheapestPlanId'];
+
+            $planOptions = '';
+
+            foreach ($priceList as $planId => $planPrice) {
+                $description = $plansData[$planId]['description'] ?? '';
+                $price = $plansData[$planId]['price'] ?? '';
+                $selected = $planId == $cheapestPlanId ? 'selected' : '';
+                $planOptions .= sprintf(
+                    '<option value="%s" data-price="%s" data-description="%s" %s>%s</option>',
+                    htmlspecialchars($planId),
+                    htmlspecialchars($planPrice),
+                    htmlspecialchars($description),
+                    $selected,
+                    htmlspecialchars($price)
+                );
+            }
+
+            $planClass = ($plansData && $product->status != 1) ? 'stylePlan' : 'planhide';
+            $planForm = '<select name="subscription" class="'.$planClass.'">'.$planOptions.'</select>';
+
+            $form = html()->form('GET', $url)->open()
+                .$planForm
+                .html()->input('hidden', 'id')->value($id);
+
+            return $form;
         } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }
@@ -246,26 +258,25 @@ class TemplateController extends Controller
      */
     public function leastAmount($id)
     {
-        $countryCheck = true;
         try {
             $cost = 'Free';
-            $plans = Plan::where('product', $id)->get();
-            $product = Product::find($id);
-
+            $plans = Plan::where('product', $id)->whereIn('days', [30, 31])->get();
             $prices = [];
+            $currency = '';
             foreach ($plans as $plan) {
-                if ($plan->days == 30 || $plan->days == 31) {
-                    $offerprice = PlanPrice::where('plan_id', $plan->id)->value('offer_price');
-                    $planDetails = userCurrencyAndPrice('', $plan);
-                    $prices[] = $planDetails['plan']->add_price;
-                    $prices[] .= $planDetails['symbol'];
-                    $prices[] .= $planDetails['currency'];
+                $planDetails = userCurrencyAndPrice('', $plan);
+                $add_price = $planDetails['plan']->add_price ?? 0;
+
+                // Only consider non-zero prices
+                if ($add_price > 0) {
+                    $prices[] = $add_price;
+                    $currency = $planDetails['currency'];
                 }
-                if (! empty($prices)) {
-                    $format = ($prices[0] != '0') ? currencyFormat(min([$prices[0]]), $code = $prices[2]) : currencyFormat(min([$prices[3]]), $code = $prices[2]);
-                    $finalPrice = str_replace($prices[1], '', $format);
-                    $cost = '<span class="price-unit">'.$prices[1].'</span>'.$finalPrice;
-                }
+            }
+
+            if (! empty($prices)) {
+                $minPrice = min($prices);
+                $cost = (new PageController())->currencyFormatWithSpan($minPrice, $currency);
             }
 
             return $cost;
@@ -291,31 +302,57 @@ class TemplateController extends Controller
     public function prices($id)
     {
         try {
-            $plans = Plan::where('product', $id)->orderBy('id', 'desc')->get();
-            $price = [];
-            foreach ($plans as $value) {
-                $currency = userCurrencyAndPrice('', $value);
-                $offer = PlanPrice::where('plan_id', $value->id)->where('currency', $currency)->value('offer_price');
-                $product = Product::find($value->product);
-                $currencyAndSymbol = userCurrencyAndPrice('', $value);
-                $currency = $currencyAndSymbol['currency'];
-                $symbol = $currencyAndSymbol['symbol'];
-                $cost = $currencyAndSymbol['plan']->add_price;
-                $priceDescription = $currencyAndSymbol['plan']->price_description;
+            $plans = Plan::where('product', $id)
+                ->with(['planPrice', 'periods'])
+                ->orderByDesc('id')
+                ->get();
 
-                $cost = rounding($cost);
-                // $duration = $value->periods;
-                $duration = Period::where('days', $value->days)->first();
-                $months = $duration ? $duration->name : '';
-                if (! in_array($product->id, cloudPopupProducts())) {
-                    $price = $this->getPrice($months, $price, $priceDescription, $value, $cost, $currency, $offer, $product);
-                } elseif ($cost != '0' && in_array($product->id, cloudPopupProducts())) {
-                    $price = $this->getPrice($months, $price, $priceDescription, $value, $cost, $currency, $offer, $product);
-                }
-                // $price = currencyFormat($cost, $code = $currency);
+            $result = [];
+
+            // Cache product outside loop to avoid repeated queries
+            $product = Product::find($id);
+            if (! $product) {
+                return $result;
             }
 
-            return $price;
+            $cloudPopupProducts = cloudPopupProducts();
+
+            foreach ($plans as $plan) {
+                $currencyAndSymbol = userCurrencyAndPrice('', $plan);
+                $currency = $currencyAndSymbol['currency'];
+                $planData = $currencyAndSymbol['plan'];
+
+                if (! $planData || ($planData->add_price ?? 0) <= 0) {
+                    continue;
+                }
+
+                $offer = PlanPrice::where('plan_id', $plan->id)
+                    ->where('currency', $currency)
+                    ->value('offer_price');
+
+                $cost = rounding($planData->add_price);
+                $priceDescription = $planData->price_description;
+                $months = $plan->period ? $plan->period->name : '';
+
+                $includePrice =
+                    (! in_array($product->id, $cloudPopupProducts)) ||
+                    (in_array($product->id, $cloudPopupProducts) && $cost != 0);
+
+                if ($includePrice) {
+                    $result = $this->getPrice(
+                        $months,
+                        $result,
+                        $priceDescription,
+                        $plan,
+                        $cost,
+                        $currency,
+                        $offer,
+                        $product
+                    );
+                }
+            }
+
+            return $result;
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
 
@@ -340,25 +377,42 @@ class TemplateController extends Controller
         try {
             $plans = Plan::where('product', $id)->orderBy('id', 'desc')->get();
             $prices = [];
+            $cheapestPlanId = null;
+            $minPrice = PHP_INT_MAX;
 
             foreach ($plans as $plan) {
                 $planDetails = userCurrencyAndPrice('', $plan);
+                if (! $planDetails || ($planDetails['plan']->add_price ?? 0) <= 0) {
+                    continue;
+                }
                 $cost = rounding($planDetails['plan']->add_price); // Get price and round it
                 $currencyCode = $planDetails['currency']; // Get currency code
 
-                // Format the price similar to YearlyAmount but without symbol
+                // Format price without symbol
                 $formattedPrice = currencyFormat($cost, $code = $currencyCode);
-                $finalPrice = str_replace($planDetails['symbol'], '', $formattedPrice); // Remove symbol
+                $finalPrice = trim(str_replace($planDetails['symbol'], '', $formattedPrice));
 
-                // Store only the formatted price with plan ID as key
-                $prices[$plan->id] = trim($finalPrice);
+                // Store formatted price
+                $prices[$plan->id] = $finalPrice;
+
+                // Track cheapest plan
+                if ($cost < $minPrice) {
+                    $minPrice = $cost;
+                    $cheapestPlanId = $plan->id;
+                }
             }
 
-            return $prices;
+            return [
+                'prices' => $prices,
+                'cheapestPlanId' => $cheapestPlanId,
+            ];
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
 
-            return [];
+            return [
+                'prices' => [],
+                'cheapestPlanId' => null,
+            ];
         }
     }
 }

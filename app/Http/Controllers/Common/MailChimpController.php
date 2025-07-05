@@ -136,7 +136,7 @@ class MailChimpController extends BaseMailChimpController
             $user = new User();
             $setting = new Setting();
             $user = $user->where('email', $email)->first();
-            $country = Country::where('country_code_char2', $user->country)->pluck('nicename')->first();
+            $country = Country::where('country_code_char2', $user->country)->pluck('country_name')->first();
             if ($user) {
                 $fields = ['first_name', 'last_name', 'company', 'mobile',
                     'address', 'town', 'country', 'state', 'zip', 'active', 'role', 'source', ];

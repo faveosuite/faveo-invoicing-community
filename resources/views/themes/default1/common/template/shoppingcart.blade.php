@@ -324,8 +324,6 @@ $(document).ready(function() {
           const stylePlanSelect = card.querySelector(".stylePlan");
 
           if (stylePlanSelect && priceUnit) {
-              stylePlanSelect.value = priceUnit.id;
-
               // Listen for change event on the select element
               stylePlanSelect.addEventListener("change", function () {
                   const selectedOption = this.options[this.selectedIndex];

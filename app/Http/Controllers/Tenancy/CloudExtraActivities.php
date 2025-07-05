@@ -466,24 +466,16 @@ class CloudExtraActivities extends Controller
             $planOld = $productOld->planRelation->find($planIdOld);
             $currencyOld = userCurrencyAndPrice('', $planOld);
             $countryid = \App\Model\Common\Country::where('country_code_char2', \Auth::user()->country)->value('country_id');
-            $base_priceOld = PlanPrice::where('plan_id', $planIdOld)->where('currency', $currencyOld['currency'])->where('country_id', $countryid)->value('add_price');
-            if (! $base_priceOld) {
-                $base_priceOld = PlanPrice::where('plan_id', $planIdOld)->where('currency', $currencyOld['currency'])->where('country_id', 0)->value('add_price') * $oldAgents;
-            } else {
-                $base_priceOld = $base_priceOld * $oldAgents;
-            }
+            $base_priceOld = PlanPrice::where('plan_id', $planIdOld)->where('currency', $currencyOld['currency'])->value('add_price');
+            $base_priceOld = $base_priceOld * $oldAgents;
 
             $product_id_new = Plan::where('id', $planIdNew)->pluck('product')->first();
             $planDaysNew = Plan::where('id', $planIdNew)->pluck('days')->first();
             $productNew = Product::find($product_id_new);
             $planNew = $productNew->planRelation->find($planIdNew);
             $currencyNew = userCurrencyAndPrice('', $planNew);
-            $base_price_new = PlanPrice::where('plan_id', $planIdNew)->where('currency', $currencyNew['currency'])->where('country_id', $countryid)->value('add_price');
-            if (! $base_price_new) {
-                $base_price_new = PlanPrice::where('plan_id', $planIdNew)->where('currency', $currencyNew['currency'])->where('country_id', 0)->value('add_price') * $newAgents;
-            } else {
-                $base_price_new = $base_price_new * $newAgents;
-            }
+            $base_price_new = PlanPrice::where('plan_id', $planIdNew)->where('currency', $currencyNew['currency'])->value('add_price');
+            $base_price_new = $base_price_new * $newAgents;
 
             \Session::put('upgradeProductId', $product_id_new);
             \Session::put('plan', $planIdNew);
@@ -1050,24 +1042,17 @@ class CloudExtraActivities extends Controller
             $currencyOld = userCurrencyAndPrice('', $planOld);
             $countryid = \App\Model\Common\Country::where('country_code_char2', \Auth::user()->country)->value('country_id');
 
-            $base_priceOld = PlanPrice::where('plan_id', $planIdOld)->where('currency', $currencyOld['currency'])->where('country_id', $countryid)->value('add_price');
-            if (! $base_priceOld) {
-                $base_priceOld = PlanPrice::where('plan_id', $planIdOld)->where('currency', $currencyOld['currency'])->where('country_id', 0)->value('add_price') * $oldAgents;
-            } else {
-                $base_priceOld = $base_priceOld * $oldAgents;
-            }
+            $base_priceOld = PlanPrice::where('plan_id', $planIdOld)->where('currency', $currencyOld['currency'])->value('add_price');
+
+            $base_priceOld = $base_priceOld * $oldAgents;
 
             $product_id_new = Plan::where('id', $planIdNew)->pluck('product')->first();
             $planDaysNew = Plan::where('id', $planIdNew)->pluck('days')->first();
             $productNew = Product::find($product_id_new);
             $planNew = $productNew->planRelation->find($planIdNew);
             $currencyNew = userCurrencyAndPrice('', $planNew);
-            $base_price_new = PlanPrice::where('plan_id', $planIdNew)->where('currency', $currencyNew['currency'])->where('country_id', $countryid)->value('add_price');
-            if (! $base_price_new) {
-                $base_price_new = PlanPrice::where('plan_id', $planIdNew)->where('currency', $currencyNew['currency'])->where('country_id', 0)->value('add_price') * $newAgents;
-            } else {
-                $base_price_new = $base_price_new * $newAgents;
-            }
+            $base_price_new = PlanPrice::where('plan_id', $planIdNew)->where('currency', $currencyNew['currency'])->value('add_price');
+            $base_price_new = $base_price_new * $newAgents;
 
             if ($base_price_new > $base_priceOld) {
                 $variables = $this->displayPriceNewGreaterThanOld($ends_at, $base_price_new, $base_priceOld, $planDaysNew, $planDaysOld);
@@ -1222,11 +1207,8 @@ class CloudExtraActivities extends Controller
             $ends_at = Subscription::where('order_id', $orderId)->value('ends_at');
             $countryid = \App\Model\Common\Country::where('country_code_char2', \Auth::user()->country)->value('country_id');
 
-            $base_price = PlanPrice::where('plan_id', $planId)->where('currency', $currency['currency'])->where('country_id', $countryid)->value('add_price');
+            $base_price = PlanPrice::where('plan_id', $planId)->where('currency', $currency['currency'])->value('add_price');
 
-            if (! $base_price) {
-                $base_price = PlanPrice::where('plan_id', $planId)->where('currency', $currency['currency'])->where('country_id', 0)->value('add_price');
-            }
             if (empty($newAgents)) {
                 return ['pricePerAgent' => currencyFormat($base_price, $currency['currency'], true), 'totalPrice' => 0, 'priceToPay' => 0];
             }
@@ -1342,11 +1324,11 @@ class CloudExtraActivities extends Controller
     public function storeCloudDataCenter(Request $request)
     {
         $request->validate(['cloud_countries' => 'required', 'cloud_state' => 'required']);
-        $countryName = Country::where('country_code_char2', strtoupper($request->get('cloud_countries')))->value('nicename');
+        $countryName = Country::where('country_code_char2', strtoupper($request->get('cloud_countries')))->value('country_name');
         $state = $request->get('cloud_state');
         $city = $request->get('cloud_city');
-        $geo = (empty($city)) ? $this->getStateCoordinates($state) : $this->getStateCoordinates($city);
-        $state = State::where('state_subdivision_code', $state)->value('state_subdivision_name');
+        $geo = (empty($city)) ? $this->getStateCoordinates(strtoupper($request->get('cloud_countries')).'-'.$state) : $this->getStateCoordinates($city);
+        $state = State::where('country_code', strtoupper($request->get('cloud_countries')))->where('iso2', $state)->value('state_subdivision_name');
         if (! empty($geo)) {
             CloudDataCenters::create([
                 'cloud_countries' => $countryName,

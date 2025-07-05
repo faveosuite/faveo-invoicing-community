@@ -92,8 +92,8 @@ active
                         <li class="mb-0">{{$set->address}}</li>
 
                         <li class="mb-0">{{$set->city}}<br/>
-                                @if(key_exists('name',getStateByCode($set->state)))
-                                {{getStateByCode($set->state)['name']}}
+                                @if(key_exists('name',getStateByCode($set->country, $set->state)))
+                                {{getStateByCode($set->country, $set->state)['name']}}
                                 @endif
                                 {{$set->zip}}<br/>
                                 <strong>{{ __('message.country') }}: </strong>{{getCountryByCode($set->country)}}<br/>
@@ -122,8 +122,8 @@ active
                         {{$user->address}}<br/>
                         @endif
                         {{$user->town}}<br/>
-                        @if(key_exists('name',getStateByCode($user->state)))
-                            {{getStateByCode($user->state)['name']}}
+                        @if(key_exists('name',getStateByCode($user->country, $user->state)))
+                            {{getStateByCode($user->country, $user->state)['name']}}
                         @endif
                         {{$user->zip}}<br/>
                         <strong>{{ __('message.country')}} : </strong>{{getCountryByCode($user->country)}}<br/>
@@ -278,15 +278,21 @@ active
                                     @endforeach
 {{--                                    @endif--}}
 {{--                                    @endforeach--}}
-                                    <?php
-                                    $feeAmount = intval(ceil($invoice->grand_total * 0.99 / 100));
-                                    ?>
 
 
                                 @if($invoice->processing_fee != null && $invoice->processing_fee != '0%')
-                                <tr>
-                                    <th class="font-weight-bold text-color-grey">{{ __('message.processing_fee')}} <label style="font-weight: normal;">({{$invoice->processing_fee}})</label></th>
-                                    <td class="text-color-grey moveleft">{{currencyFormat($feeAmount,$code = $symbol)}}</td>
+                                        <?php
+                                        $percentage = floatval(preg_replace('/[^0-9.]/', '', $invoice->processing_fee));
+                                        $feeAmount = intval(ceil($invoice->grand_total * $percentage / 100));
+                                        ?>
+                                    <tr>
+                                        <th class="font-weight-bold text-color-grey">
+                                            {{ __('message.processing_fee') }}
+                                            <label style="font-weight: normal;">
+                                                ({{ Str::endsWith($invoice->processing_fee, '%') ? $invoice->processing_fee : $invoice->processing_fee . '%' }})
+                                            </label>
+                                        </th>
+                                        <td class="text-color-grey moveleft">{{currencyFormat($feeAmount,$code = $symbol)}}</td>
                                 </tr>
                                 @endif
                                 <tr class="h6">

@@ -189,7 +189,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                           })
                             ->addColumn('country', function ($model) {
                                 $user = $this->user->where('id', $model->user_id)->first() ?: User::onlyTrashed()->find($model->user_id);
-                                $country = Country::where('country_code_char2', $user->country)->value('nicename');
+                                $country = Country::where('country_code_char2', $user->country)->value('country_name');
 
                                 return $country;
                             })

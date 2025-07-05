@@ -11,11 +11,10 @@ class State extends BaseModel
     protected $primaryKey = 'state_subdivision_id';
 
     protected $fillable = [
-        'state_subdivision_id', 'country_code_char2',
-        'country_code_char3', 'state_subdivision_name',
-        'state_subdivision_alternate_names', 'primary_level_name',
-        'state_subdivision_code',
+        'state_subdivision_id', 'state_subdivision_name',
+        'country_code', 'iso2',
+        'primary_level_name', 'country_id',
+        'latitude',
+        'longitude',
     ];
-
-    public $timestamps = false;
 }

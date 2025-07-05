@@ -195,7 +195,7 @@
                     <div class="col-md-3 form-group {{ $errors->has('country') ? 'has-error' : '' }}">
                         <!-- country -->
                         {!! html()->label(Lang::get('message.country'), 'country')->class('required') !!}
-                        <?php $countries = \App\Model\Common\Country::pluck('nicename', 'country_code_char2')->toArray(); ?>
+                        <?php $countries = \App\Model\Common\Country::pluck('country_name', 'country_code_char2')->toArray(); ?>
 
                         {!! html()->select('country')->options([Lang::get('message.choose') => $countries])
     ->class('form-control select2'. ($errors->has('country') ? ' is-invalid' : ''))
@@ -215,12 +215,12 @@
                         <!-- state -->
                         {!! html()->label(Lang::get('message.state'))->for('state') !!}
                         <select name="state" id="state-list" class="form-control {{$errors->has('') ? ' is-invalid' : ''}}">
-                            @if(count($state)>0)
-                            <option value="{{$state['id']}}">{{$state['name']}}</option>
-                            @endif
                             <option value="">{{ __('message.select_state') }}</option>
-                            @foreach($states as $key=>$value)
-                            <option value="{{$key}}">{{$value}}</option>
+
+                            @foreach($states as $key => $value)
+                                <option value="{{ $key }}" {{ (old('state', $user->state) == $key) ? 'selected' : '' }}>
+                                    {{ $value }}
+                                </option>
                             @endforeach
                         </select>
                         @error('state')

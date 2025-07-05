@@ -2685,6 +2685,11 @@ return [
     'valid_username' => 'Inserisci un nome utente valido',
     'set_auth_invoicing' => 'Sei pronto. Da ora in poi, utilizzerai l\'app Authenticator per accedere al tuo account Faveo Invoicing.',
 
+    'no_available_plans_currency' => 'Nessun piano disponibile per questo prodotto nella valuta selezionata.',
+    'unsupported_country' => 'Il paese selezionato non è supportato per questo ordine.',
+    'order_no_active_plan_cancelled' => 'Il rinnovo automatico è stato annullato perché non è stato trovato alcun piano attivo per l’ordine #:order_number.',
+    'no_matching_plans' => 'Nessun piano disponibile per i criteri selezionati.',
+    'order_no_active_plan' => 'Nessun piano attivo associato a questo ordine.',
     'auto_assign_success' => 'La configurazione dell’assegnazione automatica è stata aggiornata con successo.',
     'system_manager_settings' => 'Impostazioni del Gestore di Sistema',
     'enable_account_manager' => 'Abilita l’assegnazione automatica per i responsabili account',
@@ -2704,5 +2709,6 @@ return [
     'user_position_prohibited_if' => 'Il campo posizione non è consentito quando il ruolo è utente.',
     'cloud_plan_error' => 'Si prega di rimuovere il prodotto cloud o collegarlo a un piano alternativo.',
 
+    'period_is_required' => 'Seleziona un periodo.',
     'continue_verify_social_login' => 'Clicca su "Validate" per procedere e confermare la tua identità',
 ];

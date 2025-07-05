@@ -19,6 +19,7 @@ use App\Model\Order\Payment;
 use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
+use App\Model\Plugin;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
@@ -242,6 +243,9 @@ class ClientController extends BaseClientController
             $planid = $sub->plan_id;
             $plan = Plan::find($planid);
             $planDetails = userCurrencyAndPrice($sub->user_id, $plan);
+            if (is_null($planDetails['plan'])) {
+                throw new \Exception(__('message.no_available_plans_currency'));
+            }
             $cost = $planDetails['plan']->renew_price;
             $currency = $planDetails['currency'];
             $controller = new RenewController();
@@ -251,7 +255,7 @@ class ClientController extends BaseClientController
 
             return redirect('paynow/'.$id);
         } catch(\Exception $ex) {
-            echo $ex->getMessage();
+            return redirect('my-orders')->with('fails', $ex->getMessage());
         }
     }
 
@@ -688,10 +692,14 @@ class ClientController extends BaseClientController
                                      <i class="fa fa-eye" data-toggle="tooltip" data-placement="top" title="'.__('message.click_here_view').'"></i>
                                      </a>';
                                 }
-                                $plan = Plan::where('product', $model->product_id)->value('id');
+                                $plan = Plan::where('product', $model->product_id)
+                                    ->whereHas('planPrice', function ($query) {
+                                        $query->where('currency', getCurrencyForClient(\Auth::user()->country));
+                                    })
+                                    ->value('id');
                                 $whatIsSub = Subscription::where('order_id', $model->id)->value('plan_id');
                                 $planName = Plan::where('id', $whatIsSub)->value('name');
-                                $price = PlanPrice::where('plan_id', $plan)->where('currency', \Auth::user()->currency)->value('renew_price');
+                                $price = PlanPrice::where('plan_id', $plan)->where('currency', getCurrencyForClient(\Auth::user()->country))->value('renew_price');
                                 $order_cont = new \App\Http\Controllers\Order\OrderController();
                                 $status = $order_cont->checkInvoiceStatusByOrderId($model->id);
                                 $url = '';
@@ -715,7 +723,7 @@ class ClientController extends BaseClientController
                                     $agents = intval($agents, 10);
                                 }
 
-                                $url = $this->renewPopup($model->sub_id, $model->product_id, $agents, $planName);
+                                $url = $this->renewPopup($model->sub_id, $model->product_id, $agents, $planName, $price);
 
                                 $changeDomain = $this->changeDomain($model, $model->product_id); // Need to add this if the client requirement intensifies.
 
@@ -787,7 +795,7 @@ class ClientController extends BaseClientController
             }
             //for display
             $timezones = array_column($display, 'name', 'id');
-            $state = getStateByCode($user->state);
+            $state = getStateByCode($user->country, $user->state);
             $states = findStateByRegionId($user->country);
             $bussinesses = \App\Model\Common\Bussiness::pluck('name', 'short')->toArray();
             $selectedIndustry = \App\Model\Common\Bussiness::where('name', $user->bussiness)
@@ -798,7 +806,7 @@ class ClientController extends BaseClientController
             ->pluck('name', 'short')->toArray();
 
             $selectedCountry = \DB::table('countries')->where('country_code_char2', $user->country)
-            ->value('nicename');
+            ->value('country_name');
 
             return view(
                 'themes.default1.front.clients.profile',
@@ -878,6 +886,14 @@ class ClientController extends BaseClientController
             $api = new Api($rzp_key, $rzp_secret);
             $userCountry = \Auth::user()->country;
             $displayCurrency = getCurrencyForClient($userCountry);
+
+            if (! isCurrencySupportedForPayments($displayCurrency,
+                Plugin::whereStatus(1)
+                ->pluck('name')
+                ->map(fn ($name) => strtolower($name))
+                ->toArray())) {
+                throw new \Exception(__('message.unsupported_country'));
+            }
 
             $exchangeRate = '';
             $orderData = [
@@ -983,26 +999,18 @@ class ClientController extends BaseClientController
      */
     private function planDetails($planIds, $countryids, $userCountry, $plans, $product)
     {
+        $currency = getCurrencyForClient($userCountry);
+
         $renewalPrices = \App\Model\Payment\PlanPrice::whereIn('plan_id', $planIds)
-            ->where('country_id', $countryids->country_id)
-            ->where('currency', getCurrencyForClient($userCountry))
+            ->where('currency', $currency)
             ->latest()
             ->pluck('renew_price', 'plan_id')
             ->toArray();
 
-        if (empty($renewalPrices)) {
-            $renewalPrices = \App\Model\Payment\PlanPrice::whereIn('plan_id', $planIds)
-                ->where('country_id', 0)
-                ->where('currency', getCurrencyForClient($userCountry))
-                ->latest()
-                ->pluck('renew_price', 'plan_id')
-                ->toArray();
-        }
-
         foreach ($plans as $planId => $planName) {
             if (isset($renewalPrices[$planId])) {
                 if (in_array($product->id, cloudPopupProducts())) {
-                    $plans[$planId] .= ' (Plan price-per agent: '.currencyFormat($renewalPrices[$planId], getCurrencyForClient($userCountry), true).')';
+                    $plans[$planId] .= ' (Plan price-per agent: '.currencyFormat($renewalPrices[$planId], $currency, true).')';
                 }
             }
         }
