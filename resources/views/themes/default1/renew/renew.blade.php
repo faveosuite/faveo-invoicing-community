@@ -22,8 +22,14 @@
 
 
     <div class="card-body">
-                <?php 
-                 $plans = App\Model\Payment\Plan::where('product',$productid)->pluck('name','id')->toArray();
+                <?php
+                $currency = getCurrencyForClient(App\User::find($userid)->country);
+                $plans = \App\Model\Payment\Plan::where('product', $productid)
+                    ->whereHas('planPrice', function ($query) use ($currency) {
+                        $query->where('currency', $currency);
+                    })
+                    ->pluck('name', 'id')
+                    ->toArray();
                 ?>
         <div class="row">
 
@@ -36,12 +42,18 @@
                     <div class="col-md-4 form-group {{ $errors->has('plan') ? 'has-error' : '' }}">
                         <!-- first name -->
                         {!! html()->label( __('message.plans'), 'plan')->class('required') !!}
-                          <select name="plan" id="plans" onchange="fetchPlanCost(this.value)" class="form-control" >
-                             <option value=''>{{ __('message.choose') }}</option>
-                           @foreach($plans as $key=>$plan)
-                              <option value={{$key}}>{{$plan}}</option>
-                          @endforeach
-                          </select>
+                        <select name="plan" id="plans" onchange="fetchPlanCost(this.value)" class="form-control">
+                            @if(count($plans) > 0)
+                                <option value="">{{ __('message.choose') }}</option>
+                                @foreach($plans as $key => $plan)
+                                    <option value="{{ $key }}">{{ $plan }}</option>
+                                @endforeach
+                            @else
+                                <option value="" disabled selected>
+                                    {{ __('No available plans found for this product in the users selected currency.') }}
+                                </option>
+                            @endif
+                        </select>
                         <div class="input-group-append"></div>
                         <!-- {!! html()->select('plan', ['' => 'Select'] + $plans)->class('form-control')->attribute('onchange', 'fetchPlanCost(this.value)') !!} -->
                         {!! html()->hidden('user', $userid) !!}
