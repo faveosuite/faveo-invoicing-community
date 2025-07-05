@@ -368,7 +368,6 @@ function getCurrencyForClient($countryCode)
     return $country->currency->code ?? Setting::value('default_currency');
 }
 
-
 function currencyFormat($amount = null, $currency = null, $includeSymbol = true, $shouldRound = true)
 {
     if ($shouldRound) {
@@ -376,7 +375,7 @@ function currencyFormat($amount = null, $currency = null, $includeSymbol = true,
     }
 
     if ($currency === 'INR') {
-        return getIndianCurrencySymbol($currency) . getIndianCurrencyFormat($amount);
+        return getIndianCurrencySymbol($currency).getIndianCurrencyFormat($amount);
     }
 
     return app('currency')->format($amount, $currency, $includeSymbol);
@@ -852,9 +851,9 @@ function isRtlForLang()
     return in_array(app()->getLocale(), ['ar', 'he']);
 }
 
-
 function isAgentAllowed($productId)
 {
     $product = \App\Model\Product\Product::find($productId);
+
     return in_array($productId, cloudPopupProducts()) || $product->can_modify_agent;
 }

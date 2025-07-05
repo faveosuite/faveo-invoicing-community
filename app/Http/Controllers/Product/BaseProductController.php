@@ -122,7 +122,7 @@ class BaseProductController extends ExtendedBaseProductController
         try {
             $controller = new \App\Http\Controllers\Front\CartController();
             $plan = new Plan();
-            $useID = $request->input('user_id')?:\Auth::user()->id;
+            $useID = $request->input('user_id') ?: \Auth::user()->id;
             $userCountry = User::find($useID)->country;
             $currency = getCurrencyForClient($userCountry);
             $plans = Plan::where('product', $productid)
@@ -151,9 +151,9 @@ class BaseProductController extends ExtendedBaseProductController
                 ])
                 ->toHtml();
 
-            return successResponse('',$field);
+            return successResponse('', $field);
         } catch (\Exception $ex) {
-           return errorResponse($ex->getMessage());
+            return errorResponse($ex->getMessage());
         }
     }
 
