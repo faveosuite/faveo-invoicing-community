@@ -487,25 +487,18 @@ class PageController extends Controller
                 $currencyAndSymbol = getCurrencyForClient($country);
             }
 
-            $defaultCurrency = Setting::first()->default_currency;
             $productsRelatedToGroup = \App\Model\Product\Product::where('products.group', $groupid)
                 ->where('products.hidden', '!=', 1)
                 ->join('plans', 'products.id', '=', 'plans.product')
-                ->join('plan_prices', 'plans.id', '=', 'plan_prices.plan_id')
+                ->join('plan_prices', function ($join) use ($currencyAndSymbol) {
+                    $join->on('plans.id', '=', 'plan_prices.plan_id')
+                        ->where('plan_prices.currency', '=', $currencyAndSymbol);
+                })
                 ->select(
                     'products.*',
-                    'plan_prices.add_price',
-                    \DB::raw("
-            CASE
-                WHEN plan_prices.currency = '$currencyAndSymbol' THEN 1
-                WHEN plan_prices.currency = '$defaultCurrency' THEN 2
-                WHEN plan_prices.currency != '' THEN 3
-                ELSE 4
-            END as currency_priority
-        ")
+                    'plan_prices.add_price'
                 )
                 ->orderBy('products.id')
-                ->orderBy('currency_priority')
                 ->orderByRaw('CAST(plan_prices.add_price AS DECIMAL(10, 2)) ASC')
                 ->orderBy('plans.created_at', 'ASC')
                 ->get()

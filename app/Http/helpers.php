@@ -301,13 +301,6 @@ function userCurrencyAndPrice($userid, $plan, $productid = '')
         $currencyAndSymbol = getCurrencySymbolAndPriceForPlans($country, $plan);
 
         // Check if the user is not authenticated
-        if (! auth()->check()) {
-            echo '<script>';
-            echo "localStorage.setItem('currency', '{$currencyAndSymbol['currency']}');";
-            echo "localStorage.setItem('symbol', '{$currencyAndSymbol['currency_symbol']}');";
-            echo "localStorage.setItem('plan', '".json_encode($currencyAndSymbol['userPlan'])."');";
-            echo '</script>';
-        }
 
         return [
             'currency' => $currencyAndSymbol['currency'],
@@ -346,12 +339,18 @@ function getCountry($userid)
  */
 function getCurrencySymbolAndPriceForPlans($countryCode, $plan)
 {
-    $country = Country::where('country_code_char2', $countryCode)->first();
-    $userPlan = $plan->planPrice->where('country_id', $country->country_id)->first() ?: $plan->planPrice->where('country_id', 0)->first();
-    $currency = $userPlan->currency;
-    $currency_symbol = Currency::where('code', $currency)->value('symbol');
+    $userCurrency = getCurrencyForClient($countryCode);
 
-    return compact('currency', 'currency_symbol', 'userPlan');
+    $userPlan = $plan->planPrice->firstWhere('currency', $userCurrency);
+
+    $currency = $userCurrency;
+    $currencySymbol = Currency::where('code', $currency)->value('symbol');
+
+    return [
+        'currency' => $currency,
+        'currency_symbol' => $currencySymbol,
+        'userPlan' => $userPlan,
+    ];
 }
 
 /**
@@ -362,28 +361,25 @@ function getCurrencySymbolAndPriceForPlans($countryCode, $plan)
  */
 function getCurrencyForClient($countryCode)
 {
-    $defaultCurrency = Setting::first()->default_currency;
-    $country = Country::where('country_code_char2', $countryCode)->first();
-    $currencyStatus = $country->currency->status;
-    if ($currencyStatus) {
-        $currency = Currency::where('id', $country->currency_id)->first();
+    $country = Country::with(['currency' => function ($query) {
+        $query->where('status', 1);
+    }])->where('country_code_char2', $countryCode)->first();
 
-        return $currency->code;
-    }
-
-    return $defaultCurrency;
+    return $country->currency->code ?? Setting::value('default_currency');
 }
 
-function currencyFormat($amount = null, $currency = null, $include_symbol = true)
-{
-    $amount = rounding($amount);
-    if ($currency == 'INR') {
-        $symbol = getIndianCurrencySymbol($currency);
 
-        return $symbol.getIndianCurrencyFormat($amount);
+function currencyFormat($amount = null, $currency = null, $includeSymbol = true, $shouldRound = true)
+{
+    if ($shouldRound) {
+        $amount = rounding($amount);
     }
 
-    return app('currency')->format($amount, $currency, $include_symbol);
+    if ($currency === 'INR') {
+        return getIndianCurrencySymbol($currency) . getIndianCurrencyFormat($amount);
+    }
+
+    return app('currency')->format($amount, $currency, $includeSymbol);
 }
 
 function rounding($price)
@@ -854,4 +850,11 @@ function getUrl()
 function isRtlForLang()
 {
     return in_array(app()->getLocale(), ['ar', 'he']);
+}
+
+
+function isAgentAllowed($productId)
+{
+    $product = \App\Model\Product\Product::find($productId);
+    return in_array($productId, cloudPopupProducts()) || $product->can_modify_agent;
 }
