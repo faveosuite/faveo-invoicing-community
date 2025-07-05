@@ -2693,6 +2693,11 @@ return [
     'cloud_deleted_failed' => 'Tenant silme başarısız oldu',
     'not-found' => 'Bu ürün şu anda bir veya daha fazla hizmetle ilişkili olduğu için silinemez. Lütfen bu ürünü silmeye çalışmadan önce tüm ilgili hizmetleri kaldırın.',
 
+    'no_available_plans_currency' => 'Seçilen para biriminde bu ürün için uygun plan bulunamadı.',
+    'unsupported_country' => 'Seçilen ülke bu sipariş için desteklenmiyor.',
+    'order_no_active_plan_cancelled' => 'Sipariş #:order_number için aktif bir plan bulunamadığından otomatik yenileme iptal edildi.',
+    'no_matching_plans' => 'Seçiminize uygun bir plan bulunamadı.',
+    'order_no_active_plan' => 'Bu siparişe ait aktif bir plan bulunmamaktadır.',
     'auto_assign_success' => 'Otomatik atama ayarı başarıyla güncellendi.',
     'system_manager_settings' => 'Sistem Yöneticisi Ayarları',
     'enable_account_manager' => 'Hesap yöneticileri için otomatik atamayı etkinleştir',

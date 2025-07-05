@@ -2675,6 +2675,11 @@ return [
     'captcha_message' => 'Verifica reCAPTCHA non riuscita. Riprova.',
     'not-found' => 'Questo prodotto non può essere eliminato perché è attualmente associato a uno o più servizi. Rimuovere tutti i servizi correlati prima di tentare di eliminare questo prodotto.',
 
+    'no_available_plans_currency' => 'Nessun piano disponibile per questo prodotto nella valuta selezionata.',
+    'unsupported_country' => 'Il paese selezionato non è supportato per questo ordine.',
+    'order_no_active_plan_cancelled' => 'Il rinnovo automatico è stato annullato perché non è stato trovato alcun piano attivo per l’ordine #:order_number.',
+    'no_matching_plans' => 'Nessun piano disponibile per i criteri selezionati.',
+    'order_no_active_plan' => 'Nessun piano attivo associato a questo ordine.',
     'auto_assign_success' => 'La configurazione dell’assegnazione automatica è stata aggiornata con successo.',
     'system_manager_settings' => 'Impostazioni del Gestore di Sistema',
     'enable_account_manager' => 'Abilita l’assegnazione automatica per i responsabili account',

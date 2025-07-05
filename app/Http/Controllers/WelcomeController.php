@@ -47,27 +47,23 @@ class WelcomeController extends Controller
 
     public function countryCount()
     {
-        $users = \App\User::leftJoin('countries', 'users.country', '=', 'countries.country_code_char2')
-        ->where('countries.nicename', '!=', '')
-                ->select('countries.nicename as country', 'countries.country_code_char2 as code', \DB::raw('COUNT(users.id) as count'))
-
-                ->groupBy('users.country');
+        $users = Country::query()
+            ->select('country_name', 'country_code_char2 as code')
+            ->withCount('users');
 
         return DataTables::of($users)
-                            ->orderColumn('country', '-id $1')
-                            ->orderColumn('count', '-id $1')
-                            ->addColumn('country', function ($model) {
-                                return ucfirst($model->country);
-                            })
-                              ->addColumn('count', function ($model) {
-                                  return '<a href='.url('clients/'.$model->id.'?country='.$model->code).'>'
-                            .$model->count.'</a>';
-                              })
-                            ->filterColumn('country', function ($query, $keyword) {
-                                $sql = 'countries.nicename like ?';
-                                $query->whereRaw($sql, ["%{$keyword}%"]);
-                            })
-                            ->rawColumns(['country', 'count'])
-                            ->make(true);
+            ->addColumn('country', function ($model) {
+                return ucfirst($model->country_name);
+            })
+            ->addColumn('count', function ($model) {
+                return '<a href="'.url('clients?country='.$model->code).'">'
+                    .$model->users_count.'</a>';
+            })
+            ->orderColumn('count', 'users_count $1')
+            ->filterColumn('country', function ($query, $keyword) {
+                $query->where('country_name', 'like', "%{$keyword}%");
+            })
+            ->rawColumns(['count'])
+            ->make(true);
     }
 }

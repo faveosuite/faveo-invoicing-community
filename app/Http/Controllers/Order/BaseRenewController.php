@@ -11,6 +11,7 @@ use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Traits\TaxCalculation;
+use App\User;
 use Exception;
 use Illuminate\Http\Request;
 
@@ -87,24 +88,32 @@ class BaseRenewController extends Controller
     public function getCost(Request $request)
     {
         try {
-            $isAgents = false;
-            $planid = $request->input('plan');
-            if (! $planid || $planid == 'Choose') {
-                return 0;
-            }
-            $userid = $request->input('user');
-            $plan = Plan::find($planid);
+            $planId = $request->input('plan');
+            $userId = $request->input('user');
+            $agents = $request->input('agents', 0);
 
-            $planDetails = userCurrencyAndPrice($userid, $plan);
+            if (! $planId || $planId === 'Choose') {
+                return response()->json([
+                    'formatted_price' => currencyFormat(0, getCurrencyForClient(User::find($userId)->country)),
+                ]);
+            }
+
+            $plan = Plan::find($planId);
+            $planDetails = userCurrencyAndPrice($userId, $plan);
             $price = $planDetails['plan']->renew_price;
-            if (Product::where('id', $plan->product)->value('can_modify_agent')) {
-                if ($planDetails['plan']->no_of_agents != 0) {
-                    $price = $price / $planDetails['plan']->no_of_agents;
-                }
-                $isAgents = true;
+            $currency = $planDetails['currency'];
+
+            if (isAgentAllowed($plan->product)) {
+                $priceForAgents = $price / $planDetails['plan']->no_of_agents;
+                $priceForTheAgents = $agents * $priceForAgents;
+                $formattedCurrency = currencyFormat($priceForTheAgents, $currency, true);
+            } else {
+                $formattedCurrency = currencyFormat($price, $currency, true);
             }
 
-            return [$price, $isAgents];
+            return response()->json([
+                'formatted_price' => $formattedCurrency,
+            ]);
         } catch (Exception $ex) {
             throw new \Exception($ex->getMessage());
         }

@@ -64,8 +64,8 @@ class AdvanceSearchController extends AdminOrderInvoiceController
     {
         $client = $this->user->where('id', $id)->first();
         $currency = $client->currency;
-        if (array_key_exists('name', getStateByCode($client->state))) {
-            $client->state = getStateByCode($client->state)['name'];
+        if (array_key_exists('name', getStateByCode($client->country, $client->state))) {
+            $client->state = getStateByCode($client->country, $client->state)['name'];
         }
         $client->country = ucwords(strtolower(getCountryByCode($client->country)));
 

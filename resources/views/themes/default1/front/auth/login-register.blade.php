@@ -24,9 +24,7 @@
     use App\Http\Controllers\Front\CartController;
     $country = findCountryByGeoip($location['iso_code']);
     $states = findStateByRegionId($location['iso_code']);
-    $states = \App\Model\Common\State::pluck('state_subdivision_name', 'state_subdivision_code')->toArray();
-    $state_code = $location['iso_code'] . "-" . $location['state'];
-    $state = getStateByCode($state_code);
+    $state = getStateByCode($country, $states);
 
 
     ?>
@@ -317,8 +315,8 @@ foreach($scripts as $script) {
 
                                 <label class="form-label text-color-dark text-3">{{ __('message.country')}} <span class="text-color-danger">*</span></label>
 
-                                <?php $countries = \App\Model\Common\Country::pluck('nicename', 'country_code_char2')->toArray(); ?>
-                                {!! html()->select('country', ['' => ''] + $countries, $country)
+                                <?php $countries = \App\Model\Common\Country::pluck('country_name', 'country_code_char2')->toArray(); ?>
+                                {!! html()->select('country', $countries, $country)
     ->class('form-select form-control h-auto py-2 selectpicker con')
     ->attribute('data-live-search-style', 'startsWith')
     ->attribute('data-live-search', 'true')
@@ -338,7 +336,7 @@ foreach($scripts as $script) {
                                 <label class="form-label text-color-dark text-3">{{ __('message.mobile')}} <span class="text-color-danger">*</span></label>
 
 {{--                                {!! html()->hidden('mobile')->id('mobile_code_hidden') !!}--}}
-                                <input class="form-control form-control-lg rounded" id="mobilenum" name="mobile" type="tel">
+                                <input class="form-control form-control-lg text-4" id="mobilenum" name="mobile" type="tel">
                                 {!! html()->hidden('mobile_code')
     ->class('form-control form-control-lg text-4')
     ->id('mobile_code') !!}

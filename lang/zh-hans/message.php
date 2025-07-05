@@ -2675,6 +2675,11 @@ return [
     'cloud_deleted_failed' => '租户删除失败',
     'not-found' => '无法删除该产品，因为它当前关联了一个或多个服务。请先删除所有相关服务后再尝试删除该产品。',
 
+    'no_available_plans_currency' => '在所选货币下，未找到该产品的可用方案。',
+    'unsupported_country' => '该订单不支持所选国家。',
+    'order_no_active_plan_cancelled' => '由于订单 #:order_number 没有可用的活动方案，自动续订已被取消。',
+    'no_matching_plans' => '没有符合您选择条件的方案。',
+    'order_no_active_plan' => '该订单没有关联任何活动方案。',
     'auto_assign_success' => '自动分配设置已成功更新。',
     'system_manager_settings' => '系统管理员设置',
     'enable_account_manager' => '启用账户经理的自动分配',

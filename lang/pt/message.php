@@ -2657,6 +2657,11 @@ return [
     'captcha_failed' => 'A verificação do reCAPTCHA falhou. Por favor, certifique-se de que a sua chave secreta do reCAPTCHA é válida.',
     'captcha_message' => 'Falha na verificação do reCAPTCHA. Tente novamente.',
     'not-found' => 'Este produto não pode ser excluído porque está atualmente associado a um ou mais serviços. Por favor, remova todos os serviços relacionados antes de tentar excluir este produto.',
+    'no_available_plans_currency' => 'Nenhum plano disponível para este produto na moeda selecionada.',
+    'unsupported_country' => 'O país selecionado não é compatível com este pedido.',
+    'order_no_active_plan_cancelled' => 'A renovação automática foi cancelada porque nenhum plano ativo foi encontrado para o pedido #:order_number.',
+    'no_matching_plans' => 'Nenhum plano disponível para os critérios selecionados.',
+    'order_no_active_plan' => 'Nenhum plano ativo associado a este pedido.',
 
     'auto_assign_success' => 'A configuração de atribuição automática foi atualizada com sucesso.',
     'system_manager_settings' => 'Definições do Gestor do Sistema',

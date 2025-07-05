@@ -2700,6 +2700,11 @@ return [
     'captcha_message' => 'reCAPTCHA 확인 실패. 다시 시도해 주세요.',
     'not-found' => '이 제품은 하나 이상의 서비스와 연결되어 있어 삭제할 수 없습니다. 이 제품을 삭제하기 전에 관련된 모든 서비스를 제거하십시오.',
 
+    'no_available_plans_currency' => '선택한 통화로는 이 제품에 사용할 수 있는 플랜이 없습니다.',
+    'unsupported_country' => '이 주문에는 선택한 국가가 지원되지 않습니다.',
+    'order_no_active_plan_cancelled' => '주문 #:order_number 에 대해 활성 플랜이 없어 자동 갱신이 취소되었습니다.',
+    'no_matching_plans' => '선택한 조건에 맞는 플랜이 없습니다.',
+    'order_no_active_plan' => '이 주문에는 활성 플랜이 없습니다.',
     'auto_assign_success' => '자동 할당 설정이 성공적으로 업데이트되었습니다.',
     'system_manager_settings' => '시스템 관리자 설정',
     'enable_account_manager' => '계정 관리자 자동 할당 활성화',

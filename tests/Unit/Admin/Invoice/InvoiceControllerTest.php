@@ -5,6 +5,7 @@ namespace Tests\Unit\Admin\Invoice;
 use App\Http\Controllers\Order\InvoiceController;
 use App\Http\Requests\InvoiceRequest;
 use App\Model\Common\Setting;
+use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
@@ -76,6 +77,7 @@ class InvoiceControllerTest extends DBTestCase
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
+        Currency::where('code', $this->user->currency)->update(['status' => 1]);
         $setting = Setting::factory()->create(['state' => 'IN-KA']);
         $product = Product::factory()->create();
         $plan = Plan::create(['name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);

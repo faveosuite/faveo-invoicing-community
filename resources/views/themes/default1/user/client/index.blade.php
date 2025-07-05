@@ -166,7 +166,7 @@
 
                         </div>
                         <?php
-                        $countries=DB::table('countries')->pluck('nicename','country_code_char2')->toarray();
+                        $countries=DB::table('countries')->pluck('country_name','country_code_char2')->toarray();
                         ?>
                         <div class="col-md-3 form-group">
                             <!-- first name -->

@@ -2669,6 +2669,12 @@ return [
     'captcha_message' => 'Échec de la vérification reCAPTCHA. Veuillez réessayer.',
     'not-found' => 'Ce produit ne peut pas être supprimé car il est actuellement associé à un ou plusieurs services. Veuillez supprimer tous les services associés avant de tenter de supprimer ce produit.',
 
+    'no_available_plans_currency' => 'Aucun plan disponible pour ce produit dans la devise sélectionnée.',
+    'unsupported_country' => 'Le pays sélectionné n’est pas pris en charge pour cette commande.',
+    'order_no_active_plan_cancelled' => 'Le renouvellement automatique a été annulé car aucun plan actif n’a été trouvé pour la commande n°:order_number.',
+    'no_matching_plans' => 'Aucun plan disponible pour vos critères de sélection.',
+    'order_no_active_plan' => 'Aucun plan actif n’est associé à cette commande.',
+
     'auto_assign_success' => 'Le paramètre d’attribution automatique a été mis à jour avec succès.',
     'system_manager_settings' => 'Paramètres du gestionnaire système',
     'enable_account_manager' => 'Activer l’attribution automatique pour les gestionnaires de comptes',

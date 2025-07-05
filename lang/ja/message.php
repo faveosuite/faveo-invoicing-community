@@ -2682,6 +2682,11 @@ return [
     'captcha_message' => 'reCAPTCHA の検証に失敗しました。もう一度お試しください。',
     'not-found' => 'この商品は現在1つ以上のサービスと関連付けられているため、削除できません。削除を試みる前にすべての関連サービスを削除してください。',
 
+    'no_available_plans_currency' => '選択した通貨では、この製品の利用可能なプランが見つかりませんでした。',
+    'unsupported_country' => 'この注文では、選択した国はサポートされていません。',
+    'order_no_active_plan_cancelled' => '注文 #:order_number にアクティブなプランが見つからなかったため、自動更新はキャンセルされました。',
+    'no_matching_plans' => '選択された条件に一致するプランはありません。',
+    'order_no_active_plan' => 'この注文にはアクティブなプランがありません。',
     'auto_assign_success' => '自動割り当ての設定が正常に更新されました。',
     'system_manager_settings' => 'システムマネージャー設定',
     'enable_account_manager' => 'アカウントマネージャーの自動割り当てを有効にする',

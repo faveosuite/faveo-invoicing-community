@@ -2646,6 +2646,11 @@ return [
     'cloud_deleted_failed' => 'Verwijderen van huurder mislukt',
     'not-found' => 'Dit product kan niet worden verwijderd omdat het momenteel is gekoppeld aan een of meer services. Verwijder alle gerelateerde services voordat u probeert dit product te verwijderen.',
 
+    'no_available_plans_currency' => 'Geen beschikbare plannen gevonden voor dit product in de geselecteerde valuta.',
+    'unsupported_country' => 'Het geselecteerde land wordt niet ondersteund voor deze bestelling.',
+    'order_no_active_plan_cancelled' => 'Automatische verlenging is geannuleerd omdat er geen actief plan is gevonden voor bestelling #:order_number.',
+    'no_matching_plans' => 'Geen plannen beschikbaar voor uw selectie.',
+    'order_no_active_plan' => 'Er is geen actief plan gekoppeld aan deze bestelling.',
     'auto_assign_success' => 'De instelling voor automatische toewijzing is succesvol bijgewerkt.',
     'system_manager_settings' => 'Systeembeheerder Instellingen',
     'enable_account_manager' => 'Automatische toewijzing voor accountmanagers inschakelen',

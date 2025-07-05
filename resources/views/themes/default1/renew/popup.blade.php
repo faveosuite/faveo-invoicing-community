@@ -1,4 +1,24 @@
-<a href="#renew" <?php if(\Cart::getContent()->isNotEmpty()) {?> class="btn btn-light-scale-2 btn-sm text-dark" data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="{{ __('message.renew_product') }}" onclick="return false" <?php } else {?> class="btn btn-light-scale-2 btn-sm text-dark" <?php } ?> data-toggle="modal" data-target="#renew{{$id}}"><i class="fa fa-refresh" @if( \Cart::getContent()->isEmpty()) data-toggle="tooltip" title="{{ __('message.click_renew') }}" @endif></i>&nbsp;</a>
+@php
+    $hasCartItems = \Cart::getContent()->isNotEmpty();
+    $hasActivePlan = !empty($planPrice);
+    $isDisabled = $hasCartItems || !$hasActivePlan;
+
+    $tooltipTitle = $hasCartItems
+        ? __('message.renew_product')
+        : (!$hasActivePlan
+            ? __('message.order_no_active_plan')
+            : __('message.click_renew'));
+@endphp
+
+<a href="#renew"
+   class="btn btn-light-scale-2 btn-sm text-dark"
+   style="font-weight:500;"
+   {!! $isDisabled ? 'onclick="return false"' : 'data-toggle="modal" data-target="#renew'.$id.'"' !!}
+   data-toggle="tooltip"
+   data-placement="top"
+   title="{{ $tooltipTitle }}">
+    <i class="fa fa-refresh"></i>&nbsp;
+</a>
 <div class="modal fade" id="renew{{$id}}" tabindex="-1" role="dialog" aria-labelledby="renewModalLabel" aria-hidden="true">
 
                             <div class="modal-dialog">
@@ -23,41 +43,29 @@
                                         <p class="text-black"><strong>{{ __('message.current_plan') }}</strong> {{$planName}}</p>
                                                     <?php
 
+                                          $userCurrency = getCurrencyForClient(getCountry(Auth::user()->id));
                                           $plans = App\Model\Payment\Plan::join('products', 'plans.product', '=', 'products.id')
                                                   ->leftJoin('plan_prices','plans.id','=','plan_prices.plan_id')
                                                   ->where('plans.product',$productid)
+                                                  ->where('plan_prices.currency', '=', $userCurrency)
                                                   ->where('plan_prices.renew_price','!=','0')
                                                   ->pluck('plans.name', 'plans.id')
-                                                   ->toArray();
+                                                  ->toArray();
 
                                             $planIds = array_keys($plans);
 
-                                            $countryids = \App\Model\Common\Country::where('country_code_char2', \Auth::user()->country)->first();
-
-                                            $renewalPrices = \App\Model\Payment\PlanPrice::whereIn('plan_id', $planIds)
-                                                ->where('country_id',$countryids->country_id)
-                                                ->where('currency',getCurrencyForClient(\Auth::user()->country))
-                                                ->latest()
-                                                ->pluck('renew_price', 'plan_id')
-                                                ->toArray();
-
-                                            if(empty($renewalPrices)){
-                                                $renewalPrices = \App\Model\Payment\PlanPrice::whereIn('plan_id', $planIds)
-                                                    ->where('country_id',0)
-                                                    ->where('currency',getCurrencyForClient(\Auth::user()->country))
-                                                    ->latest()
-                                                    ->pluck('renew_price', 'plan_id')
-                                                    ->toArray();
-                                            }
-
-                                            foreach ($plans as $planId => $planName) {
-                                                if (isset($renewalPrices[$planId])) {
-                                                    if(in_array($productid,cloudPopupProducts())) {
-                                                        $plans[$planId] .= " (Renewal price-per agent: " . currencyFormat($renewalPrices[$planId], getCurrencyForClient(\Auth::user()->country), true) . ")";
-                                                    }
-                                                    else{
-                                                        $plans[$planId] .= " (Renewal price: " . currencyFormat($renewalPrices[$planId], getCurrencyForClient(\Auth::user()->country), true) . ")";
-                                                    }
+                                            foreach ($planIds as $planId) {
+                                                $plan = \App\Model\Payment\Plan::find($planId);
+                                                $planDetails = userCurrencyAndPrice(Auth::user()->id, $plan);
+                                                $currency = $planDetails['currency'];
+                                                $price = $planDetails['plan']->renew_price ?? 0;
+                                                if(isAgentAllowed($productid)) {
+                                                    $noOfAgents = $planDetails['plan']->no_of_agents;
+                                                    $priceForAgents = $price / $noOfAgents;
+                                                    $plans[$planId] .= " (Renewal price-per agent: " . currencyFormat($priceForAgents, $currency, true, false) . ")";
+                                                }
+                                                else{
+                                                    $plans[$planId] .= " (Renewal price: " . currencyFormat($price, $currency, true, false) . ")";
                                                 }
                                             }
                                           //add more cloud ids until we have a generic way to differentiate
@@ -74,10 +82,24 @@
                                                 <div class="form-group col">
                                                     <label class="form-label">{{ __('message.plans') }} <span class="text-danger"> *</span></label>
                                                     <div class="custom-select-1">
+                                                        @php
+                                                            $options = !empty($plans)
+                                                                ? ['' => __('message.select')] + $plans
+                                                                : ['' => __('message.no_matching_plans')];
+                                                        @endphp
+
                                                         @if($agents == 'Unlimited')
-                                                            {!! html()->select('plan')->options(['' => 'Select'] + $plans)->class('form-control plan-dropdown')->attribute('onchange', 'fetchPlanCost(this.value)')->id("plan$id") !!}
+                                                            {!! html()->select('plan')
+                                                                ->options($options)
+                                                                ->class('form-control plan-dropdown')
+                                                                ->attribute('onchange', 'fetchPlanCost(this.value)')
+                                                                ->id("plan$id") !!}
                                                         @else
-                                                            {!! html()->select('plan')->options(['' => 'Select'] + $plans)->class('form-control plan-dropdown')->attribute('onchange', 'fetchPlanCost(this.value, ' . $agents . ')')->id("plan$id") !!}
+                                                            {!! html()->select('plan')
+                                                                ->options($options)
+                                                                ->class('form-control plan-dropdown')
+                                                                ->attribute('onchange', 'fetchPlanCost(this.value, ' . $agents . ')')
+                                                                ->id("plan$id") !!}
                                                         @endif
 
                                                         {!! html()->hidden('user', $userid) !!}
@@ -193,7 +215,7 @@
             shouldFetchPlanCost = false;
 
             const user = $('[name="user"]').val();
-            agents =  agents ?? $('#agents{{ $id }}').val();
+            agents =   $('#agents{{ $id }}').val() ?? agents;
 
             $('.loader-wrapper').show();
             $('.overlay').show();
@@ -202,46 +224,26 @@
             $.ajax({
                 type: "GET",
                 url: "{{ url('get-renew-cost') }}",
-                data: { user, plan: planId },
+                data: {
+                    user: user,
+                    plan: planId,
+                    agents: agents,
+                },
                 success: function (data) {
+                    let formattedPrice = data.formatted_price;
 
-                    let totalPrice = 0;
-                    if(agents == 'Unlimited') {
-                        if (data[1]) {
-                            agents = agents || $('#agentsForSelf').val();
-                            totalPrice = agents * parseFloat(data[0]);
-                        } else {
-                            totalPrice = parseFloat(data[0]);
-                        }
-                    }else{
-                        totalPrice=parseFloat(data[0]);
-                    }
-
-                    const formattedPrice = totalPrice.toFixed(2);
-
-                    $.ajax({
-                        url: 'processFormat',
-                        method: 'GET',
-                        data: { totalPrice: formattedPrice },
-                        success: function (data) {
-                            $('.price').text(data);
-                            shouldFetchPlanCost = true;
-                        },
-                        complete: function () {
-                            $('.loader-wrapper').hide();
-                            $('.overlay').hide();
-                            $('.modal-body').css('pointer-events', 'auto');
-                            $('#saveRenew').prop('disabled', false);
-                            $('.agents').prop('disabled', false);
-                        }
-                    });
+                    $('.price').text(formattedPrice);
+                    shouldFetchPlanCost = true;
                 },
                 error: function () {
                     shouldFetchPlanCost = true;
+                },
+                complete: function () {
                     $('.loader-wrapper').hide();
                     $('.overlay').hide();
                     $('.modal-body').css('pointer-events', 'auto');
-                    alert(@json(__('message.failed_fetch_cost')));
+                    $('#saveRenew').prop('disabled', false);
+                    $('.agents').prop('disabled', false);
                 }
             });
         };

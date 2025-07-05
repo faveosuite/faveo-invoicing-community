@@ -210,7 +210,7 @@ function getCountryByCode($code)
     try {
         $country = \App\Model\Common\Country::where('country_code_char2', $code)->first();
         if ($country) {
-            return $country->nicename;
+            return $country->country_name;
         }
     } catch (\Exception $ex) {
         throw new \Exception($ex->getMessage());
@@ -234,8 +234,8 @@ function findCountryByGeoip($iso)
 function findStateByRegionId($iso)
 {
     try {
-        $states = \App\Model\Common\State::where('country_code_char2', $iso)
-            ->pluck('state_subdivision_name', 'state_subdivision_code')->toArray();
+        $states = \App\Model\Common\State::where('country_code', $iso)
+            ->pluck('state_subdivision_name', 'iso2')->toArray();
 
         return $states;
     } catch (\Exception $ex) {
@@ -272,15 +272,20 @@ function checkPlanSession()
     }
 }
 
-function getStateByCode($code)
+function getStateByCode($country, $state)
 {
     try {
         $result = ['id' => '', 'name' => ''];
 
-        $subregion = \App\Model\Common\State::where('state_subdivision_code', $code)->first();
+        $subregion = \App\Model\Common\State::where('country_code', $country)
+            ->where('iso2', $state)
+            ->first();
+
         if ($subregion) {
-            $result = ['id' => $subregion->state_subdivision_code,
-                'name' => $subregion->state_subdivision_name, ];
+            $result = [
+                'id' => $subregion->iso2,
+                'name' => $subregion->state_subdivision_name,
+            ];
         }
 
         return $result;
@@ -337,16 +342,18 @@ function getCountry($userid)
  */
 function getCurrencySymbolAndPriceForPlans($countryCode, $plan)
 {
-    try {
-        $country = Country::where('country_code_char2', $countryCode)->first();
-        $userPlan = $plan->planPrice->where('country_id', $country->country_id)->first() ?: $plan->planPrice->where('country_id', 0)->first();
-        $currency = $userPlan->currency;
-        $currency_symbol = Currency::where('code', $currency)->value('symbol');
+    $userCurrency = getCurrencyForClient($countryCode);
 
-        return compact('currency', 'currency_symbol', 'userPlan');
-    } catch (\Exception $ex) {
-        return redirect()->back()->with('fails', $ex->getMessage());
-    }
+    $userPlan = $plan->planPrice->firstWhere('currency', $userCurrency);
+
+    $currency = $userCurrency;
+    $currencySymbol = Currency::where('code', $currency)->value('symbol');
+
+    return [
+        'currency' => $currency,
+        'currency_symbol' => $currencySymbol,
+        'userPlan' => $userPlan,
+    ];
 }
 
 /**
@@ -357,28 +364,24 @@ function getCurrencySymbolAndPriceForPlans($countryCode, $plan)
  */
 function getCurrencyForClient($countryCode)
 {
-    $defaultCurrency = Setting::first()->default_currency;
-    $country = Country::where('country_code_char2', $countryCode)->first();
-    $currencyStatus = $country->currency->status;
-    if ($currencyStatus) {
-        $currency = Currency::where('id', $country->currency_id)->first();
+    $country = Country::with(['currency' => function ($query) {
+        $query->where('status', 1);
+    }])->where('country_code_char2', $countryCode)->first();
 
-        return $currency->code;
-    }
-
-    return $defaultCurrency;
+    return $country->currency->code ?? Setting::value('default_currency');
 }
 
-function currencyFormat($amount = null, $currency = null, $include_symbol = true)
+function currencyFormat($amount = null, $currency = null, $includeSymbol = true, $shouldRound = true)
 {
-    $amount = rounding($amount);
-    if ($currency == 'INR') {
-        $symbol = getIndianCurrencySymbol($currency);
-
-        return $symbol.getIndianCurrencyFormat($amount);
+    if ($shouldRound) {
+        $amount = rounding($amount);
     }
 
-    return app('currency')->format($amount, $currency, $include_symbol);
+    if ($currency === 'INR') {
+        return getIndianCurrencySymbol($currency).getIndianCurrencyFormat($amount);
+    }
+
+    return app('currency')->format($amount, $currency, $includeSymbol);
 }
 
 function rounding($price)
@@ -850,6 +853,7 @@ function isRtlForLang()
 {
     return in_array(app()->getLocale(), ['ar', 'he']);
 }
+
 function honeypotField(string $name = 'honeypot'): string
 {
     $potFieldName = 'p'.Str::random();
@@ -877,4 +881,32 @@ function createUrl(string $path): string
     $baseUrl = getUrl();
 
     return rtrim($baseUrl, '/').'/'.ltrim($path, '/');
+}
+function isAgentAllowed($productId)
+{
+    $product = \App\Model\Product\Product::find($productId);
+
+    return in_array($productId, cloudPopupProducts()) || $product->can_modify_agent;
+}
+function isCurrencySupportedForPayments($currency, $paymentMethods)
+{
+    $currency = strtoupper($currency);
+    $methods = is_array($paymentMethods)
+        ? array_map('strtolower', $paymentMethods)
+        : [strtolower($paymentMethods)];
+
+    $values = (new \App\Http\Controllers\Common\PaymentSettingsController())->fetchConfig();
+
+    $pluginMap = [];
+    foreach ($values as $plugin) {
+        $pluginMap[strtolower($plugin['name'])] = $plugin['supported_currencies'] ?? [];
+    }
+
+    foreach ($methods as $method) {
+        if (! isset($pluginMap[$method]) || ! in_array($currency, $pluginMap[$method])) {
+            return false;
+        }
+    }
+
+    return true;
 }
