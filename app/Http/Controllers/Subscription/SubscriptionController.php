@@ -193,27 +193,19 @@ class SubscriptionController extends Controller
                 $plan = Plan::where('id', $subscription->plan_id)->first('days');
 
                 $user = \DB::table('users')->where('id', $userid)->first();
-                $oldcurrency = getCurrencyForClient($user->country);
-                $countryId = Country::where('country_code_char2', $user->country)->value('country_id');
                 $stripe_payment_details = Auto_renewal::where('user_id', $userid)->where('order_id', $subscription->order_id)->where('payment_method', 'stripe')->latest()->first(['customer_id', 'payment_intent_id']);
-                $planid = Plan::where('product', $product_details->id)->value('id');
 
-//                $subscription = Subscription::where('id', $subscription->id)->first();
-                $productType = Product::find($subscription->product_id);
-                $countryids = \App\Model\Common\Country::where('country_code_char2', $user->country)->first();
-                $currency = getCurrencyForClient($user->country);
-                $country = $countryids->country_id;
-
-                $priceRow = PlanPrice::where('plan_id', $subscription->plan_id)
-                    ->where('currency', $currency)
-                    ->whereIn('country_id', [$country, 0])
-                    ->orderByRaw('FIELD(country_id, ?, 0)', [$country])
-                    ->first();
-
-                $price = $priceRow->renew_price ?? 0;
-
-                if (in_array($subscription->product_id, cloudPopupProducts()) || $product_details->can_modify_agent) {
-                    $noOfAgents = $priceRow->no_of_agents;
+                $planObj = Plan::where('id', $subscription->plan_id)->first();
+                $planDetails = userCurrencyAndPrice($userid, $planObj);
+                $currency = $planDetails['currency'];
+                if($planDetails['plan'] === null){
+                    $cost = null;
+                    $invoice = $oldinvoice;
+                    throw new \Exception("No active plan for order #{$subscription->order_id}. Auto-renewal canceled.");
+                }
+                $price = $planDetails['plan']->renew_price ?? 0;
+                if (isAgentAllowed($subscription->product_id)) {
+                    $noOfAgents = $planDetails['plan']->no_of_agents;
                     $priceForAgents = $price / $noOfAgents;
                     $cost = $this->getPriceforCloud($order, $priceForAgents);
                 } else {
@@ -255,7 +247,7 @@ class SubscriptionController extends Controller
 
                     if (! $isUnpaid) {
                         $renewController = new BaseRenewController();
-                        $invoice = $renewController->generateInvoice($product_details, $user, $order->id, $plan->id, $cost, $code = '', $item->agents, $oldcurrency);
+                        $invoice = $renewController->generateInvoice($product_details, $user, $order->id, $plan->id, $cost, $code = '', $item->agents, $currency);
                     } else {
                         $invoice = InvoiceItem::where('invoice_id', $isUnpaid->id)
                                               ->latest('created_at')

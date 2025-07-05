@@ -18,7 +18,8 @@
 @stop
 @section('content')
 <div class="col-md-12">
-<div class="card card-secondary card-outline">
+    <div id="invoice-alert-container"></div>
+    <div class="card card-secondary card-outline">
 
     <div class="card-header">
 {{--         @if($user!='')--}}
@@ -355,44 +356,41 @@
         });
     }
 
-        $('#product').on('change',function(){
-            var plan = document.getElementsByName('product');
-            plan[0].classList.remove('is-invalid');
-            val = $('#product').val();
-             $.ajax({
-            type: "GET",
-            url: "{{url('get-subscription')}}" + '/' + val,
-            success: function (data) {
-                if(data[0] == 'Product cannot be added to cart. No plan exists.') {
-                       var html = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong>{{ __('message.whoops') }}! </strong>{{ __('message.something_wrong') }}<ul>';
-                    html += '<li> {!! json_encode(__('message.add_plan_product')) !!} </li>';
-                    html += '</ul></div>';
-                 $('#error').show();
-                    setTimeout(function(){
-                        $("#error").slideUp(1000);
-                    },10000);
-                  document.getElementById('error').innerHTML = html;
+     $('#product').on('change', function () {
+         var userId = ($('#users').val() || [])[0] || '';
+         const productId = $('#product').val();
 
-                  $('#generate').attr('disabled',true)
-                } else {
-                    $('#generate').attr('disabled',false)
-                     var price = data['price'];
-                var field = data['field'];
-                
-                $("#price").val(price);
-                
-                const element = document.getElementById('fields1');
-                if (element) {
-                    element.innerHTML = field;
-                }
-                
-                }
-            }
+         // Remove validation error style
+         const productInput = document.getElementsByName('product')[0];
+         if (productInput) {
+             productInput.classList.remove('is-invalid');
+         }
 
-        });
-        })
+         // Exit early if no product is selected
+         if (!productId) return;
 
-    /* attach a submit handler to the form */
+         $.ajax({
+             type: 'GET',
+             url: `{{ url('get-subscription') }}/${productId}?user_id=${userId}`,
+             success: function (data) {
+                 $('#generate').attr('disabled',false)
+                 var field = data.data;
+                 document.getElementById('fields1').innerHTML = field;
+             },
+             error: function (data, status, error) {
+                 var response = data.responseJSON ? data.responseJSON : JSON.parse(data.responseText);
+                 helper.showAlert({
+                     message: response.message,
+                     type: 'danger',
+                     autoDismiss: 5000,
+                     containerSelector: '#invoice-alert-container',
+                 });
+                 $('#generate').attr('disabled',true)
+             }
+         });
+     });
+
+     /* attach a submit handler to the form */
     $("#formoid").submit(function (event) {
       //   }
          /* stop form from submitting normally */
