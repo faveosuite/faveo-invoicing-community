@@ -110,13 +110,25 @@ function successResponse($message = '', $data = '', $statusCode = 200)
  */
 function getTimeInLoggedInUserTimeZone(string $dateTimeString, $format = 'M j, Y, g:i a')
 {
-    // caching for 4 seconds so for consecutive queries, it will be readily available. And even if someone updates their
-    // timezone, it will start showing the new timezone after 4 seconds
-    $timezone = Cache::remember('timezone_'.Auth::user()->id, 5, function () {
-        return Auth::user()->timezone->name;
-    });
+    try {
+        $date = new DateTime($dateTimeString, new DateTimeZone('UTC'));
 
-    return (new DateTime($dateTimeString))->setTimezone(new DateTimeZone($timezone))->format($format);
+        $user = Auth::user();
+
+        $tz = Cache::remember(
+            'user_timezone_'.($user->id ?? 'guest'),
+            5,
+            function () use ($user) {
+                return $user->timezone->name ?? 'UTC';
+            }
+        );
+
+        $timezone = new DateTimeZone($tz);
+
+        return $date->setTimezone($timezone)->format($format);
+    } catch (\Exception $e) {
+        throw new Exception($e);
+    }
 }
 
 /**
@@ -211,7 +223,7 @@ function getCountryByCode($code)
     try {
         $country = \App\Model\Common\Country::where('country_code_char2', $code)->first();
         if ($country) {
-            return $country->nicename;
+            return $country->country_name;
         }
     } catch (\Exception $ex) {
         throw new \Exception($ex->getMessage());
@@ -235,8 +247,8 @@ function findCountryByGeoip($iso)
 function findStateByRegionId($iso)
 {
     try {
-        $states = \App\Model\Common\State::where('country_code_char2', $iso)
-            ->pluck('state_subdivision_name', 'state_subdivision_code')->toArray();
+        $states = \App\Model\Common\State::where('country_code', $iso)
+            ->pluck('state_subdivision_name', 'iso2')->toArray();
 
         return $states;
     } catch (\Exception $ex) {
@@ -273,15 +285,20 @@ function checkPlanSession()
     }
 }
 
-function getStateByCode($code)
+function getStateByCode($country, $state)
 {
     try {
         $result = ['id' => '', 'name' => ''];
 
-        $subregion = \App\Model\Common\State::where('state_subdivision_code', $code)->first();
+        $subregion = \App\Model\Common\State::where('country_code', $country)
+            ->where('iso2', $state)
+            ->first();
+
         if ($subregion) {
-            $result = ['id' => $subregion->state_subdivision_code,
-                'name' => $subregion->state_subdivision_name, ];
+            $result = [
+                'id' => $subregion->iso2,
+                'name' => $subregion->state_subdivision_name,
+            ];
         }
 
         return $result;
@@ -338,16 +355,18 @@ function getCountry($userid)
  */
 function getCurrencySymbolAndPriceForPlans($countryCode, $plan)
 {
-    try {
-        $country = Country::where('country_code_char2', $countryCode)->first();
-        $userPlan = $plan->planPrice->where('country_id', $country->country_id)->first() ?: $plan->planPrice->where('country_id', 0)->first();
-        $currency = $userPlan->currency;
-        $currency_symbol = Currency::where('code', $currency)->value('symbol');
+    $userCurrency = getCurrencyForClient($countryCode);
 
-        return compact('currency', 'currency_symbol', 'userPlan');
-    } catch (\Exception $ex) {
-        return redirect()->back()->with('fails', $ex->getMessage());
-    }
+    $userPlan = $plan->planPrice->firstWhere('currency', $userCurrency);
+
+    $currency = $userCurrency;
+    $currencySymbol = Currency::where('code', $currency)->value('symbol');
+
+    return [
+        'currency' => $currency,
+        'currency_symbol' => $currencySymbol,
+        'userPlan' => $userPlan,
+    ];
 }
 
 /**
@@ -358,28 +377,43 @@ function getCurrencySymbolAndPriceForPlans($countryCode, $plan)
  */
 function getCurrencyForClient($countryCode)
 {
-    $defaultCurrency = Setting::first()->default_currency;
-    $country = Country::where('country_code_char2', $countryCode)->first();
-    $currencyStatus = $country->currency->status;
-    if ($currencyStatus) {
-        $currency = Currency::where('id', $country->currency_id)->first();
+    $country = Country::with(['currency' => function ($query) {
+        $query->where('status', 1);
+    }])->where('country_code_char2', $countryCode)->first();
 
-        return $currency->code;
-    }
-
-    return $defaultCurrency;
+    return $country && isset($country->currency) ? $country->currency->code : Setting::value('default_currency');
 }
 
-function currencyFormat($amount = null, $currency = null, $include_symbol = true)
+function currencyFormat($amount = null, $currency = null, $includeSymbol = true, $shouldRound = false)
 {
-    $amount = rounding($amount);
-    if ($currency == 'INR') {
-        $symbol = getIndianCurrencySymbol($currency);
+    try {
+        if ($shouldRound) {
+            $amount = rounding($amount);
+        }
 
-        return $symbol.getIndianCurrencyFormat($amount);
+        $locale = app()->getLocale();
+        $precision = getCurrencyPrecision($currency);
+
+        if (! $includeSymbol) {
+            return Number::format(
+                $amount,
+                precision: $precision,
+                locale: $locale
+            );
+        }
+
+        return Number::currency($amount, $currency, $locale);
+    } catch (\Throwable $e) {
+        return $amount;
     }
+}
 
-    return app('currency')->format($amount, $currency, $include_symbol);
+function getCurrencyPrecision($currency)
+{
+    $formatter = new NumberFormatter('en', NumberFormatter::CURRENCY);
+    $formatter->setTextAttribute(NumberFormatter::CURRENCY_CODE, $currency);
+
+    return $formatter->getAttribute(NumberFormatter::FRACTION_DIGITS);
 }
 
 function rounding($price)
@@ -389,7 +423,7 @@ function rounding($price)
         $rule = $tax_rule->findOrFail(1);
         $rounding = $rule->rounding;
         if ($rounding) {
-            return round((int) $price);
+            return round($price);
         } else {
             return round($price, 2);
         }
@@ -843,6 +877,7 @@ function isRtlForLang()
 {
     return in_array(app()->getLocale(), ['ar', 'he']);
 }
+
 function honeypotField(string $name = 'honeypot'): string
 {
     $potFieldName = 'p'.Str::random();
@@ -870,6 +905,78 @@ function createUrl(string $path): string
     $baseUrl = getUrl();
 
     return rtrim($baseUrl, '/').'/'.ltrim($path, '/');
+}
+function isAgentAllowed($productId)
+{
+    $product = \App\Model\Product\Product::find($productId);
+
+    return in_array($productId, cloudPopupProducts()) || $product->can_modify_agent;
+}
+function isCurrencySupportedForPayments(string $currency, array|string $paymentMethods): bool
+{
+    $currency = strtoupper($currency);
+    $methods = is_array($paymentMethods) ? $paymentMethods : [$paymentMethods];
+    $pluginMap = (new \App\Http\Controllers\Common\PaymentSettingsController)->getPaymentPluginMap();
+
+    foreach ($methods as $method) {
+        $method = strtolower($method);
+        if (! isset($pluginMap[$method]) || ! array_key_exists($currency, $pluginMap[$method]['supported_currencies'])) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+function getMinimumAmountForPayments(string $currency, string $paymentMethod): float|int
+{
+    $method = strtolower($paymentMethod);
+
+    if (! isCurrencySupportedForPayments($currency, $method)) {
+        throw new \InvalidArgumentException('Currency not supported for payments');
+    }
+
+    $pluginMap = (new \App\Http\Controllers\Common\PaymentSettingsController())->getPaymentPluginMap();
+
+    switch ($method) {
+        case 'razorpay':
+            $amount = calculateUnitCost($currency, $pluginMap[$method]['supported_currencies'][$currency]);
+            break;
+
+        case 'stripe':
+            $amount = $pluginMap[$method]['supported_currencies'][$currency] ?? 1;
+            break;
+
+        default:
+            $amount = 1;
+            break;
+    }
+
+    return $amount;
+}
+
+function calculateUnitCost($currency, $cost)
+{
+    $decimalPlaces = [
+        // 0 decimal places
+        'BIF' => 0, 'CLP' => 0, 'DJF' => 0, 'GNF' => 0, 'ISK' => 0, 'JPY' => 0, 'KMF' => 0,
+        'KRW' => 0, 'PYG' => 0, 'RWF' => 0, 'UGX' => 0, 'UYI' => 0, 'VND' => 0, 'VUV' => 0,
+        'XAF' => 0, 'XOF' => 0, 'XPF' => 0,
+
+        // 1 decimal place
+        'MGA' => 1, 'MRU' => 1,
+
+        // 3 decimal places
+        'BHD' => 3, 'IQD' => 3, 'JOD' => 3, 'KWD' => 3, 'LYD' => 3, 'OMR' => 3, 'TND' => 3,
+
+        // 4 decimal places
+        'CLF' => 4,
+    ];
+
+    // Default to 2 decimals if currency not listed
+    $decimals = $decimalPlaces[$currency] ?? 2;
+
+    return ($decimals === 0) ? (int) round($cost) : (int) round($cost * pow(10, $decimals));
 }
 /**
  * log the actions in log files.
@@ -965,4 +1072,14 @@ function logActivity(
     $actor ? $log->causedBy($actor) : $log->causedByAnonymous();
 
     $log->log($message);
+}
+
+function getUserStateWithCountry($country = null, $state = null)
+{
+    $user = auth()->user();
+
+    $country = $country ?? $user->country ?? '';
+    $state = $state ?? $user->state ?? '';
+
+    return trim("{$country}-{$state}", '-');
 }

@@ -2696,6 +2696,11 @@ return [
     'deletion_cloud_subscription' => 'Şu tarihten daha önce süresi dolmuş bulut aboneliklerini sil...',
     'msg_service_down' => 'Şu anda OTP hizmetimizde bir sorun yaşıyoruz. Lütfen kısa bir süre sonra tekrar deneyin. Sorunu en kısa sürede çözmek için çalışıyoruz.',
 
+    'no_available_plans_currency' => 'Seçilen para biriminde bu ürün için uygun plan bulunamadı.',
+    'unsupported_country' => 'Seçilen ülke bu sipariş için desteklenmiyor.',
+    'order_no_active_plan_cancelled' => 'Sipariş #:order_number için aktif bir plan bulunamadığından otomatik yenileme iptal edildi.',
+    'no_matching_plans' => 'Seçiminize uygun bir plan bulunamadı.',
+    'order_no_active_plan' => 'Bu siparişe ait aktif bir plan bulunmamaktadır.',
     'auto_assign_success' => 'Otomatik atama ayarı başarıyla güncellendi.',
     'system_manager_settings' => 'Sistem Yöneticisi Ayarları',
     'enable_account_manager' => 'Hesap yöneticileri için otomatik atamayı etkinleştir',
@@ -2713,6 +2718,7 @@ return [
     'manager_settings_updated_successfully' => 'Yönetici ayarları başarıyla güncellendi.',
 
     'user_position_prohibited_if' => 'Rol kullanıcı olduğunda pozisyon alanına izin verilmez.',
+    'period_is_required' => 'Lütfen bir dönem seçin.',
     'system_logs_deletion' => 'Sistem Günlükleri Silme',
     'please_enable_system_logs_deletion' => "Lütfen sistem günlükleri cron'unu etkinleştirin",
     'cron_trigger_deletion_system_logs' => 'Bu cron, belirtilen süreden sonra sistem günlüklerini otomatik olarak siler.',
@@ -2789,4 +2795,5 @@ return [
     'something_went_wrong_while_updating_email' => 'E-posta adresi güncellenirken bir şeyler yanlış gitti. Lütfen daha sonra tekrar deneyin.',
     'something_wrong_try_again_later' => 'Bir şeyler yanlış gitti. Lütfen daha sonra tekrar deneyin.',
     'something_went_wrong_while_updating_mobile' => 'Mobil numara güncellenirken bir şeyler yanlış gitti. Lütfen daha sonra tekrar deneyin.',
+    'no_available_plans_for_user_currency' => 'Seçilen kullanıcının para birimi için bu ürünle ilgili herhangi bir plan bulunmuyor. Devam etmek için lütfen o para birimi için bir plan ekleyin.',
 ];

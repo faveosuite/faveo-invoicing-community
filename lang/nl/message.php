@@ -2656,6 +2656,11 @@ return [
     'valid_username' => 'Voer een geldige gebruikersnaam in',
     'set_auth_invoicing' => 'Je bent helemaal klaar. Voortaan gebruik je de Authenticator-app om in te loggen op je Faveo Invoicing-account.',
 
+    'no_available_plans_currency' => 'Geen beschikbare plannen gevonden voor dit product in de geselecteerde valuta.',
+    'unsupported_country' => 'Het geselecteerde land wordt niet ondersteund voor deze bestelling.',
+    'order_no_active_plan_cancelled' => 'Automatische verlenging is geannuleerd omdat er geen actief plan is gevonden voor bestelling #:order_number.',
+    'no_matching_plans' => 'Geen plannen beschikbaar voor uw selectie.',
+    'order_no_active_plan' => 'Er is geen actief plan gekoppeld aan deze bestelling.',
     'auto_assign_success' => 'De instelling voor automatische toewijzing is succesvol bijgewerkt.',
     'system_manager_settings' => 'Systeembeheerder Instellingen',
     'enable_account_manager' => 'Automatische toewijzing voor accountmanagers inschakelen',
@@ -2673,6 +2678,7 @@ return [
     'manager_settings_updated_successfully' => 'Managerinstellingen zijn succesvol bijgewerkt.',
 
     'user_position_prohibited_if' => 'Het veld functie is niet toegestaan wanneer de rol gebruiker is.',
+    'period_is_required' => 'Selecteer een periode.',
     'system_logs_deletion' => 'Systeemlogboeken verwijderen',
     'please_enable_system_logs_deletion' => 'Schakel de cron voor systeemlogboeken in',
     'cron_trigger_deletion_system_logs' => 'Deze cron verwijdert automatisch systeemlogboeken na de opgegeven periode.',
@@ -2741,4 +2747,5 @@ return [
     'something_went_wrong_while_updating_email' => 'Er is iets misgegaan bij het bijwerken van het e-mailadres. Probeer het later alstublieft opnieuw.',
     'something_wrong_try_again_later' => 'Er is iets misgegaan. Probeer het later alstublieft opnieuw.',
     'something_went_wrong_while_updating_mobile' => 'Er is iets misgegaan bij het bijwerken van het mobiele nummer. Probeer het later alstublieft opnieuw.',
+    'no_available_plans_for_user_currency' => 'De geselecteerde valuta van de gebruiker heeft geen beschikbare plannen voor dit product. Voeg een plan toe voor die valuta om door te gaan.',
 ];

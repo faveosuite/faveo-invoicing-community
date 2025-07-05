@@ -19,6 +19,7 @@ use App\Model\Order\Payment;
 use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
+use App\Model\Plugin;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
@@ -87,8 +88,8 @@ class ClientController extends BaseClientController
     public function enableAutorenewalStatus(Request $request)
     {
         try {
-            $amount = 1;
             $currency = getCurrencyForClient(\Auth::user()->country);
+            $amount = getMinimumAmountForPayments($currency, 'stripe');
             $orderid = $request->get('order_id');
             $url = url('my-order/'.$orderid.'#auto-renew');
             $controller = new SettingsController();
@@ -242,6 +243,9 @@ class ClientController extends BaseClientController
             $planid = $sub->plan_id;
             $plan = Plan::find($planid);
             $planDetails = userCurrencyAndPrice($sub->user_id, $plan);
+            if (is_null($planDetails['plan'])) {
+                throw new \Exception(__('message.no_available_plans_currency'));
+            }
             $cost = $planDetails['plan']->renew_price;
             $currency = $planDetails['currency'];
             $controller = new RenewController();
@@ -251,7 +255,7 @@ class ClientController extends BaseClientController
 
             return redirect('paynow/'.$id);
         } catch(\Exception $ex) {
-            echo $ex->getMessage();
+            return redirect('my-orders')->with('fails', $ex->getMessage());
         }
     }
 
@@ -435,43 +439,115 @@ class ClientController extends BaseClientController
             if (! $invoice) {
                 throw new \Exception(__('message.invoice_not_found'));
             }
-            $payments = $invoice->payment;
-            $user = \Auth::user();
-            if ($invoice->user_id != $user->id) {
+
+            if ($invoice->user_id != \Auth::id()) {
                 throw new \Exception(__('message.invalid_invoice_modification'));
             }
-            $items = $invoice->invoiceItem()->get();
-            $order = $this->order->getOrderLink($invoice->orderRelation()->value('order_id'), 'my-order');
-            $currency = getCurrencyForClient($user->country);
-            $symbol = Currency::where('code', $currency)->value('symbol');
 
-            $set = Setting::where('id', '1')->first();
-            $date = getDateHtml($invoice->date);
-            $symbol = $invoice->currency;
+            $data = $this->prepareInvoiceData($invoice);
 
-            $statusClass = '';
-            $statusText = '';
-
-            switch ($invoice->status) {
-                case 'Success':
-                    $statusClass = 'text-success';
-                    $statusText = 'PAID';
-                    break;
-                case 'partially paid':
-                    $statusClass = 'text-warning';
-                    $statusText = 'Partially paid';
-                    break;
-                default:
-                    $statusClass = 'text-fail';
-                    $statusText = 'Unpaid';
-                    break;
-            }
-
-            return view('themes.default1.front.clients.show-invoice', compact('invoice', 'items',
-                'user', 'currency', 'symbol', 'order', 'payments', 'set', 'date', 'statusClass', 'statusText'));
-        } catch (Exception $ex) {
+            return view('themes.default1.front.clients.show-invoice', array_merge(['invoice' => $invoice], $data));
+        } catch (\Exception $ex) {
             return redirect()->route('my-invoices')->with('fails', $ex->getMessage());
         }
+    }
+
+    public function prepareInvoiceData($invoice, $user = null)
+    {
+        $payments = $invoice->payment;
+        $user = $user ?? \Auth::user();
+        $items = $invoice->invoiceItem()->get();
+        $order = $this->order->getOrderLink($invoice->orderRelation()->value('order_id'), 'my-order');
+        $set = Setting::find(1);
+        $date = getDateHtml($invoice->date);
+        $symbol = $invoice->currency;
+
+        switch ($invoice->status) {
+            case 'Success':
+                $statusClass = 'text-success';
+                $statusText = 'PAID';
+                break;
+            case 'partially paid':
+                $statusClass = 'text-warning';
+                $statusText = 'Partially paid';
+                break;
+            default:
+                $statusClass = 'text-fail';
+                $statusText = 'Unpaid';
+        }
+
+        // ==== CALCULATIONS ====
+
+        $itemsSubtotal = 0;
+        $taxAmt = 0;
+        $taxName = [];
+
+        foreach ($items as $item) {
+            $itemsSubtotal += floatval($item->subtotal);
+
+            if ($item->tax_name != 'null') {
+                $taxAmt += floatval($item->subtotal);
+            }
+
+            $taxName[] = $item->tax_name.'@'.$item->tax_percentage;
+        }
+
+        $taxName = array_unique($taxName);
+
+        $gstSplit = [];
+
+        foreach ($taxName as $tax) {
+            [$name, $percentage] = explode('@', $tax);
+            if ($name == 'null') {
+                continue;
+            }
+
+            $split = bifurcateTax($name, $percentage, $invoice->currency, $user->state, $taxAmt);
+
+            $gstSplit[] = [
+                'name' => $name,
+                'percentage' => $percentage,
+                'labels' => explode('<br>', $split['html']),
+                'values' => explode('<br>', $split['tax']),
+            ];
+        }
+
+        $values = array_column($gstSplit, 'values');
+
+        $taxDeducted = array_sum(
+            array_map(
+                fn ($v) => (float) preg_replace('/[^0-9.\-]/', '', $v),
+                array_merge(...$values)
+            )
+        );
+
+        $processingFeeAmount = 0;
+
+        if ($invoice->processing_fee && $invoice->processing_fee != '0%') {
+            $percent = floatval(filter_var(
+                $invoice->processing_fee,
+                FILTER_SANITIZE_NUMBER_FLOAT,
+                FILTER_FLAG_ALLOW_FRACTION
+            ));
+
+            $processingFeeAmount = ($percent / 100) * ($itemsSubtotal + $taxDeducted);
+        }
+
+        return compact(
+            'payments',
+            'user',
+            'items',
+            'order',
+            'set',
+            'date',
+            'symbol',
+            'statusClass',
+            'statusText',
+            'itemsSubtotal',
+            'taxAmt',
+            'gstSplit',
+            'processingFeeAmount'
+        );
     }
 
     /**
@@ -688,10 +764,14 @@ class ClientController extends BaseClientController
                                      <i class="fa fa-eye" data-toggle="tooltip" data-placement="top" title="'.__('message.click_here_view').'"></i>
                                      </a>';
                                 }
-                                $plan = Plan::where('product', $model->product_id)->value('id');
+                                $plan = Plan::where('product', $model->product_id)
+                                    ->whereHas('planPrice', function ($query) {
+                                        $query->where('currency', getCurrencyForClient(\Auth::user()->country));
+                                    })
+                                    ->value('id');
                                 $whatIsSub = Subscription::where('order_id', $model->id)->value('plan_id');
                                 $planName = Plan::where('id', $whatIsSub)->value('name');
-                                $price = PlanPrice::where('plan_id', $plan)->where('currency', \Auth::user()->currency)->value('renew_price');
+                                $price = PlanPrice::where('plan_id', $plan)->where('currency', getCurrencyForClient(\Auth::user()->country))->value('renew_price');
                                 $order_cont = new \App\Http\Controllers\Order\OrderController();
                                 $status = $order_cont->checkInvoiceStatusByOrderId($model->id);
                                 $url = '';
@@ -715,7 +795,7 @@ class ClientController extends BaseClientController
                                     $agents = intval($agents, 10);
                                 }
 
-                                $url = $this->renewPopup($model->sub_id, $model->product_id, $agents, $planName);
+                                $url = $this->renewPopup($model->sub_id, $model->product_id, $agents, $planName, $price);
 
                                 $changeDomain = $this->changeDomain($model, $model->product_id); // Need to add this if the client requirement intensifies.
 
@@ -787,7 +867,7 @@ class ClientController extends BaseClientController
             }
             //for display
             $timezones = array_column($display, 'name', 'id');
-            $state = getStateByCode($user->state);
+            $state = getStateByCode($user->country, $user->state);
             $states = findStateByRegionId($user->country);
             $bussinesses = \App\Model\Common\Bussiness::pluck('name', 'short')->toArray();
             $selectedIndustry = \App\Model\Common\Bussiness::where('name', $user->bussiness)
@@ -798,7 +878,7 @@ class ClientController extends BaseClientController
             ->pluck('name', 'short')->toArray();
 
             $selectedCountry = \DB::table('countries')->where('country_code_char2', $user->country)
-            ->value('nicename');
+            ->value('country_name');
 
             return view(
                 'themes.default1.front.clients.profile',
@@ -879,10 +959,17 @@ class ClientController extends BaseClientController
             $userCountry = \Auth::user()->country;
             $displayCurrency = getCurrencyForClient($userCountry);
 
+            if (
+                Plugin::whereStatus(1)->where('name', 'razorpay')->exists()
+                && ! isCurrencySupportedForPayments($displayCurrency, 'razorpay')
+            ) {
+                throw new \Exception(__('message.unsupported_country'));
+            }
+
             $exchangeRate = '';
             $orderData = [
                 'receipt' => '3456',
-                'amount' => round(1.00 * 100), // 2000 rupees in paise
+                'amount' => getMinimumAmountForPayments($currency, 'razorpay'),
                 'currency' => $displayCurrency,
                 'payment_capture' => 0, // auto capture
             ];
@@ -984,26 +1071,18 @@ class ClientController extends BaseClientController
      */
     private function planDetails($planIds, $countryids, $userCountry, $plans, $product)
     {
+        $currency = getCurrencyForClient($userCountry);
+
         $renewalPrices = \App\Model\Payment\PlanPrice::whereIn('plan_id', $planIds)
-            ->where('country_id', $countryids->country_id)
-            ->where('currency', getCurrencyForClient($userCountry))
+            ->where('currency', $currency)
             ->latest()
             ->pluck('renew_price', 'plan_id')
             ->toArray();
 
-        if (empty($renewalPrices)) {
-            $renewalPrices = \App\Model\Payment\PlanPrice::whereIn('plan_id', $planIds)
-                ->where('country_id', 0)
-                ->where('currency', getCurrencyForClient($userCountry))
-                ->latest()
-                ->pluck('renew_price', 'plan_id')
-                ->toArray();
-        }
-
         foreach ($plans as $planId => $planName) {
             if (isset($renewalPrices[$planId])) {
                 if (in_array($product->id, cloudPopupProducts())) {
-                    $plans[$planId] .= ' (Plan price-per agent: '.currencyFormat($renewalPrices[$planId], getCurrencyForClient($userCountry), true).')';
+                    $plans[$planId] .= ' (Plan price-per agent: '.currencyFormat($renewalPrices[$planId], $currency, true).')';
                 }
             }
         }

@@ -3,6 +3,7 @@
 namespace Tests\Unit\Client\Cart;
 
 use App\Http\Controllers\Front\CartController;
+use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
@@ -17,6 +18,7 @@ class CartControllerTest extends DBTestCase
     {
         parent::setUp();
         $this->classObject = new CartController();
+        Currency::where('code', 'INR')->update(['status' => 1]);
     }
 
     #[Group('cart')]
@@ -67,8 +69,8 @@ class CartControllerTest extends DBTestCase
         $product = Product::factory()->create();
         $plan = Plan::create(['name' => 'HD Plan 1 year', 'product' => $product->id, 'days' => 366]);
         $planPrice = PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
-
-        $response = $this->classObject->planCost($product->id, $this->user->id);
+        // we need to pass plan id always as per new logic
+        $response = $this->classObject->planCost($product->id, $this->user->id, $plan->id);
         $this->assertEquals($response, 1000);
     }
 

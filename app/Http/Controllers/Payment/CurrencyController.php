@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Model\Common\Country;
 use App\Model\Common\Setting;
 use App\Model\Payment\Currency;
+use App\Model\Payment\PlanPrice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Lang;
@@ -34,80 +35,61 @@ class CurrencyController extends Controller
 
     public function getCurrency()
     {
-        $defaultCurrency = Setting::pluck('default_currency')->first();
-        $model = Currency::where('name', '!=', null)
-            ->where('code', '!=', $defaultCurrency)
-            ->select('id', 'name', 'code', 'symbol', 'status')
-            ->whereIn('id', function ($query) use ($defaultCurrency) {
-                $query->selectRaw('MIN(id)')
-                    ->from('currencies')
-                    ->whereNotNull('name')
-                    ->where('code', '!=', $defaultCurrency)
-                    ->groupBy('name', 'code');
-            })
-            ->orderBy('status', 'desc')
-            ->orderBy('id', 'desc');
+        $model = Currency::select('id', 'name', 'code', 'symbol', 'status');
 
         return \DataTables::of($model)
-                        ->orderColumn('name', '-id $1')
-                        ->orderColumn('code', '-id $1')
-                        ->orderColumn('symbol', '-id $1')
-                        ->orderColumn('dashboard', '-id $1')
-                        ->addColumn('name', function ($model) {
-                            return $model->name;
-                        })
+            ->editColumn('name', function ($model) {
+                return e($model->name);
+            })
+            ->editColumn('code', function ($model) {
+                return '<div class="text-center">'.e($model->code).'</div>';
+            })
+            ->editColumn('symbol', function ($model) {
+                return '<div class="text-center">'.e($model->symbol).'</div>';
+            })
+            ->addColumn('dashboard', function ($model) {
+                if ($model->status == 1) {
+                    $showButton = $this->getButtonColor($model->id);
 
-                          ->addColumn('code', function ($model) {
-                              return '<div class="text-center">'.$model->code.'</div>';
-                          })
+                    return '<div class="dashboard-center">'.$showButton.'</div>';
+                } else {
+                    return '<div class="dashboard-center">
+                    <a class="btn btn-sm btn-secondary btn-xs disabled align-items-center" style="margin-right: 100px;">
+                        <i class="fa fa-eye" style="color:white;"></i>&nbsp;&nbsp;'.__('message.show_on_dashboard').'
+                    </a>
+                </div>';
+                }
+            })
+            ->editColumn('status', function ($model) {
+                $defaultCurrencyCode = Setting::value('default_currency');
+                $checked = $model->status == 1 ? 'checked' : '';
 
-                          ->addColumn('symbol', function ($model) {
-                              return '<div class="text-center">'.$model->symbol.'</div>';
-                          })
+                // Check if default currency
+                $isDefault = $defaultCurrencyCode === $model->code;
 
-                          ->addColumn('dashboard', function ($model) {
-                              if ($model->status == 1) {
-                                  $showButton = $this->getButtonColor($model->id);
+                $disabledAttr = $isDefault ? 'disabled' : '';
+                $style = $isDefault ? 'opacity: 0.6; pointer-events: none;' : '';
+                $title = $isDefault ? __('message.default-currency') : '';
 
-                                  return '<div class="dashboard-center">'.$showButton.'</div>';
-                              } else {
-                                  return  '<div class="dashboard-center"><a class="btn btn-sm btn-secondary btn-xs disabled align-items-center" style="margin-right: 100px;"><i class="fa fa-eye "
-                                style="color:white;"> </i>&nbsp;&nbsp; '.__('message.show_on_dashboard').'</a></div>';
-                              }
-                          })
-
-                        ->addColumn('status', function ($model) {
-                            if ($model->status == 1) {
-                                return'<label class="switch toggle_event_editing ">
-                            <input type="hidden" name="module_id" class="module_id" value="'.$model->id.'" >
-                         <input type="checkbox" name="modules_settings" 
-                         checked value="'.$model->status.'"  class="modules_settings_value">
-                          <span class="slider round"></span>
-                        </label>';
-                            } else {
-                                return'<label class="switch toggle_event_editing">
-                             <input type="hidden" name="module_id" class="module_id" value="'.$model->id.'" >
-                         <input type="checkbox" name="modules_settings" 
-                         value="'.$model->status.'" class="modules_settings_value">
-                          <span class="slider round"></span>
-                        </label>';
-                            }
-                        })
-                          ->filterColumn('name', function ($query, $keyword) {
-                              $sql = 'name like ?';
-                              $query->whereRaw($sql, ["%{$keyword}%"]);
-                          })
-                           ->filterColumn('code', function ($query, $keyword) {
-                               $sql = 'code like ?';
-                               $query->whereRaw($sql, ["%{$keyword}%"]);
-                           })
-                           ->filterColumn('symbol', function ($query, $keyword) {
-                               $sql = 'symbol like ?';
-                               $query->whereRaw($sql, ["%{$keyword}%"]);
-                           })
-                        ->rawColumns(['name', 'code', 'symbol', 'dashboard', 'status'])
-
-                        ->make(true);
+                return <<<HTML
+    <label class="switch toggle_event_editing" style="{$style}" title="{$title}">
+        <input type="hidden" name="module_id" class="module_id" value="{$model->id}">
+        <input type="checkbox" name="modules_settings" class="modules_settings_value" value="{$model->status}" {$checked} {$disabledAttr}>
+        <span class="slider round"></span>
+    </label>
+HTML;
+            })
+            ->filterColumn('name', function ($query, $keyword) {
+                $query->where('name', 'like', "%{$keyword}%");
+            })
+            ->filterColumn('code', function ($query, $keyword) {
+                $query->where('code', 'like', "%{$keyword}%");
+            })
+            ->filterColumn('symbol', function ($query, $keyword) {
+                $query->where('symbol', 'like', "%{$keyword}%");
+            })
+            ->rawColumns(['code', 'symbol', 'dashboard', 'status'])
+            ->make(true);
     }
 
     /**
@@ -164,7 +146,7 @@ class CurrencyController extends Controller
         // ]);
 
         try {
-            $nicename = Country::where('country_id', $request->name)->value('nicename');
+            $nicename = Country::where('country_id', $request->name)->value('country_name');
             $codeChar2 = Country::where('country_id', $request->name)->value('country_code_char2');
             $currency = new Currency();
 
@@ -215,7 +197,7 @@ class CurrencyController extends Controller
     public function update(Request $request)
     {
         try {
-            $nicename = Country::where('country_id', $request->editnicename)->value('nicename');
+            $nicename = Country::where('country_id', $request->editnicename)->value('country_name');
             $codeChar2 = Country::where('country_id', $request->editnicename)->value('country_code_char2');
             $currency = Currency::where('id', $request->currencyId)->first();
             $currency->code = $request->editcode;
@@ -311,17 +293,30 @@ class CurrencyController extends Controller
     public function updatecurrency(Request $request)
     {
         try {
-            $currency = Currency::findOrFail($request->input('current_id'));
+            return \DB::transaction(function () use ($request) {
+                $currency = Currency::findOrFail($request->input('current_id'));
 
-            Artisan::call('currency:manage', ['action' => 'add', 'currency' => $currency->code]);
+                $newStatus = $request->input('current_status') == '1' ? 0 : 1;
 
-            $currency->status = ($request->current_status == '1') ? 0 : 1;
+                if ($newStatus) {
+                    Artisan::call('currency:manage', [
+                        'action' => 'add',
+                        'currency' => $currency->code,
+                    ]);
 
-            $currency->save();
+                    Artisan::call('currency:cleanup');
+                }
 
-            return Lang::get('message.updated-successfully');
+                if (! $newStatus) {
+                    PlanPrice::where('currency', $currency->code)->delete();
+                }
+
+                $currency->update(['status' => $newStatus]);
+
+                return successResponse(__('message.updated-successfully'));
+            });
         } catch (\Exception $ex) {
-            return $ex->getMessage();
+            return errorResponse($ex->getMessage());
         }
     }
 }

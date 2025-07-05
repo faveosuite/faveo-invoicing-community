@@ -109,6 +109,7 @@ class PaymentSettingsController extends Controller
                 $attributes[$key]['website'] = $field['website'];
                 $attributes[$key]['version'] = $field['version'];
                 $attributes[$key]['author'] = $field['author'];
+                $attributes[$key]['supported_currencies'] = $field['supported_currencies'];
             }
         }
 
@@ -364,5 +365,24 @@ class PaymentSettingsController extends Controller
         $plug->save();
 
         return successResponse(\Lang::get('message.status_change'));
+    }
+
+    public function getPaymentPluginMap(): array
+    {
+        static $pluginMap = null;
+
+        if ($pluginMap === null) {
+            $values = $this->fetchConfig();
+            $pluginMap = [];
+
+            foreach ($values as $plugin) {
+                $name = strtolower($plugin['name']);
+                $pluginMap[$name] = [
+                    'supported_currencies' => $plugin['supported_currencies'] ?? [],
+                ];
+            }
+        }
+
+        return $pluginMap;
     }
 }

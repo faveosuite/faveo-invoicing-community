@@ -197,7 +197,6 @@ class PlanController extends ExtendedPlanController
                 foreach ($add_prices as $key => $value) {
                     $dataForCreating[] = [
                         'plan_id' => $this->plan->id,
-                        'country_id' => $request->input('country_id')[$key],
                         'currency' => $request->input('currency')[$key],
                         'add_price' => $value,
                         'renew_price' => $renew_prices[$key],
@@ -225,7 +224,6 @@ class PlanController extends ExtendedPlanController
     public function edit(Plan $plan)
     {
         $currency = $this->currency->where('status', '1')->pluck('name', 'code')->toArray();
-        $countries = Country::get(['country_id', 'country_name'])->toArray();
         $planPrices = $plan->planPrice()->get()->toArray();
         $periods = $this->period->pluck('name', 'days')->toArray();
         $products = $this->product->pluck('name', 'id')->toArray();
@@ -251,7 +249,6 @@ class PlanController extends ExtendedPlanController
                 'priceDescription',
                 'productQuantity',
                 'agentQuantity',
-                'countries',
                 'planPrices'
             )
         );
@@ -281,7 +278,7 @@ class PlanController extends ExtendedPlanController
 
             foreach ($add_prices as $key => $value) {
                 $plan->planPrice()->create([
-                    'country_id' => $request->country_id[$key],
+                    'plan_id' => $plan->id,
                     'currency' => $request->currency[$key],
                     'add_price' => $value,
                     'renew_price' => $renew_prices[$key],

@@ -12,6 +12,7 @@ use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
 use App\Model\Order\Payment;
+use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Payment\TaxOption;
@@ -160,6 +161,7 @@ class BaseCartControllerTest extends DBTestCase
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
+        Currency::where('code', $this->user->currency)->update(['status' => 1]);
         $product = Product::factory()->create(['can_modify_quantity' => 1]);
         $plan = Plan::create(['name' => 'HD Plan 1 year', 'product' => $product->id, 'days' => 366]);
         $planPrice = PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
@@ -205,6 +207,7 @@ class BaseCartControllerTest extends DBTestCase
     {
         $this->getLoggedInUser();
         $this->withoutMiddleware();
+        Currency::where('code', $this->user->currency)->update(['status' => 1]);
         $product = Product::factory()->create(['can_modify_quantity' => 1]);
         $plan = Plan::create(['name' => 'HD Plan 1 year', 'product' => $product->id, 'days' => 366]);
         $planPrice = PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
@@ -342,7 +345,7 @@ class BaseCartControllerTest extends DBTestCase
         ]);
         $checkoutController = new CheckoutController();
         $checkoutController->getAttributes(\Cart::getContent());
-        $response = $this->withSession(['nothingLeft' => 0, 'discount' => 300, 'priceRemaining' => 1, 'priceToBePaid' => 0])->call('post', 'checkout-and-pay', ['cost' => 0, 'payment_gateway' => '', 'invoice_id' => 0]);
+        $response = $this->withSession(['nothingLeft' => 0, 'discount' => 300, 'priceRemaining' => 1, 'priceToBePaid' => 0])->call('post', 'checkout-and-pay', ['cost' => 0, 'payment_gateway' => '', 'invoice_id' => 0, 'checkout_token' => \Str::uuid()]);
         $response->assertStatus(302);
         $response->assertRedirect('checkout');
         $amount = Payment::where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('amt_to_credit');

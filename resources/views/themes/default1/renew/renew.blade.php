@@ -18,12 +18,18 @@
 @section('content')
 <div class="card card-secondary card-outline">
 
-    {!! html()->form('POST', url('renew/' . $id))->open() !!}
+    {!! html()->form('POST', url('renew/' . $id))->id('renew-form')->open() !!}
 
 
     <div class="card-body">
-                <?php 
-                 $plans = App\Model\Payment\Plan::where('product',$productid)->pluck('name','id')->toArray();
+                <?php
+                $currency = getCurrencyForClient(App\User::find($userid)->country);
+                $plans = \App\Model\Payment\Plan::where('product', $productid)
+                    ->whereHas('planPrice', function ($query) use ($currency) {
+                        $query->where('currency', $currency);
+                    })
+                    ->pluck('name', 'id')
+                    ->toArray();
                 ?>
         <div class="row">
 
@@ -36,12 +42,18 @@
                     <div class="col-md-4 form-group {{ $errors->has('plan') ? 'has-error' : '' }}">
                         <!-- first name -->
                         {!! html()->label( __('message.plans'), 'plan')->class('required') !!}
-                          <select name="plan" id="plans" onchange="fetchPlanCost(this.value)" class="form-control" >
-                             <option value=''>{{ __('message.choose') }}</option>
-                           @foreach($plans as $key=>$plan)
-                              <option value={{$key}}>{{$plan}}</option>
-                          @endforeach
-                          </select>
+                        <select name="plan" id="plans" onchange="fetchPlanCost(this.value)" class="form-control">
+                            @if(count($plans) > 0)
+                                <option value="">{{ __('message.choose') }}</option>
+                                @foreach($plans as $key => $plan)
+                                    <option value="{{ $key }}">{{ $plan }}</option>
+                                @endforeach
+                            @else
+                                <option value="" disabled selected>
+                                    {{ __('message.no_available_plans_currency') }}
+                                </option>
+                            @endif
+                        </select>
                         <div class="input-group-append"></div>
                         <!-- {!! html()->select('plan', ['' => 'Select'] + $plans)->class('form-control')->attribute('onchange', 'fetchPlanCost(this.value)') !!} -->
                         {!! html()->hidden('user', $userid) !!}
@@ -84,16 +96,55 @@
 
 {!! html()->form()->close() !!}
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const agentsInput = document.getElementById('agents');
-
-        if (agentsInput.value < 1) {
-            agentsInput.value = 1;
-        }
-
-        agentsInput.addEventListener('input', function () {
-            if (this.value < 1) {
-                this.value = 1;
+    $(document).ready(function () {
+        // Setup validation
+        $('#renew-form').validate({
+            rules: {
+                plan: {
+                    required: true
+                },
+                payment_method: {
+                    required: true
+                },
+                cost: {
+                    required: true,
+                    number: true,
+                    min: 1
+                },
+                agents: {
+                    required: function () {
+                        return $('#agents').length > 0; // only if agents field exists
+                    },
+                    number: true,
+                    min: 1
+                }
+            },
+            messages: {
+                plan: {
+                    required: "{{ __('message.renew_plan') }}"
+                },
+                payment_method: {
+                    required: "{{ __('message.renew_payment_method') }}"
+                },
+                cost: {
+                    required: "{{ __('message.renew_price') }}",
+                    number: "{{ __('message.enter_valid_number') }}",
+                    min: "{{ __('message.enter_valid_number') }}"
+                },
+                agents: {
+                    required: "Please enter number of agents",
+                    number: "{{ __('message.enter_valid_number') }}",
+                    min: "{{ __('message.enter_valid_number') }}"
+                },
+            },
+            errorClass: "is-invalid",
+            errorPlacement: function (error, element) {
+                error.addClass("invalid-feedback");
+                if (element.parent(".input-group").length) {
+                    error.insertAfter(element.parent());
+                } else {
+                    error.insertAfter(element);
+                }
             }
         });
     });
@@ -101,65 +152,6 @@
 
 
  <script>
-     $(document).ready(function() {
-         const userRequiredFields = {
-             planname:@json(trans('message.renew_plan')),
-             planproduct:@json(trans('message.renew_price')),
-             regular_price:@json(trans('message.renew_payment_method')),
-         };
-
-         $('#submit').on('click', function (e) {
-             const userFields = {
-                 planname:$('#plans'),
-                 planproduct:$('#price'),
-                 regular_price:$('#payment_method'),
-             };
-
-             // Clear previous errors
-             Object.values(userFields).forEach(field => {
-                 field.removeClass('is-invalid');
-                 field.next().next('.error').remove();
-
-             });
-
-             let isValid = true;
-
-             const showError = (field, message) => {
-                 field.addClass('is-invalid');
-                 field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
-             };
-
-             // Validate required fields
-             Object.keys(userFields).forEach(field => {
-                 if (!userFields[field].val()) {
-                     showError(userFields[field], userRequiredFields[field]);
-                     isValid = false;
-                 }
-             });
-
-             // If validation fails, prevent form submission
-             if (!isValid) {
-                 e.preventDefault();
-             }
-         });
-         // Function to remove error when input'id' => 'changePasswordForm'ng data
-         const removeErrorMessage = (field) => {
-             field.classList.remove('is-invalid');
-             const error = field.nextElementSibling;
-             if (error && error.classList.contains('error')) {
-                 error.remove();
-             }
-         };
-
-         // Add input event listeners for all fields
-         ['plans','price','payment_method'].forEach(id => {
-
-             document.getElementById(id).addEventListener('input', function () {
-                 removeErrorMessage(this);
-
-             });
-         });
-     });
 
 
      $('ul.nav-sidebar a').filter(function() {

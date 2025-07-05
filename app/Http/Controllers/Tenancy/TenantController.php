@@ -246,7 +246,7 @@ class TenantController extends Controller
                        if (! $user) {
                            return '--';
                        }
-                       $country = Country::where('country_code_char2', $user->country)->value('nicename');
+                       $country = Country::where('country_code_char2', $user->country)->value('country_name');
 
                        return $country ?? '';
                    })

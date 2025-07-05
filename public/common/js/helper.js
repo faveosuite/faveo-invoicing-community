@@ -9,11 +9,16 @@ window.helper = (() => {
                            dismissible = true,
                            additionalClasses = '',
                            id = 'custom-alert',
+                           refresh = false,
                        }) {
-        if (!message) return;
+        if (!message){
+            return;
+        }
 
         const container = document.querySelector(containerSelector);
-        if (!container) return;
+        if (!container){
+            return;
+        }
 
         const isSuccess = type === 'success';
         const iconClass = isSuccess ? 'fa-check-circle' : 'fa-ban';
@@ -31,8 +36,16 @@ window.helper = (() => {
         alertDiv.className = `alert ${alertClass} ${dismissible ? 'alert-dismissible' : ''} ${additionalClasses}`;
         alertDiv.setAttribute('role', 'alert');
 
-        // Icon + message
-        alertDiv.innerHTML = `<i class="fa ${iconClass} mr-1"></i> ${message}`;
+        // Create icon element
+        const iconElement = document.createElement('i');
+        iconElement.className = `fa ${iconClass} mr-1`;
+
+        // Create message text node to prevent HTML injection
+        const messageText = document.createTextNode(` ${message}`);
+
+        // Append icon and message safely
+        alertDiv.appendChild(iconElement);
+        alertDiv.appendChild(messageText);
 
         // Dismiss button
         if (dismissible) {
@@ -42,6 +55,12 @@ window.helper = (() => {
             btn.setAttribute('data-dismiss', 'alert');
             btn.setAttribute('aria-hidden', 'true');
             btn.innerHTML = '&times;';
+            btn.onclick = () => {
+                alertDiv.remove();
+                if (refresh) {
+                    window.location.reload(true);
+                }
+            };
             alertDiv.appendChild(btn);
         }
 
@@ -52,7 +71,12 @@ window.helper = (() => {
             alertTimeouts[id] = setTimeout(() => {
                 alertDiv.classList.remove('show');
                 alertDiv.classList.add('hide');
-                setTimeout(() => alertDiv.remove(), 200);
+                setTimeout(() => {
+                    alertDiv.remove();
+                    if (refresh) {
+                        window.location.reload(true);
+                    }
+                }, 200);
             }, autoDismiss);
         }
     }
