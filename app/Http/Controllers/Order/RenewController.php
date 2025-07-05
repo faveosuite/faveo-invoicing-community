@@ -335,46 +335,63 @@ class RenewController extends BaseRenewController
             ]);
 
         try {
-            $planid = $request->input('plan');
+            $planId = $request->input('plan');
+            $userId = $request->input('user');
             $code = $request->input('code');
-            $plan = Plan::find($planid);
-            $planDetails = userCurrencyAndPrice($request->input('user'), $plan);
-            $cost = $planDetails['plan']->renew_price;
-            $cost = preg_replace('/[^0-9]/', '', $cost);
+            $agentsInput = $request->input('agents');
+
+            $plan = Plan::find($planId);
+            $planDetails = userCurrencyAndPrice($userId, $plan);
+
+            $cost = preg_replace('/[^0-9]/', '', $planDetails['plan']->renew_price);
             $currency = $planDetails['currency'];
+            $noOfAgentsPerPlan = $planDetails['plan']->no_of_agents;
+
+            $sub = Subscription::find($id);
+            $orderId = $sub->order_id;
+
+            // Get old agent count from serial key
+            $serialKey = Order::where('id', $orderId)->value('serial_key');
+            $oldAgents = intval(substr($serialKey, 12));
+
+            // If agents are not provided
             $agents = null;
 
-            if ($request->has('agents')) {
-                $agents = $request->input('agents');
-                $sub = Subscription::find($id);
-                $order_id = $sub->order_id;
-                $installation_path = InstallationDetail::where('order_id', $order_id)->where('installation_path', '!=', cloudCentralDomain())->latest()->value('installation_path');
-                $oldAgents = intval(substr(Order::where('id', $order_id)->value('serial_key'), 12));
+            // Handle custom agent input
+            if ($agentsInput !== null) {
+                $agents = (int) $agentsInput;
+
+                // Check agent modification restrictions
+                $installationPath = InstallationDetail::where('order_id', $orderId)
+                    ->where('installation_path', '!=', cloudCentralDomain())
+                    ->latest()
+                    ->value('installation_path');
+
                 if ($oldAgents != $agents) {
-                    if (empty($installation_path)) {
+                    if (empty($installationPath)) {
                         return redirect()->back()->with('fails', trans('message.without_installation_found'));
                     }
-                    if ($this->checktheAgent($agents, $installation_path)) {
+
+                    if ($this->checktheAgent($agents, $installationPath)) {
                         return redirect()->back()->with('fails', trans('message.agent_reduce'));
                     }
                 }
-                $cost = (int) $cost * (int) $agents;
             } else {
-                if (Product::whereid(Plan::whereid($planid)->first()->product)->first()->can_modify_agent) {
-                    $sub = Subscription::find($id);
-                    $order_id = $sub->order_id;
-                    $agents = intval(substr(Order::where('id', $order_id)->value('serial_key'), 12));
-                    //This will get the cost of per agent
-                    if ($planDetails['plan']->no_of_agents != 0) {
-                        $cost = $cost / $planDetails['plan']->no_of_agents;
-                        $cost = (int) $cost * (int) $agents;
-                    }
+                $product = Product::find($plan->product);
+
+                if ($product && $product->show_agent) {
+                    $agents = $oldAgents;
                 }
             }
 
-            $items = $this->invoiceBySubscriptionId($id, $planid, $cost, $currency, $agents);
+            // If agent count is available, adjust cost accordingly
+            if (isset($agents) && $noOfAgentsPerPlan > 0) {
+                $cost = ($cost / $noOfAgentsPerPlan) * $agents;
+            }
+
+            $items = $this->invoiceBySubscriptionId($id, $planId, $cost, $currency, $agents);
             $invoiceid = $items->invoice_id;
-            $this->setSession($id, $planid);
+            $this->setSession($id, $planId);
 
             return redirect('paynow/'.$invoiceid);
         } catch (\Exception $ex) {

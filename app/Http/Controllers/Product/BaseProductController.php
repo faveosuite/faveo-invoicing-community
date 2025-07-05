@@ -9,6 +9,7 @@ use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
 use App\ThirdPartyApp;
+use App\User;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -120,39 +121,39 @@ class BaseProductController extends ExtendedBaseProductController
     {
         try {
             $controller = new \App\Http\Controllers\Front\CartController();
-            $field = '';
-            $price = '';
-
             $plan = new Plan();
-            $plans = $plan->where('product', $productid)->pluck('name', 'id')->toArray();
-            if (count($plans) > 0) { // If Plans Exist For A Product, Display Dropdown for Plans
-                $field = html()->div()
-                        ->class('form-group')
-                        ->children([
-                            html()->label()
-                                ->class('required')
-                                ->text(__('message.subscription')), // Translated label
-                            html()->select('plan', ['' => __('message.select'), 'Plans' => $plans])
-                                ->class('form-control')
-                                ->id('plan')
-                                ->attribute('onchange', 'getPrice(this.value)'),
-                            html()->div()
-                                ->class('error-message')
-                                ->id('subscription-msg'),
-                        ])
-                        ->toHtml();
-            } else {//If No Plan Exist For A Product
-                $userid = $request->input('user');
-                $price = $controller->cost($productid, $userid);
+            $useID = $request->input('user_id') ?: \Auth::user()->id;
+            $userCountry = User::find($useID)->country;
+            $currency = getCurrencyForClient($userCountry);
+            $plans = Plan::where('product', $productid)
+                ->whereHas('planPrice', function ($query) use ($currency) {
+                    $query->where('currency', $currency);
+                })
+                ->pluck('name', 'id')
+                ->toArray();
+
+            if (empty($plans)) { // If Plans Exist For A Product, Display Dropdown for Plans
+                return errorResponse(__('message.no_available_plans_currency'));
             }
-            $result = ['price' => $price, 'field' => $field];
+            $field = html()->div()
+                ->class('form-group')
+                ->children([
+                    html()->label()
+                        ->class('required')
+                        ->text(__('message.subscription')), // Translated label
+                    html()->select('plan', ['' => __('message.select'), 'Plans' => $plans])
+                        ->class('form-control')
+                        ->id('plan')
+                        ->attribute('onchange', 'getPrice(this.value)'),
+                    html()->div()
+                        ->class('error-message')
+                        ->id('subscription-msg'),
+                ])
+                ->toHtml();
 
-            return response()->json($result);
+            return successResponse('', $field);
         } catch (\Exception $ex) {
-            app('log')->error($ex->getMessage());
-            $result = [$ex->getMessage()];
-
-            return response()->json($result);
+            return errorResponse($ex->getMessage());
         }
     }
 

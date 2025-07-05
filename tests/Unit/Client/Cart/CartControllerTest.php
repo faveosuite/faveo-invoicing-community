@@ -3,6 +3,7 @@
 namespace Tests\Unit\Client\Cart;
 
 use App\Http\Controllers\Front\CartController;
+use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
@@ -17,6 +18,7 @@ class CartControllerTest extends DBTestCase
     {
         parent::setUp();
         $this->classObject = new CartController();
+        Currency::where('code', 'INR')->update(['status' => 1]);
     }
 
     #[Group('cart')]

@@ -2682,6 +2682,11 @@ return [
     'captcha_message' => 'reCAPTCHA verification failed. Please try again.',
     'not-found' => 'This product cannot be deleted because it is currently associated with one or more services. Please remove all related services before attempting to delete this product.',
 
+    'no_available_plans_currency' => 'No available plans found for this product in the selected currency.',
+    'unsupported_country' => 'The selected country is not supported for this order.',
+    'order_no_active_plan_cancelled' => 'Auto-renewal has been cancelled because no active plan was found for Order #:order_number.',
+    'no_matching_plans' => 'No plans are available for your selected criteria.',
+    'order_no_active_plan' => 'No active plan is associated with this order.',
     'auto_assign_success' => 'Auto-assignment setting updated successfully.',
     'system_manager_settings' => 'System Manager Settings',
     'enable_account_manager' => 'Enable Auto-assignment for Account Managers',
@@ -2699,6 +2704,7 @@ return [
     'manager_settings_updated_successfully' => 'Manager settings were successfully updated.',
 
     'user_position_prohibited_if' => 'The position field is not allowed when the role is set to user.',
+    'period_is_required' => 'Please select a period.',
     'delete_invoice_older' => 'Delete invoices older than...',
     'deletion_cloud_subscription' => 'Delete cloud subscriptions expired more than...',
     'msg_service_down' => 'We’re currently experiencing issues with our OTP service. Please try again shortly. We’re working to resolve this as quickly as possible.',

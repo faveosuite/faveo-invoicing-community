@@ -34,7 +34,7 @@ class ProfileController extends Controller
             }
             //for display
             $timezones = array_column($display, 'name', 'id');
-            $state = getStateByCode($user->state);
+            $state = getStateByCode($user->country, $user->state);
             $states = findStateByRegionId($user->country);
             $bussinesses = \App\Model\Common\Bussiness::pluck('name', 'short')->toArray();
 

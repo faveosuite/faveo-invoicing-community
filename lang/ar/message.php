@@ -2524,6 +2524,11 @@ return [
     'valid_username' => 'يرجى إدخال اسم مستخدم صالح',
     'set_auth_invoicing' => 'أنت جاهز تمامًا. من الآن فصاعداً، ستستخدم تطبيق المصادقة لتسجيل الدخول إلى حساب Faveo Invoicing الخاص بك.',
 
+    'no_available_plans_currency' => 'لا توجد خطط متاحة لهذا المنتج بالعملة المحددة.',
+    'unsupported_country' => 'البلد المحدد غير مدعوم لهذا الطلب.',
+    'order_no_active_plan_cancelled' => 'تم إلغاء التجديد التلقائي لأنه لا توجد خطة نشطة للطلب رقم #:order_number.',
+    'no_matching_plans' => 'لا توجد خطط متاحة حسب المعايير التي حددتها.',
+    'order_no_active_plan' => 'لا توجد خطة نشطة مرتبطة بهذا الطلب.',
     'auto_assign_success' => 'تم تحديث إعداد التعيين التلقائي بنجاح.',
     'system_manager_settings' => 'إعدادات مدير النظام',
     'enable_account_manager' => 'تفعيل التعيين التلقائي لمديري الحسابات',
@@ -2541,6 +2546,7 @@ return [
     'manager_settings_updated_successfully' => 'تم تحديث إعدادات المدير بنجاح.',
 
     'user_position_prohibited_if' => 'حقل الوظيفة غير مسموح به عندما تكون القيمة للدور هي مستخدم.',
+    'period_is_required' => 'يرجى تحديد الفترة.',
     'delete_invoice_older' => 'حذف الفواتير الأقدم من..',
     'deletion_cloud_subscription' => 'حذف الاشتراكات السحابية المنتهية منذ أكثر من..',
     'msg_service_down' => 'نواجه حالياً مشاكل في خدمة OTP. يرجى المحاولة مرة أخرى قريباً. نحن نعمل على حل المشكلة في أسرع وقت ممكن.',

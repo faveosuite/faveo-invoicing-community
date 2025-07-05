@@ -203,12 +203,16 @@
                                             </td>
 
                                             <td class="product-price">
-                                                <?php
+                                                @php
                                                     $productPrice = $item->price;
-                                                    if($isAgentAllowed && $item->toArray()['attributes']['agents']!=0){
-                                                        $productPrice = $item->price/$item->toArray()['attributes']['agents'];
+                                                    $agents = $item->attributes['agents'] ?? 0;
+
+                                                    if($isAgentAllowed && $agents != 0) {
+                                                        $productPrice = $productPrice / $agents;
                                                     }
-                                                    ?>
+
+                                                    $productPrice = currencyFormat($productPrice, $item->attributes->currency);
+                                                @endphp
 
                                                 <span class="amount font-weight-medium text-color-grey">{{$productPrice}}</span>
                                             </td>

@@ -82,7 +82,7 @@
                       
                     <div class="col-md-4 form-group {{ $errors->has('country') ? 'has-error' : '' }}">
                         
-                   <?php $countries = \App\Model\Common\Country::pluck('nicename', 'country_code_char2')->toArray(); ?>
+                   <?php $countries = \App\Model\Common\Country::pluck('country_name', 'country_code_char2')->toArray(); ?>
                   
                         <!-- name -->
                         {{ html()->label(Lang::get('message.country'), 'country') }}

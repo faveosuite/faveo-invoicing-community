@@ -71,7 +71,7 @@ trait PostPaymentHandle
             $user = User::find($invoice->user_id);
             $stateCode = \Auth::user()->state;
             $cont = new \App\Http\Controllers\RazorpayController();
-            $state = $cont->getState($stateCode);
+            $state = $cont->getState(\Auth::user()->country, $stateCode);
             $currency = Currency::where('code', $currency)->pluck('symbol')->first();
 
             $control = new \App\Http\Controllers\Order\RenewController();

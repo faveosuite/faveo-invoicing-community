@@ -109,6 +109,7 @@ class PaymentSettingsController extends Controller
                 $attributes[$key]['website'] = $field['website'];
                 $attributes[$key]['version'] = $field['version'];
                 $attributes[$key]['author'] = $field['author'];
+                $attributes[$key]['supported_currencies'] = $field['supported_currencies'];
             }
         }
 
