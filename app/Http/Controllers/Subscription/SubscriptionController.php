@@ -9,7 +9,6 @@ use App\Http\Controllers\ConcretePostSubscriptionHandleController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Order\BaseRenewController;
 use App\Http\Controllers\RazorpayController;
-use App\Model\Common\Country;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
@@ -19,7 +18,6 @@ use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
 use App\Model\Order\Payment;
 use App\Model\Payment\Plan;
-use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Plugins\Stripe\Controllers\SettingsController;
@@ -198,7 +196,7 @@ class SubscriptionController extends Controller
                 $planObj = Plan::where('id', $subscription->plan_id)->first();
                 $planDetails = userCurrencyAndPrice($userid, $planObj);
                 $currency = $planDetails['currency'];
-                if($planDetails['plan'] === null){
+                if ($planDetails['plan'] === null) {
                     $cost = null;
                     $invoice = $oldinvoice;
                     throw new \Exception("No active plan for order #{$subscription->order_id}. Auto-renewal canceled.");
