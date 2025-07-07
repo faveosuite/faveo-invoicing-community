@@ -33,16 +33,16 @@ class FreeTrailController extends Controller
         $this->middleware('auth');
 
         $this->invoice = new Invoice();
-            $this->ivoice->refresh();
+        $this->ivoice->refresh();
         $this->invoiceItem = new InvoiceItem();
-            $this->invoiceItem->refresh();
+        $this->invoiceItem->refresh();
         $this->order = new Order();
-            $this->order->refresh();
+        $this->order->refresh();
         $this->subscription = new Subscription();
-            $this->subscription->refresh();
+        $this->subscription->refresh();
         $this->tenantController = $tenantController ?: new TenantController(new Client, new FaveoCloud);
         $this->product = new Product();
-            $this->product->refresh();
+        $this->product->refresh();
     }
 
     /**
