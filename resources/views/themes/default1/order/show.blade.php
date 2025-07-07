@@ -15,7 +15,7 @@
 }
 
 .switch input {display:none;}
-mas
+
 .slider {
   position: absolute;
   cursor: pointer;
