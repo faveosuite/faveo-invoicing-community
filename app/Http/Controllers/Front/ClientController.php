@@ -242,7 +242,7 @@ class ClientController extends BaseClientController
             $planid = $sub->plan_id;
             $plan = Plan::find($planid);
             $planDetails = userCurrencyAndPrice($sub->user_id, $plan);
-            if($planDetails['plan'] === null){
+            if ($planDetails['plan'] === null) {
                 throw new \Exception('No available plans found for this product in the users selected currency.');
             }
             $cost = $planDetails['plan']->renew_price;
