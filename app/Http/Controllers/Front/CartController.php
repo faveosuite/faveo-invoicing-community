@@ -299,7 +299,7 @@ class CartController extends BaseCartController
         try {
             $product = Product::find($productid);
             if ($product->status == 1) {
-                  $plan= Plan::find($planid);
+                $plan = Plan::find($planid);
                 if (! \Auth::user()) {//When user is not logged in
                     $location = getLocation();
                     $country = findCountryByGeoip($location['iso_code']);
@@ -317,32 +317,32 @@ class CartController extends BaseCartController
                     $currencyAndSymbol = getCurrencyForClient($country);
                 }
 
-                    $currencyQuery = Plan::where('product', $productid);
+                $currencyQuery = Plan::where('product', $productid);
 
-                    $currency=userCurrencyAndPrice($userid??"", $plan);
-                    if (! $admin) {
-                        if (\Session::get('toggleState') == 'yearly' || \Session::get('toggleState') == null) {
-                            $id = $currencyQuery->whereIn('days', [365, 366])->value('id');
+                $currency = userCurrencyAndPrice($userid ?? '', $plan);
+                if (! $admin) {
+                    if (\Session::get('toggleState') == 'yearly' || \Session::get('toggleState') == null) {
+                        $id = $currencyQuery->whereIn('days', [365, 366])->value('id');
 
-                            $daysQuery = PlanPrice::where('plan_id', $id)->where('currency', $currency['currency'])->where('country_id', $countryids)->firstOr(function () use ($currency, $id) {
-                                return PlanPrice::where('plan_id', $id)->where('currency', $currency['currency'])->where('country_id', 0)->first();
-                            });
-
-                            $cost = $daysQuery?->offer_price ? $daysQuery->add_price - (($daysQuery->offer_price / 100) * $daysQuery->add_price) : $daysQuery->add_price;
-                        } elseif (\Session::get('toggleState') == 'monthly') {
-                            $id = $currencyQuery->whereIn('days', [30, 31])->value('id');
-                            $daysQuery = PlanPrice::where('plan_id', $id)->where('currency', $currency['currency'])->where('country_id', $countryids)->firstOr(function () use ($currency, $id) {
-                                return PlanPrice::where('plan_id', $id)->where('currency', $currency['currency'])->where('country_id', 0)->first();
-                            });
-                            $cost = $daysQuery?->offer_price ? $daysQuery->add_price - (($daysQuery->offer_price / 100) * $daysQuery->add_price) : $daysQuery->add_price;
-                        }
-                    } else {
-                        $id = $planid;
-                        $daysQuery = PlanPrice::where('plan_id', $id)->where('currency', $currency)->where('country_id', $countryids)->firstOr(function () use ($currency, $id) {
-                            return PlanPrice::where('plan_id', $id)->where('currency', $currency)->where('country_id', 0)->first();
+                        $daysQuery = PlanPrice::where('plan_id', $id)->where('currency', $currency['currency'])->where('country_id', $countryids)->firstOr(function () use ($currency, $id) {
+                            return PlanPrice::where('plan_id', $id)->where('currency', $currency['currency'])->where('country_id', 0)->first();
                         });
-                        $cost = $daysQuery->offer_price ? $daysQuery->add_price - (($daysQuery->offer_price / 100) * $daysQuery->add_price) : $daysQuery->add_price;
+
+                        $cost = $daysQuery?->offer_price ? $daysQuery->add_price - (($daysQuery->offer_price / 100) * $daysQuery->add_price) : $daysQuery->add_price;
+                    } elseif (\Session::get('toggleState') == 'monthly') {
+                        $id = $currencyQuery->whereIn('days', [30, 31])->value('id');
+                        $daysQuery = PlanPrice::where('plan_id', $id)->where('currency', $currency['currency'])->where('country_id', $countryids)->firstOr(function () use ($currency, $id) {
+                            return PlanPrice::where('plan_id', $id)->where('currency', $currency['currency'])->where('country_id', 0)->first();
+                        });
+                        $cost = $daysQuery?->offer_price ? $daysQuery->add_price - (($daysQuery->offer_price / 100) * $daysQuery->add_price) : $daysQuery->add_price;
                     }
+                } else {
+                    $id = $planid;
+                    $daysQuery = PlanPrice::where('plan_id', $id)->where('currency', $currency)->where('country_id', $countryids)->firstOr(function () use ($currency, $id) {
+                        return PlanPrice::where('plan_id', $id)->where('currency', $currency)->where('country_id', 0)->first();
+                    });
+                    $cost = $daysQuery->offer_price ? $daysQuery->add_price - (($daysQuery->offer_price / 100) * $daysQuery->add_price) : $daysQuery->add_price;
+                }
 
                 Session::put('plan', $id);
                 Session::put('planDays', Session::get('toggleState'));
@@ -351,7 +351,6 @@ class CartController extends BaseCartController
                 }
 
                 return $cost;
-
             } else {
                 $cost = 0;
                 $months = 0;
