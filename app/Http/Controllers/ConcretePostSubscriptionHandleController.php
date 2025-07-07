@@ -338,26 +338,21 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
                 $api = new Api($apiKeys->rzp_key, $apiKeys->rzp_secret);
                 $api->subscription->fetch($subscribeId)->cancel();
 
-                $subscription->update([
-                    'is_subscribed' => 0,
-                    'rzp_subscription' => 0,
-                ]);
+                $subscription->is_subscribed = 0;
+                $subscription->rzp_subscription = 0;
             } elseif ($subscription->autoRenew_status && $isSubscribed && $subscribeId) {
                 $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();
                 $stripe = new \Stripe\StripeClient($stripeSecretKey);
                 $stripe->subscriptions->cancel($subscribeId, []);
 
-                $subscription->update([
-                    'is_subscribed' => 0,
-                    'autoRenew_status' => 0,
-                ]);
+                $subscription->is_subscribed = 0;
+                $subscription->autoRenew_status = 0;
             } else {
-                $subscription->update([
-                    'is_subscribed' => 0,
-                    'autoRenew_status' => 0,
-                    'rzp_subscription' => 0,
-                ]);
+                $subscription->is_subscribed = 0;
+                $subscription->autoRenew_status = 0;
+                $subscription->rzp_subscription = 0;
             }
+            $subscription->save();
         } catch (\Exception $ex) {
             return;
         }
