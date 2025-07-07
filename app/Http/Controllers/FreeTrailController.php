@@ -33,15 +33,16 @@ class FreeTrailController extends Controller
         $this->middleware('auth');
 
         $this->invoice = new Invoice();
-
+            $this->ivoice->refresh();
         $this->invoiceItem = new InvoiceItem();
-
+            $this->invoiceItem->refresh();
         $this->order = new Order();
-
+            $this->order->refresh();
         $this->subscription = new Subscription();
-
+            $this->subscription->refresh();
         $this->tenantController = $tenantController ?: new TenantController(new Client, new FaveoCloud);
         $this->product = new Product();
+            $this->product->refresh();
     }
 
     /**
@@ -239,7 +240,7 @@ class FreeTrailController extends Controller
                 $baseorder->addSubscription($order->id, $plan_id, $version, $product, $serial_key);
 
                 $addOnIds = implode(',', $this->product->find($product)->productPluginGroupsAsProduct->pluck('plugin_id')->toArray());
-                $options = (new BaseOrderController())->formatConfigurableOptions($product);
+                $options = $baseorder->formatConfigurableOptions($product);
                 $cont = app(\App\Http\Controllers\License\LicenseController::class);
 
                 $cont->syncTheAddonForALicense($addOnIds, $serial_key, $options);

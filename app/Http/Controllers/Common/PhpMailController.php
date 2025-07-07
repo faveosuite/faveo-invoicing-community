@@ -107,8 +107,7 @@ class PhpMailController extends Controller
                 $user = \DB::table('users')->find($data->user_id);
                 $product = Product::find($data->product_id);
                 $order = $cron->getOrderById($data->order_id);
-                $data->is_deleted=1;
-                $data->save();
+
                 if (empty($order)) {
                     continue;
                 }
@@ -124,6 +123,8 @@ class PhpMailController extends Controller
                     //Mail Sending
 
                     if ($destroy->status() == 200) {
+                        $data->is_deleted=1;
+                        $data->save();
                         //check in the settings
                         $settings = new \App\Model\Common\Setting();
                         $setting = $settings::find(1);
