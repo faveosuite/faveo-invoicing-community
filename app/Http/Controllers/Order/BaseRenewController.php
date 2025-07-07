@@ -11,6 +11,7 @@ use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Traits\TaxCalculation;
+use App\User;
 use Exception;
 use Illuminate\Http\Request;
 
@@ -93,7 +94,7 @@ class BaseRenewController extends Controller
 
             if (! $planId || $planId === 'Choose') {
                 return response()->json([
-                    'formatted_price' => currencyFormat(0),
+                    'formatted_price' => currencyFormat(0, getCurrencyForClient(User::find($userId)->country)),
                 ]);
             }
 
