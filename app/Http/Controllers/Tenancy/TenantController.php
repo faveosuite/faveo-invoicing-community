@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tenancy;
 
 use App\CloudPopUp;
+use App\Http\Controllers\BaseHomeController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\License\LicenseController;
 use App\Jobs\ReportExport;
@@ -402,7 +403,7 @@ class TenantController extends Controller
             $result = json_decode($response);
             if ($result->status == 'fails') {
                 if ($result->message == 'Domain already taken. Please select a different domain') {
-                    $toDisplay=str_replace(' ','',$product);
+                    $toDisplay = preg_replace('/\s+/', '', $product);
                     $newRandomDomain = substr($toDisplay.str_shuffle('abcdefghijklmnopqrstuvwxyz0123456789'), 0, 28);
 
                     return $this->createTenantWithRandomDomain($newRandomDomain, $request);
@@ -459,9 +460,10 @@ class TenantController extends Controller
                     'reply_email' => $settings->company_email,
 
                 ];
-
+                $ip=(new BaseHomeController())->getUserIP();
                 InstallationDetail::create([
                     'installation_path'=>$faveoCloud,
+                    'installation_ip'=>$ip,
                     'order_id'=>$order[0]->id,
                 ]);
 
