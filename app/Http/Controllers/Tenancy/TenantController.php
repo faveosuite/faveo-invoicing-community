@@ -12,6 +12,7 @@ use App\Model\Common\FaveoCloud;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Model\Mailjob\QueueService;
+use App\Model\Order\InstallationDetail;
 use App\Model\Order\Order;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\CloudProducts;
@@ -401,7 +402,8 @@ class TenantController extends Controller
             $result = json_decode($response);
             if ($result->status == 'fails') {
                 if ($result->message == 'Domain already taken. Please select a different domain') {
-                    $newRandomDomain = substr($product.str_shuffle('abcdefghijklmnopqrstuvwxyz0123456789'), 0, 28);
+                    $toDisplay=str_replace(' ','',$product);
+                    $newRandomDomain = substr($toDisplay.str_shuffle('abcdefghijklmnopqrstuvwxyz0123456789'), 0, 28);
 
                     return $this->createTenantWithRandomDomain($newRandomDomain, $request);
                 }
@@ -457,6 +459,11 @@ class TenantController extends Controller
                     'reply_email' => $settings->company_email,
 
                 ];
+
+                InstallationDetail::create([
+                    'installation_path'=>$request->domain,
+                    'order_id'=>$order,
+                ]);
 
                 $this->prepareMessages($faveoCloud, $userEmail, true);
                 $mail->SendEmail($settings->email, $userEmail, $template->data, $subject, $replace, $type);
