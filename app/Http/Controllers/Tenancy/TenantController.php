@@ -246,6 +246,7 @@ class TenantController extends Controller
                            return '--';
                        }
                        $country = Country::where('country_code_char2', $user->country)->value('nicename');
+
                        return $country ?? '';
                    })
 
@@ -402,7 +403,7 @@ class TenantController extends Controller
             $result = json_decode($response);
             if ($result->status == 'fails') {
                 if ($result->message == 'Domain already taken. Please select a different domain') {
-                    $toDisplay=str_replace(' ','',$product);
+                    $toDisplay = str_replace(' ', '', $product);
                     $newRandomDomain = substr($toDisplay.str_shuffle('abcdefghijklmnopqrstuvwxyz0123456789'), 0, 28);
 
                     return $this->createTenantWithRandomDomain($newRandomDomain, $request);
@@ -441,8 +442,8 @@ class TenantController extends Controller
                     $type = $temp_type->where('id', $type_id)->first()->name;
                 }
                 $subject = 'Your '.$order[0]->product()->value('name').' is now ready for use. Get started!';
-                $message=(isset($result->reason) && $result->reason != '')?__('message.'.$result->message,['installationUrl'=>$result->installationUrl,'reason'=>$result->reason]):
-                                        __('message.'.$result->message,['installationUrl'=>$result->installationUrl]);
+                $message = (isset($result->reason) && $result->reason != '') ? __('message.'.$result->message, ['installationUrl' => $result->installationUrl, 'reason' => $result->reason]) :
+                                        __('message.'.$result->message, ['installationUrl' => $result->installationUrl]);
 
                 $message = str_replace('website', strtolower($product), $message);
                 $message = str_replace('. You will receive password on your registered email', '', $message);
@@ -461,16 +462,17 @@ class TenantController extends Controller
                 ];
 
                 InstallationDetail::create([
-                    'installation_path'=>$request->domain,
-                    'order_id'=>$order,
+                    'installation_path' => $request->domain,
+                    'order_id' => $order,
                 ]);
 
                 $this->prepareMessages($faveoCloud, $userEmail, true);
                 $mail->SendEmail($settings->email, $userEmail, $template->data, $subject, $replace, $type);
-                if(isset($result->reason) && $result->reason !=''){
-                    return ['status' => $result->status, 'message' => $result->message.trans('message.cloud_created_successfully'),'installationUrl'=>$result->installationUrl,'reason'=>$result->reason];
+                if (isset($result->reason) && $result->reason != '') {
+                    return ['status' => $result->status, 'message' => $result->message.trans('message.cloud_created_successfully'), 'installationUrl' => $result->installationUrl, 'reason' => $result->reason];
                 }
-                return ['status' => $result->status, 'message' => $result->message.trans('message.cloud_created_successfully'),'installationUrl'=>$result->installationUrl];
+
+                return ['status' => $result->status, 'message' => $result->message.trans('message.cloud_created_successfully'), 'installationUrl' => $result->installationUrl];
             }
         } catch (Exception $e) {
             $message = $e->getMessage().' Domain: '.$faveoCloud.' Email: '.$userEmail;
