@@ -123,7 +123,7 @@ class PhpMailController extends Controller
                     //Mail Sending
 
                     if ($destroy->status() == 200) {
-                        $data->is_deleted=1;
+                        $data->is_deleted = 1;
                         $data->save();
                         //check in the settings
                         $settings = new \App\Model\Common\Setting();
