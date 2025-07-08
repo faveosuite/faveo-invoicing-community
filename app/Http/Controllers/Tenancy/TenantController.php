@@ -462,7 +462,7 @@ class TenantController extends Controller
 
                 InstallationDetail::create([
                     'installation_path'=>$request->domain,
-                    'order_id'=>$order,
+                    'order_id'=>$order[0]->id,
                 ]);
 
                 $this->prepareMessages($faveoCloud, $userEmail, true);
