@@ -461,7 +461,7 @@ class TenantController extends Controller
                 ];
 
                 InstallationDetail::create([
-                    'installation_path'=>$request->domain,
+                    'installation_path'=>$faveoCloud,
                     'order_id'=>$order[0]->id,
                 ]);
 
