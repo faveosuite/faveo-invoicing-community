@@ -460,21 +460,7 @@ class TenantController extends Controller
                     'reply_email' => $settings->company_email,
 
                 ];
-                $forwarded = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? null;
 
-                if ($forwarded) {
-                    $ipList = array_map('trim', explode(',', $forwarded));
-                    $ip = end($ipList); // 👈 This is the IP you want
-                } else {
-                    $ip = $_SERVER['REMOTE_ADDR'];
-                }
-
-//                $ip=(new BaseHomeController())->getUserIP();
-                InstallationDetail::create([
-                    'installation_path'=>$faveoCloud,
-                    'installation_ip'=>$ip,
-                    'order_id'=>$order[0]->id,
-                ]);
 
                 $this->prepareMessages($faveoCloud, $userEmail, true);
                 $mail->SendEmail($settings->email, $userEmail, $template->data, $subject, $replace, $type);
