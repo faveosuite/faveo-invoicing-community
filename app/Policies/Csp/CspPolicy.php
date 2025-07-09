@@ -33,7 +33,7 @@ class CspPolicy extends Policy
                 'www.googleadservices.com',
                 'www.googletagmanager.com',
                 'www.gstatic.com',
-                'unpkg.com'
+                'unpkg.com',
             ])
             ->addDirective(Directive::STYLE, [
                 Keyword::REPORT_SAMPLE,
