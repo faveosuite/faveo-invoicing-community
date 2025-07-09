@@ -33,6 +33,7 @@ class CspPolicy extends Policy
                 'www.googleadservices.com',
                 'www.googletagmanager.com',
                 'www.gstatic.com',
+                'unpkg.com'
             ])
             ->addDirective(Directive::STYLE, [
                 Keyword::REPORT_SAMPLE,
@@ -48,6 +49,7 @@ class CspPolicy extends Policy
                 'fonts.googleapis.com',
                 'stackpath.bootstrapcdn.com',
                 'www.tinymce.com',
+                'unpkg.com',
             ])
             ->addDirective(Directive::OBJECT, ['none'])
             ->addDirective(Directive::BASE, [Keyword::SELF])
@@ -97,6 +99,10 @@ class CspPolicy extends Policy
                 'www.google.co.in',
                 'www.google.com',
                 'www.gravatar.com',
+                'a.tile.openstreetmap.org',
+                'b.tile.openstreetmap.org',
+                'c.tile.openstreetmap.org',
+                'unpkg.com',
             ])
             ->addDirective(Directive::MANIFEST, [Keyword::SELF])
             ->addDirective(Directive::MEDIA, [
