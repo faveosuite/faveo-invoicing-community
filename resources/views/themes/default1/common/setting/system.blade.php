@@ -215,7 +215,7 @@
                              <b>{!! html()->label(__('message.default_language'))->for('language')->class('required') !!}</b>
                          </td>
                          <td>
-                             <select name="language" class="form-control" required>
+                             <select name="language" class="form-control" id="default_lang" required>
                                  @if($defaultLang == '')
                                      <option value="">{{ __('message.select_default_language') }}</option>
                                  @endif
@@ -594,6 +594,7 @@
                 country:@json(trans('message.com_details.add_country')),
                 default_currency:@json(trans('message.com_details.default_currency')),
                 state:@json(trans('message.com_details.add_state')),
+                default_lang:@json(trans('message.please_enter_default_language')),
 
             };
 
@@ -606,6 +607,7 @@
                     address:$('#address'),
                     state:$('#state-list'),
                     country:$('#country'),
+                    default_lang:$('#default_lang'),
                 };
 
 

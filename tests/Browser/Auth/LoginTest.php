@@ -45,9 +45,9 @@ class LoginTest extends DuskTestCase
 
             $this->showCaption($browser, 'TC0096 - Check for Forgot password by giving incorrect email id');
 
-            $browser->clickAtXPath('/html/body/div[2]/div[1]/div[2]/div[3]/div/section/div/div/div[6]/div[1]/form/div[3]/div[2]/div/a');
+            $browser->click('#forgot_password_link');
 
-            $browser->pause(2000);
+            $browser->pause(5000);
 
             $browser->type('#email', 'testuser@gmail.com')
                 ->press('#resetmail')
@@ -68,9 +68,9 @@ class LoginTest extends DuskTestCase
 
             $this->showCaption($browser, 'TC0095 - Check for Forgot password by giving invalid emailid');
 
-            $browser->clickAtXPath('/html/body/div[2]/div[1]/div[2]/div[3]/div/section/div/div/div[6]/div[1]/form/div[3]/div[2]/div/a');
+            $browser->click('#forgot_password_link');
 
-            $browser->pause(2000);
+            $browser->pause(5000);
 
             $browser->type('#email', 'testuser')
                 ->press('#resetmail')
@@ -91,7 +91,7 @@ class LoginTest extends DuskTestCase
 
             $this->showCaption($browser, 'TC0094 - Navigate to login page from Forgot password page');
 
-            $browser->clickAtXPath('/html/body/div[2]/div[1]/div[2]/div[3]/div/section/div/div/div[6]/div[1]/form/div[3]/div[2]/div/a');
+            $browser->click('#forgot_password_link');
 
             $browser->pause(2000);
 
@@ -118,9 +118,9 @@ class LoginTest extends DuskTestCase
 
             $this->showCaption($browser, 'TC0093 - Check for Forgot password by giving valid emailid');
 
-            $browser->clickAtXPath('/html/body/div[2]/div[1]/div[2]/div[3]/div/section/div/div/div[6]/div[1]/form/div[3]/div[2]/div/a');
+            $browser->click('#forgot_password_link');
 
-            $browser->pause(2000);
+            $browser->pause(5000);
 
             $browser->type('#email', $this->user->email)
                 ->press('#resetmail');
@@ -177,6 +177,8 @@ class LoginTest extends DuskTestCase
 
             $this->showCaption($browser, 'TC0091 - Login as Admin valid user name and invalid password');
 
+            $browser->pause(5000);
+
             $browser->type('#username', $this->user->email)
                 ->type('#pass', 'Demopass@123')
                 ->press('#login-btn');
@@ -203,6 +205,8 @@ class LoginTest extends DuskTestCase
 
             $this->showCaption($browser, 'TC0090 - Login as Admin with invalid user name and valid password');
 
+            $browser->pause(5000);
+
             $browser->type('#username', 'test@example.com')
                 ->type('#pass', 'Demopass@123')
                 ->press('#login-btn');
@@ -228,6 +232,8 @@ class LoginTest extends DuskTestCase
             $this->bypassInsecurePage($browser);
 
             $this->showCaption($browser, 'TC0089 - Login as Admin with invalid username and password');
+
+            $browser->pause(5000);
 
             $browser->type('#username', 'test@example.com')
                 ->type('#pass', 'Demo123')
@@ -260,6 +266,8 @@ class LoginTest extends DuskTestCase
 
             $this->showCaption($browser, 'TC0088 - Login as Admin with Captcha option');
 
+            $browser->pause(5000);
+
             $browser->type('#username', $this->user->email)
                 ->type('#pass', 'Demopass@1234')
                 ->pause(3000)
@@ -290,7 +298,7 @@ class LoginTest extends DuskTestCase
 
             $this->showCaption($browser, 'TC0087 - Login as Admin with valid user name and password');
 
-            $browser->pause(1000);
+            $browser->pause(5000);
 
             $browser->type('#username', $this->user->email)
                 ->type('#pass', 'Demopass@1234')
@@ -325,6 +333,8 @@ class LoginTest extends DuskTestCase
 
             $this->showCaption($browser, 'TC0086 - Login as Client without check reCaptcha');
 
+            $browser->pause(5000);
+
             $browser->type('#username', $this->user->email)
                 ->type('#pass', 'Demopass@1234')
                 ->press('#login-btn');
@@ -353,6 +363,8 @@ class LoginTest extends DuskTestCase
 
             $this->showCaption($browser, 'TC0085 - Login as Client valid user name and invalid password');
 
+            $browser->pause(5000);
+
             $browser->type('#username', $this->user->email)
                 ->type('#pass', 'Demopass@123')
                 ->press('#login-btn');
@@ -379,6 +391,8 @@ class LoginTest extends DuskTestCase
 
             $this->showCaption($browser, 'TC0084 - Login as Client with invalid user name and valid password');
 
+            $browser->pause(5000);
+
             $browser->type('#username', 'test@example.com')
                 ->type('#pass', 'Demopass@123')
                 ->press('#login-btn');
@@ -404,6 +418,8 @@ class LoginTest extends DuskTestCase
             $this->bypassInsecurePage($browser);
 
             $this->showCaption($browser, 'TC0083 - Login as Client with invalid username and password');
+
+            $browser->pause(5000);
 
             $browser->type('#username', 'test@example.com')
                 ->type('#pass', 'Demo123')
@@ -436,6 +452,8 @@ class LoginTest extends DuskTestCase
 
             $this->showCaption($browser, 'TC0082 - Login as client with Captcha option');
 
+            $browser->pause(5000);
+
             $browser->type('#username', $this->user->email)
                 ->type('#pass', 'Demopass@1234')
                 ->pause(3000)
@@ -466,7 +484,7 @@ class LoginTest extends DuskTestCase
 
             $this->showCaption($browser, 'TC0081 - Login as Client with valid user name and password');
 
-            $browser->pause(1000);
+            $browser->pause(5000);
 
             $browser->type('#username', $this->user->email)
                 ->type('#pass', 'Demopass@1234')

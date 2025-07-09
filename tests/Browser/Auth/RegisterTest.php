@@ -185,6 +185,8 @@ class RegisterTest extends DuskTestCase
 
             $email = \Str::random(10).'@gmail.com';
 
+            $browser->pause(5000);
+
             $browser->type('#first_name', 'Demo')
                 ->type('#last_name', 'admin')
                 ->type('#email', $email)
@@ -202,8 +204,8 @@ class RegisterTest extends DuskTestCase
             $browser->type('#email_otp', $otp);
             $browser->pause(5000);
             $browser->press('#emailVerifyBtn');
-            $browser->pause(5000);
-            $browser->assertSee('Well Done! You’re all set! Registration complete.');
+            $browser->waitForText('You’re all set! Registration complete.', 10)
+                ->assertSee('You’re all set! Registration complete.');
             $this->enableEmailAndMobile(false, false);
         });
     }
@@ -263,13 +265,22 @@ class RegisterTest extends DuskTestCase
                 ->type('#mobilenum', random_int(1111111111, 9999999999))
                 ->type('#password', 'Test@2001')
                 ->type('#confirm_pass', 'Test@2001')
-                ->clickAtXPath('/html/body/div[2]/div[1]/div[2]/div[3]/div/section/div/div/div[6]/div[2]/form/div[10]/div/div/label/a')
+                ->click('#agree_term_link')
                 ->pause(3000);
 
             $newWindows = $browser->driver->getWindowHandles();
             $newTab = array_diff($newWindows, $existingWindows);
 
             $this->assertCount(1, $newTab, 'A new tab should be opened for T&C');
+
+            $newTabHandle = array_values($newTab)[0];
+
+            // Close the new tab
+            $browser->driver->switchTo()->window($newTabHandle);
+            $browser->driver->close();
+
+            // Switch back to the original tab
+            $browser->driver->switchTo()->window($existingWindows[0]);
         });
 
         $this->enableOrDisableTerms(false);
@@ -395,6 +406,8 @@ class RegisterTest extends DuskTestCase
 
             $this->showCaption($browser, 'TC0119 - Check for Password field validation - in signup for free');
 
+            $browser->pause(5000);
+
             $browser->type('#first_name', 'Demo')
                 ->type('#last_name', 'admin')
                 ->type('#email', \Str::random(10).'@gmail.com')
@@ -407,9 +420,8 @@ class RegisterTest extends DuskTestCase
                 ->pause(500)
                 ->press('#register');
 
-            $browser->pause(3000);
-
-            $browser->assertSee('You’re all set! Registration complete.');
+            $browser->waitForText('You’re all set! Registration complete.', 10)
+                ->assertSee('You’re all set! Registration complete.');
         });
     }
 
@@ -476,6 +488,8 @@ class RegisterTest extends DuskTestCase
 
             $this->showCaption($browser, 'TC0116 - Check for Mobile field validation');
 
+            $browser->pause(5000);
+
             $browser->type('#first_name', 'Demo')
                 ->type('#last_name', 'admin')
                 ->type('#email', \Str::random(10).'@gmail.com')
@@ -488,9 +502,8 @@ class RegisterTest extends DuskTestCase
                 ->pause(500)
                 ->press('#register');
 
-            $browser->pause(3000);
-
-            $browser->assertSee('You’re all set! Registration complete.');
+            $browser->waitForText('You’re all set! Registration complete.', 10)
+                ->assertSee('You’re all set! Registration complete.');
         });
     }
 
@@ -556,6 +569,8 @@ class RegisterTest extends DuskTestCase
 
             $this->showCaption($browser, 'TC0113 - Check for Company Name field validation');
 
+            $browser->pause(5000);
+
             $browser->type('#first_name', 'Demo')
                 ->type('#last_name', 'admin')
                 ->type('#email', \Str::random(10).'@gmail.com')
@@ -568,9 +583,8 @@ class RegisterTest extends DuskTestCase
                 ->pause(500)
                 ->press('#register');
 
-            $browser->pause(3000);
-
-            $browser->assertSee('You’re all set! Registration complete.');
+            $browser->waitForText('You’re all set! Registration complete.', 10)
+                ->assertSee('You’re all set! Registration complete.');
         });
     }
 
@@ -662,6 +676,8 @@ class RegisterTest extends DuskTestCase
 
             $this->showCaption($browser, 'TC0109 - Check for Email field validation');
 
+            $browser->pause(5000);
+
             $browser->type('#first_name', 'Demo')
                 ->type('#last_name', 'admin')
                 ->type('#email', \Str::random(10).'@gmail.com')
@@ -674,9 +690,8 @@ class RegisterTest extends DuskTestCase
                 ->pause(500)
                 ->press('#register');
 
-            $browser->pause(3000);
-
-            $browser->assertSee('You’re all set! Registration complete.');
+            $browser->waitForText('You’re all set! Registration complete.', 10)
+                ->assertSee('You’re all set! Registration complete.');
         });
     }
 
@@ -741,6 +756,8 @@ class RegisterTest extends DuskTestCase
 
             $this->showCaption($browser, 'TC0106 - Check for Last name field validation1');
 
+            $browser->pause(5000);
+
             $browser->type('#first_name', 'Demo')
                 ->type('#last_name', 'admin')
                 ->type('#email', \Str::random(10).'@gmail.com')
@@ -753,9 +770,8 @@ class RegisterTest extends DuskTestCase
                 ->pause(500)
                 ->press('#register');
 
-            $browser->pause(3000);
-
-            $browser->assertSee('You’re all set! Registration complete.');
+            $browser->waitForText('You’re all set! Registration complete.', 10)
+                ->assertSee('You’re all set! Registration complete.');
         });
     }
 
@@ -796,6 +812,8 @@ class RegisterTest extends DuskTestCase
 
             $this->showCaption($browser, 'TC0104 - Check for First name field validation');
 
+            $browser->pause(5000);
+
             $browser->type('#first_name', 'Demo')
                 ->type('#last_name', 'admin')
                 ->type('#email', \Str::random(10).'@gmail.com')
@@ -808,9 +826,8 @@ class RegisterTest extends DuskTestCase
                 ->pause(500)
                 ->press('#register');
 
-            $browser->pause(3000);
-
-            $browser->assertSee('You’re all set! Registration complete.');
+            $browser->waitForText('You’re all set! Registration complete.', 10)
+                ->assertSee('You’re all set! Registration complete.');
         });
     }
 

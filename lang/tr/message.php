@@ -2663,7 +2663,7 @@ return [
 
     'file_invalid' => 'Dosya bozulmuş veya geçersiz görünüyor. Lütfen dosyayı doğrulayın ve tekrar deneyin.',
 
-    'tick-to-hide-from-invoice' => 'Fatura oluşturma sayfasından gizlemek için işaretleyin',
+    'tick-to-hide-from-invoice' => 'Yönetim alanındaki ürün açılır menülerinden gizlemek için işaretleyin (bu ürüne zaten bağlı olan hizmetler etkilenmez)',
 
     'remainingAmount' => 'Mevcut planınızdaki kalan krediler, kredi bakiyenize eklenecektir.',
     'tenant_deletion' => 'Bu kiracıyı silmek istediğinizden emin misiniz ',
@@ -2691,4 +2691,6 @@ return [
     'instance_not_created' => 'Bulut örneğiniz başarıyla oluşturuldu ancak lisans kurulumu başarısız oldu.<b>:reason.</b> Web sitenizi ziyaret edin: :installationUrl',
     'cloud_deleted_successfully' => 'Tenant başarıyla silindi',
     'cloud_deleted_failed' => 'Tenant silme başarısız oldu',
+    'not-found' => 'Bu ürün şu anda bir veya daha fazla hizmetle ilişkili olduğu için silinemez. Lütfen bu ürünü silmeye çalışmadan önce tüm ilgili hizmetleri kaldırın.',
+
 ];

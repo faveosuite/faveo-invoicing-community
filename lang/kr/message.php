@@ -2665,7 +2665,7 @@ return [
     'mobileApi_provider' => '모바일 검증 제공자를 선택하세요.',
     'file_invalid' => '파일이 손상되었거나 유효하지 않은 것 같습니다. 파일을 확인하고 다시 시도하세요.',
 
-    'tick-to-hide-from-invoice' => '청구서 생성 페이지에서 숨기려면 선택하세요',
+    'tick-to-hide-from-invoice' => '관리 영역의 제품 드롭다운 메뉴에서 숨기려면 체크하세요 (이미 연결된 서비스에는 적용되지 않습니다)',
 
     'remainingAmount' => '현재 요금제의 남은 크레딧이 크레딧 잔액에 추가됩니다.',
     'checkbox_error' => '하나 이상의 상태 옵션을 선택하세요.',
@@ -2698,4 +2698,6 @@ return [
     'contact_setting_update' => '연락처 설정이 성공적으로 업데이트되었습니다',
     'captcha_failed' => 'reCAPTCHA 확인에 실패했습니다. reCAPTCHA 비밀 키가 유효한지 확인해 주세요.',
     'captcha_message' => 'reCAPTCHA 확인 실패. 다시 시도해 주세요.',
+    'not-found' => '이 제품은 하나 이상의 서비스와 연결되어 있어 삭제할 수 없습니다. 이 제품을 삭제하기 전에 관련된 모든 서비스를 제거하십시오.',
+
 ];

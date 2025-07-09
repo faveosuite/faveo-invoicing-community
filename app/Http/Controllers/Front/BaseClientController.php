@@ -260,8 +260,9 @@ class BaseClientController extends Controller
             $relation = $order->invoiceRelation()->pluck('invoice_id')->toArray();
             $invoice = new Invoice();
             $invoices = $invoice->leftJoin('invoice_items', 'invoices.id', '=', 'invoice_items.invoice_id')
-            ->select('invoices.number', 'invoices.created_at', 'invoices.date', 'invoices.grand_total', 'invoices.currency', 'invoices.id', 'invoices.status', 'invoice_items.product_name as products')
-            ->whereIn('invoices.id', $relation);
+                ->where('invoices.id', $relation)
+                ->where('invoice_items.id', $order->invoice_item_id)
+            ->select('invoices.number', 'invoices.created_at', 'invoices.date', 'invoices.grand_total', 'invoices.currency', 'invoices.id', 'invoices.status', 'invoice_items.product_name as products');
 
             if ($invoices->get()->count() == 0) {
                 $invoices = $order->invoice()

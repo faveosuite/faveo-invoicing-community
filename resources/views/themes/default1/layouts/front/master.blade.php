@@ -1168,7 +1168,8 @@ setTimeout(function() {
     }
 
     function firstlogin(id)
-    {            const userRequiredFields = {
+    {
+        const userRequiredFields = {
         name:@json(trans('message.provider_select')),
 
     };
@@ -1338,6 +1339,64 @@ setTimeout(function() {
         icon.classList.toggle('fa-eye-slash', !isPassword);
         icon.classList.toggle('fa-eye', isPassword);
     }
+
+    $(document).ready(function () {
+
+        // Check if the user is authenticated
+        @auth
+        // If authenticated, check if localStorage indicates a click
+        var freeTrialClicked = localStorage.getItem('freeTrialClicked');
+        if (freeTrialClicked === 'true') {
+            // If localStorage indicates a click, open the free trial dialog
+            openFreeTrialDialog();
+            localStorage.removeItem('freeTrialClicked');
+        }
+
+        // Attach a click event handler to the "START FREE TRIAL" button
+        $('.startFreeTrialBtn').on('click', function () {
+            $.ajax({
+                url: "{{url('trial-cloud-products')}}",
+                type: "POST",
+                success: function(response){
+                    var data=response['data'];
+                    const select = document.getElementById('serviceType');
+
+                    Object.entries(data).forEach(([key, value]) => {
+                        const option = document.createElement('option');
+                        option.value = key;
+                        option.textContent = value;
+                        select.appendChild(option);
+                    });
+
+                    // $('#tenant').modal('show');
+                }
+            })
+            // If the button is clicked, open the free trial dialog
+            openFreeTrialDialog();
+        });
+        @else
+        // If not authenticated, redirect to the login/register page only if localStorage indicates a click
+        var freeTrialClicked = localStorage.getItem('freeTrialClicked');
+        // Attach a click event handler to the "START FREE TRIAL" button
+        $('.startFreeTrialBtn').on('click', function () {
+            // If not authenticated, remember that the button was clicked
+            localStorage.setItem('freeTrialClicked', 'true');
+            var message = {!! json_encode(__('message.log_free_trial')) !!};
+            var baseUrl = "{{ env('APP_URL') }}";
+
+            // Redirect to the login/register page
+            window.location.href =  `${baseUrl}/login?message=${encodeURIComponent(message)}`;
+        });
+        @endauth
+
+        // Function to open the free trial dialog
+        function openFreeTrialDialog() {
+            // Check if the modal is already open (to prevent multiple opens)
+            if (!$('#tenant').hasClass('show')) {
+                $('#tenant').modal('show');
+            }
+        }
+    });
 </script>
 @yield('script')
 
@@ -1495,63 +1554,7 @@ setTimeout(function() {
 
             })
         }
-        $(document).ready(function () {
 
-            // Check if the user is authenticated
-            @auth
-            // If authenticated, check if localStorage indicates a click
-            var freeTrialClicked = localStorage.getItem('freeTrialClicked');
-            if (freeTrialClicked === 'true') {
-                // If localStorage indicates a click, open the free trial dialog
-                openFreeTrialDialog();
-                localStorage.removeItem('freeTrialClicked');
-            }
-
-            // Attach a click event handler to the "START FREE TRIAL" button
-            $('.startFreeTrialBtn').on('click', function () {
-                $.ajax({
-                    url: "{{url('trial-cloud-products')}}",
-                    type: "POST",
-                    success: function(response){
-                        var data=response['data'];
-                        const select = document.getElementById('serviceType');
-
-                        Object.entries(data).forEach(([key, value]) => {
-                            const option = document.createElement('option');
-                            option.value = key;
-                            option.textContent = value;
-                            select.appendChild(option);
-                        });
-
-                        // $('#tenant').modal('show');
-                    }
-                })
-                // If the button is clicked, open the free trial dialog
-                openFreeTrialDialog();
-            });
-            @else
-            // If not authenticated, redirect to the login/register page only if localStorage indicates a click
-            var freeTrialClicked = localStorage.getItem('freeTrialClicked');
-            // Attach a click event handler to the "START FREE TRIAL" button
-            $('.startFreeTrialBtn').on('click', function () {
-                // If not authenticated, remember that the button was clicked
-                localStorage.setItem('freeTrialClicked', 'true');
-                var message = {!! json_encode(__('message.log_free_trial')) !!};
-                var baseUrl = "{{ env('APP_URL') }}";
-
-                // Redirect to the login/register page
-                window.location.href =  `${baseUrl}/login?message=${encodeURIComponent(message)}`;
-            });
-            @endauth
-
-            // Function to open the free trial dialog
-            function openFreeTrialDialog() {
-                // Check if the modal is already open (to prevent multiple opens)
-                if (!$('#tenant').hasClass('show')) {
-                    $('#tenant').modal('show');
-                }
-            }
-        });
 
 
         setTimeout(function () {

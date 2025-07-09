@@ -2649,7 +2649,7 @@ return [
     'trial_status_error' => 'An error occurred while updating the free trial status',
     'free_trial_status_tooltip' => 'Use this switch to control which product appears in the Start Free Trial popup',
     'trial_status_heading' => 'Free Trial Status',
-    'tick-to-hide-from-invoice' => 'Tick to hide from the invoice creation page',
+    'tick-to-hide-from-invoice' => 'Tick to hide from administrative area product dropdown menus (does not apply to services already associated with this product)',
 
     'remainingAmount' => 'The remaining credits in your current plan will be added to the credit balance.',
     'tenant_deletion' => 'Are you sure you want to delete this tenant ',
@@ -2680,4 +2680,6 @@ return [
     'allowed_estatus' => 'Permitted Email Statuses',
     'captcha_failed' => 'reCAPTCHA verification failed. Please ensure your reCAPTCHA secret key is valid.',
     'captcha_message' => 'reCAPTCHA verification failed. Please try again.',
+    'not-found' => 'This product cannot be deleted because it is currently associated with one or more services. Please remove all related services before attempting to delete this product.',
+
 ];

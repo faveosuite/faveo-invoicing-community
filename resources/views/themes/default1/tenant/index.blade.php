@@ -48,7 +48,7 @@
         height: 100%;
         background-color: rgba(0, 0, 0, 0.5);
         display: flex;
-        align-items: center;left
+        align-items: center;
         justify-content: center;
         z-index: 9999;
     }
@@ -756,7 +756,7 @@
             $(this).prop('disabled', true);
 
             var selectedColumns = [];
-            $('input[type="checkbox"]:checked').each(function() {
+            $('#specific-container input[type="checkbox"]:checked').each(function() {
                 selectedColumns.push($(this).val());
             });
 

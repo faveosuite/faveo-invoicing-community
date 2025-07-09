@@ -2624,7 +2624,7 @@ return [
 
     'file_invalid' => 'O arquivo parece estar corrompido ou inválido. Verifique o arquivo e tente novamente.',
 
-    'tick-to-hide-from-invoice' => 'Marque para ocultar da página de criação de faturas',
+    'tick-to-hide-from-invoice' => 'Marque para ocultar nos menus suspensos de produtos da área administrativa (não se aplica a serviços já associados a este produto)',
 
     'remainingAmount' => 'Os créditos restantes do seu plano atual serão adicionados ao saldo de créditos.',
     'trial_status_updated' => 'Status da avaliação gratuita atualizado com sucesso',
@@ -2656,4 +2656,6 @@ return [
     'contact_setting_update' => 'Definições de contacto atualizadas com sucesso',
     'captcha_failed' => 'A verificação do reCAPTCHA falhou. Por favor, certifique-se de que a sua chave secreta do reCAPTCHA é válida.',
     'captcha_message' => 'Falha na verificação do reCAPTCHA. Tente novamente.',
+    'not-found' => 'Este produto não pode ser excluído porque está atualmente associado a um ou mais serviços. Por favor, remova todos os serviços relacionados antes de tentar excluir este produto.',
+
 ];

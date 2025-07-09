@@ -2645,7 +2645,7 @@ return [
     'email_validation_status' => '电子邮件验证状态已成功保存。',
     'mobileApi_provider' => '请选择一个手机验证服务提供商。',
     'file_invalid' => '文件似乎已损坏或无效。请验证文件并重试。',
-    'tick-to-hide-from-invoice' => '勾选以从发票创建页面隐藏',
+    'tick-to-hide-from-invoice' => '勾选以从管理区域的产品下拉菜单中隐藏（不影响已关联该产品的服务）',
 
     'remainingAmount' => '您当前方案中剩余的积分将被添加到积分余额中。',
     'tenant_deletion' => '您确定要删除此租户吗 ',
@@ -2673,4 +2673,6 @@ return [
     'instance_not_created' => '您的云实例已成功创建，但许可证安装失败。<b>:reason。</b>请访问您的网站：:installationUrl',
     'cloud_deleted_successfully' => '租户已成功删除',
     'cloud_deleted_failed' => '租户删除失败',
+    'not-found' => '无法删除该产品，因为它当前关联了一个或多个服务。请先删除所有相关服务后再尝试删除该产品。',
+
 ];

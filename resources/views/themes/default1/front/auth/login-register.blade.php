@@ -175,7 +175,7 @@ foreach($scripts as $script) {
                                                   </div>
                                                   <div class="col-6">
                                                       <div class="{{ $errors->has('password1') ? 'has-error' : '' }}" id="forgot_password_rtl" style="text-align: right; display: block;">
-                                                          <a class="text-decoration-none text-color-primary font-weight-semibold text-2 text-break"
+                                                          <a class="text-decoration-none text-color-primary font-weight-semibold text-2 text-break" id="forgot_password_link"
                                                              href="{{ url('password/reset') }}">
                                                               {{ __('message.forgot-my-password') }}
                                                           </a>
@@ -432,7 +432,7 @@ foreach($scripts as $script) {
                                     <div class="custom-control custom-checkbox" style="padding-right: {{ isRtlForLang() ? '0px' : '100px' }};">
                                         <input type="checkbox" value="false" name="terms" id="term" class="custom-control-input">
                                         <label class="custom-control-label text-2 cur-pointer" for="term">
-                                            <a href="{{$apiKeys->terms_url}}" target="_blank" class="text-decoration-none">{{ __('message.agree_term')}}</a>
+                                            <a href="{{$apiKeys->terms_url}}" target="_blank" id="agree_term_link" class="text-decoration-none">{{ __('message.agree_term')}}</a>
                                         </label>
                                         <br><span id="termscheck"></span>
                                     </div>
@@ -558,11 +558,25 @@ foreach($scripts as $script) {
 
                 gtag('config', tag);
             }
+
             function placeErrorMessage(error, element, errorMapping = null) {
+                const errorText = error.text().trim();
+
                 if (errorMapping !== null && errorMapping[element.attr("name")]) {
-                    $(errorMapping[element.attr("name")]).html(error);
+                    const target = $(errorMapping[element.attr("name")]);
+
+                    if (errorText) {
+                        target.html(error).show();
+                    } else {
+                        target.hide().empty();
+                    }
                 } else {
-                    error.insertAfter(element);
+                    // Fallback: place error right after the element
+                    if (errorText) {
+                        error.insertAfter(element).show();
+                    } else {
+                        error.remove(); // or hide/remove any existing nearby error span
+                    }
                 }
             }
 

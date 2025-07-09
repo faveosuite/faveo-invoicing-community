@@ -387,8 +387,6 @@ class InstallerController extends Controller
 
             return successResponse('', collect($languages)->sortBy('name')->values()->all());
         } catch (\Exception $exception) {
-            \Log::error($exception);
-
             return errorResponse($exception->getMessage());
         }
     }
@@ -410,8 +408,6 @@ class InstallerController extends Controller
 
             return successResponse('Language set successfully');
         } catch (\Exception $exception) {
-            \Log::exception($exception);
-
             return errorResponse('error could not change the language');
         }
     }
@@ -511,8 +507,6 @@ class InstallerController extends Controller
 
             return successResponse('Language set successfully');
         } catch (\Exception $exception) {
-            \Log::exception($exception);
-
             return errorResponse('error could not change the language');
         }
     }

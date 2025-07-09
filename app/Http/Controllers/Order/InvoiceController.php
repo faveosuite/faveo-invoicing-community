@@ -225,7 +225,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                           </script>';
                             }
 
-                            return '<a href='.url('invoices/show?invoiceid='.$model->id)
+                            return '<a href='.htmlspecialchars(url('invoices/show?invoiceid='.$model->id))
                             ." class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.view'))."<i class='fa fa-eye' 
                             style='color:white;'> </i></a>"
                                     ."   $action";
@@ -549,6 +549,13 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 return redirect()->back()->with('fails', \Lang::get('message.no-invoice-id'));
             }
             $invoice = $this->invoice->where('id', $id)->first();
+
+            $user = $this->user->find($invoice->user_id);
+
+            if (! $user || ($user->id != \Auth::user()->id && \Auth::user()->role != 'admin')) {
+                return redirect()->back()->with('fails', __('message.invalid_user'));
+            }
+
             if (! $invoice) {
                 return redirect()->back()->with('fails', \Lang::get('message.invalid-invoice-id'));
             }
@@ -556,10 +563,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             if ($invoiceItems->count() == 0) {
                 return redirect()->back()->with('fails', \Lang::get('message.invalid-invoice-id'));
             }
-            $user = $this->user->find($invoice->user_id);
-            if (! $user) {
-                return redirect()->back()->with('fails', __('message.no_user'));
-            }
+
             $order = $this->order->getOrderLink($invoice->orderRelation()->value('order_id'), 'my-order');
             // $order = Order::getOrderLink($invoice->order_id);
             $currency = $invoice->currency;

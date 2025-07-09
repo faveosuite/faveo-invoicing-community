@@ -2575,7 +2575,7 @@
      'mobileApi_provider' => 'Jekk jogħġbok agħżel fornitur ta’ validazzjoni mobbli.',
 
      'file_invalid' => 'Jidher li l-fajl huwa korrott jew invalidu. Jekk jogħġbok iċċekkja l-fajl u erġa\' pprova.',
-     'tick-to-hide-from-invoice' => 'Iċċekkja biex taħbi mill-paġna tal-ħolqien tal-fattura',
+     'tick-to-hide-from-invoice' => 'Iċċekkja biex taħbi mill-menus drop-down tal-prodott fl-ispazju amministrattiv (ma japplikax għal servizzi diġà assoċjati ma’ dan il-prodott)',
 
      'remainingAmount' => 'Il-krediti li jifdal fil-pjan kurrenti tiegħek se jiġu miżjuda mal-bilanċ tal-kreditu.',
      'tenant_deletion' => 'Int żgur li trid tħassar dan il-kerrej ',
@@ -2603,4 +2603,6 @@
      'contact_setting_update' => 'Is-settings tal-kuntatt ġew aġġornati b’suċċess',
      'captcha_failed' => 'Falliet il-verifika taʼ reCAPTCHA. Jekk jogħġbok kun żgur li ċ-ċavetta sigrieta reCAPTCHA tiegħek hija valida.',
      'captcha_message' => 'Il-verifika reCAPTCHA falliet. Erġaʼ ipprova.',
+     'not-found' => 'Dan il-prodott ma jistax jitħassar għax huwa assoċjat ma’ servizz jew aktar. Jekk jogħġbok neħħi s-servizzi kollha relatati qabel tipprova tħassar dan il-prodott.',
+
  ];

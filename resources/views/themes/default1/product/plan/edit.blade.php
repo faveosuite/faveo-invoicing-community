@@ -116,7 +116,7 @@
                         </td>
 
                         <td>
-                          <select name="currency[{{ $row['id'] }}]" class="form-control {{$errors->has('currency') ? ' is-invalid' : ''}}" id="currency">
+                          <select name="currency[{{ $row['id'] }}]" class="form-control currency1 {{$errors->has('currency') ? ' is-invalid' : ''}}" id="currency">
                             <option value="">
                               {{ __('message.choose') }}
                               </option>
@@ -136,7 +136,7 @@
                         </td>
 
                         <td>
-                          <input type="number" class="form-control {{$errors->has('add_price') ? ' is-invalid' : ''}}" name="add_price[{{ $row['id'] }}]" value="{{ $row['add_price'] }}" id="regular_price">
+                          <input type="number" class="form-control regular_price1 {{$errors->has('add_price') ? ' is-invalid' : ''}}" name="add_price[{{ $row['id'] }}]" value="{{ $row['add_price'] }}" id="regular_price">
                           @error('add_price')
                           <span class="error-message"> {{$message}}</span>
                           @enderror
@@ -154,13 +154,13 @@
 
                         <td>
                           <div class="{{ ($row['country_id'] != 0) ? 'input-group' : '' }}">
-                            <input type="number" class="form-control {{$errors->has('renew_price') ? ' is-invalid' : ''}}" name="renew_price[{{ $row['id'] }}]" value="{{ $row['renew_price'] }}" id="renew_price">
-                            <div class="input-group-append">
-                            </div>&nbsp;&nbsp;
+                            <input type="number" class="form-control renew_price1 {{$errors->has('renew_price') ? ' is-invalid' : ''}}" name="renew_price[{{ $row['id'] }}]" value="{{ $row['renew_price'] }}" id="renew_price">
+                            &nbsp;&nbsp;
                             @error('renew_price')
                             <span class="error-message"> {{$message}}</span>
                             @enderror
-
+                            <div class="input-group-append">
+                            </div>
                             @if($row['country_id'] != 0)
                               <span class="input-group-text btn_remove" id="{{$loop->iteration}}"><i class="fa fa-minus"></i></span>
 
@@ -401,8 +401,17 @@
       $(document).on('click', '.btn_remove', function () {
         var button_id = $(this).attr("id");
         $('#row' + button_id + '').remove();
-      });
 
+        ['currency1','renew_price1','regular_price1'].forEach(cls => {
+          document.querySelectorAll('.' + cls).forEach(el => {
+            removeErrorMessage(el);
+          });
+        });
+      });
+      const removeErrorMessage = (field) => {
+        $(field).removeClass('is-invalid');
+        $(field).siblings('.error-message').remove();  // Removes the error message next to the field
+      };
     });
 
 

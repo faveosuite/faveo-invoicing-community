@@ -2656,7 +2656,7 @@ return [
 
     'file_invalid' => 'Filen ser ut til å være ødelagt eller ugyldig. Vennligst verifiser filen og prøv igjen.',
 
-    'tick-to-hide-from-invoice' => 'Merk av for å skjule fra fakturasiden',
+    'tick-to-hide-from-invoice' => 'Merk av for å skjule fra produkt-nedtrekksmenyene i administrasjonsområdet (gjelder ikke for tjenester som allerede er tilknyttet dette produktet)',
 
     'remainingAmount' => 'De gjenværende kredittene i din nåværende plan blir lagt til kredittsaldoen.',
     'tenant_deletion' => 'Er du sikker på at du vil slette denne leietakeren ',
@@ -2684,4 +2684,6 @@ return [
     'instance_not_created' => 'Din sky-instans ble opprettet vellykket, men lisensinstallasjonen mislyktes.<b>:reason.</b> Vennligst besøk nettstedet ditt på :installationUrl',
     'cloud_deleted_successfully' => 'Leietaker ble slettet vellykket',
     'cloud_deleted_failed' => 'Sletting av leietaker mislyktes',
+    'not-found' => 'Dette produktet kan ikke slettes fordi det for øyeblikket er knyttet til en eller flere tjenester. Vennligst fjern alle tilknyttede tjenester før du prøver å slette produktet.',
+
 ];
