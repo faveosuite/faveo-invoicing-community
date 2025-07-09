@@ -33,18 +33,21 @@
             <div class="col-md-12">
                 <div class="row">
 
-                   <div class="col-md-6 form-group {{ $errors->has('date') ? 'has-error' : '' }}">
+                    <div class="col-md-6 form-group {{ $errors->has('date') ? 'has-error' : '' }}">
                         <!-- date -->
-                       {!! html()->label(Lang::get('message.date'))->class('required') !!}
-                                 <input type="text" id="payment_date" name="date" value="{{$date}}" class="form-control datetimepicker-input {{$errors->has('date') ? ' is-invalid' : ''}}" autocomplete="off"  data-target="#payment" />
-                             @error('date')
-                             <span class="error-message"> {{$message}}</span>
-                             @enderror
-                                <div class="input-group-append" data-target="#payment" data-toggle="datetimepicker">
-                                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                        {!! html()->label(Lang::get('message.date'))->class('required') !!}
 
-                                </div>
+                        <div class="input-group date" id="invoice_date" data-target-input="nearest" >
+
+                            <input type="text" id="payment_date" name="date" value="{{$date}}" class="form-control datetimepicker-input {{$errors->has('date') ? ' is-invalid' : ''}}" autocomplete="off"  data-target="#invoice_date" />
+                            <div class="input-group-append" data-target="#invoice_date" data-toggle="datetimepicker">
+                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                             </div>
+
+                            @error('date')
+                            <span class="error-message"> {{$message}}</span>
+                            @enderror
+                        </div>
                     </div>
 
                     <div class="col-md-6 form-group {{ $errors->has('total') ? 'has-error' : '' }}">
@@ -91,7 +94,9 @@
 <script>
 
     $(document).ready(function() {
-
+        $('#invoice_date').datetimepicker({
+            format: 'L'
+        })
 
         const userRequiredFields = {
             payment_date:@json(trans('message.invoice_details.payment_date')),
@@ -173,12 +178,12 @@
     }).parentsUntil(".nav-sidebar > .nav-treeview").addClass('menu-open').prev('a').addClass('active');
 </script>
 @stop
-@section('datepicker')
-<script>
-        $(function () {
-        $('#payment').datetimepicker({
-            format: 'L'
-        });
-    });
-</script>
-@stop
+{{--@section('datepicker')--}}
+{{--<script>--}}
+{{--        $(function () {--}}
+{{--        // $('#payment').datetimepicker({--}}
+{{--        //     format: 'L'--}}
+{{--        // });--}}
+{{--    });--}}
+{{--</script>--}}
+{{--@stop--}}

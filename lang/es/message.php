@@ -2650,7 +2650,7 @@ return [
     'mobileApi_provider' => 'Por favor, seleccione un proveedor de validación móvil.',
 
     'file_invalid' => 'El archivo parece estar dañado o no válido. Por favor, verifique el archivo e inténtelo de nuevo.',
-    'tick-to-hide-from-invoice' => 'Marca para ocultar en la página de creación de facturas',
+    'tick-to-hide-from-invoice' => 'Marque para ocultar en los menús desplegables de productos del área administrativa (no afecta a los servicios ya asociados a este producto)',
 
     'remainingAmount' => 'Los créditos restantes de tu plan actual se añadirán al saldo de créditos.',
     'tenant_deletion' => '¿Estás seguro de que deseas eliminar este inquilino ',
@@ -2678,4 +2678,6 @@ return [
     'contact_setting_update' => 'Configuración de contacto actualizada con éxito',
     'captcha_failed' => 'La verificación de reCAPTCHA ha fallado. Por favor, asegúrate de que tu clave secreta de reCAPTCHA sea válida.',
     'captcha_message' => 'La verificación de reCAPTCHA falló. Por favor, inténtalo de nuevo.',
+    'not-found' => 'Este producto no puede eliminarse porque está actualmente asociado con uno o más servicios. Elimine todos los servicios relacionados antes de intentar eliminar este producto.',
+
 ];

@@ -2640,7 +2640,7 @@ return [
     'mobileApi_provider' => 'Veuillez sélectionner un fournisseur de validation mobile.',
 
     'file_invalid' => 'Le fichier semble être corrompu ou invalide. Veuillez vérifier le fichier et réessayer.',
-    'tick-to-hide-from-invoice' => 'Cochez pour masquer de la page de création de facture',
+    'tick-to-hide-from-invoice' => 'Cochez pour masquer dans les menus déroulants de produits de la zone d’administration (sans effet sur les services déjà associés à ce produit)',
 
     'remainingAmount' => 'Les crédits restants de votre plan actuel seront ajoutés au solde des crédits.',
     'tenant_deletion' => 'Êtes-vous sûr de vouloir supprimer ce locataire  ',
@@ -2667,4 +2667,5 @@ return [
     'contact_setting_update' => 'Paramètres de contact mis à jour avec succès',
     'captcha_failed' => 'La vérification reCAPTCHA a échoué. Veuillez vous assurer que votre clé secrète reCAPTCHA est valide.',
     'captcha_message' => 'Échec de la vérification reCAPTCHA. Veuillez réessayer.',
+    'not-found' => 'Ce produit ne peut pas être supprimé car il est actuellement associé à un ou plusieurs services. Veuillez supprimer tous les services associés avant de tenter de supprimer ce produit.',
 ];

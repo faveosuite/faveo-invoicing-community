@@ -236,6 +236,10 @@ input:checked + .slider:before {
                 loadingRecords: "{{ __('message.loading_records') }}",
                 search:         "{{ __('message.table_search') }}",
             },
+            drawCallback: function(settings) {
+                // Reinitialize tooltips on each draw
+                $('[data-toggle="tooltip"]').tooltip();
+            }
         });
     });
 

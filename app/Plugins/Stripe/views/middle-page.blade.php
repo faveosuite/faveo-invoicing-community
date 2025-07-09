@@ -115,7 +115,7 @@ $currency = $invoice->currency;
 $processingFee = \DB::table(strtolower('stripe'))->where('currencies',$currency)->value('processing_fee');
 $processingFee = (float) $processingFee / 100;
 
-$feeAmount = intval(ceil($invoice->grand_total*$processingFee));
+$feeAmount = intval(ceil($displayProcessingFee*$processingFee));
 ?>
 @if($regularPayment)
  <div role="main" class="main">
@@ -646,7 +646,6 @@ $feeAmount = intval(ceil($invoice->grand_total*$processingFee));
                                             </td>
                                         </tr>
                                     @endif
-
                                         @if(count(\Cart::getConditionsByType('fee')))
                                         @foreach(\Cart::getConditionsByType('fee') as $fee)
                                             <tr>
@@ -663,7 +662,7 @@ $feeAmount = intval(ceil($invoice->grand_total*$processingFee));
                                         @else
                                             <td class="text-end align-top border-top-0">
                                                 <span class="amount font-weight-medium text-color-grey">
-                                                    {{ currencyFormat($feeAmount, $code = $item->attributes->currency) }}
+                                                    {{ currencyFormat($feeAmount, $code = $currency) }}
                                                 </span>
                                             </td>
                                         @endif

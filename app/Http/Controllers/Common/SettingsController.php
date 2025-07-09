@@ -484,17 +484,17 @@ class SettingsController extends BaseSettingsController
             $setting = $settings->find(1);
 
             if ($request->hasFile('logo')) {
-                $path = Attach::put('images', $request->file('logo'));
+                $path = Attach::put('images', $request->file('logo'), null, true);
                 $setting->logo = basename($path);
             }
 
             if ($request->hasFile('admin-logo')) {
-                $path = Attach::put('admin/images', $request->file('admin-logo'));
+                $path = Attach::put('admin/images', $request->file('admin-logo'), null, true);
                 $setting->admin_logo = basename($path);
             }
 
             if ($request->hasFile('fav-icon')) {
-                $path = Attach::put('common/images', $request->file('fav-icon'));
+                $path = Attach::put('common/images', $request->file('fav-icon'), null, true);
                 $setting->fav_icon = basename($path);
             }
 

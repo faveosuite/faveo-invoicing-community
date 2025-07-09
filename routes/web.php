@@ -78,7 +78,7 @@ Route::middleware('installAgora')->group(function () {
 
     Route::post('pricing/update', [Front\CartController::class, 'addCouponUpdate']);
     Route::post('mail-chimp/subcribe', [Common\MailChimpController::class, 'addSubscriberByClientPanel']);
-    Route::get('mailchimp', [Common\MailChimpController::class, 'mailChimpSettings'])->middleware('admin');
+//    Route::get('mailchimp', [Common\MailChimpController::class, 'mailChimpSettings'])->middleware('admin');
     Route::patch('mailchimp', [Common\MailChimpController::class, 'postMailChimpSettings']);
     Route::get('mail-chimp/mapping', [Common\MailChimpController::class, 'mapField'])->middleware('admin');
     Route::patch('mail-chimp/mapping', [Common\MailChimpController::class, 'postMapField']);
@@ -481,7 +481,7 @@ Route::middleware('installAgora')->group(function () {
     Route::get('github-auth-app', [Github\GithubController::class, 'authForSpecificApp']);
     Route::get('github-releases', [Github\GithubController::class, 'listRepositories']);
     Route::get('github-downloads', [Github\GithubController::class, 'getDownloadCount']);
-    Route::get('github', [Github\GithubController::class, 'getSettings']);
+//    Route::get('github', [Github\GithubController::class, 'getSettings']);
     Route::post('github-setting', [Github\GithubController::class, 'postSettings']);
 
     /*

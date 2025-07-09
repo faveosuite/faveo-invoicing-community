@@ -2579,7 +2579,7 @@ return [
 
     'file_invalid' => 'Izgleda da je datoteka oštećena ili nevažeća. Molimo provjerite datoteku i pokušajte ponovo.',
 
-    'tick-to-hide-from-invoice' => 'Označi da sakriješ sa stranice za kreiranje fakture',
+    'tick-to-hide-from-invoice' => 'Označite da sakrijete iz padajućih menija proizvoda u administratorskoj oblasti (ne odnosi se na usluge koje su već povezane s ovim proizvodom)',
 
     'remainingAmount' => 'Preostali krediti iz vašeg trenutnog plana biće dodani na stanje kredita.',
     'tenant_deletion' => 'Jeste li sigurni da želite obrisati ovog stanara ',
@@ -2607,4 +2607,6 @@ return [
     'contact_setting_update' => 'Postavke kontakta su uspješno ažurirane',
     'captcha_failed' => 'reCAPTCHA provjera nije uspjela. Molimo provjerite da li je vaš reCAPTCHA tajni ključ ispravan.',
     'captcha_message' => 'reCAPTCHA provjera nije uspjela. Pokušajte ponovo.',
+    'not-found' => 'Ovaj proizvod se ne može obrisati jer je trenutno povezan s jednom ili više usluga. Molimo uklonite sve povezane usluge prije pokušaja brisanja ovog proizvoda.',
+
 ];

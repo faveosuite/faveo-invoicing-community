@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('settings', function (Blueprint $table) {
             $table->integer('timezone_id')->after('country');
-            $table->string('content')->after('timezone_id');
+            $table->string('content')->after('timezone_id')->nullable()->default('en');
         });
     }
 

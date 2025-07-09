@@ -1143,10 +1143,10 @@ class ClientController extends BaseClientController
             } else {
                 $invoices = $order->invoice()->pluck('id')->toArray();
             }
-            // $payments = Payment::leftJoin('invoices', 'payments.invoice_id', '=', 'invoices.id')
-            // ->select('payments.id', 'payments.invoice_id', 'payments.user_id', 'payments.payment_method', 'payments.payment_status', 'payments.created_at', 'payments.amount', 'invoices.id as invoice_id', 'invoices.number as invoice_number')
-            // ->where('invoices.id', $invoices)
-            // ->get();
+//             $payments = Payment::leftJoin('invoices', 'payments.invoice_id', '=', 'invoices.id')
+//             ->select('payments.id', 'payments.invoice_id', 'payments.user_id', 'payments.payment_method', 'payments.payment_status', 'payments.created_at', 'payments.amount', 'invoices.id as invoice_id', 'invoices.number as invoice_number','invoices.currency as invoice_currency')
+//             ->where('invoices.id', $invoices)
+//             ->get();
             // $payments = $this->payment->whereIn('invoice_id', $invoices)->with('invoice:id,number')
             //         ->select('id', 'invoice_id', 'user_id', 'amount', 'payment_method', 'payment_status', 'created_at');
 

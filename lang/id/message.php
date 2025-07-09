@@ -2644,7 +2644,7 @@ return [
     'mobileApi_provider' => 'Silakan pilih penyedia validasi seluler.',
 
     'file_invalid' => 'File tampaknya rusak atau tidak valid. Silakan periksa file dan coba lagi.',
-    'tick-to-hide-from-invoice' => 'Centang untuk menyembunyikan dari halaman pembuatan faktur',
+    'tick-to-hide-from-invoice' => 'Centang untuk menyembunyikan dari menu dropdown produk di area admin (tidak berlaku untuk layanan yang sudah terhubung dengan produk ini)',
 
     'remainingAmount' => 'Sisa kredit dalam paket Anda saat ini akan ditambahkan ke saldo kredit.',
     'tenant_deletion' => 'Apakah Anda yakin ingin menghapus penyewa ini ',
@@ -2672,4 +2672,6 @@ return [
     'instance_not_created' => 'Instansi cloud Anda berhasil dibuat tetapi instalasi lisensi gagal.<b>:reason.</b> Silakan kunjungi situs web Anda di :installationUrl',
     'cloud_deleted_successfully' => 'Tenant berhasil dihapus',
     'cloud_deleted_failed' => 'Penghapusan tenant gagal',
+    'not-found' => 'Produk ini tidak dapat dihapus karena saat ini terkait dengan satu atau lebih layanan. Harap hapus semua layanan terkait sebelum mencoba menghapus produk ini.',
+
 ];

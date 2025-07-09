@@ -2647,7 +2647,7 @@ return [
 
     'file_invalid' => 'Die Datei scheint beschädigt oder ungültig zu sein. Bitte überprüfen Sie die Datei und versuchen Sie es erneut.',
 
-    'tick-to-hide-from-invoice' => 'Ankreuzen, um auf der Rechnungserstellungsseite auszublenden',
+    'tick-to-hide-from-invoice' => 'Ankreuzen, um im Produkt-Dropdown-Menü des Adminbereichs auszublenden (gilt nicht für bereits zugeordnete Dienste)',
 
     'remainingAmount' => 'Die verbleibenden Guthaben Ihres aktuellen Tarifs werden dem Kreditguthaben hinzugefügt.',
     'tenant_deletion' => 'Sind Sie sicher, dass Sie diesen Mieter löschen möchten ',
@@ -2675,4 +2675,6 @@ return [
     'instance_not_created' => 'Ihre Cloud‑Instanz wurde erfolgreich erstellt, aber die Lizenzinstallation ist fehlgeschlagen.<b>:reason.</b> Bitte besuchen Sie Ihre Website unter :installationUrl',
     'cloud_deleted_successfully' => 'Mandant erfolgreich gelöscht',
     'cloud_deleted_failed' => 'Löschen des Mandanten fehlgeschlagen',
+    'not-found' => 'Dieses Produkt kann nicht gelöscht werden, da es derzeit mit einem oder mehreren Diensten verknüpft ist. Bitte entfernen Sie alle zugehörigen Dienste, bevor Sie versuchen, dieses Produkt zu löschen.',
+
 ];

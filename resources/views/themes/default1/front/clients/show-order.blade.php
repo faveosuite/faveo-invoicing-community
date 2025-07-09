@@ -1616,10 +1616,11 @@
                 var currentDomain = "{!! \App\Model\Order\InstallationDetail::where('order_id', $id)->latest()->value('installation_path') !!}";
                 var license_code = "{!!$order->serial_key!!}";
                 var productId = "{!! $order->product !!}";
+                var orderId = {!! $id !!};
 
                 $.ajax({
                     type: "POST",
-                    data: { 'newDomain': newDomain, 'currentDomain': currentDomain,'lic_code':license_code,'product_id':productId},
+                    data: { 'newDomain': newDomain, 'currentDomain': currentDomain,'lic_code':license_code,'product_id':productId,'order_id':orderId},
                     beforeSend: function() {
                         $('#response').html("<img id='blur-bg' class='backgroundfadein' style='width: 50px; height: 50px; display: block; position: fixed;' src='{!! asset('lb-faveo/media/images/gifloader3.gif') !!}'>");
                     },

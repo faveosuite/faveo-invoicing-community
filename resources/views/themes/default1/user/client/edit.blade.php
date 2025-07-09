@@ -138,7 +138,7 @@
                     <div class="col-md-3 form-group {{ $errors->has('position') ? 'has-error' : '' }}">
                         <!-- position -->
                         {!! html()->label( __('message.position'))->for('position') !!}
-                        {!! html()->select('position')->options(['Choose' => 'Choose', 'manager' => 'Sales Manager', 'account_manager' => 'Account Manager'])->class('form-control'. ($errors->has('position') ? ' is-invalid' : '')) !!}
+                        {!! html()->select('position')->options(['' => __('message.choose'), 'manager' => 'Sales Manager', 'account_manager' => 'Account Manager'])->class('form-control'. ($errors->has('position') ? ' is-invalid' : '')) !!}
                         @error('position')
                         <span class="error-message"> {{$message}}</span>
                         @enderror

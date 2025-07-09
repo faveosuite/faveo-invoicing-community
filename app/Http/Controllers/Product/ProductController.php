@@ -338,7 +338,7 @@ class ProductController extends BaseProductController
                 $addProductToLicensing = $updateCont->addNewProductToAUS($product_id, $input['name'], $input['product_sku']);
             }
             if ($request->hasFile('image')) {
-                $image = Attach::put('common/images/', $request->file('image'));
+                $image = Attach::put('common/images/', $request->file('image'), null, true);
                 $this->product->image = basename($image);
             }
             $can_modify_agent = $request->input('can_modify_agent');
@@ -423,7 +423,7 @@ class ProductController extends BaseProductController
                     'canModifyAgent',
                     'canModifyQuantity',
                     'checkowner',
-                    'githubStatus'
+                    'githubStatus',
                 )
             );
         } catch (\Exception $e) {
@@ -440,7 +440,6 @@ class ProductController extends BaseProductController
     public function update($id, Request $request)
     {
         $input = $request->all();
-
         $v = \Validator::make($input, [
             'name' => 'required',
             'type' => 'required',
@@ -474,7 +473,7 @@ class ProductController extends BaseProductController
             }
             $product = $this->product->where('id', $id)->first();
             if ($request->hasFile('image')) {
-                $image = Attach::put('common/images/', $request->file('image'));
+                $image = Attach::put('common/images/', $request->file('image'), null, true);
                 $product->image = basename($image);
             }
             if ($request->hasFile('file')) {
@@ -553,9 +552,9 @@ class ProductController extends BaseProductController
             echo "<div class='alert alert-danger alert-dismissable'>
                     <i class='fa fa-ban'></i>
                     <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
+                    /* @scrutinizer ignore-type */\Lang::get('message.failed').',
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        '.$e->getMessage().'
+                        '.__('message.not-found').'
                 </div>';
         }
     }
@@ -569,14 +568,13 @@ class ProductController extends BaseProductController
     public function fileDestroy(Request $request)
     {
         try {
-            $ids = $request->input('ids');
+            $ids = $request->input('select');
             $storagePath = Setting::find(1)->value('file_storage');
-
             if (empty($ids)) {
                 return successResponse(__('message.select-a-row'));
             }
 
-            foreach ($ids as $id) {
+            foreach ($ids as $key => $id) {
                 $product = $this->product_upload->find($id);
                 if ($product) {
                     $filePath = $storagePath.'/'.$product->file;

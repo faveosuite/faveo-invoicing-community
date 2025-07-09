@@ -2651,7 +2651,7 @@ return [
 
     'file_invalid' => 'Tệp có vẻ bị hỏng hoặc không hợp lệ. Vui lòng kiểm tra tệp và thử lại.',
 
-    'tick-to-hide-from-invoice' => 'Chọn để ẩn khỏi trang tạo hóa đơn',
+    'tick-to-hide-from-invoice' => 'Đánh dấu để ẩn khỏi menu thả xuống sản phẩm trong khu vực quản trị (không ảnh hưởng đến các dịch vụ đã liên kết với sản phẩm này)',
 
     'remainingAmount' => 'Số tín dụng còn lại trong gói hiện tại của bạn sẽ được cộng vào số dư tín dụng.',
     'tenant_deletion' => 'Bạn có chắc chắn muốn xóa người thuê này không ',
@@ -2679,4 +2679,6 @@ return [
     'instance_not_created' => 'Phiên bản đám mây của bạn đã được tạo thành công nhưng cài đặt giấy phép thất bại.<b>:reason.</b> Vui lòng truy cập trang web của bạn tại :installationUrl',
     'cloud_deleted_successfully' => 'Xóa tenant thành công',
     'cloud_deleted_failed' => 'Xóa tenant thất bại',
+    'not-found' => 'Không thể xóa sản phẩm này vì nó đang được liên kết với một hoặc nhiều dịch vụ. Vui lòng xóa tất cả các dịch vụ liên quan trước khi thử xóa sản phẩm này.',
+
 ];

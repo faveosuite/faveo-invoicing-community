@@ -2613,7 +2613,7 @@ return [
     'email_validation_status' => 'Status van e-mailvalidatie succesvol opgeslagen',
     'mobileApi_provider' => 'Selecteer een provider voor mobiele validatie.',
     'file_invalid' => 'Het bestand lijkt beschadigd of ongeldig. Controleer het bestand en probeer het opnieuw.',
-    'tick-to-hide-from-invoice' => 'Vink aan om te verbergen op de factuurpagina',
+    'tick-to-hide-from-invoice' => 'Vink aan om te verbergen in productkeuzelijsten van het beheerpaneel (geldt niet voor reeds gekoppelde diensten)',
     'remainingAmount' => 'De resterende credits van je huidige plan worden toegevoegd aan het credittegoed.',
     'file_not_upload' => '(bestand kon niet worden geüpload: ',
     'completed' => 'Voltooid',
@@ -2644,4 +2644,6 @@ return [
     'instance_not_created' => 'Uw cloud‑instantie is succesvol aangemaakt, maar licentie-installatie is mislukt.<b>:reason.</b> Bezoek uw website op :installationUrl',
     'cloud_deleted_successfully' => 'Huurder succesvol verwijderd',
     'cloud_deleted_failed' => 'Verwijderen van huurder mislukt',
+    'not-found' => 'Dit product kan niet worden verwijderd omdat het momenteel is gekoppeld aan een of meer services. Verwijder alle gerelateerde services voordat u probeert dit product te verwijderen.',
+
 ];

@@ -530,7 +530,6 @@
               var urlParams = new URLSearchParams(window.location.search);
               var hasSearchParams = urlParams.has('order_no') || urlParams.has('product_id') || urlParams.has('expiry') || urlParams.has('expiryTill') || urlParams.has('from') || urlParams.has('till') || urlParams.has('sub_from') || urlParams.has('sub_till') || urlParams.has('ins_not_ins') || urlParams.has('domain') || urlParams.has('p_un') || urlParams.has('act_inst') || urlParams.has('renewal') || urlParams.has('inact_ins') || urlParams.has('version');
               if (hasSearchParams) {
-                  console.log(hasSearchParams);
                 $("#advance-search").css('display','block');
                 $('#tip-search').attr('title', 'Collapse');
                 $('#search-icon').removeClass('fa-plus').addClass('fa-minus');
