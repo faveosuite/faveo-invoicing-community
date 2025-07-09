@@ -1262,6 +1262,7 @@ class CloudExtraActivities extends Controller
     public function fetchData()
     {
         $collection = collect(CloudProducts::cursor());
+
         return \DataTables::collection($collection)
             ->addColumn('Cloud Product', function ($model) {
                 return "<p><a href='".url('/products/'.$model->product->id.'/edit')."'>".$model->product->name.'</a></p>';
@@ -1281,14 +1282,15 @@ class CloudExtraActivities extends Controller
 
             ->addColumn('status', function ($model) {
                 $checked = $model->trial_status ? 'checked' : '';
+
                 return '<label class="swich toggle_event_editing trialStatus">
                 <input type="checkbox" class="checkbox9" name="trialStatus"
-                       value="1" data-status="' . $model->trial_status . '" 
-                       id="' . $model->id . '" ' . $checked . '>
+                       value="1" data-status="'.$model->trial_status.'" 
+                       id="'.$model->id.'" '.$checked.'>
                 <span class="slidr rund"></span>
             </label>';
             })
-            ->rawColumns(['Cloud Product', 'Cloud free plan', 'Cloud product key', 'action','status'])
+            ->rawColumns(['Cloud Product', 'Cloud free plan', 'Cloud product key', 'action', 'status'])
             ->make(true);
     }
 
@@ -1298,16 +1300,19 @@ class CloudExtraActivities extends Controller
             $id = $request->input('id');
             $status = $request->input('status');
             CloudProducts::where('id', $id)->update(['trial_status' => $status]);
+
             return successResponse(\Lang::get('message.trial_status_updated'));
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             return errorResponse(\Lang::get('message.trial_status_error'));
         }
     }
 
-    public function trialCloudProducts(){
-        $cloud=CloudProducts::where('trial_status','1')->with('product')->get();
-        $product=$cloud->pluck('product.name','cloud_product_key')->filter()->all();
-        return successResponse('Products',$product);
+    public function trialCloudProducts()
+    {
+        $cloud = CloudProducts::where('trial_status', '1')->with('product')->get();
+        $product = $cloud->pluck('product.name', 'cloud_product_key')->filter()->all();
+
+        return successResponse('Products', $product);
     }
 
     public function DeleteProductConfig(Request $request)
