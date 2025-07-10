@@ -2704,4 +2704,5 @@ return [
     '6_code_numer' => 'Kod mora biti 6-cifreni broj.',
     '2fapopup_content' => 'Unesite svoj 2FA kod da biste potvrdili svoj identitet prije promjene lozinke',
     'auth_code_required' => 'Potrebno je unijeti kod za autentifikaciju.',
+    'valid_username' => 'Bitte geben Sie einen gültigen Benutzernamen ein',
 ];

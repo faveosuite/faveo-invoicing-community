@@ -2719,5 +2719,6 @@ return [
     '6_code_numer' => 'Code must be a 6-digit number.',
     '2fapopup_content' => 'Enter your 2FA code to verify your identity before changing your password',
     'auth_code_required' => 'Authentication code is required.',
+    'valid_username' => 'Please enter a valid username',
 
 ];

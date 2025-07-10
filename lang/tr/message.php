@@ -2720,4 +2720,5 @@ return [
     '6_code_numer' => 'Kod 6 haneli bir sayı olmalıdır.',
     '2fapopup_content' => 'Şifrenizi değiştirmeden önce kimliğinizi doğrulamak için 2FA kodunuzu girin',
     'auth_code_required' => 'Doğrulama kodu gereklidir.',
+    'valid_username' => 'Lütfen geçerli bir kullanıcı adı girin',
 ];

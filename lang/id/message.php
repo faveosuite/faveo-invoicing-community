@@ -2701,4 +2701,5 @@ return [
     '6_code_numer' => 'Kode harus berupa angka 6 digit.',
     '2fapopup_content' => 'Masukkan kode 2FA Anda untuk memverifikasi identitas Anda sebelum mengubah kata sandi Anda',
     'auth_code_required' => 'Kode autentikasi diperlukan.',
+    'valid_username' => 'Silakan masukkan nama pengguna yang valid',
 ];

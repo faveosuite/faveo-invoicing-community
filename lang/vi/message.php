@@ -2708,4 +2708,5 @@ return [
     '6_code_numer' => 'Mã phải là một số có 6 chữ số.',
     '2fapopup_content' => 'Nhập mã 2FA của bạn để xác minh danh tính trước khi thay đổi mật khẩu',
     'auth_code_required' => 'Mã xác thực là bắt buộc.',
+    'valid_username' => 'Vui lòng nhập tên người dùng hợp lệ',
 ];
