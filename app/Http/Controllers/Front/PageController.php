@@ -12,7 +12,6 @@ use App\Http\Requests\Front\PageRequest;
 use App\Model\Common\Country;
 use App\Model\Common\PricingTemplate;
 use App\Model\Common\State;
-use App\Model\Common\StatesSubdivisions;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;
 use App\Model\Common\TemplateType;

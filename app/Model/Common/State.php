@@ -15,5 +15,4 @@ class State extends BaseModel
         'country_code', 'iso2',
         'primary_level_name', 'country_id',
     ];
-
 }
