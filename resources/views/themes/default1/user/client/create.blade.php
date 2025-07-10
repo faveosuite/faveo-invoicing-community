@@ -224,7 +224,7 @@
                         @enderror
                     </div>
 
-                    <?php $countries = \App\Model\Common\Country::pluck('nicename', 'country_code_char2')->toArray();
+                    <?php $countries = \App\Model\Common\Country::pluck('country_name', 'country_code_char2')->toArray();
                      ?>
                     <div class="col-md-3 form-group{{ $errors->has('country') ? 'has-error' : '' }}">
                         <!-- name -->
@@ -252,7 +252,7 @@
                         </div>
                     </div>
                     <?php
-                     $selectedstate = \App\Model\Common\State::select('state_subdivision_code','state_subdivision_name')->get();
+                     $selectedstate = \App\Model\Common\State::select('country_code', 'iso2','state_subdivision_name')->get();
                     ?>
                     <div class="col-md-3 form-group {{ $errors->has('state') ? 'has-error' : '' }}">
                         <!-- name -->
@@ -261,7 +261,7 @@
                           <select name="state" id="state-list" class="form-control ($errors->has('state') ? ' is-invalid' : '')">
                         @if(old('state') != null)
                              @foreach($selectedstate as $key=>$state)
-                             @if (Request::old('state') == $state->state_subdivision_code)
+                             @if (Request::old('state') == $state->iso2)
                              <option value="{{old('state')}}" selected>{{$state->state_subdivision_name}}</option>
                              @endif
                              @endforeach

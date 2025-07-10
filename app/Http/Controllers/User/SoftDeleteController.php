@@ -22,10 +22,20 @@ class SoftDeleteController extends ClientController
     public function softDeletedUsers(Request $request)
     {
         $baseQuery = User::leftJoin('countries', 'users.country', '=', 'countries.country_code_char2')
-            ->select('id', 'first_name', 'last_name', 'email',
-                \DB::raw("CONCAT('+', mobile_code, ' ', mobile) as mobile"),
-                \DB::raw("CONCAT(first_name, ' ', last_name) as name"),
-                'country_name as country', 'created_at', 'active', 'mobile_verified', 'is_2fa_enabled', 'role', 'position'
+            ->select(
+                'users.id',
+                'users.first_name',
+                'users.last_name',
+                'users.email',
+                \DB::raw("CONCAT('+', users.mobile_code, ' ', users.mobile) as mobile"),
+                \DB::raw("CONCAT(users.first_name, ' ', users.last_name) as name"),
+                'countries.country_name as country',
+                'users.created_at',
+                'users.active',
+                'users.mobile_verified',
+                'users.is_2fa_enabled',
+                'users.role',
+                'users.position'
             )->onlyTrashed();
 
         return \DataTables::of($baseQuery)

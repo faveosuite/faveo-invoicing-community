@@ -526,16 +526,27 @@ class ClientController extends AdvanceSearchController
     private function getBaseQueryForUserSearch(Request $request)
     {
         $baseQuery = User::leftJoin('countries', 'users.country', '=', 'countries.country_code_char2')
-        ->select('id', 'first_name', 'last_name', 'email',
-            \DB::raw("CONCAT('+', mobile_code, ' ', mobile) as mobile"),
-            \DB::raw("CONCAT(first_name, ' ', last_name) as name"),
-            'country_name as country', 'created_at', 'active', 'mobile_verified', 'email_verified', 'is_2fa_enabled', 'role', 'position'
-        );
+            ->select(
+                'users.id',
+                'users.first_name',
+                'users.last_name',
+                'users.email',
+                \DB::raw("CONCAT('+', users.mobile_code, ' ', users.mobile) as mobile"),
+                \DB::raw("CONCAT(users.first_name, ' ', users.last_name) as name"),
+                'countries.country_name as country',
+                'users.created_at',
+                'users.active',
+                'users.mobile_verified',
+                'users.email_verified',
+                'users.is_2fa_enabled',
+                'users.role',
+                'users.position'
+            );
         // Apply other conditions based on the request
         $baseQuery = $baseQuery->when($request->company, function ($query) use ($request) {
             $query->where('company', 'LIKE', '%'.$request->company.'%');
         })->when($request->country, function ($query) use ($request) {
-            $query->where('country', $request->country);
+            $query->where('users.country', $request->country); // or 'countries.country_name'
         })->when($request->industry, function ($query) use ($request) {
             $query->where('bussiness', $request->industry);
         })->when($request->role, function ($query) use ($request) {

@@ -161,12 +161,11 @@ input:checked + .slider:before {
                 lengthMenu:     "{{ __('message.sLengthMenu') }}",
                 loadingRecords: "{{ __('message.loading_records') }}",
             },
-
+            order: [[4, 'desc']],
             columnDefs: [
-                { 
-                    targets: 'no-sort', 
+                {
+                    targets: [2, 3],
                     orderable: false,
-                    order: []
                 }
             ],
 

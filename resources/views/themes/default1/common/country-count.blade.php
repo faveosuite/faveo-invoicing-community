@@ -104,7 +104,7 @@
             },
     
             columns: [
-                {data: 'country', name: 'countries.nicename'},
+                {data: 'country', name: 'countries.country_name'},
                 {data: 'count', name: 'count'},
             ],
             "fnDrawCallback": function( oSettings ) {

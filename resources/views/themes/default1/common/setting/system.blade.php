@@ -242,8 +242,7 @@
 
                                 <!-- {!! html()->text('country')->class('form-control') !!} -->
                                 <!-- <p><i> {{Lang::get('message.country')}}</i> </p> -->
-                                  <?php $countries = \App\Model\Common\Country::pluck('nicename', 'country_code_char2')->toArray(); ?>
-
+                                  <?php $countries = \App\Model\Common\Country::pluck('country_name', 'country_code_char2')->toArray(); ?>
                       <select name="country" value= "Choose" id="country" onChange="getCountryAttr(this.value)" class="form-control selectpicker {{$errors->has('country') ? ' is-invalid' : ''}}" data-live-search="true" data-live-search-placeholder="Search" data-dropup-auto="false" data-size="10">
                              <option value="">{{ __('message.choose') }}</option>
                            @foreach($countries as $key=>$country)
@@ -308,13 +307,13 @@
                         <td><b>{!! html()->label(Lang::get('message.state'), 'state')->class('required') !!}</b></td>
                         <td>
                         <select name="state" id="state-list" class="form-control {{$errors->has('state') ? ' is-invalid' : ''}}">
-                                @if($set->state)
-                             <option value="{{$state['id']}}">{{$state['name']}}</option>
-                            @endif
+
                             <option value="">{{ __('message.choose') }}</option>
-                            @foreach($states as $key=>$value)
-                            <option value="{{$key}}">{{$value}}</option>
-                            @endforeach
+                                    @foreach($states as $key => $value)
+                                        <option value="{{ $key }}" {{ (old('state', $set->state ?? '') == $key) ? 'selected' : '' }}>
+                                            {{ $value }}
+                                        </option>
+                                    @endforeach
 
                         </select>
                             @error('state')

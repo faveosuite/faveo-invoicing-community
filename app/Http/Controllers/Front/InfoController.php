@@ -16,8 +16,10 @@ class InfoController extends Controller
     public function getState()
     {
         if (\Auth::user()->country != 'IN') {
-            $states = State::where('state_subdivision_code', \Auth::user()->state)
-            ->pluck('state_subdivision_name')->first();
+            $states = State::where('country_code', \Auth::user()->country)
+                ->where('iso2', \Auth::user()->state)
+                ->pluck('state_subdivision_name')
+                ->first();
         } else {
             $states = TaxByState::where('state_code', \Auth::user()->state)->pluck('state')->first();
         }

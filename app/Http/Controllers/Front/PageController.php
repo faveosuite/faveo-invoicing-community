@@ -11,6 +11,7 @@ use App\Http\Requests\Front\ContactRequest;
 use App\Http\Requests\Front\PageRequest;
 use App\Model\Common\Country;
 use App\Model\Common\PricingTemplate;
+use App\Model\Common\State;
 use App\Model\Common\StatesSubdivisions;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;
@@ -543,7 +544,7 @@ class PageController extends Controller
             $set = new \App\Model\Common\Setting();
             $set = $set->findOrFail(1);
             $address = preg_replace("/^\R+|\R+\z/", '', $set->address);
-            $state = StatesSubdivisions::where('state_subdivision_code', $set->state)->value('state_subdivision_name');
+            $state = State::where('country_code', $set->country)->where('iso2', $set->state)->value('state_subdivision_name');
             $country = Country::where('country_code_char2', $set->country)->value('country_name');
 
             return view('themes.default1.front.contact', compact('status', 'apiKeys', 'set', 'state', 'country', 'address'));
