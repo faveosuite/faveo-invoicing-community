@@ -2632,4 +2632,5 @@
      '6_code_numer' => 'Il-kodiċi għandu jkun numru ta\' 6 ċifri.',
      '2fapopup_content' => 'Daħħal il-kodiċi 2FA tiegħek biex tivverifika l-identità tiegħek qabel tibdel il-password tiegħek',
      'auth_code_required' => 'Kodiċi ta\' awtentikazzjoni huwa meħtieġ.',
+     'valid_username' => 'Jekk jogħġbok daħħal username validu',
  ];

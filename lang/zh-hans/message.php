@@ -2702,4 +2702,5 @@ return [
     '6_code_numer' => '代码必须是6位数字。',
     '2fapopup_content' => '请输入您的2FA代码以验证身份后再更改密码',
     'auth_code_required' => '需要认证代码。',
+    'valid_username' => '请输入有效的用户名',
 ];

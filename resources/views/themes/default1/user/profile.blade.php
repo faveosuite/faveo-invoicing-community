@@ -471,6 +471,16 @@
     </script>
     <script src="{{asset('common/js/2fa1.js')}}"></script>
     <script>
+        document.getElementById('user_name').addEventListener('keydown', function (e) {
+            if (e.code === 'Space') {
+                e.preventDefault(); // Prevent the spacebar from adding a space
+            }
+        });
+
+        document.getElementById('user_name').addEventListener('input', function () {
+            this.value = this.value.toLowerCase(); // Convert input to lowercase
+        });
+
         $('#submit').on('click',function(e) {
             var gstin = $('#gstin1');
             gstinerrorMsg = document.querySelector("#gst-error-msg");
@@ -601,15 +611,23 @@
                 }
 
 
-                if (isValid && !validName(userFields.first_name.val())) {
+                if (isValid && !validFirstName(userFields.first_name.val())) {
                     showError(userFields.first_name, @json(trans('message.user_edit_details.add_valid_name')));
                     isValid = false;
                 }
 
-                if (isValid && !validName(userFields.last_name.val())) {
+                if (isValid && !validLastName(userFields.last_name.val())) {
                     showError(userFields.last_name, @json(trans('message.user_edit_details.add_valid_lastname')));
 
                     isValid = false;
+                }
+
+
+                if (userFields.user_name.val() !== '') {
+                    if (!validateUserName(userFields.user_name.val())) {
+                        showError(userFields.user_name, @json(trans('message.valid_username')));
+                        isValid = false;
+                    }
                 }
 
                 // If validation fails, prevent form submission
@@ -645,6 +663,27 @@
 
                 return emailPattern.test(email);
 
+            }
+
+            function validFirstName(first_name) {
+
+                const firstName = /^[a-zA-Z][a-zA-Z' -]{0,98}$/;
+
+                return firstName.test(first_name);
+
+            }
+
+            function validLastName(last_name) {
+
+                const lastName = /^[a-zA-Z][a-zA-Z' -]{0,98}$/;
+
+                return lastName.test(last_name);
+
+            }
+
+            function validateUserName(userName) {
+                const userNamePattern = /^[a-zA-Z0-9_]+$/; // Allows only alphanumeric characters and underscores
+                return userNamePattern.test(userName);
             }
 
         });

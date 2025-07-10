@@ -623,7 +623,7 @@ foreach($scripts as $script) {
 
             $.validator.addMethod("email_or_username", function(value, element) {
                 // Email regex (improved version)
-                var emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                var emailRegex = /^(?!.*\.\.)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
                 var isEmail = emailRegex.test(value);
 
                 // Username regex (alphanumeric with optional underscores or periods)
@@ -632,7 +632,7 @@ foreach($scripts as $script) {
 
 
                 return this.optional(element) || isEmail || isUsername;
-            }, "{{ __('message.emailSettings_details.email') }}");
+            }, "{{ __('message.username_or_email') }}");
 
             $.validator.addMethod("regex", function(value, element, regexp) {
                 var re = new RegExp(regexp);
@@ -677,7 +677,7 @@ foreach($scripts as $script) {
                 messages: {
                     email_username: {
                         required: "{{ __('message.username_or_email') }}",
-                        email_or_username: "{{ __('message.emailSettings_details.email') }}"
+                        email_or_username: "{{ __('message.username_or_email') }}"
                     },
                     password1: {
                         required: "{{ __('message.received_password_enter') }}",
@@ -717,7 +717,7 @@ foreach($scripts as $script) {
                     email: {
                         required: true,
                         email: true,
-                        regex: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                        regex: /^(?!.*\.\.)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
                     },
                     company: {
                         required: true
