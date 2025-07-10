@@ -234,8 +234,8 @@ function findCountryByGeoip($iso)
 function findStateByRegionId($iso)
 {
     try {
-        $states = \App\Model\Common\State::where('country_code_char2', $iso)
-            ->pluck('state_subdivision_name', 'state_subdivision_code')->toArray();
+        $states = \App\Model\Common\State::where('country_code', $iso)
+            ->pluck('state_subdivision_name', 'iso2')->toArray();
 
         return $states;
     } catch (\Exception $ex) {
@@ -275,12 +275,18 @@ function checkPlanSession()
 function getStateByCode($code)
 {
     try {
+        [$country_code, $state] = explode('-', $code ?? '-') + [null, null];
         $result = ['id' => '', 'name' => ''];
 
-        $subregion = \App\Model\Common\State::where('state_subdivision_code', $code)->first();
+        $subregion = \App\Model\Common\State::where('country_code', $country_code)
+            ->where('iso2', $state)
+            ->first();
+
         if ($subregion) {
-            $result = ['id' => $subregion->state_subdivision_code,
-                'name' => $subregion->state_subdivision_name, ];
+            $result = [
+                'id' => $subregion->iso2,
+                'name' => $subregion->state_subdivision_name,
+            ];
         }
 
         return $result;

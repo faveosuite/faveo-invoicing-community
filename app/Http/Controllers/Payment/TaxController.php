@@ -60,7 +60,7 @@ class TaxController extends Controller
             if (count($classes) == 0) {
                 $classes = $this->tax_class->get();
             }
-            $countries = Country::pluck('nicename', 'country_code_char2')->toArray();
+            $countries = Country::pluck('country_name', 'country_code_char2')->toArray();
 
             return view('themes.default1.payment.tax.index', compact('options', 'classes', 'countries'));
         } catch (\Exception $ex) {
@@ -101,9 +101,9 @@ class TaxController extends Controller
                                 }
                             })
                             ->addColumn('state', function ($model) {
-                                if ($this->state->where('state_subdivision_code', $model->state)->first()) {
+                                if ($this->state->where('country_code', $model->state)->first()) {
                                     return $this->state
-                                    ->where('state_subdivision_code', $model->state)
+                                    ->where('country_code', $model->state)
                                     ->first()->state_subdivision_name;
                                 } else {
                                     return '--';
@@ -330,7 +330,7 @@ class TaxController extends Controller
     {
         try {
             $id = $stateid;
-            $states = \App\Model\Common\State::where('country_code_char2', $id)
+            $states = \App\Model\Common\State::where('country_code', $id)
             ->orderBy('state_subdivision_name', 'asc')->get();
             echo '<option value="">'.__('message.choose').'</option>';
             foreach ($states as $state) {

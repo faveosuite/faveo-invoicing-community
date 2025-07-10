@@ -801,7 +801,7 @@ class ClientController extends BaseClientController
             ->pluck('name', 'short')->toArray();
 
             $selectedCountry = \DB::table('countries')->where('country_code_char2', $user->country)
-            ->value('nicename');
+            ->value('country_name');
 
             return view(
                 'themes.default1.front.clients.profile',

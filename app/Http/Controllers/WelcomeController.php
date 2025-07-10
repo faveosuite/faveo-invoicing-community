@@ -48,8 +48,8 @@ class WelcomeController extends Controller
     public function countryCount()
     {
         $users = \App\User::leftJoin('countries', 'users.country', '=', 'countries.country_code_char2')
-        ->where('countries.nicename', '!=', '')
-                ->select('countries.nicename as country', 'countries.country_code_char2 as code', \DB::raw('COUNT(users.id) as count'))
+        ->where('countries.country_name', '!=', '')
+                ->select('countries.country_name as country', 'countries.country_code_char2 as code', \DB::raw('COUNT(users.id) as count'))
 
                 ->groupBy('users.country');
 
@@ -64,7 +64,7 @@ class WelcomeController extends Controller
                             .$model->count.'</a>';
                               })
                             ->filterColumn('country', function ($query, $keyword) {
-                                $sql = 'countries.nicename like ?';
+                                $sql = 'countries.country_name like ?';
                                 $query->whereRaw($sql, ["%{$keyword}%"]);
                             })
                             ->rawColumns(['country', 'count'])
