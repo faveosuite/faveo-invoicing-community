@@ -2663,4 +2663,5 @@ return [
     '6_code_numer' => '代碼必須是6位數字。',
     '2fapopup_content' => '請輸入您的2FA代碼以驗證身份後再更改密碼',
     'auth_code_required' => '需要認證代碼。',
+    'valid_username' => '請輸入有效的用戶名',
 ];

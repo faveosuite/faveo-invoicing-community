@@ -2702,4 +2702,5 @@ return [
     '6_code_numer' => 'Kod mora biti 6-cifreni broj.',
     '2fapopup_content' => 'Ingrese su código 2FA para verificar su identidad antes de cambiar su contraseña',
     'auth_code_required' => 'Se requiere el código de autenticación.',
+    'valid_username' => 'Por favor, introduzca un nombre de usuario válido',
 ];

@@ -2691,4 +2691,5 @@ return [
     '6_code_numer' => 'Le code doit être un nombre à 6 chiffres.',
     '2fapopup_content' => 'Ingrese su código 2FA para verificar su identidad antes de cambiar su contraseña',
     'auth_code_required' => 'Se requiere el código de autenticación.',
+    'valid_username' => 'Veuillez entrer un nom d\'utilisateur valide',
 ];

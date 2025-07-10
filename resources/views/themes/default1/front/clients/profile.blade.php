@@ -770,18 +770,23 @@ input:checked + .slider:before {
         $('#verify2FAButton').on('click', function () {
             const code = $('#google2fa_code').val().trim();
             const errorBox = $('#error-message');
+            const inputField = $('#google2fa_code');
 
             if (!code) {
                 errorBox.text("{{ __('message.auth_code_required') }}").show();
+                inputField.css('border-color', 'red'); // Change border color to red
                 return;
             }
 
             if (!/^\d{6}$/.test(code)) {
                 errorBox.text("{{ __('message.6_code_numer') }}").show();
+                inputField.css('border-color', 'red'); // Change border color to red
                 return;
             }
 
             errorBox.hide();
+            inputField.css('border-color', ''); // Reset border color
+
 
             $.ajax({
                 url: "{{ route('verify.2fa.admin') }}",
@@ -792,11 +797,14 @@ input:checked + .slider:before {
                 },
                 success: function (response) {
                     $('#twoFactorPopupModal').modal('hide');
+                    inputField.css('border-color', ''); // Reset border color on success
+                    inputField.val(''); // Clear the 2FA code input field
+                    errorBox.hide(); // Hide any error messages
                     submitPasswordChange(storedFormData, $('#changePasswordForm')[0]);
                 },
                 error: function (xhr) {
                     const res = xhr.responseJSON || {};
-                    const message = res.message || "{{ __('message.invalid_2fa_code') }}";
+                    const message = res.message || "{{ __('message.invalid_code_2fa') }}";
                     errorBox.text(message).show();
                 }
             });
