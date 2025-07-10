@@ -2705,4 +2705,5 @@ return [
     '6_code_numer' => '코드는 6자리 숫자여야 합니다.',
     '2fapopup_content' => '비밀번호를 변경하기 전에 본인 확인을 위해 2FA 코드를 입력하세요',
     'auth_code_required' => '인증 코드가 필요합니다.',
+    'valid_username' => '유효한 사용자 이름을 입력하세요',
 ];

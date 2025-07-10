@@ -158,7 +158,7 @@ class Google2FAController extends Controller
             return successResponse(\Lang::get('message.valid_passcode'));
         }
 
-        return errorResponse(\Lang::get('message.invalid_passcode'));
+        return errorResponse(\Lang::get('message.invalid_code_2fa'));
     }
 
     /**

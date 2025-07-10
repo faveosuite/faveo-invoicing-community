@@ -362,6 +362,15 @@
 
 
 <script>
+    document.getElementById('user_name').addEventListener('keydown', function (e) {
+        if (e.code === 'Space') {
+            e.preventDefault(); // Prevent the spacebar from adding a space
+        }
+    });
+
+    document.getElementById('user_name').addEventListener('input', function () {
+        this.value = this.value.toLowerCase(); // Convert input to lowercase
+    });
 
     $(document).ready(function() {
         $('#country').on('change',function(){
@@ -486,6 +495,14 @@
                     isValid = false;
                 }
             }
+
+            if (userFields.user_name.val() !== '') {
+                if (!validateUserName(userFields.user_name.val())) {
+                    showError(userFields.user_name, @json(trans('message.valid_username')));
+                    isValid = false;
+                }
+            }
+
             var zip=$('#zip1');
             ziperrorMsg = document.querySelector("#zip-error-msg");
 
@@ -563,6 +580,11 @@
             const emailPattern = /^(?!.*\.\.)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|org|net|edu|gov|mil|co|io|biz|info|dev|xyz|in)$/;
             return emailPattern.test(email);
 
+        }
+
+        function validateUserName(userName) {
+            const userNamePattern = /^[a-zA-Z0-9_]+$/; // Allows only alphanumeric characters and underscores
+            return userNamePattern.test(userName);
         }
 
     });
