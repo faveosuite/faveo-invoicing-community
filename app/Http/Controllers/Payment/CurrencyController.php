@@ -49,11 +49,12 @@ class CurrencyController extends Controller
             ->addColumn('dashboard', function ($model) {
                 if ($model->status == 1) {
                     $showButton = $this->getButtonColor($model->id);
+
                     return '<div class="dashboard-center">'.$showButton.'</div>';
                 } else {
                     return '<div class="dashboard-center">
                     <a class="btn btn-sm btn-secondary btn-xs disabled align-items-center" style="margin-right: 100px;">
-                        <i class="fa fa-eye" style="color:white;"></i>&nbsp;&nbsp;' . __('message.show_on_dashboard') . '
+                        <i class="fa fa-eye" style="color:white;"></i>&nbsp;&nbsp;'.__('message.show_on_dashboard').'
                     </a>
                 </div>';
                 }
