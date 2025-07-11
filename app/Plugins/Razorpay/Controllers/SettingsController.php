@@ -195,7 +195,7 @@ class SettingsController extends Controller
                 //Change order Status as Success if payment is Successful
                 $stateCode = \Auth::user()->state;
                 $cont = new \App\Http\Controllers\RazorpayController();
-                $state = $cont->getState($stateCode);
+                $state = $cont->getState(\Auth::user()->country ,$stateCode);
                 $currency = $cont->getCurrency();
 
                 $control = new \App\Http\Controllers\Order\RenewController();

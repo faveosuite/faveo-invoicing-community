@@ -159,7 +159,7 @@ class OrderController extends BaseOrderController
                 })
                 ->addColumn('country', function ($model) {
                     $user = $this->user->where('id', $model->client_id)->first() ?: User::onlyTrashed()->find($model->client_id);
-                    $country = Country::where('country_code_char2', $user->country)->value('nicename');
+                    $country = Country::where('country_code_char2', $user->country)->value('country_name');
 
                     return $country;
                 })

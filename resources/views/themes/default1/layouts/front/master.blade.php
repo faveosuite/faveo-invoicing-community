@@ -945,6 +945,7 @@ foreach ($footerWidgetTypes as $widgetType) {
 <script src="{{asset('common/intl-tel-input/js/intlTelInputWithUtils.js')}}"></script>
 <!-- Current Page Vendor and Views -->
 <script src="{{asset('client/porto/js-2/view.contact.js')}}"></script>
+<script src="{{ asset('common/js/helper.js') }}"></script>
 
 @extends('mini_views.intl_tel_input')
 

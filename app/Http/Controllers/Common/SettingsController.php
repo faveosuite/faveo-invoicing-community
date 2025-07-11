@@ -459,7 +459,7 @@ class SettingsController extends BaseSettingsController
     {
         try {
             $set = $settings->find(1);
-            $state = getStateByCode($set->state);
+            $state = getStateByCode($set->country, $set->state);
             $selectedCountry = \DB::table('countries')->where('country_code_char2', $set->country)
                 ->pluck('country_name', 'country_code_char2')->toArray();
             $selectedCurrency = \DB::table('currencies')->where('code', $set->default_currency)

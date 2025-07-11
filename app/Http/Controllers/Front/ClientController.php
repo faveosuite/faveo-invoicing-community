@@ -694,7 +694,7 @@ class ClientController extends BaseClientController
                                 $plan = Plan::where('product', $model->product_id)->value('id');
                                 $whatIsSub = Subscription::where('order_id', $model->id)->value('plan_id');
                                 $planName = Plan::where('id', $whatIsSub)->value('name');
-                                $price = PlanPrice::where('plan_id', $plan)->where('currency', \Auth::user()->currency)->value('renew_price');
+                                $price = PlanPrice::where('plan_id', $plan)->where('currency', getCurrencyForClient(\Auth::user()->country))->value('renew_price');
                                 $order_cont = new \App\Http\Controllers\Order\OrderController();
                                 $status = $order_cont->checkInvoiceStatusByOrderId($model->id);
                                 $url = '';
@@ -718,7 +718,7 @@ class ClientController extends BaseClientController
                                     $agents = intval($agents, 10);
                                 }
 
-                                $url = $this->renewPopup($model->sub_id, $model->product_id, $agents, $planName);
+                                $url = $this->renewPopup($model->sub_id, $model->product_id, $agents, $planName, $price);
 
                                 $changeDomain = $this->changeDomain($model, $model->product_id); // Need to add this if the client requirement intensifies.
 
@@ -790,7 +790,7 @@ class ClientController extends BaseClientController
             }
             //for display
             $timezones = array_column($display, 'name', 'id');
-            $state = getStateByCode($user->state);
+            $state = getStateByCode($user->country, $user->state);
             $states = findStateByRegionId($user->country);
             $bussinesses = \App\Model\Common\Bussiness::pluck('name', 'short')->toArray();
             $selectedIndustry = \App\Model\Common\Bussiness::where('name', $user->bussiness)
@@ -881,6 +881,10 @@ class ClientController extends BaseClientController
             $api = new Api($rzp_key, $rzp_secret);
             $userCountry = \Auth::user()->country;
             $displayCurrency = getCurrencyForClient($userCountry);
+
+            if(!isCurrencySupportedForPayments($displayCurrency, ['stripe', 'razorpay'])){
+                throw new \Exception('User selected country not supported for this order');
+            }
 
             $exchangeRate = '';
             $orderData = [

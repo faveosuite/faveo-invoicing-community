@@ -164,6 +164,10 @@
             border: 1px solid #df1b41 !important;
         }
 
+        .auto-renew-status{
+            display: inline-block !important;
+        }
+
     </style>
     @if(Auth::check())
         <li><a class="text-primary" href="{{url('my-invoices')}}">{{ __('message.home')}}</a></li>
@@ -722,12 +726,16 @@
                                     </div>
                                 </div>
 
-                                <div class="col-sm-7">  <div class="form-check form-switch">
+                                <div class="col-sm-7">
+                                    <div class="form-check form-switch auto-renew-status" tabindex="0"
+                                         data-bs-toggle="tooltip"
+                                         data-bs-title="{{ $ExistingPlanPirce ? 'Auto renewal status' : 'No active plan available to active auto renewal' }}">
 
-                                    <input id="renew" value="{{$statusAutorenewal}}"  name="is_subscribed" class="form-check-input renewcheckbox" style="padding-right: 2rem;padding-top: 1rem!important;padding-bottom: 0rem!important;" type="checkbox" role="switch">
-                                    <input type="hidden" name="" id="order" value="{{$id}}">
+                                        <input id="renew" value="{{ $statusAutorenewal }}" name="is_subscribed"
+                                               class="form-check-input renewcheckbox" type="checkbox" role="switch"{{ !$ExistingPlanPirce ? 'disabled' : '' }}>
 
-                                </div></div>
+                                    </div>
+                                </div>
                             </div>
 
                         <div class="row"><div class="col"><hr class="solid my-3"></div></div>
@@ -1176,6 +1184,10 @@
 
     <script src="https://js.stripe.com/v3/"></script>
     <script>
+        $(function () {
+            $('[data-bs-toggle="tooltip"]').tooltip()
+        })
+
         // Initialize Stripe
         const stripe = Stripe("{{ $stripe_key }}",{
             locale: 'en' // Set locale if needed
