@@ -90,13 +90,15 @@ class ClientController extends BaseClientController
             $amount = 1;
             $currency = getCurrencyForClient(\Auth::user()->country);
             $orderid = $request->get('order_id');
-            $url = url('my-order/'.$orderid.'#auto-renew');
+            \Session::put('order',$orderid);
+            $url = url('confirm/auto-renewal');
             $controller = new SettingsController();
             $confirm = $controller->handlePayment($request, $amount, $currency, $url);
 
             $paymentIntent = \Stripe\PaymentIntent::retrieve($confirm['id']);
             $subscription = Subscription::where('order_id', $orderid)->first();
             if ($confirm->status == 'requires_action') {
+                $count=1;
                 $redirectUrl = $paymentIntent->next_action->redirect_to_url->url;
 
                 return $redirectUrl;
@@ -132,6 +134,47 @@ class ClientController extends BaseClientController
 
             return response()->json(['error' => $errorMessage], 500);
         }
+    }
+
+
+    public function confirmAutoRenewal(Request $request){
+        $amount = 1;
+        $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();
+        $stripe = new \Stripe\StripeClient($stripeSecretKey);
+        $invoice = \Session::get('invoice');
+        $order=\Session::get('order');
+
+        $paymentIntent = $stripe->paymentIntents->retrieve($request->input('payment_intent'));
+        \Log::debug('santhanuSSN',[$request->input('payment_intent'),$paymentIntent]);
+
+        try{
+        if ($paymentIntent->status === 'succeeded') {
+            $refund = $stripe->refunds->create([
+                'payment_intent' => $paymentIntent['id'],
+                'amount' => $paymentIntent['amount'],
+            ]);
+            $invoice_id = OrderInvoiceRelation::where('order_id', $order)->value('invoice_id');
+            $number = Invoice::where($paymentIntent->customerid)->value('number');
+            $customer_details = [
+                'user_id' => \Auth::user()->id,
+                'customer_id' => $paymentIntent->customer,
+                'payment_method' => 'stripe',
+                'order_id' => $order,
+                'payment_intent_id' => $paymentIntent->payment_method,
+            ];
+            Auto_renewal::create($customer_details);
+            Subscription::where('order_id', $order)->update(['is_subscribed' => '1', 'autoRenew_status' => '1']);
+            $mail = new \App\Http\Controllers\Common\PhpMailController();
+
+            $mail->payment_log(\Auth::user()->email, 'stripe', 'success', Order::where('id', $order)->value('number'), null, $amount, 'Payment method updated');
+
+            return redirect('my-order/'.$order.'#auto-renew')->with('success', __('message.card_details_updated_successfully'));
+        }
+    } catch (\Exception $e) {
+            \Log::debug('errorSanthanu',[$e]);
+            return redirect('my-order/'.$order.'#auto-renew')->with('fails', 'Your Payment was declined. Please try with another card or gateway');
+
+    }
     }
 
     /**

@@ -92,7 +92,7 @@ Route::middleware('installAgora')->group(function () {
     Route::post('demo-request', [Front\PageController::class, 'postDemoReq'])->withoutMiddleware(['auth']);
     Route::get('confirm/payment', [RazorpayController::class, 'afterPayment']);
     Route::post('stripeUpdatePayment/confirm', [Front\ClientController::class, 'stripeUpdatePayment']);
-
+    Route::get('confirm/auto-renewal',[Front\ClientController::class, 'confirmAutoRenewal']);
     /*
      * Front Client Pages
      */
