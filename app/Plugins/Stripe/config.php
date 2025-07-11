@@ -28,7 +28,7 @@ return [
         'RUB', 'RWF', 'SAR', 'SBD', 'SCR', 'SEK', 'SGD', 'SHP', 'SLE', 'SOS',
         'SRD', 'STD', 'SZL', 'THB', 'TJS', 'TOP', 'TRY', 'TTD', 'TWD', 'TZS',
         'UAH', 'UGX', 'UYU', 'UZS', 'VND', 'VUV', 'WST', 'XAF', 'XCD', 'XCG',
-        'XOF', 'XPF', 'YER', 'ZAR', 'ZMW'
+        'XOF', 'XPF', 'YER', 'ZAR', 'ZMW',
     ],
 
 ];
