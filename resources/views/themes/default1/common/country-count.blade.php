@@ -70,7 +70,7 @@
             processing: true,
             stateSave: false,
             serverSide: true,
-            order: [[ 0, "desc" ]],
+            order: [[ 1, "desc" ]],
             ajax: {
             "url":  '{!! route('country-count') !!}',
                error: function(xhr) {

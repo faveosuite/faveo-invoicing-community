@@ -89,9 +89,9 @@ class BaseClientController extends Controller
      *
      * @throws
      */
-    public function renewPopup($id, $productid, $agents, $planName)
+    public function renewPopup($id, $productid, $agents, $planName, $planPrice)
     {
-        return view('themes.default1.renew.popup', compact('id', 'productid', 'agents', 'planName'));
+        return view('themes.default1.renew.popup', compact('id', 'productid', 'agents', 'planName', 'planPrice'));
     }
 
     /**

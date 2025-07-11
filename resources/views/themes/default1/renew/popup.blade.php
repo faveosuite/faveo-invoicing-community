@@ -1,4 +1,24 @@
-<a href="#renew" <?php if(\Cart::getContent()->isNotEmpty()) {?> class="btn btn-light-scale-2 btn-sm text-dark" data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="{{ __('message.renew_product') }}" onclick="return false" <?php } else {?> class="btn btn-light-scale-2 btn-sm text-dark" <?php } ?> data-toggle="modal" data-target="#renew{{$id}}"><i class="fa fa-refresh" @if( \Cart::getContent()->isEmpty()) data-toggle="tooltip" title="{{ __('message.click_renew') }}" @endif></i>&nbsp;</a>
+@php
+    $hasCartItems = \Cart::getContent()->isNotEmpty();
+    $hasActivePlan = !empty($planPrice);
+    $isDisabled = $hasCartItems || !$hasActivePlan;
+
+    $tooltipTitle = $hasCartItems
+        ? __('message.renew_product')
+        : (!$hasActivePlan
+            ? 'No active Plan for this order'
+            : __('message.click_renew'));
+@endphp
+
+<a href="#renew"
+   class="btn btn-light-scale-2 btn-sm text-dark"
+   style="font-weight:500;"
+   {!! $isDisabled ? 'onclick="return false"' : 'data-toggle="modal" data-target="#renew'.$id.'"' !!}
+   data-toggle="tooltip"
+   data-placement="top"
+   title="{{ $tooltipTitle }}">
+    <i class="fa fa-refresh"></i>&nbsp;
+</a>
 <div class="modal fade" id="renew{{$id}}" tabindex="-1" role="dialog" aria-labelledby="renewModalLabel" aria-hidden="true">
 
                             <div class="modal-dialog">

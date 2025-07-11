@@ -400,7 +400,7 @@
                               <select id="cloud_countries" name="cloud_countries" class="form-control select2">
                                   <option value="">{{ __('message.choose') }}</option>
                                   @foreach($countries as $country)
-                                      <option value="{!! strtolower($country->country_code_char2) !!}">{{$country->nicename}}</option>
+                                      <option value="{!! strtolower($country->country_code_char2) !!}">{{$country->country_name}}</option>
                                   @endforeach
                                   <!-- Add more options as needed -->
                               </select>

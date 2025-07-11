@@ -272,13 +272,12 @@ function checkPlanSession()
     }
 }
 
-function getStateByCode($code)
+function getStateByCode($country, $state)
 {
     try {
-        [$country_code, $state] = explode('-', $code ?? '-') + [null, null];
         $result = ['id' => '', 'name' => ''];
 
-        $subregion = \App\Model\Common\State::where('country_code', $country_code)
+        $subregion = \App\Model\Common\State::where('country_code', $country)
             ->where('iso2', $state)
             ->first();
 
@@ -882,4 +881,26 @@ function isAgentAllowed($productId)
     $product = \App\Model\Product\Product::find($productId);
 
     return in_array($productId, cloudPopupProducts()) || $product->can_modify_agent;
+}
+function isCurrencySupportedForPayments($currency, $paymentMethods)
+{
+    $currency = strtoupper($currency);
+    $methods = is_array($paymentMethods)
+        ? array_map('strtolower', $paymentMethods)
+        : [strtolower($paymentMethods)];
+
+    $values = (new \App\Http\Controllers\Common\PaymentSettingsController())->fetchConfig();
+
+    $pluginMap = [];
+    foreach ($values as $plugin) {
+        $pluginMap[strtolower($plugin['name'])] = $plugin['supported_currencies'] ?? [];
+    }
+
+    foreach ($methods as $method) {
+        if (!isset($pluginMap[$method]) || !in_array($currency, $pluginMap[$method])) {
+            return false;
+        }
+    }
+
+    return true;
 }

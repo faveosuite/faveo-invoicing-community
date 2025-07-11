@@ -18,4 +18,9 @@ class Country extends BaseModel
     {
         return $this->belongsTo(\App\Model\Payment\Currency::class);
     }
+
+    public function users()
+    {
+        return $this->hasMany(\App\User::class, 'country', 'country_code_char2');
+    }
 }

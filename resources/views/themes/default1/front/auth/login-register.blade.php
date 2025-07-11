@@ -24,8 +24,7 @@
     use App\Http\Controllers\Front\CartController;
     $country = findCountryByGeoip($location['iso_code']);
     $states = findStateByRegionId($location['iso_code']);
-    $state_code = $location['iso_code'] . "-" . $location['state'];
-    $state = getStateByCode($state_code);
+    $state = getStateByCode($country, $states);
 
 
     ?>
