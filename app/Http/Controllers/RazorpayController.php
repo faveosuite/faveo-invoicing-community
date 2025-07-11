@@ -58,7 +58,7 @@ class RazorpayController extends Controller
                 $response = $api->payment->fetch($input['razorpay_payment_id']);
 
                 $stateCode = \Auth::user()->state;
-                $state = $this->getState(\Auth::user()->country ,$stateCode);
+                $state = $this->getState(\Auth::user()->country, $stateCode);
                 $currency = $this->getCurrency();
 
                 $result = $this->processPaymentSuccess($invoice, $currency);
@@ -83,7 +83,7 @@ class RazorpayController extends Controller
         return $symbol;
     }
 
-    public function getState($country ,$stateCode)
+    public function getState($country, $stateCode)
     {
         if (\Auth::user()->country != 'IN') {
             $state = State::where('country_code', $country)->where('iso2', $stateCode)->pluck('state_subdivision_name')->first();

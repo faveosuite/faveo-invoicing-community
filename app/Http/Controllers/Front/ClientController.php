@@ -882,7 +882,7 @@ class ClientController extends BaseClientController
             $userCountry = \Auth::user()->country;
             $displayCurrency = getCurrencyForClient($userCountry);
 
-            if(!isCurrencySupportedForPayments($displayCurrency, ['stripe', 'razorpay'])){
+            if (! isCurrencySupportedForPayments($displayCurrency, ['stripe', 'razorpay'])) {
                 throw new \Exception('User selected country not supported for this order');
             }
 
