@@ -219,7 +219,7 @@ class LoginController extends Controller
         $githubUser = Socialite::driver($provider)->user();
         $location = getLocation();
 
-        $state = getStateByCode($location['iso_code'],$location['state']);
+        $state = getStateByCode($location['iso_code'], $location['state']);
 
         $existingUser = User::where('email', $githubUser->getEmail())->first();
 

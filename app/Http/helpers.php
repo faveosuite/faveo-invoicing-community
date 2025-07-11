@@ -897,7 +897,7 @@ function isCurrencySupportedForPayments($currency, $paymentMethods)
     }
 
     foreach ($methods as $method) {
-        if (!isset($pluginMap[$method]) || !in_array($currency, $pluginMap[$method])) {
+        if (! isset($pluginMap[$method]) || ! in_array($currency, $pluginMap[$method])) {
             return false;
         }
     }

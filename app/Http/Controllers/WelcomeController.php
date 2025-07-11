@@ -56,8 +56,8 @@ class WelcomeController extends Controller
                 return ucfirst($model->country_name);
             })
             ->addColumn('count', function ($model) {
-                return '<a href="' . url('clients?country='.$model->code) . '">'
-                    . $model->users_count . '</a>';
+                return '<a href="'.url('clients?country='.$model->code).'">'
+                    .$model->users_count.'</a>';
             })
             ->orderColumn('count', 'users_count $1')
             ->filterColumn('country', function ($query, $keyword) {
