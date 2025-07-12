@@ -11,7 +11,7 @@ class Country extends BaseModel
     protected $primaryKey = 'country_id';
 
     protected $fillable = [
-        'country_id', 'country_code_char2', 'country_code_char3', 'country_name', 'numcode', 'capital', 'phonecode', 'latitude', 'longitude', 'emoji', 'emojiU', 'currency_id'
+        'country_id', 'country_code_char2', 'country_code_char3', 'country_name', 'numcode', 'capital', 'phonecode', 'latitude', 'longitude', 'emoji', 'emojiU', 'currency_id',
     ];
 
     public function currency()
