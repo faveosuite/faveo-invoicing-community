@@ -1307,7 +1307,7 @@
 
 
             }else{
-                var id = $('#order').val();
+                var id = $('#orderID').val();
                 $.ajax({
                     url : '{{url("renewal-disable")}}',
                     method : 'post',
@@ -1341,7 +1341,7 @@
 
         function cardUpdate() {
             $('#renewal-modal').modal('show');
-            var id = $('#order').val();
+            var id = $('#orderID').val();
             var domain = window.location.href;
             $('#payment').on('click', function () {
                 var pay = $('#sel-payment').val();

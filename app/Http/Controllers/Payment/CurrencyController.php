@@ -145,7 +145,7 @@ HTML;
         // ]);
 
         try {
-            $nicename = Country::where('country_id', $request->name)->value('nicename');
+            $nicename = Country::where('country_id', $request->name)->value('country_name');
             $codeChar2 = Country::where('country_id', $request->name)->value('country_code_char2');
             $currency = new Currency();
 
@@ -196,7 +196,7 @@ HTML;
     public function update(Request $request)
     {
         try {
-            $nicename = Country::where('country_id', $request->editnicename)->value('nicename');
+            $nicename = Country::where('country_id', $request->editnicename)->value('country_name');
             $codeChar2 = Country::where('country_id', $request->editnicename)->value('country_code_char2');
             $currency = Currency::where('id', $request->currencyId)->first();
             $currency->code = $request->editcode;

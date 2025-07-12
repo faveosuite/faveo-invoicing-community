@@ -1297,11 +1297,11 @@ class CloudExtraActivities extends Controller
     public function storeCloudDataCenter(Request $request)
     {
         $request->validate(['cloud_countries' => 'required', 'cloud_state' => 'required']);
-        $countryName = Country::where('country_code_char2', strtoupper($request->get('cloud_countries')))->value('nicename');
+        $countryName = Country::where('country_code_char2', strtoupper($request->get('cloud_countries')))->value('country_name');
         $state = $request->get('cloud_state');
         $city = $request->get('cloud_city');
-        $geo = (empty($city)) ? $this->getStateCoordinates($state) : $this->getStateCoordinates($city);
-        $state = State::where('state_subdivision_code', $state)->value('state_subdivision_name');
+        $geo = (empty($city)) ? $this->getStateCoordinates(strtoupper($request->get('cloud_countries')).'-'.$state) : $this->getStateCoordinates($city);
+        $state = State::where('country_code', strtoupper($request->get('cloud_countries')))->where('iso2', $state)->value('state_subdivision_name');
         if (! empty($geo)) {
             CloudDataCenters::create([
                 'cloud_countries' => $countryName,

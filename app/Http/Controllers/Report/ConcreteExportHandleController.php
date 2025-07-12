@@ -154,7 +154,7 @@ class ConcreteExportHandleController extends ExportHandleController
                             $userData['created_at'] = \Carbon\Carbon::parse($user->created_at)->format('Y-m-d');
                             break;
                         case 'country':
-                            $country = Country::where('country_code_char2', $user->country)->value('nicename');
+                            $country = Country::where('country_code_char2', $user->country)->value('country_name');
                             $userData['country'] = $country;
                             break;
                         default:
@@ -259,7 +259,7 @@ class ConcreteExportHandleController extends ExportHandleController
                             break;
                         case 'country':
                             if ($user) {
-                                $country = Country::where('country_code_char2', $user->country)->value('nicename');
+                                $country = Country::where('country_code_char2', $user->country)->value('country_name');
                                 $invoiceData['country'] = $country ? $country : null;
                             } else {
                                 $invoiceData['country'] = null;
@@ -373,7 +373,7 @@ class ConcreteExportHandleController extends ExportHandleController
                             break;
                         case 'country':
                             if ($order) {
-                                $country = Country::where('country_code_char2', $order->country)->value('nicename');
+                                $country = Country::where('country_code_char2', $order->country)->value('country_name');
                                 $orderData['country'] = $country ? $country : null;
                             } else {
                                 $orderData['country'] = null;
@@ -592,7 +592,7 @@ class ConcreteExportHandleController extends ExportHandleController
                                 if (! $user) {
                                     $tenantData['country'] = null;
                                 } else {
-                                    $country = Country::where('country_code_char2', $user->country)->value('nicename');
+                                    $country = Country::where('country_code_char2', $user->country)->value('country_name');
                                     $tenantData['country'] = $country;
                                 }
                             }
