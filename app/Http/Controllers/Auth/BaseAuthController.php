@@ -25,8 +25,8 @@ class BaseAuthController extends Controller
     public function reqFields($user, $email)
     {
         $user = $user->where('email', $email)->first();
-        $country = \DB::table('countries')->where('country_code_char2', $user->country)->pluck('nicename')->first();
-        $state = \DB::table('states_subdivisions')->where('state_subdivision_code', $user->state)->pluck('state_subdivision_name')->first();
+        $country = \DB::table('countries')->where('country_code_char2', $user->country)->pluck('country_name')->first();
+        $state = \DB::table('states_subdivisions')->where('country_code', $user->country)->where('iso2', $user->state)->pluck('state_subdivision_name')->first();
         $phone = $user->mobile;
         $code = $user->mobile_code;
         if ($user) {
@@ -263,7 +263,7 @@ class BaseAuthController extends Controller
             $result = $this->searchUserPresenceInPipedrive($user->email, $token);
 
             if (! $result) {
-                $countryFullName = Country::where('country_code_char2', $user->country)->value('nicename');
+                $countryFullName = Country::where('country_code_char2', $user->country)->value('country_name');
                 $pipedrive = new \Devio\Pipedrive\Pipedrive($token);
 
                 // Create Organization

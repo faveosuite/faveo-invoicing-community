@@ -334,7 +334,7 @@ class TaxController extends Controller
             ->orderBy('state_subdivision_name', 'asc')->get();
             echo '<option value="">'.__('message.choose').'</option>';
             foreach ($states as $state) {
-                echo '<option value='.$state->state_subdivision_code.'>'.$state->state_subdivision_name.'</option>';
+                echo '<option value='.$state->iso2.'>'.$state->state_subdivision_name.'</option>';
             }
         } catch (\Exception $ex) {
             echo "<option value=''>".__('message.problem_while_loading').'</option>';
