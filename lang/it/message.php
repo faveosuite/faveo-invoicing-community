@@ -2673,4 +2673,10 @@ return [
     'contact_setting_update' => 'Impostazioni di contatto aggiornate con successo',
     'captcha_failed' => 'Verifica reCAPTCHA non riuscita. Assicurati che la tua chiave segreta reCAPTCHA sia valida.',
     'captcha_message' => 'Verifica reCAPTCHA non riuscita. Riprova.',
+
+    'no_available_plans_currency' => 'Nessun piano disponibile per questo prodotto nella valuta selezionata.',
+    'unsupported_country' => 'Il paese selezionato non è supportato per questo ordine.',
+    'order_no_active_plan_cancelled' => 'Il rinnovo automatico è stato annullato perché non è stato trovato alcun piano attivo per l’ordine #:order_number.',
+    'no_matching_plans' => 'Nessun piano disponibile per i criteri selezionati.',
+    'order_no_active_plan' => 'Nessun piano attivo associato a questo ordine.',
 ];

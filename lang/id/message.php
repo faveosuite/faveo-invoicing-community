@@ -2672,4 +2672,10 @@ return [
     'instance_not_created' => 'Instansi cloud Anda berhasil dibuat tetapi instalasi lisensi gagal.<b>:reason.</b> Silakan kunjungi situs web Anda di :installationUrl',
     'cloud_deleted_successfully' => 'Tenant berhasil dihapus',
     'cloud_deleted_failed' => 'Penghapusan tenant gagal',
+
+    'no_available_plans_currency' => 'Tidak ada paket yang tersedia untuk produk ini dalam mata uang yang dipilih.',
+    'unsupported_country' => 'Negara yang dipilih tidak didukung untuk pesanan ini.',
+    'order_no_active_plan_cancelled' => 'Perpanjangan otomatis dibatalkan karena tidak ditemukan paket aktif untuk pesanan #:order_number.',
+    'no_matching_plans' => 'Tidak ada paket yang cocok dengan pilihan Anda.',
+    'order_no_active_plan' => 'Tidak ada paket aktif yang terkait dengan pesanan ini.',
 ];

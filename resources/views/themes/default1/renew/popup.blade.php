@@ -6,7 +6,7 @@
     $tooltipTitle = $hasCartItems
         ? __('message.renew_product')
         : (!$hasActivePlan
-            ? 'No active Plan for this order'
+            ? __('message.order_no_active_plan')
             : __('message.click_renew'));
 @endphp
 
@@ -84,8 +84,8 @@
                                                     <div class="custom-select-1">
                                                         @php
                                                             $options = !empty($plans)
-                                                                ? ['' => 'Select'] + $plans
-                                                                : ['' => 'No plans available for your selection.'];
+                                                                ? ['' => __('message.select')] + $plans
+                                                                : ['' => __('message.no_matching_plans')];
                                                         @endphp
 
                                                         @if($agents == 'Unlimited')

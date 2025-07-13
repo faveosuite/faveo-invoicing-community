@@ -2680,4 +2680,10 @@ return [
     'contact_setting_update' => '連絡先設定が正常に更新されました',
     'captcha_failed' => 'reCAPTCHA の検証に失敗しました。reCAPTCHA のシークレットキーが有効であることを確認してください。',
     'captcha_message' => 'reCAPTCHA の検証に失敗しました。もう一度お試しください。',
+
+    'no_available_plans_currency' => '選択した通貨では、この製品の利用可能なプランが見つかりませんでした。',
+    'unsupported_country' => 'この注文では、選択した国はサポートされていません。',
+    'order_no_active_plan_cancelled' => '注文 #:order_number にアクティブなプランが見つからなかったため、自動更新はキャンセルされました。',
+    'no_matching_plans' => '選択された条件に一致するプランはありません。',
+    'order_no_active_plan' => 'この注文にはアクティブなプランがありません。',
 ];

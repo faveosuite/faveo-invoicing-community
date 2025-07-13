@@ -2689,4 +2689,10 @@ return [
     'contact_setting_update' => 'संपर्क सेटिंग सफलतापूर्वक अपडेट की गई',
     'captcha_failed' => 'reCAPTCHA सत्यापन विफल रहा। कृपया सुनिश्चित करें कि आपकी reCAPTCHA सीक्रेट कुंजी मान्य है।',
     'captcha_message' => 'reCAPTCHA सत्यापन विफल रहा। कृपया पुनः प्रयास करें।',
+
+    'no_available_plans_currency' => 'चयनित मुद्रा में इस उत्पाद के लिए कोई योजना उपलब्ध नहीं है।',
+    'unsupported_country' => 'इस ऑर्डर के लिए चयनित देश समर्थित नहीं है।',
+    'order_no_active_plan_cancelled' => 'ऑर्डर #:order_number के लिए कोई सक्रिय योजना न मिलने के कारण ऑटो-नवीनीकरण रद्द कर दिया गया है।',
+    'no_matching_plans' => 'आपके चयन के लिए कोई योजना उपलब्ध नहीं है।',
+    'order_no_active_plan' => 'इस ऑर्डर के लिए कोई सक्रिय योजना नहीं है।',
 ];

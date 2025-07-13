@@ -2639,4 +2639,10 @@ return [
     'instance_not_created' => '您的雲端實例已成功建立，但授權安裝失敗。<b>:reason。</b>請造訪您的網站：:installationUrl',
     'cloud_deleted_successfully' => '租戶已成功刪除',
     'cloud_deleted_failed' => '租戶刪除失敗',
+
+    'no_available_plans_currency' => '在所選貨幣下，未找到該產品的可用方案。',
+    'unsupported_country' => '該訂單不支援所選國家。',
+    'order_no_active_plan_cancelled' => '由於訂單 #:order_number 沒有可用的活動方案，自動續訂已被取消。',
+    'no_matching_plans' => '沒有符合您選擇條件的方案。',
+    'order_no_active_plan' => '此訂單沒有關聯的活動方案。',
 ];

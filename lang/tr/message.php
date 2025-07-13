@@ -2691,4 +2691,10 @@ return [
     'instance_not_created' => 'Bulut örneğiniz başarıyla oluşturuldu ancak lisans kurulumu başarısız oldu.<b>:reason.</b> Web sitenizi ziyaret edin: :installationUrl',
     'cloud_deleted_successfully' => 'Tenant başarıyla silindi',
     'cloud_deleted_failed' => 'Tenant silme başarısız oldu',
+
+    'no_available_plans_currency' => 'Seçilen para biriminde bu ürün için uygun plan bulunamadı.',
+    'unsupported_country' => 'Seçilen ülke bu sipariş için desteklenmiyor.',
+    'order_no_active_plan_cancelled' => 'Sipariş #:order_number için aktif bir plan bulunamadığından otomatik yenileme iptal edildi.',
+    'no_matching_plans' => 'Seçiminize uygun bir plan bulunamadı.',
+    'order_no_active_plan' => 'Bu siparişe ait aktif bir plan bulunmamaktadır.',
 ];

@@ -2679,4 +2679,10 @@ return [
     'instance_not_created' => 'Phiên bản đám mây của bạn đã được tạo thành công nhưng cài đặt giấy phép thất bại.<b>:reason.</b> Vui lòng truy cập trang web của bạn tại :installationUrl',
     'cloud_deleted_successfully' => 'Xóa tenant thành công',
     'cloud_deleted_failed' => 'Xóa tenant thất bại',
+
+    'no_available_plans_currency' => 'Không có gói nào khả dụng cho sản phẩm này với đơn vị tiền tệ đã chọn.',
+    'unsupported_country' => 'Quốc gia đã chọn không được hỗ trợ cho đơn hàng này.',
+    'order_no_active_plan_cancelled' => 'Gia hạn tự động đã bị hủy vì không tìm thấy gói hoạt động cho đơn hàng #:order_number.',
+    'no_matching_plans' => 'Không có gói nào phù hợp với lựa chọn của bạn.',
+    'order_no_active_plan' => 'Không có gói hoạt động nào được liên kết với đơn hàng này.',
 ];

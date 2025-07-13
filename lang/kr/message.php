@@ -2698,4 +2698,10 @@ return [
     'contact_setting_update' => '연락처 설정이 성공적으로 업데이트되었습니다',
     'captcha_failed' => 'reCAPTCHA 확인에 실패했습니다. reCAPTCHA 비밀 키가 유효한지 확인해 주세요.',
     'captcha_message' => 'reCAPTCHA 확인 실패. 다시 시도해 주세요.',
+
+    'no_available_plans_currency' => '선택한 통화로는 이 제품에 사용할 수 있는 플랜이 없습니다.',
+    'unsupported_country' => '이 주문에는 선택한 국가가 지원되지 않습니다.',
+    'order_no_active_plan_cancelled' => '주문 #:order_number 에 대해 활성 플랜이 없어 자동 갱신이 취소되었습니다.',
+    'no_matching_plans' => '선택한 조건에 맞는 플랜이 없습니다.',
+    'order_no_active_plan' => '이 주문에는 활성 플랜이 없습니다.',
 ];

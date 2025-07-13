@@ -2688,4 +2688,11 @@ return [
     'contact_setting_update' => 'Contact Settings Updated Successfully',
     'captcha_failed' => 'reCAPTCHA verification failed. Please ensure your reCAPTCHA secret key are valid.',
     'captcha_message' => 'reCAPTCHA verification failed. Please try again.',
+
+    'no_available_plans_currency' => 'No available plans found for this product in the selected currency.',
+    'unsupported_country' => 'The selected country is not supported for this order.',
+    'order_no_active_plan_cancelled' => 'Auto-renewal has been canceled because no active plan was found for Order #:order_number.',
+    'no_matching_plans' => 'No plans are available for your selected criteria.',
+    'order_no_active_plan' => 'No active plan is associated with this order.',
+
 ];

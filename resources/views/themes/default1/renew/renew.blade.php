@@ -50,7 +50,7 @@
                                 @endforeach
                             @else
                                 <option value="" disabled selected>
-                                    {{ __('No available plans found for this product in the users selected currency.') }}
+                                    {{ __('message.no_available_plans_currency') }}
                                 </option>
                             @endif
                         </select>

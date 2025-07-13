@@ -2682,4 +2682,10 @@ return [
     'contact_setting_update' => 'הגדרות הקשר עודכנו בהצלחה',
     'captcha_failed' => 'אימות reCAPTCHA נכשל. אנא ודא שמפתח ה-reCAPTCHA הסודי שלך תקף.',
     'captcha_message' => 'אימות reCAPTCHA נכשל. אנא נסה שוב.',
+
+    'no_available_plans_currency' => 'לא נמצאו תוכניות זמינות עבור מוצר זה במטבע שנבחר.',
+    'unsupported_country' => 'המדינה שנבחרה אינה נתמכת להזמנה זו.',
+    'order_no_active_plan_cancelled' => 'החידוש האוטומטי בוטל מכיוון שלא נמצאה תוכנית פעילה להזמנה מספר #:order_number.',
+    'no_matching_plans' => 'אין תוכניות זמינות בהתאם לבחירתך.',
+    'order_no_active_plan' => 'אין תוכנית פעילה המשויכת להזמנה זו.',
 ];

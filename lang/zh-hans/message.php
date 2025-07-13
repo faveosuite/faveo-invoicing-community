@@ -2673,4 +2673,10 @@ return [
     'instance_not_created' => '您的云实例已成功创建，但许可证安装失败。<b>:reason。</b>请访问您的网站：:installationUrl',
     'cloud_deleted_successfully' => '租户已成功删除',
     'cloud_deleted_failed' => '租户删除失败',
+
+    'no_available_plans_currency' => '在所选货币下，未找到该产品的可用方案。',
+    'unsupported_country' => '该订单不支持所选国家。',
+    'order_no_active_plan_cancelled' => '由于订单 #:order_number 没有可用的活动方案，自动续订已被取消。',
+    'no_matching_plans' => '没有符合您选择条件的方案。',
+    'order_no_active_plan' => '该订单没有关联任何活动方案。',
 ];

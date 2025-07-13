@@ -243,7 +243,7 @@ class ClientController extends BaseClientController
             $plan = Plan::find($planid);
             $planDetails = userCurrencyAndPrice($sub->user_id, $plan);
             if ($planDetails['plan'] === null) {
-                throw new \Exception('No available plans found for this product in the users selected currency.');
+                throw new \Exception(__('message.no_available_plans_currency'));
             }
             $cost = $planDetails['plan']->renew_price;
             $currency = $planDetails['currency'];
@@ -883,7 +883,7 @@ class ClientController extends BaseClientController
             $displayCurrency = getCurrencyForClient($userCountry);
 
             if (! isCurrencySupportedForPayments($displayCurrency, ['stripe', 'razorpay'])) {
-                throw new \Exception('User selected country not supported for this order');
+                throw new \Exception(__('message.unsupported_country'));
             }
 
             $exchangeRate = '';

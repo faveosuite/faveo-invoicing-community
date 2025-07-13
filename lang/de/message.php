@@ -2675,4 +2675,10 @@ return [
     'instance_not_created' => 'Ihre Cloud‑Instanz wurde erfolgreich erstellt, aber die Lizenzinstallation ist fehlgeschlagen.<b>:reason.</b> Bitte besuchen Sie Ihre Website unter :installationUrl',
     'cloud_deleted_successfully' => 'Mandant erfolgreich gelöscht',
     'cloud_deleted_failed' => 'Löschen des Mandanten fehlgeschlagen',
+
+    'no_available_plans_currency' => 'Für dieses Produkt sind in der ausgewählten Währung keine Pläne verfügbar.',
+    'unsupported_country' => 'Das ausgewählte Land wird für diese Bestellung nicht unterstützt.',
+    'order_no_active_plan_cancelled' => 'Die automatische Verlängerung wurde storniert, da kein aktiver Plan für die Bestellung #:order_number gefunden wurde.',
+    'no_matching_plans' => 'Für Ihre Auswahl sind keine Pläne verfügbar.',
+    'order_no_active_plan' => 'Für diese Bestellung ist kein aktiver Plan vorhanden.',
 ];

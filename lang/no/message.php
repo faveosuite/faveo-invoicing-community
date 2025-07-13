@@ -2684,4 +2684,10 @@ return [
     'instance_not_created' => 'Din sky-instans ble opprettet vellykket, men lisensinstallasjonen mislyktes.<b>:reason.</b> Vennligst besøk nettstedet ditt på :installationUrl',
     'cloud_deleted_successfully' => 'Leietaker ble slettet vellykket',
     'cloud_deleted_failed' => 'Sletting av leietaker mislyktes',
+
+    'no_available_plans_currency' => 'Ingen tilgjengelige planer funnet for dette produktet i den valgte valutaen.',
+    'unsupported_country' => 'Det valgte landet støttes ikke for denne bestillingen.',
+    'order_no_active_plan_cancelled' => 'Automatisk fornyelse ble kansellert fordi det ikke ble funnet noen aktiv plan for bestilling #:order_number.',
+    'no_matching_plans' => 'Ingen planer tilgjengelige for ditt valg.',
+    'order_no_active_plan' => 'Ingen aktiv plan er tilknyttet denne bestillingen.',
 ];

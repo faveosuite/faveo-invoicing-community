@@ -2678,4 +2678,10 @@ return [
     'contact_setting_update' => 'Configuración de contacto actualizada con éxito',
     'captcha_failed' => 'La verificación de reCAPTCHA ha fallado. Por favor, asegúrate de que tu clave secreta de reCAPTCHA sea válida.',
     'captcha_message' => 'La verificación de reCAPTCHA falló. Por favor, inténtalo de nuevo.',
+
+    'no_available_plans_currency' => 'No hay planes disponibles para este producto en la moneda seleccionada.',
+    'unsupported_country' => 'El país seleccionado no está soportado para este pedido.',
+    'order_no_active_plan_cancelled' => 'La renovación automática ha sido cancelada porque no se encontró un plan activo para el pedido #:order_number.',
+    'no_matching_plans' => 'No hay planes disponibles para los criterios seleccionados.',
+    'order_no_active_plan' => 'No hay un plan activo asociado a este pedido.',
 ];

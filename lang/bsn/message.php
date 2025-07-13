@@ -2607,4 +2607,10 @@ return [
     'contact_setting_update' => 'Postavke kontakta su uspješno ažurirane',
     'captcha_failed' => 'reCAPTCHA provjera nije uspjela. Molimo provjerite da li je vaš reCAPTCHA tajni ključ ispravan.',
     'captcha_message' => 'reCAPTCHA provjera nije uspjela. Pokušajte ponovo.',
+    'no_available_plans_currency' => 'Nema dostupnih planova za ovaj proizvod u odabranoj valuti.',
+    'unsupported_country' => 'Odabrana zemlja nije podržana za ovu narudžbu.',
+    'order_no_active_plan_cancelled' => 'Automatsko obnavljanje je otkazano jer nije pronađen aktivan plan za narudžbu broj #:order_number.',
+    'no_matching_plans' => 'Nema dostupnih planova za vaš izbor.',
+    'order_no_active_plan' => 'Nema aktivnog plana povezanog s ovom narudžbom.',
+
 ];
