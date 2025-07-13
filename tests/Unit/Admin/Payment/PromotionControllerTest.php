@@ -4,6 +4,7 @@ namespace Tests\Unit\Admin\Payment;
 
 use App\Http\Controllers\Payment\PromotionController;
 use App\Model\Order\Invoice;
+use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Payment\Promotion;
@@ -19,6 +20,7 @@ class PromotionControllerTest extends DBTestCase
     {
         parent::setUp();
         $this->classObject = new PromotionController();
+        Currency::where('code', 'INR')->update(['status' => 1]);
     }
 
     #[Group('promotion')]

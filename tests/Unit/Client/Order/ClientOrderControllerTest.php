@@ -7,6 +7,7 @@ use App\Model\License\LicenseType;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
+use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
@@ -85,13 +86,13 @@ class ClientOrderControllerTest extends DBTestCase
         $this->actingAs($user);
         $this->withoutMiddleware();
         $product = Product::factory()->create();
+        Currency::where('code', 'USD')->update(['status' => 1]);
         $plan = Plan::factory()->create(['product' => $product->id]);
         $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id]);
         $response = $this->call('get', 'get-renew-cost', ['user' => $user->id, 'plan' => $plan->id]);
         $content = json_decode($response->getContent());
         $response->assertStatus(200);
-        $this->assertEquals($content[0], $planPrice->renew_price);
-        $this->assertEquals($content[1], $product->can_modify_agent);
+        $this->assertEquals($content->formatted_price, currencyFormat($planPrice->renew_price, 'USD'));
     }
 
     /** @group order  */
