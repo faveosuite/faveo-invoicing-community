@@ -6,13 +6,13 @@ use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
-use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\DBTestCase;
 
 class ProductControllerTest extends DBTestCase
 {
     use DatabaseTransactions;
+
     public function test_it_returns_subscription_dropdown_when_plans_exist()
     {
         $this->withoutMiddleware();
@@ -43,7 +43,6 @@ class ProductControllerTest extends DBTestCase
         $this->assertStringContainsString('<select', $response['data']);
         $this->assertStringContainsString('subscription-msg', $response['data']);
         $this->assertStringContainsString('getPrice(this.value)', $response['data']);
-
     }
 
     public function test_it_returns_error_when_no_plans_found()
@@ -56,12 +55,12 @@ class ProductControllerTest extends DBTestCase
         ]);
 
         $response = $this->get('get-subscription/'.$product->id, [
-            'user_id' => $this->user->id
+            'user_id' => $this->user->id,
         ]);
 
         $response->assertJson([
             'success' => false,
-            'message' => __('message.order_no_active_plan_cancelled')
+            'message' => __('message.order_no_active_plan_cancelled'),
         ]);
     }
 }
