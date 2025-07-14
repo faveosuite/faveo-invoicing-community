@@ -52,7 +52,7 @@ class LoginTest extends DBTestCase
         $this->assertAuthenticatedAs($user);
     }
 
-    /** @group postLogin */
+    #[\PHPUnit\Framework\Attributes\Group('postLogin')]
     public function test_postLogin_forAdmin()
     {
         $user = User::factory()->create(['role' => 'admin']);
@@ -64,7 +64,7 @@ class LoginTest extends DBTestCase
         $this->assertStringContainsSubstring($response->getTargetUrl(), '/');
     }
 
-    /** @group postLogin */
+    #[\PHPUnit\Framework\Attributes\Group('postLogin')]
     public function test_postLogin_when_mobile_is_Unverified()
     {
         $user = User::factory()->create(['mobile_verified' => 0]);
@@ -76,7 +76,7 @@ class LoginTest extends DBTestCase
         // $this->assertStringContainsSubstring($response->getTargetUrl(), '/verify');
     }
 
-    /** @group postLogin */
+    #[\PHPUnit\Framework\Attributes\Group('postLogin')]
     public function test_postLogin_when_email_is_Unverified()
     {
         $user = User::factory()->create(['active' => 0]);
@@ -87,7 +87,7 @@ class LoginTest extends DBTestCase
         $response->assertStatus(302);
     }
 
-    /** @group postLogin */
+    #[\PHPUnit\Framework\Attributes\Group('postLogin')]
     public function test_postLogin_when_email_and_mobile_are_Unverified()
     {
         $user = User::factory()->create(['password' => \Hash::make('password'), 'email_verified' => 0, 'mobile_verified' => 0]);

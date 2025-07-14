@@ -24,7 +24,7 @@ class ClientFooterGeneralTest extends DBTestCase
         $this->tenantController = Mockery::mock(new TenantController(new Client, new FaveoCloud()));
     }
 
-    /** @group demo */
+    #[\PHPUnit\Framework\Attributes\Group('demo')]
     public function test_request_demo_required_field_not_given()
     {
         $user = User::factory()->create();
@@ -33,7 +33,7 @@ class ClientFooterGeneralTest extends DBTestCase
         $response->assertSessionHasErrors('demoname', 'The name field is required');
     }
 
-    /** @group demo */
+    #[\PHPUnit\Framework\Attributes\Group('demo')]
     public function test_request_demo_fields_are_given()
     {
         $this->withoutMiddleware();
@@ -50,7 +50,7 @@ class ClientFooterGeneralTest extends DBTestCase
         $response->assertJson(['message' => 'Your message was sent successfully. Thanks.']);
     }
 
-    /** @group demo */
+    #[\PHPUnit\Framework\Attributes\Group('demo')]
     public function test_request_demo_spam_detected()
     {
         $this->withoutMiddleware();
@@ -68,7 +68,7 @@ class ClientFooterGeneralTest extends DBTestCase
         $response->assertSessionHasErrors('demo');
     }
 
-    /** @group demo */
+    #[\PHPUnit\Framework\Attributes\Group('demo')]
     public function test_request_demo_when_spam_name_given()
     {
         $this->withoutMiddleware();
@@ -85,7 +85,7 @@ class ClientFooterGeneralTest extends DBTestCase
         $response->assertSessionHasErrors('demo');
     }
 
-    /** @group trial */
+    #[\PHPUnit\Framework\Attributes\Group('trial')]
     public function test_start_free_trial_domain_is_wrong()
     {
         $this->withoutMiddleware();
@@ -93,7 +93,7 @@ class ClientFooterGeneralTest extends DBTestCase
         $response->assertSessionHasErrors('domain', 'Special characters are not allowed in domain name');
     }
 
-    /** @group trial */
+    #[\PHPUnit\Framework\Attributes\Group('trial')]
     public function test_start_free_trial_tenant_not_created()
     {
         $user = User::factory()->create();
@@ -108,7 +108,7 @@ class ClientFooterGeneralTest extends DBTestCase
         $this->assertEquals($content['status'], 'false');
     }
 
-    /** @group trial */
+    #[\PHPUnit\Framework\Attributes\Group('trial')]
     public function test_start_free_trial_tenant_created()
     {
         $user = User::factory()->create();
@@ -138,7 +138,7 @@ class ClientFooterGeneralTest extends DBTestCase
         $this->assertEquals(' You will receive the login credentials on your registered email', $result['message']);
     }
 
-    /** @group trial */
+    #[\PHPUnit\Framework\Attributes\Group('trial')]
     public function test_free_trial_attempt_more_then_one()
     {
         $user = User::factory()->create();
