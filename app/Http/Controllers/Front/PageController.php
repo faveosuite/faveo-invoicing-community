@@ -490,7 +490,7 @@ class PageController extends Controller
                     $query->with(['planPrice' => function ($priceQuery) use ($currencyAndSymbol) {
                         $priceQuery->where('currency', $currencyAndSymbol);
                     }]);
-                }
+                },
             ])
                 ->where('group', $groupid)
                 ->where('hidden', '!=', 1)

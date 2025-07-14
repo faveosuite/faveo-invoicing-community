@@ -886,7 +886,7 @@ class ClientController extends BaseClientController
             if (! isCurrencySupportedForPayments($displayCurrency,
                 Plugin::whereStatus(1)
                 ->pluck('name')
-                ->map(fn($name) => strtolower($name))
+                ->map(fn ($name) => strtolower($name))
                 ->toArray())) {
                 throw new \Exception(__('message.unsupported_country'));
             }

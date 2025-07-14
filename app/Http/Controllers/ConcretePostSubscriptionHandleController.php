@@ -331,33 +331,32 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
             $subscription = Subscription::where('order_id', $orderId)->first();
 
             $cancellationHandlers = collect([
-                'rzp_subscription' => function($subscribeId) {
+                'rzp_subscription' => function ($subscribeId) {
                     $apiKeys = ApiKey::select('rzp_key', 'rzp_secret')->first();
                     $api = new Api($apiKeys->rzp_key, $apiKeys->rzp_secret);
                     $api->subscription->fetch($subscribeId)->cancel();
                 },
-                'autoRenew_status' => function($subscribeId) {
+                'autoRenew_status' => function ($subscribeId) {
                     $stripeSecretKey = ApiKey::value('stripe_secret');
                     $stripe = new \Stripe\StripeClient($stripeSecretKey);
                     $stripe->subscriptions->cancel($subscribeId, []);
-                }
+                },
             ]);
 
             if ($subscription->is_subscribed && $subscription->subscribe_id) {
                 $cancellationHandlers
-                    ->filter(fn($handler, $field) => $subscription->$field)
+                    ->filter(fn ($handler, $field) => $subscription->$field)
                     ->first()($subscription->subscribe_id);
             }
 
             $subscription->update([
                 'is_subscribed' => 0,
                 'autoRenew_status' => 0,
-                'rzp_subscription' => 0
+                'rzp_subscription' => 0,
             ]);
-
-
         } catch (\Exception $ex) {
-            \Log::error('Subscription cancellation failed: ' . $ex->getMessage());
+            \Log::error('Subscription cancellation failed: '.$ex->getMessage());
+
             return;
         }
     }
