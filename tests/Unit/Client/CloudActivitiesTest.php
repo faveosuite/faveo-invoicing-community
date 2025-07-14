@@ -46,7 +46,7 @@ class CloudActivitiesTest extends DBTestCase
         parent::tearDown();
     }
 
-    /** @group Cloud agent Change */
+    #[\PHPUnit\Framework\Attributes\Group('Cloud Agent Change')]
     public function test_cloud_agents_change_plan_ended()
     {
         $user = User::factory()->create();
@@ -82,7 +82,7 @@ class CloudActivitiesTest extends DBTestCase
         $this->assertEquals($content['priceToPay'], $priceToPay);
     }
 
-    /** @group Cloud agent Change */
+    #[\PHPUnit\Framework\Attributes\Group('Cloud Agent Change')]
     public function test_cloud_agents_when_plan_not_ended()
     {
         $user = User::factory()->create();
@@ -117,7 +117,7 @@ class CloudActivitiesTest extends DBTestCase
         $this->assertNotEquals($content['priceToPay'], $content['totalPrice']);
     }
 
-    /** @group Cloud agent Change */
+    #[\PHPUnit\Framework\Attributes\Group('Cloud Agent Change')]
     public function test_cloud_when_no_of_agents_less_then_old_agents()
     {
         $user = User::factory()->create();
@@ -153,7 +153,7 @@ class CloudActivitiesTest extends DBTestCase
         $this->assertEquals($content['priceToPay'], $priceToPay);
     }
 
-    /** @group Cloud agent Change */
+    #[\PHPUnit\Framework\Attributes\Group('Cloud Agent Change')]
     public function test_when_days_are_more_less_no_of_agents()
     {
         $user = User::factory()->create();
@@ -188,7 +188,7 @@ class CloudActivitiesTest extends DBTestCase
         $this->assertEquals($content['priceToPay'], '₹0');
     }
 
-    /** @group Cloud domain Change */
+    #[\PHPUnit\Framework\Attributes\Group('Cloud domain Change')]
 //    public function  test_cloud_update_no_of_agents(){
 //        $user=User::factory()->create();
 //        $this->actingAs($user);
@@ -224,7 +224,7 @@ class CloudActivitiesTest extends DBTestCase
 //
 //    }
 
-    /** @group Cloud plan Change */
+    #[\PHPUnit\Framework\Attributes\Group('Cloud plan Change')]
     public function test_cloud_plan_old_price_less_then_new_price()
     {
         $user = User::factory()->create();
@@ -266,7 +266,7 @@ class CloudActivitiesTest extends DBTestCase
         $this->assertEquals('₹5,000', $content['priceperagent']);
     }
 
-    /** @group Cloud plan Change */
+    #[\PHPUnit\Framework\Attributes\Group('Cloud plan Change')]
     public function test_cloud_plan_old_price_equal_to_new_price()
     {
         $user = User::factory()->create();
@@ -308,7 +308,7 @@ class CloudActivitiesTest extends DBTestCase
         $this->assertEquals('₹3,000', $content['priceperagent']);
     }
 
-    /** @group Cloud plan Change */
+    #[\PHPUnit\Framework\Attributes\Group('Cloud plan Change')]
     public function test_cloud_plan_old_price_greater_than_new_price()
     {
         $user = User::factory()->create();
@@ -347,7 +347,7 @@ class CloudActivitiesTest extends DBTestCase
         $this->assertEquals('₹9,730', $content['discount']);
     }
 
-    /** @group Cloud plan Change */
+    #[\PHPUnit\Framework\Attributes\Group('Cloud plan Change')]
     public function test_cloud_upgrade_downgrade_plan()
     {
         $user = User::factory()->create();

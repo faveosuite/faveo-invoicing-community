@@ -29,7 +29,7 @@ class ClientOrderControllerTest extends DBTestCase
         $this->app->instance(Html::class, $this->html);
     }
 
-    /** @group order  */
+    #[\PHPUnit\Framework\Attributes\Group('order')]
     public function test_my_orders_datatable_sends_data()
     {
         $user = User::factory()->create();
@@ -78,7 +78,7 @@ class ClientOrderControllerTest extends DBTestCase
             ]);
     }
 
-    /** @group order  */
+    #[\PHPUnit\Framework\Attributes\Group('order')]
     public function test_while_selecting_plan_provides_price()
     {
         $user = User::factory()->create();
@@ -94,7 +94,7 @@ class ClientOrderControllerTest extends DBTestCase
         $this->assertEquals($content[1], $product->can_modify_agent);
     }
 
-    /** @group order  */
+    #[\PHPUnit\Framework\Attributes\Group('order')]
     public function test_fails_due_to_invalid_license_key()
     {
         $user = User::factory()->create();
@@ -122,7 +122,7 @@ class ClientOrderControllerTest extends DBTestCase
         $response->assertSessionHas('fails', 'Please configure the valid license details in Apikey settings.');
     }
 
-    /** @group order  */
+    #[\PHPUnit\Framework\Attributes\Group('order')]
     public function test_successful_when_license_mocked()
     {
         $user = User::factory()->create();
@@ -158,7 +158,7 @@ class ClientOrderControllerTest extends DBTestCase
         $response->assertViewIs('themes.default1.front.clients.show-order');
     }
 
-    /** @group order  */
+    #[\PHPUnit\Framework\Attributes\Group('order')]
     public function test_auto_renewal()
     {
         $user = User::factory()->create();
@@ -179,7 +179,7 @@ class ClientOrderControllerTest extends DBTestCase
         $response->assertSessionHas('plan_id');
     }
 
-    /** @group order  */
+    #[\PHPUnit\Framework\Attributes\Group('order')]
     public function test_to_payNow_exception()
     {
         $user = User::factory()->create();
@@ -201,7 +201,7 @@ class ClientOrderControllerTest extends DBTestCase
         $response->assertSessionHas('fails', 'Cannot initiate payment. Invalid modification of data');
     }
 
-    /** @group order  */
+    #[\PHPUnit\Framework\Attributes\Group('order')]
     public function test_to_payNow_redirection()
     {
         $user = User::factory()->create();
@@ -223,7 +223,7 @@ class ClientOrderControllerTest extends DBTestCase
         $response->assertViewIs('themes.default1.front.paynow');
     }
 
-    /** @group order  */
+    #[\PHPUnit\Framework\Attributes\Group('order')]
     public function test_download_version()
     {
         $user = User::factory()->create();
@@ -270,7 +270,7 @@ class ClientOrderControllerTest extends DBTestCase
             ]);
     }
 
-    /** @group order  */
+    #[\PHPUnit\Framework\Attributes\Group('order')]
     public function test_my_orders_datatable_individual_data()
     {
         $user = User::factory()->create();

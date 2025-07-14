@@ -97,7 +97,7 @@ class RegistrationTest extends DBTestCase
         $this->tearDownServerVariable();
     }
 
-    /** @group postRegister */
+    #[\PHPUnit\Framework\Attributes\Group('postRegister')]
     public function test_when_confirm_password_does_not_match()
     {
         $user = User::factory()->create();
@@ -122,7 +122,7 @@ class RegistrationTest extends DBTestCase
         $response->assertSessionHasErrors('password_confirmation');
     }
 
-    /** @group postRegister */
+    #[\PHPUnit\Framework\Attributes\Group('postRegister')]
     public function test_registration_success_message()
     {
         $user = User::factory()->create();
@@ -153,7 +153,7 @@ class RegistrationTest extends DBTestCase
         ]);
     }
 
-    /** @group postRegister */
+    #[\PHPUnit\Framework\Attributes\Group('postRegister')]
     public function test_when_mobile_number_is_not_sent()
     {
         $user = User::factory()->create();
@@ -175,7 +175,7 @@ class RegistrationTest extends DBTestCase
         $response->assertSessionHasErrors('mobile');
     }
 
-    /** @group postRegister */
+    #[\PHPUnit\Framework\Attributes\Group('postRegister')]
     public function test_when_user_registered_present_in_database()
     {
         $user = User::factory()->create(['bussiness' => '--', 'company_type' => '--']);

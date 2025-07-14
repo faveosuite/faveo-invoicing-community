@@ -26,7 +26,7 @@ class DashboardTest extends DBTestCase
         $this->app->instance(Html::class, $this->html);
     }
 
-    /** @group dashboard */
+    #[\PHPUnit\Framework\Attributes\Group('dashboard')]
     public function test_dashboard_returning_correct_view()
     {
         $user = User::factory()->create();
@@ -41,7 +41,7 @@ class DashboardTest extends DBTestCase
         $response->assertViewIs('themes.default1.front.clients.index');
     }
 
-    /** @group dashboard */
+    #[\PHPUnit\Framework\Attributes\Group('dashboard')]
     public function test_when_no_orders_are_created()
     {
         $user = User::factory()->create();
@@ -54,7 +54,7 @@ class DashboardTest extends DBTestCase
         $response->assertViewIs('themes.default1.front.clients.index');
     }
 
-    /** @group dashboard */
+    #[\PHPUnit\Framework\Attributes\Group('dashboard')]
     public function test_when_no_invoices_are_created()
     {
         $user = User::factory()->create();
@@ -68,7 +68,7 @@ class DashboardTest extends DBTestCase
         $response->assertViewIs('themes.default1.front.clients.index');
     }
 
-    /** @group dashboard */
+    #[\PHPUnit\Framework\Attributes\Group('dashboard')]
     public function test_when_user_is_not_authenticated()
     {
         $user = User::factory()->create();
@@ -78,7 +78,7 @@ class DashboardTest extends DBTestCase
         $response->assertStatus(500);
     }
 
-    /** @group dashboard */
+    #[\PHPUnit\Framework\Attributes\Group('dashboard')]
     public function test_when_there_are_order_renewals()
     {
         $user = User::factory()->create();
@@ -97,7 +97,7 @@ class DashboardTest extends DBTestCase
         $this->assertDatabaseCount('subscriptions', 1);
     }
 
-    /** @group dashboard */
+    #[\PHPUnit\Framework\Attributes\Group('dashboard')]
     public function test_when_there_are_no_order_renewals()
     {
         $user = User::factory()->create();
@@ -116,7 +116,7 @@ class DashboardTest extends DBTestCase
         $this->assertDatabaseCount('subscriptions', 1);
     }
 
-    /** @group dashboard */
+    #[\PHPUnit\Framework\Attributes\Group('dashboard')]
     public function test_return_to_invoice_correctly()
     {
         $user = User::factory()->create();
@@ -127,7 +127,7 @@ class DashboardTest extends DBTestCase
         $response->assertViewIs('themes.default1.front.clients.invoice');
     }
 
-    /** @group dashboard */
+    #[\PHPUnit\Framework\Attributes\Group('dashboard')]
     public function test_return_invoice_details_correctly()
     {
         $user = User::factory()->create();

@@ -349,7 +349,6 @@ class BaseCartControllerTest extends DBTestCase
         $this->assertEquals(10300, $amount);
     }
 
-    /** @group order  */
     public function test_successful_when_license_mocked()
     {
         $user = User::factory()->create();
@@ -385,7 +384,7 @@ class BaseCartControllerTest extends DBTestCase
         $this->assertEquals('themes.default1.front.clients.show-order', $response->getName());
     }
 
-    /** @group store */
+    #[\PHPUnit\Framework\Attributes\Group('store')]
     public function test_store_has_groups()
     {
         $user = User::factory()->create();
