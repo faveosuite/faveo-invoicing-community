@@ -199,7 +199,7 @@ class SubscriptionController extends Controller
                 if ($planDetails['plan'] === null) {
                     $cost = null;
                     $invoice = InvoiceItem::whereInvoiceId($oldinvoice->id)->first();
-                    throw new \Exception(__('message.order_no_active_plan_cancelled', ['name' => $planDetails['name']]));
+                    throw new \Exception(__('message.order_no_active_plan_cancelled', ['order_number' => $order->number]));
                 }
                 $price = $planDetails['plan']->renew_price ?? 0;
                 if (isAgentAllowed($subscription->product_id)) {

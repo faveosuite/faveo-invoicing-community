@@ -11,9 +11,11 @@ use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
 use App\Model\Order\Payment;
 use App\Model\Payment\Plan;
+use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\User;
+use Carbon\Carbon;
 use Tests\DBTestCase;
 
 class SubscriptionControllerTest extends DBTestCase
@@ -178,4 +180,71 @@ class SubscriptionControllerTest extends DBTestCase
         $response = $controller->postRazorpayPayment($invoiceItem, $payment_method);
         $this->assertTrue(true);
     }
+
+    public function test_autorenewal_when_there_is_no_plan_for_the_order()
+    {
+        $this->withoutMiddleware();
+        \Mail::fake();
+        StatusSetting::first()->update(['subs_expirymail' => 1]);
+        $user = User::factory()->create([
+            'role' => 'user',
+            'country' => 'IN',
+        ]);
+
+        $product = Product::create([
+            'name' => 'Helpdesk',
+        ]);
+
+        $invoice = Invoice::factory()->create([
+            'user_id' => $user->id,
+        ]);
+
+        InvoiceItem::create([
+            'invoice_id' => $invoice->id,
+            'product_name' => $product->name,
+        ]);
+
+        $order = Order::create([
+            'client' => $user->id,
+            'order_status' => 'executed',
+            'product' => 'Helpdesk Advance',
+            'number' => 123456,
+            'invoice_id' => $invoice->id,
+        ]);
+
+        $plan = Plan::create([
+            'name' => 'Helpdesk 1 year',
+            'product' => $product->id,
+            'days' => 365,
+        ]);
+
+        PlanPrice::create([
+            'plan_id' => $plan->id,
+        ]);
+
+        $id = \DB::table('subscriptions')->insertGetId([
+            'user_id' => $user->id,
+            'plan_id' => $plan->id,
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'is_subscribed' => 1,
+            'autoRenew_status' => 1,
+            'update_ends_at' => Carbon::now()->addDays(1)->toDateString(),
+        ]);
+
+        $subscription = \DB::table('subscriptions')->where('id', $id)->first();
+
+        $this->assertTrue((boolean)$subscription->autoRenew_status);
+        $this->assertTrue((boolean)$subscription->is_subscribed);
+
+
+        \Artisan::call('renewal:cron');
+
+        $this->assertDatabaseHas('subscriptions', [
+            'id' => $subscription->id,
+            'autoRenew_status' => 0,
+            'is_subscribed' => 0,
+        ]);
+    }
+
 }
