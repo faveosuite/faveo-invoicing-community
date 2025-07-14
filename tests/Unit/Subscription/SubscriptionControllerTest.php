@@ -234,9 +234,8 @@ class SubscriptionControllerTest extends DBTestCase
 
         $subscription = \DB::table('subscriptions')->where('id', $id)->first();
 
-        $this->assertTrue((boolean)$subscription->autoRenew_status);
-        $this->assertTrue((boolean)$subscription->is_subscribed);
-
+        $this->assertTrue((bool) $subscription->autoRenew_status);
+        $this->assertTrue((bool) $subscription->is_subscribed);
 
         \Artisan::call('renewal:cron');
 
@@ -246,5 +245,4 @@ class SubscriptionControllerTest extends DBTestCase
             'is_subscribed' => 0,
         ]);
     }
-
 }
