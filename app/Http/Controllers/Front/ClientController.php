@@ -19,6 +19,7 @@ use App\Model\Order\Payment;
 use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
+use App\Model\Plugin;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
@@ -242,7 +243,7 @@ class ClientController extends BaseClientController
             $planid = $sub->plan_id;
             $plan = Plan::find($planid);
             $planDetails = userCurrencyAndPrice($sub->user_id, $plan);
-            if ($planDetails['plan'] === null) {
+            if (is_null($planDetails['plan'])) {
                 throw new \Exception(__('message.no_available_plans_currency'));
             }
             $cost = $planDetails['plan']->renew_price;
@@ -882,7 +883,11 @@ class ClientController extends BaseClientController
             $userCountry = \Auth::user()->country;
             $displayCurrency = getCurrencyForClient($userCountry);
 
-            if (! isCurrencySupportedForPayments($displayCurrency, ['stripe', 'razorpay'])) {
+            if (! isCurrencySupportedForPayments($displayCurrency,
+                Plugin::whereStatus(1)
+                ->pluck('name')
+                ->map(fn($name) => strtolower($name))
+                ->toArray())) {
                 throw new \Exception(__('message.unsupported_country'));
             }
 

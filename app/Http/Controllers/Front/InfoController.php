@@ -15,16 +15,16 @@ class InfoController extends Controller
      */
     public function getState()
     {
-        if (\Auth::user()->country != 'IN') {
-            $states = State::where('country_code', \Auth::user()->country)
-                ->where('iso2', \Auth::user()->state)
-                ->pluck('state_subdivision_name')
-                ->first();
-        } else {
-            $states = TaxByState::where('state_code', \Auth::user()->state)->pluck('state')->first();
+        $user = \Auth::user();
+
+        if ($user->country !== 'IN') {
+            return State::where('country_code', $user->country)
+                ->where('iso2', $user->state)
+                ->value('state_subdivision_name');
         }
 
-        return $states;
+        return TaxByState::where('state_code', $user->state)
+            ->value('state');
     }
 
     public function payment($payment_method, $status)

@@ -7,6 +7,7 @@ use App\Http\Controllers\Common\MSG91Controller;
 use App\Http\Controllers\Controller;
 use App\Model\Common\Country;
 use App\Model\Common\Setting;
+use App\Model\Common\State;
 use App\Model\Common\StatusSetting;
 use App\Model\User\AccountActivate;
 use App\User;
@@ -25,8 +26,10 @@ class BaseAuthController extends Controller
     public function reqFields($user, $email)
     {
         $user = $user->where('email', $email)->first();
-        $country = \DB::table('countries')->where('country_code_char2', $user->country)->pluck('country_name')->first();
-        $state = \DB::table('states_subdivisions')->where('country_code', $user->country)->where('iso2', $user->state)->pluck('state_subdivision_name')->first();
+        $country = Country::whereCountryCodeChar2($user->country)->value('country_name');
+        $state = State::where('country_code', $user->country)
+            ->where('iso2', $user->state)
+            ->value('state_subdivision_name');
         $phone = $user->mobile;
         $code = $user->mobile_code;
         if ($user) {

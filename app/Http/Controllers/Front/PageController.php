@@ -485,23 +485,22 @@ class PageController extends Controller
                 $countryids = \App\Model\Common\Country::where('country_code_char2', $country)->value('country_id');
                 $currencyAndSymbol = getCurrencyForClient($country);
             }
-
-            $productsRelatedToGroup = \App\Model\Product\Product::where('products.group', $groupid)
-                ->where('products.hidden', '!=', 1)
-                ->join('plans', 'products.id', '=', 'plans.product')
-                ->join('plan_prices', function ($join) use ($currencyAndSymbol) {
-                    $join->on('plans.id', '=', 'plan_prices.plan_id')
-                        ->where('plan_prices.currency', '=', $currencyAndSymbol);
+            $productsRelatedToGroup = Product::with([
+                'planRelation' => function ($query) use ($currencyAndSymbol) {
+                    $query->with(['planPrice' => function ($priceQuery) use ($currencyAndSymbol) {
+                        $priceQuery->where('currency', $currencyAndSymbol);
+                    }]);
+                }
+            ])
+                ->where('group', $groupid)
+                ->where('hidden', '!=', 1)
+                ->whereHas('planRelation', function ($query) use ($currencyAndSymbol) {
+                    $query->whereHas('planPrice', function ($priceQuery) use ($currencyAndSymbol) {
+                        $priceQuery->where('currency', $currencyAndSymbol);
+                    });
                 })
-                ->select(
-                    'products.*',
-                    'plan_prices.add_price'
-                )
-                ->orderBy('products.id')
-                ->orderByRaw('CAST(plan_prices.add_price AS DECIMAL(10, 2)) ASC')
-                ->orderBy('plans.created_at', 'ASC')
-                ->get()
-                ->unique('id');
+                ->orderBy('id')
+                ->get();
 
             $trasform = [];
             $templates = $this->getTemplateOne($productsRelatedToGroup, $trasform);

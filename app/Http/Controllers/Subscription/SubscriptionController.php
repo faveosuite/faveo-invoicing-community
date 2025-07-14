@@ -196,7 +196,7 @@ class SubscriptionController extends Controller
                 $planObj = Plan::where('id', $subscription->plan_id)->first();
                 $planDetails = userCurrencyAndPrice($userid, $planObj);
                 $currency = $planDetails['currency'];
-                if ($planDetails['plan'] === null) {
+                if (is_null($planDetails['plan'])) {
                     $cost = null;
                     $invoice = InvoiceItem::whereInvoiceId($oldinvoice->id)->first();
                     throw new \Exception(__('message.order_no_active_plan_cancelled', ['order_number' => $order->number]));

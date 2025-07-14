@@ -330,30 +330,34 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         try {
             $subscription = Subscription::where('order_id', $orderId)->first();
 
-            $subscribeId = $subscription->subscribe_id;
-            $isSubscribed = $subscription->is_subscribed;
+            $cancellationHandlers = collect([
+                'rzp_subscription' => function($subscribeId) {
+                    $apiKeys = ApiKey::select('rzp_key', 'rzp_secret')->first();
+                    $api = new Api($apiKeys->rzp_key, $apiKeys->rzp_secret);
+                    $api->subscription->fetch($subscribeId)->cancel();
+                },
+                'autoRenew_status' => function($subscribeId) {
+                    $stripeSecretKey = ApiKey::value('stripe_secret');
+                    $stripe = new \Stripe\StripeClient($stripeSecretKey);
+                    $stripe->subscriptions->cancel($subscribeId, []);
+                }
+            ]);
 
-            if ($subscription->rzp_subscription && $isSubscribed && $subscribeId) {
-                $apiKeys = ApiKey::find(1);
-                $api = new Api($apiKeys->rzp_key, $apiKeys->rzp_secret);
-                $api->subscription->fetch($subscribeId)->cancel();
-
-                $subscription->is_subscribed = 0;
-                $subscription->rzp_subscription = 0;
-            } elseif ($subscription->autoRenew_status && $isSubscribed && $subscribeId) {
-                $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();
-                $stripe = new \Stripe\StripeClient($stripeSecretKey);
-                $stripe->subscriptions->cancel($subscribeId, []);
-
-                $subscription->is_subscribed = 0;
-                $subscription->autoRenew_status = 0;
-            } else {
-                $subscription->is_subscribed = 0;
-                $subscription->autoRenew_status = 0;
-                $subscription->rzp_subscription = 0;
+            if ($subscription->is_subscribed && $subscription->subscribe_id) {
+                $cancellationHandlers
+                    ->filter(fn($handler, $field) => $subscription->$field)
+                    ->first()($subscription->subscribe_id);
             }
-            $subscription->save();
+
+            $subscription->update([
+                'is_subscribed' => 0,
+                'autoRenew_status' => 0,
+                'rzp_subscription' => 0
+            ]);
+
+
         } catch (\Exception $ex) {
+            \Log::error('Subscription cancellation failed: ' . $ex->getMessage());
             return;
         }
     }
