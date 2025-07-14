@@ -4,6 +4,7 @@ namespace App\Http\Controllers\AutoUpdate;
 
 use App\ApiKey;
 use App\Http\Controllers\Controller;
+
 //cooment
 class AutoUpdateController extends Controller
 {
