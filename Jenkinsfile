@@ -39,7 +39,7 @@ pipeline {
                     mysql -u ${DB_USER} -p${DB_PASS} < /var/lib/jenkins/automation/billing_${buildNumber}.sql && \
                     php artisan optimize:clear && \
                     php artisan testing-setup --username=${DB_USER} --password=${DB_PASS} --database=billing_${buildNumber} && \
-                    COMPOSER_MEMORY_LIMIT=-1 php artisan test --coverage-php=storage/sonarqube/clover.xml
+                    COMPOSER_MEMORY_LIMIT=-1 php artisan test --coverage-clover=storage/sonarqube/clover.xml
                     """
                     }
                 }
