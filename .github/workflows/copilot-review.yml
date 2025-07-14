@@ -1,0 +1,55 @@
+name: Copilot Review & Code Correction Label
+
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize]
+  pull_request_review:
+    types: [submitted]
+
+permissions:
+  pull-requests: write
+  issues: write
+
+jobs:
+  # 1️⃣ Request Copilot review on PR open or update
+  request-copilot-review:
+    if: github.event_name == 'pull_request_target'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Request Copilot review
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            await github.rest.pulls.requestReviewers({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+              reviewers: ['Copilot'] // Make sure this matches the GitHub reviewer name exactly
+            });
+
+  # 2️⃣ Label PR as 'code correction' if any review leaves comments
+  label-code-correction:
+    if: github.event_name == 'pull_request_review' && github.event.review.state == 'commented'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add "code correction" label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const { data: existingLabels } = await github.rest.issues.listLabelsOnIssue({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber
+            });
+
+            const hasLabel = existingLabels.some(label => label.name === 'code correction');
+            if (!hasLabel) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                labels: ['code correction']
+              });
+            }
