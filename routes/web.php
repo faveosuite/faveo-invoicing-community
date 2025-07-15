@@ -241,6 +241,7 @@ Route::middleware('installAgora')->group(function () {
     Route::get('search-admins', [Common\SystemManagerController::class, 'searchAdmin'])->name('search-admins');
     Route::post('replace-acc-manager', [Common\SystemManagerController::class, 'replaceAccountManager'])->name('replace-acc-manager');
     Route::post('replace-sales-manager', [Common\SystemManagerController::class, 'replaceSalesManager'])->name('replace-sales-manager');
+    Route::post('managerAutoAssign',  [Common\SystemManagerController::class, 'setAutoAssignToManager']);
     Route::get('debugg', [Common\SettingsController::class, 'debugSettings']);
     Route::post('save/debugg', [Common\SettingsController::class, 'postdebugSettings']);
     Route::post('v3captchaDetails', [Common\BaseSettingsController::class, 'v3captchaDetails'])->name('v3captchaDetails');

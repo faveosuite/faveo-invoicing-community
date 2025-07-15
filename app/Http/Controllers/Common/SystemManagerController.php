@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Common;
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Controller;
+use App\Model\Common\ManagerSetting;
 use App\User;
 use Illuminate\Http\Request;
 
@@ -17,15 +18,30 @@ class SystemManagerController extends Controller
 
     public function getSystemManagers()
     {
-        $accountManagers = User::where('role', 'admin')
+        $accountManagers = User::selectRaw("id, CONCAT(first_name, ' ', last_name, ' <', email, '>') AS display")
+            ->where('role', 'admin')
             ->where('position', 'account_manager')
-            ->pluck('first_name', 'id')->toArray();
+            ->pluck('display', 'id')
+            ->toArray();
 
-        $salesManager = User::where('role', 'admin')
-        ->where('position', 'manager')
-        ->pluck('first_name', 'id')->toArray();
+        $salesManager = User::selectRaw("id, CONCAT(first_name, ' ', last_name, ' <', email, '>') AS display")
+            ->where('role', 'admin')
+            ->where('position', 'manager')
+            ->pluck('display', 'id')
+            ->toArray();
 
-        return view('themes.default1.common.system-managers', compact('accountManagers', 'salesManager'));
+        $settings = ManagerSetting::whereIn('manager_role', ['account', 'sales'])
+            ->pluck('auto_assign', 'manager_role');
+
+        $accountManagersAutoAssign = $settings['account'];
+        $salesManagerAutoAssign = $settings['sales'];
+
+        return view('themes.default1.common.system-managers', compact(
+            'accountManagers',
+            'salesManager',
+            'accountManagersAutoAssign',
+            'salesManagerAutoAssign'
+        ));
     }
 
     public function searchAdmin(Request $request)
@@ -63,7 +79,7 @@ class SystemManagerController extends Controller
      * @date   2019-08-21T12:54:03+0530
      *
      * @param  Request  $request
-     * @return array
+     * @return \HTTP
      */
     public function replaceAccountManager(Request $request)
     {
@@ -72,32 +88,35 @@ class SystemManagerController extends Controller
             'newAccManager' => 'required',
         ], [
             'existingAccManager.required' => __('message.existingAccManager_required'),
-            'newAccManager.required' => __('message.newAccManager_required'),
+            'newAccManager.required'     => __('message.newAccManager_required'),
         ]);
 
         try {
-            $existingAccManager = $request->input('existingAccManager');
-            $newAccountManager = $request->input('newAccManager')[0];
-            if ($existingAccManager == $newAccountManager) {
-                return ['message' => 'fails', 'update' => __('message.same_account_manager_error')];
+            $existingId = $request->input('existingAccManager');
+            $newId = $request->input('newAccManager');
+
+            if ($existingId == $newId) {
+                return errorResponse(__('message.same_account_manager_error'));
             }
-            //First make the selected Admin as account Manager-
-            User::where('id', $newAccountManager)->update(['position' => 'account_manager']);
-            $accManagers = User::where('account_manager', $existingAccManager)->get();
-            foreach ($accManagers as $accManager) {
-                User::where('id', $accManager->id)->update(['account_manager' => $newAccountManager]);
-            }
-            $arrayOfBccEmails = User::where('account_manager', $newAccountManager)->get();
-            if ($arrayOfBccEmails && emailSendingStatus()) {
-                foreach ($arrayOfBccEmails as $user) {
-                    $cont = new AuthController();
-                    $sendMail = $cont->accountManagerMail($user);
+
+            // Promote new user to account manager
+            User::where('id', $newId)->update(['position' => 'account_manager']);
+
+            // Reassign users under old manager to new one
+            User::where('account_manager', $existingId)
+                ->update(['account_manager' => $newId]);
+
+            if (emailSendingStatus()) {
+                $usersToNotify = User::where('account_manager', $newId)->get();
+                $mailer = new AuthController;
+                foreach ($usersToNotify as $user) {
+                    $mailer->accountManagerMail($user);
                 }
             }
 
-            return ['message' => 'success', 'update' => \Lang::get('message.account_man_replaced_success')];
-        } catch (\Exception $ex) {
-            return ['message' => 'fails', 'update' => $ex->getMessage()];
+            return successResponse(__('message.account_man_replaced_success'));
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
         }
     }
 
@@ -109,7 +128,7 @@ class SystemManagerController extends Controller
      * @date   2019-08-21T12:54:03+0530
      *
      * @param  Request  $request
-     * @return array
+     * @return \HTTP
      */
     public function replaceSalesManager(Request $request)
     {
@@ -122,29 +141,53 @@ class SystemManagerController extends Controller
         ]);
 
         try {
-            $existingSaleManager = $request->input('existingSaleManager');
-            $newSalesManager = $request->input('newSaleManager')[0];
-            if ($existingSaleManager == $newSalesManager) {
-                return ['message' => 'fails', 'update' => __('message.sales_manager_must_be_different')];
-            }
-            //First make the selected Admin as sales Manager-
-            User::where('id', $newSalesManager)->update(['position' => 'manager']);
+            $existingId = $request->input('existingSaleManager');
+            $newId      = $request->input('newSaleManager');
 
-            $saleManagers = User::where('manager', $existingSaleManager)->get();
-            foreach ($saleManagers as $saleManager) {
-                User::where('id', $saleManager->id)->update(['manager' => $newSalesManager]);
+            if ($existingId == $newId) {
+                return errorResponse(__('message.sales_manager_must_be_different'));
             }
-            $arrayOfBccEmails = User::where('manager', $newSalesManager)->get();
-            if ($arrayOfBccEmails && emailSendingStatus()) {
-                foreach ($arrayOfBccEmails as $user) {
-                    $cont = new AuthController();
-                    $sendMail = $cont->salesManagerMail($user);
+
+            // Promote the new user as sales manager
+            User::where('id', $newId)->update(['position' => 'manager']);
+
+            // Reassign all users under the old manager to the new one
+            User::where('manager', $existingId)->update(['manager' => $newId]);
+
+            // Notify affected users if email sending is enabled
+            if (emailSendingStatus()) {
+                $usersToNotify = User::where('manager', $newId)->get();
+
+                $mailer = new AuthController;
+                foreach ($usersToNotify as $user) {
+                    $mailer->salesManagerMail($user);
                 }
             }
 
-            return ['message' => 'success', 'update' => \Lang::get('message.sales_man_replaced_success')];
-        } catch (\Exception $ex) {
-            return ['message' => 'fails', 'update' => $ex->getMessage()];
+            return successResponse(__('message.sales_man_replaced_success'));
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
         }
+    }
+
+    public function setAutoAssignToManager(Request $request)
+    {
+        $this->validate($request, [
+            'manager_role' => 'required|in:account,sales',
+            'status' => 'required|boolean',
+        ], [
+            'manager_role.required' => __('manager_validation.manager_role.required'),
+            'manager_role.in' => __('manager_validation.manager_role.in'),
+            'status.required' => __('manager_validation.status.required'),
+            'status.boolean' => __('manager_validation.status.boolean'),
+        ]);
+
+        $managerRole = $request->input('manager_role');
+        $status = (bool) $request->input('status');
+
+        ManagerSetting::whereManagerRole($managerRole)
+            ->update(['auto_assign' => $status]);
+
+        return successResponse(__('message.auto_assign_success'));
     }
 }

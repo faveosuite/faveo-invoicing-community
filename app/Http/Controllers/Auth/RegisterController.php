@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\User\ProfileRequest;
 use App\Jobs\AddUserToExternalService;
 use App\Model\Common\EmailMobileValidationProviders;
+use App\Model\Common\ManagerSetting;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Rules\CaptchaValidation;
@@ -165,6 +166,9 @@ class RegisterController extends Controller
             $location = getLocation();
             $state_code = $location['iso_code'].'-'.$location['state'];
 
+            $accountManagerStatus = ManagerSetting::whereManagerRole('account')->value('auto_assign');
+            $salesManagerStatus = ManagerSetting::whereManagerRole('sales')->value('auto_assign');
+
             $state = getStateByCode($state_code);
             $user = [
                 'state' => $state['id'],
@@ -185,7 +189,8 @@ class RegisterController extends Controller
                 'user_name' => strip_tags($request->input('email')),
                 'first_name' => strip_tags($request->input('first_name')),
                 'last_name' => strip_tags($request->input('last_name')),
-                'manager' => $user->assignSalesManager(),
+                'account_manager' => $accountManagerStatus ? $user->assignManagerByPosition('account_manager') : null,
+                'manager' => $salesManagerStatus ? $user->assignManagerByPosition('manager') : null,
                 'ip' => $location['ip'],
                 'timezone_id' => getTimezoneByName($location['timezone']),
                 'referrer' => Referer::get(),
