@@ -264,6 +264,19 @@
                 </div>
             </div>
 
+            <div class="col-md-2 col-sm-6">
+                <div class="settingiconblue">
+                    <div class="settingdivblue">
+                        <a class="icons-color" href="{{url('plugins-grouping')}}">
+                            <span class="fa-stack fa-2x">
+                                <i class="fas fa-plug fa-stack-1x"></i>
+                            </span>
+                        </a>
+                    </div>
+                    <div class="text-center text-sm fw_400">Plugins-Grouping</div>
+                </div>
+            </div>
+
             @if($mailSendingStatus==1)
             <div class="col-md-2 col-sm-6">
                 <div class="settingiconblue">

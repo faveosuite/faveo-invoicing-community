@@ -86,7 +86,6 @@ class SubscriptionController extends Controller
             if ($decodedData === null && json_last_error() !== JSON_ERROR_NONE) {
                 return [];
             }
-
             $subscriptions = [];
             foreach ($decodedData as $day) {
                 $day = (int) $day;
@@ -152,8 +151,10 @@ class SubscriptionController extends Controller
                     ->orWhere('ends_at', 'LIKE', $endDate.'%');
             })
                 ->where(function ($query) {
-                    $query->where('is_subscribed', 2)
-                        ->orWhere('autoRenew_status', 2);
+                    $query->where('rzp_subscription', 2)
+                        ->orWhere('autoRenew_status', 2)
+                        ->orWhere('rzp_subscription', 3)
+                        ->orWhere('autoRenew_status', 3);
                 })
                 ->get()
                 ->toArray();
@@ -179,6 +180,7 @@ class SubscriptionController extends Controller
             }
             //Retrieve expired subscription details
             $subscriptions_detail = $this->getOnDayExpiryInfoSubs();
+
             foreach ($subscriptions_detail as $subscription) {
                 $subscription = (object) $subscription;
                 $userid = $subscription->user_id;
@@ -214,7 +216,11 @@ class SubscriptionController extends Controller
 
                 if (in_array($subscription->product_id, cloudPopupProducts()) || $product_details->can_modify_agent) {
                     $noOfAgents = $priceRow->no_of_agents;
-                    $priceForAgents = $price / $noOfAgents;
+                    if($noOfAgents > 0) {
+                        $priceForAgents = $price / $noOfAgents;
+                    }else{
+                        $priceForAgents = $price;
+                    }
                     $cost = $this->getPriceforCloud($order, $priceForAgents);
                 } else {
                     $cost = $price;
@@ -230,7 +236,6 @@ class SubscriptionController extends Controller
                 if ($this->shouldCancelSubscription($product_details, $price)) {
                     Subscription::where('id', $subscription->id)->update(['is_subscribed' => 0]);
                 }
-
                 //Do not create invoices for invoices that are already unpaid
                 if ($subscription->autoRenew_status != '2' || $subscription->rzp_subscription != '2' && $price > 0) {
                     $findInvoiceid = \DB::table('order_invoice_relations')
@@ -269,7 +274,7 @@ class SubscriptionController extends Controller
 
                 if ($price > 0) {
                     //Check the invoice status for active subscription
-                    $this->validateInvoiceForActiveSubscriptionStatus($subscription, $currency, $cost, $user, $order, $product_details);
+                    $this->validateInvoiceForActiveSubscriptionStatus($subscription, $currency, $cost, $user, $order, $product_details,$invoice,$plan);
 
                     //Create subscription status enabled users
                     $this->createSubscriptionsForEnabledUsers($stripe_payment_details, $product_details, $unit_cost, $currency, $plan, $subscription, $invoice, $order, $user, $cost, $end);
@@ -413,12 +418,15 @@ class SubscriptionController extends Controller
     public function getPriceforCloud($order, $price)
     {
         $numberofAgents = (int) ltrim(substr($order->serial_key, -4), '0');
-        $finalPrice = $numberofAgents * $price;
-
+        if($numberofAgents) {
+            $finalPrice = $numberofAgents * $price;
+        }else{
+            $finalPrice = $price;
+        }
         return $finalPrice;
     }
 
-    private function validateInvoiceForActiveSubscriptionStatus($subscription, $currency, $cost, $user, $order, $product_details)
+    private function validateInvoiceForActiveSubscriptionStatus($subscription, $currency, $cost, $user, $order, $product_details,$invoice,$plan)
     {
         if ($subscription->is_subscribed != '1') {
             return;
@@ -427,7 +435,7 @@ class SubscriptionController extends Controller
         if ($subscription->is_subscribed == '1' && $subscription->autoRenew_status == '3') {
             $this->processStripeSubscription($subscription, $currency, $cost, $user, $order, $product_details);
         } elseif ($subscription->is_subscribed == '1' && $subscription->rzp_subscription == '3') {
-            $this->processRazorpaySubscription($subscription, $currency, $cost, $user, $order, $product_details);
+            $this->processRazorpaySubscription($subscription, $currency, $cost, $user, $order, $product_details,$invoice,$plan);
         }
     }
 
@@ -444,11 +452,43 @@ class SubscriptionController extends Controller
         $subscriptionStatus = \Stripe\Subscription::retrieve($subscription->subscribe_id);
         $latestInvoiceId = $subscriptionStatus->latest_invoice;
         $latestInvoice = \Stripe\Invoice::retrieve($latestInvoiceId);
+        $url = $invoice->hosted_invoice_url;
 
-        if ($latestInvoice->status != 'paid') {
-            return;
-        }
+        match($latestInvoice->status) {
+            'paid'=>$this->whenstrpaymentpaid($latestInvoice,$currency,$cost,$invoiceItem,$invoiceid,$subscription,$user,$product_details,$order),
+            default =>$this->sendstrInvoiceurl($currency,$cost,$subscription,$product_details,$url,$user),
+        };
+//        $createdDate = Carbon::createFromTimestamp($latestInvoice->created)->startOfDay();
+//        $today = Carbon::today();
+//        $yesterday = Carbon::yesterday();
+//
+//        if (! $createdDate->eq($today)) {
+//            return;
+//        }
+//        $invoiceCost = $this->calculateReverseUnitCost($currency, $latestInvoice->amount);
+//        $cost = $cost == intval($invoiceCost) ? $cost : intval($invoiceCost);
+//        Invoice::where('id', $invoiceItem->invoice_id)->where('status', 'pending')->update(['grand_total' => $cost]);
+//        \DB::table('invoice_items')->where('invoice_id', $invoiceid)->where('product_id', $subscription->product_id)->update(['regular_price' => $cost]);
+//        // Refresh the invoice and invoice item instances
+//        $invoice = Invoice::find($invoiceItem->invoice_id);
+//        $invoiceItem = InvoiceItem::where('invoice_id', $invoiceid)->where('product_id', $subscription->product_id)->first();
+//        $this->PostSubscriptionHandle->successRenew($invoiceItem, $subscription, 'Razorpay', $invoice->currency);
+//        $sub = $this->PostSubscriptionHandle->successRenew($invoice, $subscription, 'stripe', $currency);
+//        $this->PostSubscriptionHandle->postRazorpayPayment($invoice, 'stripe');
+//
+//        if ($cost && emailSendingStatus()) {
+//            $this->PostSubscriptionHandle->sendPaymentSuccessMail($sub, $currency, $cost, $user, $product_details->name, $order->number);
+//            $this->PostSubscriptionHandle->PaymentSuccessMailtoAdmin($invoice, $cost, $user, $product_details->name, null, $order, 'stripe');
+//        }
+    }
 
+    public function sendstrInvoiceurl($currency,$cost,$subscription,$product_details,$url,$user){
+        //Based on a count you have to make the mail sending
+        $unit_cost=$this->calculateReverseUnitCost($currency,$cost);
+        $this->mailSendToActiveStripeSubscription($subscription, $product_details, $unit_cost, $currency, $plan=null, $url, $user);
+    }
+
+    public function whenstrpaymentpaid($latestInvoice,$currency,$cost,$invoiceItem,$invoiceid,$subscription,$user,$product_details,$order){
         $createdDate = Carbon::createFromTimestamp($latestInvoice->created)->startOfDay();
         $today = Carbon::today();
         $yesterday = Carbon::yesterday();
@@ -473,16 +513,65 @@ class SubscriptionController extends Controller
         }
     }
 
-    private function processRazorpaySubscription($subscription, $currency, $cost, $user, $order, $product_details)
+    private function processRazorpaySubscription($subscription, $currency, $cost, $user, $order, $product_details,$invoice,$plan)
     {
         $key_id = ApiKey::pluck('rzp_key')->first();
         $secret = ApiKey::pluck('rzp_secret')->first();
         $api = new Api($key_id, $secret);
+        $end=$subscription->update_ends_at;
         $subscriptionStatus = $api->subscription->fetch($subscription->subscribe_id);
+        $unit_cost=$this->calculateReverseUnitCost($currency,$cost);
+        match($subscriptionStatus->status) {
+            'pending'=>$this->whensubscriptionpending($api,$subscriptionStatus,$subscription,$currency,$cost,$user,$order,$product_details),
+            'completed'=>$this->handleRazorpaySubscription($unit_cost, $plan, $product_details, $invoice, $currency, $subscription, $user, $order, $end),
+            'active'=>$this->whenSubscriptionActive($api,$subscriptionStatus,$subscription,$currency,$cost,$user,$order,$product_details),
+            'authenticated'=>$this->whenSubscriptionActive($api,$subscriptionStatus,$subscription,$currency,$cost,$user,$order,$product_details),
+            'expired'=>null,
+            default => null
+        };
 
-        if ($subscriptionStatus->status != 'active') {
-            return;
-        }
+//        $invoices = $api->invoice->all(['subscription_id' => $subscriptionStatus['id']]);
+//
+//        $recentInvoice = null;
+//        $today = date('Y-m-d');
+//        $yesterday = Carbon::yesterday()->format('Y-m-d');
+//        $product_name = Product::where('id', $subscription->product_id)->value('name');
+//        $invoiceid = \DB::table('order_invoice_relations')->where('order_id', $subscription->order_id)->latest()->value('invoice_id');
+//        $invoiceItem = \DB::table('invoice_items')->where('invoice_id', $invoiceid)->where('product_id', $subscription->product_id)->first();
+//        $invoice = Invoice::where('id', $invoiceItem->invoice_id)->where('status', 'pending')->first();
+//        $order = Order::where('id', $subscription->order_id)->first();
+//
+//        foreach ($invoices->items as $invoices) {
+//            if ($invoices->status === 'paid' && date('Y-m-d', $invoices->paid_at) === $today) {
+//                $recentInvoice = $invoices;
+//                break;
+//            }
+//        }
+//
+//        if ($recentInvoice) {
+//            $invoiceCost = $this->calculateReverseUnitCost($currency, $invoices->amount);
+//            $cost = $cost == intval($invoiceCost) ? $cost : intval($invoiceCost);
+//            Invoice::where('id', $invoiceItem->invoice_id)->where('status', 'pending')->update(['grand_total' => $cost]);
+//            \DB::table('invoice_items')->where('invoice_id', $invoiceid)->where('product_id', $subscription->product_id)->update(['regular_price' => $cost]);
+//            // Refresh the invoice and invoice item instances
+//            $invoice = Invoice::find($invoiceItem->invoice_id);
+//            $invoiceItem = InvoiceItem::where('invoice_id', $invoiceid)->where('product_id', $subscription->product_id)->first();
+//            $this->PostSubscriptionHandle->successRenew($invoiceItem, $subscription, 'Razorpay', $invoice->currency);
+//            $this->PostSubscriptionHandle->postRazorpayPayment($invoiceItem, 'Razorpay');
+//            $this->PostSubscriptionHandle->sendPaymentSuccessMail($subscription->id, $currency, $cost, $user, $product_name, $order->number);
+//            $this->PostSubscriptionHandle->PaymentSuccessMailtoAdmin($invoice, $cost, $user, $product_name, null, $order, 'razorpay');
+//        }
+    }
+
+    public function whensubscriptionpending($api,$subscriptionStatus,$subscription,$currency,$cost,$user,$order,$product_details){
+        //Based on count we have to send this mail.
+        $url=url('rzp-authentication/'.$order->id);
+        $unit_cost=$this->calculateReverseUnitCost($currency,$cost);
+        $this->mailSendToActiveStripeSubscription($subscription, $product_details, $unit_cost, $currency, $plan=null, $url, $user);
+    }
+
+    public function whenSubscriptionActive($api,$subscriptionStatus,$subscription,$currency,$cost,$user,$order,$product_details){
+
         $invoices = $api->invoice->all(['subscription_id' => $subscriptionStatus['id']]);
 
         $recentInvoice = null;
@@ -516,6 +605,7 @@ class SubscriptionController extends Controller
         }
     }
 
+
     public function createSubscriptionsForEnabledUsers($stripe_payment_details, $product_details, $unit_cost, $currency, $plan, $subscription, $invoice, $order, $user, $cost, $end)
     {
         if ($subscription->is_subscribed == '1') {
@@ -530,7 +620,7 @@ class SubscriptionController extends Controller
     private function handleStripeSubscription($stripe_payment_details, $product_details, $unit_cost, $currency, $plan, $subscription, $invoice, $order, $user, $cost)
     {
         $stripeController = new SettingsController();
-        $stripeResponse = $stripeController->handleStripeAutoPay($stripe_payment_details, $product_details, $unit_cost, $currency, $plan);
+        $stripeResponse = $stripeController->handleStripeAutoPay($stripe_payment_details, $product_details, $unit_cost, $currency, $plan,$order);
 
         if ($stripeResponse->status == 'active') {
             $this->updateSubscriptionAndSendEmails($stripeResponse, $invoice, $subscription, $cost, $user, $product_details, $order, 'stripe', $currency);

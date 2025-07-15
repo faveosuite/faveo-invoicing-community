@@ -68,6 +68,23 @@
                         @enderror
                         <small id="stripe_secretcheck" class="text-danger"></small>
                     </div>
+
+                    <div class="form-group col-lg-5">
+                        <label for="processing_fee" class="required">{{ __('message.processing_fee') }}</label>
+                        <div class="input-group">
+                            <input
+                                    type="number"
+                                    id="processing_fee"
+                                    name="processing_fee"
+                                    value="{{ $stripeKeys->stripe_processing_fee }}"
+                                    class="form-control {{$errors->has('processing_fee') ? ' is-invalid' : ''}}">
+                        </div>
+                        @error('processing_fee')
+                        <small class="text-danger">{{ $message }}</small>
+                        @enderror
+                        <small id="stripe_processing_fee" class="text-danger"></small>
+                    </div>
+
                     <button type="submit" class="btn btn-primary" id="key_update">
                         <i class="fa fa-sync-alt"></i> {{ __('message.update') }}
                     </button>
@@ -97,6 +114,9 @@
                     stripe_secret: {
                         required: true,
                         maxlength: 200
+                    },
+                    processing_fee:{
+                        required:true,
                     }
                 },
                 messages: {
@@ -107,6 +127,9 @@
                     stripe_secret: {
                         required: "{{ __('message.required_stripe_secret') }}",
                         maxlength: "{{ __('message.max_stripe_secret') }}"
+                    },
+                    processing_fee:{
+                        required: "{{ __('message.required_stripe_secret') }}",
                     }
                 },
                 errorPlacement: function (error, element) {
@@ -131,7 +154,8 @@
                         type: 'GET',
                         data: {
                             "stripe_key": $('#stripe_key').val(),
-                            "stripe_secret": $('#stripe_secret').val()
+                            "stripe_secret": $('#stripe_secret').val(),
+                            "processing_fee":$('#processing_fee').val()
                         },
                         success: function(data) {
                             $('#alertMessage').html(`<div class="alert alert-success alert-dismissable">

@@ -70,7 +70,7 @@ trait PostPaymentHandle
         try {
             $user = User::find($invoice->user_id);
             $stateCode = \Auth::user()->state;
-            $cont = new \App\Http\Controllers\RazorpayController();
+            $cont = new \App\Plugins\Payment_module\Razorpay\Controllers\OnetimeController();
             $state = $cont->getState($stateCode);
             $currency = Currency::where('code', $currency)->pluck('symbol')->first();
 
@@ -89,6 +89,7 @@ trait PostPaymentHandle
                 }
 
                 $view = $cont->getViewMessageAfterPayment($invoice, $state, $currency);
+
             } elseif ($cloud->checkAgentAlteration()) {
                 if (\Session::has('agentIncreaseDate')) {
                     $control->successRenew($invoice);

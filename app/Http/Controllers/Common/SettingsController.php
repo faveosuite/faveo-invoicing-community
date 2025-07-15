@@ -17,6 +17,8 @@ use App\Model\Mailjob\QueueService;
 use App\Model\Order\Order;
 use App\Model\Payment\Currency;
 use App\Model\Plugin;
+use App\Model\Product\Product;
+use App\OptionsToDisplay;
 use App\Payment_log;
 use App\User;
 use Illuminate\Http\Request;
@@ -1252,6 +1254,69 @@ class SettingsController extends BaseSettingsController
             $emailSave->where('provider', $request->input('provider'))->update(['api_key' => $request->input('apikey'), 'to_use' => 1]);
 
             return successResponse(\Lang::get('message.mobile_validation_success_abstract'));
+        }
+    }
+
+
+    public function pluginsGrouping(Request $request){
+        $product=Product::select('id','name')->orderBy('name','DESC')->get();
+        return view('themes.default1.common.setting.plugins-grouping',compact('product'));
+    }
+
+    public function savePluginOptions(Request $request){
+
+        $product=$request->input('product_id');
+        $type=$request->input('option_type');
+        $option=$request->input('display_option');
+        $description=$request->input('option_description');
+        try {
+            OptionsToDisplay::create(
+                ['product_id' => $product, 'option_type' => $type, 'display_option' => $option, 'option_description' => $description]
+            );
+            return successResponse('successfully saved');
+        }catch (\Exception $e){
+            return errorResponse(\Lang::get('message.error'));
+        }
+
+    }
+
+
+    public function getOptionInfo(Request $request){
+
+        $product_id=$request->input('product_id');
+        $allProd=OptionsToDisplay::where('product_id',$product_id)->get();
+        try {
+            return DataTables::of($allProd)
+                ->addColumn('display_option', function ($allProd) {
+                    return $allProd->display_option;
+                })
+                ->addColumn('option_description', function ($allProd) {
+                    return $allProd->option_description;
+                })
+                ->addColumn('option_type', function ($allProd) {
+                    return $allProd->option_type;
+                })
+                ->addColumn('action', function ($allProd) {
+                    return "<p><button data-toggle='modal'
+                data-id=".$allProd->id." data-name= '' onclick=deleteOption('".$allProd->id."') id='delten".$allProd->id."'
+                class='btn btn-sm btn-dark btn-xs delTenant'".tooltip(__('message.delete'))."<i class='fa fa-trash'
+                style='color:white;'> </i></button>&nbsp;</p>";
+                })
+                ->rawColumns(['action', 'option_type', 'option_description', 'display_option'])
+                ->make(true);
+        }catch (\Exception $e){
+            dd($e->getMessage());
+        }
+    }
+
+
+    public function optionDelete(Request $request){
+        $id=$request->input('id');
+        try {
+            OptionsToDisplay::destroy($id);
+            return successResponse('successfully deleted');
+        }catch (\Exception $e){
+            return errorResponse('Something went wrong');
         }
     }
 }

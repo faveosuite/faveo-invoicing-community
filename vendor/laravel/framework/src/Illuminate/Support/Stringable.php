@@ -341,11 +341,12 @@ class Stringable implements JsonSerializable, ArrayAccess, BaseStringable
      * Determine if a given string matches a given pattern.
      *
      * @param  string|iterable<string>  $pattern
+     * @param  bool  $ignoreCase
      * @return bool
      */
-    public function is($pattern)
+    public function is($pattern, $ignoreCase = false)
     {
-        return Str::is($pattern, $this->value);
+        return Str::is($pattern, $this->value, $ignoreCase);
     }
 
     /**
@@ -630,6 +631,17 @@ class Stringable implements JsonSerializable, ArrayAccess, BaseStringable
      * @return static
      */
     public function pluralStudly($count = 2)
+    {
+        return new static(Str::pluralStudly($this->value, $count));
+    }
+
+    /**
+     * Pluralize the last word of an English, Pascal caps case string.
+     *
+     * @param  int|array|\Countable  $count
+     * @return static
+     */
+    public function pluralPascal($count = 2)
     {
         return new static(Str::pluralStudly($this->value, $count));
     }
@@ -929,6 +941,16 @@ class Stringable implements JsonSerializable, ArrayAccess, BaseStringable
     public function studly()
     {
         return new static(Str::studly($this->value));
+    }
+
+    /**
+     * Convert the string to Pascal case.
+     *
+     * @return static
+     */
+    public function pascal()
+    {
+        return new static(Str::pascal($this->value));
     }
 
     /**

@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Front;
 
 use App\ApiKey;
 use App\Auto_renewal;
+use App\Http\Controllers\ConcretePostSubscriptionHandleController;
 use App\Http\Controllers\Github\GithubApiController;
 use App\Http\Controllers\License\LicensePermissionsController;
+use App\Http\Controllers\Order\ExtendedBaseInvoiceController;
 use App\Http\Controllers\Order\RenewController;
+use App\Http\Controllers\Subscription\SubscriptionController;
 use App\Model\Common\CreditActivity;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
@@ -25,15 +28,22 @@ use App\Model\Product\Subscription;
 use App\Payment_log;
 use App\Plugins\Stripe\Controllers\SettingsController;
 use App\User;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Razorpay\Api\Api;
+use Stripe\Stripe;
+use Stripe\Customer;
+use Stripe\SetupIntent;
+use App\Traits\Payment\PostPaymentHandle;
+use Stripe\Checkout\Session as StripeSession;
 
 class ClientController extends BaseClientController
 {
+    use PostPaymentHandle;
     public $user;
 
     public $invoice;
@@ -43,6 +53,9 @@ class ClientController extends BaseClientController
     public $subscription;
 
     public $payment;
+
+    public $customer_id;
+
 
     public function __construct()
     {
@@ -78,147 +91,475 @@ class ClientController extends BaseClientController
         $this->client_secret = $this->github->client_secret;
     }
 
-    /**
-     * Create new Auto renewal and update auto-renewal status.
-     *
-     * @param  Request  $request
-     * @return array{type:string,message:string}|JsonResponse
-     */
-    public function enableAutorenewalStatus(Request $request)
-    {
-        try {
-            $amount = 1;
-            $currency = getCurrencyForClient(\Auth::user()->country);
-            $orderid = $request->get('order_id');
-            \Session::put('order',$orderid);
-            $url = url('confirm/auto-renewal');
-            $controller = new SettingsController();
-            $confirm = $controller->handlePayment($request, $amount, $currency, $url);
 
-            $paymentIntent = \Stripe\PaymentIntent::retrieve($confirm['id']);
-            $subscription = Subscription::where('order_id', $orderid)->first();
-            if ($confirm->status == 'requires_action') {
-                $count=1;
-                $redirectUrl = $paymentIntent->next_action->redirect_to_url->url;
 
-                return $redirectUrl;
-            } elseif ($confirm->status === 'succeeded') {
-                $refund = \Stripe\Refund::create([
-                    'payment_intent' => $confirm['id'],
-                    'amount' => $confirm['amount'],
-                ]);
-                $invoice_id = OrderInvoiceRelation::where('order_id', $orderid)->value('invoice_id');
-                $number = Invoice::where($paymentIntent->customerid)->value('number');
-                $customer_details = [
-                    'user_id' => \Auth::user()->id,
-                    'customer_id' => $paymentIntent->customer,
-                    'payment_method' => 'stripe',
-                    'order_id' => $orderid,
-                    'payment_intent_id' => $paymentIntent->payment_method,
-                ];
-                Auto_renewal::create($customer_details);
-                Subscription::where('order_id', $orderid)->update(['is_subscribed' => '1', 'autoRenew_status' => '1']);
-                $mail = new \App\Http\Controllers\Common\PhpMailController();
+//    public function createSetupIntent(Request $request)
+//    {        $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();
+//        $data = $request->json()->all();
+//        Stripe::setApiKey($stripeSecretKey);
+//
+//        // 1. Create Stripe customer (if not already saved)
+//        $customer = Customer::create([
+//            'email' => $data['email'],
+//            'name'  => $data['name'],
+//        ]);
+//
+//        // 2. Create SetupIntent for this customer
+//        $setupIntent = SetupIntent::create([
+//            'customer' => $customer->id,
+//        ]);
+//        $setupIntent = \Stripe\SetupIntent::retrieve($setupIntent->id); // replace with your SetupIntent ID
+//
+//        $status = $setupIntent->status;
+//        return response()->json([
+//            'client_secret' => $setupIntent->client_secret,
+//            'customer_id' => $customer->id,
+//            'setupIntent_id'=>$setupIntent->id,
+//        ]);
+//    }
 
-                $mail->payment_log(\Auth::user()->email, 'stripe', 'success', Order::where('id', $orderid)->value('number'), null, $amount, 'Payment method updated');
 
-                $response = ['type' => 'success', 'message' => __('message.card_details_updated_successfully')];
+//    public function saveCardDetails(Request $request)
+//    {$data = $request->json()->all();
+//        $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();
+//        Stripe::setApiKey($stripeSecretKey);
+//        $setupIntent = \Stripe\SetupIntent::retrieve($data['setupIntent_id']); // replace with your SetupIntent ID
+//        $status = $setupIntent->status;
+//        if($status == 'succeeded') {
+//            $order = \Session::get('order-id-renewal');
+//            $customer_details = [
+//                'user_id' => \Auth::user()->id,
+//                'customer_id' => $data['customer_id'],
+//                'payment_method' => 'stripe',
+//                'order_id' => $order,
+//                'payment_intent_id' => $data['payment_method_id'],
+//            ];
+//            Auto_renewal::create($customer_details);
+//            Subscription::where('order_id', $order)->update(['is_subscribed' => '1', 'autoRenew_status' => '1']);
+//        }
+//        return redirect('my-order/'.$order.'#auto-renew')->with('success', __('message.card_details_updated_successfully'));
+//    }
 
-                return ['type' => 'success', 'message' => __('message.card_details_updated_successfully')];
-            }
-        } catch(\Exception $ex) {
-            $result = $ex->getMessage();
-            $mail = new \App\Http\Controllers\Common\PhpMailController();
-            $mail->payment_log(\Auth::user()->email, 'stripe', 'failed', Order::where('id', $orderid)->value('number'), $result, $amount, 'Payment method updated');
-            $errorMessage = __('message.something_different_payment');
 
-            return response()->json(['error' => $errorMessage], 500);
-        }
+    public function rzpAuthentication($orderid){
+        $key_id = ApiKey::pluck('rzp_key')->first();
+        $order=Order::where('id',$orderid)->first();
+        $subscription=Subscription::where('order_id',$order->id)->first();
+        $user=\Auth::user();
+        $data = [
+            'key' => $key_id,
+            'name' => 'Faveo Helpdesk',
+            'currency' => 'INR',
+            'prefill' => [
+                'contact' => $user->mobile_code.$user->mobile,
+                'email' => $user->email,
+            ],
+            'description' => 'To Do Pending Subscription',
+        'subscribe_id'=>$subscription->subscribe_id,
+            'method'=>'card',
+            'recurring'=> true,
+            'theme' => [
+                'color' => '#F37254',
+            ],
+            'callback_url'=>url('rzpRenewal-disable'),
+        ];
+        $json=json_encode($data);
+        return view('themes.default1.front.rzpAuthentication',compact('json'));
     }
 
 
-    public function confirmAutoRenewal(Request $request){
-        $amount = 1;
-        $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();
-        $stripe = new \Stripe\StripeClient($stripeSecretKey);
-        $invoice = \Session::get('invoice');
-        $order=\Session::get('order');
+//    /**
+//     * Create new Auto renewal and update auto-renewal status.
+//     *
+//     * @param  Request  $request
+//     * @return array{type:string,message:string}|JsonResponse
+//     */
+//    public function enableAutorenewalStatus(Request $request)
+//    {
+//        try {
+////            $amount = 1;
+////            $currency = getCurrencyForClient(\Auth::user()->country);
+//            $orderid = $request->get('order_id');
+//            \Session::put('order',$orderid);
+//            $order=Order::where('id',$orderid)->first();
+//            $product_details=Product::where('id',$order->product)->first();
+//            $invoice=Invoice::where('id',$order->invoice_id)->first();
+//            $cost = $invoice->grand_total;
+//            $currency = $invoice->currency;
+//            $subscription=Subscription::where('order_id',$order->id)->first();
+//            $plan=Plan::where('id',$subscription->plan_id)->first();
+//            $unit_cost = $this->calculateUnitCost($currency, $cost);
+//            $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();
+//
+//            $stripe = new \Stripe\StripeClient($stripeSecretKey);
+//            \Stripe\Stripe::setApiKey($stripeSecretKey);
+//
+//            $user=\Auth::user();
+//            $customer = \Stripe\Customer::create([
+//                'name' => $user->first_name.' '.$user->last_name,
+//                'email' => $user->email,
+//                'address' => [
+//                    'line1' => optional($user)->address,
+//                    'postal_code' => optional($user)->zip,
+//                    'city' => optional($user)->town,
+//                    'state' => optional($user)->state,
+//                    'country' => optional($user)->country,
+//                ],
+//            ]);
+//            $customer_id = $customer['id'];
+//            //create product
+//            $product = $stripe->products->create([
+//                'name' => $product_details->name,
+//            ]);
+//            $product_id = $product['id'];
+//
+//            //define product price and recurring interval
+//
+//            $price = $stripe->prices->create([
+//                'unit_amount' => $unit_cost,
+//                'currency' => $currency,
+//                'recurring' => ['interval' => 'day', 'interval_count' => $plan->days],
+//                'product' => $product_id,
+//            ]);
+//            $price_id = $price['id'];
+//            $url = url('confirm/auto-renewal');
+//            $start_date=strtotime($subscription->update_ends_at);
+//            $session = \Stripe\Checkout\Session::create([
+//                'mode' => 'subscription',
+//                'customer' => $customer_id,
+//                'line_items' => [[
+//                    'price' => $price_id,
+//                    'quantity' => 1,
+//                ]],
+//                'subscription_data'=>[
+//                'billing_cycle_anchor'=> $start_date,
+//                    'proration_behavior' => 'none',
+//                ],
+//                'success_url' => $url. '?session_id={CHECKOUT_SESSION_ID}',
+////                'cancel_url' => route('checkout.cancel'),
+//            ]);
+//            return response()->json(['url' => $session->url]);
+//
+////            $url = url('confirm/auto-renewal');
+////            $controller = new SettingsController();
+////            $confirm = $controller->handlePayment($request, $amount, $currency, $url);
+////
+////            $paymentIntent = \Stripe\PaymentIntent::retrieve($confirm['id']);
+////            $subscription = Subscription::where('order_id', $orderid)->first();
+////            if ($confirm->status == 'requires_action') {
+////                $count=1;
+////                $redirectUrl = $paymentIntent->next_action->redirect_to_url->url;
+////
+////                return $redirectUrl;
+////            } elseif ($confirm->status === 'succeeded') {
+////                $refund = \Stripe\Refund::create([
+////                    'payment_intent' => $confirm['id'],
+////                    'amount' => $confirm['amount'],
+////                ]);
+////                $invoice_id = OrderInvoiceRelation::where('order_id', $orderid)->value('invoice_id');
+////                $number = Invoice::where($paymentIntent->customerid)->value('number');
+////                $customer_details = [
+////                    'user_id' => \Auth::user()->id,
+////                    'customer_id' => $paymentIntent->customer,
+////                    'payment_method' => 'stripe',
+////                    'order_id' => $orderid,
+////                    'payment_intent_id' => $paymentIntent->payment_method,
+////                ];
+////                Auto_renewal::create($customer_details);
+////                Subscription::where('order_id', $orderid)->update(['is_subscribed' => '1', 'autoRenew_status' => '1']);
+////                $mail = new \App\Http\Controllers\Common\PhpMailController();
+////
+////                $mail->payment_log(\Auth::user()->email, 'stripe', 'success', Order::where('id', $orderid)->value('number'), null, $amount, 'Payment method updated');
+////
+////                $response = ['type' => 'success', 'message' => __('message.card_details_updated_successfully')];
+////
+////                return ['type' => 'success', 'message' => __('message.card_details_updated_successfully')];
+////            }
+//        } catch(\Exception $ex) {
+//            $result = $ex->getMessage();
+//            $mail = new \App\Http\Controllers\Common\PhpMailController();
+//            $mail->payment_log(\Auth::user()->email, 'stripe', 'failed', Order::where('id', $orderid)->value('number'), $result, $amount, 'Payment method updated');
+//            $errorMessage = __('message.something_different_payment');
+//
+//            return response()->json(['error' => $errorMessage], 500);
+//        }
+//    }
 
-        $paymentIntent = $stripe->paymentIntents->retrieve($request->input('payment_intent'));
-        \Log::debug('santhanuSSN',[$request->input('payment_intent'),$paymentIntent]);
+//    public function enableRzpAutorenewalStatus(Request $request){
+//        $orderid = $request->get('order_id');
+//        \Session::put('order',$orderid);
+//        $order=Order::where('id',$orderid)->first();
+//        $product_details=Product::where('id',$order->product)->first();
+//        $invoice=Invoice::where('id',$order->invoice_id)->first();
+//        $cost = $invoice->grand_total;
+//        $currency = $invoice->currency;
+//        $subscription=Subscription::where('order_id',$order->id)->first();
+//        $plan=Plan::where('id',$subscription->plan_id)->first();
+//        $unit_cost = $this->calculateUnitCost($currency, $cost);
+//
+//        $key_id = ApiKey::pluck('rzp_key')->first();
+//        $secret = ApiKey::pluck('rzp_secret')->first();
+//        $api = new Api($key_id, $secret);
+//        $user=\Auth::user();
+//        $customer = $api->customer->create([
+//            'name' => $user->first_name.' '.$user->last_name,
+//            'email' => $user->email,
+//            'contact' => $user->mobile_code.$user->mobile,
+//            'fail_existing' => 0,
+//        ]);
+//
+//        $this->customer_id = $customer['id'];
+//
+//        $rzp_plan = $api->plan->create(['period' => 'yearly',
+//                'interval' => 2,
+//                'item' => [
+//                    'name' => $product_details->name,
+//                    'amount' => $unit_cost,
+//                    'currency' => $currency, ],
+//
+//            ]
+//        );
+//
+//        $rzp_subscriptionLink = $api->subscription->create([
+//            'plan_id' => $rzp_plan['id'],
+//            'customer_id'=>$customer['id'],
+//            'quantity' => 1,
+//            'end_at' => Carbon::parse($subscription->update_ends_at)->addDays(round((int) $plan->days))->timestamp,
+//            'start_at' => Carbon::parse($subscription->update_ends_at)->timestamp,
+//            'customer_notify' => 1,
+//
+//        ]);
+//        $data = [
+//            'key' => $key_id,
+//            'name' => 'Faveo Helpdesk',
+//            'currency' => 'INR',
+//            'prefill' => [
+//                'contact' => $user->mobile_code.$user->mobile,
+//                'email' => $user->email,
+//            ],
+//            'description' => 'Order for Invoice No'.-$invoice->number,
+//
+//            'subscription_id'=> $rzp_subscriptionLink['id'],
+//            'method'=>'card',
+//            'recurring'=> true,
+//            'theme' => [
+//                'color' => '#F37254',
+//            ],
+//            'callback_url'=>url('rzpRenewal-disable'),
+//        ];
+//        return response()->json(['data' => $data]);
+//
+//    }
 
-        try{
-        if ($paymentIntent->status === 'succeeded') {
-            $refund = $stripe->refunds->create([
-                'payment_intent' => $paymentIntent['id'],
-                'amount' => $paymentIntent['amount'],
-            ]);
-            $invoice_id = OrderInvoiceRelation::where('order_id', $order)->value('invoice_id');
-            $number = Invoice::where($paymentIntent->customerid)->value('number');
-            $customer_details = [
-                'user_id' => \Auth::user()->id,
-                'customer_id' => $paymentIntent->customer,
-                'payment_method' => 'stripe',
-                'order_id' => $order,
-                'payment_intent_id' => $paymentIntent->payment_method,
-            ];
-            Auto_renewal::create($customer_details);
-            Subscription::where('order_id', $order)->update(['is_subscribed' => '1', 'autoRenew_status' => '1']);
-            $mail = new \App\Http\Controllers\Common\PhpMailController();
+//public function middle_pageEnable(Request $request){
+//   $invoice=\Session::get('invoice');
+//   $invoiceItem=InvoiceItem::where('invoice_id',$invoice->id)->first();
+//    $product_name=$invoiceItem->product_name;
+//    $cost = $invoice->grand_total;
+//    $currency = $invoice->currency;
+//    $plan=Plan::where('id',$invoiceItem->plan_id)->first();
+//    $unit_cost = $this->calculateUnitCost($currency, $cost);
+//    $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();
+//
+//    $stripe = new \Stripe\StripeClient($stripeSecretKey);
+//    \Stripe\Stripe::setApiKey($stripeSecretKey);
+//
+//    $user=\Auth::user();
+//    $customer = \Stripe\Customer::create([
+//        'name' => $user->first_name.' '.$user->last_name,
+//        'email' => $user->email,
+//        'address' => [
+//            'line1' => optional($user)->address,
+//            'postal_code' => optional($user)->zip,
+//            'city' => optional($user)->town,
+//            'state' => optional($user)->state,
+//            'country' => optional($user)->country,
+//        ],
+//    ]);
+//    $customer_id = $customer['id'];
+//    //create product
+//    $product = $stripe->products->create([
+//        'name' => $product_name,
+//    ]);
+//    $product_id = $product['id'];
+//    $days=Carbon::now()->addDays($plan->days);
+//    //define product price and recurring interval
+//
+//    $price = $stripe->prices->create([
+//        'unit_amount' => $unit_cost,
+//        'currency' => $currency,
+//        'recurring' => ['interval' => 'day', 'interval_count' => $plan->days],
+//        'product' => $product_id,
+//    ]);
+//
+//
+//
+//    $price_id = $price['id'];
+//    $url = url('confirm/auto-renewal');
+//    $start_date=strtotime($days);
+//    $session = \Stripe\Checkout\Session::create([
+//        'mode' => 'subscription',
+//        'customer' => $customer_id,
+//        'line_items' => [
+//            [
+//            'price' => $price_id,
+//            'quantity' => 1,
+//        ]],
+//        'subscription_data'=>[
+//            'billing_cycle_anchor'=> $start_date,
+//        ],
+//        'success_url' => $url. '?session_id={CHECKOUT_SESSION_ID}',
+////                'cancel_url' => route('checkout.cancel'),
+//    ]);
+//    return response()->json(['url' => $session->url]);
+//}
 
-            $mail->payment_log(\Auth::user()->email, 'stripe', 'success', Order::where('id', $order)->value('number'), null, $amount, 'Payment method updated');
 
-            return redirect('my-order/'.$order.'#auto-renew')->with('success', __('message.card_details_updated_successfully'));
-        }
-    } catch (\Exception $e) {
-            \Log::debug('errorSanthanu',[$e]);
-            return redirect('my-order/'.$order.'#auto-renew')->with('fails', 'Your Payment was declined. Please try with another card or gateway');
+//    public function confirmAutoRenewal(Request $request){
+//        $sessionId = $request->query('session_id');
+//        if (!$sessionId) {
+//            return redirect('/')->withErrors('No session ID provided.');
+//        }
+//
+//        $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();
+//
+//        $stripe = new \Stripe\StripeClient($stripeSecretKey);
+//        \Stripe\Stripe::setApiKey($stripeSecretKey);
+//        $session = StripeSession::retrieve($sessionId);
+//
+//        // Get useful data
+//        $customer = $session->customer;
+//        $subscriptionId = $session->subscription;
+//
+//        // Optionally retrieve subscription
+//        $subscription = \Stripe\Subscription::retrieve($subscriptionId);
+//
+//
+//
+//        $amount = 1;
+//        $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();
+//        $stripe = new \Stripe\StripeClient($stripeSecretKey);
+//        $invoice = \Session::get('invoice');
+//        $order=\Session::get('order');
+//
+//        try{
+//            if($invoice){
+//                $currency = $invoice->currency;
+//            $result=$this->processPaymentSuccess($invoice,$currency);
+//            $order=\Session::get('upgradeNewActiveOrder');
+//            }
+//            $customer_details = [
+//                'user_id' => \Auth::user()->id,
+//                'customer_id' => $subscription->customer,
+//                'payment_method' => 'stripe',
+//                'order_id' => $order,
+//                'payment_intent_id' => $subscription->default_payment_method,
+//            ];
+//            Auto_renewal::create($customer_details);
+//            Subscription::where('order_id',$order)->update(['is_subscribed' => '1', 'autoRenew_status' => '2','subscribe_id'=>$subscription->id,'credit_refund'=>1]);
+//            $mail = new \App\Http\Controllers\Common\PhpMailController();
+//
+//            $mail->payment_log(\Auth::user()->email, 'stripe', 'success', Order::where('id', $order)->value('number'), null, $amount, 'Payment method updated');
+//
+//            if($invoice){
+//                \Session::forget('invoice');
+//                \Session::forget('auto-renewal');
+//                return redirect('my-order/'.$order.'#auto-renew')->with('success', __('your payment has been confirmed and renewal has been created.'));
+//
+//            }
+//            return redirect('my-order/'.$order.'#auto-renew')->with('success', __('message.card_details_updated_successfully'));
+//    } catch (\Exception $e) {
+//            return redirect('my-order/'.$order.'#auto-renew')->with('fails', 'Your Payment was declined. Please try with another card or gateway');
+//
+//    }
+//    }
 
-    }
-    }
-
-    /**
-     *  Delete Auto renewal and update auto-renewal status.
-     *
-     * @param  Request  $request
-     * @return JsonResponse
-     */
-    public function disableAutorenewalStatus(Request $request)
-    {
-        try {
-            $orderid = $request->get('order_id');
-            $userid = Subscription::where('order_id', $orderid)->value('user_id');
-            $user = User::find($userid);
-            $subscription = Subscription::where('order_id', $orderid)->first();
-            $this->autoRenewalSubOps($subscription, $orderid);
-            $response = ['type' => 'success', 'message' => __('message.auto_subscription_disabled')];
-
-            return response()->json($response);
-        } catch(\Exception $ex) {
-            $result = $ex->getMessage();
-
-            return response()->json(compact('result'), 500);
-        }
-    }
-
-    private function autoRenewalSubOps($subscription, $orderid)
-    {
-        if ($subscription->rzp_subscription && $subscription->is_subscribed && $subscription->subscribe_id) {
-            $rzp_key = ApiKey::where('id', 1)->value('rzp_key');
-            $rzp_secret = ApiKey::where('id', 1)->value('rzp_secret');
-            $api = new Api($rzp_key, $rzp_secret);
-            $pause = $api->subscription->fetch($subscription->subscribe_id)->cancel();
-            Subscription::where('order_id', $orderid)->update(['is_subscribed' => '0', 'rzp_subscription' => '0']);
-        } elseif ($subscription->autoRenew_status && $subscription->is_subscribed && $subscription->subscribe_id) {
-            $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();
-            $stripe = new \Stripe\StripeClient($stripeSecretKey);
-            \Stripe\Stripe::setApiKey($stripeSecretKey);
-            $pause = $stripe->subscriptions->cancel($subscription->subscribe_id, []);
-            Subscription::where('order_id', $orderid)->update(['is_subscribed' => '0', 'autoRenew_status' => '0']);
-        } else {
-            Subscription::where('order_id', $orderid)->update(['is_subscribed' => '0', 'autoRenew_status' => '0', 'rzp_subscription' => '0']);
-        }
-    }
+//    /**
+//     *  Delete Auto renewal and update auto-renewal status.
+//     *
+//     * @param  Request  $request
+//     * @return JsonResponse
+//     */
+//    public function disableAutorenewalStatus(Request $request)
+//    {
+//        try {
+//            $orderid = $request->get('order_id');
+//            $userid = Subscription::where('order_id', $orderid)->value('user_id');
+//            $user = User::find($userid);
+//            $subscription = Subscription::where('order_id', $orderid)->first();
+//            $this->autoRenewalSubOps($subscription, $orderid);
+//            $response = ['type' => 'success', 'message' => __('message.auto_subscription_disabled')];
+//
+//            return response()->json($response);
+//        } catch(\Exception $ex) {
+//            $result = $ex->getMessage();
+//
+//            return response()->json(compact('result'), 500);
+//        }
+//    }
+//
+//    private function autoRenewalSubOps($subscription, $orderid)
+//    {
+//        $days=Plan::where('id',$subscription->plan_id)->value('days');
+//        $RemainingDays=Carbon::now()->diffInDays($subscription->update_ends_at, false);
+//            $order=Order::where('id',$orderid)->first();
+//            $invoice=$order->invoice()->first();
+//            $perDay=$invoice->grand_total/$days;
+//            $creditBalance=$perDay*$RemainingDays;
+//        if ($subscription->rzp_subscription && $subscription->is_subscribed && $subscription->subscribe_id) {
+//            $rzp_key = ApiKey::where('id', 1)->value('rzp_key');
+//            $rzp_secret = ApiKey::where('id', 1)->value('rzp_secret');
+//            $days=Plan::where('id',$subscription->plan_id)->value('days');
+//            $api = new Api($rzp_key, $rzp_secret);
+//            $pause = $api->subscription->fetch($subscription->subscribe_id)->cancel();
+//            if($RemainingDays>0 && $subscription->credit_refund ==0) {
+//                $this->updateCredit($creditBalance);
+//            }
+//                Subscription::where('order_id', $orderid)->update(['is_subscribed' => '0', 'rzp_subscription' => '0']);
+//        } elseif ($subscription->autoRenew_status && $subscription->is_subscribed && $subscription->subscribe_id) {
+//            $stripeSecretKey = ApiKey::pluck('stripe_secret')->first();
+//            $stripe = new \Stripe\StripeClient($stripeSecretKey);
+//            \Stripe\Stripe::setApiKey($stripeSecretKey);
+//            $pause = $stripe->subscriptions->cancel($subscription->subscribe_id, []);
+//            if($RemainingDays>0 && $subscription->credit_refund ==0) {
+//                $this->updateCredit($creditBalance);
+//            }
+//            Subscription::where('order_id', $orderid)->update(['is_subscribed' => '0', 'autoRenew_status' => '0']);
+//        } else {
+//            Subscription::where('order_id', $orderid)->update(['is_subscribed' => '0', 'autoRenew_status' => '0', 'rzp_subscription' => '0']);
+//        }
+//    }
+//
+//
+//
+//    public function updateCredit($discount)
+//    {
+//        $payUpdate = Payment::where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->get();
+//
+//        $pay = Payment::where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('amt_to_credit');
+//        $formattedValue = currencyFormat(round($discount), getCurrencyForClient(\Auth::user()->country), true);
+//        $payment_id = Payment::where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('id');
+//        $formattedPay = currencyFormat($pay, getCurrencyForClient(\Auth::user()->country), true);
+//        $orderId = \Session::get('creditOrderId');
+//        $orderNumber = Order::where('id', $orderId)->value('number');
+//
+//        if (! $payUpdate->isEmpty()) {
+//            $pay = $pay + round($discount);
+//            Payment::where('user_id', \Auth::user()->id)->where('payment_status', 'success')->update(['amt_to_credit' => $pay]);
+//
+//            $messageAdmin = 'An amount of '.$formattedValue.' has been added to your existing balance due to a subscription cancellation. You can view the details of the subscription cancelled order here: '.
+//                '<a href="'.config('app.url').'/orders/'.$orderId.'">'.$orderNumber.'</a>.';
+//
+//            $messageClient = 'An amount of '.$formattedValue.' has been added to your existing balance due to a subscription cancellation. You can view the details of the subscription cancelled order here: '.
+//                '<a href="'.config('app.url').'/my-order/'.$orderId.'">'.$orderNumber.'</a>.';
+//            CreditActivity::insert(['payment_id' => $payment_id, 'text' => $messageAdmin, 'role' => 'admin', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
+//            CreditActivity::insert(['payment_id' => $payment_id, 'text' => $messageClient, 'role' => 'user', 'created_at' => \Carbon\Carbon::now(), 'updated_at' => \Carbon\Carbon::now()]);
+//        } else {
+//            $price = 0;
+//            \Session::put('discount', round($discount));
+//            (new ExtendedBaseInvoiceController())->multiplePayment(\Auth::user()->id, [0 => 'Credit Balance'], 'Credit Balance', Carbon::now(), $price, null, round($discount), 'pending');
+//        }
+//    }
 
     /**
      *  Setup razorpay , create auto renewal and update auto renewal status.
@@ -231,7 +572,7 @@ class ClientController extends BaseClientController
         try {
             $currency = getCurrencyForClient(\Auth::user()->country);
             $amount = currencyFormat('1', $currency);
-            $orderid = $request->route('orderid');
+            $orderid = \Session::get('order-id-renewal');
             $subscription = Subscription::where('order_id', $orderid)->first();
             $input = $request->all();
             $error = 'Payment Failed';
@@ -240,23 +581,23 @@ class ClientController extends BaseClientController
             $api = new Api($rzp_key, $rzp_secret);
 
             $payment = $api->payment->fetch($input['razorpay_payment_id']);
-            $response = $api->payment->fetch($input['razorpay_payment_id']);
-            $capture = $api->payment->fetch($response->id)->capture(['amount' => $response->amount]);
-            $refund = $api->payment->fetch($response->id)->refund(['amount' => $response->amount, 'speed' => 'normal']);
+//            $response = $api->payment->fetch($input['razorpay_payment_id']);
+//            $capture = $api->payment->fetch($response->id)->capture(['amount' => $response->amount]);
+//            $refund = $api->payment->fetch($response->id)->refund(['amount' => $response->amount, 'speed' => 'normal']);
 
             $invoice_id = OrderInvoiceRelation::where('order_id', $orderid)->value('invoice_id');
             $number = Invoice::where('id', $invoice_id)->value('number');
 
             $customer_details = [
                 'user_id' => \Auth::user()->id,
-                'customer_id' => $response['id'],
+                'customer_id' => $payment['customer_id'],
                 'payment_method' => 'razorpay',
                 'order_id' => $orderid,
             ];
             Auto_renewal::create($customer_details);
 
-            Subscription::where('order_id', $orderid)->update(['is_subscribed' => '1', 'rzp_subscription' => '1']);
-
+            Subscription::where('order_id', $orderid)->update(['is_subscribed' => '1', 'rzp_subscription' => '3', 'subscribe_id'=>$input['razorpay_subscription_id']]);
+            \Session::forget('order-id-renewal');
             $mail = new \App\Http\Controllers\Common\PhpMailController();
             $mail->payment_log(\Auth::user()->email, 'Razorpay', 'success', Order::where('id', $orderid)->value('number'), null, $amount, 'Payment method updated');
 
@@ -306,6 +647,15 @@ class ClientController extends BaseClientController
      */
     public function invoices(Request $request)
     {
+        $concreteController = app()->make(ConcretePostSubscriptionHandleController::class);
+
+        // Pass the concrete controller instance to CronController constructor
+        $controller = new \App\Plugins\Payment_module\SubscriptionController($concreteController);
+        $sub=Subscription::where('order_id',17165)->first();
+        $controller->reportUsage($sub);
+
+        // Call the method to perform auto-renewal
+//        $controller->autoRenewal();
         try {
             $amt = Payment::where('user_id', \Auth::user()->id)->where('payment_method', 'Credit Balance')->where('payment_status', 'success')->value('amt_to_credit');
             $formattedValue = currencyFormat($amt, getCurrencyForClient(\Auth::user()->country), true);
@@ -869,7 +1219,10 @@ class ClientController extends BaseClientController
     {
         try {
             $user = \Auth::user();
+            $email=$user->email;
+            $userName=$user->first_name." ".$user->last_name;
             $order = $this->order->findOrFail($id);
+            \Session::put('order-id-renewal', $id);
             if ($order->client != $user->id) {
                 throw new \Exception(trans('message.order_error_modification'));
             }
@@ -963,7 +1316,7 @@ class ClientController extends BaseClientController
                 'themes.default1.front.clients.show-order',
                 compact('invoice', 'order', 'user', 'product', 'subscription', 'licenseStatus', 'installationDetails', 'allowDomainStatus', 'date',
                     'licdate', 'versionLabel', 'installationDetails', 'id', 'statusAutorenewal', 'status', 'payment_log', 'recentPayment', 'stripe_key', 'json', 'gateways',
-                    'price', 'installation_path', 'latestAgents', 'terminatedOrderId', 'terminatedOrderNumber', 'payment_log', 'plans', 'planNameReal'
+                    'price', 'installation_path', 'latestAgents', 'terminatedOrderId', 'terminatedOrderNumber', 'payment_log', 'plans', 'planNameReal','email','userName'
                 )
             );
         } catch (Exception $ex) {
@@ -1102,6 +1455,7 @@ class ClientController extends BaseClientController
                 'color' => '#F37254',
             ],
             'order_id' => $razorpayOrderId,
+            'callback_url'=>url('rzpRenewal-disable'),
         ];
         if ($displayCurrency !== 'INR') {
             $data['display_currency'] = 'USD';

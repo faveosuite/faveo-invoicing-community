@@ -40,6 +40,7 @@ namespace Stripe;
  * @property null|\Stripe\StripeObject $link
  * @property bool $livemode Has the value <code>true</code> if the object exists in live mode or the value <code>false</code> if the object exists in test mode.
  * @property null|\Stripe\StripeObject $metadata Set of <a href="https://stripe.com/docs/api/metadata">key-value pairs</a> that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
+ * @property null|\Stripe\StripeObject $mobilepay
  * @property null|\Stripe\StripeObject $oxxo
  * @property null|\Stripe\StripeObject $p24
  * @property null|\Stripe\StripeObject $paynow
@@ -47,8 +48,10 @@ namespace Stripe;
  * @property null|\Stripe\StripeObject $pix
  * @property null|\Stripe\StripeObject $promptpay
  * @property null|\Stripe\StripeObject $radar_options Options to configure Radar. See <a href="https://stripe.com/docs/radar/radar-session">Radar Session</a> for more information.
+ * @property null|\Stripe\StripeObject $revolut_pay
  * @property null|\Stripe\StripeObject $sepa_debit
  * @property null|\Stripe\StripeObject $sofort
+ * @property null|\Stripe\StripeObject $swish
  * @property string $type The type of the PaymentMethod. An additional hash is included on the PaymentMethod with a name matching this value. It contains additional information specific to the PaymentMethod type.
  * @property null|\Stripe\StripeObject $us_bank_account
  * @property null|\Stripe\StripeObject $wechat_pay
@@ -85,14 +88,17 @@ class PaymentMethod extends ApiResource
     const TYPE_KLARNA = 'klarna';
     const TYPE_KONBINI = 'konbini';
     const TYPE_LINK = 'link';
+    const TYPE_MOBILEPAY = 'mobilepay';
     const TYPE_OXXO = 'oxxo';
     const TYPE_P24 = 'p24';
     const TYPE_PAYNOW = 'paynow';
     const TYPE_PAYPAL = 'paypal';
     const TYPE_PIX = 'pix';
     const TYPE_PROMPTPAY = 'promptpay';
+    const TYPE_REVOLUT_PAY = 'revolut_pay';
     const TYPE_SEPA_DEBIT = 'sepa_debit';
     const TYPE_SOFORT = 'sofort';
+    const TYPE_SWISH = 'swish';
     const TYPE_US_BANK_ACCOUNT = 'us_bank_account';
     const TYPE_WECHAT_PAY = 'wechat_pay';
     const TYPE_ZIP = 'zip';

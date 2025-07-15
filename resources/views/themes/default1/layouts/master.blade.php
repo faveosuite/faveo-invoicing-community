@@ -476,6 +476,13 @@
                                         <p>{{Lang::get('message.groups')}}</p>
                                     </a>
                                 </li>
+
+                                <li class="nav-item">
+                                    <a href="{{url('configurable-groups')}}" class="nav-link" id="group">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Configurable Groups</p>
+                                    </a>
+                                </li>
                             </ul>
                         </li>
 

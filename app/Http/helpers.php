@@ -372,6 +372,7 @@ function getCurrencyForClient($countryCode)
 function currencyFormat($amount = null, $currency = null, $include_symbol = true)
 {
     $amount = rounding($amount);
+
     if ($currency == 'INR') {
         $symbol = getIndianCurrencySymbol($currency);
 

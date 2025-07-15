@@ -427,7 +427,6 @@ $("#close-plan").click(function() {
         'product_id': product
       },
       success: function (data) {
-          console.log(data);
         if (data.subscription != 1) { //Check if Periods to be shown or not
           $('.plandays').hide();
         } else {

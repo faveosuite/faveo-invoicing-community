@@ -10,6 +10,7 @@ use App\Model\Common\PipedriveGroups;
 use App\Model\Common\PipedriveLocalFields;
 use App\Model\Common\PricingTemplate;
 use App\Model\Github\Github;
+use App\Model\License\LicensePermission;
 use App\Model\Mailjob\ExpiryMailDay;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
@@ -33,6 +34,8 @@ class DatabaseSeeder extends Seeder
         $this->invoiceItemProductIDChange();
         $this->langSeeder();
         $this->update_is_deleted();
+        LicensePermission::create(['id' => 7, 'permissions' => 'Allow Auto-Renewal']);
+
         PricingTemplate::where('id',1)->update(['data' => '<div class="">
         <div class="card border-radius-0 bg-color-light box-shadow-6 anim-hover-translate-top-10px transition-3ms">
             <div class="card-body py-5">

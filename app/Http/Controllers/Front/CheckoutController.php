@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Common\MailChimpController;
 use App\Http\Controllers\Common\TemplateController;
+use App\Http\Controllers\License\LicensePermissionsController;
 use App\Http\Controllers\Order\ExtendedBaseInvoiceController;
 use App\Http\Controllers\Tenancy\TenantController;
 use App\Model\Common\CreditActivity;
@@ -145,6 +146,8 @@ class CheckoutController extends InfoController
             $discountPrice = null;
             $price = [];
             $quantity = [];
+            $autoRenewal = true;
+
             foreach (\Cart::getContent() as $item) {
                 $price = $item->price;
                 $quantity = $item->quantity;
@@ -158,6 +161,10 @@ class CheckoutController extends InfoController
                     \Session::put('discountPrice', $discountPrice);
                 }
                 \Session::put('cloud_domain', $domain);
+                $product=$item->associatedModel->id;
+                $permissions = LicensePermissionsController::getPermissionsForProduct($product);
+                $autoRenewal=$permissions['allowAutoRenewal'];
+
             }
             if (\Session::has('priceRemaining')) {
                 $total = \Session::get('priceRemaining') > \Cart::getTotal() ? \Session::get('priceRemaining') - \Cart::getTotal() : \Session::get('discount');
@@ -182,7 +189,7 @@ class CheckoutController extends InfoController
 
             User::where('id', \Auth::user()->id)->update(['billing_pay_balance' => 0]);
 
-            return view('themes.default1.front.checkout', compact('content', 'taxConditions', 'discountPrice', 'domain', 'amt_to_credit', 'curr'));
+            return view('themes.default1.front.checkout', compact('content', 'taxConditions', 'discountPrice', 'domain', 'amt_to_credit', 'curr','autoRenewal'));
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
 
@@ -411,7 +418,7 @@ class CheckoutController extends InfoController
      *
      * @throws
      */
-    private function updateCredit($discount)
+    public function updateCredit($discount)
     {
         $payUpdate = Payment::where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->get();
 

@@ -112,10 +112,10 @@
 $cartSubtotalWithoutCondition = 0;
 $currency = $invoice->currency;
 
-$processingFee = \DB::table(strtolower('stripe'))->where('currencies',$currency)->value('processing_fee');
 $processingFee = (float) $processingFee / 100;
 
 $feeAmount = intval(ceil($invoice->grand_total*$processingFee));
+
 ?>
 @if($regularPayment)
  <div role="main" class="main">
@@ -162,7 +162,6 @@ $feeAmount = intval(ceil($invoice->grand_total*$processingFee));
                                         </th>
                                     </tr>
                                     </thead>
-
                                     <tbody>
                                     @forelse(Cart::getContent() as $item)
                                      @php
@@ -195,7 +194,7 @@ $feeAmount = intval(ceil($invoice->grand_total*$processingFee));
                             
                                         <td class="product-quantity">
 
-                                            <span class="amount font-weight-medium text-color-grey">{{$item->quantity}}</span>
+                                            <span class="amount font-weight-medium tmiddle-pageext-color-grey">{{$item->quantity}}</span>
                                         </td>
                                         <td class="product-agent">
 
@@ -544,7 +543,7 @@ $feeAmount = intval(ceil($invoice->grand_total*$processingFee));
                                         <td class="border-top-0">
                                             <strong class="d-block text-color-dark line-height-1 font-weight-semibold">{{ __('message.cart_subtotal') }}</strong>
                                         </td>
-                                          <?php 
+                                          <?php
                                         $subtotals = App\Model\Order\InvoiceItem::where('invoice_id',$invoice->id)->pluck('regular_price')->toArray();
                                         $subtotal = array_sum($subtotals);
                                         ?>
@@ -647,8 +646,9 @@ $feeAmount = intval(ceil($invoice->grand_total*$processingFee));
                                         </tr>
                                     @endif
 
-                                        @if(count(\Cart::getConditionsByType('fee')))
+                                    @if(count(\Cart::getConditionsByType('fee')))
                                         @foreach(\Cart::getConditionsByType('fee') as $fee)
+
                                             <tr>
                                                  <td class="border-top-0">
                                             <strong class="text-color-grey font-weight-semibold">{!! $fee->getName() !!}</strong>
@@ -661,9 +661,9 @@ $feeAmount = intval(ceil($invoice->grand_total*$processingFee));
                                                 </span>
                                             </td>
                                         @else
-                                            <td class="text-end align-top border-top-0">
+                                                    <td class="text-end align-top border-top-0">
                                                 <span class="amount font-weight-medium text-color-grey">
-                                                    {{ currencyFormat($feeAmount, $code = $item->attributes->currency) }}
+                                                    {{ currencyFormat($feeAmount, $code = $currency) }}
                                                 </span>
                                             </td>
                                         @endif
@@ -899,9 +899,28 @@ $feeAmount = intval(ceil($invoice->grand_total*$processingFee));
 
 
 </script>
+{{--<?php dd($data['url']); ?>--}}
 <script>
     $('#stripe-button1').on('click',function(){
-        $('#stripeModal').modal('show');
+        if(<?php echo $data['auto_renewal'] ?>) {
+            window.location.href = "<?php echo $data['url']; ?>";
+        }else{
+            $('#stripeModal').modal('show');
+        }
+        {{--if(<?php echo $data['auto_renewal'] ?>){--}}
+        {{--    $.ajax({--}}
+        {{--        url: '{{url("middlePage-enable")}}',--}}
+        {{--        type: 'POST',--}}
+        {{--        data: {--}}
+        {{--            "_token": "{!! csrf_token() !!}",--}}
+        {{--        },--}}
+        {{--        success: function (response) {--}}
+        {{--            window.location.href = response.url;--}}
+        {{--        }--}}
+        {{--    })--}}
+        {{--}else {--}}
+        //     $('#stripeModal').modal('show');
+        // }
     })
 
 $(function() {
@@ -954,6 +973,7 @@ $(function() {
 <!--<form name='razorpayform' action="verify.php" method="POST">                                -->
 <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
 <input type="hidden" name="razorpay_signature"  id="razorpay_signature" >
+     <input type="hidden" name="razorpay_subscription_id"  id="razorpay_subscription_id" >
 
 
 </form>
@@ -974,7 +994,7 @@ $(function() {
             options.handler = function (response){
                 document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
                 document.getElementById('razorpay_signature').value = response.razorpay_signature;
-
+                document.getElementById('razorpay_subscription_id').value =response.razorpay_subscription_id?response.razorpay_subscription_id:0;
                 document.razorpayform.submit();
             };
 

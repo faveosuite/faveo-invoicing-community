@@ -1157,8 +1157,75 @@
                 </div>
             </div>
         </div>
+    <!-- Include Stripe.js -->
+{{--    <script src="https://js.stripe.com/v3/"></script>--}}
 
+{{--    <form id="setup-form">--}}
 
+{{--        <div id="card-element"></div>--}}
+{{--        <button type="submit" id="submit1">Save Card</button>--}}
+{{--    </form>--}}
+
+{{--    <script>--}}
+{{--        const stripe = Stripe("{{ $stripe_key }}",{--}}
+{{--            locale: 'en' // Set locale if needed--}}
+{{--        });--}}
+{{--        const elements = stripe.elements();--}}
+{{--    const card = elements.create('card');--}}
+{{--    card.mount('#card-element');--}}
+
+{{--    document.getElementById('setup-form').addEventListener('submit', async (e) => {--}}
+{{--    e.preventDefault();--}}
+{{--    const name = 'LEESA';--}}
+{{--    const email = 'santhanu.kc@faveohelpdesk.com';--}}
+
+{{--    // Get SetupIntent client_secret from backend--}}
+{{--    const res = await fetch('{{ url("setup-intent") }}', {--}}
+{{--    method: 'POST',--}}
+{{--        headers: {--}}
+{{--            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')--}}
+{{--        },--}}
+{{--    body: JSON.stringify({ name, email }),--}}
+{{--    });--}}
+
+{{--    const { client_secret, customer_id,setupIntent_id } = await res.json();--}}
+
+{{--    // Confirm card setup (triggers 3D Secure if needed)--}}
+{{--    const result = await stripe.confirmCardSetup(client_secret, {--}}
+{{--    payment_method: {--}}
+{{--    card: card,--}}
+{{--    billing_details: {--}}
+{{--    name: name,--}}
+{{--    email: email,--}}
+{{--    },--}}
+{{--    },--}}
+{{--    });--}}
+{{--console.log(result);--}}
+{{--    if (result.error) {--}}
+{{--    alert('Failed: ' + result.error.message);--}}
+{{--    } else {--}}
+{{--    const payment_method_id = result.setupIntent.payment_method;--}}
+
+{{--    // Save card details to backend--}}
+{{--    await fetch('{{ url("save-card-details") }}', {--}}
+{{--    method: 'POST',--}}
+{{--        headers: {--}}
+{{--            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')--}}
+{{--        },--}}
+{{--        body: JSON.stringify({--}}
+{{--    customer_id,--}}
+{{--    payment_method_id,--}}
+{{--            setupIntent_id,--}}
+{{--    email: email,--}}
+{{--    name: name,--}}
+{{--    }),--}}
+{{--    });--}}
+
+{{--    alert('Card setup successful!');--}}
+{{--    }--}}
+{{--    });--}}
+
+{{--</script>--}}
 
 
 
@@ -1259,6 +1326,7 @@
          * https://docs.razorpay.com/docs/checkout-form#checkout-fields
          */
             options.handler = function (response){
+                console.log(response);
                 document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
                 document.getElementById('razorpay_signature').value = response.razorpay_signature;
 
@@ -1304,6 +1372,7 @@
 
                     },
                     success: function(response){
+
                         $('#alertMessage-2').show();
                         var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> ' + @json(__('message.success')) + '! </strong>' + response.message + '.</div>';
                         $('#alertMessage-2').html(result+ ".");
@@ -1316,6 +1385,16 @@
                         });
                     }, 4000);
                         $('#updateButton').hide();
+                    },
+                    error: function(response){
+                        $('#alertMessage-2').show();
+                        var result = '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> ' + @json(__('message.alert')) + '! </strong>' + response.responseJSON.result + '.</div>';
+                        $('#alertMessage-2').html(result+ ".");
+                        $("#pay").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
+                        $('#alertMessage-2').slideUp(3000, function() {
+
+                    }, 4000);
+
                     },
                 })
             }
@@ -1339,63 +1418,126 @@
                     $('#payerr').html(@json(__('message.select_pay')));
                     $('#payerr').focus();
                     $('#sel-payment').css("border-color", "red");
-                    $('#payerr').css({ "color": "red" });
+                    $('#payerr').css({"color": "red"});
                     return false;
                 }
                 if (pay == 'stripe') {
                     $('#renewal-modal').modal('hide');
-                    $('#stripe-Modal').modal('show');
+                    $.ajax({
+                        url: '{{url("strRenewal-enable")}}',
+                        type: 'POST',
+                        data: {
+                            "order_id": id,
+                            "_token": "{!! csrf_token() !!}",
+                        },
+                        success: function (response) {
+                            {{--if (response.type == 'success') {--}}
+                            {{--    $('#stripe-Modal').modal('hide');--}}
+                            {{--    $('#alertMessage-2').show();--}}
+                            {{--    $('#updateButton').show();--}}
+                            {{--    var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success')}}! </strong>' + response.message + '.</div>';--}}
+                            {{--    $('#alertMessage-2').html(result + ".");--}}
+                            {{--    $("#pay").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");--}}
+                            {{--    setTimeout(function () {--}}
+                            {{--        location.reload();--}}
+                            {{--    }, 3000);--}}
 
-                    $('#pay').on('click', async function () {
-                        $('#pay').prop("disabled", true);
-                        $('#pay').html("<i class='fa fa-circle-o-notch fa-spin fa-1x'></i> " + @json( __('message.processing')));
-                        const {token, error} = await stripe.createToken(cardNumber);
-
-                        await $.ajax({
-                            url: '{{url("strRenewal-enable")}}',
-                            type: 'POST',
-                            data: {
-                                "order_id": id,
-                                "stripeToken": token.id,
-                                "_token": "{!! csrf_token() !!}",
-                            },
-                            success: function (response) {
-                                if (response.type == 'success') {
-                                    $('#stripe-Modal').modal('hide');
-                                    $('#alertMessage-2').show();
-                                    $('#updateButton').show();
-                                    var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success')}}! </strong>' + response.message + '.</div>';
-                                    $('#alertMessage-2').html(result + ".");
-                                    $("#pay").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
-                                    setTimeout(function () {
-                                        location.reload();
-                                    }, 3000);
-
-                                } else {
-                                    window.location.href = response;
-                                }
+                            {{--} else {--}}
+                                window.location.href = response.url;
+                            // }
 
 
-                            },
-                            error: function (data) {
-                                var errorMessage = data.responseJSON.error;
-                                $('#stripe-Modal').modal('hide');
-                                $("#pay").attr('disabled', false);
-                                $("#pay").html("Pay now");
-                                $('html, body').animate({scrollTop: 0}, 500);
-                                var html = '<div class="alert alert-danger alert-dismissable alert-content"><strong><i class="fas fa-exclamation-triangle"></i>{{ __('message.oh_snap') }} </strong>' + data.responseJSON.error + ' <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><br><ul>';
-                                $('#error-1').show();
-                                document.getElementById('error-1').innerHTML = html;
-                            }
-                        });
+                        },
+                        error: function (data) {
+                            var errorMessage = data.responseJSON.error;
+                            $('#stripe-Modal').modal('hide');
+                            $("#pay").attr('disabled', false);
+                            $("#pay").html("Pay now");
+                            $('html, body').animate({scrollTop: 0}, 500);
+                            var html = '<div class="alert alert-danger alert-dismissable alert-content"><strong><i class="fas fa-exclamation-triangle"></i>{{ __('message.oh_snap') }} </strong>' + data.responseJSON.error + ' <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><br><ul>';
+                            $('#error-1').show();
+                            document.getElementById('error-1').innerHTML = html;
+                        }
                     });
-                } else if (pay == 'razorpay') {
-                    $('#renewal-modal').modal('hide');
-                    rzp.open();
-                    e.preventDefault();
-                }
-            });
-        }
+
+
+                    {{--        $('#stripe-Modal').modal('show');--}}
+
+                    {{--        $('#pay').on('click', async function () {--}}
+                    {{--            $('#pay').prop("disabled", true);--}}
+                    {{--            $('#pay').html("<i class='fa fa-circle-o-notch fa-spin fa-1x'></i> " + @json( __('message.processing')));--}}
+                    {{--            const {token, error} = await stripe.createToken(cardNumber);--}}
+
+                    {{--            await $.ajax({--}}
+                    {{--                url: '{{url("strRenewal-enable")}}',--}}
+                    {{--                type: 'POST',--}}
+                    {{--                data: {--}}
+                    {{--                    "order_id": id,--}}
+                    {{--                    "stripeToken": token.id,--}}
+                    {{--                    "_token": "{!! csrf_token() !!}",--}}
+                    {{--                },--}}
+                    {{--                success: function (response) {--}}
+                    {{--                    if (response.type == 'success') {--}}
+                    {{--                        $('#stripe-Modal').modal('hide');--}}
+                    {{--                        $('#alertMessage-2').show();--}}
+                    {{--                        $('#updateButton').show();--}}
+                    {{--                        var result = '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success')}}! </strong>' + response.message + '.</div>';--}}
+                    {{--                        $('#alertMessage-2').html(result + ".");--}}
+                    {{--                        $("#pay").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");--}}
+                    {{--                        setTimeout(function () {--}}
+                    {{--                            location.reload();--}}
+                    {{--                        }, 3000);--}}
+
+                    {{--                    } else {--}}
+                    {{--                        window.location.href = response;--}}
+                    {{--                    }--}}
+
+
+                    {{--                },--}}
+                    {{--                error: function (data) {--}}
+                    {{--                    var errorMessage = data.responseJSON.error;--}}
+                    {{--                    $('#stripe-Modal').modal('hide');--}}
+                    {{--                    $("#pay").attr('disabled', false);--}}
+                    {{--                    $("#pay").html("Pay now");--}}
+                    {{--                    $('html, body').animate({scrollTop: 0}, 500);--}}
+                    {{--                    var html = '<div class="alert alert-danger alert-dismissable alert-content"><strong><i class="fas fa-exclamation-triangle"></i>{{ __('message.oh_snap') }} </strong>' + data.responseJSON.error + ' <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><br><ul>';--}}
+                    {{--                    $('#error-1').show();--}}
+                    {{--                    document.getElementById('error-1').innerHTML = html;--}}
+                    {{--                }--}}
+                    {{--            });--}}
+                    //         });
+                        } else if (pay == 'razorpay') {
+                            $('#renewal-modal').modal('hide');
+                            // rzp.open();
+                            // e.preventDefault();
+                    $.ajax({
+                        url: '{{url("rzpRenewal-enable")}}',
+                        type: 'POST',
+                        data: {
+                            "order_id": id,
+                            "_token": "{!! csrf_token() !!}",
+                        },
+                        success: function (response) {
+                               var options=response.data;
+                                var rzp=new Razorpay(options);
+                                rzp.open();
+                        },
+                        error: function (data) {
+                            var errorMessage = data.responseJSON.error;
+                            $('#stripe-Modal').modal('hide');
+                            $("#pay").attr('disabled', false);
+                            $("#pay").html("Pay now");
+                            $('html, body').animate({scrollTop: 0}, 500);
+                            var html = '<div class="alert alert-danger alert-dismissable alert-content"><strong><i class="fas fa-exclamation-triangle"></i>{{ __('message.oh_snap') }} </strong>' + data.responseJSON.error + ' <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><br><ul>';
+                            $('#error-1').show();
+                            document.getElementById('error-1').innerHTML = html;
+                        }
+                    });
+
+                        }
+                })
+            }
+
     </script>
     <script type="text/javascript">
 

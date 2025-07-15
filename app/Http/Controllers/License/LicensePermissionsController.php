@@ -164,6 +164,7 @@ class LicensePermissionsController extends Controller
             $downloadPermission = 0;
             $noPermissions = 0;
             $allowDownloadTillExpiry = 0;
+            $allowAutoRenewal=0;
             $retireAllDownloads = 0;
             foreach ($permissions as $permission) {
                 if ($permission == 'Generate Updates Expiry Date') {
@@ -184,11 +185,15 @@ class LicensePermissionsController extends Controller
                 if ($permission == 'Allow Downloads Before Updates Expire') {
                     $allowDownloadTillExpiry = 1;  //allow download after Expiry
                 }
+                if($permission== 'Allow Auto-Renewal'){
+                    $allowAutoRenewal = 1;
+                }
+
             }
 
             return ['generateUpdatesxpiryDate' => $generateUpdatesxpiryDate, 'generateLicenseExpiryDate' => $generateLicenseExpiryDate,
                 'generateSupportExpiryDate' => $generateSupportExpiryDate, 'downloadPermission' => $downloadPermission, 'noPermissions' => $noPermissions,
-                'allowDownloadTillExpiry' => $allowDownloadTillExpiry, ];
+                'allowDownloadTillExpiry' => $allowDownloadTillExpiry,'allowAutoRenewal' => $allowAutoRenewal ];
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
 

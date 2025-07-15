@@ -5,6 +5,48 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com)
 and this project adheres to [Semantic Versioning](https://semver.org).
 
+# 2025-02-07 - 1.29.10
+
+### Changed
+
+- Allow version 1 and 2 of `composer/pcre`.
+
+### Fixed
+
+- Xls writer Parser Mishandling True/False Argument. Backport of [PR #4333](https://github.com/PHPOffice/PhpSpreadsheet/pull/4333)
+- Xls writer Parser Parse By Character Not Byte. Backport of [PR #4344](https://github.com/PHPOffice/PhpSpreadsheet/pull/4344)
+
+# 2025-01-26 - 1.29.9
+
+### Fixed
+
+- Backported security patch for control characters in protocol.
+- Use Composer\Pcre in Xls/Parser. Partial backport of [PR #4203](https://github.com/PHPOffice/PhpSpreadsheet/pull/4203)
+
+# 2025-01-11 - 1.29.8
+
+### Deprecated
+
+- Worksheet::getHashCode is no longer needed.
+
+### Fixed
+
+- Backported security patch for Html navigation.
+- Change hash code for worksheet. Backport of [PR #4207](https://github.com/PHPOffice/PhpSpreadsheet/pull/4207)
+- Retitling cloned worksheets. Backport of [PR #4302](https://github.com/PHPOffice/PhpSpreadsheet/pull/4302)
+
+# 2024-12-26 - 1.29.7
+
+### Deprecated
+
+- Drawing::setIsUrl is unneeded. The property is set when setPath determines whether path is a url.
+
+### Fixed
+
+- More context options may be needed for http(s) image. Backport of [PR #4276](https://github.com/PHPOffice/PhpSpreadsheet/pull/4276)
+- Backported security patches for Samples.
+- Backported security patches for Html Writer.
+
 ## 1.29.6 - 2024-12-08
 
 ### Fixed

@@ -389,6 +389,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 $planid = Plan::where('id', $cart->id)->pluck('id')->first();
             }
             $subtotal = $cart->getPriceSum();
+
             $tax_name = $cart->conditions->getName();
             $tax_percentage = $cart->conditions->getValue();
             $invoiceItem = $this->invoiceItem->create([

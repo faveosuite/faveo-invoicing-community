@@ -107,6 +107,10 @@ class SettingsControllerTest extends DBTestCase
         $requestMock = $this->setupRequestMock($requestData);
         $this->SetAuthUser();
         $controller = new SettingsController($stripeClientConstructorMock);
+        $user = User::factory()->create();
+        $product = Product::create(['name' => 'Helpdesk Advance', 'description' => 'goodProduct']);
+        $invoice = Invoice::factory()->create(['user_id' => $user->id]);
+        $invoiceItem = InvoiceItem::create(['invoice_id' => $invoice->id, 'product_name' => $product->name]);
         $response = $controller->handlePayment($requestMock, 50, 'INR', 'https://example.com/return-url', null);
         $this->assertEquals('succeeded', $response['status']);
     }

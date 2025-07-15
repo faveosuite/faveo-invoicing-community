@@ -492,7 +492,8 @@ $cartSubtotalWithoutCondition = 0;
                                             <div class="d-flex flex-column">
                                                 @foreach($gateways as $gateway)
                                                  <?php
-                                                $processingFee = \DB::table(strtolower($gateway))->where('currencies',$item->attributes['currency'])->value('processing_fee');
+//                                                $processingFee = \DB::table(strtolower($gateway))->where('currencies',$item->attributes['currency'])->value('processing_fee');
+                                                    $processingFee=\App\ApiKey::where('id',1)->value($gateway.'_processing_fee');
                                                 ?>
 
                                                 <label class="align-items-center text-color-grey mb-0" for="payment_method1">
@@ -504,7 +505,7 @@ $cartSubtotalWithoutCondition = 0;
 
                                                     <img alt="{{$gateway}}" width="111" src="{{asset('images/logo/'.$gateway.'.png')}}">
 
-                                                        <p class="text-color-dark" id="fee" style="display:none;font-family: sans-serif;">{{ __('message.extra_processing')}} <b>{{$processingFee}}%</b> {{ __('message.time_payment')}}</p>
+                                                        <p class="text-color-dark" id="fee_{{$gateway}}" style="display:none;font-family: sans-serif;">{{ __('message.extra_processing')}} <b>{{$processingFee}}%</b> {{ __('message.time_payment')}}</p>
 
                                                        
 
@@ -515,6 +516,17 @@ $cartSubtotalWithoutCondition = 0;
                                     </tr>
                                      @endif
                                      @endif
+                                    @if($autoRenewal)
+                                    <tr class="payment-methods">
+
+                                        <td colspan="2">
+{{--                                            <input type="checkbox" id="Auto-renewal" class="checkbox">--}}
+                                            {!! html()->checkbox('auto-renewal')->id('auto-renewal') !!}
+                                            <strong class="text-color-dark mb-2">Enable Auto Renewal</strong>
+
+                                        </td>
+                                    </tr>
+                                        @endif
                                     </tbody>
                                 </table>
                             </div>
@@ -567,18 +579,29 @@ $(document).ready(function() {
     });
     
     function showInitialFee() {
-      $('#fee').show();
+        var fee= $('#allow_gateway');
+        var value=fee.val();
+        var processingFee=fee.attr('processfee');
+        if(processingFee != 0) {
+            $('#fee_Stripe').show();
+        }
     }
     
     function getGateway(element) {
       var gatewayName = element.value;
+
       var fee = element.getAttribute("processfee");
-    
       if (fee === '0') {
-        $('#fee').hide();
+          $('#fee_' + gatewayName).hide();
       } else {
-        $('#fee').show();
+        $('#fee_'+gatewayName).show();
+
       }
+        if(gatewayName === 'Razorpay'){
+            $('#fee_Stripe').hide();
+        }else{
+            $('#fee_Razorpay').hide();
+        }
     }
       // $(document).ready(function () {
   {{--    $('#billing-pay-balance').on('change', function () {--}}
@@ -662,7 +685,11 @@ $(document).ready(function() {
       // Update content when the checkbox is clicked
       $('#billing-pay-balance').on('change', function () {
           var isChecked = $(this).prop('checked');
-
+          if(isChecked) {
+              $('#auto-renewal').prop('disabled', true);
+          }else{
+              $('#auto-renewal').prop('disabled', false);
+          }
           $.ajax({
               type: "POST",
               url: "{{ route('update-session') }}",

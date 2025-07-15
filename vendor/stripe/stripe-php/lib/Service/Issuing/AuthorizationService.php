@@ -4,6 +4,12 @@
 
 namespace Stripe\Service\Issuing;
 
+/**
+ * @phpstan-import-type RequestOptionsArray from \Stripe\Util\RequestOptions
+ */
+/**
+ * @psalm-import-type RequestOptionsArray from \Stripe\Util\RequestOptions
+ */
 class AuthorizationService extends \Stripe\Service\AbstractService
 {
     /**
@@ -12,7 +18,7 @@ class AuthorizationService extends \Stripe\Service\AbstractService
      * object appearing first.
      *
      * @param null|array $params
-     * @param null|array|\Stripe\Util\RequestOptions $opts
+     * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
      *
@@ -24,16 +30,16 @@ class AuthorizationService extends \Stripe\Service\AbstractService
     }
 
     /**
-     * Approves a pending Issuing <code>Authorization</code> object. This request
-     * should be made within the timeout window of the <a
+     * [Deprecated] Approves a pending Issuing <code>Authorization</code> object. This
+     * request should be made within the timeout window of the <a
      * href="/docs/issuing/controls/real-time-authorizations">real-time
-     * authorization</a> flow.  You can also respond directly to the webhook request to
-     * approve an authorization (preferred). More details can be found <a
-     * href="/docs/issuing/controls/real-time-authorizations#authorization-handling">here</a>.
+     * authorization</a> flow.  This method is deprecated. Instead, <a
+     * href="/docs/issuing/controls/real-time-authorizations#authorization-handling">respond
+     * directly to the webhook request to approve an authorization</a>.
      *
      * @param string $id
      * @param null|array $params
-     * @param null|array|\Stripe\Util\RequestOptions $opts
+     * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
      *
@@ -45,16 +51,16 @@ class AuthorizationService extends \Stripe\Service\AbstractService
     }
 
     /**
-     * Declines a pending Issuing <code>Authorization</code> object. This request
-     * should be made within the timeout window of the <a
+     * [Deprecated] Declines a pending Issuing <code>Authorization</code> object. This
+     * request should be made within the timeout window of the <a
      * href="/docs/issuing/controls/real-time-authorizations">real time
-     * authorization</a> flow. You can also respond directly to the webhook request to
-     * decline an authorization (preferred). More details can be found <a
-     * href="/docs/issuing/controls/real-time-authorizations#authorization-handling">here</a>.
+     * authorization</a> flow. This method is deprecated. Instead, <a
+     * href="/docs/issuing/controls/real-time-authorizations#authorization-handling">respond
+     * directly to the webhook request to decline an authorization</a>.
      *
      * @param string $id
      * @param null|array $params
-     * @param null|array|\Stripe\Util\RequestOptions $opts
+     * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
      *
@@ -70,7 +76,7 @@ class AuthorizationService extends \Stripe\Service\AbstractService
      *
      * @param string $id
      * @param null|array $params
-     * @param null|array|\Stripe\Util\RequestOptions $opts
+     * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
      *
@@ -88,7 +94,7 @@ class AuthorizationService extends \Stripe\Service\AbstractService
      *
      * @param string $id
      * @param null|array $params
-     * @param null|array|\Stripe\Util\RequestOptions $opts
+     * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
      *

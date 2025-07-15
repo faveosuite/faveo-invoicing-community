@@ -34,6 +34,7 @@ class CspPolicy extends Policy
                 'www.googletagmanager.com',
                 'www.gstatic.com',
                 'unpkg.com',
+                'lumberjack.razorpay.com'
             ])
             ->addDirective(Directive::STYLE, [
                 Keyword::REPORT_SAMPLE,
@@ -70,6 +71,8 @@ class CspPolicy extends Policy
                 'wss://*.tawk.to',
                 'stats.g.doubleclick.net',
                 'cdn.tiny.cloud',
+                'lumberjack.razorpay.com',
+
             ])
             ->addDirective(Directive::FONT, [
                 Keyword::SELF,

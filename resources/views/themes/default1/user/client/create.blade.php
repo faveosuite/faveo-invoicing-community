@@ -361,7 +361,7 @@
 </div>
 
 
-<script>
+<script>ApiKey::c
 
     $(document).ready(function() {
         $('#country').on('change',function(){

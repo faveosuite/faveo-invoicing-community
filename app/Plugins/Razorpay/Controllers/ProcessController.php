@@ -26,85 +26,85 @@ class ProcessController extends Controller
         $this->invoiceItem = $invoiceItem;
     }
 
-    public function PassToPayment($requests)
-    {
-        try {
-            $request = $requests['request'];
-            $invoice = $requests['invoice'];
-            $cart = \Cart::getContent();
-            if (! $cart->count()) {
-                \Cart::clear();
-            } else {
-                $invoice->grand_total = \Cart::getTotal();
-            }
-            // if ($request->input('payment_gateway') == 'Razorpay') {
-            //     if (! \Schema::hasTable('razorpay')) {
-            //         throw new \Exception('Razorpay is not configured');
-            //     }
-            //     $stripe = $this->razorpay->where('id', 1)->first();
-            //     if (! $stripe) {
-            //         throw new \Exception('Razorpay Fields not given');
-            //     }
-            //     \Session::put('invoice', $invoice);
-            //     \Session::save();
-            //     $this->middlePage();
-            // }
-        } catch (\Exception $ex) {
-            throw new \Exception($ex->getMessage(), $ex->getCode(), $ex->getPrevious());
-        }
-    }
+//    public function PassToPayment($requests)
+//    {
+//        try {
+//            $request = $requests['request'];
+//            $invoice = $requests['invoice'];
+//            $cart = \Cart::getContent();
+//            if (! $cart->count()) {
+//                \Cart::clear();
+//            } else {
+//                $invoice->grand_total = \Cart::getTotal();
+//            }
+//            // if ($request->input('payment_gateway') == 'Razorpay') {
+//            //     if (! \Schema::hasTable('razorpay')) {
+//            //         throw new \Exception('Razorpay is not configured');
+//            //     }
+//            //     $stripe = $this->razorpay->where('id', 1)->first();
+//            //     if (! $stripe) {
+//            //         throw new \Exception('Razorpay Fields not given');
+//            //     }
+//            //     \Session::put('invoice', $invoice);
+//            //     \Session::save();
+//            //     $this->middlePage();
+//            // }
+//        } catch (\Exception $ex) {
+//            throw new \Exception($ex->getMessage(), $ex->getCode(), $ex->getPrevious());
+//        }
+//    }
 
-    public function middlePage()
-    {
-        try {
-            $rzp_key = ApiKey::where('id', 1)->value('rzp_key');
-            $rzp_secret = ApiKey::where('id', 1)->value('rzp_secret');
-            $apilayer_key = ApiKey::where('id', 1)->value('apilayer_key');
-            $payment_method = \Session::get('payment_method');
-            $path = app_path().'/Plugins/Razorpay/views';
-            $total = intval(\Cart::getTotal());
-            $invoice = \Session::get('invoice');
-            $regularPayment = true;
-            if (! $total) {//When renewal
-                $paid = 0;
-                // $total = \Session::get('totalToBePaid');
-                $regularPayment = false;
-                $items = $invoice->invoiceItem()->get();
-                $product = $this->product($invoice->id);
-                $amount = $invoice->grand_total;
-
-                $processingFee = $this->getProcessingFee($payment_method, $invoice->currency);
-                $invoice->processing_fee = $processingFee;
-                $invoice->grand_total = intval($invoice->grand_total * (1 + $processingFee / 100));
-                $totalPaid = $invoice->grand_total;
-                $creditBalance = $invoice->billing_pay;
-                if (empty($creditBalance)) {
-                    $creditBalance = 0;
-                }
-                if (count($invoice->payment()->get())) {//If partial payment is made
-                    $paid = array_sum($invoice->payment()->pluck('amount')->toArray());
-                    $totalPaid = $invoice->grand_total - $paid;
-                }
-                \Session::put('totalToBePaid', $totalPaid);
-                \View::addNamespace('plugins', $path);
-
-                echo view('plugins::middle-page', compact('total', 'rzp_key', 'rzp_secret', 'apilayer_key', 'invoice', 'regularPayment', 'items', 'product', 'amount', 'paid', 'totalPaid', 'creditBalance'));
-            } else {//When regular payment
-                $pay = $this->payment($payment_method, $status = 'pending');
-                $payment_method = $pay['payment'];
-                $invoice_no = $invoice->number;
-                $status = $pay['status'];
-                $processingFee = $this->getProcessingFee($payment_method, $invoice->currency);
-                $this->updateFinalPrice(new Request(['processing_fee' => $processingFee]));
-                $amount = \Cart::getTotal();
-                \View::addNamespace('plugins', $path);
-
-                echo view('plugins::middle-page', compact('invoice', 'amount', 'invoice_no', 'payment_method', 'invoice', 'regularPayment', 'rzp_key', 'rzp_secret', 'apilayer_key'))->render();
-            }
-        } catch (\Exception $ex) {
-            throw new \Exception($ex->getMessage());
-        }
-    }
+//    public function middlePage()
+//    {
+//        try {
+//            $rzp_key = ApiKey::where('id', 1)->value('rzp_key');
+//            $rzp_secret = ApiKey::where('id', 1)->value('rzp_secret');
+//            $apilayer_key = ApiKey::where('id', 1)->value('apilayer_key');
+//            $payment_method = \Session::get('payment_method');
+//            $path = app_path().'/Plugins/Razorpay/views';
+//            $total = intval(\Cart::getTotal());
+//            $invoice = \Session::get('invoice');
+//            $regularPayment = true;
+//            if (! $total) {//When renewal
+//                $paid = 0;
+//                // $total = \Session::get('totalToBePaid');
+//                $regularPayment = false;
+//                $items = $invoice->invoiceItem()->get();
+//                $product = $this->product($invoice->id);
+//                $amount = $invoice->grand_total;
+//
+//                $processingFee = $this->getProcessingFee($payment_method, $invoice->currency);
+//                $invoice->processing_fee = $processingFee;
+//                $invoice->grand_total = intval($invoice->grand_total * (1 + $processingFee / 100));
+//                $totalPaid = $invoice->grand_total;
+//                $creditBalance = $invoice->billing_pay;
+//                if (empty($creditBalance)) {
+//                    $creditBalance = 0;
+//                }
+//                if (count($invoice->payment()->get())) {//If partial payment is made
+//                    $paid = array_sum($invoice->payment()->pluck('amount')->toArray());
+//                    $totalPaid = $invoice->grand_total - $paid;
+//                }
+//                \Session::put('totalToBePaid', $totalPaid);
+//                \View::addNamespace('plugins', $path);
+//
+//                echo view('plugins::middle-page', compact('total', 'rzp_key', 'rzp_secret', 'apilayer_key', 'invoice', 'regularPayment', 'items', 'product', 'amount', 'paid', 'totalPaid', 'creditBalance'));
+//            } else {//When regular payment
+//                $pay = $this->payment($payment_method, $status = 'pending');
+//                $payment_method = $pay['payment'];
+//                $invoice_no = $invoice->number;
+//                $status = $pay['status'];
+//                $processingFee = $this->getProcessingFee($payment_method, $invoice->currency);
+//                $this->updateFinalPrice(new Request(['processing_fee' => $processingFee]));
+//                $amount = \Cart::getTotal();
+//                \View::addNamespace('plugins', $path);
+//
+//                echo view('plugins::middle-page', compact('invoice', 'amount', 'invoice_no', 'payment_method', 'invoice', 'regularPayment', 'rzp_key', 'rzp_secret', 'apilayer_key'))->render();
+//            }
+//        } catch (\Exception $ex) {
+//            throw new \Exception($ex->getMessage());
+//        }
+//    }
 
     public static function updateFinalPrice(Request $request)
     {

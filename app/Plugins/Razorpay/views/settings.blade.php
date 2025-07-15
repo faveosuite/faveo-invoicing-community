@@ -90,6 +90,21 @@
                    
                        
                     </tr>
+
+                <tr>
+                    <td>
+                        <!-- last name -->
+                        {!! html()->label( __('message.processing_fee'), 'processing_fee')->class('required') !!}
+                        <div class="form-group col-lg-5 pl-0">
+                            {!! html()->number('processing_fee',$rzpKeys->razorpay_processing_fee)->class('form-control processing_fee')->id('processing_fee') !!}
+
+                            <span id="apilayer_check"></span>
+                        </div>
+                    </td>
+
+
+
+                </tr>
             </table>
 
                </div>
@@ -115,7 +130,7 @@
               rzp_key:@json(trans('message.razorpay_details.rzp_key')),
               rzp_secret:@json(trans('message.razorpay_details.rzp_secret')),
               apilayer_key:@json(trans('message.razorpay_details.apilayer_key')),
-
+              processing_fee:@json(trans('message.razorpay_details.apilayer_key')),
 
           };
 
@@ -124,6 +139,7 @@
                   rzp_key:$('#rzp_key'),
                   rzp_secret:$('#rzp_secret'),
                   apilayer_key:$('#apilayer_key'),
+                  processing_fee:$('#processing_fee'),
               };
 
 
@@ -160,7 +176,7 @@
                       type : 'get',
                       data: {
                           "status": rzpstatus,
-                          "rzp_key": $('#rzp_key').val(),"rzp_secret" : $('#rzp_secret').val(), "apilayer_key" : $('#apilayer_key').val() },
+                          "rzp_key": $('#rzp_key').val(),"rzp_secret" : $('#rzp_secret').val(), "apilayer_key" : $('#apilayer_key').val(),'processing_fee':$('#processing_fee').val() },
                       success: function (data) {
                           $("#key_update").attr('disabled',false);
                           $('#rzp_keycheck').hide();
@@ -200,7 +216,7 @@
           };
 
           // Add input event listeners for all fields
-          ['rzp_key','rzp_secret','apilayer_key'].forEach(id => {
+          ['rzp_key','rzp_secret','apilayer_key','processing_fee'].forEach(id => {
 
               document.getElementById(id).addEventListener('input', function () {
                   removeErrorMessage(this);

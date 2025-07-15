@@ -15,20 +15,18 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Jobs;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\License;
-use App\Http\Controllers\License\LocalizedLicenseController;
 use App\Http\Controllers\Order;
-//use App\Http\Controllers\PhoneVerificationController;
 use App\Http\Controllers\Payment;
 use App\Http\Controllers\Product;
-use App\Http\Controllers\RazorpayController;
 use App\Http\Controllers\Report\ReportController;
 use App\Http\Controllers\SocialLoginsController;
 use App\Http\Controllers\Tenancy;
 use App\Http\Controllers\ThirdPartyAppController;
 use App\Http\Controllers\User;
 use App\Http\Controllers\WelcomeController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+//use App\Http\Controllers\PhoneVerificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -90,9 +88,18 @@ Route::middleware('installAgora')->group(function () {
     Route::post('remove-coupon', [Front\CartController::class, 'removeCoupon']);
 
     Route::post('demo-request', [Front\PageController::class, 'postDemoReq'])->withoutMiddleware(['auth']);
-    Route::get('confirm/payment', [RazorpayController::class, 'afterPayment']);
-    Route::post('stripeUpdatePayment/confirm', [Front\ClientController::class, 'stripeUpdatePayment']);
-    Route::get('confirm/auto-renewal',[Front\ClientController::class, 'confirmAutoRenewal']);
+//    Route::get('confirm/payment', [RazorpayController::class, 'afterPayment']);
+    Route::get('confirm/payment', [\App\Plugins\Payment_module\Stripe\Controllers\OnetimeController::class, 'afterPayment']);//check once
+
+    Route::post('stripeUpdatePayment/confirm', [Front\ClientController::class, 'stripeUpdatePayment']);  //check once(no use checked in agora2)
+//    Route::get('confirm/auto-renewal',[Front\ClientController::class, 'confirmAutoRenewal']);
+    Route::get('confirm/auto-renewal',[\App\Plugins\Payment_module\Stripe\Controllers\RecurringController::class, 'confirmAutoRenewal']); //check once
+
+//    Route::post('rzpRenewal-disable', [Front\ClientController::class, 'enableRzpStatus'])->withoutMiddleware('guest');
+    Route::post('rzpRenewal-disable',[\App\Plugins\Payment_module\Razorpay\Controllers\RecurringController::class, 'enableRzpStatus'])->withoutMiddleware('guest');//check once
+    Route::get('rzp-authentication/{orderid}', [Front\ClientController::class, 'rzpAuthentication']);//Check the working
+    Route::post('rzp-webhook',[\App\Plugins\Payment_module\Razorpay\Controllers\RecurringController::class,'razorpay_webhook']);
+    Route::post('str-webhook',[\App\Plugins\Payment_module\Stripe\Controllers\RecurringController::class,'stripe_webhook']);
     /*
      * Front Client Pages
      */
@@ -109,9 +116,19 @@ Route::middleware('installAgora')->group(function () {
 
     Route::get('get-my-payment-client/{orderid}/{userid}', [Front\ClientController::class, 'getPaymentByOrderIdClient'])->name('get-my-payment-client');
     // Route::get('autoPayment-client/{orderid}', [Front\ClientController::class, 'getAutoPaymentStatus']);
-    Route::post('strRenewal-enable', [Front\ClientController::class, 'enableAutorenewalStatus']);
-    Route::post('renewal-disable', [Front\ClientController::class, 'disableAutorenewalStatus']);
-    Route::post('rzpRenewal-disable/{orderid}', [Front\ClientController::class, 'enableRzpStatus']);
+//    Route::post('strRenewal-enable', [Front\ClientController::class, 'enableAutorenewalStatus']); //Delete no need
+    Route::post('strRenewal-enable', [\App\Plugins\Payment_module\Stripe\Controllers\RecurringController::class, 'enableAutorenewalStatus']); //check once
+
+//    Route::post('rzpRenewal-enable', [Front\ClientController::class, 'enableRzpAutorenewalStatus']); //Delete no need
+    Route::post('rzpRenewal-enable', [\App\Plugins\Payment_module\Razorpay\Controllers\RecurringController::class, 'enableRzpAutorenewalStatus']); //check once
+
+   // Route::post('middlePage-enable', [Front\ClientController::class, 'middle_pageEnable']);//Delete not needed
+
+//    Route::post('renewal-disable', [Front\ClientController::class, 'disableAutorenewalStatus']);//Delete no need
+    Route::post('renewal-disable',[App\Plugins\Payment_module\ProcessController::class, 'disableAutorenewalStatus']); //check once
+    Route::post('rzpRenewal-disable/{orderid}', [Front\ClientController::class, 'enableRzpStatus']); //Delete no need
+   // Route::post('setup-intent',[Front\ClientController::class, 'createSetupIntent']);//Delete not needed
+  //  Route::post('save-card-details',[Front\ClientController::class, 'saveCardDetails']);//Delete not needed
 
     Route::get('my-orders', [Front\ClientController::class, 'orders']);
     Route::get('get-my-orders', [Front\ClientController::class, 'getOrders'])->name('get-my-orders');
@@ -131,7 +148,8 @@ Route::middleware('installAgora')->group(function () {
     Route::get('get-github-versions/{productid}/{clientid}/{invoiceid}/', [Front\ClientController::class, 'getGithubVersionList'])->name('get-github-versions');
 
     // Post Route For Make Razorpay Payment Request
-    Route::post('payment/{invoice}', [RazorpayController::class, 'payment'])->name('payment');
+//    Route::post('payment/{invoice}', [RazorpayController::class, 'payment'])->name('payment');
+    Route::post('payment/{invoice}', [\App\Plugins\Payment_module\Razorpay\Controllers\OnetimeController::class, 'payment'])->name('payment');//check once
 
     Route::get('downloadLicenseFile', [License\LocalizedLicenseController::class, 'downloadFile'])->name('event.rsvp')->middleware('signed');
     Route::get('downloadPrivate/{orderNo}', [License\LocalizedLicenseController::class, 'downloadPrivate']);
@@ -305,7 +323,9 @@ Route::middleware('installAgora')->group(function () {
     Route::delete('plans-delete', [Product\PlanController::class, 'destroy'])->name('plans-delete');
     Route::get('get-period', [Product\PlanController::class, 'checkSubscription'])->name('get-period');
     Route::post('postInsertPeriod', [Product\PlanController::class, 'postInsertPeriod']);
-
+    Route::post('configurable-option-edit',[Product\ConfigurableGroupController::class,'groupEdit'])->name('configurable-option-edit');
+    Route::get('option/{id}/edit',[Product\ConfigurableGroupController::class,'groupEditDisplay'])->name('option.edit');
+    Route::post('config-group-create',[Product\ConfigurableGroupController::class,'groupCreate'])->name('configurable-option-creation');
     /*
      * Currency
      */
@@ -399,6 +419,9 @@ Route::middleware('installAgora')->group(function () {
     Route::get('get-groups', [Product\GroupController::class, 'getGroups'])->name('get-groups');
     Route::delete('groups-delete', [Product\GroupController::class, 'destroy'])->name('groups-delete');
 
+    Route::get('configurable-groups', [Product\ConfigurableGroupController::class,'index']);
+    Route::get('configurable-groups-table',[Product\ConfigurableGroupController::class,'getConfigurableGroups']);
+    Route::get('configurable-group-create',[Product\ConfigurableGroupController::class,'create']);
     /*
      * Templates
      */
@@ -504,7 +527,7 @@ Route::middleware('installAgora')->group(function () {
      */
     Route::get('payment-gateway-integration', [Common\SettingsController::class, 'plugins']);
     Route::post('updatePaymentStatus', [Common\PaymentSettingsController::class, 'updatePaymentStatus']);
-
+    Route::get('plugins-grouping',[Common\SettingsController::class, 'pluginsGrouping']);
     // Route::get('get-plugin', [Common\PaymentSettingsController::class, 'getPlugin'])->name('get-plugin');
     // Route::get('getplugin', [Common\SettingsController::class, 'getPlugin']);
     Route::post('post-plugin', [Common\PaymentSettingsController::class, 'postPlugins'])->name('post.plugin');
@@ -522,6 +545,9 @@ Route::middleware('installAgora')->group(function () {
     Route::get('file-storage', [Common\SettingsController::class, 'showFileStorage']);
     Route::post('file-storage-path', [Common\SettingsController::class, 'updateStoragePath']);
     Route::get('expired-subscriptions', [Common\CronController::class, 'eachSubscription']);
+    Route::post('save-plugin-options',[Common\SettingsController::class, 'savePluginOptions']);
+    Route::get('get-option-info',[Common\SettingsController::class, 'getOptionInfo']);
+    Route::delete('option-delete',[Common\SettingsController::class, 'optionDelete']);
 
     /*
 

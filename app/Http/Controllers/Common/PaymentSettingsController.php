@@ -117,7 +117,7 @@ class PaymentSettingsController extends Controller
 
     public function readConfigs()
     {
-        $dir = app_path().DIRECTORY_SEPARATOR.'Plugins'.DIRECTORY_SEPARATOR;
+        $dir = app_path().DIRECTORY_SEPARATOR.'Plugins/Payment_module'.DIRECTORY_SEPARATOR;
         $directories = scandir($dir);
         $files = [];
         foreach ($directories as $key => $file) {
