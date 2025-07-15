@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Common;
 
-
 use App\Model\Common\ManagerSetting;
 use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -47,7 +46,6 @@ class SystemManagerControllerTest extends DBTestCase
         $response->assertViewHas(['accountManagers', 'salesManager', 'accountManagersAutoAssign', 'salesManagerAutoAssign']);
     }
 
-
     public function test_it_returns_filtered_admin_users()
     {
         User::factory()->create([
@@ -56,12 +54,11 @@ class SystemManagerControllerTest extends DBTestCase
             'email' => 'filter@example.com',
         ]);
 
-        $response = $this->getJson(route("search-admins" , ['q' => 'filter']));
+        $response = $this->getJson(route('search-admins', ['q' => 'filter']));
 
         $response->assertOk()->assertJsonFragment([
-               "text" => "filter@example.com"
-           ]);
-
+            'text' => 'filter@example.com',
+        ]);
     }
 
     public function test_it_replaces_account_manager()
@@ -83,7 +80,6 @@ class SystemManagerControllerTest extends DBTestCase
         ]);
         $this->assertEquals($new->id, $userAssigned->fresh()->account_manager);
     }
-
 
     public function test_it_throws_error_if_same_account_manager_is_selected()
     {
@@ -141,7 +137,7 @@ class SystemManagerControllerTest extends DBTestCase
         ]);
 
         $response->assertJson(['success' => true]);
-        $this->assertTrue((boolean)ManagerSetting::where('manager_role', 'account')->first()->auto_assign);
+        $this->assertTrue((bool) ManagerSetting::where('manager_role', 'account')->first()->auto_assign);
     }
 
     public function test_it_fails_on_invalid_auto_assign_input()
