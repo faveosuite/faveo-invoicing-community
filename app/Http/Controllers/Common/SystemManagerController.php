@@ -88,7 +88,7 @@ class SystemManagerController extends Controller
             'newAccManager' => 'required',
         ], [
             'existingAccManager.required' => __('message.existingAccManager_required'),
-            'newAccManager.required'     => __('message.newAccManager_required'),
+            'newAccManager.required' => __('message.newAccManager_required'),
         ]);
 
         try {
@@ -142,7 +142,7 @@ class SystemManagerController extends Controller
 
         try {
             $existingId = $request->input('existingSaleManager');
-            $newId      = $request->input('newSaleManager');
+            $newId = $request->input('newSaleManager');
 
             if ($existingId == $newId) {
                 return errorResponse(__('message.sales_manager_must_be_different'));
