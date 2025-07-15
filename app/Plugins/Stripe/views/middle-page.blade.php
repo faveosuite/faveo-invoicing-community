@@ -902,6 +902,7 @@ $feeAmount = intval(ceil($invoice->grand_total*$processingFee));
 <script>
     $('#stripe-button1').on('click',function(){
         $('#stripeModal').modal('show');
+        console.log('hii');
     })
 
 $(function() {
