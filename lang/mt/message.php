@@ -2605,4 +2605,21 @@
      'captcha_message' => 'Il-verifika reCAPTCHA falliet. Erġaʼ ipprova.',
      'not-found' => 'Dan il-prodott ma jistax jitħassar għax huwa assoċjat ma’ servizz jew aktar. Jekk jogħġbok neħħi s-servizzi kollha relatati qabel tipprova tħassar dan il-prodott.',
 
+     'auto_assign_success' => 'Is-settings tal-assenjazzjoni awtomatika ġew aġġornati b’suċċess.',
+     'system_manager_settings' => 'Settings tal-Maniġer tas-Sistema',
+     'enable_account_manager' => 'Attiva assenjazzjoni awtomatika għall-Maniġers tal-Kontijiet',
+     'account_upon_creation' => 'Awtomatikament assenja maniġer tal-kont meta jinħoloq klijent ġdid.',
+     'current_account_manager' => 'Il-Maniġer tal-Kont attwali',
+     'select_replacement_manager' => 'Agħżel Maniġer tal-Kont sostitut',
+     'enable_sales_manager' => 'Attiva assenjazzjoni awtomatika għall-Maniġers tal-Bejgħ',
+     'sales_upon_creation' => 'Awtomatikament assenja maniġer tal-bejgħ meta jinħoloq klijent ġdid.',
+     'current_sales_manager' => 'Il-Maniġer tal-Bejgħ attwali',
+     'select_replacement_sales_manager' => 'Agħżel Maniġer tal-Bejgħ sostitut',
+     'manager_role.required' => 'Jekk jogħġbok agħżel rwol ta’ maniġer.',
+     'manager_role.in' => 'Ir-rwol magħżul tal-maniġer mhux validu. Il-valuri permessi huma "account" jew "sales".',
+     'status.required' => 'Jekk jogħġbok speċifika l-istatus.',
+     'status.boolean' => 'L-istatus irid ikun jew true (attivat) jew false (diżattivat).',
+     'manager_settings_updated_successfully' => 'Is-settings tal-maniġer ġew aġġornati b’suċċess.',
+
+     'user_position_prohibited_if' => 'Il-qasam tal-pożizzjoni mhuwiex permess meta r-rwol ikun utent.',
  ];

@@ -189,11 +189,6 @@
 
                         <?php $old = ['agriculture_forestry'=>'Agriculture Forestry','safety_security_legal'=>'Safety Security Legal','business_information'=>'Business Information','finance_insurance'=>'Finance Insurance','gaming'=>'Gaming','real_estate_housing'=>'Real Estate Housing','health_services'=>'Health Services','education'=>'Education','food_hospitality'=>'Food Hospitality','personal_services'=>'Personal Services','transportation'=>'Transportation','construction_utilities_contracting'=>'Construction Utilities Contracting','motor_vehicle'=>'Motor Vehicle','animals_pets'=>'Animals & Pets','art_design'=>'Art & Design','auto_transport'=>'Auto & Transport','food_beverage'=>'Food & Beverage','beauty_fashion'=>'Beauty & Fashion','education_childcare'=>'Education & Childcare','environment_green_tech'=>'Environment & Green Tech','events_weddings'=>'Events & Weddings','finance_legal_consulting'=>'Finance, Legal & Consulting','government_municipal'=>'Government & Municipal','home_garden'=>'Home & Garden','internet_technology'=>'Internet & Technology','local_service_providers'=>'Local Service Providers','manufacturing_wholesale'=>'Manufacturing & Wholesale','marketing_advertising'=>'Marketing & Advertising','media_communication'=>'Media & Communication','medical_dental'=>'Medical & Dental','music_bands'=>'Music & Bands','non_profit_charity'=>'Non-Profit & Charity','real_estate'=>'Real Estate','religion'=>'Religion','retail_e-Commerce'=>'Retail & E-Commerce','sports_recreation'=>'Sports & Recreation','travel_hospitality'=>'Travel & Hospitality','other'=>'Other',];
                         $bussinesses =DB::table('bussinesses')->pluck('name','short')->toarray();
-                        $acctManagers = DB::table('users')->where('position', 'account_manager')
-                            ->pluck('first_name', 'id')->toArray();
-
-                        $salesManagers = DB::table('users')->where('position', 'manager')
-                            ->pluck('first_name', 'id')->toArray();
                         ?>
                         <!-- {!! html()->select('industry', array_merge(['Choose'], ['' => DB::table('bussinesses')->pluck('name', 'short')->toArray()], ['old' => $old]))->class('form-control')->id('industry')->attribute('data-live-search', 'true')->attribute('data-live-search-placeholder', 'Search')->attribute('data-dropup-auto', 'false')->attribute('data-size', '10') !!} -->
 
@@ -259,11 +254,11 @@
                             {!! html()->label( __('message.users_account_manager'), 'from') !!}
                             <select name="actmanager"  class="form-control selectpicker" data-live-search="true" data-live-search-placeholder="Search" data-dropup-auto="false"  data-size="10" id="actmanager" >
                                 <option value="">{{ __('message.choose') }}</option>
-                                @foreach($acctManagers as $key=>$acct)
+                                @foreach($accountManagers as $key => $manager)
                                     @if($key == $request->actmanager)
-                                        <option value={{$key}} selected>{{$acct}}</option>
+                                        <option value="{{ $key }}" selected>{{ $manager }}</option>
                                     @else
-                                        <option value={{$key}}>{{$acct}}</option>
+                                        <option value="{{ $key }}">{{ $manager }}</option>
                                     @endif
                                 @endforeach
                             </select>
@@ -275,7 +270,7 @@
                             {!! html()->label( __('message.user_for_sales_manager'), 'from') !!}
                             <select name="salesmanager"  class="form-control selectpicker" data-live-search="true",data-live-search-placeholder="Search" data-dropup-auto="false"  data-size="10" id="salesmanager" >
                                 <option value="">{{ __('message.choose') }}</option>
-                                @foreach($salesManagers as $key=>$sales)
+                                @foreach($salesManager as $key=>$sales)
                                     @if($key == $request->salesmanager)
                                         <option value={{$key}} selected>{{$sales}}</option>
                                     @else

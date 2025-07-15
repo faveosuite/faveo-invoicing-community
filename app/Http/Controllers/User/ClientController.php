@@ -18,7 +18,6 @@ use App\ReportColumn;
 use App\Traits\PaymentsAndInvoices;
 use App\User;
 use App\UserLinkReport;
-use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Storage;
@@ -70,7 +69,20 @@ class ClientController extends AdvanceSearchController
             return redirect('clients')->with('fails', __('message.registered_till_date'));
         }
 
-        return view('themes.default1.user.client.index', compact('request'));
+        $users = User::select('id', 'first_name', 'last_name', 'email', 'position')
+            ->where('role', 'admin')
+            ->whereIn('position', ['account_manager', 'manager'])
+            ->get();
+
+        $accountManagers = $users->filter(fn ($user) => $user->position === 'account_manager')
+            ->mapWithKeys(fn ($user) => [$user->id => $user->first_name.' '.$user->last_name.' <'.$user->email.'>'])
+            ->toArray();
+
+        $salesManager = $users->filter(fn ($user) => $user->position === 'manager')
+            ->mapWithKeys(fn ($user) => [$user->id => $user->first_name.' '.$user->last_name.' <'.$user->email.'>'])
+            ->toArray();
+
+        return view('themes.default1.user.client.index', compact('request', 'accountManagers', 'salesManager'));
     }
 
     /**
@@ -195,10 +207,20 @@ class ClientController extends AdvanceSearchController
         $timezones = new \App\Model\Common\Timezone();
         $timezones = $timezones->pluck('name', 'id')->toArray();
         $bussinesses = \App\Model\Common\Bussiness::pluck('name', 'short')->toArray();
-        $managers = User::where('role', 'admin')->where('position', 'manager')
-        ->pluck('first_name', 'id')->toArray();
-        $accountManager = User::where('role', 'admin')->where('position', 'account_manager')
-        ->pluck('first_name', 'id')->toArray();
+
+        $users = User::select('id', 'first_name', 'last_name', 'email', 'position')
+            ->where('role', 'admin')
+            ->whereIn('position', ['account_manager', 'manager'])
+            ->get();
+
+        $accountManager = $users->filter(fn ($user) => $user->position === 'account_manager')
+            ->mapWithKeys(fn ($user) => [$user->id => $user->first_name.' '.$user->last_name.' <'.$user->email.'>'])
+            ->toArray();
+
+        $managers = $users->filter(fn ($user) => $user->position === 'manager')
+            ->mapWithKeys(fn ($user) => [$user->id => $user->first_name.' '.$user->last_name.' <'.$user->email.'>'])
+            ->toArray();
+
         $timezonesList = \App\Model\Common\Timezone::get();
         foreach ($timezonesList as $timezone) {
             $location = $timezone->location;
@@ -353,12 +375,19 @@ class ClientController extends AdvanceSearchController
             //for display
             $timezones = array_column($display, 'name', 'id');
             $state = getStateByCode($user->state);
-            $managers = User::select(DB::raw('CONCAT(first_name, " ", last_name) As first_name'), 'id')
-            ->where('role', 'admin')->where('position', 'manager')
-            ->get()->pluck('first_name', 'id');
-            $acc_managers = User::select(DB::raw('CONCAT(first_name, " ", last_name) As first_name'), 'id')
-            ->where('role', 'admin')->where('position', 'account_manager')->get()
-            ->pluck('first_name', 'id');
+
+            $users = User::select('id', 'first_name', 'last_name', 'email', 'position')
+                ->where('role', 'admin')
+                ->whereIn('position', ['account_manager', 'manager'])
+                ->get();
+
+            $acc_managers = $users->filter(fn ($user) => $user->position === 'account_manager')
+                ->mapWithKeys(fn ($user) => [$user->id => $user->first_name.' '.$user->last_name.' <'.$user->email.'>'])
+                ->toArray();
+
+            $managers = $users->filter(fn ($user) => $user->position === 'manager')
+                ->mapWithKeys(fn ($user) => [$user->id => $user->first_name.' '.$user->last_name.' <'.$user->email.'>'])
+                ->toArray();
             $selectedCurrency = Currency::where('code', $user->currency)
             ->pluck('name', 'code')->toArray();
             $selectedCompany = \DB::table('company_types')->where('name', $user->company_type)

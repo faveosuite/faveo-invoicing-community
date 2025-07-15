@@ -2680,4 +2680,21 @@ return [
     'captcha_message' => 'La verificación de reCAPTCHA falló. Por favor, inténtalo de nuevo.',
     'not-found' => 'Este producto no puede eliminarse porque está actualmente asociado con uno o más servicios. Elimine todos los servicios relacionados antes de intentar eliminar este producto.',
 
+    'auto_assign_success' => 'La configuración de asignación automática se actualizó correctamente.',
+    'system_manager_settings' => 'Configuración del Gestor del Sistema',
+    'enable_account_manager' => 'Habilitar la asignación automática para los gestores de cuentas',
+    'account_upon_creation' => 'Asignar automáticamente un gestor de cuentas a los nuevos clientes al crearlos.',
+    'current_account_manager' => 'Gestor de cuentas actual',
+    'select_replacement_manager' => 'Seleccionar gestor de cuentas de reemplazo',
+    'enable_sales_manager' => 'Habilitar la asignación automática para los gestores de ventas',
+    'sales_upon_creation' => 'Asignar automáticamente un gestor de ventas a los nuevos clientes al crearlos.',
+    'current_sales_manager' => 'Gestor de ventas actual',
+    'select_replacement_sales_manager' => 'Seleccionar gestor de ventas de reemplazo',
+    'manager_role.required' => 'Por favor, selecciona un rol de gestor.',
+    'manager_role.in' => 'El rol de gestor seleccionado no es válido. Los valores permitidos son "account" o "sales".',
+    'status.required' => 'Por favor, especifica el estado.',
+    'status.boolean' => 'El estado debe ser verdadero (habilitado) o falso (deshabilitado).',
+    'manager_settings_updated_successfully' => 'La configuración del gerente se actualizó correctamente.',
+
+    'user_position_prohibited_if' => 'El campo de posición no está permitido cuando el rol es usuario.',
 ];

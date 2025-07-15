@@ -2682,4 +2682,21 @@ return [
     'captcha_message' => 'reCAPTCHA verification failed. Please try again.',
     'not-found' => 'This product cannot be deleted because it is currently associated with one or more services. Please remove all related services before attempting to delete this product.',
 
+    'auto_assign_success' => 'Auto-assignment setting updated successfully.',
+    'system_manager_settings' => 'System Manager Settings',
+    'enable_account_manager' => 'Enable Auto-assignment for Account Managers',
+    'account_upon_creation' => 'Automatically assign an account manager to new clients upon creation.',
+    'current_account_manager' => 'Current Account Manager',
+    'select_replacement_manager' => 'Select Replacement Account Manager',
+    'enable_sales_manager' => 'Enable Auto-assignment for Sales Managers',
+    'sales_upon_creation' => 'Automatically assign a sales manager to new clients upon creation.',
+    'current_sales_manager' => 'Current Sales Manager',
+    'select_replacement_sales_manager' => 'Select Replacement Sales Manager',
+    'manager_role.required' => 'Please select a manager role.',
+    'manager_role.in' => 'The selected manager role is invalid. Allowed values are "account" or "sales".',
+    'status.required' => 'Please specify the status.',
+    'status.boolean' => 'The status must be either true (enabled) or false (disabled).',
+    'manager_settings_updated_successfully' => 'Manager settings were successfully updated.',
+
+    'user_position_prohibited_if' => 'The position field is not allowed when the role is set to user.',
 ];

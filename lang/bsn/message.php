@@ -2609,4 +2609,21 @@ return [
     'captcha_message' => 'reCAPTCHA provjera nije uspjela. Pokušajte ponovo.',
     'not-found' => 'Ovaj proizvod se ne može obrisati jer je trenutno povezan s jednom ili više usluga. Molimo uklonite sve povezane usluge prije pokušaja brisanja ovog proizvoda.',
 
+    'auto_assign_success' => 'Postavka automatskog dodjeljivanja je uspješno ažurirana.',
+    'system_manager_settings' => 'Postavke sistemskog menadžera',
+    'enable_account_manager' => 'Omogući automatsko dodjeljivanje za menadžere računa',
+    'account_upon_creation' => 'Automatski dodijeli menadžera računa novim klijentima prilikom kreiranja.',
+    'current_account_manager' => 'Trenutni menadžer računa',
+    'select_replacement_manager' => 'Odaberite zamjenskog menadžera računa',
+    'enable_sales_manager' => 'Omogući automatsko dodjeljivanje za menadžere prodaje',
+    'sales_upon_creation' => 'Automatski dodijeli menadžera prodaje novim klijentima prilikom kreiranja.',
+    'current_sales_manager' => 'Trenutni menadžer prodaje',
+    'select_replacement_sales_manager' => 'Odaberite zamjenskog menadžera prodaje',
+    'manager_role.required' => 'Molimo odaberite ulogu menadžera.',
+    'manager_role.in' => 'Odabrana uloga menadžera nije ispravna. Dozvoljene vrijednosti su "account" ili "sales".',
+    'status.required' => 'Molimo navedite status.',
+    'status.boolean' => 'Status mora biti true (omogućeno) ili false (onemogućeno).',
+    'manager_settings_updated_successfully' => 'Postavke menadžera su uspješno ažurirane.',
+
+    'user_position_prohibited_if' => 'Polje pozicija nije dozvoljeno kada je uloga korisnik.',
 ];

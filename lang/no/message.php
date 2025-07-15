@@ -2686,4 +2686,21 @@ return [
     'cloud_deleted_failed' => 'Sletting av leietaker mislyktes',
     'not-found' => 'Dette produktet kan ikke slettes fordi det for øyeblikket er knyttet til en eller flere tjenester. Vennligst fjern alle tilknyttede tjenester før du prøver å slette produktet.',
 
+    'auto_assign_success' => 'Automatisk tildelingsinnstilling ble oppdatert.',
+    'system_manager_settings' => 'Systemansvarlig Innstillinger',
+    'enable_account_manager' => 'Aktiver automatisk tildeling for kontoadministratorer',
+    'account_upon_creation' => 'Tildel automatisk en kontoadministrator når nye kunder opprettes.',
+    'current_account_manager' => 'Nåværende kontoadministrator',
+    'select_replacement_manager' => 'Velg en ny kontoadministrator',
+    'enable_sales_manager' => 'Aktiver automatisk tildeling for salgsadministratorer',
+    'sales_upon_creation' => 'Tildel automatisk en salgsadministrator når nye kunder opprettes.',
+    'current_sales_manager' => 'Nåværende salgsadministrator',
+    'select_replacement_sales_manager' => 'Velg en ny salgsadministrator',
+    'manager_role.required' => 'Vennligst velg en lederrolle.',
+    'manager_role.in' => 'Den valgte lederrollen er ugyldig. Tillatte verdier er "account" eller "sales".',
+    'status.required' => 'Vennligst spesifiser status.',
+    'status.boolean' => 'Statusen må være enten true (aktivert) eller false (deaktivert).',
+    'manager_settings_updated_successfully' => 'Lederinnstillingene ble oppdatert vellykket.',
+
+    'user_position_prohibited_if' => 'Feltet for stilling er ikke tillatt når rollen er bruker.',
 ];

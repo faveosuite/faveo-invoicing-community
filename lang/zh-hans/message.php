@@ -2675,4 +2675,21 @@ return [
     'cloud_deleted_failed' => '租户删除失败',
     'not-found' => '无法删除该产品，因为它当前关联了一个或多个服务。请先删除所有相关服务后再尝试删除该产品。',
 
+    'auto_assign_success' => '自动分配设置已成功更新。',
+    'system_manager_settings' => '系统管理员设置',
+    'enable_account_manager' => '启用账户经理的自动分配',
+    'account_upon_creation' => '在创建新客户时自动分配账户经理。',
+    'current_account_manager' => '当前账户经理',
+    'select_replacement_manager' => '选择替代账户经理',
+    'enable_sales_manager' => '启用销售经理的自动分配',
+    'sales_upon_creation' => '在创建新客户时自动分配销售经理。',
+    'current_sales_manager' => '当前销售经理',
+    'select_replacement_sales_manager' => '选择替代销售经理',
+    'manager_role.required' => '请选择一个经理角色。',
+    'manager_role.in' => '所选的经理角色无效。允许的值为 "account" 或 "sales"。',
+    'status.required' => '请指定状态。',
+    'status.boolean' => '状态必须是 true（启用）或 false（禁用）。',
+    'manager_settings_updated_successfully' => '管理员设置已成功更新。',
+
+    'user_position_prohibited_if' => '当角色为用户时，不允许填写职位字段。',
 ];

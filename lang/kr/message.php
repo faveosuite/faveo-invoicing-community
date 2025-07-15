@@ -2700,4 +2700,21 @@ return [
     'captcha_message' => 'reCAPTCHA 확인 실패. 다시 시도해 주세요.',
     'not-found' => '이 제품은 하나 이상의 서비스와 연결되어 있어 삭제할 수 없습니다. 이 제품을 삭제하기 전에 관련된 모든 서비스를 제거하십시오.',
 
+    'auto_assign_success' => '자동 할당 설정이 성공적으로 업데이트되었습니다.',
+    'system_manager_settings' => '시스템 관리자 설정',
+    'enable_account_manager' => '계정 관리자 자동 할당 활성화',
+    'account_upon_creation' => '신규 고객 생성 시 계정 관리자를 자동으로 할당합니다.',
+    'current_account_manager' => '현재 계정 관리자',
+    'select_replacement_manager' => '대체 계정 관리자 선택',
+    'enable_sales_manager' => '영업 관리자 자동 할당 활성화',
+    'sales_upon_creation' => '신규 고객 생성 시 영업 관리자를 자동으로 할당합니다.',
+    'current_sales_manager' => '현재 영업 관리자',
+    'select_replacement_sales_manager' => '대체 영업 관리자 선택',
+    'manager_role.required' => '관리자 역할을 선택해 주세요.',
+    'manager_role.in' => '선택한 관리자 역할이 유효하지 않습니다. 허용되는 값은 "account" 또는 "sales"입니다.',
+    'status.required' => '상태를 지정해 주세요.',
+    'status.boolean' => '상태는 true(활성화) 또는 false(비활성화)여야 합니다.',
+    'manager_settings_updated_successfully' => '관리자 설정이 성공적으로 업데이트되었습니다.',
+
+    'user_position_prohibited_if' => '역할이 사용자일 때는 직위 필드를 사용할 수 없습니다.',
 ];

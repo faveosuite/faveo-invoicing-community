@@ -210,18 +210,12 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return $this->belongsTo(\App\User::class, 'account_manager');
     }
 
-    public function assignSalesManager()
+    public function assignManagerByPosition(string $position)
     {
-        $managers = $this->where('role', 'admin')->where('position', 'manager')->pluck('id', 'first_name')->toArray();
-        if (count($managers) > 0) {
-            $randomized[] = array_rand($managers);
-            shuffle($randomized);
-            $manager = $managers[$randomized[0]];
-        } else {
-            $manager = '';
-        }
-
-        return $manager;
+        return $this->where('role', 'admin')
+            ->where('position', $position)
+            ->inRandomOrder()
+            ->value('id');
     }
 
     public function save(array $options = [])

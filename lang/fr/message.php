@@ -2668,4 +2668,22 @@ return [
     'captcha_failed' => 'La vérification reCAPTCHA a échoué. Veuillez vous assurer que votre clé secrète reCAPTCHA est valide.',
     'captcha_message' => 'Échec de la vérification reCAPTCHA. Veuillez réessayer.',
     'not-found' => 'Ce produit ne peut pas être supprimé car il est actuellement associé à un ou plusieurs services. Veuillez supprimer tous les services associés avant de tenter de supprimer ce produit.',
+
+    'auto_assign_success' => 'Le paramètre d’attribution automatique a été mis à jour avec succès.',
+    'system_manager_settings' => 'Paramètres du gestionnaire système',
+    'enable_account_manager' => 'Activer l’attribution automatique pour les gestionnaires de comptes',
+    'account_upon_creation' => 'Attribuer automatiquement un gestionnaire de compte aux nouveaux clients lors de leur création.',
+    'current_account_manager' => 'Gestionnaire de compte actuel',
+    'select_replacement_manager' => 'Sélectionner un gestionnaire de compte de remplacement',
+    'enable_sales_manager' => 'Activer l’attribution automatique pour les gestionnaires commerciaux',
+    'sales_upon_creation' => 'Attribuer automatiquement un gestionnaire commercial aux nouveaux clients lors de leur création.',
+    'current_sales_manager' => 'Gestionnaire commercial actuel',
+    'select_replacement_sales_manager' => 'Sélectionner un gestionnaire commercial de remplacement',
+    'manager_role.required' => 'Veuillez sélectionner un rôle de gestionnaire.',
+    'manager_role.in' => 'Le rôle de gestionnaire sélectionné est invalide. Les valeurs autorisées sont "account" ou "sales".',
+    'status.required' => 'Veuillez spécifier le statut.',
+    'status.boolean' => 'Le statut doit être soit true (activé), soit false (désactivé).',
+    'manager_settings_updated_successfully' => 'Les paramètres du gestionnaire ont été mis à jour avec succès.',
+
+    'user_position_prohibited_if' => 'Le champ poste n’est pas autorisé lorsque le rôle est utilisateur.',
 ];

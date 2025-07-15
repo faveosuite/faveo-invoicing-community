@@ -2677,4 +2677,21 @@ return [
     'cloud_deleted_failed' => 'Löschen des Mandanten fehlgeschlagen',
     'not-found' => 'Dieses Produkt kann nicht gelöscht werden, da es derzeit mit einem oder mehreren Diensten verknüpft ist. Bitte entfernen Sie alle zugehörigen Dienste, bevor Sie versuchen, dieses Produkt zu löschen.',
 
+    'auto_assign_success' => 'Die automatische Zuweisung wurde erfolgreich aktualisiert.',
+    'system_manager_settings' => 'Systemmanager-Einstellungen',
+    'enable_account_manager' => 'Automatische Zuweisung für Account-Manager aktivieren',
+    'account_upon_creation' => 'Automatisch einen Account-Manager neuen Kunden bei der Erstellung zuweisen.',
+    'current_account_manager' => 'Aktueller Account-Manager',
+    'select_replacement_manager' => 'Ersatz-Account-Manager auswählen',
+    'enable_sales_manager' => 'Automatische Zuweisung für Sales-Manager aktivieren',
+    'sales_upon_creation' => 'Automatisch einen Sales-Manager neuen Kunden bei der Erstellung zuweisen.',
+    'current_sales_manager' => 'Aktueller Sales-Manager',
+    'select_replacement_sales_manager' => 'Ersatz-Sales-Manager auswählen',
+    'manager_role.required' => 'Bitte wählen Sie eine Manager-Rolle aus.',
+    'manager_role.in' => 'Die ausgewählte Manager-Rolle ist ungültig. Erlaubte Werte sind "account" oder "sales".',
+    'status.required' => 'Bitte geben Sie einen Status an.',
+    'status.boolean' => 'Der Status muss entweder true (aktiviert) oder false (deaktiviert) sein.',
+    'manager_settings_updated_successfully' => 'Manager-Einstellungen wurden erfolgreich aktualisiert.',
+
+    'user_position_prohibited_if' => 'Das Feld Position ist nicht erlaubt, wenn die Rolle Benutzer ist.',
 ];
