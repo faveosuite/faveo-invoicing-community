@@ -57,7 +57,24 @@ window.helper = (() => {
         }
     }
 
+    const globalLoader = {
+        show: function () {
+            const loader = document.getElementById('global-loader');
+            if (loader) {
+                loader.style.display = 'flex';
+            }
+        },
+
+        hide: function () {
+            const loader = document.getElementById('global-loader');
+            if (loader) {
+                loader.style.display = 'none';
+            }
+        }
+    };
+
     return {
         showAlert,
+        globalLoader,
     };
 })();

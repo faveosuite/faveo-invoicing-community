@@ -2675,4 +2675,21 @@ return [
     'captcha_message' => 'Verifica reCAPTCHA non riuscita. Riprova.',
     'not-found' => 'Questo prodotto non può essere eliminato perché è attualmente associato a uno o più servizi. Rimuovere tutti i servizi correlati prima di tentare di eliminare questo prodotto.',
 
+    'auto_assign_success' => 'La configurazione dell’assegnazione automatica è stata aggiornata con successo.',
+    'system_manager_settings' => 'Impostazioni del Gestore di Sistema',
+    'enable_account_manager' => 'Abilita l’assegnazione automatica per i responsabili account',
+    'account_upon_creation' => 'Assegna automaticamente un responsabile account ai nuovi clienti al momento della creazione.',
+    'current_account_manager' => 'Responsabile account attuale',
+    'select_replacement_manager' => 'Seleziona un responsabile account sostitutivo',
+    'enable_sales_manager' => 'Abilita l’assegnazione automatica per i responsabili vendite',
+    'sales_upon_creation' => 'Assegna automaticamente un responsabile vendite ai nuovi clienti al momento della creazione.',
+    'current_sales_manager' => 'Responsabile vendite attuale',
+    'select_replacement_sales_manager' => 'Seleziona un responsabile vendite sostitutivo',
+    'manager_role.required' => 'Seleziona un ruolo per il responsabile.',
+    'manager_role.in' => 'Il ruolo selezionato non è valido. I valori consentiti sono "account" o "sales".',
+    'status.required' => 'Specifica lo stato.',
+    'status.boolean' => 'Lo stato deve essere true (abilitato) o false (disabilitato).',
+    'manager_settings_updated_successfully' => 'Le impostazioni del manager sono state aggiornate con successo.',
+
+    'user_position_prohibited_if' => 'Il campo posizione non è consentito quando il ruolo è utente.',
 ];

@@ -2693,4 +2693,21 @@ return [
     'cloud_deleted_failed' => 'Tenant silme başarısız oldu',
     'not-found' => 'Bu ürün şu anda bir veya daha fazla hizmetle ilişkili olduğu için silinemez. Lütfen bu ürünü silmeye çalışmadan önce tüm ilgili hizmetleri kaldırın.',
 
+    'auto_assign_success' => 'Otomatik atama ayarı başarıyla güncellendi.',
+    'system_manager_settings' => 'Sistem Yöneticisi Ayarları',
+    'enable_account_manager' => 'Hesap yöneticileri için otomatik atamayı etkinleştir',
+    'account_upon_creation' => 'Yeni müşteriler oluşturulduğunda otomatik olarak bir hesap yöneticisi ata.',
+    'current_account_manager' => 'Mevcut Hesap Yöneticisi',
+    'select_replacement_manager' => 'Yedek hesap yöneticisi seçin',
+    'enable_sales_manager' => 'Satış yöneticileri için otomatik atamayı etkinleştir',
+    'sales_upon_creation' => 'Yeni müşteriler oluşturulduğunda otomatik olarak bir satış yöneticisi ata.',
+    'current_sales_manager' => 'Mevcut Satış Yöneticisi',
+    'select_replacement_sales_manager' => 'Yedek satış yöneticisi seçin',
+    'manager_role.required' => 'Lütfen bir yönetici rolü seçin.',
+    'manager_role.in' => 'Seçilen yönetici rolü geçersiz. Geçerli değerler "account" veya "sales" olmalıdır.',
+    'status.required' => 'Lütfen durumu belirtin.',
+    'status.boolean' => 'Durum true (etkin) veya false (devre dışı) olmalıdır.',
+    'manager_settings_updated_successfully' => 'Yönetici ayarları başarıyla güncellendi.',
+
+    'user_position_prohibited_if' => 'Rol kullanıcı olduğunda pozisyon alanına izin verilmez.',
 ];

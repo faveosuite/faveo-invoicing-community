@@ -2682,4 +2682,21 @@ return [
     'captcha_message' => 'reCAPTCHA の検証に失敗しました。もう一度お試しください。',
     'not-found' => 'この商品は現在1つ以上のサービスと関連付けられているため、削除できません。削除を試みる前にすべての関連サービスを削除してください。',
 
+    'auto_assign_success' => '自動割り当ての設定が正常に更新されました。',
+    'system_manager_settings' => 'システムマネージャー設定',
+    'enable_account_manager' => 'アカウントマネージャーの自動割り当てを有効にする',
+    'account_upon_creation' => '新しいクライアント作成時に自動的にアカウントマネージャーを割り当てます。',
+    'current_account_manager' => '現在のアカウントマネージャー',
+    'select_replacement_manager' => '代替のアカウントマネージャーを選択',
+    'enable_sales_manager' => 'セールスマネージャーの自動割り当てを有効にする',
+    'sales_upon_creation' => '新しいクライアント作成時に自動的にセールスマネージャーを割り当てます。',
+    'current_sales_manager' => '現在のセールスマネージャー',
+    'select_replacement_sales_manager' => '代替のセールスマネージャーを選択',
+    'manager_role.required' => 'マネージャーの役割を選択してください。',
+    'manager_role.in' => '選択されたマネージャーの役割が無効です。有効な値は "account" または "sales" です。',
+    'status.required' => 'ステータスを指定してください。',
+    'status.boolean' => 'ステータスは true（有効）または false（無効）である必要があります。',
+    'manager_settings_updated_successfully' => 'マネージャーの設定が正常に更新されました。',
+
+    'user_position_prohibited_if' => '役割がユーザーの場合、ポジションフィールドは使用できません。',
 ];

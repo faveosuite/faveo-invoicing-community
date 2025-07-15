@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Common;
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Common\SystemManagerSettingsRequest;
+use App\Model\Common\ManagerSetting;
 use App\User;
+use Closure;
 use Illuminate\Http\Request;
 
 class SystemManagerController extends Controller
@@ -17,15 +20,31 @@ class SystemManagerController extends Controller
 
     public function getSystemManagers()
     {
-        $accountManagers = User::where('role', 'admin')
-            ->where('position', 'account_manager')
-            ->pluck('first_name', 'id')->toArray();
+        $users = User::select('id', 'first_name', 'last_name', 'email', 'position')
+            ->where('role', 'admin')
+            ->whereIn('position', ['account_manager', 'manager'])
+            ->get();
 
-        $salesManager = User::where('role', 'admin')
-        ->where('position', 'manager')
-        ->pluck('first_name', 'id')->toArray();
+        $accountManagers = $users->filter(fn ($user) => $user->position === 'account_manager')
+            ->mapWithKeys(fn ($user) => [$user->id => $user->first_name.' '.$user->last_name.' <'.$user->email.'>'])
+            ->toArray();
 
-        return view('themes.default1.common.system-managers', compact('accountManagers', 'salesManager'));
+        $salesManager = $users->filter(fn ($user) => $user->position === 'manager')
+            ->mapWithKeys(fn ($user) => [$user->id => $user->first_name.' '.$user->last_name.' <'.$user->email.'>'])
+            ->toArray();
+
+        $settings = ManagerSetting::whereIn('manager_role', ['account', 'sales'])
+            ->pluck('auto_assign', 'manager_role');
+
+        $accountManagersAutoAssign = $settings['account'];
+        $salesManagerAutoAssign = $settings['sales'];
+
+        return view('themes.default1.common.system-managers', compact(
+            'accountManagers',
+            'salesManager',
+            'accountManagersAutoAssign',
+            'salesManagerAutoAssign'
+        ));
     }
 
     public function searchAdmin(Request $request)
@@ -56,95 +75,74 @@ class SystemManagerController extends Controller
     }
 
     /**
-     * Replace old account manager with the newly selected account manager.
+     * Updates manager settings for account and sales managers.
      *
-     * @author Ashutosh Pathak <ashutosh.pathak@ladybirdweb.com>
+     * Validates the request, updates manager assignments, auto-assign settings,
+     * and sends notification emails if enabled.
      *
-     * @date   2019-08-21T12:54:03+0530
-     *
-     * @param  Request  $request
-     * @return array
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
-    public function replaceAccountManager(Request $request)
+    public function updateManagerSettings(SystemManagerSettingsRequest $request)
     {
-        $this->validate($request, [
-            'existingAccManager' => 'required',
-            'newAccManager' => 'required',
-        ], [
-            'existingAccManager.required' => __('message.existingAccManager_required'),
-            'newAccManager.required' => __('message.newAccManager_required'),
-        ]);
-
         try {
-            $existingAccManager = $request->input('existingAccManager');
-            $newAccountManager = $request->input('newAccManager')[0];
-            if ($existingAccManager == $newAccountManager) {
-                return ['message' => 'fails', 'update' => __('message.same_account_manager_error')];
-            }
-            //First make the selected Admin as account Manager-
-            User::where('id', $newAccountManager)->update(['position' => 'account_manager']);
-            $accManagers = User::where('account_manager', $existingAccManager)->get();
-            foreach ($accManagers as $accManager) {
-                User::where('id', $accManager->id)->update(['account_manager' => $newAccountManager]);
-            }
-            $arrayOfBccEmails = User::where('account_manager', $newAccountManager)->get();
-            if ($arrayOfBccEmails && emailSendingStatus()) {
-                foreach ($arrayOfBccEmails as $user) {
-                    $cont = new AuthController();
-                    $sendMail = $cont->accountManagerMail($user);
-                }
-            }
+            $mailer = new AuthController;
 
-            return ['message' => 'success', 'update' => \Lang::get('message.account_man_replaced_success')];
-        } catch (\Exception $ex) {
-            return ['message' => 'fails', 'update' => $ex->getMessage()];
+            $this->updateManager(
+                'account_manager',
+                'position',
+                'account',
+                $request->existingAccManager,
+                $request->newAccManager,
+                fn ($user) => $mailer->accountManagerMail($user)
+            );
+
+            $this->updateManager(
+                'manager',
+                'position',
+                'sales',
+                $request->existingSaleManager,
+                $request->newSaleManager,
+                fn ($user) => $mailer->salesManagerMail($user)
+            );
+
+            ManagerSetting::whereManagerRole('account')->update(['auto_assign' => $request->autoAssignAccount]);
+            ManagerSetting::whereManagerRole('sales')->update(['auto_assign' => $request->autoAssignSales]);
+
+            return successResponse(__('message.manager_settings_updated_successfully'));
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
         }
     }
 
     /**
-     * Replace old sales manager with the newly selected sales manager.
+     * Updates manager assignment and notifies users.
      *
-     * @author Ashutosh Pathak <ashutosh.pathak@ladybirdweb.com>
-     *
-     * @date   2019-08-21T12:54:03+0530
-     *
-     * @param  Request  $request
-     * @return array
+     * @param  string  $managerColumn  The column representing the manager relationship.
+     * @param  string  $positionColumn  The column representing the user's position.
+     * @param  string  $role  The manager role ('account' or 'sales').
+     * @param  int  $oldManagerId  The ID of the old manager.
+     * @param  int  $newManagerId  The ID of the new manager.
+     * @param  \Closure  $mailCallback  Callback to send notification email.
+     * @return void
      */
-    public function replaceSalesManager(Request $request)
+    private function updateManager($managerColumn, $positionColumn, $role, $oldManagerId, $newManagerId, Closure $mailCallback)
     {
-        $this->validate($request, [
-            'existingSaleManager' => 'required',
-            'newSaleManager' => 'required',
-        ], [
-            'existingSaleManager.required' => __('message.select_system_sales_manager'),
-            'newSaleManager.required' => __('message.select_new_sales_manager'),
-        ]);
+        if (! filled($oldManagerId) || ! filled($newManagerId)) {
+            return;
+        }
 
-        try {
-            $existingSaleManager = $request->input('existingSaleManager');
-            $newSalesManager = $request->input('newSaleManager')[0];
-            if ($existingSaleManager == $newSalesManager) {
-                return ['message' => 'fails', 'update' => __('message.sales_manager_must_be_different')];
-            }
-            //First make the selected Admin as sales Manager-
-            User::where('id', $newSalesManager)->update(['position' => 'manager']);
+        $position = $role === 'account' ? 'account_manager' : 'manager';
+        User::where('id', $newManagerId)->update([$positionColumn => $position]);
 
-            $saleManagers = User::where('manager', $existingSaleManager)->get();
-            foreach ($saleManagers as $saleManager) {
-                User::where('id', $saleManager->id)->update(['manager' => $newSalesManager]);
-            }
-            $arrayOfBccEmails = User::where('manager', $newSalesManager)->get();
-            if ($arrayOfBccEmails && emailSendingStatus()) {
-                foreach ($arrayOfBccEmails as $user) {
-                    $cont = new AuthController();
-                    $sendMail = $cont->salesManagerMail($user);
-                }
-            }
+        User::where($managerColumn, $oldManagerId)->update([$managerColumn => $newManagerId]);
 
-            return ['message' => 'success', 'update' => \Lang::get('message.sales_man_replaced_success')];
-        } catch (\Exception $ex) {
-            return ['message' => 'fails', 'update' => $ex->getMessage()];
+        if (emailSendingStatus()) {
+            User::where($managerColumn, $newManagerId)
+                ->cursor()
+                ->each(function ($user) use ($mailCallback) {
+                    $mailCallback($user);
+                });
         }
     }
 }

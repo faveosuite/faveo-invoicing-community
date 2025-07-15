@@ -2646,4 +2646,21 @@ return [
     'cloud_deleted_failed' => 'Verwijderen van huurder mislukt',
     'not-found' => 'Dit product kan niet worden verwijderd omdat het momenteel is gekoppeld aan een of meer services. Verwijder alle gerelateerde services voordat u probeert dit product te verwijderen.',
 
+    'auto_assign_success' => 'De instelling voor automatische toewijzing is succesvol bijgewerkt.',
+    'system_manager_settings' => 'Systeembeheerder Instellingen',
+    'enable_account_manager' => 'Automatische toewijzing voor accountmanagers inschakelen',
+    'account_upon_creation' => 'Wijs automatisch een accountmanager toe aan nieuwe klanten bij aanmaak.',
+    'current_account_manager' => 'Huidige accountmanager',
+    'select_replacement_manager' => 'Selecteer vervangende accountmanager',
+    'enable_sales_manager' => 'Automatische toewijzing voor salesmanagers inschakelen',
+    'sales_upon_creation' => 'Wijs automatisch een salesmanager toe aan nieuwe klanten bij aanmaak.',
+    'current_sales_manager' => 'Huidige salesmanager',
+    'select_replacement_sales_manager' => 'Selecteer vervangende salesmanager',
+    'manager_role.required' => 'Selecteer een managerrol.',
+    'manager_role.in' => 'De geselecteerde managerrol is ongeldig. Toegestane waarden zijn "account" of "sales".',
+    'status.required' => 'Geef een status op.',
+    'status.boolean' => 'De status moet true (ingeschakeld) of false (uitgeschakeld) zijn.',
+    'manager_settings_updated_successfully' => 'Managerinstellingen zijn succesvol bijgewerkt.',
+
+    'user_position_prohibited_if' => 'Het veld functie is niet toegestaan wanneer de rol gebruiker is.',
 ];

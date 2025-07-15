@@ -2658,4 +2658,21 @@ return [
     'captcha_message' => 'Falha na verificação do reCAPTCHA. Tente novamente.',
     'not-found' => 'Este produto não pode ser excluído porque está atualmente associado a um ou mais serviços. Por favor, remova todos os serviços relacionados antes de tentar excluir este produto.',
 
+    'auto_assign_success' => 'A configuração de atribuição automática foi atualizada com sucesso.',
+    'system_manager_settings' => 'Definições do Gestor do Sistema',
+    'enable_account_manager' => 'Ativar atribuição automática para gestores de conta',
+    'account_upon_creation' => 'Atribuir automaticamente um gestor de conta a novos clientes aquando da criação.',
+    'current_account_manager' => 'Gestor de conta atual',
+    'select_replacement_manager' => 'Selecionar gestor de conta substituto',
+    'enable_sales_manager' => 'Ativar atribuição automática para gestores de vendas',
+    'sales_upon_creation' => 'Atribuir automaticamente um gestor de vendas a novos clientes aquando da criação.',
+    'current_sales_manager' => 'Gestor de vendas atual',
+    'select_replacement_sales_manager' => 'Selecionar gestor de vendas substituto',
+    'manager_role.required' => 'Por favor, selecione um papel de gestor.',
+    'manager_role.in' => 'O papel de gestor selecionado é inválido. Os valores permitidos são "account" ou "sales".',
+    'status.required' => 'Por favor, indique o estado.',
+    'status.boolean' => 'O estado deve ser true (ativo) ou false (inativo).',
+    'manager_settings_updated_successfully' => 'As configurações do gerente foram atualizadas com sucesso.',
+
+    'user_position_prohibited_if' => 'O campo posição não é permitido quando o papel é usuário.',
 ];

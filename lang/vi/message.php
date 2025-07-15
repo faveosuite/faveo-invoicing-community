@@ -2681,4 +2681,21 @@ return [
     'cloud_deleted_failed' => 'Xóa tenant thất bại',
     'not-found' => 'Không thể xóa sản phẩm này vì nó đang được liên kết với một hoặc nhiều dịch vụ. Vui lòng xóa tất cả các dịch vụ liên quan trước khi thử xóa sản phẩm này.',
 
+    'auto_assign_success' => 'Cài đặt gán tự động đã được cập nhật thành công.',
+    'system_manager_settings' => 'Cài đặt Quản trị Hệ thống',
+    'enable_account_manager' => 'Bật gán tự động cho Quản lý Tài khoản',
+    'account_upon_creation' => 'Tự động gán quản lý tài khoản cho khách hàng mới khi được tạo.',
+    'current_account_manager' => 'Quản lý Tài khoản hiện tại',
+    'select_replacement_manager' => 'Chọn Quản lý Tài khoản thay thế',
+    'enable_sales_manager' => 'Bật gán tự động cho Quản lý Bán hàng',
+    'sales_upon_creation' => 'Tự động gán quản lý bán hàng cho khách hàng mới khi được tạo.',
+    'current_sales_manager' => 'Quản lý Bán hàng hiện tại',
+    'select_replacement_sales_manager' => 'Chọn Quản lý Bán hàng thay thế',
+    'manager_role.required' => 'Vui lòng chọn vai trò của quản lý.',
+    'manager_role.in' => 'Vai trò quản lý đã chọn không hợp lệ. Giá trị cho phép là "account" hoặc "sales".',
+    'status.required' => 'Vui lòng chỉ định trạng thái.',
+    'status.boolean' => 'Trạng thái phải là true (bật) hoặc false (tắt).',
+    'manager_settings_updated_successfully' => 'Cài đặt quản lý đã được cập nhật thành công.',
+
+    'user_position_prohibited_if' => 'Trường chức vụ không được phép khi vai trò là người dùng.',
 ];

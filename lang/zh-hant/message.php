@@ -2640,4 +2640,22 @@ return [
     'cloud_deleted_successfully' => '租戶已成功刪除',
     'cloud_deleted_failed' => '租戶刪除失敗',
     'not-found' => '無法刪除此產品，因為它目前與一個或多個服務相關聯。請先移除所有相關服務後再嘗試刪除此產品。',
+
+    'auto_assign_success' => '自動指派設定已成功更新。',
+    'system_manager_settings' => '系統管理員設定',
+    'enable_account_manager' => '啟用帳戶經理的自動指派',
+    'account_upon_creation' => '在建立新客戶時自動指派帳戶經理。',
+    'current_account_manager' => '目前的帳戶經理',
+    'select_replacement_manager' => '選擇替代的帳戶經理',
+    'enable_sales_manager' => '啟用銷售經理的自動指派',
+    'sales_upon_creation' => '在建立新客戶時自動指派銷售經理。',
+    'current_sales_manager' => '目前的銷售經理',
+    'select_replacement_sales_manager' => '選擇替代的銷售經理',
+    'manager_role.required' => '請選擇一個經理角色。',
+    'manager_role.in' => '所選的經理角色無效。允許的值為 "account" 或 "sales"。',
+    'status.required' => '請指定狀態。',
+    'status.boolean' => '狀態必須是 true（啟用）或 false（停用）。',
+    'manager_settings_updated_successfully' => '管理員設定已成功更新。',
+
+    'user_position_prohibited_if' => '當角色為使用者時，不允許填寫職位欄位。',
 ];

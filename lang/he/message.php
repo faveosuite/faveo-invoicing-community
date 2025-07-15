@@ -2684,4 +2684,21 @@ return [
     'captcha_message' => 'אימות reCAPTCHA נכשל. אנא נסה שוב.',
     'not-found' => 'לא ניתן למחוק מוצר זה מכיוון שהוא משויך כרגע לשירות אחד או יותר. אנא הסר את כל השירותים הקשורים לפני ניסיון המחיקה.',
 
+    'auto_assign_success' => 'הגדרת השיוך האוטומטי עודכנה בהצלחה.',
+    'system_manager_settings' => 'הגדרות מנהל מערכת',
+    'enable_account_manager' => 'אפשר שיוך אוטומטי למנהלי חשבונות',
+    'account_upon_creation' => 'שייך אוטומטית מנהל חשבון ללקוחות חדשים בעת יצירתם.',
+    'current_account_manager' => 'מנהל החשבון הנוכחי',
+    'select_replacement_manager' => 'בחר מנהל חשבון חלופי',
+    'enable_sales_manager' => 'אפשר שיוך אוטומטי למנהלי מכירות',
+    'sales_upon_creation' => 'שייך אוטומטית מנהל מכירות ללקוחות חדשים בעת יצירתם.',
+    'current_sales_manager' => 'מנהל המכירות הנוכחי',
+    'select_replacement_sales_manager' => 'בחר מנהל מכירות חלופי',
+    'manager_role.required' => 'אנא בחר תפקיד מנהל.',
+    'manager_role.in' => 'התפקיד שנבחר אינו תקף. הערכים המותרים הם "account" או "sales".',
+    'status.required' => 'אנא ציין את הסטטוס.',
+    'status.boolean' => 'הסטטוס חייב להיות true (מופעל) או false (מנוטרל).',
+    'manager_settings_updated_successfully' => 'הגדרות המנהל עודכנו בהצלחה.',
+
+    'user_position_prohibited_if' => 'השדה תפקיד אינו מותר כאשר התפקיד הוא משתמש.',
 ];
