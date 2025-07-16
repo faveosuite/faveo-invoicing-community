@@ -198,6 +198,7 @@
 
     <!-- ADD THE CLASS fixed TO GET A FIXED HEADER AND SIDEBAR LAYOUT -->
     <!-- the fixed layout is not compatible with sidebar-mini -->
+    @include('mini_views.loader')
     <body class="hold-transition sidebar-mini layout-fixed" dir="{{ in_array(app()->getLocale(), ['ar', 'he']) ? 'rtl' : 'ltr' }}">
     <div class="wrapper">
 

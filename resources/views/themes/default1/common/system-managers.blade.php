@@ -147,8 +147,14 @@
                             </div>
                             <div class="col-2">
                                 <button type="submit" class="btn btn-primary replace-row">
-                                    <i class="fas fa-exchange-alt mr-1"></i>
-                                    {{ __('message.replace') }}
+        <span class="btn-text">
+            <i class="fas fa-exchange-alt mr-1"></i>
+            {{ __('message.replace') }}
+        </span>
+                                    <span class="btn-loader" style="display: none;">
+            <i class="fas fa-spinner fa-spin mr-1"></i>
+            Loading...
+        </span>
                                 </button>
                             </div>
                         </div>
@@ -250,6 +256,9 @@
                     url: url,
                     method: 'POST',
                     data: payload,
+                    beforeSend: function() {
+                        helper.globalLoader.show();
+                    },
                     success: function (response) {
                         helper.showAlert({
                             message: response.message,
@@ -265,6 +274,9 @@
                             autoDismiss: 5000,
                             containerSelector: '#system-manager-alert',
                         });
+                    },
+                    complete: function () {
+                       helper.globalLoader.hide();
                     }
                 });
             }

@@ -2516,4 +2516,19 @@ return [
     'checkbox_error' => 'يرجى تحديد خيار حالة واحد على الأقل.',
     'allowed_estatus' => 'الحالات المسموح بها للبريد الإلكتروني',
 
+    'auto_assign_success' => 'تم تحديث إعداد التعيين التلقائي بنجاح.',
+    'system_manager_settings' => 'إعدادات مدير النظام',
+    'enable_account_manager' => 'تفعيل التعيين التلقائي لمديري الحسابات',
+    'account_upon_creation' => 'تعيين مدير حساب تلقائيًا للعملاء الجدد عند إنشائهم.',
+    'current_account_manager' => 'مدير الحساب الحالي',
+    'select_replacement_manager' => 'اختر مدير حساب بديل',
+    'enable_sales_manager' => 'تفعيل التعيين التلقائي لمديري المبيعات',
+    'sales_upon_creation' => 'تعيين مدير مبيعات تلقائيًا للعملاء الجدد عند إنشائهم.',
+    'current_sales_manger' => 'مدير المبيعات الحالي',
+    'select_replacement_sales_manager' => 'اختر مدير مبيعات بديل',
+    'manager_role.required' => 'يرجى اختيار دور المدير.',
+    'manager_role.in' => 'دور المدير المحدد غير صالح. القيم المسموح بها هي "account" أو "sales".',
+    'status.required' => 'يرجى تحديد الحالة.',
+    'status.boolean' => 'يجب أن تكون الحالة إما true (مفعلة) أو false (معطلة).',
+
 ];

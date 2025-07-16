@@ -2689,4 +2689,20 @@ return [
     'contact_setting_update' => 'संपर्क सेटिंग सफलतापूर्वक अपडेट की गई',
     'captcha_failed' => 'reCAPTCHA सत्यापन विफल रहा। कृपया सुनिश्चित करें कि आपकी reCAPTCHA सीक्रेट कुंजी मान्य है।',
     'captcha_message' => 'reCAPTCHA सत्यापन विफल रहा। कृपया पुनः प्रयास करें।',
+
+    'auto_assign_success' => 'स्वतः असाइनमेंट सेटिंग सफलतापूर्वक अपडेट की गई।',
+    'system_manager_settings' => 'सिस्टम मैनेजर सेटिंग्स',
+    'enable_account_manager' => 'खाता प्रबंधकों के लिए स्वतः असाइनमेंट सक्षम करें',
+    'account_upon_creation' => 'नए ग्राहकों के बनाए जाने पर स्वचालित रूप से खाता प्रबंधक असाइन करें।',
+    'current_account_manager' => 'वर्तमान खाता प्रबंधक',
+    'select_replacement_manager' => 'विकल्प के रूप में खाता प्रबंधक चुनें',
+    'enable_sales_manager' => 'बिक्री प्रबंधकों के लिए स्वतः असाइनमेंट सक्षम करें',
+    'sales_upon_creation' => 'नए ग्राहकों के बनाए जाने पर स्वचालित रूप से बिक्री प्रबंधक असाइन करें।',
+    'current_sales_manger' => 'वर्तमान बिक्री प्रबंधक',
+    'select_replacement_sales_manager' => 'विकल्प के रूप में बिक्री प्रबंधक चुनें',
+    'manager_role.required' => 'कृपया प्रबंधक की भूमिका चुनें।',
+    'manager_role.in' => 'चुनी गई प्रबंधक भूमिका अमान्य है। अनुमत मान हैं "account" या "sales"।',
+    'status.required' => 'कृपया स्थिति निर्दिष्ट करें।',
+    'status.boolean' => 'स्थिति true (सक्रिय) या false (निष्क्रिय) होनी चाहिए।',
+
 ];
