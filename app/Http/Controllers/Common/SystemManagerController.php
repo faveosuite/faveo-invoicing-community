@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Common;
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Common\SystemManagerSettingsRequest;
 use App\Model\Common\ManagerSetting;
 use App\User;
 use Closure;
@@ -19,16 +20,17 @@ class SystemManagerController extends Controller
 
     public function getSystemManagers()
     {
-        $accountManagers = User::selectRaw("id, CONCAT(first_name, ' ', last_name, ' <', email, '>') AS display")
+        $users = User::select('id', 'first_name', 'last_name', 'email', 'position')
             ->where('role', 'admin')
-            ->where('position', 'account_manager')
-            ->pluck('display', 'id')
+            ->whereIn('position', ['account_manager', 'manager'])
+            ->get();
+
+        $accountManagers = $users->filter(fn($user) => $user->position === 'account_manager')
+            ->mapWithKeys(fn($user) => [$user->id => $user->first_name . ' ' . $user->last_name . ' <' . $user->email . '>'])
             ->toArray();
 
-        $salesManager = User::selectRaw("id, CONCAT(first_name, ' ', last_name, ' <', email, '>') AS display")
-            ->where('role', 'admin')
-            ->where('position', 'manager')
-            ->pluck('display', 'id')
+        $salesManager = $users->filter(fn($user) => $user->position === 'manager')
+            ->mapWithKeys(fn($user) => [$user->id => $user->first_name . ' ' . $user->last_name . ' <' . $user->email . '>'])
             ->toArray();
 
         $settings = ManagerSetting::whereIn('manager_role', ['account', 'sales'])
@@ -81,24 +83,8 @@ class SystemManagerController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
-    public function updateManagerSettings(Request $request)
+    public function updateManagerSettings(SystemManagerSettingsRequest $request)
     {
-        $this->validate($request, [
-            'existingAccManager' => 'required_with:newAccManager|integer',
-            'newAccManager' => 'required_with:existingAccManager|integer|different:existingAccManager',
-            'existingSaleManager' => 'required_with:newSaleManager|integer',
-            'newSaleManager' => 'required_with:existingSaleManager|integer|different:existingSaleManager',
-            'autoAssignAccount' => 'required|boolean',
-            'autoAssignSales' => 'required|boolean',
-        ], [
-            'existingAccManager.required_with' => __('message.existingAccManager_required'),
-            'newAccManager.required_with' => __('message.newAccManager_required'),
-            'newAccManager.different' => __('message.same_account_manager_error'),
-            'existingSaleManager.required_with' => __('message.select_system_sales_manager'),
-            'newSaleManager.required_with' => __('message.select_new_sales_manager'),
-            'newSaleManager.different' => __('message.sales_manager_must_be_different'),
-        ]);
-
         try {
             $mailer = new AuthController;
 
@@ -152,10 +138,11 @@ class SystemManagerController extends Controller
         User::where($managerColumn, $oldManagerId)->update([$managerColumn => $newManagerId]);
 
         if (emailSendingStatus()) {
-            $users = User::where($managerColumn, $newManagerId)->get();
-            foreach ($users as $user) {
-                $mailCallback($user);
-            }
+            User::where($managerColumn, $newManagerId)
+                ->cursor()
+                ->each(function ($user) use ($mailCallback) {
+                    $mailCallback($user);
+                });
         }
     }
 }
