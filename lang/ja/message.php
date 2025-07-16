@@ -2689,7 +2689,7 @@ return [
     'select_replacement_manager' => '代替のアカウントマネージャーを選択',
     'enable_sales_manager' => 'セールスマネージャーの自動割り当てを有効にする',
     'sales_upon_creation' => '新しいクライアント作成時に自動的にセールスマネージャーを割り当てます。',
-    'current_sales_manger' => '現在のセールスマネージャー',
+    'current_sales_manager' => '現在のセールスマネージャー',
     'select_replacement_sales_manager' => '代替のセールスマネージャーを選択',
     'manager_role.required' => 'マネージャーの役割を選択してください。',
     'manager_role.in' => '選択されたマネージャーの役割が無効です。有効な値は "account" または "sales" です。',

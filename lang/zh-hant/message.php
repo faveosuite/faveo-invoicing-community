@@ -2648,7 +2648,7 @@ return [
     'select_replacement_manager' => '選擇替代的帳戶經理',
     'enable_sales_manager' => '啟用銷售經理的自動指派',
     'sales_upon_creation' => '在建立新客戶時自動指派銷售經理。',
-    'current_sales_manger' => '目前的銷售經理',
+    'current_sales_manager' => '目前的銷售經理',
     'select_replacement_sales_manager' => '選擇替代的銷售經理',
     'manager_role.required' => '請選擇一個經理角色。',
     'manager_role.in' => '所選的經理角色無效。允許的值為 "account" 或 "sales"。',

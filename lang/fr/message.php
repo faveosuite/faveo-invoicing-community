@@ -2676,7 +2676,7 @@ return [
     'select_replacement_manager' => 'Sélectionner un gestionnaire de compte de remplacement',
     'enable_sales_manager' => 'Activer l’attribution automatique pour les gestionnaires commerciaux',
     'sales_upon_creation' => 'Attribuer automatiquement un gestionnaire commercial aux nouveaux clients lors de leur création.',
-    'current_sales_manger' => 'Gestionnaire commercial actuel',
+    'current_sales_manager' => 'Gestionnaire commercial actuel',
     'select_replacement_sales_manager' => 'Sélectionner un gestionnaire commercial de remplacement',
     'manager_role.required' => 'Veuillez sélectionner un rôle de gestionnaire.',
     'manager_role.in' => 'Le rôle de gestionnaire sélectionné est invalide. Les valeurs autorisées sont "account" ou "sales".',

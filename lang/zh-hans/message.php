@@ -2682,7 +2682,7 @@ return [
     'select_replacement_manager' => '选择替代账户经理',
     'enable_sales_manager' => '启用销售经理的自动分配',
     'sales_upon_creation' => '在创建新客户时自动分配销售经理。',
-    'current_sales_manger' => '当前销售经理',
+    'current_sales_manager' => '当前销售经理',
     'select_replacement_sales_manager' => '选择替代销售经理',
     'manager_role.required' => '请选择一个经理角色。',
     'manager_role.in' => '所选的经理角色无效。允许的值为 "account" 或 "sales"。',

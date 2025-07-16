@@ -2687,7 +2687,7 @@ return [
     'select_replacement_manager' => 'Seleccionar gestor de cuentas de reemplazo',
     'enable_sales_manager' => 'Habilitar la asignación automática para los gestores de ventas',
     'sales_upon_creation' => 'Asignar automáticamente un gestor de ventas a los nuevos clientes al crearlos.',
-    'current_sales_manger' => 'Gestor de ventas actual',
+    'current_sales_manager' => 'Gestor de ventas actual',
     'select_replacement_sales_manager' => 'Seleccionar gestor de ventas de reemplazo',
     'manager_role.required' => 'Por favor, selecciona un rol de gestor.',
     'manager_role.in' => 'El rol de gestor seleccionado no es válido. Los valores permitidos son "account" o "sales".',

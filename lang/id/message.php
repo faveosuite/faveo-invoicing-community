@@ -2681,7 +2681,7 @@ return [
     'select_replacement_manager' => 'Pilih Manajer Akun Pengganti',
     'enable_sales_manager' => 'Aktifkan Penugasan Otomatis untuk Manajer Penjualan',
     'sales_upon_creation' => 'Secara otomatis tetapkan manajer penjualan ke klien baru saat dibuat.',
-    'current_sales_manger' => 'Manajer Penjualan Saat Ini',
+    'current_sales_manager' => 'Manajer Penjualan Saat Ini',
     'select_replacement_sales_manager' => 'Pilih Manajer Penjualan Pengganti',
     'manager_role.required' => 'Silakan pilih peran manajer.',
     'manager_role.in' => 'Peran manajer yang dipilih tidak valid. Nilai yang diperbolehkan adalah "account" atau "sales".',

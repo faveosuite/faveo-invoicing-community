@@ -2653,7 +2653,7 @@ return [
     'select_replacement_manager' => 'Selecteer vervangende accountmanager',
     'enable_sales_manager' => 'Automatische toewijzing voor salesmanagers inschakelen',
     'sales_upon_creation' => 'Wijs automatisch een salesmanager toe aan nieuwe klanten bij aanmaak.',
-    'current_sales_manger' => 'Huidige salesmanager',
+    'current_sales_manager' => 'Huidige salesmanager',
     'select_replacement_sales_manager' => 'Selecteer vervangende salesmanager',
     'manager_role.required' => 'Selecteer een managerrol.',
     'manager_role.in' => 'De geselecteerde managerrol is ongeldig. Toegestane waarden zijn "account" of "sales".',

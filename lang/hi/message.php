@@ -2698,7 +2698,7 @@ return [
     'select_replacement_manager' => 'विकल्प के रूप में खाता प्रबंधक चुनें',
     'enable_sales_manager' => 'बिक्री प्रबंधकों के लिए स्वतः असाइनमेंट सक्षम करें',
     'sales_upon_creation' => 'नए ग्राहकों के बनाए जाने पर स्वचालित रूप से बिक्री प्रबंधक असाइन करें।',
-    'current_sales_manger' => 'वर्तमान बिक्री प्रबंधक',
+    'current_sales_manager' => 'वर्तमान बिक्री प्रबंधक',
     'select_replacement_sales_manager' => 'विकल्प के रूप में बिक्री प्रबंधक चुनें',
     'manager_role.required' => 'कृपया प्रबंधक की भूमिका चुनें।',
     'manager_role.in' => 'चुनी गई प्रबंधक भूमिका अमान्य है। अनुमत मान हैं "account" या "sales"।',

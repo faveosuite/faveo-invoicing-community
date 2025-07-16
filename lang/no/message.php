@@ -2693,7 +2693,7 @@ return [
     'select_replacement_manager' => 'Velg en ny kontoadministrator',
     'enable_sales_manager' => 'Aktiver automatisk tildeling for salgsadministratorer',
     'sales_upon_creation' => 'Tildel automatisk en salgsadministrator når nye kunder opprettes.',
-    'current_sales_manger' => 'Nåværende salgsadministrator',
+    'current_sales_manager' => 'Nåværende salgsadministrator',
     'select_replacement_sales_manager' => 'Velg en ny salgsadministrator',
     'manager_role.required' => 'Vennligst velg en lederrolle.',
     'manager_role.in' => 'Den valgte lederrollen er ugyldig. Tillatte verdier er "account" eller "sales".',

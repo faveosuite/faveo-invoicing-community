@@ -2700,7 +2700,7 @@ return [
     'select_replacement_manager' => 'Yedek hesap yöneticisi seçin',
     'enable_sales_manager' => 'Satış yöneticileri için otomatik atamayı etkinleştir',
     'sales_upon_creation' => 'Yeni müşteriler oluşturulduğunda otomatik olarak bir satış yöneticisi ata.',
-    'current_sales_manger' => 'Mevcut Satış Yöneticisi',
+    'current_sales_manager' => 'Mevcut Satış Yöneticisi',
     'select_replacement_sales_manager' => 'Yedek satış yöneticisi seçin',
     'manager_role.required' => 'Lütfen bir yönetici rolü seçin.',
     'manager_role.in' => 'Seçilen yönetici rolü geçersiz. Geçerli değerler "account" veya "sales" olmalıdır.',

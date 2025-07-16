@@ -2682,7 +2682,7 @@ return [
     'select_replacement_manager' => 'Seleziona un responsabile account sostitutivo',
     'enable_sales_manager' => 'Abilita l’assegnazione automatica per i responsabili vendite',
     'sales_upon_creation' => 'Assegna automaticamente un responsabile vendite ai nuovi clienti al momento della creazione.',
-    'current_sales_manger' => 'Responsabile vendite attuale',
+    'current_sales_manager' => 'Responsabile vendite attuale',
     'select_replacement_sales_manager' => 'Seleziona un responsabile vendite sostitutivo',
     'manager_role.required' => 'Seleziona un ruolo per il responsabile.',
     'manager_role.in' => 'Il ruolo selezionato non è valido. I valori consentiti sono "account" o "sales".',

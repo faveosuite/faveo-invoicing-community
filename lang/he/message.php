@@ -2691,7 +2691,7 @@ return [
     'select_replacement_manager' => 'בחר מנהל חשבון חלופי',
     'enable_sales_manager' => 'אפשר שיוך אוטומטי למנהלי מכירות',
     'sales_upon_creation' => 'שייך אוטומטית מנהל מכירות ללקוחות חדשים בעת יצירתם.',
-    'current_sales_manger' => 'מנהל המכירות הנוכחי',
+    'current_sales_manager' => 'מנהל המכירות הנוכחי',
     'select_replacement_sales_manager' => 'בחר מנהל מכירות חלופי',
     'manager_role.required' => 'אנא בחר תפקיד מנהל.',
     'manager_role.in' => 'התפקיד שנבחר אינו תקף. הערכים המותרים הם "account" או "sales".',

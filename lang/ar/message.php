@@ -2524,7 +2524,7 @@ return [
     'select_replacement_manager' => 'اختر مدير حساب بديل',
     'enable_sales_manager' => 'تفعيل التعيين التلقائي لمديري المبيعات',
     'sales_upon_creation' => 'تعيين مدير مبيعات تلقائيًا للعملاء الجدد عند إنشائهم.',
-    'current_sales_manger' => 'مدير المبيعات الحالي',
+    'current_sales_manager' => 'مدير المبيعات الحالي',
     'select_replacement_sales_manager' => 'اختر مدير مبيعات بديل',
     'manager_role.required' => 'يرجى اختيار دور المدير.',
     'manager_role.in' => 'دور المدير المحدد غير صالح. القيم المسموح بها هي "account" أو "sales".',

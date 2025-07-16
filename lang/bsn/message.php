@@ -2616,7 +2616,7 @@ return [
     'select_replacement_manager' => 'Odaberite zamjenskog menadžera računa',
     'enable_sales_manager' => 'Omogući automatsko dodjeljivanje za menadžere prodaje',
     'sales_upon_creation' => 'Automatski dodijeli menadžera prodaje novim klijentima prilikom kreiranja.',
-    'current_sales_manger' => 'Trenutni menadžer prodaje',
+    'current_sales_manager' => 'Trenutni menadžer prodaje',
     'select_replacement_sales_manager' => 'Odaberite zamjenskog menadžera prodaje',
     'manager_role.required' => 'Molimo odaberite ulogu menadžera.',
     'manager_role.in' => 'Odabrana uloga menadžera nije ispravna. Dozvoljene vrijednosti su "account" ili "sales".',

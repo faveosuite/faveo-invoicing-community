@@ -2689,7 +2689,7 @@ return [
     'select_replacement_manager' => 'Select Replacement Account Manager',
     'enable_sales_manager' => 'Enable Auto-assignment for Sales Managers',
     'sales_upon_creation' => 'Automatically assign a sales manager to new clients upon creation.',
-    'current_sales_manger' => 'Current Sales Manager',
+    'current_sales_manager' => 'Current Sales Manager',
     'select_replacement_sales_manager' => 'Select Replacement Sales Manager',
     'manager_role.required' => 'Please select a manager role.',
     'manager_role.in' => 'The selected manager role is invalid. Allowed values are "account" or "sales".',

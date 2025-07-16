@@ -2688,7 +2688,7 @@ return [
     'select_replacement_manager' => 'Chọn Quản lý Tài khoản thay thế',
     'enable_sales_manager' => 'Bật gán tự động cho Quản lý Bán hàng',
     'sales_upon_creation' => 'Tự động gán quản lý bán hàng cho khách hàng mới khi được tạo.',
-    'current_sales_manger' => 'Quản lý Bán hàng hiện tại',
+    'current_sales_manager' => 'Quản lý Bán hàng hiện tại',
     'select_replacement_sales_manager' => 'Chọn Quản lý Bán hàng thay thế',
     'manager_role.required' => 'Vui lòng chọn vai trò của quản lý.',
     'manager_role.in' => 'Vai trò quản lý đã chọn không hợp lệ. Giá trị cho phép là "account" hoặc "sales".',

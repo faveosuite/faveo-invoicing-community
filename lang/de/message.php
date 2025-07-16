@@ -2684,7 +2684,7 @@ return [
     'select_replacement_manager' => 'Ersatz-Account-Manager auswählen',
     'enable_sales_manager' => 'Automatische Zuweisung für Sales-Manager aktivieren',
     'sales_upon_creation' => 'Automatisch einen Sales-Manager neuen Kunden bei der Erstellung zuweisen.',
-    'current_sales_manger' => 'Aktueller Sales-Manager',
+    'current_sales_manager' => 'Aktueller Sales-Manager',
     'select_replacement_sales_manager' => 'Ersatz-Sales-Manager auswählen',
     'manager_role.required' => 'Bitte wählen Sie eine Manager-Rolle aus.',
     'manager_role.in' => 'Die ausgewählte Manager-Rolle ist ungültig. Erlaubte Werte sind "account" oder "sales".',

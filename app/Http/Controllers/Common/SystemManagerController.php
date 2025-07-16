@@ -72,6 +72,15 @@ class SystemManagerController extends Controller
         }
     }
 
+    /**
+     * Updates manager settings for account and sales managers.
+     *
+     * Validates the request, updates manager assignments, auto-assign settings,
+     * and sends notification emails if enabled.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     */
     public function updateManagerSettings(Request $request)
     {
         $this->validate($request, [
@@ -120,6 +129,17 @@ class SystemManagerController extends Controller
         }
     }
 
+    /**
+     * Updates manager assignment and notifies users.
+     *
+     * @param string $managerColumn      The column representing the manager relationship.
+     * @param string $positionColumn     The column representing the user's position.
+     * @param string $role               The manager role ('account' or 'sales').
+     * @param int    $oldManagerId       The ID of the old manager.
+     * @param int    $newManagerId       The ID of the new manager.
+     * @param \Closure $mailCallback     Callback to send notification email.
+     * @return void
+     */
     private function updateManager($managerColumn, $positionColumn, $role, $oldManagerId, $newManagerId, Closure $mailCallback)
     {
         if (! filled($oldManagerId) || ! filled($newManagerId)) {

@@ -2665,7 +2665,7 @@ return [
     'select_replacement_manager' => 'Selecionar gestor de conta substituto',
     'enable_sales_manager' => 'Ativar atribuição automática para gestores de vendas',
     'sales_upon_creation' => 'Atribuir automaticamente um gestor de vendas a novos clientes aquando da criação.',
-    'current_sales_manger' => 'Gestor de vendas atual',
+    'current_sales_manager' => 'Gestor de vendas atual',
     'select_replacement_sales_manager' => 'Selecionar gestor de vendas substituto',
     'manager_role.required' => 'Por favor, selecione um papel de gestor.',
     'manager_role.in' => 'O papel de gestor selecionado é inválido. Os valores permitidos são "account" ou "sales".',

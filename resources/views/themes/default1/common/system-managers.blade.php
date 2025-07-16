@@ -78,7 +78,7 @@
                         <!-- Sales Manager Replacement -->
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="salesManagerCurrent">{{ __('message.current_sales_manger') }}</label>
+                                <label for="salesManagerCurrent">{{ __('message.current_sales_manager') }}</label>
                                 <select class="form-control select2-manager" name="salesManagerCurrent" id="salesManagerCurrent">
                                     <option value="">{{ __('message.select') }}</option>
                                     @foreach($salesManager as $key => $manager)

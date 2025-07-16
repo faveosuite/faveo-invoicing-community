@@ -11,8 +11,6 @@ class SystemManagerControllerTest extends DBTestCase
 {
     use DatabaseTransactions;
 
-    protected $admin;
-
     public function setUp(): void
     {
         parent::setUp();
