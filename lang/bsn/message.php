@@ -2607,4 +2607,20 @@ return [
     'contact_setting_update' => 'Postavke kontakta su uspješno ažurirane',
     'captcha_failed' => 'reCAPTCHA provjera nije uspjela. Molimo provjerite da li je vaš reCAPTCHA tajni ključ ispravan.',
     'captcha_message' => 'reCAPTCHA provjera nije uspjela. Pokušajte ponovo.',
+
+    'auto_assign_success' => 'Postavka automatskog dodjeljivanja je uspješno ažurirana.',
+    'system_manager_settings' => 'Postavke sistemskog menadžera',
+    'enable_account_manager' => 'Omogući automatsko dodjeljivanje za menadžere računa',
+    'account_upon_creation' => 'Automatski dodijeli menadžera računa novim klijentima prilikom kreiranja.',
+    'current_account_manager' => 'Trenutni menadžer računa',
+    'select_replacement_manager' => 'Odaberite zamjenskog menadžera računa',
+    'enable_sales_manager' => 'Omogući automatsko dodjeljivanje za menadžere prodaje',
+    'sales_upon_creation' => 'Automatski dodijeli menadžera prodaje novim klijentima prilikom kreiranja.',
+    'current_sales_manger' => 'Trenutni menadžer prodaje',
+    'select_replacement_sales_manager' => 'Odaberite zamjenskog menadžera prodaje',
+    'manager_role.required' => 'Molimo odaberite ulogu menadžera.',
+    'manager_role.in' => 'Odabrana uloga menadžera nije ispravna. Dozvoljene vrijednosti su "account" ili "sales".',
+    'status.required' => 'Molimo navedite status.',
+    'status.boolean' => 'Status mora biti true (omogućeno) ili false (onemogućeno).',
+
 ];

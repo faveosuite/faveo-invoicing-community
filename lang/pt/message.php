@@ -2656,4 +2656,20 @@ return [
     'contact_setting_update' => 'Definições de contacto atualizadas com sucesso',
     'captcha_failed' => 'A verificação do reCAPTCHA falhou. Por favor, certifique-se de que a sua chave secreta do reCAPTCHA é válida.',
     'captcha_message' => 'Falha na verificação do reCAPTCHA. Tente novamente.',
+
+    'auto_assign_success' => 'A configuração de atribuição automática foi atualizada com sucesso.',
+    'system_manager_settings' => 'Definições do Gestor do Sistema',
+    'enable_account_manager' => 'Ativar atribuição automática para gestores de conta',
+    'account_upon_creation' => 'Atribuir automaticamente um gestor de conta a novos clientes aquando da criação.',
+    'current_account_manager' => 'Gestor de conta atual',
+    'select_replacement_manager' => 'Selecionar gestor de conta substituto',
+    'enable_sales_manager' => 'Ativar atribuição automática para gestores de vendas',
+    'sales_upon_creation' => 'Atribuir automaticamente um gestor de vendas a novos clientes aquando da criação.',
+    'current_sales_manger' => 'Gestor de vendas atual',
+    'select_replacement_sales_manager' => 'Selecionar gestor de vendas substituto',
+    'manager_role.required' => 'Por favor, selecione um papel de gestor.',
+    'manager_role.in' => 'O papel de gestor selecionado é inválido. Os valores permitidos são "account" ou "sales".',
+    'status.required' => 'Por favor, indique o estado.',
+    'status.boolean' => 'O estado deve ser true (ativo) ou false (inativo).',
+
 ];

@@ -2639,4 +2639,20 @@ return [
     'instance_not_created' => '您的雲端實例已成功建立，但授權安裝失敗。<b>:reason。</b>請造訪您的網站：:installationUrl',
     'cloud_deleted_successfully' => '租戶已成功刪除',
     'cloud_deleted_failed' => '租戶刪除失敗',
+
+    'auto_assign_success' => '自動指派設定已成功更新。',
+    'system_manager_settings' => '系統管理員設定',
+    'enable_account_manager' => '啟用帳戶經理的自動指派',
+    'account_upon_creation' => '在建立新客戶時自動指派帳戶經理。',
+    'current_account_manager' => '目前的帳戶經理',
+    'select_replacement_manager' => '選擇替代的帳戶經理',
+    'enable_sales_manager' => '啟用銷售經理的自動指派',
+    'sales_upon_creation' => '在建立新客戶時自動指派銷售經理。',
+    'current_sales_manger' => '目前的銷售經理',
+    'select_replacement_sales_manager' => '選擇替代的銷售經理',
+    'manager_role.required' => '請選擇一個經理角色。',
+    'manager_role.in' => '所選的經理角色無效。允許的值為 "account" 或 "sales"。',
+    'status.required' => '請指定狀態。',
+    'status.boolean' => '狀態必須是 true（啟用）或 false（停用）。',
+
 ];

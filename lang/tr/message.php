@@ -2691,4 +2691,20 @@ return [
     'instance_not_created' => 'Bulut örneğiniz başarıyla oluşturuldu ancak lisans kurulumu başarısız oldu.<b>:reason.</b> Web sitenizi ziyaret edin: :installationUrl',
     'cloud_deleted_successfully' => 'Tenant başarıyla silindi',
     'cloud_deleted_failed' => 'Tenant silme başarısız oldu',
+
+    'auto_assign_success' => 'Otomatik atama ayarı başarıyla güncellendi.',
+    'system_manager_settings' => 'Sistem Yöneticisi Ayarları',
+    'enable_account_manager' => 'Hesap yöneticileri için otomatik atamayı etkinleştir',
+    'account_upon_creation' => 'Yeni müşteriler oluşturulduğunda otomatik olarak bir hesap yöneticisi ata.',
+    'current_account_manager' => 'Mevcut Hesap Yöneticisi',
+    'select_replacement_manager' => 'Yedek hesap yöneticisi seçin',
+    'enable_sales_manager' => 'Satış yöneticileri için otomatik atamayı etkinleştir',
+    'sales_upon_creation' => 'Yeni müşteriler oluşturulduğunda otomatik olarak bir satış yöneticisi ata.',
+    'current_sales_manger' => 'Mevcut Satış Yöneticisi',
+    'select_replacement_sales_manager' => 'Yedek satış yöneticisi seçin',
+    'manager_role.required' => 'Lütfen bir yönetici rolü seçin.',
+    'manager_role.in' => 'Seçilen yönetici rolü geçersiz. Geçerli değerler "account" veya "sales" olmalıdır.',
+    'status.required' => 'Lütfen durumu belirtin.',
+    'status.boolean' => 'Durum true (etkin) veya false (devre dışı) olmalıdır.',
+
 ];

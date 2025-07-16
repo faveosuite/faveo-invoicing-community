@@ -2679,4 +2679,20 @@ return [
     'instance_not_created' => 'Phiên bản đám mây của bạn đã được tạo thành công nhưng cài đặt giấy phép thất bại.<b>:reason.</b> Vui lòng truy cập trang web của bạn tại :installationUrl',
     'cloud_deleted_successfully' => 'Xóa tenant thành công',
     'cloud_deleted_failed' => 'Xóa tenant thất bại',
+
+    'auto_assign_success' => 'Cài đặt gán tự động đã được cập nhật thành công.',
+    'system_manager_settings' => 'Cài đặt Quản trị Hệ thống',
+    'enable_account_manager' => 'Bật gán tự động cho Quản lý Tài khoản',
+    'account_upon_creation' => 'Tự động gán quản lý tài khoản cho khách hàng mới khi được tạo.',
+    'current_account_manager' => 'Quản lý Tài khoản hiện tại',
+    'select_replacement_manager' => 'Chọn Quản lý Tài khoản thay thế',
+    'enable_sales_manager' => 'Bật gán tự động cho Quản lý Bán hàng',
+    'sales_upon_creation' => 'Tự động gán quản lý bán hàng cho khách hàng mới khi được tạo.',
+    'current_sales_manger' => 'Quản lý Bán hàng hiện tại',
+    'select_replacement_sales_manager' => 'Chọn Quản lý Bán hàng thay thế',
+    'manager_role.required' => 'Vui lòng chọn vai trò của quản lý.',
+    'manager_role.in' => 'Vai trò quản lý đã chọn không hợp lệ. Giá trị cho phép là "account" hoặc "sales".',
+    'status.required' => 'Vui lòng chỉ định trạng thái.',
+    'status.boolean' => 'Trạng thái phải là true (bật) hoặc false (tắt).',
+
 ];

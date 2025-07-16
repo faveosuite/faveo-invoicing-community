@@ -2684,4 +2684,20 @@ return [
     'instance_not_created' => 'Din sky-instans ble opprettet vellykket, men lisensinstallasjonen mislyktes.<b>:reason.</b> Vennligst besøk nettstedet ditt på :installationUrl',
     'cloud_deleted_successfully' => 'Leietaker ble slettet vellykket',
     'cloud_deleted_failed' => 'Sletting av leietaker mislyktes',
+
+    'auto_assign_success' => 'Automatisk tildelingsinnstilling ble oppdatert.',
+    'system_manager_settings' => 'Systemansvarlig Innstillinger',
+    'enable_account_manager' => 'Aktiver automatisk tildeling for kontoadministratorer',
+    'account_upon_creation' => 'Tildel automatisk en kontoadministrator når nye kunder opprettes.',
+    'current_account_manager' => 'Nåværende kontoadministrator',
+    'select_replacement_manager' => 'Velg en ny kontoadministrator',
+    'enable_sales_manager' => 'Aktiver automatisk tildeling for salgsadministratorer',
+    'sales_upon_creation' => 'Tildel automatisk en salgsadministrator når nye kunder opprettes.',
+    'current_sales_manger' => 'Nåværende salgsadministrator',
+    'select_replacement_sales_manager' => 'Velg en ny salgsadministrator',
+    'manager_role.required' => 'Vennligst velg en lederrolle.',
+    'manager_role.in' => 'Den valgte lederrollen er ugyldig. Tillatte verdier er "account" eller "sales".',
+    'status.required' => 'Vennligst spesifiser status.',
+    'status.boolean' => 'Statusen må være enten true (aktivert) eller false (deaktivert).',
+
 ];

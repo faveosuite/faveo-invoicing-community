@@ -2603,4 +2603,20 @@
      'contact_setting_update' => 'Is-settings tal-kuntatt ġew aġġornati b’suċċess',
      'captcha_failed' => 'Falliet il-verifika taʼ reCAPTCHA. Jekk jogħġbok kun żgur li ċ-ċavetta sigrieta reCAPTCHA tiegħek hija valida.',
      'captcha_message' => 'Il-verifika reCAPTCHA falliet. Erġaʼ ipprova.',
+
+     'auto_assign_success' => 'Is-settings tal-assenjazzjoni awtomatika ġew aġġornati b’suċċess.',
+     'system_manager_settings' => 'Settings tal-Maniġer tas-Sistema',
+     'enable_account_manager' => 'Attiva assenjazzjoni awtomatika għall-Maniġers tal-Kontijiet',
+     'account_upon_creation' => 'Awtomatikament assenja maniġer tal-kont meta jinħoloq klijent ġdid.',
+     'current_account_manager' => 'Il-Maniġer tal-Kont attwali',
+     'select_replacement_manager' => 'Agħżel Maniġer tal-Kont sostitut',
+     'enable_sales_manager' => 'Attiva assenjazzjoni awtomatika għall-Maniġers tal-Bejgħ',
+     'sales_upon_creation' => 'Awtomatikament assenja maniġer tal-bejgħ meta jinħoloq klijent ġdid.',
+     'current_sales_manger' => 'Il-Maniġer tal-Bejgħ attwali',
+     'select_replacement_sales_manager' => 'Agħżel Maniġer tal-Bejgħ sostitut',
+     'manager_role.required' => 'Jekk jogħġbok agħżel rwol ta’ maniġer.',
+     'manager_role.in' => 'Ir-rwol magħżul tal-maniġer mhux validu. Il-valuri permessi huma "account" jew "sales".',
+     'status.required' => 'Jekk jogħġbok speċifika l-istatus.',
+     'status.boolean' => 'L-istatus irid ikun jew true (attivat) jew false (diżattivat).',
+
  ];

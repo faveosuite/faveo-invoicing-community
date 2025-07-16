@@ -2682,4 +2682,20 @@ return [
     'contact_setting_update' => 'הגדרות הקשר עודכנו בהצלחה',
     'captcha_failed' => 'אימות reCAPTCHA נכשל. אנא ודא שמפתח ה-reCAPTCHA הסודי שלך תקף.',
     'captcha_message' => 'אימות reCAPTCHA נכשל. אנא נסה שוב.',
+
+    'auto_assign_success' => 'הגדרת השיוך האוטומטי עודכנה בהצלחה.',
+    'system_manager_settings' => 'הגדרות מנהל מערכת',
+    'enable_account_manager' => 'אפשר שיוך אוטומטי למנהלי חשבונות',
+    'account_upon_creation' => 'שייך אוטומטית מנהל חשבון ללקוחות חדשים בעת יצירתם.',
+    'current_account_manager' => 'מנהל החשבון הנוכחי',
+    'select_replacement_manager' => 'בחר מנהל חשבון חלופי',
+    'enable_sales_manager' => 'אפשר שיוך אוטומטי למנהלי מכירות',
+    'sales_upon_creation' => 'שייך אוטומטית מנהל מכירות ללקוחות חדשים בעת יצירתם.',
+    'current_sales_manger' => 'מנהל המכירות הנוכחי',
+    'select_replacement_sales_manager' => 'בחר מנהל מכירות חלופי',
+    'manager_role.required' => 'אנא בחר תפקיד מנהל.',
+    'manager_role.in' => 'התפקיד שנבחר אינו תקף. הערכים המותרים הם "account" או "sales".',
+    'status.required' => 'אנא ציין את הסטטוס.',
+    'status.boolean' => 'הסטטוס חייב להיות true (מופעל) או false (מנוטרל).',
+
 ];
