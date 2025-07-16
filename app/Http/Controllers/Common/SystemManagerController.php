@@ -99,7 +99,7 @@ class SystemManagerController extends Controller
                 'account',
                 $request->existingAccManager,
                 $request->newAccManager,
-                fn($user) => $mailer->accountManagerMail($user)
+                fn ($user) => $mailer->accountManagerMail($user)
             );
 
             $this->updateManager(
@@ -108,14 +108,13 @@ class SystemManagerController extends Controller
                 'sales',
                 $request->existingSaleManager,
                 $request->newSaleManager,
-                fn($user) => $mailer->salesManagerMail($user)
+                fn ($user) => $mailer->salesManagerMail($user)
             );
 
             ManagerSetting::whereManagerRole('account')->update(['auto_assign' => $request->autoAssignAccount]);
             ManagerSetting::whereManagerRole('sales')->update(['auto_assign' => $request->autoAssignSales]);
 
             return successResponse(__('message.manager_settings_updated_successfully'));
-
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }
@@ -123,7 +122,7 @@ class SystemManagerController extends Controller
 
     private function updateManager($managerColumn, $positionColumn, $role, $oldManagerId, $newManagerId, Closure $mailCallback)
     {
-        if (!filled($oldManagerId) || !filled($newManagerId)) {
+        if (! filled($oldManagerId) || ! filled($newManagerId)) {
             return;
         }
 
