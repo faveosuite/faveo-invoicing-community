@@ -25,12 +25,12 @@ class SystemManagerController extends Controller
             ->whereIn('position', ['account_manager', 'manager'])
             ->get();
 
-        $accountManagers = $users->filter(fn($user) => $user->position === 'account_manager')
-            ->mapWithKeys(fn($user) => [$user->id => $user->first_name . ' ' . $user->last_name . ' <' . $user->email . '>'])
+        $accountManagers = $users->filter(fn ($user) => $user->position === 'account_manager')
+            ->mapWithKeys(fn ($user) => [$user->id => $user->first_name.' '.$user->last_name.' <'.$user->email.'>'])
             ->toArray();
 
-        $salesManager = $users->filter(fn($user) => $user->position === 'manager')
-            ->mapWithKeys(fn($user) => [$user->id => $user->first_name . ' ' . $user->last_name . ' <' . $user->email . '>'])
+        $salesManager = $users->filter(fn ($user) => $user->position === 'manager')
+            ->mapWithKeys(fn ($user) => [$user->id => $user->first_name.' '.$user->last_name.' <'.$user->email.'>'])
             ->toArray();
 
         $settings = ManagerSetting::whereIn('manager_role', ['account', 'sales'])
