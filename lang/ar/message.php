@@ -2530,5 +2530,6 @@ return [
     'manager_role.in' => 'دور المدير المحدد غير صالح. القيم المسموح بها هي "account" أو "sales".',
     'status.required' => 'يرجى تحديد الحالة.',
     'status.boolean' => 'يجب أن تكون الحالة إما true (مفعلة) أو false (معطلة).',
+    'manager_settings_updated_successfully' => 'تم تحديث إعدادات المدير بنجاح.',
 
 ];

@@ -2713,5 +2713,6 @@ return [
     'manager_role.in' => '선택한 관리자 역할이 유효하지 않습니다. 허용되는 값은 "account" 또는 "sales"입니다.',
     'status.required' => '상태를 지정해 주세요.',
     'status.boolean' => '상태는 true(활성화) 또는 false(비활성화)여야 합니다.',
+    'manager_settings_updated_successfully' => '관리자 설정이 성공적으로 업데이트되었습니다.',
 
 ];

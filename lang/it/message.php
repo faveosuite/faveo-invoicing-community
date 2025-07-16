@@ -2688,5 +2688,6 @@ return [
     'manager_role.in' => 'Il ruolo selezionato non è valido. I valori consentiti sono "account" o "sales".',
     'status.required' => 'Specifica lo stato.',
     'status.boolean' => 'Lo stato deve essere true (abilitato) o false (disabilitato).',
+    'manager_settings_updated_successfully' => 'Le impostazioni del manager sono state aggiornate con successo.',
 
 ];

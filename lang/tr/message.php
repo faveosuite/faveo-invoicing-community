@@ -2706,5 +2706,6 @@ return [
     'manager_role.in' => 'Seçilen yönetici rolü geçersiz. Geçerli değerler "account" veya "sales" olmalıdır.',
     'status.required' => 'Lütfen durumu belirtin.',
     'status.boolean' => 'Durum true (etkin) veya false (devre dışı) olmalıdır.',
+    'manager_settings_updated_successfully' => 'Yönetici ayarları başarıyla güncellendi.',
 
 ];

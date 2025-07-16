@@ -2694,5 +2694,6 @@ return [
     'manager_role.in' => 'Vai trò quản lý đã chọn không hợp lệ. Giá trị cho phép là "account" hoặc "sales".',
     'status.required' => 'Vui lòng chỉ định trạng thái.',
     'status.boolean' => 'Trạng thái phải là true (bật) hoặc false (tắt).',
+    'manager_settings_updated_successfully' => 'Cài đặt quản lý đã được cập nhật thành công.',
 
 ];

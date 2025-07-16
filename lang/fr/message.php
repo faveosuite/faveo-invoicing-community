@@ -2682,5 +2682,6 @@ return [
     'manager_role.in' => 'Le rôle de gestionnaire sélectionné est invalide. Les valeurs autorisées sont "account" ou "sales".',
     'status.required' => 'Veuillez spécifier le statut.',
     'status.boolean' => 'Le statut doit être soit true (activé), soit false (désactivé).',
+    'manager_settings_updated_successfully' => 'Les paramètres du gestionnaire ont été mis à jour avec succès.',
 
 ];

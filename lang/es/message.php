@@ -2693,5 +2693,6 @@ return [
     'manager_role.in' => 'El rol de gestor seleccionado no es válido. Los valores permitidos son "account" o "sales".',
     'status.required' => 'Por favor, especifica el estado.',
     'status.boolean' => 'El estado debe ser verdadero (habilitado) o falso (deshabilitado).',
+    'manager_settings_updated_successfully' => 'La configuración del gerente se actualizó correctamente.',
 
 ];

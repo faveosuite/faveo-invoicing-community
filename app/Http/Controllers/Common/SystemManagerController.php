@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Controller;
 use App\Model\Common\ManagerSetting;
 use App\User;
+use Closure;
 use Illuminate\Http\Request;
 
 class SystemManagerController extends Controller
@@ -71,123 +72,71 @@ class SystemManagerController extends Controller
         }
     }
 
-    /**
-     * Replace old account manager with the newly selected account manager.
-     *
-     * @author Ashutosh Pathak <ashutosh.pathak@ladybirdweb.com>
-     *
-     * @date   2019-08-21T12:54:03+0530
-     *
-     * @param  Request  $request
-     * @return \HTTP
-     */
-    public function replaceAccountManager(Request $request)
+    public function updateManagerSettings(Request $request)
     {
         $this->validate($request, [
-            'existingAccManager' => 'required',
-            'newAccManager' => 'required',
+            'existingAccManager' => 'required_with:newAccManager|integer',
+            'newAccManager' => 'required_with:existingAccManager|integer|different:existingAccManager',
+            'existingSaleManager' => 'required_with:newSaleManager|integer',
+            'newSaleManager' => 'required_with:existingSaleManager|integer|different:existingSaleManager',
+            'autoAssignAccount' => 'required|boolean',
+            'autoAssignSales' => 'required|boolean',
         ], [
-            'existingAccManager.required' => __('message.existingAccManager_required'),
-            'newAccManager.required' => __('message.newAccManager_required'),
+            'existingAccManager.required_with' => __('message.existingAccManager_required'),
+            'newAccManager.required_with' => __('message.newAccManager_required'),
+            'newAccManager.different' => __('message.same_account_manager_error'),
+            'existingSaleManager.required_with' => __('message.select_system_sales_manager'),
+            'newSaleManager.required_with' => __('message.select_new_sales_manager'),
+            'newSaleManager.different' => __('message.sales_manager_must_be_different'),
         ]);
 
         try {
-            $existingId = $request->input('existingAccManager');
-            $newId = $request->input('newAccManager');
+            $mailer = new AuthController;
 
-            if ($existingId == $newId) {
-                return errorResponse(__('message.same_account_manager_error'));
-            }
+            $this->updateManager(
+                'account_manager',
+                'position',
+                'account',
+                $request->existingAccManager,
+                $request->newAccManager,
+                fn($user) => $mailer->accountManagerMail($user)
+            );
 
-            // Promote new user to account manager
-            User::where('id', $newId)->update(['position' => 'account_manager']);
+            $this->updateManager(
+                'manager',
+                'position',
+                'sales',
+                $request->existingSaleManager,
+                $request->newSaleManager,
+                fn($user) => $mailer->salesManagerMail($user)
+            );
 
-            // Reassign users under old manager to new one
-            User::where('account_manager', $existingId)
-                ->update(['account_manager' => $newId]);
+            ManagerSetting::whereManagerRole('account')->update(['auto_assign' => $request->autoAssignAccount]);
+            ManagerSetting::whereManagerRole('sales')->update(['auto_assign' => $request->autoAssignSales]);
 
-            if (emailSendingStatus()) {
-                $usersToNotify = User::where('account_manager', $newId)->get();
-                $mailer = new AuthController;
-                foreach ($usersToNotify as $user) {
-                    $mailer->accountManagerMail($user);
-                }
-            }
+            return successResponse(__('message.manager_settings_updated_successfully'));
 
-            return successResponse(__('message.account_man_replaced_success'));
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
 
-    /**
-     * Replace old sales manager with the newly selected sales manager.
-     *
-     * @author Ashutosh Pathak <ashutosh.pathak@ladybirdweb.com>
-     *
-     * @date   2019-08-21T12:54:03+0530
-     *
-     * @param  Request  $request
-     * @return \HTTP
-     */
-    public function replaceSalesManager(Request $request)
+    private function updateManager($managerColumn, $positionColumn, $role, $oldManagerId, $newManagerId, Closure $mailCallback)
     {
-        $this->validate($request, [
-            'existingSaleManager' => 'required',
-            'newSaleManager' => 'required',
-        ], [
-            'existingSaleManager.required' => __('message.select_system_sales_manager'),
-            'newSaleManager.required' => __('message.select_new_sales_manager'),
-        ]);
-
-        try {
-            $existingId = $request->input('existingSaleManager');
-            $newId = $request->input('newSaleManager');
-
-            if ($existingId == $newId) {
-                return errorResponse(__('message.sales_manager_must_be_different'));
-            }
-
-            // Promote the new user as sales manager
-            User::where('id', $newId)->update(['position' => 'manager']);
-
-            // Reassign all users under the old manager to the new one
-            User::where('manager', $existingId)->update(['manager' => $newId]);
-
-            // Notify affected users if email sending is enabled
-            if (emailSendingStatus()) {
-                $usersToNotify = User::where('manager', $newId)->get();
-
-                $mailer = new AuthController;
-                foreach ($usersToNotify as $user) {
-                    $mailer->salesManagerMail($user);
-                }
-            }
-
-            return successResponse(__('message.sales_man_replaced_success'));
-        } catch (\Exception $e) {
-            return errorResponse($e->getMessage());
+        if (!filled($oldManagerId) || !filled($newManagerId)) {
+            return;
         }
-    }
 
-    public function setAutoAssignToManager(Request $request)
-    {
-        $this->validate($request, [
-            'manager_role' => 'required|in:account,sales',
-            'status' => 'required|boolean',
-        ], [
-            'manager_role.required' => __('manager_validation.manager_role.required'),
-            'manager_role.in' => __('manager_validation.manager_role.in'),
-            'status.required' => __('manager_validation.status.required'),
-            'status.boolean' => __('manager_validation.status.boolean'),
-        ]);
+        $position = $role === 'account' ? 'account_manager' : 'manager';
+        User::where('id', $newManagerId)->update([$positionColumn => $position]);
 
-        $managerRole = $request->input('manager_role');
-        $status = (bool) $request->input('status');
+        User::where($managerColumn, $oldManagerId)->update([$managerColumn => $newManagerId]);
 
-        ManagerSetting::whereManagerRole($managerRole)
-            ->update(['auto_assign' => $status]);
-
-        return successResponse(__('message.auto_assign_success'));
+        if (emailSendingStatus()) {
+            $users = User::where($managerColumn, $newManagerId)->get();
+            foreach ($users as $user) {
+                $mailCallback($user);
+            }
+        }
     }
 }

@@ -2699,5 +2699,6 @@ return [
     'manager_role.in' => 'Den valgte lederrollen er ugyldig. Tillatte verdier er "account" eller "sales".',
     'status.required' => 'Vennligst spesifiser status.',
     'status.boolean' => 'Statusen må være enten true (aktivert) eller false (deaktivert).',
+    'manager_settings_updated_successfully' => 'Lederinnstillingene ble oppdatert vellykket.',
 
 ];

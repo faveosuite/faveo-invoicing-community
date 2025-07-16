@@ -2696,5 +2696,6 @@ return [
     'manager_role.in' => 'Выбранная роль менеджера недопустима. Допустимые значения: "account" или "sales".',
     'status.required' => 'Пожалуйста, укажите статус.',
     'status.boolean' => 'Статус должен быть true (включён) или false (выключен).',
+    'manager_settings_updated_successfully' => 'Настройки менеджера успешно обновлены.',
 
 ];

@@ -2622,5 +2622,6 @@ return [
     'manager_role.in' => 'Odabrana uloga menadžera nije ispravna. Dozvoljene vrijednosti su "account" ili "sales".',
     'status.required' => 'Molimo navedite status.',
     'status.boolean' => 'Status mora biti true (omogućeno) ili false (onemogućeno).',
+    'manager_settings_updated_successfully' => 'Postavke menadžera su uspješno ažurirane.',
 
 ];
