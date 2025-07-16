@@ -100,7 +100,7 @@
                     <div class="card-header">
                         <h3 class="card-title">
                             <i class="fas fa-chart-line mr-2"></i>
-                            Sales Manager
+                            {{ __('message.sales_manager') }}
                         </h3>
                     </div>
                     <div class="card-body">
