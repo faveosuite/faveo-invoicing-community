@@ -2697,5 +2697,6 @@ return [
     'manager_role.in' => 'התפקיד שנבחר אינו תקף. הערכים המותרים הם "account" או "sales".',
     'status.required' => 'אנא ציין את הסטטוס.',
     'status.boolean' => 'הסטטוס חייב להיות true (מופעל) או false (מנוטרל).',
+    'manager_settings_updated_successfully' => 'הגדרות המנהל עודכנו בהצלחה.',
 
 ];

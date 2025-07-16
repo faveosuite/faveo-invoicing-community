@@ -2671,5 +2671,6 @@ return [
     'manager_role.in' => 'O papel de gestor selecionado é inválido. Os valores permitidos são "account" ou "sales".',
     'status.required' => 'Por favor, indique o estado.',
     'status.boolean' => 'O estado deve ser true (ativo) ou false (inativo).',
+    'manager_settings_updated_successfully' => 'As configurações do gerente foram atualizadas com sucesso.',
 
 ];

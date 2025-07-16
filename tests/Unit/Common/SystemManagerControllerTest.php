@@ -61,92 +61,96 @@ class SystemManagerControllerTest extends DBTestCase
         ]);
     }
 
-    public function test_it_replaces_account_manager()
+    public function test_it_updates_manager_settings()
     {
-        $old = User::factory()->create(['role' => 'admin', 'position' => 'account_manager']);
-        $new = User::factory()->create(['role' => 'admin']);
+        // Create old and new account managers
+        $oldAcc = User::factory()->create(['role' => 'admin', 'position' => 'account_manager']);
+        $newAcc = User::factory()->create(['role' => 'admin']);
 
-        $userAssigned = User::factory()->create(['account_manager' => $old->id]);
+        // Assign old account manager to a user
+        $userAcc = User::factory()->create(['account_manager' => $oldAcc->id]);
 
-        $response = $this->postJson(url('replace-acc-manager'), [
-            'existingAccManager' => $old->id,
-            'newAccManager' => $new->id,
+        // Create old and new sales managers
+        $oldSales = User::factory()->create(['role' => 'admin', 'position' => 'manager']);
+        $newSales = User::factory()->create(['role' => 'admin']);
+
+        // Assign old sales manager to a user
+        $userSales = User::factory()->create(['manager' => $oldSales->id]);
+
+        // Set initial auto_assign values
+        ManagerSetting::updateOrCreate(
+            ['manager_role' => 'account'],
+            ['auto_assign' => false]
+        );
+        ManagerSetting::updateOrCreate(
+            ['manager_role' => 'sales'],
+            ['auto_assign' => false]
+        );
+
+        $response = $this->postJson(url('updateSystemManager'), [
+            'existingAccManager' => $oldAcc->id,
+            'newAccManager' => $newAcc->id,
+            'existingSaleManager' => $oldSales->id,
+            'newSaleManager' => $newSales->id,
+            'autoAssignAccount' => true,
+            'autoAssignSales' => true,
         ]);
 
         $response->assertJson(['success' => true]);
+
+        $this->assertEquals($newAcc->id, $userAcc->fresh()->account_manager);
+        $this->assertEquals($newSales->id, $userSales->fresh()->manager);
+
         $this->assertDatabaseHas('users', [
-            'id' => $new->id,
+            'id' => $newAcc->id,
             'position' => 'account_manager',
         ]);
-        $this->assertEquals($new->id, $userAssigned->fresh()->account_manager);
-    }
 
-    public function test_it_throws_error_if_same_account_manager_is_selected()
-    {
-        $user = User::factory()->create(['role' => 'admin', 'position' => 'account_manager']);
-
-        $response = $this->postJson(url('replace-acc-manager'), [
-            'existingAccManager' => $user->id,
-            'newAccManager' => $user->id,
-        ]);
-
-        $response->assertJson(['success' => false]);
-    }
-
-    public function test_it_replaces_sales_manager()
-    {
-        $old = User::factory()->create(['role' => 'admin', 'position' => 'manager']);
-        $new = User::factory()->create(['role' => 'admin']);
-
-        $userAssigned = User::factory()->create(['manager' => $old->id]);
-
-        $response = $this->postJson(url('replace-sales-manager'), [
-            'existingSaleManager' => $old->id,
-            'newSaleManager' => $new->id,
-        ]);
-
-        $response->assertJson(['success' => true]);
         $this->assertDatabaseHas('users', [
-            'id' => $new->id,
+            'id' => $newSales->id,
             'position' => 'manager',
         ]);
-        $this->assertEquals($new->id, $userAssigned->fresh()->manager);
+
+        $this->assertTrue((bool) ManagerSetting::where('manager_role', 'account')->value('auto_assign'));
+        $this->assertTrue((bool) ManagerSetting::where('manager_role', 'sales')->value('auto_assign'));
     }
 
-    public function test_it_throws_error_if_same_sales_manager_is_selected()
+    public function test_it_fails_when_same_manager_is_selected()
     {
         $user = User::factory()->create(['role' => 'admin', 'position' => 'manager']);
 
-        $response = $this->postJson(url('replace-sales-manager'), [
+        $response = $this->postJson(url('updateSystemManager'), [
+            'existingAccManager' => $user->id,
+            'newAccManager' => $user->id,
             'existingSaleManager' => $user->id,
             'newSaleManager' => $user->id,
-        ]);
-
-        $response->assertJson(['success' => false]);
-    }
-
-    public function test_it_sets_auto_assign_flag()
-    {
-        ManagerSetting::where('manager_role', 'account')->update([
-            'auto_assign' => false,
-        ]);
-
-        $response = $this->postJson(url('managerAutoAssign'), [
-            'manager_role' => 'account',
-            'status' => true,
-        ]);
-
-        $response->assertJson(['success' => true]);
-        $this->assertTrue((bool) ManagerSetting::where('manager_role', 'account')->first()->auto_assign);
-    }
-
-    public function test_it_fails_on_invalid_auto_assign_input()
-    {
-        $response = $this->postJson(url('managerAutoAssign'), [
-            'manager_role' => 'invalid_role',
-            'status' => 'not-a-boolean',
+            'autoAssignAccount' => true,
+            'autoAssignSales' => true,
         ]);
 
         $response->assertStatus(422);
+    }
+
+    public function test_it_only_updates_auto_assign_flags()
+    {
+        ManagerSetting::updateOrCreate(['manager_role' => 'account'], ['auto_assign' => false]);
+        ManagerSetting::updateOrCreate(['manager_role' => 'sales'], ['auto_assign' => true]);
+
+        $response = $this->postJson(url('updateSystemManager'), [
+            'autoAssignAccount' => true,
+            'autoAssignSales' => false,
+        ]);
+
+        $response->assertStatus(200)->assertJson(['success' => true]);
+
+        $this->assertDatabaseHas('manager_settings', [
+            'manager_role' => 'account',
+            'auto_assign' => true,
+        ]);
+
+        $this->assertDatabaseHas('manager_settings', [
+            'manager_role' => 'sales',
+            'auto_assign' => false,
+        ]);
     }
 }

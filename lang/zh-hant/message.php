@@ -2654,5 +2654,6 @@ return [
     'manager_role.in' => '所選的經理角色無效。允許的值為 "account" 或 "sales"。',
     'status.required' => '請指定狀態。',
     'status.boolean' => '狀態必須是 true（啟用）或 false（停用）。',
+    'manager_settings_updated_successfully' => '管理員設定已成功更新。',
 
 ];

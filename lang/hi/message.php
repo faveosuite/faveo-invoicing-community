@@ -2704,5 +2704,6 @@ return [
     'manager_role.in' => 'चुनी गई प्रबंधक भूमिका अमान्य है। अनुमत मान हैं "account" या "sales"।',
     'status.required' => 'कृपया स्थिति निर्दिष्ट करें।',
     'status.boolean' => 'स्थिति true (सक्रिय) या false (निष्क्रिय) होनी चाहिए।',
+    'manager_settings_updated_successfully' => 'प्रबंधक की सेटिंग्स सफलतापूर्वक अपडेट की गईं।',
 
 ];

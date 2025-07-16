@@ -4,9 +4,6 @@
 @stop
 @section('content-header')
 <style>
-    .replace-row {
-        margin-top: 32px;
-    }
     .select2-container--default .select2-selection--multiple .select2-selection__choice {
         background-color: #1b1818 !important;
     }
@@ -27,142 +24,86 @@
 @section('content')
     <div class="container-fluid">
         <div id="system-manager-alert"></div>
-        <div class="card card-secondary card-outline elevation-2">
-            <div class="card-header">
-                <h3 class="card-title">
-                    {{ __('message.system_manager_settings') }}
-                </h3>
-            </div>
 
-            <div class="card-body">
-                <!-- Account Manager Section -->
-                <div class="card card-outline card-secondary">
-                    <div class="card-header">
-                        <h3 class="card-title">
-                            <i class="fas fa-user-tie mr-2"></i>
-                            {{ __('message.account_manager') }}
-                        </h3>
+        <form id="managerSettingsForm">
+            <div class="card card-secondary card-outline elevation-2">
+                <div class="card-header">
+                    <h3 class="card-title">{{ __('message.system_manager_settings') }}</h3>
+                </div>
+
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="custom-control custom-switch">
+                                <input type="checkbox" class="custom-control-input" id="autoAssignAccountSwitch" name="autoAssignAccount" {{ $accountManagersAutoAssign ? 'checked' : '' }}>
+                                <label class="custom-control-label" for="autoAssignAccountSwitch">
+                                    <strong>{{ __('message.enable_account_manager') }}</strong>
+                                    <small class="text-muted d-block">{{ __('message.account_upon_creation') }}</small>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="custom-control custom-switch">
+                                <input type="checkbox" class="custom-control-input" id="autoAssignSalesSwitch" name="autoAssignSales" {{ $salesManagerAutoAssign ? 'checked' : '' }}>
+                                <label class="custom-control-label" for="autoAssignSalesSwitch">
+                                    <strong>{{ __('message.enable_sales_manager') }}</strong>
+                                    <small class="text-muted d-block">{{ __('message.sales_upon_creation') }}</small>
+                                </label>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <!-- Auto Assignment Switch for Account Manager -->
-                        <div class="row mb-3">
-                            <div class="col-md-12">
-                                <div class="custom-control custom-switch">
-                                    <input type="checkbox" class="custom-control-input" id="autoAssignAccountSwitch" {{ $accountManagersAutoAssign ? 'checked' : '' }}>
-                                    <label class="custom-control-label" for="autoAssignAccountSwitch">
-                                        <strong>{{ __('message.enable_account_manager') }}</strong>
-                                        <small class="text-muted d-block">{{ __('message.account_upon_creation') }}</small>
-                                    </label>
-                                </div>
+                    <div class="row">
+                        <!-- Account Manager Replacement -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="accountManagerCurrent">{{ __('message.current_account_manager') }}</label>
+                                <select class="form-control select2-manager" name="accountManagerCurrent" id="accountManagerCurrent">
+                                    <option value="">{{ __('message.select') }}</option>
+                                    @foreach($accountManagers as $key => $manager)
+                                        <option value="{{ $key }}">{{ $manager }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="accountManagerNew">{{ __('message.select_replacement_manager') }}</label>
+                                <select class="form-control select2-new" name="accountManagerNew" id="accountManagerNew" multiple>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
 
-                        <hr>
-                        <form id="accountManagerForm">
-                        <div class="row">
-                            <div class="col-md-5">
-                                <div class="form-group">
-                                    <label for="accountManagerCurrent">
-                                        <i class="fas fa-user mr-1"></i>
-                                        {{ __('message.current_account_manager') }}
-                                    </label>
-                                    <select class="form-control select2-manager" name="accountManagerCurrent" id="accountManagerCurrent">
-                                        <option value=""> {{ __('message.select') }} </option>
-                                        @foreach($accountManagers as $key=>$manager)
-                                            <option value={{$key}}>{{$manager}}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-5">
-                                <div class="form-group">
-                                    <label for="accountManagerNew">
-                                        <i class="fas fa-user-plus mr-1"></i>
-                                        {{ __('message.select_replacement_manager') }}
-                                    </label>
-                                    <select class="form-control select2-new" multiple name="accountManagerNew"  id="accountManagerNew">
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-2">
-                                <button type="submit" class="btn btn-primary replace-row">
-                                    <i class="fas fa-exchange-alt mr-1"></i>
-                                    {{ __('message.replace') }}
-                                </button>
+                    <div class="row">
+                        <!-- Sales Manager Replacement -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="salesManagerCurrent">{{ __('message.current_sales_manger') }}</label>
+                                <select class="form-control select2-manager" name="salesManagerCurrent" id="salesManagerCurrent">
+                                    <option value="">{{ __('message.select') }}</option>
+                                    @foreach($salesManager as $key => $manager)
+                                        <option value="{{ $key }}">{{ $manager }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
-                        </form>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="salesManagerNew">{{ __('message.select_replacement_sales_manager') }}</label>
+                                <select class="form-control select2-new" name="salesManagerNew" id="salesManagerNew" multiple>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Sales Manager Section -->
-                <div class="card card-outline card-secondary">
-                    <div class="card-header">
-                        <h3 class="card-title">
-                            <i class="fas fa-chart-line mr-2"></i>
-                            {{ __('message.sales_manager') }}
-                        </h3>
-                    </div>
-                    <div class="card-body">
-                        <!-- Auto Assignment Switch for Sales Manager -->
-                        <div class="row mb-3">
-                            <div class="col-md-12">
-                                <div class="custom-control custom-switch">
-                                    <input type="checkbox" class="custom-control-input" id="autoAssignSalesSwitch" {{ $salesManagerAutoAssign ? 'checked' : '' }}>
-                                    <label class="custom-control-label" for="autoAssignSalesSwitch">
-                                        <strong>{{ __('message.enable_sales_manager') }}</strong>
-                                        <small class="text-muted d-block">{{ __('message.sales_upon_creation') }}</small>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <hr>
-
-                        <form id="salesManagerForm">
-                        <div class="row">
-                            <div class="col-md-5">
-                                <div class="form-group">
-                                    <label for="salesManagerCurrent">
-                                        <i class="fas fa-user mr-1"></i>
-                                        {{ __('message.current_sales_manger') }}
-                                    </label>
-                                    <select class="form-control select2-manager" name="salesManagerCurrent"  id="salesManagerCurrent">
-                                        <option value=""> {{ __('message.select') }} </option>
-                                        @foreach($salesManager as $key=>$manager)
-                                            <option value={{$key}}>{{$manager}}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-5">
-                                <div class="form-group">
-                                    <label for="salesManagerNew">
-                                        <i class="fas fa-user-plus mr-1"></i>
-                                       {{ __('message.select_replacement_sales_manager') }}
-                                    </label>
-                                    <select class="form-control select2-new" multiple name="salesManagerNew" id="salesManagerNew">
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-2">
-                                <button type="submit" class="btn btn-primary replace-row">
-        <span class="btn-text">
-            <i class="fas fa-exchange-alt mr-1"></i>
-            {{ __('message.replace') }}
-        </span>
-                                    <span class="btn-loader" style="display: none;">
-            <i class="fas fa-spinner fa-spin mr-1"></i>
-            Loading...
-        </span>
-                                </button>
-                            </div>
-                        </div>
-                        </form>
-                    </div>
+                <div class="card-footer">
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fas fa-save"></i>&nbsp; {{ __('message.save') }}
+                    </button>
                 </div>
             </div>
-        </div>
+        </form>
     </div>
 
     <script>
@@ -251,89 +192,35 @@
             initSelect2Manager();
             initSelect2New();
 
-            function sendManagerAction(url, payload) {
-                $.ajax({
-                    url: url,
-                    method: 'POST',
-                    data: payload,
-                    beforeSend: function() {
-                        helper.globalLoader.show();
-                    },
-                    success: function (response) {
-                        helper.showAlert({
-                            message: response.message,
-                            type: 'success',
-                            autoDismiss: 5000,
-                            containerSelector: '#system-manager-alert',
-                        });
-                    },
-                    error: function (xhr) {
-                        helper.showAlert({
-                            message: xhr.responseJSON.message,
-                            type: 'error',
-                            autoDismiss: 5000,
-                            containerSelector: '#system-manager-alert',
-                        });
-                    },
-                    complete: function () {
-                       helper.globalLoader.hide();
-                    }
-                });
-            }
 
-            function handleAutoAssignChange(selector, type) {
-                const actionUrl = "{{ url('managerAutoAssign') }}";
-                $(selector).on('change', function () {
-                    const status = $(this).is(':checked') ? 1 : 0;
-                    sendManagerAction(actionUrl, {
-                        manager_role: type,
-                        status: status
-                    });
-                });
-            }
+            $.validator.addMethod("requiredIfPairedSelected", function (value, element, selector) {
+                const valIsEmpty = !value || (Array.isArray(value) && value.length === 0);
+                const otherVal = $(selector).val();
+                const otherIsEmpty = !otherVal || (Array.isArray(otherVal) && otherVal.length === 0);
 
-            handleAutoAssignChange('#autoAssignAccountSwitch', 'account');
-            handleAutoAssignChange('#autoAssignSalesSwitch', 'sales');
+                // Pass if both are empty; fail if this is empty and the other is not
+                return valIsEmpty && otherIsEmpty || !valIsEmpty;
+            }, "{{ __('validation.required') }}");
 
-            $('#accountManagerForm').validate({
+
+            $('#managerSettingsForm').validate({
                 rules: {
-                    accountManagerCurrent: { required: true },
-                    accountManagerNew: { required: true }
+                    accountManagerCurrent: {
+                        requiredIfPairedSelected: "#accountManagerNew"
+                    },
+                    accountManagerNew: {
+                        requiredIfPairedSelected: "#accountManagerCurrent"
+                    },
+                    salesManagerCurrent: {
+                        requiredIfPairedSelected: "#salesManagerNew"
+                    },
+                    salesManagerNew: {
+                        requiredIfPairedSelected: "#salesManagerCurrent"
+                    }
                 },
                 messages: {
                     accountManagerCurrent: "{{ __('message.existingAccManager_required') }}",
-                    accountManagerNew: "{{ __('message.newAccManager_required') }}"
-                },
-
-                errorPlacement: function (error, element) {
-                    error.addClass('invalid-feedback');
-                    error.insertAfter(element);
-                },
-                highlight: function (element) {
-                    $(element).addClass('is-invalid');
-                },
-                unhighlight: function (element) {
-                    $(element).removeClass('is-invalid');
-                },
-                submitHandler: function (form) {
-                    const actionUrl = "{{ url('replace-acc-manager') }}";
-                    const payload = {
-                        existingAccManager: $('#accountManagerCurrent').val(),
-                        newAccManager: Array.isArray($('#accountManagerNew').val())
-                            ? $('#accountManagerNew').val()[0]
-                            : $('#accountManagerNew').val()
-
-                    };
-                    sendManagerAction(actionUrl, payload);
-                }
-            });
-
-            $('#salesManagerForm').validate({
-                rules: {
-                    salesManagerCurrent: { required: true },
-                    salesManagerNew: { required: true }
-                },
-                messages: {
+                    accountManagerNew: "{{ __('message.newAccManager_required') }}",
                     salesManagerCurrent: "{{ __('message.select_system_sales_manager') }}",
                     salesManagerNew: "{{ __('message.select_new_sales_manager') }}"
                 },
@@ -348,14 +235,46 @@
                     $(element).removeClass('is-invalid');
                 },
                 submitHandler: function (form) {
-                    const actionUrl = "{{ url('replace-sales-manager') }}";
+                    const actionUrl = "{{ url('updateSystemManager') }}";
                     const payload = {
+                        existingAccManager: $('#accountManagerCurrent').val(),
+                        newAccManager: Array.isArray($('#accountManagerNew').val())
+                            ? $('#accountManagerNew').val()[0]
+                            : $('#accountManagerNew').val(),
                         existingSaleManager: $('#salesManagerCurrent').val(),
                         newSaleManager: Array.isArray($('#salesManagerNew').val())
                             ? $('#salesManagerNew').val()[0]
-                            : $('#salesManagerNew').val()
+                            : $('#salesManagerNew').val(),
+                        autoAssignAccount: $('#autoAssignAccountSwitch').is(':checked') ? 1 : 0,
+                        autoAssignSales: $('#autoAssignSalesSwitch').is(':checked') ? 1 : 0
                     };
-                    sendManagerAction(actionUrl, payload);
+                    $.ajax({
+                        url: actionUrl,
+                        method: 'POST',
+                        data: payload,
+                        beforeSend: function() {
+                            helper.globalLoader.show();
+                        },
+                        success: function (response) {
+                            helper.showAlert({
+                                message: response.message,
+                                type: 'success',
+                                autoDismiss: 5000,
+                                containerSelector: '#system-manager-alert',
+                            });
+                        },
+                        error: function (xhr) {
+                            helper.showAlert({
+                                message: xhr.responseJSON.message,
+                                type: 'error',
+                                autoDismiss: 5000,
+                                containerSelector: '#system-manager-alert',
+                            });
+                        },
+                        complete: function () {
+                            helper.globalLoader.hide();
+                        }
+                    });
                 }
             });
         });

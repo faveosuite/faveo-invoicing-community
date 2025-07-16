@@ -2690,5 +2690,6 @@ return [
     'manager_role.in' => 'Die ausgewählte Manager-Rolle ist ungültig. Erlaubte Werte sind "account" oder "sales".',
     'status.required' => 'Bitte geben Sie einen Status an.',
     'status.boolean' => 'Der Status muss entweder true (aktiviert) oder false (deaktiviert) sein.',
+    'manager_settings_updated_successfully' => 'Manager-Einstellungen wurden erfolgreich aktualisiert.',
 
 ];

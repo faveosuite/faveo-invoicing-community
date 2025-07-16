@@ -2659,5 +2659,6 @@ return [
     'manager_role.in' => 'De geselecteerde managerrol is ongeldig. Toegestane waarden zijn "account" of "sales".',
     'status.required' => 'Geef een status op.',
     'status.boolean' => 'De status moet true (ingeschakeld) of false (uitgeschakeld) zijn.',
+    'manager_settings_updated_successfully' => 'Managerinstellingen zijn succesvol bijgewerkt.',
 
 ];

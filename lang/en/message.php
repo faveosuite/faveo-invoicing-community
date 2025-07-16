@@ -2703,4 +2703,5 @@ return [
     'manager_role.in' => 'The selected manager role is invalid. Allowed values are "account" or "sales".',
     'status.required' => 'Please specify the status.',
     'status.boolean' => 'The status must be either true (enabled) or false (disabled).',
+    'manager_settings_updated_successfully' => 'Manager settings updated successfully.',
 ];

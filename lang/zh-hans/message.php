@@ -2688,5 +2688,6 @@ return [
     'manager_role.in' => '所选的经理角色无效。允许的值为 "account" 或 "sales"。',
     'status.required' => '请指定状态。',
     'status.boolean' => '状态必须是 true（启用）或 false（禁用）。',
+    'manager_settings_updated_successfully' => '管理员设置已成功更新。',
 
 ];

@@ -2695,5 +2695,6 @@ return [
     'manager_role.in' => '選択されたマネージャーの役割が無効です。有効な値は "account" または "sales" です。',
     'status.required' => 'ステータスを指定してください。',
     'status.boolean' => 'ステータスは true（有効）または false（無効）である必要があります。',
+    'manager_settings_updated_successfully' => 'マネージャーの設定が正常に更新されました。',
 
 ];

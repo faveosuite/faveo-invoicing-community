@@ -2687,5 +2687,6 @@ return [
     'manager_role.in' => 'Peran manajer yang dipilih tidak valid. Nilai yang diperbolehkan adalah "account" atau "sales".',
     'status.required' => 'Silakan tentukan status.',
     'status.boolean' => 'Status harus berupa true (aktif) atau false (nonaktif).',
+    'manager_settings_updated_successfully' => 'Pengaturan manajer berhasil diperbarui.',
 
 ];
