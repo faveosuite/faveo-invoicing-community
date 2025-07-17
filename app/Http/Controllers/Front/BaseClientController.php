@@ -236,7 +236,7 @@ class BaseClientController extends Controller
 
             return successResponse(\Lang::get('message.updated-successfully'));
         } catch (\Exception $e) {
-            app('log')->error($e->getMessage());
+            \Logger::exception($e);
 
             return errorResponse(__('message.failed_to_update_password'));
         }

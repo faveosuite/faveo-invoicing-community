@@ -169,7 +169,7 @@ class BaseInvoiceController extends ExtendedBaseInvoiceController
 
             return intval(round($total));
         } catch (\Exception $ex) {
-            app('log')->warning($ex->getMessage());
+            \Logger::exception($ex);
 
             throw new \Exception($ex->getMessage());
         }

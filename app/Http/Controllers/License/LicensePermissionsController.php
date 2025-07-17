@@ -85,7 +85,7 @@ class LicensePermissionsController extends Controller
 
             ->make(true);
         } catch (\Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
 
             return redirect()->back()->with('fails', $ex->getMessage());
         }
@@ -116,15 +116,13 @@ class LicensePermissionsController extends Controller
     public function addPermission(Request $request)
     {
         try {
-            $license = $request->input('licenseId');
-            //Delete all the relation before Updating
-            \DB::table('license_license_permissions')->where('license_type_id', $license)->delete();
             $licenseType = LicenseType::find($request->input('licenseId'));
-            $licenseType->permissions()->attach($request->input('permissionid'));
+
+            $licenseType->permissions()->sync($request->input('permissionid'));
 
             return successResponse(__('message.permissions_updated_successfully'));
         } catch (\Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
             $result = [$ex->getMessage()];
 
             return response()->json(compact('result'), 500);
@@ -190,7 +188,7 @@ class LicensePermissionsController extends Controller
                 'generateSupportExpiryDate' => $generateSupportExpiryDate, 'downloadPermission' => $downloadPermission, 'noPermissions' => $noPermissions,
                 'allowDownloadTillExpiry' => $allowDownloadTillExpiry, ];
         } catch (\Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
 
             return redirect()->back()->with('fails', $ex->getMessage());
         }

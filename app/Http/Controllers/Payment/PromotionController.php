@@ -191,7 +191,8 @@ class PromotionController extends BasePromotionController
             $start = date_format($startdate, 'Y-m-d H:m:i');
             $enddate = date_create($request->input('expiry'));
             $expiry = date_format($enddate, 'Y-m-d H:m:i');
-            $promotion = $this->promotion->where('id', $id)->update([
+            $promotion = $this->promotion->where('id', $id)->first();
+            $promotion->update([
                 'code' => $request->input('code'),
                 'type' => $request->input('type'),
                 'value' => $request->input('type') == 2 ? intval($request->input('value')) : intval($request->input('value')).'%',

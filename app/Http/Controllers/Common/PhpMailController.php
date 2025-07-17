@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Common;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Tenancy\TenantController;
 use App\Model\Common\FaveoCloud;
+use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
@@ -12,7 +13,9 @@ use App\Model\Mailjob\ExpiryMailDay;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Payment_log;
+use App\Traits\QueueTrait;
 use Carbon\Carbon;
+use Crypt;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 
@@ -28,11 +31,63 @@ class PhpMailController extends Controller
         $this->queueManager = app('queue');
     }
 
-    public function sendEmail($from, $to, $template_data, $template_name, $replace = [], $type = '', $bcc = [])
-    {
+    /**
+     * Send email using queue.
+     */
+    public function sendEmail(
+        string $from,
+        string $to,
+        string $template_data,
+        string $template_name,
+        string $categoryName,
+        array $replace = [],
+        string $type = '',
+        array $bcc = [],
+        string $fromname = '',
+        string $toname = '',
+        array $cc = [],
+        array $attach = [],
+        bool $autoReply = false
+    ): void {
+        // Step 1: Log email entry
+        $logIdentifier = \Logger::logMailByCategory(
+            $from,
+            $to,
+            $cc,
+            $bcc,
+            $template_name,
+            $this->transformEmailData($template_data, $replace, $type),
+            $categoryName
+        );
+
         $this->setQueue();
-        $job = new \App\Jobs\SendEmail($from, $to, $template_data, $template_name, $replace, $type);
-        dispatch($job);
+
+        // Step 2: Prepare the job
+        $job = new \App\Jobs\SendEmail(
+            $from,
+            $to,
+            $template_data,
+            $template_name,
+            $replace,
+            $type,
+            $bcc,
+            $fromname,
+            $toname,
+            $cc,
+            $attach,
+            $logIdentifier->id,
+            $autoReply
+        );
+
+        // Step 3: Update log with encrypted job payload
+        $logIdentifier->update([
+            'job_payload' => Crypt::encrypt((new QueueTrait())->getPayloadData($job)),
+        ]);
+
+        // Step 4: Dispatch job only after DB commit
+        \DB::afterCommit(function () use ($job) {
+            dispatch($job);
+        });
     }
 
     public function NotifyMail($from, $to, $template_data, $template_name)
@@ -81,7 +136,7 @@ class PhpMailController extends Controller
                 $this->deleteCloudDetails();
             }
         } catch(\Exception $ex) {
-            \Log::error($ex->getMessage());
+            \Logger::exception($ex);
         }
     }
 
@@ -149,92 +204,49 @@ class PhpMailController extends Controller
                             $temp_type = new \App\Model\Common\TemplateType();
                             $type = $temp_type->where('id', $type_id)->first()->name;
                         }
-                        $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $replace, $type);
+                        $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
                     }
                 }
             }
         } catch(\Exception $ex) {
-            \Log::error($ex->getMessage());
+            \Logger::exception($ex);
         }
     }
 
-    public function mailing($from, $to, $data, $subject, $replace = [],
-         $type = '', $bcc = [], $fromname = '', $toname = '', $cc = [], $attach = [])
-    {
+    public function mailing(
+        string $from,
+        string $to,
+        string $data,
+        string $subject,
+        array $replace = [],
+        string $type = '',
+        array $bcc = [],
+        string $fromname = '',
+        string $toname = '',
+        array $cc = [],
+        array $attach = [],
+        int $logIdentifier,
+        bool $autoReply = false
+    ): string {
         try {
-            $transform = [];
-            $page_controller = new \App\Http\Controllers\Front\PageController();
+            // Transform data
+            $transformedData = $this->transformEmailData($data, $replace, $type);
 
-            $transform[0] = $replace;
-            $data = $page_controller->transform($type, $data, $transform);
-            $settings = \App\Model\Common\Setting::find(1);
-            $fromname = $settings->from_name;
-            if ($subject == 'Contact us' || $subject == 'Requesting a demo for ') {
-                if (is_array($transform) && isset($transform[0]['name'])) {
-                    $fromname = $transform[0]['name'];
-                }
-            }
-            $temp_id = TemplateType::where('name', $type)->value('id');
-            $reply_email_from_db = Template::where('type', $temp_id)->value('reply_to');
-            $reply_to = null;
-            if (filter_var($reply_email_from_db, FILTER_VALIDATE_EMAIL)) {
-                $reply_to = $reply_email_from_db;
-            } elseif (isset($replace['reply_email']) && filter_var($replace['reply_email'], FILTER_VALIDATE_EMAIL)) {
-                $reply_to = $replace['reply_email'];
-            }
+            // Set up email configuration
+            $emailConfig = $this->prepareEmailConfig($replace, $type, $subject, $fromname, $autoReply);
 
-            $this->setMailConfig($settings);
-            \Mail::send('emails.mail', ['data' => $data], function ($m) use ($from, $to, $subject, $fromname, $toname, $cc, $attach, $bcc, $reply_to) {
-                $m->from($from, $fromname);
+            // Configure mail settings
+            $this->setMailConfig(Setting::first());
 
-                $m->to($to, $toname)->subject($subject);
-                /* if cc is need  */
-                if (! empty($cc)) {
-                    foreach ($cc as $address) {
-                        $m->cc($address['a ress'], $address['name']);
-                    }
-                }
+            // Send email
+            $this->sendMailMessage($from, $to, $subject, $transformedData, $emailConfig, $toname, $cc, $bcc, $attach);
 
-                if (! empty($bcc)) {
-                    foreach ($bcc as $address) {
-                        $m->bcc($address);
-                    }
-                }
-
-                /*  if attachment is need */
-                if (! empty($attach)) {
-                    foreach ($attach as $file) {
-                        $m->attach($file['path'], $options = []);
-                    }
-                }
-                if (! empty($reply_to)) {
-                    $m->replyTo($reply_to, $fromname);
-                }
-            });
-            \DB::table('email_log')->insert([
-                'date' => date('Y-m-d H:i:s'),
-                'from' => $from,
-                'to' => $to,
-                'subject' => $subject,
-                'body' => $data,
-                'status' => 'success',
-            ]);
+            \Logger::outgoingMailSent($logIdentifier);
 
             return 'success';
         } catch (\Exception $ex) {
-            \DB::table('email_log')->insert([
-                'date' => date('Y-m-d H:i:s'),
-                'from' => $from,
-                'to' => $to,
-                'subject' => $subject,
-                'body' => $data,
-                'status' => 'failed',
-            ]);
-            if ($ex instanceof \Swift_TransportException) {
-                throw new \Exception($ex->getMessage());
-            }
-
-            throw new \Exception($ex->getMessage());
+            \Logger::outgoingMailFailed($logIdentifier, $ex);
+            throw $ex;
         }
     }
 
@@ -295,5 +307,138 @@ class PhpMailController extends Controller
         }
 
         Payment_log::insert($data);
+    }
+
+    /**
+     * Prepare email configuration.
+     */
+    protected function prepareEmailConfig(array $replace, string $type, string $subject, string $fromname, bool $autoReply): array
+    {
+        $config = [
+            'fromname' => ! empty($fromname) ? $fromname : Setting::first()->from_name,
+            'reply_to' => null,
+            'auto_reply' => $autoReply,
+        ];
+
+        // Handle special subjects
+        if (in_array($subject, ['Contact us', 'Requesting a demo for ']) && isset($replace['name'])) {
+            $config['fromname'] = $replace['name'];
+        }
+
+        // Set reply-to address
+        $config['reply_to'] = $this->determineReplyTo($type, $replace);
+
+        return $config;
+    }
+
+    /**
+     * Determine reply-to address.
+     */
+    protected function determineReplyTo(string $type, array $replace): ?string
+    {
+        $tempId = TemplateType::where('name', $type)->value('id');
+        $replyEmailFromDb = Template::where('type', $tempId)->value('reply_to');
+
+        if (filter_var($replyEmailFromDb, FILTER_VALIDATE_EMAIL)) {
+            return $replyEmailFromDb;
+        }
+
+        if (isset($replace['reply_email']) && filter_var($replace['reply_email'], FILTER_VALIDATE_EMAIL)) {
+            return $replace['reply_email'];
+        }
+
+        return null;
+    }
+
+    /**
+     * Transform email data.
+     */
+    protected function transformEmailData(string $data, array $replace, string $type): string
+    {
+        $transform = [$replace];
+        $pageController = new \App\Http\Controllers\Front\PageController();
+
+        return $pageController->transform($type, $data, $transform);
+    }
+
+    /**
+     * Send mail message.
+     */
+    protected function sendMailMessage(
+        string $from,
+        string $to,
+        string $subject,
+        string $data,
+        array $config,
+        string $toname,
+        array $cc,
+        array $bcc,
+        array $attach
+    ): void {
+        \Mail::send('emails.mail', ['data' => $data], function ($message) use (
+            $from, $to, $subject, $config, $toname, $cc, $bcc, $attach
+        ) {
+            $message->from($from, $config['fromname']);
+            $message->to($to, $toname)->subject($subject);
+
+            $this->addCcRecipients($message, $cc);
+            $this->addBccRecipients($message, $bcc);
+            $this->addAttachments($message, $attach);
+            $this->autoReplyHeader($message, $config);
+
+            if (! empty($config['reply_to'])) {
+                $message->replyTo($config['reply_to'], $config['fromname']);
+            }
+        });
+    }
+
+    protected function autoReplyHeader($message, array $config): void
+    {
+        if (isset($config['auto_reply']) && $config['auto_reply']) {
+            $message->getHeaders()->addTextHeader('X-Autoreply', 'true');
+            $message->getHeaders()->addTextHeader('Auto-Submitted', 'auto-replied');
+        }
+    }
+
+    /**
+     * Add CC recipients to message.
+     */
+    protected function addCcRecipients($message, array $cc): void
+    {
+        foreach ($cc as $address) {
+            if (is_array($address)) {
+                $message->cc($address['address'], $address['name'] ?? null);
+            } else {
+                $message->cc($address);
+            }
+        }
+    }
+
+    /**
+     * Add BCC recipients to message.
+     */
+    protected function addBccRecipients($message, array $bcc): void
+    {
+        foreach ($bcc as $address) {
+            if (is_array($address)) {
+                $message->bcc($address['address'], $address['name'] ?? null);
+            } else {
+                $message->bcc($address);
+            }
+        }
+    }
+
+    /**
+     * Add attachments to message.
+     */
+    protected function addAttachments($message, array $attach): void
+    {
+        foreach ($attach as $file) {
+            if (is_array($file)) {
+                $message->attach($file['path'], $file['options'] ?? []);
+            } else {
+                $message->attach($file);
+            }
+        }
     }
 }

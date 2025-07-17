@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Common;
 
 use App\ApiKey;
 use App\Http\Controllers\Common\PHPController as PaymentSettingsController;
-use App\Http\Controllers\Order\OrderSearchController;
 use App\Model\Common\StatusSetting;
 use App\Model\Mailjob\ActivityLogDay;
 use App\Model\Mailjob\ExpiryMailDay;
 use App\Traits\ApiKeySettings;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Spatie\Activitylog\Models\Activity;
 
@@ -112,34 +112,102 @@ class BaseSettingsController extends PaymentSettingsController
         }
     }
 
-    public function advanceSearch($from = '', $till = '', $delFrom = '', $delTill = '')
+    protected function getBaseQueryForSystemLogs()
     {
-        $join = new Activity();
-        if ($from) {
-            $from = $this->getDateFormat($from);
-            $tills = $this->getDateFormat();
-            $tillDate = (new OrderSearchController())->getTillDate($from, $till, $tills);
-            $join = $join->whereBetween('created_at', [$from, $tillDate]);
-        }
-        if ($till) {
-            $till = $this->getDateFormat($till);
-            $froms = Activity::first()->created_at;
-            $fromDate = (new OrderSearchController())->getFromDate($from, $froms);
-            $join = $join->whereBetween('created_at', [$fromDate, $till]);
-        }
-        $join = $join
-        ->select(
-            'id',
-            'log_name',
-            'description',
-            'subject_id',
-            'subject_type',
-            'causer_id',
-            'properties',
-            'created_at'
-        );
+        return Activity::with(['causer:id,user_name,role,first_name,last_name,email'])->select('log_name', 'description', 'event', 'causer_type', 'causer_id', 'created_at', 'properties');
+    }
 
-        return $join;
+    protected function filterQuery($baseQuery)
+    {
+        $from = request()->input('log_from');
+        $till = request()->input('log_till');
+
+        return $baseQuery
+            ->when(request()->filled('module'), function ($query) {
+                $modules = (array) request()->module;
+                $query->whereIn('log_name', $modules);
+            })
+            ->when(request()->filled('event'), function ($query) {
+                $events = (array) request()->event;
+                $query->whereIn('event', $events);
+            })
+            ->when(request()->filled('performed_by'), function ($query) {
+                $performedBy = (array) request()->performed_by;
+                $query->whereIn('causer_id', $performedBy);
+            })
+            ->when($from || $till, function ($query) use ($from, $till) {
+                $from = $from
+                    ? Carbon::parse($from)->startOfDay()
+                    : Carbon::minValue();
+
+                $till = $till
+                    ? Carbon::parse($till)->endOfDay()
+                    : Carbon::now();
+
+                if ($from->lessThanOrEqualTo($till)) {
+                    $query->whereBetween('created_at', [$from, $till]);
+                }
+            });
+    }
+
+    /**
+     * This function is used to create a detailed description for the logs.
+     * In the properties column of the activity_log table, the data is stored in the below format
+     * {"attributes":{"Status":"Active"},"old":{"Status":"Inactive"}}
+     * where old represents the old data and attributes represents the new data.
+     */
+    protected function formatProperties($properties, $event)
+    {
+        $formatted = [];
+
+        $old = $properties['old'] ?? [];
+        $attributes = $properties['attributes'] ?? [];
+
+        // Helper to clean and escape values
+        $escape = function ($value) {
+            if (is_array($value) || is_object($value)) {
+                $value = json_encode($value); // handle JSON fields
+            }
+
+            return htmlspecialchars(strip_tags((string) $value), ENT_QUOTES, 'UTF-8');
+        };
+
+        if ($event === 'updated') {
+            foreach ($old as $key => $value) {
+                $from = empty($value) ? 'null' : $escape($value);
+                $to = isset($attributes[$key]) ? $escape($attributes[$key]) : 'null';
+
+                $formatted[] = trans('message.updated').' '.ucfirst($key).' '
+                    .trans('message.from').' '.$from.' '
+                    .trans('message.to').' '.$to;
+            }
+        }
+
+        if ($event === 'created') {
+            foreach ($attributes as $key => $value) {
+                if (! empty($value) && $value !== '--') {
+                    $formatted[] = trans('message.set').' '.ucfirst($key).' '
+                        .trans('message.to').' '.$escape($value);
+                }
+            }
+        }
+
+        return $formatted;
+    }
+
+    /**
+     * This function will create a hyper link for the agent/admin who is performing the action.
+     */
+    protected function generateLinkForPerformedBy($causer)
+    {
+        if (empty($causer) || empty($causer['id'])) {
+            return null;
+        }
+
+        $name = trim(($causer['first_name'] ?? '').' '.($causer['last_name'] ?? ''));
+        $url = url('clients/'.$causer['id']);
+
+        return sprintf('<a href="%s">%s</a>', e($url), e($name ?: 'Unknown User'));
     }
 
     public function getScheduler(StatusSetting $status)
@@ -204,6 +272,9 @@ class BaseSettingsController extends PaymentSettingsController
         $msg91Days = ['720' => '720 Days', '365' => '365 days', '180' => '180 Days',
             '150' => '150 Days', '60' => '60 Days', '30' => '30 Days', '15' => '15 Days', '5' => '5 Days', '2' => '2 Days', '0' => 'Delete All Reports', ];
 
+        $systemLogsDays = ['720' => '720 Days', '365' => '365 days', '180' => '180 Days',
+            '150' => '150 Days', '60' => '60 Days', '30' => '30 Days', '15' => '15 Days', '5' => '5 Days', '2' => '2 Days', '0' => 'Delete All Logs', ];
+
         $selectedDays = [];
         $daysLists = ExpiryMailDay::get();
         if (count($daysLists) > 0) {
@@ -220,6 +291,7 @@ class BaseSettingsController extends PaymentSettingsController
         $beforeCloudDay[] = ExpiryMailDay::first()->cloud_days;
         $invoiceDeletionDay[] = ExpiryMailDay::first()->invoice_days;
         $msgDeletionDays[] = ExpiryMailDay::first()->msg91_days;
+        $systemLogsDeletionDays[] = ExpiryMailDay::first()->system_logs_days;
 
         return view('themes.default1.common.cron.cron', compact(
             'cronPath',
@@ -242,7 +314,9 @@ class BaseSettingsController extends PaymentSettingsController
             'invoiceDays',
             'invoiceDeletionDay',
             'msg91Days',
-            'msgDeletionDays'
+            'msgDeletionDays',
+            'systemLogsDays',
+            'systemLogsDeletionDays'
         ));
     }
 
@@ -272,6 +346,7 @@ class BaseSettingsController extends PaymentSettingsController
         $allStatus->cloud_mail_status = $request->cloud_cron ? $request->cloud_cron : 0;
         $allStatus->invoice_deletion_status = $request->invoice_cron ? $request->invoice_cron : 0;
         $allStatus->msg91_report_delete_status = $request->msg91_cron ? $request->msg91_cron : 0;
+        $allStatus->system_log_status = $request->systemlogs_cron ? $request->systemlogs_cron : 0;
         $allStatus->save();
         $this->saveConditions();
 
@@ -292,7 +367,7 @@ class BaseSettingsController extends PaymentSettingsController
 
         // $cloudDays = is_array($request->input('cloud_days')) ? $request->input('cloud_days') : [$request->input('cloud_days')];
 
-        \DB::table('expiry_mail_days')->update(['cloud_days' => $request->input('cloud_days'), 'invoice_days' => $request->input('invoice_days'), 'msg91_days' => $request->input('msg91_days')]);
+        \DB::table('expiry_mail_days')->update(['cloud_days' => $request->input('cloud_days'), 'invoice_days' => $request->input('invoice_days'), 'msg91_days' => $request->input('msg91_days'), 'system_logs_days' => $request->input('system_logs_days')]);
         ActivityLogDay::findOrFail(1)->update(['days' => $request->logdelday]);
 
         return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));

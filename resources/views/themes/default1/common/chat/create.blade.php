@@ -56,9 +56,9 @@
                         <!-- first name -->
                         {!! html()->label( __('message.show_script'), 'script')->class('required') !!}
                         <br>
-                        {!! html()->radio('on_registration', 1)->checked() !!}
+                        {!! html()->radio('on_registration', null ,1)->checked() !!}
                         <label for="on_registration" style="font-weight: normal !important;">{{ __('message.on_registration') }}</label>
-                        &nbsp;{!! html()->radio('on_registration', 0) !!}
+                        &nbsp;{!! html()->radio('on_registration', null, 0) !!}
                         <label for="on_every_page" style="font-weight: normal !important;">{{ __('message.on_every_page') }}</label>
                         @error('on_registration')
                         <span class="error-message"> {{$message}}</span>
@@ -67,9 +67,8 @@
 
                      <div class="col-md-3 form-group">
                         <!-- first name -->
-                         {!! html()->checkbox('google_analytics')->id('analytics') !!}
+                         {!! html()->checkbox('google_analytics', null, 1)->id('analytics') !!}
                          {!! html()->label( __('message.google_analytics'), 'analytics') !!}
-                         {!! html()->hidden('google_analytics', 0)->id('hidden_analytic') !!}
                         <!-- <input type="checkbox" name="google_analytics" id="analytics"> -->
                     </div>
                         <br>

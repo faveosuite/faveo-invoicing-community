@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Console\LoggableCommand;
 use DB;
-use Illuminate\Console\Command;
 
-class DropTables extends Command
+class DropTables extends LoggableCommand
 {
     /**
      * The name and signature of the console command.
@@ -36,7 +36,7 @@ class DropTables extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handleAndLog()
     {
         $database = env('DB_DATABASE');
         $droplist = \Schema::getConnection()->getDoctrineSchemaManager()->listTableNames();
