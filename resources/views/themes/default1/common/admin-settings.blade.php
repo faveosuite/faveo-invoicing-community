@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
- {{ __('message.settings') }}
+    {{ __('message.settings') }}
 @stop
 @section('content-header')
     <div class="col-sm-6">
@@ -8,7 +8,8 @@
     </div>
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{url('/')}}"><i class="fa fa-dashboard"></i> {{ __('message.home') }}
+                </a></li>
             <li class="breadcrumb-item active">{{ __('message.settings') }}</li>
         </ol>
     </div><!-- /.col -->
@@ -43,9 +44,11 @@
         }
 
 
-        .fw_400 { font-weight: 400; }
+        .fw_400 {
+            font-weight: 400;
+        }
 
-        .settingiconblue p{
+        .settingiconblue p {
             text-align: center;
             font-size: 16px;
             word-wrap: break-word;
@@ -54,14 +57,14 @@
             line-height: 30px;
         }
     </style>
-<div class="card card-secondary card-outline">
+    <div class="card card-secondary card-outline">
 
-    <!-- /.box-header -->
+        <!-- /.box-header -->
         <div class="card-header">
             <h3 class="card-title">{{ __('message.settings') }}</h3>
         </div>
-    <div class="card-body">
-        <div class="row">
+        <div class="card-body">
+            <div class="row">
                 <!--/.col-md-2-->
                 <div class="col-md-2 col-sm-6">
                     <div class="settingiconblue">
@@ -91,8 +94,7 @@
                 </div>
 
 
-
-                 <div class="col-md-2 col-sm-6">
+                <div class="col-md-2 col-sm-6">
                     <div class="settingiconblue">
                         <div class="settingdivblue">
                             <a class="icons-color" href="{{url('license-type')}}">
@@ -105,7 +107,7 @@
                     </div>
                 </div>
 
-                 <div class="col-md-2 col-sm-6">
+                <div class="col-md-2 col-sm-6">
                     <div class="settingiconblue">
                         <div class="settingdivblue">
                             <a class="icons-color" href="{{url('license-permissions')}}">
@@ -131,7 +133,7 @@
                     </div>
                 </div>
 
-                  <div class="col-md-2 col-sm-6">
+                <div class="col-md-2 col-sm-6">
                     <div class="settingiconblue">
                         <div class="settingdivblue">
                             <a class="icons-color" href="{{ url('payment-gateway-integration') }}">
@@ -144,7 +146,7 @@
                     </div>
                 </div>
 
-                 <div class="col-md-2 col-sm-6">
+                <div class="col-md-2 col-sm-6">
                     <div class="settingiconblue">
                         <div class="settingdivblue">
                             <a class="icons-color" href="{{url('system-managers')}}">
@@ -183,8 +185,8 @@
                     </div>
                 </div>
 
-                 <!--/.col-md-2-->
-                  <div class="col-md-2 col-sm-6">
+                <!--/.col-md-2-->
+                <div class="col-md-2 col-sm-6">
                     <div class="settingiconblue">
                         <div class="settingdivblue">
                             <a class="icons-color" href="{{url('LocalizedLicense')}}">
@@ -198,8 +200,8 @@
                 </div>
 
 
-                                <!--/.col-md-2-->
-                  <div class="col-md-2 col-sm-6">
+                <!--/.col-md-2-->
+                <div class="col-md-2 col-sm-6">
                     <div class="settingiconblue">
                         <div class="settingdivblue">
                             <a class="icons-color" href="{{url('debugg')}}">
@@ -211,106 +213,104 @@
                         <div class="text-center text-sm fw_400">{{ __('message.debug') }}</div>
                     </div>
                 </div>
-             @if(env('APP_DEBUG') == 'true')
+                @if(env('APP_DEBUG') == 'true')
                     <div class="col-md-2 col-sm-6">
-                    <div class="settingiconblue">
-                        <div class="settingdivblue">
-                            <a class="icons-color" href="{{url('clockwork/app')}}">
+                        <div class="settingiconblue">
+                            <div class="settingdivblue">
+                                <a class="icons-color" href="{{url('clockwork/app')}}">
                                 <span class="fa-stack fa-2x">
                                    <i class="fa fa-clock fa-stack-1x"></i>
                                 </span>
-                            </a>
+                                </a>
+                            </div>
+                            <div class="text-center text-sm fw_400">{{ __('message.clockwork') }}</div>
                         </div>
-                        <div class="text-center text-sm fw_400">{{ __('message.clockwork') }}</div>
                     </div>
-                </div>
-                <div class="col-md-2 col-sm-6">
-                    <div class="settingiconblue">
-                        <div class="settingdivblue">
-                            <a class="icons-color" href="{{url('pulse')}}">
+                    <div class="col-md-2 col-sm-6">
+                        <div class="settingiconblue">
+                            <div class="settingdivblue">
+                                <a class="icons-color" href="{{url('pulse')}}">
                                 <span class="fa-stack fa-2x">
                                     <i class="fas fa-heartbeat fa-stack-1x"></i>
                                 </span>
-                            </a>
+                                </a>
+                            </div>
+                            <div class="text-center text-sm fw_400">{{ __('message.pulse') }}</div>
                         </div>
-                        <div class="text-center text-sm fw_400">{{ __('message.pulse') }}</div>
                     </div>
-                </div>
                 @endif
                 <!--/.col-md-2-->
-                 <div class="col-md-2 col-sm-6">
-                <div class="settingiconblue">
-                    <div class="settingdivblue">
-                        <a class="icons-color" href="{{url('social-logins')}}">
+                <div class="col-md-2 col-sm-6">
+                    <div class="settingiconblue">
+                        <div class="settingdivblue">
+                            <a class="icons-color" href="{{url('social-logins')}}">
                             <span class="fa-stack fa-2x">
                                 <i class="fas fa-globe fa-stack-1x"></i>
                             </span>
-                        </a>
+                            </a>
+                        </div>
+                        <div class="text-center text-sm fw_400">{{ __('message.social_logins') }}</div>
                     </div>
-                    <div class="text-center text-sm fw_400">{{ __('message.social_logins') }}</div>
                 </div>
-            </div>
 
-            <div class="col-md-2 col-sm-6">
-                <div class="settingiconblue">
-                    <div class="settingdivblue">
-                        <a class="icons-color" href="{{url('languages')}}">
+                <div class="col-md-2 col-sm-6">
+                    <div class="settingiconblue">
+                        <div class="settingdivblue">
+                            <a class="icons-color" href="{{url('languages')}}">
                             <span class="fa-stack fa-2x">
                                 <i class="fas fa-language fa-stack-1x"></i>
                             </span>
-                        </a>
+                            </a>
+                        </div>
+                        <div class="text-center text-sm fw_400">{{ __('message.language') }}</div>
                     </div>
-                    <div class="text-center text-sm fw_400">{{ __('message.language') }}</div>
                 </div>
-            </div>
 
-            @if($mailSendingStatus==1)
-            <div class="col-md-2 col-sm-6">
-                <div class="settingiconblue">
-                    <div class="settingdivblue">
-                        <a class="icons-color" href="{{url('contact-option')}}">
+                @if($mailSendingStatus==1)
+                    <div class="col-md-2 col-sm-6">
+                        <div class="settingiconblue">
+                            <div class="settingdivblue">
+                                <a class="icons-color" href="{{url('contact-option')}}">
                             <span class="fa-stack fa-2x">
                                 <i class="fas fa-address-book fa-stack-1x"></i>
                             </span>
-                        </a>
+                                </a>
+                            </div>
+                            <div class="text-center text-sm fw_400">{{ __('message.contact_options') }}</div>
+                        </div>
                     </div>
-                    <div class="text-center text-sm fw_400">{{ __('message.contact_options') }}</div>
-                </div>
+                @endif
+
             </div>
-              @endif
 
-    </div>
-
-    </div>
+        </div>
 
 
         <!-- /.row -->
 
-    <!-- ./box-body -->
-</div>
-<!-- /.box -->
-
-<div class="card card-secondary card-outline">
-    <div class="card-header">
-        <h3 class="card-title">{{Lang::get('message.log_setting')}}</h3>
+        <!-- ./box-body -->
     </div>
-    <!-- /.box-header -->
-    <div class="card-body">
-        <div class="row">
+    <!-- /.box -->
+
+    <div class="card card-secondary card-outline">
+        <div class="card-header">
+            <h3 class="card-title">{{Lang::get('message.logs')}}</h3>
+        </div>
+        <!-- /.box-header -->
+        <div class="card-body">
+            <div class="row">
                 <!--/.col-md-2-->
 
-
-
-                 <div class="col-md-2 col-sm-6">
+                <div class="col-md-2 col-sm-6">
                     <div class="settingiconblue">
                         <div class="settingdivblue">
-                            <a class="icons-color" href="{{ url('log-viewer') }}">
+                            <a class="icons-color" href="{{ url('system-logs') }}">
                                 <span class="fa-stack fa-2x">
-                                    <i class="fa fa-bug fa-stack-1x"></i>
+                                    <i class="fa fa-history fa-stack-1x"></i>
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">{{ __('message.err_log') }}</div>
+                        <div class="text-center text-sm fw_400">{{ __('message.log_setting') }}</div>
                     </div>
                 </div>
 
@@ -319,7 +319,7 @@
                         <div class="settingdivblue">
                             <a class="icons-color" href="{{ url('settings/activitylog') }}">
                                 <span class="fa-stack fa-2x">
-                                    <i class="fa fa-history fa-stack-1x"></i>
+                                    <i class="fas fa-clipboard-list"></i>
                                 </span>
                             </a>
                         </div>
@@ -327,20 +327,7 @@
                     </div>
                 </div>
 
-                 <div class="col-md-2 col-sm-6">
-                    <div class="settingiconblue">
-                        <div class="settingdivblue">
-                            <a class="icons-color" href="{{ url('settings/maillog') }}">
-                                <span class="fa-stack fa-2x">
-                                    <i class="fa fa-envelope-square fa-stack-1x"></i>
-                                </span>
-                            </a>
-                        </div>
-                        <div class="text-center text-sm fw_400">{{ __('message.email_log') }}</div>
-                    </div>
-                </div>
-
-                   <div class="col-md-2 col-sm-6">
+                <div class="col-md-2 col-sm-6">
                     <div class="settingiconblue">
                         <div class="settingdivblue">
                             <a class="icons-color" href="{{ url('settings/paymentlog') }}">
@@ -353,57 +340,38 @@
                     </div>
                 </div>
 
-            <?php
-            $isMobileVerificationEnabled = \App\Model\Common\StatusSetting::first()->value('msg91_status');
-            ?>
-            @if($isMobileVerificationEnabled)
-                <div class="col-md-2 col-sm-6">
-                    <div class="settingiconblue">
-                        <div class="settingdivblue">
-                            <a class="icons-color" href="{{ url('sms/reports') }}">
+                <?php
+                $isMobileVerificationEnabled = \App\Model\Common\StatusSetting::first()->value('msg91_status');
+                ?>
+                @if($isMobileVerificationEnabled)
+                    <div class="col-md-2 col-sm-6">
+                        <div class="settingiconblue">
+                            <div class="settingdivblue">
+                                <a class="icons-color" href="{{ url('sms/reports') }}">
                                 <span class="fa-stack fa-2x">
                                     <i class="fas fa-comments"></i>
                                 </span>
-                            </a>
+                                </a>
+                            </div>
+                            <div class="text-center text-sm fw_400">{{ __('message.msg91_reports') }}</div>
                         </div>
-                        <div class="text-center text-sm fw_400">{{ __('message.msg91_reports') }}</div>
                     </div>
-                </div>
-            @endif
-
-          <!--        <div class="col-md-2 col-sm-6">
-                    <div class="settingiconblue">
-                        <div class="settingdivblue">
-                            <a href="{{ url('settings/maillog') }}">
-                                <span class="fa-stack fa-2x">
-                                    <i class="fa fa-archive fa-stack-1x"></i>
-                                </span>
-                            </a>
-                        </div>
-                        <p class="box-title" >{{Lang::get('message.cleanup_log')}}</p>
-                    </div>
-                </div> -->
-
-
-
-
-                 <!--/.col-md-2-->
-
+                @endif
+            </div>
+            <!-- /.row -->
         </div>
-        <!-- /.row -->
+        <!-- ./box-body -->
     </div>
-    <!-- ./box-body -->
-</div>
 
 
 
-<div class="card card-secondary card-outline">
-    <div class="card-header">
-        <h3 class="card-title">{{ __('message.email') }}</h3>
-    </div>
-    <!-- /.box-header -->
-    <div class="card-body">
-        <div class="row">
+    <div class="card card-secondary card-outline">
+        <div class="card-header">
+            <h3 class="card-title">{{ __('message.email') }}</h3>
+        </div>
+        <!-- /.box-header -->
+        <div class="card-body">
+            <div class="row">
                 <!--col-md-2-->
                 <div class="col-md-2 col-sm-6">
                     <div class="settingiconblue">
@@ -418,7 +386,7 @@
                     </div>
                 </div>
                 <!--/.col-md-2-->
-                 <!--col-md-2-->
+                <!--col-md-2-->
                 <div class="col-md-2 col-sm-6">
                     <div class="settingiconblue">
                         <div class="settingdivblue">
@@ -447,7 +415,7 @@
                 </div>
                 <!--/.col-md-2-->
 
-                 <div class="col-md-2 col-sm-6">
+                <div class="col-md-2 col-sm-6">
                     <div class="settingiconblue">
                         <div class="settingdivblue">
                             <a class="icons-color" href="{{url('queue')}}">
@@ -461,46 +429,46 @@
                 </div>
 
                 @if($isRedisConfigured)
-                 <div class="col-md-2 col-sm-6">
-                    <div class="settingiconblue">
-                        <div class="settingdivblue">
-                            <a class="icons-color" href="{{url('horizon')}}" target="_blank">
+                    <div class="col-md-2 col-sm-6">
+                        <div class="settingiconblue">
+                            <div class="settingdivblue">
+                                <a class="icons-color" href="{{url('horizon')}}" target="_blank">
                                 <span class="fa-stack fa-2x">
                                     <i class="fa fa-desktop fa-stack-1x"></i>
                                 </span>
-                            </a>
+                                </a>
+                            </div>
+                            <div class="text-center text-sm fw_400">{{ __('message.queue_monitoring') }}</div>
                         </div>
-                        <div class="text-center text-sm fw_400">{{ __('message.queue_monitoring') }}</div>
                     </div>
-                </div>
                 @endif
 
+            </div>
+            <!-- /.row -->
         </div>
-        <!-- /.row -->
+        <!-- ./box-body -->
     </div>
-    <!-- ./box-body -->
-</div>
 
-<div class="card card-secondary card-outline">
-    <div class="card-header">
-        <h3 class="card-title">{{ __('message.api') }}</h3>
-    </div>
-    <!-- /.box-header -->
-    <div class="card-body">
-        <div class="row">
+    <div class="card card-secondary card-outline">
+        <div class="card-header">
+            <h3 class="card-title">{{ __('message.api') }}</h3>
+        </div>
+        <!-- /.box-header -->
+        <div class="card-body">
+            <div class="row">
                 <!--col-md-2-->
-{{--                <div class="col-md-2 col-sm-6">--}}
-{{--                    <div class="settingiconblue">--}}
-{{--                        <div class="settingdivblue">--}}
-{{--                            <a class="icons-color" href="{{ url('github') }}">--}}
-{{--                                <span class="fa-stack fa-2x">--}}
-{{--                                    <i class="fab fa-github-square fa-stack-1x"></i>--}}
-{{--                                </span>--}}
-{{--                            </a>--}}
-{{--                        </div>--}}
-{{--                        <div class="text-center text-sm fw_400">Github</div>--}}
-{{--                    </div>--}}
-{{--                </div>--}}
+                {{--                <div class="col-md-2 col-sm-6">--}}
+                {{--                    <div class="settingiconblue">--}}
+                {{--                        <div class="settingdivblue">--}}
+                {{--                            <a class="icons-color" href="{{ url('github') }}">--}}
+                {{--                                <span class="fa-stack fa-2x">--}}
+                {{--                                    <i class="fab fa-github-square fa-stack-1x"></i>--}}
+                {{--                                </span>--}}
+                {{--                            </a>--}}
+                {{--                        </div>--}}
+                {{--                        <div class="text-center text-sm fw_400">Github</div>--}}
+                {{--                    </div>--}}
+                {{--                </div>--}}
                 <!--/.col-md-2-->
                 <!--col-md-2-->
                 <?php
@@ -508,21 +476,24 @@
                 $pipedriveStatus = \App\Model\Common\StatusSetting::first()->value('pipedrive_status');
                 $groupId = \App\Model\Common\PipedriveGroups::where('group_name', 'Person')->value('id');
                 ?>
-            @if($pipedriveStatus == 1)
-                <div class="col-md-2 col-sm-6">
-                    <div class="settingiconblue">
-                        <div class="settingdivblue">
-                            <a class="icons-color" href="{{ url('pipedrive/mapping/'. $groupId) }}">
+                @if($pipedriveStatus == 1)
+                    <div class="col-md-2 col-sm-6">
+                        <div class="settingiconblue">
+                            <div class="settingdivblue">
+                                <a class="icons-color" href="{{ url('pipedrive/mapping/'. $groupId) }}">
                                 <span class="fa-stack fa-2x">
                                     {{--pipedrive svg--}}
-                                   <svg width="48px" height="48px" viewBox="0 0 304 304" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g transform="translate(67, 44)"><path fill="#3c8dbc" d="M59.68,81.18c0,20.36,10.33,42.32,33.05,42.32c16.86,0,33.9-13.16,33.9-42.62c0-25.83-13.4-43.17-33.33-43.17c-16.25,0-33.6,11.41-33.6,43.17ZM101.3,0c40.75,0,68.15,32.27,68.15,80.31c0,47.29-28.87,80.31-69.13,80.31c-19.67,0-32.27-8.43-38.87-14.52c0.05,1.45,0.08,3.07,0.08,4.8v64.12H18.33V44.16c0-2.48-0.8-3.29-3.24-3.29H0.55V3.47h35.42c16.31,0,20.49,8.3,21.28,14.7C63.87,10.75,77.59,0,101.3,0Z"/></g></g></svg>
+                                   <svg width="48px" height="48px" viewBox="0 0 304 304"
+                                        xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g
+                                                   transform="translate(67, 44)"><path fill="#3c8dbc"
+                                                                                       d="M59.68,81.18c0,20.36,10.33,42.32,33.05,42.32c16.86,0,33.9-13.16,33.9-42.62c0-25.83-13.4-43.17-33.33-43.17c-16.25,0-33.6,11.41-33.6,43.17ZM101.3,0c40.75,0,68.15,32.27,68.15,80.31c0,47.29-28.87,80.31-69.13,80.31c-19.67,0-32.27-8.43-38.87-14.52c0.05,1.45,0.08,3.07,0.08,4.8v64.12H18.33V44.16c0-2.48-0.8-3.29-3.24-3.29H0.55V3.47h35.42c16.31,0,20.49,8.3,21.28,14.7C63.87,10.75,77.59,0,101.3,0Z"/></g></g></svg>
                                 </span>
-                            </a>
+                                </a>
+                            </div>
+                            <div class="text-center text-sm fw_400">Pipedrive</div>
                         </div>
-                        <div class="text-center text-sm fw_400">Pipedrive</div>
                     </div>
-                </div>
-            @endif
+                @endif
                 <!--/.col-md-2-->
                 <div class="col-md-2 col-sm-6">
                     <div class="settingiconblue">
@@ -536,19 +507,19 @@
                         <div class="text-center text-sm fw_400">{{ __('message.third_party_integrations') }}</div>
                     </div>
                 </div>
+            </div>
+            <!-- /.row -->
         </div>
-        <!-- /.row -->
+        <!-- ./box-body -->
     </div>
-    <!-- ./box-body -->
-</div>
 
-<div class="card card-secondary card-outline">
-    <div class="card-header">
-        <h3 class="card-title">{{ __('message.common') }}</h3>
-    </div>
-    <!-- /.box-header -->
-    <div class="card-body">
-        <div class="row">
+    <div class="card card-secondary card-outline">
+        <div class="card-header">
+            <h3 class="card-title">{{ __('message.common') }}</h3>
+        </div>
+        <!-- /.box-header -->
+        <div class="card-body">
+            <div class="row">
                 <!--/.col-md-2-->
                 <div class="col-md-2 col-sm-6">
                     <div class="settingiconblue">
@@ -577,7 +548,7 @@
                     </div>
                 </div>
                 <!--/.col-md-2-->
-                 <div class="col-md-2 col-sm-6">
+                <div class="col-md-2 col-sm-6">
                     <div class="settingiconblue">
                         <div class="settingdivblue">
                             <a class="icons-color" href="{{url('get-country')}}">
@@ -591,18 +562,18 @@
                 </div>
 
 
+            </div>
+            <!-- /.row -->
         </div>
-        <!-- /.row -->
+        <!-- ./box-body -->
     </div>
-    <!-- ./box-body -->
-</div>
-<div class="card card-secondary card-outline">
-    <div class="card-header">
-        <h3 class="card-title">{{ __('message.widgets') }}</h3>
-    </div>
-    <!-- /.box-header -->
-    <div class="card-body">
-        <div class="row">
+    <div class="card card-secondary card-outline">
+        <div class="card-header">
+            <h3 class="card-title">{{ __('message.widgets') }}</h3>
+        </div>
+        <!-- /.box-header -->
+        <div class="card-body">
+            <div class="row">
                 <!--/.col-md-2-->
                 <div class="col-md-2 col-sm-6">
                     <div class="settingiconblue">
@@ -632,7 +603,7 @@
                 </div>
                 <!--/.col-md-2-->
 
-                    <div class="col-md-2 col-sm-6">
+                <div class="col-md-2 col-sm-6">
                     <div class="settingiconblue">
                         <div class="settingdivblue">
                             <a class="icons-color" href="{{ url('chat') }}">
@@ -644,20 +615,20 @@
                         <div class="text-center text-sm fw_400">{{ __('message.analytics_custom_code') }}</div>
                     </div>
                 </div>
+            </div>
+            <!-- /.row -->
         </div>
-        <!-- /.row -->
+        <!-- ./box-body -->
     </div>
-    <!-- ./box-body -->
-</div>
 
-<script>
-     $('ul.nav-sidebar a').filter(function() {
-        return this.id == 'setting';
-    }).addClass('active');
+    <script>
+        $('ul.nav-sidebar a').filter(function () {
+            return this.id == 'setting';
+        }).addClass('active');
 
-    // for treeview
-    $('ul.nav-treeview a').filter(function() {
-        return this.id == 'setting';
-    }).parentsUntil(".nav-sidebar > .nav-treeview").addClass('menu-open').prev('a').addClass('active');
-</script>
+        // for treeview
+        $('ul.nav-treeview a').filter(function () {
+            return this.id == 'setting';
+        }).parentsUntil(".nav-sidebar > .nav-treeview").addClass('menu-open').prev('a').addClass('active');
+    </script>
 @stop

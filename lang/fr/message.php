@@ -2686,6 +2686,11 @@ return [
     'manager_settings_updated_successfully' => 'Les paramètres du gestionnaire ont été mis à jour avec succès.',
 
     'user_position_prohibited_if' => 'Le champ poste n’est pas autorisé lorsque le rôle est utilisateur.',
+    'system_logs_deletion' => 'Suppression des journaux système',
+    'please_enable_system_logs_deletion' => 'Veuillez activer le cron des journaux système',
+    'cron_trigger_deletion_system_logs' => 'Ce cron supprimera automatiquement les journaux système après la période spécifiée.',
+    'enable_system_logs_cron' => 'Activer la suppression des journaux système',
+    'system_logs_deletion_older_than' => 'Suppression des journaux système datant de plus de...',
     'delete_invoice_older' => 'Supprimer les factures antérieures à...',
     'deletion_cloud_subscription' => 'Supprimer les abonnements cloud expirés depuis plus de...',
     'msg_service_down' => 'Nous rencontrons actuellement des problèmes avec notre service OTP. Veuillez réessayer sous peu. Nous travaillons à résoudre ce problème au plus vite.',

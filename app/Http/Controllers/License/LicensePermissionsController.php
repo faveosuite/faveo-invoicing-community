@@ -85,7 +85,7 @@ class LicensePermissionsController extends Controller
 
             ->make(true);
         } catch (\Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
 
             return redirect()->back()->with('fails', $ex->getMessage());
         }
@@ -124,7 +124,7 @@ class LicensePermissionsController extends Controller
 
             return successResponse(__('message.permissions_updated_successfully'));
         } catch (\Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
             $result = [$ex->getMessage()];
 
             return response()->json(compact('result'), 500);
@@ -190,7 +190,7 @@ class LicensePermissionsController extends Controller
                 'generateSupportExpiryDate' => $generateSupportExpiryDate, 'downloadPermission' => $downloadPermission, 'noPermissions' => $noPermissions,
                 'allowDownloadTillExpiry' => $allowDownloadTillExpiry, ];
         } catch (\Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
 
             return redirect()->back()->with('fails', $ex->getMessage());
         }

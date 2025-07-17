@@ -9,6 +9,9 @@
         <testsuite name="Unit">
             <directory>./tests/Unit</directory>
         </testsuite>
+        <testsuite name="modules">
+            <directory>./app/BillingLog</directory>
+        </testsuite>
     </testsuites>
     <coverage>
     </coverage>

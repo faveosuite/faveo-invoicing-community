@@ -54,7 +54,7 @@ class CommentController extends Controller
 
             return redirect()->back()->with('success', \Lang::get('message.saved-successfully'));
         } catch (Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
 
             return redirect()->back()->with('fails', $ex->getMessage());
         }
@@ -75,7 +75,7 @@ class CommentController extends Controller
 
             return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
         } catch (Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
 
             return redirect()->back()->with('fails', $ex->getMessage());
         }
@@ -95,7 +95,7 @@ class CommentController extends Controller
             return successResponse(__('message.comment_deleted_successfully'));
             // return redirect()->back()->with('success', \Lang::get('message.deleted-successfully'));
         } catch (Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
 
             return errorResponse($ex->getMessage());
         }

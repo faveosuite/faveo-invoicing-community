@@ -75,7 +75,7 @@ class LoginController extends Controller
 
             return view('themes.default1.front.auth.login-register', compact('bussinesses', 'location', 'status', 'apiKeys', 'analyticsTag', 'google_status', 'github_status', 'linkedin_status', 'twitter_status'));
         } catch (\Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
             $error = $ex->getMessage();
         }
     }

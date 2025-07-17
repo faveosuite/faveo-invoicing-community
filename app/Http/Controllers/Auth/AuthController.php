@@ -433,7 +433,7 @@ class AuthController extends BaseAuthController
             'reply_email' => $setting->company_email,
         ];
         $mail = new \App\Http\Controllers\Common\PhpMailController();
-        $mail->SendEmail($from, $to, $template_data, $template_name, $replace, 'sales_manager_email', $bcc);
+        $mail->SendEmail($from, $to, $template_data, $template_name, 'sales-manager-mail', $replace, $template->type()->value('name'), $bcc);
     }
 
     public function accountManagerMail($user, $bcc = [])
@@ -470,7 +470,7 @@ class AuthController extends BaseAuthController
             'reply_email' => $setting->company_email,
         ];
         $mail = new \App\Http\Controllers\Common\PhpMailController();
-        $mail->SendEmail($from, $to, $template_data, $template_name, $replace, 'account_manager_email', $bcc);
+        $mail->SendEmail($from, $to, $template_data, $template_name, 'account-manager-mail', $replace, $template->type()->value('name'), $bcc);
     }
 
     public function verify()
@@ -518,11 +518,7 @@ class AuthController extends BaseAuthController
                 $this->addUserToMailchimp($user, $status->mailchimp_status);
             }
         } catch (\Exception $exception) {
-            \Log::error('Failed to add user to external services', [
-                'user_id' => $user->email,
-                'message' => $exception->getMessage(),
-                'trace' => $exception->getTraceAsString(),
-            ]);
+            \Logger::exception($exception);
         }
     }
 
