@@ -2701,6 +2701,11 @@ return [
     'manager_settings_updated_successfully' => 'Cài đặt quản lý đã được cập nhật thành công.',
 
     'user_position_prohibited_if' => 'Trường chức vụ không được phép khi vai trò là người dùng.',
+    'system_logs_deletion' => 'Xóa nhật ký hệ thống',
+    'please_enable_system_logs_deletion' => 'Vui lòng bật cron xóa nhật ký hệ thống',
+    'cron_trigger_deletion_system_logs' => 'Cron này sẽ tự động xóa nhật ký hệ thống sau khoảng thời gian được chỉ định.',
+    'enable_system_logs_cron' => 'Bật xóa nhật ký hệ thống',
+    'system_logs_deletion_older_than' => 'Xóa nhật ký hệ thống cũ hơn..',
     'cloud_plan_error' => 'Vui lòng xóa sản phẩm đám mây hoặc liên kết nó với một gói khác.',
 
     'invalid_code_2fa' => 'Mã không hợp lệ. Vui lòng thử lại.',

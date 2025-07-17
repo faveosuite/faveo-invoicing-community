@@ -2702,6 +2702,12 @@ return [
     'manager_settings_updated_successfully' => 'マネージャーの設定が正常に更新されました。',
 
     'user_position_prohibited_if' => '役割がユーザーの場合、ポジションフィールドは使用できません。',
+
+    'system_logs_deletion' => 'システムログの削除',
+    'please_enable_system_logs_deletion' => 'システムログのcronを有効にしてください',
+    'cron_trigger_deletion_system_logs' => 'このcronは、指定された期間が過ぎたシステムログを自動的に削除します。',
+    'enable_system_logs_cron' => 'システムログの削除を有効にする',
+    'system_logs_deletion_older_than' => 'システムログの削除対象（指定期間）',
     'cloud_plan_error' => 'クラウド製品を削除するか、別のプランにリンクしてください。',
 
     'invalid_code_2fa' => '無効なコードです。もう一度お試しください。',

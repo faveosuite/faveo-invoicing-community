@@ -86,7 +86,7 @@ class BaseOrderController extends ExtendedOrderController
 
             return 'success';
         } catch (\Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
 
             throw new \Exception($ex->getMessage());
         }
@@ -141,7 +141,7 @@ class BaseOrderController extends ExtendedOrderController
                 $this->addtoMailchimp($product, $user_id, $item);
             }
         } catch (\Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
 
             throw new \Exception($ex->getMessage());
         }
@@ -233,7 +233,7 @@ class BaseOrderController extends ExtendedOrderController
             \Session::forget('increase-decrease-days');
             \Session::forget('increase-decrease-days-dont-cloud');
         } catch (\Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
 
             throw new \Exception(__('message.cannot_generate_subscription').'.'.$ex->getMessage());
         }
@@ -379,7 +379,7 @@ class BaseOrderController extends ExtendedOrderController
             $type = $temp_type->where('id', $type_id)->first()->name;
         }
         $mail = new \App\Http\Controllers\Common\PhpMailController();
-        $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $replace, $type);
+        $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
 
         if ($order->invoice->grand_total) {
             SettingsController::sendPaymentSuccessMailtoAdmin($order->invoice, $order->invoice->grand_total, $user, $product);

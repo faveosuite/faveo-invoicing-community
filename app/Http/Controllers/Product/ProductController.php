@@ -247,7 +247,7 @@ class ProductController extends BaseProductController
 
             return $response;
         } catch (\Exception $e) {
-            app('log')->error($e->getMessage());
+            \Logger::exception($e);
             $message = [$e->getMessage()];
             $response = ['success' => 'false', 'message' => $message];
 
@@ -364,7 +364,7 @@ class ProductController extends BaseProductController
 
             return redirect()->back()->with('success', \Lang::get('message.saved-successfully'));
         } catch (\Exception $e) {
-            app('log')->error($e->getMessage());
+            \Logger::exception($e);
 
             return redirect()->back()->with('fails', $e->getMessage());
         }

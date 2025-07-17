@@ -9,12 +9,6 @@ return  [
             0 => 'Anhskohbo\\NoCaptcha\\NoCaptchaServiceProvider',
         ],
     ],
-    'arcanedev/log-viewer' => [
-        'providers' => [
-            0 => 'Arcanedev\\LogViewer\\LogViewerServiceProvider',
-            1 => 'Arcanedev\\LogViewer\\Providers\\DeferredServicesProvider',
-        ],
-    ],
     'barryvdh/laravel-debugbar' => [
         'aliases' => [
             'Debugbar' => 'Barryvdh\\Debugbar\\Facades\\Debugbar',
@@ -173,11 +167,6 @@ return  [
     'rachidlaasri/laravel-installer' => [
         'providers' => [
             0 => 'RachidLaasri\\LaravelInstaller\\Providers\\LaravelInstallerServiceProvider',
-        ],
-    ],
-    'shvetsgroup/laravel-email-database-log' => [
-        'providers' => [
-            0 => 'ShvetsGroup\\LaravelEmailDatabaseLog\\LaravelEmailDatabaseLogServiceProvider',
         ],
     ],
     'simplesoftwareio/simple-qrcode' => [

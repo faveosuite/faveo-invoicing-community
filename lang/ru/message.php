@@ -2703,6 +2703,11 @@ return [
     'manager_settings_updated_successfully' => 'Настройки менеджера успешно обновлены.',
 
     'user_position_prohibited_if' => 'Поле должности недопустимо, если роль — пользователь.',
+    'system_logs_deletion' => 'Удаление системных журналов',
+    'please_enable_system_logs_deletion' => 'Пожалуйста, включите cron для системных журналов',
+    'cron_trigger_deletion_system_logs' => 'Этот cron будет автоматически удалять системные журналы по истечении указанного периода.',
+    'enable_system_logs_cron' => 'Включить удаление системных журналов',
+    'system_logs_deletion_older_than' => 'Удаление системных журналов старше, чем...',
     'cloud_plan_error' => 'Пожалуйста, удалите облачный продукт или привяжите его к другому тарифному плану.',
 
     'invalid_code_2fa' => 'Неверный код. Пожалуйста, попробуйте снова.',
