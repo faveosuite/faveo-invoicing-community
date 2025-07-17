@@ -95,7 +95,7 @@ class CartController extends BaseCartController
 
             return redirect('show/cart');
         } catch (\Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
 
             return redirect()->back()->with('fails', $ex->getMessage());
         }
@@ -144,7 +144,7 @@ class CartController extends BaseCartController
 
             return $items;
         } catch (\Exception $e) {
-            app('log')->error($e->getMessage());
+            \Logger::exception($e);
             throw new \Exception($e->getMessage());
         }
     }
@@ -187,7 +187,7 @@ class CartController extends BaseCartController
 
             return view('themes.default1.front.cart', compact('cartCollection'));
         } catch (\Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
 
             return redirect()->back()->with('fails', $ex->getMessage());
         }
@@ -279,7 +279,7 @@ class CartController extends BaseCartController
 
             return $cost;
         } catch (\Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
             throw new \Exception($ex->getMessage());
         }
     }

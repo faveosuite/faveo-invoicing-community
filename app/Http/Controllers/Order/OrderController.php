@@ -642,7 +642,7 @@ class OrderController extends BaseOrderController
                 return response()->json(['message' => __('message.cannot_sync_queue_driver')], 400);
             }
         } catch (\Exception $e) {
-            \Log::error('Export failed: '.$e->getMessage());
+            \Logger::exception($e);
 
             return response()->json(['message' => $e->getMessage()], 500);
         }

@@ -2699,6 +2699,12 @@ return [
     'manager_settings_updated_successfully' => 'Manager settings were successfully updated.',
 
     'user_position_prohibited_if' => 'The position field is not allowed when the role is set to user.',
+
+    'system_logs_deletion' => 'System Logs Deletion',
+    'please_enable_system_logs_deletion' => 'Please enable system logs cron',
+    'cron_trigger_deletion_system_logs' => 'This cron will automatically delete system logs after the specified period.',
+    'enable_system_logs_cron' => 'Enable system logs deletion',
+    'system_logs_deletion_older_than' => 'System Logs Deletion Older than..',
     'delete_invoice_older' => 'Delete invoices older than...',
     'deletion_cloud_subscription' => 'Delete cloud subscriptions expired more than...',
     'msg_service_down' => 'We’re currently experiencing issues with our OTP service. Please try again shortly. We’re working to resolve this as quickly as possible.',

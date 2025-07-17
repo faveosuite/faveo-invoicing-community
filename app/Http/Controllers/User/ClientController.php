@@ -345,7 +345,7 @@ class ClientController extends AdvanceSearchController
                     'is2faEnabled', 'email', 'mobile')
             );
         } catch (\Exception $ex) {
-            app('log')->info($ex->getMessage());
+            \Logger::exception($ex);
 
             return redirect()->back()->with('fails', $ex->getMessage());
         }
@@ -417,7 +417,7 @@ class ClientController extends AdvanceSearchController
                 )
             );
         } catch (\Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
 
             return redirect()->back()->with('fails', $ex->getMessage());
         }
@@ -438,7 +438,7 @@ class ClientController extends AdvanceSearchController
             // \Session::put('test', 1000);
             return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
         } catch (\Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
 
             return redirect()->back()->with('fails', $ex->getMessage());
         }
@@ -543,7 +543,7 @@ class ClientController extends AdvanceSearchController
 
         // Send the email
         $mail = new \App\Http\Controllers\Common\PhpMailController();
-        $mail->SendEmail($settings->email, $user->email, $template->data, $template->name, $replace, $type);
+        $mail->SendEmail($settings->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
     }
 
     /**
@@ -606,7 +606,7 @@ class ClientController extends AdvanceSearchController
                 return response()->json(['message' => __('message.cannot_sync_queue_driver')], 400);
             }
         } catch (\Exception $e) {
-            \Log::error(__('message.export_failed').$e->getMessage());
+            \Logger::exception($e);
 
             return response()->json(['message' => $e->getMessage()], 500);
         }

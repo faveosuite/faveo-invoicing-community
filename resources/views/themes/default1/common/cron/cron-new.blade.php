@@ -1,50 +1,50 @@
 @section('custom-css')
 
-<style type="text/css">
-.noselect {
-  -webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Safari */
-     -khtml-user-select: none; /* Konqueror HTML */
-       -moz-user-select: none; /* Firefox */
-        -ms-user-select: none; /* Internet Explorer/Edge */
+    <style type="text/css">
+        .noselect {
+            -webkit-touch-callout: none; /* iOS Safari */
+            -webkit-user-select: none; /* Safari */
+            -khtml-user-select: none; /* Konqueror HTML */
+            -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* Internet Explorer/Edge */
             user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome and Opera */
-}
-</style>
+        }
+    </style>
 @stop
 
-      {{-- alert block --}}
-        <div class="alert alert-success cron-success alert-dismissable" style="display: none;">
-            <i class="fa  fa-check-circle"></i>
-            <span class="alert-success-message"></span>
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-        </div>
-        <div class="alert alert-danger cron-danger" style="display: none;">
-            <i class="fa fa-ban"></i>
-            <span class="alert-danger-message"></span>
-             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-        </div>
-        {{-- alert block end --}}
-        @if(!$execEnabled)
-        <div class="alert alert-warning">
-            {{Lang::get('message.please_enable_php_exec_for_cronjob_check')}}
-        </div>
-        @endif
+{{-- alert block --}}
+<div class="alert alert-success cron-success alert-dismissable" style="display: none;">
+    <i class="fa  fa-check-circle"></i>
+    <span class="alert-success-message"></span>
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+</div>
+<div class="alert alert-danger cron-danger" style="display: none;">
+    <i class="fa fa-ban"></i>
+    <span class="alert-danger-message"></span>
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+</div>
+{{-- alert block end --}}
+@if(!$execEnabled)
+    <div class="alert alert-warning">
+        {{Lang::get('message.please_enable_php_exec_for_cronjob_check')}}
+    </div>
+@endif
 
 
 {!! html()->modelForm($status, 'PATCH', url('post-scheduler'))->id('Form')->open() !!}
 <div class="card-header">
-        <h4 class="card-title">{{Lang::get('message.cron')}} </h4>
+    <h4 class="card-title">{{Lang::get('message.cron')}} </h4>
 
 
-    </div>
+</div>
 
-    <div class="card-body table-responsive"style="overflow:hidden;">
-  <div class="row">
-                <div class="col-md-12">
-                   <p>{{ Lang::get('message.copy-cron-command-description')}} </p>
-                </div>
+<div class="card-body table-responsive"style="overflow:hidden;">
+    <div class="row">
+        <div class="col-md-12">
+            <p>{{ Lang::get('message.copy-cron-command-description')}} </p>
         </div>
+    </div>
 
 
     <div class="alert  alert-dismissable" style="background: #F3F3F3">
@@ -381,6 +381,43 @@
             </div><!-- /.info-box-content -->
 
         </div><!-- /.info-box -->
+
+        <div class="col-md-6">
+            <div class="info-box">
+                <span class="info-box-icon bg-info" style="height: 70px;"><i class="fas fa-server"></i></span>
+                <div class="info-box-content" style="display: block;">
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {!! html()->label()->for('systemlogs_fetching')->html(
+                                Lang::get('message.system_logs_deletion') .
+                                ' <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top"
+                                title="' . Lang::get('message.cron_trigger_deletion_system_logs') . '"></i>'
+                            ) !!}
+                            <br>
+                            {!! html()->checkbox('systemlogs_cron', $condition->checkActiveJob()['systemLogs'], 1)
+                                ->id('systemlogs_fetching')
+                            !!}
+                            &nbsp;{{ Lang::get('message.enable_system_logs_cron') }}
+                        </div>
+                    </div>
+
+                    <div class="col-md-6" id="systemlogs">
+                        {!! html()->select('systemlogs-commands', $commands, $condition->getConditionValue('systemLogs')['condition'])
+                            ->class('form-control')
+                            ->id('systemlogs-command')
+                        !!}
+                        <div id="systemlogs-daily-at">
+                            {!! html()->text('systemlogs-dailyAt', $condition->getConditionValue('systemLogs')['at'])
+                                ->class('form-control time-picker')
+                                ->placeholder('HH:MM')
+                            !!}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 <div class="card-footer">
@@ -431,6 +468,7 @@
             { checkbox: 'postsub_fetching', section: 'postsubfetching', select: 'postsubfetching-command', daily: 'postsubfetching-daily-at' },
             { checkbox: 'invoice_fetching', section: 'invoice', select: 'invoice-command', daily: 'invoice-daily-at' },
             { checkbox: 'msg91_fetching', section: 'msg91', select: 'msg91-command', daily: 'msg91-daily-at' },
+            { checkbox: 'systemlogs_fetching', section: 'systemlogs', select: 'systemlogs-command', daily: 'systemlogs-daily-at' },
         ];
 
         config.forEach(({ checkbox, section, select, daily }) => {

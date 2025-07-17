@@ -14,7 +14,6 @@ use App\User;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
-use Illuminate\Support\Facades\Log;
 use Pipedrive\versions\v1\Api;
 use Pipedrive\versions\v1\ApiException;
 use Pipedrive\versions\v1\Configuration as PipedriveConfiguration;
@@ -80,7 +79,7 @@ class PipedriveController extends Controller
         } catch (ApiException $e) {
             throw new \Exception(json_decode($e->getResponseBody())->error);
         } catch (\Exception $e) {
-            Log::error('Pipedrive API error: '.$e->getMessage());
+            \Logger::exception($e);
 
             return [];
         }
@@ -104,7 +103,7 @@ class PipedriveController extends Controller
         } catch (ApiException $e) {
             return json_decode($e->getResponseBody());
         } catch (\Exception $e) {
-            Log::error('Pipedrive action error: '.$e->getMessage());
+            \Logger::exception($e);
 
             return null;
         }
@@ -192,7 +191,7 @@ class PipedriveController extends Controller
 
             return $orgId;
         } catch (\Exception $e) {
-            Log::error('Add/Get organization error: '.$e->getMessage());
+            \Logger::exception($e);
 
             throw new \Exception($e->getMessage());
         }
