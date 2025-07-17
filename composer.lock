@@ -8126,83 +8126,6 @@
             "time": "2024-10-27T17:38:32+00:00"
         },
         {
-            "name": "shvetsgroup/laravel-email-database-log",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/sandesh556/laravel-email-database-log.git",
-                "reference": "3ccd49bf40282ae6a42b46c1ab1ec0bb031cc329"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/sandesh556/laravel-email-database-log/zipball/3ccd49bf40282ae6a42b46c1ab1ec0bb031cc329",
-                "reference": "3ccd49bf40282ae6a42b46c1ab1ec0bb031cc329",
-                "shasum": ""
-            },
-            "require": {
-                "doctrine/dbal": "^3.3",
-                "illuminate/support": "^11.0",
-                "laravel/framework": "^11.0",
-                "nesbot/carbon": "^2.0",
-                "php": "^8.2"
-            },
-            "require-dev": {
-                "orchestra/testbench": "^9.0",
-                "phpunit/phpunit": "^11.0"
-            },
-            "default-branch": true,
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "ShvetsGroup\\LaravelEmailDatabaseLog\\LaravelEmailDatabaseLogServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-0": {
-                    "ShvetsGroup\\LaravelEmailDatabaseLog\\": "src/"
-                }
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "ShvetsGroup\\LaravelEmailDatabaseLog\\Tests\\": "tests"
-                }
-            },
-            "scripts": {
-                "test": [
-                    "vendor/bin/phpunit"
-                ],
-                "test-coverage": [
-                    "vendor/bin/phpunit --coverage-html coverage"
-                ]
-            },
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Alexander Shvets",
-                    "email": "neochief@shvetsgroup.com"
-                },
-                {
-                    "name": "Spaan Productions",
-                    "email": "info@spaanproductions.nl",
-                    "role": "Developer"
-                }
-            ],
-            "description": "A simple database logger for all outgoing emails sent by Laravel website.",
-            "keywords": [
-                "laravel",
-                "mail",
-                "markdown"
-            ],
-            "support": {
-                "source": "https://github.com/sandesh556/laravel-email-database-log/tree/master"
-            },
-            "time": "2024-12-16T06:31:26+00:00"
-        },
-        {
             "name": "simplesoftwareio/simple-qrcode",
             "version": "4.2.0",
             "source": {
@@ -16793,7 +16716,6 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "itsgoingd/clockwork": 20,
-        "shvetsgroup/laravel-email-database-log": 20,
         "slavka/mailchimp-apiv3": 20
     },
     "prefer-stable": false,
