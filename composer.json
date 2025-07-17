@@ -58,7 +58,6 @@
         "predis/predis": "^2.0",
         "rachidlaasri/laravel-installer": "~4.1.0",
         "razorpay/razorpay": "^2.8",
-        "shvetsgroup/laravel-email-database-log": "dev-master",
         "simplesoftwareio/simple-qrcode": "^4.2",
         "slavka/mailchimp-apiv3": "dev-master#d4c99f784559ae791eece8341faafdd79d41a353",
         "spatie/laravel-activitylog": "^4.5",
