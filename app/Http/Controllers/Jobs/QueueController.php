@@ -63,7 +63,7 @@ class QueueController extends Controller
         ->rawColumns(['checkbox', 'name', 'status', 'action'])
         ->make(true);
         } catch (\Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
 
             return redirect()->back()->with('fails', $ex->getMessage());
         }

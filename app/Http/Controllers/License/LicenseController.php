@@ -6,7 +6,6 @@ use App\ApiKey;
 use App\Http\Controllers\Controller;
 use App\Model\Order\Order;
 use App\Model\Product\Product;
-use Illuminate\Support\Facades\Log;
 
 class LicenseController extends Controller
 {
@@ -492,7 +491,7 @@ class LicenseController extends Controller
 
             $this->postCurl($url.'api/admin/license/deactivate', "api_key_secret=$api_key_secret&license_code=$licenseCode", $token);
         } catch (\Exception $ex) {
-            Log::error($ex->getMessage());
+            \Logger::exception($ex);
 
             return;
         }
