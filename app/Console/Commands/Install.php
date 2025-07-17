@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\Console\LoggableCommand;
 use App\Http\Controllers\BillingInstaller\BillingDependencyController;
 use App\Http\Controllers\BillingInstaller\InstallerController;
-use Illuminate\Console\Command;
 
-class Install extends Command
+class Install extends LoggableCommand
 {
     /**
      * The name and signature of the console command.
@@ -55,7 +55,7 @@ class Install extends Command
      *
      * @return void
      */
-    public function handle()
+    public function handleAndLog()
     {
         try {
             $this->displayArtLogo();

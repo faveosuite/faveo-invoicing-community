@@ -81,7 +81,7 @@ class ExtendedOrderController extends Controller
 
             return $licCode;
         } catch (\Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
 
             throw new \Exception($ex->getMessage());
         }
