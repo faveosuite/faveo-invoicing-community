@@ -1656,7 +1656,7 @@ setTimeout(function() {
                 });
 
                 // Add event listeners for the dynamically added language options
-                $(document).on('click', '.dropdown-item', function() {
+                $('#language-dropdown').on('click', '.dropdown-item', function() {
                     const selectedLanguage = $(this).data('locale');
                     const mappedLocale = localeMap[selectedLanguage] || selectedLanguage;
                     const flagClass = 'flag-icon flag-icon-' + mappedLocale;

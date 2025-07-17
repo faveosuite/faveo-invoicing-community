@@ -164,7 +164,19 @@
                      <div class="col-md-3 form-group {{ $errors->has('company_size') ? 'has-error' : '' }}">
                         <!-- email -->
                          {!! html()->label( __('message.company_size'), 'company_size') !!}
-                         {!! html()->select('company_size')->options(['' => __('message.choose')] + ['Company Size' => $sizes])->class('form-control chosen-select select2')->attribute('data-live-search', 'true')->attribute('data-live-search-placeholder', 'Search')->attribute('data-dropup-auto', 'false') !!}
+                         <select name="company_size" class="form-control chosen-select select2"
+                                 data-live-search="true"
+                                 data-live-search-placeholder="Search"
+                                 data-dropup-auto="false">
+                             <option value="">{{ __('message.choose') }}</option>
+                             <optgroup label="Company Size">
+                                 @foreach($sizes as $key => $label)
+                                     <option value="{{ $key }}" {{ old('company_size', $user->company_size) == $key ? 'selected' : '' }}>
+                                         {{ $label }}
+                                     </option>
+                                 @endforeach
+                             </optgroup>
+                         </select>
                          @error('company_size')
                          <span class="error-message"> {{$message}}</span>
                          @enderror

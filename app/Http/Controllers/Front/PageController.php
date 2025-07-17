@@ -95,7 +95,7 @@ class PageController extends Controller
 
             return view('themes.default1.front.page.create', compact('parents'));
         } catch (\Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
 
             return redirect()->back()->with('fails', $ex->getMessage());
         }
@@ -142,7 +142,7 @@ class PageController extends Controller
                 return redirect()->back()->with('fails', trans('message.limit_exceed'));
             }
         } catch (\Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
 
             return redirect()->back()->with('fails', $ex->getMessage());
         }
@@ -530,7 +530,7 @@ class PageController extends Controller
 
             return view('themes.default1.common.template.shoppingcart', compact('templates', 'headline', 'tagline', 'description', 'status'));
         } catch (\Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
 
             return redirect()->back()->with('fails', $ex->getMessage());
         }
@@ -686,7 +686,7 @@ class PageController extends Controller
 
             return $price;
         } catch (\Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
 
             return redirect()->back()->with('fails', $ex->getMessage());
         }
@@ -783,7 +783,7 @@ class PageController extends Controller
 
             return $priceDescription;
         } catch (\Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
 
             return redirect()->back()->with('fails', $ex->getMessage());
         }
@@ -840,7 +840,7 @@ class PageController extends Controller
 
             return '';
         } catch (\Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
 
             return '';
         }
@@ -918,7 +918,7 @@ class PageController extends Controller
 
             if (emailSendingStatus()) {
                 $mail = new \App\Http\Controllers\Common\PhpMailController();
-                $mail->SendEmail($set->email, $set->company_email, $template->data, $template->name, $replace, $type);
+                $mail->SendEmail($set->email, $set->company_email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
             }
 
             return response()->json(['message' => __('message.message_sent_successfully_400')], 200);
@@ -1020,7 +1020,7 @@ class PageController extends Controller
 
             if (emailSendingStatus()) {
                 $mail = new \App\Http\Controllers\Common\PhpMailController();
-                $mail->SendEmail($set->email, $set->company_email, $template->data, $templatename, $replace, $type);
+                $mail->SendEmail($set->email, $set->company_email, $template->data, $templatename, $template->type()->value('name'), $replace, $type);
             }
 
             return successResponse(__('message.message_sent_successfully_400'));

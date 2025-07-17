@@ -3,47 +3,49 @@
 namespace App\Model\Payment;
 
 use App\BaseModel;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
+use App\Traits\SystemActivityLogsTrait;
 
 class Tax extends BaseModel
 {
-    use LogsActivity;
+    use SystemActivityLogsTrait;
 
     protected $table = 'taxes';
 
     protected $fillable = ['level', 'name', 'country', 'state', 'rate', 'active', 'tax_classes_id', 'compound'];
 
-    protected static $logName = 'Tax';
+    protected $logName = 'tax';
 
-    protected static $logAttributes = ['name', 'country', 'state', 'rate', 'active', 'tax_classes_id'];
+    protected $logNameColumn = 'name';
 
-    protected static $logOnlyDirty = true;
+    protected $logAttributes = [
+        'level', 'name', 'country', 'state', 'rate', 'active', 'tax_classes_id', 'compound',
+    ];
 
-    public function getDescriptionForEvent(string $eventName): string
+    protected $logUrl = [
+        'segments' => ['tax', ':id', 'edit'],
+    ];
+
+    protected function getMappings(): array
     {
-        if ($eventName == 'created') {
-            return 'Tax  <strong> '.$this->name.' </strong> was created';
-        }
-
-        if ($eventName == 'updated') {
-            return 'Tax <strong> '.$this->name.'</strong> was updated';
-        }
-
-        if ($eventName == 'deleted') {
-            return 'Tax <strong> '.$this->name.' </strong> was deleted';
-        }
-
-        return '';
+        return [
+            'level' => ['Tax Level', fn ($value) => $value === 1 ? 'Country' : ($value === 2 ? 'State' : 'City')],
+            'name' => ['Tax Name', fn ($value) => $value],
+            'country' => ['Country', fn ($value) => \App\Model\Common\Country::where('country_code_char2', $value)->value('nicename')],
+            'state' => [
+                'State',
+                fn ($value) => $value
+                    ? \App\Model\Common\State::where('state_subdivision_code', $value)->value('state_subdivision_name')
+                    : 'All States',
+            ],
+            'rate' => ['Tax Rate (%)', fn ($value) => $value],
+            'active' => ["{$this->name} tax status", fn ($value) => $value === 1 ? __('message.active') : __('message.inactive')],
+            'tax_classes_id' => ['Tax Class', fn ($value) => $value ? \App\Model\Payment\TaxClass::find($value)?->name : 'No Class'],
+            'compound' => ['Is Compound Tax', fn ($value) => $value === 1 ? 'Yes' : 'No'],
+        ];
     }
 
     public function taxClass()
     {
         return $this->belongsTo(\App\Model\Payment\TaxClass::class, 'tax_classes_id');
-    }
-
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults();
     }
 }

@@ -106,8 +106,16 @@ class SystemManagerController extends Controller
                 fn ($user) => $mailer->salesManagerMail($user)
             );
 
-            ManagerSetting::whereManagerRole('account')->update(['auto_assign' => $request->autoAssignAccount]);
-            ManagerSetting::whereManagerRole('sales')->update(['auto_assign' => $request->autoAssignSales]);
+            $roles = [
+                'account' => $request->autoAssignAccount,
+                'sales' => $request->autoAssignSales,
+            ];
+
+            foreach ($roles as $role => $autoAssign) {
+                if ($setting = ManagerSetting::whereManagerRole($role)->first()) {
+                    $setting->update(['auto_assign' => $autoAssign]);
+                }
+            }
 
             return successResponse(__('message.manager_settings_updated_successfully'));
         } catch (\Exception $e) {

@@ -119,8 +119,7 @@ class SettingsController extends BaseSettingsController
             $allists = $mailchimp->get('lists?count=20')['lists'];
             $selectedList[] = $set->list_id;
         } catch (\Exception $e) {
-            // Log the error if needed
-            \Log::error('Mailchimp Initialization Failed: '.$e->getMessage());
+            \Logger::exception($e);
 
             // Return null when it fails
             $mailchimp = '';
@@ -254,7 +253,7 @@ class SettingsController extends BaseSettingsController
                 $allists = $mailchimp->get('lists?count=20')['lists'];
                 $selectedList[] = $set->list_id;
             } catch (\Exception $e) {
-                \Log::error('Mailchimp Initialization Failed: '.$e->getMessage());
+                \Logger::exception($e);
                 $allists = [];
                 $selectedList = [];
             }
@@ -581,114 +580,113 @@ class SettingsController extends BaseSettingsController
     public function settingsActivity(Request $request, Activity $activities)
     {
         $validator = \Validator::make($request->all(), [
-            'from' => 'nullable',
-            'till' => 'nullable|after:from',
+            'from' => 'nullable|date',
+            'till' => 'nullable|date|after:from',
         ]);
+
         if ($validator->fails()) {
-            $request->from = '';
-            $request->till = '';
-
-            return redirect('settings/activitylog')->with('fails', __('message.start_date_before_end_date'));
+            return redirect('settings/activitylog')
+                ->with('fails', __('message.start_date_before_end_date'));
         }
-        try {
-            $activity = $activities->all();
-            $from = $request->input('from');
-            $till = $request->input('till');
 
-            return view('themes.default1.common.Activity-Log', compact('activity', 'from', 'till'));
+        try {
+            $from = $request->input('log_from');
+            $till = $request->input('log_till');
+
+            // Get distinct module names from activity logs
+            $modules = $activities->query()
+                ->select('log_name')
+                ->distinct()
+                ->pluck('log_name')
+                ->filter()
+                ->values();
+
+            // Get distinct events from activity logs
+            $events = $activities->query()
+                ->select('event')
+                ->distinct()
+                ->pluck('event')
+                ->filter()
+                ->values();
+
+            // Get users who performed actions (join with users table)
+            $users = User::select('id', 'first_name', 'last_name', 'email')
+                ->whereIn('id', $activities->query()->distinct()->pluck('causer_id'))
+                ->orderBy('first_name')
+                ->get();
+
+            return view('themes.default1.common.Activity-Log', compact('from', 'till', 'modules', 'events', 'users'));
         } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
 
-    public function settingsMail(Request $request)
+    public function getBody($id)
     {
         try {
-            $from = $request->input('mailfrom');
-            $till = $request->input('mailtill');
+            $email = Email_log::findOrFail($id);
 
-            return view('themes.default1.common.email-log', compact('from', 'till'));
+            return successResponse('', ['body' => $email->body, 'subject' => $email->subject]);
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse($ex->getMessage());
         }
     }
 
     public function getActivity(Request $request)
     {
         try {
-            $from = $request->input('log_from');
-            $till = $request->input('log_till');
-            $query = $this->advanceSearch($from, $till);
+            $baseQuery = Activity::query()
+                ->leftJoin('users', 'activity_log.causer_id', '=', 'users.id')
+                ->select(
+                    'activity_log.id',
+                    'activity_log.log_name',
+                    'activity_log.description',
+                    'activity_log.event',
+                    'activity_log.causer_type',
+                    'activity_log.causer_id',
+                    'activity_log.created_at',
+                    'activity_log.properties',
+                    'users.first_name',
+                    'users.last_name',
+                    'users.email',
+                    'users.role as user_role'
+                )
+                ->with(['causer:id,user_name,role,first_name,last_name,email']);
 
-            return \DataTables::of($query->take(50))
-             ->setTotalRecords($query->count())
-              ->orderColumn('name', '-created_at $1')
-              ->orderColumn('description', '-created_at $1')
-              ->orderColumn('role', '-created_at $1')
-              ->orderColumn('new', '-created_at $1')
-              ->orderColumn('old', '-created_at $1')
-              ->orderColumn('created_at', '-created_at $1')
+            $baseQuery = $this->filterQuery($baseQuery);
 
-             ->addColumn('checkbox', function ($model) {
-                 return "<input type='checkbox' class='activity' value=".$model->id.' name=select[] id=check>';
-             })
-                           ->addColumn('name', function ($model) {
-                               return ucfirst($model->log_name);
-                           })
-                             ->addColumn('description', function ($model) {
-                                 return ucfirst($model->description);
-                             })
-                          ->addColumn('username', function ($model) {
-                              $causer_id = $model->causer_id;
-                              $names = User::where('id', $causer_id)->pluck('last_name', 'first_name');
-                              foreach ($names as $key => $value) {
-                                  $fullName = $key.' '.$value;
+            if ($search = $request->input('search.value')) {
+                $baseQuery->where(function ($query) use ($search) {
+                    $query->where('activity_log.log_name', 'like', "%{$search}%")
+                        ->orWhere('activity_log.event', 'like', "%{$search}%")
+                        ->orWhere('activity_log.description', 'like', "%{$search}%")
+                        ->orWhere('users.first_name', 'like', "%{$search}%")
+                        ->orWhere('users.last_name', 'like', "%{$search}%")
+                        ->orWhere('users.email', 'like', "%{$search}%")
+                        ->orWhere('users.role', 'like', "%{$search}%")
+                        ->orWhereRaw("CONCAT(users.first_name, ' ', users.last_name) LIKE ?", ["%{$search}%"]);
+                });
+            }
 
-                                  return $fullName;
-                              }
-                          })
-                              ->addColumn('role', function ($model) {
-                                  $causer_id = $model->causer_id;
-                                  $role = User::where('id', $causer_id)->pluck('role');
+            return \DataTables::of($baseQuery)
+                ->addColumn('module', fn ($row) => $row->log_name ?? '---')
+                ->addColumn('event', fn ($row) => ucfirst($row->event ?? '---'))
+                ->addColumn('role', fn ($row) => ucfirst($row->user_role ?? '---'))
+                ->addColumn('detailed_properties', fn ($row) => $this->formatProperties($row->properties, $row->event))
+                ->addColumn('performed_by', fn ($row) => $this->generateLinkForPerformedBy($row->causer) ?? __('message.system'))
+                ->addColumn('created_at', fn ($row) => $row->created_at ? getDateHtml($row->created_at) : '---')
+                ->addColumn('description', fn ($row) => $row->description ?? '---')
 
-                                  return json_decode($role);
-                              })
-                               ->addColumn('new', function ($model) {
-                                   $properties = $model->properties;
-                                   $newEntry = $this->getNewEntry($properties, $model);
+                ->orderColumn('module', 'activity_log.log_name $1')
+                ->orderColumn('event', 'activity_log.event $1')
+                ->orderColumn('role', 'users.role $1')
+                ->orderColumn('description', 'activity_log.description $1')
+                ->orderColumn('created_at', 'activity_log.created_at $1')
 
-                                   return $newEntry;
-                               })
-                                ->addColumn('old', function ($model) {
-                                    $data = $model->properties;
-                                    $oldEntry = $this->getOldEntry($data, $model);
-
-                                    return $oldEntry;
-                                })
-                                ->addColumn('created_at', function ($model) {
-                                    return getDateHtml($model->created_at);
-                                })
-
-                                    ->filterColumn('log_name', function ($query, $keyword) {
-                                        $sql = 'log_name like ?';
-                                        $query->whereRaw($sql, ["%{$keyword}%"]);
-                                    })
-
-                                ->filterColumn('description', function ($query, $keyword) {
-                                    $sql = 'description like ?';
-                                    $query->whereRaw($sql, ["%{$keyword}%"]);
-                                })
-
-                            ->filterColumn('causer_id', function ($query, $keyword) {
-                                $sql = 'first_name like ?';
-                                $query->whereRaw($sql, ["%{$keyword}%"]);
-                            })
-
-                            ->rawColumns(['name', 'description',
-                                'username', 'role', 'new', 'old', 'created_at', ])
-                            ->make(true);
+                ->rawColumns(['performed_by', 'created_at', 'description'])
+                ->make(true);
         } catch (\Exception $e) {
-            return redirect()->back()->with('fails', $e->getMessage());
+            return errorResponse($e->getMessage());
         }
     }
 
@@ -725,7 +723,7 @@ class SettingsController extends BaseSettingsController
                 })
 
                 ->addColumn('subject', function ($model) {
-                    return ucfirst($model->subject);
+                    return '<a href="#" class="text-primary view-mail" data-id="'.$model->id.'">'.e(ucfirst($model->subject)).'</a>';
                 })
                 ->rawColumns(['checkbox', 'date', 'from', 'to',
                     'bcc', 'subject',  'status', ])
@@ -1191,7 +1189,8 @@ class SettingsController extends BaseSettingsController
         $apikey = trim($request->input('apikey'));
         try {
             $accepted_output = $request->input('mode') == 'quick' ? $emailSave->where('type', 'email')->value('accepted_output') : $request->input('accepted_output');
-            EmailMobileValidationProviders::where('provider', $request->input('provider'))->update(['api_key' => $apikey,
+            $emailMobileProvider = EmailMobileValidationProviders::where('provider', $request->input('provider'))->firstOrFail();
+            $emailMobileProvider->update(['api_key' => $apikey,
                 'mode' => $request->input('mode'), 'accepted_output' => $accepted_output, 'to_use' => 1]);
 
             return successResponse(trans('message.email_validation_success'));

@@ -127,7 +127,7 @@ class CloudExtraActivities extends Controller
 
             return $this->getThePaymentCalculationUpgradeDowngradeDisplay($agents, $oldLicense, $orderId, $planId, $actualPrice, $planDetails['plan']->add_price);
         } catch (\Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
 
             return ['price_to_be_paid' => 'NaN', 'discount' => 'NaN', 'currency' => 'NaN'];
         }
@@ -194,7 +194,7 @@ class CloudExtraActivities extends Controller
 
             return successResponse(trans('message.cloud_domain_change'));
         } catch(\Exception $e) {
-            app('log')->error($e->getMessage());
+            \Logger::exception($e);
 
             return errorResponse(trans('message.wrong_domain'));
         }
@@ -261,7 +261,7 @@ class CloudExtraActivities extends Controller
                 return url('paynow/'.$invoice->invoice_id);
             }
         } catch(\Exception $e) {
-            app('log')->error($e->getMessage());
+            \Logger::exception($e);
 
             return errorResponse(trans('message.wrong_agents'));
         }
@@ -302,7 +302,7 @@ class CloudExtraActivities extends Controller
 
             return response()->json(['redirectTo' => url('/checkout')]);
         } catch(\Exception $e) {
-            app('log')->error($e->getMessage());
+            \Logger::exception($e);
 
             return errorResponse(trans('message.wrong_upgrade'));
         }
@@ -357,7 +357,7 @@ class CloudExtraActivities extends Controller
 
             return $items;
         } catch(\Exception $e) {
-            app('log')->error($e->getMessage());
+            \Logger::exception($e);
 
             return response(['status' => false, 'message' => trans('message.wrong_agents')]);
         }
@@ -513,7 +513,7 @@ class CloudExtraActivities extends Controller
 
             return $items;
         } catch(\Exception $e) {
-            app('log')->error($e->getMessage());
+            \Logger::exception($e);
 
             return response(['status' => false, 'message' => trans('message.wrong_upgrade')]);
         }
@@ -871,7 +871,7 @@ class CloudExtraActivities extends Controller
 
             return successResponse(trans('message.agent_updated'));
         } catch(\Exception $e) {
-            app('log')->error($e->getMessage());
+            \Logger::exception($e);
 
             return errorResponse(trans('message.wrong_agents'));
         }
@@ -1095,7 +1095,7 @@ class CloudExtraActivities extends Controller
 
             return $items;
         } catch(\Exception $e) {
-            app('log')->error($e->getMessage());
+            \Logger::exception($e);
 
             return ['price_to_be_paid' => 'NaN', 'discount' => 'NaN', 'currency' => 'NaN'];
         }
@@ -1238,7 +1238,7 @@ class CloudExtraActivities extends Controller
 
             return ['pricePerAgent' => currencyFormat($base_price, $currency['currency'], true), 'totalPrice' => currencyFormat($base_price * $newAgents, $currency['currency'], true), 'priceToPay' => currencyFormat($price, $currency['currency'], true)];
         } catch(\Exception $e) {
-            app('log')->error($e->getMessage());
+            \Logger::exception($e);
 
             return ['pricePerAgent' => 'NaN', 'totalPrice' => 'NaN', 'priceToPay' => 'NaN'];
         }
@@ -1312,7 +1312,8 @@ class CloudExtraActivities extends Controller
         try {
             $id = $request->input('id');
             $status = $request->input('status');
-            CloudProducts::where('id', $id)->update(['trial_status' => $status]);
+            $product = CloudProducts::findOrFail($id);
+            $product->update(['trial_status' => $status]);
 
             return successResponse(\Lang::get('message.trial_status_updated'));
         } catch (\Exception $e) {
@@ -1331,10 +1332,11 @@ class CloudExtraActivities extends Controller
     public function DeleteProductConfig(Request $request)
     {
         try {
-            CloudProducts::whereid($request->get('id'))->delete();
+            $product = CloudProducts::findOrFail($request->input('id'));
+            $product->delete();
 
             return successResponse(trans('message.pop_delete'));
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }
     }

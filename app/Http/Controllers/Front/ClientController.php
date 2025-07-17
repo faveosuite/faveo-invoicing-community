@@ -735,7 +735,7 @@ class ClientController extends BaseClientController
                             ->rawColumns(['id', 'product_name', 'date', 'number', 'agents', 'expiry', 'Action'])
                             ->make(true);
         } catch (Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
             echo $ex->getMessage();
         }
     }

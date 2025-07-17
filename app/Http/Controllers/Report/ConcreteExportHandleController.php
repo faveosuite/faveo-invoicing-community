@@ -212,7 +212,7 @@ class ConcreteExportHandleController extends ExportHandleController
                 '<br><br>Please note this link will be expired in 6 hours.'.
                 '<br><br>Kind regards,<br>'.$user->first_name;
 
-            $mail->SendEmail($from, $email, $emailContent, 'User report available for download');
+            $mail->SendEmail($from, $email, $emailContent, 'User report available for download', 'user-report');
 
             return response()->json(['message' => __('message.report_email_generated')], 200);
         } catch (Exception $ex) {
@@ -334,7 +334,7 @@ class ConcreteExportHandleController extends ExportHandleController
                 '<br><br>Please note this link will be expired in 6 hours.'.
                 '<br><br>Kind regards,<br>'.$user->first_name;
 
-            $mail->SendEmail($from, $email, $emailContent, 'Invoice report available for download');
+            $mail->SendEmail($from, $email, $emailContent, 'Invoice report available for download', 'invoice-report');
 
             return response()->json(['message' => __('message.report_email_generated')], 200);
         } catch (Exception $ex) {
@@ -456,7 +456,7 @@ class ConcreteExportHandleController extends ExportHandleController
                 '<br><br>Please note this link will expire in 6 hours.'.
                 '<br><br>Kind regards,<br>'.$user->first_name;
 
-            $mail->SendEmail($from, $email, $emailContent, __('message.order_report_available_download'));
+            $mail->SendEmail($from, $email, $emailContent, 'Order report available for download', 'order-report');
 
             return response()->json(['message' => __('message.report_email_generated')], 200);
         } catch (Exception $ex) {
@@ -713,7 +713,7 @@ class ConcreteExportHandleController extends ExportHandleController
             '<br><br>Please note this link will be expired in 6 hours.'.
             '<br><br>Kind regards,<br>'.$user->first_name;
 
-        $mail->SendEmail($from, $this->email, $emailContent, __('message.tenant_report_available_download'));
+        $mail->SendEmail($from, $this->email, $emailContent, 'Tenant report available for download', 'tenant-report');
     }
 
     public function getStatus($status)

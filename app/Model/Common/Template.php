@@ -12,6 +12,6 @@ class Template extends Model
 
     public function type()
     {
-        return $this->hasOne(\App\Model\Common\TemplateType::class, 'id');
+        return $this->hasOne(\App\Model\Common\TemplateType::class, 'id', 'type');
     }
 }

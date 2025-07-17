@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\Console\LoggableCommand;
 use App\Http\Controllers\ConcretePostSubscriptionHandleController;
 use App\Http\Controllers\Subscription\SubscriptionController; // Import the concrete controller
-use Illuminate\Console\Command;
 
-class RenewalCron extends Command
+class RenewalCron extends LoggableCommand
 {
     /**
      * The name and signature of the console command.
@@ -27,7 +27,7 @@ class RenewalCron extends Command
      *
      * @return int
      */
-    public function handle()
+    public function handleAndLog()
     {
         // Create an instance of ConcretePostSubscriptionHandleController
         $concreteController = app()->make(ConcretePostSubscriptionHandleController::class);

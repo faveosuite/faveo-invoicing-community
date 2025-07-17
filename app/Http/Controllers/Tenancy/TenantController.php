@@ -23,7 +23,6 @@ use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
-use Illuminate\Support\Facades\Log;
 
 class TenantController extends Controller
 {
@@ -83,7 +82,7 @@ class TenantController extends Controller
 
             return view('themes.default1.tenant.index', compact('de', 'cloudButton', 'cloud', 'regions', 'cloudPopUp'));
         } catch (\Exception $e) {
-            Log::error($e->getMessage());
+            \Logger::exception($e);
             $cloud = $this->cloud;
             $cloudPopUp = CloudPopUp::find(1);
             $cloudButton = StatusSetting::value('cloud_button');
@@ -107,10 +106,13 @@ class TenantController extends Controller
     public function enableCloud(Request $request)
     {
         try {
-            $request->input('debug') == 'true' ? StatusSetting::where('id', '1')->update(['cloud_button' => '1']) : StatusSetting::where('id', '1')->update(['cloud_button' => '0']);
+            $statusSetting = StatusSetting::findOrFail(1);
+            $statusSetting->update([
+                'cloud_button' => $request->debug == 'true' ? '1' : '0',
+            ]);
 
-            return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
-        } catch(\Exception $ex) {
+            return redirect()->back()->with('success', __('message.updated-successfully'));
+        } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
@@ -460,8 +462,14 @@ class TenantController extends Controller
 
                 ];
 
+                logActivity(
+                    "Cloud instance <b>{$faveoCloud}</b> created successfully for user <b>{$userEmail}</b>",
+                    'created',
+                    'Cloud'
+                );
+
                 $this->prepareMessages($faveoCloud, $userEmail, true);
-                $mail->SendEmail($settings->email, $userEmail, $template->data, $subject, $replace, $type);
+                $mail->SendEmail($settings->email, $userEmail, $template->data, $subject, $template->type()->value('name'), $replace, $type);
                 if (isset($result->reason) && $result->reason != '') {
                     return ['status' => $result->status, 'message' => $result->message.trans('message.cloud_created_successfully'), 'installationUrl' => $result->installationUrl, 'reason' => $result->reason, 'Free_trial_domain' => $faveoCloud];
                 }
@@ -469,6 +477,7 @@ class TenantController extends Controller
                 return ['status' => $result->status, 'message' => $result->message.trans('message.cloud_created_successfully'), 'installationUrl' => $result->installationUrl, 'Free_trial_domain' => $faveoCloud];
             }
         } catch (Exception $e) {
+            \Logger::exception($e);
             $message = $e->getMessage().' Domain: '.$faveoCloud.' Email: '.$userEmail;
             $this->googleChat($message);
 
@@ -513,21 +522,33 @@ class TenantController extends Controller
             );
             $responseBody = (string) $response->getBody();
             $response = json_decode($responseBody);
+            $user = optional(\Auth::user())->email ?? 'Auto deletion';
+
             if ($response->status == 'success') {
                 $this->deleteCronForTenant($request->input('id'));
                 \DB::table('free_trial_allowed')->where('domain', $request->input('id'))->delete();
                 (empty($request->orderId)) ?: Order::where('id', $request->get('orderId'))->delete();
                 (new LicenseController())->reissueDomain($request->input('id'));
 
-                $user = optional(\Auth::user())->email ?? 'Auto deletion';
+                logActivity(
+                    "Cloud instance <b>{$request->input('id')}</b> deleted by <b>{$user}</b>",
+                    'deleted',
+                    'Cloud'
+                );
 
                 $this->googleChat('Hello, it has come to my notice that '.$user.' has deleted this cloud instance '.$request->input('id'));
 
                 return successResponse(__('message.cloud_deleted_successfully'));
             } else {
+                $this->googleChat('Tenant deletion failed for '.$user.'. Reason: '.$responseBody);
+
                 return errorResponse(__('message.cloud_deleted_failed'));
             }
         } catch (Exception $e) {
+            \Logger::exception($e);
+            $message = 'Tenant deletion error, Request '.json_encode($request->all()).'. Reason: '.$e->getMessage();
+            $this->googleChat($message);
+
             return errorResponse($e->getMessage());
         }
     }
@@ -606,19 +627,26 @@ class TenantController extends Controller
                         );
                         $responseBody = (string) $response->getBody();
                         $response = json_decode($responseBody);
+                        $user = optional(\Auth::user())->email ?? 'Auto deletion';
                         if ($response->status == 'success') {
                             $this->deleteCronForTenant($domainArray[$i]->id);
                             $this->reissueCloudLicense($order_id);
                             Order::where('number', $orderNumber)->where('client', \Auth::user()->id)->delete();
                             \DB::table('free_trial_allowed')->where('domain', $installation_path)->delete();
 
-                            $user = optional(\Auth::user())->email ?? 'Auto deletion';
+                            logActivity(
+                                "Cloud instance <b>{$installation_path}</b> deleted by </b>{$user}</b>",
+                                'deleted',
+                                'Cloud'
+                            );
 
                             $this->googleChat('Hello, it has come to my notice that '.$user.' has deleted this cloud instance '.$installation_path);
 
                             return redirect()->back()->with('success', __('message.cloud_deleted_successfully'));
                         } else {
-                            \Log::error($response->message);
+                            \Logger::exception(new Exception($response->message));
+
+                            $this->googleChat('Tenant deletion failed for '.$user.'. Reason: '.$responseBody);
 
                             return redirect()->back()->with('fails', __('message.cloud_deleted_failed   '));
                         }
@@ -753,7 +781,7 @@ class TenantController extends Controller
                 return response()->json(['message' => __('message.cannot_sync_queue_driver')], 400);
             }
         } catch (\Exception $e) {
-            \Log::error(__('message.export_failed').$e->getMessage());
+            \Logger::exception($e);
 
             return response()->json(['message' => $e->getMessage()], 500);
         }

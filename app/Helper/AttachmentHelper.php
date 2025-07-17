@@ -55,7 +55,7 @@ class AttachmentHelper
         $disk = $disk ?: FileSystemSettings::value('disk');
 
         if (! $disk) {
-            throw new \Exception(trans('lang.attach_helper_no_default_disk'));
+            throw new \Exception(trans('message.attach_helper_no_default_disk'));
         }
 
         return \Storage::disk($disk);

@@ -84,7 +84,7 @@ class ThirdPartyApiController extends Controller
 
             return $response;
         } catch (\Exception $e) {
-            app('log')->error($e->getMessage());
+            \Logger::exception($e);
             $message = [$e->getMessage()];
             $response = ['success' => 'false', 'message' => $message];
 

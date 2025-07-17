@@ -34,8 +34,9 @@ class LanguageController extends Controller
                 $languageById = Language::find($language->id);
 
                 if ($languageById) {
-                    $languageById->status = $request->status;
-                    $languageById->save();
+                    $languageById->update([
+                        'status' => $request->status,
+                    ]);
 
                     return response()->json([
                         'success' => true,
@@ -73,7 +74,7 @@ class LanguageController extends Controller
 
             return successResponse('', collect($languages)->sortBy('name')->values()->all());
         } catch (\Exception $exception) {
-            \Log::error($exception);
+            \Logger::exception($exception);
 
             return errorResponse($exception->getMessage());
         }

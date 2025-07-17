@@ -32,7 +32,13 @@ trait UpdateDates
                 $newDate = $request->input('date');
                 $date = \DateTime::createFromFormat('m/d/Y', $newDate);
                 $date = $date->format('Y-m-d H:i:s');
-                Subscription::where('order_id', $request->input('orderid'))->update(['update_ends_at' => $date]);
+
+                $subscription = Subscription::where('order_id', $request->input('orderid'))->first();
+
+                if ($subscription) {
+                    $subscription->update_ends_at = $date;
+                    $subscription->save();
+                }
                 $checkUpdateStatus = StatusSetting::first()->pluck('license_status')->first();
                 if ($checkUpdateStatus == 1) {
                     $this->editUpdateDateInAPL($request->input('orderid'), $date, $licenseSupportExpiry);
@@ -87,7 +93,14 @@ trait UpdateDates
                 $newDate = $request->input('date');
                 $date = \DateTime::createFromFormat('m/d/Y', $newDate);
                 $date = $date->format('Y-m-d H:i:s');
-                Subscription::where('order_id', $request->input('orderid'))->update(['ends_at' => $date]);
+
+                $subscription = Subscription::where('order_id', $request->input('orderid'))->first();
+
+                if ($subscription) {
+                    $subscription->ends_at = $date;
+                    $subscription->save();
+                }
+
                 $checkUpdateStatus = StatusSetting::first()->pluck('license_status')->first();
                 if ($checkUpdateStatus == 1) {
                     $this->editLicenseDateInAPL($request->input('orderid'), $date, $updatesSupportExpiry);
@@ -142,7 +155,14 @@ trait UpdateDates
                 $newDate = $request->input('date');
                 $date = \DateTime::createFromFormat('m/d/Y', $newDate);
                 $date = $date->format('Y-m-d H:i:s');
-                Subscription::where('order_id', $request->input('orderid'))->update(['support_ends_at' => $date]);
+
+                $subscription = Subscription::where('order_id', $request->input('orderid'))->first();
+
+                if ($subscription) {
+                    $subscription->support_ends_at = $date;
+                    $subscription->save();
+                }
+
                 $checkUpdateStatus = StatusSetting::first()->pluck('license_status')->first();
                 if ($checkUpdateStatus == 1) {
                     $this->editSupportDateInAPL($request->input('orderid'), $date, $updatesLicenseExpiry);
