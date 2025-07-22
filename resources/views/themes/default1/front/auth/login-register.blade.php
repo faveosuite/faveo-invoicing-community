@@ -432,7 +432,7 @@ foreach($scripts as $script) {
                                     <div class="custom-control custom-checkbox" style="padding-right: {{ isRtlForLang() ? '0px' : '100px' }};">
                                         <input type="checkbox" value="false" name="terms" id="term" class="custom-control-input">
                                         <label class="custom-control-label text-2 cur-pointer" for="term">
-                                            <a href="{{$apiKeys->terms_url}}" target="_blank" class="text-decoration-none">{{ __('message.agree_term')}}</a>
+                                            <a href="{{$apiKeys->terms_url}}" target="_blank" id="agree_term_link" class="text-decoration-none">{{ __('message.agree_term')}}</a>
                                         </label>
                                         <br><span id="termscheck"></span>
                                     </div>
