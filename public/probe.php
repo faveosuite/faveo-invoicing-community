@@ -27,7 +27,7 @@ if (isset($_POST['submit'])) {
 
 $currentLang = 'en';
 function fetchLang() {
-    $langUrl = getUrl() . "/lang";
+    $langUrl = createUrl('lang');
     $options = [
         'http' => [
             'method' => 'POST',
@@ -513,7 +513,7 @@ $currentLang = $fetchLang['currentLang'];
 
     $(document).ready(function() {
         $.ajax({
-            url: '<?php echo getUrl() ?>/language/settings',
+            url: '<?php echo createUrl('language/settings'); ?>',
             type: 'GET',
             dataType: 'JSON',
             success: function(response) {
@@ -578,7 +578,7 @@ $currentLang = $fetchLang['currentLang'];
         $('#flagIcon').attr('class', flagClass);
         // $('body').attr('dir', dir);
         $.ajax({
-            url: '<?php echo getUrl() ?>/update/language',
+            url: '<?php echo createUrl('update/language') ?>',
             type: 'POST',
             data: { language: language },
             success: function(response) {
