@@ -875,5 +875,6 @@ function honeypotField(string $name = 'honeypot'): string
 function createUrl(string $path): string
 {
     $baseUrl = getUrl();
-    return rtrim($baseUrl, '/') . '/' . ltrim($path, '/');
+
+    return rtrim($baseUrl, '/').'/'.ltrim($path, '/');
 }
