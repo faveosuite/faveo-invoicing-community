@@ -71,10 +71,11 @@ class AttachmentHelper
     {
         $extension = $file->getClientOriginalExtension();
         $filename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME); // Filename without extension
-        // Add timestamp hash to name of the file
-        $filename .= '_'.md5(time()).'.'.$extension;
 
-        return $filename;
+        $safeName = Str::slug($filename) ? Str::slug($filename) : 'file';
+
+        // Add timestamp hash to name of the file
+        return $safeName . '_' . md5(time()) . '.' . $extension;
     }
 
     public function getUrlPath($path, $disk = null)

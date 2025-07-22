@@ -175,7 +175,7 @@ foreach($scripts as $script) {
                                                   </div>
                                                   <div class="col-6">
                                                       <div class="{{ $errors->has('password1') ? 'has-error' : '' }}" id="forgot_password_rtl" style="text-align: right; display: block;">
-                                                          <a class="text-decoration-none text-color-primary font-weight-semibold text-2 text-break"
+                                                          <a class="text-decoration-none text-color-primary font-weight-semibold text-2 text-break" id="forgot_password_link"
                                                              href="{{ url('password/reset') }}">
                                                               {{ __('message.forgot-my-password') }}
                                                           </a>
