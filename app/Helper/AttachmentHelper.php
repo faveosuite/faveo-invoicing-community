@@ -75,7 +75,7 @@ class AttachmentHelper
         $safeName = Str::slug($filename) ? Str::slug($filename) : 'file';
 
         // Add timestamp hash to name of the file
-        return $safeName . '_' . md5(time()) . '.' . $extension;
+        return $safeName.'_'.md5(time()).'.'.$extension;
     }
 
     public function getUrlPath($path, $disk = null)
