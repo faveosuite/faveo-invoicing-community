@@ -3,6 +3,7 @@
 namespace App\Model\Order;
 
 use App\BaseModel;
+use App\Model\Product\Product;
 
 class InvoiceItem extends BaseModel
 {
@@ -39,5 +40,10 @@ class InvoiceItem extends BaseModel
     public function invoice()
     {
         return $this->belongsTo(Invoice::class, 'invoice_id');
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
     }
 }

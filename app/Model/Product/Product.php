@@ -7,6 +7,7 @@ use App\Facades\Attach;
 use App\Model\Configure\ConfigOption;
 use App\Model\Configure\PluginCompatibleWithProducts;
 use App\Model\Configure\ProductPluginGroup;
+use App\Model\Order\InvoiceItem;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -79,6 +80,10 @@ class Product extends BaseModel
     public function tax()
     {
         return $this->hasMany(\App\Model\Payment\TaxProductRelation::class, 'product_id');
+    }
+
+    public function invoice_item(){
+        return $this->hasMany(InvoiceItem::class, 'product_id');
     }
 
     public function productUpload()

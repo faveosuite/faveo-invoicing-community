@@ -1310,7 +1310,7 @@ return [
     'email_validation_description' => 'The Reoon Email Verifier integration enables real-time validation of email addresses, helping you identify invalid, disposable, or risky addresses before they are stored or used. This ensures cleaner email lists, reduces bounce rates, and improves overall email deliverability across the platform.',
     'mobile_validation_description' => 'The mobile validator integration uses Abstract and Vonage APIs to verify phone numbers in real time by checking their format, validity, carrier details, and reachability—ensuring only accurate and deliverable mobile numbers are accepted within the platform.',
     'mobileApi_provider' => 'Please select a mobile validation provider.',
-    'tick-to-hide-from-invoice' => 'Check to hide from invoice creation page',
+    'tick-to-hide-from-invoice' => 'Check to hide from administrative area product dropdown menus(does not apply to services already associated with this product)',
     //email templates
 
     'choose_password' => 'Click here to reset your password: ',
@@ -2688,4 +2688,5 @@ return [
     'contact_setting_update' => 'Contact Settings Updated Successfully',
     'captcha_failed' => 'reCAPTCHA verification failed. Please ensure your reCAPTCHA secret key are valid.',
     'captcha_message' => 'reCAPTCHA verification failed. Please try again.',
+    'not-found'=>'This product cannot be deleted because it is currently associated with one or more services. Please remove all related services before attempting to delete this product.',
 ];

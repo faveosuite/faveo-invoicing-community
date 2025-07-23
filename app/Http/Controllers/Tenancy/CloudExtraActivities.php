@@ -152,6 +152,11 @@ class CloudExtraActivities extends Controller
                     'currentDomain.required' => __('validation.current_domain_required'),
                     'newDomain.required' => __('validation.new_domain_required'),
                 ]);
+            $orderId = $request->input('order_id');
+            $order=Order::where('id', $orderId)->first();
+            if($order->client != \Auth::user()->id) {
+                return errorResponse(trans('message.invalid_user'));
+            }
             $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
             $token = str_random(32);
             $newDomain = $request->get('newDomain');
@@ -226,6 +231,10 @@ class CloudExtraActivities extends Controller
                 return errorResponse(trans('message.agent_zero'));
             }
             $orderId = $request->input('orderId');
+            $order=Order::where('id', $orderId)->first();
+            if($order->client != \Auth::user()->id) {
+                return errorResponse(trans('message.invalid_user'));
+            }
             $installation_path = InstallationDetail::where('order_id', $orderId)->where('installation_path', '!=', cloudCentralDomain())->latest()->value('installation_path');
             if (empty($installation_path)) {
                 return errorResponse(trans('message.installation_path_not_found'));
@@ -236,8 +245,8 @@ class CloudExtraActivities extends Controller
                 return errorResponse(trans('message.agent_reduce'));
             }
 
-            $oldLicense = Order::where('id', $orderId)->latest()->value('serial_key');
-
+//            $oldLicense = Order::where('id', $orderId)->latest()->value('serial_key');
+            $oldLicense=$order->serial_key;
             $items = $this->getThePaymentCalculation($newAgents, $oldLicense, $orderId);
             $invoice = (new RenewController())->renewBySubId($request->subId, $items['planId'], '', $items['price'], '', false, $newAgents);
 
@@ -273,7 +282,11 @@ class CloudExtraActivities extends Controller
             $agents = $request->agents;
             $orderId = $request->orderId;
             \Session::put('creditOrderId', $orderId);
-            $oldLicense = Order::where('id', $orderId)->latest()->value('serial_key');
+            $order=Order::where('id', $orderId)->first();
+            if($order->client != \Auth::user()->id) {
+                return errorResponse(trans('message.invalid_user'));
+            }
+            $oldLicense = $order->serial_key;
             $installation_path = InstallationDetail::where('order_id', $orderId)->where('installation_path', '!=', cloudCentralDomain())->latest()->value('installation_path');
 //            if (empty($installation_path)) {
 //                return errorResponse(trans('message.installation_path_not_found'));

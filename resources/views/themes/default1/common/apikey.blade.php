@@ -83,6 +83,19 @@
             to { transform: rotate(360deg); }
         }
 
+        .dataTables_wrapper .dataTables_processing::before,
+        .dataTables_wrapper .dataTables_processing::after {
+            content: none !important;
+            display: none !important;
+            background: none !important;
+            animation: none !important;
+        }
+
+        .dataTables_processing {
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+
 
     </style>
 
@@ -714,9 +727,9 @@
     {{--    {!! Form::close() !!}--}}
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
-    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+
 
     <script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit" async defer></script>
 
@@ -1803,7 +1816,9 @@
                 oLanguage: {
                     sLengthMenu: "_MENU_ Records per page",
                     sSearch: "<span style='right: 180px;'>Search:</span> ",
-                    sProcessing: ' <div class="overlay dataTables_processing"><i class="fas fa-3x fa-sync-alt fa-spin" style=" margin-top: -25px;"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'
+                    {{--sProcessing: ' <div class="overlay dataTables_processing"><i class="fas fa-3x fa-sync-alt fa-spin" style=" margin-top: -25px;"></i><div class="text-bold pt-2">{{ __('message.loading') }}</div></div>'--}}
+                    sProcessing: ' <div class="overlay dataTables_processing"><i class="fas fa-3x fa-sync-alt fa-spin" style=" margin-top: -25px;"></i><div class="text-bold pt-2">{!! __('message.loading') !!}</div></div>'
+
                 },
                 language: {
                     paginate: {

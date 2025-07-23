@@ -2611,7 +2611,7 @@ return [
     'email_validation_success' => '電子郵件驗證金鑰與模式已成功儲存。',
     'mobileApi_provider' => '請選擇一個手機驗證服務提供者。',
     'file_invalid' => '檔案似乎已損壞或無效。請驗證檔案後再試一次。',
-    'tick-to-hide-from-invoice' => '勾選以從發票建立頁面隱藏',
+    'tick-to-hide-from-invoice' => '勾選以從管理區域的產品下拉選單中隱藏（不影響已關聯此產品的服務）',
 
     'remainingAmount' => '您目前方案中的剩餘點數將被加入點數餘額中。',
     'checkbox_error' => '請選擇至少一個狀態選項。',
@@ -2639,4 +2639,5 @@ return [
     'instance_not_created' => '您的雲端實例已成功建立，但授權安裝失敗。<b>:reason。</b>請造訪您的網站：:installationUrl',
     'cloud_deleted_successfully' => '租戶已成功刪除',
     'cloud_deleted_failed' => '租戶刪除失敗',
+    'not-found' => '無法刪除此產品，因為它目前與一個或多個服務相關聯。請先移除所有相關服務後再嘗試刪除此產品。',
 ];

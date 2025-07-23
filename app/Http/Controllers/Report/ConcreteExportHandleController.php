@@ -465,7 +465,7 @@ class ConcreteExportHandleController extends ExportHandleController
     }
 
     public function tenantExports($selectedColumns, $searchParams, $email)
-    {
+    {   \Log::debug('santhanuExport',[$selectedColumns, $searchParams, $email]);
         $this->cloud = FaveoCloud::first();
         $client = new Client();
 

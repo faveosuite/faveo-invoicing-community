@@ -232,9 +232,8 @@
                             date: logDate // Pass the log date as data
                         },
                         success: function(data) {
-
-                            $('#success-message').text(@json(__('message.log_file_deleted_successfully'))).show();
                             $('#delete-log-modal').modal('hide');
+                            $('#success-message').text(@json(__('message.log_file_deleted_successfully'))).show();
                             setTimeout(function() {
                                 window.location.href = '{{ route('log-viewer::logs.list') }}';
                             }, 2000);

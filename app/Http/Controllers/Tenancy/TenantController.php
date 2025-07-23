@@ -616,9 +616,10 @@ class TenantController extends Controller
 
                             $this->googleChat('Hello, it has come to my notice that '.$user.' has deleted this cloud instance '.$installation_path);
 
-                            return redirect()->back()->with('success', $response->message);
+                            return redirect()->back()->with('success', __('message.cloud_deleted_successfully'));
                         } else {
-                            return redirect()->back()->with('fails', $response->message);
+                            \Log::error($response->message);
+                            return redirect()->back()->with('fails', __('message.cloud_deleted_failed   '));
                         }
                     }
                 }
@@ -741,6 +742,7 @@ class TenantController extends Controller
             $searchParams = $request->input('search_params', []);
             $email = \Auth::user()->email;
             $driver = QueueService::where('status', '1')->first();
+
             if ($driver->name != 'Sync') {
                 app('queue')->setDefaultDriver($driver->short_name);
                 ReportExport::dispatch('tenats', $selectedColumns, $searchParams, $email)->onQueue('reports');

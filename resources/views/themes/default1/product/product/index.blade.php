@@ -192,9 +192,12 @@
                                  $('#gif').html("<img id='blur-bg' class='backgroundfadein' style='top:40%;left:50%; width: 50px; height:50 px; display: block; position:    fixed;' src='{!! asset('lb-faveo/media/images/gifloader3.gif') !!}'>");
                              },
                              success: function (data) {
+                                 console.log(data);
                                  $('#gif').html('');
                                  $('#response').html(data);
-                                 location.reload();
+                                 setTimeout(function(){
+                                     $("#response").slideUp(2000);
+                                 }, 7000 );                                     // location.reload();
                              }
                          })
                      } else {

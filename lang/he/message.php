@@ -2654,7 +2654,7 @@ return [
     'mobileApi_provider' => 'אנא בחר ספק אימות נייד.',
 
     'file_invalid' => 'נראה שהקובץ פגום או לא תקין. אנא בדוק את הקובץ ונסה שוב.',
-    'tick-to-hide-from-invoice' => 'סמן כדי להסתיר מדף יצירת החשבונית',
+    'tick-to-hide-from-invoice' => 'Cochez pour masquer dans les menus déroulants de produits de la zone d’administration (sans effet sur les services déjà associés à ce produit)',
 
     'remainingAmount' => 'הקרדיטים שנותרו בתוכנית הנוכחית שלך יתווספו ליתרת הקרדיטים.',
     'tenant_deletion' => 'האם אתה בטוח שברצונך למחוק את הדייר הזה ',
@@ -2682,4 +2682,6 @@ return [
     'contact_setting_update' => 'הגדרות הקשר עודכנו בהצלחה',
     'captcha_failed' => 'אימות reCAPTCHA נכשל. אנא ודא שמפתח ה-reCAPTCHA הסודי שלך תקף.',
     'captcha_message' => 'אימות reCAPTCHA נכשל. אנא נסה שוב.',
+    'not-found' => 'לא ניתן למחוק מוצר זה מכיוון שהוא משויך כרגע לשירות אחד או יותר. אנא הסר את כל השירותים הקשורים לפני ניסיון המחיקה.',
+
 ];
