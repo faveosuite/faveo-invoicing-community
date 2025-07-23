@@ -588,7 +588,7 @@ class ClientController extends AdvanceSearchController
         try {
             $exportDetail = ExportDetail::find($id);
 
-            if (!$exportDetail) {
+            if (! $exportDetail) {
                 return redirect()->back()->with('fails', \Lang::get('message.file_not_found'));
             }
 
@@ -598,19 +598,19 @@ class ClientController extends AdvanceSearchController
             }
 
             $filePath = $exportDetail->file_path;
-            if (!file_exists($filePath)) {
+            if (! file_exists($filePath)) {
                 return redirect()->back()->with('fails', \Lang::get('message.file_not_found'));
             }
 
-            $zipFileName = $exportDetail->file . '.zip';
-            $zipFilePath = storage_path('app/public/export/' . $zipFileName);
+            $zipFileName = $exportDetail->file.'.zip';
+            $zipFilePath = storage_path('app/public/export/'.$zipFileName);
             $zip = new \ZipArchive();
             if ($zip->open($zipFilePath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === true) {
                 if (is_dir($filePath)) {
                     // Add directory and its files to the zip
                     $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($filePath), \RecursiveIteratorIterator::LEAVES_ONLY);
                     foreach ($files as $name => $file) {
-                        if (!$file->isDir()) {
+                        if (! $file->isDir()) {
                             $filePath = $file->getRealPath();
                             $relativePath = substr($filePath, strlen($exportDetail->file_path) + 1);
                             $zip->addFile($filePath, $relativePath);
@@ -625,7 +625,7 @@ class ClientController extends AdvanceSearchController
             }
 
             return response()->download($zipFilePath, $zipFileName)->deleteFileAfterSend(true);
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             \Log::error('Santhanucheking'.$e->getMessage());
             dd($e->getMessage());
         }

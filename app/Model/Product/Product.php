@@ -82,7 +82,8 @@ class Product extends BaseModel
         return $this->hasMany(\App\Model\Payment\TaxProductRelation::class, 'product_id');
     }
 
-    public function invoice_item(){
+    public function invoice_item()
+    {
         return $this->hasMany(InvoiceItem::class, 'product_id');
     }
 

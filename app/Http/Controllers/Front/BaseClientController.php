@@ -261,7 +261,7 @@ class BaseClientController extends Controller
             $invoice = new Invoice();
             $invoices = $invoice->leftJoin('invoice_items', 'invoices.id', '=', 'invoice_items.invoice_id')
                 ->where('invoices.id', $relation)
-                ->where('invoice_items.id',$order->invoice_item_id)
+                ->where('invoice_items.id', $order->invoice_item_id)
             ->select('invoices.number', 'invoices.created_at', 'invoices.date', 'invoices.grand_total', 'invoices.currency', 'invoices.id', 'invoices.status', 'invoice_items.product_name as products');
 
             if ($invoices->get()->count() == 0) {
@@ -323,6 +323,7 @@ class BaseClientController extends Controller
                             ->make(true);
         } catch (Exception $ex) {
             dd($ex->getMessage());
+
             return redirect()->back()->with('fails', $ex->getMessage());
         }
     }

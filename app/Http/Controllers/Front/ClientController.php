@@ -1188,6 +1188,7 @@ class ClientController extends BaseClientController
                             ->make(true);
         } catch (Exception $ex) {
             dd($ex->getMessage());
+
             return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
