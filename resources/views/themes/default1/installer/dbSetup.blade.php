@@ -80,7 +80,7 @@
         </div>
 
         <div class="card-footer">
-            <a class="btn btn-primary" id="previous" href="{{ getUrl() }}/probe.php">
+            <a class="btn btn-primary" id="previous" href="{{ url('probe.php')  }}">
                 <i class="fas {{ in_array(app()->getLocale(), ['ar', 'he']) ? 'fa-arrow-left' : 'fa-arrow-right' }} previous"></i>&nbsp;
                 {{ __('installer_messages.previous') }}
             </a>
