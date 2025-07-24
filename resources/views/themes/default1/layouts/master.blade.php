@@ -100,7 +100,7 @@
         }
 
         .is-invalid + .tox-tinymce{
-            apikeborder: 1px solid #dc3545 !important;
+            border: 1px solid #dc3545 !important;
         }
 
 

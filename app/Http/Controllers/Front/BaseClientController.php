@@ -322,7 +322,6 @@ class BaseClientController extends Controller
             ->rawColumns(['number', 'products', 'date', 'total', 'status', 'action'])
                             ->make(true);
         } catch (Exception $ex) {
-            dd($ex->getMessage());
             return redirect()->back()->with('fails', $ex->getMessage());
         }
     }

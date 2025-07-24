@@ -1187,7 +1187,6 @@ class ClientController extends BaseClientController
                             ->rawColumns(['number', 'total', 'payment_method', 'payment_status', 'created_at'])
                             ->make(true);
         } catch (Exception $ex) {
-            dd($ex->getMessage());
             return redirect()->back()->with('fails', $ex->getMessage());
         }
     }

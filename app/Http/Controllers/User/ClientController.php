@@ -626,8 +626,7 @@ class ClientController extends AdvanceSearchController
 
             return response()->download($zipFilePath, $zipFileName)->deleteFileAfterSend(true);
         }catch (\Exception $e) {
-            \Log::error('Santhanucheking'.$e->getMessage());
-            dd($e->getMessage());
+            \Log::error('Report Export Failure'.$e->getMessage());
         }
     }
 
