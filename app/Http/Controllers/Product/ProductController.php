@@ -402,6 +402,7 @@ class ProductController extends BaseProductController
             $canModifyAgent = $product->can_modify_agent;
             $canModifyQuantity = $product->can_modify_quantity;
             $githubStatus = StatusSetting::pluck('github_status')->first();
+
             return view(
                 'themes.default1.product.product.edit',
                 compact(
@@ -574,7 +575,7 @@ class ProductController extends BaseProductController
                 return successResponse(__('message.select-a-row'));
             }
 
-            foreach ($ids as $key=>$id) {
+            foreach ($ids as $key => $id) {
                 $product = $this->product_upload->find($id);
                 if ($product) {
                     $filePath = $storagePath.'/'.$product->file;

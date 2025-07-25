@@ -153,8 +153,8 @@ class CloudExtraActivities extends Controller
                     'newDomain.required' => __('validation.new_domain_required'),
                 ]);
             $orderId = $request->input('order_id');
-            $order=Order::where('id', $orderId)->first();
-            if($order->client != \Auth::user()->id) {
+            $order = Order::where('id', $orderId)->first();
+            if ($order->client != \Auth::user()->id) {
                 return errorResponse(trans('message.invalid_user'));
             }
             $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
@@ -231,8 +231,8 @@ class CloudExtraActivities extends Controller
                 return errorResponse(trans('message.agent_zero'));
             }
             $orderId = $request->input('orderId');
-            $order=Order::where('id', $orderId)->first();
-            if($order->client != \Auth::user()->id) {
+            $order = Order::where('id', $orderId)->first();
+            if ($order->client != \Auth::user()->id) {
                 return errorResponse(trans('message.invalid_user'));
             }
             $installation_path = InstallationDetail::where('order_id', $orderId)->where('installation_path', '!=', cloudCentralDomain())->latest()->value('installation_path');
@@ -246,7 +246,7 @@ class CloudExtraActivities extends Controller
             }
 
 //            $oldLicense = Order::where('id', $orderId)->latest()->value('serial_key');
-            $oldLicense=$order->serial_key;
+            $oldLicense = $order->serial_key;
             $items = $this->getThePaymentCalculation($newAgents, $oldLicense, $orderId);
             $invoice = (new RenewController())->renewBySubId($request->subId, $items['planId'], '', $items['price'], '', false, $newAgents);
 
@@ -282,8 +282,8 @@ class CloudExtraActivities extends Controller
             $agents = $request->agents;
             $orderId = $request->orderId;
             \Session::put('creditOrderId', $orderId);
-            $order=Order::where('id', $orderId)->first();
-            if($order->client != \Auth::user()->id) {
+            $order = Order::where('id', $orderId)->first();
+            if ($order->client != \Auth::user()->id) {
                 return errorResponse(trans('message.invalid_user'));
             }
             $oldLicense = $order->serial_key;

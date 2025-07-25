@@ -619,6 +619,7 @@ class TenantController extends Controller
                             return redirect()->back()->with('success', __('message.cloud_deleted_successfully'));
                         } else {
                             \Log::error($response->message);
+
                             return redirect()->back()->with('fails', __('message.cloud_deleted_failed   '));
                         }
                     }
