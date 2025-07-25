@@ -485,7 +485,7 @@
                     </div>
                 </div>
 
-                <!-- <div id="response"></div> -->
+                 <div id="response"></div>
                 <div id="product-alert-container"></div>
                 <div class="card-body table-responsive">
                     <div class="row" >
@@ -617,10 +617,18 @@
                                     $('#gif').show();
                                 },
                                 success: function (data) {
-
                                     $('#gif').hide();
-                                    $('#response').html(data);
-                                    location.reload();
+                                    var result="";
+                                    if(data.success==true){
+                                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }} </strong>'+data.message+'</div>';
+                                    }else{
+                                     var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> {{ __('message.error') }} </strong>'+data.message+'</div>';
+
+                                    }
+                                    $('#response').html(result);
+                                    setTimeout(function() {
+                                location.reload();
+                            }, 5000);
                                 }
                             })
                         } else {

@@ -39,8 +39,8 @@
 
                         <div class="input-group date" id="invoice_date" data-target-input="nearest" >
 
-                            <input type="text" id="payment_date" name="date" value="{{$date}}" class="form-control datetimepicker-input {{$errors->has('date') ? ' is-invalid' : ''}}" autocomplete="off"  data-target="#payment" />
-                            <div class="input-group-append" data-target="#payment" data-toggle="datetimepicker">
+                            <input type="text" id="payment_date" name="date" value="{{$date}}" class="form-control datetimepicker-input {{$errors->has('date') ? ' is-invalid' : ''}}" autocomplete="off"  data-target="#invoice_date" />
+                            <div class="input-group-append" data-target="#invoice_date" data-toggle="datetimepicker">
                                 <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                             </div>
 
@@ -94,7 +94,9 @@
 <script>
 
     $(document).ready(function() {
-
+        $('#invoice_date').datetimepicker({
+            format: 'L'
+        })
 
         const userRequiredFields = {
             payment_date:@json(trans('message.invoice_details.payment_date')),
@@ -176,12 +178,12 @@
     }).parentsUntil(".nav-sidebar > .nav-treeview").addClass('menu-open').prev('a').addClass('active');
 </script>
 @stop
-@section('datepicker')
-<script>
-        $(function () {
-        $('#payment').datetimepicker({
-            format: 'L'
-        });
-    });
-</script>
-@stop
+{{--@section('datepicker')--}}
+{{--<script>--}}
+{{--        $(function () {--}}
+{{--        // $('#payment').datetimepicker({--}}
+{{--        //     format: 'L'--}}
+{{--        // });--}}
+{{--    });--}}
+{{--</script>--}}
+{{--@stop--}}
