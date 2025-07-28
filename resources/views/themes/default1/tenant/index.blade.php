@@ -756,7 +756,7 @@
             $(this).prop('disabled', true);
 
             var selectedColumns = [];
-            $('input[type="checkbox"]:checked').each(function() {
+            $('#specific-container input[type="checkbox"]:checked').each(function() {
                 selectedColumns.push($(this).val());
             });
 
