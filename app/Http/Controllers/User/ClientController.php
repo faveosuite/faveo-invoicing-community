@@ -132,10 +132,10 @@ class ClientController extends AdvanceSearchController
                             return $this->getActiveLabel($model->mobile_verified, $model->email_verified, $model->is_2fa_enabled);
                         })
                         ->addColumn('action', function ($model) {
-                            return '<a href='.url('clients/'.$model->id.'/edit')
+                            return '<a href='.htmlspecialchars(url('clients/'.$model->id.'/edit'))
                             ." class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.edit'))."
                             <i class='fa fa-edit' style='color:white;'> </i></a>"
-                                    .'  <a href='.url('clients/'.$model->id)
+                                    .'  <a href='.htmlspecialchars(url('clients/'.$model->id))
                                     ." class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.view'))."
                                     <i class='fa fa-eye' style='color:white;'> </i></a>";
                         })

@@ -225,7 +225,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                           </script>';
                             }
 
-                            return '<a href='.url('invoices/show?invoiceid='.$model->id)
+                            return '<a href='.htmlspecialchars(url('invoices/show?invoiceid='.$model->id))
                             ." class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.view'))."<i class='fa fa-eye' 
                             style='color:white;'> </i></a>"
                                     ."   $action";
