@@ -292,7 +292,7 @@ class ClientController extends AdvanceSearchController
         try {
             $user = User::withTrashed()->find($id);
 
-            if (!$user) {
+            if (! $user) {
                 throw new \Exception(__('message.user_not_found'));
             }
 
@@ -345,7 +345,7 @@ class ClientController extends AdvanceSearchController
     {
         try {
             $user = $this->user->find($id);
-            if (!$user) {
+            if (! $user) {
                 throw new \Exception(__('message.user_not_found'));
             }
             $timezonesList = \App\Model\Common\Timezone::get();
