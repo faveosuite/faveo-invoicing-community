@@ -283,7 +283,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
         } catch (\Exception $ex) {
             app('log')->warning($ex->getMessage());
 
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return redirect()->route('invoices.index')->with('fails', $ex->getMessage());
         }
     }
 

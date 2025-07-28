@@ -32,7 +32,7 @@
             </div>
             <div class="card-body">
                 <div id="alertMessage"></div>
-                <form id="stripeForm">
+                <form id="stripeForm" method="POST">
                     <div class="form-group col-lg-5">
                         <label for="stripe_key" class="required">{{ __('message.stripe_publishable_key') }}</label>
                         <input
@@ -128,7 +128,7 @@
                     // AJAX Request if validation passes
                     $.ajax({
                         url: '{{ url("update-api-key/payment-gateway/stripe") }}',
-                        type: 'GET',
+                        type: 'POST',
                         data: {
                             "stripe_key": $('#stripe_key').val(),
                             "stripe_secret": $('#stripe_secret').val()

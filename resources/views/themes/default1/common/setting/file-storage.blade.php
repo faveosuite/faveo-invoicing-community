@@ -30,7 +30,7 @@
         </div>
 
         <div class="card-body flex">
-            <form id="file_form">
+            <form id="file_form" method="POST">
                 <div class="row">
                     <div class="form-group col-sm-6">
                         <label>{{ trans('message.storage_disk') }} </label>

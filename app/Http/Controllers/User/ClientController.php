@@ -290,8 +290,14 @@ class ClientController extends AdvanceSearchController
     public function show($id)
     {
         try {
-            if (User::onlyTrashed()->find($id)) {
-                throw new \Exception(\Lang::get('message.user_suspend'));
+            $user = User::withTrashed()->find($id);
+
+            if (!$user) {
+                throw new \Exception(__('message.user_not_found'));
+            }
+
+            if ($user->trashed()) {
+                throw new \Exception(__('message.user_suspend'));
             }
             $invoice = new Invoice();
             $order = new Order();
@@ -325,7 +331,7 @@ class ClientController extends AdvanceSearchController
         } catch (\Exception $ex) {
             app('log')->info($ex->getMessage());
 
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return redirect()->route('clients.index')->with('fails', $ex->getMessage());
         }
     }
 
@@ -338,7 +344,10 @@ class ClientController extends AdvanceSearchController
     public function edit($id)
     {
         try {
-            $user = $this->user->where('id', $id)->first();
+            $user = $this->user->find($id);
+            if (!$user) {
+                throw new \Exception(__('message.user_not_found'));
+            }
             $timezonesList = \App\Model\Common\Timezone::get();
             foreach ($timezonesList as $timezone) {
                 $location = $timezone->location;
@@ -390,7 +399,7 @@ class ClientController extends AdvanceSearchController
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
 
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return redirect()->route('clients.index')->with('fails', $ex->getMessage());
         }
     }
 

@@ -431,7 +431,7 @@ Route::middleware('installAgora')->group(function () {
      * Invoices
      */
 
-    Route::get('invoices', [Order\InvoiceController::class, 'index']);
+    Route::get('invoices', [Order\InvoiceController::class, 'index'])->name('invoices.index');
     Route::get('invoices/{id}', [Order\InvoiceController::class, 'show']);
     Route::get('get-client-invoice/{id}', [User\ClientController::class, 'getClientInvoice']);
     Route::get('invoices/edit/{id}', [Order\InvoiceController::class, 'edit']);
