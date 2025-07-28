@@ -352,7 +352,8 @@
                                    {{ __('message.upload_application_logo') }}
 
                                 <div class="d-flex align-items-center mt-1">
-                                    @if($set->admin_logo)
+
+                                @if($set->admin_logo)
                                         <img src="{{ $set->admin_logo }}" class="img-thumbnail shadow-sm border" style="height: 50px; width: 100px;" alt="Application Logo" id="preview-admin-logo">
                                     @endif
 
