@@ -111,9 +111,9 @@
                             <span class="error-message"> {{$message}}</span>
                             @enderror
                         </div>
-                        <?php
-                        $groups = DB::table('product_groups')->pluck('name', 'id')->toarray();
-                        ?>
+                            <?php
+                            $groups = DB::table('product_groups')->pluck('name', 'id')->toarray();
+                            ?>
                         <div class="col-md-4 form-group {{ $errors->has('group') ? 'has-error' : '' }}">
                             <!-- last name -->
                             {!! html()->label(Lang::get('message.group'), 'group')->class('required') !!}
@@ -194,50 +194,50 @@
                                     </br>
                                     <input type="hidden" value="{{$githubStatus}}" id="gitstatus">
                                     @if($githubStatus==1)
-                                    <tr>
+                                        <tr>
 
-                                        <td>
+                                            <td>
 
-                                            <label for="chkYes" style="">
-                                                <input type="radio" id="chkYes" name="chkTax" />
-                                                {{ __('message.github') }}
-                                            </label>
+                                                <label for="chkYes" style="">
+                                                    <input type="radio" id="chkYes" name="chkTax" />
+                                                    {{ __('message.github') }}
+                                                </label>
 
-                                            <div class="col-md-10 gitstatus" id="git" style="display:none">
-                                                <li>
-                                                    <div class="form-group {{ $errors->has('github_owner') ? 'has-error' : '' }}">
-                                                        <!-- first name -->
-                                                        {!! html()->label(trans('message.github-owner'), 'github_owner') !!}
-                                                        {!! html()->text('github_owner')->class('form-control'.($errors->has('github_owner') ? ' is-invalid' : ''))->id('owner') !!}
-                                                        @error('github_owner')
-                                                        <span class="error-message"> {{$message}}</span>
-                                                        @enderror
-                                                    </div>
-                                                    <div class="form-group {{ $errors->has('github_repository') ? 'has-error' : '' }}">
-                                                        <!-- last name -->
-                                                        {!! html()->label(trans('message.github-repository-name'), 'github_repository') !!}
-                                                        {!! html()->text('github_repository')->class('form-control'.($errors->has('github_repository') ? ' is-invalid' : ''))->id('repo') !!}
-                                                        @error('github_repository')
-                                                        <span class="error-message"> {{$message}}</span>
-                                                        @enderror
+                                                <div class="col-md-10 gitstatus" id="git" style="display:none">
+                                                    <li>
+                                                        <div class="form-group {{ $errors->has('github_owner') ? 'has-error' : '' }}">
+                                                            <!-- first name -->
+                                                            {!! html()->label(trans('message.github-owner'), 'github_owner') !!}
+                                                            {!! html()->text('github_owner')->class('form-control'.($errors->has('github_owner') ? ' is-invalid' : ''))->id('owner') !!}
+                                                            @error('github_owner')
+                                                            <span class="error-message"> {{$message}}</span>
+                                                            @enderror
+                                                        </div>
+                                                        <div class="form-group {{ $errors->has('github_repository') ? 'has-error' : '' }}">
+                                                            <!-- last name -->
+                                                            {!! html()->label(trans('message.github-repository-name'), 'github_repository') !!}
+                                                            {!! html()->text('github_repository')->class('form-control'.($errors->has('github_repository') ? ' is-invalid' : ''))->id('repo') !!}
+                                                            @error('github_repository')
+                                                            <span class="error-message"> {{$message}}</span>
+                                                            @enderror
 
-                                                    </div>
-                                                </li>
+                                                        </div>
+                                                    </li>
 
-                                                <li>
-                                                    <div class="form-group {{ $errors->has('version') ? 'has-error' : '' }}">
-                                                        <!-- last name -->
-                                                        {!! html()->label(trans('message.version'), 'version') !!}
-                                                        {!! html()->text('version')->class('form-control'.($errors->has('version') ? ' is-invalid' : ''))->id('version') !!}
-                                                        @error('version')
-                                                        <span class="error-message"> {{$message}}</span>
-                                                        @enderror
+                                                    <li>
+                                                        <div class="form-group {{ $errors->has('version') ? 'has-error' : '' }}">
+                                                            <!-- last name -->
+                                                            {!! html()->label(trans('message.version'), 'version') !!}
+                                                            {!! html()->text('version')->class('form-control'.($errors->has('version') ? ' is-invalid' : ''))->id('version') !!}
+                                                            @error('version')
+                                                            <span class="error-message"> {{$message}}</span>
+                                                            @enderror
 
-                                                    </div>
-                                                </li>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                                        </div>
+                                                    </li>
+                                                </div>
+                                            </td>
+                                        </tr>
                                     @endif
                                     <tr>
                                         <td><label for="chkNo">
@@ -273,16 +273,16 @@
                                             {!! html()->label(trans('message.hidden'), 'hidden') !!}
                                             {!! html()->hidden('hidden', 0) !!}
                                             {!! html()->hidden('invoice_hidden', 0) !!}
-                                            <?php
-                                            $value=  "";
-                                            $value1="";
-                                            if ($product->hidden==1) {
-                                                $value = 'true';
-                                            }
-                                            if($product->invoice_hidden==1){
-                                                $value1=1;
-                                            }
-                                            ?>
+                                                <?php
+                                                $value=  "";
+                                                $value1="";
+                                                if ($product->hidden==1) {
+                                                    $value = 'true';
+                                                }
+                                                if($product->invoice_hidden==1){
+                                                    $value1=1;
+                                                }
+                                                ?>
                                             <p>{!! html()->checkbox('hidden', $value, 1) !!}  {{Lang::get('message.tick-to-hide-from-order-form')}}</p>
                                             <p>{!! html()->checkbox('invoice_hidden', $value1 ,1) !!}  {{Lang::get('message.tick-to-hide-from-invoice')}}</p>
                                         </div>
@@ -296,12 +296,12 @@
                                             <!-- first name -->
                                             {!! html()->label(trans('message.highlight'))->for('highlight') !!}
                                             {!! html()->hidden('highlight', 0) !!}
-                                            <?php
-                                            $value=  "";
-                                            if ($product->highlight==1) {
-                                                $value = 'true';
-                                            }
-                                            ?>
+                                                <?php
+                                                $value=  "";
+                                                if ($product->highlight==1) {
+                                                    $value = 'true';
+                                                }
+                                                ?>
                                             <p>{!! html()->checkbox('highlight', $value) !!}  {{Lang::get('message.tick-to-highlight-product')}}</p>
 
                                         </div>
@@ -316,12 +316,12 @@
                                             <!-- first name -->
                                             {!! html()->label(trans('message.contact_to_sales'))->for('add_to_contact') !!}
                                             {!! html()->hidden('add_to_contact', 0) !!}
-                                            <?php
-                                            $value=  "";
-                                            if ($product->add_to_contact==1) {
-                                                $value = 'true';
-                                            }
-                                            ?>
+                                                <?php
+                                                $value=  "";
+                                                if ($product->add_to_contact==1) {
+                                                    $value = 'true';
+                                                }
+                                                ?>
                                             <p>{!! html()->checkbox('add_to_contact', $value, 1) !!} {{Lang::get('message.tick-to-add_to_contact-product')}}</p>
 
                                         </div>
@@ -485,7 +485,7 @@
                     </div>
                 </div>
 
-                 <div id="response"></div>
+                <div id="response"></div>
                 <div id="product-alert-container"></div>
                 <div class="card-body table-responsive">
                     <div class="row" >
@@ -620,15 +620,15 @@
                                     $('#gif').hide();
                                     var result="";
                                     if(data.success==true){
-                                    var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }} </strong>'+data.message+'</div>';
+                                        var result =  '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }} </strong>'+data.message+'</div>';
                                     }else{
-                                     var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> {{ __('message.error') }} </strong>'+data.message+'</div>';
+                                        var result =  '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-ban"></i> {{ __('message.error') }} </strong>'+data.message+'</div>';
 
                                     }
                                     $('#response').html(result);
                                     setTimeout(function() {
-                                location.reload();
-                            }, 5000);
+                                        location.reload();
+                                    }, 5000);
                                 }
                             })
                         } else {
@@ -901,95 +901,95 @@
             $('#upload-table').find("td input[type='checkbox']").prop('checked', $(e).prop('checked'));
         }
         $(document).ready(function () {
-                var selectedIds = [];
+            var selectedIds = [];
 
-                let alertTimeout;
-                function showAlert(type, messageOrResponse) {
-                    // Generate appropriate HTML
-                    var html = generateAlertHtml(type, messageOrResponse);
+            let alertTimeout;
+            function showAlert(type, messageOrResponse) {
+                // Generate appropriate HTML
+                var html = generateAlertHtml(type, messageOrResponse);
 
-                    // Clear any existing alerts and remove the timeout
-                    $('#product-alert-container').html(html);
-                    clearTimeout(alertTimeout); // Clear the previous timeout if it exists
+                // Clear any existing alerts and remove the timeout
+                $('#product-alert-container').html(html);
+                clearTimeout(alertTimeout); // Clear the previous timeout if it exists
 
-                    // Display alert
-                    $('html, body').animate({
-                        scrollTop: $('#product-alert-container').offset().top
-                    }, 500);
+                // Display alert
+                $('html, body').animate({
+                    scrollTop: $('#product-alert-container').offset().top
+                }, 500);
 
-                    // Auto-dismiss after 5 seconds, then reload the page
-                    alertTimeout = setTimeout(function() {
-                        $('#product-alert-container .alert').fadeOut('slow', function() {
-                            location.reload(); // Reload after alert hides
-                        });
-                    }, 5000);
-                }
-
-
-
-                function generateAlertHtml(type, response) {
-                    // Determine alert styling based on type
-                    const isSuccess = type === 'success';
-                    const iconClass = isSuccess ? 'fa-check-circle' : 'fa-ban';
-                    const alertClass = isSuccess ? 'alert-success' : 'alert-danger';
-
-                    // Extract message and errors
-                    const message = response.message || response || 'An error occurred. Please try again.';
-                    const errors = response.errors || null;
-
-                    // Build base HTML
-                    let html = `<div class="alert ${alertClass} alert-dismissible">` +
-                        `<i class="fa ${iconClass}"></i> ` +
-                        `${message}` +
-                        '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
-
-                    html += '</div>';
-
-                    return html;
-                }
-
-                // Open modal when delete button is clicked
-                // $(document).on('click', '#bulk_delete', function () {
-                //     selectedIds = [];
-                //
-                //     $('.upload_checkbox:checked').each(function () {
-                //         selectedIds.push($(this).val());
-                //     });
-                //
-                //     if (selectedIds.length > 0) {
-                //         $('#deleteModal').modal('show'); // Show Bootstrap modal
-                //     } else {
-                //         alert("Please select at least one checkbox");
-                //     }
-                // });
-
-                // Confirm delete inside modal
-                $('#confirmDelete').click(function () {
-                    $.ajax({
-                        url: "{!! url('uploads-delete') !!}",
-                        method: "POST",
-                        contentType: "application/json", // Send JSON format
-                        dataType: "json",
-                        data: JSON.stringify({
-                            _method: "DELETE",
-                            _token: document.querySelector('meta[name="csrf-token"]').content, // CSRF Token
-                            ids: selectedIds // Send the selected IDs
-                        }),
-                        beforeSend: function () {
-                            $('#gif').show();
-                        },
-                        success: function (response) {
-                            showAlert('success', response.message);
-                        },
-                        error: function (xhr) {
-                            showAlert('error', xhr.responseJSON.message);
-                        },
-                        complete: function (){
-                            $('#deleteModal').modal('hide');
-                        }
+                // Auto-dismiss after 5 seconds, then reload the page
+                alertTimeout = setTimeout(function() {
+                    $('#product-alert-container .alert').fadeOut('slow', function() {
+                        location.reload(); // Reload after alert hides
                     });
+                }, 5000);
+            }
+
+
+
+            function generateAlertHtml(type, response) {
+                // Determine alert styling based on type
+                const isSuccess = type === 'success';
+                const iconClass = isSuccess ? 'fa-check-circle' : 'fa-ban';
+                const alertClass = isSuccess ? 'alert-success' : 'alert-danger';
+
+                // Extract message and errors
+                const message = response.message || response || 'An error occurred. Please try again.';
+                const errors = response.errors || null;
+
+                // Build base HTML
+                let html = `<div class="alert ${alertClass} alert-dismissible">` +
+                    `<i class="fa ${iconClass}"></i> ` +
+                    `${message}` +
+                    '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+
+                html += '</div>';
+
+                return html;
+            }
+
+            // Open modal when delete button is clicked
+            // $(document).on('click', '#bulk_delete', function () {
+            //     selectedIds = [];
+            //
+            //     $('.upload_checkbox:checked').each(function () {
+            //         selectedIds.push($(this).val());
+            //     });
+            //
+            //     if (selectedIds.length > 0) {
+            //         $('#deleteModal').modal('show'); // Show Bootstrap modal
+            //     } else {
+            //         alert("Please select at least one checkbox");
+            //     }
+            // });
+
+            // Confirm delete inside modal
+            $('#confirmDelete').click(function () {
+                $.ajax({
+                    url: "{!! url('uploads-delete') !!}",
+                    method: "POST",
+                    contentType: "application/json", // Send JSON format
+                    dataType: "json",
+                    data: JSON.stringify({
+                        _method: "DELETE",
+                        _token: document.querySelector('meta[name="csrf-token"]').content, // CSRF Token
+                        ids: selectedIds // Send the selected IDs
+                    }),
+                    beforeSend: function () {
+                        $('#gif').show();
+                    },
+                    success: function (response) {
+                        showAlert('success', response.message);
+                    },
+                    error: function (xhr) {
+                        showAlert('error', xhr.responseJSON.message);
+                    },
+                    complete: function (){
+                        $('#deleteModal').modal('hide');
+                    }
                 });
             });
+        });
 
 
     </script>
@@ -1088,24 +1088,24 @@
 
                 }
 
-        });
-       // Function to remove error when input'id' => 'changePasswordForm'ng data
-        const removeErrorMessage = (field) => {
-            field.classList.remove('is-invalid');
-            const error = field.nextElementSibling;
-            if (error && error.classList.contains('error')) {
-                error.remove();
-            }
-        };
-
-        //Add input event listeners for all fields
-        ['productname','type','group','product_sku'].forEach(id => {
-
-            document.getElementById(id).addEventListener('input', function () {
-                removeErrorMessage(this);
-
             });
-        });
+            // Function to remove error when input'id' => 'changePasswordForm'ng data
+            const removeErrorMessage = (field) => {
+                field.classList.remove('is-invalid');
+                const error = field.nextElementSibling;
+                if (error && error.classList.contains('error')) {
+                    error.remove();
+                }
+            };
+
+            //Add input event listeners for all fields
+            ['productname','type','group','product_sku'].forEach(id => {
+
+                document.getElementById(id).addEventListener('input', function () {
+                    removeErrorMessage(this);
+
+                });
+            });
         });
 
     </script>
@@ -1147,6 +1147,13 @@
                 document.getElementById("hide").style.display="block";
                 $("#uploads").show();
             }
+
+            $("#chkNo").click(function () {
+                if ($(this).is(":checked")) {
+                    // Clear GitHub credential fields
+                    $("#owner, #repo, #version").val('');
+                }
+            });
 
             // })
 

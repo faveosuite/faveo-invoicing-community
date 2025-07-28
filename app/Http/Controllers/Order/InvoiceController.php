@@ -551,9 +551,12 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             $invoice = $this->invoice->where('id', $id)->first();
 
             $user = $this->user->find($invoice->user_id);
-            if (! $user || $user->id != \Auth::user()->id) {
+
+            if (! $user || ($user->id != \Auth::user()->id && \Auth::user()->role != 'admin')) {
                 return redirect()->back()->with('fails', __('message.invalid_user'));
             }
+
+
             if (! $invoice) {
                 return redirect()->back()->with('fails', \Lang::get('message.invalid-invoice-id'));
             }

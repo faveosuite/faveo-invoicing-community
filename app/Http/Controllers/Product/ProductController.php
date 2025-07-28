@@ -422,7 +422,7 @@ class ProductController extends BaseProductController
                     'canModifyAgent',
                     'canModifyQuantity',
                     'checkowner',
-                    'githubStatus'
+                    'githubStatus',
                 )
             );
         } catch (\Exception $e) {
@@ -439,7 +439,6 @@ class ProductController extends BaseProductController
     public function update($id, Request $request)
     {
         $input = $request->all();
-
         $v = \Validator::make($input, [
             'name' => 'required',
             'type' => 'required',
