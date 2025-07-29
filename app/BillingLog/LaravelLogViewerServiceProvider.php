@@ -1,6 +1,7 @@
 <?php
 
 namespace App\BillingLog;
+
 use Blade;
 use Illuminate\Support\ServiceProvider;
 

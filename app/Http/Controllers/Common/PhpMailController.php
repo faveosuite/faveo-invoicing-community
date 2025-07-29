@@ -30,7 +30,7 @@ class PhpMailController extends Controller
     }
 
     /**
-     * Send email using queue
+     * Send email using queue.
      */
     public function sendEmail(
         string $from,
@@ -173,7 +173,6 @@ class PhpMailController extends Controller
         }
     }
 
-
     public function mailing(
         string $from,
         string $to,
@@ -205,10 +204,9 @@ class PhpMailController extends Controller
             $this->logEmail($from, $to, $subject, $transformedData, 'success', $cc, $bcc, $attach);
 
             return 'success';
-
         } catch (\Exception $ex) {
             $this->logEmail($from, $to, $subject, $data, 'failed', $cc, $bcc, $attach);
-            \Log::error('Email sending failed: ' . $ex->getMessage());
+            \Log::error('Email sending failed: '.$ex->getMessage());
             throw $ex;
         }
     }
@@ -273,12 +271,12 @@ class PhpMailController extends Controller
     }
 
     /**
-     * Prepare email configuration
+     * Prepare email configuration.
      */
     protected function prepareEmailConfig(array $replace, string $type, string $subject, string $fromname, bool $autoReply): array
     {
         $config = [
-            'fromname' => !empty($fromname) ? $fromname : Setting::first()->from_name,
+            'fromname' => ! empty($fromname) ? $fromname : Setting::first()->from_name,
             'reply_to' => null,
             'auto_reply' => $autoReply,
         ];
@@ -295,7 +293,7 @@ class PhpMailController extends Controller
     }
 
     /**
-     * Determine reply-to address
+     * Determine reply-to address.
      */
     protected function determineReplyTo(string $type, array $replace): ?string
     {
@@ -314,17 +312,18 @@ class PhpMailController extends Controller
     }
 
     /**
-     * Transform email data
+     * Transform email data.
      */
     protected function transformEmailData(string $data, array $replace, string $type): string
     {
         $transform = [$replace];
         $pageController = new \App\Http\Controllers\Front\PageController();
+
         return $pageController->transform($type, $data, $transform);
     }
 
     /**
-     * Send mail message
+     * Send mail message.
      */
     protected function sendMailMessage(
         string $from,
@@ -348,7 +347,7 @@ class PhpMailController extends Controller
             $this->addAttachments($message, $attach);
             $this->autoReplyHeader($message, $config);
 
-            if (!empty($config['reply_to'])) {
+            if (! empty($config['reply_to'])) {
                 $message->replyTo($config['reply_to'], $config['fromname']);
             }
         });
@@ -361,8 +360,9 @@ class PhpMailController extends Controller
             $message->getHeaders()->addTextHeader('Auto-Submitted', 'auto-replied');
         }
     }
+
     /**
-     * Add CC recipients to message
+     * Add CC recipients to message.
      */
     protected function addCcRecipients($message, array $cc): void
     {
@@ -376,7 +376,7 @@ class PhpMailController extends Controller
     }
 
     /**
-     * Add BCC recipients to message
+     * Add BCC recipients to message.
      */
     protected function addBccRecipients($message, array $bcc): void
     {
@@ -390,7 +390,7 @@ class PhpMailController extends Controller
     }
 
     /**
-     * Add attachments to message
+     * Add attachments to message.
      */
     protected function addAttachments($message, array $attach): void
     {
@@ -402,8 +402,9 @@ class PhpMailController extends Controller
             }
         }
     }
+
     /**
-     * Log email data to database
+     * Log email data to database.
      */
     protected function logEmail(
         string $from,
@@ -420,35 +421,36 @@ class PhpMailController extends Controller
                 'date' => Carbon::now()->format('Y-m-d H:i:s'),
                 'from' => $from,
                 'to' => $to,
-                'cc' => !empty($cc) ? $this->formatAddresses($cc) : null,
-                'bcc' => !empty($bcc) ? $this->formatAddresses($bcc) : null,
+                'cc' => ! empty($cc) ? $this->formatAddresses($cc) : null,
+                'bcc' => ! empty($bcc) ? $this->formatAddresses($bcc) : null,
                 'subject' => $subject,
                 'body' => $data,
-                'attachments' => !empty($attach) ? $this->formatAttachments($attach) : null,
+                'attachments' => ! empty($attach) ? $this->formatAttachments($attach) : null,
                 'status' => $status,
             ]);
         } catch (\Exception $e) {
-            \Log::error('Failed to log email: ' . $e->getMessage());
+            \Log::error('Failed to log email: '.$e->getMessage());
         }
     }
 
     /**
-     * Format addresses for database storage
+     * Format addresses for database storage.
      */
     protected function formatAddresses(array $addresses): string
     {
         return collect($addresses)->map(function ($address) {
             if (is_array($address) && isset($address['address'])) {
-                return isset($address['name']) && !empty($address['name'])
-                    ? $address['name'] . ' <' . $address['address'] . '>'
+                return isset($address['name']) && ! empty($address['name'])
+                    ? $address['name'].' <'.$address['address'].'>'
                     : $address['address'];
             }
+
             return $address;
         })->implode(', ');
     }
 
     /**
-     * Format attachments for database storage
+     * Format attachments for database storage.
      */
     protected function formatAttachments(array $attachments): string
     {
@@ -456,6 +458,7 @@ class PhpMailController extends Controller
             if (is_array($file) && isset($file['path'])) {
                 return basename($file['path']);
             }
+
             return basename($file);
         })->implode(', ');
     }
