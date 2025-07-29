@@ -6,10 +6,10 @@ use Bugsnag;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Logger;
 use PDOException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
-use Logger;
 
 class Handler extends ExceptionHandler
 {
@@ -98,10 +98,10 @@ class Handler extends ExceptionHandler
 
     /**
      * Function to check the exception should be stored in database exception logs
-     * or not
+     * or not.
      *
-     * @param  \Throwable  $exception current Exception instance
-     * @return bool       false if exception should not be logged in DB, otherwise true
+     * @param  \Throwable  $exception  current Exception instance
+     * @return bool false if exception should not be logged in DB, otherwise true
      */
     private function shouldBeLoggedInDB(Throwable $exception)
     {

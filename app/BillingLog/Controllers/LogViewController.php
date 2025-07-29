@@ -16,7 +16,7 @@ class LogViewController
 
     public function getLogs($type, Request $request)
     {
-        switch($type){
+        switch($type) {
             case 'exception':
                 return $this->getExceptionLogs($request);
             default:
@@ -66,5 +66,4 @@ class LogViewController
 
         return successResponse('', $categories);
     }
-
 }
