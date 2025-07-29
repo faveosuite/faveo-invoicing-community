@@ -10,7 +10,6 @@ use Throwable;
 
 class LogWriteController
 {
-
     /**
      * Logs the start of a cron job.
      *
@@ -22,12 +21,13 @@ class LogWriteController
     {
         try {
             return CronLog::create([
-                'command'     => $signature,
+                'command' => $signature,
                 'description' => $description,
-                'status'      => 'running',
+                'status' => 'running',
             ]);
         } catch (Throwable $e) {
             $this->exception($e, 'cron');
+
             return null;
         }
     }
@@ -39,7 +39,7 @@ class LogWriteController
      * @param  Exception|null  $exception
      * @return void
      */
-    public function cronFailed(int $logId, Exception $exception = null): void
+    public function cronFailed(int $logId, ?Exception $exception = null): void
     {
         try {
             $cronLog = CronLog::select('id', 'created_at', 'command')->find($logId);
@@ -47,9 +47,9 @@ class LogWriteController
             $exceptionLog = $this->exception($exception, 'cron');
 
             $cronLog->update([
-                'status'           => 'failed',
+                'status' => 'failed',
                 'exception_log_id' => $exceptionLog?->id,
-                'duration'         => Carbon::now()->diffInSeconds($cronLog->created_at),
+                'duration' => Carbon::now()->diffInSeconds($cronLog->created_at),
             ]);
         } catch (Throwable $e) {
             $this->exception($e, 'cron');
@@ -68,7 +68,7 @@ class LogWriteController
             $cronLog = CronLog::select('id', 'created_at')->find($logId);
 
             $cronLog->update([
-                'status'   => 'completed',
+                'status' => 'completed',
                 'duration' => Carbon::now()->diffInSeconds($cronLog->created_at),
             ]);
         } catch (Throwable $e) {
@@ -77,10 +77,10 @@ class LogWriteController
     }
 
     /**
-     * Logs exception along with trace
+     * Logs exception along with trace.
      *
-     * @param  Throwable  $e        Exception or Error
-     * @param  string     $category Category to which it belongs
+     * @param  Throwable  $e  Exception or Error
+     * @param  string  $category  Category to which it belongs
      * @return void
      */
     public function exception(Throwable $e, string $category = 'default'): ?\Illuminate\Database\Eloquent\Model
@@ -90,9 +90,9 @@ class LogWriteController
 
             return $logCategory->exception()->create([
                 'message' => $e->getMessage(),
-                'file'    => $e->getFile(),
-                'line'    => $e->getLine(),
-                'trace'   => nl2br($e->getTraceAsString()),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => nl2br($e->getTraceAsString()),
             ]);
         } catch (Throwable $fallback) {
             // ignore exception
@@ -130,18 +130,19 @@ class LogWriteController
             $category = LogCategory::firstOrCreate(['name' => $categoryName ?? 'default']);
 
             return $category->mail()->create([
-                'sender_mail'   => $senderMail,
+                'sender_mail' => $senderMail,
                 'reciever_mail' => $receiverMail,
-                'subject'       => $subject,
-                'body'          => $body,
-                'referee_id'    => $refereeId,
-                'referee_type'  => $refereeType,
-                'status'        => $status,
-                'source'        => $source,
+                'subject' => $subject,
+                'body' => $body,
+                'referee_id' => $refereeId,
+                'referee_type' => $refereeType,
+                'status' => $status,
+                'source' => $source,
                 'collaborators' => is_array($cc) ? implode(',', $cc) : $cc,
             ]);
         } catch (Throwable $e) {
             $this->exception($e, 'mail-send');
+
             return null;
         }
     }
