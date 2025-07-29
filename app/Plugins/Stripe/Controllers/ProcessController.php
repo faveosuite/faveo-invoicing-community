@@ -93,7 +93,7 @@ class ProcessController extends Controller
                 $processingFee = $this->getProcessingFee($payment_method, $invoice->currency);
                 $this->updateFinalPrice(new Request(['processing_fee' => $processingFee]));
                 $invoice->processing_fee = $processingFee;
-                $displayProcessingFee=$invoice->grand_total;
+                $displayProcessingFee = $invoice->grand_total;
                 $invoice->grand_total = intval($invoice->grand_total * (1 + $processingFee / 100));
                 $amount = rounding($invoice->grand_total);
                 $creditBalance = $invoice->billing_pay;
@@ -107,7 +107,7 @@ class ProcessController extends Controller
                 \Session::put('totalToBePaid', $amount);
                 \View::addNamespace('plugins', $path);
                 echo view('plugins::middle-page', compact('total', 'invoice', 'regularPayment', 'items', 'product', 'amount',
-                    'paid', 'creditBalance', 'gateway', 'rzp_key', 'rzp_secret', 'apilayer_key', 'stripe_key', 'data','displayProcessingFee'));
+                    'paid', 'creditBalance', 'gateway', 'rzp_key', 'rzp_secret', 'apilayer_key', 'stripe_key', 'data', 'displayProcessingFee'));
             } else {
                 $pay = $this->payment($payment_method, $status = 'pending');
                 $payment_method = $pay['payment'];
@@ -117,10 +117,10 @@ class ProcessController extends Controller
                 $this->updateFinalPrice(new Request(['processing_fee' => $processingFee]));
                 $amount = rounding(\Cart::getTotal());
                 \View::addNamespace('plugins', $path);
-                $displayProcessingFee=$invoice->grand_total;
+                $displayProcessingFee = $invoice->grand_total;
 
                 echo view('plugins::middle-page', compact('invoice', 'amount', 'invoice_no', 'payment_method', 'invoice',
-                    'regularPayment', 'gateway', 'rzp_key', 'rzp_secret', 'apilayer_key', 'stripe_key', 'data','displayProcessingFee'))->render();
+                    'regularPayment', 'gateway', 'rzp_key', 'rzp_secret', 'apilayer_key', 'stripe_key', 'data', 'displayProcessingFee'))->render();
             }
         } catch (\Exception $ex) {
             throw new \Exception($ex->getMessage());
