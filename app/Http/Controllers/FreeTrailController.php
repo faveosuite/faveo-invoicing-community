@@ -78,8 +78,9 @@ class FreeTrailController extends Controller
                     $product = Product::with(['planRelation' => function ($query) use ($cloudProduct) {
                         $query->where('id', $cloudProduct->cloud_free_plan);
                     }])->find($cloudProduct->cloud_product);
-                    $this->generateFreetrailInvoice($product);
-                    $this->createFreetrailInvoiceItems($product);
+                    $plan_id = $product->planRelation()->where('days', '<', 30)->value('id');
+                    $this->generateFreetrailInvoice($product,$plan_id);
+                    $this->createFreetrailInvoiceItems($product,$plan_id);
                     $serial_key = $this->executeFreetrailOrder();
                     $isSuccess = $this->tenantController->createTenant(new Request(['orderNo' => $this->orderNo, 'domain' => $request->domain]));
                     if ($isSuccess['status'] == 'false') {
@@ -117,7 +118,7 @@ class FreeTrailController extends Controller
      *
      * @throws \Exception
      */
-    private function generateFreetrailInvoice($product)
+    private function generateFreetrailInvoice($product,$plan_id)
     {
         try {
 //            $cloudProduct = CloudProducts::where('cloud_product_key', $product_type)
@@ -126,7 +127,7 @@ class FreeTrailController extends Controller
 //            $product = Product::with(['planRelation' => function ($query) use ($cloudProduct) {
 //                $query->where('id', $cloudProduct->cloud_free_plan);
 //            }])->find($cloudProduct->cloud_product);
-            $plan_id = $product->planRelation()->where('days', '<', 30)->value('id');
+//            $plan_id = $product->planRelation()->where('days', '<', 30)->value('id');
             $price=planPrice::where('plan_id', $plan_id)
                 ->where('currency', getCurrencyForClient(\Auth::user()->country))->pluck('add_price');
             $tax_rule = new TaxOption();
@@ -152,7 +153,7 @@ class FreeTrailController extends Controller
      *
      * @throws \Exception
      */
-    private function createFreetrailInvoiceItems($product_type)
+    private function createFreetrailInvoiceItems($product,$plan_id)
     {
         try {
 //            $cloudProduct = CloudProducts::where('cloud_product_key', $product_type)
@@ -163,7 +164,7 @@ class FreeTrailController extends Controller
 //            }])->find($cloudProduct->cloud_product);
 
             if ($product) {
-                $plan_id = $product->planRelation()->where('days', '<', 30)->value('id');
+//                $plan_id = $product->planRelation()->where('days', '<', 30)->value('id');
                 $cart = \Cart::getContent();
                 $userId = \Auth::user()->id;
                 $invoice = $this->invoice->where('user_id', $userId)->latest()->first();
