@@ -127,7 +127,7 @@ class FreeTrailController extends Controller
 //                $query->where('id', $cloudProduct->cloud_free_plan);
 //            }])->find($cloudProduct->cloud_product);
             $plan_id = $product->planRelation()->where('days', '<', 30)->value('id');
-            $price=planPrice::where('plan_id', $plan_id)
+            $price = planPrice::where('plan_id', $plan_id)
                 ->where('currency', getCurrencyForClient(\Auth::user()->country))->pluck('add_price');
             $tax_rule = new TaxOption();
             $rule = $tax_rule->findOrFail(1);
