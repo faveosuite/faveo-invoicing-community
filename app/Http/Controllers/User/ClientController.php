@@ -70,7 +70,20 @@ class ClientController extends AdvanceSearchController
             return redirect('clients')->with('fails', __('message.registered_till_date'));
         }
 
-        return view('themes.default1.user.client.index', compact('request'));
+        $users = User::select('id', 'first_name', 'last_name', 'email', 'position')
+            ->where('role', 'admin')
+            ->whereIn('position', ['account_manager', 'manager'])
+            ->get();
+
+        $accountManagers = $users->filter(fn ($user) => $user->position === 'account_manager')
+            ->mapWithKeys(fn ($user) => [$user->id => $user->first_name.' '.$user->last_name.' <'.$user->email.'>'])
+            ->toArray();
+
+        $salesManager = $users->filter(fn ($user) => $user->position === 'manager')
+            ->mapWithKeys(fn ($user) => [$user->id => $user->first_name.' '.$user->last_name.' <'.$user->email.'>'])
+            ->toArray();
+
+        return view('themes.default1.user.client.index', compact('request', 'accountManagers', 'salesManager'));
     }
 
     /**
