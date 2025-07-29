@@ -36,6 +36,7 @@ class ClientRequest extends Request
                     'timezone_id' => 'required',
                     'user_name' => 'unique:users,user_name',
                     'zip' => 'regex:/^[a-zA-Z0-9]+$/',
+                    'position' => 'prohibited_if:role,user',
                 ];
 
             case 'PATCH':
@@ -51,6 +52,7 @@ class ClientRequest extends Request
                     'timezone_id' => 'required',
                     'user_name' => 'unique:users,user_name,'.$id,
                     'zip' => 'regex:/^[a-zA-Z0-9]+$/',
+                    'position' => 'prohibited_if:role,user',
                 ];
 
             default:

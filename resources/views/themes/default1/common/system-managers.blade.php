@@ -8,6 +8,10 @@
         background-color: #1b1818 !important;
     }
 
+    .label-toggle{
+        pointer-events: none;
+    }
+
 </style>
     <div class="col-sm-6">
         <h1>{{ __('message.system_manager') }}</h1>
@@ -36,7 +40,7 @@
                         <div class="col-md-6">
                             <div class="custom-control custom-switch">
                                 <input type="checkbox" class="custom-control-input" id="autoAssignAccountSwitch" name="autoAssignAccount" {{ $accountManagersAutoAssign ? 'checked' : '' }}>
-                                <label class="custom-control-label" for="autoAssignAccountSwitch">
+                                <label class="custom-control-label label-toggle" for="autoAssignAccountSwitch">
                                     <strong>{{ __('message.enable_account_manager') }}</strong>
                                     <small class="text-muted d-block">{{ __('message.account_upon_creation') }}</small>
                                 </label>
@@ -45,7 +49,7 @@
                         <div class="col-md-6">
                             <div class="custom-control custom-switch">
                                 <input type="checkbox" class="custom-control-input" id="autoAssignSalesSwitch" name="autoAssignSales" {{ $salesManagerAutoAssign ? 'checked' : '' }}>
-                                <label class="custom-control-label" for="autoAssignSalesSwitch">
+                                <label class="custom-control-label label-toggle" for="autoAssignSalesSwitch">
                                     <strong>{{ __('message.enable_sales_manager') }}</strong>
                                     <small class="text-muted d-block">{{ __('message.sales_upon_creation') }}</small>
                                 </label>
