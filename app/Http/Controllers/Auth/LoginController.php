@@ -156,7 +156,6 @@ class LoginController extends Controller
         $this->convertCart();
 
         activity()->log('Logged In');
-
         return redirect($this->redirectPath());
     }
 
@@ -175,9 +174,8 @@ class LoginController extends Controller
             $sessionUrl = str_replace($appUrl, '', $sessionUrl);
         }
 
-        $defaultPath = ($auth && $auth->role !== 'user') ? '/client-dashboard' : '/';
-
-        return $sessionUrl ?: $defaultPath;
+        $defaultPath = ($auth && $auth->role === 'user') ? '/client-dashboard' : '/';
+        return url($defaultPath);
     }
 
     /**

@@ -72,8 +72,14 @@ class FreeTrailController extends Controller
                 DB::beginTransaction(); // Start a database transaction
 
                 try {
-                    $this->generateFreetrailInvoice();
-                    $this->createFreetrailInvoiceItems($request->get('product'));
+                    $cloudProduct = CloudProducts::where('cloud_product_key', $request->get('product'))
+                        ->select('cloud_free_plan', 'cloud_product')
+                        ->first();
+                    $product = Product::with(['planRelation' => function ($query) use ($cloudProduct) {
+                        $query->where('id', $cloudProduct->cloud_free_plan);
+                    }])->find($cloudProduct->cloud_product);
+                    $this->generateFreetrailInvoice($product);
+                    $this->createFreetrailInvoiceItems($product);
                     $serial_key = $this->executeFreetrailOrder();
                     $isSuccess = $this->tenantController->createTenant(new Request(['orderNo' => $this->orderNo, 'domain' => $request->domain]));
                     if ($isSuccess['status'] == 'false') {
@@ -111,14 +117,23 @@ class FreeTrailController extends Controller
      *
      * @throws \Exception
      */
-    private function generateFreetrailInvoice()
+    private function generateFreetrailInvoice($product)
     {
         try {
+//            $cloudProduct = CloudProducts::where('cloud_product_key', $product_type)
+//                ->select('cloud_free_plan', 'cloud_product')
+//                ->first();
+//            $product = Product::with(['planRelation' => function ($query) use ($cloudProduct) {
+//                $query->where('id', $cloudProduct->cloud_free_plan);
+//            }])->find($cloudProduct->cloud_product);
+            $plan_id = $product->planRelation()->where('days', '<', 30)->value('id');
+            $price=planPrice::where('plan_id', $plan_id)
+                ->where('currency', getCurrencyForClient(\Auth::user()->country))->pluck('add_price');
             $tax_rule = new TaxOption();
             $rule = $tax_rule->findOrFail(1);
             $rounding = $rule->rounding;
             $user_id = \Auth::user()->id;
-            $grand_total = $rounding ? round(\Cart::getTotal()) : \Cart::getTotal();
+            $grand_total = $rounding ? round($price[0]) : $price[0];
             $number = rand(11111111, 99999999);
             $date = \Carbon\Carbon::now();
             $currency = \Session::has('cart_currency') ? \Session::get('cart_currency') : getCurrencyForClient(\Auth::user()->country);
@@ -140,12 +155,12 @@ class FreeTrailController extends Controller
     private function createFreetrailInvoiceItems($product_type)
     {
         try {
-            $cloudProduct = CloudProducts::where('cloud_product_key', $product_type)
-                ->select('cloud_free_plan', 'cloud_product')
-                ->first();
-            $product = Product::with(['planRelation' => function ($query) use ($cloudProduct) {
-                $query->where('id', $cloudProduct->cloud_free_plan);
-            }])->find($cloudProduct->cloud_product);
+//            $cloudProduct = CloudProducts::where('cloud_product_key', $product_type)
+//                ->select('cloud_free_plan', 'cloud_product')
+//                ->first();
+//            $product = Product::with(['planRelation' => function ($query) use ($cloudProduct) {
+//                $query->where('id', $cloudProduct->cloud_free_plan);
+//            }])->find($cloudProduct->cloud_product);
 
             if ($product) {
                 $plan_id = $product->planRelation()->where('days', '<', 30)->value('id');

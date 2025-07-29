@@ -558,11 +558,25 @@ foreach($scripts as $script) {
 
                 gtag('config', tag);
             }
+
             function placeErrorMessage(error, element, errorMapping = null) {
+                const errorText = error.text().trim();
+
                 if (errorMapping !== null && errorMapping[element.attr("name")]) {
-                    $(errorMapping[element.attr("name")]).html(error);
+                    const target = $(errorMapping[element.attr("name")]);
+
+                    if (errorText) {
+                        target.html(error).show();
+                    } else {
+                        target.hide().empty();
+                    }
                 } else {
-                    error.insertAfter(element);
+                    // Fallback: place error right after the element
+                    if (errorText) {
+                        error.insertAfter(element).show();
+                    } else {
+                        error.remove(); // or hide/remove any existing nearby error span
+                    }
                 }
             }
 
