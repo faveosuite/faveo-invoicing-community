@@ -228,6 +228,8 @@ return [
         Maatwebsite\Excel\ExcelServiceProvider::class,
         \App\Providers\AttachmentHelperServiceProvider::class,
         Spatie\Html\HtmlServiceProvider::class,
+        \App\BillingLog\LaravelLogViewerServiceProvider::class,
+        \App\Providers\LogServiceProvider::class,
     ],
 
     /*
@@ -259,6 +261,7 @@ return [
         'Markdown' => GrahamCampbell\Markdown\Facades\Markdown::class,
         'Socialite' => Laravel\Socialite\Facades\Socialite::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+        'Logger' => \App\Facades\Log::class,
 
     ])->toArray(),
 

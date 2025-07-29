@@ -221,6 +221,7 @@ Route::middleware('installAgora')->group(function () {
     Route::get('settings/maillog', [Common\SettingsController::class, 'settingsMail']);
     Route::get('get-activity', [Common\SettingsController::class, 'getActivity'])->name('get-activity');
     Route::get('get-email', [Common\SettingsController::class, 'getMails'])->name('get-email');
+    Route::get('/email-log/body/{id}', [Common\SettingsController::class, 'getBody'])->name('email-log.body');
     Route::delete('activity-delete', [Common\SettingsController::class, 'destroy'])->name('activity-delete');
     Route::delete('email-delete', [Common\SettingsController::class, 'destroyEmail'])->name('email-delete');
     Route::post('licenseDetails', [Common\BaseSettingsController::class, 'licenseDetails'])->name('licenseDetails');

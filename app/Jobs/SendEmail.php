@@ -28,14 +28,34 @@ class SendEmail implements ShouldQueue
     protected $type;
 
     protected $bcc;
+    protected $fromname;
+    protected $toname;
+
+    protected $cc;
+
+    protected $attach;
+
+    protected $auto_reply;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($from, $to, $template_data, $template_name, $replace = [], $type = '', $bcc = [])
-    {
+    public function __construct(
+        $from,
+        $to,
+        $template_data,
+        $template_name,
+        $replace = [],
+        $type = '',
+        $bcc = [],
+        $fromname = '',
+        $toname = '',
+        $cc = [],
+        $attach = [],
+        $auto_reply = false,
+    ) {
         $this->from = $from;
         $this->to = $to;
         $this->template_data = $template_data;
@@ -43,6 +63,11 @@ class SendEmail implements ShouldQueue
         $this->replace = $replace;
         $this->type = $type;
         $this->bcc = $bcc;
+        $this->fromname = $fromname;
+        $this->toname = $toname;
+        $this->cc = $cc;
+        $this->attach = $attach;
+        $this->auto_reply = $auto_reply;
     }
 
     /**
@@ -59,7 +84,12 @@ class SendEmail implements ShouldQueue
             $this->template_name,
             $this->replace,
             $this->type,
-            $this->bcc
+            $this->bcc,
+            $this->fromname,
+            $this->toname,
+            $this->cc,
+            $this->attach,
+            $this->auto_reply
         );
 
         return $p;

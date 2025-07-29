@@ -629,6 +629,17 @@ class SettingsController extends BaseSettingsController
         }
     }
 
+    public function getBody($id)
+    {
+        try {
+            $email = Email_log::findOrFail($id);
+            return successResponse('',['body' => $email->body, 'subject' => $email->subject]);
+        }catch (\Exception $ex){
+            return errorResponse($ex->getMessage());
+        }
+    }
+
+
     public function getActivity(Request $request)
     {
         try {
@@ -741,7 +752,7 @@ class SettingsController extends BaseSettingsController
                 })
 
                 ->addColumn('subject', function ($model) {
-                    return ucfirst($model->subject);
+                    return '<a href="#" class="text-primary view-mail" data-id="' . $model->id . '">' . e(ucfirst($model->subject)) . '</a>';
                 })
                 ->rawColumns(['checkbox', 'date', 'from', 'to',
                     'bcc', 'subject',  'status', ])
