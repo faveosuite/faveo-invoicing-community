@@ -556,7 +556,6 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 return redirect()->back()->with('fails', __('message.invalid_user'));
             }
 
-
             if (! $invoice) {
                 return redirect()->back()->with('fails', \Lang::get('message.invalid-invoice-id'));
             }

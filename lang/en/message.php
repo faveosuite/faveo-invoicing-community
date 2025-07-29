@@ -2688,5 +2688,5 @@ return [
     'contact_setting_update' => 'Contact Settings Updated Successfully',
     'captcha_failed' => 'reCAPTCHA verification failed. Please ensure your reCAPTCHA secret key are valid.',
     'captcha_message' => 'reCAPTCHA verification failed. Please try again.',
-    'not-found'=>'This product cannot be deleted because it is currently associated with one or more services. Please remove all related services before attempting to delete this product.',
+    'not-found' => 'This product cannot be deleted because it is currently associated with one or more services. Please remove all related services before attempting to delete this product.',
 ];

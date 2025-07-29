@@ -79,8 +79,8 @@ class FreeTrailController extends Controller
                         $query->where('id', $cloudProduct->cloud_free_plan);
                     }])->find($cloudProduct->cloud_product);
                     $plan_id = $product->planRelation()->where('days', '<', 30)->value('id');
-                    $this->generateFreetrailInvoice($product,$plan_id);
-                    $this->createFreetrailInvoiceItems($product,$plan_id);
+                    $this->generateFreetrailInvoice($product, $plan_id);
+                    $this->createFreetrailInvoiceItems($product, $plan_id);
                     $serial_key = $this->executeFreetrailOrder();
                     $isSuccess = $this->tenantController->createTenant(new Request(['orderNo' => $this->orderNo, 'domain' => $request->domain]));
                     if ($isSuccess['status'] == 'false') {
@@ -118,7 +118,7 @@ class FreeTrailController extends Controller
      *
      * @throws \Exception
      */
-    private function generateFreetrailInvoice($product,$plan_id)
+    private function generateFreetrailInvoice($product, $plan_id)
     {
         try {
 //            $cloudProduct = CloudProducts::where('cloud_product_key', $product_type)
@@ -128,7 +128,7 @@ class FreeTrailController extends Controller
 //                $query->where('id', $cloudProduct->cloud_free_plan);
 //            }])->find($cloudProduct->cloud_product);
 //            $plan_id = $product->planRelation()->where('days', '<', 30)->value('id');
-            $price=planPrice::where('plan_id', $plan_id)
+            $price = planPrice::where('plan_id', $plan_id)
                 ->where('currency', getCurrencyForClient(\Auth::user()->country))->pluck('add_price');
             $tax_rule = new TaxOption();
             $rule = $tax_rule->findOrFail(1);
@@ -153,7 +153,7 @@ class FreeTrailController extends Controller
      *
      * @throws \Exception
      */
-    private function createFreetrailInvoiceItems($product,$plan_id)
+    private function createFreetrailInvoiceItems($product, $plan_id)
     {
         try {
 //            $cloudProduct = CloudProducts::where('cloud_product_key', $product_type)
