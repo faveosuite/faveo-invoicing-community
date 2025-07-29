@@ -6,7 +6,10 @@ use Bugsnag;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use PDOException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
+use Logger;
 
 class Handler extends ExceptionHandler
 {
@@ -44,6 +47,11 @@ class Handler extends ExceptionHandler
         }
 
         parent::report($exception);
+        // Log exception in database if not PDO exception
+        if ($this->shouldBeLoggedInDB($exception) && isInstall()) {
+            // Log exception to database
+            Logger::exception($exception);
+        }
     }
 
     /**
@@ -86,5 +94,24 @@ class Handler extends ExceptionHandler
         }
 
         return redirect()->guest(route('login'));
+    }
+
+    /**
+     * Function to check the exception should be stored in database exception logs
+     * or not
+     *
+     * @param  \Throwable  $exception current Exception instance
+     * @return bool       false if exception should not be logged in DB, otherwise true
+     */
+    private function shouldBeLoggedInDB(Throwable $exception)
+    {
+        $notAllowedExceptions = [PDOException::class, NotFoundHttpException::class, AuthenticationException::class];
+        foreach ($notAllowedExceptions as $notAllowedException) {
+            if ($exception instanceof $notAllowedException) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

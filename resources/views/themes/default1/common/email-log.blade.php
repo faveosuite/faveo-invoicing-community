@@ -24,7 +24,7 @@
         <h5>{{ __('message.search_here') }}
           </h5>
     </div>
- 
+
         <div class="card-body">
 
 
@@ -66,7 +66,7 @@
                     <button name="Search" type="submit"  class="btn btn-secondary"><i class="fa fa-search"></i>&nbsp;{!!Lang::get('message.search')!!}</button>
                     &nbsp;
                     <a href="{!! url('settings/maillog') !!}" id="reset" class="btn btn-secondary"><i class="fas fa-sync-alt"></i>&nbsp;{!!Lang::get('message.reset')!!}</a>
-            
+
 
 
 </div>
@@ -83,12 +83,12 @@
   <div class="row">
           <div class="col-md-12">
 
-	
-         
-                           
+
+
+
              <table id="email-table" class="table display" cellspacing="0"  styleClass="borderless">
                      <button  value="" class="btn btn-secondary btn-sm btn-alldell" id="bulk_delete"><i class="fa fa-trash">&nbsp;&nbsp;</i> {{ __('message.delmultiple') }}</button><br /><br />
-                     
+
                     <thead><tr>
 
                             <th class="no-sort"><input type="checkbox" name="select_all" onchange="checking(this)"></th>
@@ -97,27 +97,65 @@
                             <th>{{ __('message.from') }}</th>
                              <th>{{ __('message.to') }}</th>
                                <th>{{ __('message.sub') }}</th>
-                           
+
                              <th>{{ __('message.status') }}</th>
                                </tr></thead>
 
                    </table>
-            
-        
 
-   
+
+
+
 </div>
 </div>
 </div>
 </div>
+
+<div class="modal fade" id="emailModal" tabindex="-1" role="dialog" aria-labelledby="emailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="emailModalLabel">Email Subject</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="d-flex justify-content-center">
+                    <div  id="emailBody" >
+                        <!-- Email content loads here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    {{ __('message.cancel')}}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
     <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css" />
 <script src="//cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
 <!--  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script> -->
 
 <script type="text/javascript">
-  
-        $('#email-table').DataTable({
+    $(document).on('click', '.view-mail', function (e) {
+        e.preventDefault();
+        const id = $(this).data('id');
+
+        $.get("{{ url('/email-log/body') }}/" + id, function (res) {
+            $('#emailModalLabel').text(res.data.subject);
+            $('#emailBody').html(res.data.body);
+            $('#emailModal').modal('show');
+        });
+    });
+
+    $('#email-table').DataTable({
 
 
              processing: true,
@@ -160,8 +198,8 @@
             },
 
             columnDefs: [
-                { 
-                    targets: 'no-sort', 
+                {
+                    targets: 'no-sort',
                     orderable: false,
                     order: []
                 }
@@ -172,9 +210,9 @@
                 {data: 'from', name: 'from'},
                 {data: 'to', name: 'to'},
                  {data: 'subject', name: 'subject'},
-                
+
                  {data: 'status', name: 'status'},
-                
+
             ],
             "fnDrawCallback": function( oSettings ) {
                 $(function () {
@@ -197,7 +235,7 @@
        function checking(e){
               $('#email-table').find("td input[type='checkbox']").prop('checked', $(e).prop('checked'));
          }
-         
+
 
          $(document).on('click','#bulk_delete',function(e){
           var id=[];
@@ -277,7 +315,7 @@
 
 
 
-       
+
     </script>
 
 
