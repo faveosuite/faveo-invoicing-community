@@ -7,6 +7,7 @@ use App\Http\Controllers\Tenancy\TenantController;
 use App\Model\Common\FaveoCloud;
 use App\Model\Order\Invoice;
 use App\Model\Payment\Plan;
+use App\Model\Payment\PlanPrice;
 use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
 use App\User;
@@ -100,7 +101,8 @@ class ClientFooterGeneralTest extends DBTestCase
         $this->actingAs($user);
         $this->withoutMiddleware();
         $product = Product::create(['name' => 'Helpdesk Advance']);
-        $plan = Plan::create(['id' => 25, 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 15]);
+        $plan = Plan::create(['id' => 25, 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 13]);
+        PlanPrice::create(['plan_id' => $plan->id, 'add_price' => '1000','currency'=>'USD']);
         $cloudProduct = CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id, 'cloud_product_key' => $product->name]);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         $response = $this->call('POST', 'first-login', ['domain' => 'test', 'id' => $user->id, 'product' => $product->name]);
@@ -116,9 +118,9 @@ class ClientFooterGeneralTest extends DBTestCase
         $this->withoutMiddleware();
         $product = Product::create(['name' => 'Helpdesk Advance']);
         $plan = Plan::create(['id' => 25, 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 15]);
+        PlanPrice::create(['plan_id' => $plan->id, 'add_price' => '1000','currency'=>'USD']);
         $cloudProduct = CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id, 'cloud_product_key' => $product->name]);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
-
         $tenantControllerMock = Mockery::mock(TenantController::class);
         $requestMock = Mockery::mock(Request::class);
         $requestMock->domain = 'example.com';
