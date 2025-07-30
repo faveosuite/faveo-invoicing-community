@@ -94,6 +94,7 @@ class DashboardTest extends DBTestCase
         $response = $this->call('get', 'client-dashboard');
         $content = $response->getOriginalContent()->getData();
         $this->assertEquals($content['renewalCount'], 1);
+
         $this->assertDatabaseCount('subscriptions', 1);
     }
 
