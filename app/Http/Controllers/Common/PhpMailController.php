@@ -169,7 +169,7 @@ class PhpMailController extends Controller
                             $temp_type = new \App\Model\Common\TemplateType();
                             $type = $temp_type->where('id', $type_id)->first()->name;
                         }
-                        $mail->SendEmail($setting->email, $user->email, $template->data, $template->name,'cloud-delete' , $replace, $type);
+                        $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, 'cloud-delete', $replace, $type);
                     }
                 }
             }

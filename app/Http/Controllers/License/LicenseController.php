@@ -6,7 +6,6 @@ use App\ApiKey;
 use App\Http\Controllers\Controller;
 use App\Model\Order\Order;
 use App\Model\Product\Product;
-use Illuminate\Support\Facades\Log;
 
 class LicenseController extends Controller
 {
