@@ -2684,4 +2684,5 @@ return [
     'status.boolean' => 'Le statut doit être soit true (activé), soit false (désactivé).',
     'manager_settings_updated_successfully' => 'Les paramètres du gestionnaire ont été mis à jour avec succès.',
 
+    'user_position_prohibited_if' => 'Le champ poste n’est pas autorisé lorsque le rôle est utilisateur.',
 ];

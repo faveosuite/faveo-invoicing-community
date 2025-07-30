@@ -2690,4 +2690,5 @@ return [
     'status.boolean' => 'Lo stato deve essere true (abilitato) o false (disabilitato).',
     'manager_settings_updated_successfully' => 'Le impostazioni del manager sono state aggiornate con successo.',
 
+    'user_position_prohibited_if' => 'Il campo posizione non è consentito quando il ruolo è utente.',
 ];

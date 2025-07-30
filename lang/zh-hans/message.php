@@ -2690,4 +2690,5 @@ return [
     'status.boolean' => '状态必须是 true（启用）或 false（禁用）。',
     'manager_settings_updated_successfully' => '管理员设置已成功更新。',
 
+    'user_position_prohibited_if' => '当角色为用户时，不允许填写职位字段。',
 ];

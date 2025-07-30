@@ -2689,4 +2689,5 @@ return [
     'status.boolean' => 'Status harus berupa true (aktif) atau false (nonaktif).',
     'manager_settings_updated_successfully' => 'Pengaturan manajer berhasil diperbarui.',
 
+    'user_position_prohibited_if' => 'Kolom posisi tidak diizinkan saat peran adalah pengguna.',
 ];

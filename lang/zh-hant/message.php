@@ -2656,4 +2656,5 @@ return [
     'status.boolean' => '狀態必須是 true（啟用）或 false（停用）。',
     'manager_settings_updated_successfully' => '管理員設定已成功更新。',
 
+    'user_position_prohibited_if' => '當角色為使用者時，不允許填寫職位欄位。',
 ];

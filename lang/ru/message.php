@@ -2698,4 +2698,5 @@ return [
     'status.boolean' => 'Статус должен быть true (включён) или false (выключен).',
     'manager_settings_updated_successfully' => 'Настройки менеджера успешно обновлены.',
 
+    'user_position_prohibited_if' => 'Поле должности недопустимо, если роль — пользователь.',
 ];

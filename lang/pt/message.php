@@ -2673,4 +2673,5 @@ return [
     'status.boolean' => 'O estado deve ser true (ativo) ou false (inativo).',
     'manager_settings_updated_successfully' => 'As configurações do gerente foram atualizadas com sucesso.',
 
+    'user_position_prohibited_if' => 'O campo posição não é permitido quando o papel é usuário.',
 ];

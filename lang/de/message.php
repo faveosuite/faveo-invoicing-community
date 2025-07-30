@@ -2692,4 +2692,5 @@ return [
     'status.boolean' => 'Der Status muss entweder true (aktiviert) oder false (deaktiviert) sein.',
     'manager_settings_updated_successfully' => 'Manager-Einstellungen wurden erfolgreich aktualisiert.',
 
+    'user_position_prohibited_if' => 'Das Feld Position ist nicht erlaubt, wenn die Rolle Benutzer ist.',
 ];

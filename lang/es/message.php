@@ -2695,4 +2695,5 @@ return [
     'status.boolean' => 'El estado debe ser verdadero (habilitado) o falso (deshabilitado).',
     'manager_settings_updated_successfully' => 'La configuración del gerente se actualizó correctamente.',
 
+    'user_position_prohibited_if' => 'El campo de posición no está permitido cuando el rol es usuario.',
 ];

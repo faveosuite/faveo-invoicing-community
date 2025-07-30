@@ -2624,4 +2624,5 @@ return [
     'status.boolean' => 'Status mora biti true (omogućeno) ili false (onemogućeno).',
     'manager_settings_updated_successfully' => 'Postavke menadžera su uspješno ažurirane.',
 
+    'user_position_prohibited_if' => 'Polje pozicija nije dozvoljeno kada je uloga korisnik.',
 ];

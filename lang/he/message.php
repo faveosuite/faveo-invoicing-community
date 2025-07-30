@@ -2699,4 +2699,5 @@ return [
     'status.boolean' => 'הסטטוס חייב להיות true (מופעל) או false (מנוטרל).',
     'manager_settings_updated_successfully' => 'הגדרות המנהל עודכנו בהצלחה.',
 
+    'user_position_prohibited_if' => 'השדה תפקיד אינו מותר כאשר התפקיד הוא משתמש.',
 ];

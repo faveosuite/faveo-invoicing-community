@@ -2696,4 +2696,5 @@ return [
     'status.boolean' => 'Trạng thái phải là true (bật) hoặc false (tắt).',
     'manager_settings_updated_successfully' => 'Cài đặt quản lý đã được cập nhật thành công.',
 
+    'user_position_prohibited_if' => 'Trường chức vụ không được phép khi vai trò là người dùng.',
 ];

@@ -2532,4 +2532,5 @@ return [
     'status.boolean' => 'يجب أن تكون الحالة إما true (مفعلة) أو false (معطلة).',
     'manager_settings_updated_successfully' => 'تم تحديث إعدادات المدير بنجاح.',
 
+    'user_position_prohibited_if' => 'حقل الوظيفة غير مسموح به عندما تكون القيمة للدور هي مستخدم.',
 ];

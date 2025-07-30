@@ -2697,4 +2697,5 @@ return [
     'status.boolean' => 'ステータスは true（有効）または false（無効）である必要があります。',
     'manager_settings_updated_successfully' => 'マネージャーの設定が正常に更新されました。',
 
+    'user_position_prohibited_if' => '役割がユーザーの場合、ポジションフィールドは使用できません。',
 ];

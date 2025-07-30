@@ -2704,4 +2704,6 @@ return [
     'status.required' => 'Please specify the status.',
     'status.boolean' => 'The status must be either true (enabled) or false (disabled).',
     'manager_settings_updated_successfully' => 'Manager settings updated successfully.',
+
+    'user_position_prohibited_if' => 'The position field is not allowed when role is user.',
 ];

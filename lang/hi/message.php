@@ -2706,4 +2706,5 @@ return [
     'status.boolean' => 'स्थिति true (सक्रिय) या false (निष्क्रिय) होनी चाहिए।',
     'manager_settings_updated_successfully' => 'प्रबंधक की सेटिंग्स सफलतापूर्वक अपडेट की गईं।',
 
+    'user_position_prohibited_if' => 'जब भूमिका उपयोगकर्ता हो, तो स्थिति फ़ील्ड की अनुमति नहीं है।',
 ];
