@@ -2,13 +2,13 @@
 
 namespace App\Console\Commands;
 
+use App\Console\LoggableCommand;
 use App\Http\Controllers\BillingInstaller\InstallerController;
 use App\Http\Controllers\SyncBillingToLatestVersion;
 use Config;
 use DB;
-use Illuminate\Console\Command;
 
-class InstallDB extends Command
+class InstallDB extends LoggableCommand
 {
     /**
      * The name and signature of the console command.
@@ -42,7 +42,7 @@ class InstallDB extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handleAndLog()
     {
         try {
             $env = base_path().DIRECTORY_SEPARATOR.'.env';

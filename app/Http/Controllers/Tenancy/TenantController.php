@@ -83,7 +83,7 @@ class TenantController extends Controller
 
             return view('themes.default1.tenant.index', compact('de', 'cloudButton', 'cloud', 'regions', 'cloudPopUp'));
         } catch (\Exception $e) {
-            Log::error($e->getMessage());
+            \Logger::exception($e);
             $cloud = $this->cloud;
             $cloudPopUp = CloudPopUp::find(1);
             $cloudButton = StatusSetting::value('cloud_button');
@@ -461,7 +461,7 @@ class TenantController extends Controller
                 ];
 
                 $this->prepareMessages($faveoCloud, $userEmail, true);
-                $mail->SendEmail($settings->email, $userEmail, $template->data, $subject, $replace, $type);
+                $mail->SendEmail($settings->email, $userEmail, $template->data, $subject,'cloud-created', $replace, $type);
                 if (isset($result->reason) && $result->reason != '') {
                     return ['status' => $result->status, 'message' => $result->message.trans('message.cloud_created_successfully'), 'installationUrl' => $result->installationUrl, 'reason' => $result->reason];
                 }
@@ -750,7 +750,7 @@ class TenantController extends Controller
                 return response()->json(['message' => __('message.cannot_sync_queue_driver')], 400);
             }
         } catch (\Exception $e) {
-            \Log::error(__('message.export_failed').$e->getMessage());
+            \Logger::exception($e);
 
             return response()->json(['message' => $e->getMessage()], 500);
         }

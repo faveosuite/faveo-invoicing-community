@@ -387,7 +387,7 @@ class InstallerController extends Controller
 
             return successResponse('', collect($languages)->sortBy('name')->values()->all());
         } catch (\Exception $exception) {
-            \Log::error($exception);
+            \Logger::exception($exception);
 
             return errorResponse($exception->getMessage());
         }

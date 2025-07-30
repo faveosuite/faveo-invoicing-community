@@ -23,7 +23,7 @@ function getLocation()
 
         return $location;
     } catch (Exception $ex) {
-        app('log')->error($ex->getMessage());
+        \Logger::exception($ex);
         $location = \Config::get('geoip.default_location');
 
         return $location;
@@ -870,4 +870,17 @@ function honeypotField(string $name = 'honeypot'): string
         $timeFieldName,
         $encryptedTime
     );
+}
+
+/**
+ * log the actions in log files
+ *
+ * @param  string  $context
+ * @param  string  $message
+ * @param  string  $level
+ * @param  array  $array
+ */
+function loging($context, $message, $level = 'error', $array = [])
+{
+    \Log::$level($message.':-:-:-'.$context, $array);
 }

@@ -281,7 +281,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
 
             return view('themes.default1.invoice.show', compact('invoiceItems', 'invoice', 'user', 'order'));
         } catch (\Exception $ex) {
-            app('log')->warning($ex->getMessage());
+            \Logger::exception($ex);
 
             return redirect()->back()->with('fails', $ex->getMessage());
         }
@@ -311,7 +311,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
 
             return view('themes.default1.invoice.generate', compact('user', 'products', 'currency'));
         } catch (\Exception $ex) {
-            app('log')->info($ex->getMessage());
+            \Logger::exception($ex);
 
             return redirect()->back()->with('fails', $ex->getMessage());
         }
@@ -365,7 +365,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
 
             return $invoice;
         } catch (\Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
 
             return redirect()->back()->with('fails', $ex->getMessage());
         }
@@ -481,7 +481,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
 
             return successResponse($result);
         } catch (\Exception $ex) {
-            app('log')->info($ex->getMessage());
+            \Logger::exception($ex);
 
             return errorResponse([$ex->getMessage()]);
         }
@@ -591,7 +591,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 return response()->json(['message' => __('message.cannot_sync_queue_driver')], 400);
             }
         } catch (\Exception $e) {
-            \Log::error('Export failed: '.$e->getMessage());
+            \Logger::exception($e);
 
             return response()->json(['message' => $e->getMessage()], 500);
         }

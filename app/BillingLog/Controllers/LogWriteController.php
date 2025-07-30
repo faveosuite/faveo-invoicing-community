@@ -4,6 +4,7 @@ namespace App\BillingLog\Controllers;
 
 use App\BillingLog\Model\CronLog;
 use App\BillingLog\Model\LogCategory;
+use App\BillingLog\Model\MailLog;
 use Carbon\Carbon;
 use Exception;
 use Throwable;
@@ -114,36 +115,73 @@ class LogWriteController
      * @param  string  $source
      * @return \Illuminate\Database\Eloquent\Model|null
      */
-    public function sentMail(
+    public function logMailByCategory(
         string $senderMail,
         string $receiverMail,
         array|string $cc,
+        array|string $bcc,
         string $subject,
         string $body,
-        string|int $refereeId,
-        string $refereeType,
         ?string $categoryName = null,
-        string $status = '',
-        string $source = 'default'
     ): ?\Illuminate\Database\Eloquent\Model {
         try {
             $category = LogCategory::firstOrCreate(['name' => $categoryName ?? 'default']);
 
             return $category->mail()->create([
-                'sender_mail' => $senderMail,
-                'reciever_mail' => $receiverMail,
-                'subject' => $subject,
-                'body' => $body,
-                'referee_id' => $refereeId,
-                'referee_type' => $refereeType,
-                'status' => $status,
-                'source' => $source,
-                'collaborators' => is_array($cc) ? implode(',', $cc) : $cc,
+                'sender_mail'   => $senderMail,
+                'receiver_mail' => $receiverMail,
+                'carbon_copy' => !empty($cc) ? $this->formatAddresses($cc) : null,
+                'blind_carbon_copy' => !empty($bcc) ? $this->formatAddresses($bcc) : null,
+                'subject'       => $subject,
+                'body'          => $body,
+                'status'        => 'queued',
             ]);
         } catch (Throwable $e) {
             $this->exception($e, 'mail-send');
 
             return null;
         }
+    }
+
+    /**
+     * Format addresses for database storage
+     */
+    protected function formatAddresses(array $addresses): string
+    {
+        return collect($addresses)->map(function ($address) {
+            if (is_array($address) && isset($address['address'])) {
+                return isset($address['name']) && !empty($address['name'])
+                    ? $address['name'] . ' <' . $address['address'] . '>'
+                    : $address['address'];
+            }
+            return $address;
+        })->implode(', ');
+    }
+
+    /**
+     * Marks outgoing mail as sent
+     */
+    public function outgoingMailSent($logId)
+    {
+        MailLog::whereId($logId)->update(['status' => 'sent']);
+    }
+
+    /**
+     * Marks outgoing mail as failed
+     */
+    public function outgoingMailFailed($logId, Exception $e)
+    {
+        $mailLog = MailLog::select('id', 'exception_log_id')->find($logId);
+
+        if ($mailLog->exception_log_id) {
+            // if already exception exists for this, should be deleted so that latest exception can be captured
+            $mailLog->exception()->delete();
+        }
+
+        $exception = $this->exception($e, 'cron');
+        $mailLog->update([
+            'status' => 'failed',
+            'exception_log_id' => $exception?->id,
+        ]);
     }
 }

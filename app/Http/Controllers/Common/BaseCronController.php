@@ -233,7 +233,7 @@ class BaseCronController extends Controller
             $type = $temp_type->where('id', $type_id)->first()->name;
         }
         $mail = new \App\Http\Controllers\Common\PhpMailController();
-        $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $replace, $type);
+        $mail->SendEmail($setting->email, $user->email, $template->data, $template->name,'expiry-notification', $replace, $type);
     }
 
     public function Auto_renewalMail($user, $end, $product, $order, $sub)
@@ -284,7 +284,7 @@ class BaseCronController extends Controller
         $to = $user->email;
         $subject = $template->name;
         $data = $template->data;
-        $mail->SendEmail($from, $to, $data, $subject, $replace, $type);
+        $mail->SendEmail($from, $to, $data, $subject, 'autorenewal-notification' , $replace, $type);
     }
 
     public function Expiredsub_Mail($user, $end, $product, $order, $sub)
@@ -332,6 +332,6 @@ class BaseCronController extends Controller
         $to = $user->email;
         $subject = $template->name;
         $data = $template->data;
-        $mail->SendEmail($from, $to, $data, $subject, $replace, $type);
+        $mail->SendEmail($from, $to, $data, $subject, 'expired-notification' , $replace, $type);
     }
 }

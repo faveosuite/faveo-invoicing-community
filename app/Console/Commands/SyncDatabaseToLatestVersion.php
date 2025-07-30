@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Console\LoggableCommand;
 use App\Http\Controllers\SyncBillingToLatestVersion;
-use Illuminate\Console\Command;
 
-class SyncDatabaseToLatestVersion extends Command
+class SyncDatabaseToLatestVersion extends LoggableCommand
 {
     /**
      * The name and signature of the console command.
@@ -36,7 +36,7 @@ class SyncDatabaseToLatestVersion extends Command
      *
      * @return int
      */
-    public function handle()
+    public function handleAndLog()
     {
         echo (new SyncBillingToLatestVersion)->sync();
     }

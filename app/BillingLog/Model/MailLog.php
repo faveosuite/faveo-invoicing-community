@@ -26,17 +26,7 @@ class MailLog extends BaseModel
         'reciever_mail',
 
         /**
-         * The referee id from which log has come (ticket or user or mail).
-         */
-        'referee_id',
-
-        /**
-         * The referee type from which log has come (ticket or user or mail).
-         */
-        'referee_type',
-
-        /**
-         * Subject of the mail.
+         * Subject of the mail
          */
         'subject',
 
@@ -46,19 +36,19 @@ class MailLog extends BaseModel
         'body',
 
         /**
-         * Source from which it was generated (mail, web, recur).
-         */
-        'source',
-
-        /**
-         * Status of the mail `QUEUED`, `SENT`, `ACCEPTED`, `REJECTED`.
+         * Status of the mail `QUEUED`, `SENT`, `ACCEPTED`, `REJECTED`
          */
         'status',
 
         /**
-         * CCs and BCCs will be added to it in comma separated form.
+         * CCs will be added to it in comma-separated form
          */
-        'collaborators',
+        'carbon_copy',
+
+        /**
+         * BCCs will be added to it in comma-separated form
+         */
+        'blind_carbon_copy',
 
         /**
          * Exception log id.
