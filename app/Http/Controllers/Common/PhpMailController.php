@@ -13,6 +13,7 @@ use App\Model\Mailjob\ExpiryMailDay;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Payment_log;
+use App\Traits\QueueTrait;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
@@ -37,16 +38,20 @@ class PhpMailController extends Controller
         string $to,
         string $template_data,
         string $template_name,
+        string $categoryName,
         array $replace = [],
         string $type = '',
         array $bcc = [],
         string $fromname = '',
         string $toname = '',
         array $cc = [],
-        array $attach = []
+        array $attach = [],
+        bool $autoReply = false
     ): void {
+        $logIdentifier = \Logger::logMailByCategory($from, $to, $cc, $bcc, $template_name, $template_data, $categoryName);
         $this->setQueue();
-        $job = new \App\Jobs\SendEmail($from, $to, $template_data, $template_name, $replace, $type, $bcc, $fromname, $toname, $cc, $attach);
+        $job = new \App\Jobs\SendEmail($from, $to, $template_data, $template_name, $replace, $type, $bcc, $fromname, $toname, $cc, $attach, $logIdentifier, $autoReply);
+        $logIdentifier->update(['job_payload' => (new QueueTrait())->getPayloadData($job)]);
         dispatch($job);
     }
 
@@ -96,7 +101,7 @@ class PhpMailController extends Controller
                 $this->deleteCloudDetails();
             }
         } catch(\Exception $ex) {
-            \Log::error($ex->getMessage());
+            \Logger::exception($ex);
         }
     }
 
@@ -164,12 +169,12 @@ class PhpMailController extends Controller
                             $temp_type = new \App\Model\Common\TemplateType();
                             $type = $temp_type->where('id', $type_id)->first()->name;
                         }
-                        $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $replace, $type);
+                        $mail->SendEmail($setting->email, $user->email, $template->data, $template->name,'cloud-delete' , $replace, $type);
                     }
                 }
             }
         } catch(\Exception $ex) {
-            \Log::error($ex->getMessage());
+            \Logger::exception($ex);
         }
     }
 
@@ -185,6 +190,7 @@ class PhpMailController extends Controller
         string $toname = '',
         array $cc = [],
         array $attach = [],
+        int $logIdentifier,
         bool $autoReply = false
     ): string {
         try {
@@ -200,13 +206,11 @@ class PhpMailController extends Controller
             // Send email
             $this->sendMailMessage($from, $to, $subject, $transformedData, $emailConfig, $toname, $cc, $bcc, $attach);
 
-            // Log successful email
-            $this->logEmail($from, $to, $subject, $transformedData, 'success', $cc, $bcc, $attach);
+            \Logger::outgoingMailSent($logIdentifier);
 
             return 'success';
         } catch (\Exception $ex) {
-            $this->logEmail($from, $to, $subject, $data, 'failed', $cc, $bcc, $attach);
-            \Log::error('Email sending failed: '.$ex->getMessage());
+            \Logger::outgoingMailFailed($logIdentifier, $ex);
             throw $ex;
         }
     }
@@ -401,65 +405,5 @@ class PhpMailController extends Controller
                 $message->attach($file);
             }
         }
-    }
-
-    /**
-     * Log email data to database.
-     */
-    protected function logEmail(
-        string $from,
-        string $to,
-        string $subject,
-        string $data,
-        string $status,
-        array $cc = [],
-        array $bcc = [],
-        array $attach = []
-    ): void {
-        try {
-            \DB::table('email_log')->insert([
-                'date' => Carbon::now()->format('Y-m-d H:i:s'),
-                'from' => $from,
-                'to' => $to,
-                'cc' => ! empty($cc) ? $this->formatAddresses($cc) : null,
-                'bcc' => ! empty($bcc) ? $this->formatAddresses($bcc) : null,
-                'subject' => $subject,
-                'body' => $data,
-                'attachments' => ! empty($attach) ? $this->formatAttachments($attach) : null,
-                'status' => $status,
-            ]);
-        } catch (\Exception $e) {
-            \Log::error('Failed to log email: '.$e->getMessage());
-        }
-    }
-
-    /**
-     * Format addresses for database storage.
-     */
-    protected function formatAddresses(array $addresses): string
-    {
-        return collect($addresses)->map(function ($address) {
-            if (is_array($address) && isset($address['address'])) {
-                return isset($address['name']) && ! empty($address['name'])
-                    ? $address['name'].' <'.$address['address'].'>'
-                    : $address['address'];
-            }
-
-            return $address;
-        })->implode(', ');
-    }
-
-    /**
-     * Format attachments for database storage.
-     */
-    protected function formatAttachments(array $attachments): string
-    {
-        return collect($attachments)->map(function ($file) {
-            if (is_array($file) && isset($file['path'])) {
-                return basename($file['path']);
-            }
-
-            return basename($file);
-        })->implode(', ');
     }
 }

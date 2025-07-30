@@ -35,6 +35,8 @@ class SendEmail implements ShouldQueue
 
     protected $attach;
 
+    protected $logIdentifier;
+
     protected $auto_reply;
 
     /**
@@ -54,6 +56,7 @@ class SendEmail implements ShouldQueue
         $toname = '',
         $cc = [],
         $attach = [],
+        $logIdentifier,
         $auto_reply = false,
     ) {
         $this->from = $from;
@@ -67,6 +70,7 @@ class SendEmail implements ShouldQueue
         $this->toname = $toname;
         $this->cc = $cc;
         $this->attach = $attach;
+        $this->logIdentifier = $logIdentifier;
         $this->auto_reply = $auto_reply;
     }
 
@@ -89,6 +93,7 @@ class SendEmail implements ShouldQueue
             $this->toname,
             $this->cc,
             $this->attach,
+            $this->logIdentifier,
             $this->auto_reply
         );
 

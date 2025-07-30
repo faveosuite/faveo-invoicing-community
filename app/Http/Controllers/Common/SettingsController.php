@@ -132,8 +132,7 @@ class SettingsController extends BaseSettingsController
             $allists = $mailchimp->get('lists?count=20')['lists'];
             $selectedList[] = $set->list_id;
         } catch (\Exception $e) {
-            // Log the error if needed
-            \Log::error('Mailchimp Initialization Failed: '.$e->getMessage());
+            \Logger::exception($e);
 
             // Return null when it fails
             $mailchimp = '';
@@ -269,7 +268,7 @@ class SettingsController extends BaseSettingsController
                 $allists = $mailchimp->get('lists?count=20')['lists'];
                 $selectedList[] = $set->list_id;
             } catch (\Exception $e) {
-                \Log::error('Mailchimp Initialization Failed: '.$e->getMessage());
+                \Logger::exception($e);
                 $allists = [];
                 $selectedList = [];
             }

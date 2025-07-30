@@ -124,7 +124,7 @@ class ExtendedBaseProductController extends Controller
 
             return redirect()->back()->with('success', __('message.product_updated_successfully'));
         } catch (\Exception $e) {
-            app('log')->error($e->getMessage());
+            \Logger::exception($e);
             $message = [$e->getMessage()];
             $response = ['success' => 'false', 'message' => $message];
 

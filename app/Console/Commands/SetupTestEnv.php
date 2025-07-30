@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
+use App\Console\LoggableCommand;
 use Artisan;
 use Config;
 use DB;
-use Illuminate\Console\Command;
 
-class SetupTestEnv extends Command
+class SetupTestEnv extends LoggableCommand
 {
     /**
      * The name and signature of the console command.
@@ -28,7 +28,7 @@ class SetupTestEnv extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handleAndLog()
     {
         $dbUsername = $this->option('username') ? $this->option('username') : env('DB_USERNAME');
         $dbPassword = $this->option('password') ? $this->option('password') : env('DB_PASSWORD');

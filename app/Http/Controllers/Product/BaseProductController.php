@@ -149,7 +149,7 @@ class BaseProductController extends ExtendedBaseProductController
 
             return response()->json($result);
         } catch (\Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
             $result = [$ex->getMessage()];
 
             return response()->json($result);
@@ -213,7 +213,7 @@ class BaseProductController extends ExtendedBaseProductController
                 throw new \Exception(\Lang::get('message.no_permission_for_action'));
             }
         } catch (\Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
 
             return redirect()->back()->with('fails', $ex->getMessage());
         }

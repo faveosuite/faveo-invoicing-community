@@ -16,4 +16,9 @@ class LogCategory extends Model
     {
         return $this->hasMany(ExceptionLog::class);
     }
+
+    public function mail()
+    {
+        return $this->hasMany(MailLog::class);
+    }
 }

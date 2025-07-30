@@ -15,19 +15,17 @@ return new class extends Migration
             $table->id();
 
             $table->unsignedInteger('log_category_id')->index();
-            $table->string('referee_id');
-            $table->string('referee_type');
 
             $table->string('sender_mail')->index();
             $table->string('receiver_mail')->index();
 
-            $table->string('collaborator')->nullable();
+            $table->string('carbon_copy')->nullable();
+            $table->string('blind_carbon_copy')->nullable();
 
             $table->binary('subject');
             $table->longText('body')->charset('binary');
             $table->longText('job_payload')->charset('binary');
 
-            $table->string('source');
             $table->string('status', 30)->nullable()->index();
 
             $table->unsignedBigInteger('exception_log_id')->nullable();

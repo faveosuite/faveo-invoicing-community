@@ -492,7 +492,7 @@ class LicenseController extends Controller
 
             $this->postCurl($url.'api/admin/license/deactivate', "api_key_secret=$api_key_secret&license_code=$licenseCode", $token);
         } catch (\Exception $ex) {
-            Log::error($ex->getMessage());
+            \Logger::exception($ex);
 
             return;
         }
