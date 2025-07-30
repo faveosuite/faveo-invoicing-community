@@ -29,7 +29,7 @@ abstract class LoggableCommand extends Command
      */
     final public function handle(): void
     {
-        if (!method_exists($this, 'handleAndLog')) {
+        if (! method_exists($this, 'handleAndLog')) {
             throw new Exception(
                 sprintf(
                     'Missing required method handleAndLog() in %s. See App\Console\LoggableCommand documentation.',

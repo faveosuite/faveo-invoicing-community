@@ -23,7 +23,6 @@ use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
-use Illuminate\Support\Facades\Log;
 
 class TenantController extends Controller
 {
@@ -461,7 +460,7 @@ class TenantController extends Controller
                 ];
 
                 $this->prepareMessages($faveoCloud, $userEmail, true);
-                $mail->SendEmail($settings->email, $userEmail, $template->data, $subject,'cloud-created', $replace, $type);
+                $mail->SendEmail($settings->email, $userEmail, $template->data, $subject, 'cloud-created', $replace, $type);
                 if (isset($result->reason) && $result->reason != '') {
                     return ['status' => $result->status, 'message' => $result->message.trans('message.cloud_created_successfully'), 'installationUrl' => $result->installationUrl, 'reason' => $result->reason];
                 }

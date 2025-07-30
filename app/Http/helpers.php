@@ -880,7 +880,7 @@ function createUrl(string $path): string
     return rtrim($baseUrl, '/') . '/' . ltrim($path, '/');
 }
 /**
- * log the actions in log files
+ * log the actions in log files.
  *
  * @param  string  $context
  * @param  string  $message
