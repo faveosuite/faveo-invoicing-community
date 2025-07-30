@@ -102,7 +102,7 @@ class ClientFooterGeneralTest extends DBTestCase
         $this->withoutMiddleware();
         $product = Product::create(['name' => 'Helpdesk Advance']);
         $plan = Plan::create(['id' => 25, 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 13]);
-        PlanPrice::create(['plan_id' => $plan->id, 'add_price' => '1000','currency'=>'USD']);
+        PlanPrice::create(['plan_id' => $plan->id, 'add_price' => '1000', 'currency' => 'USD']);
         $cloudProduct = CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id, 'cloud_product_key' => $product->name]);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         $response = $this->call('POST', 'first-login', ['domain' => 'test', 'id' => $user->id, 'product' => $product->name]);
@@ -118,7 +118,7 @@ class ClientFooterGeneralTest extends DBTestCase
         $this->withoutMiddleware();
         $product = Product::create(['name' => 'Helpdesk Advance']);
         $plan = Plan::create(['id' => 25, 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 15]);
-        PlanPrice::create(['plan_id' => $plan->id, 'add_price' => '1000','currency'=>'USD']);
+        PlanPrice::create(['plan_id' => $plan->id, 'add_price' => '1000', 'currency' => 'USD']);
         $cloudProduct = CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id, 'cloud_product_key' => $product->name]);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         $tenantControllerMock = Mockery::mock(TenantController::class);
