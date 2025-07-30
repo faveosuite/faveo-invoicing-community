@@ -480,7 +480,7 @@ class AuthController extends BaseAuthController
             'reply_email' => $setting->company_email,
         ];
         $mail = new \App\Http\Controllers\Common\PhpMailController();
-        $mail->SendEmail($from, $to, $template_data, $template_name,'sales-manager-mail', $replace, 'sales_manager_email', $bcc);
+        $mail->SendEmail($from, $to, $template_data, $template_name, 'sales-manager-mail', $replace, 'sales_manager_email', $bcc);
     }
 
     public function accountManagerMail($user, $bcc = [])
@@ -517,7 +517,7 @@ class AuthController extends BaseAuthController
             'reply_email' => $setting->company_email,
         ];
         $mail = new \App\Http\Controllers\Common\PhpMailController();
-        $mail->SendEmail($from, $to, $template_data, $template_name,'account-manager-mail', $replace, 'account_manager_email', $bcc);
+        $mail->SendEmail($from, $to, $template_data, $template_name, 'account-manager-mail', $replace, 'account_manager_email', $bcc);
     }
 
     public function verify()

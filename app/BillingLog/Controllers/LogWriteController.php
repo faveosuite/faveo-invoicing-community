@@ -128,13 +128,13 @@ class LogWriteController
             $category = LogCategory::firstOrCreate(['name' => $categoryName ?? 'default']);
 
             return $category->mail()->create([
-                'sender_mail'   => $senderMail,
+                'sender_mail' => $senderMail,
                 'receiver_mail' => $receiverMail,
-                'carbon_copy' => !empty($cc) ? $this->formatAddresses($cc) : null,
-                'blind_carbon_copy' => !empty($bcc) ? $this->formatAddresses($bcc) : null,
-                'subject'       => $subject,
-                'body'          => $body,
-                'status'        => 'queued',
+                'carbon_copy' => ! empty($cc) ? $this->formatAddresses($cc) : null,
+                'blind_carbon_copy' => ! empty($bcc) ? $this->formatAddresses($bcc) : null,
+                'subject' => $subject,
+                'body' => $body,
+                'status' => 'queued',
             ]);
         } catch (Throwable $e) {
             $this->exception($e, 'mail-send');
@@ -144,22 +144,23 @@ class LogWriteController
     }
 
     /**
-     * Format addresses for database storage
+     * Format addresses for database storage.
      */
     protected function formatAddresses(array $addresses): string
     {
         return collect($addresses)->map(function ($address) {
             if (is_array($address) && isset($address['address'])) {
-                return isset($address['name']) && !empty($address['name'])
-                    ? $address['name'] . ' <' . $address['address'] . '>'
+                return isset($address['name']) && ! empty($address['name'])
+                    ? $address['name'].' <'.$address['address'].'>'
                     : $address['address'];
             }
+
             return $address;
         })->implode(', ');
     }
 
     /**
-     * Marks outgoing mail as sent
+     * Marks outgoing mail as sent.
      */
     public function outgoingMailSent($logId)
     {
@@ -167,7 +168,7 @@ class LogWriteController
     }
 
     /**
-     * Marks outgoing mail as failed
+     * Marks outgoing mail as failed.
      */
     public function outgoingMailFailed($logId, Exception $e)
     {

@@ -873,7 +873,7 @@ function honeypotField(string $name = 'honeypot'): string
 }
 
 /**
- * log the actions in log files
+ * log the actions in log files.
  *
  * @param  string  $context
  * @param  string  $message

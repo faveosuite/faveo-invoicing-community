@@ -379,7 +379,7 @@ class BaseOrderController extends ExtendedOrderController
             $type = $temp_type->where('id', $type_id)->first()->name;
         }
         $mail = new \App\Http\Controllers\Common\PhpMailController();
-        $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, 'order-confirm' , $replace, $type);
+        $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, 'order-confirm', $replace, $type);
 
         if ($order->invoice->grand_total) {
             SettingsController::sendPaymentSuccessMailtoAdmin($order->invoice, $order->invoice->grand_total, $user, $product);

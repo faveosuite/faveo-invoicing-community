@@ -14,7 +14,6 @@ use App\User;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
-use Illuminate\Support\Facades\Log;
 use Pipedrive\versions\v1\Api;
 use Pipedrive\versions\v1\ApiException;
 use Pipedrive\versions\v1\Configuration as PipedriveConfiguration;
