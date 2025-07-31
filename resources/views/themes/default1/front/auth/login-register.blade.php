@@ -134,7 +134,7 @@ foreach($scripts as $script) {
 
                                 <label class="form-label text-color-dark text-3">{{ __('message.username_register') }}<span class="text-color-danger">*</span></label>
 
-                                {!! html()->email('email_username')
+                                {!! html()->text('email_username')
    ->class('form-control form-control-lg text-4')
    ->id('username')
    ->attribute('autocomplete', 'off')

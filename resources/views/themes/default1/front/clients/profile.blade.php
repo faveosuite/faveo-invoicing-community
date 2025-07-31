@@ -760,7 +760,7 @@ input:checked + .slider:before {
 
                 if (is2FAEnabled) {
                     storedFormData = formData;
-                    $('#twoFactorPopupModal').modal('show');
+                    $('#twoFactorPopupModalUser').modal('show');
                     return;
                 }
 
@@ -796,7 +796,7 @@ input:checked + .slider:before {
                     _token: '{{ csrf_token() }}'
                 },
                 success: function (response) {
-                    $('#twoFactorPopupModal').modal('hide');
+                    $('#twoFactorPopupModalUser').modal('hide');
                     inputField.css('border-color', ''); // Reset border color on success
                     inputField.val(''); // Clear the 2FA code input field
                     errorBox.hide(); // Hide any error messages
@@ -817,7 +817,7 @@ input:checked + .slider:before {
                 success: function (response) {
                     form.reset();
                     showAlert('success', response);
-                    $('#twoFactorPopupModal').modal('hide');
+                    $('#twoFactorPopupModalUser').modal('hide');
                 },
                 error: function (data) {
                     var response = data.responseJSON ? data.responseJSON : JSON.parse(data.responseText);
