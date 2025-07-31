@@ -1,4 +1,4 @@
-<div class="modal fade" id="twoFactorPopupModal" tabindex="-1" role="dialog" aria-labelledby="twoFactorLabel" aria-hidden="true">
+<div class="modal fade" id="twoFactorPopupModalAdmin" tabindex="-1" role="dialog" aria-labelledby="twoFactorLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content" style="width:120%;">
             <div class="modal-header">
@@ -29,7 +29,7 @@
 </div>
 <script>
     $(document).ready(function () {
-        const $modal = $('#twoFactorPopupModal');
+        const $modal = $('#twoFactorPopupModalAdmin');
         const $form = $('#twoFactorForm');
         const $input = $('#google2fa_code');
 
@@ -68,7 +68,7 @@
                 },
                 success: function(response) {
                     $('#error-message').hide();
-                    $('#twoFactorPopupModal').modal('hide');
+                    $('#twoFactorPopupModalAdmin').modal('hide');
 
                     setTimeout(() => {
                         const form = document.getElementById('changePasswordForm');
@@ -85,9 +85,4 @@
     });
 </script>
 <style>
-
-
-    [dir="rtl"] .modal-header .close {
-       margin: -1rem 25rem -1rem auto !important;
-   }
 </style>
