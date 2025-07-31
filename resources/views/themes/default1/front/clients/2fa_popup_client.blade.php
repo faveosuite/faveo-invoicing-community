@@ -1,4 +1,4 @@
-<div class="modal fade" id="twoFactorPopupModal" tabindex="-1" aria-labelledby="twoFactorLabel" aria-hidden="true">
+<div class="modal fade" id="twoFactorPopupModalUser" tabindex="-1" aria-labelledby="twoFactorLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" style="max-width: 570px;">
         <div class="modal-content">
             <div class="modal-header">

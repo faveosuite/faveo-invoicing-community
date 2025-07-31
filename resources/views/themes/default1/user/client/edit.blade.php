@@ -341,7 +341,7 @@
             company:@json(trans('message.user_edit_details.add_company')),
             address:@json(trans('message.user_edit_details.add_address')),
             mobile:@json(trans('message.user_edit_details.add_mobile')),
-            user_name:@json(trans('message.user_edit_details.add_user_name')),
+            user_name:@json(trans('message.username_or_email')),
 
         };
 
@@ -410,7 +410,7 @@
 
             if (userFields.user_name.val() !== '') {
                 if (!validateUserName(userFields.user_name.val())) {
-                    showError(userFields.user_name, @json(trans('message.valid_username')));
+                    showError(userFields.user_name, @json(trans('message.username_or_email')));
                     isValid = false;
                 }
             }
@@ -486,7 +486,9 @@
 
         function validateUserName(userName) {
             const userNamePattern = /^[a-zA-Z0-9_]+$/; // Allows only alphanumeric characters and underscores
-            return userNamePattern.test(userName);
+            const emailPattern = /^(?!.*\.\.)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|org|net|edu|gov|mil|co|io|biz|info|dev|xyz|in)$/;
+
+            return userNamePattern.test(userName) || emailPattern.test(userName);
         }
 
     });

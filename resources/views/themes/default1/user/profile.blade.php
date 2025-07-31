@@ -750,7 +750,7 @@
                 }
 
                 if (is2FAEnabled) {
-                    $('#twoFactorPopupModal').modal('show');
+                    $('#twoFactorPopupModalAdmin').modal('show');
                 } else {
                     const rawForm = document.getElementById('changePasswordForm');
                     HTMLFormElement.prototype.submit.call(rawForm);
