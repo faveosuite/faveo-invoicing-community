@@ -2674,5 +2674,8 @@ return [
     'captcha_failed' => 'Verifica reCAPTCHA non riuscita. Assicurati che la tua chiave segreta reCAPTCHA sia valida.',
     'captcha_message' => 'Verifica reCAPTCHA non riuscita. Riprova.',
     'not-found' => 'Questo prodotto non può essere eliminato perché è attualmente associato a uno o più servizi. Rimuovere tutti i servizi correlati prima di tentare di eliminare questo prodotto.',
+    'delete_invoice_older' => 'Elimina le fatture più vecchie di...',
+    'deletion_cloud_subscription' => 'Elimina gli abbonamenti cloud scaduti da più di...',
+    'msg_service_down' => 'Al momento stiamo riscontrando problemi con il nostro servizio OTP. Ti preghiamo di riprovare tra poco. Stiamo lavorando per risolvere il problema il prima possibile.',
 
 ];

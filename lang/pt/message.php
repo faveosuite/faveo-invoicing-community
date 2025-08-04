@@ -2657,5 +2657,8 @@ return [
     'captcha_failed' => 'A verificação do reCAPTCHA falhou. Por favor, certifique-se de que a sua chave secreta do reCAPTCHA é válida.',
     'captcha_message' => 'Falha na verificação do reCAPTCHA. Tente novamente.',
     'not-found' => 'Este produto não pode ser excluído porque está atualmente associado a um ou mais serviços. Por favor, remova todos os serviços relacionados antes de tentar excluir este produto.',
+    'delete_invoice_older' => 'Excluir faturas com mais de...',
+    'deletion_cloud_subscription' => 'Excluir assinaturas na nuvem expiradas há mais de...',
+    'msg_service_down' => 'Estamos atualmente com problemas no nosso serviço de OTP. Por favor, tente novamente em breve. Estamos a trabalhar para resolver isto o mais rápido possível.',
 
 ];

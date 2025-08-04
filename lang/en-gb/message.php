@@ -2682,4 +2682,8 @@ return [
     'captcha_message' => 'reCAPTCHA verification failed. Please try again.',
     'not-found' => 'This product cannot be deleted because it is currently associated with one or more services. Please remove all related services before attempting to delete this product.',
 
+    'delete_invoice_older' => 'Delete invoices older than...',
+    'deletion_cloud_subscription' => 'Delete cloud subscriptions expired more than...',
+    'msg_service_down' => 'We’re currently experiencing issues with our OTP service. Please try again shortly. We’re working to resolve this as quickly as possible.',
+
 ];

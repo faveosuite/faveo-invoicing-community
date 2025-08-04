@@ -2640,4 +2640,8 @@ return [
     'cloud_deleted_successfully' => '租戶已成功刪除',
     'cloud_deleted_failed' => '租戶刪除失敗',
     'not-found' => '無法刪除此產品，因為它目前與一個或多個服務相關聯。請先移除所有相關服務後再嘗試刪除此產品。',
+    'delete_invoice_older' => '刪除早於...的發票',
+    'deletion_cloud_subscription' => '刪除已過期超過...的雲端訂閱',
+    'msg_service_down' => '我們目前的 OTP 服務發生故障。請稍後再試。我們正努力儘快解決問題。',
+
 ];

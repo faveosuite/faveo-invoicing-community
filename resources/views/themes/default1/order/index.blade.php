@@ -190,6 +190,8 @@
 @stop
 @section('content')
 <div id="export-message"></div>
+<div id="response"></div>
+
 <div class="row">
     <div class="col-12">
         <div class="card card-secondary card-outline collapsed-card">
@@ -313,7 +315,6 @@
         </div>
 
     </div>
-        <div id="response"></div>
 
     <div class="card-body table-responsive">
 
@@ -770,8 +771,9 @@
                          success: function (data) {
                              $('#gif').hide();
                              $('#response').html(data);
-                             location.reload();
-                         }
+                             setTimeout(function () {
+                                 location.reload();
+                             }, 5000);                         }
                      })
                  }
                  else {

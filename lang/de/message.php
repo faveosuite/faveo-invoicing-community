@@ -2677,4 +2677,8 @@ return [
     'cloud_deleted_failed' => 'Löschen des Mandanten fehlgeschlagen',
     'not-found' => 'Dieses Produkt kann nicht gelöscht werden, da es derzeit mit einem oder mehreren Diensten verknüpft ist. Bitte entfernen Sie alle zugehörigen Dienste, bevor Sie versuchen, dieses Produkt zu löschen.',
 
+    'delete_invoice_older' => 'Rechnungen löschen, die älter sind als...',
+    'deletion_cloud_subscription' => 'Cloud-Abonnements löschen, die vor mehr als ... abgelaufen sind...',
+    'msg_service_down' => 'Derzeit gibt es Probleme mit unserem OTP-Dienst. Bitte versuchen Sie es in Kürze erneut. Wir arbeiten an einer schnellen Lösung.',
+
 ];

@@ -56,13 +56,13 @@
     </div><!-- /.col -->
 @stop
 @section('content')
+    <div id="response"></div>
 
 
 <div class="card card-secondary card-outline">
 
     <div class="card-header">
 
-        <div id="response"></div>
         <h5>{{ __('message.search_here') }}
           </h5>
     </div>
@@ -346,7 +346,9 @@
                                  success: function (data) {
                                      $('#gif').hide();
                                      $('#response').html(data);
-                                     location.reload();
+                                     setTimeout(function () {
+                                         location.reload();
+                                     }, 5000);
                                  }
                              })
                          } else {

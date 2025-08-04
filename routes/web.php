@@ -146,7 +146,7 @@ Route::middleware('installAgora')->group(function () {
     Route::post('2fa/disable/{userId?}', [Google2FAController::class, 'disableTwoFactor']);
     Route::get('/2fa/validate', [Google2FAController::class, 'getValidateToken']);
     Route::get('verify-2fa', [Google2FAController::class, 'verify2fa']);
-    Route::get('2fa/loginValidate', [Google2FAController::class, 'postLoginValidateToken'])->name('2fa/loginValidate');
+    Route::post('2fa/loginValidate', [Google2FAController::class, 'postLoginValidateToken'])->name('2fa/loginValidate');
     Route::post('2fa/setupValidate', [Google2FAController::class, 'postSetupValidateToken']);
     Route::get('verify-password', [Google2FAController::class, 'verifyPassword']);
     Route::post('2fa-recovery-code', [Google2FAController::class, 'generateRecoveryCode']);

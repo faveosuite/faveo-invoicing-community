@@ -14,6 +14,7 @@
     </div><!-- /.col -->
 @stop
 @section('content')
+    <div id="response"></div>
 
     <div class="card card-secondary card-outline">
 
@@ -27,7 +28,6 @@
 
 
     </div>
-        <div id="response"></div>
        <div class="card-body table-responsive">
              
              <div class="row">
