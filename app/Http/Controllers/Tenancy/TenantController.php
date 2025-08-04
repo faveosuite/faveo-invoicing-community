@@ -460,7 +460,6 @@ class TenantController extends Controller
 
                 ];
 
-
                 \DB::table('free_trial_allowed')->insert([
                     'user_id' => $userId,
                     'product_id' => $order[0]->product()->value('id'),
