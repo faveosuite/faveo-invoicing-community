@@ -7,7 +7,6 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Model\User\AccountActivate;
 use App\User;
 use App\VerificationAttempt;
-use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
@@ -81,7 +80,10 @@ class AuthControllerTest extends TestCase
         // Assume OTP verification succeeds
         $this->authController->shouldReceive('sendVerifyOTP')
             ->once()
-            ->andReturn(true);
+            ->andReturn([
+                'type' => 'success',
+                'message' => __('message.otp_verified'),
+            ]);
 
         $response = json_decode($this->authController->verifyOtp($request)->getContent());
 
@@ -101,7 +103,10 @@ class AuthControllerTest extends TestCase
 
         $this->authController->shouldReceive('sendVerifyOTP')
             ->once()
-            ->andReturn(false);
+            ->andReturn([
+                'type' => 'error',
+                'message' => __('message.otp_invalid'),
+            ]);
 
         $response = json_decode($this->authController->verifyOtp($request)->getContent());
 
@@ -126,21 +131,24 @@ class AuthControllerTest extends TestCase
     }
 
     #[Test]
-    public function test_it_handles_maximum_email_verification_attempts()
+    public function test_it_handles_count_email_verification_attempts()
     {
+        \Mail::fake();
+
         $user = User::factory()->create();
-        VerificationAttempt::create([
-            'user_id' => $user->id,
-            'email_attempt' => 3,
-            'updated_at' => Carbon::now(),
-        ]);
 
         $request = new Request(['eid' => Crypt::encrypt($user->email)]);
 
-        $response = json_decode($this->authController->sendEmail($request)->getContent());
+        for ($i = 0; $i <= 4; $i++) {
+            json_decode($this->authController->sendEmail($request)->getContent(), 'GET');
+            AccountActivate::where('email', $user->email)->delete();
+        }
 
-        $expectedMessage = __('message.email_verification.max_attempts_exceeded', ['time' => '5 hours 59 minutes']);
-        $this->assertEquals($expectedMessage, $response->message);
+        $emailAttempts = VerificationAttempt::where('user_id', $user->id)->value('email_attempt');
+
+        $this->assertEquals(4, $emailAttempts);
+
+        \Mail::assertNothingSent();
     }
 
     #[Test]

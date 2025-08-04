@@ -144,15 +144,19 @@ Route::middleware('installAgora')->group(function () {
 
     Route::post('/2fa/enable', [Google2FAController::class, 'enableTwoFactor']);
     Route::post('2fa/disable/{userId?}', [Google2FAController::class, 'disableTwoFactor']);
-    Route::get('/2fa/validate', [Google2FAController::class, 'getValidateToken']);
-    Route::get('verify-2fa', [Google2FAController::class, 'verify2fa']);
-    Route::get('2fa/loginValidate', [Google2FAController::class, 'postLoginValidateToken'])->name('2fa/loginValidate');
+
+    Route::middleware(['blockFailedVerifications:2fa', 'session.timeout:10,2fa'])->group(function () {
+        Route::get('2fa/session-check', [Google2FAController::class, 'verifySession'])->name('2fa.session.check');
+        Route::get('recovery-code', [Google2FAController::class, 'showRecoveryCode']);
+        Route::get('verify-2fa', [Google2FAController::class, 'verify2fa']);
+        Route::post('2fa/loginValidate', [Google2FAController::class, 'postLoginValidateToken'])->name('2fa/loginValidate');
+        Route::post('verify-recovery-code', [Google2FAController::class, 'verifyRecoveryCode'])->name('verify-recovery-code');
+    });
+
     Route::post('2fa/setupValidate', [Google2FAController::class, 'postSetupValidateToken']);
     Route::get('verify-password', [Google2FAController::class, 'verifyPassword']);
     Route::post('2fa-recovery-code', [Google2FAController::class, 'generateRecoveryCode']);
     Route::get('get-recovery-code', [Google2FAController::class, 'getRecoveryCode']);
-    Route::get('recovery-code', [Google2FAController::class, 'showRecoveryCode']);
-    Route::post('verify-recovery-code', [Google2FAController::class, 'verifyRecoveryCode'])->name('verify-recovery-code');
     /*
      * Social Media
      */
@@ -626,23 +630,26 @@ Route::middleware('installAgora')->group(function () {
      */
     Route::get('third-party-integration', [Common\SettingsController::class, 'getKeys']);
     Route::patch('apikeys', [Common\SettingsController::class, 'postKeys']);
-    Route::post('login', [Auth\LoginController::class, 'login'])->name('login');
+    Route::post('login', [Auth\LoginController::class, 'login'])->name('login')->middleware(['blockFailedVerifications:login']);
     // Route::post('login', [Auth\LoginController::class, 'login'])->name('login');
 
-    Route::post('otp/send', [Auth\AuthController::class, 'requestOtp']);
-    Route::post('otp/sendByAjax', [Auth\AuthController::class, 'requestOtpFromAjax']);
-    Route::post('otp/verify', [Auth\AuthController::class, 'verifyOtp']);
-    Route::post('email/verify', [Auth\AuthController::class, 'verifyEmail']);
-    Route::post('resend_otp', [Auth\AuthController::class, 'retryOTP']);
-    Route::post('send-email', [Auth\AuthController::class, 'sendEmail']);
-    Route::get('verify', [Auth\AuthController::class, 'verify']);
+    Route::middleware(['blockFailedVerifications:verify', 'session.timeout:10,verify'])->group(function () {
+        Route::get('verify/session-check', [Auth\AuthController::class, 'verifySession'])->name('verify.session.check');
+        Route::post('otp/send', [Auth\AuthController::class, 'requestOtp']);
+        Route::post('otp/sendByAjax', [Auth\AuthController::class, 'requestOtpFromAjax']);
+        Route::post('otp/verify', [Auth\AuthController::class, 'verifyOtp']);
+        Route::post('email/verify', [Auth\AuthController::class, 'verifyEmail']);
+        Route::post('resend_otp', [Auth\AuthController::class, 'retryOTP']);
+        Route::post('send-email', [Auth\AuthController::class, 'sendEmail']);
+        Route::get('verify', [Auth\AuthController::class, 'verify']);
+    });
 
     Route::prefix('api')->withoutMiddleware(['web'])->middleware(['api'])->group(function () {
         Route::post('productDownload', [Product\BaseProductController::class, 'productDownload']);
         Route::post('productExist', [Product\BaseProductController::class, 'productFileExist']);
 
 //        it receive the reports form the MSG91
-        Route::post('msg91/reports', [Common\MSG91Controller::class, 'handleReports'])->withoutMiddleware(['admin', 'auth']);
+        Route::post('msg91/reports/{app_key}/{app_secret}', [Common\MSG91Controller::class, 'handleReports'])->withoutMiddleware(['admin', 'auth']);
     });
 
     Route::get('sms/reports', [Common\MSG91Controller::class, 'msg91Reports']);

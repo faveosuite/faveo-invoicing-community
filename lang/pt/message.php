@@ -2657,6 +2657,9 @@ return [
     'captcha_failed' => 'A verificação do reCAPTCHA falhou. Por favor, certifique-se de que a sua chave secreta do reCAPTCHA é válida.',
     'captcha_message' => 'Falha na verificação do reCAPTCHA. Tente novamente.',
     'not-found' => 'Este produto não pode ser excluído porque está atualmente associado a um ou mais serviços. Por favor, remova todos os serviços relacionados antes de tentar excluir este produto.',
+    'delete_invoice_older' => 'Excluir faturas com mais de...',
+    'deletion_cloud_subscription' => 'Excluir assinaturas na nuvem expiradas há mais de...',
+    'msg_service_down' => 'Estamos atualmente com problemas no nosso serviço de OTP. Por favor, tente novamente em breve. Estamos a trabalhar para resolver isto o mais rápido possível.',
 
     'auto_assign_success' => 'A configuração de atribuição automática foi atualizada com sucesso.',
     'system_manager_settings' => 'Definições do Gestor do Sistema',
@@ -2675,4 +2678,6 @@ return [
     'manager_settings_updated_successfully' => 'As configurações do gerente foram atualizadas com sucesso.',
 
     'user_position_prohibited_if' => 'O campo posição não é permitido quando o papel é usuário.',
+    'cloud_plan_error' => 'Por favor, remova o produto em nuvem ou vincule-o a um plano alternativo.',
+
 ];

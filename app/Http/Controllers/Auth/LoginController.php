@@ -4,20 +4,19 @@ namespace App\Http\Controllers\Auth;
 
 use App\ApiKey;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\LoginRequest;
 use App\Model\Common\Bussiness;
 use App\Model\Common\ChatScript;
 use App\Model\Common\Country;
 use App\Model\Common\StatusSetting;
-use App\Rules\CaptchaValidation;
-use App\Rules\Honeypot;
 use App\SocialLogin;
 use App\User;
-use App\VerificationAttempt;
-use Carbon\Carbon;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
+use RateLimiter;
 use Session;
 
 class LoginController extends Controller
@@ -82,82 +81,94 @@ class LoginController extends Controller
     }
 
     /**
-     * This function performs login operations checks the validates email,password and redirects 2fa status of the user.
+     * Handle a login request to the application.
      *
-     * @param  Request  $request
-     * @param
-     * @return \Illuminate\Http\RedirectResponse
-     *
-     * @throws
+     * @param  LoginRequest  $request
+     * @return RedirectResponse
      */
-    public function login(Request $request)
+    public function login(LoginRequest $request) // 2. Type-hint the LoginRequest
     {
-        $this->validate($request, [
-            'email_username' => 'required',
-            'password1' => 'required',
-            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('login')],
-            'login' => [new Honeypot()],
-        ], [
-            'g-recaptcha-response.required' => __('message.robot_verification'),
-            'email_username.required' => __('message.password_email'),
-            'password1.required' => __('message.please_enter_password'),
-        ]);
-        $loginInput = $request->input('email_username');
-        $password = $request->input('password1');
-        // Find user by email or username
-        $user = User::where('email', $loginInput)->first();
-        if (! $user) {
-            return redirect()->back()->withInput()->withErrors([
-                'login' => __('message.enter_a_email'),
-            ]);
+        // 1. Prepare credentials for both email and username login
+        $credentials = $this->buildCredentials($request);
+
+        $rateLimitKey = $this->getLoginRateLimitKey($request->input('email_username'));
+        RateLimiter::hit("login-attempt:{$rateLimitKey}");
+
+        // 2. Attempt to authenticate the user
+        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
+            return back()
+                ->withInput($request->only('email_username', 'remember'))
+                ->with('fails', __('message.enter_valid_credentials'));
         }
-        // Validate password
-        if (! \Hash::check($password, $user->password)) {
-            return redirect()->back()->withInput()->withErrors([
-                'password' => __('message.please_enter_valid_password'),
-            ]);
-        }
-        // Check account activation and mobile verification
+
+        $user = Auth::user();
+
+        // 3. Handle post-authentication checks (Verification)
         if (! $this->userNeedVerified($user)) {
-            $attempts = VerificationAttempt::find($user->id);
-            if ($attempts && $attempts->updated_at->lte(Carbon::now()->subHours(6))) {
-                $attempts->update([
-                    'mobile_attempt' => 0,
-                    'email_attempt' => 0,
-                ]);
-            }
-            if ($attempts && ($attempts->mobile_attempt >= 2 || $attempts->email_attempt >= 3)) {
-                $remainingTime = Carbon::parse($attempts->updated_at)->addHours(6)->diffInSeconds(Carbon::now());
-
-                return redirect()->back()->withErrors(__('message.verify_time_limit_exceed', ['time' => formatDuration($remainingTime)]));
-            }
-
-            return redirect('verify')->with('user', $user);
+            return $this->handleUnverifiedUser($user);
         }
-        // Check if 2FA is enabled
+
+        // 4. Check if the user has 2FA enabled
         if ($user->is_2fa_enabled) {
-            $request->session()->put('2fa:user:id', $user->id);
-            $request->session()->put('remember:user:id', $request->has('remember'));
-
-            return redirect('2fa/validate');
+            return $this->handleTwoFactorAuthentication($request, $user);
         }
 
-        // Attempt login
-        $auth = \Auth::attempt([
-            'email' => $user->email,
-            'password' => $password,
-            'active' => 1,
-        ], $request->has('remember'));
-        if (! $auth) {
-            return redirect()->back()->withInput()->withErrors([
-                'login' => __('message.auth_failed_try_again'),
-            ]);
-        }
+        // 5. Regenerate session for security
+        Session::regenerate();
+
         $this->convertCart();
 
         activity()->log('Logged In');
 
-        return redirect($this->redirectPath());
+        return redirect()->to($this->redirectPath());
+    }
+
+    /**
+     * Build the credentials array for authentication.
+     * Allows login with either email or username.
+     */
+    private function buildCredentials(Request $request): array
+    {
+        $loginInput = $request->input('email_username');
+        $loginType = filter_var($loginInput, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
+        return [
+            $loginType => $loginInput,
+            'password' => $request->input('password1'),
+            'active' => 1,
+        ];
+    }
+
+    /**
+     * Handle redirection for an unverified user.
+     */
+    private function handleUnverifiedUser(User $user)
+    {
+        Auth::logout();
+
+        Session::put([
+            'justStarted' => true,
+            'verification_user_id' => $user->id,
+        ]);
+
+        return redirect('verify')->with('user', $user);
+    }
+
+    /**
+     * Prepare the session and redirect for 2FA.
+     */
+    private function handleTwoFactorAuthentication(Request $request, User $user)
+    {
+        Auth::logout();
+
+        Session::put([
+            'justStarted' => true,
+            'verification_user_id' => $user->id,
+            '2fa:user:id' => $user->id,
+            'remember:user:id' => $request->boolean('remember'),
+        ]);
+
+        return redirect('verify-2fa');
     }
 
     /**
@@ -168,16 +179,18 @@ class LoginController extends Controller
     public function redirectPath()
     {
         $auth = Auth::user();
-        $sessionUrl = Redirect()->getIntendedUrl();
 
-        if ($sessionUrl) {
-            $appUrl = rtrim(env('APP_URL'), '/').'/';
-            $sessionUrl = str_replace($appUrl, '', $sessionUrl);
+        // Clear rate limit after successful login
+        if ($auth) {
+            $this->clearRateLimit('login', $auth);
+            $this->clearRateLimit('2fa', $auth);
         }
 
-        $defaultPath = ($auth && $auth->role === 'user') ? '/client-dashboard' : '/';
+        $defaultPath = ($auth && $auth->role === 'user')
+            ? '/client-dashboard'
+            : '/';
 
-        return url($defaultPath);
+        return redirect()->intended($defaultPath)->getTargetUrl();
     }
 
     /**
@@ -185,7 +198,7 @@ class LoginController extends Controller
      *
      * @param  $provider
      * @param
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      *
      * @throws
      */
@@ -205,7 +218,7 @@ class LoginController extends Controller
      *
      * @param  $provider
      * @param
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      *
      * @throws
      */
@@ -276,7 +289,7 @@ class LoginController extends Controller
      *
      * @param  Request  $request
      * @param
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      *
      * @throws
      */
@@ -361,5 +374,41 @@ class LoginController extends Controller
         }
 
         return true;
+    }
+
+    public function getLoginRateLimitKey(string $emailOrUsername): string
+    {
+        $userId = User::query()
+            ->where('email', $emailOrUsername)
+            ->orWhere('user_name', $emailOrUsername)
+            ->value('id');
+
+        return $userId ?? md5(request()->ip().':'.$emailOrUsername);
+    }
+
+    private function clearRateLimit(string $context, User $user): void
+    {
+        switch ($context) {
+            case 'login':
+                $identifier = $this->getLoginRateLimitKey($user->email ?? $user->username);
+                $keys = ["login-attempt:{$identifier}"];
+                break;
+
+            case '2fa':
+                $keys = [
+                    "2fa-code:{$user->id}",
+                    "recovery-code:{$user->id}",
+                ];
+                break;
+
+            default:
+                return; // do nothing if context not supported
+        }
+
+        foreach ($keys as $key) {
+            RateLimiter::clear($key);
+            \Cache::forget("penalty_level:{$key}");
+            \Cache::forget("penalty_applied:{$key}");
+        }
     }
 }

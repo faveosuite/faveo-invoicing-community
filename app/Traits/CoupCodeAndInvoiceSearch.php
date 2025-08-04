@@ -26,7 +26,7 @@ trait CoupCodeAndInvoiceSearch
                'number',
                'status',
                'invoice_items.product_name',
-           )->orderBy('date', 'desc');
+           )->orderBy('created_at', 'desc');
 
         $this->name($name, $join);
         $this->invoice_no($invoice_no, $join);

@@ -16,6 +16,7 @@ use Carbon\Carbon;
 use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
+use RateLimiter;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Validator;
 
@@ -140,7 +141,7 @@ class AuthController extends BaseAuthController
     {
         $request->validate([
             'eid' => 'required|string',
-            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('sendOtp')],
+            'g-recaptcha-response' => [isCaptchaRequired('v3')['is_required'], new CaptchaValidation('sendOtp')],
         ],
             [
                 'eid.required' => __('validation.eid_required'),
@@ -158,27 +159,14 @@ class AuthController extends BaseAuthController
                 return errorResponse(__('message.mobile_already_verified'));
             }
 
-            // Handle verification attempts
-            $attempts = VerificationAttempt::firstOrCreate(['user_id' => $user->id]);
+            $response = $this->sendOtp($user->mobile_code.$user->mobile, $user->id);
 
-            if ($attempts->updated_at->lte(Carbon::now()->subHours(6))) {
-                $attempts->update([
-                    'mobile_attempt' => 0,
-                    'email_attempt' => 0,
-                ]);
-            }
+            RateLimiter::hit("mobile-otp:{$user->id}");
 
-            if ($attempts->mobile_attempt >= 2) {
-                $remainingTime = Carbon::parse($attempts->updated_at)->addHours(6)->diffInSeconds(Carbon::now());
+            $this->updateVerificationAttempts($user, 'mobile');
 
-                return errorResponse(__('message.otp_verification.max_attempts_exceeded', ['time' => formatDuration($remainingTime)]));
-            }
-
-            $attempts->mobile_attempt = (int) $attempts->mobile_attempt + 1;
-            $attempts->save();
-
-            if (! $this->sendOtp($user->mobile_code.$user->mobile, $user->id)) {
-                return errorResponse(__('message.otp_verification.send_failure'));
+            if ($response['type'] === 'error') {
+                return errorResponse($response['message']);
             }
 
             return successResponse(__('message.otp_verification.send_success'));
@@ -202,7 +190,7 @@ class AuthController extends BaseAuthController
         $request->validate([
             'eid' => 'required|string',
             'type' => 'required|string|in:text,voice',
-            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('resendOtp')],
+            'g-recaptcha-response' => [isCaptchaRequired('v3')['is_required'], new CaptchaValidation('resendOtp')],
         ], [
             'eid.required' => __('validation.resend_otp.eid_required'),
             'eid.string' => __('validation.resend_otp.eid_string'),
@@ -216,27 +204,14 @@ class AuthController extends BaseAuthController
 
             $user = User::where('email', $email)->firstOrFail();
 
-            // Handle verification attempts
-            $attempts = VerificationAttempt::firstOrCreate(['user_id' => $user->id]);
+            $response = $this->sendForReOtp($user->mobile_code.$user->mobile, $type);
 
-            if ($attempts->updated_at->lte(Carbon::now()->subHours(6))) {
-                $attempts->update([
-                    'mobile_attempt' => 0,
-                    'email_attempt' => 0,
-                ]);
-            }
+            RateLimiter::hit("mobile-otp:{$user->id}");
 
-            if ($attempts->mobile_attempt >= 2) {
-                $remainingTime = Carbon::parse($attempts->updated_at)->addHours(6)->diffInSeconds(Carbon::now());
+            $this->updateVerificationAttempts($user, 'mobile');
 
-                return errorResponse(__('message.otp_verification.resend_max_attempts_exceeded', ['time' => formatDuration($remainingTime)]));
-            }
-
-            $attempts->mobile_attempt = (int) $attempts->mobile_attempt + 1;
-            $attempts->save();
-
-            if (! $this->sendForReOtp($user->mobile_code.$user->mobile, $type)) {
-                return errorResponse(__('message.otp_verification.resend_failure'));
+            if ($response['type'] === 'error') {
+                return errorResponse($response['message']);
             }
 
             if ($type === 'voice') {
@@ -253,7 +228,7 @@ class AuthController extends BaseAuthController
     {
         $request->validate([
             'eid' => 'required|string',
-            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('sendEmail')],
+            'g-recaptcha-response' => [isCaptchaRequired('v3')['is_required'], new CaptchaValidation('sendEmail')],
         ], [
             'eid.required' => __('validation.eid_required'),
             'eid.string' => __('validation.eid_string'),
@@ -263,30 +238,15 @@ class AuthController extends BaseAuthController
 
             $user = User::where('email', $email)->firstOrFail();
 
-            // Handle verification attempts
-            $attempts = VerificationAttempt::firstOrCreate(['user_id' => $user->id]);
-
-            if ($attempts->updated_at->lte(Carbon::now()->subHours(6))) {
-                $attempts->update([
-                    'mobile_attempt' => 0,
-                    'email_attempt' => 0,
-                ]);
-            }
-
-            if ($attempts->email_attempt >= 3) {
-                $remainingTime = Carbon::parse($attempts->updated_at)->addHours(6)->diffInSeconds(Carbon::now());
-
-                return errorResponse(__('message.email_verification.max_attempts_exceeded', ['time' => formatDuration($remainingTime)]));
-            }
-
             if (AccountActivate::where('email', $email)->first() && $method !== 'GET') {
                 return successResponse(\Lang::get('message.email_verification.already_sent'));
             }
 
             $this->sendActivation($email, $method);
 
-            $attempts->email_attempt = (int) $attempts->email_attempt + 1;
-            $attempts->save();
+            RateLimiter::hit("email-otp:{$user->id}");
+
+            $this->updateVerificationAttempts($user, 'email');
 
             return successResponse(
                 $method === 'GET'
@@ -324,18 +284,16 @@ class AuthController extends BaseAuthController
             // Find the user by email
             $user = User::where('email', $email)->firstOrFail();
 
+            RateLimiter::hit("mobile-verify:{$user->id}");
+
             // Validate OTP
             if (! is_numeric($request->otp)) {
                 return errorResponse(__('message.otp_invalid_format'));
             }
 
-            if (! $this->sendVerifyOTP($otp, $user->mobile_code.$user->mobile)) {
-                return errorResponse(__('message.otp_invalid'));
-            }
-
-            $verificationAttempt = VerificationAttempt::find($user->id);
-            if ($verificationAttempt) {
-                $verificationAttempt->update(['mobile_attempt' => 0]);
+            $response = $this->sendVerifyOTP($otp, $user->mobile_code.$user->mobile);
+            if ($response['type'] === 'error') {
+                return errorResponse($response['message']);
             }
 
             $user->mobile_verified = 1;
@@ -344,7 +302,7 @@ class AuthController extends BaseAuthController
 
             if (! \Auth::check() && $this->userNeedVerified($user)) {
                 //dispatch the job to add user to external services
-                AddUserToExternalService::dispatch($user);
+                AddUserToExternalService::dispatch($user, 'verify');
 
                 \Session::flash('success', __('message.registration_complete'));
             }
@@ -372,14 +330,12 @@ class AuthController extends BaseAuthController
 
         try {
             $otp = $request->input('otp');
-
-            if (rateLimitForKeyIp('request_email', 5, 1, $request->ip())['status']) {
-                return errorResponse(__('message.email_verification.max_attempts_exceeded'));
-            }
             // Decrypt the email
             $email = Crypt::decrypt($request->eid);
 
             $user = User::where('email', $email)->firstOrFail();
+
+            RateLimiter::hit("email-verify:{$user->id}");
 
             $account = AccountActivate::where('email', $email)->latest()->first(['token', 'updated_at']);
 
@@ -393,16 +349,13 @@ class AuthController extends BaseAuthController
 
             AccountActivate::where('email', $email)->delete();
 
-            $verificationAttempt = VerificationAttempt::find($user->id);
-            if ($verificationAttempt) {
-                $verificationAttempt->update(['email_attempt' => 0]);
-            }
             $user->email_verified = 1;
             $user->save();
 
-            AddUserToExternalService::dispatch($user);
-
             if (! \Auth::check() && $this->userNeedVerified($user)) {
+                //dispatch the job to add user to external services
+                AddUserToExternalService::dispatch($user, 'verify');
+
                 \Session::flash('success', __('message.registration_complete'));
             }
 
@@ -553,15 +506,15 @@ class AuthController extends BaseAuthController
         try {
             $status = StatusSetting::select('mailchimp_status', 'pipedrive_status', 'zoho_status')->first();
 
-            if (! ($options['skip_pipedrive'] ?? false)) {
+            if (! ($options['skip_pipedrive'] ?? false) && $status->pipedrive_status) {
                 (new PipedriveController())->addUserToPipedrive($user);
             }
 
-            if (! ($options['skip_zoho'] ?? false)) {
+            if (! ($options['skip_zoho'] ?? false) && $status->zoho_status) {
                 $this->addUserToZoho($user, $status->zoho_status);
             }
 
-            if (! ($options['skip_mailchimp'] ?? false)) {
+            if (! ($options['skip_mailchimp'] ?? false) && $status->mailchimp_status) {
                 $this->addUserToMailchimp($user, $status->mailchimp_status);
             }
         } catch (\Exception $exception) {
@@ -573,10 +526,9 @@ class AuthController extends BaseAuthController
         }
     }
 
-    public function updateUserWithVerificationStatus($user)
+    public function updateUserWithVerificationStatus($user, $trigger = 'register')
     {
         $pipedriveVerificationRequired = ApiKey::first()->value('require_pipedrive_user_verification');
-
         $statusSetting = StatusSetting::first([
             'emailverification_status',
             'msg91_status',
@@ -587,22 +539,53 @@ class AuthController extends BaseAuthController
 
         $emailRequired = $statusSetting->emailverification_status;
         $mobileRequired = $statusSetting->msg91_status;
-
         $isEmailVerified = ! $emailRequired || $user->email_verified;
         $isMobileVerified = ! $mobileRequired || $user->mobile_verified;
         $isFullyVerified = $isEmailVerified && $isMobileVerified;
 
-        // Service call conditions
-        $skipPipedrive = $pipedriveVerificationRequired && ! $isFullyVerified;
-        $skipZoho = ! $isFullyVerified;
-        $skipMailchimp = ! $isFullyVerified;
+        // Determine when to sync each service
+        $shouldSync = $this->shouldSyncServices($trigger, $pipedriveVerificationRequired, $isFullyVerified);
 
-        // Dispatch external sync only where needed
-        $this->addUserToExternalServices($user, [
-            'skip_pipedrive' => $skipPipedrive,
-            'skip_zoho' => $skipZoho,
-            'skip_mailchimp' => $skipMailchimp,
-        ]);
+        if ($shouldSync['sync_any']) {
+            $this->addUserToExternalServices($user, [
+                'skip_pipedrive' => ! $shouldSync['pipedrive'],
+                'skip_zoho' => ! $shouldSync['zoho'],
+                'skip_mailchimp' => ! $shouldSync['mailchimp'],
+            ]);
+        }
+    }
+
+    private function shouldSyncServices($trigger, $pipedriveVerificationRequired, $isFullyVerified)
+    {
+        $syncPipedrive = false;
+        $syncZoho = false;
+        $syncMailchimp = false;
+
+        if ($pipedriveVerificationRequired) {
+            // Pipedrive verification is required
+            if ($isFullyVerified) {
+                // User just became fully verified - sync all services
+                $syncPipedrive = true;
+                $syncZoho = true;
+                $syncMailchimp = true;
+            }
+        } else {
+            // Pipedrive verification is NOT required
+            if ($trigger === 'register') {
+                // Sync all services at registration
+                $syncPipedrive = true;
+                $syncZoho = true;
+                $syncMailchimp = true;
+            }
+            // For verification triggers when pipedrive verification is disabled, don't sync (already synced at registration)
+        }
+
+        return [
+            'sync_any' => $syncPipedrive || $syncZoho || $syncMailchimp,
+            'pipedrive' => $syncPipedrive,
+            'zoho' => $syncZoho,
+            'mailchimp' => $syncMailchimp,
+        ];
     }
 
     private function userNeedVerified($user)
@@ -614,5 +597,24 @@ class AuthController extends BaseAuthController
             ($setting->msg91_status && ! $user->mobile_verified) ||
             ! $user->active
         );
+    }
+
+    private function updateVerificationAttempts($user, $type = 'email')
+    {
+        if (! in_array($type, ['email', 'mobile'])) {
+            return;
+        }
+
+        $verificationAttempt = VerificationAttempt::firstOrCreate(['user_id' => $user->id]);
+
+        $field = $type.'_attempt';
+        $verificationAttempt->{$field}++;
+
+        $verificationAttempt->save();
+    }
+
+    public function verifySession()
+    {
+        return successResponse('active');
     }
 }

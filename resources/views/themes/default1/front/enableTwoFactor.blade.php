@@ -26,7 +26,7 @@ main
 
                 <div class="col-md-6 col-lg-6 mb-5 mb-lg-0 pe-5">
 
-                    {!! html()->form('get', route('2fa/loginValidate'))->id('2fa_form')->open() !!}
+                    {!! html()->form('POST', route('2fa/loginValidate'))->id('2fa_form')->open() !!}
 
 
                     <div class="row">
@@ -35,10 +35,22 @@ main
 
                                 <label class="form-label text-color-dark text-3">{{ __('message.enter_auth_code')}} <span class="text-color-danger">*</span></label>
 
-                                <input type="text" name="totp"  id="2fa_code" value="" class="form-control form-control-lg text-4">
+                                <input type="text" name="totp" maxlength="6" id="2fa_code" value="" class="form-control form-control-lg text-4">
                             </div>
                             <h6 id="codecheck"></h6>
                         </div>
+
+                    {!! honeypotField('2fa_code') !!}
+
+                    <?php
+                    $status = \App\Model\Common\StatusSetting::first();
+                    ?>
+                    @if ($status->recaptcha_status === 1)
+                        <div id="2fa_recaptcha"></div>
+                        <div id="2fa-verification"></div><br>
+                    @elseif($status->v3_recaptcha_status === 1)
+                        <input type="hidden" class="g-recaptcha-token" name="g-recaptcha-response" data-recaptcha-action="2fa">
+                    @endif
 
                         <p class="text-2">{{ __('message.open_two_factor')}}</p>
 
@@ -69,6 +81,12 @@ main
 
         </div>
     <script>
+        let two_factor_recaptcha_id;
+        @if($status->recaptcha_status === 1)
+        recaptchaFunctionToExecute.push(() => {
+            two_factor_recaptcha_id = grecaptcha.render('2fa_recaptcha', {'sitekey': siteKey});
+        });
+        @endif
         $(document).ready(function() {
             function placeErrorMessage(error, element, errorMapping = null) {
                 if (errorMapping !== null && errorMapping[element.attr("name")]) {
@@ -77,16 +95,39 @@ main
                     error.insertAfter(element);
                 }
             }
+            $.validator.addMethod("recaptchaRequired", function(value, element) {
+                try {
+                    if(!recaptchaEnabled) {
+                        return false;
+                    }
+                }catch (ex){
+                    return false
+                }
+                return value.trim() !== "";
+            }, "{{ __('message.recaptcha_required') }}");
+
+            $.validator.addMethod("totp6digits", function(value, element) {
+                return this.optional(element) || /^[0-9]{6}$/.test(value);
+            }, "{{ __('message.enter_valid_6_digit_code') }}");
+
             $('#2fa_form').validate({
+                ignore: ":hidden:not(.g-recaptcha-response)",
                 rules: {
                     totp: {
-                        required: true
+                        required: true,
+                        totp6digits: true
                     },
+                    "g-recaptcha-response": {
+                        recaptchaRequired: true
+                    }
                 },
                 messages: {
                     totp: {
                         required: "{{ __('message.please_enter_auth_code') }}"
                     },
+                    "g-recaptcha-response": {
+                        recaptchaRequired: "{{ __('message.recaptcha_required') }}"
+                    }
                 },
                 unhighlight: function (element) {
                     $(element).removeClass("is-valid");
@@ -100,4 +141,24 @@ main
             });
         });
     </script>
+        <script>
+            (function() {
+                const checkUrl = "{{ route('2fa.session.check') }}";
+                const checkInterval = 30000;
+
+                function checkSession() {
+                    $.ajax({
+                        url: checkUrl,
+                        type: 'GET',
+                        success: function(response, status, xhr) {
+                        },
+                        error: function() {
+                            window.location.href = '{{ url('login') }}';
+                        }
+                    });
+                }
+
+                setInterval(checkSession, checkInterval);
+            })();
+        </script>
 @stop 

@@ -40,6 +40,18 @@ main
                             <h6 id="codecheck"></h6>
                         </div>
 
+                    {!! honeypotField('recovery_code') !!}
+
+                    <?php
+                    $status = \App\Model\Common\StatusSetting::first();
+                    ?>
+                    @if ($status->recaptcha_status === 1)
+                        <div id="recovery_recaptcha"></div>
+                        <div id="recovery-verification"></div><br>
+                    @elseif($status->v3_recaptcha_status === 1)
+                        <input type="hidden" class="g-recaptcha-token" name="g-recaptcha-response" data-recaptcha-action="recovery">
+                    @endif
+
                         <p class="text-2">{{ __('message.recovery_code_used')}}</p>
 
                         <div class="row">
@@ -65,7 +77,14 @@ main
             </div>
 
         </div>
+{{--        @extends('mini_views.recaptcha')--}}
         <script>
+            let recovery_recaptcha_id;
+            @if($status->recaptcha_status === 1)
+            recaptchaFunctionToExecute.push(() => {
+                recovery_recaptcha_id = grecaptcha.render('recovery_recaptcha', {'sitekey': siteKey});
+            });
+            @endif
             $(document).ready(function() {
                 function placeErrorMessage(error, element, errorMapping = null) {
                     if (errorMapping !== null && errorMapping[element.attr("name")]) {
@@ -75,15 +94,22 @@ main
                     }
                 }
                 $('#recovery_form').validate({
+                    ignore: ":hidden:not(.g-recaptcha-response)",
                     rules: {
                         rec_code: {
                             required: true
                         },
+                        "g-recaptcha-response": {
+                            recaptchaRequired: true
+                        }
                     },
                     messages: {
                         rec_code: {
                             required: "{{ __('message.please_enter_recovery_code') }}",
                         },
+                        "g-recaptcha-response": {
+                            recaptchaRequired: "{{ __('message.recaptcha_required') }}"
+                        }
                     },
                     unhighlight: function (element) {
                         $(element).removeClass("is-valid");
@@ -96,5 +122,26 @@ main
                     }
                 });
             });
+        </script>
+
+        <script>
+            (function() {
+                const checkUrl = "{{ route('2fa.session.check') }}";
+                const checkInterval = 30000;
+
+                function checkSession() {
+                    $.ajax({
+                        url: checkUrl,
+                        type: 'GET',
+                        success: function(response, status, xhr) {
+                        },
+                        error: function() {
+                            window.location.href = '{{ url('login') }}';
+                        }
+                    });
+                }
+
+                setInterval(checkSession, checkInterval);
+            })();
         </script>
 @stop 

@@ -24,12 +24,7 @@ class MSG91ControllerTest extends DBTestCase
     {
         $controller = new Msg91Controller();
 
-        $request = Request::create('/msg/reports', 'POST', [
-            'app_key' => 'invalid_key',
-            'app_secret' => 'invalid_secret',
-        ]);
-
-        $this->assertFalse($controller->validateThirdPartyRequest($request));
+        $this->assertFalse($controller->validateThirdPartyRequest('invalid', 'invalid'));
     }
 
     public function test_validate_third_party_request_returns_true_when_app_and_api_key_exist()
@@ -46,12 +41,7 @@ class MSG91ControllerTest extends DBTestCase
 
         $controller = new Msg91Controller();
 
-        $request = Request::create('/msg/reports', 'POST', [
-            'app_key' => 'key123',
-            'app_secret' => 'secret123',
-        ]);
-
-        $this->assertTrue($controller->validateThirdPartyRequest($request));
+        $this->assertTrue($controller->validateThirdPartyRequest('key123', 'secret123'));
     }
 
     public function test_update_otp_request_creates_or_updates_record()
@@ -107,13 +97,11 @@ class MSG91ControllerTest extends DBTestCase
         // Force validateThirdPartyRequest to return false
         $controller->shouldReceive('validateThirdPartyRequest')->andReturn(false);
 
-        $request = Request::create('/msg/reports', 'POST', [
+        $request = Request::create('/msg/reports/x/y', 'POST', [
             'data' => json_encode([]),
-            'app_key' => 'x',
-            'app_secret' => 'y',
         ]);
 
-        $controller->handleReports($request);
+        $controller->handleReports($request, 'x', 'y');
     }
 
     public function test_handle_reports_processes_each_report_and_calls_processIndividualReport()
@@ -147,22 +135,23 @@ class MSG91ControllerTest extends DBTestCase
         ];
 
         $controller->shouldAllowMockingProtectedMethods();
+        $expectedUtcDate = Carbon::parse('2025-04-10 10:00:00', 'Asia/Kolkata')
+            ->timezone('UTC')
+            ->toDateTimeString();
         $controller->shouldReceive('processIndividualReport')
             ->once()
-            ->with(Mockery::on(function ($arg) {
+            ->with(Mockery::on(function ($arg) use ($expectedUtcDate) {
                 return $arg['request_id'] === 'r1'
                     && $arg['number'] === '555'
                     && $arg['status'] === 'DELIVRD'
-                    && $arg['date'] === '2025-04-10 10:00:00';
+                    && $arg['date'] === $expectedUtcDate;
             }));
 
-        $request = Request::create('/msg/reports', 'POST', [
-            'app_key' => 'k',
-            'app_secret' => 's',
+        $request = Request::create('/msg/reports/k/s', 'POST', [
             'data' => json_encode($reportsPayload),
         ]);
 
-        $controller->handleReports($request);
+        $controller->handleReports($request, 'k', 's');
     }
 
     public function test_msg91_report_query_filters_correctly()

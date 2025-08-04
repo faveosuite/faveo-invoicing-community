@@ -60,8 +60,8 @@ class Plan extends BaseModel
 
     public function delete()
     {
-        $this->planPrice()->delete();
         parent::delete();
+        $this->planPrice()->delete();
     }
 
     public function getActivitylogOptions(): LogOptions

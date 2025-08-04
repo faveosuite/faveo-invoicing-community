@@ -871,7 +871,7 @@
                             $(document).ready(function() {
                                 var orderId = {{$id}};
                                 $.ajax({
-                                    data: {'orderId' : orderId},
+                                    data: {'orderId' : orderId, "_token": "{!! csrf_token() !!}"},
                                     url: '{{url("/api/takeCloudDomain")}}',
                                     method: 'POST',
                                     dataType: 'json',
@@ -1194,7 +1194,7 @@
                 borderRadius: '4px'
             },
             rules: {
-                '.Input': { pamy-invoicesdding: '10px' },
+                '.Input': { padding: '10px' },
                 '.StripeElement--invalid': {
                     borderColor: '#df1b41',
                     borderWidth: '1px',
@@ -1787,7 +1787,7 @@
                 $('.modal-body').css('pointer-events', 'none');
                 var planId = $('select[name="plan"]').val();
                 var user = $('input[name="user"]').val();
-                var agents = {{$latestAgents}};
+                var agents = "{{ $latestAgents }}";
                 var orderId = {!! $id !!};
                 $.ajax({
                     type: "POST",

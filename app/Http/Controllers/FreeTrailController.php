@@ -94,7 +94,7 @@ class FreeTrailController extends Controller
                     \DB::table('free_trial_allowed')->insert([
                         'user_id' => $userId,
                         'product_id' => CloudProducts::where('cloud_product_key', $request->product)->value('cloud_product'),
-                        'domain' => $request->domain.'.'.cloudSubDomain(),
+                        'domain' => $isSuccess['Free_trial_domain'],
                     ]);
                     \Session::forget('planDays');
 

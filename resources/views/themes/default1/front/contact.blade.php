@@ -124,7 +124,7 @@
         </div>
 @stop
 @section('script')
-@extends('mini_views.recaptcha')
+{{--@extends('mini_views.recaptcha')--}}
 
         <script>
             let contact_recaptcha_id;

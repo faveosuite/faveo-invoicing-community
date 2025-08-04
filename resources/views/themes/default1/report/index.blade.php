@@ -14,13 +14,13 @@
     </div><!-- /.col -->
 @stop
 @section('content')
+    <div id="response"></div>
 
     <div class="card card-secondary card-outline">
  <div class="card-header">
             <h3 class="card-title">{{ __('message.reports') }}</h3>
         </div>
  
-        <div id="response"></div>
        <div class="card-body table-responsive">
              
              <div class="row">

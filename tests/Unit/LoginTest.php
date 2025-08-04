@@ -4,11 +4,11 @@ namespace Tests\Unit;
 
 use App\ApiKey;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Requests\Auth\LoginRequest;
 use App\Model\Common\StatusSetting;
 use App\User;
 use App\VerificationAttempt;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Http\Request;
 use Tests\DBTestCase;
 
 class LoginTest extends DBTestCase
@@ -114,9 +114,7 @@ class LoginTest extends DBTestCase
             'time_field' => encrypt(time() - 10), // valid
         ]]);
         $response->assertRedirect();
-        $response->assertSessionHasErrors([
-            'login' => 'Please Enter a valid Email',
-        ]);
+        $response->assertSessionHas('fails', 'Your email or password is incorrect. Please check and try again.');
         $this->assertTrue(session()->hasOldInput('email_username'));
     }
 
@@ -130,9 +128,7 @@ class LoginTest extends DBTestCase
             'time_field' => encrypt(time() - 10), // valid
         ]]);
         $response->assertRedirect();
-        $response->assertSessionHasErrors([
-            'password' => 'Please Enter a valid Password',
-        ]);
+        $response->assertSessionHas('fails', 'Your email or password is incorrect. Please check and try again.');
     }
 
     public function test_when_2fa_is_enabled()
@@ -140,7 +136,7 @@ class LoginTest extends DBTestCase
         $user = User::factory()->create(['password' => \Hash::make('password'), 'is_2fa_enabled' => 1]);
         $setting = StatusSetting::create(['emailverification_status' => 0, 'msg91_status' => 0, 'v3_recaptcha_status' => 0, 'recaptcha_status' => 0, 'v3_v2_recaptcha_status' => 0]);
         $this->withoutMiddleware();
-        $request = Request::create('/login', 'POST', [
+        $request = LoginRequest::create('/login', 'POST', [
             'email_username' => $user->email,
             'password1' => 'password',
             'login' => [
@@ -148,7 +144,6 @@ class LoginTest extends DBTestCase
                 'time_field' => encrypt(time() - 10), // valid
             ],
         ]);
-        $request->setLaravelSession(app('session')->driver());
         $controller = new LoginController();
         $response = $controller->login($request);
         $this->assertEquals($user->id, session('2fa:user:id'));

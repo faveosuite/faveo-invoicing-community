@@ -1883,7 +1883,8 @@
                     const secret = data?.data?.app_secret ?? '';
 
                     if (key && secret) {
-                        const fullUrl = `{{ url('api/msg91/reports') }}?app_key=${key}&app_secret=${secret}`;
+                        const baseUrl = `{{ url('api/msg91/reports') }}`;
+                        const fullUrl = `${baseUrl}/${key}/${secret}`;
                         $('#webhook_url').val(fullUrl);
                         $('#webhook_section').show();
                     } else {

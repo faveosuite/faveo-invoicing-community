@@ -353,7 +353,7 @@
 
 @stop
 @section('script')
-    @extends('mini_views.recaptcha')
+{{--    @extends('mini_views.recaptcha')--}}
     <script>
         const otpButton = document.getElementById("otpButton");
         const additionalButton = document.getElementById("additionalButton");
@@ -399,6 +399,15 @@
                 'X-CSRF-TOKEN': csrfToken
             }
         });
+
+        function handleTooManyAttempts(error) {
+            if (error.status === 429) {
+                setTimeout(function () {
+                    window.location.href = '{{ url('login') }}';
+                }, 5000);
+            }
+        }
+
 
         function updateTimer(display, countdown) {
             display.textContent = countdown.toString().padStart(2, '0') + " seconds";
@@ -454,7 +463,8 @@
         }
 
         async function resendOTP(default_type, type) {
-            const data = await generateV3Token({eid, default_type, type}, 'resendOtp');
+            let recaptchaAction = default_type === 'email' ? 'sendEmail' : 'resendOtp';
+            const data = await generateV3Token({eid, default_type, type}, recaptchaAction);
             $.ajax({
                 url: '{{ url('resend_otp') }}',
                 type: 'POST',
@@ -474,6 +484,7 @@
                     } else if (default_type === 'email') {
                         showAlert('danger', error.responseJSON.message, '#alert-container-email');
                     }
+                    handleTooManyAttempts(error);
                 }
             });
         }
@@ -490,6 +501,7 @@
                 },
                 error: function (error) {
                     showAlert('danger', error.responseJSON.message, '#alert-container');
+                    handleTooManyAttempts(error);
                 }
             });
         }
@@ -545,10 +557,13 @@
                 },
                 error: function (error) {
                     showAlert('danger', error.responseJSON.message, '#alert-container');
-
+                    handleTooManyAttempts(error);
                 },
                 complete: function () {
                     toggleButtonState('mobileVerifyBtn', 'mobileVerifyBtnText', false); // Re-enable and reset text to "Verify"
+                    @if($setting->recaptcha_status === 1)
+                    regenerateRecaptchaV2(mobile_recaptcha_id)
+                    @endif
                 }
             });
         }
@@ -598,6 +613,7 @@
                 },
                 error: function (error) {
                     showAlert('danger', error.responseJSON.message, '#alert-container-email');
+                    handleTooManyAttempts(error);
                 }
             });
         }
@@ -652,9 +668,13 @@
                 },
                 error: function (error) {
                     showAlert('danger', error.responseJSON.message, '#alert-container-email');
+                    handleTooManyAttempts(error);
                 },
                 complete: function () {
                     toggleButtonState('emailVerifyBtn', 'emailVerifyBtnText', false); // Re-enable and reset text to "Verify"
+                    @if($setting->recaptcha_status === 1)
+                    regenerateRecaptchaV2(email_recaptcha_id)
+                    @endif
                 }
             });
         }
@@ -786,4 +806,25 @@
             }
         });
     </script>
+<script>
+    (function() {
+        const checkUrl = "{{ route('verify.session.check') }}";
+        const checkInterval = 30000;
+
+        function checkSession() {
+            $.ajax({
+                url: checkUrl,
+                type: 'GET',
+                success: function(response, status, xhr) {
+                },
+                error: function() {
+                    window.location.href = '{{ url('login') }}';
+                }
+            });
+        }
+
+        setInterval(checkSession, checkInterval);
+    })();
+</script>
+
 @stop

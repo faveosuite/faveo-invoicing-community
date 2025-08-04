@@ -169,7 +169,7 @@
 
                 <div class="col-md-6">
               <div class="form-group">
-                <label>{{Lang::get('message.cloud_subscription_deletion')}}</label>  <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="{{ __('message.cron_trigger_cloud') }}"></i>
+                <label>{{Lang::get('message.deletion_cloud_subscription')}}</label>  <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="{{ __('message.cron_trigger_cloud') }}"></i>
                   @if ($cloudStatus == 0)
                     <select id ="days" name="cloud_days" class="form-control selectpicker"   style="width: 100%; color:black;" disabled>
                       <option value="">{{Lang::get('message.enable_faveo_cloud_cron')}}</option>
@@ -208,7 +208,7 @@
 
        <div class="col-md-6">
               <div class="form-group">
-                <label>{{Lang::get('message.invoice_deletion')}}</label>  <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="{{ __('message.cron_trigger_deletion_old') }}"></i>
+                <label>{{Lang::get('message.delete_invoice_older')}}</label>  <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="{{ __('message.cron_trigger_deletion_old') }}"></i>
                   @if ($invoiceStatus == 0)
                     <select id ="days" name="invoice_days[]" class="form-control selectpicker"   style="width: 100%; color:black;" disabled>
                       <option value="">{{Lang::get('message.enable_invoice_deletion_cron')}}</option>

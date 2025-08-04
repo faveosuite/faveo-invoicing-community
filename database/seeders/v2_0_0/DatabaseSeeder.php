@@ -119,6 +119,12 @@ class DatabaseSeeder extends Seeder
         $this->call(QueueServiceSeeder::class);
         $this->call(PlanPriceSeeder::class);
 
+        $this->call(StripeSupportedCurrencySeeder::class);
+        $this->command->info('Stripe supported currency table seeded!');
+
+        $this->call(RazorpaySupportedCurrencySeeder::class);
+        $this->command->info('Razorpay supported currency table seeded!');
+
         // DB::unprepared(file_get_contents(storage_path('agora.sql')));
         // DB::unprepared(file_get_contents(storage_path('states.sql')));
         // DB::unprepared(file_get_contents(storage_path('taxrates.sql')));

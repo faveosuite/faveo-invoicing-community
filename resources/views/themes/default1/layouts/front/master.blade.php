@@ -153,6 +153,8 @@ foreach($scripts as $script) {
     <script src="//cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
+    @include('mini_views.recaptcha')
+
 
     <style>
 
@@ -943,7 +945,6 @@ foreach ($footerWidgetTypes as $widgetType) {
 <script src="{{asset('client/porto/js-2/view.contact.js')}}"></script>
 
 @extends('mini_views.intl_tel_input')
-
 <script type="text/javascript">
 
 var csrfToken = $('meta[name="csrf-token"]').attr('content');
@@ -951,7 +952,7 @@ var csrfToken = $('meta[name="csrf-token"]').attr('content');
 setInterval(refreshToken, 3600000);
 
 function refreshToken(){
-    $.get('refresh-csrf').done(function(data){
+    $.get("{{ url('refresh-csrf') }}").done(function(data){
         csrfToken = data.token;
         $.ajaxSetup({
             headers: {
@@ -1012,20 +1013,22 @@ setTimeout(function() {
               }
           });
       })
+      let mailchimpRecaptchaId = null; // store globally so we can reset later
 
       function mailchimp_render() {
-          @if(!Auth::check() && $status->recaptcha_status === 1 && $status->v3_v2_recatcha_status && isset($isV2RecaptchaEnabledForNewsletter) && $isV2RecaptchaEnabledForNewsletter === 1)
+          @if(!Auth::check() && $status->recaptcha_status === 1 && $status->v3_v2_recaptcha_status && isset($isV2RecaptchaEnabledForNewsletter) && $isV2RecaptchaEnabledForNewsletter === 1)
 
           const el = document.getElementById('mailchimp_recaptcha');
           if (el) {
               const renderFn = () => {
-                  grecaptcha.render('mailchimp_recaptcha', {
+                  mailchimpRecaptchaId = grecaptcha.render('mailchimp_recaptcha', {
                       sitekey: siteKey
                   });
+                  return mailchimpRecaptchaId;
               };
 
-              if (grecaptchaLoaded && window.grecaptcha) {
-                  renderFn(); // grecaptcha is already ready, run immediately
+              if (window.grecaptcha && typeof grecaptcha.render === "function"){
+                  return renderFn(); // grecaptcha ready
               } else {
                   recaptchaFunctionToExecute.push(renderFn); // queue it for later
               }
@@ -1113,6 +1116,7 @@ setTimeout(function() {
                     $('#mailchimp-subscription').html(@json(__('message.waiting')));
                 },
                 success: function(data) {
+                    $form[0].reset();
                     showAlert('success', data.message);
                 },
                 error: function(jqXHR, status, error) {
@@ -1124,6 +1128,9 @@ setTimeout(function() {
                 },
                 complete: function() {
                     $('#mailchimp-subscription').html(@json(__('message.caps_go')));
+                    if (mailchimpRecaptchaId !== null) {
+                        grecaptcha.reset(mailchimpRecaptchaId);
+                    }
                 }
             });
         });

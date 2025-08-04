@@ -491,6 +491,7 @@ class PageController extends Controller
             $productsRelatedToGroup = \App\Model\Product\Product::where('products.group', $groupid)
                 ->where('products.hidden', '!=', 1)
                 ->join('plans', 'products.id', '=', 'plans.product')
+                ->where('plans.days', '!=', 14)
                 ->join('plan_prices', 'plans.id', '=', 'plan_prices.plan_id')
                 ->select(
                     'products.*',
@@ -504,10 +505,10 @@ class PageController extends Controller
             END as currency_priority
         ")
                 )
-                ->orderBy('products.id')
+                // ->orderBy('products.id')
                 ->orderBy('currency_priority')
                 ->orderByRaw('CAST(plan_prices.add_price AS DECIMAL(10, 2)) ASC')
-                ->orderBy('plans.created_at', 'ASC')
+                // ->orderBy('plans.created_at', 'ASC')
                 ->get()
                 ->unique('id');
 

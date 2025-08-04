@@ -53,11 +53,12 @@ class BaseAuthController extends Controller
         }
     }
 
-    private function makeRequest(string $method, string $url, array $queryParams = [])
+    private function makeRequest(string $method, string $url, array $queryParams = []): array
     {
         $msgKey = ApiKey::find(1, ['msg91_auth_key', 'msg91_sender', 'msg91_template_id']);
         $client = new Client();
         $authKey = $msgKey->msg91_auth_key;
+
         try {
             $response = $client->request($method, $url, [
                 'headers' => [
@@ -67,13 +68,19 @@ class BaseAuthController extends Controller
                 'query' => $queryParams,
             ]);
 
-            return json_decode($response->getBody(), true);
+            return [
+                'status' => $response->getStatusCode(),
+                'body' => json_decode($response->getBody(), true),
+            ];
         } catch (\Exception $e) {
-            return ['type' => 'error', 'message' => $e->getMessage()];
+            return [
+                'status' => 200,
+                'body' => ['type' => 'error', 'message' => 'There was an error processing your request'],
+            ];
         }
     }
 
-    public function sendOtp(string $mobile, $userID = null): bool
+    public function sendOtp(string $mobile, $userID = null): array
     {
         // Remove any non-numeric characters
         $mobile = preg_replace('/\D/', '', $mobile);
@@ -90,12 +97,12 @@ class BaseAuthController extends Controller
 
         $response = $this->makeRequest('POST', 'https://api.msg91.com/api/v5/otp', $queryParams);
 
-        if (isset($response['request_id'])) {
+        if (isset($response['body']['request_id'])) {
             $user = User::select('mobile_country_iso', 'mobile', 'mobile_code')->find($userID);
 
             if ($user) {
                 (new MSG91Controller())->updateOtpRequest(
-                    $response['request_id'],
+                    $response['body']['request_id'],
                     0,
                     $user->mobile_country_iso,
                     $user->mobile,
@@ -105,10 +112,10 @@ class BaseAuthController extends Controller
             }
         }
 
-        return $response['type'] !== 'error';
+        return $this->responseHandler($response);
     }
 
-    public function sendForReOtp(string $mobile, string $type): bool
+    public function sendForReOtp(string $mobile, string $type): array
     {
         // Remove any non-numeric characters
         $mobile = preg_replace('/\D/', '', $mobile);
@@ -119,10 +126,10 @@ class BaseAuthController extends Controller
 
         $response = $this->makeRequest('GET', 'https://api.msg91.com/api/v5/otp/retry', $queryParams);
 
-        return $response['type'] !== 'error';
+        return $this->responseHandler($response);
     }
 
-    public function sendVerifyOTP(string $otp, string $mobile): bool
+    public function sendVerifyOTP(string $otp, string $mobile): array
     {
         // Remove any non-numeric characters
         $mobile = preg_replace('/\D/', '', $mobile);
@@ -133,7 +140,29 @@ class BaseAuthController extends Controller
 
         $response = $this->makeRequest('GET', 'https://api.msg91.com/api/v5/otp/verify', $queryParams);
 
-        return $response['type'] !== 'error';
+        return $this->responseHandler($response);
+    }
+
+    private function responseHandler($response): array
+    {
+        if ($response['status'] === 200) {
+            if ($response['body']['type'] === 'error') {
+                return [
+                    'type' => 'error',
+                    'message' => $response['body']['message'],
+                ];
+            } elseif ($response['body']['type'] === 'success') {
+                return [
+                    'type' => 'success',
+                    'message' => 'Request successfully completed',
+                ];
+            }
+        }
+
+        return [
+            'type' => 'error',
+            'message' => __('message.msg_service_down'),
+        ];
     }
 
     /**

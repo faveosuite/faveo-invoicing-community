@@ -36,6 +36,7 @@ class Kernel extends HttpKernel
      */
     protected $middlewareGroups = [
         'web' => [
+            'throttle:web',
             // \App\Http\Middleware\Install::class,
             // \App\Http\Middleware\EncryptCookies::class,
             \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
@@ -83,5 +84,7 @@ class Kernel extends HttpKernel
         '2fa' => \PragmaRX\Google2FALaravel\Middleware::class,
         'pulse.enabled' => \App\Http\Middleware\CheckPulseEnabled::class,
         'language' => \App\Http\Middleware\LanguageMiddleware::class,
+        'blockFailedVerifications' => \App\Http\Middleware\BlockFailedVerifications::class,
+        'session.timeout' => \App\Http\Middleware\SessionTimeout::class,
     ];
 }
