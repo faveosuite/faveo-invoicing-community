@@ -2626,4 +2626,8 @@ return [
     'manager_settings_updated_successfully' => 'Postavke menadžera su uspješno ažurirane.',
 
     'user_position_prohibited_if' => 'Polje pozicija nije dozvoljeno kada je uloga korisnik.',
+    'delete_invoice_older' => 'Obriši fakture starije od...',
+    'deletion_cloud_subscription' => 'Obriši cloud pretplate koje su istekle prije više od...',
+    'msg_service_down' => 'Trenutno imamo problema s OTP uslugom. Molimo pokušajte ponovo uskoro. Radimo na brzom rješenju problema.',
+
 ];

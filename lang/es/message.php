@@ -2697,4 +2697,8 @@ return [
     'manager_settings_updated_successfully' => 'La configuración del gerente se actualizó correctamente.',
 
     'user_position_prohibited_if' => 'El campo de posición no está permitido cuando el rol es usuario.',
+    'delete_invoice_older' => 'Eliminar facturas anteriores a...',
+    'deletion_cloud_subscription' => 'Eliminar suscripciones en la nube que hayan expirado hace más de...',
+    'msg_service_down' => 'Actualmente estamos experimentando problemas con nuestro servicio de OTP. Por favor, inténtalo de nuevo en breve. Estamos trabajando para resolverlo lo antes posible.',
+
 ];

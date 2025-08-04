@@ -2673,6 +2673,9 @@ return [
     'cloud_deleted_successfully' => 'Tenant berhasil dihapus',
     'cloud_deleted_failed' => 'Penghapusan tenant gagal',
     'not-found' => 'Produk ini tidak dapat dihapus karena saat ini terkait dengan satu atau lebih layanan. Harap hapus semua layanan terkait sebelum mencoba menghapus produk ini.',
+    'delete_invoice_older' => 'Hapus faktur yang lebih lama dari...',
+    'deletion_cloud_subscription' => 'Hapus langganan cloud yang kedaluwarsa lebih dari...',
+    'msg_service_down' => 'Saat ini kami sedang mengalami masalah dengan layanan OTP kami. Silakan coba lagi sebentar lagi. Kami sedang berusaha menyelesaikannya secepat mungkin.',
 
     'auto_assign_success' => 'Pengaturan penugasan otomatis berhasil diperbarui.',
     'system_manager_settings' => 'Pengaturan Manajer Sistem',

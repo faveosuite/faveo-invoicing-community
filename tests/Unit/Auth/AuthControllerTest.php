@@ -81,7 +81,10 @@ class AuthControllerTest extends TestCase
         // Assume OTP verification succeeds
         $this->authController->shouldReceive('sendVerifyOTP')
             ->once()
-            ->andReturn(true);
+            ->andReturn([
+                'type' => 'success',
+                'message' => __('message.otp_verified'),
+            ]);
 
         $response = json_decode($this->authController->verifyOtp($request)->getContent());
 
@@ -101,7 +104,10 @@ class AuthControllerTest extends TestCase
 
         $this->authController->shouldReceive('sendVerifyOTP')
             ->once()
-            ->andReturn(false);
+            ->andReturn([
+                'type' => 'error',
+                'message' => __('message.otp_invalid'),
+            ]);
 
         $response = json_decode($this->authController->verifyOtp($request)->getContent());
 

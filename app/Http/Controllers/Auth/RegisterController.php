@@ -203,7 +203,7 @@ class RegisterController extends Controller
 
             $need_verify = $this->getEmailMobileStatusResponse();
 
-            AddUserToExternalService::dispatch($userInput);
+            AddUserToExternalService::dispatch($userInput, 'register');
 
             $userInput->save();
 

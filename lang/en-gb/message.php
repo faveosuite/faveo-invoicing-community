@@ -2699,4 +2699,8 @@ return [
     'manager_settings_updated_successfully' => 'Manager settings were successfully updated.',
 
     'user_position_prohibited_if' => 'The position field is not allowed when the role is set to user.',
+    'delete_invoice_older' => 'Delete invoices older than...',
+    'deletion_cloud_subscription' => 'Delete cloud subscriptions expired more than...',
+    'msg_service_down' => 'We’re currently experiencing issues with our OTP service. Please try again shortly. We’re working to resolve this as quickly as possible.',
+
 ];

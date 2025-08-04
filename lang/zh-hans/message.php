@@ -2674,6 +2674,9 @@ return [
     'cloud_deleted_successfully' => '租户已成功删除',
     'cloud_deleted_failed' => '租户删除失败',
     'not-found' => '无法删除该产品，因为它当前关联了一个或多个服务。请先删除所有相关服务后再尝试删除该产品。',
+    'delete_invoice_older' => '删除早于...的发票',
+    'deletion_cloud_subscription' => '删除已过期超过...的云订阅',
+    'msg_service_down' => '我们目前的 OTP 服务出现故障。请稍后再试。我们正在努力尽快解决问题。',
 
     'auto_assign_success' => '自动分配设置已成功更新。',
     'system_manager_settings' => '系统管理员设置',

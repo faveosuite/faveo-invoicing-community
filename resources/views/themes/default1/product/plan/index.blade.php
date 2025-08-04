@@ -14,6 +14,7 @@
     </div><!-- /.col -->
 @stop
 @section('content')
+    <div id="response"></div>
 
 
 
@@ -31,14 +32,13 @@
     </div>
 
 
-    <div id="response"></div>
 
     <div class="card-body table-responsive">
          @include('themes.default1.product.plan.popup.create-period') 
         <div class="row">
             <div class="col-md-12">
               
-               </div><br><br>
+               </div>
             <div class="col-md-12">
 
                     <table id="plan-table" class="table display" cellspacing="0" width="100%" styleClass="borderless">
@@ -202,7 +202,9 @@
                              success: function (data) {
                                  $('#gif').hide();
                                  $('#response').html(data);
-                                 location.reload();
+                                 setTimeout(function () {
+                                     location.reload();
+                                 }, 5000);
                              }
                          })
                      } else {

@@ -2686,4 +2686,8 @@ return [
     'manager_settings_updated_successfully' => 'Les paramètres du gestionnaire ont été mis à jour avec succès.',
 
     'user_position_prohibited_if' => 'Le champ poste n’est pas autorisé lorsque le rôle est utilisateur.',
+    'delete_invoice_older' => 'Supprimer les factures antérieures à...',
+    'deletion_cloud_subscription' => 'Supprimer les abonnements cloud expirés depuis plus de...',
+    'msg_service_down' => 'Nous rencontrons actuellement des problèmes avec notre service OTP. Veuillez réessayer sous peu. Nous travaillons à résoudre ce problème au plus vite.',
+
 ];

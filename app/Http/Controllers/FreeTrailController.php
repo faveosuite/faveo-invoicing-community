@@ -91,14 +91,14 @@ class FreeTrailController extends Controller
                         return $isSuccess;
                     }
 
-                    \DB::table('free_trial_allowed')->insert([
-                        'user_id' => $userId,
-                        'product_id' => CloudProducts::where('cloud_product_key', $request->product)->value('cloud_product'),
-                        'domain' => $request->domain.'.'.cloudSubDomain(),
-                    ]);
+//                    \DB::table('free_trial_allowed')->insert([
+//                        'user_id' => $userId,
+//                        'product_id' => CloudProducts::where('cloud_product_key', $request->product)->value('cloud_product'),
+//                        'domain' => $request->domain.'.'.cloudSubDomain(),
+//                    ]);
                     \Session::forget('planDays');
 
-                    DB::commit(); // Commit the transaction
+//                    DB::commit(); // Commit the transaction
 
                     return $isSuccess;
                 } catch (\Exception $ex) {

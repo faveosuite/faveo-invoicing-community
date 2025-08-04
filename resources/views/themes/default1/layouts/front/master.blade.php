@@ -1014,7 +1014,7 @@ setTimeout(function() {
       })
 
       function mailchimp_render() {
-          @if(!Auth::check() && $status->recaptcha_status === 1 && $status->v3_v2_recatcha_status && isset($isV2RecaptchaEnabledForNewsletter) && $isV2RecaptchaEnabledForNewsletter === 1)
+          @if(!Auth::check() && $status->recaptcha_status === 1 && $status->v3_v2_recaptcha_status && isset($isV2RecaptchaEnabledForNewsletter) && $isV2RecaptchaEnabledForNewsletter === 1)
 
           const el = document.getElementById('mailchimp_recaptcha');
           if (el) {
@@ -1024,7 +1024,7 @@ setTimeout(function() {
                   });
               };
 
-              if (grecaptchaLoaded && window.grecaptcha) {
+              if (window.grecaptcha) {
                   renderFn(); // grecaptcha is already ready, run immediately
               } else {
                   recaptchaFunctionToExecute.push(renderFn); // queue it for later

@@ -2658,4 +2658,8 @@ return [
     'manager_settings_updated_successfully' => '管理員設定已成功更新。',
 
     'user_position_prohibited_if' => '當角色為使用者時，不允許填寫職位欄位。',
+    'delete_invoice_older' => '刪除早於...的發票',
+    'deletion_cloud_subscription' => '刪除已過期超過...的雲端訂閱',
+    'msg_service_down' => '我們目前的 OTP 服務發生故障。請稍後再試。我們正努力儘快解決問題。',
+
 ];

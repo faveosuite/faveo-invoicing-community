@@ -2681,6 +2681,9 @@ return [
     'captcha_failed' => 'reCAPTCHA の検証に失敗しました。reCAPTCHA のシークレットキーが有効であることを確認してください。',
     'captcha_message' => 'reCAPTCHA の検証に失敗しました。もう一度お試しください。',
     'not-found' => 'この商品は現在1つ以上のサービスと関連付けられているため、削除できません。削除を試みる前にすべての関連サービスを削除してください。',
+    'delete_invoice_older' => '次より古い請求書を削除...',
+    'deletion_cloud_subscription' => '次より前に期限切れとなったクラウドサブスクリプションを削除...',
+    'msg_service_down' => '現在、OTPサービスに問題が発生しています。しばらくしてから再度お試しください。問題の早期解決に努めています。',
 
     'auto_assign_success' => '自動割り当ての設定が正常に更新されました。',
     'system_manager_settings' => 'システムマネージャー設定',

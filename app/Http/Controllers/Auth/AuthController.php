@@ -140,7 +140,7 @@ class AuthController extends BaseAuthController
     {
         $request->validate([
             'eid' => 'required|string',
-            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('sendOtp')],
+            'g-recaptcha-response' => [isCaptchaRequired('v3')['is_required'], new CaptchaValidation('sendOtp')],
         ],
             [
                 'eid.required' => __('validation.eid_required'),
@@ -177,8 +177,10 @@ class AuthController extends BaseAuthController
             $attempts->mobile_attempt = (int) $attempts->mobile_attempt + 1;
             $attempts->save();
 
-            if (! $this->sendOtp($user->mobile_code.$user->mobile, $user->id)) {
-                return errorResponse(__('message.otp_verification.send_failure'));
+            $response = $this->sendOtp($user->mobile_code.$user->mobile, $user->id);
+
+            if ($response['type'] === 'error') {
+                return errorResponse($response['message']);
             }
 
             return successResponse(__('message.otp_verification.send_success'));
@@ -202,7 +204,7 @@ class AuthController extends BaseAuthController
         $request->validate([
             'eid' => 'required|string',
             'type' => 'required|string|in:text,voice',
-            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('resendOtp')],
+            'g-recaptcha-response' => [isCaptchaRequired('v3')['is_required'], new CaptchaValidation('resendOtp')],
         ], [
             'eid.required' => __('validation.resend_otp.eid_required'),
             'eid.string' => __('validation.resend_otp.eid_string'),
@@ -235,8 +237,9 @@ class AuthController extends BaseAuthController
             $attempts->mobile_attempt = (int) $attempts->mobile_attempt + 1;
             $attempts->save();
 
-            if (! $this->sendForReOtp($user->mobile_code.$user->mobile, $type)) {
-                return errorResponse(__('message.otp_verification.resend_failure'));
+            $response = $this->sendForReOtp($user->mobile_code.$user->mobile, $type);
+            if ($response['type'] === 'error') {
+                return errorResponse($response['message']);
             }
 
             if ($type === 'voice') {
@@ -253,7 +256,7 @@ class AuthController extends BaseAuthController
     {
         $request->validate([
             'eid' => 'required|string',
-            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('sendEmail')],
+            'g-recaptcha-response' => [isCaptchaRequired('v3')['is_required'], new CaptchaValidation('sendEmail')],
         ], [
             'eid.required' => __('validation.eid_required'),
             'eid.string' => __('validation.eid_string'),
@@ -329,8 +332,9 @@ class AuthController extends BaseAuthController
                 return errorResponse(__('message.otp_invalid_format'));
             }
 
-            if (! $this->sendVerifyOTP($otp, $user->mobile_code.$user->mobile)) {
-                return errorResponse(__('message.otp_invalid'));
+            $response = $this->sendVerifyOTP($otp, $user->mobile_code.$user->mobile);
+            if ($response['type'] === 'error') {
+                return errorResponse($response['message']);
             }
 
             $verificationAttempt = VerificationAttempt::find($user->id);
@@ -342,10 +346,10 @@ class AuthController extends BaseAuthController
 
             $user->save();
 
-            if (! \Auth::check() && $this->userNeedVerified($user)) {
-                //dispatch the job to add user to external services
-                AddUserToExternalService::dispatch($user);
+            //dispatch the job to add user to external services
+            AddUserToExternalService::dispatch($user, 'verify');
 
+            if (! \Auth::check() && $this->userNeedVerified($user)) {
                 \Session::flash('success', __('message.registration_complete'));
             }
 
@@ -400,7 +404,7 @@ class AuthController extends BaseAuthController
             $user->email_verified = 1;
             $user->save();
 
-            AddUserToExternalService::dispatch($user);
+            AddUserToExternalService::dispatch($user, 'verify');
 
             if (! \Auth::check() && $this->userNeedVerified($user)) {
                 \Session::flash('success', __('message.registration_complete'));
@@ -553,15 +557,15 @@ class AuthController extends BaseAuthController
         try {
             $status = StatusSetting::select('mailchimp_status', 'pipedrive_status', 'zoho_status')->first();
 
-            if (! ($options['skip_pipedrive'] ?? false)) {
+            if (! ($options['skip_pipedrive'] ?? false) && $status->pipedrive_status) {
                 (new PipedriveController())->addUserToPipedrive($user);
             }
 
-            if (! ($options['skip_zoho'] ?? false)) {
+            if (! ($options['skip_zoho'] ?? false) && $status->zoho_status) {
                 $this->addUserToZoho($user, $status->zoho_status);
             }
 
-            if (! ($options['skip_mailchimp'] ?? false)) {
+            if (! ($options['skip_mailchimp'] ?? false) && $status->mailchimp_status) {
                 $this->addUserToMailchimp($user, $status->mailchimp_status);
             }
         } catch (\Exception $exception) {
@@ -573,10 +577,9 @@ class AuthController extends BaseAuthController
         }
     }
 
-    public function updateUserWithVerificationStatus($user)
+    public function updateUserWithVerificationStatus($user, $trigger = 'register')
     {
         $pipedriveVerificationRequired = ApiKey::first()->value('require_pipedrive_user_verification');
-
         $statusSetting = StatusSetting::first([
             'emailverification_status',
             'msg91_status',
@@ -587,22 +590,53 @@ class AuthController extends BaseAuthController
 
         $emailRequired = $statusSetting->emailverification_status;
         $mobileRequired = $statusSetting->msg91_status;
-
         $isEmailVerified = ! $emailRequired || $user->email_verified;
         $isMobileVerified = ! $mobileRequired || $user->mobile_verified;
         $isFullyVerified = $isEmailVerified && $isMobileVerified;
 
-        // Service call conditions
-        $skipPipedrive = $pipedriveVerificationRequired && ! $isFullyVerified;
-        $skipZoho = ! $isFullyVerified;
-        $skipMailchimp = ! $isFullyVerified;
+        // Determine when to sync each service
+        $shouldSync = $this->shouldSyncServices($trigger, $pipedriveVerificationRequired, $isFullyVerified);
 
-        // Dispatch external sync only where needed
-        $this->addUserToExternalServices($user, [
-            'skip_pipedrive' => $skipPipedrive,
-            'skip_zoho' => $skipZoho,
-            'skip_mailchimp' => $skipMailchimp,
-        ]);
+        if ($shouldSync['sync_any']) {
+            $this->addUserToExternalServices($user, [
+                'skip_pipedrive' => ! $shouldSync['pipedrive'],
+                'skip_zoho' => ! $shouldSync['zoho'],
+                'skip_mailchimp' => ! $shouldSync['mailchimp'],
+            ]);
+        }
+    }
+
+    private function shouldSyncServices($trigger, $pipedriveVerificationRequired, $isFullyVerified)
+    {
+        $syncPipedrive = false;
+        $syncZoho = false;
+        $syncMailchimp = false;
+
+        if ($pipedriveVerificationRequired) {
+            // Pipedrive verification is required
+            if ($isFullyVerified) {
+                // User just became fully verified - sync all services
+                $syncPipedrive = true;
+                $syncZoho = true;
+                $syncMailchimp = true;
+            }
+        } else {
+            // Pipedrive verification is NOT required
+            if ($trigger === 'register') {
+                // Sync all services at registration
+                $syncPipedrive = true;
+                $syncZoho = true;
+                $syncMailchimp = true;
+            }
+            // For verification triggers when pipedrive verification is disabled, don't sync (already synced at registration)
+        }
+
+        return [
+            'sync_any' => $syncPipedrive || $syncZoho || $syncMailchimp,
+            'pipedrive' => $syncPipedrive,
+            'zoho' => $syncZoho,
+            'mailchimp' => $syncMailchimp,
+        ];
     }
 
     private function userNeedVerified($user)

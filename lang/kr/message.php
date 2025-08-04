@@ -2699,6 +2699,9 @@ return [
     'captcha_failed' => 'reCAPTCHA 확인에 실패했습니다. reCAPTCHA 비밀 키가 유효한지 확인해 주세요.',
     'captcha_message' => 'reCAPTCHA 확인 실패. 다시 시도해 주세요.',
     'not-found' => '이 제품은 하나 이상의 서비스와 연결되어 있어 삭제할 수 없습니다. 이 제품을 삭제하기 전에 관련된 모든 서비스를 제거하십시오.',
+    'delete_invoice_older' => '다음보다 오래된 송장 삭제...',
+    'deletion_cloud_subscription' => '다음보다 오래전에 만료된 클라우드 구독 삭제...',
+    'msg_service_down' => '현재 OTP 서비스에 문제가 발생했습니다. 잠시 후 다시 시도해 주세요. 빠르게 문제를 해결 중입니다.',
 
     'auto_assign_success' => '자동 할당 설정이 성공적으로 업데이트되었습니다.',
     'system_manager_settings' => '시스템 관리자 설정',

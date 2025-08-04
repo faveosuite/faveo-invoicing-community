@@ -18,6 +18,7 @@
 
 @section('content')
 
+    <div id="response"></div>
 
 
 
@@ -25,7 +26,6 @@
 
    
 
-    <div id="response"></div>
 
     <div class="card-body table-responsive">
         <div class="row">
@@ -201,7 +201,9 @@
                           success: function (data) {
                               $('#gif').html('');
                               $('#response').html(data);
-                              location.reload();
+                              setTimeout(function () {
+                                  location.reload();
+                              }, 3000);
                           }
                       })
                   } else {
