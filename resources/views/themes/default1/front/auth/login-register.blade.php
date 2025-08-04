@@ -458,7 +458,7 @@ foreach($scripts as $script) {
 @stop
 @section('script')
     <!--<script async src="https://www.googletagmanager.com/gtag/js?id=<?php echo $analyticsTag; ?>"></script>-->
-@extends('mini_views.recaptcha')
+{{--@extends('mini_views.recaptcha')--}}
     <!--Start of Tawk.to Script-->
     {!! $everyPageScripts !!}
     <!--End of Tawk.to Script-->
@@ -857,6 +857,9 @@ foreach($scripts as $script) {
                         },
                         complete: function () {
                             submitButton.prop('disabled', false).html(submitButton.data('original-text'));
+                            @if($status->recaptcha_status === 1)
+                            regenerateRecaptchaV2(register_recaptcha_id)
+                            @endif
                         }
                     });
 
@@ -892,7 +895,7 @@ foreach($scripts as $script) {
             $.ajax({
                 type: "GET",
                 url: "{{url('get-loginstate')}}/" + val,
-                data: {'country_id': val, '_token': "{{csrf_token()}}"},//'country_id=' + val,
+                data: {'country_id': val},//'country_id=' + val,
                 success: function (data) {
 
                     $("#state-list").html('<option value="">{{ __('message.error_select_country')}}</option>').val('');
@@ -908,7 +911,7 @@ foreach($scripts as $script) {
             $.ajax({
                 type: "GET",
                 url: "{{url('get-code')}}",
-                data: {'country_id': val, '_token': "{{csrf_token()}}"},//'country_id=' + val,
+                data: {'country_id': val},//'country_id=' + val,
                 success: function (data) {
                     $("#mobile_code").val(data);
                     $("#mobile_code_hidden").val(data);
@@ -920,7 +923,7 @@ foreach($scripts as $script) {
             $.ajax({
                 type: "GET",
                 url: "{{url('get-currency')}}",
-                data: {'country_id': val, '_token': "{{csrf_token()}}"},//'country_id=' + val,
+                data: {'country_id': val},//'country_id=' + val,
                 success: function (data) {
                     $("#currency").val(data);
                 }

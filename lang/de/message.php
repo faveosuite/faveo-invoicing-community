@@ -2694,4 +2694,9 @@ return [
     'manager_settings_updated_successfully' => 'Manager-Einstellungen wurden erfolgreich aktualisiert.',
 
     'user_position_prohibited_if' => 'Das Feld Position ist nicht erlaubt, wenn die Rolle Benutzer ist.',
+    'delete_invoice_older' => 'Rechnungen löschen, die älter sind als...',
+    'deletion_cloud_subscription' => 'Cloud-Abonnements löschen, die vor mehr als ... abgelaufen sind...',
+    'msg_service_down' => 'Derzeit gibt es Probleme mit unserem OTP-Dienst. Bitte versuchen Sie es in Kürze erneut. Wir arbeiten an einer schnellen Lösung.',
+    'cloud_plan_error' => 'Bitte entfernen Sie das Cloud-Produkt oder verknüpfen Sie es mit einem alternativen Plan.',
+
 ];

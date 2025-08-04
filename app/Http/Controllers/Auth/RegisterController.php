@@ -203,9 +203,14 @@ class RegisterController extends Controller
 
             $need_verify = $this->getEmailMobileStatusResponse();
 
-            AddUserToExternalService::dispatch($userInput);
+            AddUserToExternalService::dispatch($userInput, 'register');
 
             $userInput->save();
+
+            \Session::put([
+                'justStarted' => true,
+                'verification_user_id' => $userInput->id,
+            ]);
 
             \Session::flash('user', $userInput);
 

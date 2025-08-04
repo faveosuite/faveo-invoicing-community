@@ -15,7 +15,9 @@
     </div><!-- /.col -->
 @stop
 @section('content')
-<div class="card card-secondary card-outline">
+    <div id="response"></div>
+
+    <div class="card card-secondary card-outline">
     <div class="card-header">
         <h3 class="card-title">{{Lang::get('message.widgets')}}</h3>
 
@@ -194,7 +196,9 @@
                              success: function (data) {
                                  $('#gif').hide();
                                  $('#response').html(data);
-                                 location.reload();
+                                 setTimeout(function () {
+                                     location.reload();
+                                 }, 5000);
                              }
                          })
                      } else {

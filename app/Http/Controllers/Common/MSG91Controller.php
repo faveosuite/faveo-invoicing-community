@@ -23,13 +23,19 @@ class MSG91Controller extends Controller
      *
      * @param  Request  $request
      */
-    public function handleReports(Request $request): void
+    public function handleReports(Request $request, $app_key, $app_secret): void
     {
-        if (! $this->validateThirdPartyRequest($request)) {
+        if (! $this->validateThirdPartyRequest($app_key, $app_secret)) {
             return;
         }
         try {
             $jsonData = $request->input('data');
+
+            if (empty($jsonData)) {
+                \Log::warning('MSG91 webhook received empty data', $request->all());
+
+                return;
+            }
 
             // Ensure data is an array
             $reports = is_string($jsonData) ? collect(json_decode($jsonData, true)) : collect($jsonData);
@@ -40,7 +46,7 @@ class MSG91Controller extends Controller
                         'request_id' => $reportGroup['requestId'],
                         'number' => $singleReport['number'],
                         'status' => $singleReport['status'],
-                        'date' => $singleReport['date'] ?? now()->toDateTimeString(),
+                        'date' => Carbon::parse($singleReport['date'], 'Asia/Kolkata')->timezone('UTC')->toDateTimeString() ?? now()->utc()->toDateTimeString(),
                         'failure_reason' => $singleReport['failedReason'] ?? null,
                     ]);
                 });
@@ -108,6 +114,9 @@ class MSG91Controller extends Controller
             ->addColumn('date', function ($model) {
                 return $model->date ? getDateHtml($model->date) : '---';
             })
+            ->addColumn('created_at', function ($model) {
+                return $model->created_at ? getDateHtml($model->created_at) : '---';
+            })
             ->editColumn('failure_reason', function ($model) {
                 return $model->failure_reason ?? '---';
             })
@@ -166,8 +175,9 @@ class MSG91Controller extends Controller
                     ->orderBy('u2.email', $direction)
                     ->select('msg_delivery_reports.*');
             })
+            ->orderColumn('created_at', 'created_at $1')
 
-            ->rawColumns(['date'])
+            ->rawColumns(['date', 'created_at'])
             ->make(true);
     }
 
@@ -199,17 +209,17 @@ class MSG91Controller extends Controller
         });
 
         $query->when($request->filled(['date_from', 'date_to']), function ($q) use ($request) {
-            $from = Carbon::createFromFormat('m/d/Y', $request->input('date_from'))->format('Y-m-d');
-            $to = Carbon::createFromFormat('m/d/Y', $request->input('date_to'))->format('Y-m-d');
+            $from = Carbon::createFromFormat('m/d/Y', $request->input('date_from'))->startOfDay();
+            $to = Carbon::createFromFormat('m/d/Y', $request->input('date_to'))->endOfDay();
             $q->whereBetween('date', [$from, $to]);
         });
         $query->when($request->filled('date_from') && ! $request->filled('date_to'), function ($q) use ($request) {
-            $from = Carbon::createFromFormat('m/d/Y', $request->input('date_from'))->format('Y-m-d');
-            $q->whereBetween('date', [$from, Carbon::maxValue()->format('Y-m-d')]);
+            $from = Carbon::createFromFormat('m/d/Y', $request->input('date_from'))->startOfDay();
+            $q->whereBetween('date', [$from, Carbon::maxValue()->endOfDay()]);
         });
         $query->when(! $request->filled('date_from') && $request->filled('date_to'), function ($q) use ($request) {
-            $to = Carbon::createFromFormat('m/d/Y', $request->input('date_to'))->format('Y-m-d');
-            $q->whereBetween('date', [Carbon::minValue()->format('Y-m-d'), $to]);
+            $to = Carbon::createFromFormat('m/d/Y', $request->input('date_to'))->endOfDay();
+            $q->whereBetween('date', [Carbon::minValue()->startOfDay(), $to]);
         });
 
         $query->when($request->filled('email'), function ($q) use ($request) {
@@ -220,11 +230,8 @@ class MSG91Controller extends Controller
         return $query;
     }
 
-    public function validateThirdPartyRequest($request)
+    public function validateThirdPartyRequest($app_key, $app_secret)
     {
-        $app_key = $request->input('app_key');
-        $app_secret = $request->input('app_secret');
-
         $app = ThirdPartyApp::where('app_key', $app_key)
             ->where('app_secret', $app_secret)
             ->first();

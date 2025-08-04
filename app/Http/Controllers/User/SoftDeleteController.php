@@ -25,7 +25,7 @@ class SoftDeleteController extends ClientController
             ->select('id', 'first_name', 'last_name', 'email',
                 \DB::raw("CONCAT('+', mobile_code, ' ', mobile) as mobile"),
                 \DB::raw("CONCAT(first_name, ' ', last_name) as name"),
-                'country_name as country', 'created_at', 'active', 'mobile_verified', 'is_2fa_enabled', 'role', 'position'
+                'country_name as country', 'created_at', 'active', 'mobile_verified', 'email_verified', 'is_2fa_enabled', 'role', 'position'
             )->onlyTrashed();
 
         return \DataTables::of($baseQuery)

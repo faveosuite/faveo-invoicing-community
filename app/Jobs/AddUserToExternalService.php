@@ -14,13 +14,15 @@ class AddUserToExternalService implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $user;
+    protected $triggeredBy;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($user)
+    public function __construct($user, $triggeredBy = false)
     {
         $this->user = $user;
+        $this->triggeredBy = $triggeredBy;
     }
 
     /**
@@ -29,7 +31,7 @@ class AddUserToExternalService implements ShouldQueue
     public function handle(): void
     {
         try {
-            (new AuthController())->updateUserWithVerificationStatus($this->user);
+            (new AuthController())->updateUserWithVerificationStatus($this->user, $this->triggeredBy);
         } catch (\Exception $e) {
             \Log::error("Failed to add user to {$this->user->email}: ".$e->getMessage());
         }

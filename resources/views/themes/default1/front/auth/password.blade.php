@@ -69,7 +69,7 @@ main
         </div>
 @stop 
 @section('script')
-@extends('mini_views.recaptcha')
+{{--@extends('mini_views.recaptcha')--}}
 <script>
     let email_recaptcha_id;
     let recaptcha;

@@ -3,6 +3,7 @@
 namespace App\Model\Product;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Models\Activity;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -39,5 +40,10 @@ class ProductCategory extends Model
 
         // return "Product  has been {$eventName}";
         // \Auth::user()->activity;
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults();
     }
 }

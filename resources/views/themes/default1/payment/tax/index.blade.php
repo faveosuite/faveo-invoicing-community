@@ -47,6 +47,7 @@
                 
 
             @include('themes.default1.payment.tax.create-tax-option')
+    <div id="response"></div>
 
 
       
@@ -140,7 +141,6 @@
 
                       </div>
                   </div>
-                  <div id="response"></div>
                  <div class="card-body table-responsive">
                   <div class="row">
                 <div class="col-md-12">
@@ -367,11 +367,11 @@ $('.btn-off-3').css("background-color", "#DA4F49","color", "white");
                                  success: function (data) {
                                      $('#gif').show();
                                      $('#response').html(data);
-                                     setTimeout(function() {
+                                     setTimeout(function () {
                                          location.reload();
-                                     }, 4000);
+                                     }, 5000);
                                      setInterval(function(){
-                                         $('#response').slideUp(3000);
+                                         $('#response').slideUp(4000);
                                      }, 1000);
                                  }
                              })

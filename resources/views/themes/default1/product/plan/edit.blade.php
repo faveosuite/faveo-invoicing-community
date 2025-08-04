@@ -195,7 +195,7 @@
               <!-- last name -->
                 {!! html()->label( __('message.product_quantity'), 'product_quantity')->class('required') !!}
                 {!! html()->number('product_quantity', $productQuantity)
-                    ->class('form-control'.($errors->has('product_quantity') ? ' is-invalid' : ''))
+                    ->class('form-control only-numbers'.($errors->has('product_quantity') ? ' is-invalid' : ''))
                     ->id('prodquant')
                     ->attribute('disabled', true)
                     ->placeholder( __('message.price_products')) !!}
@@ -212,7 +212,7 @@
                         </label></i>
                 {!! html()->label( __('message.agent'), 'agents')->class('required') !!}
                 {!! html()->number('no_of_agents', $agentQuantity)
-                    ->class('form-control'.($errors->has('no_of_agents') ? ' is-invalid' : ''))
+                    ->class('form-control only-numbers'.($errors->has('no_of_agents') ? ' is-invalid' : ''))
                     ->id('agentquant')
                     ->attribute('disabled', true)
                     ->placeholder( __('message.price_agents')) !!}

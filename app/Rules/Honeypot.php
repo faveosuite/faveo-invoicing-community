@@ -16,7 +16,7 @@ class Honeypot implements ValidationRule
     protected int $minTime;
     protected string $message;
 
-    public function __construct(int $minTime = 5, string $message = 'Your submission was flagged as automated. If this is a mistake, please try again.')
+    public function __construct(int $minTime = 1, string $message = 'Your submission was flagged as automated. If this is a mistake, please try again.')
     {
         $this->minTime = $minTime;
         $this->message = $message;

@@ -108,6 +108,7 @@
                     <th>{{ __('message.status') }}</th>
                     <th>{{ __('message.failure_reason') }}</th>
                     <th>{{ __('message.date') }}</th>
+                    <th>{{ __('message.created_at') }}</th>
                 </tr>
                 </thead>
             </table>
@@ -216,8 +217,13 @@
                             return data ? `<span>${data}</span>` : '---';
                         }
                     },
-                    {data: 'date', name: 'date'}
+                    {data: 'date', name: 'date'},
+                    {
+                        data: 'created_at',
+                        name: 'created_at',
+                    }
                 ],
+                order: [[7, 'desc']],
                 drawCallback: function(settings) {
                     $('[data-toggle="tooltip"]').tooltip({
                         container: 'body'

@@ -2703,4 +2703,9 @@ return [
     'manager_settings_updated_successfully' => 'Lederinnstillingene ble oppdatert vellykket.',
 
     'user_position_prohibited_if' => 'Feltet for stilling er ikke tillatt når rollen er bruker.',
+    'delete_invoice_older' => 'Slett fakturaer eldre enn...',
+    'deletion_cloud_subscription' => 'Slett skytjenesteabonnementer som utløp for mer enn...',
+    'msg_service_down' => 'Vi opplever for øyeblikket problemer med vår OTP-tjeneste. Vennligst prøv igjen om en liten stund. Vi jobber med å løse problemet så raskt som mulig.',
+    'cloud_plan_error' => 'Vennligst fjern skyproduktet eller koble det til en alternativ plan.',
+
 ];

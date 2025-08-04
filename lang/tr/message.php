@@ -2692,6 +2692,9 @@ return [
     'cloud_deleted_successfully' => 'Tenant başarıyla silindi',
     'cloud_deleted_failed' => 'Tenant silme başarısız oldu',
     'not-found' => 'Bu ürün şu anda bir veya daha fazla hizmetle ilişkili olduğu için silinemez. Lütfen bu ürünü silmeye çalışmadan önce tüm ilgili hizmetleri kaldırın.',
+    'delete_invoice_older' => 'Şu tarihten daha eski faturaları sil...',
+    'deletion_cloud_subscription' => 'Şu tarihten daha önce süresi dolmuş bulut aboneliklerini sil...',
+    'msg_service_down' => 'Şu anda OTP hizmetimizde bir sorun yaşıyoruz. Lütfen kısa bir süre sonra tekrar deneyin. Sorunu en kısa sürede çözmek için çalışıyoruz.',
 
     'auto_assign_success' => 'Otomatik atama ayarı başarıyla güncellendi.',
     'system_manager_settings' => 'Sistem Yöneticisi Ayarları',
@@ -2710,4 +2713,6 @@ return [
     'manager_settings_updated_successfully' => 'Yönetici ayarları başarıyla güncellendi.',
 
     'user_position_prohibited_if' => 'Rol kullanıcı olduğunda pozisyon alanına izin verilmez.',
+    'cloud_plan_error' => 'Lütfen bulut ürününü kaldırın veya alternatif bir plana bağlayın.',
+
 ];

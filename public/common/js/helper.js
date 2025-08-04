@@ -73,8 +73,52 @@ window.helper = (() => {
         }
     };
 
+    /**
+     * Input restrictions
+     */
+    const restrictions = {
+        "only-numbers": "0-9",
+        "only-letters": "a-zA-Z",
+        "only-alphanum": "a-zA-Z0-9",
+        "only-decimal": "0-9\\.",       // numbers + dot
+        "only-hex": "0-9a-fA-F",        // hexadecimal
+        "only-username": "a-zA-Z0-9_-", // username chars
+    };
+
+    function applyRestriction(el, pattern) {
+        if (!pattern) return;
+        el.value = el.value.replace(new RegExp(`[^${pattern}]`, 'g'), '');
+    }
+
+    function getPattern(el) {
+        // Priority: class restriction → data-allow attribute
+        for (let cls in restrictions) {
+            if (el.classList.contains(cls)) return restrictions[cls];
+        }
+        return el.getAttribute("data-allow");
+    }
+
+    function initRestrictions() {
+        ["input", "paste"].forEach(evt => {
+            document.addEventListener(evt, (e) => {
+                const el = e.target;
+                if (!(el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement)) return;
+
+                const pattern = getPattern(el);
+                if (pattern) {
+                    // Use setTimeout for paste to allow value update
+                    evt === "paste" ? setTimeout(() => applyRestriction(el, pattern), 0) : applyRestriction(el, pattern);
+                }
+            });
+        });
+    }
+
+    // Run immediately
+    initRestrictions();
+
     return {
         showAlert,
         globalLoader,
+        addRestriction: (className, regex) => { restrictions[className] = regex; },
     };
 })();

@@ -2604,6 +2604,9 @@
      'captcha_failed' => 'Falliet il-verifika taʼ reCAPTCHA. Jekk jogħġbok kun żgur li ċ-ċavetta sigrieta reCAPTCHA tiegħek hija valida.',
      'captcha_message' => 'Il-verifika reCAPTCHA falliet. Erġaʼ ipprova.',
      'not-found' => 'Dan il-prodott ma jistax jitħassar għax huwa assoċjat ma’ servizz jew aktar. Jekk jogħġbok neħħi s-servizzi kollha relatati qabel tipprova tħassar dan il-prodott.',
+     'delete_invoice_older' => 'Ħassar fatturi eqdem minn...',
+     'deletion_cloud_subscription' => 'Ħassar abbonamenti cloud li skadew aktar minn...',
+     'msg_service_down' => 'Bħalissa qed nesperjenzaw problemi bis-servizz tagħna tal-OTP. Jekk jogħġbok erġa’ pprova ftit ieħor. Qed naħdmu biex insolvu l-problema kemm jista’ jkun malajr.',
 
      'auto_assign_success' => 'Is-settings tal-assenjazzjoni awtomatika ġew aġġornati b’suċċess.',
      'system_manager_settings' => 'Settings tal-Maniġer tas-Sistema',
@@ -2622,4 +2625,6 @@
      'manager_settings_updated_successfully' => 'Is-settings tal-maniġer ġew aġġornati b’suċċess.',
 
      'user_position_prohibited_if' => 'Il-qasam tal-pożizzjoni mhuwiex permess meta r-rwol ikun utent.',
+     'cloud_plan_error' => 'Jekk jogħġbok neħħi l-prodott cloud jew għaqqdu ma’ pjan alternattiv.',
+
  ];

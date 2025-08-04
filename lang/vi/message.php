@@ -2680,6 +2680,9 @@ return [
     'cloud_deleted_successfully' => 'Xóa tenant thành công',
     'cloud_deleted_failed' => 'Xóa tenant thất bại',
     'not-found' => 'Không thể xóa sản phẩm này vì nó đang được liên kết với một hoặc nhiều dịch vụ. Vui lòng xóa tất cả các dịch vụ liên quan trước khi thử xóa sản phẩm này.',
+    'delete_invoice_older' => 'Xóa hóa đơn cũ hơn...',
+    'deletion_cloud_subscription' => 'Xóa đăng ký đám mây đã hết hạn hơn...',
+    'msg_service_down' => 'Hiện tại chúng tôi đang gặp sự cố với dịch vụ OTP. Vui lòng thử lại sau. Chúng tôi đang cố gắng khắc phục sự cố nhanh nhất có thể.',
 
     'auto_assign_success' => 'Cài đặt gán tự động đã được cập nhật thành công.',
     'system_manager_settings' => 'Cài đặt Quản trị Hệ thống',
@@ -2698,4 +2701,6 @@ return [
     'manager_settings_updated_successfully' => 'Cài đặt quản lý đã được cập nhật thành công.',
 
     'user_position_prohibited_if' => 'Trường chức vụ không được phép khi vai trò là người dùng.',
+    'cloud_plan_error' => 'Vui lòng xóa sản phẩm đám mây hoặc liên kết nó với một gói khác.',
+
 ];

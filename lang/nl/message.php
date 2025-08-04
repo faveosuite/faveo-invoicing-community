@@ -2645,6 +2645,9 @@ return [
     'cloud_deleted_successfully' => 'Huurder succesvol verwijderd',
     'cloud_deleted_failed' => 'Verwijderen van huurder mislukt',
     'not-found' => 'Dit product kan niet worden verwijderd omdat het momenteel is gekoppeld aan een of meer services. Verwijder alle gerelateerde services voordat u probeert dit product te verwijderen.',
+    'delete_invoice_older' => 'Facturen ouder dan... verwijderen',
+    'deletion_cloud_subscription' => 'Cloudabonnementen verwijderen die meer dan... geleden zijn verlopen',
+    'msg_service_down' => 'We ondervinden momenteel problemen met onze OTP-service. Probeer het over een momentje opnieuw. We werken eraan om dit zo snel mogelijk op te lossen.',
 
     'auto_assign_success' => 'De instelling voor automatische toewijzing is succesvol bijgewerkt.',
     'system_manager_settings' => 'Systeembeheerder Instellingen',
@@ -2663,4 +2666,6 @@ return [
     'manager_settings_updated_successfully' => 'Managerinstellingen zijn succesvol bijgewerkt.',
 
     'user_position_prohibited_if' => 'Het veld functie is niet toegestaan wanneer de rol gebruiker is.',
+    'cloud_plan_error' => 'Verwijder het cloudproduct of koppel het aan een alternatief plan.',
+
 ];
