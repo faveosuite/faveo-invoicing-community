@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ValidateSecretRequest;
+use App\Rules\CaptchaValidation;
 use App\User;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
@@ -79,6 +80,11 @@ class Google2FAController extends Controller
      */
     public function postLoginValidateToken(ValidateSecretRequest $request)
     {
+        $request->validate([
+            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('2fa')],
+            'totp' => ['required', 'digits:6'],
+        ]);
+
         //get user id and create cache key
         $google2fa = new Google2FA();
         $userId = $request->session()->pull('2fa:user:id');
