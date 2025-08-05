@@ -218,6 +218,7 @@ class Google2FAController extends Controller
     {
         $this->validate($request, [
             'rec_code' => 'required',
+            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('recovery')],
         ],
             ['rec_code.required' => __('validation.please_enter_recovery_code'),
             ]);
