@@ -2645,5 +2645,7 @@ return [
     'cloud_deleted_successfully' => 'Huurder succesvol verwijderd',
     'cloud_deleted_failed' => 'Verwijderen van huurder mislukt',
     'not-found' => 'Dit product kan niet worden verwijderd omdat het momenteel is gekoppeld aan een of meer services. Verwijder alle gerelateerde services voordat u probeert dit product te verwijderen.',
+    'delete_invoice_older' => 'Facturen ouder dan... verwijderen',
+    'deletion_cloud_subscription' => 'Cloudabonnementen verwijderen die meer dan... geleden zijn verlopen',
 
 ];

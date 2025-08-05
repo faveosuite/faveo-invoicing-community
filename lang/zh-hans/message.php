@@ -2674,5 +2674,7 @@ return [
     'cloud_deleted_successfully' => '租户已成功删除',
     'cloud_deleted_failed' => '租户删除失败',
     'not-found' => '无法删除该产品，因为它当前关联了一个或多个服务。请先删除所有相关服务后再尝试删除该产品。',
+    'delete_invoice_older' => '删除早于...的发票',
+    'deletion_cloud_subscription' => '删除已过期超过...的云订阅',
 
 ];

@@ -2681,5 +2681,7 @@ return [
     'captcha_failed' => 'reCAPTCHA の検証に失敗しました。reCAPTCHA のシークレットキーが有効であることを確認してください。',
     'captcha_message' => 'reCAPTCHA の検証に失敗しました。もう一度お試しください。',
     'not-found' => 'この商品は現在1つ以上のサービスと関連付けられているため、削除できません。削除を試みる前にすべての関連サービスを削除してください。',
+    'delete_invoice_older' => '次より古い請求書を削除...',
+    'deletion_cloud_subscription' => '次より前に期限切れとなったクラウドサブスクリプションを削除...',
 
 ];

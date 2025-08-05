@@ -2692,5 +2692,7 @@ return [
     'cloud_deleted_successfully' => 'Tenant başarıyla silindi',
     'cloud_deleted_failed' => 'Tenant silme başarısız oldu',
     'not-found' => 'Bu ürün şu anda bir veya daha fazla hizmetle ilişkili olduğu için silinemez. Lütfen bu ürünü silmeye çalışmadan önce tüm ilgili hizmetleri kaldırın.',
+    'delete_invoice_older' => 'Şu tarihten daha eski faturaları sil...',
+    'deletion_cloud_subscription' => 'Şu tarihten daha önce süresi dolmuş bulut aboneliklerini sil...',
 
 ];

@@ -2668,4 +2668,7 @@ return [
     'captcha_failed' => 'La vérification reCAPTCHA a échoué. Veuillez vous assurer que votre clé secrète reCAPTCHA est valide.',
     'captcha_message' => 'Échec de la vérification reCAPTCHA. Veuillez réessayer.',
     'not-found' => 'Ce produit ne peut pas être supprimé car il est actuellement associé à un ou plusieurs services. Veuillez supprimer tous les services associés avant de tenter de supprimer ce produit.',
+    'delete_invoice_older' => 'Supprimer les factures antérieures à...',
+    'deletion_cloud_subscription' => 'Supprimer les abonnements cloud expirés depuis plus de...',
+
 ];

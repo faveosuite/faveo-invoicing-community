@@ -386,7 +386,6 @@
 <div class="card-footer">
     <button type="submit" class="btn btn-primary pull-right" id="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'>&nbsp;</i> {{ __('message.saving') }}"><i class="fa fa-sync-alt">&nbsp;&nbsp;</i>{!!Lang::get('message.update')!!}</button>
 </div>
-</div>
 
 {!! html()->form()->close() !!}
 

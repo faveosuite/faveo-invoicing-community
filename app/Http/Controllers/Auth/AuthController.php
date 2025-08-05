@@ -140,7 +140,7 @@ class AuthController extends BaseAuthController
     {
         $request->validate([
             'eid' => 'required|string',
-            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('sendOtp')],
+            'g-recaptcha-response' => [isCaptchaRequired('v3')['is_required'], new CaptchaValidation('sendOtp')],
         ],
             [
                 'eid.required' => __('validation.eid_required'),
@@ -202,7 +202,7 @@ class AuthController extends BaseAuthController
         $request->validate([
             'eid' => 'required|string',
             'type' => 'required|string|in:text,voice',
-            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('resendOtp')],
+            'g-recaptcha-response' => [isCaptchaRequired('v3')['is_required'], new CaptchaValidation('resendOtp')],
         ], [
             'eid.required' => __('validation.resend_otp.eid_required'),
             'eid.string' => __('validation.resend_otp.eid_string'),
@@ -253,7 +253,7 @@ class AuthController extends BaseAuthController
     {
         $request->validate([
             'eid' => 'required|string',
-            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('sendEmail')],
+            'g-recaptcha-response' => [isCaptchaRequired('v3')['is_required'], new CaptchaValidation('sendEmail')],
         ], [
             'eid.required' => __('validation.eid_required'),
             'eid.string' => __('validation.eid_string'),

@@ -2609,4 +2609,6 @@ return [
     'captcha_message' => 'reCAPTCHA provjera nije uspjela. Pokušajte ponovo.',
     'not-found' => 'Ovaj proizvod se ne može obrisati jer je trenutno povezan s jednom ili više usluga. Molimo uklonite sve povezane usluge prije pokušaja brisanja ovog proizvoda.',
 
+    'delete_invoice_older' => 'Obriši fakture starije od...',
+    'deletion_cloud_subscription' => 'Obriši cloud pretplate koje su istekle prije više od...',
 ];

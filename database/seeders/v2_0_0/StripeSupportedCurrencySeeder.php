@@ -1,9 +1,8 @@
 <?php
 
-namespace database\seeds\v2_0_0;
+namespace Database\Seeders\v2_0_0;
 
 use App\Plugins\Stripe\Model\StripePayment;
-use Database\Seeders\StripeSupportedCurrencySeeder;
 use Illuminate\Database\Seeder;
 
 class StripeSupportedCurrencySeeder extends Seeder
