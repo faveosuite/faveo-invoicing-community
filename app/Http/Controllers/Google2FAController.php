@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ValidateSecretRequest;
 use App\Rules\CaptchaValidation;
+use App\Rules\Honeypot;
 use App\User;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
@@ -83,36 +84,44 @@ class Google2FAController extends Controller
         $request->validate([
             'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('2fa')],
             'totp' => ['required', 'digits:6'],
+            '2fa_code' => [new Honeypot()],
         ]);
 
-        //get user id and create cache key
-        $google2fa = new Google2FA();
-        $userId = $request->session()->pull('2fa:user:id');
-        $remember = $request->session()->pull('remember:user:id');
+        try {
+            //get user id and create cache key
+            $google2fa = new Google2FA();
+            $userId = $request->session()->pull('2fa:user:id');
+            $remember = $request->session()->pull('remember:user:id');
 
-        $this->user = User::findorFail($userId);
+            $this->user = User::findorFail($userId);
 
-        $secret = Crypt::decrypt($this->user->google2fa_secret);
-        $checkValidPasscode = $google2fa->verifyKey($secret, $request->totp);
+            $secret = Crypt::decrypt($this->user->google2fa_secret);
+            $checkValidPasscode = $google2fa->verifyKey($secret, $request->totp);
 
-        //login and redirect user
-        if ($checkValidPasscode) {
-            if (\Session::has('reset_token')) {
-                $token = \Session::get('reset_token');
-                \Session::put('2fa_verified', 1);
-                \Session::forget('2fa:user:id');
+            //login and redirect user
+            if ($checkValidPasscode) {
+                if (\Session::has('reset_token')) {
+                    $token = \Session::get('reset_token');
+                    \Session::put('2fa_verified', 1);
+                    \Session::forget('2fa:user:id');
 
-                return redirect('password/reset/'.$token);
+                    return redirect('password/reset/' . $token);
+                }
+                \Auth::loginUsingId($userId, $remember);
+
+                $this->convertCart();
+
+                return redirect($this->redirectPath());
+            } else {
+                \Session::put('2fa:user:id', $userId);
+
+                return redirect('verify-2fa')->with('fails', trans('message.invalid_passcode'));
             }
-            \Auth::loginUsingId($userId, $remember);
-
-            $this->convertCart();
-
-            return redirect($this->redirectPath());
-        } else {
+        } catch (\Exception $e) {
             \Session::put('2fa:user:id', $userId);
 
-            return redirect('verify-2fa')->with('fails', trans('message.invalid_passcode'));
+            return redirect('verify-2fa')->with('fails', $e->getMessage());
+
         }
     }
 
@@ -219,6 +228,7 @@ class Google2FAController extends Controller
         $this->validate($request, [
             'rec_code' => 'required',
             'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('recovery')],
+            'recovery_code' => [new Honeypot()],
         ],
             ['rec_code.required' => __('validation.please_enter_recovery_code'),
             ]);

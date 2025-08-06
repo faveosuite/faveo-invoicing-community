@@ -39,6 +39,9 @@ main
                             </div>
                             <h6 id="codecheck"></h6>
                         </div>
+
+                    {!! honeypotField('recovery_code') !!}
+
                     <?php
                     $status = \App\Model\Common\StatusSetting::first();
                     ?>
