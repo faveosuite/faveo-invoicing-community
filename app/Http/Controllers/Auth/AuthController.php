@@ -346,7 +346,6 @@ class AuthController extends BaseAuthController
             AddUserToExternalService::dispatch($user, 'verify');
 
             if (! \Auth::check() && $this->userNeedVerified($user)) {
-
                 \Session::flash('success', __('message.registration_complete'));
             }
 
@@ -554,15 +553,15 @@ class AuthController extends BaseAuthController
         try {
             $status = StatusSetting::select('mailchimp_status', 'pipedrive_status', 'zoho_status')->first();
 
-            if (!($options['skip_pipedrive'] ?? false) && $status->pipedrive_status) {
+            if (! ($options['skip_pipedrive'] ?? false) && $status->pipedrive_status) {
                 (new PipedriveController())->addUserToPipedrive($user);
             }
 
-            if (!($options['skip_zoho'] ?? false) && $status->zoho_status) {
+            if (! ($options['skip_zoho'] ?? false) && $status->zoho_status) {
                 $this->addUserToZoho($user, $status->zoho_status);
             }
 
-            if (!($options['skip_mailchimp'] ?? false) && $status->mailchimp_status) {
+            if (! ($options['skip_mailchimp'] ?? false) && $status->mailchimp_status) {
                 $this->addUserToMailchimp($user, $status->mailchimp_status);
             }
         } catch (\Exception $exception) {
@@ -587,8 +586,8 @@ class AuthController extends BaseAuthController
 
         $emailRequired = $statusSetting->emailverification_status;
         $mobileRequired = $statusSetting->msg91_status;
-        $isEmailVerified = !$emailRequired || $user->email_verified;
-        $isMobileVerified = !$mobileRequired || $user->mobile_verified;
+        $isEmailVerified = ! $emailRequired || $user->email_verified;
+        $isMobileVerified = ! $mobileRequired || $user->mobile_verified;
         $isFullyVerified = $isEmailVerified && $isMobileVerified;
 
         // Determine when to sync each service
@@ -596,9 +595,9 @@ class AuthController extends BaseAuthController
 
         if ($shouldSync['sync_any']) {
             $this->addUserToExternalServices($user, [
-                'skip_pipedrive' => !$shouldSync['pipedrive'],
-                'skip_zoho' => !$shouldSync['zoho'],
-                'skip_mailchimp' => !$shouldSync['mailchimp'],
+                'skip_pipedrive' => ! $shouldSync['pipedrive'],
+                'skip_zoho' => ! $shouldSync['zoho'],
+                'skip_mailchimp' => ! $shouldSync['mailchimp'],
             ]);
         }
     }
