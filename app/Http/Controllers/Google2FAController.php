@@ -105,7 +105,7 @@ class Google2FAController extends Controller
                     \Session::put('2fa_verified', 1);
                     \Session::forget('2fa:user:id');
 
-                    return redirect('password/reset/' . $token);
+                    return redirect('password/reset/'.$token);
                 }
                 \Auth::loginUsingId($userId, $remember);
 
@@ -121,7 +121,6 @@ class Google2FAController extends Controller
             \Session::put('2fa:user:id', $userId);
 
             return redirect('verify-2fa')->with('fails', $e->getMessage());
-
         }
     }
 
