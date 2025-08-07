@@ -118,7 +118,7 @@
 
                         <div class="col-md-6 form-group {{ $errors->has('price_description') ? 'has-error' : '' }}">
                             <!-- last name -->
-                            <script src="https://cdn.tiny.cloud/1/vj36xscbbzlnzmp9xo0kjctxdwdwfdll1rna0h0131am535t/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+                            <script src="https://cdn.tiny.cloud/1/4f0mdhyghkekvb5nle8s7aai2g2dooxhbv9yh3dunatblh6l/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
 
                             <script>
                                 tinymce.init({
@@ -254,7 +254,7 @@
                     <div class="row">
                         <div class="col-md-12 form-group {{ $errors->has('product_description') ? 'has-error' : '' }}">
                             <!-- last name -->
-                            <script src="https://cdn.tiny.cloud/1/vj36xscbbzlnzmp9xo0kjctxdwdwfdll1rna0h0131am535t/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+                            <script src="https://cdn.tiny.cloud/1/4f0mdhyghkekvb5nle8s7aai2g2dooxhbv9yh3dunatblh6l/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
 
                             <script>
                                 tinymce.init({
