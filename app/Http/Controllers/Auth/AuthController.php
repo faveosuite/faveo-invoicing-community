@@ -177,8 +177,10 @@ class AuthController extends BaseAuthController
             $attempts->mobile_attempt = (int) $attempts->mobile_attempt + 1;
             $attempts->save();
 
-            if (! $this->sendOtp($user->mobile_code.$user->mobile, $user->id)) {
-                return errorResponse(__('message.otp_verification.send_failure'));
+            $response = $this->sendOtp($user->mobile_code.$user->mobile, $user->id);
+
+            if ($response['type'] === 'error') {
+                return errorResponse($response['message']);
             }
 
             return successResponse(__('message.otp_verification.send_success'));
@@ -235,8 +237,9 @@ class AuthController extends BaseAuthController
             $attempts->mobile_attempt = (int) $attempts->mobile_attempt + 1;
             $attempts->save();
 
-            if (! $this->sendForReOtp($user->mobile_code.$user->mobile, $type)) {
-                return errorResponse(__('message.otp_verification.resend_failure'));
+            $response = $this->sendForReOtp($user->mobile_code.$user->mobile, $type);
+            if ($response['type'] === 'error') {
+                return errorResponse($response['message']);
             }
 
             if ($type === 'voice') {
@@ -329,8 +332,9 @@ class AuthController extends BaseAuthController
                 return errorResponse(__('message.otp_invalid_format'));
             }
 
-            if (! $this->sendVerifyOTP($otp, $user->mobile_code.$user->mobile)) {
-                return errorResponse(__('message.otp_invalid'));
+            $response = $this->sendVerifyOTP($otp, $user->mobile_code.$user->mobile);
+            if ($response['type'] === 'error') {
+                return errorResponse($response['message']);
             }
 
             $verificationAttempt = VerificationAttempt::find($user->id);
