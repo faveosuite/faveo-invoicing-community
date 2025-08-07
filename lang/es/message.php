@@ -2682,4 +2682,6 @@ return [
 
     'delete_invoice_older' => 'Eliminar facturas anteriores a...',
     'deletion_cloud_subscription' => 'Eliminar suscripciones en la nube que hayan expirado hace más de...',
+    'msg_service_down' => 'Actualmente estamos experimentando problemas con nuestro servicio de OTP. Por favor, inténtalo de nuevo en breve. Estamos trabajando para resolverlo lo antes posible.'
+
 ];

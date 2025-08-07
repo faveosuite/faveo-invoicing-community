@@ -2682,5 +2682,6 @@ return [
     'not-found' => 'Không thể xóa sản phẩm này vì nó đang được liên kết với một hoặc nhiều dịch vụ. Vui lòng xóa tất cả các dịch vụ liên quan trước khi thử xóa sản phẩm này.',
     'delete_invoice_older' => 'Xóa hóa đơn cũ hơn...',
     'deletion_cloud_subscription' => 'Xóa đăng ký đám mây đã hết hạn hơn...',
+    'msg_service_down' => 'Hiện tại chúng tôi đang gặp sự cố với dịch vụ OTP. Vui lòng thử lại sau. Chúng tôi đang cố gắng khắc phục sự cố nhanh nhất có thể.'
 
 ];

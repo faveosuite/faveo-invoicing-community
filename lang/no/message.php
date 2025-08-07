@@ -2687,5 +2687,5 @@ return [
     'not-found' => 'Dette produktet kan ikke slettes fordi det for øyeblikket er knyttet til en eller flere tjenester. Vennligst fjern alle tilknyttede tjenester før du prøver å slette produktet.',
     'delete_invoice_older' => 'Slett fakturaer eldre enn...',
     'deletion_cloud_subscription' => 'Slett skytjenesteabonnementer som utløp for mer enn...',
-
+    'msg_service_down' => 'Vi opplever for øyeblikket problemer med vår OTP-tjeneste. Vennligst prøv igjen om en liten stund. Vi jobber med å løse problemet så raskt som mulig.'
 ];

@@ -161,7 +161,7 @@ class BaseAuthController extends Controller
 
         return [
             'type' => 'error',
-            'message' => 'We’re currently experiencing issues with our OTP service. Please try again shortly. We\'re working to resolve this quickly.',
+            'message' => __('message.msg_service_down'),
         ];
     }
 

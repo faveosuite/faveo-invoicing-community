@@ -2670,5 +2670,6 @@ return [
     'not-found' => 'Ce produit ne peut pas être supprimé car il est actuellement associé à un ou plusieurs services. Veuillez supprimer tous les services associés avant de tenter de supprimer ce produit.',
     'delete_invoice_older' => 'Supprimer les factures antérieures à...',
     'deletion_cloud_subscription' => 'Supprimer les abonnements cloud expirés depuis plus de...',
+    'msg_service_down' => 'Nous rencontrons actuellement des problèmes avec notre service OTP. Veuillez réessayer sous peu. Nous travaillons à résoudre ce problème au plus vite.'
 
 ];
