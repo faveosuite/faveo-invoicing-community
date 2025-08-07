@@ -2,7 +2,6 @@
 
 namespace App\Providers;
 
-use Cache;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Http\Request;
@@ -86,7 +85,6 @@ class RouteServiceProvider extends ServiceProvider
 
         // Web Rate Limiting
         RateLimiter::for('web', function (Request $request) {
-
             $maxAttempts = 60;
             $limits = [];
 
