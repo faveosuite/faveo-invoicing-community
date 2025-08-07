@@ -2647,6 +2647,6 @@ return [
     'not-found' => 'Dit product kan niet worden verwijderd omdat het momenteel is gekoppeld aan een of meer services. Verwijder alle gerelateerde services voordat u probeert dit product te verwijderen.',
     'delete_invoice_older' => 'Facturen ouder dan... verwijderen',
     'deletion_cloud_subscription' => 'Cloudabonnementen verwijderen die meer dan... geleden zijn verlopen',
-    'msg_service_down' => 'We ondervinden momenteel problemen met onze OTP-service. Probeer het over een momentje opnieuw. We werken eraan om dit zo snel mogelijk op te lossen.'
+    'msg_service_down' => 'We ondervinden momenteel problemen met onze OTP-service. Probeer het over een momentje opnieuw. We werken eraan om dit zo snel mogelijk op te lossen.',
 
 ];

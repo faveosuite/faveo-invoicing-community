@@ -2606,6 +2606,6 @@
      'not-found' => 'Dan il-prodott ma jistax jitħassar għax huwa assoċjat ma’ servizz jew aktar. Jekk jogħġbok neħħi s-servizzi kollha relatati qabel tipprova tħassar dan il-prodott.',
      'delete_invoice_older' => 'Ħassar fatturi eqdem minn...',
      'deletion_cloud_subscription' => 'Ħassar abbonamenti cloud li skadew aktar minn...',
-     'msg_service_down' => 'Bħalissa qed nesperjenzaw problemi bis-servizz tagħna tal-OTP. Jekk jogħġbok erġa’ pprova ftit ieħor. Qed naħdmu biex insolvu l-problema kemm jista’ jkun malajr.'
+     'msg_service_down' => 'Bħalissa qed nesperjenzaw problemi bis-servizz tagħna tal-OTP. Jekk jogħġbok erġa’ pprova ftit ieħor. Qed naħdmu biex insolvu l-problema kemm jista’ jkun malajr.',
 
  ];

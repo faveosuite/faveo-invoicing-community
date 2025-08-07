@@ -2679,6 +2679,6 @@ return [
 
     'delete_invoice_older' => 'Rechnungen löschen, die älter sind als...',
     'deletion_cloud_subscription' => 'Cloud-Abonnements löschen, die vor mehr als ... abgelaufen sind...',
-    'msg_service_down' => 'Derzeit gibt es Probleme mit unserem OTP-Dienst. Bitte versuchen Sie es in Kürze erneut. Wir arbeiten an einer schnellen Lösung.'
+    'msg_service_down' => 'Derzeit gibt es Probleme mit unserem OTP-Dienst. Bitte versuchen Sie es in Kürze erneut. Wir arbeiten an einer schnellen Lösung.',
 
 ];
