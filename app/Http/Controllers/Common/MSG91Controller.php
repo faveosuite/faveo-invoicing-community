@@ -40,7 +40,7 @@ class MSG91Controller extends Controller
                         'request_id' => $reportGroup['requestId'],
                         'number' => $singleReport['number'],
                         'status' => $singleReport['status'],
-                        'date' => $singleReport['date'] ?? now()->toDateTimeString(),
+                        'date' => Carbon::parse($singleReport['date'], 'Asia/Kolkata')->timezone('UTC')->toDateTimeString() ?? now()->utc()->toDateTimeString(),
                         'failure_reason' => $singleReport['failedReason'] ?? null,
                     ]);
                 });

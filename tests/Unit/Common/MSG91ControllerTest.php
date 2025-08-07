@@ -147,13 +147,16 @@ class MSG91ControllerTest extends DBTestCase
         ];
 
         $controller->shouldAllowMockingProtectedMethods();
+        $expectedUtcDate = Carbon::parse('2025-04-10 10:00:00', 'Asia/Kolkata')
+            ->timezone('UTC')
+            ->toDateTimeString();
         $controller->shouldReceive('processIndividualReport')
             ->once()
-            ->with(Mockery::on(function ($arg) {
+            ->with(Mockery::on(function ($arg) use ($expectedUtcDate) {
                 return $arg['request_id'] === 'r1'
                     && $arg['number'] === '555'
                     && $arg['status'] === 'DELIVRD'
-                    && $arg['date'] === '2025-04-10 10:00:00';
+                    && $arg['date'] === $expectedUtcDate;
             }));
 
         $request = Request::create('/msg/reports', 'POST', [
