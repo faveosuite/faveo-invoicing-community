@@ -70,12 +70,12 @@ class BaseAuthController extends Controller
 
             return [
                 'status' => $response->getStatusCode(),
-                'body' => json_decode($response->getBody(), true)
+                'body' => json_decode($response->getBody(), true),
             ];
         } catch (\Exception $e) {
             return [
                 'status' => 200,
-                'body' => ['type' => 'error', 'message' => 'There was an error processing your request']
+                'body' => ['type' => 'error', 'message' => 'There was an error processing your request'],
             ];
         }
     }
