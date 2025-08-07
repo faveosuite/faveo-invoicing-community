@@ -81,6 +81,10 @@ class Google2FAController extends Controller
      */
     public function postLoginValidateToken(ValidateSecretRequest $request)
     {
+        if (rateLimitForKeyIp('2fa_code', 5, 1, $request->session()->pull('2fa:user:id') ?? $request->ip())['status']) {
+            return redirect('login')->with('fails', 'Too many attempts. Please try again later.');
+        }
+
         $request->validate([
             'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('2fa')],
             'totp' => ['required', 'digits:6'],
@@ -224,6 +228,10 @@ class Google2FAController extends Controller
 
     public function verifyRecoveryCode(Request $request)
     {
+        if (rateLimitForKeyIp('recovery_code', 5, 1, $request->session()->pull('2fa:user:id') ?? $request->ip())['status']) {
+            return redirect('login')->with('fails', 'Too many attempts. Please try again later.');
+        }
+
         $this->validate($request, [
             'rec_code' => 'required',
             'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('recovery')],

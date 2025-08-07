@@ -659,13 +659,6 @@ Route::middleware('installAgora')->group(function () {
     Route::get('syncing/pipedriveFields', [PipedriveController::class, 'syncFields']);
     Route::post('pipedrive/get-dropdown', [PipedriveController::class, 'getDropdown']);
 });
-
-Route::get('test', function () {
-    $license1 = 'EKNTVF5AACJZ0005';
-    $license2 = 'WOFKEROQWO6W0003';
-
-    return $license1 == $license2 ? 'same' : 'not same';
-})->name('test');
 /*
 * Faveo APIs
 */
