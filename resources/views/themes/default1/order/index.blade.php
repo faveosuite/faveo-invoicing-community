@@ -773,7 +773,8 @@
                              $('#response').html(data);
                              setTimeout(function () {
                                  location.reload();
-                             }, 5000);                         }
+                             }, 5000);
+                         }
                      })
                  }
                  else {
