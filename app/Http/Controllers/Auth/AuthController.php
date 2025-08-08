@@ -346,10 +346,10 @@ class AuthController extends BaseAuthController
 
             $user->save();
 
-            //dispatch the job to add user to external services
-            AddUserToExternalService::dispatch($user, 'verify');
-
             if (! \Auth::check() && $this->userNeedVerified($user)) {
+                //dispatch the job to add user to external services
+                AddUserToExternalService::dispatch($user, 'verify');
+
                 \Session::flash('success', __('message.registration_complete'));
             }
 
@@ -404,9 +404,10 @@ class AuthController extends BaseAuthController
             $user->email_verified = 1;
             $user->save();
 
-            AddUserToExternalService::dispatch($user, 'verify');
-
             if (! \Auth::check() && $this->userNeedVerified($user)) {
+                //dispatch the job to add user to external services
+                AddUserToExternalService::dispatch($user, 'verify');
+
                 \Session::flash('success', __('message.registration_complete'));
             }
 
