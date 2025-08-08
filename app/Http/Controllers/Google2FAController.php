@@ -81,21 +81,21 @@ class Google2FAController extends Controller
      */
     public function postLoginValidateToken(ValidateSecretRequest $request)
     {
-        if (rateLimitForKeyIp('2fa_code', 5, 1, $request->session()->pull('2fa:user:id') ?? $request->ip())['status']) {
-            return redirect('login')->with('fails', 'Too many attempts. Please try again later.');
-        }
-
-        $request->validate([
-            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('2fa')],
-            'totp' => ['required', 'digits:6'],
-            '2fa_code' => [new Honeypot()],
-        ]);
-
         try {
             //get user id and create cache key
             $google2fa = new Google2FA();
             $userId = $request->session()->pull('2fa:user:id');
             $remember = $request->session()->pull('remember:user:id');
+
+            if (rateLimitForKeyIp('2fa_code', 5, 1, $request->session()->pull('2fa:user:id') ?? $request->ip())['status']) {
+                return redirect('login')->with('fails','Too many attempts. Please try again later.');
+            }
+
+            $request->validate([
+                'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('2fa')],
+                'totp' => ['required', 'digits:6'],
+                '2fa_code' => [new Honeypot()],
+            ]);
 
             $this->user = User::findorFail($userId);
 
@@ -228,19 +228,19 @@ class Google2FAController extends Controller
 
     public function verifyRecoveryCode(Request $request)
     {
-        if (rateLimitForKeyIp('recovery_code', 5, 1, $request->session()->pull('2fa:user:id') ?? $request->ip())['status']) {
-            return redirect('login')->with('fails', 'Too many attempts. Please try again later.');
-        }
-
-        $this->validate($request, [
-            'rec_code' => 'required',
-            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('recovery')],
-            'recovery_code' => [new Honeypot()],
-        ],
-            ['rec_code.required' => __('validation.please_enter_recovery_code'),
-            ]);
         try {
             $userId = $request->session()->pull('2fa:user:id');
+            if (rateLimitForKeyIp('recovery_code', 5, 1, $request->session()->pull('2fa:user:id') ?? $request->ip())['status']) {
+                return redirect('login')->with('fails', 'Too many attempts. Please try again later.');
+            }
+
+            $this->validate($request, [
+                'rec_code' => 'required',
+                'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('recovery')],
+                'recovery_code' => [new Honeypot()],
+            ],
+                ['rec_code.required' => __('validation.please_enter_recovery_code'),
+                ]);
             $this->user = User::findorFail($userId);
             if ($this->user->code_usage_count == 1) {//If backup code is used already
                 throw new \Exception(__('message.code_authenticator_disable_2fa'));
