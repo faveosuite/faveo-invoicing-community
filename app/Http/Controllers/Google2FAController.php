@@ -88,7 +88,7 @@ class Google2FAController extends Controller
             $remember = $request->session()->pull('remember:user:id');
 
             if (rateLimitForKeyIp('2fa_code', 5, 1, $request->session()->pull('2fa:user:id') ?? $request->ip())['status']) {
-                return redirect('login')->with('fails','Too many attempts. Please try again later.');
+                return redirect('login')->with('fails', 'Too many attempts. Please try again later.');
             }
 
             $request->validate([
