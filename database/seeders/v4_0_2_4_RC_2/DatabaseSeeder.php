@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders\v4_0_3;
+namespace Database\Seeders\v4_0_2_4_RC_2;
 
 use App\ApiKey;
 use App\Model\Common\EmailMobileValidationProviders;
