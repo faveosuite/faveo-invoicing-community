@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use Auth;
 use Closure;
 use Illuminate\Http\Request;
 use RateLimiter;
@@ -19,7 +18,7 @@ class BlockFailedVerifications
     {
         $userId = $request->session()->get('verification_user_id');
 
-        if (!$userId) {
+        if (! $userId) {
             return redirect('login');
         }
 
@@ -34,7 +33,7 @@ class BlockFailedVerifications
             '2fa' => [
                 '2fa-code' => 3,
                 'recovery-code' => 3,
-            ]
+            ],
         ];
 
         // Pick the correct set based on the middleware parameter

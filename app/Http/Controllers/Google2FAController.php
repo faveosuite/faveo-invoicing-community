@@ -79,11 +79,10 @@ class Google2FAController extends Controller
                 $secret = Crypt::decrypt($user->google2fa_secret);
                 $isValid = (new Google2FA())->verifyKey($secret, $request->totp);
 
-                if (!$isValid) {
+                if (! $isValid) {
                     throw new \Exception(__('message.invalid_passcode'));
                 }
             });
-
         } catch (\Exception $e) {
             return redirect('verify-2fa')->with('fails', $e->getMessage());
         }
@@ -214,7 +213,6 @@ class Google2FAController extends Controller
                 $user->code_usage_count = 1;
                 $user->save();
             });
-
         } catch (\Exception $e) {
             return redirect('recovery-code')->with('fails', $e->getMessage());
         }
@@ -257,6 +255,7 @@ class Google2FAController extends Controller
         // If it's part of password reset flow
         if ($token = $session->get('reset_token')) {
             $session->put('2fa_verified', true);
+
             return redirect()->route('password.reset', ['token' => $token]);
         }
 
@@ -266,5 +265,4 @@ class Google2FAController extends Controller
 
         return redirect()->intended($this->redirectPath());
     }
-
 }

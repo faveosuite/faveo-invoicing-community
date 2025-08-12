@@ -9,19 +9,13 @@ use App\Model\Common\Bussiness;
 use App\Model\Common\ChatScript;
 use App\Model\Common\Country;
 use App\Model\Common\StatusSetting;
-use App\Rules\CaptchaValidation;
-use App\Rules\Honeypot;
 use App\SocialLogin;
 use App\User;
-use App\VerificationAttempt;
-use Cache;
-use Carbon\Carbon;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
-use RateLimiter;
 use Session;
 
 class LoginController extends Controller
@@ -88,7 +82,7 @@ class LoginController extends Controller
     /**
      * Handle a login request to the application.
      *
-     * @param LoginRequest $request
+     * @param  LoginRequest  $request
      * @return RedirectResponse
      */
     public function login(LoginRequest $request) // 2. Type-hint the LoginRequest
@@ -97,7 +91,7 @@ class LoginController extends Controller
         $credentials = $this->buildCredentials($request);
 
         // 2. Attempt to authenticate the user
-        if (!Auth::attempt($credentials, $request->boolean('remember'))) {
+        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
             return back()
                 ->withInput($request->only('email_username', 'remember'))
                 ->with('fails', 'Your email or password is incorrect. Please check and try again.');
@@ -106,7 +100,7 @@ class LoginController extends Controller
         $user = Auth::user();
 
         // 3. Handle post-authentication checks (Verification)
-        if (!$this->userNeedVerified($user)) {
+        if (! $this->userNeedVerified($user)) {
             return $this->handleUnverifiedUser($user);
         }
 
