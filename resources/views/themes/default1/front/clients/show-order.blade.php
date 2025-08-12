@@ -1194,7 +1194,7 @@
                 borderRadius: '4px'
             },
             rules: {
-                '.Input': { pamy-invoicesdding: '10px' },
+                '.Input': { padding: '10px' },
                 '.StripeElement--invalid': {
                     borderColor: '#df1b41',
                     borderWidth: '1px',
