@@ -29,7 +29,7 @@ trait ChunkUpload
                 $filePath = $file->getPathname();
                 $zip = new \ZipArchive;
                 $res = $zip->open($filePath);
-                if ($res === true) {
+                if ($res === true && $zip->numFiles > 0) {
                     return $this->saveFile($save->getFile());
                 } else {
                     unlink($filePath);
