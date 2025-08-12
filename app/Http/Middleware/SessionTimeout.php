@@ -22,7 +22,7 @@ class SessionTimeout
         $startTime = Session::get($sessionKey);
 
         // First visit after login or verification start → reset timer
-        if ($request->session()->get("justStarted_{$sessionKey}")) {
+        if (!$startTime || $request->session()->get("justStarted_{$sessionKey}")) {
             $startTime = now();
             Session::put($sessionKey, $startTime);
             Session::forget("justStarted_{$sessionKey}");
@@ -33,14 +33,12 @@ class SessionTimeout
             Session::flush();
 
             if ($request->expectsJson()) {
+                session()->flash('fails', 'Your session has expired. Please log in again to continue.');
                 return errorResponse('Your session has expired. Please log in again to continue.');
             }
 
             return redirect('login')->withErrors('Your session has expired. Please log in again to continue.');
         }
-
-        // Refresh timer on active request
-        Session::put($sessionKey, now());
 
         return $next($request);
     }

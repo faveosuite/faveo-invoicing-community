@@ -806,4 +806,25 @@
             }
         });
     </script>
+<script>
+    (function() {
+        const checkUrl = "{{ route('verify.session.check') }}";
+        const checkInterval = 30000;
+
+        function checkSession() {
+            $.ajax({
+                url: checkUrl,
+                type: 'GET',
+                success: function(response, status, xhr) {
+                },
+                error: function() {
+                    window.location.href = '{{ url('login') }}';
+                }
+            });
+        }
+
+        setInterval(checkSession, checkInterval);
+    })();
+</script>
+
 @stop
