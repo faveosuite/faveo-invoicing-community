@@ -601,13 +601,13 @@ class AuthController extends BaseAuthController
 
     private function updateVerificationAttempts($user, $type = 'email')
     {
-        if (!in_array($type, ['email', 'mobile'])) {
+        if (! in_array($type, ['email', 'mobile'])) {
             return;
         }
 
         $verificationAttempt = VerificationAttempt::firstOrCreate(['user_id' => $user->id]);
 
-        $field = $type . '_attempt';
+        $field = $type.'_attempt';
         $verificationAttempt->{$field}++;
 
         $verificationAttempt->save();

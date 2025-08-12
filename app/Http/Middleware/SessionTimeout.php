@@ -19,7 +19,7 @@ class SessionTimeout
 
         $startTime = Session::get($sessionKey);
 
-        if (!$startTime) {
+        if (! $startTime) {
             $startTime = now();
             Session::put($sessionKey, $startTime);
         }

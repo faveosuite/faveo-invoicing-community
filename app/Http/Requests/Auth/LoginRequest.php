@@ -26,10 +26,10 @@ class LoginRequest extends FormRequest
     public function rules()
     {
         return [
-            'email_username'       => ['required', 'string'],
-            'password1'            => ['required', 'string'],
+            'email_username' => ['required', 'string'],
+            'password1' => ['required', 'string'],
             'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('login')],
-            'login'                => [new Honeypot()],
+            'login' => [new Honeypot()],
         ];
     }
 
@@ -42,8 +42,8 @@ class LoginRequest extends FormRequest
     {
         return [
             'g-recaptcha-response.required' => __('message.robot_verification'),
-            'email_username.required'       => __('message.password_email'),
-            'password1.required'            => __('message.please_enter_password'),
+            'email_username.required' => __('message.password_email'),
+            'password1.required' => __('message.please_enter_password'),
         ];
     }
 }
