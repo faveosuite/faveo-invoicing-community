@@ -80,7 +80,7 @@ main
             </div>
 
         </div>
-        @extends('mini_views.recaptcha')
+{{--        @extends('mini_views.recaptcha')--}}
     <script>
         let two_factor_recaptcha_id;
         @if($status->recaptcha_status === 1)

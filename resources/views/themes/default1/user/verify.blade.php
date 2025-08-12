@@ -353,7 +353,7 @@
 
 @stop
 @section('script')
-    @extends('mini_views.recaptcha')
+{{--    @extends('mini_views.recaptcha')--}}
     <script>
         const otpButton = document.getElementById("otpButton");
         const additionalButton = document.getElementById("additionalButton");
