@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use ParagonIE\ConstantTime\Base32;
 use PragmaRX\Google2FAQRCode\Google2FA;
+use RateLimiter;
 
 class Google2FAController extends Controller
 {
@@ -31,7 +32,7 @@ class Google2FAController extends Controller
         if (\Session::has('2fa:user:id')) {
             return view('themes.default1.front.enableTwoFactor');
         } else {
-            return redirect()->back();
+            return redirect('login');
         }
     }
 
@@ -64,66 +65,26 @@ class Google2FAController extends Controller
     }
 
     /**
-     * @return \Illuminate\Http\Response
-     */
-    public function getValidateToken()
-    {
-        if (session('2fa:user:id')) {
-            return redirect('verify-2fa');
-        }
-
-        return redirect('login');
-    }
-
-    /**
      * @param  App\Http\Requests\ValidateSecretRequest  $request
      * @return \Illuminate\Http\Response
      */
     public function postLoginValidateToken(ValidateSecretRequest $request)
     {
         try {
-            //get user id and create cache key
-            $google2fa = new Google2FA();
-            $userId = $request->session()->pull('2fa:user:id');
-            $remember = $request->session()->pull('remember:user:id');
+            $session = $request->session();
+            $userId = $session->get('2fa:user:id');
+            $user = User::findOrFail($userId);
 
-            if (rateLimitForKeyIp('2fa_code', 5, 1, $request->session()->pull('2fa:user:id') ?? $request->ip())['status']) {
-                return redirect('login')->with('fails', 'Too many attempts. Please try again later.');
-            }
+            return $this->handleTwoFactorLogin($request, $user, '2fa-code', function ($user, $request) {
+                $secret = Crypt::decrypt($user->google2fa_secret);
+                $isValid = (new Google2FA())->verifyKey($secret, $request->totp);
 
-            $request->validate([
-                'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('2fa')],
-                'totp' => ['required', 'digits:6'],
-                '2fa_code' => [new Honeypot()],
-            ]);
-
-            $this->user = User::findorFail($userId);
-
-            $secret = Crypt::decrypt($this->user->google2fa_secret);
-            $checkValidPasscode = $google2fa->verifyKey($secret, $request->totp);
-
-            //login and redirect user
-            if ($checkValidPasscode) {
-                if (\Session::has('reset_token')) {
-                    $token = \Session::get('reset_token');
-                    \Session::put('2fa_verified', 1);
-                    \Session::forget('2fa:user:id');
-
-                    return redirect('password/reset/'.$token);
+                if (!$isValid) {
+                    throw new \Exception(__('message.invalid_passcode'));
                 }
-                \Auth::loginUsingId($userId, $remember);
+            });
 
-                $this->convertCart();
-
-                return redirect($this->redirectPath());
-            } else {
-                \Session::put('2fa:user:id', $userId);
-
-                return redirect('verify-2fa')->with('fails', trans('message.invalid_passcode'));
-            }
         } catch (\Exception $e) {
-            \Session::put('2fa:user:id', $userId);
-
             return redirect('verify-2fa')->with('fails', $e->getMessage());
         }
     }
@@ -228,38 +189,33 @@ class Google2FAController extends Controller
 
     public function verifyRecoveryCode(Request $request)
     {
+        $this->validate($request, [
+            'rec_code' => 'required',
+            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('recovery')],
+            'recovery_code' => [new Honeypot()],
+        ], [
+            'rec_code.required' => __('validation.please_enter_recovery_code'),
+        ]);
+
         try {
-            $userId = $request->session()->pull('2fa:user:id');
-            if (rateLimitForKeyIp('recovery_code', 5, 1, $request->session()->pull('2fa:user:id') ?? $request->ip())['status']) {
-                return redirect('login')->with('fails', 'Too many attempts. Please try again later.');
-            }
+            $session = $request->session();
+            $userId = $session->get('2fa:user:id');
+            $user = User::findOrFail($userId);
 
-            $this->validate($request, [
-                'rec_code' => 'required',
-                'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('recovery')],
-                'recovery_code' => [new Honeypot()],
-            ],
-                ['rec_code.required' => __('validation.please_enter_recovery_code'),
-                ]);
-            $this->user = User::findorFail($userId);
-            if ($this->user->code_usage_count == 1) {//If backup code is used already
-                throw new \Exception(__('message.code_authenticator_disable_2fa'));
-            }
-            $rec_code = $request->input('rec_code');
-            if ($rec_code == $this->user->backup_code) {
-                $this->user->code_usage_count = 1;
-                $this->user->save();
-                \Auth::loginUsingId($userId);
-                $this->convertCart();
+            return $this->handleTwoFactorLogin($request, $user, 'recovery-code', function ($user, $request) {
+                if ($user->code_usage_count == 1) {
+                    throw new \Exception(__('message.code_authenticator_disable_2fa'));
+                }
 
-                return redirect($this->redirectPath());
-            } else {
-                \Session::put('2fa:user:id', $userId);
-                throw new \Exception(__('message.invalid_recovery_code'));
-            }
+                if ($request->rec_code !== $user->backup_code) {
+                    throw new \Exception(__('message.invalid_recovery_code'));
+                }
+
+                $user->code_usage_count = 1;
+                $user->save();
+            });
+
         } catch (\Exception $e) {
-            \Session::put('2fa:user:id', $userId);
-
             return redirect('recovery-code')->with('fails', $e->getMessage());
         }
     }
@@ -285,4 +241,30 @@ class Google2FAController extends Controller
         }
         \Session::forget('toggleState');
     }
+
+    private function handleTwoFactorLogin(Request $request, User $user, string $rateLimiterKey, callable $validator)
+    {
+        // Rate limit for 6 hours
+        RateLimiter::hit("{$rateLimiterKey}:{$user->id}", now()->diffInSeconds(now()->addHours(6)));
+
+        // Run the type-specific validation logic
+        $validator($user, $request);
+
+        // Clear session identifiers
+        $session = $request->session();
+        $session->forget(['2fa:user:id', 'remember:user:id']);
+
+        // If it's part of password reset flow
+        if ($token = $session->get('reset_token')) {
+            $session->put('2fa_verified', true);
+            return redirect()->route('password.reset', ['token' => $token]);
+        }
+
+        // Normal login flow
+        \Auth::login($user, $session->get('remember:user:id'));
+        $this->convertCart();
+
+        return redirect()->intended($this->redirectPath());
+    }
+
 }

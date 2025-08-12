@@ -400,6 +400,15 @@
             }
         });
 
+        function handleTooManyAttempts(error) {
+            if (error.status === 429) {
+                setTimeout(function () {
+                    window.location.href = '{{ url('login') }}';
+                }, 5000);
+            }
+        }
+
+
         function updateTimer(display, countdown) {
             display.textContent = countdown.toString().padStart(2, '0') + " seconds";
         }
@@ -490,6 +499,7 @@
                 },
                 error: function (error) {
                     showAlert('danger', error.responseJSON.message, '#alert-container');
+                    handleTooManyAttempts(error);
                 }
             });
         }
@@ -545,10 +555,13 @@
                 },
                 error: function (error) {
                     showAlert('danger', error.responseJSON.message, '#alert-container');
-
+                    handleTooManyAttempts(error);
                 },
                 complete: function () {
                     toggleButtonState('mobileVerifyBtn', 'mobileVerifyBtnText', false); // Re-enable and reset text to "Verify"
+                    @if($setting->recaptcha_status === 1)
+                    regenerateRecaptchaV2(mobile_recaptcha_id)
+                    @endif
                 }
             });
         }
@@ -598,6 +611,7 @@
                 },
                 error: function (error) {
                     showAlert('danger', error.responseJSON.message, '#alert-container-email');
+                    handleTooManyAttempts(error);
                 }
             });
         }
@@ -652,9 +666,13 @@
                 },
                 error: function (error) {
                     showAlert('danger', error.responseJSON.message, '#alert-container-email');
+                    handleTooManyAttempts(error);
                 },
                 complete: function () {
                     toggleButtonState('emailVerifyBtn', 'emailVerifyBtnText', false); // Re-enable and reset text to "Verify"
+                    @if($setting->recaptcha_status === 1)
+                    regenerateRecaptchaV2(email_recaptcha_id)
+                    @endif
                 }
             });
         }
