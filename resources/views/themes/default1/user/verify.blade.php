@@ -463,7 +463,8 @@
         }
 
         async function resendOTP(default_type, type) {
-            const data = await generateV3Token({eid, default_type, type}, 'resendOtp');
+            let recaptchaAction = type === 'email' ? 'sendEmail' : 'resendOtp';
+            const data = await generateV3Token({eid, default_type, type}, recaptchaAction);
             $.ajax({
                 url: '{{ url('resend_otp') }}',
                 type: 'POST',
