@@ -1026,7 +1026,7 @@ setTimeout(function() {
                   return mailchimpRecaptchaId;
               };
 
-              if (window.grecaptcha) {
+              if (window.grecaptcha && typeof grecaptcha.render === "function"){
                   return renderFn(); // grecaptcha ready
               } else {
                   recaptchaFunctionToExecute.push(renderFn); // queue it for later
