@@ -943,7 +943,7 @@ foreach ($footerWidgetTypes as $widgetType) {
 <script src="{{asset('client/porto/js-2/view.contact.js')}}"></script>
 
 @extends('mini_views.intl_tel_input')
-
+@include('mini_views.recaptcha')
 <script type="text/javascript">
 
 var csrfToken = $('meta[name="csrf-token"]').attr('content');
@@ -991,7 +991,6 @@ setTimeout(function() {
 }, 10000);
 
 </script>
-<script src="https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit" async defer></script>
 
   <script>
       $(document).ready(function(){

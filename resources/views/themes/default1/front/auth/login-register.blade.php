@@ -458,7 +458,7 @@ foreach($scripts as $script) {
 @stop
 @section('script')
     <!--<script async src="https://www.googletagmanager.com/gtag/js?id=<?php echo $analyticsTag; ?>"></script>-->
-@extends('mini_views.recaptcha')
+{{--@extends('mini_views.recaptcha')--}}
     <!--Start of Tawk.to Script-->
     {!! $everyPageScripts !!}
     <!--End of Tawk.to Script-->
