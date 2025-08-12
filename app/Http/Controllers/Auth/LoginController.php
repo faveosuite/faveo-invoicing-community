@@ -144,7 +144,7 @@ class LoginController extends Controller
 
         request()->session()->put([
             'justStarted_verify' => true,
-            'verification_user_id'=> $user->id
+            'verification_user_id' => $user->id,
         ]);
 
         return redirect('verify')->with('user', $user);

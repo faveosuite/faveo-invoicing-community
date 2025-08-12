@@ -12,7 +12,7 @@ class SessionTimeout
      * Handle an incoming request.
      *
      * @param  string  $timeoutMinutes  Timeout in minutes
-     * @param  string  $sessionKey      Unique session key for this verification flow
+     * @param  string  $sessionKey  Unique session key for this verification flow
      * @return mixed
      */
     public function handle(Request $request, Closure $next, $timeoutMinutes = 10, $sessionKey = 'lastVerificationActivity')
