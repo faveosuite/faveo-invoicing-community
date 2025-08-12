@@ -142,7 +142,10 @@ class LoginController extends Controller
     {
         Auth::logout();
 
-        request()->session()->put('verification_user_id', $user->id);
+        request()->session()->put([
+            'justStarted_verify' => true,
+            'verification_user_id'=> $user->id
+        ]);
 
         return redirect('verify')->with('user', $user);
     }
@@ -155,6 +158,7 @@ class LoginController extends Controller
         Auth::logout();
 
         $request->session()->put([
+            'justStarted_2fa' => true,
             'verification_user_id' => $user->id,
             '2fa:user:id' => $user->id,
             'remember:user:id' => $request->boolean('remember'),
