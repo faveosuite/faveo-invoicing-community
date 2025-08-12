@@ -265,4 +265,9 @@ class Google2FAController extends Controller
 
         return redirect()->intended($this->redirectPath());
     }
+
+    public function verifySession()
+    {
+        return successResponse('active');
+    }
 }

@@ -612,4 +612,9 @@ class AuthController extends BaseAuthController
 
         $verificationAttempt->save();
     }
+
+    public function verifySession()
+    {
+        return successResponse('active');
+    }
 }
