@@ -463,7 +463,7 @@
         }
 
         async function resendOTP(default_type, type) {
-            let recaptchaAction = type === 'email' ? 'sendEmail' : 'resendOtp';
+            let recaptchaAction = default_type === 'email' ? 'sendEmail' : 'resendOtp';
             const data = await generateV3Token({eid, default_type, type}, recaptchaAction);
             $.ajax({
                 url: '{{ url('resend_otp') }}',
@@ -484,6 +484,7 @@
                     } else if (default_type === 'email') {
                         showAlert('danger', error.responseJSON.message, '#alert-container-email');
                     }
+                    handleTooManyAttempts(error);
                 }
             });
         }
