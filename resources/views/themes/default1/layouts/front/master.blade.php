@@ -1013,6 +1013,7 @@ setTimeout(function() {
               }
           });
       })
+      let mailchimpRecaptchaId = null; // store globally so we can reset later
 
       function mailchimp_render() {
           @if(!Auth::check() && $status->recaptcha_status === 1 && $status->v3_v2_recaptcha_status && isset($isV2RecaptchaEnabledForNewsletter) && $isV2RecaptchaEnabledForNewsletter === 1)
@@ -1020,13 +1021,14 @@ setTimeout(function() {
           const el = document.getElementById('mailchimp_recaptcha');
           if (el) {
               const renderFn = () => {
-                  grecaptcha.render('mailchimp_recaptcha', {
+                  mailchimpRecaptchaId = grecaptcha.render('mailchimp_recaptcha', {
                       sitekey: siteKey
                   });
+                  return mailchimpRecaptchaId;
               };
 
               if (window.grecaptcha) {
-                  renderFn(); // grecaptcha is already ready, run immediately
+                  return renderFn(); // grecaptcha ready
               } else {
                   recaptchaFunctionToExecute.push(renderFn); // queue it for later
               }
@@ -1125,6 +1127,9 @@ setTimeout(function() {
                 },
                 complete: function() {
                     $('#mailchimp-subscription').html(@json(__('message.caps_go')));
+                    if (mailchimpRecaptchaId !== null) {
+                        grecaptcha.reset(mailchimpRecaptchaId);
+                    }
                 }
             });
         });

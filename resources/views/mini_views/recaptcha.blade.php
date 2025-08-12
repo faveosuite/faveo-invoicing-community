@@ -42,6 +42,18 @@ $apiKeys = ApiKey::find(1);
             return grecaptcha.getResponse(id);
         }
 
+        function regenerateRecaptchaV2(widgetId) {
+            if (typeof grecaptcha !== 'undefined') {
+                try {
+                    grecaptcha.reset(widgetId);
+                } catch (e) {
+                    console.error("Failed to reset reCAPTCHA v2:", e);
+                }
+            } else {
+                console.error("reCAPTCHA v2 not loaded yet.");
+            }
+        }
+
         @elseif($statusSetting->v3_recaptcha_status === 1)
         // Include reCAPTCHA v3
         const loadRecaptchaScript = () => {

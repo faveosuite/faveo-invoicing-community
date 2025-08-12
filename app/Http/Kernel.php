@@ -84,5 +84,7 @@ class Kernel extends HttpKernel
         '2fa' => \PragmaRX\Google2FALaravel\Middleware::class,
         'pulse.enabled' => \App\Http\Middleware\CheckPulseEnabled::class,
         'language' => \App\Http\Middleware\LanguageMiddleware::class,
+        'blockFailedVerifications' => \App\Http\Middleware\BlockFailedVerifications::class,
+        'session.timeout' => \App\Http\Middleware\SessionTimeout::class,
     ];
 }

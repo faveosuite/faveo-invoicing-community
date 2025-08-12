@@ -16,6 +16,7 @@ use Carbon\Carbon;
 use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
+use RateLimiter;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Validator;
 
@@ -158,26 +159,11 @@ class AuthController extends BaseAuthController
                 return errorResponse(__('message.mobile_already_verified'));
             }
 
-            // Handle verification attempts
-            $attempts = VerificationAttempt::firstOrCreate(['user_id' => $user->id]);
-
-            if ($attempts->updated_at->lte(Carbon::now()->subHours(6))) {
-                $attempts->update([
-                    'mobile_attempt' => 0,
-                    'email_attempt' => 0,
-                ]);
-            }
-
-            if ($attempts->mobile_attempt >= 2) {
-                $remainingTime = Carbon::parse($attempts->updated_at)->addHours(6)->diffInSeconds(Carbon::now());
-
-                return errorResponse(__('message.otp_verification.max_attempts_exceeded', ['time' => formatDuration($remainingTime)]));
-            }
-
-            $attempts->mobile_attempt = (int) $attempts->mobile_attempt + 1;
-            $attempts->save();
-
             $response = $this->sendOtp($user->mobile_code.$user->mobile, $user->id);
+
+            RateLimiter::hit("mobile-otp:{$user->id}", now()->diffInSeconds(now()->addHours(6)));
+
+            $this->updateVerificationAttempts($user, 'mobile');
 
             if ($response['type'] === 'error') {
                 return errorResponse($response['message']);
@@ -218,26 +204,12 @@ class AuthController extends BaseAuthController
 
             $user = User::where('email', $email)->firstOrFail();
 
-            // Handle verification attempts
-            $attempts = VerificationAttempt::firstOrCreate(['user_id' => $user->id]);
-
-            if ($attempts->updated_at->lte(Carbon::now()->subHours(6))) {
-                $attempts->update([
-                    'mobile_attempt' => 0,
-                    'email_attempt' => 0,
-                ]);
-            }
-
-            if ($attempts->mobile_attempt >= 2) {
-                $remainingTime = Carbon::parse($attempts->updated_at)->addHours(6)->diffInSeconds(Carbon::now());
-
-                return errorResponse(__('message.otp_verification.resend_max_attempts_exceeded', ['time' => formatDuration($remainingTime)]));
-            }
-
-            $attempts->mobile_attempt = (int) $attempts->mobile_attempt + 1;
-            $attempts->save();
-
             $response = $this->sendForReOtp($user->mobile_code.$user->mobile, $type);
+
+            RateLimiter::hit("mobile-otp:{$user->id}", now()->diffInSeconds(now()->addHours(6)));
+
+            $this->updateVerificationAttempts($user, 'mobile');
+
             if ($response['type'] === 'error') {
                 return errorResponse($response['message']);
             }
@@ -266,30 +238,15 @@ class AuthController extends BaseAuthController
 
             $user = User::where('email', $email)->firstOrFail();
 
-            // Handle verification attempts
-            $attempts = VerificationAttempt::firstOrCreate(['user_id' => $user->id]);
-
-            if ($attempts->updated_at->lte(Carbon::now()->subHours(6))) {
-                $attempts->update([
-                    'mobile_attempt' => 0,
-                    'email_attempt' => 0,
-                ]);
-            }
-
-            if ($attempts->email_attempt >= 3) {
-                $remainingTime = Carbon::parse($attempts->updated_at)->addHours(6)->diffInSeconds(Carbon::now());
-
-                return errorResponse(__('message.email_verification.max_attempts_exceeded', ['time' => formatDuration($remainingTime)]));
-            }
-
             if (AccountActivate::where('email', $email)->first() && $method !== 'GET') {
                 return successResponse(\Lang::get('message.email_verification.already_sent'));
             }
 
             $this->sendActivation($email, $method);
 
-            $attempts->email_attempt = (int) $attempts->email_attempt + 1;
-            $attempts->save();
+            RateLimiter::hit("email-otp:{$user->id}", now()->diffInSeconds(now()->addHours(6)));
+
+            $this->updateVerificationAttempts($user, 'email');
 
             return successResponse(
                 $method === 'GET'
@@ -327,6 +284,8 @@ class AuthController extends BaseAuthController
             // Find the user by email
             $user = User::where('email', $email)->firstOrFail();
 
+            RateLimiter::hit("mobile-verify:{$user->id}", now()->diffInSeconds(now()->addHours(6)));
+
             // Validate OTP
             if (! is_numeric($request->otp)) {
                 return errorResponse(__('message.otp_invalid_format'));
@@ -335,11 +294,6 @@ class AuthController extends BaseAuthController
             $response = $this->sendVerifyOTP($otp, $user->mobile_code.$user->mobile);
             if ($response['type'] === 'error') {
                 return errorResponse($response['message']);
-            }
-
-            $verificationAttempt = VerificationAttempt::find($user->id);
-            if ($verificationAttempt) {
-                $verificationAttempt->update(['mobile_attempt' => 0]);
             }
 
             $user->mobile_verified = 1;
@@ -376,14 +330,12 @@ class AuthController extends BaseAuthController
 
         try {
             $otp = $request->input('otp');
-
-            if (rateLimitForKeyIp('request_email', 5, 1, $request->ip())['status']) {
-                return errorResponse(__('message.email_verification.max_attempts_exceeded'));
-            }
             // Decrypt the email
             $email = Crypt::decrypt($request->eid);
 
             $user = User::where('email', $email)->firstOrFail();
+
+            RateLimiter::hit("mobile-verify:{$user->id}", now()->diffInSeconds(now()->addHours(6)));
 
             $account = AccountActivate::where('email', $email)->latest()->first(['token', 'updated_at']);
 
@@ -397,10 +349,6 @@ class AuthController extends BaseAuthController
 
             AccountActivate::where('email', $email)->delete();
 
-            $verificationAttempt = VerificationAttempt::find($user->id);
-            if ($verificationAttempt) {
-                $verificationAttempt->update(['email_attempt' => 0]);
-            }
             $user->email_verified = 1;
             $user->save();
 
@@ -649,5 +597,19 @@ class AuthController extends BaseAuthController
             ($setting->msg91_status && ! $user->mobile_verified) ||
             ! $user->active
         );
+    }
+
+    private function updateVerificationAttempts($user, $type = 'email')
+    {
+        if (!in_array($type, ['email', 'mobile'])) {
+            return;
+        }
+
+        $verificationAttempt = VerificationAttempt::firstOrCreate(['user_id' => $user->id]);
+
+        $field = $type . '_attempt';
+        $verificationAttempt->{$field}++;
+
+        $verificationAttempt->save();
     }
 }

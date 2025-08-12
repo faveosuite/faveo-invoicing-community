@@ -207,6 +207,8 @@ class RegisterController extends Controller
 
             $userInput->save();
 
+            request()->session()->put('verification_user_id', $userInput->id);
+
             \Session::flash('user', $userInput);
 
             return successResponse(__('message.registration_complete'), ['need_verify' => $need_verify]);
