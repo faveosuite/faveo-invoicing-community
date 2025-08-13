@@ -207,7 +207,7 @@ class RegisterController extends Controller
 
             $userInput->save();
 
-            request()->session()->put('verification_user_id', $userInput->id);
+            \Session::put('verification_user_id', $userInput->id);
 
             \Session::flash('user', $userInput);
 

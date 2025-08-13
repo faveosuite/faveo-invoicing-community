@@ -110,7 +110,7 @@ class LoginController extends Controller
         }
 
         // 5. Regenerate session for security
-        $request->session()->regenerate();
+        Session::regenerate();
 
         $this->convertCart();
 
@@ -142,7 +142,7 @@ class LoginController extends Controller
     {
         Auth::logout();
 
-        request()->session()->put([
+        Session::put([
             'justStarted_verify' => true,
             'verification_user_id' => $user->id,
         ]);
@@ -157,7 +157,7 @@ class LoginController extends Controller
     {
         Auth::logout();
 
-        $request->session()->put([
+        Session::put([
             'justStarted_2fa' => true,
             'verification_user_id' => $user->id,
             '2fa:user:id' => $user->id,
