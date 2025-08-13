@@ -43,7 +43,13 @@
         $modal.on('show.bs.modal', resetModal);
         $modal.on('hidden.bs.modal', resetModal);
 
-        $('#verify2FAButton').click(function () {
+        // Remove red error instantly when typing
+        $input.on('input', function () {
+            $input.removeClass('is-invalid');
+        });
+
+        // Common function for verification
+        function verify2FA() {
             const code = $input.val().trim();
 
             // Clear previous error
@@ -79,8 +85,20 @@
                     let msg = xhr.responseJSON?.message ?? '{{ __("message.invalid_code_2fa") }}';
                     $input.addClass('is-invalid');
                     $input.siblings('.invalid-feedback').text(msg);
+                    $input.val('');
                 }
             });
+        }
+
+        // Click on Verify button
+        $('#verify2FAButton').click(verify2FA);
+
+        // Press Enter inside the input field
+        $input.on('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // prevent form from submitting normally
+                verify2FA();
+            }
         });
     });
 </script>

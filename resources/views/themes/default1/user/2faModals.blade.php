@@ -216,7 +216,7 @@
             </div>
             <div class="modal-body">
                 <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                    {{ __('message.set_auth_billing') }}
+                    {{ __('message.set_auth_invoicing') }}
                 </div>
             </div>
             <div class="modal-footer">

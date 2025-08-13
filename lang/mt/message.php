@@ -2633,4 +2633,5 @@
      '2fapopup_content' => 'Daħħal il-kodiċi 2FA tiegħek biex tivverifika l-identità tiegħek qabel tibdel il-password tiegħek',
      'auth_code_required' => 'Kodiċi ta\' awtentikazzjoni huwa meħtieġ.',
      'valid_username' => 'Jekk jogħġbok daħħal username validu',
+     'set_auth_invoicing' => 'Int lest. Minn issa ’l quddiem, se tuża l-App Authenticator biex tidħol fil-kont Faveo Invoicing tiegħek.',
  ];

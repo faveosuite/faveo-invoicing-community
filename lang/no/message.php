@@ -2714,4 +2714,5 @@ return [
     '2fapopup_content' => 'Voer uw 2FA-code in om uw identiteit te verifiëren voordat u uw wachtwoord wijzigt',
     'auth_code_required' => 'Authenticatiecode is vereist.',
     'valid_username' => 'Vennligst skriv inn et gyldig brukernavn',
+    'set_auth_invoicing' => 'Du er klar. Fra nå av vil du bruke Authenticator-appen for å logge inn på Faveo Invoicing-kontoen din.',
 ];
