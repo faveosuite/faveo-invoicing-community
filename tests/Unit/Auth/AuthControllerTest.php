@@ -7,7 +7,6 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Model\User\AccountActivate;
 use App\User;
 use App\VerificationAttempt;
-use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
