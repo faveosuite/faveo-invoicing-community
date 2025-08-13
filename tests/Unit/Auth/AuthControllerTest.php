@@ -132,21 +132,24 @@ class AuthControllerTest extends TestCase
     }
 
     #[Test]
-    public function test_it_handles_maximum_email_verification_attempts()
+    public function test_it_handles_count_email_verification_attempts()
     {
+        \Mail::fake();
+
         $user = User::factory()->create();
-        VerificationAttempt::create([
-            'user_id' => $user->id,
-            'email_attempt' => 3,
-            'updated_at' => Carbon::now(),
-        ]);
 
         $request = new Request(['eid' => Crypt::encrypt($user->email)]);
 
-        $response = json_decode($this->authController->sendEmail($request)->getContent());
+        for ($i = 0; $i <= 4; $i++) {
+            json_decode($this->authController->sendEmail($request)->getContent(), 'GET');
+            AccountActivate::where('email', $user->email)->delete();
+        }
 
-        $expectedMessage = __('message.email_verification.max_attempts_exceeded', ['time' => '5 hours 59 minutes']);
-        $this->assertEquals($expectedMessage, $response->message);
+        $emailAttempts = VerificationAttempt::where('user_id', $user->id)->value('email_attempt');
+
+        $this->assertEquals(4, $emailAttempts);
+
+        \Mail::assertNothingSent();
     }
 
     #[Test]

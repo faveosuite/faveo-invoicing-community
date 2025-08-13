@@ -16,7 +16,7 @@ class BlockFailedVerifications
      */
     public function handle(Request $request, Closure $next, string $context = 'verify'): Response
     {
-        $userId = $request->session()->get('verification_user_id');
+        $userId = \Session::get('verification_user_id');
 
         if (! $userId) {
             return redirect('login');
