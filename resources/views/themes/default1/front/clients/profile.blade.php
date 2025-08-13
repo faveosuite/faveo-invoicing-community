@@ -772,6 +772,11 @@ input:checked + .slider:before {
             const errorBox = $('#error-message');
             const inputField = $('#google2fa_code');
 
+            inputField.off('input').on('input', function () {
+                inputField.css('border-color', '');
+                errorBox.hide();
+            });
+
             if (!code) {
                 errorBox.text("{{ __('message.auth_code_required') }}").show();
                 inputField.css('border-color', 'red'); // Change border color to red
@@ -806,9 +811,33 @@ input:checked + .slider:before {
                     const res = xhr.responseJSON || {};
                     const message = res.message || "{{ __('message.invalid_code_2fa') }}";
                     errorBox.text(message).show();
+                    inputField.css('border-color', 'red');
+                    inputField.val('');
                 }
             });
         });
+
+        // Focus the input when modal opens
+        $(document).on('shown.bs.modal', '#twoFactorPopupModalUser', function () {
+            $('#google2fa_code').val('').trigger('input').focus();
+        });
+
+        // Press Enter in the 2FA input -> trigger Verify button
+        $(document).on('keydown', '#google2fa_code', function (e) {
+            if (e.key === 'Enter' || e.keyCode === 13) {
+                e.preventDefault();
+                $('#verify2FAButton').trigger('click');
+            }
+        });
+
+       // Also allow pressing Enter anywhere in the modal
+        $(document).on('keydown', '#twoFactorPopupModalUser', function (e) {
+            if (e.key === 'Enter' || e.keyCode === 13) {
+                e.preventDefault();
+                $('#verify2FAButton').trigger('click');
+            }
+        });
+
         function submitPasswordChange(formData, form) {
             $.ajax({
                 url: '{{url('my-password')}}',

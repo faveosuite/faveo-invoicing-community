@@ -138,6 +138,7 @@ foreach($scripts as $script) {
    ->class('form-control form-control-lg text-4')
    ->id('username')
    ->attribute('autocomplete', 'off')
+   ->attribute('oninput', "this.value = this.value.toLowerCase()")
    ->style('height: calc(1.5em + 0.75rem + 2px);') !!}
                                 <div id="error-login-email"></div>
                             </div>

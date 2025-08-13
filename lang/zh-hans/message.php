@@ -2703,4 +2703,5 @@ return [
     '2fapopup_content' => '请输入您的2FA代码以验证身份后再更改密码',
     'auth_code_required' => '需要认证代码。',
     'valid_username' => '请输入有效的用户名',
+    'set_auth_invoicing' => '一切就绪。从现在开始，您将使用身份验证器应用程序登录您的 Faveo Invoicing 帐户。',
 ];

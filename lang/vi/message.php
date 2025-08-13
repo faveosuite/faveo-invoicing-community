@@ -2709,4 +2709,5 @@ return [
     '2fapopup_content' => 'Nhập mã 2FA của bạn để xác minh danh tính trước khi thay đổi mật khẩu',
     'auth_code_required' => 'Mã xác thực là bắt buộc.',
     'valid_username' => 'Vui lòng nhập tên người dùng hợp lệ',
+    'set_auth_invoicing' => 'Tất cả đã sẵn sàng. Từ bây giờ, bạn sẽ sử dụng ứng dụng Authenticator để đăng nhập vào tài khoản Faveo Invoicing của bạn.',
 ];
