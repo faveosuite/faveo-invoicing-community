@@ -103,18 +103,18 @@ class LoginController extends Controller
             'password1.required' => __('message.please_enter_password'),
         ]);
 
-        $rateLimit = rateLimitForKeyIp('login'.$request->input('email_username'), 5, 30, $request->ip());
+        // Find user by email or username
+        $loginInput = $request->input('email_username');
+        $password = $request->input('password1');
+        $user = User::where('email', $loginInput)
+            ->orWhere('user_name', $loginInput)
+            ->first();
+
+        $rateLimit = rateLimitForKeyIp('login'.$user->id, 5, 30, $request->ip());
 
         if ($rateLimit['status']) {
             return redirect()->back()->withErrors(__('validation.too_many_login_attempts', ['time' => $rateLimit['remainingTime']]));
         }
-
-        $loginInput = $request->input('email_username');
-        $password = $request->input('password1');
-        // Find user by email or username
-        $user = User::where('email', $loginInput)
-            ->orWhere('user_name', $loginInput)
-            ->first();
 
         if (! $user) {
             return redirect()->back()->withInput()->withErrors([

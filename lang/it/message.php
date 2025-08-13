@@ -2680,6 +2680,7 @@ return [
     '2fapopup_content' => 'Masukkan kode 2FA Anda untuk memverifikasi identitas Anda sebelum mengubah kata sandi Anda',
     'auth_code_required' => 'Kode autentikasi diperlukan.',
     'valid_username' => 'Inserisci un nome utente valido',
+    'set_auth_invoicing' => 'Sei pronto. Da ora in poi, utilizzerai l\'app Authenticator per accedere al tuo account Faveo Invoicing.',
 
     'auto_assign_success' => 'La configurazione dell’assegnazione automatica è stata aggiornata con successo.',
     'system_manager_settings' => 'Impostazioni del Gestore di Sistema',

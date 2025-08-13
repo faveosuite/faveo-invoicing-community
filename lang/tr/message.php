@@ -2716,4 +2716,5 @@ return [
     '2fapopup_content' => 'Şifrenizi değiştirmeden önce kimliğinizi doğrulamak için 2FA kodunuzu girin',
     'auth_code_required' => 'Doğrulama kodu gereklidir.',
     'valid_username' => 'Lütfen geçerli bir kullanıcı adı girin',
+    'set_auth_invoicing' => 'Her şey hazır. Artık Faveo Invoicing hesabınıza giriş yapmak için Authenticator uygulamasını kullanacaksınız.',
 ];

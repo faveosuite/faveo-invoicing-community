@@ -2705,4 +2705,5 @@ return [
     '2fapopup_content' => 'パスワードを変更する前に本人確認のために2FAコードを入力してください',
     'auth_code_required' => '認証コードが必要です。',
     'valid_username' => '有効なユーザー名を入力してください',
+    'set_auth_invoicing' => '準備完了です。今後、Faveo Invoicingアカウントにサインインする際は、Authenticatorアプリを使用してください。',
 ];

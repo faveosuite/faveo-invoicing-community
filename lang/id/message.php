@@ -2697,4 +2697,5 @@ return [
     '2fapopup_content' => 'Masukkan kode 2FA Anda untuk memverifikasi identitas Anda sebelum mengubah kata sandi Anda',
     'auth_code_required' => 'Kode autentikasi diperlukan.',
     'valid_username' => 'Silakan masukkan nama pengguna yang valid',
+    'set_auth_invoicing' => 'Semua sudah siap. Mulai sekarang, Anda akan menggunakan aplikasi Authenticator untuk masuk ke akun Faveo Invoicing Anda.',
 ];

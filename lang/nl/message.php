@@ -2651,6 +2651,7 @@ return [
     '2fapopup_content' => 'Voer uw 2FA-code in om uw identiteit te verifiëren voordat u uw wachtwoord wijzigt',
     'auth_code_required' => 'Authenticatiecode is vereist.',
     'valid_username' => 'Voer een geldige gebruikersnaam in',
+    'set_auth_invoicing' => 'Je bent helemaal klaar. Voortaan gebruik je de Authenticator-app om in te loggen op je Faveo Invoicing-account.',
 
     'auto_assign_success' => 'De instelling voor automatische toewijzing is succesvol bijgewerkt.',
     'system_manager_settings' => 'Systeembeheerder Instellingen',

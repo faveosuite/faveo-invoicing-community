@@ -2713,5 +2713,6 @@ return [
     '2fapopup_content' => 'Enter your 2FA code to verify your identity before changing your password',
     'auth_code_required' => 'Authentication code is required.',
     'valid_username' => 'Please enter a valid username',
+    'set_auth_invoicing' => 'You\'re all set. From now on, you\'ll use the Authenticator app to sign in to your Faveo Invoicing account.',
 
 ];

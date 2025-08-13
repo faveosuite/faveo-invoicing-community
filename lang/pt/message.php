@@ -2681,4 +2681,5 @@ return [
     '2fapopup_content' => 'Insira seu código 2FA para verificar sua identidade antes de alterar sua senha',
     'auth_code_required' => 'O código de autenticação é obrigatório.',
     'valid_username' => 'Por favor, insira um nome de usuário válido',
+    'set_auth_invoicing' => 'Tudo está pronto. A partir de agora, você usará o aplicativo Authenticator para fazer login na sua conta Faveo Invoicing.',
 ];
