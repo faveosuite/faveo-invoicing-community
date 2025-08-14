@@ -2704,4 +2704,5 @@ return [
     'auth_code_required' => '需要认证代码。',
     'valid_username' => '请输入有效的用户名',
     'set_auth_invoicing' => '一切就绪。从现在开始，您将使用身份验证器应用程序登录您的 Faveo Invoicing 帐户。',
+    'continue_verify_social_login' => '点击“Validate”以继续并确认您的身份',
 ];

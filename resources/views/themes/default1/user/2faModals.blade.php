@@ -68,7 +68,7 @@
                         <input type="hidden" name="user_password" id="user_password" value="">
                         <input type="hidden" name="login_type" id="login_type" value="social">
                         <h5>Hi {{$user->first_name}},</h5>
-                        <p><b>{{ __('message.continue_verify') }}</b></p>
+                        <p><b>{{ __('message.continue_verify_social_login') }}</b></p>
                     </form>
                 </div>
                 <div class="modal-footer d-flex">

@@ -2729,4 +2729,5 @@ return [
     'auth_code_required' => '인증 코드가 필요합니다.',
     'valid_username' => '유효한 사용자 이름을 입력하세요',
     'set_auth_invoicing' => '모든 준비가 완료되었습니다. 이제부터 Faveo Invoicing 계정에 로그인할 때 Authenticator 앱을 사용하게 됩니다.',
+    'continue_verify_social_login' => '계속 진행하려면 "Validate" 버튼을 클릭하여 본인 확인을 완료하세요',
 ];

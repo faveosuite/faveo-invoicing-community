@@ -2705,4 +2705,5 @@ return [
     '2fapopup_content' => 'Unesite svoj 2FA kod da biste potvrdili svoj identitet prije promjene lozinke',
     'auth_code_required' => 'Potrebno je unijeti kod za autentifikaciju.',
     'valid_username' => 'Bitte geben Sie einen gültigen Benutzernamen ein',
+    'continue_verify_social_login' => 'Klicken Sie auf "Validate", um fortzufahren und Ihre Identität zu bestätigen',
 ];

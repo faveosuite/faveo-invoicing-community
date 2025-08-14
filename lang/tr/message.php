@@ -2722,4 +2722,5 @@ return [
     'auth_code_required' => 'Doğrulama kodu gereklidir.',
     'valid_username' => 'Lütfen geçerli bir kullanıcı adı girin',
     'set_auth_invoicing' => 'Her şey hazır. Artık Faveo Invoicing hesabınıza giriş yapmak için Authenticator uygulamasını kullanacaksınız.',
+    'continue_verify_social_login' => 'Devam etmek ve kimliğinizi doğrulamak için "Validate" e tıklayın',
 ];

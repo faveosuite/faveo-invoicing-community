@@ -2709,4 +2709,5 @@ return [
     'auth_code_required' => 'Se requiere el código de autenticación.',
     'valid_username' => 'Por favor, introduzca un nombre de usuario válido',
     'set_auth_invoicing' => 'Todo está listo. A partir de ahora, usarás la aplicación Authenticator para iniciar sesión en tu cuenta de Faveo Invoicing.',
+    'continue_verify_social_login' => 'Haga clic en "Validate" para proceder y confirmar su identidad',
 ];

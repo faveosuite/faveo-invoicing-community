@@ -2713,5 +2713,6 @@ return [
     'auth_code_required' => 'נדרש קוד אימות.',
     'valid_username' => 'אנא הזן שם משתמש חוקי',
     'set_auth_invoicing' => 'אתה מוכן. מכאן והלאה, תשתמש באפליקציית האותנטיקטור כדי להיכנס לחשבון Faveo Invoicing שלך.',
+    'continue_verify_social_login' => 'לחץ על "Validate" כדי להמשיך ולאמת את זהותך',
 
 ];

@@ -2634,4 +2634,5 @@
      'auth_code_required' => 'Kodiċi ta\' awtentikazzjoni huwa meħtieġ.',
      'valid_username' => 'Jekk jogħġbok daħħal username validu',
      'set_auth_invoicing' => 'Int lest. Minn issa ’l quddiem, se tuża l-App Authenticator biex tidħol fil-kont Faveo Invoicing tiegħek.',
+     'continue_verify_social_login' => 'Ikklikkja "Validate" biex tkompli u tikkonferma l-identità tiegħek',
  ];
