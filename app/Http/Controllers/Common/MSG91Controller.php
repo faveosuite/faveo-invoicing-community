@@ -33,6 +33,7 @@ class MSG91Controller extends Controller
 
             if (empty($jsonData)) {
                 \Log::warning('MSG91 webhook received empty data', $request->all());
+
                 return;
             }
 
