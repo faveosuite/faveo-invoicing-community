@@ -24,7 +24,7 @@ class MSG91ControllerTest extends DBTestCase
     {
         $controller = new Msg91Controller();
 
-        $this->assertFalse($controller->validateThirdPartyRequest( 'invalid', 'invalid'));
+        $this->assertFalse($controller->validateThirdPartyRequest('invalid', 'invalid'));
     }
 
     public function test_validate_third_party_request_returns_true_when_app_and_api_key_exist()
