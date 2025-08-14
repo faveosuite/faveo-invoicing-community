@@ -460,12 +460,6 @@ class TenantController extends Controller
 
                 ];
 
-                \DB::table('free_trial_allowed')->insert([
-                    'user_id' => $userId,
-                    'product_id' => $order[0]->product()->value('id'),
-                    'domain' => $faveoCloud,
-                ]);
-
                 $this->prepareMessages($faveoCloud, $userEmail, true);
                 $mail->SendEmail($settings->email, $userEmail, $template->data, $subject, $replace, $type);
                 if (isset($result->reason) && $result->reason != '') {
