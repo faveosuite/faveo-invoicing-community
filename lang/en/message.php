@@ -2714,5 +2714,6 @@ return [
     'auth_code_required' => 'Authentication code is required.',
     'valid_username' => 'Please enter a valid username',
     'set_auth_invoicing' => 'You\'re all set. From now on, you\'ll use the Authenticator app to sign in to your Faveo Invoicing account.',
+    'continue_verify_social_login' => 'Click "Validate" to proceed and confirm your identity',
 
 ];

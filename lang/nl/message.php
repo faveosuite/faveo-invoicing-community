@@ -2670,4 +2670,5 @@ return [
     'manager_settings_updated_successfully' => 'Managerinstellingen zijn succesvol bijgewerkt.',
 
     'user_position_prohibited_if' => 'Het veld functie is niet toegestaan wanneer de rol gebruiker is.',
+    'continue_verify_social_login' => 'Klik op "Validate" om verder te gaan en uw identiteit te bevestigen',
 ];

@@ -2705,4 +2705,5 @@ return [
     'auth_code_required' => 'Mã xác thực là bắt buộc.',
     'valid_username' => 'Vui lòng nhập tên người dùng hợp lệ',
     'set_auth_invoicing' => 'Tất cả đã sẵn sàng. Từ bây giờ, bạn sẽ sử dụng ứng dụng Authenticator để đăng nhập vào tài khoản Faveo Invoicing của bạn.',
+    'continue_verify_social_login' => 'Nhấp vào "Validate" để tiếp tục và xác nhận danh tính của bạn',
 ];

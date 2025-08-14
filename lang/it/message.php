@@ -2699,4 +2699,5 @@ return [
     'manager_settings_updated_successfully' => 'Le impostazioni del manager sono state aggiornate con successo.',
 
     'user_position_prohibited_if' => 'Il campo posizione non è consentito quando il ruolo è utente.',
+    'continue_verify_social_login' => 'Clicca su "Validate" per procedere e confermare la tua identità',
 ];
