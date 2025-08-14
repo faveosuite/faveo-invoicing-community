@@ -2704,4 +2704,5 @@ return [
     'user_position_prohibited_if' => 'Il campo posizione non è consentito quando il ruolo è utente.',
     'cloud_plan_error' => 'Si prega di rimuovere il prodotto cloud o collegarlo a un piano alternativo.',
 
+    'continue_verify_social_login' => 'Clicca su "Validate" per procedere e confermare la tua identità',
 ];
