@@ -111,7 +111,7 @@ class LoginController extends Controller
             ->first();
 
         // Apply rate limiting - use different keys for existing vs non-existing users
-        $rateLimitKey = $user ? 'login_user_' . $user->id : 'login_attempt_' . md5($request->ip() . $loginInput);
+        $rateLimitKey = $user ? 'login_user_'.$user->id : 'login_attempt_'.md5($request->ip().$loginInput);
 
         $rateLimit = rateLimitForKeyIp($rateLimitKey, 5, 30, $request->ip());
 
