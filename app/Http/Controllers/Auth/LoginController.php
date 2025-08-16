@@ -110,7 +110,10 @@ class LoginController extends Controller
             ->orWhere('user_name', $loginInput)
             ->first();
 
-        $rateLimit = rateLimitForKeyIp('login'.$user->id, 5, 30, $request->ip());
+        // Apply rate limiting - use different keys for existing vs non-existing users
+        $rateLimitKey = $user ? 'login_user_' . $user->id : 'login_attempt_' . md5($request->ip() . $loginInput);
+
+        $rateLimit = rateLimitForKeyIp($rateLimitKey, 5, 30, $request->ip());
 
         if ($rateLimit['status']) {
             return redirect()->back()->withErrors(__('validation.too_many_login_attempts', ['time' => $rateLimit['remainingTime']]));

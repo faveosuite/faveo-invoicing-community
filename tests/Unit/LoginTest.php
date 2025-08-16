@@ -217,74 +217,6 @@ class LoginTest extends DBTestCase
         $this->assertAuthenticated();
     }
 
-    public function test_rate_limit_exceeded_redirects_with_error_message()
-    {
-        for ($i = 0; $i < 5; $i++) {
-            $response = $this->post('/login', [
-                'email_username' => 'nonexistentuser',
-                'password1' => 'wrongpassword',
-            ]);
-
-            $response->assertStatus(302);
-        }
-
-        // fifth attempt should trigger rate limit
-        $response = $this->post('/login', [
-            'email_username' => 'nonexistentuser',
-            'password1' => 'wrongpassword',
-        ]);
-
-        $response->assertStatus(302);
-    }
-
-    #[Group('postLogin')]
-    public function test_login_with_email()
-    {
-        $this->withoutMiddleware();
-        $user = User::factory()->create([
-            'email' => 'test@example.com',
-            'password' => bcrypt('password123'),
-        ]);
-
-        // Attempt login with email
-        $response = $this->post('/login', [
-            'email_username' => $user->email,
-            'password1' => 'password123',
-            'login' => [
-                'pot_field' => '',     // valid
-                'time_field' => encrypt(time() - 10), // valid
-            ],
-        ]);
-
-        // Assert successful login
-        $response->assertRedirect('/');
-        $response->assertSessionHasNoErrors();
-    }
-
-    #[Group('postLogin')]
-    public function test_login_with_username()
-    {
-        $this->withoutMiddleware();
-        $user = User::factory()->create([
-            'user_name' => 'testuser',
-            'password' => bcrypt('password123'),
-            'role' => 'admin',
-        ]);
-        // Attempt login with username
-        $response = $this->post('/login', [
-            'email_username' => $user->user_name,
-            'password1' => 'password123',
-            'login' => [
-                'pot_field' => '',     // valid
-                'time_field' => encrypt(time() - 10), // valid
-            ],
-        ]);
-
-        // Assert successful login
-        $response->assertRedirect('/client-dashboard');
-        $response->assertSessionHasNoErrors();
-    }
-
     #[Group('postLogin')]
     public function test_login_fails_with_invalid_credentials()
     {
@@ -302,5 +234,190 @@ class LoginTest extends DBTestCase
         ]);
 
         $response->assertStatus(302);
+    }
+
+    public function test_register_rate_limit_exceeded_redirects()
+    {
+        $this->withoutMiddleware();
+
+        $user = User::factory()->create([
+            'email' => 'test@example.com',
+            'password' => bcrypt('password123'),
+            'role' => 'admin'
+        ]);
+
+        StatusSetting::create([
+            'emailverification_status' => 1,
+            'msg91_status' => 0,
+            'v3_recaptcha_status' => 0,
+            'recaptcha_status' => 0,
+            'v3_v2_recaptcha_status' => 0
+        ]);
+
+        // Make 5 failed login attempts (assuming rate limit is 5)
+        for ($i = 0; $i < 5; $i++) {
+            $response = $this->post('/login', [
+                'email_username' => $user->email,
+                'password1' => 'wrong-password',
+                'login' => [
+                    'pot_field' => '',
+                    'time_field' => encrypt(time() - 10),
+                ],
+            ]);
+        }
+
+        // 6th attempt should be rate limited
+        $response = $this->post('/login', [
+            'email_username' => $user->email,
+            'password1' => 'wrong-password',
+            'login' => [
+                'pot_field' => '',
+                'time_field' => encrypt(time() - 10),
+            ],
+        ]);
+        $response->assertRedirect();
+        $response->assertSessionHasErrors();
+
+        // Check if error message contains rate limiting message
+        $this->assertTrue(session()->has('errors'));
+    }
+
+    public function test_rate_limiting_blocks_correct_password()
+    {
+        $this->withoutMiddleware();
+
+        $user = User::factory()->create([
+            'email' => 'test@example.com',
+            'password' => bcrypt('password123'),
+            'role' => 'admin'
+        ]);
+
+        StatusSetting::create([
+            'emailverification_status' => 1,
+            'msg91_status' => 0,
+            'v3_recaptcha_status' => 0,
+            'recaptcha_status' => 0,
+            'v3_v2_recaptcha_status' => 0
+        ]);
+
+        // Trigger rate limiting with wrong password
+        for ($i = 0; $i < 5; $i++) {
+            $this->post('/login', [
+                'email_username' => $user->email,
+                'password1' => 'wrong-password',
+                'login' => [
+                    'pot_field' => '',
+                    'time_field' => encrypt(time() - 10),
+                ],
+            ]);
+        }
+
+        // Try with correct password - should still be blocked
+        $response = $this->post('/login', [
+            'email_username' => $user->email,
+            'password1' => 'password123', // Correct password
+            'login' => [
+                'pot_field' => '',
+                'time_field' => encrypt(time() - 10),
+            ],
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHasErrors();
+        $this->assertGuest(); // User should not be authenticated
+    }
+
+
+    #[Group('postLogin')]
+    public function test_login_with_email()
+    {
+        $this->withoutMiddleware();
+        $user = User::factory()->create([
+            'email' => 'test@example.com',
+            'password' => bcrypt('password123'),
+            'role' => 'admin'
+        ]);
+
+        // Attempt login with email
+        $response = $this->post('/login', [
+            'email_username' => $user->email,
+            'password1' => 'password123',
+            'login' => [
+                'pot_field' => '',     // valid
+                'time_field' => encrypt(time() - 10), // valid
+            ],
+        ]);
+
+        $response->assertRedirect('/');
+        $response->assertSessionHasNoErrors();
+    }
+
+    #[Group('postLogin')]
+    public function test_login_with_username()
+    {
+        $this->withoutMiddleware();
+        $user = User::factory()->create([
+            'user_name' => 'testuser',
+            'password' => bcrypt('password123'),
+            'role' => 'user',
+        ]);
+        // Attempt login with username
+        $response = $this->post('/login', [
+            'email_username' => $user->user_name,
+            'password1' => 'password123',
+            'login' => [
+                'pot_field' => '',
+                'time_field' => encrypt(time() - 10),
+            ],
+        ]);
+
+        $response->assertRedirect('/client-dashboard');
+        $response->assertSessionHasNoErrors();
+    }
+
+    public function test_login_rate_limiting_with_username()
+    {
+        $this->withoutMiddleware();
+
+        $user = User::factory()->create([
+            'email' => 'test@example.com',
+            'user_name' => 'testuser',
+            'password' => bcrypt('password123'),
+            'role' => 'admin'
+        ]);
+
+        StatusSetting::create([
+            'emailverification_status' => 1,
+            'msg91_status' => 0,
+            'v3_recaptcha_status' => 0,
+            'recaptcha_status' => 0,
+            'v3_v2_recaptcha_status' => 0
+        ]);
+
+        // Make failed attempts with username
+        for ($i = 0; $i < 5; $i++) {
+            $response = $this->post('/login', [
+                'email_username' => $user->user_name,
+                'password1' => 'wrong-password',
+                'login' => [
+                    'pot_field' => '',
+                    'time_field' => encrypt(time() - 10),
+                ],
+            ]);
+        }
+
+        // Next attempt should be rate limited
+        $response = $this->post('/login', [
+            'email_username' => $user->user_name,
+            'password1' => 'password123',
+            'login' => [
+                'pot_field' => '',
+                'time_field' => encrypt(time() - 10),
+            ],
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHasErrors();
+        $this->assertGuest();
     }
 }
