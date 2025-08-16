@@ -238,7 +238,7 @@ class LoginTest extends DBTestCase
         $user = User::factory()->create([
             'email' => 'test@example.com',
             'password' => bcrypt('password123'),
-            'role' => 'admin'
+            'role' => 'admin',
         ]);
 
         StatusSetting::create([
@@ -246,7 +246,7 @@ class LoginTest extends DBTestCase
             'msg91_status' => 0,
             'v3_recaptcha_status' => 0,
             'recaptcha_status' => 0,
-            'v3_v2_recaptcha_status' => 0
+            'v3_v2_recaptcha_status' => 0,
         ]);
 
         // Make 5 failed login attempts (assuming rate limit is 5)
@@ -284,7 +284,7 @@ class LoginTest extends DBTestCase
         $user = User::factory()->create([
             'email' => 'test@example.com',
             'password' => bcrypt('password123'),
-            'role' => 'admin'
+            'role' => 'admin',
         ]);
 
         StatusSetting::create([
@@ -292,7 +292,7 @@ class LoginTest extends DBTestCase
             'msg91_status' => 0,
             'v3_recaptcha_status' => 0,
             'recaptcha_status' => 0,
-            'v3_v2_recaptcha_status' => 0
+            'v3_v2_recaptcha_status' => 0,
         ]);
 
         // Trigger rate limiting with wrong password
@@ -322,7 +322,6 @@ class LoginTest extends DBTestCase
         $this->assertGuest(); // User should not be authenticated
     }
 
-
     #[Group('postLogin')]
     public function test_login_with_email()
     {
@@ -330,7 +329,7 @@ class LoginTest extends DBTestCase
         $user = User::factory()->create([
             'email' => 'test@example.com',
             'password' => bcrypt('password123'),
-            'role' => 'admin'
+            'role' => 'admin',
         ]);
 
         // Attempt login with email
@@ -378,7 +377,7 @@ class LoginTest extends DBTestCase
             'email' => 'test@example.com',
             'user_name' => 'testuser',
             'password' => bcrypt('password123'),
-            'role' => 'admin'
+            'role' => 'admin',
         ]);
 
         StatusSetting::create([
@@ -386,7 +385,7 @@ class LoginTest extends DBTestCase
             'msg91_status' => 0,
             'v3_recaptcha_status' => 0,
             'recaptcha_status' => 0,
-            'v3_v2_recaptcha_status' => 0
+            'v3_v2_recaptcha_status' => 0,
         ]);
 
         // Make failed attempts with username
