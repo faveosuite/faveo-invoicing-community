@@ -375,7 +375,7 @@ class ClientController extends AdvanceSearchController
             //for display
             $timezones = array_column($display, 'name', 'id');
 
-           $state = getStateByCode($user->country, $user->state);
+            $state = getStateByCode($user->country, $user->state);
 
             $users = User::select('id', 'first_name', 'last_name', 'email', 'position')
                 ->where('role', 'admin')

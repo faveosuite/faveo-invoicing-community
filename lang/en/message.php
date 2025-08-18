@@ -2696,7 +2696,6 @@ return [
     'no_matching_plans' => 'No plans are available for your selected criteria.',
     'order_no_active_plan' => 'No active plan is associated with this order.',
 
-
     'auto_assign_success' => 'Auto assignment setting updated successfully.',
     'system_manager_settings' => 'System Manager Settings',
     'enable_account_manager' => 'Enable Auto Assignment for Account Managers',
