@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Product\ProductController;
 use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
-use App\Model\Payment\Period;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\Product;
@@ -206,7 +205,7 @@ class TemplateController extends Controller
     {
         try {
             $product = Product::find($id);
-            if (!$product || $product->add_to_contact == 1) {
+            if (! $product || $product->add_to_contact == 1) {
                 return '';
             }
 
@@ -230,11 +229,11 @@ class TemplateController extends Controller
             }
 
             $planClass = ($plansData && $product->status != 1) ? 'stylePlan' : 'planhide';
-            $planForm = '<select name="subscription" class="' . $planClass . '">' . $planOptions . '</select>';
+            $planForm = '<select name="subscription" class="'.$planClass.'">'.$planOptions.'</select>';
 
             $form = html()->form('GET', $url)->open()
-                . $planForm
-                . html()->input('hidden', 'id')->value($id);
+                .$planForm
+                .html()->input('hidden', 'id')->value($id);
 
             return $form;
         } catch (\Exception $ex) {
@@ -268,10 +267,10 @@ class TemplateController extends Controller
                 }
             }
 
-            if (!empty($prices)) {
+            if (! empty($prices)) {
                 $minPrice = min($prices);
                 $formattedPrice = currencyFormat($minPrice, $currency);
-                $cost = '<span class="price-unit">' . $symbol . '</span>' . $formattedPrice;
+                $cost = '<span class="price-unit">'.$symbol.'</span>'.$formattedPrice;
             }
 
             return $cost;
@@ -306,7 +305,7 @@ class TemplateController extends Controller
 
             // Cache product outside loop to avoid repeated queries
             $product = Product::find($id);
-            if (!$product) {
+            if (! $product) {
                 return $result;
             }
 
@@ -317,7 +316,7 @@ class TemplateController extends Controller
                 $currency = $currencyAndSymbol['currency'];
                 $planData = $currencyAndSymbol['plan'];
 
-                if (!$planData || ($planData->add_price ?? 0) <= 0) {
+                if (! $planData || ($planData->add_price ?? 0) <= 0) {
                     continue;
                 }
 
@@ -330,7 +329,7 @@ class TemplateController extends Controller
                 $months = $plan->period ? $plan->period->name : '';
 
                 $includePrice =
-                    (!in_array($product->id, $cloudPopupProducts)) ||
+                    (! in_array($product->id, $cloudPopupProducts)) ||
                     (in_array($product->id, $cloudPopupProducts) && $cost != 0);
 
                 if ($includePrice) {
@@ -375,7 +374,7 @@ class TemplateController extends Controller
 
             foreach ($plans as $plan) {
                 $planDetails = userCurrencyAndPrice('', $plan);
-                if (!$planDetails || ($planDetails['plan']->add_price ?? 0) <= 0) {
+                if (! $planDetails || ($planDetails['plan']->add_price ?? 0) <= 0) {
                     continue;
                 }
                 $cost = rounding($planDetails['plan']->add_price); // Get price and round it
