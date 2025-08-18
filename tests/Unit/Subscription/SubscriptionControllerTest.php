@@ -137,7 +137,7 @@ class SubscriptionControllerTest extends DBTestCase
             ['id' => 1],
             ['stripe_secret' => 'sk_test_FIPEe0BihQ4Rn2exN1BhOotg',
                 'rzp_key' => 'rzp_test_fNDuvutBRXJLkQ',
-                'rzp_secret' => 'ObVJAj8L2e7V9RLOQkcdLtSw'
+                'rzp_secret' => 'ObVJAj8L2e7V9RLOQkcdLtSw',
             ]);
 
         $user = User::factory()->create(['id' => mt_rand(1, 999), 'role' => 'user', 'country' => 'IN']);
@@ -154,7 +154,7 @@ class SubscriptionControllerTest extends DBTestCase
             'product_id' => $product->id,
             'version' => 'v3.0.0',
             'is_subscribed' => '1',
-            'autoRenew_status' => '1'
+            'autoRenew_status' => '1',
         ]);
 
         $unitCost = 1000;
@@ -179,7 +179,7 @@ class SubscriptionControllerTest extends DBTestCase
                 ->andReturn([
                     'generateLicenseExpiryDate' => 1,
                     'generateUpdatesxpiryDate' => 1,
-                    'generateSupportExpiryDate' => 1
+                    'generateSupportExpiryDate' => 1,
                 ]);
         });
 
@@ -200,15 +200,15 @@ class SubscriptionControllerTest extends DBTestCase
             $plan, $subscription, $invoice, $order, $user, $cost, $end
         );
 
-        $this->assertDatabaseHas('invoices',[
+        $this->assertDatabaseHas('invoices', [
             'id' => $invoice->id,
-            'status' => 'success'
+            'status' => 'success',
         ]);
 
         $this->assertDatabaseHas('subscriptions', [
             'id' => $subscription->id,
             'is_subscribed' => '1',
-            'autoRenew_status' => '3'
+            'autoRenew_status' => '3',
         ]);
     }
 
