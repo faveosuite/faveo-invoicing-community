@@ -928,11 +928,7 @@
                     <div id="response-agent"></div>
                     <div id="failure-agent"></div>
                     <?php
-                    $country_idagnt = \App\Model\Common\Country::where('country_code_char2', \Auth::user()->country)->value('country_id');
-                    $ExistingPlanPirce= \App\Model\Payment\PlanPrice::where('plan_id',$planIdOld)->where('currency',getCurrencyForClient(\Auth::user()->country))->where('country_id',$country_idagnt)->latest()->value('add_price');
-                    if(!$ExistingPlanPirce){
-                        $ExistingPlanPirce= \App\Model\Payment\PlanPrice::where('plan_id',$planIdOld)->where('currency',getCurrencyForClient(\Auth::user()->country))->where('country_id',0)->latest()->value('add_price');
-                    }
+                    $ExistingPlanPirce= \App\Model\Payment\PlanPrice::where('plan_id',$planIdOld)->where('currency',getCurrencyForClient(\Auth::user()->country))->latest()->value('add_price');
                     ?>
 
                     <p class="text-black"><strong>{{ __('message.current_no_agents')}}</strong> {{$latestAgents}}</p>

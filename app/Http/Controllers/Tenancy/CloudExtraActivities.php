@@ -466,24 +466,16 @@ class CloudExtraActivities extends Controller
             $planOld = $productOld->planRelation->find($planIdOld);
             $currencyOld = userCurrencyAndPrice('', $planOld);
             $countryid = \App\Model\Common\Country::where('country_code_char2', \Auth::user()->country)->value('country_id');
-            $base_priceOld = PlanPrice::where('plan_id', $planIdOld)->where('currency', $currencyOld['currency'])->where('country_id', $countryid)->value('add_price');
-            if (! $base_priceOld) {
-                $base_priceOld = PlanPrice::where('plan_id', $planIdOld)->where('currency', $currencyOld['currency'])->where('country_id', 0)->value('add_price') * $oldAgents;
-            } else {
-                $base_priceOld = $base_priceOld * $oldAgents;
-            }
+            $base_priceOld = PlanPrice::where('plan_id', $planIdOld)->where('currency', $currencyOld['currency'])->value('add_price');
+            $base_priceOld = $base_priceOld * $oldAgents;
 
             $product_id_new = Plan::where('id', $planIdNew)->pluck('product')->first();
             $planDaysNew = Plan::where('id', $planIdNew)->pluck('days')->first();
             $productNew = Product::find($product_id_new);
             $planNew = $productNew->planRelation->find($planIdNew);
             $currencyNew = userCurrencyAndPrice('', $planNew);
-            $base_price_new = PlanPrice::where('plan_id', $planIdNew)->where('currency', $currencyNew['currency'])->where('country_id', $countryid)->value('add_price');
-            if (! $base_price_new) {
-                $base_price_new = PlanPrice::where('plan_id', $planIdNew)->where('currency', $currencyNew['currency'])->where('country_id', 0)->value('add_price') * $newAgents;
-            } else {
-                $base_price_new = $base_price_new * $newAgents;
-            }
+            $base_price_new = PlanPrice::where('plan_id', $planIdNew)->where('currency', $currencyNew['currency'])->value('add_price');
+            $base_price_new = $base_price_new * $newAgents;
 
             \Session::put('upgradeProductId', $product_id_new);
             \Session::put('plan', $planIdNew);
@@ -1050,24 +1042,17 @@ class CloudExtraActivities extends Controller
             $currencyOld = userCurrencyAndPrice('', $planOld);
             $countryid = \App\Model\Common\Country::where('country_code_char2', \Auth::user()->country)->value('country_id');
 
-            $base_priceOld = PlanPrice::where('plan_id', $planIdOld)->where('currency', $currencyOld['currency'])->where('country_id', $countryid)->value('add_price');
-            if (! $base_priceOld) {
-                $base_priceOld = PlanPrice::where('plan_id', $planIdOld)->where('currency', $currencyOld['currency'])->where('country_id', 0)->value('add_price') * $oldAgents;
-            } else {
-                $base_priceOld = $base_priceOld * $oldAgents;
-            }
+            $base_priceOld = PlanPrice::where('plan_id', $planIdOld)->where('currency', $currencyOld['currency'])->value('add_price');
+
+            $base_priceOld = $base_priceOld * $oldAgents;
 
             $product_id_new = Plan::where('id', $planIdNew)->pluck('product')->first();
             $planDaysNew = Plan::where('id', $planIdNew)->pluck('days')->first();
             $productNew = Product::find($product_id_new);
             $planNew = $productNew->planRelation->find($planIdNew);
             $currencyNew = userCurrencyAndPrice('', $planNew);
-            $base_price_new = PlanPrice::where('plan_id', $planIdNew)->where('currency', $currencyNew['currency'])->where('country_id', $countryid)->value('add_price');
-            if (! $base_price_new) {
-                $base_price_new = PlanPrice::where('plan_id', $planIdNew)->where('currency', $currencyNew['currency'])->where('country_id', 0)->value('add_price') * $newAgents;
-            } else {
-                $base_price_new = $base_price_new * $newAgents;
-            }
+            $base_price_new = PlanPrice::where('plan_id', $planIdNew)->where('currency', $currencyNew['currency'])->value('add_price');
+            $base_price_new = $base_price_new * $newAgents;
 
             if ($base_price_new > $base_priceOld) {
                 $variables = $this->displayPriceNewGreaterThanOld($ends_at, $base_price_new, $base_priceOld, $planDaysNew, $planDaysOld);
@@ -1222,11 +1207,8 @@ class CloudExtraActivities extends Controller
             $ends_at = Subscription::where('order_id', $orderId)->value('ends_at');
             $countryid = \App\Model\Common\Country::where('country_code_char2', \Auth::user()->country)->value('country_id');
 
-            $base_price = PlanPrice::where('plan_id', $planId)->where('currency', $currency['currency'])->where('country_id', $countryid)->value('add_price');
+            $base_price = PlanPrice::where('plan_id', $planId)->where('currency', $currency['currency'])->value('add_price');
 
-            if (! $base_price) {
-                $base_price = PlanPrice::where('plan_id', $planId)->where('currency', $currency['currency'])->where('country_id', 0)->value('add_price');
-            }
             if (empty($newAgents)) {
                 return ['pricePerAgent' => currencyFormat($base_price, $currency['currency'], true), 'totalPrice' => 0, 'priceToPay' => 0];
             }

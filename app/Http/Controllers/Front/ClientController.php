@@ -999,26 +999,18 @@ class ClientController extends BaseClientController
      */
     private function planDetails($planIds, $countryids, $userCountry, $plans, $product)
     {
+        $currency = getCurrencyForClient($userCountry);
+
         $renewalPrices = \App\Model\Payment\PlanPrice::whereIn('plan_id', $planIds)
-            ->where('country_id', $countryids->country_id)
-            ->where('currency', getCurrencyForClient($userCountry))
+            ->where('currency', $currency)
             ->latest()
             ->pluck('renew_price', 'plan_id')
             ->toArray();
 
-        if (empty($renewalPrices)) {
-            $renewalPrices = \App\Model\Payment\PlanPrice::whereIn('plan_id', $planIds)
-                ->where('country_id', 0)
-                ->where('currency', getCurrencyForClient($userCountry))
-                ->latest()
-                ->pluck('renew_price', 'plan_id')
-                ->toArray();
-        }
-
         foreach ($plans as $planId => $planName) {
             if (isset($renewalPrices[$planId])) {
                 if (in_array($product->id, cloudPopupProducts())) {
-                    $plans[$planId] .= ' (Plan price-per agent: '.currencyFormat($renewalPrices[$planId], getCurrencyForClient($userCountry), true).')';
+                    $plans[$planId] .= ' (Plan price-per agent: '.currencyFormat($renewalPrices[$planId], $currency, true).')';
                 }
             }
         }

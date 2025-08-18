@@ -270,7 +270,8 @@ class TemplateController extends Controller
             if (! empty($prices)) {
                 $minPrice = min($prices);
                 $formattedPrice = currencyFormat($minPrice, $currency);
-                $cost = '<span class="price-unit">'.$symbol.'</span>'.$formattedPrice;
+                $amountOnly = trim(str_replace($symbol, '', $formattedPrice));
+                $cost = '<span class="price-unit">'.$symbol.'</span>'.$amountOnly;
             }
 
             return $cost;
