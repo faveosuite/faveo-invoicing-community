@@ -688,7 +688,7 @@ class PageController extends Controller
         foreach ($plans as $plan) {
             $currency = userCurrencyAndPrice('', $plan);
 
-            if (!$currency || !$plan->planPrice) {
+            if (! $currency || ! $plan->planPrice) {
                 continue;
             }
 
@@ -698,13 +698,13 @@ class PageController extends Controller
                 ->pluck('offer_price')
                 ->first();
 
-            if (!$offer_price) {
+            if (! $offer_price) {
                 continue;
             }
 
-            if (in_array((int)$plan->days, [30, 31])) {
+            if (in_array((int) $plan->days, [30, 31])) {
                 $offerprices['30_days'] = $offer_price;
-            } elseif (in_array((int)$plan->days, [365, 366])) {
+            } elseif (in_array((int) $plan->days, [365, 366])) {
                 $offerprices['365_days'] = $offer_price;
             }
         }
@@ -726,7 +726,7 @@ class PageController extends Controller
             foreach ($plans as $plan) {
                 $planDetails = userCurrencyAndPrice('', $plan);
 
-                if (!$planDetails || ($planDetails['plan']->add_price ?? 0) <= 0) {
+                if (! $planDetails || ($planDetails['plan']->add_price ?? 0) <= 0) {
                     continue;
                 }
 
@@ -735,20 +735,18 @@ class PageController extends Controller
                     $prices[] = $price;
                     $symbol = $planDetails['symbol'];
                     $currency = $planDetails['currency'];
-                }
-
-                elseif (!$product->status && !in_array($product->id, cloudPopupProducts())) {
+                } elseif (! $product->status && ! in_array($product->id, cloudPopupProducts())) {
                     $prices[] = $planDetails['plan']->add_price;
                     $symbol = $planDetails['symbol'];
                     $currency = $planDetails['currency'];
                 }
             }
 
-            if (!empty($prices)) {
+            if (! empty($prices)) {
                 $minPrice = min($prices); // Minimal price from valid candidates
                 $formatted = currencyFormat($minPrice, $currency);
                 $priceStr = str_replace($symbol, '', $formatted);
-                $cost = '<span class="price-unit" id="' . $planId . '">' . $symbol . '</span>' . $priceStr;
+                $cost = '<span class="price-unit" id="'.$planId.'">'.$symbol.'</span>'.$priceStr;
             }
 
             return $cost;

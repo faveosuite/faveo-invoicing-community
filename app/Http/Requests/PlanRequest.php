@@ -20,13 +20,13 @@ class PlanRequest extends FormRequest
             'currency' => 'required|array',
 
             // Other arrays must match currency count
-            'add_price'   => 'required|array|array_size_equals:currency',
+            'add_price' => 'required|array|array_size_equals:currency',
             'renew_price' => 'required|array|array_size_equals:currency',
             'offer_price' => 'nullable|array|array_size_equals:currency',
 
             // Element-level checks
-            'currency.*'    => 'required_with:currency',
-            'add_price.*'   => 'required_with:currency|integer|min:0|max:10000000',
+            'currency.*' => 'required_with:currency',
+            'add_price.*' => 'required_with:currency|integer|min:0|max:10000000',
             'renew_price.*' => 'required_with:currency|integer|min:0|max:1000000',
             'offer_price.*' => ['nullable', 'numeric', 'between:0,100'],
 
