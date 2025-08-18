@@ -468,21 +468,16 @@ class PageController extends Controller
     public function pageTemplates(?int $templateid = null, int $groupid)
     {
         try {
-            $productsHightlight = Product::wherehighlight(1)->get();
-
-            // $data = PricingTemplate::findorFail($templateid)->data;
             $headline = ProductGroup::findorFail($groupid)->headline;
             $tagline = ProductGroup::findorFail($groupid)->tagline;
             $currencyAndSymbol = '';
             if (! \Auth::user()) {
                 $location = getLocation();
                 $country = findCountryByGeoip($location['iso_code']);
-                $countryids = \App\Model\Common\Country::where('country_code_char2', $country)->value('country_id');
                 $currencyAndSymbol = getCurrencyForClient($country);
             }
             if (\Auth::user()) {
                 $country = \DB::table('users')->where('id', \Auth::user()->id)->value('country');
-                $countryids = \App\Model\Common\Country::where('country_code_char2', $country)->value('country_id');
                 $currencyAndSymbol = getCurrencyForClient($country);
             }
             $productsRelatedToGroup = Product::with([
@@ -683,7 +678,7 @@ class PageController extends Controller
 
     public function getOfferprice(int $productid)
     {
-        $plans = Plan::where('product', $productid)->get();
+        $plans = Plan::with(['planPrice'])->where('product', $productid)->get();
 
         $offerprices = [
             '30_days' => null,
@@ -692,11 +687,24 @@ class PageController extends Controller
 
         foreach ($plans as $plan) {
             $currency = userCurrencyAndPrice('', $plan);
-            $offer_price = PlanPrice::where('plan_id', $plan->id)->where('currency', $currency)->value('offer_price');
 
-            if ($plan->days == '30' || $plan->days == '31') {
+            if (!$currency || !$plan->planPrice) {
+                continue;
+            }
+
+            // Get offer_price directly from relation for matching currency
+            $offer_price = $plan->planPrice
+                ->where('currency', $currency['currency'])
+                ->pluck('offer_price')
+                ->first();
+
+            if (!$offer_price) {
+                continue;
+            }
+
+            if (in_array((int)$plan->days, [30, 31])) {
                 $offerprices['30_days'] = $offer_price;
-            } elseif ($plan->days == '365' || $plan->days == '366') {
+            } elseif (in_array((int)$plan->days, [365, 366])) {
                 $offerprices['365_days'] = $offer_price;
             }
         }
@@ -706,33 +714,41 @@ class PageController extends Controller
 
     public function YearlyAmount($id)
     {
-        $countryCheck = true;
         try {
-            $cost = 'Free';
-            $plans = Plan::where('product', $id)->get();
             $product = Product::find($id);
-            $offer = $this->getOfferprice($id);
-
+            $plans = Plan::where('product', $id)->get();
             $planId = Plan::where('product', $id)->pluck('id')->first();
+            $cost = 'Free';
             $prices = [];
+            $symbol = '';
+            $currency = '';
+
             foreach ($plans as $plan) {
-                if ($plan->days == 365 || $plan->days == 366) {
-                    $planDetails = userCurrencyAndPrice('', $plan);
-                    $prices[] = ($product->status) ? round($planDetails['plan']->add_price / 12) : $planDetails['plan']->add_price;
-                    $prices[] .= $planDetails['symbol'];
-                    $prices[] .= $planDetails['currency'];
-                } elseif (! $product->status && ! in_array($product->id, cloudPopupProducts())) {
-                    $planDetails = userCurrencyAndPrice('', $plan);
-                    $prices[] = $planDetails['plan']->add_price;
-                    $prices[] .= $planDetails['symbol'];
-                    $prices[] .= $planDetails['currency'];
+                $planDetails = userCurrencyAndPrice('', $plan);
+
+                if (!$planDetails || ($planDetails['plan']->add_price ?? 0) <= 0) {
+                    continue;
                 }
 
-                if (! empty($prices)) {
-                    $format = currencyFormat(min([$prices[0]]), $code = $prices[2]);
-                    $finalPrice = str_replace($prices[1], '', $format);
-                    $cost = '<span class="price-unit" id="'.$planId.'">'.$prices[1].'</span>'.$finalPrice;
+                if ($plan->days == 365 || $plan->days == 366) {
+                    $price = ($product->status) ? round($planDetails['plan']->add_price / 12) : $planDetails['plan']->add_price;
+                    $prices[] = $price;
+                    $symbol = $planDetails['symbol'];
+                    $currency = $planDetails['currency'];
                 }
+
+                elseif (!$product->status && !in_array($product->id, cloudPopupProducts())) {
+                    $prices[] = $planDetails['plan']->add_price;
+                    $symbol = $planDetails['symbol'];
+                    $currency = $planDetails['currency'];
+                }
+            }
+
+            if (!empty($prices)) {
+                $minPrice = min($prices); // Minimal price from valid candidates
+                $formatted = currencyFormat($minPrice, $currency);
+                $priceStr = str_replace($symbol, '', $formatted);
+                $cost = '<span class="price-unit" id="' . $planId . '">' . $symbol . '</span>' . $priceStr;
             }
 
             return $cost;

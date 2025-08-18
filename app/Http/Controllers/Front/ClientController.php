@@ -692,7 +692,11 @@ class ClientController extends BaseClientController
                                      <i class="fa fa-eye" data-toggle="tooltip" data-placement="top" title="'.__('message.click_here_view').'"></i>
                                      </a>';
                                 }
-                                $plan = Plan::where('product', $model->product_id)->value('id');
+                                $plan = Plan::where('product', $model->product_id)
+                                    ->whereHas('planPrice', function ($query) {
+                                        $query->where('currency', getCurrencyForClient(\Auth::user()->country));
+                                    })
+                                    ->value('id');
                                 $whatIsSub = Subscription::where('order_id', $model->id)->value('plan_id');
                                 $planName = Plan::where('id', $whatIsSub)->value('name');
                                 $price = PlanPrice::where('plan_id', $plan)->where('currency', getCurrencyForClient(\Auth::user()->country))->value('renew_price');
