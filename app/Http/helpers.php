@@ -368,7 +368,7 @@ function getCurrencyForClient($countryCode)
         $query->where('status', 1);
     }])->where('country_code_char2', $countryCode)->first();
 
-    return $country->currency->code ?? Setting::value('default_currency');
+    return $country && isset($country->currency) ? $country->currency->code : Setting::value('default_currency');
 }
 
 function currencyFormat($amount = null, $currency = null, $includeSymbol = true, $shouldRound = true)

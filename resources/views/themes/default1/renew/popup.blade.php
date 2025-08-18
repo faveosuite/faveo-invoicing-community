@@ -215,7 +215,7 @@
             shouldFetchPlanCost = false;
 
             const user = $('[name="user"]').val();
-            agents =   $('#agents{{ $id }}').val() ?? agents;
+            agents =   $('#agents{{ $id }}').val() || agents;
 
             $('.loader-wrapper').show();
             $('.overlay').show();

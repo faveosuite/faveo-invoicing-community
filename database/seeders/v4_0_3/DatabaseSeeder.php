@@ -39,8 +39,8 @@ class DatabaseSeeder extends Seeder
                 'code' => $currency['code'],
                 'name' => $currency['name'],
                 'symbol' => $currency['symbol'],
-                'dashboard_currency' => $currency['code'] === '' ? 1 : 0,
-                'status' => $currency['code'] === '' ? 1 : 0,
+                'dashboard_currency' => $currency['code'] === 'USD' ? 1 : 0,
+                'status' => $currency['code'] === 'USD' ? 1 : 0,
             ]);
         }
 

@@ -63,7 +63,7 @@ class SubscriptionControllerTest extends DBTestCase
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
             'product' => 'Helpdesk Advance', 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, ]);
         $permissions = 'No Permissions';
-        $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
+        $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Helpdesk 1 year', 'product' => $product->id, 'days' => 365]);
         $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id, 'version' => 'v6.0.0', 'update_ends_at' => $date]);
         $controller = $this->instantiateDependencies();
         $response = (new SubscriptionController($controller))->getOnDayExpiryInfoSubs();
@@ -83,7 +83,7 @@ class SubscriptionControllerTest extends DBTestCase
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
             'product' => 'Helpdesk Advance', 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, ]);
         $permissions = 'No Permissions';
-        $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
+        $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Helpdesk 1 year', 'product' => $product->id, 'days' => 365]);
         $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id, 'version' => 'v6.0.0', 'update_ends_at' => $date]);
         $controller = $this->instantiateDependencies();
         $response = (new SubscriptionController($controller))->getOnDayExpiryInfoSubs();
@@ -222,7 +222,7 @@ class SubscriptionControllerTest extends DBTestCase
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
             'product' => 'Helpdesk Advance', 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, ]);
         $subscription = Subscription::create(['order_id' => $order->id, 'product_id' => $product->id, 'version' => 'v3.0.0', 'is_subscribed' => '1', 'autoRenew_status' => '1']);
-        $plan = Plan::create(['name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
+        $plan = Plan::create(['name' => 'Helpdesk 1 year', 'product' => $product->id, 'days' => 365]);
         $unitCost = 1000;
         $currency = 'INR';
         $cost = 10;
