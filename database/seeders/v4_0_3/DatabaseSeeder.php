@@ -39,8 +39,8 @@ class DatabaseSeeder extends Seeder
                 'code' => $currency['code'],
                 'name' => $currency['name'],
                 'symbol' => $currency['symbol'],
-                'dashboard_currency' => 0,
-                'status' => 0,
+                'dashboard_currency' => $currency['code'] === '' ? 1 : 0,
+                'status' => $currency['code'] === '' ? 1 : 0,
             ]);
         }
 
@@ -58,6 +58,7 @@ class DatabaseSeeder extends Seeder
                 'emoji' => $country['emoji'],
                 'emojiU' => $country['emojiU'],
                 'currency_id' => $country['currency_id'],
+                'status' =>  $country['country_code_char2'] === 'AQ' ? 0 : 1, // Antarctica is not active by default
             ]);
         }
 

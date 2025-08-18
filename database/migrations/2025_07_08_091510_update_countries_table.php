@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string('emoji', 191)->nullable();
             $table->string('emojiU', 191)->nullable();
             $table->unsignedInteger('currency_id');
+            $table->boolean('status')->default(true);
             $table->foreign('currency_id')->references('id')->on('currencies')->onDelete('cascade');
             $table->timestamps();
         });

@@ -3,6 +3,7 @@
 namespace App\Model\Payment;
 
 use App\BaseModel;
+use Illuminate\Database\Eloquent\Builder;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -19,6 +20,15 @@ class Currency extends BaseModel
     protected static $logAttributes = ['code', 'symbol', 'name', 'status'];
 
     protected static $logOnlyDirty = true;
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope('active_country', function (Builder $builder) {
+            $builder->whereHas('country', function ($query) {
+                $query->where('status', true);
+            });
+        });
+    }
 
     public function getDescriptionForEvent(string $eventName): string
     {
