@@ -80,7 +80,7 @@ trait ApiKeySettings
             $inputKey = array_key_first(array_intersect_key($input, $statusData->toArray()));
             $statusValue = $input[$inputKey];
 
-            if ($statusEntry['key'] === 'v3_v2_recaptcha_status' && !$statusValue) {
+            if ($statusEntry['key'] === 'v3_v2_recaptcha_status' && ! $statusValue) {
                 StatusSetting::where('id', 1)->update([
                     'v3_v2_recaptcha_status' => 0,
                     'recaptcha_status' => 0,
