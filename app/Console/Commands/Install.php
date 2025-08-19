@@ -13,7 +13,22 @@ class Install extends Command
      *
      * @var string
      */
-    protected $signature = 'install:agora';
+    protected $signature = 'install:agora
+                            {--appurl= : Application URL (must be HTTPS)}
+                            {--sqlengine= : SQL Engine (e.g., mysql)}
+                            {--sqlhost= : SQL Host}
+                            {--dbname= : Database Name}
+                            {--dbuser= : Database Username}
+                            {--dbpass= : Database Password (optional)}
+                            {--sqlport= : SQL Port (optional)}
+                            {--securecon= : Secure Connection}
+                            {--sslkey= : SSL Key}
+                            {--sslcert= : SSL Certificate}
+                            {--sslca= : SSL Ca}
+                            {--sslverify= : SSl Verify}
+                            {--migrate= : Database Migrations}
+                            {--dummy= : Dummy Data}
+                            {--env= : Application Environment (production, development, testing)}';
 
     /**
      * The console command description.
@@ -35,6 +50,10 @@ class Install extends Command
         parent::__construct();
     }
 
+    /**
+     * Execute the console command.
+     * @return void
+     */
     public function handle()
     {
         try {
@@ -46,40 +65,52 @@ class Install extends Command
                 return;
             }
 
-            $appUrl = $this->ask('Enter your app url (with only https)');
+            //Form application URL
+            $this->handleAppUrl();
 
-            if (! $this->appReq($appUrl)) {
+            // Check if the URL is valid
+            if (!$this->appReq($this->appUrl)) {
                 $this->info('Agora cannot be installed on your server. Please configure your server to meet the requirements and try again.');
-
                 return;
             }
 
-            if (! $this->confirm('Do you want to install Agora?')) {
-                $this->info('We hope you will try next time.');
+            //Check database credentials
+            $this->collectDatabaseCredentials();
 
-                return;
-            }
-
-            $defaultSqlEngine = $this->choice('Which SQL engine would you like to use?', ['mysql']);
-            $formattedAppUrl = $this->formatAppUrl($appUrl);
-            $host = $this->ask('Enter your SQL host');
-            $database = $this->ask('Enter your database name');
-            $dbusername = $this->ask('Enter your database username');
-            $dbpassword = $this->ask('Enter your database password (leave blank if none)', false);
-            $port = $this->ask('Enter your SQL port (leave blank if none)', false);
+            //Check ssl options
+            $this->configureSslOptions();
 
             \Cache::put('search-driver', 'database');
 
-            $this->install->env($defaultSqlEngine, $host, $port, $database, $dbusername, $dbpassword, $formattedAppUrl);
+            // Create .env
+            $this->install->env(
+                $this->default,
+                $this->host,
+                $this->port,
+                $this->dbname,
+                $this->dbuser,
+                $this->dbpass,
+                $this->appUrl,
+                $this->sslKey,
+                $this->sslCert,
+                $this->sslCa,
+                $this->sslVerify
+            );
+
             $this->info('.env file has been created');
-            $this->call('preinstall:check');
             $this->info('');
-            $this->alert("Please run 'php artisan install:db'");
+            $this->call('preinstall:check');
+            $this->maybeInstallDb();
         } catch (\Exception $ex) {
             $this->error($ex->getMessage());
         }
     }
 
+    /**
+     * Removes trailing slash from the url
+     * @param string $url
+     * @return string
+     */
     public function formatAppUrl(string $url): string
     {
         if (str_finish($url, '/')) {
@@ -89,6 +120,10 @@ class Install extends Command
         return $url;
     }
 
+    /**
+     * Check whether extensions are there or not
+     * @return bool
+     */
     public function appEnv()
     {
         $extensions = ['curl', 'ctype', 'imap', 'mbstring', 'openssl', 'tokenizer', 'pdo_mysql', 'zip', 'pdo', 'mysqli', 'iconv', 'XML', 'json', 'fileinfo', 'gd'];
@@ -117,6 +152,11 @@ class Install extends Command
         return $can_install;
     }
 
+    /**
+     * it checks the url whether the ssl certificate is installed or not
+     * @param $appUrl
+     * @return bool
+     */
     public function appReq($appUrl)
     {
         $canInstall = true;
@@ -131,7 +171,11 @@ class Install extends Command
         return $canInstall;
     }
 
-    private function displayArtLogo()
+    /**
+     * Display Faveo's ASCII art logo in CLI
+     * @return void
+     */
+    public function displayArtLogo()
     {
         $this->line("
                                  _____                 _      _             
@@ -143,5 +187,71 @@ class Install extends Command
           __/ |                                                        __/ |
          |___/                                                        |___/ 
 ");
+    }
+
+    /**
+     * Handle the application URL input.
+     */
+    public function handleAppUrl()
+    {
+        $url = $this->option('appurl') ?: $this->ask('Enter your app URL (with only https)');
+        $this->appUrl = $this->formatAppUrl($url);
+    }
+
+    /**
+     * Collect database credentials from user input or command options.
+     */
+    public function collectDatabaseCredentials()
+    {
+        $this->default = $this->option('sqlengine') ?: $this->choice('Which SQL engine would you like to use?', ['mysql'], 0);
+        $this->host    = $this->option('sqlhost')  ?: $this->ask('Enter your SQL host');
+        $this->dbname  = $this->option('dbname')  ?: $this->ask('Enter your database name');
+        $this->dbuser  = $this->option('dbuser')  ?: $this->ask('Enter your database username');
+        $this->dbpass  = $this->option('dbpass')  ?: $this->ask('Enter your database password (blank if not entered)', false);
+        $this->port = $this->option('sqlport') !== null
+            ? $this->option('sqlport')
+            : $this->ask('Enter your SQL port (leave blank if not entered)', null);
+    }
+
+    /**
+     *  Configure SSL options for the database connection.
+     * @return void
+     */
+    public function configureSslOptions()
+    {
+        $this->sslKey = $this->sslCert = $this->sslCa = null;
+        $this->sslVerify = false;
+
+        $securecon = filter_var($this->option('securecon') ?? $this->confirm('Does your database allows secure connection? If yes then make sure you have all required files available on the server as pem bundle. (yes/no)'), FILTER_VALIDATE_BOOLEAN);
+
+        if ($securecon) {
+            $this->sslKey    = $this->option('sslkey')    ?: $this->ask('Full path to SSL key file in PEM format (Leave blank if not available)');
+            $this->sslCert   = $this->option('sslcert')   ?: $this->ask('Full path to SSL certificate file in PEM format (Leave blank if not available)');
+            $this->sslCa     = $this->option('sslca')     ?: $this->ask('Full path to Certificate Authority file in PEM format (Leave blank if not available)');
+            $this->sslVerify = filter_var($this->option('sslverify') ?? $this->confirm('Verify SSL Peer\'s Certificate?'), FILTER_VALIDATE_BOOLEAN);
+        }
+    }
+
+    /**
+     *  Maybe install the database and run migrations.
+     * @return void
+     */
+    public function maybeInstallDb()
+    {
+        $options = [
+            'migrate', 'dummy', 'env'
+        ];
+
+        if (array_filter($options, fn($opt) => $this->option($opt))) {
+            $migrate = filter_var($this->option('migrate') ?? $this->confirm('Do you want to migrate tables now?'), FILTER_VALIDATE_BOOLEAN);
+            $env     = $this->option('env')     ?: $this->choice('Select application environment', ['production', 'development','testing']);
+
+            $this->call('install:db', [
+                '--migrate' => $migrate,
+                '--env'     => $env,
+            ]);
+        } else {
+            $this->alert("Please run 'php artisan install:db' to complete the installation.");
+        }
     }
 }
