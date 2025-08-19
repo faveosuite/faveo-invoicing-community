@@ -161,7 +161,7 @@ class AuthController extends BaseAuthController
 
             $response = $this->sendOtp($user->mobile_code.$user->mobile, $user->id);
 
-            RateLimiter::hit("mobile-otp:{$user->id}", now()->diffInSeconds(now()->addHours(6)));
+            RateLimiter::hit("mobile-otp:{$user->id}");
 
             $this->updateVerificationAttempts($user, 'mobile');
 
@@ -206,7 +206,7 @@ class AuthController extends BaseAuthController
 
             $response = $this->sendForReOtp($user->mobile_code.$user->mobile, $type);
 
-            RateLimiter::hit("mobile-otp:{$user->id}", now()->diffInSeconds(now()->addHours(6)));
+            RateLimiter::hit("mobile-otp:{$user->id}");
 
             $this->updateVerificationAttempts($user, 'mobile');
 
@@ -244,7 +244,7 @@ class AuthController extends BaseAuthController
 
             $this->sendActivation($email, $method);
 
-            RateLimiter::hit("email-otp:{$user->id}", now()->diffInSeconds(now()->addHours(6)));
+            RateLimiter::hit("email-otp:{$user->id}");
 
             $this->updateVerificationAttempts($user, 'email');
 
@@ -284,7 +284,7 @@ class AuthController extends BaseAuthController
             // Find the user by email
             $user = User::where('email', $email)->firstOrFail();
 
-            RateLimiter::hit("mobile-verify:{$user->id}", now()->diffInSeconds(now()->addHours(6)));
+            RateLimiter::hit("mobile-verify:{$user->id}");
 
             // Validate OTP
             if (! is_numeric($request->otp)) {
@@ -335,7 +335,7 @@ class AuthController extends BaseAuthController
 
             $user = User::where('email', $email)->firstOrFail();
 
-            RateLimiter::hit("mobile-verify:{$user->id}", now()->diffInSeconds(now()->addHours(6)));
+            RateLimiter::hit("email-verify:{$user->id}");
 
             $account = AccountActivate::where('email', $email)->latest()->first(['token', 'updated_at']);
 
