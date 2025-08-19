@@ -128,7 +128,7 @@ class InstallerController extends Controller
         }
     }
 
-    public function env($default, $host, $port, $database, $dbusername, $dbpassword, $appUrl = null)
+    public function env($default, $host, $port, $database, $dbusername, $dbpassword, $appUrl = null,$sslKey = null, $sslCert = null, $sslCa = null, $sslVerify = null)
     {
         $ENV = [
             'APP_NAME' => 'Agora:'.md5(uniqid()),
@@ -164,6 +164,10 @@ class InstallerController extends Controller
             'MAIL_ENCRYPTION' => '',
             'NOCAPTCHA_SECRET' => '00',
             'NOCAPTCHA_SITEKEY' => '00',
+            'DB_SSL_KEY' => $sslKey,
+            'DB_SSL_CERT' => $sslCert,
+            'DB_SSL_CA' => $sslCa,
+            'DB_SSL_VERIFY' => $sslVerify,
         ];
 
         $config = collect($ENV)
