@@ -52,6 +52,7 @@ class Install extends Command
 
     /**
      * Execute the console command.
+     *
      * @return void
      */
     public function handle()
@@ -69,8 +70,9 @@ class Install extends Command
             $this->handleAppUrl();
 
             // Check if the URL is valid
-            if (!$this->appReq($this->appUrl)) {
+            if (! $this->appReq($this->appUrl)) {
                 $this->info('Agora cannot be installed on your server. Please configure your server to meet the requirements and try again.');
+
                 return;
             }
 
@@ -107,8 +109,9 @@ class Install extends Command
     }
 
     /**
-     * Removes trailing slash from the url
-     * @param string $url
+     * Removes trailing slash from the url.
+     *
+     * @param  string  $url
      * @return string
      */
     public function formatAppUrl(string $url): string
@@ -121,7 +124,8 @@ class Install extends Command
     }
 
     /**
-     * Check whether extensions are there or not
+     * Check whether extensions are there or not.
+     *
      * @return bool
      */
     public function appEnv()
@@ -153,8 +157,9 @@ class Install extends Command
     }
 
     /**
-     * it checks the url whether the ssl certificate is installed or not
-     * @param $appUrl
+     * it checks the url whether the ssl certificate is installed or not.
+     *
+     * @param  $appUrl
      * @return bool
      */
     public function appReq($appUrl)
@@ -172,7 +177,8 @@ class Install extends Command
     }
 
     /**
-     * Display Faveo's ASCII art logo in CLI
+     * Display Faveo's ASCII art logo in CLI.
+     *
      * @return void
      */
     public function displayArtLogo()
@@ -204,10 +210,10 @@ class Install extends Command
     public function collectDatabaseCredentials()
     {
         $this->default = $this->option('sqlengine') ?: $this->choice('Which SQL engine would you like to use?', ['mysql'], 0);
-        $this->host    = $this->option('sqlhost')  ?: $this->ask('Enter your SQL host');
-        $this->dbname  = $this->option('dbname')  ?: $this->ask('Enter your database name');
-        $this->dbuser  = $this->option('dbuser')  ?: $this->ask('Enter your database username');
-        $this->dbpass  = $this->option('dbpass')  ?: $this->ask('Enter your database password (blank if not entered)', false);
+        $this->host = $this->option('sqlhost') ?: $this->ask('Enter your SQL host');
+        $this->dbname = $this->option('dbname') ?: $this->ask('Enter your database name');
+        $this->dbuser = $this->option('dbuser') ?: $this->ask('Enter your database username');
+        $this->dbpass = $this->option('dbpass') ?: $this->ask('Enter your database password (blank if not entered)', false);
         $this->port = $this->option('sqlport') !== null
             ? $this->option('sqlport')
             : $this->ask('Enter your SQL port (leave blank if not entered)', null);
@@ -215,6 +221,7 @@ class Install extends Command
 
     /**
      *  Configure SSL options for the database connection.
+     *
      * @return void
      */
     public function configureSslOptions()
@@ -225,30 +232,31 @@ class Install extends Command
         $securecon = filter_var($this->option('securecon') ?? $this->confirm('Does your database allows secure connection? If yes then make sure you have all required files available on the server as pem bundle. (yes/no)'), FILTER_VALIDATE_BOOLEAN);
 
         if ($securecon) {
-            $this->sslKey    = $this->option('sslkey')    ?: $this->ask('Full path to SSL key file in PEM format (Leave blank if not available)');
-            $this->sslCert   = $this->option('sslcert')   ?: $this->ask('Full path to SSL certificate file in PEM format (Leave blank if not available)');
-            $this->sslCa     = $this->option('sslca')     ?: $this->ask('Full path to Certificate Authority file in PEM format (Leave blank if not available)');
+            $this->sslKey = $this->option('sslkey') ?: $this->ask('Full path to SSL key file in PEM format (Leave blank if not available)');
+            $this->sslCert = $this->option('sslcert') ?: $this->ask('Full path to SSL certificate file in PEM format (Leave blank if not available)');
+            $this->sslCa = $this->option('sslca') ?: $this->ask('Full path to Certificate Authority file in PEM format (Leave blank if not available)');
             $this->sslVerify = filter_var($this->option('sslverify') ?? $this->confirm('Verify SSL Peer\'s Certificate?'), FILTER_VALIDATE_BOOLEAN);
         }
     }
 
     /**
      *  Maybe install the database and run migrations.
+     *
      * @return void
      */
     public function maybeInstallDb()
     {
         $options = [
-            'migrate', 'dummy', 'env'
+            'migrate', 'dummy', 'env',
         ];
 
-        if (array_filter($options, fn($opt) => $this->option($opt))) {
+        if (array_filter($options, fn ($opt) => $this->option($opt))) {
             $migrate = filter_var($this->option('migrate') ?? $this->confirm('Do you want to migrate tables now?'), FILTER_VALIDATE_BOOLEAN);
-            $env     = $this->option('env')     ?: $this->choice('Select application environment', ['production', 'development','testing']);
+            $env = $this->option('env') ?: $this->choice('Select application environment', ['production', 'development', 'testing']);
 
             $this->call('install:db', [
                 '--migrate' => $migrate,
-                '--env'     => $env,
+                '--env' => $env,
             ]);
         } else {
             $this->alert("Please run 'php artisan install:db' to complete the installation.");
