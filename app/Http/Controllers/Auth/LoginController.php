@@ -383,7 +383,7 @@ class LoginController extends Controller
             ->orWhere('user_name', $emailOrUsername)
             ->value('id');
 
-        return $userId ?? md5(request()->ip() . ':' . $emailOrUsername);
+        return $userId ?? md5(request()->ip().':'.$emailOrUsername);
     }
 
     private function clearRateLimit(string $context, User $user): void
@@ -411,5 +411,4 @@ class LoginController extends Controller
             \Cache::forget("penalty_applied:{$key}");
         }
     }
-
 }
