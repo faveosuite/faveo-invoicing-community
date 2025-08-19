@@ -7,8 +7,8 @@ use App\Http\Controllers\SyncBillingToLatestVersion;
 use Artisan;
 use Config;
 use DB;
-use Illuminate\Console\Command;
 use Dotenv\Dotenv;
+use Illuminate\Console\Command;
 
 class InstallDB extends Command
 {
@@ -60,7 +60,7 @@ class InstallDB extends Command
 
             $shouldMigrate = $migrateOption ?? $this->confirm('Do you want to migrate tables now?');
 
-            if (!$shouldMigrate) {
+            if (! $shouldMigrate) {
                 return;
             }
             $this->runArtisanSetup();
@@ -74,7 +74,7 @@ class InstallDB extends Command
             $this->info('Database setup completed successfully.');
 
             $this->createAdmin();
-            $environment = $envOption ?? $this->choice('Select application environment', ['production', 'development','testing']);
+            $environment = $envOption ?? $this->choice('Select application environment', ['production', 'development', 'testing']);
             $this->install->updateInstallEnv($environment);
             $this->showAdminInfo();
             $this->info('');
@@ -187,14 +187,13 @@ class InstallDB extends Command
      */
     protected function runArtisanSetup()
     {
-
         $dotenv = Dotenv::createImmutable(base_path());
         $dotenv->load();
 
         config([
             'database.connections.mysql.password' => env('DB_PASSWORD'),
             'database.connections.mysql.username' => env('DB_USERNAME'),
-            'database.connections.mysql.host'     => env('DB_HOST'),
+            'database.connections.mysql.host' => env('DB_HOST'),
             'database.connections.mysql.database' => env('DB_DATABASE'),
             'app.url' => env('APP_URL'),
             'app.key' => env('APP_KEY'),

@@ -128,7 +128,7 @@ class InstallerController extends Controller
         }
     }
 
-    public function env($default, $host, $port, $database, $dbusername, $dbpassword, $appUrl = null,$sslKey = null, $sslCert = null, $sslCa = null, $sslVerify = null)
+    public function env($default, $host, $port, $database, $dbusername, $dbpassword, $appUrl = null, $sslKey = null, $sslCert = null, $sslCa = null, $sslVerify = null)
     {
         $ENV = [
             'APP_NAME' => 'Agora:'.md5(uniqid()),
