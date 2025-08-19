@@ -857,7 +857,7 @@ foreach($scripts as $script) {
                         },
                         complete: function () {
                             submitButton.prop('disabled', false).html(submitButton.data('original-text'));
-                            @if($setting->recaptcha_status === 1)
+                            @if($status->recaptcha_status === 1)
                             regenerateRecaptchaV2(register_recaptcha_id)
                             @endif
                         }
