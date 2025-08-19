@@ -630,7 +630,7 @@ Route::middleware('installAgora')->group(function () {
      */
     Route::get('third-party-integration', [Common\SettingsController::class, 'getKeys']);
     Route::patch('apikeys', [Common\SettingsController::class, 'postKeys']);
-    Route::post('login', [Auth\LoginController::class, 'login'])->name('login');
+    Route::post('login', [Auth\LoginController::class, 'login'])->name('login')->middleware(['blockFailedVerifications:login']);
     // Route::post('login', [Auth\LoginController::class, 'login'])->name('login');
 
     Route::middleware(['blockFailedVerifications:verify', 'session.timeout:5,verify'])->group(function () {

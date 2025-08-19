@@ -16,6 +16,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
+use RateLimiter;
 use Session;
 
 class LoginController extends Controller
@@ -90,11 +91,14 @@ class LoginController extends Controller
         // 1. Prepare credentials for both email and username login
         $credentials = $this->buildCredentials($request);
 
+        $rateLimitKey = $this->getLoginRateLimitKey($request->input('email_username'));
+        RateLimiter::hit("login-attempt:{$rateLimitKey}");
+
         // 2. Attempt to authenticate the user
         if (! Auth::attempt($credentials, $request->boolean('remember'))) {
             return back()
                 ->withInput($request->only('email_username', 'remember'))
-                ->with('fails', 'Your email or password is incorrect. Please check and try again.');
+                ->with('fails', __('message.enter_valid_credentials'));
         }
 
         $user = Auth::user();
@@ -116,7 +120,7 @@ class LoginController extends Controller
 
         activity()->log('Logged In');
 
-        return redirect()->intended($this->redirectPath());
+        return redirect()->to($this->redirectPath());
     }
 
     /**
@@ -175,16 +179,18 @@ class LoginController extends Controller
     public function redirectPath()
     {
         $auth = Auth::user();
-        $sessionUrl = Redirect()->getIntendedUrl();
 
-        if ($sessionUrl) {
-            $appUrl = rtrim(env('APP_URL'), '/').'/';
-            $sessionUrl = str_replace($appUrl, '', $sessionUrl);
+        // Clear rate limit after successful login
+        if ($auth) {
+            $this->clearRateLimit('login', $auth);
+            $this->clearRateLimit('2fa', $auth);
         }
 
-        $defaultPath = ($auth && $auth->role === 'user') ? '/client-dashboard' : '/';
+        $defaultPath = ($auth && $auth->role === 'user')
+            ? '/client-dashboard'
+            : '/';
 
-        return url($defaultPath);
+        return redirect()->intended($defaultPath)->getTargetUrl();
     }
 
     /**
@@ -369,4 +375,41 @@ class LoginController extends Controller
 
         return true;
     }
+
+    public function getLoginRateLimitKey(string $emailOrUsername): string
+    {
+        $userId = User::query()
+            ->where('email', $emailOrUsername)
+            ->orWhere('user_name', $emailOrUsername)
+            ->value('id');
+
+        return $userId ?? md5(request()->ip() . ':' . $emailOrUsername);
+    }
+
+    private function clearRateLimit(string $context, User $user): void
+    {
+        switch ($context) {
+            case 'login':
+                $identifier = $this->getLoginRateLimitKey($user->email ?? $user->username);
+                $keys = ["login-attempt:{$identifier}"];
+                break;
+
+            case '2fa':
+                $keys = [
+                    "2fa-code:{$user->id}",
+                    "recovery-code:{$user->id}",
+                ];
+                break;
+
+            default:
+                return; // do nothing if context not supported
+        }
+
+        foreach ($keys as $key) {
+            RateLimiter::clear($key);
+            \Cache::forget("penalty_level:{$key}");
+            \Cache::forget("penalty_applied:{$key}");
+        }
+    }
+
 }

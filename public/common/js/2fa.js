@@ -8,7 +8,7 @@ $(document).ready(function(){
      	});
 
          $('.closeandrefresh').on('click',function(){
-            location.reload();
+            location.reload(true);
         })
 
 function copyRecoveryCode() {
@@ -134,7 +134,7 @@ $('#2fa').on('change',function () {
                                                        $('#2fa-modal3').modal('hide');
                                                         $('#2fa-modal4').modal('show');
                                                         setTimeout(function(){
-                                                            location.reload();
+                                                            location.reload(true);
                                                         },5000);
                                                     },
                                                     error: function (data) {
@@ -196,7 +196,7 @@ $('#2fa').on('change',function () {
                         $('#alertMessage').html(result);
 
                         setTimeout(function () {
-                            location.reload();
+                            location.reload(true);
                         }, 5000);
                     },
                     complete: function () {

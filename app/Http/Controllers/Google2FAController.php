@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Requests\ValidateSecretRequest;
 use App\Rules\CaptchaValidation;
 use App\Rules\Honeypot;
@@ -85,24 +86,6 @@ class Google2FAController extends Controller
             });
         } catch (\Exception $e) {
             return redirect('verify-2fa')->with('fails', $e->getMessage());
-        }
-    }
-
-    /**
-     * Get the post register / login redirect path.
-     *
-     * @return string
-     */
-    public function redirectPath()
-    {
-        if (\Session::has('session-url')) {
-            $url = \Session::get('session-url');
-
-            return property_exists($this, 'redirectTo') ? $this->redirectTo : '/'.$url;
-        } else {
-            $user = \Auth::user()->role;
-
-            return ($user === 'user') ? 'my-invoices' : '/';
         }
     }
 
@@ -243,7 +226,7 @@ class Google2FAController extends Controller
     private function handleTwoFactorLogin(Request $request, User $user, string $rateLimiterKey, callable $validator)
     {
         // Rate limit for 6 hours
-        RateLimiter::hit("{$rateLimiterKey}:{$user->id}", now()->diffInSeconds(now()->addHours(6)));
+        RateLimiter::hit("{$rateLimiterKey}:{$user->id}");
 
         // Run the type-specific validation logic
         $validator($user, $request);
@@ -263,7 +246,7 @@ class Google2FAController extends Controller
         \Auth::login($user, $session->get('remember:user:id'));
         $this->convertCart();
 
-        return redirect()->intended($this->redirectPath());
+        return redirect()->to((new LoginController())->redirectPath());
     }
 
     public function verifySession()

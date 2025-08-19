@@ -1115,6 +1115,7 @@ setTimeout(function() {
                     $('#mailchimp-subscription').html(@json(__('message.waiting')));
                 },
                 success: function(data) {
+                    $form[0].reset();
                     showAlert('success', data.message);
                 },
                 error: function(jqXHR, status, error) {

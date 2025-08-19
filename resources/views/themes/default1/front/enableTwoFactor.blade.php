@@ -35,7 +35,7 @@ main
 
                                 <label class="form-label text-color-dark text-3">{{ __('message.enter_auth_code')}} <span class="text-color-danger">*</span></label>
 
-                                <input type="text" name="totp"  id="2fa_code" value="" class="form-control form-control-lg text-4">
+                                <input type="text" name="totp" maxlength="6" id="2fa_code" value="" class="form-control form-control-lg text-4">
                             </div>
                             <h6 id="codecheck"></h6>
                         </div>
@@ -80,7 +80,7 @@ main
             </div>
 
         </div>
-{{--        @extends('mini_views.recaptcha')--}}
+        @extends('mini_views.recaptcha')
     <script>
         let two_factor_recaptcha_id;
         @if($status->recaptcha_status === 1)
@@ -107,11 +107,16 @@ main
                 return value.trim() !== "";
             }, "{{ __('message.recaptcha_required') }}");
 
+            $.validator.addMethod("totp6digits", function(value, element) {
+                return this.optional(element) || /^[0-9]{6}$/.test(value);
+            }, "{{ __('message.enter_valid_6_digit_code') }}");
+
             $('#2fa_form').validate({
                 ignore: ":hidden:not(.g-recaptcha-response)",
                 rules: {
                     totp: {
-                        required: true
+                        required: true,
+                        totp6digits: true
                     },
                     "g-recaptcha-response": {
                         recaptchaRequired: true
