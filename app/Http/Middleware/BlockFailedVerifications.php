@@ -11,13 +11,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class BlockFailedVerifications
 {
-    public function handle(Request $request, Closure $next, string $context = 'verify', string $identifier = null): Response
+    public function handle(Request $request, Closure $next, string $context = 'verify', ?string $identifier = null): Response
     {
         // 1. Get the identifier for rate limiting based on context
         $rateLimitIdentifier = $this->getRateLimitIdentifier($context, $identifier);
 
-
-        if (!$rateLimitIdentifier) {
+        if (! $rateLimitIdentifier) {
             return redirect('login'); // No valid identifier found
         }
 
@@ -43,7 +42,7 @@ class BlockFailedVerifications
     }
 
     /**
-     * Get rate limit identifier based on context
+     * Get rate limit identifier based on context.
      */
     private function getRateLimitIdentifier(string $context, ?string $customIdentifier): ?string
     {
@@ -55,13 +54,15 @@ class BlockFailedVerifications
             case 'login':
                 // For login, use IP + login input for security
                 $loginInput = request()->input('email_username');
+
                 return (new LoginController())->getLoginRateLimitKey($loginInput);
 
             case 'verify':
             case '2fa':
                 // For verification/2fa, use user ID from session
                 $userId = \Session::get('verification_user_id');
-                return $userId ? (string)$userId : null;
+
+                return $userId ? (string) $userId : null;
 
             default:
                 // Fallback to IP-based limiting
@@ -70,7 +71,7 @@ class BlockFailedVerifications
     }
 
     /**
-     * Get rate limiting configuration for different contexts
+     * Get rate limiting configuration for different contexts.
      */
     private function getRateLimitConfig(string $context): array
     {
@@ -88,10 +89,10 @@ class BlockFailedVerifications
             ],
             'verify' => [
                 'limits' => [
-                    'mobile-otp'     => 3,
-                    'email-otp'      => 3,
-                    'mobile-verify'  => 3,
-                    'email-verify'   => 3,
+                    'mobile-otp' => 3,
+                    'email-otp' => 3,
+                    'mobile-verify' => 3,
+                    'email-verify' => 3,
                 ],
                 'penalties' => [
                     1 => 30,   // 30 minutes
@@ -102,7 +103,7 @@ class BlockFailedVerifications
             ],
             '2fa' => [
                 'limits' => [
-                    '2fa-code'      => 3,
+                    '2fa-code' => 3,
                     'recovery-code' => 3,
                 ],
                 'penalties' => [
@@ -132,7 +133,7 @@ class BlockFailedVerifications
             // Check if penalty already applied for this cycle
             $penaltyAlreadyApplied = Cache::get($penaltyAppliedKey, false);
 
-            if (!$penaltyAlreadyApplied) {
+            if (! $penaltyAlreadyApplied) {
                 // First time hitting this penalty level → increase penalty
                 $currentPenaltyLevel = Cache::get($penaltyKey, 0);
                 $newPenaltyLevel = min($currentPenaltyLevel + 1, count($penaltyLevels));
@@ -166,7 +167,7 @@ class BlockFailedVerifications
     }
 
     /**
-     * Build appropriate response based on context and request type
+     * Build appropriate response based on context and request type.
      */
     private function buildRateLimitResponse(Request $request, string $type, string $waitTime): Response
     {
@@ -182,7 +183,7 @@ class BlockFailedVerifications
     }
 
     /**
-     * Get error message key based on rate limit type
+     * Get error message key based on rate limit type.
      */
     private function getErrorMessageKey(string $type): string
     {
