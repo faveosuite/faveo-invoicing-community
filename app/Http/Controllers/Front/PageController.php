@@ -1055,7 +1055,7 @@ class PageController extends Controller
         return redirect()->back()->with('success', $message);
     }
 
-    function currencyFormatWithSpan($amount, $currency, $id = null)
+    public function currencyFormatWithSpan($amount, $currency, $id = null)
     {
         // number only
         $formatted = currencyFormat($amount, $currency, false);

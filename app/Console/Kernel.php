@@ -11,8 +11,8 @@ use App\Model\Mailjob\CloudEmail as cloudemailsend;
 use GuzzleHttp\Client;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
-use Torann\Currency\Console\Manage as CurrencyManage;
 use Torann\Currency\Console\Cleanup as CurrencyCleanup;
+use Torann\Currency\Console\Manage as CurrencyManage;
 
 class Kernel extends ConsoleKernel
 {
