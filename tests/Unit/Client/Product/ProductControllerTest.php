@@ -60,7 +60,7 @@ class ProductControllerTest extends DBTestCase
 
         $response->assertJson([
             'success' => false,
-            'message' => __('message.order_no_active_plan_cancelled'),
+            'message' => __('message.no_available_plans_currency'),
         ]);
     }
 }
