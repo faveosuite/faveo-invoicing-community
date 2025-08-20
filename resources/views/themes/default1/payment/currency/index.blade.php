@@ -80,43 +80,23 @@ input:checked + .slider:before {
 </div><!-- /.col -->
 @stop
 @section('content')
-    <div class="alert alert-success alert-dismissable" style="display: none;">
-        <i class="fa  fa-check-circle"></i>
-        <span class="success-msg"></span>
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-
-    </div>
     <div id="response"></div>
 
 <div class="card card-secondary card-outline">
 
 
-
-
-
-    <div class="card-body table-responsive">
-        <div class="row">
-
-            <div class="col-md-12">
-                <table id="currency-table" styleClass="borderless">
-                    
-
-                    <thead>
-                        <tr>
-                         <th>{{ __('message.currency_name') }}</th>
-                          <th>{{ __('message.currency_code') }}</th>
-                          <th>{{ __('message.currency_symbol') }}</th>
-                          <th>{{ __('message.dashboard_currency') }}</th>
-                          <th>{{ __('message.status') }}</th>
-                         
-                        </tr>
-                    </thead>
-                     </table>
-                
-
-            </div>
-        </div>
-
+    <div class="card-body" style="overflow-x: auto;">
+        <table id="currency-table" class="table display dt-responsive nowrap" cellspacing="0" width="100%">
+            <thead>
+            <tr>
+                <th>{{ __('message.currency_name') }}</th>
+                <th>{{ __('message.currency_code') }}</th>
+                <th>{{ __('message.currency_symbol') }}</th>
+                <th>{{ __('message.dashboard_currency') }}</th>
+                <th>{{ __('message.status') }}</th>
+            </tr>
+            </thead>
+        </table>
     </div>
 
 </div>
@@ -124,16 +104,17 @@ input:checked + .slider:before {
 
 
 
-    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css">
     <script src="//cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript">
         $('#currency-table').DataTable({
             processing: true,
             serverSide: true,
-            bDestroy: true,
+            responsive: true,
+            scrollX: true,
             ajax: {
-              "url":  '{!! route('get-currency.datatable') !!}',
-                 error: function(xhr) {
+              url:  '{!! route('get-currency.datatable') !!}',
+              error: function(xhr) {
                  if(xhr.status == 401) {
                   alert('{{ __('message.session_expired') }}')
                   window.location.href = '/login';
@@ -189,30 +170,48 @@ input:checked + .slider:before {
         });
 
              function bindChangeStatusEvent() {
-        $('.toggle_event_editing').change(function(){
-            var current_id = $(this).children('.module_id');
-            var current_status = $(this).children('.modules_settings_value');
+                 $('.toggle_event_editing').on('change', function () {
+                     let $el = $(this);
+                     let currentId = $el.find('.module_id').val();
+                     let currentStatus = $el.find('.modules_settings_value').val();
 
-            $.ajax({
-                type: 'POST',
-                url: '{{route("change.currency.status")}}',
-                data: {
-                    "_token": "{{ csrf_token() }}",
-                    current_id: current_id.val(),
-                    current_status: current_status.val()
-                }
-            }).done(function(result) {
-                current_status.val( current_status.val() == 1 ? 0 : 1);
-                $(window).scrollTop(0);
-                $('.success-msg').html(result);
-                $('.alert-success').css('display', 'block');
-                setInterval(function() {
-                    $('.alert-success').slideUp(3000);
-                }, 500);
-                location.reload();
-            });
-        });
-    }
+                     $.ajax({
+                         url: "{{ route('change.currency.status') }}",
+                         type: 'POST',
+                         data: {
+                             _token: "{{ csrf_token() }}",
+                             current_id: currentId,
+                             current_status: currentStatus
+                         },
+                         beforeSend: function () {
+                             $el.prop('disabled', true);
+                         },
+                         success: function (response) {
+                             $el.find('.modules_settings_value').val(currentStatus == 1 ? 0 : 1);
+
+                             helper.showAlert({
+                                 message: response.message || response,
+                                 type: 'success',
+                                 autoDismiss: 5000,
+                                 containerSelector: '#response',
+                                 refresh: true
+                             });
+                         },
+                         error: function (xhr) {
+                             helper.showAlert({
+                                 message: xhr.responseJSON?.message || 'Unknown error',
+                                 type: 'error',
+                                 autoDismiss: 5000,
+                                 containerSelector: '#response',
+                                 refresh: true
+                             });
+                         },
+                         complete: function () {
+                             $el.prop('disabled', false);
+                         }
+                     });
+                 });
+             }
     </script>
 <script>
      $('ul.nav-sidebar a').filter(function() {

@@ -293,9 +293,10 @@ HTML;
     {
         $code = Currency::where('id', $request->input('current_id'))->value('code');
         Artisan::call('currency:manage', ['action' => 'add', 'currency' => $code]);
+        Artisan::call('currency:cleanup');
         $updatedStatus = ($request->current_status == '1') ? 0 : 1;
         Currency::where('id', $request->current_id)->update(['status' => $updatedStatus]);
 
-        return Lang::get('message.updated-successfully');
+        return successResponse(Lang::get('message.updated-successfully'));
     }
 }

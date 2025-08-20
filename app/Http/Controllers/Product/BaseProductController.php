@@ -133,7 +133,7 @@ class BaseProductController extends ExtendedBaseProductController
                 ->toArray();
 
             if (empty($plans)) { // If Plans Exist For A Product, Display Dropdown for Plans
-                return errorResponse(__('message.order_no_active_plan_cancelled'));
+                return errorResponse(__('message.no_available_plans_currency'));
             }
             $field = html()->div()
                 ->class('form-group')

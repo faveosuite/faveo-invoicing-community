@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Common;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Front\PageController;
 use App\Http\Controllers\Product\ProductController;
 use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
@@ -253,7 +254,6 @@ class TemplateController extends Controller
             $cost = 'Free';
             $plans = Plan::where('product', $id)->whereIn('days', [30, 31])->get();
             $prices = [];
-            $symbol = '';
             $currency = '';
             foreach ($plans as $plan) {
                 $planDetails = userCurrencyAndPrice('', $plan);
@@ -262,16 +262,13 @@ class TemplateController extends Controller
                 // Only consider non-zero prices
                 if ($add_price > 0) {
                     $prices[] = $add_price;
-                    $symbol = $planDetails['symbol'];
                     $currency = $planDetails['currency'];
                 }
             }
 
             if (! empty($prices)) {
                 $minPrice = min($prices);
-                $formattedPrice = currencyFormat($minPrice, $currency);
-                $amountOnly = trim(str_replace($symbol, '', $formattedPrice));
-                $cost = '<span class="price-unit">'.$symbol.'</span>'.$amountOnly;
+                $cost = (new PageController())->currencyFormatWithSpan($minPrice, $currency);
             }
 
             return $cost;

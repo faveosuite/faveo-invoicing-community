@@ -720,7 +720,6 @@ class PageController extends Controller
             $planId = Plan::where('product', $id)->pluck('id')->first();
             $cost = 'Free';
             $prices = [];
-            $symbol = '';
             $currency = '';
 
             foreach ($plans as $plan) {
@@ -733,20 +732,16 @@ class PageController extends Controller
                 if ($plan->days == 365 || $plan->days == 366) {
                     $price = ($product->status) ? round($planDetails['plan']->add_price / 12) : $planDetails['plan']->add_price;
                     $prices[] = $price;
-                    $symbol = $planDetails['symbol'];
                     $currency = $planDetails['currency'];
                 } elseif (! $product->status && ! in_array($product->id, cloudPopupProducts())) {
                     $prices[] = $planDetails['plan']->add_price;
-                    $symbol = $planDetails['symbol'];
                     $currency = $planDetails['currency'];
                 }
             }
 
             if (! empty($prices)) {
-                $minPrice = min($prices); // Minimal price from valid candidates
-                $formatted = currencyFormat($minPrice, $currency);
-                $priceStr = str_replace($symbol, '', $formatted);
-                $cost = '<span class="price-unit" id="'.$planId.'">'.$symbol.'</span>'.$priceStr;
+                $minPrice = min($prices);
+                $cost = $this->currencyFormatWithSpan($minPrice, $currency, $planId);
             }
 
             return $cost;
@@ -1058,5 +1053,29 @@ class PageController extends Controller
         $message = $existingData ? __('message.data_updated_successfully') : __('message.data_created_successfully');
 
         return redirect()->back()->with('success', $message);
+    }
+
+    function currencyFormatWithSpan($amount, $currency, $id = null)
+    {
+        // number only
+        $formatted = currencyFormat($amount, $currency, false);
+
+        // formatted with symbol (actual placement)
+        $withSymbol = currencyFormat($amount, $currency);
+
+        // extract symbol by removing number part
+        $symbol = trim(str_replace($formatted, '', $withSymbol));
+
+        // prepare span
+        $span = '<span class="price-unit"'.($id ? ' id="'.$id.'"' : '').'>'.$symbol.'</span>';
+
+        // rebuild keeping correct placement
+        if (strpos($withSymbol, $symbol) === 0) {
+            // symbol is in front
+            return $span.$formatted;
+        }
+
+        // symbol at the end
+        return $formatted.$span;
     }
 }

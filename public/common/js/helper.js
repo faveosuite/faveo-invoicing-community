@@ -9,11 +9,16 @@ window.helper = (() => {
                            dismissible = true,
                            additionalClasses = '',
                            id = 'custom-alert',
+                           refresh = false,
                        }) {
-        if (!message) return;
+        if (!message){
+            return;
+        }
 
         const container = document.querySelector(containerSelector);
-        if (!container) return;
+        if (!container){
+            return;
+        }
 
         const isSuccess = type === 'success';
         const iconClass = isSuccess ? 'fa-check-circle' : 'fa-ban';
@@ -42,6 +47,12 @@ window.helper = (() => {
             btn.setAttribute('data-dismiss', 'alert');
             btn.setAttribute('aria-hidden', 'true');
             btn.innerHTML = '&times;';
+            btn.onclick = () => {
+                alertDiv.remove();
+                if (refresh) {
+                    window.location.reload(true);
+                }
+            };
             alertDiv.appendChild(btn);
         }
 
@@ -52,7 +63,12 @@ window.helper = (() => {
             alertTimeouts[id] = setTimeout(() => {
                 alertDiv.classList.remove('show');
                 alertDiv.classList.add('hide');
-                setTimeout(() => alertDiv.remove(), 200);
+                setTimeout(() => {
+                    alertDiv.remove();
+                    if (refresh) {
+                        window.location.reload(true);
+                    }
+                }, 200);
             }, autoDismiss);
         }
     }
