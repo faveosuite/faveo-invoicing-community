@@ -210,10 +210,10 @@ class Install extends Command
     public function collectDatabaseCredentials()
     {
         $this->default = $this->option('sqlengine') ?: $this->choice('Which SQL engine would you like to use?', ['mysql'], 0);
-        $this->host    = $this->option('sqlhost')  ?: $this->ask('Enter your SQL host');
-        $this->dbname  = $this->option('dbname')  ?: $this->ask('Enter your database name');
-        $this->dbuser  = $this->option('dbuser')  ?: $this->ask('Enter your database username');
-        $this->dbpass  = $this->option('dbpass')  ?: $this->ask('Enter your database password (leave blank if none)', false);
+        $this->host = $this->option('sqlhost') ?: $this->ask('Enter your SQL host');
+        $this->dbname = $this->option('dbname') ?: $this->ask('Enter your database name');
+        $this->dbuser = $this->option('dbuser') ?: $this->ask('Enter your database username');
+        $this->dbpass = $this->option('dbpass') ?: $this->ask('Enter your database password (leave blank if none)', false);
         $this->port = $this->option('sqlport') !== null
             ? $this->option('sqlport')
             : $this->ask('Enter your SQL port (leave blank if none)', null);
@@ -250,11 +250,11 @@ class Install extends Command
             'migrate', 'dummy', 'env',
         ];
 
-        if (array_filter($options, fn($opt) => $this->option($opt))) {
+        if (array_filter($options, fn ($opt) => $this->option($opt))) {
             $migrateOption = trim((string) $this->option('migrate'));
 
             $migrate = filter_var($migrateOption === '' ? $this->confirm('Do you want to migrate tables now?') : $migrateOption, FILTER_VALIDATE_BOOLEAN);
-            $env     = $this->option('env')     ?: $this->choice('Select application environment', ['production', 'development','testing']);
+            $env = $this->option('env') ?: $this->choice('Select application environment', ['production', 'development', 'testing']);
 
             $this->call('install:db', [
                 '--migrate' => $migrate,
