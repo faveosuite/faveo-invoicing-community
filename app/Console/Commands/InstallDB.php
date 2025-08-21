@@ -62,7 +62,7 @@ class InstallDB extends Command
                 $migrateOption ?? $this->confirm('Do you want to migrate tables now?'),
                 FILTER_VALIDATE_BOOLEAN
             );
-            if (!$shouldMigrate) {
+            if (! $shouldMigrate) {
                 return;
             }
             $this->runArtisanSetup();
