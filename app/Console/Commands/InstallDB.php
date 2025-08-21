@@ -58,9 +58,11 @@ class InstallDB extends Command
                 throw new \Exception("Please run 'php artisan install:agora'");
             }
 
-            $shouldMigrate = $migrateOption ?? $this->confirm('Do you want to migrate tables now?');
-
-            if (! $shouldMigrate) {
+            $shouldMigrate = filter_var(
+                $migrateOption ?? $this->confirm('Do you want to migrate tables now?'),
+                FILTER_VALIDATE_BOOLEAN
+            );
+            if (!$shouldMigrate) {
                 return;
             }
             $this->runArtisanSetup();
