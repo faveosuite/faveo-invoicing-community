@@ -2701,6 +2701,8 @@ return [
     'deletion_cloud_subscription' => 'Eliminar suscripciones en la nube que hayan expirado hace más de...',
     'msg_service_down' => 'Actualmente estamos experimentando problemas con nuestro servicio de OTP. Por favor, inténtalo de nuevo en breve. Estamos trabajando para resolverlo lo antes posible.',
     'cloud_plan_error' => 'Por favor, elimine el producto en la nube o vincúlelo a un plan alternativo.',
+    'short_description' => 'Descripción breve',
+    'add_short_description' => 'Por favor, introduzca una descripción breve.',
 
     'invalid_code_2fa' => 'Nevažeći kod. Molimo pokušajte ponovo.',
     '6_digit_auth_code' => 'Unesite svoj 6-cifreni autentifikacijski kod',

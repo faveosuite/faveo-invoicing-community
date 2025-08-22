@@ -2662,6 +2662,8 @@ return [
     'deletion_cloud_subscription' => '刪除已過期超過...的雲端訂閱',
     'msg_service_down' => '我們目前的 OTP 服務發生故障。請稍後再試。我們正努力儘快解決問題。',
     'cloud_plan_error' => '請移除雲產品或將其連結到其他方案。',
+    'short_description' => '簡短描述',
+    'add_short_description' => '請輸入簡短描述。',
 
     'invalid_code_2fa' => '無效的代碼。請再試一次。',
     '6_digit_auth_code' => '請輸入您的6位認證代碼',

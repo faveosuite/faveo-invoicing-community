@@ -2696,6 +2696,8 @@ return [
 
     'user_position_prohibited_if' => '当角色为用户时，不允许填写职位字段。',
     'cloud_plan_error' => '请移除云产品或将其关联到其他方案。',
+    'short_description' => '简短描述',
+    'add_short_description' => '请输入简短描述。',
 
     'invalid_code_2fa' => '无效的代码。请再试一次。',
     '6_digit_auth_code' => '请输入您的6位认证代码',
