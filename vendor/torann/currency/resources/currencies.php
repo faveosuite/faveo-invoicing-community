@@ -904,8 +904,8 @@ return [
     ],
     'XAF' => [
         'name' => 'Franc CFA (XAF)',
-        'symbol' => 'F.CFA',
-        'format' => '1,0.00 F.CFA',
+        'symbol' => 'FCFA',
+        'format' => 'FCFA1,0.00',
         'exchange_rate' => 0.00,
     ],
     'XCD' => [

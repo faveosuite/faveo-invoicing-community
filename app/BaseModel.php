@@ -15,6 +15,11 @@ use Illuminate\Database\Eloquent\Model;
  */
 class BaseModel extends Model
 {
+    protected $purifyExcept=[
+        'short_description',
+        'description',
+        'product_description',
+    ];
     public function setAttribute($property, $value)
     {
         // require_once base_path('vendor'.DIRECTORY_SEPARATOR.'htmlpurifier'
@@ -28,7 +33,7 @@ class BaseModel extends Model
         }
         $config = \HTMLPurifier_Config::createDefault();
         $purifier = new \HTMLPurifier($config);
-        if (! is_array($value)) {
+        if (! is_array($value) && ! in_array($property, $this->purifyExcept)) {
             if ($value != strip_tags($value)) {
                 $value = $purifier->purify($value);
             }

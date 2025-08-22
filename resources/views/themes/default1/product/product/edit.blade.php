@@ -30,6 +30,11 @@
             word-wrap: break-word; /* Break long words if needed */
             vertical-align: top;
         }
+        .custom-error-class{
+            margin-top: 4px;
+            font-size: 80%;
+            color: #dc3545;
+        }
 
     </style>
 
@@ -148,6 +153,16 @@
                             <span class="error-message"> {{$message}}</span>
                             @enderror
                             <h6 id= "descheck"></h6>
+
+                            {!! html()->label(Lang::get('message.short_description'), 'short_description')->class('required') !!}
+                            <!-- {!! html()->text('description')->class('form-control'.($errors->has('short_description') ? ' is-invalid' : ''))->id('textarea2') !!}-->
+                            <textarea hidden class="form-control"  name="short_description" id='textarea2'>{!! $product->short_description !!}</textarea>
+
+                            @error('short_description')
+                            <span class="error-message"> {{$message}}</span>
+                            @enderror
+                            <h6 class="custom-error-class" id= "des-short"></h6>
+
                         </div>
 
 
@@ -332,6 +347,7 @@
                         </div>
 
                     </div>
+
                     <div class="row">
 
                         <div class="col-md-12 form-group {{ $errors->has('product_description') ? 'has-error' : '' }}">
@@ -675,77 +691,457 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>--}}
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="//cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.tiny.cloud/1/4f0mdhyghkekvb5nle8s7aai2g2dooxhbv9yh3dunatblh6l/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+    <script src="https://cdn.tiny.cloud/1/e3lij95fzfkwg5d1rx1e67g8kuu6ugnh3e4vdkmnxr0t8a4j/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
     <link href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/css/select2.min.css" rel="stylesheet" />
     <script src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/select2.min.js"></script>
 
     <script>
+        let uploadInProgress = false;
+
         $(function(){
             tinymce.init({
                 selector: '#product-description',
                 height: 500,
-                //  theme: 'modern',
-                relative_urls: true,
+                directionality: '{{ isRtlForLang() ? "rtl" : "ltr" }}',
+                images_upload_credentials: true,  // allow cross-domain images
+                content_security_policy: false,   // disable internal CSP filter
+                extended_valid_elements: 'img[src|alt|width|height|style|title|class]',
+                valid_elements: '*[*]',
+                relative_urls: false,
                 remove_script_host: false,
                 convert_urls: false,
-                directionality: '{{ isRtlForLang() ? "rtl" : "ltr" }}',
+                entity_encoding: "raw",
+                valid_children: "+body[img]",
+                verify_html: false,
+                automatic_uploads: true,
+                file_picker_types: 'image',
+                images_upload_url: '{{ url("upload-image") }}',
+                image_advtab: true,
+
                 plugins: [
-                    'advlist autolink lists link image charmap print preview hr anchor pagebreak',
+                    'advlist autolink lists link image code charmap print preview hr anchor pagebreak',
                     'searchreplace wordcount visualblocks visualchars code fullscreen',
                     'insertdatetime media nonbreaking save table contextmenu directionality',
-                    'emoticons template paste textcolor colorpicker textpattern imagetools'
+                    'emoticons paste textcolor colorpicker textpattern imagetools'
                 ],
-                toolbar1: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image',
+
+                toolbar1: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image code',
                 toolbar2: 'print preview media | forecolor backcolor emoticons',
-                image_advtab: true,
-                templates: [
-                    {title: 'Test template 1', content: 'Test 1'},
-                    {title: 'Test template 2', content: 'Test 2'}
-                ],
                 content_css: [
                     '//fast.fonts.net/cssapi/e6dc9b99-64fe-4292-ad98-6974f93cd2a2.css',
                     '//www.tinymce.com/css/codepen.min.css'
                 ],
-                setup: function (editor) {
-                    $('#submit').on('click', function () {
-                        let editorContainer = editor.getContainer();
 
-                        // Example condition: Change border if content length > 10
-                        if (editor.getContent({ format: 'text' }).length <1) {
+                setup: function(editor) {
+                    $('#submit').on('click', function() {
+                        let editorContainer = editor.getContainer();
+                        if (editor.getContent({ format: 'text' }).length < 1) {
                             editorContainer.style.border = "1px solid #dc3545";
                         } else {
                             editorContainer.style.border = '1px solid silver';
                         }
                     });
+                    editor.on('GetContent', function(e) {
+                        // Decode &amp; in src attributes
+                        e.content = e.content.replace(/src="([^"]+)"/g, function(match, p1) {
+                            return 'src="' + p1.replace(/&amp;/g, '&') + '"';
+                        });
+                    });
+                },
+
+                // File picker callback for selecting local files
+                file_picker_callback: function(cb, value, meta) {
+                    let input = document.createElement('input');
+                    input.setAttribute('type', 'file');
+                    input.setAttribute('accept', 'image/*');
+
+                    input.onchange = function() {
+                        let file = this.files[0];
+                        let formData = new FormData();
+                        formData.append('file', file);
+
+                        $.ajax({
+                            url: '{{ url("upload-image") }}',
+                            type: "POST",
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
+                            data: formData,
+                            processData: false,
+                            contentType: false,
+                            success: function(result) {
+                                // Pass uploaded image URL to TinyMCE callback
+                                cb(result.location, { title: file.name });
+                            },
+                            error: function(xhr, status, error) {
+                                console.error("Image upload failed:", error);
+                                alert("Image upload failed: " + error);
+                            }
+                        });
+                    };
+
+                    input.click();
+                },
+
+
+                images_upload_handler: function (blobInfo, success, failure) {
+                    if (uploadInProgress) return failure('Upload already in progress');
+                    uploadInProgress = true;
+
+                    let formData = new FormData();
+                    formData.append('file', blobInfo.blob(), blobInfo.filename());
+
+                    $.ajax({
+                        url: '{{ url("upload-image") }}',
+                        type: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function(data) {
+                            uploadInProgress = false;
+                            if (data && data.location) success(data.location);
+                            else failure('Invalid response');
+                        },
+                        error: function(xhr, status, error) {
+                            uploadInProgress = false;
+                            failure("Image upload failed: " + error);
+                        }
+                    });
+                }
+
+            });
+
+
+{{--            tinymce.init({--}}
+{{--                selector: '#textarea1',--}}
+{{--                height: 770,--}}
+{{--                directionality: '{{ isRtlForLang() ? "rtl" : "ltr" }}',--}}
+{{--                relative_urls: false,--}}
+{{--                remove_script_host: false,--}}
+{{--                convert_urls: false,--}}
+{{--                entity_encoding: "raw",--}}
+{{--                valid_children: "+body[img]",--}}
+{{--                verify_html: false,--}}
+{{--                automatic_uploads: true,--}}
+{{--                file_picker_types: 'image',--}}
+{{--                images_upload_url: '{{ url("upload-image") }}',--}}
+{{--                // image_advtab: true,--}}
+
+{{--                plugins: [--}}
+{{--                    'advlist autolink lists link image code charmap print preview hr anchor pagebreak',--}}
+{{--                    'searchreplace wordcount visualblocks visualchars code fullscreen',--}}
+{{--                    'insertdatetime media nonbreaking save table contextmenu directionality',--}}
+{{--                    'emoticons template paste textcolor colorpicker textpattern imagetools'--}}
+{{--                ],--}}
+
+{{--                toolbar1: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image',--}}
+{{--                toolbar2: 'print preview media | forecolor backcolor emoticons',--}}
+{{--                templates: [--}}
+{{--                    {title: 'Test template 1', content: 'Test 1'},--}}
+{{--                    {title: 'Test template 2', content: 'Test 2'}--}}
+{{--                ],--}}
+{{--                content_css: [--}}
+{{--                    '//fast.fonts.net/cssapi/e6dc9b99-64fe-4292-ad98-6974f93cd2a2.css',--}}
+{{--                    '//www.tinymce.com/css/codepen.min.css'--}}
+{{--                ],--}}
+
+{{--                setup: function(editor) {--}}
+{{--                    $('#submit').on('click', function() {--}}
+{{--                        let editorContainer = editor.getContainer();--}}
+{{--                        if (editor.getContent({ format: 'text' }).length < 1) {--}}
+{{--                            editorContainer.style.border = "1px solid #dc3545";--}}
+{{--                        } else {--}}
+{{--                            editorContainer.style.border = '1px solid silver';--}}
+{{--                        }--}}
+{{--                    });--}}
+{{--                    editor.on('GetContent', function(e) {--}}
+{{--                        // Decode &amp; in src attributes--}}
+{{--                        e.content = e.content.replace(/src="([^"]+)"/g, function(match, p1) {--}}
+{{--                            return 'src="' + p1.replace(/&amp;/g, '&') + '"';--}}
+{{--                        });--}}
+{{--                    });--}}
+{{--                },--}}
+
+{{--                // File picker callback for selecting local files--}}
+{{--                file_picker_callback: function(cb, value, meta) {--}}
+{{--                    let input = document.createElement('input');--}}
+{{--                    input.setAttribute('type', 'file');--}}
+{{--                    input.setAttribute('accept', 'image/*');--}}
+
+{{--                    input.onchange = function() {--}}
+{{--                        console.log('hii');--}}
+{{--                        let file = this.files[0];--}}
+{{--                        let formData = new FormData();--}}
+{{--                        formData.append('file', file);--}}
+
+{{--                        $.ajax({--}}
+{{--                            url: '{{ url("upload-image") }}',--}}
+{{--                            type: "POST",--}}
+{{--                            headers: {--}}
+{{--                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')--}}
+{{--                            },--}}
+{{--                            data: formData,--}}
+{{--                            processData: false,--}}
+{{--                            contentType: false,--}}
+{{--                            success: function(result) {--}}
+{{--                                // Pass uploaded image URL to TinyMCE callback--}}
+{{--                                cb(result.location, { title: file.name });--}}
+{{--                            },--}}
+{{--                            error: function(xhr, status, error) {--}}
+{{--                                console.error("Image upload failed:", error);--}}
+{{--                                alert("Image upload failed: " + error);--}}
+{{--                            }--}}
+{{--                        });--}}
+{{--                    };--}}
+
+{{--                    input.click();--}}
+{{--                },--}}
+
+{{--                // Optional: handle drag-and-drop or paste uploads--}}
+{{--                images_upload_handler: function (blobInfo, success, failure) {--}}
+{{--                    let formData = new FormData();--}}
+{{--                    formData.append('file', blobInfo.blob(), blobInfo.filename());--}}
+{{--console.log('hii');--}}
+{{--                    $.ajax({--}}
+{{--                        url: '{{ url("upload-image") }}',--}}
+{{--                        type: 'POST',--}}
+{{--                        headers: {--}}
+{{--                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')--}}
+{{--                        },--}}
+{{--                        data: formData,--}}
+{{--                        processData: false,--}}
+{{--                        contentType: false,--}}
+{{--                        success: function(data) {--}}
+{{--                            success(data.location);--}}
+{{--                        },--}}
+{{--                        error: function(xhr, status, error) {--}}
+{{--                            failure("Image upload failed: " + error);--}}
+{{--                        }--}}
+{{--                    });--}}
+{{--                },--}}
+{{--            });--}}
+
+
+            let uploadInProgress = false;
+
+tinymce.init({
+    selector: '#textarea1',
+    height: 770,
+    directionality: '{{ isRtlForLang() ? "rtl" : "ltr" }}',
+    relative_urls: false,
+    remove_script_host: false,
+    convert_urls: false,
+    entity_encoding: "raw",
+    automatic_uploads: true,
+    file_picker_types: 'image',
+    plugins: [
+        'advlist autolink lists link image code charmap print preview hr anchor pagebreak',
+        'searchreplace wordcount visualblocks visualchars code fullscreen',
+        'insertdatetime media nonbreaking save table contextmenu directionality',
+        'emoticons paste textcolor colorpicker textpattern imagetools'
+    ],
+
+    toolbar1: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image code',
+    toolbar2: 'print preview media | forecolor backcolor emoticons',
+
+    // File picker callback for selecting local files
+    file_picker_callback: function(cb, value, meta) {
+        let input = document.createElement('input');
+        input.setAttribute('type', 'file');
+        input.setAttribute('accept', 'image/*');
+
+        input.onchange = function() {
+            let file = this.files[0];
+            let formData = new FormData();
+            formData.append('file', file);
+
+            $.ajax({
+                url: '{{ url("upload-image") }}',
+                type: "POST",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(result) {
+                    // Pass uploaded image URL to TinyMCE callback
+                    cb(result.location, { title: file.name });
+                },
+                error: function(xhr, status, error) {
+                    console.error("Image upload failed:", error);
+                    alert("Image upload failed: " + error);
                 }
             });
+        };
+
+        input.click();
+    },
+
+
+    images_upload_handler: function (blobInfo, success, failure) {
+        if (uploadInProgress) return failure('Upload already in progress');
+        uploadInProgress = true;
+
+        let formData = new FormData();
+        formData.append('file', blobInfo.blob(), blobInfo.filename());
+
+        $.ajax({
+            url: '{{ url("upload-image") }}',
+            type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                uploadInProgress = false;
+                if (data && data.location) success(data.location);
+                else failure('Invalid response');
+            },
+            error: function(xhr, status, error) {
+                uploadInProgress = false;
+                failure("Image upload failed: " + error);
+            }
+        });
+    },
+
+
+});
+
+
+            {{--tinymce.init({--}}
+            {{--    selector: '#textarea1',--}}
+            {{--    height: 770,--}}
+            {{--    //  theme: 'modern',--}}
+            {{--    relative_urls: true,--}}
+            {{--    remove_script_host: false,--}}
+            {{--    convert_urls: false,--}}
+            {{--    directionality: '{{ isRtlForLang() ? "rtl" : "ltr" }}',--}}
+            {{--    plugins: [--}}
+            {{--        'advlist autolink lists link image charmap print preview hr anchor pagebreak',--}}
+            {{--        'searchreplace wordcount visualblocks visualchars code fullscreen',--}}
+            {{--        'insertdatetime media nonbreaking save table contextmenu directionality',--}}
+            {{--        'emoticons template paste textcolor colorpicker textpattern imagetools'--}}
+            {{--    ],--}}
+            {{--    toolbar1: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image',--}}
+            {{--    toolbar2: 'print preview media | forecolor backcolor emoticons',--}}
+            {{--    image_advtab: true,--}}
+            {{--    templates: [--}}
+            {{--        {title: 'Test template 1', content: 'Test 1'},--}}
+            {{--        {title: 'Test template 2', content: 'Test 2'}--}}
+            {{--    ],--}}
+            {{--    content_css: [--}}
+            {{--        '//fast.fonts.net/cssapi/e6dc9b99-64fe-4292-ad98-6974f93cd2a2.css',--}}
+            {{--        '//www.tinymce.com/css/codepen.min.css'--}}
+            {{--    ]--}}
+            {{--});--}}
             tinymce.init({
-                selector: '#textarea1',
-                height: 770,
+                selector: '#textarea2',
+                height:300,
                 //  theme: 'modern',
                 relative_urls: true,
                 remove_script_host: false,
                 convert_urls: false,
                 directionality: '{{ isRtlForLang() ? "rtl" : "ltr" }}',
                 plugins: [
-                    'advlist autolink lists link image charmap print preview hr anchor pagebreak',
+                    'advlist autolink lists link charmap print preview hr anchor pagebreak wordcount',
                     'searchreplace wordcount visualblocks visualchars code fullscreen',
-                    'insertdatetime media nonbreaking save table contextmenu directionality',
-                    'emoticons template paste textcolor colorpicker textpattern imagetools'
+                    'insertdatetime nonbreaking save contextmenu directionality',
+                    'emoticons paste textcolor colorpicker textpattern '
                 ],
-                toolbar1: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image',
+                toolbar1: 'bold italic | wordcount',
                 toolbar2: 'print preview media | forecolor backcolor emoticons',
                 image_advtab: true,
-                templates: [
-                    {title: 'Test template 1', content: 'Test 1'},
-                    {title: 'Test template 2', content: 'Test 2'}
-                ],
                 content_css: [
                     '//fast.fonts.net/cssapi/e6dc9b99-64fe-4292-ad98-6974f93cd2a2.css',
                     '//www.tinymce.com/css/codepen.min.css'
-                ]
+                ],
+                setup: function(editor) {
+                    const maxWords = 24;
+
+
+                    // if(words.length>maxWords){
+                    {{--    editor.getContainer().style.border = "1px solid #dc3545";--}}
+                    {{--    $('#des-short').text("{{ __('message.word_count') }}");--}}
+                    {{--    $('#submit').prop('disabled',true);--}}
+                    {{--}--}}
+                    editor.on('change input NodeChange SetContent', function(e) {
+
+                        // Small delay ensures TinyMCE updates its content before checking
+                        setTimeout(function() {
+                            let content = editor.getContent({ format: 'text' }).trim();
+                            let words = content === '' ? [] : content.split(/\s+/);
+
+                            const allowedKeys = [
+                                'Backspace', 'Delete', 'ArrowLeft', 'ArrowRight',
+                                'ArrowUp', 'ArrowDown', 'Home', 'End', 'Tab'
+                            ];
+                            // Prevent typing beyond limit
+                            if (words.length > maxWords && !allowedKeys.includes(e.key)) {
+                                e.preventDefault();
+                                editor.getContainer().style.border = "1px solid #dc3545";
+                                $('#des-short').text("{{ __('message.word_count') }}");
+                                $('#submit').prop('disabled',true);
+
+                                return false;
+                            }
+
+                            // Handle paste (truncate)
+                            if (e.type === 'paste') {
+                                e.preventDefault();
+
+                                let clipboardData = (e.clipboardData || window.clipboardData);
+                                let pastedText = clipboardData.getData('text');
+                                let pastedWords = pastedText.trim().split(/\s+/);
+
+                                let available = maxWords - words.length;
+
+                                if (available > 0) {
+                                    let wordsToPaste = pastedWords.slice(0, available).join(" ");
+                                    editor.insertContent(" " + wordsToPaste);
+
+                                }
+
+                                {{--editor.getContainer().style.border = "1px solid #dc3545";--}}
+                                {{--$('#des-short').text("{{ __('message.word_count') }}");--}}
+                                return false;
+                            }
+
+                            // ✅ Reset if under limit after delete/cut
+                            if (words.length <= maxWords) {
+                                editor.getContainer().style.border = '1px solid silver';
+                                $('#submit').prop('disabled',false);
+                                $('#des-short').text('');
+                            }
+                        }, 0); // Delay 0ms — allows TinyMCE to finish updating
+                    });
+
+// ✅ Handle preloaded content on editor load
+                    editor.on('init', function() {
+                        let content = editor.getContent({ format: 'text' }).trim();
+                        let words = content === '' ? [] : content.split(/\s+/);
+
+                        if (words.length > maxWords) {
+                            editor.getContainer().style.border = "1px solid #dc3545";
+                            $('#submit').prop('disabled',true);
+                            $('#des-short').text("{{ __('message.word_count') }}");
+                        } else {
+                            editor.getContainer().style.border = '1px solid silver';
+                            $('#des-short').text('');
+                        }
+                    });
+
+
+
+
+                }
             });
             tinymce.init({
                 selector: '#textarea3',
@@ -759,15 +1155,11 @@
                     'advlist autolink lists link image charmap print preview hr anchor pagebreak',
                     'searchreplace wordcount visualblocks visualchars code fullscreen',
                     'insertdatetime media nonbreaking save table contextmenu directionality',
-                    'emoticons template paste textcolor colorpicker textpattern imagetools'
+                    'emoticons paste textcolor colorpicker textpattern imagetools'
                 ],
                 toolbar1: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image',
                 toolbar2: 'print preview media | forecolor backcolor emoticons',
                 image_advtab: true,
-                templates: [
-                    {title: 'Test template 1', content: 'Test 1'},
-                    {title: 'Test template 2', content: 'Test 2'}
-                ],
                 content_css: [
                     '//fast.fonts.net/cssapi/e6dc9b99-64fe-4292-ad98-6974f93cd2a2.css',
                     '//www.tinymce.com/css/codepen.min.css'
@@ -1031,6 +1423,7 @@
                 group:@json(trans('message.product_details.add_group')),
                 product_sku:@json(trans('message.product_details.add_product_sku')),
                 description:@json(trans('message.product_details.add_description')),
+                short_description:@json(trans('message.add_short_description')),
                 productdes:@json(trans('message.product_details.add_product_description')),
 
             };
@@ -1055,6 +1448,7 @@
                     product_sku:$('#product_sku'),
                     productdes:$('#product-description'),
                     description:$('#textarea1'),
+                    short_description:$('#textarea2'),
 
                 };
 
@@ -1069,7 +1463,6 @@
 
                 const showError = (field, message) => {
 
-                    console.log(field);
                     field.addClass('is-invalid');
                     field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
                 };

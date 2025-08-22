@@ -24,6 +24,6 @@ class CloudDeletion implements ShouldQueue
      */
     public function handle(UserOrderDelete $event): void
     {
-        (new TenantController(new Client, new FaveoCloud))->destroyTenant(new Request(['id' => $event->domain]));
+        (new TenantController(new Client, new FaveoCloud))->destroyTenant(new Request(['id' => $event->domain, 'orderId' => $event->order_id]));
     }
 }

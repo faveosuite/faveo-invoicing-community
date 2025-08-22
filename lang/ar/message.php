@@ -2551,6 +2551,9 @@ return [
     'deletion_cloud_subscription' => 'حذف الاشتراكات السحابية المنتهية منذ أكثر من..',
     'msg_service_down' => 'نواجه حالياً مشاكل في خدمة OTP. يرجى المحاولة مرة أخرى قريباً. نحن نعمل على حل المشكلة في أسرع وقت ممكن.',
     'cloud_plan_error' => 'يرجى إزالة المنتج السحابي أو ربطه بخطة بديلة.',
+    'short_description' => 'وصف قصير',
+    'add_short_description' => 'الرجاء إدخال وصف قصير.',
+    'word_count' => 'يرجى الحفاظ على الوصف القصير ضمن 50 كلمة.',
 
     'continue_verify_social_login' => 'انقر على "Validate" للمتابعة وتأكيد هويتك',
     'log_description' => ':module :name تم :event',
