@@ -60,7 +60,6 @@ class Plan extends BaseModel
 
     public function delete()
     {
-
         parent::delete();
         $this->planPrice()->delete();
     }
