@@ -130,24 +130,30 @@ class Install extends Command
      */
     public function appEnv()
     {
-        $extensions = ['curl', 'ctype', 'imap', 'mbstring', 'openssl', 'tokenizer', 'pdo_mysql', 'zip', 'pdo', 'mysqli', 'iconv', 'XML', 'json', 'fileinfo', 'gd'];
+        // Load extension details from billing-dependencies.json
+        $dependencies = json_decode(file_get_contents(storage_path('billing-dependencies.json')), true);
+        $requiredExtensions = $dependencies['extensions']['required'];
+        $minPhpVersion = $dependencies['min_php_version'];
+
         $result = [];
         $can_install = true;
-        foreach ($extensions as $key => $extension) {
+
+        foreach ($requiredExtensions as $key => $extension) {
             $result[$key]['extension'] = $extension;
-            if (! extension_loaded($extension)) {
-                $result[$key]['status'] = "Not Loading, Please open please open '".php_ini_loaded_file()."' and add 'extension = ".$extension;
+            if (!extension_loaded($extension)) {
+                $result[$key]['status'] = "Not Loading, Please open '".php_ini_loaded_file()."' and add 'extension = ".$extension."'";
                 $can_install = false;
             } else {
                 $result[$key]['status'] = 'Loading';
             }
         }
+
         $result['php']['extension'] = 'PHP';
-        if (phpversion() >= '8.2.0') {
+        if (version_compare(phpversion(), $minPhpVersion, '>=')) {
             $result['php']['status'] = 'PHP version supports';
         } else {
             $can_install = false;
-            $result['php']['status'] = "PHP version doesn't supports please upgrade to 8.2.0 +";
+            $result['php']['status'] = "PHP version doesn't support, please upgrade to ".$minPhpVersion." or higher.";
         }
 
         $headers = ['Extension', 'Status'];
