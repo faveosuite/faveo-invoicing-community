@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Product;
 use App\Facades\Attach;
 use App\Http\Controllers\License\LicenseController;
 use App\Http\Controllers\License\LicensePermissionsController;
+use App\Model\Order\InstallationDetail;
 use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use App\Model\Product\ProductUpload;
@@ -386,6 +387,16 @@ class BaseProductController extends ExtendedBaseProductController
         }
 
         return successResponse(\Lang::get('message.file_exist'));
+    }
+
+    public function updateStatus(Request $request){
+        if (! $this->validateLicenseManagerAppKey($request->input('app_key'), $request->input('app_secret'))) {
+            return errorResponse(\Lang::get('message.invalid_app_key'));
+        }
+        $domain=$request->input('domain');
+        InstallationDetail::where('installation_path', $domain)->update(['status' => 0]);
+
+        return successResponse(\Lang::get('message.updated_successfully'));
     }
 
     private function fileExists($filePath): bool

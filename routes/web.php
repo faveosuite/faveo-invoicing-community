@@ -284,6 +284,7 @@ Route::middleware('installAgora')->group(function () {
     Route::post('upload/save', [Product\ProductController::class, 'save'])->name('upload/save');
     Route::post('chunkupload', [Product\ProductController::class, 'uploadFile']);
     Route::patch('upload/{id}', [Product\ProductController::class, 'uploadUpdate']);
+    Route::post('upload-image', [Product\ProductController::class, 'uploadImage'])->name('upload-image');
     Route::get('get-group-url', [Product\GroupController::class, 'generateGroupUrl']);
     Route::post('save-user-column', [User\SoftDeleteController::class, 'saveUserColumn']);
 
@@ -648,7 +649,7 @@ Route::middleware('installAgora')->group(function () {
     Route::prefix('api')->withoutMiddleware(['web'])->middleware(['api'])->group(function () {
         Route::post('productDownload', [Product\BaseProductController::class, 'productDownload']);
         Route::post('productExist', [Product\BaseProductController::class, 'productFileExist']);
-
+        Route::post('updateInstallationStatus', [Product\BaseProductController::class, 'updateStatus']);
 //        it receive the reports form the MSG91
         Route::post('msg91/reports/{app_key}/{app_secret}', [Common\MSG91Controller::class, 'handleReports'])->withoutMiddleware(['admin', 'auth']);
     });

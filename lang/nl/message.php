@@ -2679,6 +2679,8 @@ return [
     'enable_system_logs_cron' => 'Systeemlogboeken verwijderen inschakelen',
     'system_logs_deletion_older_than' => 'Systeemlogboeken ouder verwijderen dan..',
     'cloud_plan_error' => 'Verwijder het cloudproduct of koppel het aan een alternatief plan.',
+    'short_description' => 'Korte beschrijving',
+    'add_short_description' => 'Voer een korte beschrijving in.',
     'auto_renewal_disable' => 'Automatisch verlengen is momenteel niet beschikbaar. Neem contact op met de beheerder voor hulp.',
     'auto_renewal_tooltip' => 'Schakel automatisch verlengen in of uit voor alle gebruikers.',
     'continue_verify_social_login' => 'Klik op "Validate" om verder te gaan en uw identiteit te bevestigen',

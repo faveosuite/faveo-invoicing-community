@@ -304,7 +304,6 @@
                                         </tbody>
                                     </table>
                                 </div>
-
                                 <div class="row justify-content-between mx-0 flex-wrap">
 
                                     <div class="col-md-auto px-0 mb-3 mb-md-0">

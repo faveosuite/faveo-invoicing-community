@@ -265,7 +265,7 @@
                         $user = \DB::table('users')->find(\Auth::user()->id);
                         ?>
                         <span class="d-none d-md-inline me-2">{{ucfirst(Auth::user()->first_name)}} {{ucfirst(Auth::user()->last_name)}}</span>
-                        <img src="{{ Auth::user()->profile_pic }}" style="width:30px;height: 30px;" class="user-image img-circle shadow d-none d-md-inline" alt="User Image" />
+                        <img src="{{ Auth::user()->profile_pic }}" style="width:30px;height: 30px;" class="user-image img-circle shadow d-none d-md-inline" alt="" />
                     </a>
 
                     <ul class="dropdown-menu dropdown-menu-sm dropdown-profile dropdown-menu-end rounded model-box text-white dropdown-menu-arrow mt-2" >

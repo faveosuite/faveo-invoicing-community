@@ -24,6 +24,7 @@ class VerifyCsrfToken extends BaseVerifier
         'pricing/data',
         'group/data',
         'api/csp-report',
+        'upload-image',
     ];
 
     /**

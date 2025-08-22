@@ -2710,6 +2710,10 @@ return [
     'enable_system_logs_cron' => 'אפשר מחיקת יומני מערכת',
     'system_logs_deletion_older_than' => 'מחיקת יומני מערכת ישנים יותר מ..',
     'cloud_plan_error' => 'אנא הסר את מוצר הענן או קשר אותו לתוכנית חלופית.',
+    'short_description' => 'תיאור קצר',
+    'add_short_description' => 'אנא הזן תיאור קצר.',
+    'word_count' => 'אנא שמרו את התיאור הקצר שלכם בתוך 50 מילים.',
+
     'auto_renewal_disable' => 'חידוש אוטומטי אינו זמין כעת. אנא פנה למנהל לקבלת עזרה.',
     'auto_renewal_tooltip' => 'אפשר או בטל חידוש אוטומטי עבור כל המשתמשים.',
     'invalid_code_2fa' => 'קוד שגוי. אנא נסה שוב.',
