@@ -21,6 +21,7 @@ use App\Model\Product\Subscription;
 use App\Payment_log;
 use App\User;
 use Bugsnag;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class OrderController extends BaseOrderController
@@ -191,10 +192,15 @@ class OrderController extends BaseOrderController
                     return intval($license, 10);
                 })
                 ->addColumn('number', function ($model) {
-                    $installedPath = InstallationDetail::where('order_id', $model->id)->exists();
+                    $ExpireDate = Carbon::now()->subDays(5)->toDateString();
+
+//                    $installedPath = InstallationDetail::where('order_id', $model->id)->exists();
+                    $last_active = InstallationDetail::where('order_id', $model->id)
+                        ->latest()
+                        ->value('last_active');
                     $orderLink = '<a href='.url('orders/'.$model->id).'>'.$model->number.'</a>';
                     if ($model->subscription_updated_at) {
-                        $orderLink = '<a href='.url('orders/'.$model->id).'>'.$model->number.'</a>'.installationStatusLabel(! empty($installationDetails['installed_path']) ? $installationDetails['installed_path'] : $installedPath);
+                        $orderLink = '<a href='.url('orders/'.$model->id).'>'.$model->number.'</a>'.installationStatusLabel((!empty($last_active) && ($last_active > $ExpireDate)) ? 1 : 0);
                     }
                     if ($model->order_status == 'Terminated') {
                         $badge = 'badge';

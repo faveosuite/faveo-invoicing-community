@@ -148,6 +148,16 @@
                             <span class="error-message"> {{$message}}</span>
                             @enderror
                             <h6 id= "descheck"></h6>
+
+                            {!! html()->label(Lang::get('message.short_description'), 'short_description')->class('required') !!}
+                            <!-- {!! html()->text('description')->class('form-control'.($errors->has('short_description') ? ' is-invalid' : ''))->id('textarea2') !!}-->
+                            <textarea hidden class="form-control"  name="short_description" id='textarea2'>{!! $product->short_description !!}</textarea>
+
+                            @error('short_description')
+                            <span class="error-message"> {{$message}}</span>
+                            @enderror
+                            <h6 id= "descheck"></h6>
+
                         </div>
 
 
@@ -332,6 +342,7 @@
                         </div>
 
                     </div>
+
                     <div class="row">
 
                         <div class="col-md-12 form-group {{ $errors->has('product_description') ? 'has-error' : '' }}">
@@ -675,7 +686,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>--}}
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="//cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.tiny.cloud/1/4f0mdhyghkekvb5nle8s7aai2g2dooxhbv9yh3dunatblh6l/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+    <script src="https://cdn.tiny.cloud/1/e3lij95fzfkwg5d1rx1e67g8kuu6ugnh3e4vdkmnxr0t8a4j/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
     <link href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/css/select2.min.css" rel="stylesheet" />
@@ -724,6 +735,32 @@
             tinymce.init({
                 selector: '#textarea1',
                 height: 770,
+                //  theme: 'modern',
+                relative_urls: true,
+                remove_script_host: false,
+                convert_urls: false,
+                directionality: '{{ isRtlForLang() ? "rtl" : "ltr" }}',
+                plugins: [
+                    'advlist autolink lists link image charmap print preview hr anchor pagebreak',
+                    'searchreplace wordcount visualblocks visualchars code fullscreen',
+                    'insertdatetime media nonbreaking save table contextmenu directionality',
+                    'emoticons template paste textcolor colorpicker textpattern imagetools'
+                ],
+                toolbar1: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image',
+                toolbar2: 'print preview media | forecolor backcolor emoticons',
+                image_advtab: true,
+                templates: [
+                    {title: 'Test template 1', content: 'Test 1'},
+                    {title: 'Test template 2', content: 'Test 2'}
+                ],
+                content_css: [
+                    '//fast.fonts.net/cssapi/e6dc9b99-64fe-4292-ad98-6974f93cd2a2.css',
+                    '//www.tinymce.com/css/codepen.min.css'
+                ]
+            });
+            tinymce.init({
+                selector: '#textarea2',
+                height:300,
                 //  theme: 'modern',
                 relative_urls: true,
                 remove_script_host: false,
@@ -1031,6 +1068,7 @@
                 group:@json(trans('message.product_details.add_group')),
                 product_sku:@json(trans('message.product_details.add_product_sku')),
                 description:@json(trans('message.product_details.add_description')),
+                short_description:@json(trans('message.add_short_description')),
                 productdes:@json(trans('message.product_details.add_product_description')),
 
             };
@@ -1055,6 +1093,7 @@
                     product_sku:$('#product_sku'),
                     productdes:$('#product-description'),
                     description:$('#textarea1'),
+                    short_description:$('#textarea2'),
 
                 };
 
