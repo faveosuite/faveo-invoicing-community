@@ -2705,6 +2705,8 @@ return [
 
     'user_position_prohibited_if' => 'השדה תפקיד אינו מותר כאשר התפקיד הוא משתמש.',
     'cloud_plan_error' => 'אנא הסר את מוצר הענן או קשר אותו לתוכנית חלופית.',
+    'short_description' => 'תיאור קצר',
+    'add_short_description' => 'אנא הזן תיאור קצר.',
     'auto_renewal_disable' => 'חידוש אוטומטי אינו זמין כעת. אנא פנה למנהל לקבלת עזרה.',
     'auto_renewal_tooltip' => 'אפשר או בטל חידוש אוטומטי עבור כל המשתמשים.',
 

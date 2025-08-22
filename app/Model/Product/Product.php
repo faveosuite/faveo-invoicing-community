@@ -18,7 +18,7 @@ class Product extends BaseModel
 
     protected $table = 'products';
 
-    protected $fillable = ['id', 'name', 'description', 'type', 'group', 'file', 'image', 'require_domain', 'category',
+    protected $fillable = ['id', 'name', 'description', 'short_description','type', 'group', 'file', 'image', 'require_domain', 'category',
         'can_modify_agent',  'can_modify_quantity', 'show_agent', 'tax_apply', 'show_product_quantity', 'hidden',  'auto_terminate',
         'setup_order_placed', 'setup_first_payment', 'setup_accept_manually',
         'no_auto_setup', 'shoping_cart_link', 'process_url', 'github_owner',

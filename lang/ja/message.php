@@ -2703,6 +2703,8 @@ return [
 
     'user_position_prohibited_if' => '役割がユーザーの場合、ポジションフィールドは使用できません。',
     'cloud_plan_error' => 'クラウド製品を削除するか、別のプランにリンクしてください。',
+    'short_description' => '簡単な説明',
+    'add_short_description' => '簡単な説明を入力してください。',
     'auto_renewal_disable' => '自動更新は現在利用できません。管理者にお問い合わせください。',
     'auto_renewal_tooltip' => 'すべてのユーザーに対して自動更新を有効または無効にします。',
 

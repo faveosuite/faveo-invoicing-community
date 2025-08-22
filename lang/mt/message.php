@@ -2626,6 +2626,8 @@
 
      'user_position_prohibited_if' => 'Il-qasam tal-pożizzjoni mhuwiex permess meta r-rwol ikun utent.',
      'cloud_plan_error' => 'Jekk jogħġbok neħħi l-prodott cloud jew għaqqdu ma’ pjan alternattiv.',
+     'short_description' => 'Deskrizzjoni qasira',
+     'add_short_description' => 'Jekk jogħġbok daħħal deskrizzjoni qasira.',
      'auto_renewal_disable' => 'Ir-rinnovar awtomatiku bħalissa mhux disponibbli. Jekk jogħġbok ikkuntattja lill-amministratur għall-għajnuna.',
      'auto_renewal_tooltip' => 'Attiva jew iddiżattiva r-rinnovar awtomatiku għal kull utent.',
 
