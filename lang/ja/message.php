@@ -2702,4 +2702,6 @@ return [
     'manager_settings_updated_successfully' => 'マネージャーの設定が正常に更新されました。',
 
     'user_position_prohibited_if' => '役割がユーザーの場合、ポジションフィールドは使用できません。',
+    'cloud_plan_error' => 'クラウド製品を削除するか、別のプランにリンクしてください。',
+
 ];

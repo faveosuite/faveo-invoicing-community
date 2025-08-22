@@ -2625,4 +2625,6 @@
      'manager_settings_updated_successfully' => 'Is-settings tal-maniġer ġew aġġornati b’suċċess.',
 
      'user_position_prohibited_if' => 'Il-qasam tal-pożizzjoni mhuwiex permess meta r-rwol ikun utent.',
+     'cloud_plan_error' => 'Jekk jogħġbok neħħi l-prodott cloud jew għaqqdu ma’ pjan alternattiv.',
+
  ];

@@ -2629,5 +2629,6 @@ return [
     'delete_invoice_older' => 'Obriši fakture starije od...',
     'deletion_cloud_subscription' => 'Obriši cloud pretplate koje su istekle prije više od...',
     'msg_service_down' => 'Trenutno imamo problema s OTP uslugom. Molimo pokušajte ponovo uskoro. Radimo na brzom rješenju problema.',
+    'cloud_plan_error' => 'Molimo uklonite cloud proizvod ili ga povežite s alternativnim planom.',
 
 ];

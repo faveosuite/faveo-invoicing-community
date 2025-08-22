@@ -2704,4 +2704,6 @@ return [
     'manager_settings_updated_successfully' => 'הגדרות המנהל עודכנו בהצלחה.',
 
     'user_position_prohibited_if' => 'השדה תפקיד אינו מותר כאשר התפקיד הוא משתמש.',
+    'cloud_plan_error' => 'אנא הסר את מוצר הענן או קשר אותו לתוכנית חלופית.',
+
 ];

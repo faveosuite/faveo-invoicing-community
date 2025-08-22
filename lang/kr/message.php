@@ -2720,4 +2720,6 @@ return [
     'manager_settings_updated_successfully' => '관리자 설정이 성공적으로 업데이트되었습니다.',
 
     'user_position_prohibited_if' => '역할이 사용자일 때는 직위 필드를 사용할 수 없습니다.',
+    'cloud_plan_error' => '클라우드 제품을 삭제하거나 다른 요금제에 연결해 주세요.',
+
 ];

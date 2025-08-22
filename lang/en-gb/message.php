@@ -2702,5 +2702,6 @@ return [
     'delete_invoice_older' => 'Delete invoices older than...',
     'deletion_cloud_subscription' => 'Delete cloud subscriptions expired more than...',
     'msg_service_down' => 'We’re currently experiencing issues with our OTP service. Please try again shortly. We’re working to resolve this as quickly as possible.',
+    'cloud_plan_error' => 'Please remove the cloud product or link it to an alternative plan.',
 
 ];
