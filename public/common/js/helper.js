@@ -36,8 +36,16 @@ window.helper = (() => {
         alertDiv.className = `alert ${alertClass} ${dismissible ? 'alert-dismissible' : ''} ${additionalClasses}`;
         alertDiv.setAttribute('role', 'alert');
 
-        // Icon + message
-        alertDiv.innerHTML = `<i class="fa ${iconClass} mr-1"></i> ${message}`;
+        // Create icon element
+        const iconElement = document.createElement('i');
+        iconElement.className = `fa ${iconClass} mr-1`;
+
+        // Create message text node to prevent HTML injection
+        const messageText = document.createTextNode(` ${message}`);
+
+        // Append icon and message safely
+        alertDiv.appendChild(iconElement);
+        alertDiv.appendChild(messageText);
 
         // Dismiss button
         if (dismissible) {

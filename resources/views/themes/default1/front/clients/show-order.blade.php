@@ -895,7 +895,7 @@
 
                         <div class="overlay" style="display: none;"></div> <!-- Add this line -->
 
-                        <div class="loader-wrapper" style="display: none; background: white; height: 100%;" >
+                        <div class="loader-wrapper" style="display: none; background: white; height: 100%" >
                             <i class="fas fa-spinner fa-spin" style="font-size: 40px;"></i>
 
                         </div>
@@ -1202,7 +1202,7 @@
                 borderRadius: '4px'
             },
             rules: {
-                '.Input': { pamy-invoicesdding: '10px' },
+                '.Input': { padding: '10px' },
                 '.StripeElement--invalid': {
                     borderColor: '#df1b41',
                     borderWidth: '1px',
