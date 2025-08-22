@@ -2678,4 +2678,6 @@ return [
     'manager_settings_updated_successfully' => 'As configurações do gerente foram atualizadas com sucesso.',
 
     'user_position_prohibited_if' => 'O campo posição não é permitido quando o papel é usuário.',
+    'cloud_plan_error' => 'Por favor, remova o produto em nuvem ou vincule-o a um plano alternativo.',
+
 ];

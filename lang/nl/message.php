@@ -2666,4 +2666,6 @@ return [
     'manager_settings_updated_successfully' => 'Managerinstellingen zijn succesvol bijgewerkt.',
 
     'user_position_prohibited_if' => 'Het veld functie is niet toegestaan wanneer de rol gebruiker is.',
+    'cloud_plan_error' => 'Verwijder het cloudproduct of koppel het aan een alternatief plan.',
+
 ];

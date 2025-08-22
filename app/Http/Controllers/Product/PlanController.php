@@ -308,39 +308,49 @@ class PlanController extends ExtendedPlanController
      */
     public function destroy(Request $request)
     {
-        $ids = $request->input('select');
-        if (! empty($ids)) {
-            foreach ($ids as $id) {
-                $plan = $this->plan->where('id', $id)->first();
-                if ($plan) {
-                    $plan->delete();
-                } else {
-                    echo "<div class='alert alert-success alert-dismissable'>
+        try {
+            $ids = $request->input('select');
+            if (!empty($ids)) {
+                foreach ($ids as $id) {
+                    $plan = $this->plan->where('id', $id)->first();
+                    if ($plan) {
+                        $plan->delete();
+                    } else {
+                        echo "<div class='alert alert-success alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.success').'
+                    <b>" . /* @scrutinizer ignore-type */ \Lang::get('message.alert') . '!</b> ' .
+                            /* @scrutinizer ignore-type */ \Lang::get('message.success') . '
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.no-record').'
+                        ' . /* @scrutinizer ignore-type */ \Lang::get('message.no-record') . '
                 </div>';
-                    //echo \Lang::get('message.no-record') . '  [id=>' . $id . ']';
+                        //echo \Lang::get('message.no-record') . '  [id=>' . $id . ']';
+                    }
                 }
+                echo "<div class='alert alert-success alert-dismissable'>
+                    <i class='fa fa-ban'></i>
+                    <b>" . /* @scrutinizer ignore-type */ \Lang::get('message.alert') . '!</b> ' .
+                    /* @scrutinizer ignore-type */ \Lang::get('message.success') . '
+                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
+                        ' . /* @scrutinizer ignore-type */ \Lang::get('message.deleted-successfully') . '
+                </div>';
+            } else {
+                echo "<div class='alert alert-success alert-dismissable'>
+                    <i class='fa fa-ban'></i>
+                    <b>" . /* @scrutinizer ignore-type */ \Lang::get('message.alert') . '!</b> ' .
+                    /* @scrutinizer ignore-type */ \Lang::get('message.success') . '
+                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
+                        ' . /* @scrutinizer ignore-type */ \Lang::get('message.select-a-row') . '
+                </div>';
+                //echo \Lang::get('message.select-a-row');
             }
-            echo "<div class='alert alert-success alert-dismissable'>
+        }catch(\Exception $ex){
+            echo "<div class='alert alert-danger alert-dismissable'>
                     <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.success').'
+                    <b>" . /* @scrutinizer ignore-type */ \Lang::get('message.alert') . '!</b> ' .
+                /* @scrutinizer ignore-type */ \Lang::get('message.cloud_plan_error') . '
                     <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.deleted-successfully').'
+                  
                 </div>';
-        } else {
-            echo "<div class='alert alert-success alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */ \Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */ \Lang::get('message.success').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.select-a-row').'
-                </div>';
-            //echo \Lang::get('message.select-a-row');
         }
     }
 
