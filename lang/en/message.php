@@ -2773,6 +2773,8 @@ return [
     'badge_inline' => 'Inline',
 
     'cloud_plan_error' => 'Please remove the cloud product or link it to an alternate plan.',
+    'short_description'=>'Short Description',
+    'add_short_description'=>'Please enter short description.',
     'invalid_code_2fa' => 'Invalid code. Please try again.',
     '6_digit_auth_code' => 'Enter your 6-digit authentication code',
     '6_code_numer' => 'Code must be a 6-digit number.',

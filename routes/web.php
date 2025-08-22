@@ -284,6 +284,7 @@ Route::middleware('installAgora')->group(function () {
     Route::post('upload/save', [Product\ProductController::class, 'save'])->name('upload/save');
     Route::post('chunkupload', [Product\ProductController::class, 'uploadFile']);
     Route::patch('upload/{id}', [Product\ProductController::class, 'uploadUpdate']);
+    Route::post('upload-image', [Product\ProductController::class, 'uploadImage'])->name('upload-image');
     Route::get('get-group-url', [Product\GroupController::class, 'generateGroupUrl']);
     Route::post('save-user-column', [User\SoftDeleteController::class, 'saveUserColumn']);
 

@@ -2708,6 +2708,8 @@ return [
     'enable_system_logs_cron' => "Abilita l'eliminazione dei log di sistema",
     'system_logs_deletion_older_than' => 'Eliminazione dei log di sistema precedenti a...',
     'cloud_plan_error' => 'Si prega di rimuovere il prodotto cloud o collegarlo a un piano alternativo.',
+    'short_description' => 'Breve descrizione',
+    'add_short_description' => 'Si prega di inserire una breve descrizione.',
     'auto_renewal_disable' => "Il rinnovo automatico non è attualmente disponibile. Si prega di contattare l'amministratore per assistenza.",
     'auto_renewal_tooltip' => 'Abilita o disabilita il rinnovo automatico per tutti gli utenti.',
     'continue_verify_social_login' => 'Clicca su "Validate" per procedere e confermare la tua identità',

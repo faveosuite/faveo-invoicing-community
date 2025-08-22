@@ -17,10 +17,10 @@ use Illuminate\Support\Facades\RateLimiter;
 use Spatie\Activitylog\ActivityLogger;
 use Spatie\Activitylog\ActivityLogStatus;
 
-function getLocation()
+function getLocation($ip=null)
 {
     try {
-        $location = \GeoIP::getLocation();
+        $location = \GeoIP::getLocation($ip);
 
         return $location;
     } catch (Exception $ex) {

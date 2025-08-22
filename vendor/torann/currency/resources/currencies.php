@@ -903,9 +903,9 @@ return [
         'exchange_rate' => 0.00,
     ],
     'XAF' => [
-        'name' => 'Franc CFA (XAF)',
-        'symbol' => 'F.CFA',
-        'format' => '1,0.00 F.CFA',
+        'name' => 'Central African CFA Franc',
+        'symbol' => 'FCFA',
+        'format' => '1,0.00 FCFA',
         'exchange_rate' => 0.00,
     ],
     'XCD' => [

@@ -2701,6 +2701,8 @@ return [
     'enable_system_logs_cron' => '启用系统日志删除',
     'system_logs_deletion_older_than' => '删除早于以下时间的系统日志..',
     'cloud_plan_error' => '请移除云产品或将其关联到其他方案。',
+    'short_description' => '简短描述',
+    'add_short_description' => '请输入简短描述。',
     'auto_renewal_disable' => '自动续订目前不可用。请联系管理员以获取帮助。',
     'auto_renewal_tooltip' => '为所有用户启用或禁用自动续订。',
     'invalid_code_2fa' => '无效的代码。请再试一次。',

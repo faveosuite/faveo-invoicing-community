@@ -22,11 +22,13 @@ use App\Model\Product\ProductGroup;
 use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
 use App\Traits\Upload\ChunkUpload;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use Spatie\Activitylog\Models\Activity;
 use Yajra\DataTables\DataTables;
-
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 // use Input;
 
 class ProductController extends BaseProductController
@@ -310,6 +312,7 @@ class ProductController extends BaseProductController
             'type' => 'required',
             'description' => 'required',
             'product_description' => 'required',
+            'short_description' => 'required',
             'image' => 'sometimes|mimes:jpeg,png,jpg|max:2048',
             'product_sku' => 'required|unique:products,product_sku',
             'group' => 'required',
@@ -454,6 +457,7 @@ class ProductController extends BaseProductController
                 'name.unique' => __('validation.product_controller.name_unique'),
                 'type.required' => __('validation.product_controller.type_required'),
                 'description.required' => __('validation.product_controller.description_required'),
+                'short_description.required' => __('validation.product_controller.short_description_required'),
                 'product_description.required' => __('validation.product_controller.product_description_required'),
                 'image.mimes' => __('validation.product_controller.image_mimes'),
                 'image.max' => __('validation.product_controller.image_max'),
@@ -466,12 +470,15 @@ class ProductController extends BaseProductController
             return redirect()->back()->with('errors', $v->errors());
         }
 
+//       To Delete the uploaded files when it is removed from the tinymce
+        $product = $this->product->where('id', $id)->first();
+        $this->removeUploads($product->product_description,$request->input('product_description'));
         try {
             $licenseStatus = StatusSetting::pluck('license_status')->first();
             if ($licenseStatus) {
                 $addProductInLicensing = $this->licensing->editProduct($input['name'], $input['product_sku']);
             }
-            $product = $this->product->where('id', $id)->first();
+
             if ($request->hasFile('image')) {
                 $image = Attach::put('common/images/', $request->file('image'), null, true);
                 $product->image = basename($image);
@@ -497,6 +504,28 @@ class ProductController extends BaseProductController
             return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
         } catch (\Exception $e) {
             return redirect()->back()->with('fails', $e->getMessage());
+        }
+    }
+
+
+    public function removeUploads($oldContent,$newContent){
+        preg_match_all('/<img[^>]+src="([^"]+)"/', $oldContent, $oldMatches);
+        preg_match_all('/<img[^>]+src="([^"]+)"/', $newContent, $newMatches);
+
+        $oldImages = $oldMatches[1] ?? [];
+        $newImages = $newMatches[1] ?? [];
+
+        // 2. Find removed images
+        $removedImages = array_diff($oldImages, $newImages);
+        // 3. Delete removed images from storage
+        foreach ($removedImages as $imgUrl) {
+            // Convert URL to storage path if needed
+            if (Str::contains($imgUrl, '/storage/uploads/tinymce/')) {
+                $path = str_replace('/storage/', 'public/', parse_url($imgUrl, PHP_URL_PATH));
+                if (Storage::exists($path)) {
+                    Storage::delete($path);
+                }
+            }
         }
     }
 
@@ -641,5 +670,41 @@ class ProductController extends BaseProductController
         }
 
     </script>";
+    }
+
+    public function uploadImage(Request $request){
+try {
+    $setting = Setting::find(1);
+
+    if ($request->hasFile('file')) {
+        $file = $request->file('file');
+        $filename = time().'_'.$file->getClientOriginalName();
+        $path = $file->storeAs('public/uploads/tinymce', $filename);
+
+    }
+
+    if($request->input('url')){
+        $url = $request->input('url');
+        $client = new Client();
+        $response = $client->get($url, [
+            'headers' => [
+                'User-Agent' => 'Mozilla/5.0' // Some servers require User-Agent
+            ]
+        ]);
+        $contents = $response->getBody()->getContents();
+
+        $ext = pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION);
+        $filename = 'tinymce/' . uniqid() . '.' . ($ext ?: 'jpg');
+        Storage::put('public/uploads/' . $filename, $contents);
+        $path = Storage::url('public/uploads/' . $filename);
+    }
+
+    return response()->json([
+        'location' => asset(str_replace('public/', 'storage/', $path))
+    ]);
+}catch (\Exception $e){
+    dd($e->getMessage());
+    return response()->json(['error' => 'No file uploaded.'], 500);
+}
     }
 }

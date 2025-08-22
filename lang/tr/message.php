@@ -2719,6 +2719,8 @@ return [
     'enable_system_logs_cron' => 'Sistem günlükleri silmeyi etkinleştir',
     'system_logs_deletion_older_than' => 'Şundan eski Sistem Günlüklerini Sil..',
     'cloud_plan_error' => 'Lütfen bulut ürününü kaldırın veya alternatif bir plana bağlayın.',
+    'short_description' => 'Kısa açıklama',
+    'add_short_description' => 'Lütfen kısa bir açıklama girin.',
     'auto_renewal_disable' => 'Otomatik yenileme şu anda kullanılamıyor. Lütfen yardım için yöneticiyle iletişime geçin.',
     'auto_renewal_tooltip' => 'Tüm kullanıcılar için otomatik yenilemeyi etkinleştirin veya devre dışı bırakın.',
     'invalid_code_2fa' => 'Geçersiz kod. Lütfen tekrar deneyin.',

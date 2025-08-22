@@ -2726,6 +2726,8 @@ return [
     'enable_system_logs_cron' => '시스템 로그 삭제 활성화',
     'system_logs_deletion_older_than' => '오래된 시스템 로그 삭제 기준..',
     'cloud_plan_error' => '클라우드 제품을 삭제하거나 다른 요금제에 연결해 주세요.',
+    'short_description' => '짧은 설명',
+    'add_short_description' => '짧은 설명을 입력하세요.',
     'auto_renewal_disable' => '자동 갱신은 현재 사용할 수 없습니다. 관리자에게 문의하십시오.',
     'auto_renewal_tooltip' => '모든 사용자의 자동 갱신을 활성화하거나 비활성화합니다.',
     'invalid_code_2fa' => '잘못된 코드입니다. 다시 시도해주세요.',

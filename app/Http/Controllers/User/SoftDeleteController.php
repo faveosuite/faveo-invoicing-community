@@ -113,7 +113,7 @@ class SoftDeleteController extends ClientController
                         foreach ($tenants as $tenant) {
                             $installation_path = \DB::table('installation_details')->where('order_id', $tenant)->where('installation_path', '!=', cloudCentralDomain())->value('installation_path');
                             if ($installation_path) {
-                                event(new UserOrderDelete($installation_path));
+                                event(new UserOrderDelete($installation_path,$tenant));
                             }
                         }
                         $user->invoiceItem()->delete();
