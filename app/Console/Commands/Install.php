@@ -140,7 +140,7 @@ class Install extends Command
 
         foreach ($requiredExtensions as $key => $extension) {
             $result[$key]['extension'] = $extension;
-            if (!extension_loaded($extension)) {
+            if (! extension_loaded($extension)) {
                 $result[$key]['status'] = "Not Loading, Please open '".php_ini_loaded_file()."' and add 'extension = ".$extension."'";
                 $can_install = false;
             } else {
@@ -153,7 +153,7 @@ class Install extends Command
             $result['php']['status'] = 'PHP version supports';
         } else {
             $can_install = false;
-            $result['php']['status'] = "PHP version doesn't support, please upgrade to ".$minPhpVersion." or higher.";
+            $result['php']['status'] = "PHP version doesn't support, please upgrade to ".$minPhpVersion.' or higher.';
         }
 
         $headers = ['Extension', 'Status'];
