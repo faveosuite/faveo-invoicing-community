@@ -4,8 +4,10 @@ namespace App\Console\Commands;
 
 use App\Http\Controllers\BillingInstaller\InstallerController;
 use App\Http\Controllers\SyncBillingToLatestVersion;
+use Artisan;
 use Config;
 use DB;
+use Dotenv\Dotenv;
 use Illuminate\Console\Command;
 
 class InstallDB extends Command
@@ -15,7 +17,9 @@ class InstallDB extends Command
      *
      * @var string
      */
-    protected $signature = 'install:db';
+    protected $signature = 'install:db 
+                            {--migrate= : Run database migrations}
+                            {--env= : Set the application environment (production, development, testing)}';
 
     /**
      * The console command description.
@@ -45,34 +49,38 @@ class InstallDB extends Command
     public function handle()
     {
         try {
-            $env = base_path().DIRECTORY_SEPARATOR.'.env';
-            if (! is_file($env)) {
+            $migrateOption = $this->option('migrate');
+            $envOption = $this->option('env');
+
+            $envFilePath = base_path().DIRECTORY_SEPARATOR.'.env';
+
+            if (! is_file($envFilePath)) {
                 throw new \Exception("Please run 'php artisan install:agora'");
             }
-            if (! $this->confirm('Do you want to migrate tables now?')) {
+
+            $shouldMigrate = filter_var(
+                $migrateOption ?? $this->confirm('Do you want to migrate tables now?'),
+                FILTER_VALIDATE_BOOLEAN
+            );
+            if (! $shouldMigrate) {
                 return;
             }
-            $this->call('key:generate', ['--force' => true]);
+            $this->runArtisanSetup();
             $this->checkDBVersion();
+
             $this->info('');
             $this->info('Database setup in progress...');
             (new SyncBillingToLatestVersion)->sync();
+
             $this->info('');
             $this->info('Database setup completed successfully.');
+
             $this->createAdmin();
-            $headers = ['email', 'password'];
-            $data = [
-                [
-                    'email' => 'demo@admin.com',
-                    'password' => 'Demo@1234',
-                ],
-            ];
-            $env = $this->choice(
-                'Select application environment', ['production', 'development', 'testing']
-            );
-            $this->install->updateInstallEnv($env);
-            $this->table($headers, $data);
+            $environment = $envOption ?? $this->choice('Select application environment', ['production', 'development', 'testing']);
+            $this->install->updateInstallEnv($environment);
+            $this->showAdminInfo();
             $this->info('');
+
             $this->warn('Please update your email and change the password immediately'.PHP_EOL);
             $url = Config::get('app.url');
             $this->info("Agora has been installed successfully. Please visit $url to login".PHP_EOL);
@@ -173,6 +181,45 @@ class InstallDB extends Command
             'active' => 1,
             'mobile_verified' => 1,
             'currency' => 'INR',
+        ]);
+    }
+
+    /**
+     * Run artisan commands to set up the application environment.
+     */
+    protected function runArtisanSetup()
+    {
+        $dotenv = Dotenv::createImmutable(base_path());
+        $dotenv->load();
+
+        config([
+            'database.connections.mysql.password' => env('DB_PASSWORD'),
+            'database.connections.mysql.username' => env('DB_USERNAME'),
+            'database.connections.mysql.host' => env('DB_HOST'),
+            'database.connections.mysql.database' => env('DB_DATABASE'),
+            'app.url' => env('APP_URL'),
+            'app.key' => env('APP_KEY'),
+        ]);
+
+        DB::purge('mysql');
+        DB::reconnect('mysql');
+
+        Artisan::call('config:clear');
+        Artisan::call('cache:clear');
+        Artisan::call('key:generate', ['--force' => true]);
+        $this->info(Artisan::output());
+    }
+
+    /**
+     * Display admin user information in a table format.
+     */
+    protected function showAdminInfo()
+    {
+        $this->table(['email', 'password'], [
+            [
+                'email' => 'demo@admin.com',
+                'password' => 'Demo@1234',
+            ],
         ]);
     }
 }
