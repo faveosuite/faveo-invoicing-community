@@ -515,4 +515,3 @@ class InstallerController extends Controller
         }
     }
 }
-
