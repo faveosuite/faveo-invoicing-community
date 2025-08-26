@@ -596,9 +596,13 @@ class HomeController extends BaseHomeController
 
             $group = ProductGroup::findOrFail($groupId);
 
-            $countryId = Country::where('country_code_char2', $countryCode)->value('country_id');
-            $currencyAndSymbol = getCurrencyForClient($countryCode);
-
+//            $countryId = Country::where('country_code_char2', $countryCode)->value('country_id');
+//            $currencyAndSymbol = getCurrencyForClient($countryCode);
+            $ip=$request->query('ipAddress');
+            $location = getLocation($ip);
+            $country = findCountryByGeoip($location['iso_code']);
+            $countryId = \App\Model\Common\Country::where('country_code_char2', $country)->value('country_id');
+            $currencyAndSymbol = getCurrencyForClient($country);
             $productsRelatedToGroup = \App\Model\Product\Product::where('group', $groupId)
                 ->where('hidden', '!=', 1)
                 ->join('plans', 'products.id', '=', 'plans.product')
