@@ -171,7 +171,7 @@ class InstallDB extends Command
         \DB::table('users')->truncate();
         \DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        return \App\User::create([
+        $admin = \App\User::create([
             'first_name' => 'Demo',
             'last_name' => 'Admin',
             'user_name' => 'demo',
@@ -182,6 +182,19 @@ class InstallDB extends Command
             'mobile_verified' => 1,
             'currency' => 'INR',
         ]);
+
+        // Update settings
+        \App\Model\Common\Setting::where('id', 1)
+            ->update([
+                'title' => 'Agora Invoicing',
+                'favicon_title' => 'Agora Invoicing',
+                'favicon_title_client' => 'Agora Invoicing',
+                'admin_logo' => null,
+                'logo' => null,
+                'fav_icon' => null,
+            ]);
+
+        return $admin;
     }
 
     /**
