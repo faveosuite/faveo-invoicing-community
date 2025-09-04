@@ -96,9 +96,7 @@ class LoginController extends Controller
 
         // 2. Attempt to authenticate the user
         if (! Auth::attempt($credentials, $request->boolean('remember'))) {
-            return back()
-                ->withInput($request->only('email_username', 'remember'))
-                ->with('fails', __('message.enter_valid_credentials'));
+            return errorResponse(__('message.enter_valid_credentials'));
         }
 
         $user = Auth::user();
@@ -120,7 +118,7 @@ class LoginController extends Controller
 
         activity()->log('Logged In');
 
-        return redirect()->to($this->redirectPath());
+        return successResponse('', ['redirect' => $this->redirectPath()]);
     }
 
     /**
@@ -151,7 +149,9 @@ class LoginController extends Controller
             'verification_user_id' => $user->id,
         ]);
 
-        return redirect('verify')->with('user', $user);
+        Session::flash('user', $user);
+
+        return successResponse('', ['redirect' => url('verify')]);
     }
 
     /**
@@ -168,7 +168,7 @@ class LoginController extends Controller
             'remember:user:id' => $request->boolean('remember'),
         ]);
 
-        return redirect('verify-2fa');
+        return successResponse('', ['redirect' => url('verify-2fa')]);
     }
 
     /**

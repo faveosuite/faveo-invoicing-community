@@ -2713,6 +2713,59 @@ return [
 
     'enter_valid_6_digit_code' => 'Please enter a valid 6-digit code.',
     'enter_valid_credentials' => 'Your email or password is incorrect. Please check and try again.',
+
+    // Page title and navigation
+    'captcha_settings' => 'Captcha Settings',
+    'captcha_configuration' => 'Captcha Configuration',
+
+    // Captcha version options
+    'captcha_version' => 'Captcha Version',
+    'recaptcha_v2_invisible' => 'reCAPTCHA v2 (Invisible)',
+    'recaptcha_v2_checkbox' => 'reCAPTCHA v2 (Checkbox)',
+    'select_captcha_type' => 'Select the type of reCAPTCHA to use',
+
+    // Failover settings
+    'failover_action' => 'Failover Action',
+    'fallback_v2_checkbox' => 'Fallback to v2 Checkbox',
+    'action_if_captcha_fails' => 'Action to take if the primary captcha fails',
+
+    // reCAPTCHA v3 settings
+    'recaptcha_v3_settings' => 'reCAPTCHA v3 Settings',
+    'v3_site_key' => 'reCAPTCHA v3 Site Key',
+    'enter_v3_site_key' => 'Enter your reCAPTCHA v3 site key',
+    'v3_secret_key' => 'reCAPTCHA v3 Secret Key',
+    'enter_v3_secret_key' => 'Enter your reCAPTCHA v3 secret key',
+    'v3_score_threshold' => 'Score Threshold',
+    'v3_score_hint' => 'Minimum score required (0.0 - 1.0). Lower scores are more likely to be bots.',
+    'v3_preview' => 'reCAPTCHA v3 Preview',
+
+    // reCAPTCHA v2 settings
+    'recaptcha_v2_settings' => 'reCAPTCHA v2 Settings',
+    'v2_site_key' => 'reCAPTCHA v2 Site Key',
+    'enter_v2_site_key' => 'Enter your reCAPTCHA v2 site key',
+    'v2_secret_key' => 'reCAPTCHA v2 Secret Key',
+    'enter_v2_secret_key' => 'Enter your reCAPTCHA v2 secret key',
+    'v2_preview' => 'reCAPTCHA v2 Preview',
+
+    // Appearance and messages
+    'appearance_messages' => 'Appearance & Messages',
+    'error_message' => 'Error Message',
+
+    // Theme options
+    'theme' => 'Theme',
+    'theme_light' => 'Light',
+    'theme_dark' => 'Dark',
+
+    // Size options
+    'size_normal' => 'Normal',
+    'size_compact' => 'Compact',
+
+    // Badge position options
+    'badge_position' => 'Badge Position',
+    'badge_bottomright' => 'Bottom Right',
+    'badge_bottomleft' => 'Bottom Left',
+    'badge_inline' => 'Inline',
+
     'cloud_plan_error' => 'Please remove the cloud product or link it to an alternate plan.',
     'invalid_code_2fa' => 'Invalid code. Please try again.',
     '6_digit_auth_code' => 'Enter your 6-digit authentication code',
