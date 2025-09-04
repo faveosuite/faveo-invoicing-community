@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Model\Common\StatusSetting;
-use App\Rules\CaptchaValidation;
 use App\Rules\Honeypot;
 use App\Rules\StrongPassword;
 use App\User;
@@ -103,12 +102,12 @@ class ResetPasswordController extends Controller
 
             $passwordToken = \App\Model\User\Password::where('email', $email)->first();
 
-            if (!$passwordToken || $passwordToken->token !== $token) {
+            if (! $passwordToken || $passwordToken->token !== $token) {
                 return errorResponse(__('message.cannot_reset_password_invalid'));
             }
 
             $user = \App\User::where('email', $email)->first();
-            if (!$user) {
+            if (! $user) {
                 return errorResponse(__('message.user_cannot_identifer'));
             }
 
@@ -129,7 +128,6 @@ class ResetPasswordController extends Controller
             \Session::flash('success', __('message.password_changed_successfully'));
 
             return successResponse(__('message.password_changed_successfully'), ['redirect' => url('login')]);
-
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
