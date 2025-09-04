@@ -63,7 +63,7 @@ class LoginController extends Controller
     {
         try {
             $bussinesses = Bussiness::pluck('name', 'short')->toArray();
-            $status = StatusSetting::select( 'msg91_status', 'emailverification_status', 'terms')->first();
+            $status = StatusSetting::select('msg91_status', 'emailverification_status', 'terms')->first();
             $apiKeys = ApiKey::select('nocaptcha_sitekey', 'captcha_secretCheck', 'msg91_auth_key', 'terms_url')->first();
             $analyticsTag = ChatScript::where('google_analytics', 1)->where('on_registration', 1)->value('google_analytics_tag');
             $location = getLocation();

@@ -12,7 +12,6 @@ use App\Model\Common\Mailchimp\MailchimpSetting;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Model\Product\Product;
-use App\Rules\CaptchaValidation;
 use App\User;
 use Exception;
 use Illuminate\Http\Request;
