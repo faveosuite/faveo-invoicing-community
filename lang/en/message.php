@@ -2714,4 +2714,6 @@ return [
     'enter_valid_6_digit_code' => 'Please enter a valid 6-digit code.',
     'enter_valid_credentials' => 'Your email or password is incorrect. Please check and try again.',
     'cloud_plan_error' => 'Please remove the cloud product or link it to an alternate plan.',
+    'short_description'=>'Short Description',
+    'add_short_description'=>'Please enter short description.',
 ];
