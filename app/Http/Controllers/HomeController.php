@@ -598,7 +598,7 @@ class HomeController extends BaseHomeController
 
 //            $countryId = Country::where('country_code_char2', $countryCode)->value('country_id');
 //            $currencyAndSymbol = getCurrencyForClient($countryCode);
-            $ip=$request->query('ipAddress');
+            $ip = $request->query('ipAddress');
             $location = getLocation($ip);
             $country = findCountryByGeoip($location['iso_code']);
             $countryId = \App\Model\Common\Country::where('country_code_char2', $country)->value('country_id');
