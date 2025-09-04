@@ -2626,5 +2626,7 @@
 
      'user_position_prohibited_if' => 'Il-qasam tal-pożizzjoni mhuwiex permess meta r-rwol ikun utent.',
      'cloud_plan_error' => 'Jekk jogħġbok neħħi l-prodott cloud jew għaqqdu ma’ pjan alternattiv.',
+     'short_description' => 'Deskrizzjoni qasira',
+     'add_short_description' => 'Jekk jogħġbok daħħal deskrizzjoni qasira.',
 
  ];

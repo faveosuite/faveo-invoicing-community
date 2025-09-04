@@ -595,6 +595,7 @@ class PageController extends Controller
                     'strike-priceyear' => $this->YearlyAmount($productId),
                     'name' => $productName,
                     'feature' => $product->description,
+                    'product_description'=> $product->product_description,
                     'subscription' => $product->type == 4 ? '' : $temp_controller->plans($product->shoping_cart_link, $productId),
                     'url' => $this->generateProductUrl($product, $orderButton, $highlight),
                 ];
