@@ -3,7 +3,6 @@
 namespace App\Plugins\Recaptcha;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Route;
 
 class RecaptchaServiceProvider extends ServiceProvider
 {
@@ -13,24 +12,24 @@ class RecaptchaServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Load plugin migrations
-        $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
+        $this->loadMigrationsFrom(__DIR__.'/database/migrations');
 
         // Publish plugin assets
         $this->publishes([
-            __DIR__ . '/resources/assets' => public_path('plugins/recaptcha'),
+            __DIR__.'/resources/assets' => public_path('plugins/recaptcha'),
         ], 'recaptcha-assets');
 
         // Register plugin routes
-        $this->loadRoutesFrom(__DIR__ . '/routes/routes.php');
+        $this->loadRoutesFrom(__DIR__.'/routes/routes.php');
 
-        $this->loadViewsFrom(__DIR__ . '/resources/views', 'recaptcha');
+        $this->loadViewsFrom(__DIR__.'/resources/views', 'recaptcha');
 
         // Register plugin middleware if needed
         $this->registerMiddleware();
     }
 
     /**
-     * Register plugin middleware
+     * Register plugin middleware.
      */
     protected function registerMiddleware(): void
     {

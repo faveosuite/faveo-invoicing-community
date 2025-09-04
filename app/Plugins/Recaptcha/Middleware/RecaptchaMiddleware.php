@@ -16,7 +16,7 @@ class RecaptchaMiddleware
         $settings = RecaptchaSetting::first();
         $statusSetting = StatusSetting::first()->value('recaptcha_status');
 
-        if(!$statusSetting){
+        if (! $statusSetting) {
             return $next($request);
         }
 
@@ -42,17 +42,19 @@ class RecaptchaMiddleware
         $sessionKey = $this->getSessionKey($action, $pageId);
 
         // If session does not show V2 recaptcha, verify V3
-        if (!Session::get($sessionKey, false)) {
+        if (! Session::get($sessionKey, false)) {
             $verification = $this->verify($settings->v3_secret_key, $recaptchaResponse, $remoteIp);
 
-            if (!$this->isV3Valid($verification, $action, $request->getHost())) {
+            if (! $this->isV3Valid($verification, $action, $request->getHost())) {
                 return errorResponse($settings->error_message, 422);
             }
             if ($verification['score'] < $settings->score_threshold) {
                 if ($settings->failover_action === 'v2_checkbox') {
                     Session::put($sessionKey, true);
+
                     return successResponse($settings->error_message, ['show_v2_recaptcha' => true], 422);
                 }
+
                 return errorResponse($settings->error_message, 422);
             }
 
@@ -62,24 +64,25 @@ class RecaptchaMiddleware
         // Failover: V2 verification
         if ($settings->failover_action === 'v2_checkbox' && Session::get($sessionKey)) {
             $verification = $this->verify($settings->v2_secret_key, $recaptchaResponse, $remoteIp);
-            if (!$verification['success']) {
+            if (! $verification['success']) {
                 return errorResponse($settings->error_message, 422);
             }
+
             return $next($request);
         }
 
         return errorResponse($settings->error_message, 422);
     }
 
-    private function handleV2($request,$recaptchaResponse, $remoteIp, $settings, $next)
+    private function handleV2($request, $recaptchaResponse, $remoteIp, $settings, $next)
     {
-        if (!$recaptchaResponse) {
+        if (! $recaptchaResponse) {
             return errorResponse($settings->error_message, 422);
         }
 
         $verification = $this->verify($settings->v2_secret_key, $recaptchaResponse, $remoteIp);
 
-        if (!$verification['success']) {
+        if (! $verification['success']) {
             return errorResponse($settings->error_message, 422);
         }
 
@@ -89,7 +92,7 @@ class RecaptchaMiddleware
     private function verify($secretKey, $response, $ip)
     {
         return Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
-            'secret'   => $secretKey,
+            'secret' => $secretKey,
             'response' => $response,
             'remoteip' => $ip,
         ])->json();
@@ -97,14 +100,13 @@ class RecaptchaMiddleware
 
     private function isV3Valid($verification, $action, $hostname)
     {
-        return ($verification['success'])
-            && (($verification['action']) === $action)
-            && (($verification['hostname']) === $hostname);
+        return $verification['success']
+            && ($verification['action'] === $action)
+            && ($verification['hostname'] === $hostname);
     }
 
     private function getSessionKey($action, $pageId): string
     {
-        return 'show_v2_recaptcha_' . $action . '_' . $pageId;
-
+        return 'show_v2_recaptcha_'.$action.'_'.$pageId;
     }
 }

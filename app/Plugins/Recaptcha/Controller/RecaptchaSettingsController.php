@@ -9,7 +9,6 @@ use Validator;
 
 class RecaptchaSettingsController extends Controller
 {
-
     public function settings()
     {
         return view('recaptcha::setting');
@@ -18,29 +17,30 @@ class RecaptchaSettingsController extends Controller
     public function getSettings(Request $request)
     {
         $settings = RecaptchaSetting::firstOrCreate([]);
+
         return successResponse('', $settings);
     }
 
     /**
-     * Update settings
+     * Update settings.
      */
     public function updateSettings(Request $request)
     {
         // Basic validation
         $validator = Validator::make($request->all(), [
-            'v2_site_key'      => 'nullable|string',
-            'v2_secret_key'    => 'nullable|string',
-            'v3_site_key'      => 'nullable|string',
-            'v3_secret_key'    => 'nullable|string',
-            'captcha_version'  => 'required|in:v2_checkbox,v2_invisible,v3_invisible',
-            'failover_action'  => 'required|in:none,v2_checkbox',
-            'score_threshold'  => 'required|numeric|min:0|max:1',
-            'error_message'    => 'required|string|max:255',
-            'theme'            => 'required|in:light,dark',
-            'size'             => 'required|in:normal,compact',
-            'badge_position'   => 'required|in:bottomright,bottomleft,inline',
-            'v2_g_recaptcha_response'      => 'nullable|string',
-            'v3_g_recaptcha_response'      => 'nullable|string',
+            'v2_site_key' => 'nullable|string',
+            'v2_secret_key' => 'nullable|string',
+            'v3_site_key' => 'nullable|string',
+            'v3_secret_key' => 'nullable|string',
+            'captcha_version' => 'required|in:v2_checkbox,v2_invisible,v3_invisible',
+            'failover_action' => 'required|in:none,v2_checkbox',
+            'score_threshold' => 'required|numeric|min:0|max:1',
+            'error_message' => 'required|string|max:255',
+            'theme' => 'required|in:light,dark',
+            'size' => 'required|in:normal,compact',
+            'badge_position' => 'required|in:bottomright,bottomleft,inline',
+            'v2_g_recaptcha_response' => 'nullable|string',
+            'v3_g_recaptcha_response' => 'nullable|string',
         ]);
 
         // Add custom after-validation checks
@@ -68,16 +68,16 @@ class RecaptchaSettingsController extends Controller
         // Step 4: Save settings
         $settings = RecaptchaSetting::firstOrCreate([]);
         $settings->update($request->only([
-            'v2_site_key','v2_secret_key','v3_site_key','v3_secret_key',
-            'captcha_version','failover_action','score_threshold','language',
-            'error_message','theme','size','badge_position'
+            'v2_site_key', 'v2_secret_key', 'v3_site_key', 'v3_secret_key',
+            'captcha_version', 'failover_action', 'score_threshold', 'language',
+            'error_message', 'theme', 'size', 'badge_position',
         ]));
 
         return successResponse('reCAPTCHA settings updated successfully!');
     }
 
     /**
-     * Returns true if successful, otherwise returns error message
+     * Returns true if successful, otherwise returns error message.
      */
     protected function verifyCaptcha($response, $secretKey, $type, $ip, $expectedHostname, $scoreThreshold = 0.5)
     {
@@ -89,8 +89,7 @@ class RecaptchaSettingsController extends Controller
 
         $responseBody = $httpResponse->json();
 
-
-        if (!$responseBody['success']) {
+        if (! $responseBody['success']) {
             return 'Secret key or response token is invalid';
         }
 
@@ -106,5 +105,4 @@ class RecaptchaSettingsController extends Controller
 
         return true;
     }
-
 }

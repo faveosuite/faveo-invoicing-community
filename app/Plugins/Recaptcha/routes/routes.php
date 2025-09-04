@@ -1,6 +1,5 @@
 <?php
 
-
 use App\Plugins\Recaptcha\Controller\RecaptchaSettingsController;
 
 Route::get('recaptcha-settings', [RecaptchaSettingsController::class, 'getSettings']);
