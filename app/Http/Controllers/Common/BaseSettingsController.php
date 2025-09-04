@@ -10,7 +10,6 @@ use App\Model\Mailjob\ActivityLogDay;
 use App\Model\Mailjob\ExpiryMailDay;
 use App\Traits\ApiKeySettings;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
 use Spatie\Activitylog\Models\Activity;
 
 class BaseSettingsController extends PaymentSettingsController

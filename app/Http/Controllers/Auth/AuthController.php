@@ -9,7 +9,6 @@ use App\Http\Controllers\License\LicenseController;
 use App\Jobs\AddUserToExternalService;
 use App\Model\Common\StatusSetting;
 use App\Model\User\AccountActivate;
-use App\Rules\CaptchaValidation;
 use App\User;
 use App\VerificationAttempt;
 use Carbon\Carbon;
