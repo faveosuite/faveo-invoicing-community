@@ -516,7 +516,7 @@ class TenantController extends Controller
             if ($response->status == 'success') {
                 $this->deleteCronForTenant($request->input('id'));
                 \DB::table('free_trial_allowed')->where('domain', $request->input('id'))->delete();
-                if(!empty($equest->orderId)) {
+                if (! empty($equest->orderId)) {
                     $order = Order::where('number', $request->get('orderId'))->first();
                     $sub = $order->subscription()->first();
                     $sub->is_deleted = 1;
