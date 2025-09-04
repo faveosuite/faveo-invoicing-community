@@ -9,7 +9,6 @@ use App\Model\Common\EmailMobileValidationProviders;
 use App\Model\Common\ManagerSetting;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
-use App\Rules\CaptchaValidation;
 use App\Rules\Honeypot;
 use App\User;
 use Exception;
