@@ -77,7 +77,7 @@ Route::middleware('installAgora')->group(function () {
     });
 
     Route::post('pricing/update', [Front\CartController::class, 'addCouponUpdate']);
-    Route::post('mail-chimp/subcribe', [Common\MailChimpController::class, 'addSubscriberByClientPanel']);
+    Route::post('mail-chimp/subcribe', [Common\MailChimpController::class, 'addSubscriberByClientPanel'])->middleware(['recaptcha:mailChimp']);
 //    Route::get('mailchimp', [Common\MailChimpController::class, 'mailChimpSettings'])->middleware('admin');
     Route::patch('mailchimp', [Common\MailChimpController::class, 'postMailChimpSettings']);
     Route::get('mail-chimp/mapping', [Common\MailChimpController::class, 'mapField'])->middleware('admin');
@@ -86,10 +86,10 @@ Route::middleware('installAgora')->group(function () {
     Route::patch('mailchimp-group/mapping', [Common\MailChimpController::class, 'postGroupMapField']);
     Route::get('get-group-field/{value}', [Common\MailChimpController::class, 'addInterestFieldsToAgora']);
     Route::get('contact-us', [Front\PageController::class, 'contactUs']);
-    Route::post('contact-us', [Front\PageController::class, 'postContactUs']);
+    Route::post('contact-us', [Front\PageController::class, 'postContactUs'])->middleware(['recaptcha:contact']);
     Route::post('remove-coupon', [Front\CartController::class, 'removeCoupon']);
 
-    Route::post('demo-request', [Front\PageController::class, 'postDemoReq'])->withoutMiddleware(['auth']);
+    Route::post('demo-request', [Front\PageController::class, 'postDemoReq'])->middleware(['recaptcha:demo'])->withoutMiddleware(['auth']);
     Route::get('confirm/payment', [RazorpayController::class, 'afterPayment']);
     Route::post('stripeUpdatePayment/confirm', [Front\ClientController::class, 'stripeUpdatePayment']);
 
@@ -149,8 +149,8 @@ Route::middleware('installAgora')->group(function () {
         Route::get('2fa/session-check', [Google2FAController::class, 'verifySession'])->name('2fa.session.check');
         Route::get('recovery-code', [Google2FAController::class, 'showRecoveryCode']);
         Route::get('verify-2fa', [Google2FAController::class, 'verify2fa']);
-        Route::post('2fa/loginValidate', [Google2FAController::class, 'postLoginValidateToken'])->name('2fa/loginValidate');
-        Route::post('verify-recovery-code', [Google2FAController::class, 'verifyRecoveryCode'])->name('verify-recovery-code');
+        Route::post('2fa/loginValidate', [Google2FAController::class, 'postLoginValidateToken'])->name('2fa/loginValidate')->middleware('recaptcha:login_2fa');
+        Route::post('verify-recovery-code', [Google2FAController::class, 'verifyRecoveryCode'])->name('verify-recovery-code')->middleware('recaptcha:login_recovery');
     });
 
     Route::post('2fa/setupValidate', [Google2FAController::class, 'postSetupValidateToken']);
@@ -169,7 +169,7 @@ Route::middleware('installAgora')->group(function () {
     Route::delete('social-delete', [Common\SocialMediaController::class, 'destroy'])->name('social-delete');
 
     Route::auth();
-    Route::post('auth/register', [Auth\RegisterController::class, 'postRegister'])->name('auth/register');
+    Route::post('auth/register', [Auth\RegisterController::class, 'postRegister'])->name('auth/register')->middleware('recaptcha:register');
     Route::get('auth/logout', [Auth\LoginController::class, 'logout'])->name('logout');
     Route::get('/', [DashboardController::class, 'index']);
 
@@ -633,15 +633,15 @@ Route::middleware('installAgora')->group(function () {
      */
     Route::get('third-party-integration', [Common\SettingsController::class, 'getKeys']);
     Route::patch('apikeys', [Common\SettingsController::class, 'postKeys']);
-    Route::post('login', [Auth\LoginController::class, 'login'])->name('login')->middleware(['blockFailedVerifications:login']);
+    Route::post('login', [Auth\LoginController::class, 'login'])->name('login')->middleware(['blockFailedVerifications:login', 'recaptcha:login']);
     // Route::post('login', [Auth\LoginController::class, 'login'])->name('login');
 
     Route::middleware(['blockFailedVerifications:verify', 'session.timeout:10,verify'])->group(function () {
         Route::get('verify/session-check', [Auth\AuthController::class, 'verifySession'])->name('verify.session.check');
         Route::post('otp/send', [Auth\AuthController::class, 'requestOtp']);
         Route::post('otp/sendByAjax', [Auth\AuthController::class, 'requestOtpFromAjax']);
-        Route::post('otp/verify', [Auth\AuthController::class, 'verifyOtp']);
-        Route::post('email/verify', [Auth\AuthController::class, 'verifyEmail']);
+        Route::post('otp/verify', [Auth\AuthController::class, 'verifyOtp'])->middleware('recaptcha:mobile_verify');
+        Route::post('email/verify', [Auth\AuthController::class, 'verifyEmail'])->middleware('recaptcha:email_verify');
         Route::post('resend_otp', [Auth\AuthController::class, 'retryOTP']);
         Route::post('send-email', [Auth\AuthController::class, 'sendEmail']);
         Route::get('verify', [Auth\AuthController::class, 'verify']);
