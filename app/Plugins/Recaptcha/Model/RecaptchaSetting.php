@@ -14,7 +14,6 @@ class RecaptchaSetting extends Model
         'captcha_version',
         'failover_action',
         'score_threshold',
-        'error_message',
         'theme',
         'size',
         'badge_position',

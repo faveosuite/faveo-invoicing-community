@@ -51,11 +51,9 @@ class RecaptchaMiddleware
             if ($verification['score'] < $settings->score_threshold) {
                 if ($settings->failover_action === 'v2_checkbox') {
                     Session::put($sessionKey, true);
-
-                    return successResponse($settings->error_message, ['show_v2_recaptcha' => true], 422);
+                    return successResponse(__('message.captcha_message'), ['show_v2_recaptcha' => true], 422);
                 }
-
-                return errorResponse($settings->error_message, 422);
+                return errorResponse(__('message.captcha_message'), 422);
             }
 
             return $next($request);
@@ -64,26 +62,26 @@ class RecaptchaMiddleware
         // Failover: V2 verification
         if ($settings->failover_action === 'v2_checkbox' && Session::get($sessionKey)) {
             $verification = $this->verify($settings->v2_secret_key, $recaptchaResponse, $remoteIp);
-            if (! $verification['success']) {
-                return errorResponse($settings->error_message, 422);
+            if (!$verification['success']) {
+                return errorResponse(__('message.captcha_message'), 422);
             }
 
             return $next($request);
         }
 
-        return errorResponse($settings->error_message, 422);
+        return errorResponse(__('message.captcha_message'), 422);
     }
 
     private function handleV2($request, $recaptchaResponse, $remoteIp, $settings, $next)
     {
-        if (! $recaptchaResponse) {
-            return errorResponse($settings->error_message, 422);
+        if (!$recaptchaResponse) {
+            return errorResponse(__('message.captcha_message'), 422);
         }
 
         $verification = $this->verify($settings->v2_secret_key, $recaptchaResponse, $remoteIp);
 
-        if (! $verification['success']) {
-            return errorResponse($settings->error_message, 422);
+        if (!$verification['success']) {
+            return errorResponse(__('message.captcha_message'), 422);
         }
 
         return $next($request);

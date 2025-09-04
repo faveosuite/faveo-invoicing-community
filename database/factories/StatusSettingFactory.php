@@ -38,7 +38,6 @@ class StatusSettingFactory extends Factory
             'terms' => rand(0, 1),
             'pipedrive_status' => rand(0, 1),
             'domain_check' => rand(0, 1),
-            'v3_v2_recaptcha_status' => rand(0, 1),
         ];
     }
 }

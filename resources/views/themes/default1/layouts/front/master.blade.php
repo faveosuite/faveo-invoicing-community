@@ -182,7 +182,7 @@ $days = $pay->where('product','117')->value('days');
 <body>
 <?php
 $bussinesses = App\Model\Common\Bussiness::pluck('name', 'short')->toArray();
-$status =  App\Model\Common\StatusSetting::select('v3_v2_recaptcha_status','recaptcha_status','v3_recaptcha_status', 'msg91_status', 'emailverification_status', 'terms')->first();
+$status =  App\Model\Common\StatusSetting::select('recaptcha_status','msg91_status', 'emailverification_status', 'terms')->first();
 $apiKeys = App\ApiKey::select('nocaptcha_sitekey', 'captcha_secretCheck', 'msg91_auth_key', 'terms_url')->first();
 $analyticsTag = App\Model\Common\ChatScript::where('google_analytics', 1)->where('on_registration', 1)->value('google_analytics_tag');
 $location = getLocation();
