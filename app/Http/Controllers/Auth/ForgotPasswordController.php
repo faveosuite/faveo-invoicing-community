@@ -38,7 +38,7 @@ class ForgotPasswordController extends Controller
 
     public function showLinkRequestForm()
     {
-        $status = StatusSetting::select('recaptcha_status', 'v3_recaptcha_status', 'msg91_status', 'emailverification_status', 'terms')->first();
+        $status = StatusSetting::select( 'msg91_status', 'emailverification_status', 'terms')->first();
         $apiKeys = ApiKey::select('nocaptcha_sitekey', 'captcha_secretCheck', 'msg91_auth_key', 'terms_url')->first();
 
         return view('themes.default1.front.auth.password', compact('status', 'apiKeys'));

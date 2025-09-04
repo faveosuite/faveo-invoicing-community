@@ -19,18 +19,11 @@
 
 @section('content')
     <div id="recaptcha-setting-alert" role="alert" aria-live="polite"></div>
-    <div id="loading-overlay" class="d-none position-fixed w-100 h-100 overlay-bg">
-        <div class="d-flex justify-content-center align-items-center h-100">
-            <div class="spinner-border text-primary" role="status">
-                <span class="sr-only">{{ __('message.loading') }}</span>
-            </div>
-        </div>
-    </div>
     <div class="card card-secondary card-outline">
         <div class="card-header">
             <h3 class="card-title">{{ __('message.captcha_configuration') }}</h3>
         </div>
-        {!! html()->form()->id('captcha-settings-form')->attributes(['novalidate' => true])->open() !!}
+        {!! html()->form()->id('captcha-settings-form')->open() !!}
         <div class="card-body">
             {{-- General Configuration --}}
             <div class="form-group row">
@@ -138,13 +131,6 @@
             {{-- Appearance & Messages --}}
             <h5 class="text-muted mb-3 mt-4">{{ __('message.appearance_messages') }}</h5>
 
-            <div class="form-group row">
-                <label for="error_message" class="col-sm-4 col-form-label">{{ __('message.error_message') }}</label>
-                <div class="col-sm-8">
-                    {!! html()->text('error_message')->class('form-control') !!}
-                </div>
-            </div>
-
             {{-- Conditional Appearance Settings --}}
             <div class="form-group row conditional-setting" id="group_theme">
                 <label class="col-sm-4 col-form-label">{{ __('message.theme') }}</label>
@@ -233,6 +219,7 @@
             }
             async init() {
                 this.showLoading(true);
+                this.setupValidation();
                 this.setupEvents();
                 await this.fetchSettings();
                 this.showLoading(false);
@@ -240,8 +227,12 @@
             setupEvents() {
                 this.elements.captchaVersion.addEventListener('change', () => this.toggleCaptchaSettings());
                 this.elements.failoverAction.addEventListener('change', () => this.handleFailoverChange());
-                this.elements.v3SiteKey.addEventListener('input', () => { if (this.elements.v3SiteKey.value.trim() === '' && this.state.settingsLoaded) this.elements.v3SecretKey.value = ''; this.renderPreviews(); });
-                this.elements.v2SiteKey.addEventListener('input', () => { if (this.elements.v2SiteKey.value.trim() === '' && this.state.settingsLoaded) this.elements.v2SecretKey.value = ''; this.renderPreviews(); });
+                this.elements.v3SiteKey.addEventListener('input', () => {
+                    this.renderPreviews();
+                });
+                this.elements.v2SiteKey.addEventListener('input', () => {
+                    this.renderPreviews();
+                });
                 document.querySelectorAll('input[name="theme"], input[name="size"], input[name="badge_position"]').forEach(input => input.addEventListener('change', () => this.renderPreviews()));
                 this.elements.form.addEventListener('submit', e => this.handleSubmit(e));
                 window.addEventListener('beforeunload', () => this.clearAllPreviews());
@@ -277,19 +268,31 @@
                 document.querySelector(`input[name="theme"][value="${data.theme || 'light'}"]`).checked = true;
                 document.querySelector(`input[name="size"][value="${data.size || 'normal'}"]`).checked = true;
                 document.getElementById('badge_position').value = data.badge_position || 'bottomright';
-                document.getElementById('error_message').value = data.error_message || 'Failed to verify you are human.';
             }
             toggleCaptchaSettings() {
                 const selectedVersion = this.elements.captchaVersion.value;
+
+                // Reset failover if not v3
+                if (selectedVersion !== 'v3_invisible') {
+                    this.elements.failoverAction.value = 'none';
+                }
                 const selectedFailover = this.elements.failoverAction.value;
-                // Show fallback only for v3
-                document.getElementById('group_failover_action').style.display = selectedVersion === 'v3_invisible' ? 'flex' : 'none';
-                this.elements.scoreGroup.style.display = selectedVersion === 'v3_invisible' ? 'flex' : 'none';
-                this.elements.themeGroup.style.display = (selectedVersion === 'v2_checkbox' || selectedFailover === 'v2_checkbox') ? 'flex' : 'none';
-                this.elements.sizeGroup.style.display = (selectedVersion === 'v2_checkbox' || selectedFailover === 'v2_checkbox') ? 'flex' : 'none';
-                this.elements.badgeGroup.style.display = (selectedVersion === 'v3_invisible' || selectedVersion === 'v2_invisible') ? 'flex' : 'none';
-                this.elements.v3SettingsBlock.style.display = selectedVersion === 'v3_invisible' ? 'block' : 'none';
-                this.elements.v2SettingsBlock.style.display = (selectedVersion !== 'v3_invisible' || selectedFailover === 'v2_checkbox') ? 'block' : 'none';
+
+                // Boolean flags for clarity
+                const isV3 = selectedVersion === 'v3_invisible';
+                const isV2Checkbox = selectedVersion === 'v2_checkbox' || selectedFailover === 'v2_checkbox';
+                const isV2Invisible = selectedVersion === 'v2_invisible';
+
+                // Show/hide elements
+                this.elements.scoreGroup.style.display = isV3 ? 'flex' : 'none';
+                this.elements.themeGroup.style.display = isV2Checkbox ? 'flex' : 'none';
+                this.elements.sizeGroup.style.display = isV2Checkbox ? 'flex' : 'none';
+                this.elements.badgeGroup.style.display = (isV3 || isV2Invisible) ? 'flex' : 'none';
+                this.elements.v3SettingsBlock.style.display = isV3 ? 'block' : 'none';
+                this.elements.v2SettingsBlock.style.display = (!isV3 || selectedFailover === 'v2_checkbox') ? 'block' : 'none';
+                document.getElementById('group_failover_action').style.display = isV3 ? 'flex' : 'none';
+
+                // Clear previews and re-render visible ones
                 this.clearAllPreviews();
                 setTimeout(() => this.renderPreviews(), 100);
             }
@@ -304,13 +307,13 @@
                 const v2Key = this.elements.v2SiteKey.value.trim();
                 const theme = document.querySelector('input[name="theme"]:checked').value;
                 const size = document.querySelector('input[name="size"]:checked').value;
-                if (selectedVersion === 'v3_invisible' && this.elements.v3SettingsBlock.style.display !== 'none' && v3Key.length > 10) {
+                if (selectedVersion === 'v3_invisible' && this.elements.v3SettingsBlock.style.display !== 'none') {
                     await this.renderV3Preview(v3Key);
                 }
-                if ((selectedVersion === 'v2_checkbox' || selectedFailover === 'v2_checkbox') && this.elements.v2SettingsBlock.style.display !== 'none' && v2Key.length > 10) {
+                if ((selectedVersion === 'v2_checkbox' || selectedFailover === 'v2_checkbox') && this.elements.v2SettingsBlock.style.display !== 'none') {
                     await this.renderV2Preview(v2Key, theme, size);
                 }
-                if (selectedVersion === 'v2_invisible' && this.elements.v2SettingsBlock.style.display !== 'none' && v2Key.length > 10) {
+                if (selectedVersion === 'v2_invisible' && this.elements.v2SettingsBlock.style.display !== 'none') {
                     await this.renderV2Preview(v2Key);
                 }
             }
@@ -375,6 +378,101 @@
                     id: 'recaptcha-setting-alert-box',
                 });
             }
+            setupValidation() {
+                // Custom method for conditional required fields
+                $.validator.addMethod("conditionalRequired", function(value, element, params) {
+                    const condition = params.condition;
+                    const isRequired = typeof condition === 'function' ? condition() : condition;
+                    return !isRequired || (value && value.trim().length > 0);
+                }, "This field is required when the condition is met");
+
+                // Initialize form validation
+                $(this.elements.form).validate({
+                    errorPlacement: function(error, element) {
+                        if (element.attr('type') === 'radio') {
+                            error.insertAfter(element.closest('.d-flex'));
+                        } else {
+                            error.insertAfter(element);
+                        }
+                    },
+                    errorClass: 'text-danger',
+                    highlight: element => $(element).addClass('is-invalid'),
+                    unhighlight: element => $(element).removeClass('is-invalid'),
+                    rules: {
+                        captcha_version: {
+                            required: true
+                        },
+                        v3_site_key: {
+                            conditionalRequired: {
+                                condition: () => this.isV3Selected() || this.isV3FailoverSelected()
+                            },
+                        },
+                        v3_secret_key: {
+                            conditionalRequired: {
+                                condition: () => this.isV3Selected() || this.isV3FailoverSelected()
+                            },
+                        },
+                        v2_site_key: {
+                            conditionalRequired: {
+                                condition: () => this.isV2Selected() || this.isV2FailoverSelected()
+                            },
+                        },
+                        v2_secret_key: {
+                            conditionalRequired: {
+                                condition: () => this.isV2Selected() || this.isV2FailoverSelected()
+                            },
+                        },
+                        score_threshold: {
+                            required: function() {
+                                return $('#captcha_version').val() === 'v3_invisible';
+                            },
+                            number: true,
+                        }
+                    },
+                    messages: {
+                        captcha_version: {
+                            required: "Please select a captcha version"
+                        },
+                        v3_site_key: {
+                            conditionalRequired: "reCAPTCHA v3 site key is required",
+                            recaptchaKey: "Please enter a valid reCAPTCHA site key",
+                        },
+                        v3_secret_key: {
+                            conditionalRequired: "reCAPTCHA v3 secret key is required",
+                            recaptchaKey: "Please enter a valid reCAPTCHA secret key",
+                        },
+                        v2_site_key: {
+                            conditionalRequired: "reCAPTCHA v2 site key is required",
+                            recaptchaKey: "Please enter a valid reCAPTCHA site key",
+                        },
+                        v2_secret_key: {
+                            conditionalRequired: "reCAPTCHA v2 secret key is required",
+                            recaptchaKey: "Please enter a valid reCAPTCHA secret key",
+                        },
+                        score_threshold: {
+                            required: "Score threshold is required for reCAPTCHA v3",
+                            number: "Please enter a valid number",
+                        }
+                    }
+                });
+            }
+
+            isV3Selected() {
+                return this.elements.captchaVersion.value === 'v3_invisible';
+            }
+
+            isV2Selected() {
+                return ['v2_checkbox', 'v2_invisible'].includes(this.elements.captchaVersion.value);
+            }
+
+            isV3FailoverSelected() {
+                return this.elements.failoverAction.value === 'v3_invisible';
+            }
+
+            isV2FailoverSelected() {
+                return this.elements.failoverAction.value === 'v2_checkbox';
+            }
+
             async handleSubmit(e) {
                 e.preventDefault();
                 if (!$(this.elements.form).valid()) { this.shakeForm(); return false; }
@@ -402,7 +500,6 @@
                     theme: document.querySelector('input[name="theme"]:checked').value,
                     size: document.querySelector('input[name="size"]:checked').value,
                     badge_position: this.elements.badgeGroup.querySelector('select').value,
-                    error_message: document.getElementById('error_message').value,
                     v3_g_recaptcha_response: v3ResponseToken,
                     v2_g_recaptcha_response: v2ResponseToken
                 };

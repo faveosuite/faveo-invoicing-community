@@ -26,7 +26,6 @@ return new class extends Migration
             $table->decimal('score_threshold', 2, 1)->default(0.5);
 
             // UI config
-            $table->string('error_message')->default('Please solve the CAPTCHA to proceed');
             $table->enum('theme', ['light', 'dark'])->default('light');
             $table->enum('size', ['normal', 'compact'])->default('normal');
             $table->enum('badge_position', ['bottomright', 'bottomleft', 'inline'])->default('bottomright');
