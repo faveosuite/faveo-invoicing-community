@@ -57,7 +57,7 @@ trait ApiKeySettings
             'status' => ['key' => 'license_status',       'lang' => __('message.license_status')],
             'mstatus' => ['key' => 'msg91_status',         'lang' => __('message.mobile_status')],
             'mailchimpstatus' => ['key' => 'mailchimp_status',     'lang' => __('message.mailchimp_status')],
-            'gcaptchastatus' => ['key' => 'v3_v2_recaptcha_status', 'lang' => __('message.google_status')],
+            'gcaptchastatus' => ['key' => 'recaptcha_status', 'lang' => __('message.google_status')],
             'termsStatus' => ['key' => 'terms',                'lang' => __('message.terms_status')],
             'pipedrivestatus' => ['key' => 'pipedrive_status',     'lang' => __('message.pipedrive_status')],
             'githubstatus' => ['key' => 'github_status',        'lang' => __('message.github_status')],
@@ -80,17 +80,9 @@ trait ApiKeySettings
             $inputKey = array_key_first(array_intersect_key($input, $statusData->toArray()));
             $statusValue = $input[$inputKey];
 
-            if ($statusEntry['key'] === 'v3_v2_recaptcha_status' && ! $statusValue) {
-                StatusSetting::where('id', 1)->update([
-                    'v3_v2_recaptcha_status' => 0,
-                    'recaptcha_status' => 0,
-                    'v3_recaptcha_status' => 0,
-                ]);
-            } else {
-                StatusSetting::where('id', 1)->update([
-                    $statusEntry['key'] => $statusValue,
-                ]);
-            }
+            StatusSetting::where('id', 1)->update([
+                $statusEntry['key'] => $statusValue,
+            ]);
 
             return successResponse($statusEntry['lang']);
         } catch (\Exception $e) {

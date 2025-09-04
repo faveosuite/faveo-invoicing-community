@@ -507,6 +507,7 @@
                 $mailchimpStatus = \App\Model\Common\StatusSetting::first()->value('mailchimp_status');
                 $pipedriveStatus = \App\Model\Common\StatusSetting::first()->value('pipedrive_status');
                 $groupId = \App\Model\Common\PipedriveGroups::where('group_name', 'Person')->value('id');
+                $recaptchaStatus = \App\Model\Common\StatusSetting::first()->value('recaptcha_status');
                 ?>
             @if($pipedriveStatus == 1)
                 <div class="col-md-2 col-sm-6">
@@ -523,7 +524,24 @@
                     </div>
                 </div>
             @endif
-                <!--/.col-md-2-->
+
+            @if( $recaptchaStatus == 1 )
+            <div class="col-md-2 col-sm-6">
+                <div class="settingiconblue">
+                    <div class="settingdivblue">
+                        <a class="icons-color" href="{{ url('recaptcha') }}">
+                <span class="fa-stack fa-2x">
+                    {{--Shield icon for reCAPTCHA--}}
+                   <i class="fas fa-shield-alt"></i>
+                </span>
+                        </a>
+                    </div>
+                    <div class="text-center text-sm fw_400">reCAPTCHA</div>
+                </div>
+            </div>
+            @endif
+
+            <!--/.col-md-2-->
                 <div class="col-md-2 col-sm-6">
                     <div class="settingiconblue">
                         <div class="settingdivblue">

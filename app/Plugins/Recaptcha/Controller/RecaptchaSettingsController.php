@@ -9,6 +9,11 @@ use Validator;
 
 class RecaptchaSettingsController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(['auth', 'admin']);
+    }
+
     public function settings()
     {
         return view('recaptcha::setting');
@@ -95,7 +100,6 @@ class RecaptchaSettingsController extends Controller
 
         if ($type === 'v3') {
             if (
-                ($responseBody['score'] ?? 0) < $scoreThreshold ||
                 ($responseBody['action'] ?? '') !== 'settings_save' ||
                 ($responseBody['hostname'] ?? '') !== $expectedHostname
             ) {

@@ -789,32 +789,6 @@ function handleArrayStoreRateLimit($IpKey, $maxAttempts, $decaySeconds)
     return ['status' => false, 'remainingTime' => 0];
 }
 
-function isCaptchaRequired($type = null)
-{
-    $settings = StatusSetting::find(1);
-
-    if (! $settings || Auth::check()) {
-        return ['status' => 0, 'is_required' => 'sometimes'];
-    }
-
-    $isEnabled = false;
-
-    switch ($type) {
-        case 'v3':
-            $isEnabled = $settings->v3_recaptcha_status === 1 && $settings->v3_v2_recaptcha_status;
-            break;
-        case 'v2':
-            $isEnabled = $settings->recaptcha_status === 1 && $settings->v3_v2_recaptcha_status;
-            break;
-        default:
-            $isEnabled = ($settings->v3_recaptcha_status === 1 || $settings->recaptcha_status === 1) && $settings->v3_v2_recaptcha_status;
-    }
-
-    return $isEnabled
-        ? ['status' => 1, 'is_required' => 'required']
-        : ['status' => 0, 'is_required' => 'sometimes'];
-}
-
 /**
  * Convert a time duration in seconds to a human-readable format.
  * If the time exceeds 60 minutes, return both hours and minutes.

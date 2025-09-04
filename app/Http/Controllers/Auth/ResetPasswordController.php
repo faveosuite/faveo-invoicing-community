@@ -50,7 +50,6 @@ class ResetPasswordController extends Controller
             $reset = \DB::table('password_resets')->select('email', 'created_at')->where('token', $token)->first();
 
             if ($reset && Carbon::parse($reset->created_at)->addMinutes(config('auth.passwords.users.expire')) > Carbon::now()) {
-                $status = StatusSetting::find(1, ['recaptcha_status', 'v3_recaptcha_status']);
 
                 $user = User::where('email', $reset->email)->first();
 
@@ -63,7 +62,7 @@ class ResetPasswordController extends Controller
                     return redirect('verify-2fa');
                 }
 
-                return view('themes.default1.front.auth.reset', compact('status'))
+                return view('themes.default1.front.auth.reset')
                     ->with(['reset_token' => $token, 'email' => $reset->email]);
             } else {
                 return redirect('login')->with('fails', \Lang::get('message.reset_link_expired'));
