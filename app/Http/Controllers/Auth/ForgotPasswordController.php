@@ -33,6 +33,8 @@ class ForgotPasswordController extends Controller
     public function __construct()
     {
         $this->middleware('guest');
+
+        $this->middleware(['recaptcha:forgot'])->only('sendResetLinkEmail');
     }
 
     public function showLinkRequestForm()
@@ -54,14 +56,12 @@ class ForgotPasswordController extends Controller
         try {
             $this->validate($request,
                 ['email' => 'required|email|exists:users,email',
-                    'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('forgotPassword')],
                     'forgot' => [new Honeypot()],
                 ],
                 [
                     'email.required' => __('validation.custom_email.required'),
                     'email.email' => __('validation.custom_email.email'),
                     'email.exists' => __('validation.custom_email.exists'),
-                    'g-recaptcha-response.required' => __('validation.verify_otp.recaptcha_required'),
                 ]);
             $email = $request->email;
 

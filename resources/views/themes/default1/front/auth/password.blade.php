@@ -16,70 +16,80 @@
     @endif
      <li class="active text-dark">{{ __('message.forgot_password')}}</li>
 @stop
-@section('main-class') 
+@section('main-class')
 main
 @stop
 @section('content')
-    <div id="alert-container"></div>
-        <div class="container py-4">
+    <div class="container py-4">
 
-            <div class="row justify-content-center">
+        {{-- Alerts (inside container for alignment) --}}
+        <div id="alert-container" class="mb-3"></div>
 
-                <div class="col-md-6 col-lg-6 mb-5 mb-lg-0 pe-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-6 mb-5 mb-lg-0">
 
-                    <form id="resetPasswordForm">
-                        <div class="row">
-
-                            <div class="form-group col">
-
-                                <label class="form-label text-color-dark text-3">{{ __('message.email_address')}}<span class="text-color-danger">*</span></label>
-
-                                <input name="email" value="" id="email" type="email" class="form-control form-control-lg text-4">
-                                <h6 id="resetpasswordcheck"></h6>
-                            </div>
+                <form id="resetPasswordForm">
+                    <div class="row">
+                        <div class="form-group col">
+                            <label class="form-label text-color-dark text-3">
+                                {{ __('message.email_address') }}
+                                <span class="text-color-danger">*</span>
+                            </label>
+                            <input name="email" id="email" type="email" class="form-control form-control-lg text-4">
+                            <h6 id="resetpasswordcheck" class="text-danger mt-1"></h6>
                         </div>
+                    </div>
 
-                        <div class="row justify-content-between">
-
-                            <div class="form-group col-md-auto">
-
-                                <a class="text-decoration-none text-color-primary font-weight-semibold text-2" href="{{url('login')}}">{{ __('message.know_password')}}</a>
-                            </div>
+                    <div class="row justify-content-between">
+                        <div class="form-group col-md-auto">
+                            <a class="text-decoration-none text-color-primary font-weight-semibold text-2" href="{{url('login')}}">
+                                {{ __('message.know_password') }}
+                            </a>
                         </div>
+                    </div>
 
-                        {!! honeypotField('forgot') !!}
-                           @if ($status->recaptcha_status == 1)
-                                <div id="recaptchaEmail"></div>
-                                <span id="passcaptchacheck"></span><br>
-                            @elseif($status->v3_recaptcha_status === 1)
-                                 <input type="hidden" id="g-recaptcha-email" class="g-recaptcha-token" name="g-recaptcha-response" data-recaptcha-action="forgotPassword">
-                             @endif
-
-                        <div class="row">
-
-                            <div class="form-group col">
-
-                                <button type="submit" class="btn btn-dark btn-modern w-100 text-uppercase font-weight-bold text-3 py-3" data-loading-text="{{ __('message.sending')}}" data-original-text="{{ __('message.send_mail')}}" name="sendOtp" id="resetmail">{{ __('message.send_mail')}}</button>
-
-                            </div>
+                    <div class="row">
+                        <div class="form-group col">
+                            <div id="recaptchaEmail"></div>
                         </div>
-                    </form>
-                </div>
+                    </div>
+
+                    {!! honeypotField('forgot') !!}
+
+                    <div class="row">
+                        <div class="form-group col">
+                            <button type="submit"
+                                    class="btn btn-dark btn-modern w-100 text-uppercase font-weight-bold text-3 py-3"
+                                    data-loading-text="{{ __('message.sending')}}"
+                                    data-original-text="{{ __('message.send_mail')}}"
+                                    id="resetmail">
+                                {{ __('message.send_mail') }}
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
             </div>
         </div>
-@stop 
+    </div>
+@stop
+
 @section('script')
 {{--@extends('mini_views.recaptcha')--}}
 <script>
-    let email_recaptcha_id;
-    let recaptcha;
-    let recaptchaToken;
+    let forgotRecaptcha;
 
-    @if($status->recaptcha_status === 1)
-    recaptchaFunctionToExecute.push(() => {
-        email_recaptcha_id = grecaptcha.render('recaptchaEmail', {'sitekey': siteKey});
-    });
-    @endif
+    (async () => {
+        const forgotRecaptchaContainer = document.getElementById('recaptchaEmail');
+
+        forgotRecaptcha = await RecaptchaManager.init(forgotRecaptchaContainer, {
+            action: 'forgot',
+        });
+
+        // Make them globally available
+        window.forgotRecaptcha = forgotRecaptcha;
+
+    })();
 </script>
 
 <script>
@@ -134,41 +144,24 @@ main
 
             return html;
         }
-        $.validator.addMethod("recaptchaRequired", function(value, element) {
-            try {
-                if(!recaptchaEnabled) {
-                    return false;
-                }
-            }catch (ex){
-                return false
-            }
-            return value.trim() !== "";
-        }, "{{ __('message.recaptcha_required') }}");
         $.validator.addMethod("regex", function(value, element, regexp) {
             var re = new RegExp(regexp);
             return this.optional(element) || re.test(value);
         }, "{{ __('message.invalid_format') }}");
 
         $('#resetPasswordForm').validate({
-            ignore: ":hidden:not(.g-recaptcha-response)",
             rules: {
                 email: {
                     required: true,
                     email: true,
                     regex: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
                 },
-                "g-recaptcha-response": {
-                    recaptchaRequired: true
-                }
             },
             messages: {
                 email: {
                     required: "{{ __('message.error_email_address') }}",
                     email: "{{ __('message.contact_error_email') }}",
                     regex: "{{ __('message.contact_error_email') }}"
-                },
-                "g-recaptcha-response": {
-                    recaptchaRequired: "{{ __('message.recaptcha_required') }}"
                 }
             },
             unhighlight: function (element) {
@@ -177,40 +170,79 @@ main
             errorPlacement: function (error, element) {
                 var errorMapping = {
                     "email": "#resetpasswordcheck",
-                    "g-recaptcha-response": "#passcaptchacheck"
                 };
 
                 placeErrorMessage(error, element, errorMapping);
-            },
-            submitHandler: function (form) {
-                var formData = $(form).serialize();
-                var submitButton = $('#resetmail');
-                    $.ajax({
-                        url: '{{url('password/email')}}',
-                        type: 'POST',
-                        data: formData,
-                        dataType: 'json', // Expect JSON response
-                        beforeSend: function () {
-                            submitButton.prop('disabled', true).html(submitButton.data('loading-text'));
-                        },
-                        success: function (response) {
-                            form.reset();
-                            showAlert('success', response.message);
-                        },
-                        error: function (data) {
-                            var response = data.responseJSON ? data.responseJSON : JSON.parse(data.responseText);
-                            showAlert('error', response);
-                        },
-                        complete: function () {
-                            submitButton.prop('disabled', false).html(submitButton.data('original-text'));
-                            setTimeout(function() {
-                                window.location.href = "{{ url('login') }}";
-                            }, 3500);
-                        }
-                    });
+            }
+        });
+
+        $('#resetPasswordForm').on('submit', async function(event) {
+            event.preventDefault();
+
+            const $form = $(this);
+
+            const $submitButton = $('#resetmail');
+
+            if (!$form.valid()) {
+                return;
+            }
+
+            try {
+                // Validate reCAPTCHA
+                let recaptchaToken = await window.forgotRecaptcha.tokenValidation(forgotRecaptcha, "demo");
+                if (!recaptchaToken) return;
+
+                // Collect form data
+                let formData = $form.serializeArray();
+
+                if (!window.demoRecaptcha.isDisabled() && recaptchaToken) {
+                    formData.push({ name: "g-recaptcha-response", value: recaptchaToken });
+                    formData.push({ name: "page_id", value: window.pageId });
                 }
+
+                // Submit form
+                $.ajax({
+                    url: "{{ url('password/email') }}",
+                    method: "POST",
+                    data: $.param(formData),
+                    beforeSend: function () {
+                        $submitButton.prop("disabled", true).html($submitButton.data("loading-text"));
+                    },
+                    success: function (response) {
+                        $form[0].reset();
+                        showAlert('success', response.message);
+                        setTimeout(function() {
+                            window.location.href = "{{ url('login') }}";
+                        }, 6000);
+                    },
+                    error: async function (xhr) {
+                        let response = xhr.responseJSON || JSON.parse(xhr.responseText || "{}");
+
+                        // Handle reCAPTCHA fallback
+                        if (response.data?.show_v2_recaptcha) {
+                            await window.forgotRecaptcha.useFallback(true);
+                            showAlert("error", response.message || "An unexpected error occurred.");
+                            return;
+                        }
+
+                        if (response.errors) {
+                            $.each(response.errors, function (field, messages) {
+                                validator.showErrors({ [field]: messages[0] });
+                            });
+                        } else {
+                            showAlert("error", response.message || "An unexpected error occurred.");
+                        }
+                    },
+                    complete: function () {
+                        $submitButton.prop("disabled", false).html($submitButton.data("original-text"));
+                        window.forgotRecaptcha.reset();
+                    }
+                });
+            } catch (err) {
+                console.error("Form submit error:", err);
+                showAlert("error", "Something went wrong. Please try again.");
+            }
         });
     });
 </script>
 @stop
-                              

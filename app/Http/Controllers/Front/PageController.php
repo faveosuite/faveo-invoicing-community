@@ -1022,9 +1022,9 @@ class PageController extends Controller
                 $mail->SendEmail($set->email, $set->company_email, $template->data, $templatename, $replace, $type);
             }
 
-            return response()->json(['message' => __('message.message_sent_successfully_400')], 200);
+            return successResponse(__('message.message_sent_successfully_400'));
         } catch (\Exception $ex) {
-            return response()->json(['error' => $ex->getMessage()], 500);
+            return errorResponse($ex->getMessage());
         }
     }
 
