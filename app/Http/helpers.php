@@ -3,7 +3,6 @@
 use App\FileSystemSettings;
 use App\Model\Common\Country;
 use App\Model\Common\Setting;
-use App\Model\Common\StatusSetting;
 use App\Model\Order\InstallationDetail;
 use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
