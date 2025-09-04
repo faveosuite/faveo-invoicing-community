@@ -296,8 +296,6 @@ class WidgetController extends Controller
             $socialMedia .= '</ul>';
         }
 
-        $status = StatusSetting::select('recaptcha_status', 'v3_recaptcha_status', 'msg91_status', 'emailverification_status', 'terms')->first();
-
         $mailchimpSection = '';
         if ($mailchimpKey !== null && $widget->allow_mailchimp == 1) {
             $mailchimpSection .= '<div id="mailchimp-message" style="width: 86%;"></div>
@@ -311,21 +309,12 @@ class WidgetController extends Controller
                                                             <label>'.__('message.contact_leave').'</label>
                                                             <input type="text" name="mailhoneypot_field" value="">
                                                         </div>';
-            if ($status->recaptcha_status === 1 || $status->v3_recaptcha_status === 1) {
-                if ($status->recaptcha_status === 1) {
-                    $mailchimpSection .= '
-            <div class="mb-3">
-                <div id="mailchimp_recaptcha"></div>
-                <div class="robot-verification mb-3" id="mailchimpcaptcha"></div>
-                <span id="mailchimpcaptchacheck"></span>
-            </div>
-        ';
-                } elseif ($status->v3_recaptcha_status === 1) {
-                    $mailchimpSection .= '
-                <input type="hidden" id="g-recaptcha-mailchimp" class="g-recaptcha-token" name="g-recaptcha-response" data-recaptcha-action="mailChimp">
-        ';
-                }
-            }
+            $mailchimpSection .= '
+                    <div class="row">
+                        <div class="form-group col">
+                            <div id="mailchimp_recaptcha"></div>
+                        </div>
+                    </div>';
             $mailchimpSection .= '<button class="btn btn-primary mb-3" id="mailchimp-subscription" type="submit"><strong>'.__('message.caps_go').'</strong></button>
                                             </form>
                                           </div>';

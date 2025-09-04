@@ -63,9 +63,4 @@ return [
         'client_secret' => '',
         'redirect' => '',
     ],
-    'recaptcha' => [
-        'secret' => env('NOCAPTCHA_SECRET'),
-        'sitekey' => env('NOCAPTCHA_SITEKEY'),
-        'score' => env('NOCAPTCHA_MIN_SCORE', 0.5), // For v3 only
-    ],
 ];

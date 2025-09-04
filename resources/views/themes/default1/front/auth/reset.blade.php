@@ -1,237 +1,372 @@
 @extends('themes.default1.layouts.front.master')
+
 @section('title')
- {{ __('message.reset_password_faveo_helpdesk') }}
+    {{ __('message.reset_password_faveo_helpdesk') }}
 @stop
+
 @section('page-heading')
     {{ __('message.reset_your_password') }}
 @stop
+
 @section('page-header')
     {{ __('message.reset_password') }}
 @stop
+
 @section('breadcrumb')
     @if(Auth::check())
-        <li><a class="text-primary" href="{{url('my-invoices')}}">{{ __('message.home')}}</a></li>
+        <li><a class="text-primary" href="{{url('my-invoices')}}">{{ __('message.home') }}</a></li>
     @else
-         <li><a class="text-primary" href="{{url('login')}}">{{ __('message.home')}}</a></li>
+        <li><a class="text-primary" href="{{url('login')}}">{{ __('message.home') }}</a></li>
     @endif
-     <li class="active text-dark">{{ __('message.reset_password')}}</li>
-@stop 
-@section('main-class') 
-main
+    <li class="active text-dark">{{ __('message.reset_password') }}</li>
 @stop
+
+@section('main-class')
+    main
+@stop
+
 @section('content')
+    <div id="reset-error-container"></div>
 
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
 
-     <div class="container py-4">
+                {!! html()->form()->id('changePasswordForm')->open() !!}
+                <input type="hidden" name="token" value="{{ $reset_token }}">
+                <input type="hidden" name="email" value="{{ $email }}">
 
-            <div class="row justify-content-center">
+                {{-- Password --}}
+                <div class="mb-3">
+                    <label for="password" class="form-label fw-bold">
+                        {{ __('message.new_password') }} <span class="text-danger">*</span>
+                    </label>
+                    <div class="input-group">
+                        <input type="password" id="password" name="password"
+                               class="form-control form-control-lg"
+                               placeholder="{{ __('message.password') }}">
+                        <span class="input-group-text" role="button" onclick="togglePasswordVisibility(this)">
+                        <i class="fa fa-eye-slash"></i>
+                    </span>
+                    </div>
+                    <div id="password_error" class="invalid-feedback d-none"></div>
 
-                <div class="col-md-6 col-lg-6 mb-5 mb-lg-0 pe-5">
-
-                    {!! html()->form('POST', url('/password/reset'))
-    ->id('changePasswordForm')
-    ->attribute('onsubmit', $status->recaptcha_status === 1 ? 'return validateCaptcha()' : null)->open() !!}
-                    <input type="hidden" name="token" value="{{ $reset_token }}">
-                            <input type="hidden" name="email" value="{{ $email }}">
-
-                        <div class="row">
-
-                            <div class="form-group col {{ $errors->has('password') ? 'has-error' : '' }}">
-
-                                <label class="form-label text-color-dark text-3">{{ __('message.new_password')}} <span class="text-color-danger">*</span></label>
-                                <div class="input-group">
-                                <input type="password" id="password" value="" class="form-control form-control-lg text-4" placeholder="{{ __('message.password')}}" name='password'<?php if( count($errors) > 0) {?> style="width: 98%;position: relative;left: 5px;"<?php } ?>>
-                                    <div class="input-group-append">
-                                        <span class="input-group-text" role="button" onclick="togglePasswordVisibility(this)">
-                                            <i class="fa fa-eye-slash"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                                <small class="text-sm text-muted" id="pswd_info" style="display: none;">
-                                    <span class="font-weight-bold">{{ \Lang::get('message.password_requirements') }}</span>
-                                    <ul class="pl-4">
-                                        @foreach (\Lang::get('message.password_requirements_list') as $requirement)
-                                            <li id="{{ $requirement['id'] }}" class="text-danger">{{ $requirement['text'] }}</li>
-                                        @endforeach
-                                    </ul>
-                                </small>
-
-                            </div>
-                        </div>
-
-                        <div class="row">
-
-                            <div class="form-group col {{ $errors->has('password_confirmation') ? 'has-error' : '' }}">
-
-                                <label class="form-label text-color-dark text-3">{{ __('message.confirm_password')}} <span class="text-color-danger">*</span></label>
-                                <div class="input-group">
-                                    {!! html()->password('password_confirmation')
-        ->attribute('placeholder',  __('message.retype_password'))
-        ->class('form-control form-control-lg text-4')
-        ->id('confirm_password') !!}
-
-                                    <div class="input-group-append">
-                                        <span class="input-group-text" role="button" onclick="togglePasswordVisibility(this)">
-                                            <i class="fa fa-eye-slash"></i>
-                                        </span>
-                                </div>
-                            </div>
-                            </div>
-                        </div>
-                    {!! honeypotField('reset') !!}
-                    @if ($status->recaptcha_status === 1)
-                        <div id="recaptchaReset"></div>
-                        <div class="loginrobot-verification"></div><br>
-                    @elseif($status->v3_recaptcha_status === 1)
-                        <input type="hidden" id="g-recaptcha-password" class="g-recaptcha-token" name="g-recaptcha-response" data-recaptcha-action="resetPassword">
-                    @endif
-
-                        <div class="row">
-
-                            <div class="form-group col">
-
-                                <button type="submit" class="btn btn-dark btn-modern w-100 text-uppercase font-weight-bold text-3 py-3" data-loading-text="{{ __('message.loading') }}">{{ __('message.reset_password')}}</button>
-
-                            </div>
-                        </div>
-                    {!! html()->form()->close() !!}
+                    <small class="text-muted mt-2 d-none" id="pswd_info">
+                        <span class="fw-bold">{{ __('message.password_requirements') }}</span>
+                        <ul class="ps-3 mb-0">
+                            @foreach (__('message.password_requirements_list') as $requirement)
+                                <li id="{{ $requirement['id'] }}" class="text-danger">{{ $requirement['text'] }}</li>
+                            @endforeach
+                        </ul>
+                    </small>
                 </div>
+
+                {{-- Confirm Password --}}
+                <div class="mb-3">
+                    <label for="confirm_password" class="form-label fw-bold">
+                        {{ __('message.confirm_password') }} <span class="text-danger">*</span>
+                    </label>
+                    <div class="input-group">
+                        {!! html()->password('password_confirmation')
+                            ->class('form-control form-control-lg')
+                            ->attribute('placeholder', __('message.retype_password'))
+                            ->id('confirm_password') !!}
+                        <span class="input-group-text" role="button" onclick="togglePasswordVisibility(this)">
+                        <i class="fa fa-eye-slash"></i>
+                    </span>
+                    </div>
+                    <div id="confirm_password_error" class="invalid-feedback d-none"></div>
+                </div>
+
+                {!! honeypotField('reset') !!}
+
+                {{-- Recaptcha --}}
+                <div class="mb-3">
+                    <div id="recaptchaReset"></div>
+                </div>
+
+                {{-- Submit --}}
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-dark btn-modern text-uppercase fw-bold py-3"
+                            id="reset-button"
+                            data-original-text="{{ __('message.reset_password') }}"
+                            data-loading-text="{{ __('message.loading') }}">
+                        {{ __('message.reset_password') }}
+                    </button>
+                </div>
+
+                {!! html()->form()->close() !!}
             </div>
         </div>
-{{--     @extends('mini_views.recaptcha')--}}
-    <script>
-        let reset_recaptcha_id;
+    </div>
+<script>
+        let resetRecaptcha;
 
-        @if($status->recaptcha_status === 1)
-        recaptchaFunctionToExecute.push(() => {
-            reset_recaptcha_id = grecaptcha.render('recaptchaReset', { 'sitekey': siteKey });
-        });
-        @endif
+        (async () => {
+            const demoRecaptchaContainer = document.getElementById('recaptchaReset');
 
-        function validateCaptcha() {
-                if(getRecaptchaTokenFromId(reset_recaptcha_id) == ''){
-                    $('.loginrobot-verification').empty()
-                    $('.loginrobot-verification').append("<p style='color:red'>{{ __('message.robot_verification')}}</p>")
-                    return false;
-                }
-                else{
-                    return true;
-                }
-        }
-        $(document).ready(function() {
-            const requiredFields = {
-                password: @json(trans('message.password_required')),
-                confirm_password: @json(trans('message.confirm_pass_required')),
-            };
-
-            const pattern = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[~*!@$#%_+.?:,{ }])[A-Za-z\d~*!@$#%_+.?:,{ }]{8,16}$/;
-
-            $('#changePasswordForm').on('submit', function(e) {
-                const fields = {
-                    password: $('#password'),
-                    confirm_password: $('#confirm_password'),
-                };
-
-                // Clear previous errors
-                Object.values(fields).forEach(field => {
-                    field.removeClass('is-invalid');
-                    field.next().next('.error').remove();
-                });
-
-                let isValid = true;
-
-                const showError = (field, message) => {
-                    field.addClass('is-invalid');
-                    field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
-                };
-
-                // Validate required fields
-                Object.keys(fields).forEach(field => {
-                    if (!fields[field].val()) {
-                        showError(fields[field], requiredFields[field]);
-                        isValid = false;
-                    }
-                });
-
-                // Validate new password against the regex
-                if (isValid && !pattern.test(fields.password.val())) {
-                    showError(fields.password, @json(trans('message.strong_password')));
-                    isValid = false;
-                }
-
-                // Check if new password and confirm password match
-                if (isValid && fields.password.val() !== fields.confirm_password.val()) {
-                    showError(fields.confirm_password, @json(trans('message.password_mismatch')));
-                    isValid = false;
-                }
-
-                // If validation fails, prevent form submission
-                if (!isValid) {
-                    e.preventDefault();
-                }
+            resetRecaptcha = await RecaptchaManager.init(demoRecaptchaContainer, {
+                action: 'reset',
             });
 
-            // Function to remove error when inputting data
-            const removeErrorMessage = (field) => {
-                field.classList.remove('is-invalid');
-                const error = field.nextElementSibling;
-                if (error && error.classList.contains('error')) {
-                    error.remove();
-                }
-            };
+            // Make them globally available
+            window.resetRecaptcha = resetRecaptcha;
 
-            // Add input event listeners for all fields
-            ['password', 'confirm_password'].forEach(id => {
-                document.getElementById(id).addEventListener('input', function() {
-                    removeErrorMessage(this);
-                });
-            });
-        });
+        })();
+    </script>
+     <script>
+         $(document).ready(function() {
+             // Cache the selectors for better performance
+             var $pswdInfo = $('#pswd_info');
+             var $password = $('#password');
+             var $length = $('#length');
+             var $letter = $('#letter');
+             var $capital = $('#capital');
+             var $number = $('#number');
+             var $special = $('#space');
 
-        $(document).ready(function() {
-            // Cache the selectors for better performance
-            var $pswdInfo = $('#pswd_info');
-            var $password = $('#password');
-            var $length = $('#length');
-            var $letter = $('#letter');
-            var $capital = $('#capital');
-            var $number = $('#number');
-            var $special = $('#space');
+             // Function to update validation classes
+             function updateClass(condition, $element) {
+                 $element.toggleClass('text-success', condition).toggleClass('text-danger', !condition);
+             }
 
-            // Function to update validation classes
-            function updateClass(condition, $element) {
-                $element.toggleClass('text-success', condition).toggleClass('text-danger', !condition);
-            }
+             // Initially hide the password requirements
+             $pswdInfo.hide();
 
-            // Initially hide the password requirements
-            $pswdInfo.hide();
+             // Show/hide password requirements on focus/blur
+             $password.focus(function() {
+                 $pswdInfo.removeClass('d-none').show();
+             }).blur(function() {
+                 $pswdInfo.addClass('d-none').hide();
+             });
 
-            // Show/hide password requirements on focus/blur
-            $password.focus(function() {
-                $pswdInfo.show();
-            }).blur(function() {
-                $pswdInfo.hide();
-            });
+             // Perform real-time validation on keyup
+             $password.on('keyup', function() {
+                 var pswd = $(this).val();
 
-            // Perform real-time validation on keyup
-            $password.on('keyup', function() {
-                var pswd = $(this).val();
+                 // Validate the length (8 to 16 characters)
+                 updateClass(pswd.length >= 8 && pswd.length <= 16, $length);
 
-                // Validate the length (8 to 16 characters)
-                updateClass(pswd.length >= 8 && pswd.length <= 16, $length);
+                 // Validate lowercase letter
+                 updateClass(/[a-z]/.test(pswd), $letter);
 
-                // Validate lowercase letter
-                updateClass(/[a-z]/.test(pswd), $letter);
+                 // Validate uppercase letter
+                 updateClass(/[A-Z]/.test(pswd), $capital);
 
-                // Validate uppercase letter
-                updateClass(/[A-Z]/.test(pswd), $capital);
+                 // Validate number
+                 updateClass(/\d/.test(pswd), $number);
 
-                // Validate number
-                updateClass(/\d/.test(pswd), $number);
+                 // Validate special character
+                 updateClass(/[~*!@$#%_+.?:,{ }]/.test(pswd), $special);
+             });
+         });
 
-                // Validate special character
-                updateClass(/[~*!@$#%_+.?:,{ }]/.test(pswd), $special);
-            });
-        });
+         $(document).ready(function() {
+             function placeErrorMessage(error, element, errorMapping = null) {
+                 const errorText = error.text().trim();
+
+                 if (errorMapping !== null && errorMapping[element.attr("name")]) {
+                     const target = $(errorMapping[element.attr("name")]);
+
+                     if (errorText) {
+                         target.removeClass("d-none").html(errorText).show();
+                         element.addClass("is-invalid").removeClass("is-valid");
+                     } else {
+                         target.addClass("d-none").empty().hide(); // Added .hide() for complete hiding
+                         element.removeClass("is-invalid is-valid");
+                     }
+                 } else {
+                     // Fallback: place error right after the element
+                     if (errorText) {
+                         error.insertAfter(element).show();
+                         element.addClass("is-invalid").removeClass("is-valid");
+                     } else {
+                         error.remove();
+                         element.removeClass("is-invalid is-valid");
+                     }
+                 }
+             }
+
+             let alertTimeout;
+
+             function showAlert(type, messageOrResponse) {
+                 // Generate appropriate HTML
+                 var html = generateAlertHtml(type, messageOrResponse);
+
+                 // Clear any existing alerts and remove the timeout
+                 $('#reset-error-container').html(html);
+                 clearTimeout(alertTimeout);
+
+                 // Display alert
+                 window.scrollTo(0, 0);
+
+                 // Auto-dismiss after 5 seconds
+                 alertTimeout = setTimeout(function() {
+                     $('#reset-error-container .alert').fadeOut('slow');
+                 }, 5000);
+             }
+
+             function generateAlertHtml(type, response) {
+                 const isSuccess = type === 'success';
+                 const iconClass = isSuccess ? 'fa-check-circle' : 'fa-ban';
+                 const alertClass = isSuccess ? 'alert-success' : 'alert-danger';
+                 const message = response.message || response || 'An error occurred. Please try again.';
+
+                 let html = `<div class="alert ${alertClass} alert-dismissible">` +
+                     `<i class="fa ${iconClass}"></i> ` +
+                     `${message}` +
+                     '<button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true"></button>' +
+                     '</div>';
+
+                 return html;
+             }
+
+             // Clear error messages function
+             function clearErrorMessages() {
+                 $('.invalid-feedback').addClass('d-none').empty().hide();
+                 $('.form-control').removeClass('is-invalid is-valid');
+             }
+
+             $('#changePasswordForm').validate({
+                 rules: {
+                     password: {
+                         required: true,
+                         regex: /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[~*!@$#%_+.?:,{ }])[A-Za-z\d~*!@$#%_+.?:,{ }]{8,16}$/,
+                     },
+                     password_confirmation: {
+                         required: true,
+                         equalTo: "#password"
+                     },
+                 },
+                 messages: {
+                     password: {
+                         required: "{{ __('message.login_validation.password_required') }}",
+                         regex: "{{ __('message.strong_password') }}"
+                     },
+                     password_confirmation: {
+                         required: "{{ __('message.login_validation.confirm_password_required') }}",
+                         equalTo: "{{ __('message.login_validation.confirm_password_equalto') }}"
+                     },
+                 },
+                 unhighlight: function(element) {
+                     $(element).removeClass("is-invalid is-valid");
+                     // Clear the corresponding error message
+                     const errorMapping = {
+                         "password": "#password_error",
+                         "password_confirmation": "#confirm_password_error",
+                     };
+                     const errorContainer = $(errorMapping[element.name]);
+                     if (errorContainer.length) {
+                         errorContainer.addClass("d-none").empty().hide();
+                     }
+                 },
+                 errorPlacement: function (error, element) {
+                     var errorMapping = {
+                         "password": "#password_error",
+                         "password_confirmation": "#confirm_password_error",
+                     };
+                     placeErrorMessage(error, element, errorMapping);
+                 },
+                 // Add success callback to ensure proper cleanup
+                 success: function(label, element) {
+                     const errorMapping = {
+                         "password": "#password_error",
+                         "password_confirmation": "#confirm_password_error",
+                     };
+                     const errorContainer = $(errorMapping[element.name]);
+                     if (errorContainer.length) {
+                         errorContainer.addClass("d-none").empty().hide();
+                     }
+                     $(element).removeClass("is-invalid");
+                 }
+             });
+
+             // Add input event listeners to clear errors in real-time
+             $('#password, #confirm_password').on('input', function() {
+                 const fieldName = this.name || this.id.replace('confirm_', '');
+                 const errorMapping = {
+                     "password": "#password_error",
+                     "password_confirmation": "#confirm_password_error",
+                 };
+
+                 if ($(this).valid()) {
+                     const errorContainer = $(errorMapping[fieldName] || errorMapping[this.name]);
+                     if (errorContainer.length) {
+                         errorContainer.addClass("d-none").empty().hide();
+                     }
+                     $(this).removeClass("is-invalid");
+                 }
+             });
+
+             $('#changePasswordForm').on('submit', async function(event) {
+                 event.preventDefault();
+
+                 const $form = $(this);
+                 const $submitButton = $("#reset-button");
+
+                 if (!$form.valid()) {
+                     return;
+                 }
+
+                 try {
+                     // Validate reCAPTCHA
+                     let recaptchaToken = await window.resetRecaptcha.tokenValidation(resetRecaptcha, "login");
+                     if (!recaptchaToken) return;
+
+                     // Collect form data
+                     let formData = $form.serializeArray();
+                     if (!window.resetRecaptcha.isDisabled() && recaptchaToken) {
+                         formData.push({ name: "g-recaptcha-response", value: recaptchaToken });
+                         formData.push({ name: "page_id", value: window.pageId });
+                     }
+
+                     // Submit form
+                     $.ajax({
+                         url: "{{ url('password/reset') }}",
+                         method: "POST",
+                         data: $.param(formData),
+                         beforeSend: function () {
+                             clearErrorMessages(); // Clear any existing errors before submit
+                             $submitButton.prop("disabled", true).html($submitButton.data("loading-text"));
+                         },
+                         success: function (response) {
+                             showAlert("success", response.message);
+
+                             if (response.data?.redirect) {
+                                 window.location.href = response.data?.redirect;
+                             }
+                         },
+                         error: async function (xhr) {
+                             let response = xhr.responseJSON || JSON.parse(xhr.responseText || "{}");
+
+                             // Handle reCAPTCHA fallback
+                             if (response.data?.show_v2_recaptcha) {
+                                 await window.resetRecaptcha.useFallback(true);
+                                 showAlert("error", response.message || "An unexpected error occurred.");
+                                 return;
+                             }
+
+                             // Handle validation errors
+                             if (response.errors) {
+                                 let validator = $form.validate();
+                                 clearErrorMessages();
+                                 $.each(response.errors, function (field, messages) {
+                                     validator.showErrors({ [field]: messages[0] });
+                                 });
+                             } else {
+                                 showAlert("error", response.message || "An unexpected error occurred.");
+                             }
+                         },
+                         complete: function () {
+                             $submitButton.prop("disabled", false).html($submitButton.data("original-text"));
+                             window.resetRecaptcha.reset();
+                         }
+                     });
+                 } catch (err) {
+                     console.error("Form submit error:", err);
+                     showAlert("error", "Something went wrong. Please try again.");
+                 }
+             });
+         });
     </script>
 @stop

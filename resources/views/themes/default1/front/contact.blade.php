@@ -80,16 +80,15 @@
                                 <textarea maxlength="5000" data-msg-required="{{ __('message.please_enter_message')}}" rows="8" class="form-control text-3 h-auto py-2" name="conmessage" id="conmessage"></textarea>
                             </div>
                         </div>
+
+                         <div class="row">
+                             <div class="form-group col">
+                                 <div id="recaptchaContact"></div>
+                             </div>
+                         </div>
+
                          <!-- Honeypot fields (hidden) -->
                                 {!! honeypotField('contact') !!}
-
-                         @if ($status->recaptcha_status === 1)
-                             <div id="recaptchaContact"></div>
-                             <span id="captchacheck"></span>
-                         @elseif($status->v3_recaptcha_status === 1)
-                             <input type="hidden" id="g-recaptcha-contact" class="g-recaptcha-token" name="g-recaptcha-response" data-recaptcha-action="contactUs">
-                         @endif
-                                <br>
 
                         <div class="row">
 
@@ -127,13 +126,20 @@
 {{--@extends('mini_views.recaptcha')--}}
 
         <script>
-            let contact_recaptcha_id;
-            let recaptchaToken;
+            let contactRecaptcha;
 
-            recaptchaFunctionToExecute.push(() => {
-                contact_recaptcha_id = grecaptcha.render('recaptchaContact', { 'sitekey': siteKey });
-            });
-    </script>
+            (async () => {
+                const contactRecaptchaContainer = document.getElementById('recaptchaContact');
+
+                contactRecaptcha = await RecaptchaManager.init(contactRecaptchaContainer, {
+                    action: 'contact',
+                });
+
+                // Make them globally available
+                window.contactRecaptcha = contactRecaptcha;
+
+            })();
+        </script>
 <script>
 $(document).ready(function() {
     function placeErrorMessage(error, element, errorMapping = null) {
@@ -196,16 +202,6 @@ $(document).ready(function() {
         return this.optional(element) || re.test(value);
     }, "{{ __('message.invalid_format') }}");
 
-    $.validator.addMethod("recaptchaRequired", function(value, element) {
-        try {
-            if(!recaptchaEnabled) {
-                return false;
-            }
-        }catch (ex){
-            return false
-        }
-        return value.trim() !== "";
-    }, "{{ __('message.recaptcha_required') }}");
     $('#contactForm').validate({
         ignore: ":hidden:not(.g-recaptcha-response):not([name^='contact'])",
         rules: {
@@ -225,9 +221,6 @@ $(document).ready(function() {
             },
             conmessage: {
                 required: true
-            },
-            "g-recaptcha-response": {
-                recaptchaRequired: true
             }
         },
         messages: {
@@ -247,9 +240,6 @@ $(document).ready(function() {
             },
             conmessage: {
                 required: "{{ __('message.contact_error_message') }}"
-            },
-            "g-recaptcha-response": {
-                recaptchaRequired: "{{ __('message.recaptcha_required') }}"
             }
         },
         unhighlight: function (element) {
@@ -258,58 +248,83 @@ $(document).ready(function() {
         errorPlacement: function (error, element) {
             var errorMapping = {
                 "Mobile": "#mobile_codecheckcon",
-                "g-recaptcha-response": "#captchacheck"
             };
 
             placeErrorMessage(error, element,errorMapping);
-        },
-        submitHandler: function (form) {
+        }
+    });
+
+    $('#contactForm').on('submit', async function (event) {
+        event.preventDefault();
+
+        const $form = $(this);
+
+        const $submitButton = $('#contactSubmit');
+
+        if (!$form.valid()) {
+            return;
+        }
+
+        try {
+            // Validate reCAPTCHA
+            let recaptchaToken = await window.contactRecaptcha.tokenValidation(contactRecaptcha, "demo");
+            if (!recaptchaToken) return;
+
             $('#mobile_code_hiddenco').val('+' + $('#mobilenumcon').attr('data-dial-code'));
             $('#mobilenumcon').val($('#mobilenumcon').val().replace(/\D/g, ''));
 
-            var formData = $(form).serialize();
+            // Collect form data
+            let formData = $form.serializeArray();
 
-            var submitButton = $('#contactSubmit');
+            if (!window.demoRecaptcha.isDisabled() && recaptchaToken) {
+                formData.push({ name: "g-recaptcha-response", value: recaptchaToken });
+                formData.push({ name: "page_id", value: window.pageId });
+            }
 
+            // Submit form
             $.ajax({
-                type: 'POST',
-                url: 'contact-us',
-                data: formData,
-                dataType: 'json',
+                url: "{{ url('contact-us') }}",
+                method: "POST",
+                data: $.param(formData),
                 beforeSend: function () {
-                    submitButton.prop('disabled', true).html(submitButton.data('loading-text'));
+                    $submitButton.prop("disabled", true).html($submitButton.data("loading-text"));
                 },
                 success: function (response) {
-                    form.reset();
+                    $form[0].reset();
                     showAlert('success', response.message);
                 },
-                error: function (data, status, error) {
-                    var response = data.responseJSON ? data.responseJSON : JSON.parse(data.responseText);
+                error: async function (xhr) {
+                    let response = xhr.responseJSON || JSON.parse(xhr.responseText || "{}");
+
+                    // Handle reCAPTCHA fallback
+                    if (response.data?.show_v2_recaptcha) {
+                        await window.contactRecaptcha.useFallback(true);
+                        showAlert("error", response.message || "An unexpected error occurred.");
+                        return;
+                    }
 
                     if (response.errors) {
-                        $.each(response.errors, function(field, messages) {
-                            if (field === 'contact' || field === 'g-recaptcha-response') {
-                                showAlert('error', messages[0]);
+                        $.each(response.errors, function (field, messages) {
+                            if (["contact"].includes(field)) {
+                                showAlert("error", messages[0]);
                                 return;
                             }
-                            var validator = $('#contactForm').validate();
-
-                            var fieldSelector = $(`[name="${field}"]`).attr('name');  // Get the name attribute of the selected field
-
-                            validator.showErrors({
-                                [fieldSelector]: messages[0]
-                            });
+                            validator.showErrors({ [field]: messages[0] });
                         });
                     } else {
-                        showAlert('error', response);
+                        showAlert("error", response.message || "An unexpected error occurred.");
                     }
                 },
                 complete: function () {
-                    submitButton.prop('disabled', false).html(submitButton.data('original-text'));
+                    $submitButton.prop("disabled", false).html($submitButton.data("original-text"));
+                    window.contactRecaptcha.reset();
                 }
             });
+        } catch (err) {
+            console.error("Form submit error:", err);
+            showAlert("error", "Something went wrong. Please try again.");
         }
-    });
+    })
 });
 </script>
 @stop

@@ -1,93 +1,101 @@
 @extends('themes.default1.layouts.front.master')
+
 @section('title')
-{{ __('message.two_factor') }}
+    {{ __('message.two_factor') }}
 @stop
+
 @section('page-heading')
     {{ __('message.two_factor') }}
 @stop
+
 @section('page-header')
-{{ __('message.forgot-password') }}
+    {{ __('message.forgot-password') }}
 @stop
+
 @section('breadcrumb')
     @if(Auth::check())
-        <li><a class="text-primary" href="{{url('my-invoices')}}">{{ __('message.home')}}</a></li>
+        <li><a class="text-primary" href="{{url('my-invoices')}}">{{ __('message.home') }}</a></li>
     @else
-         <li><a class="text-primary" href="{{url('login')}}">{{ __('message.home')}}</a></li>
+        <li><a class="text-primary" href="{{url('login')}}">{{ __('message.home') }}</a></li>
     @endif
-     <li class="active text-dark">{{ __('message.two_factor')}}</li>
-@stop 
-@section('main-class') 
-main
+    <li class="active text-dark">{{ __('message.two_factor') }}</li>
 @stop
+
+@section('main-class')
+    main
+@stop
+
 @section('content')
-        <div class="container py-4">
+    <div id="2fa-alert-container" class="mb-3"></div>
 
-            <div class="row justify-content-center">
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-6">
 
-                <div class="col-md-6 col-lg-6 mb-5 mb-lg-0 pe-5">
+                {!! html()->form()->id('2fa_form')->open() !!}
 
-                    {!! html()->form('POST', route('2fa/loginValidate'))->id('2fa_form')->open() !!}
-
-
-                    <div class="row">
-
-                            <div class="form-group col">
-
-                                <label class="form-label text-color-dark text-3">{{ __('message.enter_auth_code')}} <span class="text-color-danger">*</span></label>
-
-                                <input type="text" name="totp" maxlength="6" id="2fa_code" value="" class="form-control form-control-lg text-4">
-                            </div>
-                            <h6 id="codecheck"></h6>
-                        </div>
-
-                    {!! honeypotField('2fa_code') !!}
-
-                    <?php
-                    $status = \App\Model\Common\StatusSetting::first();
-                    ?>
-                    @if ($status->recaptcha_status === 1)
-                        <div id="2fa_recaptcha"></div>
-                        <div id="2fa-verification"></div><br>
-                    @elseif($status->v3_recaptcha_status === 1)
-                        <input type="hidden" class="g-recaptcha-token" name="g-recaptcha-response" data-recaptcha-action="2fa">
-                    @endif
-
-                        <p class="text-2">{{ __('message.open_two_factor')}}</p>
-
-                        <div class="row">
-
-                            <div class="form-group">
-                                @if(!Session::has('reset_token'))
-
-                                <div class="custom-control custom-checkbox">
-
-                                    <label style="position: absolute;left: 0px;">{{ __('message.having_problem')}} <a href="{{'recovery-code'}}" >{{ __('message.login_recovery_code')}}</a></label>
-                                </div>
-                                  @endif
-                            </div>
-
-                        </div>
-
-                        <div class="row">
-
-                            <div class="form-group col">
-
-                                <button type="submit" class="btn btn-dark btn-modern w-100 text-uppercase font-weight-bold text-3 py-3" data-loading-text="{{ __('message.loading') }}">{{ __('message.verify')}}</button>
-                            </div>
-                        </div>
-                    {!! html()->form()->close() !!}
+                {{-- Auth Code --}}
+                <div class="mb-4">
+                    <label for="2fa_code" class="form-label text-color-dark fw-bold">
+                        {{ __('message.enter_auth_code') }} <span class="text-danger">*</span>
+                    </label>
+                    <input type="text" name="totp" maxlength="6" id="2fa_code"
+                           class="form-control form-control-lg text-4"
+                           placeholder="{{ __('message.otp_placeholder') }}">
+                    <div id="codecheck" class="form-text text-danger"></div>
                 </div>
-            </div>
 
+                <p class="text-muted mb-4">{{ __('message.open_two_factor') }}</p>
+
+                {{-- Recaptcha --}}
+                <div class="mb-4" id="2fa_recaptcha"></div>
+
+                {!! honeypotField('2fa_code') !!}
+
+                {{-- Recovery Link --}}
+                @if(!Session::has('reset_token'))
+                    <div class="mb-4">
+                        <div class="text-muted">
+                            {{ __('message.having_problem') }}
+                            <a href="{{ url('recovery-code') }}" class="text-decoration-underline">
+                                {{ __('message.login_recovery_code') }}
+                            </a>
+                        </div>
+                    </div>
+                @endif
+
+                {{-- Submit Button --}}
+                <div class="d-grid mb-4">
+                    <button type="submit"
+                            id="2fa-submit-button"
+                            class="btn btn-dark btn-lg fw-bold text-uppercase text-3 py-3"
+                            data-loading-text="{{ __('message.loading') }}"
+                            data-original-text="{{ __('message.verify') }}">
+                        {{ __('message.verify') }}
+                    </button>
+                </div>
+
+                {!! html()->form()->close() !!}
+
+            </div>
         </div>
-        @extends('mini_views.recaptcha')
+    </div>
+        <script>
+            let twoFactorRecaptcha;
+
+            (async () => {
+                const twoFactorRecaptchaContainer = document.getElementById('2fa_recaptcha');
+
+                twoFactorRecaptcha = await RecaptchaManager.init(twoFactorRecaptchaContainer, {
+                    action: 'login_2fa',
+                });
+
+                // Make them globally available
+                window.twoFactorRecaptcha = twoFactorRecaptcha;
+
+            })();
+        </script>
     <script>
-        let two_factor_recaptcha_id;
-        @if($status->recaptcha_status === 1)
-        recaptchaFunctionToExecute.push(() => {
-            two_factor_recaptcha_id = grecaptcha.render('2fa_recaptcha', {'sitekey': siteKey});
-        });
-        @endif
         $(document).ready(function() {
             function placeErrorMessage(error, element, errorMapping = null) {
                 if (errorMapping !== null && errorMapping[element.attr("name")]) {
@@ -96,38 +104,62 @@ main
                     error.insertAfter(element);
                 }
             }
-            $.validator.addMethod("recaptchaRequired", function(value, element) {
-                try {
-                    if(!recaptchaEnabled) {
-                        return false;
-                    }
-                }catch (ex){
-                    return false
-                }
-                return value.trim() !== "";
-            }, "{{ __('message.recaptcha_required') }}");
+
+            let alertTimeout;
+
+            function showAlert(type, messageOrResponse) {
+
+                // Generate appropriate HTML
+                var html = generateAlertHtml(type, messageOrResponse);
+
+                // Clear any existing alerts and remove the timeout
+                $('#2fa-alert-container').html(html);
+                clearTimeout(alertTimeout); // Clear the previous timeout if it exists
+
+                // Display alert
+                window.scrollTo(0, 0);
+
+                // Auto-dismiss after 5 seconds
+                alertTimeout = setTimeout(function() {
+                    $('#2fa-alert-container .alert').fadeOut('slow');
+                }, 5000);
+            }
+
+
+            function generateAlertHtml(type, response) {
+                // Determine alert styling based on type
+                const isSuccess = type === 'success';
+                const iconClass = isSuccess ? 'fa-check-circle' : 'fa-ban';
+                const alertClass = isSuccess ? 'alert-success' : 'alert-danger';
+
+                // Extract message and errors
+                const message = response.message || response || 'An error occurred. Please try again.';
+                const errors = response.errors || null;
+
+                let html = `<div class="alert ${alertClass} alert-dismissible">` +
+                    `<i class="fa ${iconClass}"></i> ` +
+                    `${message}` +
+                    '<button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true"></button>';
+
+                html += '</div>';
+
+                return html;
+            }
 
             $.validator.addMethod("totp6digits", function(value, element) {
                 return this.optional(element) || /^[0-9]{6}$/.test(value);
             }, "{{ __('message.enter_valid_6_digit_code') }}");
 
             $('#2fa_form').validate({
-                ignore: ":hidden:not(.g-recaptcha-response)",
                 rules: {
                     totp: {
                         required: true,
                         totp6digits: true
-                    },
-                    "g-recaptcha-response": {
-                        recaptchaRequired: true
                     }
                 },
                 messages: {
                     totp: {
                         required: "{{ __('message.please_enter_auth_code') }}"
-                    },
-                    "g-recaptcha-response": {
-                        recaptchaRequired: "{{ __('message.recaptcha_required') }}"
                     }
                 },
                 unhighlight: function (element) {
@@ -135,10 +167,74 @@ main
                 },
                 errorPlacement: function (error, element) {
                     placeErrorMessage(error, element);
-                },
-                submitHandler: function (form) {
-                    form.submit();
                 }
+            });
+
+            $('#2fa_form').on('submit', async function (event) {
+                event.preventDefault();
+
+                const $form = $(this);
+                const $submitButton = $("#2fa-submit-button");
+
+                if (!$form.valid()) {
+                    return;
+                }
+
+                try {
+                    let recaptchaToken = await window.twoFactorRecaptcha.tokenValidation(twoFactorRecaptcha, "login");
+                    if (!recaptchaToken) return;
+
+                    // Collect form data
+                    let formData = $form.serializeArray();
+                    if (!window.twoFactorRecaptcha.isDisabled() && recaptchaToken) {
+                        formData.push({ name: "g-recaptcha-response", value: recaptchaToken });
+                        formData.push({ name: "page_id", value: window.pageId });
+                    }
+
+                    $.ajax({
+                        url: "{{ route('2fa/loginValidate') }}",
+                        method: "POST",
+                        data: $.param(formData),
+                        beforeSend: function () {
+                            $submitButton.prop("disabled", true).html($submitButton.data("loading-text"));
+                        },
+                        success: function (response) {
+                            if (response.data?.redirect) {
+                                window.location.href = response.data?.redirect;
+                            } else {
+                                showAlert("success", response.message);
+                            }
+                        },
+                        error: async function (xhr) {
+                            let response = xhr.responseJSON || JSON.parse(xhr.responseText || "{}");
+
+                            // Handle reCAPTCHA fallback
+                            if (response.data?.show_v2_recaptcha) {
+                                await window.twoFactorRecaptcha.useFallback(true);
+                                showAlert("error", response.message || "An unexpected error occurred.");
+                                return;
+                            }
+
+                            // Handle validation errors
+                            if (response.errors) {
+                                let validator = $form.validate();
+                                $.each(response.errors, function (field, messages) {
+                                    validator.showErrors({ [field]: messages[0] });
+                                });
+                            } else {
+                                showAlert("error", response.message || "An unexpected error occurred.");
+                            }
+                        },
+                        complete: function () {
+                            $submitButton.prop("disabled", false).html($submitButton.data("original-text"));
+                            window.twoFactorRecaptcha.reset();
+                        }
+                    });
+                }catch (e) {
+                    console.error("Form submit error:", e);
+                    showAlert("error", "Something went wrong. Please try again.");
+                }
+
             });
         });
     </script>
