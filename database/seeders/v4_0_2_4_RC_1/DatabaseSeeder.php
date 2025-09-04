@@ -40,7 +40,8 @@ class DatabaseSeeder extends Seeder
                 <div class="pricing-block">
                     <div class="text-center">
                         <h4 class="text-color-primary">{{name}}</h4>
-                        <h4 class="text-color-primary">{{product_description}}</h4>
+                            <h6 class="text-color-primary">{{product_description}}</h6>
+
                         <div class="content-switcher-wrapper">
                             <div class="content-switcher left-50pct transform3dx-n50 active" data-content-switcher-id="pricingTable1" data-content-switcher-rel="1">
                                 <div class="plan-price bg-transparent mb-4">
@@ -90,7 +91,8 @@ class DatabaseSeeder extends Seeder
                 <div class="pricing-block">
                     <div class="text-center">
                         <h4 class="">{{name}}</h4>
-                        
+                            <h6 class="text-color-primary">{{product_description}}</h6>
+
                         <div class="content-switcher-wrapper">
                             <div class="content-switcher left-50pct transform3dx-n50 active" data-content-switcher-id="pricingTable1" data-content-switcher-rel="1">
                                 <div class="plan-price bg-transparent mb-4">
