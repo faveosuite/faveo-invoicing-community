@@ -205,7 +205,6 @@ Route::middleware('installAgora')->group(function () {
     Route::get('settings', [Common\SettingsController::class, 'settings']);
     Route::get('/datatable/data', [Common\SettingsController::class, 'getDataTableData'])->name('datatable.data');
     Route::post('licensekeys', [Common\SettingsController::class, 'licensekeys']);
-    Route::post('googleCaptcha', [Common\SettingsController::class, 'googleCaptcha']);
     Route::post('mobileVerification', [Common\SettingsController::class, 'mobileVerification']);
     Route::post('termsUrl', [Common\SettingsController::class, 'termsUrl']);
     Route::post('zohokeys', [Common\SettingsController::class, 'zohokeys']);
@@ -230,7 +229,6 @@ Route::middleware('installAgora')->group(function () {
     Route::post('licenseDetails', [Common\BaseSettingsController::class, 'licenseDetails'])->name('licenseDetails');
     Route::post('licenseStatus', [Common\BaseSettingsController::class, 'licenseStatus'])->name('licenseStatus');
     Route::post('updateDetails', [Common\BaseSettingsController::class, 'updateDetails'])->name('updateDetails');
-    Route::post('captchaDetails', [Common\BaseSettingsController::class, 'captchaDetails'])->name('captchaDetails');
     Route::post('updatemobileDetails', [Common\BaseSettingsController::class, 'updateMobileDetails'])->name('updatemobileDetails');
     Route::post('updateemailDetails', [Common\BaseSettingsController::class, 'updateEmailDetails'])->name('updateemailDetails');
     Route::post('updatetwitterDetails', [Common\BaseSettingsController::class, 'updateTwitterDetails'])->name('updatetwitterDetails');
