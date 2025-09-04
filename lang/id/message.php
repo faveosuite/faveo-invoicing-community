@@ -2695,5 +2695,7 @@ return [
 
     'user_position_prohibited_if' => 'Kolom posisi tidak diizinkan saat peran adalah pengguna.',
     'cloud_plan_error' => 'Harap hapus produk cloud atau hubungkan ke paket alternatif.',
+    'short_description' => 'Deskripsi singkat',
+    'add_short_description' => 'Silakan masukkan deskripsi singkat.',
 
 ];
