@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Model\Common\StatusSetting;
 use App\Rules\Honeypot;
 use App\Rules\StrongPassword;
 use App\User;
@@ -50,7 +49,6 @@ class ResetPasswordController extends Controller
             $reset = \DB::table('password_resets')->select('email', 'created_at')->where('token', $token)->first();
 
             if ($reset && Carbon::parse($reset->created_at)->addMinutes(config('auth.passwords.users.expire')) > Carbon::now()) {
-
                 $user = User::where('email', $reset->email)->first();
 
                 if ($user && $user->is_2fa_enabled && ! \Session::get('2fa_verified')) {
