@@ -52,7 +52,6 @@ return [
     'badge_bottomright' => 'En bas à droite',
     'badge_bottomleft' => 'En bas à gauche',
     'badge_inline' => 'En ligne',
-    'error_message' => 'Message d\'erreur',
     
     /*
     * Common
@@ -101,15 +100,13 @@ return [
     /*
     * Validation messages
     */
-    'captcha_version_required' => 'La version de Captcha est requise',
-    'captcha_version_in' => 'La version de Captcha sélectionnée est invalide',
-    'failover_action_required' => 'L\'action de repli est requise',
-    'failover_action_in' => 'L\'action de repli sélectionnée est invalide',
+    'captcha_version_required' => 'La version du Captcha est requise',
+    'captcha_version_in' => 'La version du Captcha sélectionnée est invalide',
+    'failover_action_required' => 'L\'action de basculement est requise',
+    'failover_action_in' => 'L\'action de basculement sélectionnée est invalide',
     'score_threshold_numeric' => 'Le seuil de score doit être un nombre',
-    'score_threshold_min' => 'Le seuil de score doit être au moins 0',
+    'score_threshold_min' => 'Le seuil de score doit être d\'au moins 0',
     'score_threshold_max' => 'Le seuil de score ne doit pas être supérieur à 1',
-    'error_message_required' => 'Le message d\'erreur est requis',
-    'error_message_max' => 'Le message d\'erreur ne doit pas dépasser 255 caractères',
     'theme_required' => 'Le thème est requis',
     'theme_in' => 'Le thème sélectionné est invalide',
     'size_required' => 'La taille est requise',

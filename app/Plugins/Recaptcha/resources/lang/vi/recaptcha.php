@@ -52,7 +52,6 @@ return [
     'badge_bottomright' => 'Dưới cùng bên phải',
     'badge_bottomleft' => 'Dưới cùng bên trái',
     'badge_inline' => 'Nội tuyến',
-    'error_message' => 'Tin nhắn lỗi',
     
     /*
     * Common
@@ -108,8 +107,6 @@ return [
     'score_threshold_numeric' => 'Ngưỡng điểm phải là một số',
     'score_threshold_min' => 'Ngưỡng điểm phải ít nhất là 0',
     'score_threshold_max' => 'Ngưỡng điểm không được vượt quá 1',
-    'error_message_required' => 'Tin nhắn lỗi là bắt buộc',
-    'error_message_max' => 'Tin nhắn lỗi không được vượt quá 255 ký tự',
     'theme_required' => 'Chủ đề là bắt buộc',
     'theme_in' => 'Chủ đề đã chọn không hợp lệ',
     'size_required' => 'Kích thước là bắt buộc',

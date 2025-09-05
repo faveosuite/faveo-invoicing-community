@@ -52,7 +52,6 @@ return [
     'badge_bottomright' => 'למטה מימין',
     'badge_bottomleft' => 'למטה משמאל',
     'badge_inline' => 'בשורה',
-    'error_message' => 'הודעת שגיאה',
     
     /*
     * Common
@@ -108,8 +107,6 @@ return [
     'score_threshold_numeric' => 'סף הציון חייב להיות מספר',
     'score_threshold_min' => 'סף הציון חייב להיות לפחות 0',
     'score_threshold_max' => 'סף הציון לא יכול להיות גדול מ-1',
-    'error_message_required' => 'הודעת שגיאה נדרשת',
-    'error_message_max' => 'הודעת השגיאה לא יכולה לעלות על 255 תווים',
     'theme_required' => 'ערכת העיצוב נדרשת',
     'theme_in' => 'ערכת העיצוב שנבחרה אינה חוקית',
     'size_required' => 'גודל נדרש',

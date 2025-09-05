@@ -52,7 +52,6 @@ return [
     'badge_bottomright' => 'Bottom Right',
     'badge_bottomleft' => 'Bottom Left',
     'badge_inline' => 'Inline',
-    'error_message' => 'Error Message',
     
     /*
     * Common
@@ -108,8 +107,6 @@ return [
     'score_threshold_numeric' => 'Score threshold must be a number',
     'score_threshold_min' => 'Score threshold must be at least 0',
     'score_threshold_max' => 'Score threshold must not be greater than 1',
-    'error_message_required' => 'Error message is required',
-    'error_message_max' => 'Error message must not exceed 255 characters',
     'theme_required' => 'Theme is required',
     'theme_in' => 'Selected theme is invalid',
     'size_required' => 'Size is required',

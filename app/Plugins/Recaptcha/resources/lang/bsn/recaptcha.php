@@ -52,7 +52,6 @@ return [
     'badge_bottomright' => 'Bawah Kanan',
     'badge_bottomleft' => 'Bawah Kiri',
     'badge_inline' => 'Dalam Baris',
-    'error_message' => 'Mesej Ralat',
     
     /*
     * Common
@@ -108,8 +107,6 @@ return [
     'score_threshold_numeric' => 'Ambang skor mestilah nombor',
     'score_threshold_min' => 'Ambang skor mestilah sekurang-kurangnya 0',
     'score_threshold_max' => 'Ambang skor mestilah tidak melebihi 1',
-    'error_message_required' => 'Mesej ralat diperlukan',
-    'error_message_max' => 'Mesej ralat mestilah tidak melebihi 255 aksara',
     'theme_required' => 'Tema diperlukan',
     'theme_in' => 'Tema yang dipilih tidak sah',
     'size_required' => 'Saiz diperlukan',

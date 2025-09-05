@@ -10,9 +10,9 @@ return [
     'recaptcha_v3' => 'reCAPTCHA v3',
     'recaptcha_v2_invisible' => 'reCAPTCHA v2 Görünmez',
     'recaptcha_v2_checkbox' => 'reCAPTCHA v2 Onay Kutusu',
-    'select_captcha_type' => 'Kullanılacak reCAPTCHA sürümünü seçin',
+    'select_captcha_type' => 'Hangi reCAPTCHA sürümünü kullanacağınızı seçin',
     'failover_action' => 'Yük devretme eylemi',
-    'none' => 'Hiçbiri',
+    'none' => 'Yok',
     'fallback_v2_checkbox' => 'reCAPTCHA v2 Onay Kutusuna geri dön',
     'action_if_captcha_fails' => 'reCAPTCHA başarısız olursa yapılacak eylem',
     
@@ -25,7 +25,7 @@ return [
     'v3_secret_key' => 'v3 Gizli Anahtar',
     'enter_v3_secret_key' => 'reCAPTCHA v3 gizli anahtarınızı girin',
     'v3_score_threshold' => 'v3 Puan Eşiği',
-    'v3_score_hint' => '0,0 ile 1,0 arasında değer (yüksek değer daha iyidir)',
+    'v3_score_hint' => '0,0 ile 1,0 arasında değer (yüksek olması daha iyidir)',
     'v3_preview' => 'v3 Önizleme',
     
     /*
@@ -48,11 +48,10 @@ return [
     'size' => 'Boyut',
     'size_normal' => 'Normal',
     'size_compact' => 'Kompakt',
-    'badge_position' => 'Rozet Konumu',
+    'badge_position' => 'Rozet konumu',
     'badge_bottomright' => 'Sağ Alt',
     'badge_bottomleft' => 'Sol Alt',
     'badge_inline' => 'Satır içi',
-    'error_message' => 'Hata Mesajı',
     
     /*
     * Common
@@ -108,8 +107,6 @@ return [
     'score_threshold_numeric' => 'Puan eşiği bir sayı olmalıdır',
     'score_threshold_min' => 'Puan eşiği en az 0 olmalıdır',
     'score_threshold_max' => 'Puan eşiği 1\'den büyük olmamalıdır',
-    'error_message_required' => 'Hata mesajı gerekli',
-    'error_message_max' => 'Hata mesajı 255 karakteri aşmamalıdır',
     'theme_required' => 'Tema gerekli',
     'theme_in' => 'Seçilen tema geçersiz',
     'size_required' => 'Boyut gerekli',
