@@ -52,7 +52,6 @@ return [
     'badge_bottomright' => 'Inferior direito',
     'badge_bottomleft' => 'Inferior esquerdo',
     'badge_inline' => 'Em linha',
-    'error_message' => 'Mensagem de erro',
     
     /*
     * Common
@@ -108,8 +107,6 @@ return [
     'score_threshold_numeric' => 'Limite de pontuação deve ser um número',
     'score_threshold_min' => 'Limite de pontuação deve ser pelo menos 0',
     'score_threshold_max' => 'Limite de pontuação não deve ser maior que 1',
-    'error_message_required' => 'Mensagem de erro é obrigatória',
-    'error_message_max' => 'Mensagem de erro não deve exceder 255 caracteres',
     'theme_required' => 'Tema é obrigatório',
     'theme_in' => 'Tema selecionado é inválido',
     'size_required' => 'Tamanho é obrigatório',

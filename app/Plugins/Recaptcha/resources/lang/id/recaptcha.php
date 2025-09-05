@@ -13,7 +13,7 @@ return [
     'select_captcha_type' => 'Pilih versi reCAPTCHA yang akan digunakan',
     'failover_action' => 'Tindakan Failover',
     'none' => 'Tidak Ada',
-    'fallback_v2_checkbox' => 'Kembali ke reCAPTCHA v2 Kotak Centang',
+    'fallback_v2_checkbox' => 'Fallback ke reCAPTCHA v2 Kotak Centang',
     'action_if_captcha_fails' => 'Tindakan yang diambil jika reCAPTCHA gagal',
     
     /*
@@ -52,7 +52,6 @@ return [
     'badge_bottomright' => 'Bawah Kanan',
     'badge_bottomleft' => 'Bawah Kiri',
     'badge_inline' => 'Sejajar',
-    'error_message' => 'Pesan Kesalahan',
     
     /*
     * Common
@@ -75,7 +74,7 @@ return [
     /*
     * JavaScript validation messages
     */
-    'field_required_condition' => 'Bidang ini diperlukan ketika kondisi terpenuhi',
+    'field_required_condition' => 'Bidang ini wajib diisi ketika kondisi terpenuhi',
     'select_captcha_version' => 'Silakan pilih versi captcha',
     'v3_site_key_required' => 'Kunci situs reCAPTCHA v3 diperlukan',
     'v3_secret_key_required' => 'Kunci rahasia reCAPTCHA v3 diperlukan',
@@ -89,7 +88,7 @@ return [
     'failed_generate_v3_token' => 'Gagal menghasilkan token reCAPTCHA v3.',
     'complete_recaptcha_v2' => 'Silakan lengkapi reCAPTCHA v2.',
     'failed_generate_v2_token' => 'Gagal menghasilkan token reCAPTCHA v2.',
-    'settings_saved' => 'Pengaturan tersimpan.',
+    'settings_saved' => 'Pengaturan disimpan.',
     'failed_save_settings' => 'Gagal menyimpan pengaturan. Silakan coba lagi.',
     
     /*
@@ -108,8 +107,6 @@ return [
     'score_threshold_numeric' => 'Ambang batas skor harus berupa angka',
     'score_threshold_min' => 'Ambang batas skor minimal 0',
     'score_threshold_max' => 'Ambang batas skor tidak boleh lebih dari 1',
-    'error_message_required' => 'Pesan kesalahan diperlukan',
-    'error_message_max' => 'Pesan kesalahan tidak boleh melebihi 255 karakter',
     'theme_required' => 'Tema diperlukan',
     'theme_in' => 'Tema yang dipilih tidak valid',
     'size_required' => 'Ukuran diperlukan',

@@ -52,7 +52,6 @@ return [
     'badge_bottomright' => 'Unten rechts',
     'badge_bottomleft' => 'Unten links',
     'badge_inline' => 'Inline',
-    'error_message' => 'Fehlermeldung',
     
     /*
     * Common
@@ -108,8 +107,6 @@ return [
     'score_threshold_numeric' => 'Score-Schwelle muss eine Zahl sein',
     'score_threshold_min' => 'Score-Schwelle muss mindestens 0 betragen',
     'score_threshold_max' => 'Score-Schwelle darf nicht größer als 1 sein',
-    'error_message_required' => 'Fehlermeldung ist erforderlich',
-    'error_message_max' => 'Fehlermeldung darf 255 Zeichen nicht überschreiten',
     'theme_required' => 'Thema ist erforderlich',
     'theme_in' => 'Ausgewähltes Thema ist ungültig',
     'size_required' => 'Größe ist erforderlich',

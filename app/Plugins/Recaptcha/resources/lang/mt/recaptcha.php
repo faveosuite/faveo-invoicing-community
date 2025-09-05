@@ -52,7 +52,6 @@ return [
     'badge_bottomright' => 'Taħt Dritt',
     'badge_bottomleft' => 'Taħt Xellug',
     'badge_inline' => 'Inline',
-    'error_message' => 'Messaġġ ta’ Żball',
     
     /*
     * Common
@@ -108,8 +107,6 @@ return [
     'score_threshold_numeric' => 'Soglia tal-punteġġ trid tkun numru',
     'score_threshold_min' => 'Soglia tal-punteġġ trid tkun mill-inqas 0',
     'score_threshold_max' => 'Soglia tal-punteġġ ma tistax tkun ikbar minn 1',
-    'error_message_required' => 'Messaġġ ta’ żball huwa meħtieġ',
-    'error_message_max' => 'Messaġġ ta’ żball ma jistax jaqbeż 255 karattru',
     'theme_required' => 'Tema hija meħtieġa',
     'theme_in' => 'Tema magħżula hija invalida',
     'size_required' => 'Daqs huwa meħtieġ',
