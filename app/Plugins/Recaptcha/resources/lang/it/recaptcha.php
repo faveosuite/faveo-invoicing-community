@@ -41,7 +41,7 @@ return [
     /*
     * Appearance & Messages
     */
-    'appearance_messages' => 'Aspetto e messaggi',
+    'appearance_messages' => 'Aspetto e Messaggi',
     'theme' => 'Tema',
     'theme_light' => 'Chiaro',
     'theme_dark' => 'Scuro',
@@ -52,7 +52,6 @@ return [
     'badge_bottomright' => 'In basso a destra',
     'badge_bottomleft' => 'In basso a sinistra',
     'badge_inline' => 'In linea',
-    'error_message' => 'Messaggio di errore',
     
     /*
     * Common
@@ -108,8 +107,6 @@ return [
     'score_threshold_numeric' => 'La soglia del punteggio deve essere un numero',
     'score_threshold_min' => 'La soglia del punteggio deve essere almeno 0',
     'score_threshold_max' => 'La soglia del punteggio non deve superare 1',
-    'error_message_required' => 'Il messaggio di errore è obbligatorio',
-    'error_message_max' => 'Il messaggio di errore non deve superare 255 caratteri',
     'theme_required' => 'Il tema è obbligatorio',
     'theme_in' => 'Il tema selezionato non è valido',
     'size_required' => 'La dimensione è obbligatoria',

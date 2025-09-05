@@ -10,11 +10,11 @@ return [
     'recaptcha_v3' => 'reCAPTCHA v3',
     'recaptcha_v2_invisible' => 'reCAPTCHA v2 غير مرئي',
     'recaptcha_v2_checkbox' => 'reCAPTCHA v2 مربع اختيار',
-    'select_captcha_type' => 'اختر إصدار reCAPTCHA للاستخدام',
+    'select_captcha_type' => 'حدد إصدار reCAPTCHA الذي تريد استخدامه',
     'failover_action' => 'إجراء التجاوز',
     'none' => 'لا شيء',
     'fallback_v2_checkbox' => 'الرجوع إلى reCAPTCHA v2 مربع اختيار',
-    'action_if_captcha_fails' => 'الإجراء المتخذ في حالة فشل reCAPTCHA',
+    'action_if_captcha_fails' => 'الإجراء المطلوب عند فشل reCAPTCHA',
     
     /*
     * Recaptcha v3 Settings
@@ -25,7 +25,7 @@ return [
     'v3_secret_key' => 'المفتاح السري v3',
     'enter_v3_secret_key' => 'أدخل المفتاح السري ل reCAPTCHA v3',
     'v3_score_threshold' => 'عتبة النقاط v3',
-    'v3_score_hint' => 'القيمة بين 0.0 و 1.0 (الأعلى أفضل)',
+    'v3_score_hint' => 'القيمة بين 0.0 و 1.0 (كلما كانت أعلى كانت أفضل)',
     'v3_preview' => 'معاينة v3',
     
     /*
@@ -47,12 +47,11 @@ return [
     'theme_dark' => 'داكن',
     'size' => 'الحجم',
     'size_normal' => 'عادي',
-    'size_compact' => 'مضغوط',
+    'size_compact' => 'مدمج',
     'badge_position' => 'موضع الشارة',
     'badge_bottomright' => 'أسفل اليمين',
     'badge_bottomleft' => 'أسفل اليسار',
     'badge_inline' => 'في السطر',
-    'error_message' => 'رسالة الخطأ',
     
     /*
     * Common
@@ -75,22 +74,22 @@ return [
     /*
     * JavaScript validation messages
     */
-    'field_required_condition' => 'هذا الحقل مطلوب عند استيفاء الشرط',
+    'field_required_condition' => 'هذا الحقل مطلوب عندما يتم استيفاء الشرط',
     'select_captcha_version' => 'يرجى تحديد إصدار captcha',
     'v3_site_key_required' => 'مفتاح موقع reCAPTCHA v3 مطلوب',
     'v3_secret_key_required' => 'المفتاح السري ل reCAPTCHA v3 مطلوب',
     'v2_site_key_required' => 'مفتاح موقع reCAPTCHA v2 مطلوب',
     'v2_secret_key_required' => 'المفتاح السري ل reCAPTCHA v2 مطلوب',
     'valid_recaptcha_site_key' => 'يرجى إدخال مفتاح موقع reCAPTCHA صالح',
-    'valid_recaptcha_secret_key' => 'يرجى إدخال مفتاح سري ل reCAPTCHA صالح',
+    'valid_recaptcha_secret_key' => 'يرجى إدخال مفتاح سري reCAPTCHA صالح',
     'score_threshold_required' => 'عتبة النقاط مطلوبة ل reCAPTCHA v3',
     'valid_number' => 'يرجى إدخال رقم صالح',
     'complete_recaptcha_v3' => 'يرجى إكمال reCAPTCHA v3.',
-    'failed_generate_v3_token' => 'فشل إنشاء رمز reCAPTCHA v3.',
+    'failed_generate_v3_token' => 'فشل في إنشاء رمز reCAPTCHA v3.',
     'complete_recaptcha_v2' => 'يرجى إكمال reCAPTCHA v2.',
-    'failed_generate_v2_token' => 'فشل إنشاء رمز reCAPTCHA v2.',
+    'failed_generate_v2_token' => 'فشل في إنشاء رمز reCAPTCHA v2.',
     'settings_saved' => 'تم حفظ الإعدادات.',
-    'failed_save_settings' => 'فشل حفظ الإعدادات. يرجى المحاولة مرة أخرى.',
+    'failed_save_settings' => 'فشل في حفظ الإعدادات. يرجى المحاولة مرة أخرى.',
     
     /*
     * Backend validation messages
@@ -108,8 +107,6 @@ return [
     'score_threshold_numeric' => 'عتبة النقاط يجب أن تكون رقماً',
     'score_threshold_min' => 'عتبة النقاط يجب أن تكون على الأقل 0',
     'score_threshold_max' => 'عتبة النقاط يجب ألا تتجاوز 1',
-    'error_message_required' => 'رسالة الخطأ مطلوبة',
-    'error_message_max' => 'رسالة الخطأ يجب ألا تتجاوز 255 حرفاً',
     'theme_required' => 'السمة مطلوبة',
     'theme_in' => 'السمة المحددة غير صالحة',
     'size_required' => 'الحجم مطلوب',

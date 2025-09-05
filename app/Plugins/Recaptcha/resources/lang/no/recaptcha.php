@@ -52,7 +52,6 @@ return [
     'badge_bottomright' => 'Nederst til høyre',
     'badge_bottomleft' => 'Nederst til venstre',
     'badge_inline' => 'Inline',
-    'error_message' => 'Feilmelding',
     
     /*
     * Common
@@ -108,8 +107,6 @@ return [
     'score_threshold_numeric' => 'Poengterskel må være et tall',
     'score_threshold_min' => 'Poengterskel må være minst 0',
     'score_threshold_max' => 'Poengterskel kan ikke være større enn 1',
-    'error_message_required' => 'Feilmelding er påkrevd',
-    'error_message_max' => 'Feilmelding kan ikke overstige 255 tegn',
     'theme_required' => 'Tema er påkrevd',
     'theme_in' => 'Valgt tema er ugyldig',
     'size_required' => 'Størrelse er påkrevd',
