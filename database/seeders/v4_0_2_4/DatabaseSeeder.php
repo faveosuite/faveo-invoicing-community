@@ -16,6 +16,7 @@ use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
+use App\Plugins\Recaptcha\Model\RecaptchaSetting;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 
@@ -27,6 +28,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->addMangerRole();
+        $this->createRecaptcha();
     }
 
     public function addMangerRole(): void
@@ -37,5 +39,10 @@ class DatabaseSeeder extends Seeder
                 ['auto_assign' => 0]
             );
         }
+    }
+
+    public function createRecaptcha()
+    {
+        RecaptchaSetting::firstOrCreate([]);
     }
 }
