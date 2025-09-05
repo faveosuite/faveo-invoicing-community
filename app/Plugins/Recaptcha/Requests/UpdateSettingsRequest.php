@@ -3,7 +3,6 @@
 namespace App\Plugins\Recaptcha\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use App\Plugins\Recaptcha\Model\RecaptchaSetting;
 use Illuminate\Http\Request;
 
 class UpdateSettingsRequest extends FormRequest
@@ -109,7 +108,7 @@ class UpdateSettingsRequest extends FormRequest
                     $this->ip(),
                     $this->getHost()
                 );
-                
+
                 if ($result !== true) {
                     $validator->errors()->add('v2_secret_key', $result);
                 }
@@ -125,7 +124,7 @@ class UpdateSettingsRequest extends FormRequest
                     $this->getHost(),
                     $this->input('score_threshold')
                 );
-                
+
                 if ($result !== true) {
                     $validator->errors()->add('v3_secret_key', $result);
                 }
