@@ -52,7 +52,6 @@ return [
     'badge_bottomright' => '右下角',
     'badge_bottomleft' => '左下角',
     'badge_inline' => '內嵌',
-    'error_message' => '錯誤訊息',
     
     /*
     * Common
@@ -108,8 +107,6 @@ return [
     'score_threshold_numeric' => '分數閾值必須是數字',
     'score_threshold_min' => '分數閾值至少為 0',
     'score_threshold_max' => '分數閾值不得超過 1',
-    'error_message_required' => '需要錯誤訊息',
-    'error_message_max' => '錯誤訊息不得超過 255 個字元',
     'theme_required' => '需要主題',
     'theme_in' => '所選主題無效',
     'size_required' => '需要大小',

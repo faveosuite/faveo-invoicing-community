@@ -8,13 +8,13 @@ return [
     'captcha_configuration' => '验证码配置',
     'captcha_version' => '验证码版本',
     'recaptcha_v3' => 'reCAPTCHA v3',
-    'recaptcha_v2_invisible' => 'reCAPTCHA v2 隐藏式',
+    'recaptcha_v2_invisible' => 'reCAPTCHA v2 隐藏',
     'recaptcha_v2_checkbox' => 'reCAPTCHA v2 复选框',
     'select_captcha_type' => '选择要使用的 reCAPTCHA 版本',
     'failover_action' => '故障转移操作',
     'none' => '无',
     'fallback_v2_checkbox' => '回退到 reCAPTCHA v2 复选框',
-    'action_if_captcha_fails' => 'reCAPTCHA 失败时要采取的操作',
+    'action_if_captcha_fails' => 'reCAPTCHA 失败时采取的操作',
     
     /*
     * Recaptcha v3 Settings
@@ -52,13 +52,12 @@ return [
     'badge_bottomright' => '右下角',
     'badge_bottomleft' => '左下角',
     'badge_inline' => '内联',
-    'error_message' => '错误信息',
     
     /*
     * Common
     */
     'save' => '保存',
-    'saving' => '保存中',
+    'saving' => '正在保存',
     'home' => '首页',
     'settings' => '设置',
     
@@ -108,8 +107,6 @@ return [
     'score_threshold_numeric' => '分数阈值必须是数字',
     'score_threshold_min' => '分数阈值至少为 0',
     'score_threshold_max' => '分数阈值不得超过 1',
-    'error_message_required' => '需要错误信息',
-    'error_message_max' => '错误信息不得超过 255 个字符',
     'theme_required' => '需要主题',
     'theme_in' => '所选主题无效',
     'size_required' => '需要尺寸',

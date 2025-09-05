@@ -488,7 +488,7 @@
                 if (this.instances.v2) {
                     try { v2ResponseToken = await this.instances.v2.getToken(); if (!v2ResponseToken) { this.elements.v2Error.textContent = '{{ __('recaptcha::recaptcha.complete_recaptcha_v2') }}'; hasError = true; } } catch (e) { this.elements.v2Error.textContent = '{{ __('recaptcha::recaptcha.failed_generate_v2_token') }}'; hasError = true; }
                 }
-                if (hasError) { submitButton.disabled = false; submitButton.innerHTML = '<i class="fa fa-save"></i>{{ __('recaptcha::recaptcha.save') }}'; return; }
+                if (hasError) { submitButton.disabled = false; submitButton.innerHTML = '<i class="fa fa-save">&nbsp;&nbsp;</i>{{ __('recaptcha::recaptcha.save') }}'; return; }
                 const payload = {
                     captcha_version: this.elements.captchaVersion.value,
                     failover_action: this.elements.failoverAction.value,
@@ -517,14 +517,36 @@
                         }
                     },
                     error: (xhr) => {
+                        var response = xhr.responseJSON || {};
+                        if (!xhr.responseJSON && xhr.responseText) {
+                            try {
+                                response = JSON.parse(xhr.responseText);
+                            } catch (e) {
+                                // If parsing fails, use an empty object
+                            }
+                        }
+
                         let msg = '{{ __('recaptcha::recaptcha.failed_save_settings') }}';
-                        if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
-                        this.showAlert(msg, 'error');
+                        if (response.message) {
+                            msg = response.message;
+                        }
+
+                        if (response.errors) {
+                            var validator = $('#captcha-settings-form').validate();
+                            $.each(response.errors, function(field, messages) {
+                                // Use the field name directly as the key
+                                validator.showErrors({
+                                    [field]: messages[0]
+                                });
+                            });
+                        } else {
+                            this.showAlert(msg, 'error');
+                        }
                         this.renderPreviews();
                     },
                     complete: () => {
                         submitButton.disabled = false;
-                        submitButton.innerHTML = '<i class="fa fa-save"></i>{{ __('recaptcha::recaptcha.save') }}';
+                        submitButton.innerHTML = '<i class="fa fa-save">&nbsp;&nbsp;</i>{{ __('recaptcha::recaptcha.save') }}';
                     }
                 });
             }

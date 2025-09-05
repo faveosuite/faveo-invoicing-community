@@ -52,8 +52,6 @@ return [
     'badge_bottomright' => '右下',
     'badge_bottomleft' => '左下',
     'badge_inline' => 'インライン',
-    'error_message' => 'エラーメッセージ',
-    
     /*
     * Common
     */
@@ -108,8 +106,6 @@ return [
     'score_threshold_numeric' => 'スコア閾値は数値でなければなりません',
     'score_threshold_min' => 'スコア閾値は少なくとも0でなければなりません',
     'score_threshold_max' => 'スコア閾値は1を超えてはなりません',
-    'error_message_required' => 'エラーメッセージが必要です',
-    'error_message_max' => 'エラーメッセージは255文字を超えてはなりません',
     'theme_required' => 'テーマが必要です',
     'theme_in' => '選択されたテーマは無効です',
     'size_required' => 'サイズが必要です',

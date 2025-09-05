@@ -41,18 +41,17 @@ return [
     /*
     * Appearance & Messages
     */
-    'appearance_messages' => '외관 및 메시지',
+    'appearance_messages' => '모양 및 메시지',
     'theme' => '테마',
     'theme_light' => '밝은',
     'theme_dark' => '어두운',
     'size' => '크기',
     'size_normal' => '일반',
-    'size_compact' => '작은',
+    'size_compact' => '소형',
     'badge_position' => '배지 위치',
     'badge_bottomright' => '오른쪽 아래',
     'badge_bottomleft' => '왼쪽 아래',
     'badge_inline' => '인라인',
-    'error_message' => '오류 메시지',
     
     /*
     * Common
@@ -107,9 +106,7 @@ return [
     'failover_action_in' => '선택한 장애 조치 작업이 유효하지 않습니다',
     'score_threshold_numeric' => '점수 임계값은 숫자여야 합니다',
     'score_threshold_min' => '점수 임계값은 최소 0이어야 합니다',
-    'score_threshold_max' => '점수 임계값은 1을 초과할 수 없습니다',
-    'error_message_required' => '오류 메시지가 필요합니다',
-    'error_message_max' => '오류 메시지는 255자를 초과할 수 없습니다',
+    'score_threshold_max' => '점수 임계값은 1보다 클 수 없습니다',
     'theme_required' => '테마가 필요합니다',
     'theme_in' => '선택한 테마가 유효하지 않습니다',
     'size_required' => '크기가 필요합니다',

@@ -52,7 +52,6 @@ return [
     'badge_bottomright' => 'नीचे दाएं',
     'badge_bottomleft' => 'नीचे बाएं',
     'badge_inline' => 'इनलाइन',
-    'error_message' => 'त्रुटि संदेश',
     
     /*
     * Common
@@ -108,8 +107,6 @@ return [
     'score_threshold_numeric' => 'स्कोर थ्रेसहोल्ड एक संख्या होनी चाहिए',
     'score_threshold_min' => 'स्कोर थ्रेसहोल्ड कम से कम 0 होना चाहिए',
     'score_threshold_max' => 'स्कोर थ्रेसहोल्ड 1 से अधिक नहीं होना चाहिए',
-    'error_message_required' => 'त्रुटि संदेश आवश्यक है',
-    'error_message_max' => 'त्रुटि संदेश 255 वर्णों से अधिक नहीं होना चाहिए',
     'theme_required' => 'थीम आवश्यक है',
     'theme_in' => 'चयनित थीम अमान्य है',
     'size_required' => 'आकार आवश्यक है',

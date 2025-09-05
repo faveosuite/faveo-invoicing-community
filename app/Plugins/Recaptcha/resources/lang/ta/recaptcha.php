@@ -52,7 +52,6 @@ return [
     'badge_bottomright' => 'கீழே வலது',
     'badge_bottomleft' => 'கீழே இடது',
     'badge_inline' => 'இன்லைன்',
-    'error_message' => 'பிழை செய்தி',
     
     /*
     * Common
@@ -108,8 +107,6 @@ return [
     'score_threshold_numeric' => 'மதிப்பெண் வாசல் ஒரு எண்ணாக இருக்க வேண்டும்',
     'score_threshold_min' => 'மதிப்பெண் வாசல் குறைந்தபட்சம் 0 ஆக இருக்க வேண்டும்',
     'score_threshold_max' => 'மதிப்பெண் வாசல் 1ஐ விட அதிகமாக இருக்கக்கூடாது',
-    'error_message_required' => 'பிழை செய்தி தேவை',
-    'error_message_max' => 'பிழை செய்தி 255 எழுத்துகளுக்கு மேல் இருக்கக்கூடாது',
     'theme_required' => 'கருப்பொருள் தேவை',
     'theme_in' => 'தேர்ந்தெடுக்கப்பட்ட கருப்பொருள் தவறானது',
     'size_required' => 'அளவு தேவை',
