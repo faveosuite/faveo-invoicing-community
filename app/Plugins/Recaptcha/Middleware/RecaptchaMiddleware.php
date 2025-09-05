@@ -74,12 +74,14 @@ class RecaptchaMiddleware
         if ($isTokenValid && ($verification['score'] ?? 0) < $settings->score_threshold) {
             if ($settings->failover_action === 'v2_checkbox') {
                 Session::put($sessionKey, true);
+
                 return successResponse(
                     __('recaptcha::recaptcha.captcha_message'),
                     ['show_v2_recaptcha' => true],
                     422
                 );
             }
+
             return errorResponse(__('recaptcha::recaptcha.captcha_message'), 422);
         }
 
@@ -125,7 +127,6 @@ class RecaptchaMiddleware
                 'hostname' => $hostname,
             ])
         )->json();
-
     }
 
     private function getSessionKey(string $action, string $pageId): string
