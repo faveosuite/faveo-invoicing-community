@@ -239,7 +239,7 @@ class LoginTest extends DBTestCase
         $response->assertStatus(422);
         $response->assertJson([
             'success' => false,
-            'message' => __('message.captcha_message'),
+            'message' => __('recaptcha::recaptcha.captcha_message'),
         ]);
     }
 
