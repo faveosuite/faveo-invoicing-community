@@ -24,8 +24,8 @@ class RecaptchaMiddleware
         $remoteIp = $request->ip();
         $pageId = $request->input('page_id');
 
-        if (! $recaptchaResponse || ! $pageId) {
-            return errorResponse(__('message.captcha_message'), 422);
+        if(!$recaptchaResponse || !$pageId){
+            return errorResponse(__('recaptcha::recaptcha.captcha_message'), 422);
         }
 
         switch ($settings->captcha_version) {
@@ -56,10 +56,10 @@ class RecaptchaMiddleware
                 if ($settings->failover_action === 'v2_checkbox') {
                     Session::put($sessionKey, true);
 
-                    return successResponse(__('message.captcha_message'), ['show_v2_recaptcha' => true], 422);
+                    return successResponse(__('recaptcha::recaptcha.captcha_message'), ['show_v2_recaptcha' => true], 422);
                 }
 
-                return errorResponse(__('message.captcha_message'), 422);
+                return errorResponse(__('recaptcha::recaptcha.captcha_message'), 422);
             }
 
             return $next($request);
@@ -69,25 +69,25 @@ class RecaptchaMiddleware
         if ($settings->failover_action === 'v2_checkbox' && Session::get($sessionKey)) {
             $verification = $this->verify($settings->v2_secret_key, $recaptchaResponse, $remoteIp);
             if (! $verification['success']) {
-                return errorResponse(__('message.captcha_message'), 422);
+                return errorResponse(__('recaptcha::recaptcha.captcha_message'), 422);
             }
 
             return $next($request);
         }
 
-        return errorResponse(__('message.captcha_message'), 422);
+        return errorResponse(__('recaptcha::recaptcha.captcha_message'), 422);
     }
 
     private function handleV2($request, $recaptchaResponse, $remoteIp, $settings, $next)
     {
         if (! $recaptchaResponse) {
-            return errorResponse(__('message.captcha_message'), 422);
+            return errorResponse(__('recaptcha::recaptcha.captcha_message'), 422);
         }
 
         $verification = $this->verify($settings->v2_secret_key, $recaptchaResponse, $remoteIp);
 
         if (! $verification['success']) {
-            return errorResponse(__('message.captcha_message'), 422);
+            return errorResponse(__('recaptcha::recaptcha.captcha_message'), 422);
         }
 
         return $next($request);
