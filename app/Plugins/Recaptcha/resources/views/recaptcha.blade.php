@@ -20,6 +20,11 @@ $position = $recaptcha->badge_position ?? 'bottomright';
 
 // For invisible modes, force size to 'invisible'
 $actualSize = ($defaultMode === 'v2-invisible') ? 'invisible' : $size;
+
+// Get the current application locale, default to 'en'
+$recaptchaLang = app()->getLocale() ?? 'en';
+
+$validationErrorMessage = __('recaptcha::recaptcha.captcha_message');
 ?>
 <script>
     {!! file_get_contents(app_path('Plugins/Recaptcha/resources/assets/js/recaptcha.js')) !!}
@@ -34,6 +39,8 @@ $actualSize = ($defaultMode === 'v2-invisible') ? 'invisible' : $size;
         badge: @json($position),
         isolated: false,
         fallback: @json($fallback),
-        debug: true
+        debug: false,
+        lang: @json($recaptchaLang),
+        validationErrorMessage: @json($validationErrorMessage)
     });
 </script>
