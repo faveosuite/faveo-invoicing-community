@@ -24,6 +24,10 @@ class RecaptchaMiddleware
         $remoteIp = $request->ip();
         $pageId = $request->input('page_id');
 
+        if(!$recaptchaResponse || !$pageId){
+            return errorResponse(__('message.captcha_message'), 422);
+        }
+
         switch ($settings->captcha_version) {
             case 'v3_invisible':
                 return $this->handleV3Invisible($request, $recaptchaResponse, $remoteIp, $settings, $action, $next, $pageId);

@@ -59,25 +59,6 @@ class SettingsControllerTest extends DBTestCase
         $this->assertNotEmpty($methodResponse->content());
     }
 
-    public function test_google_captcha_response()
-    {
-        $user = User::factory()->create(['role' => 'admin']);
-        $this->actingAs($user);
-        $apiKey = ApiKey::factory()->create([
-            'nocaptcha_sitekey' => 'test-site-key',
-            'captcha_secretCheck' => 'test-secret-key',
-        ]);
-
-        StatusSetting::factory()->create([
-            'recaptcha_status' => '1',
-            'v3_recaptcha_status' => '1',
-            'v3_v2_recaptcha_status' => '1',
-        ]);
-
-        $methodResponse = $this->getPrivateMethod($this->classObject, 'googleCaptcha', [$apiKey]);
-        $this->assertNotEmpty($methodResponse->content());
-    }
-
     public function test_returns_mobile_verification_details()
     {
         $user = User::factory()->create(['role' => 'admin']);

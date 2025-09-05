@@ -30,7 +30,6 @@ class StatusSettingFactory extends Factory
             'msg91_status' => rand(0, 1),
             'emailverification_status' => rand(0, 1),
             'recaptcha_status' => rand(0, 1),
-            'v3_recaptcha_status' => rand(0, 1),
             'zoho_status' => rand(0, 1),
             'rzp_status' => rand(0, 1),
             'mailchimp_product_status' => rand(0, 1),

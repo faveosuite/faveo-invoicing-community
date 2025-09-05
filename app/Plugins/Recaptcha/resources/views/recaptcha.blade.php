@@ -14,7 +14,7 @@ $defaultMode = match($captchaVersion) {
 $v2SiteKey = $recaptcha->v2_site_key ?? '';
 $v3SiteKey = $recaptcha->v3_site_key ?? '';
 $theme = ($defaultMode == 'v2' ||   ($defaultMode === 'v3' && $recaptcha->failover_action === 'v2_checkbox')) ? $recaptcha->theme : 'light';
-$fallback = ($defaultMode === 'v3' && $recaptcha->failover_action === 'v2_checkbox');
+$fallback = ($defaultMode === 'v3' && $recaptcha->failover_action ?? 'none' === 'v2_checkbox');
 $size = ($recaptcha->size === 'compact') ? 'compact' : 'normal';
 $position = $recaptcha->badge_position ?? 'bottomright';
 
