@@ -24,7 +24,7 @@ class RecaptchaMiddleware
         $remoteIp = $request->ip();
         $pageId = $request->input('page_id');
 
-        if(!$recaptchaResponse || !$pageId){
+        if (! $recaptchaResponse || ! $pageId) {
             return errorResponse(__('message.captcha_message'), 422);
         }
 
