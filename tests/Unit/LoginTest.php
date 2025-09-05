@@ -2,10 +2,7 @@
 
 namespace Tests\Unit;
 
-use App\ApiKey;
-use App\Http\Controllers\Auth\LoginController;
 use App\Http\Middleware\Install;
-use App\Http\Requests\Auth\LoginRequest;
 use App\Model\Common\StatusSetting;
 use App\User;
 use App\VerificationAttempt;
@@ -33,18 +30,17 @@ class LoginTest extends DBTestCase
         $response->assertJsonStructure([
             'success',
             'data' => [
-                'redirect'
-            ]
+                'redirect',
+            ],
         ]);
 
         $response->assertJson([
             'success' => true,
             'data' => [
-                'redirect' => url('/client-dashboard')
-            ]
+                'redirect' => url('/client-dashboard'),
+            ],
         ]);
     }
-
 
     #[\PHPUnit\Framework\Attributes\Group('postLogin')]
     public function test_postLogin_forAdmin()
@@ -63,15 +59,15 @@ class LoginTest extends DBTestCase
         $response->assertJsonStructure([
             'success',
             'data' => [
-                'redirect'
-            ]
+                'redirect',
+            ],
         ]);
 
         $response->assertJson([
             'success' => true,
             'data' => [
-                'redirect' =>  url('/')
-            ]
+                'redirect' => url('/'),
+            ],
         ]);
     }
 
@@ -93,8 +89,8 @@ class LoginTest extends DBTestCase
         $response->assertJson([
             'success' => true,
             'data' => [
-                'redirect' => url('/verify')
-            ]
+                'redirect' => url('/verify'),
+            ],
         ]);
     }
 
@@ -116,8 +112,8 @@ class LoginTest extends DBTestCase
         $response->assertJson([
             'success' => true,
             'data' => [
-                'redirect' => url('/verify')
-            ]
+                'redirect' => url('/verify'),
+            ],
         ]);
     }
 
@@ -139,8 +135,8 @@ class LoginTest extends DBTestCase
         $response->assertJson([
             'success' => true,
             'data' => [
-                'redirect' => url('/verify')
-            ]
+                'redirect' => url('/verify'),
+            ],
         ]);
     }
 
@@ -156,7 +152,7 @@ class LoginTest extends DBTestCase
 
         $response->assertJson([
             'success' => false,
-            'message' => 'Your email or password is incorrect. Please check and try again.'
+            'message' => 'Your email or password is incorrect. Please check and try again.',
         ]);
     }
 
@@ -172,7 +168,7 @@ class LoginTest extends DBTestCase
 
         $response->assertJson([
             'success' => false,
-            'message' => 'Your email or password is incorrect. Please check and try again.'
+            'message' => 'Your email or password is incorrect. Please check and try again.',
         ]);
     }
 
@@ -194,8 +190,8 @@ class LoginTest extends DBTestCase
         $response->assertJson([
             'success' => true,
             'data' => [
-                'redirect' => url('/verify-2fa')
-            ]
+                'redirect' => url('/verify-2fa'),
+            ],
         ]);
     }
 
@@ -243,7 +239,7 @@ class LoginTest extends DBTestCase
         $response->assertStatus(422);
         $response->assertJson([
             'success' => false,
-            'message' => __('message.captcha_message')
+            'message' => __('message.captcha_message'),
         ]);
     }
 
@@ -269,8 +265,8 @@ class LoginTest extends DBTestCase
         $response->assertJson([
             'success' => true,
             'data' => [
-                'redirect' => url('/client-dashboard')
-            ]
+                'redirect' => url('/client-dashboard'),
+            ],
         ]);
     }
 
