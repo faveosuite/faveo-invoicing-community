@@ -40,5 +40,4 @@ class RecaptchaSettingsController extends Controller
 
         return successResponse(__('recaptcha::recaptcha.captcha_settings_updated'));
     }
-
 }
