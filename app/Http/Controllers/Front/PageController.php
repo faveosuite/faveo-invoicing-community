@@ -311,7 +311,7 @@ class PageController extends Controller
                             $prices[] = ($product->status) ? round($planDetails['plan']->add_price / 12) : $planDetails['plan']->add_price;
                             $prices[] .= $planDetails['symbol'];
                             $prices[] .= $planDetails['currency'];
-                            $prices[] .=$plan->id;
+                            $prices[] .= $plan->id;
                         }
                     } else {
                         $currency = userCurrencyAndPrice('', $plan);
@@ -320,8 +320,7 @@ class PageController extends Controller
                         $prices[] = $planDetails['plan']->add_price;
                         $prices[] .= $planDetails['symbol'];
                         $prices[] .= $planDetails['currency'];
-                        $prices[] .=$plan->id;
-
+                        $prices[] .= $plan->id;
                     }
 
                     if (! empty($prices)) {
@@ -391,8 +390,7 @@ class PageController extends Controller
                 if ($year_offer_price !== '' && $year_offer_price !== null) {
                     $data = str_replace('{{strike-priceyear}}', $strikePrice, $data);
                 }
-                \Log::debug('santhanu_debug',[$strikePrice]);
-
+                \Log::debug('santhanu_debug', [$strikePrice]);
             }
             $result .= str_replace($array1, $array2, $data);
         }
@@ -530,6 +528,7 @@ class PageController extends Controller
                 $description = self::getPriceDescription($product->id);
                 $status = Product::find($product->id);
             }
+
             return view('themes.default1.common.template.shoppingcart', compact('templates', 'headline', 'tagline', 'description', 'status'));
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
@@ -598,7 +597,7 @@ class PageController extends Controller
                     'strike-priceyear' => $this->YearlyAmount($productId),
                     'name' => $productName,
                     'feature' => $product->description,
-                    'product_description'=> $product->short_description,
+                    'product_description' => $product->short_description,
                     'subscription' => $product->type == 4 ? '' : $temp_controller->plans($product->shoping_cart_link, $productId),
                     'url' => $this->generateProductUrl($product, $orderButton, $highlight),
                 ];
