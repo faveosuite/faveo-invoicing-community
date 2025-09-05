@@ -20,7 +20,39 @@ main
 
 @section('content')
 <style>
-        .planhide{
+    .tooltip-text-hover {
+        position: relative;
+        cursor: help;
+        display: inline-block;
+        overflow: visible; /* make sure the tooltip can show outside */
+    }
+
+    .tooltip-text-hover .tooltip-text {
+        visibility: hidden;
+        opacity: 0;
+        background: #333;
+        color: #fff;
+        padding: 6px 10px;
+        border-radius: 4px;
+        white-space: normal;   /* allow wrapping */
+        max-width: 250px;      /* control tooltip width */
+        position: absolute;
+        bottom: 125%;          /* place above */
+        left: 50%;
+        transform: translateX(-50%);
+        transition: opacity 0.2s;
+        z-index: 10000;        /* ensure above other elements */
+    }
+
+    .tooltip-text-hover:hover .tooltip-text {
+        visibility: visible;
+        opacity: 1;
+    }
+
+
+
+
+    .planhide{
             display: none;
         }
       .highlight_batch {
@@ -133,7 +165,7 @@ main
         }
        .plan-features ul {
     list-style-type: none;
-    padding: 0;
+    padding: 20px !important;
 }
 
 .plan-features li {
@@ -322,16 +354,28 @@ $(document).ready(function() {
           const priceLabel=card.querySelector(".price-label");
           const priceUnit = priceElement.querySelector(".price-unit");
           const stylePlanSelect = card.querySelector(".stylePlan");
-
+          const strikes = [...document.querySelectorAll(".strike")];
           if (stylePlanSelect && priceUnit) {
               stylePlanSelect.value = priceUnit.id;
 
               // Listen for change event on the select element
               stylePlanSelect.addEventListener("change", function () {
+                  const container = $(this).closest('.plan-price');
+                  const strike=container.find('.strike');
+                  // now search inside only this container
+                  const striked = container.find('.price-unit.striked');
+
                   const selectedOption = this.options[this.selectedIndex];
+
                   const newPrice = selectedOption.getAttribute("data-price");
                   const newCurrency = selectedOption.textContent.trim().charAt(0);
                   const newLabel= selectedOption.getAttribute("data-description");
+                  const id=selectedOption.getAttribute("value");
+                  if(id !== striked.attr('id') ){
+                      strike.hide();
+                  }else{
+                      strike.show();
+                  }
                   if (priceUnit && newPrice) {
                       priceUnit.textContent = newCurrency;
                       priceUnit.nextSibling.textContent = newPrice;

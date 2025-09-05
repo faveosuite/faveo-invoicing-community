@@ -311,6 +311,7 @@ class PageController extends Controller
                             $prices[] = ($product->status) ? round($planDetails['plan']->add_price / 12) : $planDetails['plan']->add_price;
                             $prices[] .= $planDetails['symbol'];
                             $prices[] .= $planDetails['currency'];
+                            $prices[] .=$plan->id;
                         }
                     } else {
                         $currency = userCurrencyAndPrice('', $plan);
@@ -319,6 +320,8 @@ class PageController extends Controller
                         $prices[] = $planDetails['plan']->add_price;
                         $prices[] .= $planDetails['symbol'];
                         $prices[] .= $planDetails['currency'];
+                        $prices[] .=$plan->id;
+
                     }
 
                     if (! empty($prices)) {
@@ -327,7 +330,7 @@ class PageController extends Controller
                         }
                         $format = currencyFormat(min([$prices[0]]), $code = $prices[2]);
                         $finalPrice = str_replace($prices[1], '', $format);
-                        $cost = '<span class="price-unit">'.$prices[1].'</span>'.$finalPrice;
+                        $cost = '<span class="price-unit striked" id="'.$prices[3].'">'.$prices[1].'</span>'.$finalPrice;
                     }
                 }
             }
@@ -388,8 +391,9 @@ class PageController extends Controller
                 if ($year_offer_price !== '' && $year_offer_price !== null) {
                     $data = str_replace('{{strike-priceyear}}', $strikePrice, $data);
                 }
-            }
+                \Log::debug('santhanu_debug',[$strikePrice]);
 
+            }
             $result .= str_replace($array1, $array2, $data);
         }
 
@@ -526,7 +530,6 @@ class PageController extends Controller
                 $description = self::getPriceDescription($product->id);
                 $status = Product::find($product->id);
             }
-
             return view('themes.default1.common.template.shoppingcart', compact('templates', 'headline', 'tagline', 'description', 'status'));
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
