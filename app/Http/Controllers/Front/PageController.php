@@ -311,7 +311,7 @@ class PageController extends Controller
                             $price[$plan->id][] = ($product->status) ? round($planDetails['plan']->add_price / 12) : $planDetails['plan']->add_price;
                             $prices[$plan->id][] .= $planDetails['symbol'];
                             $prices[$plan->id][] .= $planDetails['currency'];
-                            $prices[$plan->id][] .=$plan->id;
+                            $prices[$plan->id][] .= $plan->id;
                         }
                     } else {
                         $currency = userCurrencyAndPrice('', $plan);
@@ -320,8 +320,7 @@ class PageController extends Controller
                         $prices[$plan->id][] = $planDetails['plan']->add_price;
                         $prices[$plan->id][] .= $planDetails['symbol'];
                         $prices[$plan->id][] .= $planDetails['currency'];
-                        $prices[$plan->id][] .=$plan->id;
-
+                        $prices[$plan->id][] .= $plan->id;
                     }
 
                     if (! empty($prices)) {
@@ -334,9 +333,10 @@ class PageController extends Controller
                     }
                 }
             }
-            if(sizeof($cost) > 1) {
+            if (sizeof($cost) > 1) {
                 unset($cost[0]);
             }
+
             return $cost;
         } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
@@ -396,7 +396,6 @@ class PageController extends Controller
 
 //                    $data = str_replace('{{strike-priceyear}}', $strikePrice, $data);
                 }
-
             }
             $result .= str_replace($array1, $array2, $data);
         }
@@ -534,6 +533,7 @@ class PageController extends Controller
                 $description = self::getPriceDescription($product->id);
                 $status = Product::find($product->id);
             }
+
             return view('themes.default1.common.template.shoppingcart', compact('templates', 'headline', 'tagline', 'description', 'status'));
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
@@ -602,7 +602,7 @@ class PageController extends Controller
                     'strike-priceyear' => $this->YearlyAmount($productId),
                     'name' => $productName,
                     'feature' => $product->description,
-                    'product_description'=> $product->short_description,
+                    'product_description' => $product->short_description,
                     'subscription' => $product->type == 4 ? '' : $temp_controller->plans($product->shoping_cart_link, $productId),
                     'url' => $this->generateProductUrl($product, $orderButton, $highlight),
                 ];
@@ -790,7 +790,7 @@ class PageController extends Controller
                     $cost[$plan->id] = '<span class="price-unit strike-amount hide_custom" id="'.$plan->id.'">'.$prices[$plan->id][1].$finalPrice.'</span>';
                 }
             }
-            if(sizeof($cost) > 1) {
+            if (sizeof($cost) > 1) {
                 unset($cost[0]);
             }
 
