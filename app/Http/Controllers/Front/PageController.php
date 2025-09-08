@@ -305,10 +305,12 @@ class PageController extends Controller
                 foreach ($plans as $plan) {
                     if ($product->status) {
                         if ($plan->days == 365 || $plan->days == 366) {
+
                             $currency = userCurrencyAndPrice('', $plan);
                             $offerprice = PlanPrice::where('plan_id', $plan->id)->where('currency', $currency)->value('offer_price');
                             $planDetails = userCurrencyAndPrice('', $plan);
-                            $price[$plan->id][] = ($product->status) ? round($planDetails['plan']->add_price / 12) : $planDetails['plan']->add_price;
+
+                            $prices[$plan->id][] = ($product->status) ? round($planDetails['plan']->add_price / 12) : $planDetails['plan']->add_price;
                             $prices[$plan->id][] .= $planDetails['symbol'];
                             $prices[$plan->id][] .= $planDetails['currency'];
                             $prices[$plan->id][] .=$plan->id;
@@ -324,7 +326,7 @@ class PageController extends Controller
 
                     }
 
-                    if (! empty($prices)) {
+                    if (isset($prices[$plan->id]) && ! empty($prices[$plan->id])) {
                         if (isset($offerprice) && $offerprice != '' && $offerprice != null) {
                             $prices[$plan->id][0] = $prices[$plan->id][0] - (($offerprice / 100) * $prices[$plan->id][0]);
                         }
@@ -332,13 +334,16 @@ class PageController extends Controller
                         $finalPrice = str_replace($prices[$plan->id][1], '', $format);
                         $cost[$plan->id] = '<span class="price-unit striked hide_custom" id="'.$prices[$plan->id][3].'">'.$prices[$plan->id][1].$finalPrice.'</span>';
                     }
+
                 }
             }
             if(sizeof($cost) > 1) {
                 unset($cost[0]);
             }
+
             return $cost;
         } catch (\Exception $ex) {
+            dd($ex->getMessage());
             return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
@@ -383,18 +388,25 @@ class PageController extends Controller
             if ($year_offer_price !== '' && $year_offer_price !== null) {
                 $offerprice = $this->getPayingprice($id);
                 $offerpriceYear = $this->getstrikePriceYear($id);
+                $offerpriceyearKeys=array_keys($offerpriceYear);
                 $strikePrice = $this->YearlyAmountForOffer($id);
+                $strikePriceKeys=array_keys($strikePrice);
                 $data = str_replace('{{price}}', $offerprice, $data);
                 if ($month_offer_price !== '' && $month_offer_price !== null) {
                     $data = str_replace('{{strike-price}}', $array2[1], $data);
                 }
-//                $data = str_replace('{{price-year}}', $offerpriceYear, $data);
-                $data = str_replace('{{price-year}}', implode(' ', $offerpriceYear), $data);
-
+                if(sizeof($offerpriceyearKeys) > 1) {
+                    $data = str_replace('{{price-year}}', implode(' ', $offerpriceYear), $data);
+                }else{
+                    $data = str_replace('{{price-year}}', $offerpriceYear[$offerpriceyearKeys[0]], $data);
+                }
                 if ($year_offer_price !== '' && $year_offer_price !== null) {
-                    $data = str_replace('{{strike-priceyear}}', implode(' ', $strikePrice), $data);
+                    if(sizeof($strikePriceKeys) > 1) {
 
-//                    $data = str_replace('{{strike-priceyear}}', $strikePrice, $data);
+                        $data = str_replace('{{strike-priceyear}}', implode(' ', $strikePrice), $data);
+                    }else {
+                    $data = str_replace('{{strike-priceyear}}', $strikePrice[$strikePriceKeys[0]], $data);
+                    }
                 }
 
             }
@@ -784,7 +796,7 @@ class PageController extends Controller
                     $prices[$plan->id][] .= $planDetails['currency'];
                 }
 
-                if (! empty($prices)) {
+                if (isset($prices[$plan->id]) &&  ! empty($prices)) {
                     $format = currencyFormat(min([$prices[$plan->id][0]]), $code = $prices[$plan->id][2]);
                     $finalPrice = str_replace($prices[$plan->id][1], '', $format);
                     $cost[$plan->id] = '<span class="price-unit strike-amount hide_custom" id="'.$plan->id.'">'.$prices[$plan->id][1].$finalPrice.'</span>';
