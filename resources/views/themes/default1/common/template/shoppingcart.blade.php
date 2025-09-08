@@ -22,7 +22,7 @@ main
 <style>
     .tooltip-text-hover {
         position: relative;
-        cursor: help;
+        cursor: pointer;
         display: inline-block;
         overflow: visible; /* make sure the tooltip can show outside */
     }
@@ -49,8 +49,13 @@ main
         opacity: 1;
     }
 
+    .hide_custom {
+        display:none;
+    }
 
-
+.striked{
+    font-size: 2.7rem !important;
+}
 
     .planhide{
             display: none;
@@ -357,31 +362,75 @@ $(document).ready(function() {
           const strikes = [...document.querySelectorAll(".strike")];
           if (stylePlanSelect && priceUnit) {
               stylePlanSelect.value = priceUnit.id;
+              const container = stylePlanSelect.closest('.plan-price');
 
+              const toDisplay2 = $(container).find(`.price-unit.strike-amount#${stylePlanSelect.value}`);
+              toDisplay2.removeClass('hide_custom');
+              const toDisplay=$(container).find(`#${stylePlanSelect.value}`);
+              toDisplay.removeClass('hide_custom');
               // Listen for change event on the select element
-              stylePlanSelect.addEventListener("change", function () {
-                  const container = $(this).closest('.plan-price');
-                  const strike=container.find('.strike');
-                  // now search inside only this container
-                  const striked = container.find('.price-unit.striked');
+              // stylePlanSelect.addEventListener("change", function () {
+              //
+              //     const container = $(this).closest('.plan-price');
+              //
+              //     const strike=container.find('.strike');
+              //     // now search inside only this container
+              //     const striked = container.find('.price-unit.striked');
+              //     const toDisplay2 = container.find(`.price-unit.strike-amount#${stylePlanSelect.value}`);
+              //     toDisplay2.removeClass('hide_custom');
+              //     const toDisplay=container.find(`#${stylePlanSelect.value}`);
+              //     toDisplay.removeClass('hide_custom');
+              //     // const selectedOption = this.options[this.selectedIndex];
+              //
+              //     // const newPrice = selectedOption.getAttribute("data-price");
+              //     // const newCurrency = selectedOption.textContent.trim().charAt(0);
+              //     // const newLabel= selectedOption.getAttribute("data-description");
+              //     // const id=selectedOption.getAttribute("value");
+              //     // if(id !== striked.attr('id') ){
+              //     //     strike.hide();
+              //     // }else{
+              //     //     strike.show();
+              //     // }
+              //     // if (priceUnit && newPrice) {
+              //     //     priceUnit.textContent = newCurrency;
+              //     //     priceUnit.nextSibling.textContent = newPrice;
+              //     //     priceLabel.textContent=newLabel;
+              //     // }
+              // });
+              $('.stylePlan').on('change', function () {
+                  const $select = $(this);
+                  const $container = $select.closest('.plan-price');
 
-                  const selectedOption = this.options[this.selectedIndex];
+                  // Hide all strike-amount and striked spans inside this container
+                  $container.find('.price-unit.strike-amount, .price-unit.striked').addClass('hide_custom');
 
-                  const newPrice = selectedOption.getAttribute("data-price");
-                  const newCurrency = selectedOption.textContent.trim().charAt(0);
-                  const newLabel= selectedOption.getAttribute("data-description");
-                  const id=selectedOption.getAttribute("value");
-                  if(id !== striked.attr('id') ){
-                      strike.hide();
-                  }else{
-                      strike.show();
+                  // Show only the selected strike-amount
+                  $container.find(`.price-unit.strike-amount#${this.value}`).removeClass('hide_custom');
+
+                  // Show only the selected striked span (if any)
+                  $container.find(`#${this.value}`).removeClass('hide_custom');
+                  const $selectedOption = $(this).find('option:selected');
+                  const newPrice = $selectedOption.attr("data-price");
+                  const newCurrency = $selectedOption.text().trim().charAt(0);
+                  const newLabel = $selectedOption.attr("data-description");
+                  const $priceUnit = $container.find('.price');
+                  const $priceLabel = $container.find('.price-label');
+                  const formatter = new Intl.NumberFormat();
+
+                  const formattedAmount = formatter.format(newPrice);
+                  if ($priceUnit.length && newPrice) {
+                      $priceUnit.html(`<span id="${this.value}" class="currency-symbol">${newCurrency}</span>${formattedAmount}`);
+
+                      // $priceUnit[0].textContent="<span id={$(this).value}>{newCurrency}</span>{newPrice}";
+                      // $priceUnit[0].textContent=newCurrency;
+                      // $priceUnit[0].textContent=newPrice;
                   }
-                  if (priceUnit && newPrice) {
-                      priceUnit.textContent = newCurrency;
-                      priceUnit.nextSibling.textContent = newPrice;
-                      priceLabel.textContent=newLabel;
+
+                  if ($priceLabel.length) {
+                      $priceLabel.text(newLabel);
                   }
               });
+
           }
       });
   });
