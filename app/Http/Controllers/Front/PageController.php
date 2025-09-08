@@ -297,7 +297,7 @@ class PageController extends Controller
     {
         $countryCheck = true;
         try {
-            $cost = 'Free';
+            $cost[0] = 'Free';
             $plans = Plan::where('product', $id)->get();
             $product = Product::find($id);
             $prices = [];
@@ -308,33 +308,35 @@ class PageController extends Controller
                             $currency = userCurrencyAndPrice('', $plan);
                             $offerprice = PlanPrice::where('plan_id', $plan->id)->where('currency', $currency)->value('offer_price');
                             $planDetails = userCurrencyAndPrice('', $plan);
-                            $prices[] = ($product->status) ? round($planDetails['plan']->add_price / 12) : $planDetails['plan']->add_price;
-                            $prices[] .= $planDetails['symbol'];
-                            $prices[] .= $planDetails['currency'];
-                            $prices[] .=$plan->id;
+                            $price[$plan->id][] = ($product->status) ? round($planDetails['plan']->add_price / 12) : $planDetails['plan']->add_price;
+                            $prices[$plan->id][] .= $planDetails['symbol'];
+                            $prices[$plan->id][] .= $planDetails['currency'];
+                            $prices[$plan->id][] .=$plan->id;
                         }
                     } else {
                         $currency = userCurrencyAndPrice('', $plan);
                         $offerprice = PlanPrice::where('plan_id', $plan->id)->where('currency', $currency)->value('offer_price');
                         $planDetails = userCurrencyAndPrice('', $plan);
-                        $prices[] = $planDetails['plan']->add_price;
-                        $prices[] .= $planDetails['symbol'];
-                        $prices[] .= $planDetails['currency'];
-                        $prices[] .=$plan->id;
+                        $prices[$plan->id][] = $planDetails['plan']->add_price;
+                        $prices[$plan->id][] .= $planDetails['symbol'];
+                        $prices[$plan->id][] .= $planDetails['currency'];
+                        $prices[$plan->id][] .=$plan->id;
 
                     }
 
                     if (! empty($prices)) {
                         if (isset($offerprice) && $offerprice != '' && $offerprice != null) {
-                            $prices[0] = $prices[0] - (($offerprice / 100) * $prices[0]);
+                            $prices[$plan->id][0] = $prices[$plan->id][0] - (($offerprice / 100) * $prices[$plan->id][0]);
                         }
-                        $format = currencyFormat(min([$prices[0]]), $code = $prices[2]);
-                        $finalPrice = str_replace($prices[1], '', $format);
-                        $cost = '<span class="price-unit striked" id="'.$prices[3].'">'.$prices[1].'</span>'.$finalPrice;
+                        $format = currencyFormat(min([$prices[$plan->id][0]]), $code = $prices[$plan->id][2]);
+                        $finalPrice = str_replace($prices[$plan->id][1], '', $format);
+                        $cost[$plan->id] = '<span class="price-unit striked hide_custom" id="'.$prices[$plan->id][3].'">'.$prices[$plan->id][1].$finalPrice.'</span>';
                     }
                 }
             }
-
+            if(sizeof($cost) > 1) {
+                unset($cost[0]);
+            }
             return $cost;
         } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
@@ -381,17 +383,19 @@ class PageController extends Controller
             if ($year_offer_price !== '' && $year_offer_price !== null) {
                 $offerprice = $this->getPayingprice($id);
                 $offerpriceYear = $this->getstrikePriceYear($id);
-                $strikePrice = $this->YearlyAmount($id);
+                $strikePrice = $this->YearlyAmountForOffer($id);
                 $data = str_replace('{{price}}', $offerprice, $data);
                 if ($month_offer_price !== '' && $month_offer_price !== null) {
                     $data = str_replace('{{strike-price}}', $array2[1], $data);
                 }
-                $data = str_replace('{{price-year}}', $offerpriceYear, $data);
+//                $data = str_replace('{{price-year}}', $offerpriceYear, $data);
+                $data = str_replace('{{price-year}}', implode(' ', $offerpriceYear), $data);
 
                 if ($year_offer_price !== '' && $year_offer_price !== null) {
-                    $data = str_replace('{{strike-priceyear}}', $strikePrice, $data);
+                    $data = str_replace('{{strike-priceyear}}', implode(' ', $strikePrice), $data);
+
+//                    $data = str_replace('{{strike-priceyear}}', $strikePrice, $data);
                 }
-                \Log::debug('santhanu_debug',[$strikePrice]);
 
             }
             $result .= str_replace($array1, $array2, $data);
@@ -747,6 +751,47 @@ class PageController extends Controller
                     $finalPrice = str_replace($prices[1], '', $format);
                     $cost = '<span class="price-unit" id="'.$planId.'">'.$prices[1].'</span>'.$finalPrice;
                 }
+            }
+
+            return $cost;
+        } catch (\Exception $ex) {
+            return redirect()->back()->with('fails', $ex->getMessage());
+        }
+    }
+
+    public function YearlyAmountForOffer($id)
+    {
+        $countryCheck = true;
+        try {
+            $cost[] = 'Free';
+            $plans = Plan::where('product', $id)->get();
+            $product = Product::find($id);
+            $offer = $this->getOfferprice($id);
+
+            $planId = Plan::where('product', $id)->pluck('id')->first();
+            $prices = [];
+
+            foreach ($plans as $plan) {
+                if ($plan->days == 365 || $plan->days == 366) {
+                    $planDetails = userCurrencyAndPrice('', $plan);
+                    $prices[$plan->id][] = ($product->status) ? round($planDetails['plan']->add_price / 12) : $planDetails['plan']->add_price;
+                    $prices[$plan->id][] .= $planDetails['symbol'];
+                    $prices[$plan->id][] .= $planDetails['currency'];
+                } elseif (! $product->status && ! in_array($product->id, cloudPopupProducts())) {
+                    $planDetails = userCurrencyAndPrice('', $plan);
+                    $prices[$plan->id][] = $planDetails['plan']->add_price;
+                    $prices[$plan->id][] .= $planDetails['symbol'];
+                    $prices[$plan->id][] .= $planDetails['currency'];
+                }
+
+                if (! empty($prices)) {
+                    $format = currencyFormat(min([$prices[$plan->id][0]]), $code = $prices[$plan->id][2]);
+                    $finalPrice = str_replace($prices[$plan->id][1], '', $format);
+                    $cost[$plan->id] = '<span class="price-unit strike-amount hide_custom" id="'.$plan->id.'">'.$prices[$plan->id][1].$finalPrice.'</span>';
+                }
+            }
+            if(sizeof($cost) > 1) {
+                unset($cost[0]);
             }
 
             return $cost;
