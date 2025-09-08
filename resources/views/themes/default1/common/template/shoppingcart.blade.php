@@ -350,16 +350,27 @@ $(document).ready(function() {
     if (numberOfTemplates < 3) {
         $('.owl-carousel.nav-outside').addClass('center-templates');
     }
+    var status={!! $status->status !!};
+
+
 });
+
+
 
   document.addEventListener("DOMContentLoaded", function () {
       document.querySelectorAll(".content-switcher").forEach(function (switcher) {
+          var status={!! $status->status !!};
           const card = switcher.closest(".card");
           const priceElement = card.querySelector(".price");
           const priceLabel=card.querySelector(".price-label");
           const priceUnit = priceElement.querySelector(".price-unit");
           const stylePlanSelect = card.querySelector(".stylePlan");
           const strikes = [...document.querySelectorAll(".strike")];
+          if(status){
+              document.querySelectorAll('.price-unit').forEach(el => {
+                  el.classList.remove('hide_custom'); // remove only this class
+              });
+          }
           if (stylePlanSelect && priceUnit) {
               stylePlanSelect.value = priceUnit.id;
               const container = stylePlanSelect.closest('.plan-price');
