@@ -305,7 +305,6 @@ class PageController extends Controller
                 foreach ($plans as $plan) {
                     if ($product->status) {
                         if ($plan->days == 365 || $plan->days == 366) {
-
                             $currency = userCurrencyAndPrice('', $plan);
                             $offerprice = PlanPrice::where('plan_id', $plan->id)->where('currency', $currency)->value('offer_price');
                             $planDetails = userCurrencyAndPrice('', $plan);
@@ -313,7 +312,7 @@ class PageController extends Controller
                             $prices[$plan->id][] = ($product->status) ? round($planDetails['plan']->add_price / 12) : $planDetails['plan']->add_price;
                             $prices[$plan->id][] .= $planDetails['symbol'];
                             $prices[$plan->id][] .= $planDetails['currency'];
-                            $prices[$plan->id][] .=$plan->id;
+                            $prices[$plan->id][] .= $plan->id;
                         }
                     } else {
                         $currency = userCurrencyAndPrice('', $plan);
@@ -322,8 +321,7 @@ class PageController extends Controller
                         $prices[$plan->id][] = $planDetails['plan']->add_price;
                         $prices[$plan->id][] .= $planDetails['symbol'];
                         $prices[$plan->id][] .= $planDetails['currency'];
-                        $prices[$plan->id][] .=$plan->id;
-
+                        $prices[$plan->id][] .= $plan->id;
                     }
 
                     if (isset($prices[$plan->id]) && ! empty($prices[$plan->id])) {
@@ -334,16 +332,16 @@ class PageController extends Controller
                         $finalPrice = str_replace($prices[$plan->id][1], '', $format);
                         $cost[$plan->id] = '<span class="price-unit striked hide_custom" id="'.$prices[$plan->id][3].'">'.$prices[$plan->id][1].$finalPrice.'</span>';
                     }
-
                 }
             }
-            if(sizeof($cost) > 1) {
+            if (sizeof($cost) > 1) {
                 unset($cost[0]);
             }
 
             return $cost;
         } catch (\Exception $ex) {
             dd($ex->getMessage());
+
             return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
@@ -388,27 +386,25 @@ class PageController extends Controller
             if ($year_offer_price !== '' && $year_offer_price !== null) {
                 $offerprice = $this->getPayingprice($id);
                 $offerpriceYear = $this->getstrikePriceYear($id);
-                $offerpriceyearKeys=array_keys($offerpriceYear);
+                $offerpriceyearKeys = array_keys($offerpriceYear);
                 $strikePrice = $this->YearlyAmountForOffer($id);
-                $strikePriceKeys=array_keys($strikePrice);
+                $strikePriceKeys = array_keys($strikePrice);
                 $data = str_replace('{{price}}', $offerprice, $data);
                 if ($month_offer_price !== '' && $month_offer_price !== null) {
                     $data = str_replace('{{strike-price}}', $array2[1], $data);
                 }
-                if(sizeof($offerpriceyearKeys) > 1) {
+                if (sizeof($offerpriceyearKeys) > 1) {
                     $data = str_replace('{{price-year}}', implode(' ', $offerpriceYear), $data);
-                }else{
+                } else {
                     $data = str_replace('{{price-year}}', $offerpriceYear[$offerpriceyearKeys[0]], $data);
                 }
                 if ($year_offer_price !== '' && $year_offer_price !== null) {
-                    if(sizeof($strikePriceKeys) > 1) {
-
+                    if (sizeof($strikePriceKeys) > 1) {
                         $data = str_replace('{{strike-priceyear}}', implode(' ', $strikePrice), $data);
-                    }else {
-                    $data = str_replace('{{strike-priceyear}}', $strikePrice[$strikePriceKeys[0]], $data);
+                    } else {
+                        $data = str_replace('{{strike-priceyear}}', $strikePrice[$strikePriceKeys[0]], $data);
                     }
                 }
-
             }
             $result .= str_replace($array1, $array2, $data);
         }
@@ -546,6 +542,7 @@ class PageController extends Controller
                 $description = self::getPriceDescription($product->id);
                 $status = Product::find($product->id);
             }
+
             return view('themes.default1.common.template.shoppingcart', compact('templates', 'headline', 'tagline', 'description', 'status'));
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
@@ -614,7 +611,7 @@ class PageController extends Controller
                     'strike-priceyear' => $this->YearlyAmount($productId),
                     'name' => $productName,
                     'feature' => $product->description,
-                    'product_description'=> $product->short_description,
+                    'product_description' => $product->short_description,
                     'subscription' => $product->type == 4 ? '' : $temp_controller->plans($product->shoping_cart_link, $productId),
                     'url' => $this->generateProductUrl($product, $orderButton, $highlight),
                 ];
@@ -796,13 +793,13 @@ class PageController extends Controller
                     $prices[$plan->id][] .= $planDetails['currency'];
                 }
 
-                if (isset($prices[$plan->id]) &&  ! empty($prices)) {
+                if (isset($prices[$plan->id]) && ! empty($prices)) {
                     $format = currencyFormat(min([$prices[$plan->id][0]]), $code = $prices[$plan->id][2]);
                     $finalPrice = str_replace($prices[$plan->id][1], '', $format);
                     $cost[$plan->id] = '<span class="price-unit strike-amount hide_custom" id="'.$plan->id.'">'.$prices[$plan->id][1].$finalPrice.'</span>';
                 }
             }
-            if(sizeof($cost) > 1) {
+            if (sizeof($cost) > 1) {
                 unset($cost[0]);
             }
 
