@@ -46,5 +46,7 @@ return [
     '{{company_title}}' => 'company title',
     '{{licenseCode}}' => 'Order\'s licenseCode',
     '{{date}}' => 'Order\'s expiry date',
+    '{{app_name}}' => 'Application name',
+    '{{contact_url}}' => 'Contact URL',
 
 ];
