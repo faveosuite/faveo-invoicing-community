@@ -111,6 +111,7 @@ input:checked + .slider:before {
      <div id= "error"></div>
   @include('themes.default1.user.2faModals')
   @include('themes.default1.front.clients.2fa_popup_client')
+  @include('themes.default1.front.clients.clientEmailUpdate')
 
 
         <div class="container pt-3 pb-2">
@@ -185,23 +186,42 @@ input:checked + .slider:before {
                                     <div class="form-group row {{ $errors->has('email') ? 'has-error' : '' }}">
                                         <label class="col-lg-3 col-form-label form-control-label line-height-9 pt-2 text-2 required">{{ __('message.email')}}</label>
                                         <div class="col-lg-9">
-                                            {!! html()->email('email')->class('form-control text-3 h-auto py-2')->id('Email') !!}
+                                            <div class="input-group">
+                                            {!! html()->email('email')->class('form-control text-3 h-auto py-2')->id('Email')->attribute('readonly', 'readonly') !!}
                                             <h6 id="emailCheck"></h6>
+                                                <span class="input-group-text bg-dark" role="button" id="editEmailBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="This edit icon shows change email">
+                                            <i class="fas fa-pencil-alt text-white"></i>
+                                        </span>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="form-group row {{ $errors->has('mobile_code') ? 'has-error' : '' }}">
-                                        <label class="col-lg-3 col-form-label form-control-label line-height-9 pt-2 text-2 required">{{ __('message.mobile')}}</label>
-                                        <div class="col-lg-9">
+                                <div class="form-group row {{ $errors->has('mobile_code') ? 'has-error' : '' }}">
+                                    <label class="col-lg-3 col-form-label form-control-label line-height-9 pt-2 text-2 required">
+                                        {{ __('message.mobile') }}
+                                    </label>
+                                    <div class="col-lg-9">
+                                        <div class="input-group">
                                             {!! html()->hidden('mobile_code')->id('code_hidden') !!}
-                                            <!--<input class="form-control selected-dial-code"  id="mobile_code" value="{{$user->mobile}}" name="mobile" type="tel"> -->
 
-                                            {!! html()->input('tel', 'mobile', $user->mobile)->class('form-control selected-dial-code')->attribute('dir', in_array(app()->getLocale(), ['ar', 'he']) ? 'rtl' : 'ltr')->id('incode') !!}
-                                            {!! html()->hidden('mobile_country_iso')->id('mobile_country_iso') !!}
-                                            <span id="invalid-msg" class="hide"></span>
-                                               <span id="inerror-msg"></span>
+                                            <div class="flex-grow-1">
+                                                {!! html()->input('tel', 'mobile', $user->mobile)
+                                                    ->class('form-control selected-dial-code text-3 h-auto py-2')
+                                                    ->attribute('dir', in_array(app()->getLocale(), ['ar', 'he']) ? 'rtl' : 'ltr')
+                                                    ->id('incode') !!}
+                                            </div>
+
+                                            <span class="input-group-text bg-dark" role="button">
+                                               <i class="fas fa-pencil-alt text-white"></i>
+                                            </span>
                                         </div>
+
+                                        {!! html()->hidden('mobile_country_iso')->id('mobile_country_iso') !!}
+                                        <span id="invalid-msg" class="hide"></span>
+                                        <span id="inerror-msg"></span>
                                     </div>
-                                    <div class="form-group row {{ $errors->has('company') ? 'has-error' : '' }}">
+                                </div>
+
+                                <div class="form-group row {{ $errors->has('company') ? 'has-error' : '' }}">
                                         <label class="col-lg-3 col-form-label form-control-label line-height-9 pt-2 text-2 required">{{ __('message.front_company')}}</label>
                                         <div class="col-lg-9">
                                             {!! html()->text('company')->class('form-control text-3 h-auto py-2')->id('Company') !!}
@@ -241,7 +261,7 @@ input:checked + .slider:before {
                                      <div class="form-group row {{ $errors->has('=country') ? 'has-error' : '' }}">
                                         <label class="col-lg-3 col-form-label form-control-label line-height-9 pt-2 text-2">{{ __('message.country')}}</label>
                                         <div class="col-lg-9">
-                                            {!! html()->text('country', $selectedCountry)->class('form-control input-lg')->attribute('onChange', 'getCountryAttr(this.value);')->attribute('title',trans('message.admin_update_country'))->attribute('readonly', 'readonly')->attribute('data-toggle', 'tooltip')->attribute('data-placement', 'top') !!}
+                                            {!! html()->text('country', $selectedCountry)->class('form-control input-lg text-3 h-auto py-2')->attribute('onChange', 'getCountryAttr(this.value);')->attribute('title',trans('message.admin_update_country'))->attribute('readonly', 'readonly')->attribute('data-toggle', 'tooltip')->attribute('data-placement', 'top') !!}
 
                                             {!! html()->hidden('country')->id('country') !!}
                                             <h6 id="countryCheck"></h6>
@@ -252,7 +272,7 @@ input:checked + .slider:before {
                                         <label class="col-lg-3 col-form-label form-control-label line-height-9 pt-2 text-2">{{ __('message.time_zone')}}</label>
                                         <div class="col-lg-9">
                                             <div class="custom-select-1">
-                                                {!! html()->select('timezone_id', [Lang::get('message.choose') => $timezones])->class('form-control input-lg')->id('timezone') !!}
+                                                {!! html()->select('timezone_id', [Lang::get('message.choose') => $timezones])->class('form-control input-lg text-3 h-auto py-2')->id('timezone') !!}
 
                                             </div>
                                         </div>
@@ -865,6 +885,361 @@ input:checked + .slider:before {
 </script>
 <!-- <script src="{{asset('common/js/licCode.js')}}"></script> -->
 
+<!-- Email Edit Modal -->
+<!-- Edit Email Modal -->
+{{--<div class="modal fade" id="editEmailModal" tabindex="-1" role="dialog" aria-labelledby="editEmailModalLabel" aria-hidden="true">--}}
+{{--    <div class="modal-dialog modal-dialog-centered" style="max-width: 570px;">--}}
+{{--        <div class="modal-content">--}}
+{{--            <div class="modal-header">--}}
+{{--                <h5 class="modal-title" id="editEmailModalLabel">{{ __('Update Email Address') }}</h5>--}}
+{{--                <button type="button" class="btn-close closeandrefresh" data-bs-dismiss="modal" aria-label="Close"></button>--}}
+{{--            </div>--}}
+{{--            <div class="modal-body">--}}
+{{--                <form id="editEmailForm">--}}
+{{--                    <div class="form-group">--}}
+{{--                        <label for="newEmail">{{ __('message.emailSettings_details.email') }}</label>--}}
+{{--                        <input type="email" class="form-control" id="newEmail" name="new_email" required>--}}
+{{--                        <span id="editEmailError" class="text-danger"></span>--}}
+{{--                    </div>--}}
+{{--                    <button type="submit" class="btn btn-dark">{{ __('message.submit') }}</button>--}}
+{{--                </form>--}}
+{{--                <div id="editEmailSuccess" class="text-success mt-2" style="display:none;"></div>--}}
+{{--            </div>--}}
+{{--        </div>--}}
+{{--    </div>--}}
+{{--</div>--}}
+
+{{--<!-- OTP Verification Modal -->--}}
+{{--<div class="modal fade" id="otpVerificationModal" tabindex="-1" role="dialog" aria-labelledby="otpVerificationModalLabel" aria-hidden="true">--}}
+{{--    <div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">--}}
+{{--        <div class="modal-content">--}}
+{{--            <div class="modal-header">--}}
+{{--                <h5 class="modal-title" id="otpVerificationModalLabel">{{ __('Email Verification') }}</h5>--}}
+{{--                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>--}}
+{{--            </div>--}}
+{{--            <div class="modal-body">--}}
+{{--                <div class="text-center mb-4">--}}
+{{--                    <i class="fas fa-envelope-open text-primary" style="font-size: 3rem;"></i>--}}
+{{--                    <h6 class="mt-3">{{ __('Verification Code Sent') }}</h6>--}}
+{{--                    <p class="text-muted">{{ __('We have sent a verification code to') }}: <br>--}}
+{{--                        <strong id="verificationEmail"></strong>--}}
+{{--                    </p>--}}
+{{--                </div>--}}
+
+{{--                <form id="otpVerificationForm">--}}
+{{--                    <div class="form-group mb-3">--}}
+{{--                        <label for="otpCode">{{ __('Enter Verification Code') }}</label>--}}
+{{--                        <input type="text" class="form-control text-center" id="otpCode" name="otp_code"--}}
+{{--                               maxlength="6" placeholder="000000" required--}}
+{{--                               style="font-size: 1.5rem; letter-spacing: 0.5rem;">--}}
+{{--                        <span id="otpError" class="text-danger"></span>--}}
+{{--                    </div>--}}
+
+{{--                    <div class="d-flex justify-content-between align-items-center mb-3">--}}
+{{--                        <small class="text-muted">--}}
+{{--                            {{ __('Code expires in') }}: <span id="otpTimer" class="text-danger">05:00</span>--}}
+{{--                        </small>--}}
+{{--                        <button type="button" id="resendOtpBtn" class="btn btn-link btn-sm p-0" disabled>--}}
+{{--                            {{ __('Resend Code') }}--}}
+{{--                        </button>--}}
+{{--                    </div>--}}
+
+{{--                    <div class="d-grid gap-2">--}}
+{{--                        <button type="submit" class="btn btn-primary" id="verifyOtpBtn">--}}
+{{--                            {{ __('Verify Email') }}--}}
+{{--                        </button>--}}
+{{--                        <button type="button" class="btn btn-secondary" id="backToEmailBtn">--}}
+{{--                            {{ __('Back to Email') }}--}}
+{{--                        </button>--}}
+{{--                    </div>--}}
+{{--                </form>--}}
+
+{{--                <div id="otpSuccess" class="text-success mt-3 text-center" style="display:none;"></div>--}}
+{{--            </div>--}}
+{{--        </div>--}}
+{{--    </div>--}}
+{{--</div>--}}
+
+{{--<script>--}}
+{{--    $(document).ready(function() {--}}
+{{--        let otpTimer;--}}
+{{--        let timeLeft = 300; // 5 minutes in seconds--}}
+{{--        let pendingEmail = '';--}}
+
+{{--        // Email edit modal logic--}}
+{{--        $('#editEmailBtn').on('click', function() {--}}
+{{--            $('#editEmailModal').modal('show');--}}
+{{--            $('#editEmailError').text('');--}}
+{{--            $('#editEmailSuccess').hide();--}}
+{{--            $('#newEmail').val('');--}}
+{{--            $('#newEmail').removeClass('is-invalid'); // Remove error styling--}}
+{{--        });--}}
+
+{{--        // Real-time email validation on input--}}
+{{--        $('#newEmail').on('input blur', function() {--}}
+{{--            validateEmail($(this).val());--}}
+{{--        });--}}
+
+{{--        // Email validation function--}}
+{{--        function validateEmail(email) {--}}
+{{--            var errorSpan = $('#editEmailError');--}}
+{{--            var emailInput = $('#newEmail');--}}
+
+{{--            // Clear previous errors--}}
+{{--            errorSpan.text('');--}}
+{{--            emailInput.removeClass('is-invalid is-valid');--}}
+
+{{--            if (!email) {--}}
+{{--                return false; // Empty field, don't show error until form submission--}}
+{{--            }--}}
+
+{{--            // Check email format--}}
+{{--            var emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;--}}
+
+{{--            if (!emailRegex.test(email)) {--}}
+{{--                errorSpan.text("{{ __('Please enter a valid email address') }}");--}}
+{{--                emailInput.addClass('is-invalid');--}}
+{{--                return false;--}}
+{{--            }--}}
+
+{{--            // Additional validations--}}
+{{--            if (email.length > 254) {--}}
+{{--                errorSpan.text("{{ __('Email address is too long') }}");--}}
+{{--                emailInput.addClass('is-invalid');--}}
+{{--                return false;--}}
+{{--            }--}}
+
+{{--            // Check for consecutive dots--}}
+{{--            if (email.includes('..')) {--}}
+{{--                errorSpan.text("{{ __('Email address cannot contain consecutive dots') }}");--}}
+{{--                emailInput.addClass('is-invalid');--}}
+{{--                return false;--}}
+{{--            }--}}
+
+{{--            // Check if email starts or ends with dot--}}
+{{--            if (email.startsWith('.') || email.endsWith('.')) {--}}
+{{--                errorSpan.text("{{ __('Email address cannot start or end with a dot') }}");--}}
+{{--                emailInput.addClass('is-invalid');--}}
+{{--                return false;--}}
+{{--            }--}}
+
+{{--            // If all validations pass--}}
+{{--           // emailInput.addClass('is-valid');--}}
+{{--            return true;--}}
+{{--        }--}}
+
+{{--        // Email form submission--}}
+{{--        $('#editEmailForm').on('submit', function(e) {--}}
+{{--            e.preventDefault();--}}
+{{--            var newEmail = $('#newEmail').val().trim();--}}
+{{--            var errorSpan = $('#editEmailError');--}}
+{{--            var successDiv = $('#editEmailSuccess');--}}
+
+{{--            errorSpan.text('');--}}
+{{--            successDiv.hide();--}}
+
+{{--            // Check if email is empty--}}
+{{--            if (!newEmail) {--}}
+{{--                errorSpan.text("{{ __('Email address is required') }}");--}}
+{{--                $('#newEmail').addClass('is-invalid').focus();--}}
+{{--                return;--}}
+{{--            }--}}
+
+{{--            // Validate email format--}}
+{{--            if (!validateEmail(newEmail)) {--}}
+{{--                $('#newEmail').focus();--}}
+{{--                return; // Stop submission if email is invalid--}}
+{{--            }--}}
+
+{{--            // Check if the new email is same as current email (optional)--}}
+{{--            var currentEmail = $('#Email').val(); // Assuming current email field exists--}}
+{{--            if (currentEmail && newEmail.toLowerCase() === currentEmail.toLowerCase()) {--}}
+{{--                errorSpan.text("{{ __('New email address must be different from current email') }}");--}}
+{{--                $('#newEmail').addClass('is-invalid').focus();--}}
+{{--                return;--}}
+{{--            }--}}
+
+{{--            // If validation passes, send OTP--}}
+{{--            sendOTP(newEmail, errorSpan, successDiv);--}}
+{{--        });--}}
+
+{{--        // Function to send OTP--}}
+{{--        function sendOTP(newEmail, errorSpan, successDiv) {--}}
+{{--            $.ajax({--}}
+{{--                url: '{{url('my-profile/send-email-otp')}}', // New route for sending OTP--}}
+{{--                type: 'POST',--}}
+{{--                data: {--}}
+{{--                    new_email: newEmail,--}}
+{{--                    _token: '{{ csrf_token() }}'--}}
+{{--                },--}}
+{{--                beforeSend: function() {--}}
+{{--                    $('#editEmailForm button[type="submit"]').prop('disabled', true).text('{{ __("Sending...") }}');--}}
+{{--                    $('#newEmail').prop('disabled', true);--}}
+{{--                },--}}
+{{--                success: function(response) {--}}
+{{--                    pendingEmail = newEmail;--}}
+{{--                    $('#verificationEmail').text(newEmail);--}}
+{{--                    $('#editEmailModal').modal('hide');--}}
+{{--                    $('#otpVerificationModal').modal('show');--}}
+{{--                    startOtpTimer();--}}
+{{--                    resetOtpForm();--}}
+{{--                },--}}
+{{--                error: function(xhr) {--}}
+{{--                    var resp = xhr.responseJSON || {};--}}
+{{--                    var errorMessage = resp.message || "{{ __('Error sending verification code') }}";--}}
+
+{{--                    // Handle specific error types--}}
+{{--                    if (xhr.status === 422) {--}}
+{{--                        // Validation errors--}}
+{{--                        if (resp.errors && resp.errors.new_email) {--}}
+{{--                            errorMessage = resp.errors.new_email[0];--}}
+{{--                        }--}}
+{{--                    } else if (xhr.status === 429) {--}}
+{{--                        // Rate limiting--}}
+{{--                        errorMessage = "{{ __('Too many requests. Please try again later.') }}";--}}
+{{--                    }--}}
+
+{{--                    errorSpan.text(errorMessage);--}}
+{{--                    $('#newEmail').addClass('is-invalid').focus();--}}
+{{--                },--}}
+{{--                complete: function() {--}}
+{{--                    $('#editEmailForm button[type="submit"]').prop('disabled', false).text('{{ __("message.submit") }}');--}}
+{{--                    $('#newEmail').prop('disabled', false);--}}
+{{--                }--}}
+{{--            });--}}
+{{--        }--}}
+
+{{--        // OTP verification form submission--}}
+{{--        $('#otpVerificationForm').on('submit', function(e) {--}}
+{{--            e.preventDefault();--}}
+{{--            var otpCode = $('#otpCode').val();--}}
+{{--            var errorSpan = $('#otpError');--}}
+{{--            var successDiv = $('#otpSuccess');--}}
+
+{{--            errorSpan.text('');--}}
+{{--            successDiv.hide();--}}
+
+{{--            if (!otpCode || otpCode.length !== 6) {--}}
+{{--                errorSpan.text("{{ __('Please enter a valid 6-digit code') }}");--}}
+{{--                return;--}}
+{{--            }--}}
+
+{{--            // Verify OTP and update email--}}
+{{--            $.ajax({--}}
+{{--                url: '{{url('my-profile/verify-email-otp')}}', // New route for verifying OTP--}}
+{{--                type: 'POST',--}}
+{{--                data: {--}}
+{{--                    new_email: pendingEmail,--}}
+{{--                    otp_code: otpCode,--}}
+{{--                    _token: '{{ csrf_token() }}'--}}
+{{--                },--}}
+{{--                beforeSend: function() {--}}
+{{--                    $('#verifyOtpBtn').prop('disabled', true).text('{{ __("Verifying...") }}');--}}
+{{--                },--}}
+{{--                success: function(response) {--}}
+{{--                    clearInterval(otpTimer);--}}
+{{--                    successDiv.html('<i class="fas fa-check-circle"></i> ' + (response.message || "{{ __('Email updated successfully') }}")).show();--}}
+{{--                    $('#Email').val(pendingEmail); // Update the main email field--}}
+
+{{--                    setTimeout(function() {--}}
+{{--                        $('#otpVerificationModal').modal('hide');--}}
+{{--                        location.reload(); // Refresh page to reflect changes--}}
+{{--                    }, 2000);--}}
+{{--                },--}}
+{{--                error: function(xhr) {--}}
+{{--                    var resp = xhr.responseJSON || {};--}}
+{{--                    errorSpan.text(resp.message || "{{ __('Invalid verification code') }}");--}}
+{{--                    $('#verifyOtpBtn').prop('disabled', false).text('{{ __("Verify Email") }}');--}}
+{{--                }--}}
+{{--            });--}}
+{{--        });--}}
+
+{{--        // Resend OTP--}}
+{{--        $('#resendOtpBtn').on('click', function() {--}}
+{{--            $.ajax({--}}
+{{--                url: '{{url('my-profile/send-email-otp')}}',--}}
+{{--                type: 'POST',--}}
+{{--                data: {--}}
+{{--                    new_email: pendingEmail,--}}
+{{--                    _token: '{{ csrf_token() }}'--}}
+{{--                },--}}
+{{--                beforeSend: function() {--}}
+{{--                    $('#resendOtpBtn').prop('disabled', true).text('{{ __("Sending...") }}');--}}
+{{--                },--}}
+{{--                success: function(response) {--}}
+{{--                    timeLeft = 300; // Reset timer--}}
+{{--                    startOtpTimer();--}}
+{{--                    $('#otpError').text('').removeClass('text-danger').addClass('text-success')--}}
+{{--                        .text('{{ __("Verification code sent successfully") }}');--}}
+
+{{--                    setTimeout(function() {--}}
+{{--                        $('#otpError').text('').removeClass('text-success');--}}
+{{--                    }, 3000);--}}
+{{--                },--}}
+{{--                error: function(xhr) {--}}
+{{--                    var resp = xhr.responseJSON || {};--}}
+{{--                    $('#otpError').text(resp.message || "{{ __('Error sending verification code') }}");--}}
+{{--                    $('#resendOtpBtn').prop('disabled', false).text('{{ __("Resend Code") }}');--}}
+{{--                }--}}
+{{--            });--}}
+{{--        });--}}
+
+{{--        // Back to email button--}}
+{{--        $('#backToEmailBtn').on('click', function() {--}}
+{{--            clearInterval(otpTimer);--}}
+{{--            $('#otpVerificationModal').modal('hide');--}}
+{{--            $('#editEmailModal').modal('show');--}}
+{{--        });--}}
+
+{{--        // OTP input formatting--}}
+{{--        $('#otpCode').on('input', function() {--}}
+{{--            this.value = this.value.replace(/[^0-9]/g, '');--}}
+{{--            $('#otpError').text('');--}}
+{{--        });--}}
+
+{{--        // Start OTP timer--}}
+{{--        function startOtpTimer() {--}}
+{{--            timeLeft = 300; // 5 minutes--}}
+{{--            $('#resendOtpBtn').prop('disabled', true);--}}
+
+{{--            otpTimer = setInterval(function() {--}}
+{{--                timeLeft--;--}}
+{{--                var minutes = Math.floor(timeLeft / 60);--}}
+{{--                var seconds = timeLeft % 60;--}}
+
+{{--                $('#otpTimer').text(--}}
+{{--                    (minutes < 10 ? '0' : '') + minutes + ':' +--}}
+{{--                    (seconds < 10 ? '0' : '') + seconds--}}
+{{--                );--}}
+
+{{--                if (timeLeft <= 0) {--}}
+{{--                    clearInterval(otpTimer);--}}
+{{--                    $('#otpTimer').text('00:00');--}}
+{{--                    $('#resendOtpBtn').prop('disabled', false);--}}
+{{--                }--}}
+{{--            }, 1000);--}}
+{{--        }--}}
+
+{{--        // Reset OTP form--}}
+{{--        function resetOtpForm() {--}}
+{{--            $('#otpCode').val('');--}}
+{{--            $('#otpError').text('');--}}
+{{--            $('#otpSuccess').hide();--}}
+{{--            $('#verifyOtpBtn').prop('disabled', false).text('{{ __("Verify Email") }}');--}}
+{{--        }--}}
+
+{{--        // Clear validation when modal is hidden--}}
+{{--        $('#editEmailModal').on('hidden.bs.modal', function() {--}}
+{{--            $('#editEmailError').text('');--}}
+{{--            $('#editEmailSuccess').hide();--}}
+{{--            $('#newEmail').val('').removeClass('is-invalid is-valid');--}}
+{{--        });--}}
+
+{{--        // Clean up timer when modals are closed--}}
+{{--        $('#otpVerificationModal').on('hidden.bs.modal', function() {--}}
+{{--            clearInterval(otpTimer);--}}
+{{--            resetOtpForm();--}}
+{{--        });--}}
+{{--    });--}}
+{{--</script>--}}
 @stop
-
-
