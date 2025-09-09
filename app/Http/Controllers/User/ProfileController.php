@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\User;
 
 use App\Facades\Attach;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Auth\BaseAuthController;
 use App\Http\Requests\User\ProfileRequest;
 use Hash;
 
-class ProfileController extends Controller
+class ProfileController extends BaseAuthController
 {
     public function __construct()
     {

@@ -3,6 +3,8 @@
 namespace Database\Seeders\v4_0_2_4;
 
 use App\Model\Common\ManagerSetting;
+use App\Model\Common\Template;
+use App\Model\Common\TemplateType;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder

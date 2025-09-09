@@ -665,6 +665,16 @@ Route::middleware('installAgora')->group(function () {
     Route::post('sync/pipedrive', [PipedriveController::class, 'mappingFields']);
     Route::get('syncing/pipedriveFields', [PipedriveController::class, 'syncFields']);
     Route::post('pipedrive/get-dropdown', [PipedriveController::class, 'getDropdown']);
+
+    Route::post('emailUpdateEditProfile', [Front\ProfileVerificationController::class, 'sendNewEmailVerification']);
+    Route::post('otpVerifyForNewEmail', [Front\ProfileVerificationController::class, 'verifyOtpForEditEmail']);
+    Route::post('user/change-email', [Front\ProfileVerificationController::class, 'changeEmailOldToNew']);
+    Route::post('check-email/exist', [Front\ProfileVerificationController::class, 'checkEmailExist']);
+    Route::post('newMobileNoVerify', [Front\ProfileVerificationController::class, 'requestOtpForNewMobileNo']);
+    Route::post('mobileNoexist', [Front\ProfileVerificationController::class, 'checkMobileNoExist']);
+    Route::post('verify/newMobileNoOtp', [Front\ProfileVerificationController::class, 'verifyOtpMobileNew']);
+    Route::post('user/change-mobile-no', [Front\ProfileVerificationController::class, 'changeMobileOldToNew']);
+    Route::post('resendOtp/email-mobile', [Front\ProfileVerificationController::class, 'resentOtpProfile']);
 });
 /*
 * Faveo APIs

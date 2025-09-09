@@ -53,7 +53,7 @@ class BaseAuthController extends Controller
         }
     }
 
-    private function makeRequest(string $method, string $url, array $queryParams = []): array
+    protected function makeRequest(string $method, string $url, array $queryParams = [])
     {
         $msgKey = ApiKey::find(1, ['msg91_auth_key', 'msg91_sender', 'msg91_template_id']);
         $client = new Client();
@@ -143,7 +143,7 @@ class BaseAuthController extends Controller
         return $this->responseHandler($response);
     }
 
-    private function responseHandler($response): array
+    protected function responseHandler($response): array
     {
         if ($response['status'] === 200) {
             if ($response['body']['type'] === 'error') {

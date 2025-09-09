@@ -3,18 +3,29 @@
 namespace Tests\Unit\Admin\User;
 
 use App\Model\User\Password;
+use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Mockery;
 use Tests\DBTestCase;
 
 class ProfileControllerTest extends DBTestCase
 {
     use DatabaseTransactions;
 
+    protected $profileController;
+
     public function setUp(): void
     {
         parent::setUp();
         $this->withoutMiddleware();
         $this->getLoggedInUser('admin');
+        $this->profileController = Mockery::mock(\App\Http\Controllers\User\ProfileController::class)->makePartial();
+        $this->app->instance(\App\Http\Controllers\User\ProfileController::class, $this->profileController);
+    }
+
+    protected function createUser(array $attributes = []): User
+    {
+        return User::factory()->create($attributes);
     }
 
     public function testUpdateProfileWithoutAnyErrors()
