@@ -56,6 +56,8 @@ class ResetPasswordController extends Controller
 
                 if ($user && $user->is_2fa_enabled && ! \Session::get('2fa_verified')) {
                     \Session::put('2fa:user:id', $user->id);
+                    \Session::put('verification_user_id', $user->id);
+                    \Session::put('justStarted',true);
                     \Session::put('reset_token', $token);
 
                     return redirect('verify-2fa');

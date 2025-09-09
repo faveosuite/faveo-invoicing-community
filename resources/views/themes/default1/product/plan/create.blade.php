@@ -175,7 +175,7 @@
                 <div class="col-md-6 form-group">
                   <!-- product_quantity -->
                     {!! html()->label( __('message.product_quantity'), 'product_quantity')->class('required') !!}
-                    {!! html()->number('product_quantity')->class('form-control'.($errors->has('product_quantity') ? ' is-invalid' : ''))->id('prodquant')->disabled()->placeholder( __('message.price_products')) !!}
+                    {!! html()->number('product_quantity')->class('form-control only-numbers'.($errors->has('product_quantity') ? ' is-invalid' : ''))->id('prodquant')->disabled()->placeholder( __('message.price_products')) !!}
                     @error('product_quantity')
                     <span class="error-message"> {{$message}}</span>
                     @enderror
@@ -189,7 +189,7 @@
                         </label></i>
 
                     {!! html()->label( __('message.agent'), 'agents')->class('required') !!}
-                    {!! html()->number('no_of_agents')->class('form-control'.($errors->has('no_of_agents') ? ' is-invalid' : ''))->id('agentquant')->disabled()->placeholder( __('message.price_agents')) !!}
+                    {!! html()->number('no_of_agents')->class('form-control only-numbers'.($errors->has('no_of_agents') ? ' is-invalid' : ''))->id('agentquant')->disabled()->placeholder( __('message.price_agents')) !!}
                     @error('no_of_agents')
                     <span class="error-message"> {{$message}}</span>
                     @enderror

@@ -871,7 +871,7 @@
                             $(document).ready(function() {
                                 var orderId = {{$id}};
                                 $.ajax({
-                                    data: {'orderId' : orderId},
+                                    data: {'orderId' : orderId, "_token": "{!! csrf_token() !!}"},
                                     url: '{{url("/api/takeCloudDomain")}}',
                                     method: 'POST',
                                     dataType: 'json',
@@ -1787,7 +1787,7 @@
                 $('.modal-body').css('pointer-events', 'none');
                 var planId = $('select[name="plan"]').val();
                 var user = $('input[name="user"]').val();
-                var agents = {{$latestAgents}};
+                var agents = "{{ $latestAgents }}";
                 var orderId = {!! $id !!};
                 $.ajax({
                     type: "POST",

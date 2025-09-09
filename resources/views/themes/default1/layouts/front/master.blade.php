@@ -153,6 +153,8 @@ foreach($scripts as $script) {
     <script src="//cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
+    @include('mini_views.recaptcha')
+
 
     <style>
 
@@ -943,7 +945,6 @@ foreach ($footerWidgetTypes as $widgetType) {
 <script src="{{asset('client/porto/js-2/view.contact.js')}}"></script>
 
 @extends('mini_views.intl_tel_input')
-@include('mini_views.recaptcha')
 <script type="text/javascript">
 
 var csrfToken = $('meta[name="csrf-token"]').attr('content');
@@ -951,7 +952,7 @@ var csrfToken = $('meta[name="csrf-token"]').attr('content');
 setInterval(refreshToken, 3600000);
 
 function refreshToken(){
-    $.get('refresh-csrf').done(function(data){
+    $.get("{{ url('refresh-csrf') }}").done(function(data){
         csrfToken = data.token;
         $.ajaxSetup({
             headers: {

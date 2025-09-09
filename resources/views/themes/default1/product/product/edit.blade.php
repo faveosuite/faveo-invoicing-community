@@ -1203,68 +1203,128 @@
         });
     </script>
     <script>
-        $(document).ready(function(){
+        $(document).ready(function () {
+            var $fileUpload = $('#file-upload');
+            var $progress = $('#upload-progress');
+            var $progressBar = $('#progress-bar');
+            var $progressText = $('#progress-text');
+            var $fileName = $('#file-name');
+            var $fileSize = $('#file-size');
+            var $fileInfo = $('#file-info');
+            var $fileIds = $('#file_ids');
+            var $removeFile = $('#remove-file');
 
-            var $ = window.$; // use the global jQuery instance
-
-            var $fileUpload = $('#resumable-browse');
-            var $fileUploadDrop = $('#resumable-drop');
-            var $uploadList = $("#file-upload-list");
-
-            if ($fileUpload.length > 0 && $fileUploadDrop.length > 0) {
+            if ($fileUpload.length > 0) {
                 var resumable = new Resumable({
-                    // Use chunk size that is smaller than your maximum limit due a resumable issue
-                    // https://github.com/23/resumable.js/issues/51
-                    chunkSize: 1 * 1024 * 1024, // 1MB
+                    target: $fileUpload.data('url'),
+                    chunkSize: 5 * 1024 * 1024, // 5MB
                     simultaneousUploads: 3,
                     testChunks: false,
-                    throttleProgressCallbacks: 1,
-                    // Get the url from data-url tag
-                    target: $fileUpload.data('url'),
-                    // Append token to the request - required for web routes
-                    query:{_token : $('input[name=_token]').val()}
+                    query: { _token: $('input[name=_token]').val() }
                 });
 
-// Resumable.js isn't supported, fall back on a different method
                 if (!resumable.support) {
-                    $('#resumable-error').show();
+                    console.error('Resumable.js not supported');
                 } else {
-                    // Show a place for dropping/selecting files
-                    $fileUploadDrop.show();
-                    resumable.assignDrop($fileUpload[0]);
-                    resumable.assignBrowse($fileUploadDrop[0]);
+                    resumable.assignBrowse($fileUpload[0]);
 
-                    // Handle file add event
+                    // Clear previous error
+                    function clearError() {
+                        $fileUpload.removeClass('is-invalid');
+                        $fileUpload.next('.invalid-feedback').remove();
+                    }
+
+                    // Reset file UI
+                    function resetFileUI() {
+                        // Hide file info
+                        $fileInfo.addClass('d-none').removeClass('d-flex');
+                        $fileName.text('');
+                        $fileSize.text('');
+                        $fileIds.val('');
+                        // Hide progress
+                        $progress.addClass('d-none');
+                        $progressBar.css('width', '0%').attr('aria-valuenow', 0);
+                        $progressText.text('0%');
+                        // Re-enable file input
+                        $fileUpload.prop('disabled', false);
+                        // Reset file label
+                        $('#file-label').text('Choose file');
+                    }
+
+                    // Remove file button
+                    $removeFile.on('click', function () {
+                        resetFileUI();
+                        resumable.cancel(); // Cancel any ongoing upload
+                    });
+
+                    // File added
                     resumable.on('fileAdded', function (file) {
-                        // Show progress pabr
-                        $uploadList.show();
-                        // Show pause, hide resume
-                        $('.resumable-progress .progress-resume-link').hide();
-                        $('.resumable-progress .progress-pause-link').show();
-                        // Add the file to the list
-                        $uploadList.append('<li class="resumable-file-' + file.uniqueIdentifier + '">{{ __('message.uploading') }}: <span class="resumable-file-name"></span> <span class="resumable-file-progress"></span>');
-                        $('.resumable-file-' + file.uniqueIdentifier + ' .resumable-file-name').html(file.fileName);
-                        // Actually start the upload
+                        // Show progress, hide file info
+                        $progress.removeClass('d-none');
+                        $fileInfo.addClass('d-none').removeClass('d-flex');
+
+                        // Prepare file info (but don't show yet)
+                        $fileName.text(file.fileName);
+                        $fileSize.text((file.size / 1024 / 1024).toFixed(2) + ' MB');
+
+                        clearError();
+                        $progressBar.css('width', '0%').attr('aria-valuenow', 0);
+                        $progressText.text('0%');
+
                         resumable.upload();
                     });
-                    resumable.on('fileSuccess', function (file, message) {
-                        // Reflect that the file upload has completed
-                        $('.resumable-file-' + file.uniqueIdentifier + ' .resumable-file-progress').html(@json(trans('message.completed')));
-                        $("#file_ids").val(JSON.parse(message).name);
-                    });
-                    resumable.on('fileError', function (file, message) {
-                        // Reflect that the file upload has resulted in error
-                        $('.resumable-file-' + file.uniqueIdentifier + ' .resumable-file-progress').html(@json(trans('message.file_not_upload')) + @json(trans('message.file_invalid')) + ')').addClass('error invalid-feedback');
-                    });
+
+                    // File progress
                     resumable.on('fileProgress', function (file) {
-                        // Handle progress for both the file and the overall upload
-                        $('.resumable-file-' + file.uniqueIdentifier + ' .resumable-file-progress').html(Math.floor(file.progress() * 100) + '%');
-                        $('.progress-bar').css({width: Math.floor(resumable.progress() * 100) + '%'});
+                        var progressPercent = Math.floor(file.progress() * 100);
+                        $progressBar.css('width', progressPercent + '%').attr('aria-valuenow', progressPercent);
+                        $progressText.text(progressPercent + '%');
+                        clearError();
+                    });
+
+                    // File success
+                    resumable.on('fileSuccess', function (file, response) {
+                        try {
+                            var data = JSON.parse(response);
+
+                            // Save file id
+                            $fileIds.val(data.name);
+
+                            // Hide progress bar
+                            $progress.addClass('d-none');
+
+                            // Show file info with d-flex for proper alignment
+                            $fileInfo.removeClass('d-none').addClass('d-flex');
+                            $fileName.text(file.fileName);
+                            $fileSize.text((file.size / 1024 / 1024).toFixed(2) + ' MB');
+
+                            // Disable file input (only one file allowed)
+                            $fileUpload.prop('disabled', true);
+
+                            clearError();
+                        } catch (e) {
+                            $progress.addClass('d-none');
+                            $fileInfo.removeClass('d-none').addClass('d-flex');
+                            $fileUpload.prop('disabled', true);
+                        }
+                    });
+
+                    // File error
+                    resumable.on('fileError', function (file, response) {
+                        clearError();
+
+                        // Show error below the file input
+                        var errorMsg = $('<span class="invalid-feedback d-block"></span>')
+                            .text(JSON.parse(response) || 'Upload failed');
+                        $fileUpload.after(errorMsg);
+                        $fileUpload.addClass('is-invalid');
+
+                        // Reset UI
+                        resetFileUI();
                     });
                 }
-
             }
-        })
+        });
 
         //------------------------------------------------------------------------------------------------------------//
 

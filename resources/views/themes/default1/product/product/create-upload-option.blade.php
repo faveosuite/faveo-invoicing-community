@@ -50,19 +50,46 @@
                         <h6 id= "vercheck"></h6>
                     </div>
 
-
-
-                    <div class="form-group col-md-6{{ $errors->has('version') ? 'has-error' : '' }}">
-                        <!-- name -->
-                        {!! html()->label(__('message.file'))->for('File')->class('required') !!}
-                        <div id="resumable-drop" style="display: none">
-                            <p><button id="resumable-browse" data-url="{{ url('chunkupload') }}" >{{ __('message.upload') }}</button> {{ __('message.or_drop_here') }}
-                            </p>
+                    <div class="form-group col-md-6{{ $errors->has('file') ? 'has-error' : '' }}">
+                        <label for="file" class="required">File Upload</label>
+                        <div class="custom-file">
+                            <input type="file" id="file-upload" class="custom-file-input cursor-pointer"
+                                   data-url="{{ url('chunkupload') }}"
+                                   role="button" accept=".zip,.rar,.tar,.gz,.7z">
+                            <label class="custom-file-label" for="file-upload" id="file-label">Choose file</label>
                         </div>
-                        <ul id="file-upload-list" class="list-unstyled"  style="display: none">
 
-                        </ul>
+                        <!-- Progress Bar -->
+                        <div class="progress mt-3 d-none" id="upload-progress">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                                 style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="progress-bar">
+                                <span id="progress-text">0%</span>
+                            </div>
+                        </div>
 
+                        <!-- File info - PROPERLY HIDDEN BY DEFAULT -->
+                        <div id="file-info" class="d-none align-items-center p-2 mt-2 border rounded bg-light w-100">
+                            <!-- File icon -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                                 class="bi bi-file-earmark-text mr-2 text-secondary" viewBox="0 0 16 16">
+                                <path d="M5.5 7a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1zM5 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5"/>
+                                <path d="M9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.5zm0 1v2A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
+                            </svg>
+
+                            <!-- File name and size -->
+                            <div class="flex-grow-1 text-truncate">
+                                <div id="file-name" class="font-weight-bold text-dark text-truncate"></div>
+                                <div id="file-size" class="text-muted small"></div>
+                            </div>
+
+                            <!-- Remove button -->
+                            <button type="button" id="remove-file" class="close ml-2" aria-label="Remove file">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+
+                        <!-- Hidden input for file IDs -->
+                        <input type="hidden" id="file_ids" name="file_ids" value="">
                     </div>
                 </div>
 
@@ -118,17 +145,11 @@
 
 <script>
     function getStates(val) {
-
-
         $.ajax({
             type: "GET",
             url: "{{url('get-state')}}/" + val,
             success: function (data) {
-                // console.log(data)
-
-
                 $("#states").html(data);
-
             }
         });
     }

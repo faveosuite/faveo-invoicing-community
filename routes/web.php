@@ -145,7 +145,7 @@ Route::middleware('installAgora')->group(function () {
     Route::post('/2fa/enable', [Google2FAController::class, 'enableTwoFactor']);
     Route::post('2fa/disable/{userId?}', [Google2FAController::class, 'disableTwoFactor']);
 
-    Route::middleware(['blockFailedVerifications:2fa', 'session.timeout:5,2fa'])->group(function () {
+    Route::middleware(['blockFailedVerifications:2fa', 'session.timeout:10,2fa'])->group(function () {
         Route::get('2fa/session-check', [Google2FAController::class, 'verifySession'])->name('2fa.session.check');
         Route::get('recovery-code', [Google2FAController::class, 'showRecoveryCode']);
         Route::get('verify-2fa', [Google2FAController::class, 'verify2fa']);
@@ -633,7 +633,7 @@ Route::middleware('installAgora')->group(function () {
     Route::post('login', [Auth\LoginController::class, 'login'])->name('login')->middleware(['blockFailedVerifications:login']);
     // Route::post('login', [Auth\LoginController::class, 'login'])->name('login');
 
-    Route::middleware(['blockFailedVerifications:verify', 'session.timeout:5,verify'])->group(function () {
+    Route::middleware(['blockFailedVerifications:verify', 'session.timeout:10,verify'])->group(function () {
         Route::get('verify/session-check', [Auth\AuthController::class, 'verifySession'])->name('verify.session.check');
         Route::post('otp/send', [Auth\AuthController::class, 'requestOtp']);
         Route::post('otp/sendByAjax', [Auth\AuthController::class, 'requestOtpFromAjax']);

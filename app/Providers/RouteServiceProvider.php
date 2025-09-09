@@ -85,7 +85,7 @@ class RouteServiceProvider extends ServiceProvider
 
         // Web Rate Limiting
         RateLimiter::for('web', function (Request $request) {
-            $maxAttempts = 60;
+            $maxAttempts = 600;
             $limits = [];
 
             $customResponse = function ($request) {

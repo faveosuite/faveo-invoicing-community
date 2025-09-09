@@ -98,7 +98,6 @@ main
                 </div>
             </div>
         </div>
-{{--     @extends('mini_views.recaptcha')--}}
     <script>
         let reset_recaptcha_id;
 
