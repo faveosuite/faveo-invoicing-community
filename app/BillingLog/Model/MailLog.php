@@ -84,5 +84,4 @@ class MailLog extends BaseModel
     {
         return $value ? Crypt::decrypt($value) : null;
     }
-
 }

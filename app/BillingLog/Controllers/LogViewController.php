@@ -3,7 +3,6 @@
 namespace App\BillingLog\Controllers;
 
 use App\BillingLog\Model\CronLog;
-use App\BillingLog\Model\ExceptionLog;
 use App\BillingLog\Model\LogCategory;
 use DataTables;
 use Illuminate\Http\Request;
@@ -34,7 +33,6 @@ class LogViewController
             'date' => 'required|date',
             'category' => 'required|exists:log_categories,id',
         ]);
-
 
         $date = $request->input('date');
         $logCategoryId = $request->input('category');
