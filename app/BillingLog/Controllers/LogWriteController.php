@@ -89,7 +89,7 @@ class LogWriteController
         try {
             $logCategory = LogCategory::firstOrCreate(['name' => $category]);
 
-            return $logCategory->exception()->create([
+            return $logCategory->exceptions()->create([
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
@@ -137,7 +137,7 @@ class LogWriteController
                 'status' => 'queued',
             ]);
         } catch (Throwable $e) {
-            $this->exception($e, 'mail-send');
+            $this->exception($e, 'mail-send-exception');
 
             return null;
         }

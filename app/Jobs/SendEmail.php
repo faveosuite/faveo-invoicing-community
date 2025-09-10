@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\BillingLog\Model\MailLog;
 use App\Http\Controllers\Common\PhpMailController;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -81,7 +82,12 @@ class SendEmail implements ShouldQueue
      */
     public function handle(PhpMailController $phpMailController)
     {
-        $p = $phpMailController->mailing(
+        if (MailLog::whereId($this->logIdentifier)->value('status') == 'sent') {
+            $this->job->delete();
+            return;
+        }
+
+        return $phpMailController->mailing(
             $this->from,
             $this->to,
             $this->template_data,
@@ -96,7 +102,5 @@ class SendEmail implements ShouldQueue
             $this->logIdentifier,
             $this->auto_reply
         );
-
-        return $p;
     }
 }

@@ -3,6 +3,7 @@
 namespace App\BillingLog\Model;
 
 use App\BaseModel;
+use Crypt;
 
 class MailLog extends BaseModel
 {
@@ -21,9 +22,9 @@ class MailLog extends BaseModel
         'sender_mail',
 
         /**
-         * The person who recieves the mail.
+         * The person who receives the mail.
          */
-        'reciever_mail',
+        'receiver_mail',
 
         /**
          * Subject of the mail.
@@ -64,17 +65,9 @@ class MailLog extends BaseModel
 
     protected $htmlAble = ['body'];
 
-    /**
-     * Will morph to ticket table, user table.
-     */
-    public function reference()
+    public function exception()
     {
-        return $this->morphTo();
-    }
-
-    public function getIsRetryAttribute()
-    {
-        return in_array($this->status, ['failed', 'queued']) && (bool) $this->job_payload;
+        return $this->belongsTo(ExceptionLog::class, 'exception_log_id');
     }
 
     public function category()
@@ -82,35 +75,14 @@ class MailLog extends BaseModel
         return $this->belongsTo(LogCategory::class, 'log_category_id');
     }
 
-    public function getSubjectAttribute($value)
+    public function getIsRetryAttribute()
     {
-        // in case of empty subject, it should show (no subject)
-        if (! $value) {
-            return '(no subject)';
-        }
-
-        return $value;
+        return in_array($this->status, ['failed', 'queued']) && (bool) $this->job_payload;
     }
 
-    public function getCollaboratorsAttribute($value)
+    public function getJobPayloadAttribute($value)
     {
-        if (! $value) {
-            return [];
-        }
-
-        return json_decode($value);
+        return $value ? Crypt::decrypt($value) : null;
     }
 
-    public function setCollaboratorsAttribute($value)
-    {
-        if (! is_array($value)) {
-            $value = [];
-        }
-        $this->attributes['collaborators'] = json_encode($value);
-    }
-
-    public function exception()
-    {
-        return $this->belongsTo(ExceptionLog::class, 'exception_log_id');
-    }
 }

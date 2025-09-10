@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('cron_logs', function (Blueprint $table) {
             $table->id();
             $table->string('command', 255)->index();
-            $table->timestamp('end_time')->default('0000-00-00 00:00:00');
             $table->string('description', 255);
             $table->timestamp('created_at')->nullable()->index();
             $table->timestamp('updated_at')->nullable()->index();
