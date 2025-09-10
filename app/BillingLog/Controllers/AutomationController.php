@@ -31,10 +31,10 @@ class AutomationController extends Job implements \Illuminate\Contracts\Queue\Jo
                 return successResponse('', $this->getCronCommands($date));
 
             case 'mail':
-                return successResponse('',$this->getMailCategoryLog($date));
+                return successResponse('', $this->getMailCategoryLog($date));
 
             case 'exception':
-                return successResponse('',$this->getExceptionCategoryLog($date));
+                return successResponse('', $this->getExceptionCategoryLog($date));
         }
     }
 
@@ -53,7 +53,7 @@ class AutomationController extends Job implements \Illuminate\Contracts\Queue\Jo
             ->map(function ($logs, $command) {
                 return array_merge([
                     'command' => $command,
-                    'name'    => trans('log::lang.' . $command),
+                    'name' => trans('log::lang.'.$command),
                 ], $logs->pluck('status_count', 'status')->toArray());
             })->values();
     }
@@ -69,8 +69,8 @@ class AutomationController extends Job implements \Illuminate\Contracts\Queue\Jo
             ->groupBy('log_category_id')
             ->map(function ($logs, $categoryId) use ($categoryNames) {
                 return array_merge([
-                    'id'   => $categoryId,
-                    'name' => trans('log::lang.' . ($categoryNames[$categoryId] ?? '')),
+                    'id' => $categoryId,
+                    'name' => trans('log::lang.'.($categoryNames[$categoryId] ?? '')),
                 ], $logs->pluck('status_count', 'status')->toArray());
             })->values();
     }
@@ -85,8 +85,8 @@ class AutomationController extends Job implements \Illuminate\Contracts\Queue\Jo
             ->get()
             ->map(function ($log) use ($categoryNames) {
                 return [
-                    'id'   => $log->log_category_id,
-                    'name' => trans('log::lang.' . ($categoryNames[$log->log_category_id] ?? '')),
+                    'id' => $log->log_category_id,
+                    'name' => trans('log::lang.'.($categoryNames[$log->log_category_id] ?? '')),
                     'count' => $log->count,
                 ];
             });
@@ -97,7 +97,7 @@ class AutomationController extends Job implements \Illuminate\Contracts\Queue\Jo
         try {
             $mailLog = MailLog::findOrFail($id);
 
-            $this->rawBody   = $mailLog->job_payload;
+            $this->rawBody = $mailLog->job_payload;
 
             $this->container = Container::getInstance();
 

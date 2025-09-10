@@ -84,6 +84,7 @@ class SendEmail implements ShouldQueue
     {
         if (MailLog::whereId($this->logIdentifier)->value('status') == 'sent') {
             $this->job->delete();
+
             return;
         }
 
