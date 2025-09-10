@@ -32,12 +32,12 @@ trait DuskHelper
                 'msg91_template_id' => '',
             ],
             'v3_recaptcha' => [
-                'nocaptcha_sitekey' => '6LfD3PIbAAAAAJs_eEHvoOl75_83eXSqpPSRFJ_u',
-                'captcha_secretCheck' => '6LfD3PIbAAAAAMJ_eEHvoOl75_83eXSqpPSRFJ_u',
+                'nocaptcha_sitekey' => '6LdONMQrAAAAAKAeqmjGvAF_kxiSg8YVMa3654n-',
+                'captcha_secretCheck' => '6LdONMQrAAAAAIwxSNB3QTOiucVoqMadzIzjcWBv',
             ],
             'v2_recaptcha' => [
-                'nocaptcha_sitekey' => '6LeIxAcTAAAAABcjmKEv_vWzMchlkSZf9_P6f4MT',
-                'captcha_secretCheck' => '6LeIxAcTAAAAALo_r5Qy_8_syKq-0eD5t7_g9T3T',
+                'nocaptcha_sitekey' => '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI',
+                'captcha_secretCheck' => '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe',
             ],
         ];
     }
