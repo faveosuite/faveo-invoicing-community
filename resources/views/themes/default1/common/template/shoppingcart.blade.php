@@ -27,6 +27,11 @@ main
         overflow: visible; /* make sure the tooltip can show outside */
     }
 
+    .tooltip-text-hover {
+        text-decoration: underline dotted #aaa;
+    }
+
+
     .tooltip-text-hover .tooltip-text {
         visibility: hidden;
         opacity: 0;
@@ -170,8 +175,13 @@ main
         }
        .plan-features ul {
     list-style-type: none;
-    padding: 20px !important;
+           padding-top:50px !important;
 }
+
+       .plan-price{
+           margin-bottom: 1px !important;
+           padding-bottom: 1px !important;
+       }
 
 .plan-features li {
     position: relative;
