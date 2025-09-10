@@ -197,7 +197,6 @@ class PageController extends Controller
 
     public function generate(Request $request)
     {
-        // dd($request->all());
         if ($request->has('slug')) {
             $slug = $request->input('slug');
 
@@ -343,7 +342,6 @@ class PageController extends Controller
 
             return $cost;
         } catch (\Exception $ex) {
-            dd($ex->getMessage());
             return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
@@ -778,9 +776,6 @@ class PageController extends Controller
             $cost[] = 'Free';
             $plans = Plan::where('product', $id)->get();
             $product = Product::find($id);
-            $offer = $this->getOfferprice($id);
-
-            $planId = Plan::where('product', $id)->pluck('id')->first();
             $prices = [];
 
             foreach ($plans as $plan) {
