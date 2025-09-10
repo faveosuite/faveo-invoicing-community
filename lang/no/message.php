@@ -2708,4 +2708,5 @@ return [
     'manager_settings_updated_successfully' => 'Lederinnstillingene ble oppdatert vellykket.',
 
     'user_position_prohibited_if' => 'Feltet for stilling er ikke tillatt når rollen er bruker.',
+    'period_is_required' => 'Vennligst velg en periode.',
 ];

@@ -2663,4 +2663,5 @@ return [
     'manager_settings_updated_successfully' => '管理員設定已成功更新。',
 
     'user_position_prohibited_if' => '當角色為使用者時，不允許填寫職位欄位。',
+    'period_is_required' => '請選擇一個週期。',
 ];

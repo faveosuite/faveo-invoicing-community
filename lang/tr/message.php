@@ -2715,4 +2715,5 @@ return [
     'manager_settings_updated_successfully' => 'Yönetici ayarları başarıyla güncellendi.',
 
     'user_position_prohibited_if' => 'Rol kullanıcı olduğunda pozisyon alanına izin verilmez.',
+    'period_is_required' => 'Lütfen bir dönem seçin.',
 ];

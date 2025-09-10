@@ -2539,4 +2539,5 @@ return [
     'manager_settings_updated_successfully' => 'تم تحديث إعدادات المدير بنجاح.',
 
     'user_position_prohibited_if' => 'حقل الوظيفة غير مسموح به عندما تكون القيمة للدور هي مستخدم.',
+    'period_is_required' => 'يرجى تحديد الفترة.',
 ];

@@ -2631,4 +2631,5 @@ return [
     'manager_settings_updated_successfully' => 'Postavke menadžera su uspješno ažurirane.',
 
     'user_position_prohibited_if' => 'Polje pozicija nije dozvoljeno kada je uloga korisnik.',
+    'period_is_required' => 'Molimo odaberite period.',
 ];

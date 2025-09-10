@@ -2679,4 +2679,10 @@ return [
     'order_no_active_plan_cancelled' => 'Perpanjangan otomatis dibatalkan karena tidak ditemukan paket aktif untuk pesanan #:order_number.',
     'no_matching_plans' => 'Tidak ada paket yang cocok dengan pilihan Anda.',
     'order_no_active_plan' => 'Tidak ada paket aktif yang terkait dengan pesanan ini.',
+    'status.required' => 'Silakan tentukan statusnya.',
+    'status.boolean' => 'Status harus true (diaktifkan) atau false (dinonaktifkan).',
+    'manager_settings_updated_successfully' => 'Pengaturan manajer berhasil diperbarui.',
+    'user_position_prohibited_if' => 'Bidang posisi tidak diizinkan ketika peran adalah pengguna.',
+    'period_is_required' => 'Silakan pilih periode.',
 ];
+

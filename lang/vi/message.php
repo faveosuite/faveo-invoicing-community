@@ -2703,4 +2703,5 @@ return [
     'manager_settings_updated_successfully' => 'Cài đặt quản lý đã được cập nhật thành công.',
 
     'user_position_prohibited_if' => 'Trường chức vụ không được phép khi vai trò là người dùng.',
+    'period_is_required' => 'Vui lòng chọn một khoảng thời gian.',
 ];

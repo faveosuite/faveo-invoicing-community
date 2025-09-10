@@ -2704,4 +2704,5 @@ return [
     'manager_settings_updated_successfully' => 'Manager settings were successfully updated.',
 
     'user_position_prohibited_if' => 'The position field is not allowed when the role is set to user.',
+    'period_is_required' => 'Please select a period.',
 ];

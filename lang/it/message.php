@@ -2697,4 +2697,6 @@ return [
     'manager_settings_updated_successfully' => 'Le impostazioni del manager sono state aggiornate con successo.',
 
     'user_position_prohibited_if' => 'Il campo posizione non è consentito quando il ruolo è utente.',
+    'period_is_required' => 'Seleziona un periodo.',
 ];
+

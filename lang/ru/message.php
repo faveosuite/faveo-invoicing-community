@@ -2705,4 +2705,6 @@ return [
     'manager_settings_updated_successfully' => 'Настройки менеджера успешно обновлены.',
 
     'user_position_prohibited_if' => 'Поле должности недопустимо, если роль — пользователь.',
+    'period_is_required' => 'Пожалуйста, выберите период.',
 ];
+

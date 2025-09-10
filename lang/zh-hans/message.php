@@ -2697,4 +2697,6 @@ return [
     'manager_settings_updated_successfully' => '管理员设置已成功更新。',
 
     'user_position_prohibited_if' => '当角色为用户时，不允许填写职位字段。',
+    'period_is_required' => '请选择一个周期。',
 ];
+
