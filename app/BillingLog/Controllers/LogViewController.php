@@ -2,16 +2,18 @@
 
 namespace App\BillingLog\Controllers;
 
+use App\BillingLog\Model\CronLog;
 use App\BillingLog\Model\ExceptionLog;
 use App\BillingLog\Model\LogCategory;
 use DataTables;
 use Illuminate\Http\Request;
+use Illuminate\Support\HtmlString;
 
 class LogViewController
 {
     public function getSystemLogs()
     {
-        return view('log::system-log');
+        return view('log::index');
     }
 
     public function getLogs($type, Request $request)
@@ -19,8 +21,10 @@ class LogViewController
         switch($type) {
             case 'exception':
                 return $this->getExceptionLogs($request);
-            default:
-                return successResponse('');
+            case 'cron':
+                return $this->getCronLogs($request);
+            case 'mail':
+                return $this->getMailLogs($request);
         }
     }
 
@@ -28,42 +32,68 @@ class LogViewController
     {
         $request->validate([
             'date' => 'required|date',
+            'category' => 'required|exists:log_categories,id',
         ]);
 
-        $date = $request->input('date');
 
-        $query = ExceptionLog::whereDate('created_at', $date)->with('category');
+        $date = $request->input('date');
+        $logCategoryId = $request->input('category');
+
+        $query = LogCategory::find($logCategoryId)
+            ->exceptions()
+            ->whereDate('created_at', $date);
 
         return DataTables::of($query)
             ->editColumn('created_at', function ($row) {
-                return $row->created_at->format('Y-m-d H:i:s');
+                return new HtmlString(getDateHtml($row->created_at));
             })
             ->make(true);
     }
 
-    public function getLogCategoryList(Request $request)
+    public function getCronLogs(Request $request)
     {
         $request->validate([
             'date' => 'required|date',
+            'status' => 'in:completed,failed',
         ]);
 
         $date = $request->input('date');
+        $status = $request->input('status');
 
-        $categories = LogCategory::whereHas('exceptions', function ($query) use ($date) {
-            $query->whereDate('created_at', $date);
-        })
-            ->withCount(['exceptions' => function ($query) use ($date) {
-                $query->whereDate('created_at', $date);
-            }])
-            ->get()
-            ->map(function ($category) {
-                return [
-                    'id' => $category->id,
-                    'name' => \Str::ucfirst($category->name),
-                    'exceptionCount' => $category->exceptions_count,
-                ];
-            });
+        $query = CronLog::whereDate('created_at', $date)
+            ->where('status', $status);
 
-        return successResponse('', $categories);
+        return DataTables::of($query)
+            ->editColumn('created_at', function ($row) {
+                return new HtmlString(getDateHtml($row->created_at));
+            })
+            ->make(true);
+    }
+
+    public function getMailLogs(Request $request)
+    {
+        $request->validate([
+            'date' => 'required|date',
+            'category' => 'required|exists:log_categories,id',
+            'status' => 'in:sent,failed,queued',
+        ]);
+
+        $date = $request->input('date');
+        $logCategoryId = $request->input('category');
+        $status = $request->input('status');
+
+        $query = LogCategory::find($logCategoryId)
+            ->mail()
+            ->where('status', $status)
+            ->whereDate('created_at', $date);
+
+        return DataTables::of($query)
+            ->editColumn('created_at', function ($row) {
+                return new HtmlString(getDateHtml($row->created_at));
+            })
+            ->editColumn('updated_at', function ($row) {
+                return new HtmlString(getDateHtml($row->updated_at));
+            })
+            ->make(true);
     }
 }

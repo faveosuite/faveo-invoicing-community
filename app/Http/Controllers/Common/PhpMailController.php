@@ -15,6 +15,7 @@ use App\Model\Product\Subscription;
 use App\Payment_log;
 use App\Traits\QueueTrait;
 use Carbon\Carbon;
+use Crypt;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 
@@ -48,10 +49,10 @@ class PhpMailController extends Controller
         array $attach = [],
         bool $autoReply = false
     ): void {
-        $logIdentifier = \Logger::logMailByCategory($from, $to, $cc, $bcc, $template_name, $template_data, $categoryName);
+        $logIdentifier = \Logger::logMailByCategory($from, $to, $cc, $bcc, $template_name, $this->transformEmailData($template_data, $replace, $type), $categoryName);
         $this->setQueue();
-        $job = new \App\Jobs\SendEmail($from, $to, $template_data, $template_name, $replace, $type, $bcc, $fromname, $toname, $cc, $attach, $logIdentifier, $autoReply);
-        $logIdentifier->update(['job_payload' => (new QueueTrait())->getPayloadData($job)]);
+        $job = new \App\Jobs\SendEmail($from, $to, $template_data, $template_name, $replace, $type, $bcc, $fromname, $toname, $cc, $attach, $logIdentifier->id, $autoReply);
+        $logIdentifier->update(['job_payload' => Crypt::encrypt((new QueueTrait())->getPayloadData($job))]);
         dispatch($job);
     }
 
