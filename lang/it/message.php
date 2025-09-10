@@ -2699,4 +2699,3 @@ return [
     'user_position_prohibited_if' => 'Il campo posizione non è consentito quando il ruolo è utente.',
     'period_is_required' => 'Seleziona un periodo.',
 ];
-

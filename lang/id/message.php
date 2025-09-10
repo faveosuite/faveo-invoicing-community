@@ -2685,4 +2685,3 @@ return [
     'user_position_prohibited_if' => 'Bidang posisi tidak diizinkan ketika peran adalah pengguna.',
     'period_is_required' => 'Silakan pilih periode.',
 ];
-
