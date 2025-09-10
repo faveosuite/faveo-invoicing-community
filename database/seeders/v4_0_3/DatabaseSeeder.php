@@ -21,67 +21,83 @@ class DatabaseSeeder extends Seeder
 
     public function countrySeeder(): void
     {
-        $currencies = require database_path('seeders/v4_0_3/currencies.php');
-        $countries = require database_path('seeders/v4_0_3/countries.php');
-        $states = require database_path('seeders/v4_0_3/states.php');
+        $currencies = collect(require database_path('seeders/v4_0_3/currencies.php'));
+        $countries = collect(require database_path('seeders/v4_0_3/countries.php'));
+        $states = collect(require database_path('seeders/v4_0_3/states.php'));
 
+        // Disable foreign key checks
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
+        // Truncate tables
         State::truncate();
         Country::truncate();
         Currency::truncate();
 
+        // Enable foreign key checks
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        foreach ($currencies as $currency) {
-            Currency::create([
-                'id' => $currency['id'],
-                'code' => $currency['code'],
-                'name' => $currency['name'],
-                'symbol' => $currency['symbol'],
-                'dashboard_currency' => $currency['code'] === 'USD' ? 1 : 0,
-                'status' => $currency['code'] === 'USD' ? 1 : 0,
+        // Chunked bulk inserts for currencies
+        $currencies->chunk(500)->each(function($chunk){
+            DB::table('currencies')->insert(
+                $chunk->map(function($c){
+                    return [
+                        'id' => $c['id'],
+                        'code' => $c['code'],
+                        'name' => $c['name'],
+                        'symbol' => $c['symbol'],
+                        'dashboard_currency' => $c['code'] === 'USD' ? 1 : 0,
+                        'status' => $c['code'] === 'USD' ? 1 : 0,
+                    ];
+                })->toArray()
+            );
+        });
+
+        // Chunked bulk inserts for countries
+        $countries->chunk(500)->each(function($chunk){
+            DB::table('countries')->insert(
+                $chunk->map(function($c){
+                    return [
+                        'country_id' => $c['country_id'],
+                        'country_code_char2' => $c['country_code_char2'],
+                        'country_code_char3' => $c['country_code_char3'],
+                        'country_name' => $c['country_name'],
+                        'numcode' => $c['numcode'],
+                        'phonecode' => $c['phonecode'],
+                        'capital' => $c['capital'],
+                        'latitude' => $c['latitude'],
+                        'longitude' => $c['longitude'],
+                        'emoji' => $c['emoji'],
+                        'emojiU' => $c['emojiU'],
+                        'currency_id' => $c['currency_id'],
+                        'status' => $c['country_code_char2'] === 'AQ' ? 0 : 1,
+                    ];
+                })->toArray()
+            );
+        });
+
+        // Chunked bulk inserts for states
+        $states->chunk(500)->each(function($chunk){
+            DB::table('states_subdivisions')->insert(
+                $chunk->map(function($s){
+                    return [
+                        'state_subdivision_id' => $s['state_subdivision_id'],
+                        'state_subdivision_name' => $s['state_subdivision_name'],
+                        'country_code' => $s['country_code'],
+                        'iso2' => $s['iso2'],
+                        'primary_level_name' => $s['primary_level_name'],
+                        'latitude' => $s['latitude'],
+                        'longitude' => $s['longitude'],
+                        'country_id' => $s['country_id'],
+                    ];
+                })->toArray()
+            );
+        });
+
+        // Update users in a single query
+        DB::table('users')
+            ->whereNotNull('state')
+            ->update([
+                'state' => DB::raw("SUBSTRING_INDEX(state, '-', -1)")
             ]);
-        }
-
-        foreach ($countries as $country) {
-            Country::create([
-                'country_id' => $country['country_id'],
-                'country_code_char2' => $country['country_code_char2'],
-                'country_code_char3' => $country['country_code_char3'],
-                'country_name' => $country['country_name'],
-                'numcode' => $country['numcode'],
-                'phonecode' => $country['phonecode'],
-                'capital' => $country['capital'],
-                'latitude' => $country['latitude'],
-                'longitude' => $country['longitude'],
-                'emoji' => $country['emoji'],
-                'emojiU' => $country['emojiU'],
-                'currency_id' => $country['currency_id'],
-                'status' =>  $country['country_code_char2'] === 'AQ' ? 0 : 1, // Antarctica is not active by default
-            ]);
-        }
-
-        foreach ($states as $state) {
-            State::create([
-                'state_subdivision_id' => $state['state_subdivision_id'],
-                'state_subdivision_name' => $state['state_subdivision_name'],
-                'country_code' => $state['country_code'],
-                'iso2' => $state['iso2'],
-                'primary_level_name' => $state['primary_level_name'],
-                'latitude' => $state['latitude'],
-                'longitude' => $state['longitude'],
-                'country_id' => $state['country_id'],
-            ]);
-        }
-
-        $users = User::all();
-
-        foreach ($users as $user) {
-            $parts = explode('-', $user->state ?? '');
-            $user->state = $parts[1] ?? null;
-            $user->save();
-        }
-
     }
 }

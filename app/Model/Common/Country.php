@@ -13,6 +13,7 @@ class Country extends BaseModel
 
     protected $fillable = [
         'country_id', 'country_code_char2', 'country_code_char3', 'country_name', 'numcode', 'capital', 'phonecode', 'latitude', 'longitude', 'emoji', 'emojiU', 'currency_id',
+        'status',
     ];
 
     protected static function booted(): void

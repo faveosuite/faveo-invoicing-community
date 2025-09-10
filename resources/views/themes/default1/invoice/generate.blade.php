@@ -310,9 +310,16 @@
     });
 
     function getPrice(val) {
+        // If user selects "Choose" (empty option), reset fields and exit
+        if (!val) {
+            $("#price").val('');
+            $("#qty").empty();
+            $("#agents").empty();
+            $("#fields").empty();
+            return;
+        }
+
         var user = $('#users').val()?.[0]; // Get first selected user ID
-
-
         var plan = "";
         var product = "";
         if ($('#plan').length > 0) {

@@ -24,7 +24,7 @@
     use App\Http\Controllers\Front\CartController;
     $country = findCountryByGeoip($location['iso_code']);
     $states = findStateByRegionId($location['iso_code']);
-    $state = getStateByCode($country, $states);
+    $state = getStateByCode($country,  $location['state']);
 
 
     ?>
@@ -876,7 +876,7 @@ foreach($scripts as $script) {
 
         function getCountryAttr(val) {
             if (val != "") {
-                getState(val);
+                // getState(val);
                 getCode(val);
             } else {
                 $("#state-list").html('<option value="">{{ __('message.error_select_country')}}</option>').val('');
@@ -886,20 +886,20 @@ foreach($scripts as $script) {
 
         }
 
-        function getState(val) {
-            $.ajax({
-                type: "GET",
-                url: "{{url('get-loginstate')}}/" + val,
-                data: {'country_id': val, '_token': "{{csrf_token()}}"},//'country_id=' + val,
-                success: function (data) {
+        {{--function getState(val) {--}}
+        {{--    $.ajax({--}}
+        {{--        type: "GET",--}}
+        {{--        url: "{{url('get-loginstate')}}/" + val,--}}
+        {{--        data: {'country_id': val, '_token': "{{csrf_token()}}"},//'country_id=' + val,--}}
+        {{--        success: function (data) {--}}
 
-                    $("#state-list").html('<option value="">{{ __('message.error_select_country')}}</option>').val('');
+        {{--            $("#state-list").html('<option value="">{{ __('message.error_select_country')}}</option>').val('');--}}
 
 
-                    $("#state-list").html(data).val(state.id);
-                }
-            });
-        }
+        {{--            $("#state-list").html(data).val(state.id);--}}
+        {{--        }--}}
+        {{--    });--}}
+        {{--}--}}
 
 
         function getCode(val) {

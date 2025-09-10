@@ -294,6 +294,13 @@
           }
         });
 
+          // Conditional required field: period/days
+          const $days = $('#plandays');
+          if ($days.is(':visible') && !$days.val()) {
+              showError($days, @json(trans('message.period_is_required')));
+              isValid = false;
+          }
+
         const $agent = $('#agentquant');
         const $prod = $('#prodquant');
         if (!$agent.prop('disabled') && !$agent.val()) {

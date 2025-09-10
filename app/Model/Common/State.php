@@ -14,5 +14,7 @@ class State extends BaseModel
         'state_subdivision_id', 'state_subdivision_name',
         'country_code', 'iso2',
         'primary_level_name', 'country_id',
+        'latitude',
+        'longitude',
     ];
 }

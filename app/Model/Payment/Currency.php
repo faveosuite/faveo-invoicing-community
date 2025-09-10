@@ -13,7 +13,7 @@ class Currency extends BaseModel
 
     protected $table = 'currencies';
 
-    protected $fillable = ['code', 'symbol', 'name', 'status'];
+    protected $fillable = ['code', 'symbol', 'name', 'status', 'id', 'dashboard_currency'];
 
     protected static $logName = 'Currency';
 

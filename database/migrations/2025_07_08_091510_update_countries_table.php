@@ -37,6 +37,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('states_subdivisions', function (Blueprint $table) {
+            $table->dropForeign(['country_id']);
+        });
+
         Schema::dropIfExists('countries');
     }
 };

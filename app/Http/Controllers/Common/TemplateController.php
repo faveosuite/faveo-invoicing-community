@@ -214,17 +214,25 @@ class TemplateController extends Controller
             if (empty($plansData)) {
                 return '';
             }
-            $priceList = $this->getPriceList($id);
+
+            $list = $this->getPriceList($id);
+
+            $priceList = $list['prices'];
+
+            $cheapestPlanId = $list['cheapestPlanId'];
+
             $planOptions = '';
 
             foreach ($priceList as $planId => $planPrice) {
                 $description = $plansData[$planId]['description'] ?? '';
                 $price = $plansData[$planId]['price'] ?? '';
+                $selected = $planId == $cheapestPlanId ? 'selected' : '';
                 $planOptions .= sprintf(
-                    '<option value="%s" data-price="%s" data-description="%s">%s</option>',
+                    '<option value="%s" data-price="%s" data-description="%s" %s>%s</option>',
                     htmlspecialchars($planId),
                     htmlspecialchars($planPrice),
                     htmlspecialchars($description),
+                    $selected,
                     htmlspecialchars($price)
                 );
             }
@@ -369,6 +377,8 @@ class TemplateController extends Controller
         try {
             $plans = Plan::where('product', $id)->orderBy('id', 'desc')->get();
             $prices = [];
+            $cheapestPlanId = null;
+            $minPrice = PHP_INT_MAX;
 
             foreach ($plans as $plan) {
                 $planDetails = userCurrencyAndPrice('', $plan);
@@ -378,19 +388,31 @@ class TemplateController extends Controller
                 $cost = rounding($planDetails['plan']->add_price); // Get price and round it
                 $currencyCode = $planDetails['currency']; // Get currency code
 
-                // Format the price similar to YearlyAmount but without symbol
+                // Format price without symbol
                 $formattedPrice = currencyFormat($cost, $code = $currencyCode);
-                $finalPrice = str_replace($planDetails['symbol'], '', $formattedPrice); // Remove symbol
+                $finalPrice = trim(str_replace($planDetails['symbol'], '', $formattedPrice));
 
-                // Store only the formatted price with plan ID as key
-                $prices[$plan->id] = trim($finalPrice);
+                // Store formatted price
+                $prices[$plan->id] = $finalPrice;
+
+                // Track cheapest plan
+                if ($cost < $minPrice) {
+                    $minPrice = $cost;
+                    $cheapestPlanId = $plan->id;
+                }
             }
 
-            return $prices;
+            return [
+                'prices' => $prices,
+                'cheapestPlanId' => $cheapestPlanId,
+            ];
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
 
-            return [];
+            return [
+                'prices' => [],
+                'cheapestPlanId' => null,
+            ];
         }
     }
 }

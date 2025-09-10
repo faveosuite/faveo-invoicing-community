@@ -303,6 +303,13 @@
                 isValid = false;
             }
 
+            // Conditional period validation
+            const $days = $('#plandays');
+            if ($days.is(':visible') && !$days.val()) {
+                showError($days, @json(trans('message.period_is_required')));
+                isValid = false;
+            }
+
             // Require the enabled quantity field only
             const $agent = $('#agentquant');
             const $prod = $('#prodquant');
