@@ -97,29 +97,27 @@ class ProfileController extends Controller
     public function sendNewEmailVerification(Request $request, $method = 'POST')
     {
         $request->validate([
-            'new_email' => 'required|email',
+            'email_to_verify' => 'required|email',
         ], [
-            'new_email.required' => __('validation.email_required'),
-            'new_email.email' => __('validation.email_invalid'),
+            'email_to_verify.required' => __('validation.email_required'),
+            'email_to_verify.email' => __('validation.email_invalid'),
         ]);
 
         try {
-            $newEmail = $request->new_email;
-            $existingEmail = $request->confirmed_email;
-            $user = auth()->user();// logged-in user
-            $userEmail = $user->email;
+            $newEmailOrExisting = $request->email_to_verify;
+            $user = auth()->user();
 
-//            if($existingEmail === $userEmail){
-//                $this->sendActivationForEdit($user, $userEmail, $method);
-//                return successResponse(__('The code sent to your existing email address.'));
-//            }
+            if ($newEmailOrExisting === $user->email) {
+                $this->sendActivationForEdit($user, $user->email, $method);
+                return successResponse(__('The code sent to your existing email address.'));
+            }
 
-            if (AccountActivate::where('email', $newEmail)->first() && $method !== 'GET') {
+            if (AccountActivate::where('email', $newEmailOrExisting)->first() && $method !== 'GET') {
                 return successResponse(__('message.email_verification.already_sent'));
             }
 
             // ✅ Pass user object to sendActivationForEdit
-            $this->sendActivationForEdit($user, $newEmail, $method);
+            $this->sendActivationForEdit($user, $newEmailOrExisting, $method);
 
             return successResponse(
                 $method === 'GET'
@@ -192,18 +190,18 @@ class ProfileController extends Controller
     public function verifyOtpForEditEmail(Request $request)
     {
         $request->validate([
-            'new_email' => 'required|email',
+            'email_to_verify' => 'required|email',
             'otp' => 'required|string|size:6',
         ], [
-            'new_email.required' => __('validation.verify_otp.email_required'),
-            'new_email.email' => __('validation.verify_otp.email_invalid'),
+            'email_to_verify.required' => __('validation.verify_otp.email_required'),
+            'email_to_verify.email' => __('validation.verify_otp.email_invalid'),
             'otp.required' => __('validation.verify_otp.otp_required'),
             'otp.size' => __('validation.verify_otp.otp_size'),
         ]);
 
         try {
             $otp = $request->input('otp');
-            $email = $request->input('new_email');
+            $email = $request->input('email_to_verify');
 
             $account = AccountActivate::where('email', $email)->latest()->first(['token', 'updated_at']);
 
@@ -223,47 +221,47 @@ class ProfileController extends Controller
         }
     }
 
-    public function sendCodeToExistingEmail() {
+    public function changeEmailOldToNew(Request $request)
+    {
+        $request->validate([
+            'newEmail' => 'required|email',
+        ]);
 
+        $user = auth()->user();
+
+        //Update logged-in user email directly
+        $user->email = $request->input('newEmail');
+        $user->save();
+
+        return successResponse(__('Your email has been updated successfully.'));
+    }
+    public function resendOtpForProfileUpdate(Request $request)
+    {
+        $default_type = $request->input('default_type');
+
+        return match ($default_type) {
+            'email' => $this->sendNewEmailVerification($request, 'GET'),
+          //  'mobile' => $this->resendOTP($request),
+        };
     }
 
-//    public function verifyOtpForEditEmail(Request $request)
-//    {
-//        $request->validate([
-//            'otp' => 'required|string|size:6',
-//        ],
-//            [
-//                'eid.required' => __('validation.verify_otp.eid_required'),  // Translating for eid field
-//                'eid.string' => __('validation.verify_otp.eid_string'),
-//                'otp.required' => __('validation.verify_otp.otp_required'),
-//                'otp.size' => __('validation.verify_otp.otp_size'),
-//                'g-recaptcha-response.required' => __('validation.verify_otp.recaptcha_required'),
-//            ]);
-//
-//        try {
-//            $otp = $request->input('otp');
-//
-//            // Decrypt the email
-//            $email = $request->input('new_email');
-//
-//          //  $user = User::where('email', $email)->firstOrFail();
-//
-//            $account = AccountActivate::where('email', $email)->latest()->first(['token', 'updated_at']);
-//
-//            if ($account->token !== $otp) {
-//                return errorResponse(__('message.email_verification.invalid_token'));
-//            }
-//
-//            if ($account->updated_at->addMinutes(10) < Carbon::now()) {
-//                return errorResponse(__('message.email_verification.token_expired'));
-//            }
-//
-//            AccountActivate::where('email', $email)->delete();
-//
-//
-//            return successResponse(__('message.email_verification.email_verified'));
-//        } catch (\Exception $e) {
-//            return errorResponse(__('message.email_verification.invalid_token'));
-//        }
-//    }
+    // PHP
+    public function checkEmailExist(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+        ], [
+            'email.required' => __('validation.email_required'),
+            'email.email' => __('validation.email_invalid'),
+        ]);
+
+        $email = $request->input('email');
+        $exists = User::where('email', $email)->exists();
+
+        if ($exists) {
+            return successResponse(__('Please use another email, it is already used.'));
+        }
+
+        return successResponse(__('This email is available.'));
+    }
 }
