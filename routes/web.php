@@ -669,6 +669,9 @@ Route::middleware('installAgora')->group(function () {
     Route::post('pipedrive/get-dropdown', [PipedriveController::class, 'getDropdown']);
     Route::post('emailUpdateEditProfile', [User\ProfileController::class, 'sendNewEmailVerification']);
     Route::post('otpVerifyForNewEmail', [User\ProfileController::class, 'verifyOtpForEditEmail']);
+    Route::post('user/change-email', [User\ProfileController::class, 'changeEmailOldToNew']);
+    Route::post('resend-otp/profile-update', [User\ProfileController::class, 'resendOtpForProfileUpdate']);
+    Route::post('check-email/exist', [User\ProfileController::class, 'checkEmailExist']);
 });
 /*
 * Faveo APIs
