@@ -4,17 +4,11 @@ namespace App\Http\Controllers\User;
 
 use App\Facades\Attach;
 use App\Http\Controllers\Controller;
-use App\Jobs\AddUserToExternalService;
-use App\Rules\CaptchaValidation;
-use App\VerificationAttempt;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
 use App\Http\Requests\User\ProfileRequest;
+use App\Model\User\AccountActivate;
 use App\User;
 use Hash;
-use App\Model\User\AccountActivate;
-use App\Http\Controllers\Auth\BaseAuthController;
-use Illuminate\Support\Facades\Crypt;
+use Illuminate\Http\Request;
 
 class ProfileController extends Controller
 {
@@ -109,6 +103,7 @@ class ProfileController extends Controller
 
             if ($newEmailOrExisting === $user->email) {
                 $this->sendActivationForEdit($user, $user->email, $method);
+
                 return successResponse(__('The code sent to your existing email address.'));
             }
 
@@ -160,15 +155,15 @@ class ProfileController extends Controller
             $website_url = url('/');
 
             $replace = [
-                'name'         => $user->first_name . ' ' . $user->last_name,
-                'username'     => $user->email, // old email
-                'new_email'    => $email,       // ✅ show new email in template if needed
-                'otp'          => $token,
-                'website_url'  => $website_url,
-                'contact'      => $contact['contact'],
-                'logo'         => $contact['logo'],
-                'company_email'=> $settings->company_email,
-                'reply_email'  => $settings->company_email,
+                'name' => $user->first_name.' '.$user->last_name,
+                'username' => $user->email, // old email
+                'new_email' => $email,       // ✅ show new email in template if needed
+                'otp' => $token,
+                'website_url' => $website_url,
+                'contact' => $contact['contact'],
+                'logo' => $contact['logo'],
+                'company_email' => $settings->company_email,
+                'reply_email' => $settings->company_email,
             ];
 
             $type = '';
@@ -181,7 +176,6 @@ class ProfileController extends Controller
             $mail = new \App\Http\Controllers\Common\PhpMailController();
             // ✅ Send to NEW email
             $mail->SendEmail($settings->email, $email, $template->data, $template->name, $replace, $type);
-
         } catch (\Exception $ex) {
             throw new \Exception($ex->getMessage());
         }
@@ -205,7 +199,7 @@ class ProfileController extends Controller
 
             $account = AccountActivate::where('email', $email)->latest()->first(['token', 'updated_at']);
 
-            if (!$account || $account->token !== $otp) {
+            if (! $account || $account->token !== $otp) {
                 return errorResponse(__('message.email_verification.invalid_token'));
             }
 
@@ -235,13 +229,14 @@ class ProfileController extends Controller
 
         return successResponse(__('Your email has been updated successfully.'));
     }
+
     public function resendOtpForProfileUpdate(Request $request)
     {
         $default_type = $request->input('default_type');
 
         return match ($default_type) {
             'email' => $this->sendNewEmailVerification($request, 'GET'),
-          //  'mobile' => $this->resendOTP($request),
+            //  'mobile' => $this->resendOTP($request),
         };
     }
 
