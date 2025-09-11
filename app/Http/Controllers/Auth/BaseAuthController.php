@@ -97,12 +97,12 @@ class BaseAuthController extends Controller
 
         $response = $this->makeRequest('POST', 'https://api.msg91.com/api/v5/otp', $queryParams);
 
-        if (isset($response['request_id'])) {
+        if (isset($response['body']['request_id'])) {
             $user = User::select('mobile_country_iso', 'mobile', 'mobile_code')->find($userID);
 
             if ($user) {
                 (new MSG91Controller())->updateOtpRequest(
-                    $response['request_id'],
+                    $response['body']['request_id'],
                     0,
                     $user->mobile_country_iso,
                     $user->mobile,
