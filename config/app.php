@@ -189,7 +189,6 @@ return [
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
         Bugsnag\BugsnagLaravel\BugsnagServiceProvider::class,
-        Arcanedev\LogViewer\LogViewerServiceProvider::class,
         Torann\GeoIP\GeoIPServiceProvider::class,
         /*
          * Package Service Providers...

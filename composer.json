@@ -25,7 +25,6 @@
         "php": "^8.2",
         "ext-pcntl": "*",
         "anhskohbo/no-captcha": "^3.4",
-        "arcanedev/log-viewer": "^10.0",
         "bacon/bacon-qr-code": "^2.0",
         "barryvdh/laravel-dompdf": "^2.0",
         "bugsnag/bugsnag-laravel": "^2.24",
