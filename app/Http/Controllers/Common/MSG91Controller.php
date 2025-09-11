@@ -114,6 +114,9 @@ class MSG91Controller extends Controller
             ->addColumn('date', function ($model) {
                 return $model->date ? getDateHtml($model->date) : '---';
             })
+            ->addColumn('created_at', function ($model) {
+                return $model->created_at ? getDateHtml($model->created_at) : '---';
+            })
             ->editColumn('failure_reason', function ($model) {
                 return $model->failure_reason ?? '---';
             })
@@ -172,6 +175,7 @@ class MSG91Controller extends Controller
                     ->orderBy('u2.email', $direction)
                     ->select('msg_delivery_reports.*');
             })
+            ->orderColumn('created_at', 'created_at $1')
 
             ->rawColumns(['date', 'created_at'])
             ->make(true);
