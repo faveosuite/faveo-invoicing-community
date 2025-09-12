@@ -254,9 +254,9 @@ class ProfileController extends Controller
         $exists = User::where('email', $email)->exists();
 
         if ($exists) {
-            return successResponse(__('Please use another email, it is already used.'));
+            return errorResponse(__('Please use another email, it is already used.'));
         }
 
-        return successResponse(__('This email is available.'));
+        return successResponse(__('Entered email is new one.'));
     }
 }

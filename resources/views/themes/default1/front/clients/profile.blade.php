@@ -112,6 +112,7 @@ input:checked + .slider:before {
   @include('themes.default1.user.2faModals')
   @include('themes.default1.front.clients.2fa_popup_client')
   @include('themes.default1.front.clients.clientEmailUpdate')
+  @include('themes.default1.front.clients.clientMobileNoUpdate')
 
 
         <div class="container pt-3 pb-2">
@@ -210,7 +211,7 @@ input:checked + .slider:before {
                                                     ->id('incode') !!}
                                             </div>
 
-                                            <span class="input-group-text bg-dark" role="button">
+                                            <span class="input-group-text bg-dark" role="button" id="editMobileBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="This edit icon shows change mobile number">
                                                <i class="fas fa-pencil-alt text-white"></i>
                                             </span>
                                         </div>
