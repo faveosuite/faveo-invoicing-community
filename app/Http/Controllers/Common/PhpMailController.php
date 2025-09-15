@@ -81,7 +81,7 @@ class PhpMailController extends Controller
 
         // Step 3: Update log with encrypted job payload
         $logIdentifier->update([
-            'job_payload' => Crypt::encrypt((new QueueTrait())->getPayloadData($job))
+            'job_payload' => Crypt::encrypt((new QueueTrait())->getPayloadData($job)),
         ]);
 
         // Step 4: Dispatch job only after DB commit

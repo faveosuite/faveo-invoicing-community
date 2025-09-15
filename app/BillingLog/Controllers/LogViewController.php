@@ -53,7 +53,7 @@ class LogViewController
         $request->validate([
             'date' => 'required|date',
             'status' => 'in:completed,failed',
-            'category' => 'required'
+            'category' => 'required',
         ]);
 
         $date = $request->input('date');
