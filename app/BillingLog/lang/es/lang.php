@@ -31,7 +31,7 @@ return [
     'mail-send-exception' => 'Excepción de envío de correo',
     // Added missing language keys for cron commands
     'postexpiry:notification' => 'Notificación de renovación vencida',
-    'renewal:notification' => 'Notificación de renovación automática', 
+    'renewal:notification' => 'Notificación de renovación automática',
     'cleanup:msg-reports' => 'Limpieza de informes MSG91',
     'invoices:delete' => 'Eliminar facturas antiguas',
     'database:sync' => 'Sincronizar base de datos a la última versión',

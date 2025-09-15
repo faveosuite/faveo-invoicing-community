@@ -31,7 +31,7 @@ return [
     'mail-send-exception' => 'Исключение отправки почты',
     // Added missing language keys for cron commands
     'postexpiry:notification' => 'Уведомление об истекшем продлении',
-    'renewal:notification' => 'Уведомление об автоматическом продлении', 
+    'renewal:notification' => 'Уведомление об автоматическом продлении',
     'cleanup:msg-reports' => 'Очистка отчетов MSG91',
     'invoices:delete' => 'Удалить старые счета',
     'database:sync' => 'Синхронизация базы данных с последней версией',

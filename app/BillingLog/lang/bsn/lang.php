@@ -31,7 +31,7 @@ return [
     'mail-send-exception' => 'Izuzetak slanja emaila',
     // Added missing language keys for cron commands
     'postexpiry:notification' => 'Obavijest o istekloj obnovi',
-    'renewal:notification' => 'Obavijest o automatskom obnavljanju', 
+    'renewal:notification' => 'Obavijest o automatskom obnavljanju',
     'cleanup:msg-reports' => 'Čišćenje MSG91 izvještaja',
     'invoices:delete' => 'Izbriši stare fakture',
     'database:sync' => 'Sinhronizuj bazu podataka sa najnovijom verzijom',

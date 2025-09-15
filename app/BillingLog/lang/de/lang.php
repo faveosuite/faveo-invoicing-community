@@ -31,7 +31,7 @@ return [
     'mail-send-exception' => 'Mail-Sendeausnahme',
     // Added missing language keys for cron commands
     'postexpiry:notification' => 'Abgelaufene Verlängerungsbenachrichtigung',
-    'renewal:notification' => 'Automatische Verlängerungsbenachrichtigung', 
+    'renewal:notification' => 'Automatische Verlängerungsbenachrichtigung',
     'cleanup:msg-reports' => 'MSG91-Berichte bereinigen',
     'invoices:delete' => 'Alte Rechnungen löschen',
     'database:sync' => 'Datenbank mit der neuesten Version synchronisieren',
