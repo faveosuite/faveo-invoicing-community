@@ -6,9 +6,9 @@ use App\BillingLog\Model\CronLog;
 use App\BillingLog\Model\ExceptionLog;
 use App\BillingLog\Model\LogCategory;
 use App\BillingLog\Model\MailLog;
-use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Http\Request;
 use Throwable;
 
 class LogWriteController
