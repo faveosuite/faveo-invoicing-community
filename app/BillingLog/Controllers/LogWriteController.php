@@ -188,25 +188,24 @@ class LogWriteController
         ]);
     }
 
-
     public function deleteLogs(Request $request)
     {
         // Validation
         $validated = $request->validate([
             'from_date' => 'nullable|date',
-            'to_date'   => 'nullable|date|after_or_equal:from_date',
+            'to_date' => 'nullable|date|after_or_equal:from_date',
             'log_types' => 'required|array|min:1',
             'log_types.*' => 'in:cron,exception,mail',
         ]);
 
         // Parse dates with start/end of day
         $fromDate = $validated['from_date'] ? Carbon::parse($validated['from_date'])->startOfDay() : null;
-        $toDate   = $validated['to_date'] ? Carbon::parse($validated['to_date'])->endOfDay() : null;
+        $toDate = $validated['to_date'] ? Carbon::parse($validated['to_date'])->endOfDay() : null;
 
         $logModels = [
-            'cron'      => CronLog::class,
+            'cron' => CronLog::class,
             'exception' => ExceptionLog::class,
-            'mail'      => MailLog::class,
+            'mail' => MailLog::class,
         ];
 
         foreach ($validated['log_types'] as $type) {
@@ -224,5 +223,4 @@ class LogWriteController
 
         return successResponse('Logs deleted successfully');
     }
-
 }
