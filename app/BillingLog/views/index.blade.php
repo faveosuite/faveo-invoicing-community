@@ -237,6 +237,9 @@
     <div class="card card-secondary card-outline">
         <div class="card-header">
             <h3 class="card-title">System Logs</h3>
+            <button type="button" class="btn btn-secondary float-right" data-toggle="modal" data-target="#deleteLogModal">
+                <i class="fas fa-trash-alt"></i>
+            </button>
         </div>
         <div class="card-body">
             <div class="row">
@@ -469,6 +472,58 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="deleteLogModal" tabindex="-1" role="dialog" aria-labelledby="deleteLogModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteLogModalLabel">Delete Logs</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <div id="delete-alert"></div>
+                    <!-- From Date -->
+                    <div class="form-group">
+                        <label for="deleteFromDate">From Date</label>
+                        <input type="date" class="form-control" id="deleteFromDate" name="from_date"/>
+                    </div>
+
+                    <!-- To Date -->
+                    <div class="form-group">
+                        <label for="deleteToDate">To Date</label>
+                        <input type="date" class="form-control" id="deleteToDate" name="to_date"/>
+                    </div>
+
+                    <!-- Inline Checkboxes -->
+                    <div class="form-group">
+                        <label>Log Types</label><br>
+                        <div class="custom-control custom-checkbox d-inline mr-3">
+                            <input type="checkbox" class="custom-control-input" id="deleteMailLogs" name="log_types[]" value="mail">
+                            <label class="custom-control-label" for="deleteMailLogs">Mail Logs</label>
+                        </div>
+                        <div class="custom-control custom-checkbox d-inline mr-3">
+                            <input type="checkbox" class="custom-control-input" id="deleteCronLogs" name="log_types[]" value="cron">
+                            <label class="custom-control-label" for="deleteCronLogs">Cron Logs</label>
+                        </div>
+                        <div class="custom-control custom-checkbox d-inline">
+                            <input type="checkbox" class="custom-control-input" id="deleteExceptionLogs" name="log_types[]" value="exception">
+                            <label class="custom-control-label" for="deleteExceptionLogs">Exception Logs</label>
+                        </div>
+                    </div>
+
+                    <div id="logTypesError" class="text-danger small"></div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="confirmDeleteBtn">Delete Logs</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     @include('log::loader')
 
@@ -490,6 +545,10 @@
             init() {
                 this.bindEvents();
                 this.showLogType('cron');
+                // Set default dates for delete modal
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('deleteFromDate').value = today;
+                document.getElementById('deleteToDate').value = today;
             },
 
             bindEvents() {
@@ -523,6 +582,11 @@
                             }
                         }
                     });
+                });
+                
+                // Delete logs functionality
+                document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
+                    this.deleteLogs();
                 });
             },
 
@@ -914,6 +978,81 @@
                     default:
                         return [];
                 }
+            },
+
+            deleteLogs() {
+                const fromDate = document.getElementById('deleteFromDate').value;
+                const toDate = document.getElementById('deleteToDate').value;
+                const deleteFromDateEl = $('#deleteFromDate');
+                const deleteToDateEl = $('#deleteToDate');
+                const logTypesErrorEl = $('#logTypesError');
+
+                // Clear previous errors
+                deleteFromDateEl.removeClass('is-invalid');
+                deleteToDateEl.removeClass('is-invalid');
+                logTypesErrorEl.text('');
+
+                // Get selected log types
+                const selectedTypes = [];
+                if (document.getElementById('deleteMailLogs').checked) selectedTypes.push('mail');
+                if (document.getElementById('deleteCronLogs').checked) selectedTypes.push('cron');
+                if (document.getElementById('deleteExceptionLogs').checked) selectedTypes.push('exception');
+
+                let hasError = false;
+
+                // Validation
+                if (!fromDate) {
+                    deleteFromDateEl.addClass('is-invalid');
+                    hasError = true;
+                }
+                if (!toDate) {
+                    deleteToDateEl.addClass('is-invalid');
+                    hasError = true;
+                }
+                if (selectedTypes.length === 0) {
+                    logTypesErrorEl.text('Please select at least one log type.');
+                    hasError = true;
+                }
+
+                if (hasError) return;
+
+                // Perform deletion via AJAX
+                $.ajax({
+                    url: '{{ url("logs/delete") }}',
+                    method: 'delete',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        from_date: fromDate,
+                        to_date: toDate,
+                        log_types: selectedTypes
+                    },
+                    beforeSend: function() {
+                        $('#confirmDeleteBtn').prop('disabled', true).text('Deleting...');
+                    },
+                    success: function(response) {
+                        helper.showAlert({
+                            message: response.message || 'Logs deleted successfully',
+                            type: 'success',
+                            autoDismiss: 5000,
+                            containerSelector: '#delete-alert',
+                        });
+
+                        setTimeout(function() {
+                            window.location.reload();
+                        }, 5000)
+                    },
+                    error: function(xhr) {
+                        helper.showAlert({
+                            message: xhr.responseJSON?.message || 'Error deleting logs',
+                            type: 'error',
+                            autoDismiss: 5000,
+                            containerSelector: '#delete-alert',
+                        });
+                    },
+                    complete: function () {
+                        $('#confirmDeleteBtn').prop('disabled', false).text('Delete Logs');
+                    }
+                });
             }
         };
 

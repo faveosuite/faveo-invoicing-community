@@ -3,8 +3,10 @@
 namespace App\BillingLog\Controllers;
 
 use App\BillingLog\Model\CronLog;
+use App\BillingLog\Model\ExceptionLog;
 use App\BillingLog\Model\LogCategory;
 use App\BillingLog\Model\MailLog;
+use App\Http\Requests\Request;
 use Carbon\Carbon;
 use Exception;
 use Throwable;
@@ -185,4 +187,42 @@ class LogWriteController
             'exception_log_id' => $exception?->id,
         ]);
     }
+
+
+    public function deleteLogs(Request $request)
+    {
+        // Validation
+        $validated = $request->validate([
+            'from_date' => 'nullable|date',
+            'to_date'   => 'nullable|date|after_or_equal:from_date',
+            'log_types' => 'required|array|min:1',
+            'log_types.*' => 'in:cron,exception,mail',
+        ]);
+
+        // Parse dates with start/end of day
+        $fromDate = $validated['from_date'] ? Carbon::parse($validated['from_date'])->startOfDay() : null;
+        $toDate   = $validated['to_date'] ? Carbon::parse($validated['to_date'])->endOfDay() : null;
+
+        $logModels = [
+            'cron'      => CronLog::class,
+            'exception' => ExceptionLog::class,
+            'mail'      => MailLog::class,
+        ];
+
+        foreach ($validated['log_types'] as $type) {
+            $query = $logModels[$type]::query();
+
+            if ($fromDate) {
+                $query->where('created_at', '>=', $fromDate);
+            }
+            if ($toDate) {
+                $query->where('created_at', '<=', $toDate);
+            }
+
+            $query->delete();
+        }
+
+        return successResponse('Logs deleted successfully');
+    }
+
 }
