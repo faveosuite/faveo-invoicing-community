@@ -31,7 +31,7 @@ return [
     'mail-send-exception' => 'استثناء إرسال البريد',
     // Added missing language keys for cron commands
     'postexpiry:notification' => 'إشعار تجديد منتهي الصلاحية',
-    'renewal:notification' => 'إشعار التجديد التلقائي', 
+    'renewal:notification' => 'إشعار التجديد التلقائي',
     'cleanup:msg-reports' => 'تنظيف تقارير MSG91',
     'invoices:delete' => 'حذف الفواتير القديمة',
     'database:sync' => 'مزامنة قاعدة البيانات مع أحدث إصدار',

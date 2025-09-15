@@ -31,7 +31,7 @@ return [
     'mail-send-exception' => 'メール送信例外',
     // Added missing language keys for cron commands
     'postexpiry:notification' => '期限切れ更新通知',
-    'renewal:notification' => '自動更新通知', 
+    'renewal:notification' => '自動更新通知',
     'cleanup:msg-reports' => 'MSG91レポートのクリーンアップ',
     'invoices:delete' => '古い請求書を削除',
     'database:sync' => 'データベースを最新バージョンに同期',

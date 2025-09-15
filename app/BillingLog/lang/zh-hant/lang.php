@@ -31,7 +31,7 @@ return [
     'mail-send-exception' => '郵件發送異常',
     // Added missing language keys for cron commands
     'postexpiry:notification' => '過期續訂通知',
-    'renewal:notification' => '自動續訂通知', 
+    'renewal:notification' => '自動續訂通知',
     'cleanup:msg-reports' => '清理MSG91報告',
     'invoices:delete' => '刪除舊發票',
     'database:sync' => '將資料庫同步到最新版本',
