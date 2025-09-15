@@ -792,8 +792,8 @@
                     columns: this.getColumns(type),
                     language: {
                         processing: '<div class="overlay dataTables_processing"><i class="fas fa-3x fa-sync-alt fa-spin"></i></div>',
-                        emptyTable: `{{ __("log::lang.no_logs_found_for_category", ["type" => "${type}"]) }}`,
-                        zeroRecords: `{{ __("log::lang.no_matching_logs_found", ["type" => "${type}"]) }}`
+                        emptyTable: `{{ __("log::lang.no_logs_found_for_category") }}`,
+                        zeroRecords: `{{ __("log::lang.no_matching_logs_found") }}`
                     },
                     fnDrawCallback: function (oSettings) {
                         $('[data-toggle="tooltip"]').tooltip({
