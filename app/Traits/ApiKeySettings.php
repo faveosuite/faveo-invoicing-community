@@ -332,7 +332,7 @@ trait ApiKeySettings
             $cloud_command = $this->getCommand($cloud_commands, $cloud_dailyAt);
             $invoice_command = $this->getCommand($invoice_commands, $invoice_dailyAt);
             $msg91_command = $this->getCommand($msg91_commands, $msg91_dailyAt);
-            $jobs = ['expiryMail' => $expiry_command, 'deleteLogs' => $activity_command, 'subsExpirymail' => $subexpiry_commands, 'postExpirymail' => $postexpiry_command, 'cloud' => $cloud_command, 'invoice' => $invoice_command, 'msg91Reports' => $msg91_command];
+            $jobs = ['expiryMail' => $expiry_command, 'deleteLogs' => $activity_command, 'subsExpirymail' => $subexpiry_command, 'postExpirymail' => $postexpiry_command, 'cloud' => $cloud_command, 'invoice' => $invoice_command, 'msg91Reports' => $msg91_command];
 
             $this->storeCommand($jobs);
         }
