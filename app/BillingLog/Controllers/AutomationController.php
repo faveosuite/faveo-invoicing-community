@@ -6,6 +6,8 @@ use App\BillingLog\Model\CronLog;
 use App\BillingLog\Model\ExceptionLog;
 use App\BillingLog\Model\LogCategory;
 use App\BillingLog\Model\MailLog;
+use App\Model\Common\Template;
+use App\Model\Common\TemplateType;
 use Carbon\Carbon;
 use Illuminate\Container\Container;
 use Illuminate\Http\Request;
@@ -53,7 +55,9 @@ class AutomationController extends Job implements \Illuminate\Contracts\Queue\Jo
             ->map(function ($logs, $command) {
                 return array_merge([
                     'command' => $command,
-                    'name' => trans('log::lang.'.$command),
+                    'name' => \Lang::has('log::lang.'.$command)
+                        ? __('log::lang.'.$command)
+                        : $command,
                 ], $logs->pluck('status_count', 'status')->toArray());
             })->values();
     }
@@ -70,7 +74,10 @@ class AutomationController extends Job implements \Illuminate\Contracts\Queue\Jo
             ->map(function ($logs, $categoryId) use ($categoryNames) {
                 return array_merge([
                     'id' => $categoryId,
-                    'name' => trans('log::lang.'.($categoryNames[$categoryId] ?? '')),
+                    'name' => ($key = $categoryNames[$categoryId] ?? '')
+                        ? (Template::where('type', TemplateType::where('name', $key)->value('id'))->value('name')
+                            ?: (\Lang::has("log::lang.$key") ? __("log::lang.$key") : $key))
+                        : '',
                 ], $logs->pluck('status_count', 'status')->toArray());
             })->values();
     }
@@ -86,7 +93,9 @@ class AutomationController extends Job implements \Illuminate\Contracts\Queue\Jo
             ->map(function ($log) use ($categoryNames) {
                 return [
                     'id' => $log->log_category_id,
-                    'name' => trans('log::lang.'.($categoryNames[$log->log_category_id] ?? '')),
+                    'name' => ($key = $categoryNames[$log->log_category_id] ?? '')
+                        ? (\Lang::has("log::lang.$key") ? __("log::lang.$key") : $key)
+                        : '',
                     'count' => $log->count,
                 ];
             });

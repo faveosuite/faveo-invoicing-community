@@ -49,11 +49,45 @@ class PhpMailController extends Controller
         array $attach = [],
         bool $autoReply = false
     ): void {
-        $logIdentifier = \Logger::logMailByCategory($from, $to, $cc, $bcc, $template_name, $this->transformEmailData($template_data, $replace, $type), $categoryName);
+        // Step 1: Log email entry
+        $logIdentifier = \Logger::logMailByCategory(
+            $from,
+            $to,
+            $cc,
+            $bcc,
+            $template_name,
+            $this->transformEmailData($template_data, $replace, $type),
+            $categoryName
+        );
+
         $this->setQueue();
-        $job = new \App\Jobs\SendEmail($from, $to, $template_data, $template_name, $replace, $type, $bcc, $fromname, $toname, $cc, $attach, $logIdentifier->id, $autoReply);
-        $logIdentifier->update(['job_payload' => Crypt::encrypt((new QueueTrait())->getPayloadData($job))]);
-        dispatch($job);
+
+        // Step 2: Prepare the job
+        $job = new \App\Jobs\SendEmail(
+            $from,
+            $to,
+            $template_data,
+            $template_name,
+            $replace,
+            $type,
+            $bcc,
+            $fromname,
+            $toname,
+            $cc,
+            $attach,
+            $logIdentifier->id,
+            $autoReply
+        );
+
+        // Step 3: Update log with encrypted job payload
+        $logIdentifier->update([
+            'job_payload' => Crypt::encrypt((new QueueTrait())->getPayloadData($job))
+        ]);
+
+        // Step 4: Dispatch job only after DB commit
+        \DB::afterCommit(function () use ($job) {
+            dispatch($job);
+        });
     }
 
     public function NotifyMail($from, $to, $template_data, $template_name)
@@ -170,7 +204,7 @@ class PhpMailController extends Controller
                             $temp_type = new \App\Model\Common\TemplateType();
                             $type = $temp_type->where('id', $type_id)->first()->name;
                         }
-                        $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, 'cloud-delete', $replace, $type);
+                        $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
                     }
                 }
             }

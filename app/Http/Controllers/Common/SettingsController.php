@@ -616,18 +616,6 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    public function settingsMail(Request $request)
-    {
-        try {
-            $from = $request->input('mailfrom');
-            $till = $request->input('mailtill');
-
-            return view('themes.default1.common.email-log', compact('from', 'till'));
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
     public function getBody($id)
     {
         try {

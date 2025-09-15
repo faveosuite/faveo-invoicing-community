@@ -460,7 +460,7 @@ class TenantController extends Controller
                 ];
 
                 $this->prepareMessages($faveoCloud, $userEmail, true);
-                $mail->SendEmail($settings->email, $userEmail, $template->data, $subject, 'cloud-created', $replace, $type);
+                $mail->SendEmail($settings->email, $userEmail, $template->data, $subject, $template->type()->value('name'), $replace, $type);
                 if (isset($result->reason) && $result->reason != '') {
                     return ['status' => $result->status, 'message' => $result->message.trans('message.cloud_created_successfully'), 'installationUrl' => $result->installationUrl, 'reason' => $result->reason];
                 }

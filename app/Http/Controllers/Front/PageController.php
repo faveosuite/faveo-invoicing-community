@@ -916,7 +916,7 @@ class PageController extends Controller
 
             if (emailSendingStatus()) {
                 $mail = new \App\Http\Controllers\Common\PhpMailController();
-                $mail->SendEmail($set->email, $set->company_email, $template->data, $template->name, 'contact-us', $replace, $type);
+                $mail->SendEmail($set->email, $set->company_email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
             }
 
             return response()->json(['message' => __('message.message_sent_successfully_400')], 200);
@@ -1018,7 +1018,7 @@ class PageController extends Controller
 
             if (emailSendingStatus()) {
                 $mail = new \App\Http\Controllers\Common\PhpMailController();
-                $mail->SendEmail($set->email, $set->company_email, $template->data, $templatename, 'demo-request', $replace, $type);
+                $mail->SendEmail($set->email, $set->company_email, $template->data, $templatename, $template->type()->value('name'), $replace, $type);
             }
 
             return response()->json(['message' => __('message.message_sent_successfully_400')], 200);

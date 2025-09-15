@@ -53,12 +53,15 @@ class LogViewController
         $request->validate([
             'date' => 'required|date',
             'status' => 'in:completed,failed',
+            'category' => 'required'
         ]);
 
         $date = $request->input('date');
         $status = $request->input('status');
+        $category = $request->input('category');
 
         $query = CronLog::whereDate('created_at', $date)
+            ->where('command', $category)
             ->where('status', $status);
 
         return DataTables::of($query)

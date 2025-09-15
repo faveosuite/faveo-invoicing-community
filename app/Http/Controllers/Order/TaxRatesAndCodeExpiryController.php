@@ -143,7 +143,7 @@ class TaxRatesAndCodeExpiryController extends BaseInvoiceController
             $type = $temp_type->where('id', $type_id)->first()->name;
         }
         $mail = new \App\Http\Controllers\Common\PhpMailController();
-        $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, 'invoice-mail', $replace, $type);
+        $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
     }
 
     public function invoiceUrl($invoiceid)

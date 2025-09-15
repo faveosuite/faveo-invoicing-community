@@ -543,7 +543,7 @@ class ClientController extends AdvanceSearchController
 
         // Send the email
         $mail = new \App\Http\Controllers\Common\PhpMailController();
-        $mail->SendEmail($settings->email, $user->email, $template->data, $template->name, 'welcome-mail', $replace, $type);
+        $mail->SendEmail($settings->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
     }
 
     /**

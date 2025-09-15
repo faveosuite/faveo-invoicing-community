@@ -250,7 +250,7 @@ class BaseAuthController extends Controller
             }
 
             $mail = new \App\Http\Controllers\Common\PhpMailController();
-            $mail->SendEmail($settings->email, $user->email, $template->data, $template->name, 'user-mail-verify', $replace, $type);
+            $mail->SendEmail($settings->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
         } catch (\Exception $ex) {
             throw new \Exception($ex->getMessage());
         }

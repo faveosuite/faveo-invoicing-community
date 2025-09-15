@@ -208,7 +208,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         $paymentSuccessdata = 'Payment for '.$productName.' of '.$currency.' '.$total.' successful by '.$user->first_name.' '.$user->last_name.' Email: '.$user->email;
 
         $mail = new \App\Http\Controllers\Common\PhpMailController();
-        $mail->SendEmail($setting->email, $setting->company_email, $paymentSuccessdata, 'payment-success', 'Payment Successful ');
+        $mail->SendEmail($setting->email, $setting->company_email, $paymentSuccessdata, 'payment-success', $template->type()->value('name'));
         $mail->payment_log($user->email, $payment, 'success', $order->number, null, $amount, 'Product renew');
     }
 
@@ -219,7 +219,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         $currency = getCurrencyForClient($user->country);
         $paymentFailData = 'Payment for'.' '.'of'.' '.$currency.' '.$total.' '.'failed by'.' '.$user->first_name.' '.$user->last_name.' '.'. User Email:'.' '.$user->email.'<br>'.'Reason:'.$exceptionMessage;
         $mail = new \App\Http\Controllers\Common\PhpMailController();
-        $mail->SendEmail($setting->email, $setting->company_email, $paymentFailData, 'payment-failed', 'Payment failed ');
+        $mail->SendEmail($setting->email, $setting->company_email, $paymentFailData, 'payment-failed', $template->type()->value('name'));
         $mail->payment_log($user->email, $payment, 'failed', $order->number, $exceptionMessage, $amount, 'Product renew');
     }
 
@@ -257,7 +257,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
             $temp_type = new \App\Model\Common\TemplateType();
             $type = $temp_type->where('id', $type_id)->first()->name;
         }
-        $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, 'payment-success', $replace, $type);
+        $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
     }
 
     public function sendFailedPayment($total, $exceptionMessage, $user, $number, $end, $currency, $order, $product_details, $invoice, $payment)
@@ -296,7 +296,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
             $type = $temp_type->where('id', $type_id)->first()->name;
         }
 
-        $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, 'payment-failed', $replace, $type);
+        $mail->SendEmail($setting->email, $user->email, $template->data, $template->name, $template->type()->value('name'), $replace, $type);
         $this->FailedPaymenttoAdmin($invoice, $total, $product_details->name, $exceptionMessage, $user, $template->name, $order, $payment);
     }
 

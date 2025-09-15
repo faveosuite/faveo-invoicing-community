@@ -66,8 +66,11 @@
         }
 
         .category-box {
-            cursor: pointer;
             transition: all 0.3s ease;
+        }
+
+        .selector {
+            cursor: pointer;
         }
 
         .category-box:hover {
@@ -158,6 +161,77 @@
             max-width: 20%;
         }
 
+        /* Modern Bootstrap DateTimePicker Styles */
+        .bootstrap-datetimepicker-widget {
+            border: none !important;
+            border-radius: 15px !important;
+            box-shadow: none !important;
+            background: transparent !important;
+        }
+
+        .bootstrap-datetimepicker-widget table {
+            border: none !important;
+            background: transparent !important;
+        }
+
+        .bootstrap-datetimepicker-widget table td,
+        .bootstrap-datetimepicker-widget table th {
+            border: none !important;
+            padding: 8px !important;
+            text-align: center;
+            vertical-align: middle;
+            border-radius: 8px !important;
+            transition: all 0.2s ease;
+        }
+
+        .bootstrap-datetimepicker-widget table th {
+            color: #6c757d !important;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .bootstrap-datetimepicker-widget table td.day {
+            color: #495057 !important;
+            cursor: pointer;
+        }
+
+        .bootstrap-datetimepicker-widget table td.active,
+        .bootstrap-datetimepicker-widget table td.active:hover {
+            color: white !important;
+            transform: scale(1.1);
+        }
+
+        .bootstrap-datetimepicker-widget table td.old,
+        .bootstrap-datetimepicker-widget table td.new {
+            color: #adb5bd !important;
+        }
+
+        .bootstrap-datetimepicker-widget .datepicker-days .table-condensed {
+            border-spacing: 2px;
+        }
+
+        .date-box {
+            box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
+            border-radius: .25rem;
+            background-color: #fff;
+
+            display: flex;
+            justify-content: center;  /* center calendar */
+            align-items: center;
+
+            margin-bottom: 1rem;
+            padding: .5rem;
+
+            width: 320px;   /* fixed width for all cards */
+            height: 320px;  /* fixed height for all cards */
+
+            position: relative;
+            flex-shrink: 0;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+
     </style>
 
     <div class="card card-secondary card-outline">
@@ -218,15 +292,14 @@
                     <!-- Cron Logs Filter -->
                     <div id="cron-filter" class="filter-box">
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-9">
                                 <div class="row" id="cron-category-container">
                                     <!-- Cron categories will be loaded here -->
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="cron-date">Date</label>
-                                    <input type="date" id="cron-date" name="cron_date" class="form-control" value="{{ date('Y-m-d') }}">
+                            <div class="col-md-3 d-flex justify-content-center">
+                                <div class="date-card date-box">
+                                    <div id="cron-date"></div>
                                 </div>
                             </div>
                         </div>
@@ -235,15 +308,14 @@
                     <!-- Exception Logs Filter -->
                     <div id="exception-filter" class="filter-box">
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-9">
                                 <div class="row" id="exception-category-container">
                                     <!-- Exception categories will be loaded here -->
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="exception-date">Date</label>
-                                    <input type="date" id="exception-date" name="exception_date" class="form-control" value="{{ date('Y-m-d') }}">
+                            <div class="col-md-3 d-flex justify-content-center">
+                                <div class="date-card date-box">
+                                    <div id="exception-date"></div>
                                 </div>
                             </div>
                         </div>
@@ -252,15 +324,14 @@
                     <!-- Mail Logs Filter -->
                     <div id="mail-filter" class="filter-box">
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-9">
                                 <div class="row" id="mail-category-container">
                                     <!-- Mail categories will be loaded here -->
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="mail-date">Date</label>
-                                    <input type="date" id="mail-date" name="mail_date" class="form-control" value="{{ date('Y-m-d') }}">
+                            <div class="col-md-3 d-flex justify-content-center">
+                                <div class="date-card date-box">
+                                    <div id="mail-date"></div>
                                 </div>
                             </div>
                         </div>
@@ -406,6 +477,11 @@
     <script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
     <script>
         const SystemLogs = {
+             selectedDates : {
+                mail: new Date().toISOString().split('T')[0],
+                cron: new Date().toISOString().split('T')[0],
+                exception: new Date().toISOString().split('T')[0],
+            },
             currentCategory: { mail: '', cron: '', exception: '' },
             currentType: '',
             tables: { mail: null, cron: null, exception: null },
@@ -413,7 +489,7 @@
 
             init() {
                 this.bindEvents();
-                this.showLogType('mail');
+                this.showLogType('cron');
             },
 
             bindEvents() {
@@ -422,30 +498,35 @@
                     el.addEventListener('click', (e) => {
                         e.preventDefault();
                         const type = el.getAttribute('data-type');
-                        console.log('Clicked on:', type); // Debug log
                         this.showLogType(type);
                     });
                 });
 
                 ['mail', 'cron', 'exception'].forEach(type => {
-                    const input = document.getElementById(`${type}-date`);
-                    if (input) {
-                        input.addEventListener('change', () => {
-                            console.log('Date changed for:', type); // Debug log
-                            // Only reload categories if this type is currently active
+                    const dateInput = document.getElementById(`${type}-date`);
+                    if (!dateInput) return;
+
+                    $(dateInput).datetimepicker({
+                        inline: true,
+                        format: 'YYYY-MM-DD',
+                        viewMode: 'days',
+                        date: this.selectedDates[type]
+                    });
+
+                    $(dateInput).on('change.datetimepicker', (e) => {
+                        if (e.date) {
+                            this.selectedDates[type] = e.date.format('YYYY-MM-DD');
                             if (this.currentType === type && !this.isLoadingCategories) {
                                 this.currentCategory[type] = '';
                                 this.loadCategories(type);
-                                this.destroyTable(type);
                                 this.hideLogsCard();
                             }
-                        });
-                    }
+                        }
+                    });
                 });
             },
 
             showLogType(type) {
-                console.log('Showing log type:', type); // Debug log
                 this.currentType = type;
 
                 // Fixed: Update selected UI properly
@@ -505,63 +586,62 @@
             loadCategories(type) {
                 // Prevent double loading
                 if (this.isLoadingCategories) {
-                    console.log('Already loading categories, skipping...'); // Debug log
                     return;
                 }
 
-                const dateInput = document.getElementById(`${type}-date`);
                 const container = document.getElementById(`${type}-category-container`);
 
-                if (!container || !dateInput) {
+                if (!container) {
                     console.error('Missing elements:', { container: !!container, dateInput: !!dateInput });
                     return;
                 }
 
-                const date = dateInput.value;
-                console.log('Loading categories for:', type, 'date:', date); // Debug log
+                const date = this.selectedDates[type];
 
                 this.isLoadingCategories = true; // Set loading flag
 
-                // Show loading state
-                container.innerHTML = '<div class="col-12"><p class="text-center">Loading categories...</p></div>';
+                helper.globalLoader.show();
 
                 $.ajax({
                     url: '{{ url("log-category-list") }}',
                     method: 'GET',
                     data: { date, log_type: type },
                     success: (response) => {
-                        console.log('Categories response:', response); // Debug log
+                        helper.globalLoader.hide();
                         container.innerHTML = '';
 
                         if (response.data && response.data.length) {
                             response.data.forEach(c => {
                                 const box = document.createElement('div');
-                                box.className = 'col-md-6 col-sm-12 mb-3';
+                                box.className = 'col-md-4 col-sm-8 mb-3';
                                 box.innerHTML = this.getFilterBox(type, c);
 
                                 // Add click event to category box
-                                const categoryBox = box.querySelector('.category-box');
-                                categoryBox.addEventListener('click', (e) => {
-                                    // Determine if user clicked on Completed/Failed
-                                    const statusElement = e.target.closest('.log-status');
-                                    const status = statusElement ? statusElement.getAttribute('data-status') : null;
+                                const categoryBoxes = box.querySelectorAll('.selector');
 
-                                    // Remove selected class from all categories
-                                    container.querySelectorAll('.category-box').forEach(b => {
-                                        b.classList.remove('selected');
+                                categoryBoxes.forEach(el => {
+                                    el.addEventListener('click', (e) => {
+                                        // Determine if user clicked on Completed/Failed
+                                        const statusElement = e.target.closest('.log-status');
+                                        const status = statusElement ? statusElement.getAttribute('data-status') : null;
+
+                                        // Remove selected class from all categories
+                                        container.querySelectorAll('.category-box').forEach(b => {
+                                            b.classList.remove('selected');
+                                        });
+
+                                        // Add selected class to clicked category
+                                        el.classList.add('selected');
+
+                                        // Update current category and load table
+                                        SystemLogs.currentCategory[type] = type === 'cron' ? c.command : c.id;
+                                        SystemLogs.showLogsCard(type);
+
+                                        // Optional: store or use status as filter
+                                        SystemLogs.selectedCronStatus = status || null;
+
+                                        SystemLogs.loadTable(type);
                                     });
-
-                                    // Add selected class to clicked category
-                                    categoryBox.classList.add('selected');
-
-                                    // Update current category and load table
-                                    SystemLogs.currentCategory[type] = c.id;
-                                    SystemLogs.showLogsCard(type);
-
-                                    // Optional: store or use status as filter
-                                    SystemLogs.selectedCronStatus = status || null;
-
-                                    SystemLogs.loadTable(type);
                                 });
 
                                 container.appendChild(box);
@@ -587,7 +667,6 @@
                     const tableId = `#${type}-table`;
 
                     if ($.fn.DataTable.isDataTable(tableId)) {
-                        console.log(`Destroying DataTable for type: ${type}`);
                         $(tableId).DataTable().clear().destroy();
                     }
 
@@ -618,7 +697,6 @@
             },
 
             loadTable(type) {
-                console.log('Loading table for:', type); // Debug log
                 this.destroyAllTables();
 
                 const dateInput = document.getElementById(`${type}-date`);
@@ -627,7 +705,7 @@
                     return;
                 }
 
-                const date = dateInput.value;
+                const date = this.selectedDates[type];
 
                 this.tables[type] = $(`#${type}-table`).DataTable({
                     serverSide: true,
@@ -653,7 +731,7 @@
                     },
                     columns: this.getColumns(type),
                     language: {
-                        processing: `Loading ${type} logs...`,
+                        processing: '<div class="overlay dataTables_processing"><i class="fas fa-3x fa-sync-alt fa-spin"></i></div>',
                         emptyTable: `No ${type} logs found for this category.`,
                         zeroRecords: `No matching ${type} logs found`
                     },
@@ -682,8 +760,8 @@
         <div class="info-box-content">
           <span class="info-box-text">${data.name}</span>
           <span class="info-box-number d-flex justify-content-between">
-            <span class="text-blue me-2 log-status" data-status="completed">${data.completed || 0} Completed</span>
-            <span class="text-red log-status" data-status="failed">${data.failed || 0} Failed</span>
+            <span class="text-blue me-2 log-status selector" data-status="completed">${data.completed || 0} Completed</span>
+            <span class="text-red log-status selector" data-status="failed">${data.failed || 0} Failed</span>
           </span>
         </div>
       </div>
@@ -694,7 +772,7 @@
                               <div class="info-box-content">
                                    <span class="info-box-text">${data.name}</span>
                                         <span class="info-box-number">
-                                             <span class="text-blue">${data.count} logs</span>
+                                             <span class="text-blue selector">${data.count} logs</span>
                                         </span>
                                    </div>
                               </div>
@@ -705,13 +783,13 @@
             <div class="info-box-content">
                 <div class="d-flex justify-content-between align-items-center">
                     <span class="info-box-text">${data.name}</span>
-                    <span class="text-blue log-status info-box-number" data-status="queued">
+                    <span class="text-blue log-status info-box-number selector" data-status="queued">
                         ${data.queued || 0} Queued
                     </span>
                 </div>
                 <div class="info-box-number d-flex justify-content-between mt-1">
-                    <span class="text-blue log-status" data-status="sent">${data.sent || 0} Send</span>
-                    <span class="text-red log-status" data-status="failed">${data.failed || 0} Failed</span>
+                    <span class="text-blue log-status selector" data-status="sent">${data.sent || 0} Send</span>
+                    <span class="text-red log-status selector" data-status="failed">${data.failed || 0} Failed</span>
                 </div>
             </div>
         </div>

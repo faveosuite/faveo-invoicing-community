@@ -294,7 +294,7 @@
 
     <div class="card card-secondary card-outline">
         <div class="card-header">
-            <h3 class="card-title">{{Lang::get('message.log_setting')}}</h3>
+            <h3 class="card-title">{{Lang::get('message.logs')}}</h3>
         </div>
         <!-- /.box-header -->
         <div class="card-body">
@@ -310,7 +310,7 @@
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">{{ __('message.system-logs') }}</div>
+                        <div class="text-center text-sm fw_400">{{ __('message.log_setting') }}</div>
                     </div>
                 </div>
 
@@ -324,19 +324,6 @@
                             </a>
                         </div>
                         <div class="text-center text-sm fw_400">{{ __('message.activity_log') }}</div>
-                    </div>
-                </div>
-
-                <div class="col-md-2 col-sm-6">
-                    <div class="settingiconblue">
-                        <div class="settingdivblue">
-                            <a class="icons-color" href="{{ url('settings/maillog') }}">
-                                <span class="fa-stack fa-2x">
-                                    <i class="fa fa-envelope-square fa-stack-1x"></i>
-                                </span>
-                            </a>
-                        </div>
-                        <div class="text-center text-sm fw_400">{{ __('message.email_log') }}</div>
                     </div>
                 </div>
 
@@ -370,23 +357,6 @@
                         </div>
                     </div>
                 @endif
-
-                <!--        <div class="col-md-2 col-sm-6">
-                    <div class="settingiconblue">
-                        <div class="settingdivblue">
-                            <a href="{{ url('settings/maillog') }}">
-                                <span class="fa-stack fa-2x">
-                                    <i class="fa fa-archive fa-stack-1x"></i>
-                                </span>
-                            </a>
-                        </div>
-                        <p class="box-title" >{{Lang::get('message.cleanup_log')}}</p>
-                    </div>
-                </div> -->
-
-
-                <!--/.col-md-2-->
-
             </div>
             <!-- /.row -->
         </div>

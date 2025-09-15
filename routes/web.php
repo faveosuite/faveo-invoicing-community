@@ -218,7 +218,6 @@ Route::middleware('installAgora')->group(function () {
     Route::patch('settings/template', [Common\SettingsController::class, 'postSettingsTemplate']);
     Route::patch('settings/error', [Common\SettingsController::class, 'postSettingsError']);
     Route::get('settings/activitylog', [Common\SettingsController::class, 'settingsActivity']);
-    Route::get('settings/maillog', [Common\SettingsController::class, 'settingsMail']);
     Route::get('get-activity', [Common\SettingsController::class, 'getActivity'])->name('get-activity');
     Route::get('get-email', [Common\SettingsController::class, 'getMails'])->name('get-email');
     Route::get('/email-log/body/{id}', [Common\SettingsController::class, 'getBody'])->name('email-log.body');
