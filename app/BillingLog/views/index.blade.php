@@ -1,6 +1,6 @@
 @extends('themes.default1.layouts.master')
 @section('title')
-    System Logs
+    {{ __('log::lang.system_logs') }}
 @stop
 @section('content-header')
 @stop
@@ -236,7 +236,7 @@
 
     <div class="card card-secondary card-outline">
         <div class="card-header">
-            <h3 class="card-title">System Logs</h3>
+            <h3 class="card-title">{{ __('log::lang.system_logs') }}</h3>
             <button type="button" class="btn btn-secondary float-right" data-toggle="modal" data-target="#deleteLogModal">
                 <i class="fas fa-trash-alt"></i>
             </button>
@@ -253,7 +253,7 @@
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">Cron Logs</div>
+                        <div class="text-center text-sm fw_400">{{ __('log::lang.cron_logs') }}</div>
                     </div>
                 </div>
 
@@ -267,7 +267,7 @@
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">Exception Logs</div>
+                        <div class="text-center text-sm fw_400">{{ __('log::lang.exception_logs') }}</div>
                     </div>
                 </div>
 
@@ -281,7 +281,7 @@
                                 </span>
                             </a>
                         </div>
-                        <div class="text-center text-sm fw_400">Mail Logs</div>
+                        <div class="text-center text-sm fw_400">{{ __('log::lang.mail_logs') }}</div>
                     </div>
                 </div>
             </div>
@@ -289,7 +289,7 @@
             <!-- Filter Section for each log type -->
             <div class="card card-secondary card-outline mt-3">
                 <div class="card-header">
-                    <h3 class="card-title">Filter Logs</h3>
+                    <h3 class="card-title">{{ __('log::lang.filter_logs') }}</h3>
                 </div>
                 <div class="card-body">
                     <!-- Cron Logs Filter -->
@@ -346,7 +346,7 @@
 
             <div id="logs-card" class="card card-secondary card-outline mt-3" style="display: none;">
                 <div class="card-header">
-                    <h3 class="card-title">Logs</h3>
+                    <h3 class="card-title">{{ __('log::lang.logs') }}</h3>
                     <div id="current-selection" class="float-right text-muted"></div>
                 </div>
                 <div class="card-body">
@@ -355,11 +355,11 @@
                         <table id="cron-table" class="table table-hover w-100">
                             <thead>
                             <tr>
-                                <th>Command</th>
-                                <th>Description</th>
-                                <th>Duration (in seconds)</th>
-                                <th>Created at</th>
-                                <th>Status</th>
+                                <th>{{ __('log::lang.command') }}</th>
+                                <th>{{ __('log::lang.description') }}</th>
+                                <th>{{ __('log::lang.duration') }}</th>
+                                <th>{{ __('log::lang.created_at') }}</th>
+                                <th>{{ __('log::lang.status') }}</th>
                             </tr>
                             </thead>
                         </table>
@@ -368,11 +368,11 @@
                         <table id="exception-table" class="table table-hover w-100">
                             <thead>
                             <tr>
-                                <th>File</th>
-                                <th>Line</th>
-                                <th>Message</th>
-                                <th>Trace</th>
-                                <th>Created at</th>
+                                <th>{{ __('log::lang.file') }}</th>
+                                <th>{{ __('log::lang.line') }}</th>
+                                <th>{{ __('log::lang.message') }}</th>
+                                <th>{{ __('log::lang.trace') }}</th>
+                                <th>{{ __('log::lang.created_at') }}</th>
                             </tr>
                             </thead>
                         </table>
@@ -381,15 +381,15 @@
                         <table id="mail-table" class="table table-hover w-100">
                             <thead>
                             <tr>
-                                <th>Sender Mail</th>
-                                <th>Receiver Mail</th>
-                                <th>CC</th>
-                                <th>BCC</th>
-                                <th>Subject</th>
-                                <th>Created at</th>
-                                <th>Updated at</th>
-                                <th>Status</th>
-                                <th>Action</th>
+                                <th>{{ __('log::lang.sender_mail') }}</th>
+                                <th>{{ __('log::lang.receiver_mail') }}</th>
+                                <th>{{ __('log::lang.cc') }}</th>
+                                <th>{{ __('log::lang.bcc') }}</th>
+                                <th>{{ __('log::lang.subject') }}</th>
+                                <th>{{ __('log::lang.created_at') }}</th>
+                                <th>{{ __('log::lang.updated_at') }}</th>
+                                <th>{{ __('log::lang.status') }}</th>
+                                <th>{{ __('log::lang.action') }}</th>
                             </tr>
                             </thead>
                         </table>
@@ -405,7 +405,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="codeModalLabel">
-                        Log Details
+                        {{ __('log::lang.log_details') }}
                     </h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
@@ -414,13 +414,13 @@
                 <div class="modal-body">
                     <div class="code-container">
                         <button id="copy-btn" class="copy-btn btn btn-sm btn-outline-secondary mb-2">
-                            <i class="fas fa-copy"></i> <span class="copy-text">Copy</span>
+                            <i class="fas fa-copy"></i> <span class="copy-text">{{ __('log::lang.copy') }}</span>
                         </button>
                         <pre class="code-block" id="codeContent"></pre>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">{{ __('log::lang.close') }}</button>
                     <div class="ml-auto"></div>
                 </div>
             </div>
@@ -431,17 +431,17 @@
         <div class="modal-dialog modal-dialog-centered" role="document"> <!-- Centering class added -->
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="retryLogModalLabel">Retry Mail</h5>
+                    <h5 class="modal-title" id="retryLogModalLabel">{{ __('log::lang.retry_mail') }}</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    Are you sure you want to retry this mail?
+                    {{ __('log::lang.are_you_sure_you_want_to_retry_this_mail') }}
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="confirmRetryBtn">Retry</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('log::lang.cancel') }}</button>
+                    <button type="button" class="btn btn-primary" id="confirmRetryBtn">{{ __('log::lang.retry') }}</button>
                 </div>
             </div>
         </div>
@@ -452,7 +452,7 @@
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="emailModalLabel">Email Subject</h5>
+                    <h5 class="modal-title" id="emailModalLabel">{{ __('log::lang.email_subject') }}</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -466,7 +466,7 @@
 
                 <div class="modal-footer justify-content-between">
                     <button type="button" class="btn btn-default" data-dismiss="modal">
-                        {{ __('message.cancel') }}
+                        {{ __('log::lang.cancel') }}
                     </button>
                 </div>
             </div>
@@ -477,7 +477,7 @@
             <div class="modal-content">
 
                 <div class="modal-header">
-                    <h5 class="modal-title" id="deleteLogModalLabel">Delete Logs</h5>
+                    <h5 class="modal-title" id="deleteLogModalLabel">{{ __('log::lang.delete_logs') }}</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -487,30 +487,30 @@
                     <div id="delete-alert"></div>
                     <!-- From Date -->
                     <div class="form-group">
-                        <label for="deleteFromDate">From Date</label>
+                        <label for="deleteFromDate">{{ __('log::lang.from_date') }}</label>
                         <input type="date" class="form-control" id="deleteFromDate" name="from_date"/>
                     </div>
 
                     <!-- To Date -->
                     <div class="form-group">
-                        <label for="deleteToDate">To Date</label>
+                        <label for="deleteToDate">{{ __('log::lang.to_date') }}</label>
                         <input type="date" class="form-control" id="deleteToDate" name="to_date"/>
                     </div>
 
                     <!-- Inline Checkboxes -->
                     <div class="form-group">
-                        <label>Log Types</label><br>
+                        <label>{{ __('log::lang.log_types') }}</label><br>
                         <div class="custom-control custom-checkbox d-inline mr-3">
                             <input type="checkbox" class="custom-control-input" id="deleteMailLogs" name="log_types[]" value="mail">
-                            <label class="custom-control-label" for="deleteMailLogs">Mail Logs</label>
+                            <label class="custom-control-label" for="deleteMailLogs">{{ __('log::lang.mail_logs') }}</label>
                         </div>
                         <div class="custom-control custom-checkbox d-inline mr-3">
                             <input type="checkbox" class="custom-control-input" id="deleteCronLogs" name="log_types[]" value="cron">
-                            <label class="custom-control-label" for="deleteCronLogs">Cron Logs</label>
+                            <label class="custom-control-label" for="deleteCronLogs">{{ __('log::lang.cron_logs') }}</label>
                         </div>
                         <div class="custom-control custom-checkbox d-inline">
                             <input type="checkbox" class="custom-control-input" id="deleteExceptionLogs" name="log_types[]" value="exception">
-                            <label class="custom-control-label" for="deleteExceptionLogs">Exception Logs</label>
+                            <label class="custom-control-label" for="deleteExceptionLogs">{{ __('log::lang.exception_logs') }}</label>
                         </div>
                     </div>
 
@@ -518,8 +518,8 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary" id="confirmDeleteBtn">Delete Logs</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('log::lang.cancel') }}</button>
+                    <button type="submit" class="btn btn-primary" id="confirmDeleteBtn">{{ __('log::lang.delete_logs') }}</button>
                 </div>
             </div>
         </div>
@@ -656,7 +656,6 @@
                 const container = document.getElementById(`${type}-category-container`);
 
                 if (!container) {
-                    console.error('Missing elements:', { container: !!container, dateInput: !!dateInput });
                     return;
                 }
 
@@ -711,12 +710,11 @@
                                 container.appendChild(box);
                             });
                         } else {
-                            container.innerHTML = '<div class="col-12"><p class="text-center">No categories found for this date.</p></div>';
+                            container.innerHTML = '<div class="col-12"><p class="text-center">{{ __("log::lang.no_categories_found") }}</p></div>';
                         }
                     },
                     error: (xhr, status, error) => {
-                        console.error('AJAX Error:', { xhr, status, error });
-                        container.innerHTML = '<div class="col-12"><p class="text-center text-danger">Error loading categories. Please try again.</p></div>';
+                        container.innerHTML = '<div class="col-12"><p class="text-center text-danger">{{ __("log::lang.error_loading_categories") }}</p></div>';
                     },
                     complete: () => {
                         this.isLoadingCategories = false; // Reset loading flag
@@ -765,7 +763,6 @@
 
                 const dateInput = document.getElementById(`${type}-date`);
                 if (!dateInput) {
-                    console.error('Date input not found for type:', type);
                     return;
                 }
 
@@ -790,14 +787,13 @@
                             }
                         },
                         error: function(xhr, error, code) {
-                            console.error('DataTable AJAX Error:', { xhr, error, code });
                         }
                     },
                     columns: this.getColumns(type),
                     language: {
                         processing: '<div class="overlay dataTables_processing"><i class="fas fa-3x fa-sync-alt fa-spin"></i></div>',
-                        emptyTable: `No ${type} logs found for this category.`,
-                        zeroRecords: `No matching ${type} logs found`
+                        emptyTable: `{{ __("log::lang.no_logs_found_for_category", ["type" => "${type}"]) }}`,
+                        zeroRecords: `{{ __("log::lang.no_matching_logs_found", ["type" => "${type}"]) }}`
                     },
                     fnDrawCallback: function (oSettings) {
                         $('[data-toggle="tooltip"]').tooltip({
@@ -824,8 +820,8 @@
         <div class="info-box-content">
           <span class="info-box-text">${data.name}</span>
           <span class="info-box-number d-flex justify-content-between">
-            <span class="text-blue me-2 log-status selector" data-status="completed">${data.completed || 0} Completed</span>
-            <span class="text-red log-status selector" data-status="failed">${data.failed || 0} Failed</span>
+            <span class="text-blue me-2 log-status selector" data-status="completed">${data.completed || 0} {{ __("log::lang.completed") }}</span>
+            <span class="text-red log-status selector" data-status="failed">${data.failed || 0} {{ __("log::lang.failed") }}</span>
           </span>
         </div>
       </div>
@@ -836,7 +832,7 @@
                               <div class="info-box-content">
                                    <span class="info-box-text">${data.name}</span>
                                         <span class="info-box-number">
-                                             <span class="text-blue selector">${data.count} logs</span>
+                                             <span class="text-blue selector">${data.count} {{ __("log::lang.logs") }}</span>
                                         </span>
                                    </div>
                               </div>
@@ -848,12 +844,12 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <span class="info-box-text">${data.name}</span>
                     <span class="text-blue log-status info-box-number selector" data-status="queued">
-                        ${data.queued || 0} Queued
+                        ${data.queued || 0} {{ __("log::lang.queued") }}
                     </span>
                 </div>
                 <div class="info-box-number d-flex justify-content-between mt-1">
-                    <span class="text-blue log-status selector" data-status="sent">${data.sent || 0} Send</span>
-                    <span class="text-red log-status selector" data-status="failed">${data.failed || 0} Failed</span>
+                    <span class="text-blue log-status selector" data-status="sent">${data.sent || 0} {{ __("log::lang.send") }}</span>
+                    <span class="text-red log-status selector" data-status="failed">${data.failed || 0} {{ __("log::lang.failed") }}</span>
                 </div>
             </div>
         </div>
@@ -894,7 +890,7 @@
                                     if (!data) return '';
                                     if (data.length > 100) {
                                         const short = data.substr(0, 100);
-                                        return `${short} <span class="read-more-message text-primary" data-full="${encodeURIComponent(data)}" style="cursor:pointer;"><u>Read more</u></span>`;
+                                        return `${short} <span class="read-more-message text-primary" data-full="${encodeURIComponent(data)}" style="cursor:pointer;"><u>{{ __("log::lang.read_more") }}</u></span>`;
                                     }
                                     return data;
                                 },
@@ -908,7 +904,7 @@
                                     if (!data) return '';
                                     if (data.length > 50) {
                                         const short = data.substr(0, 50);
-                                        return `${short}... <span class="read-more text-primary" data-full="${encodeURIComponent(data)}" style="cursor:pointer;"><u>Read more</u></span>`;
+                                        return `${short}... <span class="read-more text-primary" data-full="${encodeURIComponent(data)}" style="cursor:pointer;"><u>{{ __("log::lang.read_more") }}</u></span>`;
                                     }
                                     return data;
                                 },
@@ -967,7 +963,7 @@
             <button class="btn btn-light btn-sm retry-log-btn"
                     data-id="${row.id}"
                     ${status ? '' : 'disabled'}
-                    title="RETRY LOG"
+                    title="{{ __("log::lang.retry_log") }}"
                     type="button">
                 <i class="fas fa-redo"></i>
             </button>
@@ -1010,7 +1006,7 @@
                     hasError = true;
                 }
                 if (selectedTypes.length === 0) {
-                    logTypesErrorEl.text('Please select at least one log type.');
+                    logTypesErrorEl.text('{{ __("log::lang.please_select_at_least_one_log_type") }}');
                     hasError = true;
                 }
 
@@ -1027,11 +1023,11 @@
                         log_types: selectedTypes
                     },
                     beforeSend: function() {
-                        $('#confirmDeleteBtn').prop('disabled', true).text('Deleting...');
+                        $('#confirmDeleteBtn').prop('disabled', true).text('{{ __("log::lang.deleting") }}');
                     },
                     success: function(response) {
                         helper.showAlert({
-                            message: response.message || 'Logs deleted successfully',
+                            message: response.message || '{{ __("log::lang.logs_deleted_successfully") }}',
                             type: 'success',
                             autoDismiss: 5000,
                             containerSelector: '#delete-alert',
@@ -1043,14 +1039,14 @@
                     },
                     error: function(xhr) {
                         helper.showAlert({
-                            message: xhr.responseJSON?.message || 'Error deleting logs',
+                            message: xhr.responseJSON?.message || '{{ __("log::lang.error_deleting_logs") }}',
                             type: 'error',
                             autoDismiss: 5000,
                             containerSelector: '#delete-alert',
                         });
                     },
                     complete: function () {
-                        $('#confirmDeleteBtn').prop('disabled', false).text('Delete Logs');
+                        $('#confirmDeleteBtn').prop('disabled', false).text('{{ __("log::lang.delete_logs") }}');
                     }
                 });
             }
@@ -1099,17 +1095,15 @@
                 const $btn = $('#copy-btn');
                 $btn.addClass('copied');
                 $btn.find('i').removeClass('fa-copy').addClass('fa-check');
-                $btn.find('.copy-text').text('Copied!');
+                $btn.find('.copy-text').text('{{ __("log::lang.copied") }}');
 
                 // Revert after 1.5s
                 setTimeout(() => {
                     $btn.removeClass('copied');
                     $btn.find('i').removeClass('fa-check').addClass('fa-copy');
-                    $btn.find('.copy-text').text('Copy');
+                    $btn.find('.copy-text').text('{{ __("log::lang.copy") }}');
                 }, 1500);
             }).catch((err) => {
-                console.error('Copy failed:', err);
-                alert("Failed to copy code.");
             });
         });
 
