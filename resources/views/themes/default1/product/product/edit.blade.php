@@ -1376,7 +1376,7 @@
                     title:$('#producttitle'),
                     dependencies:$('#dependencies'),
                     version:$('#productver'),
-                    files: $('#file-upload-list')
+                    files: $('#file-upload'),
                 };
 
                 // Clear previous errors
@@ -1397,86 +1397,104 @@
                 Object.keys(userFields).forEach(field => {
                     if (field === 'files') {
                         userFields[field].removeClass('is-invalid');
-                        userFields[field].next('.error').remove(); // prevent duplicate errors
+                        userFields[field].next('.error').remove();
 
-                        if ($('#file-upload-list li').length === 0) {
-                            userFields[field].addClass('is-invalid');
-                            userFields[field].after(`<span class='error invalid-feedback errorRemove'>@json(trans('message.file_upload_required'))</span>`);
+                        // check if any file selected
+                        if ($('#file_ids').val().trim() === '') {
+                            showError(userFields[field], userRequiredFields[field]);
                             isValid = false;
                         }
-                    }
-                    else {
-                        $('.errorRemove').val('');
-                        if (!userFields[field].val()) {
+                    } else {
+                        if (!userFields[field].val().trim()) {
                             showError(userFields[field], userRequiredFields[field]);
                             isValid = false;
                         }
                     }
                 });
 
-
-                // If validation fails, prevent form submission
                 if (!isValid) {
                     e.preventDefault();
-                }else{
-                    $("#uploadVersion").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
-                    var filename = $('#file_ids').val();
-                    var productname = $('#productname').val();
-                    var producttitle = $('#producttitle').val();
-                    var description = tinyMCE.get('textarea3').getContent()
-                    var version = $('#productver').val();
-                    var dependencies = $('#dependencies').val();
-                    var private = $('#p_release').val();
-                    var restricted = $('#r_release').val();
-                    var releaseType = $('#release_type').val();
-                    $.ajax({
-                        type : "POST",
-                        url  :  "{!! route('upload/save') !!}",
-                        data :  {'filename': filename , 'productname': productname , 'producttitle': producttitle,
-                            'description': description,'dependencies':dependencies,'version':version,'is_private': private,'is_restricted': restricted,'release_type': releaseType,'_token': '{!! csrf_token() !!}'},
-                        success: function(response) {
-                            $("#uploadVersion").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
-                            $('#alertMessage1').show();
-                            $('#error').hide();
-                            var result =  '<div class="alert alert-success alert-dismissable" id="productUpload"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="far fa-check"></i> {{ __('message.success') }}! </strong>'+response.message+'.</div>';
-                            $('#alertMessage1').html(result+ ".");
-                            setTimeout(function() {
-                                location.reload();
-                            }, 5000);
-                        } ,
-                        error: function(ex) {
-                            $("#uploadVersion").html("<i class='fa fa-save'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
-                            var html = '<div class="alert alert-danger" id="productUpload"><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<br><br><ul>';
-                            for (key in ex.responseJSON.errors) {
-                                html += '<li>'+ ex.responseJSON.errors[key][0] + '</li>'
-                            }
-                            html += '</ul></div>';
-                            $('#error').show();
-                            document.getElementById('error').innerHTML = html;
+                    return;
+                }
+
+
+                // Show loader
+                $("#uploadVersion").html(
+                    "<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}"
+                );
+
+                var filename = $('#file_ids').val();
+                var productname = $('#productname').val();
+                var producttitle = $('#producttitle').val();
+                var description = tinyMCE.get('textarea3').getContent();
+                var version = $('#productver').val();
+                var dependencies = $('#dependencies').val();
+                var privateRelease = $('#p_release').is(':checked') ? 1 : 0;
+                var restrictedRelease = $('#r_release').is(':checked') ? 1 : 0;
+                var releaseType = $('#release_type').val();
+
+                $.ajax({
+                    type: "POST",
+                    url: "{!! route('upload/save') !!}",
+                    data: {
+                        filename: filename,
+                        productname: productname,
+                        producttitle: producttitle,
+                        description: description,
+                        dependencies: dependencies,
+                        version: version,
+                        is_private: privateRelease,
+                        is_restricted: restrictedRelease,
+                        release_type: releaseType,
+                        _token: '{!! csrf_token() !!}'
+                    },
+                    success: function (response) {
+                        $("#uploadVersion").html("<i class='fa fa-save'></i>&nbsp;{{ __('message.save') }}");
+                        $('#alertMessage1').show();
+                        $('#error').hide();
+
+                        var result =
+                            '<div class="alert alert-success alert-dismissable" id="productUpload">' +
+                            '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' +
+                            '<strong><i class="far fa-check"></i> {{ __('message.success') }}! </strong>' +
+                            response.message +
+                            '.</div>';
+
+                        $('#alertMessage1').html(result);
+                        setTimeout(function () {
+                            location.reload();
+                        }, 5000);
+                    },
+                    error: function (ex) {
+                        $("#uploadVersion").html("<i class='fa fa-save'></i>&nbsp;{{ __('message.save') }}");
+
+                        var html =
+                            '<div class="alert alert-danger" id="productUpload">' +
+                            '<strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}' +
+                            '<br><br><ul>';
+
+                        for (key in ex.responseJSON.errors) {
+                            html += '<li>' + ex.responseJSON.errors[key][0] + '</li>';
                         }
-                    });
-                }
+                        html += '</ul></div>';
 
-            });
-
-            // Function to remove error when input'id' => 'changePasswordForm'ng data
-            const removeErrorMessage = (field) => {
-                field.classList.remove('is-invalid');
-                const error = field.nextElementSibling;
-                if (error && error.classList.contains('error')) {
-                    error.remove();
-                }
-            };
-
-            // Add input event listeners for all fields
-            ['title','version','dependencies'].forEach(id => {
-
-                document.getElementById(id).addEventListener('input', function () {
-                    removeErrorMessage(this);
-
+                        $('#error').show().html(html);
+                    }
                 });
             });
 
+            // Remove error messages on input
+            const removeErrorMessage = (field) => {
+                $(field).removeClass('is-invalid');
+                $(field).next('.error').remove();
+            };
+
+            // Attach input event listeners
+            ['producttitle', 'productver', 'dependencies'].forEach(id => {
+                $('#' + id).on('input', function () {
+                    removeErrorMessage(this);
+                });
+            });
         });
     </script>
 
