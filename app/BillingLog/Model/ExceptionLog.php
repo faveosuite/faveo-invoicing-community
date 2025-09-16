@@ -9,7 +9,7 @@ class ExceptionLog extends Model
     protected $table = 'exception_logs';
 
     protected $fillable = ['log_category_id', 'file', 'line', 'trace', 'message',
-        'created_at'
+        'created_at',
     ];
 
     public function category()
