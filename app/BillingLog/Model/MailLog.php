@@ -57,6 +57,7 @@ class MailLog extends BaseModel
         'exception_log_id',
 
         'job_payload',
+        'created_at',
     ];
 
     protected $appends = ['is_retry'];
