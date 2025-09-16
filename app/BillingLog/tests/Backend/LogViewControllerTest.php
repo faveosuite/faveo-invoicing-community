@@ -7,9 +7,9 @@ use App\BillingLog\Model\CronLog;
 use App\BillingLog\Model\LogCategory;
 use Carbon\Carbon;
 use Exception;
-use Tests\DBTestCase;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\DBTestCase;
 
 class LogViewControllerTest extends DBTestCase
 {
@@ -24,7 +24,6 @@ class LogViewControllerTest extends DBTestCase
     }
 
     /** ----------------------- Exception Logs ----------------------- */
-
     #[Test]
     #[Group('exception-logs')]
     public function test_exceptionLogs_withoutFilters()
@@ -106,14 +105,13 @@ class LogViewControllerTest extends DBTestCase
     }
 
     /** ----------------------- Cron Logs ----------------------- */
-
     #[Test]
     #[Group('cron-logs')]
     public function test_cronLogs_withCategoryAndStatus()
     {
         LogCategory::create(['name' => 'database:sync']);
-        $cronLog = \Logger::cron("database:sync", "Update DB to latest version");
-        \Logger::cron("testing-setup", "Create an testing environment");
+        $cronLog = \Logger::cron('database:sync', 'Update DB to latest version');
+        \Logger::cron('testing-setup', 'Create an testing environment');
         \Logger::cronCompleted($cronLog->id);
 
         $payload = $this->defaultCronPayload(['category' => 'database:sync', 'status' => 'completed']);
@@ -127,8 +125,8 @@ class LogViewControllerTest extends DBTestCase
     #[Group('cron-logs')]
     public function test_cronLogs_withLimit()
     {
-        $log1 = \Logger::cron("database:sync", "Update DB to latest version");
-        $log2 = \Logger::cron("database:sync", "Update DB to latest version");
+        $log1 = \Logger::cron('database:sync', 'Update DB to latest version');
+        $log2 = \Logger::cron('database:sync', 'Update DB to latest version');
 
         \Logger::cronCompleted($log1->id);
         \Logger::cronCompleted($log2->id);
@@ -144,8 +142,8 @@ class LogViewControllerTest extends DBTestCase
     #[Group('cron-logs')]
     public function test_cronLogs_withCreatedAtFilter()
     {
-        $log1 = \Logger::cron("database:sync", "Update DB to latest version");
-        $log2 = \Logger::cron("database:sync", "Update DB to latest version");
+        $log1 = \Logger::cron('database:sync', 'Update DB to latest version');
+        $log2 = \Logger::cron('database:sync', 'Update DB to latest version');
 
         CronLog::where('id', $log1->id)->update(['created_at' => Carbon::now()->subDay()]);
 
@@ -158,7 +156,6 @@ class LogViewControllerTest extends DBTestCase
     }
 
     /** ----------------------- Mail Logs ----------------------- */
-
     #[Test]
     #[Group('mail-logs')]
     public function test_mailLogs_withoutFilters()
@@ -184,7 +181,7 @@ class LogViewControllerTest extends DBTestCase
 
         $payload = $this->defaultMailPayload([
             'category' => $log->log_category_id,
-            'search'   => ['value' => 'test1@gmail.com'],
+            'search' => ['value' => 'test1@gmail.com'],
         ]);
 
         $response = $this->postJson('/logs/mail', $payload);
@@ -205,7 +202,7 @@ class LogViewControllerTest extends DBTestCase
 
         $payload = $this->defaultMailPayload([
             'category' => $log->log_category_id,
-            'length'   => 3,
+            'length' => 3,
         ]);
 
         $response = $this->postJson('/logs/mail', $payload);
@@ -214,7 +211,6 @@ class LogViewControllerTest extends DBTestCase
     }
 
     /** ----------------------- Helpers ----------------------- */
-
     private function defaultExceptionPayload(array $overrides = []): array
     {
         return array_merge([
@@ -237,7 +233,7 @@ class LogViewControllerTest extends DBTestCase
             'length' => 10,
             'date' => Carbon::now()->toDateString(),
             'category' => 'database:sync',
-            'status' => 'completed'
+            'status' => 'completed',
         ], $overrides);
     }
 
@@ -259,11 +255,11 @@ class LogViewControllerTest extends DBTestCase
 
     private function defaultColumns(array $fields): array
     {
-        return collect($fields)->map(fn($f) => [
+        return collect($fields)->map(fn ($f) => [
             'data' => $f,
             'searchable' => true,
             'orderable' => true,
-            'search' => ['value' => '', 'regex' => false]
+            'search' => ['value' => '', 'regex' => false],
         ])->toArray();
     }
 
