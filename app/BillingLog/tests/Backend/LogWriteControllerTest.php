@@ -11,6 +11,9 @@ use Exception;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Request;
 use Tests\TestCase;
+use Throwable;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\Group;
 
 class LogWriteControllerTest extends TestCase
 {
@@ -24,7 +27,8 @@ class LogWriteControllerTest extends TestCase
         $this->controller = new LogWriteController();
     }
 
-    /** @test */
+    #[Test]
+    #[Group('cron')]
     public function test_logs_a_cron_start()
     {
         $log = $this->controller->cron('my:command', 'Test description');
@@ -35,7 +39,8 @@ class LogWriteControllerTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
+    #[Group('cron')]
     public function test_marks_a_cron_as_completed()
     {
         $log = CronLog::create([
@@ -53,7 +58,9 @@ class LogWriteControllerTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
+    #[Group('cron')]
+    #[Group('exception')]
     public function test_marks_a_cron_as_failed_with_exception()
     {
         $log = CronLog::create([
@@ -63,7 +70,7 @@ class LogWriteControllerTest extends TestCase
         ]);
 
         Carbon::setTestNow(now()->addSeconds(10));
-        $this->controller->cronFailed($log->id, new Exception('Cron failed'));
+        $this->controller->cronFailed($log->id, new Exception("Cron failed"));
 
         $this->assertDatabaseHas('cron_logs', [
             'id' => $log->id,
@@ -74,10 +81,11 @@ class LogWriteControllerTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
+    #[Group('exception')]
     public function test_logs_exceptions_under_category()
     {
-        $exception = new Exception('Something went wrong');
+        $exception = new Exception("Something went wrong");
         $log = $this->controller->exception($exception, 'custom-category');
 
         $this->assertInstanceOf(ExceptionLog::class, $log);
@@ -89,7 +97,8 @@ class LogWriteControllerTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
+    #[Group('mail')]
     public function test_logs_mail_successfully()
     {
         $log = $this->controller->logMailByCategory(
@@ -111,7 +120,8 @@ class LogWriteControllerTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
+    #[Group('mail')]
     public function test_formats_mail_addresses_correctly()
     {
         $addresses = [
@@ -122,7 +132,8 @@ class LogWriteControllerTest extends TestCase
         $this->assertEquals('cc1@example.com, John Doe <cc2@example.com>', $formatted);
     }
 
-    /** @test */
+    #[Test]
+    #[Group('mail')]
     public function test_marks_outgoing_mail_as_sent()
     {
         $log = MailLog::create(['status' => 'queued']);
@@ -133,11 +144,13 @@ class LogWriteControllerTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
+    #[Group('mail')]
+    #[Group('exception')]
     public function test_marks_outgoing_mail_as_failed_and_logs_exception()
     {
         $log = MailLog::create(['status' => 'queued']);
-        $this->controller->outgoingMailFailed($log->id, new Exception('Mail failed'));
+        $this->controller->outgoingMailFailed($log->id, new Exception("Mail failed"));
 
         $this->assertDatabaseHas('mail_logs', [
             'id' => $log->id,
@@ -148,7 +161,8 @@ class LogWriteControllerTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
+    #[Group('log-deletion')]
     public function test_deletes_logs_by_type_and_date_range()
     {
         $cronLog = CronLog::create();
@@ -169,7 +183,8 @@ class LogWriteControllerTest extends TestCase
         $this->assertDatabaseMissing('mail_logs', ['id' => $mailLog->id]);
     }
 
-    /** @test */
+    #[Test]
+    #[Group('log-deletion')]
     public function delete_logs_validates_request()
     {
         $this->expectException(\Illuminate\Validation\ValidationException::class);

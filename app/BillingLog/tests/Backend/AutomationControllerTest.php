@@ -2,18 +2,20 @@
 
 namespace App\BillingLog\tests\Backend;
 
-use App\BillingLog\Controllers\AutomationController;
-use App\BillingLog\Model\CronLog;
-use App\BillingLog\Model\ExceptionLog;
-use App\BillingLog\Model\LogCategory;
-use App\BillingLog\Model\MailLog;
 use App\Http\Controllers\Common\PhpMailController;
-use App\Model\Common\Template;
-use App\Model\Common\TemplateType;
-use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Mail;
 use Tests\TestCase;
+use Carbon\Carbon;
+use App\BillingLog\Model\CronLog;
+use App\BillingLog\Model\MailLog;
+use App\BillingLog\Model\ExceptionLog;
+use App\BillingLog\Model\LogCategory;
+use App\Model\Common\Template;
+use App\Model\Common\TemplateType;
+use App\BillingLog\Controllers\AutomationController;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 
 class AutomationControllerTest extends TestCase
 {
@@ -25,7 +27,9 @@ class AutomationControllerTest extends TestCase
 
         $this->withoutMiddleware();
     }
-
+    
+    #[Test]
+    #[Group('validation')]
     public function test_validation_fails_when_required_fields_missing()
     {
         $response = $this->getJson('/log-category-list');
@@ -34,6 +38,8 @@ class AutomationControllerTest extends TestCase
         $response->assertJsonValidationErrors(['date', 'log_type']);
     }
 
+    #[Test]
+    #[Group('validation')]
     public function test_validation_fails_when_invalid_log_type()
     {
         $response = $this->getJson('/log-category-list?date=2023-01-01&log_type=invalid');
@@ -42,6 +48,8 @@ class AutomationControllerTest extends TestCase
         $response->assertJsonValidationErrors(['log_type']);
     }
 
+    #[Test]
+    #[Group('cron')]
     public function test_get_cron_commands_success()
     {
         $date = '2023-01-01';
@@ -62,6 +70,8 @@ class AutomationControllerTest extends TestCase
         $this->assertArrayHasKey('success', $data);
     }
 
+    #[Test]
+    #[Group('mail')]
     public function test_get_mail_category_log_success()
     {
         $date = '2023-01-01';
@@ -93,6 +103,8 @@ class AutomationControllerTest extends TestCase
         $this->assertArrayHasKey('sent', $data);
     }
 
+    #[Test]
+    #[Group('exception')]
     public function test_get_exception_category_log_success()
     {
         $date = '2023-01-01';
@@ -110,10 +122,12 @@ class AutomationControllerTest extends TestCase
         $data = $response->json('data')[0];
 
         $this->assertEquals($category->id, $data['id']);
-        $this->assertEquals('exception_category', $data['name']);
+        $this->assertEquals("exception_category", $data['name']);
         $this->assertEquals(1, $data['count']);
     }
 
+    #[Test]
+    #[Group('mail-dispatch')]
     public function test_dispatch_payload_success()
     {
         Mail::fake();
@@ -150,26 +164,34 @@ class AutomationControllerTest extends TestCase
         $this->assertEquals('test_category', $mailLog->category->name);
     }
 
+    #[Test]
+    #[Group('mail-dispatch')]
     public function test_dispatch_payload_not_found()
     {
-        $response = $this->getJson('retry/mail-log/999999'); // Non-existent ID
+        $response = $this->getJson("retry/mail-log/999999"); // Non-existent ID
 
         $this->assertFalse($response['success']);
         $this->assertStringContainsString('No query results', $response['message']);
     }
 
+    #[Test]
+    #[Group('controller-methods')]
     public function test_attempts_returns_default_value()
     {
         $controller = new AutomationController();
         $this->assertEquals(5, $controller->attempts());
     }
 
+    #[Test]
+    #[Group('controller-methods')]
     public function test_get_job_id_returns_null()
     {
         $controller = new AutomationController();
         $this->assertNull($controller->getJobId());
     }
 
+    #[Test]
+    #[Group('controller-methods')]
     public function test_get_raw_body_returns_set_value()
     {
         $controller = new AutomationController();
