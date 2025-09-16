@@ -10,10 +10,9 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Request;
-use Tests\TestCase;
-use Throwable;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 
 class LogWriteControllerTest extends TestCase
 {
@@ -70,7 +69,7 @@ class LogWriteControllerTest extends TestCase
         ]);
 
         Carbon::setTestNow(now()->addSeconds(10));
-        $this->controller->cronFailed($log->id, new Exception("Cron failed"));
+        $this->controller->cronFailed($log->id, new Exception('Cron failed'));
 
         $this->assertDatabaseHas('cron_logs', [
             'id' => $log->id,
@@ -85,7 +84,7 @@ class LogWriteControllerTest extends TestCase
     #[Group('exception')]
     public function test_logs_exceptions_under_category()
     {
-        $exception = new Exception("Something went wrong");
+        $exception = new Exception('Something went wrong');
         $log = $this->controller->exception($exception, 'custom-category');
 
         $this->assertInstanceOf(ExceptionLog::class, $log);
@@ -150,7 +149,7 @@ class LogWriteControllerTest extends TestCase
     public function test_marks_outgoing_mail_as_failed_and_logs_exception()
     {
         $log = MailLog::create(['status' => 'queued']);
-        $this->controller->outgoingMailFailed($log->id, new Exception("Mail failed"));
+        $this->controller->outgoingMailFailed($log->id, new Exception('Mail failed'));
 
         $this->assertDatabaseHas('mail_logs', [
             'id' => $log->id,

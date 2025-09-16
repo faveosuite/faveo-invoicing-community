@@ -2,20 +2,20 @@
 
 namespace App\BillingLog\tests\Backend;
 
-use App\Http\Controllers\Common\PhpMailController;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Mail;
-use Tests\TestCase;
-use Carbon\Carbon;
+use App\BillingLog\Controllers\AutomationController;
 use App\BillingLog\Model\CronLog;
-use App\BillingLog\Model\MailLog;
 use App\BillingLog\Model\ExceptionLog;
 use App\BillingLog\Model\LogCategory;
+use App\BillingLog\Model\MailLog;
+use App\Http\Controllers\Common\PhpMailController;
 use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
-use App\BillingLog\Controllers\AutomationController;
+use Carbon\Carbon;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Mail;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 
 class AutomationControllerTest extends TestCase
 {
@@ -27,7 +27,7 @@ class AutomationControllerTest extends TestCase
 
         $this->withoutMiddleware();
     }
-    
+
     #[Test]
     #[Group('validation')]
     public function test_validation_fails_when_required_fields_missing()
@@ -122,7 +122,7 @@ class AutomationControllerTest extends TestCase
         $data = $response->json('data')[0];
 
         $this->assertEquals($category->id, $data['id']);
-        $this->assertEquals("exception_category", $data['name']);
+        $this->assertEquals('exception_category', $data['name']);
         $this->assertEquals(1, $data['count']);
     }
 
@@ -168,7 +168,7 @@ class AutomationControllerTest extends TestCase
     #[Group('mail-dispatch')]
     public function test_dispatch_payload_not_found()
     {
-        $response = $this->getJson("retry/mail-log/999999"); // Non-existent ID
+        $response = $this->getJson('retry/mail-log/999999'); // Non-existent ID
 
         $this->assertFalse($response['success']);
         $this->assertStringContainsString('No query results', $response['message']);
