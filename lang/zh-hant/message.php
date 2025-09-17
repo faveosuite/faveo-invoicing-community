@@ -2658,9 +2658,9 @@ return [
     'manager_settings_updated_successfully' => '管理員設定已成功更新。',
 
     'user_position_prohibited_if' => '當角色為使用者時，不允許填寫職位欄位。',
-    "system_logs_deletion" => "系統日誌刪除",
-    "please_enable_system_logs_deletion" => "請啟用系統日誌定期刪除",
-    "cron_trigger_deletion_system_logs" => "此定期排程將在指定時間後自動刪除系統日誌。",
-    "enable_system_logs_cron" => "啟用系統日誌刪除",
-    "system_logs_deletion_older_than" => "刪除早於..."
+    'system_logs_deletion' => '系統日誌刪除',
+    'please_enable_system_logs_deletion' => '請啟用系統日誌定期刪除',
+    'cron_trigger_deletion_system_logs' => '此定期排程將在指定時間後自動刪除系統日誌。',
+    'enable_system_logs_cron' => '啟用系統日誌刪除',
+    'system_logs_deletion_older_than' => '刪除早於...',
 ];

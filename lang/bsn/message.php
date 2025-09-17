@@ -2627,10 +2627,10 @@ return [
 
     'user_position_prohibited_if' => 'Polje pozicija nije dozvoljeno kada je uloga korisnik.',
 
-    "system_logs_deletion" => "Brisanje sistemskih zapisa",
-    "please_enable_system_logs_deletion" => "Omogućite cron za sistemske zapise",
-    "cron_trigger_deletion_system_logs" => "Ovaj cron će automatski izbrisati sistemske zapise nakon određenog perioda.",
-    "enable_system_logs_cron" => "Omogući brisanje sistemskih zapisa",
-    "system_logs_deletion_older_than" => "Brisanje sistemskih zapisa starijih od..."
+    'system_logs_deletion' => 'Brisanje sistemskih zapisa',
+    'please_enable_system_logs_deletion' => 'Omogućite cron za sistemske zapise',
+    'cron_trigger_deletion_system_logs' => 'Ovaj cron će automatski izbrisati sistemske zapise nakon određenog perioda.',
+    'enable_system_logs_cron' => 'Omogući brisanje sistemskih zapisa',
+    'system_logs_deletion_older_than' => 'Brisanje sistemskih zapisa starijih od...',
 
 ];

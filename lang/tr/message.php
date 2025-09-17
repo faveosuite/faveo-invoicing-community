@@ -2710,9 +2710,9 @@ return [
     'manager_settings_updated_successfully' => 'Yönetici ayarları başarıyla güncellendi.',
 
     'user_position_prohibited_if' => 'Rol kullanıcı olduğunda pozisyon alanına izin verilmez.',
-    "system_logs_deletion" => "Sistem Günlükleri Silme",
-    "please_enable_system_logs_deletion" => "Lütfen sistem günlükleri cron'unu etkinleştirin",
-    "cron_trigger_deletion_system_logs" => "Bu cron, belirtilen süreden sonra sistem günlüklerini otomatik olarak siler.",
-    "enable_system_logs_cron" => "Sistem günlükleri silmeyi etkinleştir",
-    "system_logs_deletion_older_than" => "Şundan eski Sistem Günlüklerini Sil.."
+    'system_logs_deletion' => 'Sistem Günlükleri Silme',
+    'please_enable_system_logs_deletion' => "Lütfen sistem günlükleri cron'unu etkinleştirin",
+    'cron_trigger_deletion_system_logs' => 'Bu cron, belirtilen süreden sonra sistem günlüklerini otomatik olarak siler.',
+    'enable_system_logs_cron' => 'Sistem günlükleri silmeyi etkinleştir',
+    'system_logs_deletion_older_than' => 'Şundan eski Sistem Günlüklerini Sil..',
 ];

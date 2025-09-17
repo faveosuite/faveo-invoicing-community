@@ -2701,9 +2701,9 @@ return [
     'manager_settings_updated_successfully' => 'הגדרות המנהל עודכנו בהצלחה.',
 
     'user_position_prohibited_if' => 'השדה תפקיד אינו מותר כאשר התפקיד הוא משתמש.',
-    "system_logs_deletion" => "מחיקת יומני מערכת",
-    "please_enable_system_logs_deletion" => "אנא אפשר מחיקת יומני מערכת",
-    "cron_trigger_deletion_system_logs" => "Cron זה ימחק אוטומטית יומני מערכת לאחר התקופה שצוינה.",
-    "enable_system_logs_cron" => "אפשר מחיקת יומני מערכת",
-    "system_logs_deletion_older_than" => "מחיקת יומני מערכת ישנים יותר מ.."
+    'system_logs_deletion' => 'מחיקת יומני מערכת',
+    'please_enable_system_logs_deletion' => 'אנא אפשר מחיקת יומני מערכת',
+    'cron_trigger_deletion_system_logs' => 'Cron זה ימחק אוטומטית יומני מערכת לאחר התקופה שצוינה.',
+    'enable_system_logs_cron' => 'אפשר מחיקת יומני מערכת',
+    'system_logs_deletion_older_than' => 'מחיקת יומני מערכת ישנים יותר מ..',
 ];

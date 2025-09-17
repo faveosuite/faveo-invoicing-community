@@ -2708,9 +2708,9 @@ return [
     'manager_settings_updated_successfully' => 'प्रबंधक की सेटिंग्स सफलतापूर्वक अपडेट की गईं।',
 
     'user_position_prohibited_if' => 'जब भूमिका उपयोगकर्ता हो, तो स्थिति फ़ील्ड की अनुमति नहीं है।',
-    "system_logs_deletion" => "सिस्टम लॉग विलोपन",
-    "please_enable_system_logs_deletion" => "कृपया सिस्टम लॉग क्रोन सक्षम करें",
-    "cron_trigger_deletion_system_logs" => "यह क्रोन निर्दिष्ट अवधि के बाद स्वचालित रूप से सिस्टम लॉग हटा देगा।",
-    "enable_system_logs_cron" => "सिस्टम लॉग विलोपन सक्षम करें",
-    "system_logs_deletion_older_than" => "सिस्टम लॉग इससे पुराने हटाएं.."
+    'system_logs_deletion' => 'सिस्टम लॉग विलोपन',
+    'please_enable_system_logs_deletion' => 'कृपया सिस्टम लॉग क्रोन सक्षम करें',
+    'cron_trigger_deletion_system_logs' => 'यह क्रोन निर्दिष्ट अवधि के बाद स्वचालित रूप से सिस्टम लॉग हटा देगा।',
+    'enable_system_logs_cron' => 'सिस्टम लॉग विलोपन सक्षम करें',
+    'system_logs_deletion_older_than' => 'सिस्टम लॉग इससे पुराने हटाएं..',
 ];

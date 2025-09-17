@@ -2703,9 +2703,9 @@ return [
     'manager_settings_updated_successfully' => 'Lederinnstillingene ble oppdatert vellykket.',
 
     'user_position_prohibited_if' => 'Feltet for stilling er ikke tillatt når rollen er bruker.',
-    "system_logs_deletion" => "Sletting av systemlogger",
-    "please_enable_system_logs_deletion" => "Vennligst aktiver systemloggers cron",
-    "cron_trigger_deletion_system_logs" => "Denne cron-jobben vil automatisk slette systemlogger etter den angitte perioden.",
-    "enable_system_logs_cron" => "Aktiver sletting av systemlogger",
-    "system_logs_deletion_older_than" => "Sletting av systemlogger eldre enn..."
+    'system_logs_deletion' => 'Sletting av systemlogger',
+    'please_enable_system_logs_deletion' => 'Vennligst aktiver systemloggers cron',
+    'cron_trigger_deletion_system_logs' => 'Denne cron-jobben vil automatisk slette systemlogger etter den angitte perioden.',
+    'enable_system_logs_cron' => 'Aktiver sletting av systemlogger',
+    'system_logs_deletion_older_than' => 'Sletting av systemlogger eldre enn...',
 ];
