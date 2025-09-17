@@ -24,7 +24,7 @@ class LaravelLogViewerServiceProvider extends ServiceProvider
         Blade::component('log::components.dynamic-table', 'log-dynamic-table');
 
         $this->commands([
-            DeleteLogs::class
+            DeleteLogs::class,
         ]);
 
         // Load breadcrumbs if the package exists

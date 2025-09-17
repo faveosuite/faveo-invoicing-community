@@ -37,7 +37,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\moveImages::class,
         \App\Console\Commands\invoiceDeletion::class,
         \App\Console\Commands\CleanupMsg91Reports::class,
-        DeleteLogs::class
+        DeleteLogs::class,
     ];
 
     /**
@@ -96,7 +96,7 @@ class Kernel extends ConsoleKernel
             if (\Schema::hasColumn('status_settings', 'msg91_report_delete_status')) {
                 $msgDeletionStatus = StatusSetting::value('msg91_report_delete_status');
             }
-            $systemLogsStatus  = StatusSetting::pluck('system_log_status')->first();
+            $systemLogsStatus = StatusSetting::pluck('system_log_status')->first();
             if ($delLogDays == null) {
                 $delLogDays = 99999999;
             }

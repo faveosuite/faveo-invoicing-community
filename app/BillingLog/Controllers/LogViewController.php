@@ -100,7 +100,7 @@ class LogViewController
             ->make(true);
     }
 
-    public function deleteLogsByDate($logTypes , $date)
+    public function deleteLogsByDate($logTypes, $date)
     {
         $logModels = [
             'cron' => CronLog::class,
