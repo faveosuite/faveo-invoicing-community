@@ -94,5 +94,5 @@ return [
     'failed' => 'Gagal',
     'send' => 'Kirim',
     'queued' => 'Dalam Antrian',
-    "delete_logs_entries" => "Hapus entri log sebelum"
+    'delete_logs_entries' => 'Hapus entri log sebelum',
 ];

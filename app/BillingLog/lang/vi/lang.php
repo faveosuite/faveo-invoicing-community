@@ -94,5 +94,5 @@ return [
     'failed' => 'Đã thất bại',
     'send' => 'Gửi',
     'queued' => 'Đang chờ',
-    "delete_logs_entries" => "Xóa các mục nhật ký trước"
+    'delete_logs_entries' => 'Xóa các mục nhật ký trước',
 ];

@@ -94,5 +94,5 @@ return [
     'failed' => 'Не удалось',
     'send' => 'Отправить',
     'queued' => 'В очереди',
-    "delete_logs_entries" => "Удалить записи журналов до"
+    'delete_logs_entries' => 'Удалить записи журналов до',
 ];

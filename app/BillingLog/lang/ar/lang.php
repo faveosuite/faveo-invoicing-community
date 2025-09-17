@@ -94,5 +94,5 @@ return [
     'failed' => 'فشل',
     'send' => 'إرسال',
     'queued' => 'في قائمة الانتظار',
-    "delete_logs_entries" => "حذف إدخالات السجلات قبل"
+    'delete_logs_entries' => 'حذف إدخالات السجلات قبل',
 ];

@@ -95,5 +95,5 @@ return [
     'send' => 'Send',
     'queued' => 'Queued',
 
-    'delete_logs_entries' => 'Delete logs entries before'
+    'delete_logs_entries' => 'Delete logs entries before',
 ];

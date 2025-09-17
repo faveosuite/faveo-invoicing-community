@@ -90,5 +90,5 @@ return [
     'failed' => 'विफल',
     'send' => 'भेजें',
     'queued' => 'कतार में',
-    "delete_logs_entries" => "इससे पहले लॉग प्रविष्टियाँ हटाएं"
+    'delete_logs_entries' => 'इससे पहले लॉग प्रविष्टियाँ हटाएं',
 ];

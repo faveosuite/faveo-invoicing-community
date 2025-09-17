@@ -90,5 +90,5 @@ return [
     'failed' => 'Başarısız',
     'send' => 'Gönder',
     'queued' => 'Sıraya Alındı',
-    "delete_logs_entries" => "Önceki günlük girişlerini sil"
+    'delete_logs_entries' => 'Önceki günlük girişlerini sil',
 ];

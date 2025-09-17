@@ -94,5 +94,5 @@ return [
     'failed' => 'Falhou',
     'send' => 'Enviar',
     'queued' => 'Na fila',
-    "delete_logs_entries" => "Apagar entradas de registros anteriores a"
+    'delete_logs_entries' => 'Apagar entradas de registros anteriores a',
 ];
