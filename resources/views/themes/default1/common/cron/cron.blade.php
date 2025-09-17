@@ -248,7 +248,7 @@
 
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>{{ __('message.system_logs_deletion') }}</label>
+                                <label>{{ __('message.system_logs_deletion_older_than') }}</label>
                                 @if ($systemLogStatus == 0)
                                     <select name="system_logs_days" class="form-control selectpicker"   style="width: 100%; color:black;" disabled>
                                         <option value="">{{ __('message.please_enable_system_logs_deletion') }}</option>

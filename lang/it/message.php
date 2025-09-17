@@ -2692,4 +2692,9 @@ return [
     'manager_settings_updated_successfully' => 'Le impostazioni del manager sono state aggiornate con successo.',
 
     'user_position_prohibited_if' => 'Il campo posizione non è consentito quando il ruolo è utente.',
+    "system_logs_deletion" => "Eliminazione dei log di sistema",
+    "please_enable_system_logs_deletion" => "Abilita il cron dei log di sistema",
+    "cron_trigger_deletion_system_logs" => "Questo cron cancellerà automaticamente i log di sistema dopo il periodo specificato.",
+    "enable_system_logs_cron" => "Abilita l'eliminazione dei log di sistema",
+    "system_logs_deletion_older_than" => "Eliminazione dei log di sistema precedenti a..."
 ];

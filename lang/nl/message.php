@@ -2663,4 +2663,9 @@ return [
     'manager_settings_updated_successfully' => 'Managerinstellingen zijn succesvol bijgewerkt.',
 
     'user_position_prohibited_if' => 'Het veld functie is niet toegestaan wanneer de rol gebruiker is.',
+    "system_logs_deletion" => "Systeemlogboeken verwijderen",
+    "please_enable_system_logs_deletion" => "Schakel de cron voor systeemlogboeken in",
+    "cron_trigger_deletion_system_logs" => "Deze cron verwijdert automatisch systeemlogboeken na de opgegeven periode.",
+    "enable_system_logs_cron" => "Systeemlogboeken verwijderen inschakelen",
+    "system_logs_deletion_older_than" => "Systeemlogboeken ouder verwijderen dan.."
 ];

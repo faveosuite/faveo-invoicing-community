@@ -2675,4 +2675,9 @@ return [
     'manager_settings_updated_successfully' => 'As configurações do gerente foram atualizadas com sucesso.',
 
     'user_position_prohibited_if' => 'O campo posição não é permitido quando o papel é usuário.',
+    "system_logs_deletion" => "Exclusão de Logs do Sistema",
+    "please_enable_system_logs_deletion" => "Por favor, habilite o cron de logs do sistema",
+    "cron_trigger_deletion_system_logs" => "Este cron excluirá automaticamente os logs do sistema após o período especificado.",
+    "enable_system_logs_cron" => "Habilitar a exclusão de logs do sistema",
+    "system_logs_deletion_older_than" => "Exclusão de Logs do Sistema Mais Antigos que..."
 ];

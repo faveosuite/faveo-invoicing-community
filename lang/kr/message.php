@@ -2717,4 +2717,9 @@ return [
     'manager_settings_updated_successfully' => '관리자 설정이 성공적으로 업데이트되었습니다.',
 
     'user_position_prohibited_if' => '역할이 사용자일 때는 직위 필드를 사용할 수 없습니다.',
+    "system_logs_deletion" => "시스템 로그 삭제",
+    "please_enable_system_logs_deletion" => "시스템 로그 cron을 활성화하십시오.",
+    "cron_trigger_deletion_system_logs" => "이 cron은 지정된 기간 후에 시스템 로그를 자동으로 삭제합니다.",
+    "enable_system_logs_cron" => "시스템 로그 삭제 활성화",
+    "system_logs_deletion_older_than" => "오래된 시스템 로그 삭제 기준.."
 ];

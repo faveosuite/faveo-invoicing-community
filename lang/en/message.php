@@ -2707,4 +2707,10 @@ return [
     'manager_settings_updated_successfully' => 'Manager settings updated successfully.',
 
     'user_position_prohibited_if' => 'The position field is not allowed when role is user.',
+
+    'system_logs_deletion' => 'System Logs Deletion',
+    'please_enable_system_logs_deletion' => 'Please enable system logs cron',
+    'cron_trigger_deletion_system_logs' => 'This cron will automatically delete system logs after the specified period.',
+    'enable_system_logs_cron' => 'Enable system logs deletion',
+    'system_logs_deletion_older_than' => 'System Logs Deletion Older than..',
 ];
