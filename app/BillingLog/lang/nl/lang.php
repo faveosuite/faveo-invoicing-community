@@ -90,4 +90,5 @@ return [
     'failed' => 'Mislukt',
     'send' => 'Verzenden',
     'queued' => 'In wachtrij',
+    "delete_logs_entries" => "Logboekvermeldingen verwijderen voor"
 ];

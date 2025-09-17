@@ -94,4 +94,5 @@ return [
     'failed' => 'Fehlgeschlagen',
     'send' => 'Senden',
     'queued' => 'In Warteschlange',
+    "delete_logs_entries" => "Protokolleinträge löschen vor"
 ];

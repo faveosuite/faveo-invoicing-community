@@ -94,4 +94,5 @@ return [
     'failed' => 'Neuspješno',
     'send' => 'Pošalji',
     'queued' => 'Na čekanju',
+    "delete_logs_entries" => "Izbriši unose u zapisnicima prije"
 ];

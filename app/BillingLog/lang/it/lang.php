@@ -94,4 +94,5 @@ return [
     'failed' => 'Fallito',
     'send' => 'Invia',
     'queued' => 'In coda',
+    "delete_logs_entries" => "Elimina le voci dei log precedenti a"
 ];

@@ -114,7 +114,7 @@ class AutomationController extends Job implements \Illuminate\Contracts\Queue\Jo
 
             Logger::outgoingMailSent($id);
 
-            return successResponse(trans('lang.queued_dispatch_successfully'));
+            return successResponse(trans('log::lang.queued_dispatch_successfully'));
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }

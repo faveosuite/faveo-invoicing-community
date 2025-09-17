@@ -94,4 +94,5 @@ return [
     'failed' => 'נכשל',
     'send' => 'שלח',
     'queued' => 'בתור',
+    "delete_logs_entries" => "מחק רשומות יומן לפני"
 ];

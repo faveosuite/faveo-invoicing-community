@@ -94,4 +94,5 @@ return [
     'failed' => '已失敗',
     'send' => '發送',
     'queued' => '排隊中',
+    "delete_logs_entries" => "刪除之前的日誌項目"
 ];

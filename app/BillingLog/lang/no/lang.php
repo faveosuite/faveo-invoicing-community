@@ -90,4 +90,5 @@ return [
     'failed' => 'Mislyktes',
     'send' => 'Send',
     'queued' => 'I kø',
+    "delete_logs_entries" => "Slett loggoppføringer før"
 ];

@@ -485,15 +485,10 @@
 
                 <div class="modal-body">
                     <div id="delete-alert"></div>
-                    <!-- From Date -->
-                    <div class="form-group">
-                        <label for="deleteFromDate">{{ __('log::lang.from_date') }}</label>
-                        <input type="date" class="form-control" id="deleteFromDate" name="from_date"/>
-                    </div>
 
                     <!-- To Date -->
                     <div class="form-group">
-                        <label for="deleteToDate">{{ __('log::lang.to_date') }}</label>
+                        <label for="deleteToDate">{{ __('log::lang.delete_logs_entries') }}</label>
                         <input type="date" class="form-control" id="deleteToDate" name="to_date"/>
                     </div>
 
@@ -547,7 +542,6 @@
                 this.showLogType('cron');
                 // Set default dates for delete modal
                 const today = new Date().toISOString().split('T')[0];
-                document.getElementById('deleteFromDate').value = today;
                 document.getElementById('deleteToDate').value = today;
             },
 
@@ -977,14 +971,11 @@
             },
 
             deleteLogs() {
-                const fromDate = document.getElementById('deleteFromDate').value;
                 const toDate = document.getElementById('deleteToDate').value;
-                const deleteFromDateEl = $('#deleteFromDate');
                 const deleteToDateEl = $('#deleteToDate');
                 const logTypesErrorEl = $('#logTypesError');
 
                 // Clear previous errors
-                deleteFromDateEl.removeClass('is-invalid');
                 deleteToDateEl.removeClass('is-invalid');
                 logTypesErrorEl.text('');
 
@@ -997,10 +988,6 @@
                 let hasError = false;
 
                 // Validation
-                if (!fromDate) {
-                    deleteFromDateEl.addClass('is-invalid');
-                    hasError = true;
-                }
                 if (!toDate) {
                     deleteToDateEl.addClass('is-invalid');
                     hasError = true;
@@ -1018,7 +1005,6 @@
                     method: 'delete',
                     data: {
                         _token: '{{ csrf_token() }}',
-                        from_date: fromDate,
                         to_date: toDate,
                         log_types: selectedTypes
                     },
@@ -1139,6 +1125,10 @@
                         autoDismiss: 5000,
                         containerSelector: '#log-table-alert',
                     });
+
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 5000)
                 },
                 error: function (xhr) {
                     helper.showAlert({

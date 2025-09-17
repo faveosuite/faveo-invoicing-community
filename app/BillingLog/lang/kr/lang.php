@@ -90,4 +90,5 @@ return [
     'failed' => '실패',
     'send' => '전송',
     'queued' => '대기열',
+    "delete_logs_entries" => "로그 항목 삭제 기준:"
 ];
