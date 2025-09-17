@@ -94,5 +94,5 @@ return [
     'failed' => '失敗',
     'send' => '送信',
     'queued' => 'キュー済み',
-    "delete_logs_entries" => "削除するログエントリの期間"
+    'delete_logs_entries' => '削除するログエントリの期間',
 ];

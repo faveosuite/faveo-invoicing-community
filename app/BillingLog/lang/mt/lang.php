@@ -90,5 +90,5 @@ return [
     'failed' => 'Fallut',
     'send' => 'Ibgħat',
     'queued' => 'Fil-Kju',
-    "delete_logs_entries" => "Ħassar entrati fir-reġistri qabel"
+    'delete_logs_entries' => 'Ħassar entrati fir-reġistri qabel',
 ];
