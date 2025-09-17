@@ -7,7 +7,6 @@ use App\Console\LoggableCommand;
 use App\Model\Common\StatusSetting;
 use App\Model\Mailjob\ExpiryMailDay;
 use Carbon\Carbon;
-use Config;
 use Illuminate\Console\Command;
 
 class DeleteLogs extends LoggableCommand
