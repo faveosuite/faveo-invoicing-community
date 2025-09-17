@@ -200,21 +200,7 @@ class LogWriteController
         // Parse to_date with end of day
         $toDate = $validated['to_date'] ? Carbon::parse($validated['to_date'])->endOfDay() : null;
 
-        $logModels = [
-            'cron' => CronLog::class,
-            'exception' => ExceptionLog::class,
-            'mail' => MailLog::class,
-        ];
-
-        foreach ($validated['log_types'] as $type) {
-            $query = $logModels[$type]::query();
-
-            if ($toDate) {
-                $query->where('created_at', '<=', $toDate);
-            }
-
-            $query->delete();
-        }
+        (new LogViewController())->deleteLogsByDate($validated['log_types'], $toDate);
 
         return successResponse('Logs deleted successfully');
     }

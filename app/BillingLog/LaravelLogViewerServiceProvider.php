@@ -2,6 +2,7 @@
 
 namespace App\BillingLog;
 
+use App\BillingLog\Console\Commands\DeleteLogs;
 use Blade;
 use Illuminate\Support\ServiceProvider;
 
@@ -23,6 +24,7 @@ class LaravelLogViewerServiceProvider extends ServiceProvider
         Blade::component('log::components.dynamic-table', 'log-dynamic-table');
 
         $this->commands([
+            DeleteLogs::class
         ]);
 
         // Load breadcrumbs if the package exists

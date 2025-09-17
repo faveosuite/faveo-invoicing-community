@@ -3,7 +3,9 @@
 namespace App\BillingLog\Controllers;
 
 use App\BillingLog\Model\CronLog;
+use App\BillingLog\Model\ExceptionLog;
 use App\BillingLog\Model\LogCategory;
+use App\BillingLog\Model\MailLog;
 use DataTables;
 use Illuminate\Http\Request;
 use Illuminate\Support\HtmlString;
@@ -96,5 +98,24 @@ class LogViewController
                 return new HtmlString(getDateHtml($row->updated_at));
             })
             ->make(true);
+    }
+
+    public function deleteLogsByDate($logTypes , $date)
+    {
+        $logModels = [
+            'cron' => CronLog::class,
+            'exception' => ExceptionLog::class,
+            'mail' => MailLog::class,
+        ];
+
+        foreach ($logTypes as $type) {
+            $query = $logModels[$type]::query();
+
+            if ($date) {
+                $query->where('created_at', '<=', $date);
+            }
+
+            $query->delete();
+        }
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\BillingLog\Console\Commands\DeleteLogs;
 use App\Console\Commands\SetupTestEnv;
 use App\Jobs\NotifyMail;
 use App\Model\Common\Setting;
@@ -36,7 +37,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\moveImages::class,
         \App\Console\Commands\invoiceDeletion::class,
         \App\Console\Commands\CleanupMsg91Reports::class,
-
+        DeleteLogs::class
     ];
 
     /**
@@ -55,6 +56,7 @@ class Kernel extends ConsoleKernel
         $this->execute($schedule, 'postExpirymail');
         $this->execute($schedule, 'invoice');
         $this->execute($schedule, 'msg91Reports');
+        $this->execute($schedule, 'systemLogs');
 
         // Schedule the cloudEmail method
         //Should not be touched unless you are changing something with cloud
@@ -94,6 +96,7 @@ class Kernel extends ConsoleKernel
             if (\Schema::hasColumn('status_settings', 'msg91_report_delete_status')) {
                 $msgDeletionStatus = StatusSetting::value('msg91_report_delete_status');
             }
+            $systemLogsStatus  = StatusSetting::pluck('system_log_status')->first();
             if ($delLogDays == null) {
                 $delLogDays = 99999999;
             }
@@ -126,6 +129,10 @@ class Kernel extends ConsoleKernel
                 case 'msg91Reports':
                     if (isset($msgDeletionStatus) && $msgDeletionStatus) {
                         return $this->getCondition($schedule->command('cleanup:msg-reports'), $command);
+                    }
+                case 'systemLogs':
+                    if ($systemLogsStatus) {
+                        return $this->getCondition($schedule->command('logs:delete'), $command);
                     }
             }
         }
