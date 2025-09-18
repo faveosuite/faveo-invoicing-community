@@ -200,7 +200,7 @@ class OrderController extends BaseOrderController
                         ->value('last_active');
                     $orderLink = '<a href='.url('orders/'.$model->id).'>'.$model->number.'</a>';
                     if ($model->subscription_updated_at) {
-                        $orderLink = '<a href='.url('orders/'.$model->id).'>'.$model->number.'</a>'.installationStatusLabel((!empty($last_active) && ($last_active > $ExpireDate)) ? 1 : 0);
+                        $orderLink = '<a href='.url('orders/'.$model->id).'>'.$model->number.'</a>'.installationStatusLabel((! empty($last_active) && ($last_active > $ExpireDate)) ? 1 : 0);
                     }
                     if ($model->order_status == 'Terminated') {
                         $badge = 'badge';
@@ -266,6 +266,7 @@ class OrderController extends BaseOrderController
                 ->make(true);
         } catch (\Exception $e) {
             dd($e->getMessage());
+
             return redirect('orders')->with('fails', $e->getMessage());
         }
     }
