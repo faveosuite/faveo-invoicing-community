@@ -895,7 +895,7 @@ foreach($scripts as $script) {
             $.ajax({
                 type: "GET",
                 url: "{{url('get-loginstate')}}/" + val,
-                data: {'country_id': val, '_token': "{{csrf_token()}}"},//'country_id=' + val,
+                data: {'country_id': val},//'country_id=' + val,
                 success: function (data) {
 
                     $("#state-list").html('<option value="">{{ __('message.error_select_country')}}</option>').val('');
@@ -911,7 +911,7 @@ foreach($scripts as $script) {
             $.ajax({
                 type: "GET",
                 url: "{{url('get-code')}}",
-                data: {'country_id': val, '_token': "{{csrf_token()}}"},//'country_id=' + val,
+                data: {'country_id': val},//'country_id=' + val,
                 success: function (data) {
                     $("#mobile_code").val(data);
                     $("#mobile_code_hidden").val(data);
@@ -923,7 +923,7 @@ foreach($scripts as $script) {
             $.ajax({
                 type: "GET",
                 url: "{{url('get-currency')}}",
-                data: {'country_id': val, '_token': "{{csrf_token()}}"},//'country_id=' + val,
+                data: {'country_id': val},//'country_id=' + val,
                 success: function (data) {
                     $("#currency").val(data);
                 }

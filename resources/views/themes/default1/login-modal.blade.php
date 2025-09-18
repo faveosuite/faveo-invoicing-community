@@ -1336,7 +1336,7 @@ $country = findCountryByGeoip($location['iso_code']);
         $.ajax({
             type: "GET",
             url: "{{url('get-code')}}",
-            data: {'country_id':val,'_token':"{{csrf_token()}}"},//'country_id=' + val,
+            data: {'country_id':val },//'country_id=' + val,
             success: function (data) {
                 console.log(data);
                 $("#mobile_code").val(data);
@@ -1348,7 +1348,7 @@ $country = findCountryByGeoip($location['iso_code']);
         $.ajax({
             type: "GET",
             url: "{{url('get-currency')}}",
-            data: {'country_id':val,'_token':"{{csrf_token()}}"},//'country_id=' + val,
+            data: {'country_id':val},//'country_id=' + val,
             success: function (data) {
                 $("#currency").val(data);
             }
