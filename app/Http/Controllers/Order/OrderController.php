@@ -193,7 +193,7 @@ class OrderController extends BaseOrderController
                 })
                 ->addColumn('number', function ($model) {
                     $ExpireDate = Carbon::now()->subDays(5)->toDateString();
-                    $installationDetails=InstallationDetail::where('order_id',$model->id)->latest();
+                    $installationDetails = InstallationDetail::where('order_id', $model->id)->latest();
                     $orderLink = '<a href='.url('orders/'.$model->id).'>'.$model->number.'</a>';
                     if ($model->subscription_updated_at) {
                         $orderLink = '<a href='.url('orders/'.$model->id).'>'.$model->number.'</a>'.installationStatusLabel(! empty($installationDetails) && ($installationDetails->last_active > $ExpireDate) ? 1 : 0);
