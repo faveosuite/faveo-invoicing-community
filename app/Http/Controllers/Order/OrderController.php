@@ -193,10 +193,14 @@ class OrderController extends BaseOrderController
                 })
                 ->addColumn('number', function ($model) {
                     $ExpireDate = Carbon::now()->subDays(5)->toDateString();
-                    $installationDetails=InstallationDetail::where('order_id',$model->id)->latest();
+
+//                    $installedPath = InstallationDetail::where('order_id', $model->id)->exists();
+                    $last_active = InstallationDetail::where('order_id', $model->id)
+                        ->latest()
+                        ->value('last_active');
                     $orderLink = '<a href='.url('orders/'.$model->id).'>'.$model->number.'</a>';
                     if ($model->subscription_updated_at) {
-                        $orderLink = '<a href='.url('orders/'.$model->id).'>'.$model->number.'</a>'.installationStatusLabel(! empty($installationDetails) && ($installationDetails->last_active > $ExpireDate) ? 1 : 0);
+                        $orderLink = '<a href='.url('orders/'.$model->id).'>'.$model->number.'</a>'.installationStatusLabel((!empty($last_active) && ($last_active > $ExpireDate)) ? 1 : 0);
                     }
                     if ($model->order_status == 'Terminated') {
                         $badge = 'badge';
@@ -261,6 +265,7 @@ class OrderController extends BaseOrderController
                 ->rawColumns(['checkbox', 'date', 'client', 'email', 'mobile', 'country', 'version', 'agents', 'number', 'status', 'plan_name', 'order_status', 'order_date', 'update_ends_at', 'action'])
                 ->make(true);
         } catch (\Exception $e) {
+            dd($e->getMessage());
             return redirect('orders')->with('fails', $e->getMessage());
         }
     }
