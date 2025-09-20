@@ -251,4 +251,12 @@ return[
         'reply_email' => '{{reply_email}}',
     ],
 
+    'user_profile_update' => [
+        'logo' => '{{logo}}',
+        'name' => '{{name}}',
+        'otp' => '{{otp}}',
+        'app_name' => '{{app_name}}',
+        'contact' => '{{contact}}',
+        'contact_url' => '{{contact_url}}',
+    ],
 ];
