@@ -188,9 +188,15 @@ input:checked + .slider:before {
                                         <label class="col-lg-3 col-form-label form-control-label line-height-9 pt-2 text-2 required">{{ __('message.email')}}</label>
                                         <div class="col-lg-9">
                                             <div class="input-group">
-                                            {!! html()->email('email')->class('form-control text-3 h-auto py-2')->id('Email')->attribute('readonly', 'readonly') !!}
+                                            {!! html()->email('email')
+                                                ->class('form-control text-3 h-auto py-2')
+                                                ->id('Email')
+                                                ->attribute('readonly', 'readonly')
+                                                ->attribute('tabindex', '-1')
+                                                ->attribute('style', 'pointer-events: none; background-color: #f8f9fa;') !!}
+
                                             <h6 id="emailCheck"></h6>
-                                                <span class="input-group-text bg-dark" role="button" id="editEmailBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="This edit icon shows change email">
+                                                <span class="input-group-text bg-dark" role="button" id="editEmailBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('message.click_to_change_email') }}">
                                             <i class="fas fa-pencil-alt text-white"></i>
                                         </span>
                                             </div>
@@ -207,11 +213,14 @@ input:checked + .slider:before {
                                             <div class="flex-grow-1">
                                                 {!! html()->input('tel', 'mobile', $user->mobile)
                                                     ->class('form-control selected-dial-code text-3 h-auto py-2')
+                                                    ->attribute('readonly', 'readonly')
+                                                    ->attribute('tabindex', '-1')
+                                                    ->attribute('style', 'pointer-events: none; background-color: #f8f9fa;')
                                                     ->attribute('dir', in_array(app()->getLocale(), ['ar', 'he']) ? 'rtl' : 'ltr')
                                                     ->id('incode') !!}
                                             </div>
 
-                                            <span class="input-group-text bg-dark" role="button" id="editMobileBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="This edit icon shows change mobile number">
+                                            <span class="input-group-text bg-dark" role="button" id="editMobileBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('message.click_to_change_mobile_no') }}">
                                                <i class="fas fa-pencil-alt text-white"></i>
                                             </span>
                                         </div>
@@ -262,7 +271,8 @@ input:checked + .slider:before {
                                      <div class="form-group row {{ $errors->has('=country') ? 'has-error' : '' }}">
                                         <label class="col-lg-3 col-form-label form-control-label line-height-9 pt-2 text-2">{{ __('message.country')}}</label>
                                         <div class="col-lg-9">
-                                            {!! html()->text('country', $selectedCountry)->class('form-control input-lg text-3 h-auto py-2')->attribute('onChange', 'getCountryAttr(this.value);')->attribute('title',trans('message.admin_update_country'))->attribute('readonly', 'readonly')->attribute('data-toggle', 'tooltip')->attribute('data-placement', 'top') !!}
+                                            {!! html()->text('country', $selectedCountry)->class('form-control input-lg text-3 h-auto py-2')->attribute('onChange', 'getCountryAttr(this.value);')->attribute('title',trans('message.admin_update_country'))->attribute('readonly', 'readonly')->attribute('data-toggle', 'tooltip')->attribute('data-placement', 'top')->attribute('tabindex', '-1')
+                                                    ->attribute('style', 'pointer-events: none; background-color: #f8f9fa;')!!}
 
                                             {!! html()->hidden('country')->id('country') !!}
                                             <h6 id="countryCheck"></h6>
