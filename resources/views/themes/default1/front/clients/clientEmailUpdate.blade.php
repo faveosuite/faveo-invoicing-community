@@ -4,71 +4,76 @@
     <div class="modal-dialog modal-dialog-centered" style="max-width: 570px;">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">{{ __('Update Email Address') }}</h5>
+                <h5 class="modal-title">{{ __('message.update_email_address') }}</h5>
                 <button type="button" class="btn-close closeandrefresh" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div id="emailAlertShow" class="alert alert-danger alert-dismissible " role="alert" style="display: none">
                     <span id="emailAlertShowMsg"></span>
-                    <button type="button" class="btn-close"
-                            data-bs-dismiss="alert"
-                            aria-label="Close">
-                    </button>
                 </div>
                 <form id="editEmailForm">
                     @csrf
                     <div class="form-group mb-3">
                         <label for="newEmail">{{ __('message.emailSettings_details.email') }}</label>
                         <input type="text" class="form-control" id="newEmail" name="email_to_verify">
-                        <span id="editEmailError" class="text-danger"></span>
+                        <span id="editEmailError" class="invalid-feedback"></span>
                     </div>
-                    <button type="submit" id="editEmailFormBtn" class="btn btn-dark">{{ __('message.submit') }}</button>
-                </form>
                 <div id="editEmailSuccess" class="text-success mt-2" style="display:none;"></div>
             </div>
+
+            <div class="modal-footer">
+                <button type="button" id="editEmailFormBtnCancel" class="btn btn-default pull-left closebutton">{{ __('message.cancel') }}</button>
+
+                <button type="submit" id="editEmailFormBtn" class="btn btn-dark">{{ __('message.submit') }}</button>
+
+            </div>
+            </form>
+
         </div>
     </div>
 </div>
 
 <!-- OTP Verification Modal for New Email -->
 <div class="modal fade" id="otpVerificationModal" tabindex="-1" role="dialog" aria-labelledby="otpVerificationModalLabel" aria-hidden="true">
-    {{--    <div class="modal fade" id="editEmailModal" tabindex="-1" role="dialog" aria-labelledby="otpVerificationModalLabel" aria-hidden="true">--}}
     <div class="modal-dialog modal-dialog-centered" style="max-width: 570px;">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">{{ __('OTP Code Verification') }}</h5>
+                <h5 class="modal-title">{{ __('message.otp_code_verification') }}</h5>
                 <button type="button" class="btn-close closeandrefresh" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div id="otpSuccess" class="alert alert-danger alert-dismissible " role="alert" style="display: none">
+                <div class="alert alert-warning" id="otpInfo" role="alert">
+                    <i class="fa fa-info-circle me-2"></i>
+                    <span id="otp-message" data-msg="{{ __('message.otp_sent_new_email') }}">
+                    </span>
+                </div>
+                <div id="otpSuccess" class="alert alert-danger alert-dismissible " role="alert" style="display:block; padding: 10px 12px; font-size: 14px;">
                     <span id="otpAlertShowMsg"></span>
-                    <button type="button" class="btn-close"
-                            data-bs-dismiss="alert"
-                            aria-label="Close">
-                    </button>
                 </div>
 
                 <form id="otpVerificationForm">
                     @csrf
                     <div class="form-group mb-3">
-                        <label for="otpCode">{{ __('Enter OTP Code') }}</label>
-                        <input type="text" class="form-control" id="otpCodeNew" name="otp_code">
+                        <label for="otpCode">{{ __('message.enter_otp_code') }}</label>
+                        <input type="text" class="form-control" id="otpCodeNew" name="otp_code" maxlength="6">
                         <input type="hidden" id="otpNewEmail" name="email_to_verify">
-                        <span id="otpError" class="text-danger"></span>
+                        <span id="otpErrorNew" class="invalid-feedback mb-2"></span>
+                        <span class="font-italic">{{ __('message.enter_otp_code_verify') }}</span>
                     </div>
                     <div class="col-12 mt-4">
                         <div class="row">
-                            <div class="col-6 px-0">
-                                <button id="otpButtonn" type="button" onclick="resendOTP('email', null)"
-                                        class="btn border-0 p-0 d-inline-flex align-items-center"
-                                        style="width: 110px; white-space: nowrap;">
-                                    <i class="fa fa-refresh mr-1"></i>{{ __('message.resend_email') }}
+                            <div class="col-6 px-0 d-flex align-items-center fs-6">
+                                <button id="otpButtonn" type="button"
+                                        class="btn btn-link p-0"
+                                        style="color: gray; pointer-events: none; text-decoration: none;">
+                                    <i class="fa fa-refresh"></i>
+                                    {{ __('message.get_new_otp_code') }}
                                 </button>
-                                <div id="timerEmail" class="ml-2"></div>
+                                <div id="timerEmail" class="ms-2"></div>
                             </div>
                             <div class="col-6 px-0 text-end">
                                 <button type="submit" id="verifyOtpBtn"  class="btn btn-primary btn-lg">
-                                    <span id="emailVerifyBtnText">Verify</span>
+                                    <span id="emailVerifyBtnText">{{ __('message.verify') }}</span>
                                 </button>
                             </div>
                         </div>
@@ -86,41 +91,80 @@
         <div id="otpAlertError" class="alert alert-danger d-none"></div>
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">{{ __('OTP Code Verification') }}</h5>
+                <h5 class="modal-title">{{ __('message.otp_code_verification') }}</h5>
                 <button type="button" class="btn-close closeandrefresh" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div id="otpAlertSuccess" class="alert alert-success"></div>
+                <div class="alert alert-warning" id="otpInfo" role="alert">
+                    <i class="fa fa-info-circle me-2"></i>
+                    <span>{{ __('message.otp_sent_to_old_email', ['email' => $user->email]) }}</span>
+                </div>
+                <div id="otpSuccessOld" class="alert d-none " role="alert" style="display: none">
+                    <span id="otpAlertShowMsgOld"></span>
+                </div>
 
-                <form id="otpVerificationForm">
+                <form id="otpVerificationFormOld">
                     @csrf
                     <div class="form-group mb-3">
-                        <label for="otpCode">{{ __('Enter OTP Code') }}</label>
-                        <input type="text" class="form-control" id="otpCodeOld" name="otp_code" required>
-                        <input type="hidden" id="otpOldEmail" name="email_to_verify">
-                        <span id="otpError" class="text-danger"></span>
+                        <label for="otpCode">{{ __('message.enter_otp_code') }}</label>
+                        <input type="text" class="form-control" id="otpCodeOld" name="otp_code">
+                        <input type="hidden" id="otpOldEmail" name="email_to_verify" value="{{ $user->email }}">
+                        <span id="otpErrorOld" class="invalid-feedback mb-2"></span>
+                        <span class="font-italic">{{ __('message.enter_otp_old_email') }}</span>
                     </div>
                     <div class="col-12 mt-4">
                         <div class="row">
-                            <div class="col-6 px-0">
-                                <button id="resendOtpBtn" type="button" onclick="resendOTP('email',null)" class="btn border-0 p-0 d-inline-flex align-items-center">
-                                    <i class="fa fa-refresh mr-1"></i> Resend Email
+                            <div class="col-6 px-0 d-flex align-items-center">
+                                <button id="resendOtpBtn" type="button"
+                                        class="btn btn-link p-0"
+                                        style="color: gray; pointer-events: none; text-decoration: none;">
+                                    <i class="fa fa-refresh"></i>
+                                    {{ __('message.get_new_otp_code') }}
                                 </button>
-                                <div id="timerEmail" class="ml-2" style="display: none;">00 seconds</div>
+                                <div id="timerEmailOld" class="ms-2"></div>
                             </div>
                             <div class="col-6 px-0 text-end">
-                                <button type="submit" id="verifyOtpBtn"  class="btn btn-primary btn-lg">
-                                    <span id="emailVerifyBtnText">Verify</span>
+                                <button type="submit" id="verifyOtpBtnOld"  class="btn btn-primary btn-lg">
+                                    <span id="emailVerifyBtnText">{{ __('message.verify') }}</span>
                                 </button>
                             </div>
                         </div>
                     </div>
                 </form>
-{{--                <div id="otpSuccess" class="text-success mt-2" style="display:none;"></div>--}}
             </div>
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="emailSuccessModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="successModalLabel">
+                    {{ __('message.email_changed_successfully') }}
+                </h5>
+                <button type="button" class="btn-close closeandrefresh white-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+            </div>
+            <div class="modal-body text-center">
+                <div class="mb-4">
+                    <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+                </div>
+                <h5 class="text-success mb-3">{{ __('message.email_updated_successfully') }}</h5>
+                <div class="alert alert-success alert-dismissible fade show">
+                    <p class="mb-1 text-black">{{ __('message.your_email_changed_successfully') }}</p>
+                    <strong id="finalNewEmailDisplay">{{ $user->email  }}</strong>
+                </div>
+            </div>
+            <div class="modal-footer center-footer">
+                <button type="button" class="btn btn-dark" data-bs-dismiss="modal" onclick="location.reload()">
+                    {{ __('message.done') }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <style>
     #otpButton {
@@ -137,6 +181,12 @@
         font-size: 14px;
         font-weight: 600;
     }
+    .white-close {
+        filter: invert(1) brightness(100%);
+    }
+    .modal-footer.center-footer {
+        justify-content: center !important;
+    }
 </style>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -146,24 +196,21 @@
 <script>
     $(document).ready(function() {
         $(document).on("close.bs.alert", "#emailAlertShow", function (e) {
-            e.preventDefault(); // stop Bootstrap from removing from DOM
-            $(this).hide();     // just hide instead
+            e.preventDefault();
+            $(this).hide();
         });
 
         $(document).on("close.bs.alert", "#otpSuccess", function (e) {
-            e.preventDefault(); // stop Bootstrap from removing from DOM
-            $(this).hide();     // just hide instead
+            e.preventDefault();
+            $(this).hide();
         });
-        // const otpButton = document.getElementById("otpButton");
-        // const additionalButton = document.getElementById("additionalButton");
-        const timerDisplay = document.getElementById("timer");
-        const emailOtpButton = document.getElementById("otpButtonn");
-        const emailTimerDisplay = document.getElementById("timerEmail");
-        let timerInterval;
-        let emailTimerInterval;
 
-        const TIMER_DURATION = 120;
-        let emailCountdown = TIMER_DURATION;
+        $(document).on("close.bs.alert", "#otpSuccessOld", function (e) {
+            e.preventDefault();
+            $(this).hide();
+        });
+
+        const csrfToken = $('input[name="_token"]').val();
 
         // Email edit modal logic
         $('#editEmailBtn').on('click', function() {
@@ -174,66 +221,67 @@
             $('#newEmail').removeClass('is-invalid'); // Remove error styling
         });
 
-        // 🔹 Submit email update
+        //Submit email update
   $('#editEmailForm').on('submit', function (e) {
         e.preventDefault();
-      console.log("One")
         let emailField = $('#newEmail');
         let emailVal = emailField.val().trim();
         let errorBox = $('#editEmailError');
         let successBox = $('#editEmailSuccess');
-        const csrfToken = $('input[name="_token"]').val();
 
-        // Reset UI states
         emailField.removeClass('is-invalid');
         errorBox.text('');
         successBox.hide();
 
-        // 🔹 Validation: Empty
         if (!emailVal) {
-            showValidationError(emailField, errorBox, "Email is required.");
+            showValidationError(emailField, errorBox, "{{ __('message.login_validation.email_required') }}");
             return;
         }
 
-        // 🔹 Validation: Regex
         let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(emailVal)) {
-            showValidationError(emailField, errorBox, "Invalid email format.");
+            showValidationError(emailField, errorBox, "{{ __('message.login_validation.email_regex') }}");
             return;
         }
 
-        // 🔹 Step 1: Check if email exists
       $.ajax({
           url: "{{ url('check-email/exist') }}",
           type: "POST",
           data: { _token: csrfToken, email: emailVal },
           beforeSend: function () {
               // Disable button and show loading message
-              $("#editEmailFormBtn").prop("disabled", true).text("Sending...");
+              $("#editEmailFormBtn").prop("disabled", true).text("{{ __('message.sending') }}");
           },
           success: function (res) {
-              console.log("✅ Success response:", res);
+              console.log("A", res);
               if (res.success) {
-                  sendOtpToNewEmail(emailVal, csrfToken, errorBox);
+                  if (res.data.email_verification_required === false) {
+                      changeEmailFinal(emailVal, csrfToken, errorBox);
+                  } else {
+                      sendOtpToNewEmail(emailVal, csrfToken, errorBox);
+                  }
+
+                  let template = document.getElementById('otp-message').dataset.msg;
+                  document.getElementById('otp-message').innerText = template.replace(':email', emailVal);
+
+              }
+              else {
+                  $("#editEmailFormBtn").prop("disabled", false).text("{{ __('message.submit') }}");
               }
           },
           error: function (xhr) {
               let errorRes = xhr.responseJSON || {};
-              let message = errorRes.message || "Something went wrong!";
+              let message = errorRes.message || "{{ __('message.something_wrong') }}";
 
               let alertBox = $("#emailAlertShow");
-              console.log(alertBox);
 
               alertBox
-                  .removeClass() // clear old classes
+                  .removeClass()
                   .addClass("alert alert-danger alert-dismissible fade show")
-                  .css("display", "block"); // force show again
+                  .css("display", "block");
 
               $("#emailAlertShowMsg").text(message);
           },
-          complete: function () {
-              $("#editEmailFormBtn").prop("disabled", false).text("Submit");
-          }
       });
     });
 
@@ -253,37 +301,73 @@
             data: { _token: csrfToken, email_to_verify: email },
             success: function (response) {
                 if (response.success) {
-                    // store new email in hidden input for OTP verify
+                    $("#editEmailFormBtn").prop("disabled", false).text("{{ __('message.submit') }}");
                     $('#otpNewEmail').val(email);
 
                     // close email modal
                     $('#editEmailModal').modal('hide');
 
+
                     let alertOtpBox = $("#otpSuccess");
-                    alertOtpBox
-                        .removeClass() // clear old classes
-                        .addClass("alert alert-danger alert-dismissible fade show")
-                        .css("display", "block"); // force show again
+                    $('#otpSuccess').hide();
 
-                    $("#otpAlertShowMsg").text(message);
-
-                    // open OTP modal
                     setTimeout(() => {
-                        $('#otpVerificationModal').modal('show');
-                        $('#otpSuccess').text(response.message).show(); // success msg inside OTP modal
+                        $('#otpVerificationModal')  .modal('show');
+
+                        const button = document.getElementById("otpButtonn");
+                        const display = document.getElementById("timerEmail");
+                        startTimer(button, display, RESEND_DURATION);
+
                     }, 400);
                 } else {
-                    errorBox.text(response.message || "Something went wrong!");
+                    errorBox.text(response.message || "{{ __('message.something_wrong') }}");
                 }
             },
             error: function () {
-                showServerError(errorBox, "{{ __('Server error, please try again!') }}");
+                showServerError(errorBox, "{{ __('message.something_wrong') }}");
             }
         });
     }
+
+
+        $('#otpCodeNew').on('input', function () {
+            let value = $(this).val();
+
+            // Remove non-numeric characters
+            value = value.replace(/\D/g, '');
+
+            // Limit to 6 digits
+            if (value.length > 6) {
+                value = value.substring(0, 6);
+            }
+
+            $(this).val(value);
+        });
+
         //Submit OTP verification and verify new email
         $('#otpVerificationForm').on('submit', function(e) {
             e.preventDefault();
+            let otpValueNew = $('#otpCodeNew');
+            let otpCodeValue = otpValueNew.val().trim();
+            let errorBox2 = $('#otpErrorNew');
+            let successBox2 = $('#otpSuccessNew');
+
+            // Reset UI states
+            otpValueNew.removeClass('is-invalid');
+            errorBox2.text('');
+            successBox2.hide();
+
+            if (!otpCodeValue) {
+                showValidationError(otpValueNew, errorBox2, "{{ __('message.otp_code_required') }}");
+                return;
+            }
+
+            // Validation: only numbers and 6 digits
+            let otpRegex = /^\d{6}$/;
+            if (!otpRegex.test(otpCodeValue)) {
+                showValidationError(otpValueNew, errorBox2, "{{ __('message.otp_code_invalid') }}");
+                return;
+            }
 
             let formData = {
                 _token: $('input[name="_token"]').val(),
@@ -291,124 +375,138 @@
                 email_to_verify: $('#otpNewEmail').val()
             };
 
-            $('#otpError').text('');
             $('#otpSuccess').hide();
 
             $.ajax({
                 url: "{{ url('otpVerifyForNewEmail') }}",
                 type: "POST",
                 data: formData,
+                beforeSend: function () {
+                    // Disable button and show loading message
+                    $("#verifyOtpBtn").prop("disabled", true).text("{{ __('message.2fa_verifying') }}");
+                },
                 success: function (response) {
-                    console.log("OTP verification success", response);
+                    if(response.success){
+                    let oldEmail = "{{ auth()->user()->email }}";
 
-                    if (response.success) {
-                        $('#otpSuccess').text(response.message).show();
-                        $('#otpVerificationModal').modal('hide');
+                    $("#otpAlertShowMsg").text(response.message);
 
-                        $.ajax({
-                            url: "{{ url('emailUpdateEditProfile') }}",
-                            type: "POST",
-                            data: {
-                                _token: $('input[name="_token"]').val(),
-                                email_to_verify: "{{ \Auth::user()->email }}" // old email
-                            },
-                            success: function (res) {
-                                if (res.success) {
-                                    $('#otpOldEmail').val("{{ \Auth::user()->email }}");
-                                    $('#otpVerificationModalForOldEmail').modal('show');
-                                    $('#otpAlertSuccess').removeClass('d-none').text(res.message);
-                                } else {
-                                    $('#otpAlertError').removeClass('d-none').text(res.message || "Failed to send OTP.");
-                                }
-                            },
-                            error: function () {
-                                $('#otpAlertError').removeClass('d-none').text("{{ __('Server error, please try again!') }}");
-                            }
-                        });
-                    } else {
-                        $('#otpError').text(response.message || "Invalid OTP, please try again.");
+                        sendOtpToOldEmail(oldEmail,csrfToken,errorBox2);
+                    }
+                    else {
+                        showValidationError(otpValueNew, errorBox2, response.message || "{{ __('message.invalid_otp_try_again') }}");
+                        $("#verifyOtpBtn").prop("disabled", false).text("{{ __('message.verify') }}");
                     }
                 },
                 error: function (xhr) {
-                    if (xhr.responseJSON && xhr.responseJSON.errors) {
-                        if (xhr.responseJSON.errors.otp) {
-                            $('#otpError').text(xhr.responseJSON.errors.otp[0]);
-                        } else if (xhr.responseJSON.errors.new_email) {
-                            $('#otpError').text(xhr.responseJSON.errors.new_email[0]);
-                        }
-                    } else {
-                        $('#otpError').text("{{ __('Server error, please try again!') }}");
-                    }
-                }
+                    let errorRes2 = xhr.responseJSON || {};
+                    let message2 = errorRes2.message || "{{ __('message.something_wrong') }}";
+                    showValidationError(otpValueNew, errorBox2, message2);
+                    $("#verifyOtpBtn").prop("disabled", false).text("{{ __('message.verify') }}");
+
+                },
             });
         });
 
-        $('#confirmYesBtn').on('click', function () {
-            let confirmedEmail = $('#confirmedEmail').val();
-
+        function  sendOtpToOldEmail(oldEmail,csrfToken,errorbox2) {
             $.ajax({
                 url: "{{ url('emailUpdateEditProfile') }}",
                 type: "POST",
                 data: {
                     _token: $('input[name="_token"]').val(),
-                    email_to_verify: confirmedEmail
+                    email_to_verify: $('#otpOldEmail').val(),
                 },
-                success: function (response) {
-                    if (response.success) {
-                        $('#otpOldEmail').val(confirmedEmail); // pass email to hidden field
-                        $('#confirmEmailModal').modal('hide');
-                        $('#otpVerificationModalForOldEmail').modal('show');
-                        $('#otpAlertSuccess').removeClass('d-none').text(response.message);
+                success: function (res) {
+                    if (res.success) {
+                        $('#otpOldEmail').val("{{ \Auth::user()->email }}");
+                        $('#otpVerificationModal').modal('hide');
+                        let alertOtpBox = $("#otpSuccessOld");
+
+
+                        setTimeout(() => {
+                            $('#otpVerificationModalForOldEmail').modal('show');
+                            const button2 = document.getElementById("resendOtpBtn");
+                            const display2 = document.getElementById("timerEmailOld");
+                            startTimer(button2, display2, RESEND_DURATION);
+
+                        }, 400);
+
                     } else {
-                        $('#otpAlertError').removeClass('d-none').text(response.message || "Failed to send OTP.");
+                        $('#otpAlertError').removeClass('d-none').text(res.message || "{{ __('message.failed_sent_otp') }}");
                     }
                 },
                 error: function () {
-                    $('#otpAlertError').removeClass('d-none').text("{{ __('Server error, please try again!') }}");
+                    $('#otpAlertError').removeClass('d-none').text("{{ __('message.something_wrong') }}");
                 }
             });
+        }
+
+
+        $('#otpCodeOld').on('input', function () {
+            let value = $(this).val();
+
+            // Remove non-numeric characters
+            value = value.replace(/\D/g, '');
+
+            // Limit to 6 digits
+            if (value.length > 6) {
+                value = value.substring(0, 6);
+            }
+
+            $(this).val(value);
         });
 
         //Submit OTP verification and verify old email
-        $('#otpVerificationModalForOldEmail').on('submit', function(e) {
+        $('#otpVerificationFormOld').on('submit', function(e) {
+            console.log(e);
             e.preventDefault();
+            let otpValueOld = $('#otpCodeOld');
+            let otpCodeValueOld = otpValueOld.val().trim();
+            let errorBox3 = $('#otpErrorOld');
+            let successBox3 = $('#otpSuccessOld');
+            console.log(otpCodeValueOld,otpCodeValueOld,errorBox3,successBox3);
 
+            // Reset UI states
+            otpValueOld.removeClass('is-invalid');
+            errorBox3.text('');
+            successBox3.hide();
+
+            if (!otpCodeValueOld) {
+                showValidationError(otpValueOld, errorBox3, "{{ __('message.otp_code_required') }}");
+                return;
+            }
+
+            // Validation: only numbers and 6 digits
+            let otpRegex = /^\d{6}$/;
+            if (!otpRegex.test(otpCodeValueOld)) {
+                showValidationError(otpValueOld, errorBox3, "{{ __('message.otp_code_invalid') }}");
+                return;
+            }
             let formData = {
                 _token: $('input[name="_token"]').val(),
                 otp: $('#otpCodeOld').val(),
                 email_to_verify: $('#otpOldEmail').val()
             };
 
-            $('#otpError').text('');
-            $('#otpSuccess').hide();
+            $('#otpErrorOld').text('');
+            $('#otpSuccessOld').hide();
 
             $.ajax({
                 url: "{{ url('otpVerifyForNewEmail') }}",
                 type: "POST",
                 data: formData,
                 success: function (response) {
-                    console.log("OTP verification success", response);
 
                     if (response.success) {
-                        $('#otpSuccess').text(response.message).show();
                         changeEmailFinal();
-                        $('#otpVerificationModalForOldEmail').modal('hide');
-
-
                     } else {
-                        $('#otpError').text(response.message || "Invalid OTP, please try again.");
+                        $('#otpErrorOld').text(response.message || "{{ __('message.invalid_otp_try_again') }}");
                     }
                 },
                 error: function (xhr) {
-                    if (xhr.responseJSON && xhr.responseJSON.errors) {
-                        if (xhr.responseJSON.errors.otp) {
-                            $('#otpError').text(xhr.responseJSON.errors.otp[0]);
-                        } else if (xhr.responseJSON.errors.new_email) {
-                            $('#otpError').text(xhr.responseJSON.errors.new_email[0]);
-                        }
-                    } else {
-                        $('#otpError').text("{{ __('Server error, please try again!') }}");
-                    }
+                    let errorRes3 = xhr.responseJSON || {};
+                    let message3 = errorRes3.message || "{{ __('message.something_wrong') }}";
+                    showValidationError(otpValueOld, errorBox3, message3);
                 }
             });
         });
@@ -423,57 +521,113 @@
                 },
                 success: function (res) {
                     if (res.success) {
-                        alert("Email changed successfully!");
-                        location.reload();
-                    } else {
-                        alert(res.message || "Email update failed.");
+                        $("#editEmailFormBtn").prop("disabled", false).text("{{ __('message.submit') }}");
+                        $('#otpVerificationModalForOldEmail').modal('hide');
+                        $('#editEmailModal').modal('hide');
+                        $('#emailSuccessModal').modal('show');
                     }
+                },
+                error: function (xhr) {
+                    let errorRes = xhr.responseJSON || {};
+                    let message = errorRes.message || "{{ __('message.something_wrong') }}";
+                    let alertBoxOld = $("#otpSuccessOld");
+
+                    alertBoxOld
+                        .removeClass()
+                        .addClass("alert alert-danger alert-dismissible fade show")
+                        .css("display", "block");
+
+
+                    $("#otpAlertShowMsgOld").text(message);
                 }
             });
         }
 
+        $('#otpButtonn').on('click', function (e) {
+            if (this.disabled) return;
+            $('#otpSuccess').hide();
+            resendOTP('email','otpNewEmail','otpSuccess','otpAlertShowMsg','otpButtonn','timerEmail','verifyOtpBtn');
+        });
+
+        $('#resendOtpBtn').on('click', function (e) {
+            if (this.disabled) return;
+            $('#otpSuccessOld').hide();
+            resendOTP('email','otpOldEmail','otpSuccessOld','otpAlertShowMsgOld','resendOtpBtn','timerEmailOld','verifyOtpBtnOld');
+        });
+
+        function resendOTP(type, inputId, alertId,msgId,btnId,timerId,verifyBtnId) {
+            let emailToVerify = $("#" + inputId).val();
+            let alertOtpResent = $("#" + alertId);
+            let verifyBtn = $("#" + verifyBtnId);
+            let msgSpan = $("#" + msgId);
+            $.ajax({
+                url: "{{ url('resendOtp/email-mobile') }}",
+                type: "POST",
+                data: {
+                    _token: csrfToken,
+                    type: type,
+                    email_to_verify:emailToVerify,
+                },
+                beforeSend: function () {
+                    verifyBtn.prop("disabled", true).text("{{ __('message.2fa_verifying') }}");
+                },
+                success: function (response) {
+                    if (type === "email") {
+
+                        alertOtpResent
+                            .removeClass()
+                            .addClass("alert alert-success alert-dismissible fade show")
+                            .css("display", "block");
+
+                        msgSpan.text(response.message);
+                        let button = document.getElementById(btnId);
+                        let display = document.getElementById(timerId);
+                        if (button && display) {
+                            startTimer(button, display);
+                        }
+                    }
+                },
+                error: function (xhr) {
+                    let res = xhr.responseJSON || {};
+                    let resMsg= res.message || "{{ __('message.something_wrong') }}";
+                    alertOtpResent
+                        .removeClass()
+                        .addClass("alert alert-success alert-dismissible fade show")
+                        .css("display", "block");
+
+                    msgSpan.text(resMsg);
+                },
+                complete: function () {
+                    verifyBtn.prop("disabled", false).text("{{ __('message.verify') }}");
+                },
+            });
+        }
+
+        const RESEND_DURATION = 10;
 
         function updateTimer(display, countdown) {
             display.textContent = countdown.toString().padStart(2, '0') + " seconds";
         }
 
-        function startTimer(button, display, duration, type = 'mobile') {
-            clearInterval(emailTimerInterval);
-            emailCountdown = duration;
-            button.disabled = true;
-            display.style.display = "block";
-            updateTimer(display, emailCountdown);
+        function startTimer(button, display, duration = RESEND_DURATION) {
+            let countdown = duration;
+            button.style.color = "gray";
+            button.style.pointerEvents = "none";
+            updateTimer(display, countdown);
 
-            emailTimerInterval = setInterval(() => {
-                emailCountdown--;
-                if (emailCountdown <= 0) {
-                    clearInterval(emailTimerInterval);
-                    button.disabled = false;
-                    display.style.display = "none";
+            let interval = setInterval(() => {
+                countdown--;
+                if (countdown <= 0) {
+                    clearInterval(interval);
+                    display.textContent = "";
+                    button.style.color = "#099fdc";
+                    button.style.pointerEvents = "auto";
+                } else {
+                    updateTimer(display, countdown);
                 }
-                updateTimer(display, emailCountdown);
             }, 1000);
         }
 
-        async function resendOTP(default_type, type) {
-            let data = {
-                _token: $('input[name="_token"]').val(),
-                default_type: default_type   //fixed (backend expects this key)
-            };
-
-            $.ajax({
-                url: '{{ url('resend-otp/profile-update') }}',
-                type: 'POST',
-                data: data,
-                success: function (response) {
-                    startTimer(emailOtpButton, emailTimerDisplay, TIMER_DURATION, 'email');
-                    showAlert('success', response.message, '#alert-container-email');
-                },
-                error: function (error) {
-                    showAlert('danger', error.responseJSON.message, '#alert-container-email');
-                }
-            });
-        }
-
     });
+
 </script>
