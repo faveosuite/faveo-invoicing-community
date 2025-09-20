@@ -662,6 +662,12 @@ Route::middleware('installAgora')->group(function () {
     Route::post('user/change-email', [User\ProfileController::class, 'changeEmailOldToNew']);
     Route::post('resend-otp/profile-update', [User\ProfileController::class, 'resendOtpForProfileUpdate']);
     Route::post('check-email/exist', [User\ProfileController::class, 'checkEmailExist']);
+    Route::post('newMobileNoVerify', [User\ProfileController::class, 'requestOtpForNewMobileNo']);
+    Route::post('MobileNoexist', [User\ProfileController::class, 'checkMobileNoExist']);
+    Route::post('verify/newMobileNoOtp', [User\ProfileController::class, 'verifyOtpMobileNew']);
+    Route::post('user/change-mobile-no', [User\ProfileController::class, 'changeMobileOldToNew']);
+    Route::post('resendOtp/email-mobile', [User\ProfileController::class, 'resentOtpProfile']);
+
 });
 /*
 * Faveo APIs
