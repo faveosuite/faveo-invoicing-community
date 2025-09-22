@@ -265,7 +265,6 @@ class OrderController extends BaseOrderController
                 ->rawColumns(['checkbox', 'date', 'client', 'email', 'mobile', 'country', 'version', 'agents', 'number', 'status', 'plan_name', 'order_status', 'order_date', 'update_ends_at', 'action'])
                 ->make(true);
         } catch (\Exception $e) {
-            dd($e->getMessage());
             return redirect('orders')->with('fails', $e->getMessage());
         }
     }
