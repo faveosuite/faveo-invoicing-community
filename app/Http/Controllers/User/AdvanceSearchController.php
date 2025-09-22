@@ -87,7 +87,7 @@ class AdvanceSearchController extends AdminOrderInvoiceController
 
             return $balance;
         } catch (\Exception $ex) {
-            app('log')->info($ex->getMessage());
+            \Logger::exception($ex);
 
             return redirect()->back()->with('fails', $ex->getMessage());
         }

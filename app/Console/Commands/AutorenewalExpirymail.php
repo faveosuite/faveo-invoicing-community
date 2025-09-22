@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Console\LoggableCommand;
 use App\Http\Controllers\Common\CronController;
-use Illuminate\Console\Command;
 
-class AutorenewalExpirymail extends Command
+class AutorenewalExpirymail extends LoggableCommand
 {
     /**
      * The name and signature of the console command.
@@ -26,7 +26,7 @@ class AutorenewalExpirymail extends Command
      *
      * @return int
      */
-    public function handle()
+    public function handleAndLog()
     {
         $controller = new CronController();
         $controller->autoRenewalExpiryNotify();

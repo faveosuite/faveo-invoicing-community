@@ -2694,6 +2694,11 @@ return [
     'manager_settings_updated_successfully' => 'Manager-Einstellungen wurden erfolgreich aktualisiert.',
 
     'user_position_prohibited_if' => 'Das Feld Position ist nicht erlaubt, wenn die Rolle Benutzer ist.',
+    'system_logs_deletion' => 'Systemprotokoll-Löschung',
+    'please_enable_system_logs_deletion' => 'Bitte aktivieren Sie Systemprotokoll-Cron',
+    'cron_trigger_deletion_system_logs' => 'Dieser Cron löscht Systemprotokolle nach dem angegebenen Zeitraum automatisch.',
+    'enable_system_logs_cron' => 'Systemprotokoll-Löschung aktivieren',
+    'system_logs_deletion_older_than' => 'Systemprotokoll-Löschung älter als..',
     'delete_invoice_older' => 'Rechnungen löschen, die älter sind als...',
     'deletion_cloud_subscription' => 'Cloud-Abonnements löschen, die vor mehr als ... abgelaufen sind...',
     'msg_service_down' => 'Derzeit gibt es Probleme mit unserem OTP-Dienst. Bitte versuchen Sie es in Kürze erneut. Wir arbeiten an einer schnellen Lösung.',

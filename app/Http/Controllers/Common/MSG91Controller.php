@@ -52,7 +52,7 @@ class MSG91Controller extends Controller
                 });
             });
         } catch (\Exception $e) {
-            \Log::error('Error processing MSG91 reports: '.$e->getMessage());
+            \Logger::exception($e);
 
             return;
         }

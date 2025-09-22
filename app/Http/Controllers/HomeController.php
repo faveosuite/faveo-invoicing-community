@@ -438,7 +438,7 @@ class HomeController extends BaseHomeController
                 $message = ['version' => str_replace('v', '', $product->version)];
             }
         } catch (\Exception $e) {
-            app('log')->error($e->getMessage());
+            \Logger::exception($e);
             $message = ['error' => $e->getMessage()];
         }
 
