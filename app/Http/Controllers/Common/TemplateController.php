@@ -282,7 +282,7 @@ class TemplateController extends Controller
         $price1 = currencyFormat($cost, $code = $currency);
         $months = $cost == 0 ? $priceDescription : $months;
         $priceDescription = $priceDescription == '' ? $months : $priceDescription;
-        $price[$value->id]['cost']=rounding($cost);
+        $price[$value->id]['cost'] = rounding($cost);
         $price[$value->id]['price'] = $price1.' '.$priceDescription;
         $price[$value->id]['description'] = $priceDescription != '' ? $priceDescription : '';
 

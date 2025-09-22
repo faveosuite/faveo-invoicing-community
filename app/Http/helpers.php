@@ -16,7 +16,7 @@ use GuzzleHttp\Client;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\RateLimiter;
 
-function getLocation($ip=null)
+function getLocation($ip = null)
 {
     try {
         $location = \GeoIP::getLocation($ip);
