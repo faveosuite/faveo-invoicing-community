@@ -500,7 +500,6 @@ class PageController extends Controller
                 ->orderBy('id')
                 ->get();
 
-
             $trasform = [];
             $templates = $this->getTemplateOne($productsRelatedToGroup, $trasform);
             if (empty($templates)) {
