@@ -2748,5 +2748,5 @@ return [
     'otp_sent_to_email_for_mobile_change' => ':email にOTPを送信しました。携帯番号の変更を確認するためにOTPを入力してください',
     'mobile_no_changed_successfully' => '携帯番号が正常に変更されました',
     'mobile_no_updated_successfully' => '携帯番号が正常に更新されました！',
-    'your_mobile_no_changed_successfully' => 'あなたの携帯番号は以下のように正常に変更されました：'
+    'your_mobile_no_changed_successfully' => 'あなたの携帯番号は以下のように正常に変更されました：',
 ];
