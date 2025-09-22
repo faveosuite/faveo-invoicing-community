@@ -95,6 +95,9 @@ class ProfileController extends BaseAuthController
         }
     }
 
+    /**
+     * Send verification code to new email or existing email based on the method.
+     */
     public function sendNewEmailVerification(Request $request, $method = 'POST')
     {
         $request->validate([
@@ -121,7 +124,7 @@ class ProfileController extends BaseAuthController
             if (AccountActivate::where('email', $newEmailOrExisting)->first() && $method !== 'GET') {
                 return successResponse(__('message.email_verification.already_sent'));
             }
-           // return successResponse('New Email successfully sent to you');
+
             $this->sendActivationForEdit($user, $newEmailOrExisting, $method, 'new_email');
 
             return successResponse(
@@ -134,6 +137,9 @@ class ProfileController extends BaseAuthController
         }
     }
 
+    /**
+     * Send activation code to the specified email with template.
+     */
     public function sendActivationForEdit($user, $email, $method,$mode=null)
     {
         $contact = getContactData();
@@ -193,6 +199,9 @@ class ProfileController extends BaseAuthController
         }
     }
 
+    /**
+     * Verify OTP for new and old email address.
+     */
     public function verifyOtpForEditEmail(Request $request)
     {
         $request->validate([
@@ -226,53 +235,65 @@ class ProfileController extends BaseAuthController
             return errorResponse(__('message.email_verification.invalid_token'));
         }
     }
+    /**
+     Update old email to new email after OTP verification success
+     */
 
     public function changeEmailOldToNew(Request $request)
     {
-        $request->validate([
-            'newEmail' => 'required|email',
-        ],[
-            'newEmail.required' => __('message.login_validation.email_required'),
-            'newEmail.email' => __('message.login_validation.email_regex'),
-        ]);
+            $request->validate([
+                'newEmail' => 'required|email',
+            ],[
+                'newEmail.required' => __('message.login_validation.email_required'),
+                'newEmail.email' => __('message.login_validation.email_regex'),
+            ]);
+        try {
+            $user = auth()->user();
 
-        $user = auth()->user();
+            // Update logged-in user email directly
+            $user->email = $request->input('newEmail');
+            $user->save();
 
-        //Update logged-in user email directly
-        $user->email = $request->input('newEmail');
-        $user->save();
-
-        return successResponse( __('message.new_email_updated'));
+            return successResponse(__('message.new_email_updated'), ['email' => $user->email]);
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
     }
 
-    // PHP
+    /**
+     * Check if the given email already exists in the system.
+     */
     public function checkEmailExist(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-        ], [
-            'email.required' => __('validation.email_required'),
-            'email.email' => __('validation.email_invalid'),
-        ]);
+            $request->validate([
+                'email' => 'required|email',
+            ], [
+                'email.required' => __('validation.email_required'),
+                'email.email' => __('validation.email_invalid'),
+            ]);
+        try {
+            $email = $request->input('email');
+            $exists = User::where('email', $email)->exists();
+            $statusSetting = StatusSetting::query()->first();
+            $emailVerificationRequired = $statusSetting?->emailverification_status ?? false;
 
-        $email = $request->input('email');
-        $exists = User::where('email', $email)->exists();
-        $statusSetting = StatusSetting::query()->first();
-        $emailVerificationRequired = $statusSetting?->emailverification_status ?? false;
+            if ($exists) {
+                return errorResponse(__('message.email_already_used'));
+            }
 
-
-        if ($exists) {
-            return errorResponse( __('message.email_already_used'));
+            return successResponse(
+                __('message.given_email_valid'),
+                [
+                    'email_verification_required' => (bool) $emailVerificationRequired,
+                ]
+            );
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
         }
-
-        return successResponse(
-            __('message.given_email_valid'),
-            [
-                'email_verification_required' => (bool) $emailVerificationRequired,
-            ]
-        );
     }
-
+    /**
+      Generate otp code to new mobile number
+     */
    public function requestOtpForNewMobileNo(Request $request,$isResend ='POST')
    {
        $request->validate([
@@ -306,97 +327,89 @@ class ProfileController extends BaseAuthController
        }
    }
 
-/**
- * Send OTP to a new mobile number (not yet saved in DB).
- */
-public function sendOtpForNewMobileNo($dialCode, $mobileNo, $countryIso): bool
-{
-
-    $fullMobile = preg_replace('/\D/', '', $dialCode . $mobileNo);
-
-    // Get API Keys
-    $msgKey = ApiKey::find(1, ['msg91_auth_key', 'msg91_sender', 'msg91_template_id']);
-    if (! $msgKey) {
-        \Log::error("MSG91 API keys not found.");
-        return false;
-    }
-
-    $sender     = $msgKey->msg91_sender;
-    $templateId = $msgKey->msg91_template_id;
-
-    $queryParams = [
-        'template_id' => $templateId,
-        'sender'      => $sender,
-        'mobile'      => $fullMobile,
-        'otp_length'  => 6,
-        'otp_expiry'  => 10,
-    ];
-
-    // Call MSG91 API
-    $response = $this->makeRequestForMobileNo('POST', 'https://api.msg91.com/api/v5/otp', $queryParams);
-
-    // Debug log
-
-    // ✅ For new number, no DB update needed — just check response
-    return isset($response['type']) && $response['type'] !== 'error';
-}
-    private function makeRequestForMobileNo(string $method, string $url, array $queryParams = [])
+    /**
+     * Send OTP to a new mobile number with msg91.
+     */
+    public function sendOtpForNewMobileNo($dialCode, $mobileNo, $countryIso): bool
     {
-        $msgKey = ApiKey::find(1, ['msg91_auth_key', 'msg91_sender', 'msg91_template_id']);
-        $client = new Client();
-        $authKey = $msgKey->msg91_auth_key;
         try {
-            $response = $client->request($method, $url, [
-                'headers' => [
-                    'authkey' => $authKey,
-                    'Content-Type' => 'application/json',
-                ],
-                'query' => $queryParams,
-            ]);
+            $fullMobile = preg_replace('/\D/', '', $dialCode . $mobileNo);
 
-            return json_decode($response->getBody(), true);
+            // Get API Keys
+            $msgKey = ApiKey::find(1, ['msg91_auth_key', 'msg91_sender', 'msg91_template_id']);
+            if (! $msgKey) {
+                \Log::error("MSG91 API keys not found.");
+                return false;
+            }
+
+            $sender     = $msgKey->msg91_sender;
+            $templateId = $msgKey->msg91_template_id;
+
+            $queryParams = [
+                'template_id' => $templateId,
+                'sender'      => $sender,
+                'mobile'      => $fullMobile,
+                'otp_length'  => 6,
+                'otp_expiry'  => 10,
+            ];
+
+            // Call MSG91 API
+            $response = $this->makeRequest('POST', 'https://api.msg91.com/api/v5/otp', $queryParams);
+
+            return isset($response['type']) && $response['type'] !== 'error';
         } catch (\Exception $e) {
-            return ['type' => 'error', 'message' => $e->getMessage()];
+            \Log::error('sendOtpForNewMobileNo error: ' . $e->getMessage());
+            return false;
         }
     }
 
+    /**
+      check mobile number already exist in the system
+     */
     public function checkMobileNoExist(Request $request)
     {
-        $request->validate([
-            'mobile_to_verify' => 'required|string',
-            'dial_code'        => 'required|string',
-            'country_iso'      => 'required|string',
-        ], [
-            'mobile_to_verify.required' => __('validation.profile_form.mobile.required'),
-            'mobile_to_verify.string'   => __('validation.profile_form.mobile.regex'),
-            'dial_code.required'        => __('message.dialcode_required'),
-            'country_iso.required'      => __('message.isocode_required'),
-        ]);
+        try {
+            $request->validate([
+                'mobile_to_verify' => 'required|string',
+                'dial_code'        => 'required|string',
+                'country_iso'      => 'required|string',
+            ], [
+                'mobile_to_verify.required' => __('validation.profile_form.mobile.required'),
+                'mobile_to_verify.string'   => __('validation.profile_form.mobile.regex'),
+                'dial_code.required'        => __('message.dialcode_required'),
+                'country_iso.required'      => __('message.isocode_required'),
+            ]);
 
-        $statusSetting = StatusSetting::query()->first();
-        $mobileVerificationRequired = $statusSetting?->msg91_status ?? false;
+            $statusSetting = StatusSetting::query()->first();
+            $mobileVerificationRequired = $statusSetting?->msg91_status ?? false;
 
-        // Clean mobile number (only digits)
-        $mobile = preg_replace('/\D/', '', $request->mobile_to_verify);
+            // Clean mobile number (only digits)
+            $mobile = preg_replace('/\D/', '', $request->mobile_to_verify);
 
-        // Check in DB
-        $exists = User::where('mobile', $mobile)
-            ->where('mobile_code', $request->dial_code)
-            ->where('mobile_country_iso', strtoupper($request->country_iso))
-            ->exists();
+            // Check in DB
+            $exists = User::where('mobile', $mobile)
+                ->where('mobile_code', $request->dial_code)
+                ->where('mobile_country_iso', strtoupper($request->country_iso))
+                ->exists();
 
-        if ($exists) {
-            return errorResponse(__('message.mobile_no_already_used'));
+            if ($exists) {
+                return errorResponse(__('message.mobile_no_already_used'));
+            }
+
+            return successResponse(
+                __('message.given_mobile_no_valid'),
+                [
+                    'mobile_verification_required' => (bool) $mobileVerificationRequired,
+                ]
+            );
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
         }
-
-        return successResponse(
-            __('message.given_mobile_no_valid'),
-            [
-                'mobile_verification_required' => (bool) $mobileVerificationRequired,
-            ]
-        );
     }
 
+    /**
+     * Verify OTP for new mobile number.
+     */
     public function verifyOtpMobileNew(Request $request)
     {
         $request->validate([
@@ -429,6 +442,9 @@ public function sendOtpForNewMobileNo($dialCode, $mobileNo, $countryIso): bool
         }
     }
 
+    /**
+      Update old mobile number to new mobile number after OTP verification success
+     */
     public function changeMobileOldToNew(Request $request)
     {
         $request->validate([
@@ -438,21 +454,32 @@ public function sendOtpForNewMobileNo($dialCode, $mobileNo, $countryIso): bool
         ], [
             'newMobile.required' => __('validation.profile_form.mobile.required'),
             'newMobile.string'   => __('validation.profile_form.mobile.regex'),
-            'dial_code.required'        => __('message.dialcode_required'),
-            'country_iso.required'      => __('message.isocode_required'),
+            'dial_code.required' => __('message.dialcode_required'),
+            'country_iso.required' => __('message.isocode_required'),
         ]);
 
-        $user = auth()->user();
+        try {
+            $user = auth()->user();
 
-        // Update logged-in user's mobile details
-        $user->mobile       = $request->input('newMobile');
-        $user->mobile_code  = $request->input('dial_code');
-        $user->mobile_country_iso   = $request->input('country_iso');
-        $user->save();
+            $user->mobile = $request->input('newMobile');
+            $user->mobile_code = $request->input('dial_code');
+            $user->mobile_country_iso = $request->input('country_iso');
+            $user->save();
 
-        return successResponse(__('message.new_mobile_no_updated'));
+            return successResponse(__('message.new_mobile_no_updated'),
+                [
+                    'mobile'      => $user->mobile,
+                    'mobile_code' => $user->mobile_code,
+                ]);
+
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
     }
 
+    /**
+     * Make HTTP request to the given URL with parameters.
+     */
     public function resentOtpProfile(Request $request)
     {
         $default_type = $request->input('type');

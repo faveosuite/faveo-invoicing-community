@@ -53,7 +53,7 @@ class BaseAuthController extends Controller
         }
     }
 
-    private function makeRequest(string $method, string $url, array $queryParams = []): array
+    protected function makeRequest(string $method, string $url, array $queryParams = [])
     {
         $msgKey = ApiKey::find(1, ['msg91_auth_key', 'msg91_sender', 'msg91_template_id']);
         $client = new Client();
