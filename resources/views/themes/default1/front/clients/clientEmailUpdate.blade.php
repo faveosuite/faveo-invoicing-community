@@ -99,7 +99,7 @@
                     <i class="fa fa-info-circle me-2"></i>
                     <span>{{ __('message.otp_sent_to_old_email', ['email' => $user->email]) }}</span>
                 </div>
-                <div id="otpSuccessOld" class="alert d-none " role="alert" style="display: none">
+                <div id="otpSuccessOld" class="alert d-none " role="alert" style="display:block; padding: 10px 12px; font-size: 14px;">
                     <span id="otpAlertShowMsgOld"></span>
                 </div>
 
@@ -151,9 +151,9 @@
                     <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
                 </div>
                 <h5 class="text-success mb-3">{{ __('message.email_updated_successfully') }}</h5>
-                <div class="alert alert-success alert-dismissible fade show">
+                <div class="alert alert-success alert-dismissible fade show"  id="emailUpdatedAlert" style="display: none">
                     <p class="mb-1 text-black">{{ __('message.your_email_changed_successfully') }}</p>
-                    <strong id="finalNewEmailDisplay">{{ $user->email  }}</strong>
+                    <strong id="finalNewEmailDisplay"></strong>
                 </div>
             </div>
             <div class="modal-footer center-footer">
@@ -210,6 +210,11 @@
             $(this).hide();
         });
 
+        $(document).on("close.bs.alert", "#emailUpdatedAlert", function (e) {
+            e.preventDefault();
+            $(this).hide();
+        });
+
         const csrfToken = $('input[name="_token"]').val();
 
         // Email edit modal logic
@@ -253,10 +258,9 @@
               $("#editEmailFormBtn").prop("disabled", true).text("{{ __('message.sending') }}");
           },
           success: function (res) {
-              console.log("A", res);
               if (res.success) {
                   if (res.data.email_verification_required === false) {
-                      changeEmailFinal(emailVal, csrfToken, errorBox);
+                      changeEmailFinal();
                   } else {
                       sendOtpToNewEmail(emailVal, csrfToken, errorBox);
                   }
@@ -458,13 +462,11 @@
 
         //Submit OTP verification and verify old email
         $('#otpVerificationFormOld').on('submit', function(e) {
-            console.log(e);
             e.preventDefault();
             let otpValueOld = $('#otpCodeOld');
             let otpCodeValueOld = otpValueOld.val().trim();
             let errorBox3 = $('#otpErrorOld');
             let successBox3 = $('#otpSuccessOld');
-            console.log(otpCodeValueOld,otpCodeValueOld,errorBox3,successBox3);
 
             // Reset UI states
             otpValueOld.removeClass('is-invalid');
@@ -512,6 +514,7 @@
         });
 
         function changeEmailFinal() {
+            let emailSuccessBox = $('#editEmailSuccess');
             $.ajax({
                 url: "{{ url('user/change-email') }}",
                 type: "POST",
@@ -524,7 +527,16 @@
                         $("#editEmailFormBtn").prop("disabled", false).text("{{ __('message.submit') }}");
                         $('#otpVerificationModalForOldEmail').modal('hide');
                         $('#editEmailModal').modal('hide');
+
+                        // ✅ Update new email from DB response
+                        $("#finalNewEmailDisplay").text(res.data.email);
+
+                        // ✅ Show the hidden alert box
+                        $("#emailUpdatedAlert").show();
+
+                        // ✅ Show success modal
                         $('#emailSuccessModal').modal('show');
+
                     }
                 },
                 error: function (xhr) {
@@ -603,7 +615,7 @@
             });
         }
 
-        const RESEND_DURATION = 10;
+        const RESEND_DURATION = 60;
 
         function updateTimer(display, countdown) {
             display.textContent = countdown.toString().padStart(2, '0') + " seconds";

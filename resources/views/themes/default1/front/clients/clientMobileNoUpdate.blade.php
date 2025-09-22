@@ -167,9 +167,9 @@
                             <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
                         </div>
                         <h5 class="text-success mb-3">{{ __('message.mobile_no_updated_successfully') }}</h5>
-                        <div class="alert alert-success">
+                        <div class="alert alert-success" id="mobileUpdatedAlert" style="display: none">
                             <p class="mb-1 text-black">{{ __('message.your_mobile_no_changed_successfully') }}</p>
-                            <strong id="finalNewMobileDisplay">+{{ $user->mobile_code . ' ' . $user->mobile }}</strong>
+                            <strong id="finalNewMobileDisplay"></strong>
                         </div>
                     </div>
                     <div class="modal-footer center-footer">
@@ -223,6 +223,10 @@
             $(this).hide();
         });
 
+        $(document).on("close.bs.alert", "#mobileUpdatedAlert", function (e) {
+            e.preventDefault();
+            $(this).hide();
+        });
 
         function showValidationError(field, errorBox, message) {
             field.addClass('is-invalid');       // red border
@@ -507,9 +511,7 @@
         function changeMobileFinal() {
 
             let alertMobOtpSuccess3 = $("#otpSuccessMobile");
-            console.log(window.AppGlobals.newMobileFull);
-            console.log(window.AppGlobals.dialCode);
-            console.log(window.AppGlobals.isoCode);
+            let alertMobSuccessBox = $("#mobileUpdatedAlert");
             $.ajax({
                 url: "{{ url('user/change-mobile-no') }}",
                 type: "POST",
@@ -523,6 +525,12 @@
                     if (res.success) {
                         $('#confirmationFromEmailModal').modal('hide');
                         $('#editMobileModal').modal('hide');
+                        $("#finalNewMobileDisplay").text("+" + res.data.mobile_code + " " + res.data.mobile);
+                        alertMobSuccessBox
+                            .removeClass()
+                            .addClass("alert alert-success alert-dismissible fade show")
+                            .css("display", "block");
+
                         $('#mobileSuccessModal').modal('show');
                     }
                 },
@@ -659,7 +667,7 @@
         }
 
 
-        const RESEND_DURATION = 10; // 1 min lock
+        const RESEND_DURATION = 60; // 1 min lock
 
         function updateTimer(display, countdown) {
             display.textContent = countdown.toString().padStart(2, '0') + " seconds";
