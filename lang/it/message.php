@@ -2741,5 +2741,5 @@ return [
     'otp_sent_to_email_for_mobile_change' => 'Un OTP è stato inviato a :email per verifica. Inserisci l’OTP per confermare il cambio del numero di cellulare',
     'mobile_no_changed_successfully' => 'Numero di cellulare cambiato con successo',
     'mobile_no_updated_successfully' => 'Numero di cellulare aggiornato con successo!',
-    'your_mobile_no_changed_successfully' => 'Il tuo numero di cellulare è stato cambiato con successo in:'
+    'your_mobile_no_changed_successfully' => 'Il tuo numero di cellulare è stato cambiato con successo in:',
 ];

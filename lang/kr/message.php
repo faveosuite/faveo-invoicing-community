@@ -2766,5 +2766,5 @@ return [
     'otp_sent_to_email_for_mobile_change' => ':email 로 OTP가 전송되었습니다. 휴대폰 번호 변경을 확인하려면 OTP를 입력해주세요',
     'mobile_no_changed_successfully' => '휴대폰 번호가 성공적으로 변경되었습니다',
     'mobile_no_updated_successfully' => '휴대폰 번호가 성공적으로 업데이트되었습니다!',
-    'your_mobile_no_changed_successfully' => '귀하의 휴대폰 번호가 다음으로 성공적으로 변경되었습니다：'
+    'your_mobile_no_changed_successfully' => '귀하의 휴대폰 번호가 다음으로 성공적으로 변경되었습니다：',
 ];
