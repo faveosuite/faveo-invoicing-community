@@ -2707,5 +2707,7 @@ return [
     'deletion_cloud_subscription' => 'Slett skytjenesteabonnementer som utløp for mer enn...',
     'msg_service_down' => 'Vi opplever for øyeblikket problemer med vår OTP-tjeneste. Vennligst prøv igjen om en liten stund. Vi jobber med å løse problemet så raskt som mulig.',
     'cloud_plan_error' => 'Vennligst fjern skyproduktet eller koble det til en alternativ plan.',
+    'short_description' => 'Kort beskrivelse',
+    'add_short_description' => 'Vennligst skriv inn en kort beskrivelse.',
 
 ];

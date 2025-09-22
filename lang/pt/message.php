@@ -2679,5 +2679,7 @@ return [
 
     'user_position_prohibited_if' => 'O campo posição não é permitido quando o papel é usuário.',
     'cloud_plan_error' => 'Por favor, remova o produto em nuvem ou vincule-o a um plano alternativo.',
+    'short_description' => 'Descrição curta',
+    'add_short_description' => 'Por favor, insira uma descrição curta.',
 
 ];

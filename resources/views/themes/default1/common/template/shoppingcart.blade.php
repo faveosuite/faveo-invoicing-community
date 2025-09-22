@@ -20,7 +20,49 @@ main
 
 @section('content')
 <style>
-        .planhide{
+    .tooltip-text-hover {
+        position: relative;
+        cursor: pointer;
+        display: inline-block;
+        overflow: visible; /* make sure the tooltip can show outside */
+    }
+
+    .tooltip-text-hover {
+        text-decoration: underline dotted #aaa;
+    }
+
+
+    .tooltip-text-hover .tooltip-text {
+        visibility: hidden;
+        opacity: 0;
+        background: #333;
+        color: #fff;
+        padding: 6px 10px;
+        border-radius: 4px;
+        white-space: normal;   /* allow wrapping */
+        max-width: 250px;      /* control tooltip width */
+        position: absolute;
+        bottom: 125%;          /* place above */
+        left: 50%;
+        transform: translateX(-50%);
+        transition: opacity 0.2s;
+        z-index: 10000;        /* ensure above other elements */
+    }
+
+    .tooltip-text-hover:hover .tooltip-text {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    .hide_custom {
+        display:none;
+    }
+
+.striked{
+    font-size: 2.7rem !important;
+}
+
+    .planhide{
             display: none;
         }
       .highlight_batch {
@@ -133,8 +175,13 @@ main
         }
        .plan-features ul {
     list-style-type: none;
-    padding: 0;
+           padding-top:50px !important;
 }
+
+       .plan-price{
+           margin-bottom: 1px !important;
+           padding-bottom: 1px !important;
+       }
 
 .plan-features li {
     position: relative;
@@ -313,31 +360,98 @@ $(document).ready(function() {
     if (numberOfTemplates < 3) {
         $('.owl-carousel.nav-outside').addClass('center-templates');
     }
+    var status={!! $status->status !!};
+
+
 });
+
+
 
   document.addEventListener("DOMContentLoaded", function () {
       document.querySelectorAll(".content-switcher").forEach(function (switcher) {
+          var status={!! $status->status !!};
           const card = switcher.closest(".card");
           const priceElement = card.querySelector(".price");
           const priceLabel=card.querySelector(".price-label");
           const priceUnit = priceElement.querySelector(".price-unit");
           const stylePlanSelect = card.querySelector(".stylePlan");
-
+          const strikes = [...document.querySelectorAll(".strike")];
+          if(status){
+              document.querySelectorAll('.price-unit').forEach(el => {
+                  el.classList.remove('hide_custom'); // remove only this class
+              });
+          }
           if (stylePlanSelect && priceUnit) {
               stylePlanSelect.value = priceUnit.id;
+              const container = stylePlanSelect.closest('.plan-price');
 
+              const toDisplay2 = $(container).find(`.price-unit.strike-amount#${stylePlanSelect.value}`);
+              toDisplay2.removeClass('hide_custom');
+              const toDisplay=$(container).find(`#${stylePlanSelect.value}`);
+              toDisplay.removeClass('hide_custom');
               // Listen for change event on the select element
-              stylePlanSelect.addEventListener("change", function () {
-                  const selectedOption = this.options[this.selectedIndex];
-                  const newPrice = selectedOption.getAttribute("data-price");
-                  const newCurrency = selectedOption.textContent.trim().charAt(0);
-                  const newLabel= selectedOption.getAttribute("data-description");
-                  if (priceUnit && newPrice) {
-                      priceUnit.textContent = newCurrency;
-                      priceUnit.nextSibling.textContent = newPrice;
-                      priceLabel.textContent=newLabel;
+              // stylePlanSelect.addEventListener("change", function () {
+              //
+              //     const container = $(this).closest('.plan-price');
+              //
+              //     const strike=container.find('.strike');
+              //     // now search inside only this container
+              //     const striked = container.find('.price-unit.striked');
+              //     const toDisplay2 = container.find(`.price-unit.strike-amount#${stylePlanSelect.value}`);
+              //     toDisplay2.removeClass('hide_custom');
+              //     const toDisplay=container.find(`#${stylePlanSelect.value}`);
+              //     toDisplay.removeClass('hide_custom');
+              //     // const selectedOption = this.options[this.selectedIndex];
+              //
+              //     // const newPrice = selectedOption.getAttribute("data-price");
+              //     // const newCurrency = selectedOption.textContent.trim().charAt(0);
+              //     // const newLabel= selectedOption.getAttribute("data-description");
+              //     // const id=selectedOption.getAttribute("value");
+              //     // if(id !== striked.attr('id') ){
+              //     //     strike.hide();
+              //     // }else{
+              //     //     strike.show();
+              //     // }
+              //     // if (priceUnit && newPrice) {
+              //     //     priceUnit.textContent = newCurrency;
+              //     //     priceUnit.nextSibling.textContent = newPrice;
+              //     //     priceLabel.textContent=newLabel;
+              //     // }
+              // });
+              $('.stylePlan').on('change', function () {
+                  const $select = $(this);
+                  const $container = $select.closest('.plan-price');
+
+                  // Hide all strike-amount and striked spans inside this container
+                  $container.find('.price-unit.strike-amount, .price-unit.striked').addClass('hide_custom');
+
+                  // Show only the selected strike-amount
+                  $container.find(`.price-unit.strike-amount#${this.value}`).removeClass('hide_custom');
+
+                  // Show only the selected striked span (if any)
+                  $container.find(`#${this.value}`).removeClass('hide_custom');
+                  const $selectedOption = $(this).find('option:selected');
+                  const newPrice = $selectedOption.attr("data-price");
+                  const newCurrency = $selectedOption.text().trim().charAt(0);
+                  const newLabel = $selectedOption.attr("data-description");
+                  const $priceUnit = $container.find('.price');
+                  const $priceLabel = $container.find('.price-label');
+                  const formatter = new Intl.NumberFormat();
+
+                  const formattedAmount = formatter.format(newPrice);
+                  if ($priceUnit.length && newPrice) {
+                      $priceUnit.html(`<span id="${this.value}" class="currency-symbol">${newCurrency}</span>${formattedAmount}`);
+
+                      // $priceUnit[0].textContent="<span id={$(this).value}>{newCurrency}</span>{newPrice}";
+                      // $priceUnit[0].textContent=newCurrency;
+                      // $priceUnit[0].textContent=newPrice;
+                  }
+
+                  if ($priceLabel.length) {
+                      $priceLabel.text(newLabel);
                   }
               });
+
           }
       });
   });

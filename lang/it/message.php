@@ -2696,5 +2696,7 @@ return [
 
     'user_position_prohibited_if' => 'Il campo posizione non è consentito quando il ruolo è utente.',
     'cloud_plan_error' => 'Si prega di rimuovere il prodotto cloud o collegarlo a un piano alternativo.',
+    'short_description' => 'Breve descrizione',
+    'add_short_description' => 'Si prega di inserire una breve descrizione.',
 
 ];

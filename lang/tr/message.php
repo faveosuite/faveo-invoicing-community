@@ -2714,5 +2714,7 @@ return [
 
     'user_position_prohibited_if' => 'Rol kullanıcı olduğunda pozisyon alanına izin verilmez.',
     'cloud_plan_error' => 'Lütfen bulut ürününü kaldırın veya alternatif bir plana bağlayın.',
+    'short_description' => 'Kısa açıklama',
+    'add_short_description' => 'Lütfen kısa bir açıklama girin.',
 
 ];

@@ -122,8 +122,46 @@
 
                             <script>
                                 tinymce.init({
-                                    selector: 'textarea',
+                                    selector: '#textarea1',
                                     height: 500,
+                                    theme: 'silver',
+                                    relative_urls: true,
+                                    remove_script_host: false,
+                                    convert_urls: false,
+                                    plugins: [
+                                        'advlist autolink lists link image charmap print preview hr anchor pagebreak',
+                                        'searchreplace wordcount visualblocks visualchars code fullscreen',
+                                        'insertdatetime media nonbreaking save table contextmenu directionality',
+                                        'emoticons template paste textcolor colorpicker textpattern imagetools'
+                                    ],
+                                    toolbar1: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image',
+                                    toolbar2: 'print preview media | forecolor backcolor emoticons',
+                                    image_advtab: true,
+                                    templates: [
+                                        {title: 'Test template 1', content: 'Test 1'},
+                                        {title: 'Test template 2', content: 'Test 2'}
+                                    ],
+                                    content_css: [
+                                        '//fast.fonts.net/cssapi/e6dc9b99-64fe-4292-ad98-6974f93cd2a2.css',
+                                        '//www.tinymce.com/css/codepen.min.css'
+                                    ]
+                                });
+
+
+                            </script>
+
+                            {!! html()->label(trans('message.price_description'), 'price_description')->class('required') !!}
+                            {!! html()->textarea('description')->class('form-control'.($errors->has('description') ? ' is-invalid' : ''))->id('textarea1') !!}
+                            <h6 id= "descheck"></h6>
+                            @error('description')
+                            <span class="error-message"> {{$message}}</span>
+                            @enderror
+                            <script src="https://cdn.tiny.cloud/1/4f0mdhyghkekvb5nle8s7aai2g2dooxhbv9yh3dunatblh6l/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+
+                            <script>
+                                tinymce.init({
+                                    selector: '#textarea3',
+                                    height: 200,
                                     theme: 'silver',
                                     relative_urls: true,
                                     remove_script_host: false,
@@ -148,12 +186,14 @@
                                 });
                             </script>
 
-                            {!! html()->label(trans('message.price_description'), 'price_description')->class('required') !!}
-                            {!! html()->textarea('description')->class('form-control'.($errors->has('description') ? ' is-invalid' : ''))->id('textarea1') !!}
-                            <h6 id= "descheck"></h6>
-                            @error('description')
+                            {!! html()->label(Lang::get('message.short_description'), 'short_description')->class('required') !!}
+                          <!--  {!! html()->text('short_description')->class('form-control'.($errors->has('short_description') ? ' is-invalid' : ''))->id('textarea3') !!}-->
+                            <textarea hidden class="form-control"  name="short_description" id='textarea3'></textarea>
+
+                            @error('short_description')
                             <span class="error-message"> {{$message}}</span>
                             @enderror
+                            <h6 id= "descheck"></h6>
                         </div>
                         <div class="col-md-6">
 
@@ -444,6 +484,7 @@
                     agent:@json(trans('message.product_details.add_description')),
                     quantity:@json(trans('message.product_details.add_description')),
                     productdes:@json(trans('message.product_details.add_product_description')),
+                    short_description:@json(trans('message.add_short_description')),
 
                 };
 
@@ -467,7 +508,7 @@
                         product_sku:$('#product_sku'),
                         description:$('#textarea2'),
                         productdes:$('#textarea1'),
-
+                        short_description:$('#textarea3'),
                     };
 
                     // Clear previous errors

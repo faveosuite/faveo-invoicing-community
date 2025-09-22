@@ -16,10 +16,10 @@ use GuzzleHttp\Client;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\RateLimiter;
 
-function getLocation()
+function getLocation($ip = null)
 {
     try {
-        $location = \GeoIP::getLocation();
+        $location = \GeoIP::getLocation($ip);
 
         return $location;
     } catch (Exception $ex) {
