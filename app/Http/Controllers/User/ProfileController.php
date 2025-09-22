@@ -4,17 +4,13 @@ namespace App\Http\Controllers\User;
 
 use App\ApiKey;
 use App\Facades\Attach;
-use App\Http\Controllers\Common\MSG91Controller;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Auth\BaseAuthController;
 use App\Http\Requests\User\ProfileRequest;
 use App\Model\Common\StatusSetting;
 use App\Model\User\AccountActivate;
 use App\User;
-use GuzzleHttp\Client;
 use Hash;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Auth\BaseAuthController;
-use phpDocumentor\Reflection\Types\Null_;
 use Session;
 
 class ProfileController extends BaseAuthController
@@ -39,7 +35,7 @@ class ProfileController extends BaseAuthController
                     $end = strpos($location, ')', $start + 1);
                     $length = $end - $start;
                     $result = substr($location, $start + 1, $length - 1);
-                    $display[] = ['id' => $timezone->id, 'name' => '(' . $result . ')' . ' ' . $timezone->name];
+                    $display[] = ['id' => $timezone->id, 'name' => '('.$result.')'.' '.$timezone->name];
                 }
             }
             //for display
@@ -112,12 +108,14 @@ class ProfileController extends BaseAuthController
             $isMobile = $request->is_mobile;
             $user = auth()->user();
 
-            if ($newEmailOrExisting === $user->email && !$isMobile) {
-                $this->sendActivationForEdit($user, $user->email, $method,'old_email');
+            if ($newEmailOrExisting === $user->email && ! $isMobile) {
+                $this->sendActivationForEdit($user, $user->email, $method, 'old_email');
+
                 return successResponse(__('message.otp_code_sent_exist'));
             }
             if ($newEmailOrExisting === $user->email && $isMobile) {
-                $this->sendActivationForEdit($user, $user->email, $method,'mobile');
+                $this->sendActivationForEdit($user, $user->email, $method, 'mobile');
+
                 return successResponse(__('message.otp_code_sent_exist'));
             }
 
@@ -140,7 +138,7 @@ class ProfileController extends BaseAuthController
     /**
      * Send activation code to the specified email with template.
      */
-    public function sendActivationForEdit($user, $email, $method,$mode=null)
+    public function sendActivationForEdit($user, $email, $method, $mode = null)
     {
         $contact = getContactData();
 
@@ -168,8 +166,8 @@ class ProfileController extends BaseAuthController
             $templateId = match ($mode) {
                 'new_email' => 25,
                 'old_email' => 26,
-                'mobile'    => 27,
-                default     => null,
+                'mobile' => 27,
+                default => null,
             };
             // Get template
             $template = \App\Model\Common\Template::find($templateId);
@@ -183,7 +181,6 @@ class ProfileController extends BaseAuthController
                 'app_name' => $settings->title,
                 'contact_url' => $website_url,
             ];
-
 
             $type = '';
             if ($template) {
@@ -220,7 +217,7 @@ class ProfileController extends BaseAuthController
 
             $account = AccountActivate::where('email', $email)->latest()->first(['token', 'updated_at']);
 
-            if (!$account || $account->token !== $otp) {
+            if (! $account || $account->token !== $otp) {
                 return errorResponse(__('message.email_verification.invalid_token'));
             }
 
@@ -235,18 +232,18 @@ class ProfileController extends BaseAuthController
             return errorResponse(__('message.email_verification.invalid_token'));
         }
     }
-    /**
-     Update old email to new email after OTP verification success
-     */
 
+    /**
+     * Update old email to new email after OTP verification success.
+     */
     public function changeEmailOldToNew(Request $request)
     {
-            $request->validate([
-                'newEmail' => 'required|email',
-            ],[
-                'newEmail.required' => __('message.login_validation.email_required'),
-                'newEmail.email' => __('message.login_validation.email_regex'),
-            ]);
+        $request->validate([
+            'newEmail' => 'required|email',
+        ], [
+            'newEmail.required' => __('message.login_validation.email_required'),
+            'newEmail.email' => __('message.login_validation.email_regex'),
+        ]);
         try {
             $user = auth()->user();
 
@@ -265,12 +262,12 @@ class ProfileController extends BaseAuthController
      */
     public function checkEmailExist(Request $request)
     {
-            $request->validate([
-                'email' => 'required|email',
-            ], [
-                'email.required' => __('validation.email_required'),
-                'email.email' => __('validation.email_invalid'),
-            ]);
+        $request->validate([
+            'email' => 'required|email',
+        ], [
+            'email.required' => __('validation.email_required'),
+            'email.email' => __('validation.email_invalid'),
+        ]);
         try {
             $email = $request->input('email');
             $exists = User::where('email', $email)->exists();
@@ -291,41 +288,44 @@ class ProfileController extends BaseAuthController
             return errorResponse($e->getMessage());
         }
     }
+
     /**
-      Generate otp code to new mobile number
+     * Generate otp code to new mobile number.
      */
-   public function requestOtpForNewMobileNo(Request $request,$isResend ='POST')
-   {
-       $request->validate([
-           'mobile_to_verify' => 'required|string',
-           'dial_code'        => 'required|string',
-           'country_iso'      => 'required|string',
-       ], [
-           'mobile_to_verify.required' => __('validation.profile_form.mobile.required'),
-           'mobile_to_verify.string'   => __('validation.profile_form.mobile.regex'),
-           'dial_code.required'        => __('message.dialcode_required'),
-           'country_iso.required'      => __('message.isocode_required'),
-       ]);
+    public function requestOtpForNewMobileNo(Request $request, $isResend = 'POST')
+    {
+        $request->validate([
+            'mobile_to_verify' => 'required|string',
+            'dial_code' => 'required|string',
+            'country_iso' => 'required|string',
+        ], [
+            'mobile_to_verify.required' => __('validation.profile_form.mobile.required'),
+            'mobile_to_verify.string' => __('validation.profile_form.mobile.regex'),
+            'dial_code.required' => __('message.dialcode_required'),
+            'country_iso.required' => __('message.isocode_required'),
+        ]);
 
-       try {
-           $dialCode   = $request->dial_code;
-           $mobileNo   = $request->mobile_to_verify;
-           $countryIso = $request->country_iso;
+        try {
+            $dialCode = $request->dial_code;
+            $mobileNo = $request->mobile_to_verify;
+            $countryIso = $request->country_iso;
 
-           // Call sendOtp for new number (no DB user reference)
-           if (! $this->sendOtpForNewMobileNo($dialCode, $mobileNo, $countryIso)) {
-               return errorResponse(__('message.otp_verification.send_failure'));
-           }
-           return successResponse(
-               $isResend === 'GET'
-                   ? __('message.verification_code_resent_mobile')
-                   : __('message.verification_code_sent_mobile')
-           );
-       } catch (\Exception $e) {
-           \Log::error("OTP sending failed: " . $e->getMessage());
-           return errorResponse(__('message.otp_verification.send_failure'));
-       }
-   }
+            // Call sendOtp for new number (no DB user reference)
+            if (! $this->sendOtpForNewMobileNo($dialCode, $mobileNo, $countryIso)) {
+                return errorResponse(__('message.otp_verification.send_failure'));
+            }
+
+            return successResponse(
+                $isResend === 'GET'
+                    ? __('message.verification_code_resent_mobile')
+                    : __('message.verification_code_sent_mobile')
+            );
+        } catch (\Exception $e) {
+            \Log::error('OTP sending failed: '.$e->getMessage());
+
+            return errorResponse(__('message.otp_verification.send_failure'));
+        }
+    }
 
     /**
      * Send OTP to a new mobile number with msg91.
@@ -333,24 +333,25 @@ class ProfileController extends BaseAuthController
     public function sendOtpForNewMobileNo($dialCode, $mobileNo, $countryIso): bool
     {
         try {
-            $fullMobile = preg_replace('/\D/', '', $dialCode . $mobileNo);
+            $fullMobile = preg_replace('/\D/', '', $dialCode.$mobileNo);
 
             // Get API Keys
             $msgKey = ApiKey::find(1, ['msg91_auth_key', 'msg91_sender', 'msg91_template_id']);
             if (! $msgKey) {
-                \Log::error("MSG91 API keys not found.");
+                \Log::error('MSG91 API keys not found.');
+
                 return false;
             }
 
-            $sender     = $msgKey->msg91_sender;
+            $sender = $msgKey->msg91_sender;
             $templateId = $msgKey->msg91_template_id;
 
             $queryParams = [
                 'template_id' => $templateId,
-                'sender'      => $sender,
-                'mobile'      => $fullMobile,
-                'otp_length'  => 6,
-                'otp_expiry'  => 10,
+                'sender' => $sender,
+                'mobile' => $fullMobile,
+                'otp_length' => 6,
+                'otp_expiry' => 10,
             ];
 
             // Call MSG91 API
@@ -358,26 +359,27 @@ class ProfileController extends BaseAuthController
 
             return isset($response['type']) && $response['type'] !== 'error';
         } catch (\Exception $e) {
-            \Log::error('sendOtpForNewMobileNo error: ' . $e->getMessage());
+            \Log::error('sendOtpForNewMobileNo error: '.$e->getMessage());
+
             return false;
         }
     }
 
     /**
-      check mobile number already exist in the system
+     * check mobile number already exist in the system.
      */
     public function checkMobileNoExist(Request $request)
     {
         try {
             $request->validate([
                 'mobile_to_verify' => 'required|string',
-                'dial_code'        => 'required|string',
-                'country_iso'      => 'required|string',
+                'dial_code' => 'required|string',
+                'country_iso' => 'required|string',
             ], [
                 'mobile_to_verify.required' => __('validation.profile_form.mobile.required'),
-                'mobile_to_verify.string'   => __('validation.profile_form.mobile.regex'),
-                'dial_code.required'        => __('message.dialcode_required'),
-                'country_iso.required'      => __('message.isocode_required'),
+                'mobile_to_verify.string' => __('validation.profile_form.mobile.regex'),
+                'dial_code.required' => __('message.dialcode_required'),
+                'country_iso.required' => __('message.isocode_required'),
             ]);
 
             $statusSetting = StatusSetting::query()->first();
@@ -414,18 +416,17 @@ class ProfileController extends BaseAuthController
     {
         $request->validate([
             'mobile_to_verify' => 'required|string',
-            'otp'              => 'required|string|size:6',
+            'otp' => 'required|string|size:6',
         ], [
             'mobile_to_verify.required' => __('validation.profile_form.mobile.required'),
-            'mobile_to_verify.string'   => __('validation.profile_form.mobile.regex'),
-            'otp.required'              => __('validation.verify_otp.otp_required'),
-            'otp.size'                  => __('validation.verify_otp.otp_size'),
+            'mobile_to_verify.string' => __('validation.profile_form.mobile.regex'),
+            'otp.required' => __('validation.verify_otp.otp_required'),
+            'otp.size' => __('validation.verify_otp.otp_size'),
         ]);
 
         try {
-
             $mobile = $request->mobile_to_verify;
-            $otp    = $request->otp;
+            $otp = $request->otp;
 
             // Validate OTP
             if (! is_numeric($request->otp)) {
@@ -443,17 +444,17 @@ class ProfileController extends BaseAuthController
     }
 
     /**
-      Update old mobile number to new mobile number after OTP verification success
+     * Update old mobile number to new mobile number after OTP verification success.
      */
     public function changeMobileOldToNew(Request $request)
     {
         $request->validate([
-            'newMobile'   => 'required|string',
-            'dial_code'   => 'required|string',
+            'newMobile' => 'required|string',
+            'dial_code' => 'required|string',
             'country_iso' => 'required|string',
         ], [
             'newMobile.required' => __('validation.profile_form.mobile.required'),
-            'newMobile.string'   => __('validation.profile_form.mobile.regex'),
+            'newMobile.string' => __('validation.profile_form.mobile.regex'),
             'dial_code.required' => __('message.dialcode_required'),
             'country_iso.required' => __('message.isocode_required'),
         ]);
@@ -468,10 +469,9 @@ class ProfileController extends BaseAuthController
 
             return successResponse(__('message.new_mobile_no_updated'),
                 [
-                    'mobile'      => $user->mobile,
+                    'mobile' => $user->mobile,
                     'mobile_code' => $user->mobile_code,
                 ]);
-
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }
@@ -486,8 +486,7 @@ class ProfileController extends BaseAuthController
 
         return match ($default_type) {
             'email' => $this->sendNewEmailVerification($request, 'GET'),
-            'mobile' => $this->requestOtpForNewMobileNo($request,'GET'),
+            'mobile' => $this->requestOtpForNewMobileNo($request, 'GET'),
         };
     }
-
 }
