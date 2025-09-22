@@ -1,8 +1,4 @@
-<?php
-$status =  App\Model\Common\StatusSetting::select('recaptcha_status','v3_recaptcha_status', 'msg91_status', 'emailverification_status', 'terms')->first();
-?>
-
-    <div class="modal fade" id="demo-req" tabindex="-1" role="dialog" aria-labelledby="demoModalLabel" aria-hidden="true">
+<div class="modal fade" id="demo-req" tabindex="-1" role="dialog" aria-labelledby="demoModalLabel" aria-hidden="true">
 
         <div class="modal-dialog">
             <?php
@@ -91,16 +87,9 @@ $status =  App\Model\Common\StatusSetting::select('recaptcha_status','v3_recaptc
                                   <!-- Honeypot fields (hidden) -->
                                 {!! honeypotField('demo') !!}
 
-                            @if (Auth::check())
-                                {{-- Authenticated user, no reCAPTCHA required --}}
-                            @else
-                                @if ($status->recaptcha_status === 1)
-                                    <div id="demo_recaptcha"></div>
-                                    <span id="democaptchacheck"></span>
-                                @elseif($status->v3_recaptcha_status === 1)
-                                    <input type="hidden" id="g-recaptcha-demo" class="g-recaptcha-token" name="g-recaptcha-response" data-recaptcha-action="requestDemo">
-                                @endif
-                            @endif
+                            <div id="row">
+                                <div id="demo_recaptcha"></div>
+                            </div>
                             <br>
                             
                         </div>
@@ -118,21 +107,20 @@ $status =  App\Model\Common\StatusSetting::select('recaptcha_status','v3_recaptc
         </div>
     </div>
 
-        <script>
-            let demo_recaptcha_id;
-            let recaptchaTokenDemo;
+<script>
+    let demoRecaptcha;
 
-    // Only execute for non-authenticated users
-    @if (!Auth::check())
-    // Initialize reCAPTCHA for v2 if enabled
-    @if($status->recaptcha_status === 1)
-    recaptchaFunctionToExecute.push(() => {
-        demo_recaptcha_id = grecaptcha.render('demo_recaptcha', {
-            'sitekey': siteKey
+    (async () => {
+        const demoRecaptchaContainer = document.getElementById('demo_recaptcha');
+
+        demoRecaptcha = await RecaptchaManager.init(demoRecaptchaContainer, {
+            action: 'demo',
         });
-    });
-    @endif
-    @endif
+
+        // Make them globally available
+        window.demoRecaptcha = demoRecaptcha;
+
+    })();
 </script>
 
 
@@ -194,24 +182,12 @@ $status =  App\Model\Common\StatusSetting::select('recaptcha_status','v3_recaptc
             return validatePhoneNumber(element);
         }, "{{ __('message.error_valid_number') }}");
 
-        $.validator.addMethod("recaptchaRequired", function(value, element) {
-            try {
-                if(!recaptchaEnabled) {
-                    return false;
-                }
-            }catch (ex){
-                return false
-            }
-            return value.trim() !== "";
-        }, "{{ __('message.recaptcha_required') }}");
-
         $.validator.addMethod("regex", function(value, element, regexp) {
             var re = new RegExp(regexp);
             return this.optional(element) || re.test(value);
         }, "{{ __('message.invalid_format') }}");
 
         $('#demoForm').validate({
-            ignore: ":hidden:not(.g-recaptcha-response)",
             rules: {
                 demoname: {
                     required: true
@@ -226,9 +202,6 @@ $status =  App\Model\Common\StatusSetting::select('recaptcha_status','v3_recaptc
                 },
                 demomessage: {
                     required: true
-                },
-                "g-recaptcha-response": {
-                    recaptchaRequired: true
                 }
             },
             messages: {
@@ -245,9 +218,6 @@ $status =  App\Model\Common\StatusSetting::select('recaptcha_status','v3_recaptc
                 },
                 demomessage: {
                     required: "{{ __('message.contact_error_message') }}"
-                },
-                "g-recaptcha-response": {
-                    recaptchaRequired: "{{ __('message.recaptcha_required') }}"
                 }
             },
             unhighlight: function(element) {
@@ -256,59 +226,81 @@ $status =  App\Model\Common\StatusSetting::select('recaptcha_status','v3_recaptc
             errorPlacement: function(error, element) {
                 var errorMapping = {
                     "Mobile": "#mobile_codecheckdemo",
-                    "g-recaptcha-response": "#democaptchacheck"
                 };
 
                 placeErrorMessage(error, element, errorMapping);
-            },
-            submitHandler: function(form) {
+            }
+        });
+
+        $('#demoForm').on('submit', async function(event) {
+            event.preventDefault();
+
+            const $form = $(this);
+
+            const $submitButton = $('#demoregister');
+
+            if (!$form.valid()) {
+                return;
+            }
+
+            try {
+                // Validate reCAPTCHA
+                let recaptchaToken = await window.demoRecaptcha.tokenValidation(demoRecaptcha, "demo");
+                if (!recaptchaToken) return;
+
                 $('#mobile_code_hiddenDemo').val('+' + $('#mobilenumdemo').attr('data-dial-code'));
                 $('#mobilenumdemo').val($('#mobilenumdemo').val().replace(/\D/g, ''));
-                var formData = $(form).serialize();
-                var submitButton = $('#demoregister');
-                $('#demoregister').attr('disabled',true)
-                $("#demoregister").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
+
+                // Collect form data
+                let formData = $form.serializeArray();
+
+                if (!window.demoRecaptcha.isDisabled() && recaptchaToken) {
+                    formData.push({ name: "g-recaptcha-response", value: recaptchaToken });
+                    formData.push({ name: "page_id", value: window.pageId });
+                }
+
+                // Submit form
                 $.ajax({
-                    url: '{{url('demo-request')}}',
-                    type: 'POST',
-                    data: formData,
-                    beforeSend: function() {
-                        submitButton.prop('disabled', true).html(submitButton.data('loading-text'));
+                    url: "{{ url('demo-request') }}",
+                    method: "POST",
+                    data: $.param(formData),
+                    beforeSend: function () {
+                        $submitButton.prop("disabled", true).html($submitButton.data("loading-text"));
                     },
-                    success: function(response) {
-                        $('#demoregister').attr('disabled',false)
-                        $("#demoregister").html("<i class='fa fa-check'>&nbsp;&nbsp;</i>{{ __('message.book_a_demo') }}");
-                        form.reset();
+                    success: function (response) {
+                        $form[0].reset();
                         showAlert('success', response.message);
-                        // setTimeout(function() {
-                        //     window.location.reload();
-                        // }, 3500);
                     },
-                    error: function(data) {
-                        var response = data.responseJSON ? data.responseJSON : JSON.parse(data.responseText);
+                    error: async function (xhr) {
+                        let response = xhr.responseJSON || JSON.parse(xhr.responseText || "{}");
+
+                        // Handle reCAPTCHA fallback
+                        if (response.data?.show_v2_recaptcha) {
+                            await window.demoRecaptcha.useFallback(true);
+                            showAlert("error", response.message || "An unexpected error occurred.");
+                            return;
+                        }
 
                         if (response.errors) {
-                            $.each(response.errors, function(field, messages) {
-                                if (field === 'demo' || field === 'g-recaptcha-response') {
-                                    showAlert('error', messages[0]);
+                            $.each(response.errors, function (field, messages) {
+                                if (["demo"].includes(field)) {
+                                    showAlert("error", messages[0]);
                                     return;
                                 }
-                                var validator = $('#demoForm').validate();
-
-                                var fieldSelector = $(`[name="${field}"]`).attr('name');  // Get the name attribute of the selected field
-
-                                validator.showErrors({
-                                    [fieldSelector]: messages[0]
-                                });
+                                validator.showErrors({ [field]: messages[0] });
                             });
                         } else {
-                            showAlert('error', response);
+                            showAlert("error", response.message || "An unexpected error occurred.");
                         }
                     },
-                    complete: function() {
-                        submitButton.prop('disabled', false).html(submitButton.data('original-text'));
+                    complete: function () {
+                        $submitButton.prop("disabled", false).html($submitButton.data("original-text"));
+                        window.demoRecaptcha.reset();
                     }
                 });
+            } catch (err) {
+                console.error("Form submit error:", err);
+                showAlert("error", "Something went wrong. Please try again.");
             }
         });
     });

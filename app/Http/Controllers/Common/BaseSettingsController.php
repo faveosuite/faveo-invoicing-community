@@ -10,7 +10,6 @@ use App\Model\Mailjob\ActivityLogDay;
 use App\Model\Mailjob\ExpiryMailDay;
 use App\Traits\ApiKeySettings;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
 use Spatie\Activitylog\Models\Activity;
 
 class BaseSettingsController extends PaymentSettingsController
@@ -297,78 +296,6 @@ class BaseSettingsController extends PaymentSettingsController
         ActivityLogDay::findOrFail(1)->update(['days' => $request->logdelday]);
 
         return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
-    }
-
-    //Save Google recaptch site key and secret in Database
-    public function captchaDetails(Request $request)
-    {
-        $validated = $request->validate([
-            'status' => 'required|boolean',
-            'recaptcha_type' => 'required|in:v2,v3',
-            'nocaptcha_sitekey' => 'required|string',
-            'nocaptcha_secret' => 'required|string',
-            'g-recaptcha-response' => ['required'],
-        ]);
-
-        // Perform custom validation for reCAPTCHA
-        $this->validateRecaptcha(
-            $validated['g-recaptcha-response'],
-            $validated['nocaptcha_secret'],
-            $request->ip(),
-            $request->getHost()
-        );
-
-        if ($validated['status']) {
-            setEnvValue([
-                'NOCAPTCHA_SITEKEY' => $validated['nocaptcha_sitekey'],
-                'NOCAPTCHA_SECRET' => $validated['nocaptcha_secret'],
-            ]);
-
-            $isV2 = $validated['recaptcha_type'] === 'v2';
-            $isV3 = $validated['recaptcha_type'] === 'v3';
-
-            StatusSetting::where('id', 1)->update([
-                'recaptcha_status' => $isV2,
-                'v3_recaptcha_status' => $isV3,
-                'v3_v2_recaptcha_status' => 1,
-            ]);
-
-            ApiKey::where('id', 1)->update([
-                'nocaptcha_sitekey' => $validated['nocaptcha_sitekey'],
-                'captcha_secretCheck' => $validated['nocaptcha_secret'],
-            ]);
-        }
-
-        return successResponse(__('message.recaptcha_settings_updated'));
-    }
-
-    protected function validateRecaptcha(string $token, string $secret, string $ip, string $expectedHostname): void
-    {
-        $response = \Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
-            'secret' => $secret,
-            'response' => $token,
-            'remoteip' => $ip,
-        ]);
-
-        $body = $response->json();
-
-        if (! ($body['success'] ?? false)) {
-            throw ValidationException::withMessages([
-                'g-recaptcha-response' => [__('message.captcha_failed')],
-            ]);
-        }
-
-        if (isset($body['score'])) {
-            if (
-                ($body['score'] < 0.5) ||
-                (($body['action'] ?? null) !== 'captcha_settings') ||
-                (($body['hostname'] ?? null) !== $expectedHostname)
-            ) {
-                throw ValidationException::withMessages([
-                    'g-recaptcha-response' => [__('message.captcha_failed')],
-                ]);
-            }
-        }
     }
 
     //Save Google recaptcha site key and secret in Database

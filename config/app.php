@@ -228,6 +228,7 @@ return [
         Maatwebsite\Excel\ExcelServiceProvider::class,
         \App\Providers\AttachmentHelperServiceProvider::class,
         Spatie\Html\HtmlServiceProvider::class,
+        App\Plugins\Recaptcha\RecaptchaServiceProvider::class,
     ],
 
     /*

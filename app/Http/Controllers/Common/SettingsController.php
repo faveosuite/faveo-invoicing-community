@@ -87,20 +87,6 @@ class SettingsController extends BaseSettingsController
         return successResponse('', $data);
     }
 
-    public function googleCaptcha(ApiKey $apikeys)
-    {
-        [$captchaStatus, $v3CaptchaStatus] = array_values(StatusSetting::select('recaptcha_status', 'v3_recaptcha_status')->first()->toArray());
-        [$siteKey, $secretKey] = array_values($apikeys->select('nocaptcha_sitekey', 'captcha_secretCheck')->first()->toArray());
-        $data = [
-            'captchaStatus' => $captchaStatus,
-            'v3CaptchaStatus' => $v3CaptchaStatus,
-            'siteKey' => $siteKey,
-            'secretKey' => $secretKey,
-        ];
-
-        return successResponse('', $data);
-    }
-
     public function mobileVerification(ApiKey $apikeys)
     {
         [$mobileauthkey,$msg91Sender,$msg91TemplateId,$msg91ThirdPartyId] = array_values($apikeys->select('msg91_auth_key', 'msg91_sender', 'msg91_template_id', 'msg91_third_party_id')->first()->toArray());
@@ -232,8 +218,6 @@ class SettingsController extends BaseSettingsController
             $licenseClientSecret = $apikeys->pluck('license_client_secret')->first();
             $licenseGrantType = $apikeys->pluck('license_grant_type')->first();
             $status = StatusSetting::pluck('license_status')->first();
-            $captchaStatus = StatusSetting::pluck('recaptcha_status')->first();
-            $v3CaptchaStatus = StatusSetting::pluck('v3_recaptcha_status')->first();
             $updateStatus = StatusSetting::pluck('update_settings')->first();
             $mobileStatus = StatusSetting::pluck('msg91_status')->first();
             $siteKey = $apikeys->pluck('nocaptcha_sitekey')->first();
@@ -280,7 +264,7 @@ class SettingsController extends BaseSettingsController
             $isPipedriveVerificationEnabled = ApiKey::value('require_pipedrive_user_verification');
             $selectedProvider = EmailMobileValidationProviders::where('type', 'mobile')->where('to_use', 1)->value('provider');
 
-            return view('themes.default1.common.apikey', compact('model', 'status', 'licenseSecret', 'licenseUrl', 'siteKey', 'secretKey', 'captchaStatus', 'v3CaptchaStatus', 'updateStatus', 'updateSecret', 'updateUrl', 'mobileStatus', 'mobileauthkey', 'msg91Sender', 'msg91TemplateId', 'emailStatus', 'twitterStatus', 'twitterKeys', 'zohoStatus', 'zohoKey', 'rzpStatus', 'rzpKeys', 'mailchimpSetting', 'mailchimpKey', 'termsStatus', 'termsUrl', 'pipedriveKey', 'pipedriveStatus', 'domainCheckStatus', 'mailSendingStatus',
+            return view('themes.default1.common.apikey', compact('model', 'status', 'licenseSecret', 'licenseUrl', 'siteKey', 'secretKey', 'updateStatus', 'updateSecret', 'updateUrl', 'mobileStatus', 'mobileauthkey', 'msg91Sender', 'msg91TemplateId', 'emailStatus', 'twitterStatus', 'twitterKeys', 'zohoStatus', 'zohoKey', 'rzpStatus', 'rzpKeys', 'mailchimpSetting', 'mailchimpKey', 'termsStatus', 'termsUrl', 'pipedriveKey', 'pipedriveStatus', 'domainCheckStatus', 'mailSendingStatus',
                 'licenseClientId', 'licenseClientSecret', 'licenseGrantType', 'allists', 'selectedList', 'set', 'githubStatus', 'msg91ThirdPartyId', 'isPipedriveVerificationEnabled', 'selectedProvider'));
         } catch (\Exception $ex) {
             return redirect('/')->with('fails', $ex->getMessage());
@@ -292,7 +276,6 @@ class SettingsController extends BaseSettingsController
         $status = $this->statusSetting->value('license_status');
         $mobileStatus = $this->statusSetting->value('msg91_status');
         $captchaStatus = $this->statusSetting->value('recaptcha_status');
-        $v3CaptchaStatus = $this->statusSetting->value('v3_recaptcha_status');
         $twitterStatus = $this->statusSetting->value('twitter_status');
         $zohoStatus = $this->statusSetting->value('zoho_status');
         $pipedriveStatus = $this->statusSetting->value('pipedrive_status');
@@ -300,9 +283,8 @@ class SettingsController extends BaseSettingsController
         $githubStatus = $this->statusSetting->first()->github_status;
         $mailchimpSetting = $this->statusSetting->value('mailchimp_status');
         $termsStatus = $this->statusSetting->value('terms');
-        $v3_v2_recaptcha_status = $this->statusSetting->value('v3_v2_recaptcha_status');
-        $checkboxValue = $v3_v2_recaptcha_status ? '1' : '0';
-        $checked = $v3_v2_recaptcha_status ? 'checked' : '';
+        $checkboxValue = $captchaStatus ? '1' : '0';
+        $checked = $captchaStatus ? 'checked' : '';
         $emailStatus = $this->statusSetting->value('email_validation_status');
         $mobileValStatus = $this->statusSetting->value('mobile_validation_status');
         $toggleSwitch = '
@@ -319,7 +301,7 @@ class SettingsController extends BaseSettingsController
         $termsAction = $termsStatus ? '<button id="termsUrl-edit-button" class="btn btn-sm btn-secondary btn-xs"><span class="nav-icon fa fa-fw fa-edit"></span></button>' : '';
         $pipedriveAction = $pipedriveStatus ? '<button id="pipedrive-edit-button" class="btn btn-sm btn-secondary btn-xs"><span class="nav-icon fa fa-fw fa-edit"></span></button>' : '';
         $githubAction = $githubStatus ? '<button id="github-edit-button" class="btn btn-sm btn-secondary btn-xs"><span class="nav-icon fa fa-fw fa-edit"></span></button>' : '';
-        $recaptchaAction = $v3_v2_recaptcha_status ? '<button id="captcha-edit-button" class="btn btn-sm btn-secondary btn-xs" ><span class="nav-icon fa fa-fw fa-edit"></span></button>' : '';
+        $recaptchaAction = $captchaStatus ? '<button id="captcha-edit-button" class="btn btn-sm btn-secondary btn-xs" ><span class="nav-icon fa fa-fw fa-edit"></span></button>' : '';
         $emailValidationAction = $emailStatus ? '<button id="emailValidation-edit-button" class="btn btn-sm btn-secondary btn-xs" ><span class="nav-icon fa fa-fw fa-edit"></span></button>' : '';
         $mobileValidationAction = $mobileValStatus ? '<button id="mobileValidation-edit-button" class="btn btn-sm btn-secondary btn-xs" ><span class="nav-icon fa fa-fw fa-edit"></span></button>' : '';
 
