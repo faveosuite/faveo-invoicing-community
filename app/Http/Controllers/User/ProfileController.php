@@ -72,7 +72,7 @@ class ProfileController extends Controller
                 $user->save();
 
                 //logout all other session when password is updated
-                \Auth::logoutOtherDevices($newpassword);
+                deleteUserSessions($user->id, $newpassword);
 
                 \DB::table('password_resets')->where('email', $user->email)->delete();
 

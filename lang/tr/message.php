@@ -2715,4 +2715,12 @@ return [
     'user_position_prohibited_if' => 'Rol kullanıcı olduğunda pozisyon alanına izin verilmez.',
     'cloud_plan_error' => 'Lütfen bulut ürününü kaldırın veya alternatif bir plana bağlayın.',
 
+    'invalid_code_2fa' => 'Geçersiz kod. Lütfen tekrar deneyin.',
+    '6_digit_auth_code' => '6 haneli doğrulama kodunuzu girin',
+    '6_code_numer' => 'Kod 6 haneli bir sayı olmalıdır.',
+    '2fapopup_content' => 'Şifrenizi değiştirmeden önce kimliğinizi doğrulamak için 2FA kodunuzu girin',
+    'auth_code_required' => 'Doğrulama kodu gereklidir.',
+    'valid_username' => 'Lütfen geçerli bir kullanıcı adı girin',
+    'set_auth_invoicing' => 'Her şey hazır. Artık Faveo Invoicing hesabınıza giriş yapmak için Authenticator uygulamasını kullanacaksınız.',
+    'continue_verify_social_login' => 'Devam etmek ve kimliğinizi doğrulamak için "Validate" e tıklayın',
 ];

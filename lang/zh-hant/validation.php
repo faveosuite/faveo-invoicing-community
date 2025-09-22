@@ -910,5 +910,8 @@ return [
         'notify_url_invalid' => '通知網址必須是有效的網址。',
         'currencies_required' => '貨幣欄位為必填。',
     ],
+    'login_failed' => '登入失敗，請檢查您輸入的電子郵件/使用者名稱和密碼是否正確。',
+    'forgot_email_validation' => '如果您提供的電子郵件已註冊，您將很快收到一封包含重設密碼指示的電子郵件。',
+    'too_many_login_attempts' => '由於多次登入失敗，您已被鎖定，請在 :time 後重試。',
 
 ];

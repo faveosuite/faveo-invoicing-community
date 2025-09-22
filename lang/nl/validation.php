@@ -858,5 +858,8 @@ return [
         'notify_url_invalid' => 'De notificatie-URL moet een geldige URL zijn.',
         'currencies_required' => 'Het valutaveld is vereist.',
     ],
+    'login_failed' => 'Inloggen mislukt, controleer of het e-mailadres/gebruikersnaam en wachtwoord dat u heeft ingevoerd correct zijn.',
+    'forgot_email_validation' => 'Als het e-mailadres dat u heeft opgegeven is geregistreerd, ontvangt u binnenkort een e-mail met instructies om het wachtwoord te resetten.',
+    'too_many_login_attempts' => 'U bent geblokkeerd van de applicatie vanwege te veel mislukte inlogpogingen. Probeer het opnieuw na :time.',
 
 ];

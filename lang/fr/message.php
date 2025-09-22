@@ -2691,4 +2691,12 @@ return [
     'msg_service_down' => 'Nous rencontrons actuellement des problèmes avec notre service OTP. Veuillez réessayer sous peu. Nous travaillons à résoudre ce problème au plus vite.',
     'cloud_plan_error' => 'Veuillez supprimer le produit cloud ou le lier à un plan alternatif.',
 
+    'invalid_code_2fa' => 'Code invalide. Veuillez réessayer.',
+    '6_digit_auth_code' => 'Entrez votre code d\'authentification à 6 chiffres',
+    '6_code_numer' => 'Le code doit être un nombre à 6 chiffres.',
+    '2fapopup_content' => 'Ingrese su código 2FA para verificar su identidad antes de cambiar su contraseña',
+    'auth_code_required' => 'Se requiere el código de autenticación.',
+    'valid_username' => 'Veuillez entrer un nom d\'utilisateur valide',
+    'set_auth_invoicing' => 'Tout est prêt. Désormais, vous utiliserez l\'application Authenticator pour vous connecter à votre compte Faveo Invoicing.',
+    'continue_verify_social_login' => 'Cliquez sur "Validate" pour continuer et confirmer votre identité',
 ];

@@ -851,5 +851,8 @@ return [
         'notify_url_invalid' => 'Die Benachrichtigungs-URL muss eine gültige URL sein.',
         'currencies_required' => 'Das Währungsfeld ist erforderlich.',
     ],
+    'login_failed' => 'Anmeldung fehlgeschlagen, bitte überprüfen Sie die eingegebene E-Mail/Benutzername und das Passwort.',
+    'forgot_email_validation' => 'Wenn die von Ihnen angegebene E-Mail registriert ist, erhalten Sie in Kürze eine E-Mail mit Anweisungen zum Zurücksetzen des Passworts.',
+    'too_many_login_attempts' => 'Sie wurden aufgrund zu vieler fehlgeschlagener Anmeldeversuche aus der Anwendung ausgesperrt. Bitte versuchen Sie es nach :time erneut.',
 
 ];

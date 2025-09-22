@@ -900,5 +900,8 @@ return [
         'notify_url_invalid' => 'URL za obavještenje mora biti validan URL.',
         'currencies_required' => 'Polje valuta je obavezno.',
     ],
+    'login_failed' => 'Prijava nije uspjela, provjerite e-mail/korisničko ime i lozinku koju ste unijeli.',
+    'forgot_email_validation' => 'Ako je e-mail koji ste unijeli registriran, dobit ćete e-mail s uputama za resetiranje lozinke uskoro.',
+    'too_many_login_attempts' => 'Zaključani ste iz aplikacije zbog previše neuspjelih pokušaja prijave. Molimo pokušajte ponovo nakon :time.',
 
 ];

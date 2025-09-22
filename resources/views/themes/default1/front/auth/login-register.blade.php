@@ -134,10 +134,11 @@ foreach($scripts as $script) {
 
                                 <label class="form-label text-color-dark text-3">{{ __('message.username_register') }}<span class="text-color-danger">*</span></label>
 
-                                {!! html()->email('email_username')
+                                {!! html()->text('email_username')
    ->class('form-control form-control-lg text-4')
    ->id('username')
    ->attribute('autocomplete', 'off')
+   ->attribute('oninput', "this.value = this.value.toLowerCase()")
    ->style('height: calc(1.5em + 0.75rem + 2px);') !!}
                                 <div id="error-login-email"></div>
                             </div>
@@ -623,11 +624,16 @@ foreach($scripts as $script) {
 
             $.validator.addMethod("email_or_username", function(value, element) {
                 // Email regex (improved version)
-                var emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                var emailRegex = /^(?!.*\.\.)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
                 var isEmail = emailRegex.test(value);
 
-                return this.optional(element) || isEmail;
-            }, "{{ __('message.emailSettings_details.email') }}");
+                // Username regex (alphanumeric with optional underscores or periods)
+                var usernameRegex = /^[a-zA-Z0-9._]+$/;
+                var isUsername = usernameRegex.test(value);
+
+
+                return this.optional(element) || isEmail || isUsername;
+            }, "{{ __('message.username_or_email') }}");
 
             $.validator.addMethod("regex", function(value, element, regexp) {
                 var re = new RegExp(regexp);
@@ -672,7 +678,7 @@ foreach($scripts as $script) {
                 messages: {
                     email_username: {
                         required: "{{ __('message.username_or_email') }}",
-                        email_or_username: "{{ __('message.emailSettings_details.email') }}"
+                        email_or_username: "{{ __('message.username_or_email') }}"
                     },
                     password1: {
                         required: "{{ __('message.received_password_enter') }}",
@@ -712,7 +718,7 @@ foreach($scripts as $script) {
                     email: {
                         required: true,
                         email: true,
-                        regex: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                        regex: /^(?!.*\.\.)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
                     },
                     company: {
                         required: true

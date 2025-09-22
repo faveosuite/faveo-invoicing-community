@@ -205,7 +205,7 @@ main
                             submitButton.prop('disabled', false).html(submitButton.data('original-text'));
                             setTimeout(function() {
                                 window.location.href = "{{ url('login') }}";
-                            }, 3500);
+                            }, 5000);
                         }
                     });
                 }

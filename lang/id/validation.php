@@ -911,5 +911,8 @@ return [
         'notify_url_invalid' => 'URL notifikasi harus berupa URL yang valid.',
         'currencies_required' => 'Kolom mata uang wajib diisi.',
     ],
+    'login_failed' => 'Login gagal, silakan periksa email/nama pengguna dan kata sandi yang Anda masukkan sudah benar.',
+    'forgot_email_validation' => 'Jika email yang Anda berikan terdaftar, Anda akan menerima email dengan instruksi untuk mereset kata sandi dalam waktu dekat.',
+    'too_many_login_attempts' => 'Anda telah diblokir dari aplikasi karena terlalu banyak percobaan login yang gagal. Silakan coba lagi setelah :time.',
 
 ];

@@ -2663,4 +2663,12 @@ return [
     'msg_service_down' => '我們目前的 OTP 服務發生故障。請稍後再試。我們正努力儘快解決問題。',
     'cloud_plan_error' => '請移除雲產品或將其連結到其他方案。',
 
+    'invalid_code_2fa' => '無效的代碼。請再試一次。',
+    '6_digit_auth_code' => '請輸入您的6位認證代碼',
+    '6_code_numer' => '代碼必須是6位數字。',
+    '2fapopup_content' => '請輸入您的2FA代碼以驗證身份後再更改密碼',
+    'auth_code_required' => '需要認證代碼。',
+    'valid_username' => '請輸入有效的用戶名',
+    'set_auth_invoicing' => '一切就緒。從現在開始，您將使用身份驗證器應用程式登錄您的 Faveo Invoicing 帳戶。',
+    'continue_verify_social_login' => '點擊“Validate”以繼續並確認您的身份',
 ];

@@ -888,5 +888,8 @@ return [
         'notify_url_invalid' => 'L\'URL de notification doit être une URL valide.',
         'currencies_required' => 'Le champ devises est obligatoire.',
     ],
+    'login_failed' => 'Échec de la connexion, veuillez vérifier l\'email/nom d\'utilisateur et le mot de passe que vous avez saisis.',
+    'forgot_email_validation' => 'Si l\'email que vous avez fourni est enregistré, vous recevrez un email avec les instructions pour réinitialiser le mot de passe sous peu.',
+    'too_many_login_attempts' => 'Vous avez été bloqué de l\'application en raison de trop nombreuses tentatives de connexion échouées. Veuillez réessayer après :time.',
 
 ];

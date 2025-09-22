@@ -874,5 +874,8 @@ return [
         'notify_url_invalid' => 'Bildirim URL\'si geçerli bir URL olmalıdır.',
         'currencies_required' => 'Para birimleri alanı gereklidir.',
     ],
+    'login_failed' => 'Giriş başarısız, lütfen girdiğiniz e-posta/kullanıcı adı ve şifrenin doğru olduğundan emin olun.',
+    'forgot_email_validation' => 'Sağladığınız e-posta kayıtlıysa, şifreyi sıfırlamak için talimatları içeren bir e-posta alacaksınız.',
+    'too_many_login_attempts' => 'Çok fazla başarısız giriş denemesi nedeniyle uygulamadan engellendiniz. Lütfen :time sonra tekrar deneyin.',
 
 ];

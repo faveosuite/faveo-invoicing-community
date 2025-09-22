@@ -2648,6 +2648,13 @@ return [
     'delete_invoice_older' => 'Facturen ouder dan... verwijderen',
     'deletion_cloud_subscription' => 'Cloudabonnementen verwijderen die meer dan... geleden zijn verlopen',
     'msg_service_down' => 'We ondervinden momenteel problemen met onze OTP-service. Probeer het over een momentje opnieuw. We werken eraan om dit zo snel mogelijk op te lossen.',
+    'invalid_code_2fa' => 'Ongeldige code. Probeer het opnieuw.',
+    '6_digit_auth_code' => 'Voer uw 6-cijferige authenticatiecode in',
+    '6_code_numer' => 'De code moet een 6-cijferig nummer zijn.',
+    '2fapopup_content' => 'Voer uw 2FA-code in om uw identiteit te verifiëren voordat u uw wachtwoord wijzigt',
+    'auth_code_required' => 'Authenticatiecode is vereist.',
+    'valid_username' => 'Voer een geldige gebruikersnaam in',
+    'set_auth_invoicing' => 'Je bent helemaal klaar. Voortaan gebruik je de Authenticator-app om in te loggen op je Faveo Invoicing-account.',
 
     'auto_assign_success' => 'De instelling voor automatische toewijzing is succesvol bijgewerkt.',
     'system_manager_settings' => 'Systeembeheerder Instellingen',
@@ -2668,4 +2675,5 @@ return [
     'user_position_prohibited_if' => 'Het veld functie is niet toegestaan wanneer de rol gebruiker is.',
     'cloud_plan_error' => 'Verwijder het cloudproduct of koppel het aan een alternatief plan.',
 
+    'continue_verify_social_login' => 'Klik op "Validate" om verder te gaan en uw identiteit te bevestigen',
 ];

@@ -2722,4 +2722,12 @@ return [
     'user_position_prohibited_if' => '역할이 사용자일 때는 직위 필드를 사용할 수 없습니다.',
     'cloud_plan_error' => '클라우드 제품을 삭제하거나 다른 요금제에 연결해 주세요.',
 
+    'invalid_code_2fa' => '잘못된 코드입니다. 다시 시도해주세요.',
+    '6_digit_auth_code' => '6자리 인증 코드를 입력하세요',
+    '6_code_numer' => '코드는 6자리 숫자여야 합니다.',
+    '2fapopup_content' => '비밀번호를 변경하기 전에 본인 확인을 위해 2FA 코드를 입력하세요',
+    'auth_code_required' => '인증 코드가 필요합니다.',
+    'valid_username' => '유효한 사용자 이름을 입력하세요',
+    'set_auth_invoicing' => '모든 준비가 완료되었습니다. 이제부터 Faveo Invoicing 계정에 로그인할 때 Authenticator 앱을 사용하게 됩니다.',
+    'continue_verify_social_login' => '계속 진행하려면 "Validate" 버튼을 클릭하여 본인 확인을 완료하세요',
 ];
