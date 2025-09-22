@@ -67,7 +67,6 @@ class Plan extends BaseModel
         });
     }
 
-
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults();
