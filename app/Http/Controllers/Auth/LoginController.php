@@ -130,7 +130,7 @@ class LoginController extends Controller
     private function buildCredentials(Request $request): array
     {
         $loginInput = $request->input('email_username');
-        $loginType = filter_var($loginInput, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+        $loginType = filter_var($loginInput, FILTER_VALIDATE_EMAIL) ? 'email' : 'user_name';
 
         return [
             $loginType => $loginInput,
