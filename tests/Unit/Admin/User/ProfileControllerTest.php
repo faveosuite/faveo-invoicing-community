@@ -2,18 +2,14 @@
 
 namespace Tests\Unit\Admin\User;
 
-use App\ApiKey;
-use App\Http\Controllers\Auth\AuthController;
-use Illuminate\Http\Request;
 use App\Model\User\AccountActivate;
 use App\Model\User\Password;
 use App\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Mockery;
 use Tests\DBTestCase;
-use App\Http\Controllers\User\ProfileController;
 
 class ProfileControllerTest extends DBTestCase
 {
@@ -28,7 +24,6 @@ class ProfileControllerTest extends DBTestCase
         $this->getLoggedInUser('admin');
         $this->profileController = Mockery::mock(\App\Http\Controllers\User\ProfileController::class)->makePartial();
         $this->app->instance(\App\Http\Controllers\User\ProfileController::class, $this->profileController);
-
     }
 
     protected function createUser(array $attributes = []): User
@@ -164,7 +159,7 @@ class ProfileControllerTest extends DBTestCase
 
         // Assert DB updated
         $this->assertDatabaseHas('users', [
-            'id'    => $user->id,
+            'id' => $user->id,
             'email' => $newEmail,
         ]);
     }
@@ -205,7 +200,6 @@ class ProfileControllerTest extends DBTestCase
             'success' => false,
             'message' => __('message.email_verification.invalid_token'),
         ]);
-
     }
 
     public function testCheckwithWrognOtpCodeForOldEmailVerification()
@@ -251,7 +245,7 @@ class ProfileControllerTest extends DBTestCase
     {
         Mail::fake();
 
-        $user = $this->createUser(['mobile_verified' => true,'mobile' => 9123456789, 'mobile_country_iso' => 'IN','mobile_code'=>91,]);
+        $user = $this->createUser(['mobile_verified' => true, 'mobile' => 9123456789, 'mobile_country_iso' => 'IN', 'mobile_code' => 91]);
         $this->actingAs($user);
 
         // Mock sending OTP
@@ -262,8 +256,8 @@ class ProfileControllerTest extends DBTestCase
         // send OTP
         $response = $this->postJson('/newMobileNoVerify', [
             'mobile_to_verify' => '8123456789',
-            'dial_code'        => '91',
-            'country_iso'      => 'IN',
+            'dial_code' => '91',
+            'country_iso' => 'IN',
         ]);
 
         $response->assertStatus(200);
@@ -272,14 +266,14 @@ class ProfileControllerTest extends DBTestCase
         $this->profileController->shouldReceive('verifyOtpMobileNew')
             ->with('91 8123456789', '123456')
             ->andReturn([
-                'type'    => 'success',
+                'type' => 'success',
                 'message' => __('message.otp_verified'),
             ]);
 
         // verify OTP
         $verifyResponse = $this->postJson('verify/newMobileNoOtp', [
             'mobile_to_verify' => '8123456789',
-            'otp'              => '123456',
+            'otp' => '123456',
         ]);
 
         $verifyResponse->assertStatus(200);
@@ -303,8 +297,8 @@ class ProfileControllerTest extends DBTestCase
 
         $this->postJson('user/change-mobile-no', [
             'newMobile' => '8123456789',
-            'dial_code'        => '91',
-            'country_iso'      => 'IN',
+            'dial_code' => '91',
+            'country_iso' => 'IN',
         ])->assertStatus(200)
             ->assertJson([
                 'message' => __('message.new_mobile_no_updated'),
@@ -315,7 +309,7 @@ class ProfileControllerTest extends DBTestCase
     {
         Mail::fake();
 
-        $user = $this->createUser(['mobile_verified' => true,'mobile' => 9123456789, 'mobile_country_iso' => 'IN','mobile_code'=>91,]);
+        $user = $this->createUser(['mobile_verified' => true, 'mobile' => 9123456789, 'mobile_country_iso' => 'IN', 'mobile_code' => 91]);
         $this->actingAs($user);
 
         // Mock sending OTP
@@ -326,8 +320,8 @@ class ProfileControllerTest extends DBTestCase
         // send OTP
         $response = $this->postJson('/newMobileNoVerify', [
             'mobile_to_verify' => '8123456789',
-            'dial_code'        => '91',
-            'country_iso'      => 'IN',
+            'dial_code' => '91',
+            'country_iso' => 'IN',
         ]);
 
         $response->assertStatus(200);
@@ -336,14 +330,14 @@ class ProfileControllerTest extends DBTestCase
         $this->profileController->shouldReceive('verifyOtpMobileNew')
             ->with('91 8123456789', '123456')
             ->andReturn([
-                'type'    => 'success',
+                'type' => 'success',
                 'message' => __('message.otp_verified'),
             ]);
 
         // verify OTP
         $verifyResponse = $this->postJson('verify/newMobileNoOtp', [
             'mobile_to_verify' => '8123456789',
-            'otp'              => '123456',
+            'otp' => '123456',
         ]);
 
         $verifyResponse->assertStatus(200);
@@ -383,7 +377,8 @@ class ProfileControllerTest extends DBTestCase
             ]);
     }
 
-    public function testCheckMobileNolExist(){
+    public function testCheckMobileNolExist()
+    {
         $user = User::factory()->create([
             'mobile' => '8123456789',
             'mobile_code' => '91',
@@ -392,8 +387,8 @@ class ProfileControllerTest extends DBTestCase
 
         $response = $this->postJson('mobileNoexist', [
             'mobile_to_verify' => $user->mobile,
-            'dial_code'        => $user->mobile_code,
-            'country_iso'      => $user->mobile_country_iso,
+            'dial_code' => $user->mobile_code,
+            'country_iso' => $user->mobile_country_iso,
         ]);
 
         $response->assertStatus(400)
@@ -401,8 +396,4 @@ class ProfileControllerTest extends DBTestCase
                 'message' => __('message.mobile_no_already_used'),
             ]);
     }
-
-
-
-
 }
