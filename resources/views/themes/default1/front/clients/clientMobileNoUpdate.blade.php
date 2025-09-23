@@ -298,7 +298,7 @@
             $('#editMobileFormBtn').prop('disabled', true).text('{{ __('message.sending') }}');
 
             $.ajax({
-                url: "{{ url('MobileNoexist') }}",
+                url: "{{ url('mobileNoexist') }}",
                 type: "POST",
                 data: {
                     _token: csrfToken,
@@ -643,7 +643,7 @@
                         $("#otpAlertShowMsgMobile").text(response.message);
                     }, 200);
 
-                    // 🔹 Restart timer after resend
+                    //Restart timer after resend
                     startTimer(
                         document.getElementById("resendOtpBtnMobile"),
                         document.getElementById("timerMobileEmail"),
