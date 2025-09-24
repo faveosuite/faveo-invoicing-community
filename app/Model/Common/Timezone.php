@@ -11,4 +11,13 @@ class Timezone extends BaseModel
     protected $fillable = ['id', 'name', 'location'];
 
     public $timestamps = false;
+
+    protected $appends = ['timezone_name'];
+    public function getTimezoneNameAttribute()
+    {
+        $extractGMT = explode(' ', $this->location);
+        $timezone = reset($extractGMT).' '.$this->name;
+
+        return $timezone;
+    }
 }

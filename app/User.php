@@ -60,6 +60,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     protected static $logOnlyDirty = true;
 
+    protected $appends = ['full_name'];
+
     public function getDescriptionForEvent(string $eventName): string
     {
         $lastActivity = Activity::all()->last(); //returns the last logged activity
@@ -248,4 +250,10 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     {
         return $this->hasMany(UserLinkReport::class);
     }
+
+    public function getFullNameAttribute()
+    {
+        return "{$this->first_name} {$this->last_name}";
+    }
+
 }

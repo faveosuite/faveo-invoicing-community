@@ -152,30 +152,37 @@ function getDateHtmlcopy(?string $dateTimeString = null)
         return '--';
     }
 }
+
 function getExpiryLabel($expiryDate, $badge = 'badge')
 {
-    if ($expiryDate < (new Carbon())->toDateTimeString()) {
-        return getDateHtml($expiryDate).'&nbsp;<span class="'.$badge.' '.$badge.'-danger">
-        <label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="'.__('validation.order_has_Expired').'">
-        </label>'.__('message.expired').'</span>';
-    } else {
-        return getDateHtml($expiryDate);
-    }
+    $expiry = Carbon::parse($expiryDate);
+    $now = Carbon::now();
+
+    return [
+        'date' => $expiry,
+        'status' => $expiry->lt($now) ? __('message.expired') : null,
+    ];
 }
 
-function getVersionAndLabel($productVersion, $productId, $badge = 'label', $path = null)
+function getVersionAndLabel($productVersion, $productId, $path = null)
 {
+    // Get latest version from cache
     $latestVersion = \Cache::remember('latest_'.$productId, 10, function () use ($productId) {
         return ProductUpload::where('product_id', $productId)->latest()->value('version');
     });
+
+    // Fallback to installation detail if version not provided
     if (! $productVersion && $path) {
-        $installationDetail = InstallationDetail::where('installation_path', 'like', '%'.$path.'%')->orderBy('id', 'desc')->first();
+        $installationDetail = InstallationDetail::where('installation_path', 'like', '%'.$path.'%')
+            ->orderBy('id', 'desc')
+            ->first();
         $productVersion = $installationDetail ? $installationDetail->version : $latestVersion;
     }
-    $status = $productVersion ? ($productVersion < $latestVersion ? 'warning' : 'success') : '';
 
-    return '<span class="'.$badge.' '.$badge.'-'.$status.'"><label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="'.($productVersion ? ($status == 'warning' ? 'Outdated Version' : 'Latest Version') : '').'"></label>'.($productVersion ? $productVersion : '--').'</span>';
+    // Return version value or '--' if not available
+    return $productVersion ?? $latestVersion ?? null;
 }
+
 
 function getInstallationDetail($ip)
 {

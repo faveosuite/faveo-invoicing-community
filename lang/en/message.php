@@ -2707,4 +2707,6 @@ return [
     'manager_settings_updated_successfully' => 'Manager settings updated successfully.',
 
     'user_position_prohibited_if' => 'The position field is not allowed when role is user.',
+
+    'deletion_blocked' => 'Deletion blocked: the following users are assigned as :roles: :names.',
 ];
