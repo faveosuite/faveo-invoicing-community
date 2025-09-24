@@ -28,7 +28,7 @@ class SoftDeleteController extends ClientController
         $page = $request->input('page', 1);
 
         $users = User::select('id', 'first_name', 'last_name', 'email', 'mobile', 'country', 'created_at')
-            ->where(function($query) use ($searchQuery) {
+            ->where(function ($query) use ($searchQuery) {
                 $query->where('email', 'like', '%'.$searchQuery.'%')
                     ->orWhere(\DB::raw('CONCAT(first_name, " ", last_name)'), 'like', '%'.$searchQuery.'%')
                     ->orWhere('mobile', 'like', '%'.$searchQuery.'%')
@@ -59,14 +59,13 @@ class SoftDeleteController extends ClientController
     {
         $ids = $request->input('user_ids', []);
 
-        if( empty($ids) ){
+        if (empty($ids)) {
             return errorResponse(__('message.select-a-row'));
         }
 
         try {
-
-            User::onlyTrashed()->whereIn('id', $ids)->get()->each(function($user) {
-                $user->order()->pluck('id')->each(function($tenant) {
+            User::onlyTrashed()->whereIn('id', $ids)->get()->each(function ($user) {
+                $user->order()->pluck('id')->each(function ($tenant) {
                     $installation_path = \DB::table('installation_details')
                         ->where('order_id', $tenant)
                         ->where('installation_path', '!=', cloudCentralDomain())
