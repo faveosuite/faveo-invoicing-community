@@ -13,6 +13,7 @@ class Timezone extends BaseModel
     public $timestamps = false;
 
     protected $appends = ['timezone_name'];
+
     public function getTimezoneNameAttribute()
     {
         $extractGMT = explode(' ', $this->location);
