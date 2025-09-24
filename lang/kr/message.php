@@ -2721,5 +2721,6 @@ return [
 
     'user_position_prohibited_if' => '역할이 사용자일 때는 직위 필드를 사용할 수 없습니다.',
     'cloud_plan_error' => '클라우드 제품을 삭제하거나 다른 요금제에 연결해 주세요.',
-
+    'auto_renewal_disable' => '자동 갱신은 현재 사용할 수 없습니다. 관리자에게 문의하십시오.',
+    'auto_renewal_tooltip' => '모든 사용자의 자동 갱신을 활성화하거나 비활성화합니다.',
 ];

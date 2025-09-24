@@ -2662,5 +2662,6 @@ return [
     'deletion_cloud_subscription' => '刪除已過期超過...的雲端訂閱',
     'msg_service_down' => '我們目前的 OTP 服務發生故障。請稍後再試。我們正努力儘快解決問題。',
     'cloud_plan_error' => '請移除雲產品或將其連結到其他方案。',
-
+    'auto_renewal_disable' => '自動續訂目前不可用。請聯繫管理員以獲取協助。',
+    'auto_renewal_tooltip' => '為所有用戶啟用或停用自動續訂。',
 ];

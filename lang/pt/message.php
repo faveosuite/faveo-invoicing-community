@@ -2679,5 +2679,6 @@ return [
 
     'user_position_prohibited_if' => 'O campo posição não é permitido quando o papel é usuário.',
     'cloud_plan_error' => 'Por favor, remova o produto em nuvem ou vincule-o a um plano alternativo.',
-
+    'auto_renewal_disable' => 'A renovação automática não está disponível no momento. Entre em contato com o administrador para obter assistência.',
+    'auto_renewal_tooltip' => 'Ativar ou desativar a renovação automática para todos os usuários.',
 ];

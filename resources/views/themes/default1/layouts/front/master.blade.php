@@ -2,6 +2,26 @@
 <html dir="{{ in_array(app()->getLocale(), ['ar', 'he']) ? 'rtl' : 'ltr' }}">
 <head>
     <style>
+        .swal2-popup {
+            margin:0 !important;
+        }
+        .swal2-title{
+            padding-left:0 !important;
+            padding-bottom:0 !important;
+        }
+
+
+        .swal2-html-container{
+            padding-left:0 !important;
+            padding-right:0 !important;
+        }
+
+
+        .custom-confirm,
+        .custom-cancel {
+            min-width: 100px;
+        }
+
         .list-styled.columns-lg-2.px-2 li a {
             color: #777 !important; /* Set the anchor text color to black */
         }

@@ -1239,6 +1239,8 @@
         setupErrorHandling(cardExpiry, 'card-expiry-errors', 'card-expiry');
         setupErrorHandling(cardCvc, 'card-cvc-errors', 'card-cvc');
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script type="text/javascript">
 
         $('#srclose').click(function()
@@ -1291,7 +1293,22 @@
         });
         $('#renew').on('change',function () {
             if ($(this).prop("checked")) {
-                cardUpdate();
+                if({!! $autorenewal_status !!}) {
+                    cardUpdate();
+                }else{
+                    swal.fire({
+                        title: "<h2 class='swal2-title custom-title'>{{Lang::get('message.info')}}</h2>",
+                        html: "<div  class='swal2-html-container custom-content'>" +
+                            "<div class='section-sa'>" +
+                            "<p>{{Lang::get('message.auto_renewal_disable')}}</p>" + "</div>" +
+                            "</div>",
+                        position: 'top',
+                        confirmButtonText: "{{ __('message.ok') }}",
+                        confirmButtonColor: "#007bff",
+                        width: "600px",
+                    })
+                    $('#renew').prop('checked',false)
+                }
 
 
             }else{
