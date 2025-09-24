@@ -591,24 +591,31 @@ class ClientController extends AdvanceSearchController
     public function exportUsers(Request $request)
     {
         try {
+
             ini_set('memory_limit', '-1');
+
             $selectedColumns = $request->input('selected_columns', []);
             $searchParams = $request->input('search_params', []);
             $email = \Auth::user()->email;
+
             $driver = QueueService::where('status', '1')->first();
 
-            if ($driver->name != 'Sync') {
-                app('queue')->setDefaultDriver($driver->short_name);
-                ReportExport::dispatch('users', $selectedColumns, $searchParams, $email)->onQueue('reports');
-
-                return response()->json(['message' => __('message.system_generating_report')], 200);
-            } else {
-                return response()->json(['message' => __('message.cannot_sync_queue_driver')], 400);
+            if ($driver->name === 'Sync') {
+               return errorResponse(__('message.cannot_sync_queue_driver'));
             }
+
+            // Set the queue driver dynamically
+            app('queue')->setDefaultDriver($driver->short_name);
+
+            ReportExport::dispatch('users', $selectedColumns, $searchParams, $email)
+                ->onQueue('reports');
+
+            return successResponse(__('message.system_generating_report'));
+
         } catch (\Exception $e) {
             \Log::error(__('message.export_failed').$e->getMessage());
 
-            return response()->json(['message' => $e->getMessage()], 500);
+            return errorResponse($e->getMessage());
         }
     }
 
@@ -661,45 +668,215 @@ class ClientController extends AdvanceSearchController
 
     public function saveColumns(Request $request)
     {
-        $userId = auth()->id();
-        $entityType = $request->entity_type;
-        $selectedColumns = $request->selected_columns;
-        $selectedColumns = array_unique(array_merge($selectedColumns, ['checkbox', 'action']));
+        $userId        = auth()->id();
+        $entityType    = $request->get('entity_type');
+        $selectedKeys  = $request->get('selected_columns', []);
 
-        $reportColumns = ReportColumn::whereIn('key', $selectedColumns)
-                                 ->where('type', $entityType)
-                                 ->pluck('id', 'key');
+        // Always ensure checkbox & action exist
+        $selectedKeys  = array_unique(array_merge($selectedKeys, ['checkbox', 'action']));
 
-        UserLinkReport::where('user_id', $userId)->where('type', $entityType)->delete();
+        // Map column keys to IDs
+        $reportColumns = ReportColumn::where('type', $entityType)
+            ->whereIn('key', $selectedKeys)
+            ->pluck('id', 'key');
 
-        foreach ($selectedColumns as $columnKey) {
-            if (isset($reportColumns[$columnKey])) {
-                UserLinkReport::create([
-                    'user_id' => $userId,
-                    'column_id' => $reportColumns[$columnKey],
-                    'type' => $entityType,
-                ]);
+        UserLinkReport::where('user_id', $userId)
+            ->where('type', $entityType)
+            ->delete();
+
+        $insertData = [];
+        foreach ($selectedKeys as $key) {
+            if (isset($reportColumns[$key])) {
+                $insertData[] = [
+                    'user_id'   => $userId,
+                    'column_id' => $reportColumns[$key],
+                    'type'      => $entityType,
+                    'created_at'=> now(),
+                    'updated_at'=> now(),
+                ];
             }
         }
 
-        return response()->json(['message' => __('message.columns_saved_successfully.')]);
+        if (!empty($insertData)) {
+            UserLinkReport::insert($insertData);
+        }
+
+        return successResponse(__('message.columns_saved_successfully.'), [
+            'selected_columns' => $selectedKeys
+        ]);
     }
+
 
     public function getColumns(Request $request)
     {
-        $userId = auth()->id();
-        $entityType = $request->entity_type;
+        $userId     = auth()->id();
+        $entityType = $request->get('entity_type');
 
-        $userColumns = UserLinkReport::where('user_id', $userId)->where('type', $entityType)->pluck('column_id');
-        if ($userColumns->isEmpty()) {
-            $defaultColumns = ReportColumn::where('type', $entityType)->where('default', true)->pluck('key');
+        // Get user's saved column IDs
+        $userColumnIds = UserLinkReport::where('user_id', $userId)
+            ->where('type', $entityType)
+            ->pluck('column_id');
 
-            return response()->json(['selected_columns' => $defaultColumns]);
-        } else {
-            $defaultColumns = ReportColumn::where('type', $entityType)->whereIn('id', $userColumns)
-                                   ->pluck('key');
+        // If user has no custom columns, fallback to defaults
+        $columns = $userColumnIds->isEmpty()
+            ? ReportColumn::where('type', $entityType)
+                ->where('default', true)
+                ->pluck('key')
+            : ReportColumn::where('type', $entityType)
+                ->whereIn('id', $userColumnIds)
+                ->pluck('key');
+
+        return successResponse('', [
+            'selected_columns' => $columns
+        ]);
+    }
+
+
+    public function getAllUsers(Request $request)
+    {
+        $searchQuery = $request->input('search-query', '');
+        $sortOrder = $request->input('sort-order', 'asc');
+        $sortField = $request->input('sort-field', 'created_at');
+        $limit = $request->input('limit', 10);
+        $page = $request->input('page', 1);
+
+        $users = User::select('id', 'first_name', 'last_name', 'email', 'mobile', 'country', 'created_at')
+            ->where(function($query) use ($searchQuery) {
+                $query->where('email', 'like', '%'.$searchQuery.'%')
+                    ->orWhere(\DB::raw('CONCAT(first_name, " ", last_name)'), 'like', '%'.$searchQuery.'%')
+                    ->orWhere('mobile', 'like', '%'.$searchQuery.'%')
+                    ->orWhere('country', 'like', '%'.$searchQuery.'%')
+                    ->orWhere('created_at', 'like', '%'.$searchQuery.'%');
+            })
+            ->orderBy($sortField, $sortOrder)
+            ->paginate($limit, ['*'], 'page', $page);
+
+        return successResponse('', $users);
+    }
+
+    public function deleteBulkUsers(Request $request)
+    {
+        $ids = $request->input('user_ids', []);
+
+        if (empty($ids)) {
+            return errorResponse(__('message.select-a-row'));
         }
 
-        return response()->json(['selected_columns' => $defaultColumns]);
+        $blockedAccountManagers = User::whereIn('account_manager', $ids)
+            ->select(\DB::raw('CONCAT(first_name, " ", last_name) as name'))
+            ->get();
+
+        $blockedSalesManagers = User::whereIn('manager', $ids)
+            ->select(\DB::raw('CONCAT(first_name, " ", last_name) as name'))
+            ->get();
+
+        if ($blockedAccountManagers->isNotEmpty() || $blockedSalesManagers->isNotEmpty()) {
+
+            $names = collect()
+                ->merge($blockedAccountManagers->pluck('name'))
+                ->merge($blockedSalesManagers->pluck('name'))
+                ->implode(', ');
+
+            $roles = [];
+            if ($blockedAccountManagers->isNotEmpty()) $roles[] = __('message.account_manager');
+            if ($blockedSalesManagers->isNotEmpty()) $roles[] = __('message.sales_manager');
+
+            $rolesStr = implode(' & ', $roles);
+
+            return errorResponse(__('message.deletion_blocked', [
+                'roles' => $rolesStr,
+                'names' => $names
+            ]), 400);
+        }
+
+        User::whereIn('id', $ids)->delete();
+
+        return successResponse(__('message.user-suspend-successfully'));
+    }
+
+
+    public function getManagers(Request $request)
+    {
+        $role = $request->input('role', 'manager');
+        $page = $request->input('page', 1);
+        $search = $request->input('search_query', '');
+        $limit = $request->input('limit', 10);
+
+        $managers = User::select('id', 'first_name', 'last_name', 'email', 'mobile', 'country', 'created_at')
+            ->where('role', $role)
+            ->when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('email', 'like', "%{$search}%")
+                        ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]);
+                });
+            })
+            ->orderByDesc('created_at')
+            ->paginate($limit, ['*'], 'page', $page);
+
+        return successResponse('', $managers);
+    }
+
+    public function userCreate(ClientRequest $request)
+    {
+        try {
+            $password = \Hash::make(\Str::password(12));
+
+            $mobile_code = str_replace('+', '', $request->input('mobile_code') ??
+                Country::where('country_code_char2', $request->input('country'))->value('phonecode'));
+
+            $location = getLocation();
+
+            $userData = $request->only([
+                'user_name', 'first_name', 'last_name', 'email', 'company',
+                'bussiness', 'role', 'position', 'mobile_country_iso',
+                'company_type', 'company_size', 'address', 'town', 'state',
+                'zip', 'timezone_id', 'mobile', 'skype', 'manager', 'account_manager'
+            ]);
+
+            $userData = array_merge($userData, [
+                'password'         => $password,
+                'active'           => 1,
+                'email_verified'   => $request->boolean('active'),
+                'mobile_verified'  => $request->boolean('mobile_verified'),
+                'country'          => strtoupper($request->input('country')),
+                'mobile_code'      => $mobile_code,
+                'ip'               => $location['ip'] ?? null,
+            ]);
+
+            $user = User::create($userData);
+
+            if (emailSendingStatus()) {
+                $this->sendWelcomeMail($user);
+            }
+
+            AddUserToExternalService::dispatch($user);
+
+            return successResponse(__('message.user-create-successfully'), $user);
+
+        } catch (\Exception $e){
+            return errorResponse($e->getMessage());
+        }
+    }
+
+    public function getEditUser($id)
+    {
+        return successResponse('', User::find($id));
+    }
+
+    public function userUpdate($id, ClientRequest $request)
+    {
+        try {
+
+            $user = User::find($id);
+
+            $user->fill($request->all());
+
+            $user->save();
+
+            return successResponse(__('message.updated-successfully'));
+
+        } catch (\Exception $e){
+            return errorResponse($e->getMessage());
+        }
     }
 }
