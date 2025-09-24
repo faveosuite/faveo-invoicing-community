@@ -32,24 +32,23 @@ class BaseProductController extends ExtendedBaseProductController
     /*
     * Get Product Qty if Product can be modified
      */
-    public function getProductQtyCheck($productid, $planid)
+    public function getProductQtyCheck(int $productId, Plan $plan, string $currency)
     {
-        try {
-            $check = self::checkMultiProduct($productid);
-            if ($check == true) {
-                $value = Product::find($productid)->planRelation->find($planid)->planPrice->first()->product_quantity;
-                $value = $value == null ? 1 : $value;
-
-                return "<div>
-	                        <label class='required'>"./* @scrutinizer ignore-type */
-                            \Lang::get('message.quantity')."</label>
-	                        <input type='text' name='quantity' class='form-control' id='quantity' value='$value'>
-	                        <span class='error-message' id='quantity-msg'></span>
-	                </div>";
-            }
-        } catch (\Exception $ex) {
-            return $ex->getMessage();
+        if (! self::checkMultiProduct($productId)) {
+            return [
+                'can_modify' => false,
+                'quantity' => null,
+            ];
         }
+
+        $value = $plan->planPrice
+            ->where('currency', $currency)
+            ->value('product_quantity');
+
+        return [
+            'can_modify' => true,
+            'quantity' => empty($value) ? 1 : (int) $value,
+        ];
     }
 
     /*
@@ -71,24 +70,23 @@ class BaseProductController extends ExtendedBaseProductController
         return false;
     }
 
-    public function getAgentQtyCheck($productid, $planid)
+    public function getAgentQtyCheck(int $productId, Plan $plan, string $currency)
     {
-        try {
-            $check = self::checkMultiAgent($productid);
-            if ($check == true) {
-                $value = Product::find($productid)->planRelation->find($planid)->planPrice->first()->no_of_agents;
-                $value = $value == null ? 0 : $value;
-
-                return "<div>
-                            <label class='required'>"./* @scrutinizer ignore-type */
-                            \Lang::get('message.agent')."</label>
-                            <input type='text' name='agents' class='form-control' id='agents' value='$value'>
-                            <span class='error-message' id='agents-msg'></span>
-                    </div>";
-            }
-        } catch (\Exception $ex) {
-            return $ex->getMessage();
+        if (! self::checkMultiAgent($productId)) {
+            return [
+                'can_modify' => false,
+                'quantity' => null,
+            ];
         }
+
+        $value = $plan->planPrice
+            ->where('currency', $currency)
+            ->value('no_of_agents');
+
+        return [
+            'can_modify' => true,
+            'quantity' => empty($value) ? 0 : (int) $value,
+        ];
     }
 
     /*
@@ -294,22 +292,40 @@ class BaseProductController extends ExtendedBaseProductController
      */
     public function getPrice(Request $request)
     {
+        $request->validate([
+            'product' => 'required|integer',
+            'plan' => 'required|string',
+            'user' => 'nullable|integer',
+        ]);
+
         try {
-            $id = $request->input('product');
-            $userid = $request->input('user');
-            $plan = $request->input('plan');
-            $controller = new \App\Http\Controllers\Front\CartController();
-            $price = $controller->cost($id, $plan, $userid, true);
-            $field = $this->getProductField($id);
-            $quantity = $this->getProductQtyCheck($id, $plan);
-            $agents = $this->getAgentQtyCheck($id, $plan);
-            $result = ['price' => $price, 'field' => $field, 'quantity' => $quantity, 'agents' => $agents];
+            $productId = $request->input('product');
+            $userId = $request->input('user');
+            $planId = $request->input('plan');
 
-            return response()->json($result);
+            $plan = Plan::findOrFail($planId);
+
+            $currency = userCurrencyAndPrice($userId, $plan)['currency'];
+
+            $price = (new CartController())->cost($productId, $planId, $userId, true);
+
+            $product = Product::findOrFail($productId);
+
+            $result = [
+                'price' => $price,
+                'fields' => [
+                    'required_domain' => (bool) $product->required_domain,
+                    'is_cloud_product' => in_array($productId, cloudPopupProducts())
+                        ? ['domain' => cloudSubDomain()]
+                        : false,
+                ],
+                'product_quantity' => $this->getProductQtyCheck($productId, $plan, $currency),
+                'agents' => $this->getAgentQtyCheck($productId, $plan, $currency),
+            ];
+
+            return successResponse('', $result);
         } catch (\Exception $ex) {
-            $result = ['price' => $ex->getMessage(), 'field' => ''];
-
-            return response()->json($result);
+            return errorResponse($ex->getMessage());
         }
     }
 

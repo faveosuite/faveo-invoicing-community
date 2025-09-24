@@ -66,9 +66,7 @@ class RequiredPostProjectParameters implements ModelInterface, ArrayAccess, Json
       * @phpsalm-var array<string, string>
       */
     protected static array $openAPITypes = [
-        'title' => 'string',
-        'board_id' => 'float',
-        'phase_id' => 'float'
+        'title' => 'string'
     ];
 
     /**
@@ -79,9 +77,7 @@ class RequiredPostProjectParameters implements ModelInterface, ArrayAccess, Json
       * @psalm-var array<string, string|null>
       */
     protected static $openAPIFormats = [
-        'title' => null,
-        'board_id' => null,
-        'phase_id' => null
+        'title' => null
     ];
 
     /**
@@ -115,9 +111,7 @@ class RequiredPostProjectParameters implements ModelInterface, ArrayAccess, Json
      * @var string[]
      */
     protected static $attributeMap = [
-        'title' => 'title',
-        'board_id' => 'board_id',
-        'phase_id' => 'phase_id'
+        'title' => 'title'
     ];
 
     /**
@@ -126,9 +120,7 @@ class RequiredPostProjectParameters implements ModelInterface, ArrayAccess, Json
      * @var string[]
      */
     protected static $setters = [
-        'title' => 'setTitle',
-        'board_id' => 'setBoardId',
-        'phase_id' => 'setPhaseId'
+        'title' => 'setTitle'
     ];
 
     /**
@@ -137,9 +129,7 @@ class RequiredPostProjectParameters implements ModelInterface, ArrayAccess, Json
      * @var string[]
      */
     protected static $getters = [
-        'title' => 'getTitle',
-        'board_id' => 'getBoardId',
-        'phase_id' => 'getPhaseId'
+        'title' => 'getTitle'
     ];
 
     /**
@@ -210,8 +200,6 @@ class RequiredPostProjectParameters implements ModelInterface, ArrayAccess, Json
     public function __construct(array $data = null)
     {
         $this->container['title'] = $data['title'] ?? null;
-        $this->container['board_id'] = $data['board_id'] ?? null;
-        $this->container['phase_id'] = $data['phase_id'] ?? null;
     }
 
     /**
@@ -227,12 +215,6 @@ class RequiredPostProjectParameters implements ModelInterface, ArrayAccess, Json
 
         if ($this->container['title'] === null) {
             $invalidProperties[] = "'title' can't be null";
-        }
-        if ($this->container['board_id'] === null) {
-            $invalidProperties[] = "'board_id' can't be null";
-        }
-        if ($this->container['phase_id'] === null) {
-            $invalidProperties[] = "'phase_id' can't be null";
         }
         return $invalidProperties;
     }
@@ -269,54 +251,6 @@ class RequiredPostProjectParameters implements ModelInterface, ArrayAccess, Json
     public function setTitle($title): self
     {
         $this->container['title'] = $title;
-
-        return $this;
-    }
-
-    /**
-     * Gets board_id
-     *
-     * @return float
-     */
-    public function getBoardId()
-    {
-        return $this->container['board_id'];
-    }
-
-    /**
-     * Sets board_id
-     *
-     * @param float $board_id The ID of a project board
-     *
-     * @return self
-     */
-    public function setBoardId($board_id): self
-    {
-        $this->container['board_id'] = $board_id;
-
-        return $this;
-    }
-
-    /**
-     * Gets phase_id
-     *
-     * @return float
-     */
-    public function getPhaseId()
-    {
-        return $this->container['phase_id'];
-    }
-
-    /**
-     * Sets phase_id
-     *
-     * @param float $phase_id The ID of a phase on a project board
-     *
-     * @return self
-     */
-    public function setPhaseId($phase_id): self
-    {
-        $this->container['phase_id'] = $phase_id;
 
         return $this;
     }

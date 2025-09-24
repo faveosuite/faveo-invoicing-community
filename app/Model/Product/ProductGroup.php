@@ -4,10 +4,11 @@ namespace App\Model\Product;
 
 use App\BaseModel;
 use App\Traits\SystemActivityLogsTrait;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ProductGroup extends BaseModel
 {
-    use SystemActivityLogsTrait;
+    use HasFactory, SystemActivityLogsTrait;
 
     protected $table = 'product_groups';
 
@@ -39,7 +40,7 @@ class ProductGroup extends BaseModel
 
     public function pricingTemplate()
     {
-        return $this->belongsTo(\App\Model\Common\PricingTemplate::class);
+        return $this->belongsTo(\App\Model\Common\PricingTemplate::class, 'pricing_templates_id', 'id');
     }
 
     public function delete()

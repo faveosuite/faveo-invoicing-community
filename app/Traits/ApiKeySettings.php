@@ -267,7 +267,7 @@ trait ApiKeySettings
         return $date;
     }
 
-    public function saveConditions()
+    public function saveConditions(Request $request)
     {
         if (\Request::get('expiry-commands') && \Request::get('activity-commands')) {
             $expiry_commands = \Request::get('expiry-commands');
@@ -327,8 +327,7 @@ trait ApiKeySettings
                 'licenseSystemReportsCleanup' => $licensesystem_command, 'licenseVersionsCleanup' => $licenseversions_command,
             ];
 
-            $this->storeCommand($jobs);
-        }
+        $this->storeCommand($jobs);
     }
 
     public function getCommand($command, $daily_at)
@@ -340,42 +339,43 @@ trait ApiKeySettings
         return $command;
     }
 
-    public function storeCommand($array = [])
+    public function storeCommand(array $jobs = [])
     {
-        $command = new \App\Model\Mailjob\Condition();
-        $commands = $command->get();
-        if ($commands->count() > 0) {
-            foreach ($commands as $condition) {
-                $condition->delete();
-            }
-        }
-        if (count($array) > 0) {
-            foreach ($array as $key => $save) {
-                $command->create([
-                    'job' => $key,
-                    'value' => $save,
-                ]);
-            }
+        $model = new \App\Model\Mailjob\Condition();
+
+        // Clear all previous commands
+        \App\Model\Mailjob\Condition::truncate();
+
+        // Insert all new commands
+        foreach ($jobs as $job => $value) {
+            $model->create([
+                'job' => $job,
+                'value' => $value,
+            ]);
         }
     }
 
     public function showFileStorage()
     {
-        $fileStorageSettings = FileSystemSettings::first();
+        try {
+            $fileStorageSettings = FileSystemSettings::first();
 
-        $fileStorage = (object) [
-            'disk' => $fileStorageSettings->disk ?? '',
-            'local_file_storage_path' => env('STORAGE_PATH', storage_path('app/public')),
-            's3_bucket' => env('AWS_BUCKET', ''),
-            's3_region' => env('AWS_DEFAULT_REGION', ''),
-            's3_access_key' => env('AWS_ACCESS_KEY_ID', ''),
-            's3_secret_key' => env('AWS_SECRET_ACCESS_KEY', ''),
-            's3_endpoint_url' => env('AWS_ENDPOINT', ''),
-            's3_url' => env('AWS_URL', ''),
-            's3_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', ''),
-        ];
+            $fileStorage = [
+                'disk' => $fileStorageSettings->disk ?? '',
+                'local_file_storage_path' => env('STORAGE_PATH', storage_path('app/public')),
+                's3_bucket' => env('AWS_BUCKET', ''),
+                's3_region' => env('AWS_DEFAULT_REGION', ''),
+                's3_access_key' => env('AWS_ACCESS_KEY_ID', ''),
+                's3_secret_key' => env('AWS_SECRET_ACCESS_KEY', ''),
+                's3_endpoint_url' => env('AWS_ENDPOINT', ''),
+                's3_url' => env('AWS_URL', ''),
+                's3_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', ''),
+            ];
 
-        return view('themes.default1.common.setting.file-storage', compact('fileStorage'));
+            return successResponse('', $fileStorage);
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
     }
 
     public function updateStoragePath(UpdateStoragePathRequest $request)
@@ -461,7 +461,7 @@ trait ApiKeySettings
         }
     }
 
-    private function validateS3Credentials($s3Region, $s3AccessKey, $s3SecretKey, $s3EndpointUrl, $s3Bucket, $s3Url, $s3PathStyleEndpoint)
+    protected function validateS3Credentials($s3Region, $s3AccessKey, $s3SecretKey, $s3EndpointUrl, $s3Bucket, $s3Url, $s3PathStyleEndpoint)
     {
         try {
             $s3Client = new S3Client([

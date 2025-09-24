@@ -568,11 +568,10 @@ class PageController extends Controller
                 $status = Product::find($product->id);
             }
 
-            return view('themes.default1.common.template.shoppingcart', compact('templates', 'headline', 'tagline', 'description', 'status'));
+            return successResponse('', ['templates' => $templates, 'headline' => $headline, 'tagline' => $tagline, 'description' => $description, 'status' => $status]);
+//            return view('themes.default1.common.template.shoppingcart', compact('templates', 'headline', 'tagline', 'description', 'status'));
         } catch (\Exception $ex) {
-            \Logger::exception($ex);
-
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse($ex->getMessage());
         }
     }
 
@@ -644,7 +643,8 @@ class PageController extends Controller
             }
             $data = PricingTemplate::findOrFail(1)->data;
 
-            return $this->transformTemplate('cart', $data, $trasform);
+            return $trasform;
+//            return $this->transformTemplate('cart', $data, $trasform);
         } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }
@@ -654,22 +654,30 @@ class PageController extends Controller
     {
         if ($product->add_to_contact != 1) {
             if (in_array($product->id, cloudPopupProducts())) {
-                return '<button class="btn '.$orderButton.' btn-modern buttonsale" data-toggle="modal" data-target="#tenancy" data-mydata="'.$product->id.'">
-                                <span style="white-space: nowrap;">'.__('message.order_now').'</span>
-                            </button>';
+//                return '<button class="btn '.$orderButton.' btn-modern buttonsale" data-toggle="modal" data-target="#tenancy" data-mydata="'.$product->id.'">
+//                                <span style="white-space: nowrap;">'.__('message.order_now').'</span>
+//                            </button>';
+                //for vue
+                return['class' => $orderButton, 'product_id' => $product->id, 'type' => 'cloud', 'button' => __('message.order_now')];
             } elseif ($product->status) {
-                return '
-    <button type="button"
-        class="btn '.$orderButton.' btn-modern buttonsale api-order-btn"
-        data-product="'.$product->id.'">
-        '.__('message.order_now').'
-    </button>
-';
+//                return '
+//    <button type="button"
+//        class="btn '.$orderButton.' btn-modern buttonsale api-order-btn"
+//        data-product="'.$product->id.'">
+//        '.__('message.order_now').'
+//    </button>
+                //';
+                //For vue when product status is one different process takes place in store
+                return['class' => $orderButton, 'product_id' => $product->id, 'type' => 'cloud', 'button' => __('message.order_now')];
             } else {
-                return '<input type="submit" value="Order Now" class="btn '.$orderButton.' btn-modern buttonsale"></form>';
+                //for vue
+                return ['class' => $orderButton, 'type' => 'multioption', 'button' => __('message.order_now')];
+//                return '<input type="submit" value="Order Now" class="btn '.$orderButton.' btn-modern buttonsale"></form>';
             }
         } else {
-            return '<a class="btn '.$orderButton.' btn-modern sales buttonsale" href="https://www.faveohelpdesk.com/contact-us/">'.__('message.contact_sales').'</a>';
+            //for vue
+            return ['url' => 'https://www.faveohelpdesk.com/contact-us/', 'button' => __('message.contact_sales'), 'class' => $orderButton, 'type' => 'normal'];
+//            return '<a class="btn '.$orderButton.' btn-modern sales buttonsale" href="https://www.faveohelpdesk.com/contact-us/">'.__('message.contact_sales').'</a>';
         }
     }
 
@@ -887,6 +895,8 @@ class PageController extends Controller
                             $priceDescription = 'free';
                         } else {
                             $priceDescription = $description->no_of_agents ? 'per month for <strong>'.' '.$description->no_of_agents.' '.'agent</strong>' : 'per month';
+                            //for vue
+//                            $priceDescription = $description->no_of_agents?$description->no_of_agents:'per month';
                         }
 
                         break;
@@ -1156,19 +1166,54 @@ class PageController extends Controller
 
     public function saveDemoPage(Request $request)
     {
-        $data = $request->validate([
-            'status' => 'required',
+        $request->validate([
+            'status' => 'required|boolean',
         ]);
-        $data = [
-            'status' => $request->input('status') === 'true' ? 1 : 0,
-        ];
 
-        $existingData = Demo_page::first();
-        $existingData ? $existingData->update($data) : Demo_page::create($data);
+        Demo_page::updateOrCreate([],
+            ['status' => $request->boolean('status')]
+        );
 
-        $message = $existingData ? __('message.data_updated_successfully') : __('message.data_created_successfully');
+        return successResponse(__('message.data_updated_successfully'));
+    }
 
-        return redirect()->back()->with('success', $message);
+    public function getAllPages(Request $request)
+    {
+        $searchQuery = $request->input('search-query', '');
+        $sortOrder = $request->input('sort-order', 'asc');
+        $sortField = $request->input('sort-field', 'created_at');
+        $limit = $request->input('limit', 10);
+
+        $pages = FrontendPage::select('id', 'name', 'url', 'created_at')
+            ->when($searchQuery, function ($query) use ($searchQuery) {
+                $query->where(function ($q) use ($searchQuery) {
+                    $q->where('name', 'like', "%{$searchQuery}%")
+                        ->orWhere('url', 'like', "%{$searchQuery}%");
+                });
+            })
+            ->orderBy($sortField, $sortOrder)
+            ->simplePaginate($limit);
+
+        return successResponse('', $pages);
+    }
+
+    public function deleteBulkPages(Request $request)
+    {
+        $ids = $request->input('page_ids', []);
+
+        $defaultPageId = DefaultPage::pluck('page_id')->first();
+
+        if (empty($ids)) {
+            return errorResponse(__('message.select-a-row'));
+        }
+
+        if (in_array($defaultPageId, $ids)) {
+            return errorResponse(__('message.can-not-delete-default-page'));
+        }
+
+        FrontendPage::whereIn('id', $ids)->where('id', '!=', $defaultPageId)->delete();
+
+        return successResponse(__('message.deleted-successfully'));
     }
 
     public function currencyFormatWithSpan($amount, $currency, $id = null)
@@ -1193,5 +1238,48 @@ class PageController extends Controller
 
         // symbol at the end
         return $formatted.$span;
+    }
+
+    public function getPage(Request $request, $pageId)
+    {
+        try {
+            return successResponse('', FrontendPage::with('parent:id,name')->findOrFail($pageId));
+        } catch (\Exception $ex) {
+            return errorResponse($ex->getMessage());
+        }
+    }
+
+    public function updatePage(Request $request, $pageId)
+    {
+        try {
+            $page = FrontendPage::findOrFail($pageId);
+
+            // Fill except created_at
+            $page->fill($request->except('created_at'));
+
+            // Handle created_at if provided and valid
+            if ($request->filled('created_at')) {
+                $date = \DateTime::createFromFormat('m/d/Y', $request->input('created_at'));
+                if ($date) {
+                    $page->created_at = $date->format('Y-m-d H:i:s');
+                }
+            }
+
+            $page->save();
+
+            $defaultPageId = $request->input('default_page_id');
+            $defaultUrl = $defaultPageId
+                ? FrontendPage::where('id', $defaultPageId)->value('url')
+                : url('my-invoices');
+
+            DefaultPage::findOrFail(1)->update([
+                'page_id' => $defaultPageId ?? 1,
+                'page_url' => $defaultUrl,
+            ]);
+
+            return successResponse(__('message.updated-successfully'), $page);
+        } catch (\Throwable $ex) {
+            return errorResponse($ex->getMessage());
+        }
     }
 }

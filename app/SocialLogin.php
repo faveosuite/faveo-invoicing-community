@@ -9,4 +9,12 @@ class SocialLogin extends Model
 {
     use HasFactory;
     protected $table = 'social_logins';
+
+    protected $fillable = [
+        'type',
+        'client_id',
+        'client_secret',
+        'redirect_url',
+        'status',
+    ];
 }

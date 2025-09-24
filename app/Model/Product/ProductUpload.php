@@ -3,11 +3,12 @@
 namespace App\Model\Product;
 
 use App\Traits\SystemActivityLogsTrait;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ProductUpload extends Model
 {
-    use SystemActivityLogsTrait;
+    use HasFactory, SystemActivityLogsTrait;
 
     protected $table = 'product_uploads';
 
@@ -40,7 +41,7 @@ class ProductUpload extends Model
 
     public function product()
     {
-        return $this->belongsTo(\App\Model\Product\Product::class);
+        return $this->belongsTo(Product::class, 'product_id', 'id');
     }
 
     public function order()

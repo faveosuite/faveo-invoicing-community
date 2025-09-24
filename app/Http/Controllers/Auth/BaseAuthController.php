@@ -187,12 +187,9 @@ class BaseAuthController extends Controller
         }
     }
 
-    protected function addUserToMailchimp($user, $mailchimpStatus)
+    protected function addUserToMailchimp($user)
     {
-        if ($mailchimpStatus) {
-            $mailchimp = new \App\Http\Controllers\Common\MailChimpController();
-            $mailchimp->addSubscriber($user->email);
-        }
+        (new \App\Http\Controllers\Common\MailChimpController())->addSubscriber($user->email);
     }
 
     public function emailverificationAttempt($user)

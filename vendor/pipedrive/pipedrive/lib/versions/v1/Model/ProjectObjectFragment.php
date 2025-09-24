@@ -66,6 +66,8 @@ class ProjectObjectFragment implements ModelInterface, ArrayAccess, JsonSerializ
       * @phpsalm-var array<string, string>
       */
     protected static array $openAPITypes = [
+        'board_id' => 'float',
+        'phase_id' => 'float',
         'description' => 'string',
         'status' => 'string',
         'owner_id' => 'float',
@@ -85,6 +87,8 @@ class ProjectObjectFragment implements ModelInterface, ArrayAccess, JsonSerializ
       * @psalm-var array<string, string|null>
       */
     protected static $openAPIFormats = [
+        'board_id' => null,
+        'phase_id' => null,
         'description' => null,
         'status' => null,
         'owner_id' => null,
@@ -127,6 +131,8 @@ class ProjectObjectFragment implements ModelInterface, ArrayAccess, JsonSerializ
      * @var string[]
      */
     protected static $attributeMap = [
+        'board_id' => 'board_id',
+        'phase_id' => 'phase_id',
         'description' => 'description',
         'status' => 'status',
         'owner_id' => 'owner_id',
@@ -144,6 +150,8 @@ class ProjectObjectFragment implements ModelInterface, ArrayAccess, JsonSerializ
      * @var string[]
      */
     protected static $setters = [
+        'board_id' => 'setBoardId',
+        'phase_id' => 'setPhaseId',
         'description' => 'setDescription',
         'status' => 'setStatus',
         'owner_id' => 'setOwnerId',
@@ -161,6 +169,8 @@ class ProjectObjectFragment implements ModelInterface, ArrayAccess, JsonSerializ
      * @var string[]
      */
     protected static $getters = [
+        'board_id' => 'getBoardId',
+        'phase_id' => 'getPhaseId',
         'description' => 'getDescription',
         'status' => 'getStatus',
         'owner_id' => 'getOwnerId',
@@ -239,6 +249,8 @@ class ProjectObjectFragment implements ModelInterface, ArrayAccess, JsonSerializ
      */
     public function __construct(array $data = null)
     {
+        $this->container['board_id'] = $data['board_id'] ?? null;
+        $this->container['phase_id'] = $data['phase_id'] ?? null;
         $this->container['description'] = $data['description'] ?? null;
         $this->container['status'] = $data['status'] ?? null;
         $this->container['owner_id'] = $data['owner_id'] ?? null;
@@ -275,6 +287,54 @@ class ProjectObjectFragment implements ModelInterface, ArrayAccess, JsonSerializ
         return count($this->listInvalidProperties()) === 0;
     }
 
+
+    /**
+     * Gets board_id
+     *
+     * @return float|null
+     */
+    public function getBoardId()
+    {
+        return $this->container['board_id'];
+    }
+
+    /**
+     * Sets board_id
+     *
+     * @param float|null $board_id The ID of the board this project is associated with
+     *
+     * @return self
+     */
+    public function setBoardId($board_id): self
+    {
+        $this->container['board_id'] = $board_id;
+
+        return $this;
+    }
+
+    /**
+     * Gets phase_id
+     *
+     * @return float|null
+     */
+    public function getPhaseId()
+    {
+        return $this->container['phase_id'];
+    }
+
+    /**
+     * Sets phase_id
+     *
+     * @param float|null $phase_id The ID of the phase this project is associated with
+     *
+     * @return self
+     */
+    public function setPhaseId($phase_id): self
+    {
+        $this->container['phase_id'] = $phase_id;
+
+        return $this;
+    }
 
     /**
      * Gets description

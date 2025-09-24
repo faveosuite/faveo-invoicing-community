@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Common\ExternalServiceController;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -31,7 +31,7 @@ class AddUserToExternalService implements ShouldQueue
     public function handle(): void
     {
         try {
-            (new AuthController())->updateUserWithVerificationStatus($this->user, $this->triggeredBy);
+            (new ExternalServiceController())->addUserToExternalServices($this->user, $this->triggeredBy);
         } catch (\Exception $e) {
             \Logger::exception($e);
         }

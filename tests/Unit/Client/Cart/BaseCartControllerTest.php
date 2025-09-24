@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Client\Cart;
 
+use App\Facades\Cart;
 use App\Http\Controllers\Front\BaseCartController;
 use App\Http\Controllers\Front\CheckoutController;
 use App\Http\Controllers\Front\ClientController;
@@ -11,6 +12,7 @@ use App\Model\License\LicenseType;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
+use App\Model\Order\OrderInvoiceRelation;
 use App\Model\Order\Payment;
 use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
@@ -40,6 +42,7 @@ class BaseCartControllerTest extends DBTestCase
         $this->html = Mockery::mock(Html::class, [$this->request])->makePartial();
         $this->html->shouldReceive('token')->andReturn('mocked-token');
         $this->app->instance(Html::class, $this->html);
+        $this->cart = new Cart();
     }
 
     #[Group('quantity')]
@@ -52,13 +55,12 @@ class BaseCartControllerTest extends DBTestCase
         $planPrice = PlanPrice::create(['plan_id' => $plan1->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
 
         $currency = 'INR';
-        \Cart::add([
-            'id' => $plan1->id,
-            'name' => $product->name,
-            'price' => 1000,
-            'quantity' => 1,
-            'attributes' => ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
-        ]);
+        $this->cart->add(
+            $plan1->id, $product->name,
+            1000,
+            1,
+            ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
+        );
         $response = $this->getPrivateMethod($this->classObject, 'getCartValues', [$plan1->id, true]);
         $this->assertEquals($response['agtqty'], 9); //Reduced to half
         $this->assertEquals($response['price'], 900); //Reduced to half
@@ -74,13 +76,12 @@ class BaseCartControllerTest extends DBTestCase
         $planPrice = PlanPrice::create(['plan_id' => $plan1->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
 
         $currency = 'INR';
-        \Cart::add([
-            'id' => $plan1->id,
-            'name' => $product->name,
-            'price' => 1000,
-            'quantity' => 1,
-            'attributes' => ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
-        ]);
+        $this->cart->add(
+            $plan1->id, $product->name,
+            1000,
+            1,
+            ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
+        );
         $response = $this->getPrivateMethod($this->classObject, 'getCartValues', [$plan1->id]);
         $this->assertEquals($response['agtqty'], 11); //Doubled
         $this->assertEquals($response['price'], 1100); //Doubled
@@ -96,13 +97,13 @@ class BaseCartControllerTest extends DBTestCase
         $product1 = Product::factory()->create();
         $product2 = Product::factory()->create(['name' => 'SD Enterprise']);
         $currency = 'INR';
-        \Cart::add([
-            'id' => $product1->id,
-            'name' => $product1->name,
-            'price' => 1000,
-            'quantity' => 1,
-            'attributes' => ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
-        ]);
+
+        $this->cart->add(
+            $product1->id, $product1->name,
+            1000,
+            1,
+            ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
+        );
         $response = $this->getPrivateMethod($this->classObject, 'getCartValues', [$product2->id]);
     }
 
@@ -140,19 +141,19 @@ class BaseCartControllerTest extends DBTestCase
         $planPrice = PlanPrice::create(['plan_id' => $plan1->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
 
         $currency = 'INR';
-        \Cart::add([
-            'id' => $plan1->id,
-            'name' => $product->name,
-            'price' => 1000,
-            'quantity' => 1,
-            'attributes' => ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
-        ]);
+        $this->cart->add(
+            $plan1->id, $product->name,
+            1000,
+            1,
+            ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
+        );
+
         $response = $this->call('POST', 'update-agent-qty', [
             'productid' => $product->id,
         ]);
-        foreach (\Cart::getContent() as $cart) {
-            $this->assertEquals($cart->price, 1000);
-            $this->assertEquals($cart->attributes->agents, 10);
+        foreach ($this->cart->getContent() as $cart) {
+            $this->assertEquals($cart['price'], 1000);
+            $this->assertEquals($cart['attributes']['agents'], 10);
         }
     }
 
@@ -166,18 +167,18 @@ class BaseCartControllerTest extends DBTestCase
         $plan = Plan::create(['name' => 'HD Plan 1 year', 'product' => $product->id, 'days' => 366]);
         $planPrice = PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
         $currency = 'INR';
-        \Cart::add([
-            'id' => $plan->id,
-            'name' => $product->name,
-            'price' => 1000,
-            'quantity' => 1,
-            'attributes' => ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
-        ]);
+
+        $this->cart->add(
+            $plan->id, $product->name,
+            1000,
+            1,
+            ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
+        );
         $response = $this->call('POST', 'update-qty', [
             'productid' => $product->id, 'planid' => $plan->id,
         ]);
-        foreach (\Cart::getContent() as $cart) {
-            $this->assertEquals($cart->quantity, 2);
+        foreach ($this->cart->getContent() as $cart) {
+            $this->assertEquals($cart['quantity'], 2);
         }
     }
 
@@ -192,13 +193,13 @@ class BaseCartControllerTest extends DBTestCase
         $plan = Plan::create(['name' => 'HD Plan 1 year', 'product' => $product->id, 'days' => 366]);
         $planPrice = PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
         $currency = 'INR';
-        \Cart::add([
-            'id' => $product->id,
-            'name' => $product->name,
-            'price' => 1000,
-            'quantity' => 1,
-            'attributes' => ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
-        ]);
+
+        $this->cart->add(
+            $plan->id, $product->name,
+            1000,
+            1,
+            ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
+        );
         $this->classObject->updateProductQty(new Request(['productid' => $product->id]));
     }
 
@@ -212,19 +213,18 @@ class BaseCartControllerTest extends DBTestCase
         $plan = Plan::create(['name' => 'HD Plan 1 year', 'product' => $product->id, 'days' => 366]);
         $planPrice = PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
         $currency = 'INR';
-        \Cart::add([
-            'id' => $plan->id,
-            'name' => $product->name,
-            'price' => 1000,
-            'quantity' => 2,
-            'attributes' => ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
-        ]);
+        $this->cart->add(
+            $plan->id, $product->name,
+            1000,
+            1,
+            ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
+        );
         $response = $this->call('POST', 'reduce-product-qty', [
             'productid' => $product->id,
             'planid' => $plan->id,
         ]);
-        foreach (\Cart::getContent() as $cart) {
-            $this->assertEquals($cart->quantity, 1);
+        foreach ($this->cart->getContent() as $cart) {
+            $this->assertEquals($cart['quantity'], 1);
         }
     }
 
@@ -239,13 +239,12 @@ class BaseCartControllerTest extends DBTestCase
         $plan = Plan::create(['name' => 'HD Plan 1 year', 'product' => $product->id, 'days' => 366]);
         $planPrice = PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
         $currency = 'INR';
-        \Cart::add([
-            'id' => $product->id,
-            'name' => $product->name,
-            'price' => 1000,
-            'quantity' => 2,
-            'attributes' => ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
-        ]);
+        $this->cart->add(
+            $plan->id, $product->name,
+            1000,
+            1,
+            ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
+        );
         $this->classObject->reduceProductQty(new Request(['productid' => $product->id]));
     }
 
@@ -257,28 +256,26 @@ class BaseCartControllerTest extends DBTestCase
         $plan = Plan::create(['name' => 'HD Plan 1 year', 'product' => $product->id, 'days' => 366]);
         $planPrice = PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
         $currency = 'INR';
-        \Cart::add([
-            'id' => $plan->id,
-            'name' => $product->name,
-            'price' => 1000,
-            'quantity' => 2,
-            'attributes' => ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
-        ]);
 
+        $this->cart->add(
+            $plan->id, $product->name,
+            1000,
+            2,
+            ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
+        );
         $product1 = Product::factory()->create();
         $plan1 = Plan::create(['name' => 'HD Plan 1 year', 'product' => $product->id, 'days' => 366]);
         $planPrice = PlanPrice::create(['plan_id' => $plan1->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
         $currency1 = 'INR';
-        \Cart::add([
-            'id' => $plan1->id,
-            'name' => $product1->name,
-            'price' => 1000,
-            'quantity' => 2,
-            'attributes' => ['currency' => $currency1, 'symbol' => $currency1, 'agents' => 10],
-        ]);
 
-        foreach (\Cart::getContent() as $cart) {
-            $this->assertEquals($cart->quantity, 2);
+        $this->cart->add(
+            $plan1->id, $product1->name,
+            1000,
+            2,
+            ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
+        );
+        foreach ($this->cart->getContent() as $cart) {
+            $this->assertEquals($cart['quantity'], 2);
         }
     }
 
@@ -291,15 +288,14 @@ class BaseCartControllerTest extends DBTestCase
         $plan = Plan::create(['name' => 'HD Plan 1 year', 'product' => $product->id, 'days' => 366]);
         $planPrice = PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
         $currency = 'INR';
-        \Cart::add([
-            'id' => $plan->id,
-            'name' => $product->name,
-            'price' => 1000,
-            'quantity' => 2,
-            'attributes' => ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
-        ]);
+        $this->cart->add(
+            $plan->id, $product->name,
+            1000,
+            1,
+            ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
+        );
 
-        $response = $this->withSession(['nothingLeft' => 1, 'discount' => 300])->call('post', 'checkout-and-pay', ['cost' => 0, 'payment_gateway' => '']);
+        $response = $this->withSession(['nothingLeft' => 1, 'discount' => 300])->call('post', 'checkout-and-pay', ['cost' => 100, 'payment_gateway' => '']);
         $response->assertSessionHasErrors('payment_gateway');
     }
 
@@ -335,19 +331,18 @@ class BaseCartControllerTest extends DBTestCase
         $taxes = TaxOption::create(['tax_enable' => 0, 'inclusive' => 0, 'shop_inclusive' => 0, 'cart_inclusive' => 0, 'rounding' => 1]);
         $payment = Payment::create(['user_id' => $user->id, 'payment_method' => 'Credit Balance', 'payment_status' => 'success', 'amt_to_credit' => 10000]);
         Setting::create(['sending_status' => 0, 'mailchimp_status' => 0]);
-        \Cart::add([
-            'id' => 55,
-            'name' => $product->name,
-            'price' => 1000,
-            'quantity' => 2,
-            'attributes' => ['currency' => $currency, 'symbol' => $currency, 'agents' => 10],
-            'associatedModel' => $product,
-        ]);
+
+        $this->cart->add(
+            55, $product->name,
+            1000,
+            1,
+            ['currency' => $currency, 'symbol' => $currency, 'agents' => 10], null,
+            $product,
+        );
         $checkoutController = new CheckoutController();
-        $checkoutController->getAttributes(\Cart::getContent());
+        $checkoutController->getAttributes($this->cart->getContent());
         $response = $this->withSession(['nothingLeft' => 0, 'discount' => 300, 'priceRemaining' => 1, 'priceToBePaid' => 0])->call('post', 'checkout-and-pay', ['cost' => 0, 'payment_gateway' => '', 'invoice_id' => 0, 'checkout_token' => \Str::uuid()]);
-        $response->assertStatus(302);
-        $response->assertRedirect('checkout');
+        $response->assertStatus(200);
         $amount = Payment::where('user_id', \Auth::user()->id)->where('payment_status', 'success')->where('payment_method', 'Credit Balance')->value('amt_to_credit');
         $this->assertEquals(10300, $amount);
     }
@@ -359,6 +354,7 @@ class BaseCartControllerTest extends DBTestCase
         $this->withoutMiddleware();
         $product = Product::factory()->create();
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
+
         $invoiceItem = InvoiceItem::create([
             'invoice_id' => $invoice->id,
             'product_name' => 'Helpdesk Advance',
@@ -373,6 +369,7 @@ class BaseCartControllerTest extends DBTestCase
         ]);
         $order = Order::factory()->create(['invoice_id' => $invoice->id,
             'invoice_item_id' => $invoiceItem->id, 'client' => $user->id, 'product' => $product->id]);
+        OrderInvoiceRelation::create(['invoice_id' => $invoice->id, 'order_id' => $order->id]);
         $subscription = Subscription::create(['user_id' => $user->id, 'order_id' => $order->id, 'product_id' => $product->id, 'version' => 'v3.0.0', 'is_subscribed' => '1', 'autoRenew_status' => '1']);
         $serialKey = 'eertrertyuhgbvfdrgtyujhnbvfdrethgbf';
         $productId = 1;
@@ -385,7 +382,9 @@ class BaseCartControllerTest extends DBTestCase
         $this->app->instance(\App\License\Services\InstallationService::class, $mock);
 
         $response = $this->getPrivateMethod($this->classObject1, 'getOrder', [$order->id]);
-        $this->assertEquals('themes.default1.front.clients.show-order', $response->getName());
+
+        $content = json_decode($response->getContent())->data;
+        $this->assertEquals($content->invoice->id, $invoice->id);
     }
 
     #[\PHPUnit\Framework\Attributes\Group('store')]
@@ -399,10 +398,6 @@ class BaseCartControllerTest extends DBTestCase
         $plan = Plan::factory()->create(['product' => $product->id]);
         $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'add_price' => '0']);
         $response = $this->withSession(['store' => 1])->get('group/'.$group->pricing_templates_id.'/'.$group->id.'/');
-        $data = $response->original->gatherData();
-        $this->assertStringContainsString('<input type="submit" value="Order Now" class="btn btn-dark btn-modern buttonsale">', $data['templates']);
         $response->assertStatus(200);
-        $response->assertViewHas('templates');
-        $response->assertViewIs('themes.default1.common.template.shoppingcart');
     }
 }

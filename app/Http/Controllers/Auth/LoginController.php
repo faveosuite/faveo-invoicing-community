@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\ApiKey;
+use App\Facades\Cart;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Front\CartController;
 use App\Http\Requests\Auth\LoginRequest;
@@ -43,6 +44,8 @@ class LoginController extends Controller
      */
     protected $redirectTo = '/';
 
+    protected $cart;
+
     /**
      * Create a new controller instance.
      *
@@ -52,6 +55,7 @@ class LoginController extends Controller
     {
         $this->middleware('guest')->except(['logout', 'store-basic-details']);
         $this->middleware(['blockFailedVerifications:login', 'recaptcha:login'])->only('login');
+        $this->cart = new Cart();
     }
 
     /**
@@ -59,7 +63,7 @@ class LoginController extends Controller
      *
      * @param
      * @param
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     * @return
      *
      * @throws
      */
@@ -76,7 +80,18 @@ class LoginController extends Controller
             $github_status = SocialLogin::select('status')->where('type', 'github')->value('status');
             $twitter_status = SocialLogin::select('status')->where('type', 'twitter')->value('status');
             $linkedin_status = SocialLogin::select('status')->where('type', 'linkedin')->value('status');
+            $data = [
+                'status' => $status,
+                'apiKeys' => $apiKeys,
+                'analyticsTag' => $analyticsTag,
+                'location' => $location,
+                'google_status' => $google_status,
+                'github_status' => $github_status,
+                'twitter_status' => $twitter_status,
+                'linkedin_status' => $linkedin_status,
+            ];
 
+//            return successResponse('Login Page', $data);
             return view('themes.default1.front.auth.login-register', compact('bussinesses', 'location', 'status', 'apiKeys', 'analyticsTag', 'google_status', 'github_status', 'linkedin_status', 'twitter_status'));
         } catch (\Exception $ex) {
             \Logger::exception($ex);
@@ -84,42 +99,78 @@ class LoginController extends Controller
         }
     }
 
-    /**
-     * Handle a login request to the application.
-     *
-     * @param  LoginRequest  $request
-     * @return RedirectResponse
-     */
-    public function login(LoginRequest $request) // 2. Type-hint the LoginRequest
+    public function postLoginAndGetToken(LoginRequest $request)
     {
-        // 1. Prepare credentials for both email and username login
-        $credentials = $this->buildCredentials($request);
+        Auth::shouldUse('web');
 
-        $rateLimitKey = $this->getLoginRateLimitKey($request->input('email_username'));
-        RateLimiter::hit("login-attempt:{$rateLimitKey}", 600);
+        $response = $this->login($request);
 
-        // 2. Attempt to authenticate the user
-        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
-            return errorResponse(__('message.enter_valid_credentials'));
+        return $this->returnApiV3LoginResponse($response);
+    }
+
+    /**
+     * Function returns modified response(if required) for login when called via v3 api.
+     */
+    private function returnApiV3LoginResponse($response)
+    {
+        // If not v3 API or user not logged in, just return original response
+        if (! isV3Api() || ! Auth::check()) {
+            return $response;
         }
 
         $user = Auth::user();
 
-        // 3. Handle post-authentication checks (Verification)
-        if (! $this->userNeedVerified($user)) {
-            return $this->handleUnverifiedUser($user);
+        $userInfo = array_merge(
+            $user->only(['id', 'first_name', 'last_name', 'email', 'user_name']),
+            ['token' => $user->createToken('Billing')->accessToken],
+        );
+
+        return successResponse('', $userInfo);
+    }
+
+    /**
+     * Handle a login request to the application.
+     *
+     * @param  LoginRequest  $request
+     * @return
+     */
+    public function login(LoginRequest $request) // 2. Type-hint the LoginRequest
+    {
+        try {
+            // 1. Prepare credentials for both email and username login
+            $credentials = $this->buildCredentials($request);
+
+            $rateLimitKey = $this->getLoginRateLimitKey($request->input('email_username'));
+            RateLimiter::hit("login-attempt:{$rateLimitKey}", 600);
+
+            // 2. Attempt to authenticate the user
+            if (! Auth::attempt($credentials, $request->boolean('remember'))) {
+                return errorResponse(__('message.enter_valid_credentials'));
+            }
+
+            $user = Auth::user();
+
+            // 3. Handle post-authentication checks (Verification)
+            if (! $this->userNeedVerified($user)) {
+                return $this->handleUnverifiedUser($user);
+            }
+
+            // 4. Check if the user has 2FA enabled
+            if ($user->is_2fa_enabled) {
+                return $this->handleTwoFactorAuthentication($request, $user);
+            }
+
+            // 5. Regenerate session for security
+            Session::regenerate();
+
+            $this->convertCart();
+
+            $this->logActivityLogin($user);
+
+            return successResponse('', ['redirect' => $this->redirectPath()]);
+        } catch(\Exception $ex) {
+            return errorResponse($ex->getMessage());
         }
-
-        // 4. Check if the user has 2FA enabled
-        if ($user->is_2fa_enabled) {
-            return $this->handleTwoFactorAuthentication($request, $user);
-        }
-
-        $this->convertCart();
-
-        $this->logActivityLogin($user);
-
-        return successResponse('', ['redirect' => $this->redirectPath()]);
     }
 
     /**
@@ -190,9 +241,10 @@ class LoginController extends Controller
         $defaultPath = ($auth && $auth->role === 'user')
             ? '/client-dashboard'
             : '/';
-        $defaultPath = (\Cart::isEmpty() === false) ? '/show/cart' : $defaultPath;
+        $defaultPath = ($this->cart->isEmpty() === false) ? '/show/cart' : $defaultPath;
 
-        return redirect()->intended($defaultPath)->getTargetUrl();
+        return successResponse('success', ['role' => $auth->role]);
+        // return redirect()->intended($defaultPath)->getTargetUrl();
     }
 
     /**
@@ -212,7 +264,8 @@ class LoginController extends Controller
         \Config::set("services.$provider.client_id", $details->client_id);
         \Config::set("services.$provider.client_secret", $details->client_secret);
 
-        return Socialite::driver($provider)->redirect();
+        //return Socialite::driver($provider)->redirect();
+        return successResponse('success', [Socialite::driver($provider)->redirect()]);
     }
 
     /**
@@ -290,7 +343,7 @@ class LoginController extends Controller
      *
      * @param  Request  $request
      * @param
-     * @return RedirectResponse
+     * @return
      *
      * @throws
      */
@@ -313,9 +366,10 @@ class LoginController extends Controller
             $user->address = $request->address;
             $user->save();
 
-            return redirect()->back();
+            return successResponse(__('message.updated-successfully'));
         } catch (\Exception $e) {
-            Session::flash('error', __('message.please_enter_details'));
+            return errorResponse($e->getMessage());
+//            Session::flash('error', __('message.please_enter_details'));
         }
     }
 
@@ -329,12 +383,12 @@ class LoginController extends Controller
      */
     public function convertCart()
     {
-        $contents = \Cart::getContent();
+        $cart = new Cart();
+        $contents = $cart->getContent();
         $user = \Auth::user();
         $currencyCode = getCurrencyForClient($user->country);
         $currencySymbol = Currency::where('code', $currencyCode)->value('symbol');
         $cartController = new CartController();
-
         foreach ($contents as $content) {
             try {
                 $plan = Plan::find($content->id);
@@ -342,28 +396,27 @@ class LoginController extends Controller
                 // If plan or product is missing, throw to remove it
                 throw_if(! $plan || ! $plan->product, new \Exception('Invalid plan or product.'));
 
-                $price = $cartController->planCost($plan->product, $user->id, $content->id);
+                $price = $cartController->planCost($plan->product, $user->id, $content['id']);
 
-                if (! empty($content->attributes->domain)) {
-                    $price *= $content->attributes->agents;
+                if (! empty($content['attributes']['domain'])) {
+                    $price = $price * $content['attributes']['agents'];
                 }
 
-                \Cart::update($content->id, [
+                $cart->update($content['id'], [
                     'price' => $price,
                     'attributes' => [
                         'currency' => $currencyCode,
                         'symbol' => $currencySymbol,
-                        'agents' => $content->attributes->agents,
-                        'domain' => $content->attributes->domain,
+                        'agents' => $content['attributes']['agents'],
+                        'domain' => $content['attributes']['domain'],
                     ],
                 ]);
             } catch (\Exception $e) {
                 // Remove item if any exception occurs (missing plan/product or pricing failure)
-                \Cart::remove($content->id);
+                $cart->remove($content['id']);
                 continue;
             }
         }
-
         Session::forget('toggleState');
     }
 

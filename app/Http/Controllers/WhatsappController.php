@@ -543,6 +543,9 @@ class WhatsappController extends Controller
     {
         $url = $request->input('url');
         $id = $request->input('id');
+        if ($id !== \Auth::user()->id) {
+            return errorResponse(__('message.unauthorized'), 403);
+        }
         try {
             WhatsappIntegrationUser::where('id', $id)->update(['user_callback_url' => $url]);
 

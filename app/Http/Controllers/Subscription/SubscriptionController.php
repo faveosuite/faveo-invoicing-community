@@ -446,6 +446,7 @@ class SubscriptionController extends Controller
         if (! $createdDate->isSameDay($today)) {
             return;
         }
+
         $invoiceCost = $this->calculateReverseUnitCost($currency, $latestInvoice->amount);
         $cost = $cost == intval($invoiceCost) ? $cost : intval($invoiceCost);
         Invoice::where('id', $invoiceItem->invoice_id)->where('status', 'pending')->update(['grand_total' => $cost]);

@@ -44,7 +44,7 @@ class Plan extends BaseModel
         return $this->hasMany(\App\Model\Payment\PlanPrice::class);
     }
 
-    public function product()
+    public function productRelation()
     {
         return $this->belongsTo(\App\Model\Product\Product::class, 'product', 'id');
     }

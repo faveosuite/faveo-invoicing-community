@@ -3,6 +3,7 @@
 namespace App\Traits\Payment;
 
 use App\ApiKey;
+use App\Facades\Cart;
 use App\Http\Controllers\Tenancy\TenantController;
 use App\Model\Common\FaveoCloud;
 use App\Model\Common\Setting;
@@ -159,7 +160,8 @@ trait PostPaymentHandle
                 'message' => $view['message'],
             ];
         } catch (\Exception $e) {
-            return redirect('checkout')->with('fails', 'Your payment was declined. '.$e->getMessage().'. Please try with another card or gateway.');
+            return errorResponse('Your payment was declined. '.$e->getMessage().'. Please try with another card or gateway.');
+//            return redirect('checkout')->with('fails', 'Your payment was declined. '.$e->getMessage().'. Please try with another card or gateway.');
         }
     }
 
@@ -197,28 +199,36 @@ trait PostPaymentHandle
 
     public function getViewMessageAfterPayment($invoice, $state, $currency)
     {
-        $orders = Order::where('invoice_id', $invoice->id)->get();
-        $invoiceItems = InvoiceItem::where('invoice_id', $invoice->id)->get();
-        \Cart::clear();
-        $status = 'Success';
-        $message = view('themes.default1.front.postPaymentTemplate', compact('invoice', 'orders',
-            'invoiceItems', 'state', 'currency'))->render();
+        try {
+            $cart = new Cart();
+            $orders = Order::where('invoice_id', $invoice->id)->get();
+            $invoiceItems = InvoiceItem::where('invoice_id', $invoice->id)->get();
+            $cart->clear();
+            $status = 'Success';
+            $message = ['invoice' => $invoice, 'orders' => $orders, 'invoiceItems' => $invoiceItems, 'state' => $state, 'currency' => $currency];
+//            $message = view('themes.default1.front.postPaymentTemplate', compact('invoice', 'orders',
+//                'invoiceItems', 'state', 'currency'))->render();
 
-        return ['status' => $status, 'message' => $message];
+            return ['status' => $status, 'message' => $message];
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+        }
     }
 
     public function getViewMessageAfterRenew($invoice, $state, $currency)
     {
+        $cart = new Cart();
         $order = OrderInvoiceRelation::where('invoice_id', $invoice->id)->value('order_id');
         $order_number = Order::where('id', $order)->value('number');
         $invoiceItem = InvoiceItem::where('invoice_id', $invoice->id)->first();
         $product = Product::where('id', $invoiceItem->product_id)->first();
         $date1 = new DateTime($invoiceItem->created_at);
         $date = $date1->format('M j, Y, g:i a ');
-        \Cart::clear();
+        $cart->clear();
         $status = 'Success';
-        $message = view('themes.default1.front.postRenewTemplate', compact('invoice', 'date',
-            'product', 'invoiceItem', 'state', 'currency', 'order_number'))->render();
+        $message = ['invoice' => $invoice, 'date' => $date, 'product' => $product, 'invoiceItem' => $invoiceItem, 'state' => $state, 'currency' => $currency];
+//        $message = view('themes.default1.front.postRenewTemplate', compact('invoice', 'date',
+//            'product', 'invoiceItem', 'state', 'currency', 'order_number'))->render();
 
         return ['status' => $status, 'message' => $message];
     }

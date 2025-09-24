@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\SocialLogin;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
 
 class SocialLoginsController extends Controller
 {
@@ -14,21 +13,33 @@ class SocialLoginsController extends Controller
         $this->middleware('admin');
     }
 
-    public function view()
+    public function getSocialLogin(Request $request)
     {
-        $socialLoginss = SocialLogin::get();
+        $search = $request->input('search-query', '');
+        $sortField = $request->input('sort-field', 'created_at');
+        $sortOrder = $request->input('sort-order', 'desc');
+        $limit = $request->input('limit', 10);
 
-        return view('themes.default1.common.socialLogins', compact('socialLoginss'));
+        $query = SocialLogin::select('id', 'type', 'client_id', 'client_secret', 'redirect_url', 'status')
+                 ->when($search, function ($q) use ($search) {
+                     $q->where('type', 'like', "%{$search}%")
+                       ->orWhere('client_id', 'like', "%{$search}%");
+                 });
+
+        $socialLogins = $query->orderBy($sortField, $sortOrder)
+                              ->simplePaginate($limit);
+
+        return successResponse('', $socialLogins);
     }
 
-    public function edit($id)
+    public function editSocialLogin($id)
     {
         $socialLogins = SocialLogin::where('id', $id)->first();
 
-        return view('themes.default1.common.editSocialLogins', compact('socialLogins'));
+        return successResponse('', $socialLogins);
     }
 
-    public function update(Request $request)
+    public function updateSocialLogin(Request $request)
     {
         $request->validate([
             'client_id' => 'required_if:type,Google,Github,Linkedin',
@@ -53,11 +64,9 @@ class SocialLoginsController extends Controller
                 'status' => $request->optradio,
             ]);
 
-            Session::flash('success', __('message.social_login_settings_updated'));
+            return successResponse(__('message.social_login_settings_updated'));
         } catch (\Exception $e) {
-            Session::flash('error', __('message.error_occurred_social_login'));
+            return errorResponse(__('message.error_occurred_social_login'));
         }
-
-        return redirect()->back();
     }
 }

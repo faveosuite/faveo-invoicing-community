@@ -2301,7 +2301,7 @@ class OrganizationsApi
      *
      * @param  int|null $filter_id If supplied, only organizations matching the specified filter are returned (optional)
      * @param  string|null $ids Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
-     * @param  int|null $owner_id If supplied, only organization owned by the specified user are returned. If filter_id is provided, this is ignored. (optional)
+     * @param  int|null $owner_id If supplied, only organizations owned by the specified user are returned. If filter_id is provided, this is ignored. (optional)
      * @param  string|null $updated_since If set, only organizations with an &#x60;update_time&#x60; later than or equal to this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|null $updated_until If set, only organizations with an &#x60;update_time&#x60; earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;update_time&#x60;, &#x60;add_time&#x60;. (optional, default to 'id')
@@ -2328,7 +2328,7 @@ class OrganizationsApi
      *
      * @param  int|null $filter_id If supplied, only organizations matching the specified filter are returned (optional)
      * @param  string|null $ids Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
-     * @param  int|null $owner_id If supplied, only organization owned by the specified user are returned. If filter_id is provided, this is ignored. (optional)
+     * @param  int|null $owner_id If supplied, only organizations owned by the specified user are returned. If filter_id is provided, this is ignored. (optional)
      * @param  string|null $updated_since If set, only organizations with an &#x60;update_time&#x60; later than or equal to this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|null $updated_until If set, only organizations with an &#x60;update_time&#x60; earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;update_time&#x60;, &#x60;add_time&#x60;. (optional, default to 'id')
@@ -2439,7 +2439,7 @@ class OrganizationsApi
      *
      * @param  int|null $filter_id If supplied, only organizations matching the specified filter are returned (optional)
      * @param  string|null $ids Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
-     * @param  int|null $owner_id If supplied, only organization owned by the specified user are returned. If filter_id is provided, this is ignored. (optional)
+     * @param  int|null $owner_id If supplied, only organizations owned by the specified user are returned. If filter_id is provided, this is ignored. (optional)
      * @param  string|null $updated_since If set, only organizations with an &#x60;update_time&#x60; later than or equal to this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|null $updated_until If set, only organizations with an &#x60;update_time&#x60; earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;update_time&#x60;, &#x60;add_time&#x60;. (optional, default to 'id')
@@ -2469,7 +2469,7 @@ class OrganizationsApi
      *
      * @param  int|null $filter_id If supplied, only organizations matching the specified filter are returned (optional)
      * @param  string|null $ids Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
-     * @param  int|null $owner_id If supplied, only organization owned by the specified user are returned. If filter_id is provided, this is ignored. (optional)
+     * @param  int|null $owner_id If supplied, only organizations owned by the specified user are returned. If filter_id is provided, this is ignored. (optional)
      * @param  string|null $updated_since If set, only organizations with an &#x60;update_time&#x60; later than or equal to this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|null $updated_until If set, only organizations with an &#x60;update_time&#x60; earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;update_time&#x60;, &#x60;add_time&#x60;. (optional, default to 'id')
@@ -2526,7 +2526,7 @@ class OrganizationsApi
      *
      * @param  int|null $filter_id If supplied, only organizations matching the specified filter are returned (optional)
      * @param  string|null $ids Optional comma separated string array of up to 100 entity ids to fetch. If filter_id is provided, this is ignored. If any of the requested entities do not exist or are not visible, they are not included in the response. (optional)
-     * @param  int|null $owner_id If supplied, only organization owned by the specified user are returned. If filter_id is provided, this is ignored. (optional)
+     * @param  int|null $owner_id If supplied, only organizations owned by the specified user are returned. If filter_id is provided, this is ignored. (optional)
      * @param  string|null $updated_since If set, only organizations with an &#x60;update_time&#x60; later than or equal to this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|null $updated_until If set, only organizations with an &#x60;update_time&#x60; earlier than this time are returned. In RFC3339 format, e.g. 2025-01-01T10:20:00Z. (optional)
      * @param  string|'id' $sort_by The field to sort by. Supported fields: &#x60;id&#x60;, &#x60;update_time&#x60;, &#x60;add_time&#x60;. (optional, default to 'id')

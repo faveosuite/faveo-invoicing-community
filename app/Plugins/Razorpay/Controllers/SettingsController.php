@@ -111,7 +111,7 @@ class SettingsController extends Controller
             StatusSetting::find(1)->update(['rzp_status' => $status]);
             ApiKey::find(1)->update(['rzp_key' => $rzp_key, 'rzp_secret' => $rzp_secret, 'apilayer_key' => $apilayer_key]);
 
-            return successResponse(['success' => 'true', 'message' => __('message.razorpay_settings_updated_successfully')]);
+            return successResponse(__('message.razorpay_settings_updated_successfully'));
         } catch (\Razorpay\Api\Errors\BadRequestError $e) {
             return errorResponse($e->getMessage());
         } catch (\Exception $e) {

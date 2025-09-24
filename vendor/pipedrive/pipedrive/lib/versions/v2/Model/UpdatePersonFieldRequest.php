@@ -69,8 +69,7 @@ class UpdatePersonFieldRequest implements ModelInterface, ArrayAccess, JsonSeria
         'field_name' => 'string',
         'ui_visibility' => 'array<string,object>',
         'important_fields' => 'array<string,object>',
-        'required_fields' => 'array<string,object>',
-        'description' => 'string'
+        'required_fields' => 'array<string,object>'
     ];
 
     /**
@@ -84,8 +83,7 @@ class UpdatePersonFieldRequest implements ModelInterface, ArrayAccess, JsonSeria
         'field_name' => null,
         'ui_visibility' => null,
         'important_fields' => null,
-        'required_fields' => null,
-        'description' => null
+        'required_fields' => null
     ];
 
     /**
@@ -122,8 +120,7 @@ class UpdatePersonFieldRequest implements ModelInterface, ArrayAccess, JsonSeria
         'field_name' => 'field_name',
         'ui_visibility' => 'ui_visibility',
         'important_fields' => 'important_fields',
-        'required_fields' => 'required_fields',
-        'description' => 'description'
+        'required_fields' => 'required_fields'
     ];
 
     /**
@@ -135,8 +132,7 @@ class UpdatePersonFieldRequest implements ModelInterface, ArrayAccess, JsonSeria
         'field_name' => 'setFieldName',
         'ui_visibility' => 'setUiVisibility',
         'important_fields' => 'setImportantFields',
-        'required_fields' => 'setRequiredFields',
-        'description' => 'setDescription'
+        'required_fields' => 'setRequiredFields'
     ];
 
     /**
@@ -148,8 +144,7 @@ class UpdatePersonFieldRequest implements ModelInterface, ArrayAccess, JsonSeria
         'field_name' => 'getFieldName',
         'ui_visibility' => 'getUiVisibility',
         'important_fields' => 'getImportantFields',
-        'required_fields' => 'getRequiredFields',
-        'description' => 'getDescription'
+        'required_fields' => 'getRequiredFields'
     ];
 
     /**
@@ -223,7 +218,6 @@ class UpdatePersonFieldRequest implements ModelInterface, ArrayAccess, JsonSeria
         $this->container['ui_visibility'] = $data['ui_visibility'] ?? null;
         $this->container['important_fields'] = $data['important_fields'] ?? null;
         $this->container['required_fields'] = $data['required_fields'] ?? null;
-        $this->container['description'] = $data['description'] ?? null;
     }
 
     /**
@@ -359,30 +353,6 @@ class UpdatePersonFieldRequest implements ModelInterface, ArrayAccess, JsonSeria
     public function setRequiredFields($required_fields): self
     {
         $this->container['required_fields'] = $required_fields;
-
-        return $this;
-    }
-
-    /**
-     * Gets description
-     *
-     * @return string|null
-     */
-    public function getDescription()
-    {
-        return $this->container['description'];
-    }
-
-    /**
-     * Sets description
-     *
-     * @param string|null $description Field description
-     *
-     * @return self
-     */
-    public function setDescription($description): self
-    {
-        $this->container['description'] = $description;
 
         return $this;
     }

@@ -71,11 +71,12 @@ class PersonRequestBody implements ModelInterface, ArrayAccess, JsonSerializable
         'org_id' => 'int',
         'add_time' => 'string',
         'update_time' => 'string',
-        'emails' => '\Pipedrive\versions\v2\Model\PersonRequestBodyEmails[]',
-        'phones' => '\Pipedrive\versions\v2\Model\PersonRequestBodyPhones[]',
+        'emails' => '\Pipedrive\versions\v2\Model\PersonEmails[]',
+        'phones' => '\Pipedrive\versions\v2\Model\PersonPhones[]',
         'visible_to' => 'int',
         'label_ids' => 'int[]',
-        'marketing_status' => 'string'
+        'marketing_status' => 'string',
+        'custom_fields' => 'array<string,object>'
     ];
 
     /**
@@ -95,7 +96,8 @@ class PersonRequestBody implements ModelInterface, ArrayAccess, JsonSerializable
         'phones' => null,
         'visible_to' => null,
         'label_ids' => null,
-        'marketing_status' => null
+        'marketing_status' => null,
+        'custom_fields' => null
     ];
 
     /**
@@ -138,7 +140,8 @@ class PersonRequestBody implements ModelInterface, ArrayAccess, JsonSerializable
         'phones' => 'phones',
         'visible_to' => 'visible_to',
         'label_ids' => 'label_ids',
-        'marketing_status' => 'marketing_status'
+        'marketing_status' => 'marketing_status',
+        'custom_fields' => 'custom_fields'
     ];
 
     /**
@@ -156,7 +159,8 @@ class PersonRequestBody implements ModelInterface, ArrayAccess, JsonSerializable
         'phones' => 'setPhones',
         'visible_to' => 'setVisibleTo',
         'label_ids' => 'setLabelIds',
-        'marketing_status' => 'setMarketingStatus'
+        'marketing_status' => 'setMarketingStatus',
+        'custom_fields' => 'setCustomFields'
     ];
 
     /**
@@ -174,7 +178,8 @@ class PersonRequestBody implements ModelInterface, ArrayAccess, JsonSerializable
         'phones' => 'getPhones',
         'visible_to' => 'getVisibleTo',
         'label_ids' => 'getLabelIds',
-        'marketing_status' => 'getMarketingStatus'
+        'marketing_status' => 'getMarketingStatus',
+        'custom_fields' => 'getCustomFields'
     ];
 
     /**
@@ -275,6 +280,7 @@ class PersonRequestBody implements ModelInterface, ArrayAccess, JsonSerializable
         $this->container['visible_to'] = $data['visible_to'] ?? null;
         $this->container['label_ids'] = $data['label_ids'] ?? null;
         $this->container['marketing_status'] = $data['marketing_status'] ?? null;
+        $this->container['custom_fields'] = $data['custom_fields'] ?? null;
     }
 
     /**
@@ -435,7 +441,7 @@ class PersonRequestBody implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets emails
      *
-     * @return \Pipedrive\versions\v2\Model\PersonRequestBodyEmails[]|null
+     * @return \Pipedrive\versions\v2\Model\PersonEmails[]|null
      */
     public function getEmails()
     {
@@ -445,7 +451,7 @@ class PersonRequestBody implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets emails
      *
-     * @param \Pipedrive\versions\v2\Model\PersonRequestBodyEmails[]|null $emails The emails of the person
+     * @param \Pipedrive\versions\v2\Model\PersonEmails[]|null $emails The emails of the person
      *
      * @return self
      */
@@ -459,7 +465,7 @@ class PersonRequestBody implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets phones
      *
-     * @return \Pipedrive\versions\v2\Model\PersonRequestBodyPhones[]|null
+     * @return \Pipedrive\versions\v2\Model\PersonPhones[]|null
      */
     public function getPhones()
     {
@@ -469,7 +475,7 @@ class PersonRequestBody implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets phones
      *
-     * @param \Pipedrive\versions\v2\Model\PersonRequestBodyPhones[]|null $phones The phones of the person
+     * @param \Pipedrive\versions\v2\Model\PersonPhones[]|null $phones The phones of the person
      *
      * @return self
      */
@@ -558,6 +564,30 @@ class PersonRequestBody implements ModelInterface, ArrayAccess, JsonSerializable
             );
         }
         $this->container['marketing_status'] = $marketing_status;
+
+        return $this;
+    }
+
+    /**
+     * Gets custom_fields
+     *
+     * @return array<string,object>|null
+     */
+    public function getCustomFields()
+    {
+        return $this->container['custom_fields'];
+    }
+
+    /**
+     * Sets custom_fields
+     *
+     * @param array<string,object>|null $custom_fields An object where each key represents a custom field. All custom fields are referenced as randomly generated 40-character hashes
+     *
+     * @return self
+     */
+    public function setCustomFields($custom_fields): self
+    {
+        $this->container['custom_fields'] = $custom_fields;
 
         return $this;
     }

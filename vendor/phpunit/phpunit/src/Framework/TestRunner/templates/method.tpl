@@ -5,6 +5,7 @@ use PHPUnit\Runner\ErrorHandler;
 use PHPUnit\TextUI\Configuration\Registry as ConfigurationRegistry;
 use PHPUnit\TextUI\Configuration\CodeCoverageFilterRegistry;
 use PHPUnit\TextUI\Configuration\PhpHandler;
+use PHPUnit\TextUI\Configuration\SourceMapper;
 use PHPUnit\TestRunner\TestResult\PassedTests;
 
 // php://stdout does not obey output buffering. Any output would break
@@ -16,19 +17,21 @@ if (!defined('STDOUT')) {
 
 {iniSettings}
 ini_set('display_errors', 'stderr');
-set_include_path('{include_path}');
+if (get_include_path() !== '{include_path}') {
+    set_include_path('{include_path}');
+}
 
-$composerAutoload = {composerAutoload};
-$phar             = {phar};
+$__phpunit_composerAutoload = {composerAutoload};
+$__phpunit_phar             = {phar};
 
 ob_start();
 
-if ($composerAutoload) {
-    require_once $composerAutoload;
+if ($__phpunit_composerAutoload) {
+    require_once $__phpunit_composerAutoload;
 
-    define('PHPUNIT_COMPOSER_INSTALL', $composerAutoload);
-} else if ($phar) {
-    require $phar;
+    define('PHPUNIT_COMPOSER_INSTALL', $__phpunit_composerAutoload);
+} else if ($__phpunit_phar) {
+    require $__phpunit_phar;
 }
 
 function __phpunit_run_isolated_test()
@@ -101,7 +104,7 @@ function __phpunit_run_isolated_test()
 
     file_put_contents(
         '{processResultFile}',
-        serialize(
+        '{processResultNonce}' . serialize(
             (object)[
                 'testResult'    => $test->result(),
                 'codeCoverage'  => {collectCodeCoverageInformation} ? CodeCoverage::instance()->codeCoverage() : null,
@@ -128,6 +131,11 @@ set_error_handler('__phpunit_error_handler');
 restore_error_handler();
 
 ConfigurationRegistry::loadFrom('{serializedConfiguration}');
+
+if ('{sourceMapFile}' !== '') {
+    SourceMapper::loadFrom('{sourceMapFile}', ConfigurationRegistry::get()->source());
+}
+
 (new PhpHandler)->handle(ConfigurationRegistry::get()->php());
 
 if ('{bootstrap}' !== '') {

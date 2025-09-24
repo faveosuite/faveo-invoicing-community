@@ -9,7 +9,7 @@ Name | Type | Description | Notes
 **code** | **string** | The product code | [optional]
 **unit** | **string** | The unit in which this product is sold | [optional]
 **tax** | **float** | The tax percentage | [optional] [default to 0]
-**is_deleted** | **bool** | Whether this product will be made marked as deleted or not | [optional] [default to false]
+**is_deleted** | **bool** | Whether this product will be marked as deleted or not | [optional] [default to false]
 **is_linkable** | **bool** | Whether this product can be added to a deal or not | [optional] [default to true]
 **visible_to** | [**VisibleTo**](VisibleTo.md) | Visibility of the product | [optional]
 **owner_id** | **int** | Information about the Pipedrive user who owns the product | [optional]

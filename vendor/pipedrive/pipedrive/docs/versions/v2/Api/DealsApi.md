@@ -8,7 +8,7 @@ Method | HTTP request | Description
 [**addDealFollower()**](DealsApi.md#addDealFollower) | **POST** /deals/{id}/followers | Add a follower to a deal
 [**addDealProduct()**](DealsApi.md#addDealProduct) | **POST** /deals/{id}/products | Add a product to a deal
 [**addManyDealProducts()**](DealsApi.md#addManyDealProducts) | **POST** /deals/{id}/products/bulk | Add multiple products to a deal
-[**convertDealToLead()**](DealsApi.md#convertDealToLead) | **POST** /deals/{id}/convert/lead | Convert a deal to a lead (BETA)
+[**convertDealToLead()**](DealsApi.md#convertDealToLead) | **POST** /deals/{id}/convert/lead | Convert a deal to a lead
 [**deleteAdditionalDiscount()**](DealsApi.md#deleteAdditionalDiscount) | **DELETE** /deals/{id}/discounts/{discount_id} | Delete a discount from a deal
 [**deleteDeal()**](DealsApi.md#deleteDeal) | **DELETE** /deals/{id} | Delete a deal
 [**deleteDealFollower()**](DealsApi.md#deleteDealFollower) | **DELETE** /deals/{id}/followers/{follower_id} | Delete a follower from a deal
@@ -18,7 +18,7 @@ Method | HTTP request | Description
 [**getAdditionalDiscounts()**](DealsApi.md#getAdditionalDiscounts) | **GET** /deals/{id}/discounts | List discounts added to a deal
 [**getArchivedDeals()**](DealsApi.md#getArchivedDeals) | **GET** /deals/archived | Get all archived deals
 [**getDeal()**](DealsApi.md#getDeal) | **GET** /deals/{id} | Get details of a deal
-[**getDealConversionStatus()**](DealsApi.md#getDealConversionStatus) | **GET** /deals/{id}/convert/status/{conversion_id} | Get Deal conversion status (BETA)
+[**getDealConversionStatus()**](DealsApi.md#getDealConversionStatus) | **GET** /deals/{id}/convert/status/{conversion_id} | Get Deal conversion status
 [**getDealFollowers()**](DealsApi.md#getDealFollowers) | **GET** /deals/{id}/followers | List followers of a deal
 [**getDealFollowersChangelog()**](DealsApi.md#getDealFollowersChangelog) | **GET** /deals/{id}/followers/changelog | List followers changelog of a deal
 [**getDealProducts()**](DealsApi.md#getDealProducts) | **GET** /deals/{id}/products | List products attached to a deal
@@ -306,7 +306,7 @@ Name | Type | Description  | Notes
 convertDealToLead($id): \Pipedrive\versions\v2\Model\AddConvertDealToLeadResponse
 ```
 
-Convert a deal to a lead (BETA)
+Convert a deal to a lead
 
 Initiates a conversion of a deal to a lead. The return value is an ID of a job that was assigned to perform the conversion. Related entities (notes, files, emails, activities, ...) are transferred during the process to the target entity. There are exceptions for entities like invoices or history that are not transferred and remain linked to the original deal. If the conversion is successful, the deal is marked as deleted. To retrieve the created entity ID and the result of the conversion, call the <a href=\"https://developers.pipedrive.com/docs/api/v1/Deals#getDealConversionStatus\">/api/v2/deals/{deal_id}/convert/status/{conversion_id}</a> endpoint.
 
@@ -1000,7 +1000,7 @@ Name | Type | Description  | Notes
 getDealConversionStatus($id, $conversion_id)
 ```
 
-Get Deal conversion status (BETA)
+Get Deal conversion status
 
 Returns information about the conversion. Status is always present and its value (not_started, running, completed, failed, rejected) represents the current state of the conversion. Lead ID is only present if the conversion was successfully finished. This data is only temporary and removed after a few days.
 
@@ -1520,7 +1520,7 @@ postAdditionalDiscount($id, $body): \Pipedrive\versions\v2\Model\AddAdditionalDi
 
 Add a discount to a deal
 
-Adds a discount to a deal changing, the deal value if the deal has one-time products attached.
+Adds a discount to a deal, changing the deal value if the deal has one-time products attached.
 
 ### Example
 

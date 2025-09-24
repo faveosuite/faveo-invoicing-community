@@ -24,9 +24,15 @@ tests/         → A smattering of PHP tests however, most tests are inside thei
 
 # Development Workflow
 
+## Setup
+
+Run `composer setup` to install all dependencies (PHP, JS, ChromeDriver).
+
 ## Build JS assets
 
 Run `npm run build` to bundle the JS
+
+**IMPORTANT:** Do not commit `dist/` files. They are built in CI.
 
 # Code Patterns
 
@@ -40,5 +46,12 @@ Most browser and unit tests live inside of feature directories for example:
 
 src/Features/SupportSlots/[UnitTest.php|BrowserTest.php]
 
-Unit: Run `phpunit --testsuite="Unit" [optional test file] [optional test name]`
-Browser: Run `phpunit --testsuite="Browser" [optional test file] [optional test name]`
+```bash
+composer test                                        # all tests
+composer test:unit                                   # unit tests only
+composer test:browser                                # browser tests (headless)
+composer test:browser:headed                         # browser tests (opens Chrome)
+composer test:browser -- --filter="SupportCSP"       # specific browser tests
+```
+
+**IMPORTANT:** Never run the full Livewire browser test suite — it takes too long. Always use `--filter` to run only the specific tests relevant to your changes. The full suite runs in CI.

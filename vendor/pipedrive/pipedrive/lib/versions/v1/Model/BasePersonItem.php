@@ -75,7 +75,7 @@ class BasePersonItem implements ModelInterface, ArrayAccess, JsonSerializable
         'add_time' => 'string',
         'update_time' => 'string',
         'visible_to' => 'string',
-        'picture_id' => '\Pipedrive\versions\v1\Model\PictureDataWithID',
+        'picture_id' => '\Pipedrive\versions\v1\Model\PictureDataWithID1',
         'label' => 'int',
         'label_ids' => 'int[]',
         'org_name' => 'string',
@@ -531,7 +531,7 @@ class BasePersonItem implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets picture_id
      *
-     * @return \Pipedrive\versions\v1\Model\PictureDataWithID|null
+     * @return \Pipedrive\versions\v1\Model\PictureDataWithID1|null
      */
     public function getPictureId()
     {
@@ -541,7 +541,7 @@ class BasePersonItem implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets picture_id
      *
-     * @param \Pipedrive\versions\v1\Model\PictureDataWithID|null $picture_id picture_id
+     * @param \Pipedrive\versions\v1\Model\PictureDataWithID1|null $picture_id picture_id
      *
      * @return self
      */

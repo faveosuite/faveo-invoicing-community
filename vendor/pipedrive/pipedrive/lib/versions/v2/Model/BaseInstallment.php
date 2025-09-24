@@ -313,7 +313,7 @@ class BaseInstallment implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets billing_date
      *
-     * @param string|null $billing_date The date which the installment will be charged.
+     * @param string|null $billing_date The date on which the installment will be charged.
      *
      * @return self
      */

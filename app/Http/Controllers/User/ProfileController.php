@@ -6,6 +6,7 @@ use App\Facades\Attach;
 use App\Http\Controllers\Auth\BaseAuthController;
 use App\Http\Requests\User\ProfileRequest;
 use Hash;
+use Illuminate\Support\Facades\Cache;
 
 class ProfileController extends BaseAuthController
 {
@@ -17,6 +18,7 @@ class ProfileController extends BaseAuthController
 
     public function profile()
     {
+        Cache::a();
         try {
             $user = \Auth::user();
             $timezonesList = \App\Model\Common\Timezone::get();
@@ -38,7 +40,8 @@ class ProfileController extends BaseAuthController
             $states = findStateByRegionId($user->country);
             $bussinesses = \App\Model\Common\Bussiness::pluck('name', 'short')->toArray();
 
-            return view('themes.default1.user.profile', compact('bussinesses', 'user', 'timezones', 'state', 'states', 'is2faEnabled', 'dateSinceEnabled'));
+            return successResponse('', ['bussinesses' => $bussinesses, 'user' => $user, 'timezones' => $timezones, 'state' => $state, 'states' => $states, 'is2faEnabled' => $is2faEnabled, 'dateSinceEnabled' => $dateSinceEnabled]);
+//            return view('themes.default1.user.profile', compact('bussinesses', 'user', 'timezones', 'state', 'states', 'is2faEnabled', 'dateSinceEnabled'));
         } catch (\Exception $e) {
             return redirect()->back()->with('fails', $e->getMessage());
         }
@@ -54,9 +57,11 @@ class ProfileController extends BaseAuthController
             }
             $user->fill($request->input())->save();
 
+//            return successResponse(\Lang::get('message.updated-successfully'));
             return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
         } catch (\Exception $e) {
             return redirect()->back()->with('fails', $e->getMessage());
+//            return errorResponse($e->getMessage());
         }
     }
 
@@ -76,9 +81,11 @@ class ProfileController extends BaseAuthController
 
                 \DB::table('password_resets')->where('email', $user->email)->delete();
 
+//                return successResponse(\Lang::get('message.updated-successfully'));
                 return redirect()->back()->with('success1', \Lang::get('message.updated-successfully'));
             } else {
                 return redirect()->back()->with('fails1', __('message.incorrect_old_password'));
+//                return errorResponse( __('message.incorrect_old_password'));
             }
         } catch (\Exception $e) {
             return redirect()->back()->with('fails', $e->getMessage());

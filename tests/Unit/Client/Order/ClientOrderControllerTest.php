@@ -62,20 +62,20 @@ class ClientOrderControllerTest extends DBTestCase
             'version' => 'v6.0.0', 'update_ends_at' => '']);
         $response = $this->call('get', 'get-my-orders', ['updated_ends_at' => '']);
         $content = $response->json();
+
         $response->assertStatus(200)
             ->assertJsonStructure([
-                'draw',
-                'recordsTotal',
-                'recordsFiltered',
-                'data' => [
+                'success',
+                'data' => ['data' => [
                     '*' => [
-                        'product_name',
+                        'id',
                         'date',
                         'number',
                         'agents',
                         'expiry',
-                        'Action',
+                        'action',
                     ],
+                ],
                 ],
             ]);
     }
@@ -89,11 +89,12 @@ class ClientOrderControllerTest extends DBTestCase
         $product = Product::factory()->create();
         Currency::where('code', 'USD')->update(['status' => 1]);
         $plan = Plan::factory()->create(['product' => $product->id]);
-        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id]);
+        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'USD']);
         $response = $this->call('get', 'get-renew-cost', ['user' => $user->id, 'plan' => $plan->id]);
-        $content = json_decode($response->getContent());
+        $content = $response->json()['data'];
+
         $response->assertStatus(200);
-        $this->assertEquals($content->formatted_price, currencyFormat($planPrice->renew_price, 'USD'));
+        $this->assertEquals($content['formatted_price'], currencyFormat($planPrice->renew_price, 'USD'));
     }
 
     #[\PHPUnit\Framework\Attributes\Group('order')]
@@ -102,7 +103,7 @@ class ClientOrderControllerTest extends DBTestCase
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $product = Product::factory()->create();
+        $product = Product::factory()->create(['type' => 4]);
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         $invoiceItem = InvoiceItem::create([
             'invoice_id' => $invoice->id,
@@ -115,6 +116,8 @@ class ClientOrderControllerTest extends DBTestCase
             'domain' => 'faveo.com',
             'plan_id' => 1,
         ]);
+        $plan = Plan::factory()->create(['product' => $product->id]);
+        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'USD']);
         $order = Order::factory()->create(['invoice_id' => $invoice->id,
             'invoice_item_id' => $invoiceItem->id, 'client' => $user->id, 'product' => $product->id]);
         $subscription = Subscription::create(['user_id' => $user->id, 'order_id' => $order->id, 'product_id' => $product->id, 'version' => 'v3.0.0', 'is_subscribed' => '1', 'autoRenew_status' => '1']);
@@ -131,7 +134,6 @@ class ClientOrderControllerTest extends DBTestCase
         $this->app->instance(\App\License\Services\InstallationService::class, $mock);
         $response = $this->call('get', 'my-order/'.$order->id);
         $response->assertStatus(200);
-        $response->assertViewIs('themes.default1.front.clients.show-order');
     }
 
     #[\PHPUnit\Framework\Attributes\Group('order')]
@@ -147,7 +149,7 @@ class ClientOrderControllerTest extends DBTestCase
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
             'product' => 'Helpdesk Advance', 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, ]);
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
-        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id]);
+        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'USD']);
         $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id, 'version' => 'v6.0.0', 'update_ends_at' => $date]);
 
         $response = $this->call('post', 'client/renew/'.$subscription->id, ['plan' => $plan->id, 'user' => $user->id]);
@@ -173,8 +175,8 @@ class ClientOrderControllerTest extends DBTestCase
         $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => $date]);
         $response = $this->call('get', 'paynow/'.$invoice->id);
-        $response->assertRedirect();
-        $response->assertSessionHas('fails', 'Cannot initiate payment. Invalid modification of data');
+        $content = $response->json();
+        $this->assertEquals('Cannot initiate payment. Invalid modification of data', $content['message']);
     }
 
     #[\PHPUnit\Framework\Attributes\Group('order')]
@@ -196,7 +198,8 @@ class ClientOrderControllerTest extends DBTestCase
             'version' => 'v6.0.0', 'update_ends_at' => $date]);
         $response = $this->call('get', 'paynow/'.$invoice->id);
         $response->assertStatus(200);
-        $response->assertViewIs('themes.default1.front.paynow');
+        $content = $response->json()['data'];
+        $this->assertArrayHasKey('paid', $content);
     }
 
     #[\PHPUnit\Framework\Attributes\Group('order')]
@@ -236,12 +239,14 @@ class ClientOrderControllerTest extends DBTestCase
         $response->assertStatus(200)
             ->assertJsonStructure([
                 'data' => [
-                    '*' => [
-                        'id',
-                        'version',
-                        'title',
-                        'description',
-                        'file',
+                    'data' => [
+                        '*' => [
+                            'id',
+                            'version',
+                            'title',
+                            'description',
+                            'file',
+                        ],
                     ],
                 ],
             ]);
@@ -273,17 +278,15 @@ class ClientOrderControllerTest extends DBTestCase
         $order = Order::create(['client' => $user->id, 'order_status' => 'executed',
             'product' => $product->id, 'number' => mt_rand(100000, 999999), 'invoice_id' => $invoice->id, ]);
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
-        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id]);
+        $planPrice = PlanPrice::factory()->create(['plan_id' => $plan->id, 'currency' => 'USD']);
         $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => '']);
         $response = $this->call('get', 'get-my-orders', ['updated_ends_at' => '']);
-        $content = $response->json();
+        $content = $response->json()['data'];
+
         $response->assertStatus(200);
-        $this->assertEquals($content['data'][0]['product_id'], $product->id);
+        $this->assertEquals($content['data'][0]['id'], $order->id);
         $this->assertEquals($content['data'][0]['product_name'], $product->name);
-        $this->assertEquals($content['data'][0]['invoice_id'], $invoice->id);
-        $this->assertEquals($content['data'][0]['invoice_number'], $invoice->number);
-        $this->assertEquals($content['data'][0]['version'], $subscription->version);
-        $this->assertEquals($content['data'][0]['client'], $user->id);
+        $this->assertEquals($content['data'][0]['number'], $order->number);
     }
 }

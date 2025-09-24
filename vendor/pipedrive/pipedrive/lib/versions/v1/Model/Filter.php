@@ -68,15 +68,18 @@ class Filter implements ModelInterface, ArrayAccess, JsonSerializable
     protected static array $openAPITypes = [
         'id' => 'int',
         'name' => 'string',
+        'filter_code' => 'string',
+        'is_editable' => 'bool',
         'active_flag' => 'bool',
         'type' => '\Pipedrive\versions\v1\Model\FilterType',
         'temporary_flag' => 'bool',
         'user_id' => 'int',
         'add_time' => 'string',
         'update_time' => 'string',
-        'visible_to' => 'int',
+        'visible_to' => '\Pipedrive\versions\v1\Model\VisibleTo',
+        'last_used_time' => 'string',
         'custom_view_id' => 'int',
-        'conditions' => 'object'
+        'conditions' => '\Pipedrive\versions\v1\Model\FilterConditions'
     ];
 
     /**
@@ -89,6 +92,8 @@ class Filter implements ModelInterface, ArrayAccess, JsonSerializable
     protected static $openAPIFormats = [
         'id' => null,
         'name' => null,
+        'filter_code' => null,
+        'is_editable' => null,
         'active_flag' => null,
         'type' => null,
         'temporary_flag' => null,
@@ -96,6 +101,7 @@ class Filter implements ModelInterface, ArrayAccess, JsonSerializable
         'add_time' => null,
         'update_time' => null,
         'visible_to' => null,
+        'last_used_time' => null,
         'custom_view_id' => null,
         'conditions' => null
     ];
@@ -133,6 +139,8 @@ class Filter implements ModelInterface, ArrayAccess, JsonSerializable
     protected static $attributeMap = [
         'id' => 'id',
         'name' => 'name',
+        'filter_code' => 'filter_code',
+        'is_editable' => 'is_editable',
         'active_flag' => 'active_flag',
         'type' => 'type',
         'temporary_flag' => 'temporary_flag',
@@ -140,6 +148,7 @@ class Filter implements ModelInterface, ArrayAccess, JsonSerializable
         'add_time' => 'add_time',
         'update_time' => 'update_time',
         'visible_to' => 'visible_to',
+        'last_used_time' => 'last_used_time',
         'custom_view_id' => 'custom_view_id',
         'conditions' => 'conditions'
     ];
@@ -152,6 +161,8 @@ class Filter implements ModelInterface, ArrayAccess, JsonSerializable
     protected static $setters = [
         'id' => 'setId',
         'name' => 'setName',
+        'filter_code' => 'setFilterCode',
+        'is_editable' => 'setIsEditable',
         'active_flag' => 'setActiveFlag',
         'type' => 'setType',
         'temporary_flag' => 'setTemporaryFlag',
@@ -159,6 +170,7 @@ class Filter implements ModelInterface, ArrayAccess, JsonSerializable
         'add_time' => 'setAddTime',
         'update_time' => 'setUpdateTime',
         'visible_to' => 'setVisibleTo',
+        'last_used_time' => 'setLastUsedTime',
         'custom_view_id' => 'setCustomViewId',
         'conditions' => 'setConditions'
     ];
@@ -171,6 +183,8 @@ class Filter implements ModelInterface, ArrayAccess, JsonSerializable
     protected static $getters = [
         'id' => 'getId',
         'name' => 'getName',
+        'filter_code' => 'getFilterCode',
+        'is_editable' => 'getIsEditable',
         'active_flag' => 'getActiveFlag',
         'type' => 'getType',
         'temporary_flag' => 'getTemporaryFlag',
@@ -178,6 +192,7 @@ class Filter implements ModelInterface, ArrayAccess, JsonSerializable
         'add_time' => 'getAddTime',
         'update_time' => 'getUpdateTime',
         'visible_to' => 'getVisibleTo',
+        'last_used_time' => 'getLastUsedTime',
         'custom_view_id' => 'getCustomViewId',
         'conditions' => 'getConditions'
     ];
@@ -251,6 +266,8 @@ class Filter implements ModelInterface, ArrayAccess, JsonSerializable
     {
         $this->container['id'] = $data['id'] ?? null;
         $this->container['name'] = $data['name'] ?? null;
+        $this->container['filter_code'] = $data['filter_code'] ?? null;
+        $this->container['is_editable'] = $data['is_editable'] ?? null;
         $this->container['active_flag'] = $data['active_flag'] ?? null;
         $this->container['type'] = $data['type'] ?? null;
         $this->container['temporary_flag'] = $data['temporary_flag'] ?? null;
@@ -258,6 +275,7 @@ class Filter implements ModelInterface, ArrayAccess, JsonSerializable
         $this->container['add_time'] = $data['add_time'] ?? null;
         $this->container['update_time'] = $data['update_time'] ?? null;
         $this->container['visible_to'] = $data['visible_to'] ?? null;
+        $this->container['last_used_time'] = $data['last_used_time'] ?? null;
         $this->container['custom_view_id'] = $data['custom_view_id'] ?? null;
         $this->container['conditions'] = $data['conditions'] ?? null;
     }
@@ -301,7 +319,7 @@ class Filter implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets id
      *
-     * @param int|null $id The ID of the created filter
+     * @param int|null $id The ID of the filter
      *
      * @return self
      */
@@ -325,13 +343,61 @@ class Filter implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets name
      *
-     * @param string|null $name The name of the created filter
+     * @param string|null $name The name of the filter
      *
      * @return self
      */
     public function setName($name): self
     {
         $this->container['name'] = $name;
+
+        return $this;
+    }
+
+    /**
+     * Gets filter_code
+     *
+     * @return string|null
+     */
+    public function getFilterCode()
+    {
+        return $this->container['filter_code'];
+    }
+
+    /**
+     * Sets filter_code
+     *
+     * @param string|null $filter_code The system code of the filter
+     *
+     * @return self
+     */
+    public function setFilterCode($filter_code): self
+    {
+        $this->container['filter_code'] = $filter_code;
+
+        return $this;
+    }
+
+    /**
+     * Gets is_editable
+     *
+     * @return bool|null
+     */
+    public function getIsEditable()
+    {
+        return $this->container['is_editable'];
+    }
+
+    /**
+     * Sets is_editable
+     *
+     * @param bool|null $is_editable Whether the filter can be edited by the requesting user
+     *
+     * @return self
+     */
+    public function setIsEditable($is_editable): self
+    {
+        $this->container['is_editable'] = $is_editable;
 
         return $this;
     }
@@ -349,7 +415,7 @@ class Filter implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets active_flag
      *
-     * @param bool|null $active_flag The activity flag of the created filter
+     * @param bool|null $active_flag The activity flag of the filter
      *
      * @return self
      */
@@ -397,7 +463,7 @@ class Filter implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets temporary_flag
      *
-     * @param bool|null $temporary_flag If the created filter is temporary or not
+     * @param bool|null $temporary_flag Whether the filter is temporary
      *
      * @return self
      */
@@ -421,7 +487,7 @@ class Filter implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets user_id
      *
-     * @param int|null $user_id The user ID of the created filter
+     * @param int|null $user_id The user ID of the filter owner
      *
      * @return self
      */
@@ -445,7 +511,7 @@ class Filter implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets add_time
      *
-     * @param string|null $add_time The add time of the created filter
+     * @param string|null $add_time The date and time when the filter was added
      *
      * @return self
      */
@@ -469,7 +535,7 @@ class Filter implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets update_time
      *
-     * @param string|null $update_time The update time of the created filter
+     * @param string|null $update_time The date and time when the filter was last updated
      *
      * @return self
      */
@@ -483,7 +549,7 @@ class Filter implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets visible_to
      *
-     * @return int|null
+     * @return VisibleTo|null
      */
     public function getVisibleTo()
     {
@@ -493,13 +559,37 @@ class Filter implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets visible_to
      *
-     * @param int|null $visible_to The visibility group ID of the created filter
+     * @param VisibleTo|null $visible_to The visibility group ID of the filter
      *
      * @return self
      */
     public function setVisibleTo($visible_to): self
     {
         $this->container['visible_to'] = $visible_to;
+
+        return $this;
+    }
+
+    /**
+     * Gets last_used_time
+     *
+     * @return string|null
+     */
+    public function getLastUsedTime()
+    {
+        return $this->container['last_used_time'];
+    }
+
+    /**
+     * Sets last_used_time
+     *
+     * @param string|null $last_used_time The date and time when the filter was last used
+     *
+     * @return self
+     */
+    public function setLastUsedTime($last_used_time): self
+    {
+        $this->container['last_used_time'] = $last_used_time;
 
         return $this;
     }
@@ -517,7 +607,7 @@ class Filter implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets custom_view_id
      *
-     * @param int|null $custom_view_id The custom view ID of the created filter
+     * @param int|null $custom_view_id The custom view ID linked to the filter
      *
      * @return self
      */
@@ -531,7 +621,7 @@ class Filter implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets conditions
      *
-     * @return object|null
+     * @return \Pipedrive\versions\v1\Model\FilterConditions|null
      */
     public function getConditions()
     {
@@ -541,7 +631,7 @@ class Filter implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets conditions
      *
-     * @param object|null $conditions The created filter conditions object
+     * @param \Pipedrive\versions\v1\Model\FilterConditions|null $conditions conditions
      *
      * @return self
      */

@@ -66,7 +66,14 @@ class PictureDataWithID1 implements ModelInterface, ArrayAccess, JsonSerializabl
       * @phpsalm-var array<string, string>
       */
     protected static array $openAPITypes = [
-        'id' => 'int'
+        'id' => 'int',
+        'item_type' => 'string',
+        'item_id' => 'int',
+        'active_flag' => 'bool',
+        'add_time' => 'string',
+        'update_time' => 'string',
+        'added_by_user_id' => 'int',
+        'pictures' => '\Pipedrive\versions\v1\Model\PictureDataWithID1Pictures'
     ];
 
     /**
@@ -77,7 +84,14 @@ class PictureDataWithID1 implements ModelInterface, ArrayAccess, JsonSerializabl
       * @psalm-var array<string, string|null>
       */
     protected static $openAPIFormats = [
-        'id' => null
+        'id' => null,
+        'item_type' => null,
+        'item_id' => null,
+        'active_flag' => null,
+        'add_time' => null,
+        'update_time' => null,
+        'added_by_user_id' => null,
+        'pictures' => null
     ];
 
     /**
@@ -111,7 +125,14 @@ class PictureDataWithID1 implements ModelInterface, ArrayAccess, JsonSerializabl
      * @var string[]
      */
     protected static $attributeMap = [
-        'id' => 'id'
+        'id' => 'id',
+        'item_type' => 'item_type',
+        'item_id' => 'item_id',
+        'active_flag' => 'active_flag',
+        'add_time' => 'add_time',
+        'update_time' => 'update_time',
+        'added_by_user_id' => 'added_by_user_id',
+        'pictures' => 'pictures'
     ];
 
     /**
@@ -120,7 +141,14 @@ class PictureDataWithID1 implements ModelInterface, ArrayAccess, JsonSerializabl
      * @var string[]
      */
     protected static $setters = [
-        'id' => 'setId'
+        'id' => 'setId',
+        'item_type' => 'setItemType',
+        'item_id' => 'setItemId',
+        'active_flag' => 'setActiveFlag',
+        'add_time' => 'setAddTime',
+        'update_time' => 'setUpdateTime',
+        'added_by_user_id' => 'setAddedByUserId',
+        'pictures' => 'setPictures'
     ];
 
     /**
@@ -129,7 +157,14 @@ class PictureDataWithID1 implements ModelInterface, ArrayAccess, JsonSerializabl
      * @var string[]
      */
     protected static $getters = [
-        'id' => 'getId'
+        'id' => 'getId',
+        'item_type' => 'getItemType',
+        'item_id' => 'getItemId',
+        'active_flag' => 'getActiveFlag',
+        'add_time' => 'getAddTime',
+        'update_time' => 'getUpdateTime',
+        'added_by_user_id' => 'getAddedByUserId',
+        'pictures' => 'getPictures'
     ];
 
     /**
@@ -200,6 +235,13 @@ class PictureDataWithID1 implements ModelInterface, ArrayAccess, JsonSerializabl
     public function __construct(array $data = null)
     {
         $this->container['id'] = $data['id'] ?? null;
+        $this->container['item_type'] = $data['item_type'] ?? null;
+        $this->container['item_id'] = $data['item_id'] ?? null;
+        $this->container['active_flag'] = $data['active_flag'] ?? null;
+        $this->container['add_time'] = $data['add_time'] ?? null;
+        $this->container['update_time'] = $data['update_time'] ?? null;
+        $this->container['added_by_user_id'] = $data['added_by_user_id'] ?? null;
+        $this->container['pictures'] = $data['pictures'] ?? null;
     }
 
     /**
@@ -248,6 +290,174 @@ class PictureDataWithID1 implements ModelInterface, ArrayAccess, JsonSerializabl
     public function setId($id): self
     {
         $this->container['id'] = $id;
+
+        return $this;
+    }
+
+    /**
+     * Gets item_type
+     *
+     * @return string|null
+     */
+    public function getItemType()
+    {
+        return $this->container['item_type'];
+    }
+
+    /**
+     * Sets item_type
+     *
+     * @param string|null $item_type The type of item the picture is related to
+     *
+     * @return self
+     */
+    public function setItemType($item_type): self
+    {
+        $this->container['item_type'] = $item_type;
+
+        return $this;
+    }
+
+    /**
+     * Gets item_id
+     *
+     * @return int|null
+     */
+    public function getItemId()
+    {
+        return $this->container['item_id'];
+    }
+
+    /**
+     * Sets item_id
+     *
+     * @param int|null $item_id The ID of related item
+     *
+     * @return self
+     */
+    public function setItemId($item_id): self
+    {
+        $this->container['item_id'] = $item_id;
+
+        return $this;
+    }
+
+    /**
+     * Gets active_flag
+     *
+     * @return bool|null
+     */
+    public function getActiveFlag()
+    {
+        return $this->container['active_flag'];
+    }
+
+    /**
+     * Sets active_flag
+     *
+     * @param bool|null $active_flag Whether the associated picture is active or not
+     *
+     * @return self
+     */
+    public function setActiveFlag($active_flag): self
+    {
+        $this->container['active_flag'] = $active_flag;
+
+        return $this;
+    }
+
+    /**
+     * Gets add_time
+     *
+     * @return string|null
+     */
+    public function getAddTime()
+    {
+        return $this->container['add_time'];
+    }
+
+    /**
+     * Sets add_time
+     *
+     * @param string|null $add_time The add time of the picture
+     *
+     * @return self
+     */
+    public function setAddTime($add_time): self
+    {
+        $this->container['add_time'] = $add_time;
+
+        return $this;
+    }
+
+    /**
+     * Gets update_time
+     *
+     * @return string|null
+     */
+    public function getUpdateTime()
+    {
+        return $this->container['update_time'];
+    }
+
+    /**
+     * Sets update_time
+     *
+     * @param string|null $update_time The update time of the picture
+     *
+     * @return self
+     */
+    public function setUpdateTime($update_time): self
+    {
+        $this->container['update_time'] = $update_time;
+
+        return $this;
+    }
+
+    /**
+     * Gets added_by_user_id
+     *
+     * @return int|null
+     */
+    public function getAddedByUserId()
+    {
+        return $this->container['added_by_user_id'];
+    }
+
+    /**
+     * Sets added_by_user_id
+     *
+     * @param int|null $added_by_user_id The ID of the user who added the picture
+     *
+     * @return self
+     */
+    public function setAddedByUserId($added_by_user_id): self
+    {
+        $this->container['added_by_user_id'] = $added_by_user_id;
+
+        return $this;
+    }
+
+    /**
+     * Gets pictures
+     *
+     * @return \Pipedrive\versions\v1\Model\PictureDataWithID1Pictures|null
+     */
+    public function getPictures()
+    {
+        return $this->container['pictures'];
+    }
+
+    /**
+     * Sets pictures
+     *
+     * @param \Pipedrive\versions\v1\Model\PictureDataWithID1Pictures|null $pictures pictures
+     *
+     * @return self
+     */
+    public function setPictures($pictures): self
+    {
+        $this->container['pictures'] = $pictures;
 
         return $this;
     }

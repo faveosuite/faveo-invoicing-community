@@ -5,8 +5,8 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **title** | **string** | The title of the project |
-**board_id** | **float** | The ID of a project board |
-**phase_id** | **float** | The ID of a phase on a project board |
+**board_id** | **float** | The ID of the board this project is associated with | [optional]
+**phase_id** | **float** | The ID of the phase this project is associated with | [optional]
 **description** | **string** | The description of the project | [optional]
 **status** | **string** | The status of the project | [optional]
 **owner_id** | **float** | The ID of a project owner | [optional]

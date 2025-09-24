@@ -547,6 +547,7 @@ class Configuration implements ConfigurationInterface
                                                     ->cannotBeEmpty()
                                                 ->end()
                                                 ->arrayNode('metadata')
+                                                    ->useAttributeAsKey('key')
                                                     ->normalizeKeys(false)
                                                     ->defaultValue([])
                                                     ->example(['color' => 'blue', 'description' => 'Workflow to manage article.'])
@@ -673,6 +674,7 @@ class Configuration implements ConfigurationInterface
                                                     ->end()
                                                 ->end()
                                                 ->arrayNode('metadata')
+                                                    ->useAttributeAsKey('key')
                                                     ->normalizeKeys(false)
                                                     ->defaultValue([])
                                                     ->example(['color' => 'blue', 'description' => 'Workflow to manage article.'])
@@ -683,6 +685,7 @@ class Configuration implements ConfigurationInterface
                                         ->end()
                                     ->end()
                                     ->arrayNode('metadata')
+                                        ->useAttributeAsKey('key')
                                         ->normalizeKeys(false)
                                         ->defaultValue([])
                                         ->example(['color' => 'blue', 'description' => 'Workflow to manage article.'])
@@ -1211,6 +1214,7 @@ class Configuration implements ConfigurationInterface
     {
         $defaultContextNode = fn () => (new NodeBuilder())
             ->arrayNode('default_context')
+                ->useAttributeAsKey('key')
                 ->normalizeKeys(false)
                 ->validate()
                     ->ifTrue(fn () => $this->debug && class_exists(JsonParser::class))
@@ -1668,31 +1672,18 @@ class Configuration implements ConfigurationInterface
                             ->beforeNormalization()
                                 ->ifArray()
                                 ->then(function ($config) {
-                                    // If XML config with only one routing attribute
-                                    if (2 === \count($config) && isset($config['message-class']) && isset($config['sender'])) {
-                                        $config = [0 => $config];
-                                    }
-
                                     $newConfig = [];
                                     foreach ($config as $k => $v) {
-                                        if (!\is_int($k)) {
-                                            $newConfig[$k] = [
-                                                'senders' => $v['senders'] ?? (\is_array($v) ? array_values($v) : [$v]),
-                                            ];
-                                        } else {
-                                            $newConfig[$v['message-class']]['senders'] = array_map(
-                                                function ($a) {
-                                                    return \is_string($a) ? $a : $a['service'];
-                                                },
-                                                array_values($v['sender'])
-                                            );
-                                        }
+                                        $newConfig[$k] = [
+                                            'senders' => $v['senders'] ?? (\is_array($v) ? array_values($v) : [$v]),
+                                        ];
                                     }
 
                                     return $newConfig;
                                 })
                             ->end()
                             ->prototype('array')
+                                ->acceptAndWrap(['string'], 'senders')
                                 ->performNoDeepMerging()
                                 ->children()
                                     ->arrayNode('senders')
@@ -1733,6 +1724,7 @@ class Configuration implements ConfigurationInterface
                                     ->scalarNode('dsn')->end()
                                     ->scalarNode('serializer')->defaultNull()->info('Service id of a custom serializer to use.')->end()
                                     ->arrayNode('options', 'option')
+                                        ->useAttributeAsKey('key')
                                         ->normalizeKeys(false)
                                         ->defaultValue([])
                                         ->prototype('variable')

@@ -69,6 +69,7 @@ class TaskObjectFragment implements ModelInterface, ArrayAccess, JsonSerializabl
         'description' => 'string',
         'parent_task_id' => 'float',
         'assignee_id' => 'float',
+        'assignee_ids' => 'float[]',
         'done' => '\Pipedrive\versions\v1\Model\NumberBoolean',
         'due_date' => '\DateTime'
     ];
@@ -84,6 +85,7 @@ class TaskObjectFragment implements ModelInterface, ArrayAccess, JsonSerializabl
         'description' => null,
         'parent_task_id' => null,
         'assignee_id' => null,
+        'assignee_ids' => null,
         'done' => null,
         'due_date' => 'date'
     ];
@@ -122,6 +124,7 @@ class TaskObjectFragment implements ModelInterface, ArrayAccess, JsonSerializabl
         'description' => 'description',
         'parent_task_id' => 'parent_task_id',
         'assignee_id' => 'assignee_id',
+        'assignee_ids' => 'assignee_ids',
         'done' => 'done',
         'due_date' => 'due_date'
     ];
@@ -135,6 +138,7 @@ class TaskObjectFragment implements ModelInterface, ArrayAccess, JsonSerializabl
         'description' => 'setDescription',
         'parent_task_id' => 'setParentTaskId',
         'assignee_id' => 'setAssigneeId',
+        'assignee_ids' => 'setAssigneeIds',
         'done' => 'setDone',
         'due_date' => 'setDueDate'
     ];
@@ -148,6 +152,7 @@ class TaskObjectFragment implements ModelInterface, ArrayAccess, JsonSerializabl
         'description' => 'getDescription',
         'parent_task_id' => 'getParentTaskId',
         'assignee_id' => 'getAssigneeId',
+        'assignee_ids' => 'getAssigneeIds',
         'done' => 'getDone',
         'due_date' => 'getDueDate'
     ];
@@ -222,6 +227,7 @@ class TaskObjectFragment implements ModelInterface, ArrayAccess, JsonSerializabl
         $this->container['description'] = $data['description'] ?? null;
         $this->container['parent_task_id'] = $data['parent_task_id'] ?? null;
         $this->container['assignee_id'] = $data['assignee_id'] ?? null;
+        $this->container['assignee_ids'] = $data['assignee_ids'] ?? null;
         $this->container['done'] = $data['done'] ?? null;
         $this->container['due_date'] = $data['due_date'] ?? null;
     }
@@ -236,6 +242,10 @@ class TaskObjectFragment implements ModelInterface, ArrayAccess, JsonSerializabl
     public function listInvalidProperties(): array
     {
         $invalidProperties = [];
+
+        if (!is_null($this->container['assignee_ids']) && (count($this->container['assignee_ids']) > 10)) {
+            $invalidProperties[] = "invalid value for 'assignee_ids', number of items must be less than or equal to 10.";
+        }
 
         return $invalidProperties;
     }
@@ -313,13 +323,41 @@ class TaskObjectFragment implements ModelInterface, ArrayAccess, JsonSerializabl
     /**
      * Sets assignee_id
      *
-     * @param float|null $assignee_id The ID of the user who will be the assignee of the task
+     * @param float|null $assignee_id The ID of the user assigned to the task. When the `assignee_id` field is updated, the `assignee_ids` field value will be overwritten by the `assignee_id` field value.
      *
      * @return self
      */
     public function setAssigneeId($assignee_id): self
     {
         $this->container['assignee_id'] = $assignee_id;
+
+        return $this;
+    }
+
+    /**
+     * Gets assignee_ids
+     *
+     * @return float[]|null
+     */
+    public function getAssigneeIds()
+    {
+        return $this->container['assignee_ids'];
+    }
+
+    /**
+     * Sets assignee_ids
+     *
+     * @param float[]|null $assignee_ids The IDs of users assigned to the task. When the `assignee_ids` field is updated, the `assignee_id` field value will be set to the first value of the `assignee_ids` field, or `null` if the list is empty.
+     *
+     * @return self
+     */
+    public function setAssigneeIds($assignee_ids): self
+    {
+
+        if (!is_null($assignee_ids) && (count($assignee_ids) > 10)) {
+            throw new \InvalidArgumentException('invalid value for $assignee_ids when calling TaskObjectFragment., number of items must be less than or equal to 10.');
+        }
+        $this->container['assignee_ids'] = $assignee_ids;
 
         return $this;
     }

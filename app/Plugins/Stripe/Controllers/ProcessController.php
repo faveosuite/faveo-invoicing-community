@@ -3,6 +3,7 @@
 namespace App\Plugins\Stripe\Controllers;
 
 use App\ApiKey;
+use App\Facades\Cart;
 use App\Http\Controllers\Controller;
 use App\Model\Order\InvoiceItem;
 use App\Model\Product\Product;
@@ -15,6 +16,8 @@ use Razorpay\Api\Api;
 class ProcessController extends Controller
 {
     protected $stripe;
+
+    protected $cart;
 
     public function __construct()
     {
@@ -29,6 +32,8 @@ class ProcessController extends Controller
 
         $razorpay = new RazorpayPayment();
         $this->razorpay = $razorpay;
+
+        $this->cart = new Cart();
     }
 
     public function PassToPayment($requests)
@@ -36,11 +41,11 @@ class ProcessController extends Controller
         try {
             $request = $requests['request'];
             $invoice = $requests['invoice'];
-            $cart = \Cart::getContent();
+            $cart = $this->cart->getContent();
             if (! $cart->count()) {
-                \Cart::clear();
+                $this->cart->clear();
             } else {
-                $invoice->grand_total = \Cart::getTotal();
+                $invoice->grand_total = $this->cart->getTotal();
             }
             if ($request->input('payment_gateway') == 'Stripe') {
                 if (! \Schema::hasTable('stripe')) {
@@ -61,13 +66,13 @@ class ProcessController extends Controller
                     throw new \Exception(__('message.razorpay_fields_not_given'));
                 }
                 \Session::put('invoice', $invoice);
-                $regularPayment = \Cart::getTotal() ? true : false;
+                $regularPayment = $this->cart->getTotal() ? true : false;
                 $json = $this->processRazorpayOrder($invoice, $regularPayment);
                 $this->middlePage($request->input('payment_gateway'), ['json' => $json]);
             }
             \Session::save(); // This we added because we use echo in this middle page that does not return the view so the session will not save properly.
         } catch (\Exception $ex) {
-            throw new \Exception($ex->getMessage(), $ex->getCode(), $ex->getPrevious());
+            return errorResponse($ex->getMessage());
         }
     }
 
@@ -79,10 +84,11 @@ class ProcessController extends Controller
             $stripe_key = ApiKey::where('id', 1)->value('stripe_key');
             $apilayer_key = ApiKey::where('id', 1)->value('apilayer_key');
             $path = app_path().'/Plugins/Stripe/views';
-            $total = intval(\Cart::getTotal());
+            $total = intval($this->cart->getTotal());
             $payment_method = \Session::get('payment_method');
             $regularPayment = true;
             $invoice = \Session::get('invoice');
+
             if (! $total) {
                 $paid = 0;
                 // $total = \Session::get('totalToBePaid');
@@ -105,8 +111,14 @@ class ProcessController extends Controller
                 }
                 \Session::put('totalToBePaid', $amount);
                 \View::addNamespace('plugins', $path);
-                echo view('plugins::middle-page', compact('total', 'invoice', 'regularPayment', 'items', 'product', 'amount',
-                    'paid', 'creditBalance', 'gateway', 'rzp_key', 'rzp_secret', 'apilayer_key', 'stripe_key', 'data', 'displayProcessingFee'));
+                $cart = $this->cart;
+                $data = ['total' => $total, 'invoice' => $invoice, 'regularPayment' => $regularPayment, 'items' => $items, 'product' => $product, 'amount' => $amount,
+                    'paid' => $paid, 'creditBalance' => $creditBalance, 'gateway' => $gateway, 'rzp_key' => $rzp_key, 'apilayer_key' => $apilayer_key, 'rzp_secret' => $rzp_secret,
+                    'stripe_key' => $stripe_key, 'data' => $data, 'displayProcessingFee' => $displayProcessingFee, 'cart' => $cart];
+
+                return successResponse('success', $data);
+//                echo view('plugins::middle-page', compact('total', 'invoice', 'regularPayment', 'items', 'product', 'amount',
+//                    'paid', 'creditBalance', 'gateway', 'rzp_key', 'rzp_secret', 'apilayer_key', 'stripe_key', 'data', 'displayProcessingFee', 'cart'));
             } else {
                 $pay = $this->payment($payment_method, $status = 'pending');
                 $payment_method = $pay['payment'];
@@ -116,18 +128,23 @@ class ProcessController extends Controller
                 $this->updateFinalPrice($processingFee);
                 $displayProcessingFee = $invoice->grand_total;
                 $invoice->grand_total = rounding($invoice->grand_total * (1 + $processingFee / 100));
-                $amount = rounding(\Cart::getTotal());
+                $amount = rounding($this->cart->getTotal());
                 \View::addNamespace('plugins', $path);
+                $cart = $this->cart;
+                $data = ['invoice' => $invoice, 'amount' => $amount, 'invoice_no' => $invoice_no, 'payment_method' => $payment_method, 'regularPayment' => $regularPayment, 'gateway' => $gateway,
+                    'rzp_key' => $rzp_key, 'rzp_secret' => $rzp_secret, 'apilayer_key' => $apilayer_key, 'stripe_key' => $stripe_key, 'data' => $data, 'displayProcessingFee' => $displayProcessingFee,
+                    'cart' => $cart];
 
-                echo view('plugins::middle-page', compact('invoice', 'amount', 'invoice_no', 'payment_method', 'invoice',
-                    'regularPayment', 'gateway', 'rzp_key', 'rzp_secret', 'apilayer_key', 'stripe_key', 'data', 'displayProcessingFee'))->render();
+                return successResponse('success', $data);
+//                echo view('plugins::middle-page', compact('invoice', 'amount', 'invoice_no', 'payment_method', 'invoice',
+//                    'regularPayment', 'gateway', 'rzp_key', 'rzp_secret', 'apilayer_key', 'stripe_key', 'data', 'displayProcessingFee', 'cart'))->render();
             }
         } catch (\Exception $ex) {
-            throw new \Exception($ex->getMessage());
+            return errorResponse($ex->getMessage());
         }
     }
 
-    public static function updateFinalPrice($processingFee)
+    public function updateFinalPrice($processingFee)
     {
         $value = $processingFee ? $processingFee.'%' : '0%';
 
@@ -137,7 +154,7 @@ class ProcessController extends Controller
             'target' => 'total',
             'value' => $value,
         ]);
-        \Cart::condition($updateValue);
+        $this->cart->condition($updateValue);
     }
 
     public function payment($payment_method, $status)
@@ -161,7 +178,7 @@ class ProcessController extends Controller
         } catch (\Exception $ex) {
             \Logger::exception($ex);
 
-            throw new \Exception($ex->getMessage());
+            return errorResponse($ex->getMessage());
         }
     }
 
@@ -172,7 +189,7 @@ class ProcessController extends Controller
                 return $paymentMethod == 'razorpay' ? 0 : \DB::table(strtolower($paymentMethod))->where('currencies', $currency)->value('processing_fee');
             }
         } catch (\Exception $e) {
-            throw new \Exception(__('message.invalid_modification'));
+            return errorResponse(__('message.invalid_modification'));
         }
     }
 

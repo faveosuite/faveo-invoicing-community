@@ -82,19 +82,19 @@
 </style>
 <?php
  $dataCenters = \App\Model\CloudDataCenters::all();
+
 ?>
 <?php
 $setting = \App\Model\Common\Setting::where('id', 1)->first();
 $everyPageScripts = '';
 $scripts = \App\Model\Common\ChatScript::where('on_every_page', 1)->get();
-
+//Tawk implementation code
 foreach($scripts as $script) {
     if (strpos($script->script, '<script>') === false && strpos($script->script, '</script>') === false) {
         $everyPageScripts .= "<script>{$script->script}</script>";
     } else {
         $everyPageScripts .= $script->script;
     }
-
 }
 ?>
 
@@ -129,7 +129,7 @@ foreach($scripts as $script) {
     <link rel="stylesheet" href="{{asset('client/porto/css-2/owl.theme.default.min.css')}}">
     <link rel="stylesheet" href="{{asset('client/porto/css-2/magnific-popup.min.css')}}">
     <link rel="stylesheet" href="{{asset('admin/css-1/flag-icons.min.css')}}">
-
+{{--  Arabic and Hebrew laguage starts from right to left that is the reason this styles are required   --}}
 @if(in_array(app()->getLocale(), ['ar', 'he']))
     <link rel="stylesheet" href="{{asset('client/porto/css-2/all.rtl.min.css')}}">
     <link rel="stylesheet" href="{{asset('admin/css-1/sweet-alert-rtl.css')}}">
@@ -191,6 +191,9 @@ foreach($scripts as $script) {
     </style>
 
 </head>
+<script>
+
+</script>
 <?php
 $domain = [];
 $set = new \App\Model\Common\Setting();
@@ -291,9 +294,7 @@ $days = $pay->where('product','117')->value('days');
                                 </div>
                             </div>
                         </div>
-                        <?php
-                        $groups = \App\Model\Product\ProductGroup::where('hidden','!=', 1)->get();
-                        ?>
+
 
                         <div class="header-row h-100">
 
@@ -323,15 +324,11 @@ $days = $pay->where('product','117')->value('days');
                                                         <a class="nav-link dropdown-toggle {{ strpos(request()->url(), 'group') !== false ? 'active' : '' }}" href="javascript:;">
                                                             &nbsp;{{ __('message.store') }}&nbsp;
                                                         </a>
-
-                                                        <ul class="dropdown-menu border-light mt-n1">
-                                                            @foreach($groups as $group)
-                                                                <li>
-                                                                    <a class="dropdown-item" href="{{url("group/$group->pricing_templates_id/$group->id")}}">{{$group->name}}</a>
-                                                                </li>
-                                                            @endforeach
+{{--                                                          li are dynamically added through ajax [url=available-groups]  --}}
+                                                        <ul class="dropdown-menu border-light mt-n1" id="group_drop_down">
                                                         </ul>
                                                     </li>
+
                                                     <?php $pages = \App\Model\Front\FrontendPage::where('publish', 1)->orderBy('created_at','asc')->get();
                                                     ?>
 
@@ -410,8 +407,12 @@ $days = $pay->where('product','117')->value('days');
                                                     <?php
                                                     $cloud = \App\Model\Common\StatusSetting::where('id','1')->value('cloud_button');
                                                     $Demo_page = App\Demo_page::first();
-                                                    ?>
-                                                    @if($cloud == 1)
+
+                                                     $cart=new App\Facades\Cart();
+                                                     ?>
+
+
+                                                @if($cloud == 1)
                                                         <li class="demo-icons">
                                                             <a class="nav-link btn open-createTenantDialog startFreeTrialBtn">{{ __('message.start_free_trial') }}</a>
                                                         </li>
@@ -430,20 +431,25 @@ $days = $pay->where('product','117')->value('days');
                                                 <a href="{{ url('show/cart') }}" class="header-nav-features-toggle text-decoration-none">
                                                     <span class="text-dark opacity-8 font-weight-bold text-color-hover-primary"> {{ __('message.cart') }}</span>
                                                     <img src="{{asset('client/porto/fonts/icon-cart.svg')}}" width="14" alt="" class="header-nav-top-icon-img">
-                                                    <span class="position-absolute top-0 start-100 translate-end badge rounded-pill custom-pills">{{ Cart::getTotalQuantity() }}</span>
+                                                    <span class="position-absolute top-0 start-100 translate-end badge rounded-pill custom-pills">{{$cart->getTotalQuantity()}}</span>
                                             </span>
+
                                                 </a>
                                                 <div class="header-nav-features-dropdown right-15" id="headerTopCartDropdown">
                                                     <ol class="mini-products-list">
-                                                        @forelse(Cart::getContent() as $key => $item)
+                                                        @forelse($cart->getContent() as $key => $item)
                                                                 <?php
-                                                                $productdetails=$item->associatedModel->getAttributes();
+
+
+                                                                $productdetails=$item['associatedModel']->getAttributes();
                                                                 $product = App\Model\Product\Product::where('id', $productdetails['id'])->first();
                                                                 if ($product->require_domain == 1) {
-                                                                    $domain[$key] = $item->id;
+                                                                    $domain[$key] = $item['id'];
                                                                 }
-                                                                $currency = $item->attributes['currency'];
-                                                                $total = rounding($item->getPriceSumWithConditions());
+                                                                $currency = $item['attributes']['currency'];
+                                                                $total = rounding($cart->getPriceSum($item['id']));
+//                                                                $total = rounding($item->getPriceSumWithConditions());
+
                                                                 ?>
                                                             <li class="item">
                                                                 <a href="#" data-bs-toggle="tooltip" title="{{ $product->name }}" class="product-image">
@@ -451,10 +457,10 @@ $days = $pay->where('product','117')->value('days');
                                                                 </a>
                                                                 <div class="product-details">
                                                                     <p class="product-name">
-                                                                        <a href="#">{{ $item->name }}</a><br>
+                                                                        <a href="#">{{ $item['name'] }}</a><br>
                                                                         <span class="amount"><strong>{{ currencyFormat($total, $code = $currency) }}</strong></span>
                                                                     </p>
-                                                                    <a onclick="removeItem('{{$item->id}}');"data-bs-toggle="tooltip" title="{{ __('message.remove_this_item') }}" class="btn-remove">
+                                                                    <a onclick="removeItem('{{$item['id']}}');"data-bs-toggle="tooltip" title="{{ __('message.remove_this_item') }}" class="btn-remove">
                                                                         <i class="fas fa-times"></i>
                                                                     </a>
                                                                 </div>
@@ -481,10 +487,10 @@ $days = $pay->where('product','117')->value('days');
 
 
                                                         @endforelse
-                                                        @if (!Cart::isEmpty())
+                                                        @if (!$cart->isEmpty())
                                                             <div class="totals">
                                                                 <span class="label">{{ __('message.total') }}:</span>
-                                                                <span class="price-total"><span class="price">{{ currencyFormat(Cart::getTotal(), $code = $currency) }}</span></span>
+                                                                <span class="price-total"><span class="price">{{ currencyFormat($cart->getTotal(), $code = $currency) }}</span></span>
                                                             </div>
 
                                                             <li>
@@ -1259,7 +1265,6 @@ setTimeout(function() {
         }
 
 
-
         $('#createTenant').attr('disabled',true)
         $("#createTenant").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
         var domain = $('#userdomain').val();
@@ -1346,26 +1351,30 @@ setTimeout(function() {
         }
     }
 
+    $(document).ready(function(){
+        $.ajax({
+            url:"{{url('available-groups')}}",
+            data:{
+                _token:"{{csrf_token()}}"
+            },
+            method:"POST",
+            success:function(response){
+                var data =response.data;
+                const ul = document.getElementById('group_drop_down');
+                Object.keys(data).forEach(key => {
+                    const li = document.createElement('li');
+                    const a = document.createElement('a');
+                    a.className = "dropdown-item";
+                    a.textContent = data[key]['name'];
+                    a.href =data[key]['url'];
+                    li.appendChild(a);
+                    ul.appendChild(li);
+                });
+            },
 
-    {{--$(document).on("click", ".open-createTenantDialog", function () {--}}
-    {{--    $.ajax({--}}
-    {{--        url: "{{url('trial-cloud-products')}}",--}}
-    {{--        type: "POST",--}}
-    {{--        success: function(response){--}}
-    {{--                var data=response['data'];--}}
-    {{--                const select = document.getElementById('serviceType');--}}
+        })
+    });
 
-    {{--                Object.entries(data).forEach(([key, value]) => {--}}
-    {{--                    const option = document.createElement('option');--}}
-    {{--                    option.value = key;--}}
-    {{--                    option.textContent = value;--}}
-    {{--                    select.appendChild(option);--}}
-    {{--                });--}}
-
-    {{--            // $('#tenant').modal('show');--}}
-    {{--        }--}}
-    {{--    })--}}
-    {{--});--}}
     $('.closebutton').on('click',function(){
         location.reload();
     });
@@ -1453,7 +1462,6 @@ setTimeout(function() {
                     // $('#tenant').modal('show');
                 }
             })
-            // If the button is clicked, open the free trial dialog
             openFreeTrialDialog();
         });
         @else

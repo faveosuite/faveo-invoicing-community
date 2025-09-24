@@ -164,9 +164,9 @@ $feeAmount = $displayProcessingFee*($processingFee/100);
                                     </thead>
 
                                     <tbody>
-                                    @forelse(Cart::getContent() as $item)
+                                    @forelse($cart->getContent() as $item)
                                      @php
-                                    $cartSubtotalWithoutCondition += $item->getPriceSum();
+                                    $cartSubtotalWithoutCondition += $cart->getPriceSum($item['id']);
                                     @endphp
 
 
@@ -176,43 +176,43 @@ $feeAmount = $displayProcessingFee*($processingFee/100);
 
                                             <div class="product-thumbnail-wrapper">
 
-                                                <a  onclick="removeItem('{{$item->id}}');" class="product-thumbnail-remove"  data-bs-toggle="tooltip" title="{{ __('message.remove_product') }}" style="top: -15px;right: 15px;">
+                                                <a  onclick="removeItem('{{$item['id']}}');" class="product-thumbnail-remove"  data-bs-toggle="tooltip" title="{{ __('message.remove_product') }}" style="top: -15px;right: 15px;">
 
                                                     <i class="fas fa-times"></i>
                                                 </a>
 
                                                 <span class="product-thumbnail-image">
 
-                                                        <img width="90" height="90" alt="" class="img-fluid" src="{{$item->associatedModel->image}}"   data-bs-toggle="tooltip" title="{{$item->name}}">
+                                                        <img width="90" height="90" alt="" class="img-fluid" src="{{$item['associatedModel']->image}}"   data-bs-toggle="tooltip" title="{{$item['name']}}">
                                                     </span>
                                             </div>
                                         </td>
 
                                         <td class="product-name">
 
-                                            <span class="font-weight-semi-bold text-color-dark" style="font-family: Arial;"> {{$item->name}}</span>
+                                            <span class="font-weight-semi-bold text-color-dark" style="font-family: Arial;"> {{$item['name']}}</span>
                                         </td>
                             
                                         <td class="product-quantity">
 
-                                            <span class="amount font-weight-medium text-color-grey">{{$item->quantity}}</span>
+                                            <span class="amount font-weight-medium text-color-grey">{{$item['quantity']}}</span>
                                         </td>
                                         <td class="product-agent">
 
-                                            <span class="amount font-weight-medium text-color-grey">{{($item->attributes->agents)?$item->attributes->agents:'Unlimited'}}
+                                            <span class="amount font-weight-medium text-color-grey">{{($item['attributes']['agents'])?$item['attributes']['agents']:'Unlimited'}}
                                             </span>
                                         </td>
 
 
                                         <td class="product-subtotal">
-                                            @if(\Session::has('togglePrice') && $item->id == \Session::get('productid'))
+                                            @if(\Session::has('togglePrice') && $item['id'] == \Session::get('productid'))
 
                                             <span class="amount text-color-dark font-weight-bold text-4" style="font-family: Arial;">
-                                                {{currencyFormat($item->quantity * \Session::get('togglePrice'),$code = $item->attributes->currency)}}
+                                                {{currencyFormat($item['quantity'] * \Session::get('togglePrice'),$code = $item['attributes']['currency'])}}
                                             </span>
                                             @else
                                             <span class="amount text-color-dark font-weight-bold text-4" style="font-family: Arial;">
-                                                {{currencyFormat($item->quantity * $item->price,$code = $item->attributes->currency)}}
+                                                {{currencyFormat($item['quantity'] * $item['price'],$code = $item['attributes']['currency'])}}
                                             </span>
                                             @endif
                                         </td>
@@ -259,7 +259,7 @@ $feeAmount = $displayProcessingFee*($processingFee/100);
                                                 if (strpos(\Session::get('codevalue'), '%') == true) {
                                                         $discountValue = \Session::get('codevalue');
                                                     } else {
-                                                        $discountValue = currencyFormat(\Session::get('codevalue'),$code = $item->attributes->currency);
+                                                        $discountValue = currencyFormat(\Session::get('codevalue'),$code = $item['attributes']['currency']);
                                                     }
                                                 ?>
 
@@ -269,14 +269,16 @@ $feeAmount = $displayProcessingFee*($processingFee/100);
                                     </tr>
                                     @endif
 
-                                                   @if(count(\Cart::getConditionsByType('tax')) == 1)
-                                                    @foreach(\Cart::getConditionsByType('tax') as $tax)
+                                                   @if($cart->getConditionsByType('tax',$item['id']) == 1)
+{{--                                                    @foreach(\Cart::getConditionsByType('tax') as $tax)--}}
 
+                                                            <?php $tax=$cart->getConditions($item['id']); ?>
 
+                                                        @if($tax['name']!= 'null')
 
-                                                     @if($tax->getName()!= 'null')
+{{--                                                     @if($tax->getName()!= 'null')--}}
                                                    <?php
-                                                        $bifurcateTax = bifurcateTax($tax->getName(), $tax->getValue(), $item->attributes->currency, \Auth::user()->state, \Cart::getSubTotalWithoutConditions());
+                                                    $bifurcateTax = bifurcateTax($tax['name'], $tax['value'], $item['attributes']['currency'], \Auth::user()->state, $cartSubtotalWithoutCondition);
                                                         $partsHtml = explode('<br>', $bifurcateTax['html']);
                                                         $taxParts = explode('<br>', $bifurcateTax['tax']);
                                                         ?>
@@ -300,13 +302,15 @@ $feeAmount = $displayProcessingFee*($processingFee/100);
                                                     </tr>
                                                   @endforeach
                                                     @endif
-                                                    @endforeach
+{{--                                                    @endforeach--}}
 
                                                     @else
-                                                    @foreach(Cart::getContent() as $tax)
-                                                    @if($tax->conditions)
+{{--                                                    @foreach(Cart::getContent() as $tax)--}}
+    <?php $tax=$cart->getConditions($item['id']) ?>
+
+                                            @if($tax['name']!= 'null')
                                                       <?php
-                                                        $bifurcateTax = bifurcateTax($tax->conditions->getName(),$tax->conditions->getValue(),$item->attributes->currency, \Auth::user()->state, $tax->price*$tax->quantity);
+                                                    $bifurcateTax = bifurcateTax($tax['name'], $tax['value'], $item['attributes']['currency'], \Auth::user()->state, $cartSubtotalWithoutCondition);
 
                                                         $partsHtml = explode('<br>', $bifurcateTax['html']);
                                                         $taxParts = explode('<br>', $bifurcateTax['tax']);
@@ -334,12 +338,12 @@ $feeAmount = $displayProcessingFee*($processingFee/100);
                                              
                                                     @endif
                                                     
-                                                    @endforeach
+{{--                                                    @endforeach--}}
                                                    @endif
 
 
-                                    @if(count(\Cart::getConditionsByType('fee')))
-                                        @foreach(\Cart::getConditionsByType('fee') as $fee)
+                                    @if($cart->getConditionsByType('fee',$item['id'])))
+                                        @foreach($cart->getConditions('fee',$item['id']) as $fee)
                                             @if($fee->getValue() !== '0%')
                                                 <tr>
                                                     <td class="border-top-0">
@@ -368,8 +372,8 @@ $feeAmount = $displayProcessingFee*($processingFee/100);
                                             ->where('payment_status','success')
                                             ->where('amt_to_credit','!=',0)
                                             ->value('amt_to_credit');
-                                        if (\Cart::getTotal() <= $amt_to_credit) {
-                                            $cartBalance = \Cart::getTotal();
+                                        if ($cart->getTotal() <= $amt_to_credit) {
+                                            $cartBalance = $cart->getTotal();
                                         } else {
                                             $cartBalance = $amt_to_credit;
                                         }
@@ -380,7 +384,7 @@ $feeAmount = $displayProcessingFee*($processingFee/100);
                                                         </strong></td>
                                    <td class="text-end align-top border-top-0">
                                                         <span class="amount font-weight-medium text-color-grey">
-                                        -{{$dd=currencyFormat($cartBalance,$code = $item->attributes->currency)}}
+                                        -{{$dd=currencyFormat($cartBalance,$code = $item['attributes']['currency'])}}
                                     </span>
                                     </td>
                                 </tr>
@@ -396,15 +400,15 @@ $feeAmount = $displayProcessingFee*($processingFee/100);
 
                                         <?php
                                         if(\App\User::where('id',\Auth::user()->id)->value('billing_pay_balance')) {
-                                            if (\Cart::getTotal() <= $amt_to_credit) {
+                                            if ($cart->getTotal() <= $amt_to_credit) {
                                                 $amount = 0;
                                             } else {
-                                                $amount = \Cart::getTotal()-$amt_to_credit;
+                                                $amount = $cart->getTotal()-$amt_to_credit;
                                             }
                                         }
                                         ?>
                                         <td class="text-end">
-                                            <strong class="text-color-dark"><span class="amount text-color-dark text-5">{{currencyFormat($amount,$code = $item->attributes->currency)}}</span></strong>
+                                            <strong class="text-color-dark"><span class="amount text-color-dark text-5">{{currencyFormat($amount,$code = $item['attributes']['currency'])}}</span></strong>
                                         </td>
                                     </tr>
                                     </tbody>

@@ -2,23 +2,46 @@
 
 namespace Tests\Unit\Client\Stripe;
 
+use App\ApiKey;
+use App\Facades\Attach;
+use App\FileSystemSettings;
 use App\Http\Controllers\RazorpayController;
+use App\Model\Common\Setting;
+use App\Model\Common\StatusSetting;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
+use App\Model\Payment\Currency;
 use App\Model\Payment\Plan;
 use App\Model\Product\Product;
 use App\Model\Product\Subscription;
 use App\Plugins\Stripe\Controllers\SettingsController;
 use App\User;
 use Cartalyst\Stripe\Laravel\Facades\Stripe;
+use Config;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Mockery;
 use Tests\DBTestCase;
 
 class SettingsControllerTest extends DBTestCase
 {
+    use DatabaseTransactions;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $this->withoutMiddleware();
+        $this->getLoggedInUser('admin');
+    }
+
+    /**
+     * Setup required seeds for every test.
+     */
+
     // Helper method to set up the mock for the Stripe client
     protected function setupStripeClientMock($expectedArguments, $status)
     {
@@ -197,5 +220,505 @@ class SettingsControllerTest extends DBTestCase
         $controller = new RazorpayController();
         $result = $controller->handleRzpAutoPay($cost, $days, $product_name, $invoice, $currency, $subscription, $user, $order, $endDate, $product);
         $this->assertEquals('created', $result['status']);
+    }
+
+    // Testcases for fetching system settings in admin panel
+    public function test_it_fetches_system_settings_successfully()
+    {
+        $response = $this->getJson('/systemSettings/list');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_it_returns_error_when_settings_not_found()
+    {
+        Setting::where('id', 1)->delete();
+
+        $response = $this->getJson('/systemSettings/list');
+
+        $response->assertStatus(400);
+    }
+
+    // Testcases for updating system settings
+    public function test_it_updates_settings_with_new_payload_data()
+    {
+        $logo = UploadedFile::fake()->image('brand-logo.png');
+        $adminLogo = UploadedFile::fake()->image('panel-logo.png');
+        $favIcon = UploadedFile::fake()->image('favicon.png');
+
+        Attach::shouldReceive('put')
+            ->andReturnUsing(fn ($path, $file) => $path.'/'.$file->hashName());
+
+        $payload = [
+            'company' => 'ABC Solutions',
+            'company_email' => 'support@abc.io',
+            'title' => 'ABC Billing',
+            'website' => 'https://abc.io/',
+            'phone' => '9388383888',
+            'phone_code' => '44',
+            'phone_country_iso' => 'GB',
+            'address' => '221B Baker Street',
+            'city' => 'London',
+            'zip' => 'NW16XE',
+            'knowledge_base_url' => 'https://docs.abc.io',
+            'language' => 'fr',
+            'country' => 'UK',
+            'cin_no' => 'CIN998877',
+            'gstin' => 'GST556677',
+            'state' => 'UK-LND',
+            'default_currency' => 'EUR',
+            'favicon_title' => 'abc Billing',
+            'favicon_title_client' => 'abc Client Portal',
+
+            // New file inputs
+            'logo' => $logo,
+            'admin-logo' => $adminLogo,
+            'fav-icon' => $favIcon,
+        ];
+
+        $response = $this->postJson('/systemSettings/update', $payload);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'message' => __('message.updated-successfully'),
+            ]);
+
+        $this->assertDatabaseHas('settings', [
+            'id' => 1,
+            'company' => 'ABC Solutions',
+            'company_email' => 'support@abc.io',
+            'title' => 'ABC Billing',
+            'website' => 'https://abc.io/',
+            'phone' => '9388383888',
+            'phone_code' => '44',
+            'phone_country_iso' => 'GB',
+            'address' => '221B Baker Street',
+            'city' => 'London',
+            'country' => 'UK',
+            'state' => 'UK-LND',
+            'default_symbol' => '€',
+            'content' => 'fr',
+        ]);
+    }
+
+    public function test_it_returns_error_when_settings_row_missing()
+    {
+        Setting::where('id', 1)->delete();
+
+        $payload = [
+            'company' => 'Test',
+            'default_currency' => 'USD',
+        ];
+
+        $response = $this->postJson('/systemSettings/update', $payload);
+
+        $response->assertStatus(422);
+    }
+
+    public function test_it_updates_settings_with_only_required_fields()
+    {
+        Currency::create([
+            'code' => 'USD',
+            'symbol' => '$',
+        ]);
+
+        $payload = [
+            'company' => 'ABC Solutions',
+            'company_email' => 'support@abc.io',
+            'website' => 'https://abc.io/',
+            'phone' => '9388383888',
+            'phone_code' => '44',
+            'phone_country_iso' => 'GB',
+            'address' => '221B Baker Street',
+            'city' => 'Banglore',
+            'zip' => '636900',
+            'language' => 'en',
+            'state' => 'IN-KA',
+            'default_currency' => 'USD',
+            'country' => 'IN',
+        ];
+
+        $response = $this->postJson('/systemSettings/update', $payload);
+        $response->assertStatus(200);
+    }
+
+    /*
+     * File Storage Test
+     */
+    public function test_show_file_storage_returns_settings_for_local_storage()
+    {
+        //Show file storage
+        $response = $this->getJson('/file-storage');
+
+        $response->assertStatus(200)
+                 ->assertJsonStructure([
+                     'success',
+                     'data' => [
+                         'disk',
+                         'local_file_storage_path',
+                     ],
+                 ]);
+    }
+
+    public function test_update_storage_path_for_system_disk()
+    {
+        // Update local file storage
+        $payload = [
+            'disk' => 'system',
+            'path' => '/new/storage/path',
+        ];
+
+        $response = $this->postJson('/file-storage-path', $payload);
+
+        $response->assertStatus(200)
+                 ->assertJsonFragment([
+                     'message' => __('message.setting_updated'),
+                 ]);
+
+        $this->assertDatabaseHas('settings_filesystem', [
+            'disk' => 'system',
+            'local_file_storage_path' => '/new/storage/path',
+        ]);
+    }
+
+    public function test_update_storage_path_for_s3_disk()
+    {
+        //Update S3 disk storage
+        $fs = FileSystemSettings::updateOrCreate([], [
+            'disk' => 'system',
+            'local_file_storage_path' => '/old/path',
+        ]);
+
+        $payload = [
+            'disk' => 's3',
+            's3_bucket' => 'dummy-bucket',
+            's3_region' => 'ap-south-1',
+            's3_access_key' => 'DUMMY_ACCESS',
+            's3_secret_key' => 'DUMMY_SECRET',
+            's3_endpoint_url' => 'https://dummy-endpoint.com',
+            's3_url' => 'https://dummy-bucket.s3.amazonaws.com',
+            's3_path_style_endpoint' => 'true',
+        ];
+
+        // MOCK TRAIT METHOD
+        $mock = \Mockery::mock(\App\Http\Controllers\Common\BaseSettingsController::class)->makePartial();
+        $mock->shouldAllowMockingProtectedMethods();
+        $mock->shouldReceive('validateS3Credentials')->andReturn(true);
+
+        // Bind so SettingsController will use this mock (it inherits the trait)
+        $this->app->bind(\App\Http\Controllers\Common\SettingsController::class, function () use ($mock) {
+            return $mock;
+        });
+
+        $response = $this->postJson('/file-storage-path', $payload);
+
+        $response->assertStatus(200)
+            ->assertJsonFragment(['message' => __('message.setting_updated')]);
+
+        $this->assertDatabaseHas('settings_filesystem', [
+            'id' => $fs->id,
+            'disk' => 's3',
+        ]);
+    }
+
+    public function test_update_storage_path_for_s3_disk_with_invalid_credentials()
+    {
+        //Update S3 disk storage with invalid credentials
+        $fs = FileSystemSettings::updateOrCreate([], [
+            'disk' => 'system',
+            'local_file_storage_path' => '/old/path',
+        ]);
+
+        $payload = [
+            'disk' => 's3',
+            's3_bucket' => 'dummy-bucket',
+            's3_region' => 'ap-south-1',
+            's3_access_key' => 'DUMMY_ACCESS',
+            's3_secret_key' => 'DUMMY_SECRET',
+            's3_endpoint_url' => 'https://dummy-endpoint.com',
+            's3_url' => 'https://dummy-bucket.s3.amazonaws.com',
+            's3_path_style_endpoint' => 'true',
+        ];
+
+        $response = $this->postJson('/file-storage-path', $payload);
+
+        $response->assertStatus(400)
+            ->assertJsonFragment([
+                'success' => false,
+                'message' => __('message.s3_error'),
+            ]);
+    }
+
+    public function test_show_file_storage_returns_settings_for_s3_disk()
+    {
+        //Show file storage for s3 disk
+        $response = $this->getJson('/file-storage');
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'success',
+                'data' => [
+                    'disk',
+                    'local_file_storage_path',
+                    's3_bucket',
+                    's3_region',
+                    's3_access_key',
+                    's3_secret_key',
+                    's3_endpoint_url',
+                    's3_url',
+                    's3_path_style_endpoint',
+                ],
+            ]);
+    }
+
+    /*
+     * Debug Option Test Case
+    */
+    public function test_returns_current_debug_status()
+    {
+        // Get Debug enable option
+        Config::set('app.debug', true);
+
+        $response = $this->getJson('/debugg');
+
+        $response->assertStatus(200)
+                 ->assertJsonFragment([
+                     'debug' => true,
+                 ]);
+    }
+
+    public function test_returns_debug_false_when_disabled()
+    {
+        // Get Debug disable option
+
+        Config::set('app.debug', false);
+
+        $response = $this->getJson('/debugg');
+
+        $response->assertStatus(200)
+            ->assertJsonFragment([
+                'debug' => false,
+            ]);
+    }
+
+    public function test_updates_debug_status_to_true()
+    {
+        //Update debug to enable
+        Config::set('app.debug', false);
+
+        $response = $this->postJson('/save/debugg', [
+            'debug' => 'true',
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJsonFragment([
+                'message' => __('message.updated-successfully'),
+            ]);
+
+        // The config won't change — validate ENV(testing) instead
+        $env = file_get_contents(base_path('.env.testing'));
+
+        $this->assertStringContainsString('APP_DEBUG=true', $env);
+        $this->assertStringContainsString('PULSE_ENABLED=true', $env);
+        $this->assertStringContainsString('CLOCKWORK_ENABLE=true', $env);
+    }
+
+    public function test_updates_debug_status_to_false()
+    {
+        //Update debug to disable
+        Config::set('app.debug', true);
+
+        $response = $this->postJson('/save/debugg', [
+            'debug' => 'false',
+        ]);
+
+        $response->assertStatus(200)
+                 ->assertJsonFragment([
+                     'message' => __('message.updated-successfully'),
+                 ]);
+
+        // The config won't change — validate ENV(testing) instead
+        $env = file_get_contents(base_path('.env.testing'));
+
+        $this->assertStringContainsString('APP_DEBUG=false', $env);
+        $this->assertStringContainsString('PULSE_ENABLED=false', $env);
+        $this->assertStringContainsString('CLOCKWORK_ENABLE=false', $env);
+    }
+
+    /*
+     * Contact Option Test Cases
+    */
+    public function test_api_structure_contact_option()
+    {
+        $response = $this->getJson('/contact-option');
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'success',
+            'message',
+            'data' => [
+                'mailSendingStatus',
+                'emailStatus',
+                'mobileStatus',
+                'preferred_verification',
+            ],
+        ]);
+
+        $response->assertJson([
+            'success' => true,
+            'message' => __('message.contact_options_retrieved'),
+        ]);
+    }
+
+    public function test_returns_contact_option_settings()
+    {
+        //To test without updating the contact options
+        Setting::factory()->create(['sending_status' => 1]);
+
+        $response = $this->getJson('/contact-option');
+
+        $response->assertStatus(200)
+             ->assertJsonFragment([
+                 'mailSendingStatus' => 0,
+                 'emailStatus' => 0,
+                 'mobileStatus' => 0,
+                 'preferred_verification' => 'email',
+             ]);
+    }
+
+    public function test_updates_contact_option_for_mobile_only()
+    {
+        //To test updating contact options for mobile only
+        $payload = [
+            'email_enabled' => 0,
+            'mobile_enabled' => 1,
+            'preferred_verification' => 'mobile',
+        ];
+
+        $response = $this->postJson('/verificationSettings', $payload);
+
+        $response->assertStatus(200)
+            ->assertJsonFragment([
+                'message' => __('message.contact_setting_update'),
+            ]);
+
+        $this->assertDatabaseHas('status_settings', [
+            'emailverification_status' => 0,
+            'msg91_status' => 1,
+        ]);
+
+        $this->assertDatabaseHas('api_keys', [
+            'verification_preference' => 'mobile',
+        ]);
+    }
+
+    public function test_updates_contact_option_for_email_only()
+    {
+        // To test updating contact options for email only
+        $payload = [
+            'email_enabled' => 1,
+            'mobile_enabled' => 0,
+            'preferred_verification' => 'email',
+        ];
+
+        $response = $this->postJson('/verificationSettings', $payload);
+
+        $response->assertStatus(200)
+            ->assertJsonFragment([
+                'message' => __('message.contact_setting_update'),
+            ]);
+
+        $this->assertDatabaseHas('status_settings', [
+            'emailverification_status' => 1,
+            'msg91_status' => 0,
+        ]);
+
+        $this->assertDatabaseHas('api_keys', [
+            'verification_preference' => 'email',
+        ]);
+    }
+
+    public function test_updates_contact_option_both_first_preference_email()
+    {
+        // To test updating contact options for both with email as first preference
+        $payload = [
+            'email_enabled' => 1,
+            'mobile_enabled' => 1,
+            'preferred_verification' => 'email',
+        ];
+
+        $response = $this->postJson('/verificationSettings', $payload);
+
+        $response->assertStatus(200)
+            ->assertJsonFragment([
+                'message' => __('message.contact_setting_update'),
+            ]);
+
+        $this->assertDatabaseHas('status_settings', [
+            'emailverification_status' => 1,
+            'msg91_status' => 1,
+        ]);
+
+        $this->assertDatabaseHas('api_keys', [
+            'verification_preference' => 'email',
+        ]);
+    }
+
+    public function test_updates_contact_option_both_first_preference_mobile()
+    {
+        // To test updating contact options for both with mobile as first preference
+        $payload = [
+            'email_enabled' => 1,
+            'mobile_enabled' => 1,
+            'preferred_verification' => 'mobile',
+        ];
+
+        $response = $this->postJson('/verificationSettings', $payload);
+
+        $response->assertStatus(200)
+            ->assertJsonFragment([
+                'message' => __('message.contact_setting_update'),
+            ]);
+
+        $this->assertDatabaseHas('status_settings', [
+            'emailverification_status' => 1,
+            'msg91_status' => 1,
+        ]);
+
+        $this->assertDatabaseHas('api_keys', [
+            'verification_preference' => 'mobile',
+        ]);
+    }
+
+    public function test_allows_null_preferred_verification()
+    {
+        // To test updating contact options with null preferred verification
+        StatusSetting::create([
+            'emailverification_status' => 0,
+            'msg91_status' => 0,
+        ]);
+        ApiKey::create(['verification_preference' => 'email']);
+
+        $payload = [
+            'email_enabled' => 0,
+            'mobile_enabled' => 1,
+            'preferred_verification' => null,
+        ];
+
+        $response = $this->postJson('/verificationSettings', $payload);
+
+        $response->assertStatus(200)
+            ->assertJsonFragment([
+                'message' => __('message.contact_setting_update'),
+            ]);
+
+        $this->assertDatabaseHas('status_settings', [
+            'emailverification_status' => 0,
+            'msg91_status' => 1,
+        ]);
+
+        $this->assertDatabaseHas('api_keys', [
+            'verification_preference' => null,
+        ]);
     }
 }

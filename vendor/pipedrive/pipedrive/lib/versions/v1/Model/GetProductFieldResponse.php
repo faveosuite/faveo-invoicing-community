@@ -67,7 +67,7 @@ class GetProductFieldResponse implements ModelInterface, ArrayAccess, JsonSerial
       */
     protected static array $openAPITypes = [
         'success' => 'bool',
-        'data' => 'ProductField'
+        'data' => '\Pipedrive\versions\v1\Model\ProductField'
     ];
 
     /**

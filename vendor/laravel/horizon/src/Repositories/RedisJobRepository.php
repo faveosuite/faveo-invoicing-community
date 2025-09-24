@@ -12,6 +12,8 @@ use Laravel\Horizon\LuaScripts;
 
 class RedisJobRepository implements JobRepository
 {
+    use UsesClusterAwarePipeline;
+
     /**
      * The Redis connection instance.
      *
@@ -27,7 +29,7 @@ class RedisJobRepository implements JobRepository
     public $keys = [
         'id', 'connection', 'queue', 'name', 'status', 'payload',
         'exception', 'context', 'failed_at', 'completed_at', 'retried_by',
-        'reserved_at',
+        'reserved_at', 'delay',
     ];
 
     /**
@@ -292,7 +294,7 @@ class RedisJobRepository implements JobRepository
      */
     public function getJobs(array $ids, $indexFrom = 0)
     {
-        $jobs = $this->connection()->pipeline(function ($pipe) use ($ids) {
+        $jobs = $this->pipeline(function ($pipe) use ($ids) {
             foreach ($ids as $id) {
                 $pipe->hmget($id, $this->keys);
             }
@@ -335,7 +337,7 @@ class RedisJobRepository implements JobRepository
      */
     public function pushed($connection, $queue, JobPayload $payload)
     {
-        $this->connection()->pipeline(function ($pipe) use ($connection, $queue, $payload) {
+        $this->pipeline(function ($pipe) use ($connection, $queue, $payload) {
             $this->storeJobReference($pipe, 'recent_jobs', $payload);
             $this->storeJobReference($pipe, 'pending_jobs', $payload);
 
@@ -386,15 +388,17 @@ class RedisJobRepository implements JobRepository
      * @param  string  $connection
      * @param  string  $queue
      * @param  \Laravel\Horizon\JobPayload  $payload
+     * @param  int  $delay
      * @return void
      */
-    public function released($connection, $queue, JobPayload $payload)
+    public function released($connection, $queue, JobPayload $payload, $delay = 0)
     {
         $this->connection()->hmset(
             $payload->id(), [
                 'status' => 'pending',
                 'payload' => $payload->value,
                 'updated_at' => str_replace(',', '.', microtime(true)),
+                'delay' => $delay,
             ]
         );
     }
@@ -409,7 +413,7 @@ class RedisJobRepository implements JobRepository
      */
     public function remember($connection, $queue, JobPayload $payload)
     {
-        $this->connection()->pipeline(function ($pipe) use ($connection, $queue, $payload) {
+        $this->pipeline(function ($pipe) use ($connection, $queue, $payload) {
             $this->storeJobReference($pipe, 'monitored_jobs', $payload);
 
             $pipe->hmset(
@@ -440,13 +444,14 @@ class RedisJobRepository implements JobRepository
      */
     public function migrated($connection, $queue, Collection $payloads)
     {
-        $this->connection()->pipeline(function ($pipe) use ($payloads) {
+        $this->pipeline(function ($pipe) use ($payloads) {
             foreach ($payloads as $payload) {
                 $pipe->hmset(
                     $payload->id(), [
                         'status' => 'pending',
                         'payload' => $payload->value,
                         'updated_at' => str_replace(',', '.', microtime(true)),
+                        'delay' => 0,
                     ]
                 );
             }
@@ -467,7 +472,7 @@ class RedisJobRepository implements JobRepository
             $this->updateRetryInformationOnParent($payload, $failed);
         }
 
-        $this->connection()->pipeline(function ($pipe) use ($payload, $silenced) {
+        $this->pipeline(function ($pipe) use ($payload, $silenced) {
             $this->storeJobReference($pipe, $silenced ? 'silenced_jobs' : 'completed_jobs', $payload);
             $this->removeJobReference($pipe, 'pending_jobs', $payload);
 
@@ -529,7 +534,7 @@ class RedisJobRepository implements JobRepository
      */
     public function deleteMonitored(array $ids)
     {
-        $this->connection()->pipeline(function ($pipe) use ($ids) {
+        $this->pipeline(function ($pipe) use ($ids) {
             foreach ($ids as $id) {
                 $pipe->expireat($id, CarbonImmutable::now()->addDays(7)->getTimestamp());
             }
@@ -543,7 +548,7 @@ class RedisJobRepository implements JobRepository
      */
     public function trimRecentJobs()
     {
-        $this->connection()->pipeline(function ($pipe) {
+        $this->pipeline(function ($pipe) {
             $pipe->zremrangebyscore(
                 'recent_jobs',
                 CarbonImmutable::now()->subMinutes($this->recentJobExpires)->getTimestamp() * -1,
@@ -632,7 +637,7 @@ class RedisJobRepository implements JobRepository
      */
     public function failed($exception, $connection, $queue, JobPayload $payload)
     {
-        $this->connection()->pipeline(function ($pipe) use ($exception, $connection, $queue, $payload) {
+        $this->pipeline(function ($pipe) use ($exception, $connection, $queue, $payload) {
             $this->storeJobReference($pipe, 'failed_jobs', $payload);
             $this->storeJobReference($pipe, 'recent_failed_jobs', $payload);
             $this->removeJobReference($pipe, 'pending_jobs', $payload);

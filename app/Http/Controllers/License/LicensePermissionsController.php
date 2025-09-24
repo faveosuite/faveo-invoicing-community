@@ -25,88 +25,48 @@ class LicensePermissionsController extends Controller
         $this->licensePermission = $licensePermission;
     }
 
-    public function index()
-    {
-        $allPermissions = $this->licensePermission->select('id', 'permissions')->get();
-        $allLicense = LicenseType::select('name', 'id')->get();
-
-        return view('themes.default1.licence.permissions.index', compact('allPermissions', 'allLicense'));
-    }
-
     /*
     * Get all the License  and their links with their permissions
     */
     public function getPermissions(Request $request)
     {
         try {
-            $allPermissions = $this->licensePermission->select('id', 'permissions')->get();
-            // $licenseType = LicenseType::select('id', 'name');
+            $searchString = $request->input('search-query', '');
+            $sortOrder = $request->input('sort-order', 'asc');
+            $sortField = $request->input('sort-field', 'name');
+            $limit = $request->input('limit', 10);
 
-            $licenseType = LicenseType::leftJoin('license_license_permissions', 'license_license_permissions.license_type_id', '=', 'license_types.id')
-              ->leftJoin('license_permissions', 'license_permissions.id', '=', 'license_license_permissions.license_permission_id')
-              ->select('license_types.id', 'license_types.name', 'license_permissions.permissions', 'license_license_permissions.license_permission_id')->groupBy('license_types.id');
-            //   dd($licenseType->first());
+            $allPermissions = LicensePermission::select('id', 'permissions')->get();
 
-            return \DataTables::of($licenseType)
-            ->orderColumn('license_type', '-license_types.id $1')
-            ->orderColumn('permissions', '-license_types.id $1')
-            ->addColumn('checkbox', function ($model) {
-                return "<input type='checkbox' class='type_checkbox' 
-            value=".$model->id.' name=select[] id=check>';
-            })
-
-            ->addColumn('license_type', function ($model) {
-                return ucfirst($model->name);
-            })
-            ->addColumn('permissions', function ($model) {
-                $permissions = $model->permissions()->pluck('permissions');
-                $allPermissions = $this->showPermissions($permissions);
-
-                return $allPermissions;
-            })
-            ->addColumn('action', function ($model) {
-                $selectedPermission = $model->license_permission_id;
-
-                return "<p><button data-toggle='modal' 
-             data-id=".$model->id." data-permission= '$selectedPermission' 
-             class='btn btn-sm btn-secondary get-license-type addPermission'><i class='fa fa-plus'
-             style='color:white;'> </i>&nbsp;&nbsp;".__('message.add-permissions').'</button>&nbsp;</p>';
-            })
-              ->filterColumn('license_type', function ($query, $keyword) {
-                  $sql = 'name like ?';
-                  $query->whereRaw($sql, ["%{$keyword}%"]);
-              })
-                ->filterColumn('permissions', function ($query, $keyword) {
-                    $sql = 'license_permissions.permissions like ?';
-                    $query->whereRaw($sql, ["%{$keyword}%"]);
+            $licenseTypes = LicenseType::with('permissions:id,permissions')
+                ->when($searchString, function ($query) use ($searchString) {
+                    $query->where('name', 'like', "%$searchString%");
                 })
+                ->orderBy($sortField, $sortOrder)
+                ->simplePaginate($limit);
 
-            ->rawColumns(['checkbox', 'type_name', 'permissions', 'action'])
+            $data = $licenseTypes->getCollection()->map(function ($license) use ($allPermissions) {
+                return [
+                    'id' => $license->id,
+                    'name' => $license->name,
+                    'permissions' => $license->permissions->pluck('permissions'),
+                    'all_permissions' => $allPermissions->map(function ($perm) use ($license) {
+                        return [
+                            'id' => $perm->id,
+                            'permissions' => $perm->permissions,
+                            'assigned' => $license->permissions->contains('id', $perm->id),
+                        ];
+                    }),
+                ];
+            });
 
-            ->make(true);
+            $licenseTypes->setCollection($data);
+
+            return successResponse(__('message.license_types_permissions_fetched'), [
+                'license_types' => $licenseTypes,
+            ]);
         } catch (\Exception $ex) {
-            \Logger::exception($ex);
-
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    /*
-    Show All Permission in Datatable
-    */
-    public function showPermissions($permissions)
-    {
-        if (count($permissions) > 0) {
-            $html = '<ul>';
-            foreach ($permissions as $permission) {
-                $html .= '<li><b>'.$permission.'</b></li>';
-            }
-
-            return $html.'</ul>';
-        } else {
-            $html = 'No Permissions Selected';
-
-            return $html;
+            return errorResponse(__('message.something_went_wrong_try_again'));
         }
     }
 
@@ -118,33 +78,55 @@ class LicensePermissionsController extends Controller
         try {
             $licenseType = LicenseType::find($request->input('licenseId'));
 
+            if (! $licenseType) {
+                return errorResponse(__('message.no_record_found'), 404);
+            }
+
             $licenseType->permissions()->sync($request->input('permissionid'));
 
             return successResponse(__('message.permissions_updated_successfully'));
         } catch (\Exception $ex) {
             \Logger::exception($ex);
-            $result = [$ex->getMessage()];
 
-            return response()->json(compact('result'), 500);
+            return errorResponse($ex->getMessage());
         }
     }
+
+    /*
+    Show All Permission in Datatable
+    */
+//    public function showPermissions($permissions)
+//    {
+//        if (count($permissions) > 0) {
+//            $html = '<ul>';
+//            foreach ($permissions as $permission) {
+//                $html .= '<li><b>'.$permission.'</b></li>';
+//            }
+//
+//            return $html.'</ul>';
+//        } else {
+//            $html = 'No Permissions Selected';
+//
+//            return $html;
+//        }
+//    }
 
     /*
      For Ticking permission for a License Type
     */
 
-    public function tickPermission(Request $request)
-    {
-        $licenseTypeInstance = LicenseType::find($request->input('license'));
-        $allPermission = $licenseTypeInstance->permissions;
-        if (count($allPermission) > 0) {
-            $permissionsArray = $allPermission->pluck('id');
-        } else {
-            $permissionsArray = [];
-        }
-
-        return response()->json(['permissions' => $permissionsArray, 'message' => 'success']);
-    }
+//    public function tickPermission(Request $request)
+//    {
+//        $licenseTypeInstance = LicenseType::find($request->input('license'));
+//        $allPermission = $licenseTypeInstance->permissions;
+//        if (count($allPermission) > 0) {
+//            $permissionsArray = $allPermission->pluck('id');
+//        } else {
+//            $permissionsArray = [];
+//        }
+//
+//        return response()->json(['permissions' => $permissionsArray, 'message' => 'success']);
+//    }
 
     /**
      * Get All the Permissions Allowed for a Product.
@@ -183,8 +165,7 @@ class LicensePermissionsController extends Controller
             return $result;
         } catch (\Exception $ex) {
             \Logger::exception($ex);
-
-            return redirect()->back()->with('fails', $ex->getMessage());
+            throw new \Exception($ex->getMessage());
         }
     }
 }

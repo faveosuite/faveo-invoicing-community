@@ -127,15 +127,16 @@ class FiltersApi
      *
      * Add a new filter
      *
+     * @param  bool|null $include_field_code If set to &#x60;true&#x60;, each condition in the response includes a &#x60;field_code&#x60; field identifying the field by its code name (optional)
      * @param  \Pipedrive\versions\v1\Model\AddFilterRequest|null $add_filter_request add_filter_request (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return \Pipedrive\versions\v1\Model\FiltersPostResponse
      */
-    public function addFilter($add_filter_request = null)
+    public function addFilter($include_field_code = null, $add_filter_request = null)
     {
-        list($response) = $this->addFilterWithHttpInfo($add_filter_request);
+        list($response) = $this->addFilterWithHttpInfo($include_field_code, $add_filter_request);
         return $response;
     }
 
@@ -144,15 +145,16 @@ class FiltersApi
      *
      * Add a new filter
      *
+     * @param  bool|null $include_field_code If set to &#x60;true&#x60;, each condition in the response includes a &#x60;field_code&#x60; field identifying the field by its code name (optional)
      * @param  \Pipedrive\versions\v1\Model\AddFilterRequest|null $add_filter_request (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return array<mixed> of \Pipedrive\versions\v1\Model\FiltersPostResponse, HTTP status code, HTTP response headers (array of strings)
      */
-    public function addFilterWithHttpInfo($add_filter_request = null)
+    public function addFilterWithHttpInfo($include_field_code = null, $add_filter_request = null)
     {
-        $request = $this->addFilterRequest($add_filter_request);
+        $request = $this->addFilterRequest($include_field_code, $add_filter_request);
 
         try {
             $options = $this->createHttpClientOption();
@@ -161,7 +163,7 @@ class FiltersApi
             } catch (RequestException $e) {
                 if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
                     $this->config->refreshToken();
-                    $request = $this->addFilterRequest($add_filter_request);
+                    $request = $this->addFilterRequest($include_field_code, $add_filter_request);
                     $response = $this->client->send($request, $options);
                 } else {
                     throw new ApiException(
@@ -245,14 +247,15 @@ class FiltersApi
      *
      * Add a new filter
      *
+     * @param  bool|null $include_field_code If set to &#x60;true&#x60;, each condition in the response includes a &#x60;field_code&#x60; field identifying the field by its code name (optional)
      * @param  \Pipedrive\versions\v1\Model\AddFilterRequest|null $add_filter_request (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function addFilterAsync($add_filter_request = null): PromiseInterface
+    public function addFilterAsync($include_field_code = null, $add_filter_request = null): PromiseInterface
     {
-        return $this->addFilterAsyncWithHttpInfo($add_filter_request)
+        return $this->addFilterAsyncWithHttpInfo($include_field_code, $add_filter_request)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -265,15 +268,16 @@ class FiltersApi
      *
      * Add a new filter
      *
+     * @param  bool|null $include_field_code If set to &#x60;true&#x60;, each condition in the response includes a &#x60;field_code&#x60; field identifying the field by its code name (optional)
      * @param  \Pipedrive\versions\v1\Model\AddFilterRequest|null $add_filter_request (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function addFilterAsyncWithHttpInfo($add_filter_request = null): PromiseInterface
+    public function addFilterAsyncWithHttpInfo($include_field_code = null, $add_filter_request = null): PromiseInterface
     {
         $returnType = '\Pipedrive\versions\v1\Model\FiltersPostResponse';
-        $request = $this->addFilterRequest($add_filter_request);
+        $request = $this->addFilterRequest($include_field_code, $add_filter_request);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -312,12 +316,13 @@ class FiltersApi
     /**
      * Create request for operation 'addFilter'
      *
+     * @param  bool|null $include_field_code If set to &#x60;true&#x60;, each condition in the response includes a &#x60;field_code&#x60; field identifying the field by its code name (optional)
      * @param  \Pipedrive\versions\v1\Model\AddFilterRequest|null $add_filter_request (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
      */
-    public function addFilterRequest($add_filter_request = null): Request
+    public function addFilterRequest($include_field_code = null, $add_filter_request = null): Request
     {
 
         $resourcePath = '/filters';
@@ -327,6 +332,14 @@ class FiltersApi
         $httpBody = '';
         $multipart = false;
 
+        // query params
+        /* @phpstan-ignore-next-line */
+        if (is_array($include_field_code)) {
+            $include_field_code = ObjectSerializer::serializeCollection($include_field_code, '', true);
+        }
+        if ($include_field_code !== null) {
+            $queryParams['include_field_code'] = $include_field_code;
+        }
 
 
 
@@ -1007,14 +1020,15 @@ class FiltersApi
      * Get one filter
      *
      * @param  int $id The ID of the filter (required)
+     * @param  bool|null $include_field_code If set to &#x60;true&#x60;, each condition in the response includes a &#x60;field_code&#x60; field identifying the field by its code name (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return \Pipedrive\versions\v1\Model\FiltersGetResponse
      */
-    public function getFilter($id)
+    public function getFilter($id, $include_field_code = null)
     {
-        list($response) = $this->getFilterWithHttpInfo($id);
+        list($response) = $this->getFilterWithHttpInfo($id, $include_field_code);
         return $response;
     }
 
@@ -1024,14 +1038,15 @@ class FiltersApi
      * Get one filter
      *
      * @param  int $id The ID of the filter (required)
+     * @param  bool|null $include_field_code If set to &#x60;true&#x60;, each condition in the response includes a &#x60;field_code&#x60; field identifying the field by its code name (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return array<mixed> of \Pipedrive\versions\v1\Model\FiltersGetResponse, HTTP status code, HTTP response headers (array of strings)
      */
-    public function getFilterWithHttpInfo($id)
+    public function getFilterWithHttpInfo($id, $include_field_code = null)
     {
-        $request = $this->getFilterRequest($id);
+        $request = $this->getFilterRequest($id, $include_field_code);
 
         try {
             $options = $this->createHttpClientOption();
@@ -1040,7 +1055,7 @@ class FiltersApi
             } catch (RequestException $e) {
                 if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
                     $this->config->refreshToken();
-                    $request = $this->getFilterRequest($id);
+                    $request = $this->getFilterRequest($id, $include_field_code);
                     $response = $this->client->send($request, $options);
                 } else {
                     throw new ApiException(
@@ -1125,13 +1140,14 @@ class FiltersApi
      * Get one filter
      *
      * @param  int $id The ID of the filter (required)
+     * @param  bool|null $include_field_code If set to &#x60;true&#x60;, each condition in the response includes a &#x60;field_code&#x60; field identifying the field by its code name (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function getFilterAsync($id): PromiseInterface
+    public function getFilterAsync($id, $include_field_code = null): PromiseInterface
     {
-        return $this->getFilterAsyncWithHttpInfo($id)
+        return $this->getFilterAsyncWithHttpInfo($id, $include_field_code)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -1145,14 +1161,15 @@ class FiltersApi
      * Get one filter
      *
      * @param  int $id The ID of the filter (required)
+     * @param  bool|null $include_field_code If set to &#x60;true&#x60;, each condition in the response includes a &#x60;field_code&#x60; field identifying the field by its code name (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function getFilterAsyncWithHttpInfo($id): PromiseInterface
+    public function getFilterAsyncWithHttpInfo($id, $include_field_code = null): PromiseInterface
     {
         $returnType = '\Pipedrive\versions\v1\Model\FiltersGetResponse';
-        $request = $this->getFilterRequest($id);
+        $request = $this->getFilterRequest($id, $include_field_code);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -1192,11 +1209,12 @@ class FiltersApi
      * Create request for operation 'getFilter'
      *
      * @param  int $id The ID of the filter (required)
+     * @param  bool|null $include_field_code If set to &#x60;true&#x60;, each condition in the response includes a &#x60;field_code&#x60; field identifying the field by its code name (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
      */
-    public function getFilterRequest($id): Request
+    public function getFilterRequest($id, $include_field_code = null): Request
     {
         // verify the required parameter 'id' is set
         /* @phpstan-ignore-next-line */
@@ -1213,6 +1231,14 @@ class FiltersApi
         $httpBody = '';
         $multipart = false;
 
+        // query params
+        /* @phpstan-ignore-next-line */
+        if (is_array($include_field_code)) {
+            $include_field_code = ObjectSerializer::serializeCollection($include_field_code, '', true);
+        }
+        if ($include_field_code !== null) {
+            $queryParams['include_field_code'] = $include_field_code;
+        }
 
 
         // path params
@@ -1868,15 +1894,16 @@ class FiltersApi
      * Update filter
      *
      * @param  int $id The ID of the filter (required)
+     * @param  bool|null $include_field_code If set to &#x60;true&#x60;, each condition in the response includes a &#x60;field_code&#x60; field identifying the field by its code name (optional)
      * @param  \Pipedrive\versions\v1\Model\UpdateFilterRequest|null $update_filter_request update_filter_request (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return \Pipedrive\versions\v1\Model\FiltersPostResponse
      */
-    public function updateFilter($id, $update_filter_request = null)
+    public function updateFilter($id, $include_field_code = null, $update_filter_request = null)
     {
-        list($response) = $this->updateFilterWithHttpInfo($id, $update_filter_request);
+        list($response) = $this->updateFilterWithHttpInfo($id, $include_field_code, $update_filter_request);
         return $response;
     }
 
@@ -1886,15 +1913,16 @@ class FiltersApi
      * Update filter
      *
      * @param  int $id The ID of the filter (required)
+     * @param  bool|null $include_field_code If set to &#x60;true&#x60;, each condition in the response includes a &#x60;field_code&#x60; field identifying the field by its code name (optional)
      * @param  \Pipedrive\versions\v1\Model\UpdateFilterRequest|null $update_filter_request (optional)
      *
      * @throws ApiException on non-2xx response
      * @throws InvalidArgumentException|GuzzleException
      * @return array<mixed> of \Pipedrive\versions\v1\Model\FiltersPostResponse, HTTP status code, HTTP response headers (array of strings)
      */
-    public function updateFilterWithHttpInfo($id, $update_filter_request = null)
+    public function updateFilterWithHttpInfo($id, $include_field_code = null, $update_filter_request = null)
     {
-        $request = $this->updateFilterRequest($id, $update_filter_request);
+        $request = $this->updateFilterRequest($id, $include_field_code, $update_filter_request);
 
         try {
             $options = $this->createHttpClientOption();
@@ -1903,7 +1931,7 @@ class FiltersApi
             } catch (RequestException $e) {
                 if ($e->getCode() === 401 && $this->config->isRefreshPossible()) {
                     $this->config->refreshToken();
-                    $request = $this->updateFilterRequest($id, $update_filter_request);
+                    $request = $this->updateFilterRequest($id, $include_field_code, $update_filter_request);
                     $response = $this->client->send($request, $options);
                 } else {
                     throw new ApiException(
@@ -1988,14 +2016,15 @@ class FiltersApi
      * Update filter
      *
      * @param  int $id The ID of the filter (required)
+     * @param  bool|null $include_field_code If set to &#x60;true&#x60;, each condition in the response includes a &#x60;field_code&#x60; field identifying the field by its code name (optional)
      * @param  \Pipedrive\versions\v1\Model\UpdateFilterRequest|null $update_filter_request (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function updateFilterAsync($id, $update_filter_request = null): PromiseInterface
+    public function updateFilterAsync($id, $include_field_code = null, $update_filter_request = null): PromiseInterface
     {
-        return $this->updateFilterAsyncWithHttpInfo($id, $update_filter_request)
+        return $this->updateFilterAsyncWithHttpInfo($id, $include_field_code, $update_filter_request)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -2009,15 +2038,16 @@ class FiltersApi
      * Update filter
      *
      * @param  int $id The ID of the filter (required)
+     * @param  bool|null $include_field_code If set to &#x60;true&#x60;, each condition in the response includes a &#x60;field_code&#x60; field identifying the field by its code name (optional)
      * @param  \Pipedrive\versions\v1\Model\UpdateFilterRequest|null $update_filter_request (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return PromiseInterface
      */
-    public function updateFilterAsyncWithHttpInfo($id, $update_filter_request = null): PromiseInterface
+    public function updateFilterAsyncWithHttpInfo($id, $include_field_code = null, $update_filter_request = null): PromiseInterface
     {
         $returnType = '\Pipedrive\versions\v1\Model\FiltersPostResponse';
-        $request = $this->updateFilterRequest($id, $update_filter_request);
+        $request = $this->updateFilterRequest($id, $include_field_code, $update_filter_request);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -2057,12 +2087,13 @@ class FiltersApi
      * Create request for operation 'updateFilter'
      *
      * @param  int $id The ID of the filter (required)
+     * @param  bool|null $include_field_code If set to &#x60;true&#x60;, each condition in the response includes a &#x60;field_code&#x60; field identifying the field by its code name (optional)
      * @param  \Pipedrive\versions\v1\Model\UpdateFilterRequest|null $update_filter_request (optional)
      *
      * @throws InvalidArgumentException|OAuthProviderException
      * @return Request
      */
-    public function updateFilterRequest($id, $update_filter_request = null): Request
+    public function updateFilterRequest($id, $include_field_code = null, $update_filter_request = null): Request
     {
         // verify the required parameter 'id' is set
         /* @phpstan-ignore-next-line */
@@ -2079,6 +2110,14 @@ class FiltersApi
         $httpBody = '';
         $multipart = false;
 
+        // query params
+        /* @phpstan-ignore-next-line */
+        if (is_array($include_field_code)) {
+            $include_field_code = ObjectSerializer::serializeCollection($include_field_code, '', true);
+        }
+        if ($include_field_code !== null) {
+            $queryParams['include_field_code'] = $include_field_code;
+        }
 
 
         // path params

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Model\Common\Country;
 use Illuminate\Http\Request;
-use Yajra\DataTables\DataTables;
 
 class WelcomeController extends Controller
 {
@@ -26,7 +25,7 @@ class WelcomeController extends Controller
             $code = $model->phonecode;
         }
 
-        return $code;
+        return successResponse('code', ['code' => $code]);
     }
 
     public function getCurrency()
@@ -37,33 +36,40 @@ class WelcomeController extends Controller
             $currency = 'USD';
         }
 
-        return $currency;
+        return successResponse('currency', ['Currency' => $currency]);
     }
 
-    public function getCountry()
+    /**
+     * Get country list with user count.
+     */
+    public function getCountry(Request $request)
     {
-        return view('themes.default1.common.country-count');
-    }
+        try {
+            $searchQuery = $request->input('search-query', '');
+            $sortOrder = $request->input('sort-order', 'asc');
+            $sortField = $request->input('sort-field', 'country_name');
+            $limit = $request->input('limit', 10);
 
-    public function countryCount()
-    {
-        $users = Country::query()
-            ->select('country_name', 'country_code_char2 as code')
-            ->withCount('users');
+            $countryList = Country::withCount('users')
+                ->where('country_name', '!=', '')
+                ->when($searchQuery, function ($query, $searchQuery) {
+                    $query->where('country_name', 'like', "%{$searchQuery}%");
+                })
+                ->orderBy($sortField, $sortOrder)
+                ->simplePaginate($limit);
 
-        return DataTables::of($users)
-            ->addColumn('country', function ($model) {
-                return ucfirst($model->country_name);
-            })
-            ->addColumn('count', function ($model) {
-                return '<a href="'.url('clients?country='.$model->code).'">'
-                    .$model->users_count.'</a>';
-            })
-            ->orderColumn('count', 'users_count $1')
-            ->filterColumn('country', function ($query, $keyword) {
-                $query->where('country_name', 'like', "%{$keyword}%");
-            })
-            ->rawColumns(['count'])
-            ->make(true);
+            $countryList->getCollection()->transform(function ($country) {
+                return [
+                    'id' => $country->country_id,
+                    'country' => ucfirst($country->country_name ?? ''),
+                    'code' => $country->country_code_char2 ?? '',
+                    'count' => $country->users_count ?? 0,
+                ];
+            });
+
+            return successResponse('', $countryList);
+        } catch (\Exception $e) {
+            return errorResponse(__('message.something_went_wrong'), 500);
+        }
     }
 }

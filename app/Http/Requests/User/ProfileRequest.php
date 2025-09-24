@@ -3,6 +3,7 @@
 namespace App\Http\Requests\User;
 
 use App\Http\Requests\Request;
+use App\Rules\PhoneNumber;
 use App\Rules\StrongPassword;
 
 class ProfileRequest extends Request
@@ -31,8 +32,8 @@ class ProfileRequest extends Request
                 'first_name' => 'required',
                 'last_name' => 'required',
                 'company' => 'required|max:50',
-                'email' => 'required|unique:settings,email|unique:settings,company_email',
-                'mobile' => 'required',
+                'email' => 'required',
+                'mobile' => ['required', new PhoneNumber($this->mobile_country_iso)],
                 'address' => 'required',
                 'user_name' => 'required|unique:users,user_name,'.$userid.'|unique:settings,email|unique:settings,company_email',
                 'timezone_id' => 'required',
@@ -47,8 +48,8 @@ class ProfileRequest extends Request
             return [
                 'first_name' => 'required|min:3|max:30',
                 'last_name' => 'required|max:30',
-                'mobile' => 'required|regex:/[0-9]/|min:5|max:20',
-                'email' => 'required|email|unique:users,email,'.$userid.'|unique:settings,email|unique:settings,company_email',
+                'mobile' => ['required', new PhoneNumber($this->mobile_country_iso)],
+                'email' => 'required|email|unique:users,email,'.$userid,
                 'company' => 'required|max:50',
                 'address' => 'required',
                 'country' => 'required|exists:countries,country_code_char2',
@@ -74,7 +75,7 @@ class ProfileRequest extends Request
                 'last_name' => 'required|max:30',
                 'email' => 'required|email|unique:users|unique:settings,email|unique:settings,company_email',
                 'company' => 'required|max:50',
-                'mobile' => 'required|unique:users',
+                'mobile' => ['required', 'unique:users', new PhoneNumber($this->mobile_country_iso)],
                 'address' => 'required|string|regex:/^[^<>]*$/',
                 'terms' => 'sometimes',
                 'password' => [

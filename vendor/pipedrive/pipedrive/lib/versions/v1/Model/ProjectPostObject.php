@@ -288,12 +288,6 @@ class ProjectPostObject implements ModelInterface, ArrayAccess, JsonSerializable
         if ($this->container['title'] === null) {
             $invalidProperties[] = "'title' can't be null";
         }
-        if ($this->container['board_id'] === null) {
-            $invalidProperties[] = "'board_id' can't be null";
-        }
-        if ($this->container['phase_id'] === null) {
-            $invalidProperties[] = "'phase_id' can't be null";
-        }
         return $invalidProperties;
     }
 
@@ -336,7 +330,7 @@ class ProjectPostObject implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets board_id
      *
-     * @return float
+     * @return float|null
      */
     public function getBoardId()
     {
@@ -346,7 +340,7 @@ class ProjectPostObject implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets board_id
      *
-     * @param float $board_id The ID of a project board
+     * @param float|null $board_id The ID of the board this project is associated with
      *
      * @return self
      */
@@ -360,7 +354,7 @@ class ProjectPostObject implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Gets phase_id
      *
-     * @return float
+     * @return float|null
      */
     public function getPhaseId()
     {
@@ -370,7 +364,7 @@ class ProjectPostObject implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets phase_id
      *
-     * @param float $phase_id The ID of a phase on a project board
+     * @param float|null $phase_id The ID of the phase this project is associated with
      *
      * @return self
      */

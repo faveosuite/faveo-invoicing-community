@@ -301,7 +301,7 @@ class InstallmentRequestBody implements ModelInterface, ArrayAccess, JsonSeriali
     /**
      * Sets billing_date
      *
-     * @param string|null $billing_date The date which the installment will be charged. Must be in the format YYYY-MM-DD.
+     * @param string|null $billing_date The date on which the installment will be charged. Must be in the format YYYY-MM-DD.
      *
      * @return self
      */

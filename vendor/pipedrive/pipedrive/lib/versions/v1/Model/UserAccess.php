@@ -287,7 +287,7 @@ class UserAccess implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets app
      *
-     * @param string|null $app app
+     * @param string|null $app The granular app access level
      *
      * @return self
      */
@@ -321,7 +321,7 @@ class UserAccess implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets admin
      *
-     * @param bool|null $admin admin
+     * @param bool|null $admin Whether the user has admin access or not
      *
      * @return self
      */
@@ -345,7 +345,7 @@ class UserAccess implements ModelInterface, ArrayAccess, JsonSerializable
     /**
      * Sets permission_set_id
      *
-     * @param string|null $permission_set_id permission_set_id
+     * @param string|null $permission_set_id The ID of the permission set
      *
      * @return self
      */

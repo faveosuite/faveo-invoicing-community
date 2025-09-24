@@ -3,6 +3,7 @@
 namespace Database\Factories\Model\Order;
 
 use App\Model\Order\Invoice;
+use App\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class InvoiceFactory extends Factory
@@ -17,11 +18,13 @@ class InvoiceFactory extends Factory
     public function definition()
     {
         return [
-            'id' => mt_rand(1, 999),
-            'number' => '2344353',
-            'grand_total' => 10000,
-            'currency' => 'INR',
-            'status' => 'success',
+            'user_id' => User::factory(),
+            'number' => $this->faker->unique()->numerify('########'),
+            'date' => $this->faker->dateTimeBetween('-1 year', 'now')->format('Y-m-d'),
+            'grand_total' => $this->faker->randomFloat(2, 500, 5000),
+            'currency' => $this->faker->randomElement(['INR', 'USD', 'EUR']),
+            'status' => $this->faker->randomElement(['success', 'partially paid', 'pending']),
+            'description' => $this->faker->sentence(6),
         ];
     }
 }

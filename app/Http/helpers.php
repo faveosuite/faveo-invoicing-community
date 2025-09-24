@@ -168,47 +168,33 @@ function getDateHtmlcopy(?string $dateTimeString = null)
         return '--';
     }
 }
+
 function getExpiryLabel($expiryDate, $badge = 'badge')
 {
-    if (empty($expiryDate)) {
-        return '--';
-    }
+    $expiry = Carbon::parse($expiryDate);
+    $now = Carbon::now();
 
-    try {
-        $expiry = Carbon::parse($expiryDate);
-    } catch (Exception $e) {
-        return '--';
-    }
-
-    $dateHtml = getDateHtml($expiryDate);
-
-    if ($expiry->isPast()) {
-        return $dateHtml.
-            '&nbsp;<span class="'.$badge.' '.$badge.'-danger">
-                <label data-toggle="tooltip"
-                       style="font-weight:500;"
-                       data-placement="top"
-                       title="'.__('validation.order_has_Expired').'">
-                </label>'.
-            __('message.expired').
-            '</span>';
-    }
-
-    return $dateHtml;
+    return [
+        'date' => $expiry,
+        'status' => $expiry->lt($now) ? __('message.expired') : null,
+    ];
 }
 
-function getVersionAndLabel($productVersion, $productId, $badge = 'label', $path = null)
+function getVersionAndLabel($productVersion, $productId, $path = null)
 {
+    // Get latest version from cache
     $latestVersion = \Cache::remember('latest_'.$productId, 10, function () use ($productId) {
         return ProductUpload::where('product_id', $productId)->latest()->value('version');
     });
+
+    // Fallback to installation detail if version not provided
     if (! $productVersion && $path) {
         $installationDetail = Installation::where('installation_path', 'like', '%'.$path.'%')->latest('id')->first();
         $productVersion = $installationDetail ? $installationDetail->version : $latestVersion;
     }
-    $status = $productVersion ? ($productVersion < $latestVersion ? 'warning' : 'success') : '';
 
-    return '<span class="'.$badge.' '.$badge.'-'.$status.'"><label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="'.($productVersion ? ($status == 'warning' ? 'Outdated Version' : 'Latest Version') : '').'"></label>'.($productVersion ? $productVersion : '--').'</span>';
+    // Return version value or '--' if not available
+    return $productVersion ?? $latestVersion ?? null;
 }
 
 function getInstallationDetail($ip)
@@ -222,20 +208,20 @@ function tooltip($tootipText = '')
              </label>';
 }
 
-function getStatusLabel($status, $badge = 'badge')
+function getStatusLabel($status)
 {
     switch ($status) {
         case 'Success':
-            return '<span class='.'"'.$badge.' '.$badge.'-success">'.__('message.amount_received').'</span>';
+            return __('message.amount_received');
 
         case 'Pending':
-            return '<span class='.'"'.$badge.' '.$badge.'-danger">'.__('message.unpaid').'</span>';
+            return __('message.unpaid');
 
         case 'renewed':
-            return '<span class='.'"'.$badge.' '.$badge.'-primary">'.__('message.renewed').'</span>';
+            return __('message.renewed');
 
         default:
-            return '<span class='.'"'.$badge.' '.$badge.'-warning">'.__('message.partially_paid').'</span>';
+            return __('message.partially_paid');
     }
 }
 
@@ -344,8 +330,12 @@ function userCurrencyAndPrice($userid, $plan, $productid = '')
             'symbol' => $currencyAndSymbol['currency_symbol'],
             'plan' => $currencyAndSymbol['userPlan'],
         ];
-    } catch (Exception $ex) {
-        return redirect()->back()->with('fails', $ex->getMessage());
+    } catch (\Exception $ex) {
+        return [
+            'currency' => '',
+            'symbol' => '',
+            'plan' => '',
+        ];
     }
 }
 
@@ -559,6 +549,56 @@ function bifurcateTax($taxName, $taxValue, $currency, $state, $price = '')
 
         return ['html' => $html, 'tax' => $tax_value];
     }
+}
+
+function bifurcate($taxName, $taxValue, $currency, $state, $price = '')
+{
+    $response = [];
+
+    if (\Auth::user()->country == 'IN') {
+        $gst = TaxByState::where('state_code', $state)
+            ->select('c_gst', 's_gst', 'ut_gst')
+            ->first();
+
+        if ($taxName === 'CGST+SGST') {
+            $response = [
+                [
+                    'name' => 'CGST',
+                    'rate' => $gst->c_gst,
+                    'value' => TaxCalculation::taxValue($gst->c_gst, $price, false),
+                ],
+                [
+                    'name' => 'SGST',
+                    'rate' => $gst->s_gst,
+                    'value' => TaxCalculation::taxValue($gst->s_gst, $price, false),
+                ],
+            ];
+        } elseif ($taxName === 'CGST+UTGST') {
+            $response = [
+                [
+                    'name' => 'CGST',
+                    'rate' => $gst->c_gst,
+                    'value' => TaxCalculation::taxValue($gst->c_gst, $price, false),
+                ],
+                [
+                    'name' => 'UTGST',
+                    'rate' => $gst->ut_gst,
+                    'value' => TaxCalculation::taxValue($gst->ut_gst, $price, false),
+                ],
+            ];
+        }
+    }
+
+    // Fallback (other countries or generic tax)
+    if (empty($response)) {
+        $response[] = [
+            'name' => $taxName,
+            'rate' => $taxValue,
+            'value' => TaxCalculation::taxValue($taxValue, $price, false),
+        ];
+    }
+
+    return $response;
 }
 
 /**
@@ -1092,6 +1132,55 @@ function deleteUserSessions(int $userId, string $password): void
 }
 
 /**
+ * Format a given datetime string to UTC timezone.
+ *
+ * @param  string|null  $datetime  The datetime string to format.
+ * @return \Carbon\Carbon|null The formatted datetime in UTC or null if input is invalid.
+ */
+function toFormatDateAndTime($datetime)
+{
+    if (! $datetime) {
+        return null;
+    }
+    // Decode if URL encoded
+    $datetime = urldecode($datetime);
+
+    // Parse using app timezone
+    $carbon = Carbon::parse($datetime, config('app.timezone'));
+
+    // Return in UTC
+    return $carbon->clone()->setTimezone('UTC');
+}
+
+/**
+ * Convert days to human-readable format using match.
+ *
+ * @param  int  $days
+ * @return string|null
+ */
+function formatDays(int $days)
+{
+    return match (true) {
+        $days <= 0 => null,
+        $days < 30 => "$days Days",
+        $days < 365 => intval($days / 30).(intval($days / 30) > 1 ? ' Months' : ' Month'),
+        default => intval($days / 365).(intval($days / 365) > 1 ? ' Years' : ' Year'),
+    };
+}
+
+/**
+ * Generate an HTML hyperlink.
+ *
+ * @param  string  $href  The URL for the hyperlink.
+ * @param  string  $value  The display text for the hyperlink.
+ * @return string The generated HTML anchor tag.
+ */
+function hyperLinkGenerator($href, $value): string
+{
+    return "<a href='".url($href)."'>".$value.'</a>';
+}
+
+/**
  * Log activity in a standard format across the system.
  *
  * @param  string  $event
@@ -1144,6 +1233,34 @@ function getSupportedCountriesForIntlInput()
     return collect($countries)->reject(function ($name, $iso) use ($unsupportedIso) {
         return in_array(strtoupper($iso), $unsupportedIso);
     })->toArray();
+}
+
+/**
+ * Checks if the request is coming from api or web.
+ */
+function isV3Api(): bool
+{
+    return str_contains(str_replace(\Request::root().'/', '', \URL::current()), 'v3/');
+}
+
+/**
+ * Resolve a named theme asset to its URL (local or CDN).
+ *
+ * Usage in Blade:
+ *   themeAsset('adminlte-css')   → public/themes/adminlte/css/adminlte.min.css (local)
+ *                                → https://cdn.example.com/themes/... (CDN)
+ *
+ * Asset aliases are defined in config/theme.php under 'assets'.
+ */
+function themeAsset(string $key): string
+{
+    $path = config("theme.assets.{$key}", '');
+
+    if (config('theme.use_cdn')) {
+        return rtrim(config('theme.cdn_base', ''), '/').'/'.ltrim($path, '/');
+    }
+
+    return asset($path);
 }
 
 function throttleApiRequest(string $url, int $maxRequests = 60, int $perSeconds = 60, bool $perSite = true): void

@@ -209,9 +209,6 @@ return [
 
         Barryvdh\DomPDF\ServiceProvider::class,
         // Illuminate\Support\Facades\Input::class,
-
-        Yajra\DataTables\HtmlServiceProvider::class,
-        Yajra\DataTables\DataTablesServiceProvider::class,
         Spatie\Activitylog\ActivitylogServiceProvider::class,
         Spatie\Referer\RefererServiceProvider::class,
         Cartalyst\Stripe\Laravel\StripeServiceProvider::class,
@@ -229,6 +226,8 @@ return [
         \App\BillingLog\LaravelLogViewerServiceProvider::class,
         \App\Providers\LogServiceProvider::class,
         App\Plugins\Recaptcha\RecaptchaServiceProvider::class,
+        App\Providers\CartServiceProvider::class,
+        \App\Plugins\Zoho\Providers\ZohoServiceProvider::class,
     ],
 
     /*
@@ -243,6 +242,7 @@ return [
     */
 
     'aliases' => Facade::defaultAliases()->merge([
+        'UserCart' => App\Cart\UserCart::class,
         'Activity' => Spatie\Activitylog\ActivitylogFacade::class,
         'Bugsnag' => Bugsnag\BugsnagLaravel\Facades\Bugsnag::class,
         'Cart' => Darryldecode\Cart\Facades\CartFacade::class,

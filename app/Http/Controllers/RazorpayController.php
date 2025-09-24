@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\ApiKey;
+use App\Facades\Cart;
 use App\Model\Common\State;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
@@ -22,6 +23,7 @@ class RazorpayController extends Controller
     public $invoice;
 
     public $invoiceItem;
+    public $cart;
 
     public function __construct()
     {
@@ -30,7 +32,7 @@ class RazorpayController extends Controller
 
         $invoiceItem = new InvoiceItem();
         $this->invoiceItem = $invoiceItem;
-
+        $this->cart = new Cart();
         // $mailchimp = new MailChimpController();
         // $this->mailchimp = $mailchimp;
     }
@@ -62,16 +64,18 @@ class RazorpayController extends Controller
                 $currency = $this->getCurrency();
 
                 $result = $this->processPaymentSuccess($invoice, $currency);
-                \Cart::removeCartCondition('Processing fee');
+                $this->cart->removeCartCondition('Processing fee');
                 \Session::forget(['items', 'code', 'codevalue', 'totalToBePaid', 'invoice', 'cart_currency']);
 
                 return redirect('checkout')->with($result['status'], $result['message']);
             } catch (\Razorpay\Api\Errors\SignatureVerificationError|\Razorpay\Api\Errors\BadRequestError|\Razorpay\Api\Errors\GatewayError|\Razorpay\Api\Errors\ServerError $e) {
                 SettingsController::sendFailedPaymenttoAdmin($invoice, $invoice->grand_total, $invoice->invoiceItem()->first()->product_name, $e->getMessage(), \Auth::user());
 
-                return redirect('checkout')->with('fails', 'Your Payment was declined. '.$e->getMessage().'. Please try with another card or gateway');
+                return errorResponse('Your Payment was declined. '.$e->getMessage().'. Please try with another card or gateway');
+//                return redirect('checkout')->with('fails', 'Your Payment was declined. '.$e->getMessage().'. Please try with another card or gateway');
             } catch (\Exception $e) {
-                return redirect('checkout')->with('fails', 'Your Payment was declined. '.$e->getMessage().'. Please try with another card or gateway');
+                return errorResponse('Your Payment was declined. '.$e->getMessage().'. Please try with another card or gateway');
+                //  return redirect('checkout')->with('fails', 'Your Payment was declined. '.$e->getMessage().'. Please try with another card or gateway');
             }
         }
     }

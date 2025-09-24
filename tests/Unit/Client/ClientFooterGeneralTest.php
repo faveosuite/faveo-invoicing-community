@@ -5,11 +5,13 @@ namespace Tests\Unit\Client;
 use App\Http\Controllers\FreeTrailController;
 use App\Http\Controllers\Tenancy\TenantController;
 use App\Model\Common\FaveoCloud;
+use App\Model\Common\PricingTemplate;
 use App\Model\Order\Invoice;
 use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\CloudProducts;
 use App\Model\Product\Product;
+use App\Model\Product\ProductGroup;
 use App\User;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
@@ -107,6 +109,7 @@ class ClientFooterGeneralTest extends DBTestCase
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
         $response = $this->call('POST', 'first-login', ['domain' => 'test', 'id' => $user->id, 'product' => $product->name]);
         $content = $response->json();
+
         $this->assertEquals($content['status'], 'false');
     }
 
@@ -166,5 +169,20 @@ class ClientFooterGeneralTest extends DBTestCase
         $content = $response->json();
         $this->assertEquals($content['success'], false);
         $this->assertEquals($content['message'], 'It has come to our notice that you have crossed the free trial limit, please delete your existing instances to proceed further.');
+    }
+
+    #[\PHPUnit\Framework\Attributes\Group('group')]
+    public function test_master_group_display()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        $template = PricingTemplate::create(['data' => 'good']);
+        $group1 = ProductGroup::create(['name' => 'Helpdesk Advance group', 'pricing_templates_id' => $template->id, 'hidden' => 0]);
+        $group2 = ProductGroup::create(['name' => 'Service Advance group', 'pricing_templates_id' => $template->id, 'hidden' => 0]);
+        $response = $this->call('POST', 'available-groups');
+        $this->assertEquals($response['message'], 'Success');
+        $data = $response['data'][$group1->id];
+        $this->assertEquals($data['name'], 'Helpdesk Advance group');
     }
 }
