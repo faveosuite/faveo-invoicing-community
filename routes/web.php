@@ -702,3 +702,27 @@ Route::post('language-toggle', [LanguageController::class, 'toggleLanguageStatus
 Route::get('language/control', [LanguageController::class, 'fetchLangDropdownUsers']);
 
 // });
+
+// Updated APIs will need to change after complete API conversion
+
+Route::get('users', [User\ClientController::class, 'getAllUsers']);
+Route::delete('users', [User\ClientController::class, 'deleteBulkUsers']);
+Route::get('managers', [User\ClientController::class, 'getManagers']);
+Route::post('users', [User\ClientController::class, 'userCreate']);
+Route::get('user/{id}', [User\ClientController::class, 'getEditUser']);
+Route::put('user/{id}', [User\ClientController::class, 'userUpdate']);
+
+Route::get('soft-delete', [User\SoftDeleteController::class, 'softDeletedUsers'])->name('soft-delete');
+Route::get('user/restore/{id}', [User\SoftDeleteController::class, 'restoreUser']);
+Route::delete('permanent-delete-client', [User\SoftDeleteController::class, 'permanentDeleteUser']);
+
+
+Route::get('getTimeZones', [Common\SettingsController::class, 'getTimeZoneDropdown']);
+
+Route::get('orders', [Order\OrderController::class, 'getOrders'])->name('orders');
+Route::delete('orders', [Order\OrderController::class, 'deleteBulkOrders']);
+Route::get('order/{id}', [Order\OrderController::class, 'getOrder']);
+
+Route::get('get-installation-details/{orderId}', [Order\OrderController::class, 'getInstallationDetails']);
+Route::get('getOrderPayments/{orderId}', [Order\OrderController::class, 'getPaymentByOrderId']);
+Route::get('getOrderInvoices/{orderId}', [Order\OrderController::class, 'getOrderInvoices']);

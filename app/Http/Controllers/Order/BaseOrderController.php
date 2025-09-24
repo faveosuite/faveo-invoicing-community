@@ -37,28 +37,27 @@ class BaseOrderController extends ExtendedOrderController
 
     use UpdateDates;
 
-    public function getUrl($model, $status, $subscriptionId, $agents = null)
+    public function getOrderActions($order, $status, $subscriptionId, $agents = null)
     {
-        $url = '';
-        if ($model->order_status != 'Terminated') {
-            if ($status == 'success') {
-                if ($subscriptionId) {
-                    if (! is_null($agents)) {
-                        $url = '<a href='.url('renew/'.$subscriptionId.'/'.$agents)." 
-                class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.renew'))."<i class='fas fa-credit-card'
-                 style='color:white;'> </i></a>";
-                    } else {
-                        $url = '<a href='.url('renew/'.$subscriptionId)." 
-                class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.renew'))."<i class='fas fa-credit-card'
-                 style='color:white;'> </i></a>";
-                    }
-                }
-            }
+        $actions = [];
+
+        $actions[] = [
+            'type' => 'view',
+            'url'   => url('orders/' . $order->id),
+        ];
+
+        if ($order->order_status != 'Terminated' && $status === 'success' && $subscriptionId) {
+            $renewUrl = !is_null($agents)
+                ? url("renew/{$subscriptionId}/{$agents}")
+                : url("renew/{$subscriptionId}");
+
+            $actions[] = [
+                'type' => 'renew',
+                'url'   => $renewUrl,
+            ];
         }
 
-        return '<p><a href='.url('orders/'.$model->id)." 
-        class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.view'))."<i class='fas fa-eye'
-         style='color:white;'> </i></a> $url</p>";
+        return $actions;
     }
 
     /**

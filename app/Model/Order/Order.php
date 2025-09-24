@@ -43,10 +43,10 @@ class Order extends BaseModel
         return '';
     }
 
-    public function invoice()
-    {
-        return $this->belongsTo(\App\Model\Order\Invoice::class, 'invoice_id');
-    }
+//    public function invoice()
+//    {
+//        return $this->belongsTo(\App\Model\Order\Invoice::class, 'invoice_id');
+//    }
 
     public function user()
     {
@@ -63,14 +63,21 @@ class Order extends BaseModel
         return $this->hasMany(\App\Model\Product\ProductUpload::class);
     }
 
-    public function product()
+    public function productRelation()
     {
         return $this->belongsTo(\App\Model\Product\Product::class, 'product');
     }
 
-    public function invoiceRelation()
+    public function invoices()
     {
-        return $this->hasMany(\App\Model\Order\OrderInvoiceRelation::class);
+        return $this->hasManyThrough(
+            Invoice::class, // Final model
+            OrderInvoiceRelation::class, // Pivot model
+            'order_id', // Foreign key on pivot table
+            'id', // Foreign key on Invoice table
+            'id', // Local key on Order table
+            'invoice_id' // Local key on pivot table
+        );
     }
 
     public function invoiceItem()
