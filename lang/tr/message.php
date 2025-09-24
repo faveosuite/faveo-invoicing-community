@@ -2714,5 +2714,6 @@ return [
 
     'user_position_prohibited_if' => 'Rol kullanıcı olduğunda pozisyon alanına izin verilmez.',
     'cloud_plan_error' => 'Lütfen bulut ürününü kaldırın veya alternatif bir plana bağlayın.',
-
+    'auto_renewal_disable' => 'Otomatik yenileme şu anda kullanılamıyor. Lütfen yardım için yöneticiyle iletişime geçin.',
+    'auto_renewal_tooltip' => 'Tüm kullanıcılar için otomatik yenilemeyi etkinleştirin veya devre dışı bırakın.',
 ];

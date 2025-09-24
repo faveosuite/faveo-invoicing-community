@@ -2698,5 +2698,6 @@ return [
     'deletion_cloud_subscription' => 'Cloud-Abonnements löschen, die vor mehr als ... abgelaufen sind...',
     'msg_service_down' => 'Derzeit gibt es Probleme mit unserem OTP-Dienst. Bitte versuchen Sie es in Kürze erneut. Wir arbeiten an einer schnellen Lösung.',
     'cloud_plan_error' => 'Bitte entfernen Sie das Cloud-Produkt oder verknüpfen Sie es mit einem alternativen Plan.',
-
+    'auto_renewal_disable' => 'Automatische Verlängerung ist derzeit nicht verfügbar. Bitte wenden Sie sich an den Administrator.',
+    'auto_renewal_tooltip' => 'Automatische Verlängerung für alle Benutzer aktivieren oder deaktivieren.',
 ];

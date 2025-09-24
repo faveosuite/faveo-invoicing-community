@@ -2690,5 +2690,6 @@ return [
     'deletion_cloud_subscription' => 'Supprimer les abonnements cloud expirés depuis plus de...',
     'msg_service_down' => 'Nous rencontrons actuellement des problèmes avec notre service OTP. Veuillez réessayer sous peu. Nous travaillons à résoudre ce problème au plus vite.',
     'cloud_plan_error' => 'Veuillez supprimer le produit cloud ou le lier à un plan alternatif.',
-
+    'auto_renewal_disable' => "Le renouvellement automatique n'est actuellement pas disponible. Veuillez contacter l'administrateur pour obtenir de l'aide.",
+    'auto_renewal_tooltip' => 'Activer ou désactiver le renouvellement automatique pour tous les utilisateurs.',
 ];

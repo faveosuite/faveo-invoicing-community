@@ -2714,4 +2714,6 @@ return [
     'enter_valid_6_digit_code' => 'Please enter a valid 6-digit code.',
     'enter_valid_credentials' => 'Your email or password is incorrect. Please check and try again.',
     'cloud_plan_error' => 'Please remove the cloud product or link it to an alternate plan.',
+    'auto_renewal_disable' => 'Auto-renewal is currently not available. Please contact the administrator for assistance.',
+    'auto_renewal_tooltip' => 'Enable or disable auto-renewal for all users.',
 ];
