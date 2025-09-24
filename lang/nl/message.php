@@ -2667,5 +2667,6 @@ return [
 
     'user_position_prohibited_if' => 'Het veld functie is niet toegestaan wanneer de rol gebruiker is.',
     'cloud_plan_error' => 'Verwijder het cloudproduct of koppel het aan een alternatief plan.',
-
+    'auto_renewal_disable' => 'Automatisch verlengen is momenteel niet beschikbaar. Neem contact op met de beheerder voor hulp.',
+    'auto_renewal_tooltip' => 'Schakel automatisch verlengen in of uit voor alle gebruikers.',
 ];

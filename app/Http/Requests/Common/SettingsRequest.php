@@ -39,6 +39,7 @@ class SettingsRequest extends FormRequest
             'admin-logo' => 'sometimes|mimes:jpeg,png,jpg|max:2048',
             'fav-icon' => 'sometimes|mimes:jpeg,png,jpg|max:2048',
             'logo' => 'sometimes|mimes:jpeg,png,jpg|max:2048',
+            'autorenewal_status'=>'sometimes',
         ];
     }
 

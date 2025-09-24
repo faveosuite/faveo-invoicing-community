@@ -2696,5 +2696,6 @@ return [
 
     'user_position_prohibited_if' => '当角色为用户时，不允许填写职位字段。',
     'cloud_plan_error' => '请移除云产品或将其关联到其他方案。',
-
+    'auto_renewal_disable' => '自动续订目前不可用。请联系管理员以获取帮助。',
+    'auto_renewal_tooltip' => '为所有用户启用或禁用自动续订。',
 ];
