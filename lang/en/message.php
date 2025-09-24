@@ -2781,6 +2781,8 @@ return [
     'badge_inline' => 'Inline',
 
     'cloud_plan_error' => 'Please remove the cloud product or link it to an alternate plan.',
+
+    'deletion_blocked' => 'Deletion blocked: the following users are assigned as :roles: :names.',
     'short_description' => 'Short Description',
     'add_short_description' => 'Please enter short description.',
     'word_count' => 'Please keep your short description within 50 words.',
