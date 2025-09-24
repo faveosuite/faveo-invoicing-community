@@ -603,7 +603,6 @@ class ClientController extends AdvanceSearchController
     public function exportUsers(Request $request)
     {
         try {
-
             ini_set('memory_limit', '-1');
 
             $selectedColumns = $request->input('selected_columns', []);
@@ -613,7 +612,7 @@ class ClientController extends AdvanceSearchController
             $driver = QueueService::where('status', '1')->first();
 
             if ($driver->name === 'Sync') {
-               return errorResponse(__('message.cannot_sync_queue_driver'));
+                return errorResponse(__('message.cannot_sync_queue_driver'));
             }
 
             // Set the queue driver dynamically
@@ -623,7 +622,6 @@ class ClientController extends AdvanceSearchController
                 ->onQueue('reports');
 
             return successResponse(__('message.system_generating_report'));
-
         } catch (\Exception $e) {
             \Logger::exception($e);
 
@@ -680,12 +678,12 @@ class ClientController extends AdvanceSearchController
 
     public function saveColumns(Request $request)
     {
-        $userId        = auth()->id();
-        $entityType    = $request->get('entity_type');
-        $selectedKeys  = $request->get('selected_columns', []);
+        $userId = auth()->id();
+        $entityType = $request->get('entity_type');
+        $selectedKeys = $request->get('selected_columns', []);
 
         // Always ensure checkbox & action exist
-        $selectedKeys  = array_unique(array_merge($selectedKeys, ['checkbox', 'action']));
+        $selectedKeys = array_unique(array_merge($selectedKeys, ['checkbox', 'action']));
 
         // Map column keys to IDs
         $reportColumns = ReportColumn::where('type', $entityType)
@@ -700,28 +698,27 @@ class ClientController extends AdvanceSearchController
         foreach ($selectedKeys as $key) {
             if (isset($reportColumns[$key])) {
                 $insertData[] = [
-                    'user_id'   => $userId,
+                    'user_id' => $userId,
                     'column_id' => $reportColumns[$key],
-                    'type'      => $entityType,
-                    'created_at'=> now(),
-                    'updated_at'=> now(),
+                    'type' => $entityType,
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ];
             }
         }
 
-        if (!empty($insertData)) {
+        if (! empty($insertData)) {
             UserLinkReport::insert($insertData);
         }
 
         return successResponse(__('message.columns_saved_successfully.'), [
-            'selected_columns' => $selectedKeys
+            'selected_columns' => $selectedKeys,
         ]);
     }
 
-
     public function getColumns(Request $request)
     {
-        $userId     = auth()->id();
+        $userId = auth()->id();
         $entityType = $request->get('entity_type');
 
         // Get user's saved column IDs
@@ -739,10 +736,9 @@ class ClientController extends AdvanceSearchController
                 ->pluck('key');
 
         return successResponse('', [
-            'selected_columns' => $columns
+            'selected_columns' => $columns,
         ]);
     }
-
 
     public function getAllUsers(Request $request)
     {
@@ -753,7 +749,7 @@ class ClientController extends AdvanceSearchController
         $page = $request->input('page', 1);
 
         $users = User::select('id', 'first_name', 'last_name', 'email', 'mobile', 'country', 'created_at')
-            ->where(function($query) use ($searchQuery) {
+            ->where(function ($query) use ($searchQuery) {
                 $query->where('email', 'like', '%'.$searchQuery.'%')
                     ->orWhere(\DB::raw('CONCAT(first_name, " ", last_name)'), 'like', '%'.$searchQuery.'%')
                     ->orWhere('mobile', 'like', '%'.$searchQuery.'%')
@@ -783,21 +779,24 @@ class ClientController extends AdvanceSearchController
             ->get();
 
         if ($blockedAccountManagers->isNotEmpty() || $blockedSalesManagers->isNotEmpty()) {
-
             $names = collect()
                 ->merge($blockedAccountManagers->pluck('name'))
                 ->merge($blockedSalesManagers->pluck('name'))
                 ->implode(', ');
 
             $roles = [];
-            if ($blockedAccountManagers->isNotEmpty()) $roles[] = __('message.account_manager');
-            if ($blockedSalesManagers->isNotEmpty()) $roles[] = __('message.sales_manager');
+            if ($blockedAccountManagers->isNotEmpty()) {
+                $roles[] = __('message.account_manager');
+            }
+            if ($blockedSalesManagers->isNotEmpty()) {
+                $roles[] = __('message.sales_manager');
+            }
 
             $rolesStr = implode(' & ', $roles);
 
             return errorResponse(__('message.deletion_blocked', [
                 'roles' => $rolesStr,
-                'names' => $names
+                'names' => $names,
             ]), 400);
         }
 
@@ -805,7 +804,6 @@ class ClientController extends AdvanceSearchController
 
         return successResponse(__('message.user-suspend-successfully'));
     }
-
 
     public function getManagers(Request $request)
     {
@@ -842,17 +840,17 @@ class ClientController extends AdvanceSearchController
                 'user_name', 'first_name', 'last_name', 'email', 'company',
                 'bussiness', 'role', 'position', 'mobile_country_iso',
                 'company_type', 'company_size', 'address', 'town', 'state',
-                'zip', 'timezone_id', 'mobile', 'skype', 'manager', 'account_manager'
+                'zip', 'timezone_id', 'mobile', 'skype', 'manager', 'account_manager',
             ]);
 
             $userData = array_merge($userData, [
-                'password'         => $password,
-                'active'           => 1,
-                'email_verified'   => $request->boolean('active'),
-                'mobile_verified'  => $request->boolean('mobile_verified'),
-                'country'          => strtoupper($request->input('country')),
-                'mobile_code'      => $mobile_code,
-                'ip'               => $location['ip'] ?? null,
+                'password' => $password,
+                'active' => 1,
+                'email_verified' => $request->boolean('active'),
+                'mobile_verified' => $request->boolean('mobile_verified'),
+                'country' => strtoupper($request->input('country')),
+                'mobile_code' => $mobile_code,
+                'ip' => $location['ip'] ?? null,
             ]);
 
             $user = User::create($userData);
@@ -864,8 +862,7 @@ class ClientController extends AdvanceSearchController
             AddUserToExternalService::dispatch($user);
 
             return successResponse(__('message.user-create-successfully'), $user);
-
-        } catch (\Exception $e){
+        } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
@@ -878,7 +875,6 @@ class ClientController extends AdvanceSearchController
     public function userUpdate($id, ClientRequest $request)
     {
         try {
-
             $user = User::find($id);
 
             $user->fill($request->all());
@@ -886,8 +882,7 @@ class ClientController extends AdvanceSearchController
             $user->save();
 
             return successResponse(__('message.updated-successfully'));
-
-        } catch (\Exception $e){
+        } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }
     }
