@@ -1256,7 +1256,6 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-
     public function getTimeZoneDropdown(Request $request)
     {
         $role = $request->input('role', 'manager');
@@ -1269,7 +1268,7 @@ class SettingsController extends BaseSettingsController
             ->paginate(10, ['*'], 'page', $page);
 
         $timezones->getCollection()->transform(function ($element) {
-            return (object) ['id' => $element->id, 'location' => $element->timezone_name,'name' => $element->name];
+            return (object) ['id' => $element->id, 'location' => $element->timezone_name, 'name' => $element->name];
         });
 
         return successResponse('', $timezones);
