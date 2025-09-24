@@ -2703,6 +2703,8 @@ return [
 
     'user_position_prohibited_if' => '役割がユーザーの場合、ポジションフィールドは使用できません。',
     'cloud_plan_error' => 'クラウド製品を削除するか、別のプランにリンクしてください。',
+    'auto_renewal_disable' => '自動更新は現在利用できません。管理者にお問い合わせください。',
+    'auto_renewal_tooltip' => 'すべてのユーザーに対して自動更新を有効または無効にします。',
 
     'invalid_code_2fa' => '無効なコードです。もう一度お試しください。',
     '6_digit_auth_code' => '6桁の認証コードを入力してください',

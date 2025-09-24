@@ -2630,6 +2630,8 @@ return [
     'deletion_cloud_subscription' => 'Obriši cloud pretplate koje su istekle prije više od...',
     'msg_service_down' => 'Trenutno imamo problema s OTP uslugom. Molimo pokušajte ponovo uskoro. Radimo na brzom rješenju problema.',
     'cloud_plan_error' => 'Molimo uklonite cloud proizvod ili ga povežite s alternativnim planom.',
+    'auto_renewal_disable' => 'Automatsko obnavljanje trenutno nije dostupno. Molimo kontaktirajte administratora za pomoć.',
+    'auto_renewal_tooltip' => 'Omogućite ili onemogućite automatsko obnavljanje za sve korisnike.',
 
     'invalid_code_2fa' => 'Nevažeći kod. Molimo pokušajte ponovo.',
     '6_digit_auth_code' => 'Unesite svoj 6-cifreni autentifikacijski kod',

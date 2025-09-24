@@ -2716,4 +2716,6 @@ return [
     'valid_username' => 'Vennligst skriv inn et gyldig brukernavn',
     'set_auth_invoicing' => 'Du er klar. Fra nå av vil du bruke Authenticator-appen for å logge inn på Faveo Invoicing-kontoen din.',
     'continue_verify_social_login' => 'Klikk på "Validate" for å fortsette og bekrefte din identitet',
+    'auto_renewal_disable' => 'Automatisk fornyelse er for øyeblikket ikke tilgjengelig. Vennligst kontakt administratoren for hjelp.',
+    'auto_renewal_tooltip' => 'Aktiver eller deaktiver automatisk fornyelse for alle brukere.',
 ];
