@@ -184,7 +184,6 @@ function getVersionAndLabel($productVersion, $productId, $path = null)
     return $productVersion ?? $latestVersion ?? null;
 }
 
-
 function getInstallationDetail($ip)
 {
     return InstallationDetail::where('installation_path', 'like', '%'.$ip.'%')->first();

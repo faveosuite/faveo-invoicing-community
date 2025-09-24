@@ -7,7 +7,6 @@ use App\Model\Order\Order;
 use App\Model\Product\ProductUpload;
 use App\Model\Product\Subscription;
 use Carbon\Carbon;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 
 class OrderSearchController extends Controller
@@ -44,7 +43,6 @@ class OrderSearchController extends Controller
             }
 
             return $query;
-
         } catch (\Exception $ex) {
             return $ex;
         }
@@ -57,10 +55,11 @@ class OrderSearchController extends Controller
         }
     }
 
-
     private function filterProduct($query, $productId)
     {
-        if (!$productId) return;
+        if (! $productId) {
+            return;
+        }
 
         if ($productId === 'paid') {
             $query->where('price_override', '>', 0);
@@ -101,7 +100,9 @@ class OrderSearchController extends Controller
 
     private function filterInstallation($query, $filter)
     {
-        if (!$filter) return;
+        if (! $filter) {
+            return;
+        }
 
         $minus30 = Carbon::now()->subDays(30);
 
@@ -121,7 +122,9 @@ class OrderSearchController extends Controller
 
     private function filterRenewal($query, $renewal)
     {
-        if (!$renewal) return;
+        if (! $renewal) {
+            return;
+        }
 
         $now = now();
 
@@ -136,7 +139,9 @@ class OrderSearchController extends Controller
 
     private function filterVersion($query, $version, $productId)
     {
-        if (!$version) return;
+        if (! $version) {
+            return;
+        }
 
         if (in_array($productId, ['paid', 'unpaid'])) {
             $latest = ProductUpload::max('version');
