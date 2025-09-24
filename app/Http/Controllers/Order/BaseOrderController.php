@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Order;
 
+use App\Http\Controllers\Common\ExternalServiceController;
 use App\Http\Controllers\License\LicenseController;
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\Model\Common\StatusSetting;
@@ -21,10 +22,12 @@ class BaseOrderController extends ExtendedOrderController
 {
     protected $sendMail;
 
-    public function __construct()
+    public function __construct(LicenseController $licenseController)
     {
         $this->middleware('auth');
         $this->middleware('admin');
+
+        $this->licenseController = $licenseController;
 
         $this->order = new Order();
 
@@ -37,28 +40,27 @@ class BaseOrderController extends ExtendedOrderController
 
     use UpdateDates;
 
-    public function getUrl($model, $status, $subscriptionId, $agents = null)
+    public function getOrderActions($order, $status, $subscriptionId, $agents = null)
     {
-        $url = '';
-        if ($model->order_status != 'Terminated') {
-            if ($status == 'success') {
-                if ($subscriptionId) {
-                    if (! is_null($agents)) {
-                        $url = '<a href='.url('renew/'.$subscriptionId.'/'.$agents)." 
-                class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.renew'))."<i class='fas fa-credit-card'
-                 style='color:white;'> </i></a>";
-                    } else {
-                        $url = '<a href='.url('renew/'.$subscriptionId)." 
-                class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.renew'))."<i class='fas fa-credit-card'
-                 style='color:white;'> </i></a>";
-                    }
-                }
-            }
+        $actions = [];
+
+        $actions[] = [
+            'type' => 'view',
+            'url' => url('orders/'.$order->id),
+        ];
+
+        if ($order->order_status != 'Terminated' && $status === 'success' && $subscriptionId) {
+            $renewUrl = ! is_null($agents)
+                ? url("renew/{$subscriptionId}/{$agents}")
+                : url("renew/{$subscriptionId}");
+
+            $actions[] = [
+                'type' => 'renew',
+                'url' => $renewUrl,
+            ];
         }
 
-        return '<p><a href='.url('orders/'.$model->id)." 
-        class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.view'))."<i class='fas fa-eye'
-         style='color:white;'> </i></a> $url</p>";
+        return $actions;
     }
 
     /**
@@ -136,30 +138,13 @@ class BaseOrderController extends ExtendedOrderController
             if (emailSendingStatus()) {
                 $this->sendOrderMail($user_id, $order->id, $item->id);
             }
-            //Update Subscriber To Mailchimp
-            $mailchimpStatus = StatusSetting::pluck('mailchimp_status')->first();
-            if ($mailchimpStatus) {
-                $this->addtoMailchimp($product, $user_id, $item);
-            }
+
+            //Subscribe for Product Updates
+            (new ExternalServiceController())->subscribeForProductsUpdates($product, $user_id, $item);
         } catch (\Exception $ex) {
             \Logger::exception($ex);
 
             throw new \Exception($ex->getMessage());
-        }
-    }
-
-    public function addToMailchimp($product, $user_id, $item)
-    {
-        try {
-            $mailchimp = new \App\Http\Controllers\Common\MailChimpController();
-            $email = User::where('id', $user_id)->pluck('email')->first();
-            if ($item->subtotal > 0) {
-                $r = $mailchimp->updateSubscriberForPaidProduct($email, $product);
-            } else {
-                $r = $mailchimp->updateSubscriberForFreeProduct($email, $product);
-            }
-        } catch (\Exception $ex) {
-            return;
         }
     }
 

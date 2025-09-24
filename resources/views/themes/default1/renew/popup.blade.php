@@ -53,7 +53,8 @@
                                                   ->pluck('plans.name', 'plans.id')
                                                   ->toArray();
 
-                                            $planIds = array_keys($plans);
+
+                                        $planIds = array_keys($plans);
 
                                             foreach ($planIds as $planId) {
                                                 $plan = \App\Model\Payment\Plan::find($planId);

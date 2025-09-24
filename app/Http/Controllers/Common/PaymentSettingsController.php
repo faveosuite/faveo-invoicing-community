@@ -90,11 +90,12 @@ class PaymentSettingsController extends Controller
         $plugs = new Plugin();
         $fields = [];
         $attributes = [];
-        if ($configs != 'null') {
-            foreach ($configs as $key => $config) {
-                $fields[$key] = include $config;
+        try {
+            if ($configs != 'null') {
+                foreach ($configs as $key => $config) {
+                    $fields[$key] = include $config;
+                }
             }
-        }
 
         if (count($fields) > 0) {
             foreach ($fields as $key => $field) {
@@ -119,7 +120,10 @@ class PaymentSettingsController extends Controller
             }
         }
 
-        return $attributes;
+            return $attributes;
+        } catch (\Exception $exception) {
+            return errorResponse($exception->getMessage());
+        }
     }
 
     public function readConfigs()

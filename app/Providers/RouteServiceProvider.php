@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Config;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Http\Request;
@@ -10,6 +11,15 @@ use Illuminate\Support\Facades\Route;
 
 class RouteServiceProvider extends ServiceProvider
 {
+    /**
+     * This namespace is applied to your controller routes.
+     *
+     * In addition, it is set as the URL generator's root namespace.
+     *
+     * @var string
+     */
+    protected $namespace = 'App\Http\Controllers';
+
     /**
      * Define your route model bindings, pattern filters, etc.
      *
@@ -41,8 +51,42 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function mapWebRoutes()
     {
-        Route::middleware('web')
-             ->group(base_path('routes/web.php'));
+        $routeConfig = ['namespace' => $this->namespace];
+
+        $middlewares = [];
+
+        if (isV3Api()) {
+            $this->setV3ApiConfiguration();
+
+            $routeConfig['prefix'] = 'v3';
+            array_push($middlewares, 'api', 'force.json');
+        } else {
+            array_push($middlewares, 'web');
+        }
+
+        $routeConfig['middleware'] = $middlewares;
+
+        Route::group($routeConfig, function () {
+            require base_path('routes/web.php');
+        });
+    }
+
+    /**
+     * Sets up version 3 authentication coonfiguration.
+     *
+     * @return null
+     */
+    private function setV3ApiConfiguration()
+    {
+        // if v3 is given, we will set a api guard
+        Config::set('auth.defaults.guard', 'api');
+
+        // Since existing APIs uses the same guard, so
+        // it cannot be changed manually.
+        // creating a new guard is not available in passport for now,
+        // overriding their class in much more complicated than simply changing the
+        // configuration and run time
+        Config::set('auth.guards.api.driver', 'passport');
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace Database\Factories\Model\Payment;
 
+use App\Model\Payment\Plan;
 use App\Model\Payment\PlanPrice;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -20,8 +21,13 @@ class PlanPriceFactory extends Factory
     public function definition()
     {
         return [
-            'currency' => 'USD',
-            'renew_price' => $this->faker->numberBetween($min = 1500, $max = 6000),
+            'plan_id' => Plan::factory(),
+            'currency' => $this->faker->randomElement(['INR', 'USD', 'EUR']),
+            'add_price' => $this->faker->randomFloat(2, 10, 5000),
+            'renew_price' => $this->faker->randomFloat(2, 10, 5000),
+            'price_description' => $this->faker->sentence(6),
+            'product_quantity' => $this->faker->numberBetween(1, 10),
+            'no_of_agents' => $this->faker->numberBetween(1, 10),
         ];
     }
 }

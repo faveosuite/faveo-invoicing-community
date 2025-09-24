@@ -1,0 +1,3 @@
+<template>
+    <DefaultLayout />
+</template>

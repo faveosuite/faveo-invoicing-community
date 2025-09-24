@@ -3,6 +3,7 @@
 namespace App;
 
 use App\Facades\Attach;
+use App\Model\Common\Country;
 use App\Model\Common\Timezone;
 use App\Traits\SystemActivityLogsTrait;
 use Carbon\Carbon;
@@ -14,6 +15,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Passport\HasApiTokens;
 
 //use Laravel\Cashier\Billable;
 //use LinkThrow\Billing\CustomerBillableTrait;
@@ -26,6 +29,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         CanResetPassword;
     use SystemActivityLogsTrait;
     use SoftDeletes;
+    use HasApiTokens, Notifiable;
 
     // use Billable;
     // use CustomerBillableTrait;
@@ -273,6 +277,16 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     public function userLinkReports()
     {
         return $this->hasMany(UserLinkReport::class);
+    }
+
+    public function getFullNameAttribute()
+    {
+        return "{$this->first_name} {$this->last_name}";
+    }
+
+    public function countryRelation()
+    {
+        return $this->hasOne(Country::class, 'country_code_char2', 'country');
     }
 
     public function whatsappUsers()

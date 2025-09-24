@@ -159,7 +159,7 @@ class CloudActivitiesTest extends DBTestCase
     #[\PHPUnit\Framework\Attributes\Group('Cloud Agent Change')]
     public function test_when_days_are_more_less_no_of_agents()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['country' => 'IN']);
         $this->actingAs($user);
         $this->withoutMiddleware();
         $licensetype = LicenseType::create(['name' => 'DevelopmentLicense']);
@@ -572,5 +572,23 @@ class CloudActivitiesTest extends DBTestCase
         $this->app->instance(BaseOrderController::class, $baseMock);
         $response = $this->getPrivateMethod($FreeTrial, 'getIfFreetrailItemPresent', [$invoiceItem, $invoice->id, $user->id, 'executed']);
         $this->assertEquals(16, strlen($response));
+    }
+
+    public function test_get_cloud_products()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        $product = Product::create(['name' => 'Helpdesk Advance']);
+        $product1 = Product::create(['name' => 'FreeHelpdesk Advance', 'description' => 'goodProduct']);
+
+        $plan = Plan::create(['id' => 25, 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 15]);
+        PlanPrice::create(['plan_id' => $plan->id, 'add_price' => '1000', 'currency' => 'USD']);
+        $cloudProduct = CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id, 'cloud_product_key' => $product->name, 'trial_status' => 1]);
+        $cloudProduct1 = CloudProducts::create(['cloud_product' => $product1->id, 'cloud_free_plan' => $plan->id, 'cloud_product_key' => $product1->name, 'trial_status' => 1]);
+        $response = $this->call('POST', 'trial-cloud-products');
+        $this->assertEquals($response['message'], 'Products');
+        $data = $response['data'];
+        $this->assertEquals($data[$cloudProduct->cloud_product_key], $cloudProduct->cloud_product_key);
     }
 }

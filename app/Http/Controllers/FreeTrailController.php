@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Common\ExternalServiceController;
 use App\Http\Controllers\License\LicenseController;
 use App\Http\Controllers\Order\BaseOrderController;
 use App\Http\Controllers\Tenancy\TenantController;
 use App\Model\Common\FaveoCloud;
-use App\Model\Common\StatusSetting;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
@@ -48,7 +48,7 @@ class FreeTrailController extends Controller
      * Get the auth user id
      * Check the first_time_login is not equal to zero in DB to correspaonding,if its not change into one.
      *
-     * @return order
+     * @return
      */
     public function firstLoginAttempt(Request $request)
     {
@@ -59,7 +59,8 @@ class FreeTrailController extends Controller
         ]);
         try {
             if (! Auth::check()) {
-                return redirect('login')->back()->with('fails', \Lang::get('message.free-login'));
+                return errorResponse(\Lang::get('message.free-login'));
+//                return redirect('login')->back()->with('fails', \Lang::get('message.free-login'));
             }
 
             $userId = $request->get('id');
@@ -94,7 +95,8 @@ class FreeTrailController extends Controller
 
                         DB::rollback(); // Rollback the transaction
 
-                        return $isSuccess;
+//                        return $isSuccess;
+                        return errorResponse($isSuccess['message']);
                     }
 
                     \DB::table('free_trial_allowed')->insert([
@@ -255,7 +257,8 @@ class FreeTrailController extends Controller
                 'number' => $this->generateFreetrailNumber(),
             ]);
             $this->orderNo = $order->number;
-            $baseorder = new BaseOrderController();
+            $license = new LicenseController();
+            $baseorder = new BaseOrderController($license);
             $baseorder->addOrderInvoiceRelation($invoiceid, $order->id);
             \Session::put('planDays', 'freeTrial');
 
@@ -268,11 +271,10 @@ class FreeTrailController extends Controller
 
                 $cont->syncTheAddonForALicense($addOnIds, $serial_key, $options);
             }
-            $mailchimpStatus = StatusSetting::pluck('mailchimp_status')->first();
 
-            if ($mailchimpStatus) {
-                $baseorder->addtoMailchimp($product->id, $user_id, $item);
-            }
+            //Subscribe for Product Updates
+            (new ExternalServiceController())->subscribeForProductsUpdates($product, $user_id, $item);
+
             \Session::forget('planDays');
 
             return $serial_key;

@@ -33,12 +33,12 @@ class DashboardTest extends DBTestCase
         $this->actingAs($user);
         $this->withoutMiddleware();
         $order = Order::factory()->create(['client' => $user->id]);
-        $invoice = Invoice::factory()->create(['user_id' => $user->id]);
-        $response = $this->call('get', 'client-dashboard');
+        $response = $this->call('get', 'client-dashboard-details');
+        $content = $response->json()['data'];
         $response->assertStatus(200);
-        $this->assertDatabaseCount('invoices', 1);
+        $this->assertEquals(1, $content['ordersCount']);
+        $this->assertEquals(0, $content['pendingInvoicesCount']);
         $this->assertDatabaseCount('orders', 1);
-        $response->assertViewIs('themes.default1.front.clients.index');
     }
 
     #[\PHPUnit\Framework\Attributes\Group('dashboard')]
@@ -48,10 +48,9 @@ class DashboardTest extends DBTestCase
         $this->actingAs($user);
         $this->withoutMiddleware();
         $invoice = Invoice::factory()->create(['user_id' => $user->id]);
-        $response = $this->call('get', 'client-dashboard');
+        $response = $this->call('get', 'client-dashboard-details');
         $response->assertStatus(200);
         $this->assertDatabaseCount('orders', 0);
-        $response->assertViewIs('themes.default1.front.clients.index');
     }
 
     #[\PHPUnit\Framework\Attributes\Group('dashboard')]
@@ -61,11 +60,15 @@ class DashboardTest extends DBTestCase
         $this->actingAs($user);
         $this->withoutMiddleware();
         $order = Order::factory()->create(['client' => $user->id]);
-        $response = $this->call('get', 'client-dashboard');
+        $response = $this->call('get', 'client-dashboard-details');
         $response->assertStatus(200);
-        $response->assertViewHasAll(['pendingInvoicesCount', 'ordersCount', 'renewalCount']);
-        $this->assertDatabaseCount('invoices', 0);
-        $response->assertViewIs('themes.default1.front.clients.index');
+        $response->assertJsonStructure([
+            'data' => [
+                'pendingInvoicesCount',
+                'ordersCount',
+                'renewalCount',
+            ],
+        ]);
     }
 
     #[\PHPUnit\Framework\Attributes\Group('dashboard')]
@@ -74,7 +77,7 @@ class DashboardTest extends DBTestCase
         $user = User::factory()->create();
         $this->withoutMiddleware();
         $order = Order::factory()->create(['client' => $user->id]);
-        $response = $this->call('get', 'client-dashboard');
+        $response = $this->call('get', 'client-dashboard-details');
         $response->assertStatus(500);
     }
 
@@ -91,9 +94,9 @@ class DashboardTest extends DBTestCase
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
         $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => $date]);
-        $response = $this->call('get', 'client-dashboard');
-        $content = $response->getOriginalContent()->getData();
-        $this->assertEquals($content['renewalCount'], 1);
+        $response = $this->call('get', 'client-dashboard-details');
+        $content = $response->json();
+        $this->assertEquals($content['data']['renewalCount'], 1);
 
         $this->assertDatabaseCount('subscriptions', 1);
     }
@@ -111,9 +114,9 @@ class DashboardTest extends DBTestCase
         $plan = Plan::create(['id' => 'mt_rand(1,99)', 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 365]);
         $subscription = Subscription::create(['plan_id' => $plan->id, 'order_id' => $order->id, 'product_id' => $product->id,
             'version' => 'v6.0.0', 'update_ends_at' => Carbon::now()]);
-        $response = $this->call('get', 'client-dashboard');
-        $content = $response->getOriginalContent()->getData();
-        $this->assertEquals($content['renewalCount'], 0);
+        $response = $this->call('get', 'client-dashboard-details');
+        $content = $response->json();
+        $this->assertEquals($content['data']['renewalCount'], 0);
         $this->assertDatabaseCount('subscriptions', 1);
     }
 
@@ -125,7 +128,15 @@ class DashboardTest extends DBTestCase
         $this->withoutMiddleware();
         $invoice = Invoice::factory()->create(['user_id' => $user->id, 'status' => 'pending']);
         $response = $this->call('get', 'my-invoices?status=pending');
-        $response->assertViewIs('themes.default1.front.clients.invoice');
+        $content = $response->json();
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'data' => [
+                'amount',
+                'formattedValue',
+                'payment_id',
+            ],
+        ]);
     }
 
     #[\PHPUnit\Framework\Attributes\Group('dashboard')]
@@ -140,10 +151,52 @@ class DashboardTest extends DBTestCase
         $response = $this->call('get', 'get-my-invoices', ['status' => 'pending']);
         $response->assertStatus(200);
         $response->assertJsonStructure([
-            'draw',
-            'recordsTotal',
-            'recordsFiltered',
-            'data' => ['*' => ['number', 'orderNo', 'date', 'total', 'status', 'Action']],
+            'success',
+            'data' => [
+                'current_page',
+                'data' => [
+                    '*' => [
+                        'number',
+                        'OrderNo',
+                        'date',
+                        'total',
+                        'paid',
+                        'balance',
+                        'status',
+                        'action',
+                    ],
+                ],
+                'first_page_url',
+                'from',
+                'next_page_url',
+                'path',
+                'per_page',
+                'prev_page_url',
+                'to',
+            ],
         ]);
+    }
+
+    public function test_get_client_dashboard_details()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        Invoice::factory(['user_id' => $user->id, 'status' => 'pending'])->create();
+        Order::factory(10)->create();
+        $pendingInvoicesCount = $user->invoice()->where('status', 'pending')->count();
+        $ordersCount = $user->order()->count();
+        $renewalCount = $user->order()
+            ->whereHas('subscription', function ($query) {
+                $query->where('update_ends_at', '<', now());
+            })
+            ->count();
+
+        $response = $this->call('get', 'client-dashboard-details');
+        $data = $response['data'];
+        $this->assertEquals($data['status'], 'pending');
+        $this->assertEquals($data['updated_ends_at'], 'expired');
+        $this->assertDatabaseHas('users', ['id' => $user->id]);
+        $this->assertEquals($data['pendingInvoicesCount'], $pendingInvoicesCount);
     }
 }

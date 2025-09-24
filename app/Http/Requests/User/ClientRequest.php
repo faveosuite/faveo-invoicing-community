@@ -3,6 +3,7 @@
 namespace App\Http\Requests\User;
 
 use App\Http\Requests\Request;
+use App\Rules\PhoneNumber;
 
 class ClientRequest extends Request
 {
@@ -24,14 +25,14 @@ class ClientRequest extends Request
     public function rules()
     {
         switch ($this->method()) {
-            case 'POST':
+            case 'PUT':
                 return [
                     'first_name' => 'required',
                     'last_name' => 'required',
                     'company' => 'required',
                     'email' => 'required|email|unique:users|unique:settings,email|unique:settings,company_email',
                     'address' => 'required',
-                    'mobile' => 'required|unique:users,mobile',
+                    'mobile' => ['required', new PhoneNumber($this->mobile_country_iso)],
                     'country' => 'required|exists:countries,country_code_char2',
                     'timezone_id' => 'required',
                     'user_name' => 'unique:users,user_name|unique:settings,email|unique:settings,company_email',
@@ -48,7 +49,7 @@ class ClientRequest extends Request
                     'email' => 'required|email|unique:users,email,'.$this->getSegmentFromEnd().',id|unique:settings,email|unique:settings,company_email',
                     'company' => 'required',
                     'address' => 'required',
-                    'mobile' => 'required|unique:users,mobile,'.$id,
+                    'mobile' => ['required', new PhoneNumber($this->mobile_country_iso)],
                     'timezone_id' => 'required',
                     'user_name' => 'unique:users,user_name,'.$id.'|unique:settings,email|unique:settings,company_email',
                     'zip' => 'regex:/^[a-zA-Z0-9]+$/',
@@ -56,7 +57,7 @@ class ClientRequest extends Request
                 ];
 
             default:
-                break;
+                return [];
         }
     }
 

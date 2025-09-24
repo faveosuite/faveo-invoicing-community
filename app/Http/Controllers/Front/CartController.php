@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Front;
 
+use App\Facades\Cart;
 use App\Http\Controllers\Common\TemplateController;
 use App\Model\Common\Setting;
 use App\Model\Order\Invoice;
@@ -13,7 +14,7 @@ use App\Model\Payment\TaxByState;
 use App\Model\Payment\TaxOption;
 use App\Model\Product\Product;
 use App\User;
-use Cart;
+//use Cart;
 use Illuminate\Http\Request;
 use Session;
 
@@ -36,6 +37,8 @@ class CartController extends BaseCartController
     public $tax_by_state;
 
     public $setting;
+
+    public $cart;
 
     public function __construct()
     {
@@ -62,6 +65,7 @@ class CartController extends BaseCartController
 
         $tax_by_state = new TaxByState();
         $this->tax_by_state = new $tax_by_state();
+        $this->cart = new Cart();
     }
 
     /**
@@ -93,16 +97,19 @@ class CartController extends BaseCartController
             if ($request->has('domain')) {
                 $domain = $request->input('domain').'.'.cloudSubDomain();
             }
-//            if (! Cart::get($id)) {
+            //if (! property_exists($subscription, $this->cart->getContent())) {
             $items = $this->addProduct($id, $domain);
-            Cart::add($items);
-//            }
+//                \Cart::add($items); //Add Items To the Cart Collection
+            //  }
+            $url = url('show/cart');
 
-            return redirect('show/cart');
+            return successResponse('cart Redirect', ['url' => $url]);
+            // return redirect('show/cart');
         } catch (\Exception $ex) {
             \Logger::exception($ex);
 
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse($ex->getMessage());
+            //return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -138,7 +145,6 @@ class CartController extends BaseCartController
 
                 $planid = $query->value('id');
             }
-
             $product = Product::find($id);
             $plan = $product->planRelation->find($planid);
             if ($plan) { //If Plan For a Product exists
@@ -159,7 +165,12 @@ class CartController extends BaseCartController
             $agents = $agtQty != null ? $agtQty : 0;
             $items = ['id' => $planid, 'name' => $product->name, 'price' => $actualPrice,
                 'quantity' => $qty, 'attributes' => ['currency' => $currency['currency'], 'symbol' => $currency['symbol'], 'agents' => $agents, 'domain' => $domain], 'associatedModel' => $product];
+            $cart = new Cart();
+            $attribute = ['currency' => $currency['currency'], 'symbol' => $currency['symbol'], 'agents' => $agents, 'domain' => $domain];
+            $cart->add($planid, $product->name, $actualPrice,
+                $qty, $attribute, '', $product);
 
+//
             return $items;
         } catch (\Exception $e) {
             \Logger::exception($e);
@@ -185,29 +196,33 @@ class CartController extends BaseCartController
     public function showCart()
     {
         try {
-            $cartCollection = Cart::getContent();
+            $cartCollection = $this->cart->getContent();
+
             foreach ($cartCollection as $item) {
-                $cart_currency = $item->attributes->currency;
+                $cart_currency = $item['attributes']['currency'];
                 \Session::put('currency', $cart_currency);
                 $unpaidInvoice = $this->checkUnpaidInvoices($item);
 
                 if ($unpaidInvoice) {
-                    Cart::clear($item->id);
+                    $this->cart->clear();
 
                     return redirect('my-invoice/'.$unpaidInvoice->id.'#invoice-section')
                     ->with('warning', __('message.unpaid_invoice_warning'));
                 }
             }
 
-            $cartCollection = Cart::getContent()->sortByDesc(function ($item) {
-                return (int) $item->id;
+            $cartCollection = $this->cart->getContent()->sortByDesc(function ($item) {
+                return (int) $item['id'];
             });
+            $cart = $this->cart;
 
-            return view('themes.default1.front.cart', compact('cartCollection'));
+            return successResponse('', ['cartCollection' => $cartCollection, 'cart' => $cart]);
+            //return view('themes.default1.front.cart', compact('cartCollection', 'cart'));
         } catch (\Exception $ex) {
             \Logger::exception($ex);
 
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse($ex->getMessage());
+            // return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
 
@@ -229,7 +244,7 @@ class CartController extends BaseCartController
                 ->first();
 
             if ($unpaidInvoice) {
-                Cart::clear($item->id);
+                $this->cart->clear();
 
                 return $unpaidInvoice;
             }
@@ -246,28 +261,32 @@ class CartController extends BaseCartController
      */
     public function cartRemove(Request $request)
     {
-        $id = $request->input('id');
-        Cart::remove($id);
-        Cart::removeConditionsByType('tax');
-        Cart::removeConditionsByType('coupon');
-        Cart::clearItemConditions($id);
+        try {
+            $id = $request->input('id');
+            $this->cart->remove($id);
 
-        return 'success';
+//        Cart::removeConditionsByType('tax');
+//        Cart::removeConditionsByType('coupon');
+//        Cart::clearItemConditions($id);
+            return successResponse(__('message.success'));
+        } catch (\Exception $ex) {
+            return errorResponse(__('message.fail'));
+        }
     }
 
     /**
      * This function removes overall cart content.
      *
      * @param
-     * @return \Illuminate\Http\RedirectResponse
+     * @return
      */
     public function clearCart()
     {
-        foreach (Cart::getContent() as $item) {
-            Cart::remove($item->id);
-            Cart::clearItemConditions($item->id);
-            if (\Session::has('domain'.$item->id)) {
-                \Session::forget('domain'.$item->id);
+        foreach ($this->cart->getContent() as $item) {
+            $this->cart->remove($item['id']);
+//            $this->cart->clearItemConditions($item->id);
+            if (\Session::has('domain'.$item['id'])) {
+                \Session::forget('domain'.$item['id']);
             }
         }
 
@@ -276,10 +295,10 @@ class CartController extends BaseCartController
         }
         $renew_control = new \App\Http\Controllers\Order\RenewController();
         $renew_control->removeSession();
-        Cart::clearCartConditions();
-        Cart::clear();
+//        Cart::clearCartConditions();
+        $this->cart->clear();
 
-        return redirect('show/cart');
+        return successResponse(__('message.removed_successfully'));
     }
 
     /**
@@ -381,12 +400,15 @@ class CartController extends BaseCartController
             $promo_controller = new \App\Http\Controllers\Payment\PromotionController();
             $result = $promo_controller->checkCode($code);
             if ($result == 'success') {
-                return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
+                return successResponse(\Lang::get('message.updated-successfully'));
+                // return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
             }
 
-            return redirect()->back();
+            return errorResponse('Not Updated');
+            //return redirect()->back();
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse($ex->getMessage());
+            // return redirect()->back()->with('fails', $ex->getMessage());
         }
     }
 

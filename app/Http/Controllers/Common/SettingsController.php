@@ -6,7 +6,6 @@ use App\ApiKey;
 use App\Email_log;
 use App\EmailValidationResults;
 use App\Facades\Attach;
-use App\Http\Controllers\BillingInstaller\InstallerController;
 use App\Http\Requests\Common\SettingsRequest;
 use App\Model\Common\Country;
 use App\Model\Common\EmailMobileValidationProviders;
@@ -17,12 +16,10 @@ use App\Model\Common\StatusSetting;
 use App\Model\Common\Template;
 use App\Model\Github\Github;
 use App\Model\Mailjob\QueueService;
-use App\Model\Order\Order;
 use App\Model\Payment\Currency;
 use App\Model\Plugin;
 use App\Payment_log;
 use App\User;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
@@ -60,16 +57,21 @@ class SettingsController extends BaseSettingsController
 
     public function plugins()
     {
-        $a = [];
-        $payment = new PaymentSettingsController();
-        $pay = $payment->fetchConfig();
+        try {
+            $payment = new PaymentSettingsController();
+            $pay = $payment->fetchConfig();
 
-        $status = Plugin::all();
+            $status = Plugin::all();
 
-        // $demo = json_decode(json_encode($plug));
-        // $status = collect($demo)->all();
+            $response = [
+                'payment_config' => $pay,
+                'plugins' => $status,
+            ];
 
-        return view('themes.default1.common.plugins', compact('pay', 'status'));
+            return successResponse(__('message.data-retrieved-successfully'), $response);
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
     }
 
     /**
@@ -79,7 +81,7 @@ class SettingsController extends BaseSettingsController
      */
     public function licensekeys(ApiKey $apikeys)
     {
-        [$licenseSecret, $licenseUrl,$licenseClientId,$licenseClientSecret,$licenseGrantType] = array_values($apikeys->select('license_api_secret',
+        [$licenseSecret, $licenseUrl, $licenseClientId, $licenseClientSecret, $licenseGrantType] = array_values($apikeys->select('license_api_secret',
             'license_api_url', 'license_client_id', 'license_client_secret', 'license_grant_type')->first()->toArray());
         $data = [
             'licenseGrantType' => $licenseGrantType,
@@ -94,7 +96,7 @@ class SettingsController extends BaseSettingsController
 
     public function mobileVerification(ApiKey $apikeys)
     {
-        [$mobileauthkey,$msg91Sender,$msg91TemplateId,$msg91ThirdPartyId] = array_values($apikeys->select('msg91_auth_key', 'msg91_sender', 'msg91_template_id', 'msg91_third_party_id')->first()->toArray());
+        [$mobileauthkey, $msg91Sender, $msg91TemplateId, $msg91ThirdPartyId] = array_values($apikeys->select('msg91_auth_key', 'msg91_sender', 'msg91_template_id', 'msg91_third_party_id')->first()->toArray());
 
         $data = [
             'mobileauthkey' => $mobileauthkey,
@@ -204,12 +206,7 @@ class SettingsController extends BaseSettingsController
 
             return successResponse('', $data);
         } catch (\Exception $e) {
-            $data = [
-                'githubFileds' => '',
-
-            ];
-
-            return successResponse('', $data);
+            return errorResponse(__('message.error_fetching_githubkeys'));
         }
     }
 
@@ -436,23 +433,22 @@ class SettingsController extends BaseSettingsController
     public function settingsSystem(Setting $settings)
     {
         try {
-            $set = $settings->find(1);
-            $state = getStateByCode($set->country, $set->state);
-            $selectedCountry = \DB::table('countries')->where('country_code_char2', $set->country)
-                ->pluck('country_name', 'country_code_char2')->toArray();
-            $selectedCurrency = \DB::table('currencies')->where('code', $set->default_currency)
-                ->pluck('name', 'symbol')->toArray();
-            $states = findStateByRegionId($set->country);
-            $response = (new InstallerController())->languageList();
-            $languages = $response->getData()->data ?? [];
-            $defaultLang = optional(Setting::first())->content;
+            $settings = Setting::findOrFail(1);
 
-            return view(
-                'themes.default1.common.setting.system',
-                compact('set', 'selectedCountry', 'state', 'states', 'selectedCurrency', 'languages', 'defaultLang')
-            );
+            $settings = Setting::with([
+                'defaultCurrency:id,code,name',
+                'country' => function ($q) use ($settings) {
+                    $q->select('country_id', 'country_name', 'country_code_char2')
+                        ->with(['states' => function ($stateQ) use ($settings) {
+                            $stateQ->where('iso2', $settings->state);
+                        }]);
+                },
+                'language:id,name,locale',
+            ])->findOrFail(1);
+
+            return successResponse(__('message.system_setting_fetched'), $settings);
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse(__('message.error_fetch_system_settings'));
         }
     }
 
@@ -478,14 +474,14 @@ class SettingsController extends BaseSettingsController
             }
 
             $setting->default_symbol = Currency::where('code', $request->input('default_currency'))
-                            ->pluck('symbol')->first();
+                ->pluck('symbol')->first();
             $setting->content = $request->input('language');
 
             $setting->fill(Arr::except($input, ['password', 'logo', 'admin-logo', 'fav-icon']))->save();
 
-            return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
+            return successResponse(__('message.updated-successfully'));
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse($ex->getMessage());
         }
     }
 
@@ -541,12 +537,18 @@ class SettingsController extends BaseSettingsController
     {
         try {
             $set = $settings->find(1);
+
+            if (! $set) {
+                return errorResponse(__('meessage.template_settings_found'));
+            }
             $template = new Template();
 
-            //$templates = $template->lists('name', 'id')->toArray();
-            return view('themes.default1.common.setting.template', compact('set', 'template'));
+            return successResponse('', [
+                'settings' => $set,
+                'template' => $template,
+            ]);
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse(__('message.unable_to_fetch_template_settings'));
         }
     }
 
@@ -556,9 +558,11 @@ class SettingsController extends BaseSettingsController
             $setting = $settings->find(1);
             $setting->fill($request->input())->save();
 
-            return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
+            return successResponse(__('message.updated-successfully'));
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            \Log::error('Template Settings API Error: '.$ex->getMessage());
+
+            return errorResponse(__('message.something_wrong_while_updating_template_settings'));
         }
     }
 
@@ -628,64 +632,6 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    public function getActivity(Request $request)
-    {
-        try {
-            $baseQuery = Activity::query()
-                ->leftJoin('users', 'activity_log.causer_id', '=', 'users.id')
-                ->select(
-                    'activity_log.id',
-                    'activity_log.log_name',
-                    'activity_log.description',
-                    'activity_log.event',
-                    'activity_log.causer_type',
-                    'activity_log.causer_id',
-                    'activity_log.created_at',
-                    'activity_log.properties',
-                    'users.first_name',
-                    'users.last_name',
-                    'users.email',
-                    'users.role as user_role'
-                )
-                ->with(['causer:id,user_name,role,first_name,last_name,email']);
-
-            $baseQuery = $this->filterQuery($baseQuery);
-
-            if ($search = $request->input('search.value')) {
-                $baseQuery->where(function ($query) use ($search) {
-                    $query->where('activity_log.log_name', 'like', "%{$search}%")
-                        ->orWhere('activity_log.event', 'like', "%{$search}%")
-                        ->orWhere('activity_log.description', 'like', "%{$search}%")
-                        ->orWhere('users.first_name', 'like', "%{$search}%")
-                        ->orWhere('users.last_name', 'like', "%{$search}%")
-                        ->orWhere('users.email', 'like', "%{$search}%")
-                        ->orWhere('users.role', 'like', "%{$search}%")
-                        ->orWhereRaw("CONCAT(users.first_name, ' ', users.last_name) LIKE ?", ["%{$search}%"]);
-                });
-            }
-
-            return \DataTables::of($baseQuery)
-                ->addColumn('module', fn ($row) => $row->log_name ?? '---')
-                ->addColumn('event', fn ($row) => ucfirst($row->event ?? '---'))
-                ->addColumn('role', fn ($row) => ucfirst($row->user_role ?? '---'))
-                ->addColumn('detailed_properties', fn ($row) => $this->formatProperties($row->properties, $row->event))
-                ->addColumn('performed_by', fn ($row) => $this->generateLinkForPerformedBy($row->causer) ?? __('message.system'))
-                ->addColumn('created_at', fn ($row) => $row->created_at ? getDateHtml($row->created_at) : '---')
-                ->addColumn('description', fn ($row) => $row->description ?? '---')
-
-                ->orderColumn('module', 'activity_log.log_name $1')
-                ->orderColumn('event', 'activity_log.event $1')
-                ->orderColumn('role', 'users.role $1')
-                ->orderColumn('description', 'activity_log.description $1')
-                ->orderColumn('created_at', 'activity_log.created_at $1')
-
-                ->rawColumns(['performed_by', 'created_at', 'description'])
-                ->make(true);
-        } catch (\Exception $e) {
-            return errorResponse($e->getMessage());
-        }
-    }
-
     public function getMails(Request $request)
     {
         try {
@@ -695,15 +641,13 @@ class SettingsController extends BaseSettingsController
             $email_log = $this->mailSearch($from, $till);
 
             return Datatables::of($email_log)
-            ->orderColumn('date', '-date $1')
-            ->orderColumn('from', '-date $1')
-             ->orderColumn('to', '-date $1')
-            ->orderColumn('subject', '-date $1')
-
+                ->orderColumn('date', '-date $1')
+                ->orderColumn('from', '-date $1')
+                ->orderColumn('to', '-date $1')
+                ->orderColumn('subject', '-date $1')
                 ->addColumn('checkbox', function ($model) {
                     return "<input type='checkbox' class='email' value=".$model->id.' name=select[] id=check>';
                 })
-
                 ->addColumn('date', function ($model) {
                     $date = $model->date;
 
@@ -717,12 +661,11 @@ class SettingsController extends BaseSettingsController
 
                     return '<a href='.url('clients/'.$id).'>'.ucfirst($model->to).'<a>';
                 })
-
                 ->addColumn('subject', function ($model) {
                     return '<a href="#" class="text-primary view-mail" data-id="'.$model->id.'">'.e(ucfirst($model->subject)).'</a>';
                 })
                 ->rawColumns(['checkbox', 'date', 'from', 'to',
-                    'bcc', 'subject',  'status', ])
+                    'bcc', 'subject', 'status', ])
                 ->filterColumn('from', function ($query, $keyword) {
                     $sql = '`from` like ?';
                     $query->whereRaw($sql, ["%{$keyword}%"]);
@@ -740,7 +683,7 @@ class SettingsController extends BaseSettingsController
                     $query->whereRaw($sql, ["%{$keyword}%"]);
                 })
                 ->rawColumns(['checkbox', 'date', 'from', 'to',
-                    'bcc', 'subject',  'status', ])
+                    'bcc', 'subject', 'status', ])
                 ->make(true);
         } catch (\Exception $e) {
             return redirect()->back()->with('fails', $e->getMessage());
@@ -780,37 +723,37 @@ class SettingsController extends BaseSettingsController
                         echo "<div class='alert alert-danger alert-dismissable'>
                         <i class='fa fa-ban'></i>
 
-                        <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                            /* @scrutinizer ignore-type */     \Lang::get('message.failed').'
+                        <b>". /* @scrutinizer ignore-type */ \Lang::get('message.alert').'!</b> '.
+                            /* @scrutinizer ignore-type */ \Lang::get('message.failed').'
 
                         <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                            './* @scrutinizer ignore-type */\Lang::get('message.no-record').'
+                            '. /* @scrutinizer ignore-type */ \Lang::get('message.no-record').'
                     </div>';
                         //echo \Lang::get('message.no-record') . '  [id=>' . $id . ']';
                     }
                 }
                 echo "<div class='alert alert-success alert-dismissable'>
                         <i class='fa fa-ban'></i>
-                        <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '
-                    ./* @scrutinizer ignore-type */\Lang::get('message.success').'
+                        <b>". /* @scrutinizer ignore-type */ \Lang::get('message.alert').'!</b> '
+                    . /* @scrutinizer ignore-type */ \Lang::get('message.success').'
                         <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                            './* @scrutinizer ignore-type */ \Lang::get('message.deleted-successfully').'
+                            '. /* @scrutinizer ignore-type */ \Lang::get('message.deleted-successfully').'
                     </div>';
             } else {
                 echo "<div class='alert alert-danger alert-dismissable'>
                         <i class='fa fa-ban'></i>
-                        <b>"./* @scrutinizer ignore-type */ \Lang::get('message.alert').
-                    '!</b> './* @scrutinizer ignore-type */\Lang::get('message.failed').'
+                        <b>". /* @scrutinizer ignore-type */ \Lang::get('message.alert').
+                    '!</b> '. /* @scrutinizer ignore-type */ \Lang::get('message.failed').'
                         <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                            './* @scrutinizer ignore-type */ \Lang::get('message.select-a-row').'
+                            '. /* @scrutinizer ignore-type */ \Lang::get('message.select-a-row').'
                     </div>';
                 //echo \Lang::get('message.select-a-row');
             }
         } catch (\Exception $e) {
             echo "<div class='alert alert-danger alert-dismissable'>
                         <i class='fa fa-ban'></i>
-                        <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                /* @scrutinizer ignore-type */\Lang::get('message.failed').'
+                        <b>". /* @scrutinizer ignore-type */ \Lang::get('message.alert').'!</b> '.
+                /* @scrutinizer ignore-type */ \Lang::get('message.failed').'
                         <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
                             '.\Lang::get('message.err_msg.').'
                     </div>';
@@ -831,7 +774,15 @@ class SettingsController extends BaseSettingsController
 
     public function debugSettings()
     {
-        return view('themes.default1.common.setting.debugging');
+        try {
+            $debug = config('app.debug');
+
+            return successResponse('', [
+                'debug' => (bool) $debug,
+            ]);
+        } catch (\Exception $e) {
+            return errorResponse(__('message.something_went_wrong_try_again'));
+        }
     }
 
     public function postdebugSettings(Request $request)
@@ -843,7 +794,7 @@ class SettingsController extends BaseSettingsController
             'CLOCKWORK_ENABLE' => $enable ? 'true' : 'false',
         ]);
 
-        return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
+        return successResponse(__('message.updated-successfully'));
     }
 
     public function settingsPayment(Setting $settings, Request $request)
@@ -858,116 +809,93 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    public function getPaymentlog(Request $request)
+    public function getPaymentLog(Request $request)
     {
         try {
-            $from = $request->input('from');
-            $till = $request->input('till');
-            $query = $this->paymentSearch($from, $till);
+            $search = $request->input('search-query', '');
+            $sortField = $request->input('sort-field', 'created_at');
+            $sortOrder = $request->input('sort-order', 'desc');
+            $limit = $request->input('limit', 10);
 
-            return Datatables::of($query)
-            ->orderColumn('date', '-date $1')
-            ->orderColumn('user', '-date $1')
-            ->orderColumn('ordernumber', '-date $1')
-            ->orderColumn('amount', '-date $1')
-            ->orderColumn('paymenttype', '-date $1')
-            ->orderColumn('paymentmethod', '-date $1')
-            ->orderColumn('status', '-date $1')
+            // Base query
+            $paymentLog = $this->paymentLogData();
 
-                ->addColumn('checkbox', function ($model) {
-                    return "<input type='checkbox' class='email' value=".$model->count.' name=select[] id=check>';
-                })
+            // Apply reusable filters
+            $paymentLog = $this->filterQueryForPaymentLog($paymentLog);
 
-                ->addColumn('date', function ($model) {
-                    $date = $model->date;
+            // Search filter
+            if (! empty($search)) {
+                $paymentLog->where(function ($q) use ($search) {
+                    $q->whereHas('orderDetails', fn ($sub) => $sub->where('number', 'like', "%{$search}%"))
+                        ->orWhere('status', 'like', "%{$search}%")
+                        ->orWhere('order', 'like', "%{$search}%")
+                        ->orWhere('from', 'like', "%{$search}%")
+                        ->orWhere('payment_type', 'like', "%{$search}%")
+                        ->orWhere('payment_method', 'like', "%{$search}%")
+                        ->orWhereHas('user', function ($sub) use ($search) {
+                            $sub->where('email', 'like', "%{$search}%")
+                                ->orWhere('user_name', 'like', "%{$search}%")
+                                ->orWhere('first_name', 'like', "%{$search}%")
+                                ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]);
+                        });
+                });
+            }
 
-                    return getDateHtml($date);
-                })
-                ->addColumn('user', function ($model) {
-                    $user = User::where('email', $model->from)->select('first_name', 'last_name', 'id')->first();
-                    if ($user) {
-                        return '<a href='.url('clients/'.$model->id).'>'.ucfirst($model->name).'</a>';
-                    }
+            // Sorting + pagination
+            $paymentLog = $paymentLog->orderBy($sortField, $sortOrder)->simplePaginate($limit);
+            $total = $paymentLog->count();
 
-                    return '';
-                })
+            // Transform response
+            $paymentLog->getCollection()->transform(function ($log) {
+                $userName = $log->user ? trim($log->user->first_name.' '.$log->user->last_name) : null;
 
-                ->addColumn('paymentmethod', function ($model) {
-                    return ucfirst($model->payment_method);
-                })
-                ->addColumn('ordernumber', function ($model) {
-                    $id = Order::where('number', $model->order)->select('id')->value('id');
-                    $orderLink = '<a href='.url('orders/'.$id).'>'.$model->order.'</a>';
+                return [
+                    'id' => $log->id,
+                    'order_number' => $log->order,
+                    //  'order_link' => $log->orderDetails ? $this->hyperLinkGenerator('orders/'.$log->orderDetails->id, $log->order) : null,
+                    'order_id' => $log->orderDetails->id ?? null,
+                    'payment_email' => $log->from,
+                    'user_name' => $userName,
+                    'user_email' => $log->user->email ?? null,
+                    // 'user_link' => $log->user ? $this->hyperLinkGenerator('clients/'.$log->user->id, $userName) : null,
+                    'user_id' => $log->user->id ?? null,
+                    'amount' => $log->amount,
+                    'description' => ucfirst($log->payment_type),
+                    'payment_method' => ucfirst($log->payment_method),
+                    'status' => ucfirst($log->status),
+                    'exception' => $log->exception,
+                    'date' => $log->date,
+                ];
+            });
 
-                    return $orderLink;
-                })
-                ->addColumn('amount', function ($model) {
-                    return ucfirst($model->amount);
-                })
-                ->addColumn('paymenttype', function ($model) {
-                    return ucfirst($model->payment_type);
-                })
-                ->addColumn('status', function ($model) {
-                    if ($model->status === 'failed') {
-                        $exceptionMessage = $model->exception;
-
-                        return '<a href="#" class="show-exception" data-message="'.$exceptionMessage.'">'.__('message.failed').'</a>';
-                    }
-
-                    return ucfirst($model->status);
-                })
-                ->rawColumns(['checkbox', 'date', 'user',
-                    'bcc', 'status', 'paymentmethod', 'ordernumber', 'amount', 'paymenttype'])
-
-                ->filterColumn('user', function ($model, $keyword) {
-                    $model->whereRaw("CONCAT(first_name, ' ',last_name) like ?", ["%$keyword%"]);
-                })
-
-                ->filterColumn('status', function ($query, $keyword) {
-                    $sql = '`status` like ?';
-                    $query->whereRaw($sql, ["%{$keyword}%"]);
-                })
-                ->filterColumn('paymenttype', function ($query, $keyword) {
-                    $sql = '`payment_type` like ?';
-                    $query->whereRaw($sql, ["%{$keyword}%"]);
-                })
-                ->filterColumn('amount', function ($query, $keyword) {
-                    $sql = '`amount` like ?';
-                    $query->whereRaw($sql, ["%{$keyword}%"]);
-                })
-                 ->filterColumn('paymentmethod', function ($query, $keyword) {
-                     $sql = '`payment_method` like ?';
-                     $query->whereRaw($sql, ["%{$keyword}%"]);
-                 })
-                 ->filterColumn('ordernumber', function ($query, $keyword) {
-                     $sql = '`order` like ?';
-                     $query->whereRaw($sql, ["%{$keyword}%"]);
-                 })
-
-                ->make(true);
+            return successResponse(__('message.payment_logs_retrieved'), [
+                'logs' => $paymentLog,
+                'total' => $total,
+            ]);
         } catch (\Exception $e) {
-            return redirect()->back()->with('fails', $e->getMessage());
+            return errorResponse($e->getMessage());
         }
     }
 
-    public function paymentSearch($from = '', $till = '')
+    protected function paymentLogData()
     {
-        $join = Payment_log::query()->leftJoin('users', 'payment_logs.from', '=', 'users.email')
-            ->select('payment_logs.id', 'from', 'to', 'date', 'subject', 'status', 'payment_logs.created_at', 'payment_method', 'order', 'exception', 'email', \DB::raw("CONCAT(first_name, ' ', last_name) as name"), 'users.id', 'payment_logs.id as count', 'amount', 'payment_type');
-
-        if ($from || $till) {
-            $fromDate = $from
-                ? Carbon::parse($this->DateFormat($from))->startOfDay()
-                : Carbon::parse(Payment_log::oldest('date')->value('date'))->startOfDay();
-
-            $tillDate = $till
-                ? Carbon::parse($this->DateFormat($till))->endOfDay()
-                : Carbon::now()->endOfDay();
-
-            $join->whereBetween('date', [$fromDate, $tillDate]);
-        }
-
-        return $join;
+        return Payment_log::with([
+            'user:id,first_name,last_name,email,user_name',
+            'orderDetails',
+        ])->select([
+            'id',
+            'from',
+            'to',
+            'date',
+            'subject',
+            'status',
+            'created_at',
+            'payment_method',
+            'order',
+            'exception',
+            'amount',
+            'payment_type',
+        ]);
     }
 
     private function DateFormat($date = null)
@@ -983,60 +911,40 @@ class SettingsController extends BaseSettingsController
     {
         try {
             $ids = $request->input('select');
-            if (! empty($ids)) {
-                foreach ($ids as $id) {
-                    $email = \DB::table('payment_logs')->where('id', $id)->delete();
-                    if ($email) {
-                        // $email->delete();
-                    } else {
-                        echo "<div class='alert alert-danger alert-dismissable'>
-                        <i class='fa fa-ban'></i>
 
-                        <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                        /* @scrutinizer ignore-type */     \Lang::get('message.failed').'
+            if (empty($ids) || ! is_array($ids)) {
+                return errorResponse(__('message.select-a-row'), 400);
+            }
 
-                        <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                            './* @scrutinizer ignore-type */\Lang::get('message.no-record').'
-                    </div>';
-                        //echo \Lang::get('message.no-record') . '  [id=>' . $id . ']';
-                    }
-                }
-                echo "<div class='alert alert-success alert-dismissable'>
-                        <i class='fa fa-ban'></i>
-                        <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '
-                        ./* @scrutinizer ignore-type */\Lang::get('message.success').'
-                        <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                            './* @scrutinizer ignore-type */ \Lang::get('message.deleted-successfully').'
-                    </div>';
+            $deleted = Payment_log::whereIn('id', $ids)->delete();
+
+            if ($deleted) {
+                return successResponse(__('message.deleted-successfully'));
             } else {
-                echo "<div class='alert alert-danger alert-dismissable'>
-                        <i class='fa fa-ban'></i>
-                        <b>"./* @scrutinizer ignore-type */ \Lang::get('message.alert').
-                        '!</b> './* @scrutinizer ignore-type */\Lang::get('message.failed').'
-                        <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                            './* @scrutinizer ignore-type */ \Lang::get('message.select-a-row').'
-                    </div>';
-                //echo \Lang::get('message.select-a-row');
+                return errorResponse(__('message.no_record_found'), 404);
             }
         } catch (\Exception $e) {
-            echo "<div class='alert alert-danger alert-dismissable'>
-                        <i class='fa fa-ban'></i>
-                        <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                        /* @scrutinizer ignore-type */\Lang::get('message.failed').'
-                        <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                            '.$e->getMessage().'
-                    </div>';
+            return errorResponse($e->getMessage());
         }
     }
 
     public function contactOption()
     {
-        $mailSendingStatus = Setting::value('sending_status');
-        $emailStatus = StatusSetting::value('emailverification_status');
-        $mobileStatus = StatusSetting::value('msg91_status');
-        $preferred_verification = ApiKey::value('verification_preference');
+        try {
+            $mailSendingStatus = Setting::value('sending_status');
+            $emailStatus = StatusSetting::value('emailverification_status');
+            $mobileStatus = StatusSetting::value('msg91_status');
+            $preferred_verification = ApiKey::value('verification_preference');
 
-        return view('themes.default1.common.setting.contact-options', compact('mailSendingStatus', 'emailStatus', 'mobileStatus', 'preferred_verification'));
+            return successResponse(__('message.contact_options_retrieved'), [
+                'mailSendingStatus' => $mailSendingStatus,
+                'emailStatus' => $emailStatus,
+                'mobileStatus' => $mobileStatus,
+                'preferred_verification' => $preferred_verification,
+            ]);
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
     }
 
     public function postContactOption(Request $request)
@@ -1056,61 +964,67 @@ class SettingsController extends BaseSettingsController
 
     public function emailData(Request $request)
     {
-        ['api_key' => $apikey, 'mode' => $mode,'accepted_output' => $current] = EmailMobileValidationProviders::where('provider', $request->input('value'))
-            ->select('api_key', 'mode', 'accepted_output')
-            ->first()
-            ->toArray();
+        try {
+            $providerValue = $request->input('value');
 
-        $label2 = html()->label(__('message.emailApikey'), 'emailApikey')->class('required')->toHtml();
-        $input = html()->text('emailApikey', $apikey)->class('form-control emailapikey')->id('emailApikey')->toHtml();
-        $label1 = html()->label(__('message.emailMode'), 'emailMode')->class('required')->toHtml();
-        $input1 = html()->text('emailMode', $mode)->class('form-control emailMode')->id('emailMode')->toHtml();
-        $input3 = '<select class="form-control emailMode" id="emailMode" name="emailMode">'
-            .'<option value="quick"'.($mode == 'quick' ? ' selected' : '').'>Quick</option>'
-            .'<option value="power"'.($mode == 'power' ? ' selected' : '').'>Power</option>'
-            .'</select>';
-
-        if ($request->input('value') === 'reoon') {
-            $response = '<div>
-        <div class="form-group">'.$label2.$input.'</div>
-        <div class="form-group">'.$label1.$input3.'</div>
-         <div class="form-group" id="checkboxToRender">
-                </div>
-        
-            </div>';
-            if ($mode == 'power') {
-                $statusOptions = $this->setStatus($current);
-                $response = '<div>
-        <div class="form-group">'.$label2.$input.'</div>
-        <div class="form-group">'.$label1.$input3.'</div>
-         <div class="form-group" id="checkboxToRender">
-         <div class="form-group">
-            <label for="allowed_statuses" class="required">'.__('message.allowed_estatus').'</label>'
-                    .$statusOptions.
-                    '</div>
-                </div>
-                <span class="error invalid-feedback d-block" id="checkboxErrorMessage"></span>
-            </div>';
+            if (! $providerValue) {
+                return errorResponse(__('message.providers_value_required'), 422);
             }
-        } else {
-            $response = '';
-        }
 
-        return successResponse(trans('message.success'), $response);
+            // Fetch provider details
+            $provider = EmailMobileValidationProviders::where('provider', $providerValue)
+                ->select('api_key', 'mode', 'accepted_output')
+                ->first();
+
+            if (! $provider) {
+                return errorResponse(__('message.provider_not_found'), [], 404);
+            }
+
+            $data = [
+                'api_key' => $provider->api_key,
+                'mode' => $provider->mode,
+                'available_modes' => [
+                    ['value' => 'quick', 'label' => 'Quick'],
+                    ['value' => 'power', 'label' => 'Power'],
+                ],
+                'show_checkboxes' => false,
+                'allowed_statuses' => [],
+            ];
+
+            if ($providerValue === 'reoon') {
+                $data['show_checkboxes'] = true;
+
+                if ($provider->mode === 'power') {
+                    $data['allowed_statuses'] = $this->setStatus($provider->accepted_output);
+                }
+            }
+
+            return successResponse(__('message.success'), $data);
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
     }
 
     public function emailCheckboxData()
     {
-        $current = EmailMobileValidationProviders::where('provider', 'reoon')->value('accepted_output') ?? 1;
-        $statusOptions = $this->setStatus($current);
+        try {
+            // Fetch the accepted_output value for reoon
+            $current = EmailMobileValidationProviders::where('provider', 'reoon')
+                ->value('accepted_output');
 
-        $response = '<div class="form-group">
-            <label for="allowed_statuses" class="required">'.__('message.allowed_estatus').'</label>'
-            .$statusOptions.
-            '</div>
-            <span class="error invalid-feedback d-block" id="checkboxErrorMessage"></span>';
+            if (is_null($current)) {
+                return errorResponse('No accepted output found for reoon provider', [], 404);
+            }
 
-        return successResponse(trans('message.success'), $response);
+            // Return checkbox data as structured JSON
+            $data = [
+                'allowed_statuses' => $this->setStatus($current),
+            ];
+
+            return successResponse(__('message.success'), $data);
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
     }
 
     public function getEmailValidationLogs()
@@ -1232,52 +1146,52 @@ class SettingsController extends BaseSettingsController
             'spamtrap' => 256,
         ];
 
-        $statusOptions = '';
+        $options = [];
+
         foreach ($map as $status => $bit) {
-            $checked = ($current & $bit) ? 'checked' : '';
-            $label = ucfirst(str_replace('_', ' ', $status));
-            $statusOptions .= '<div class="form-check">
-        <input class="form-check-input emailStatusCheckbox" type="checkbox" 
-               name="allowed_statuses[]" value="'.$bit.'" id="status_'.$status.'" '.$checked.'>
-        <label class="form-check-label" for="status_'.$status.'">'.$label.'</label>
-    </div>';
+            $options[] = [
+                'label' => ucfirst(str_replace('_', ' ', $status)),
+                'value' => $bit,
+                'checked' => ($current & $bit) ? true : false,
+            ];
         }
 
-        return $statusOptions;
+        return $options;
     }
 
     public function mobileData(Request $request)
     {
-        $provider = $request->input('value');
+        try {
+            $provider = $request->input('value');
 
-        ['api_key' => $apikey, 'mode' => $mode,'api_secret' => $apisecret] = EmailMobileValidationProviders::where('provider', $provider)
-            ->select('api_key', 'mode', 'api_secret')
-            ->first()
-            ->toArray();
-        $label2 = html()->label(__('message.mobileApikey'), 'emailApikey')->class('required')->toHtml();
-        $input = html()->text('apikey', $apikey)->class('form-control emailapikey')->id('mobileApikey')->toHtml();
-        $label1 = html()->label(__('message.mobileApisecret'), 'apisecret')->class('required')->toHtml();
-        $input1 = html()->text('apisecret', $apisecret)->class('form-control emailMode')->id('mobileApisecret')->toHtml();
-        $label3 = html()->label(__('message.mobileMode'), 'mobileMode')->class('required')->toHtml();
-        $input3 = html()->text('mobileMode', $mode)->class('form-control mobileMode')->id('mobileMode')->toHtml();
-        $input4 = '<select class="form-control emailMode" id="mobileMode" name="mobileMode">'
-            .'<option value="basic"'.($mode == 'basic' ? ' selected' : '').'>Basic</option>'
-            .'<option value="standard"'.($mode == 'standard' ? ' selected' : '').'>Standard</option>'
-            .'<option value="advanced/async"'.($mode == 'advanced/async' ? ' selected' : '').'>Advanced</option>'
-            .'</select>';
-        if ($provider == 'vonage') {
-            $response = '<div>
-        <div class="form-group">'.$label2.$input.'</div>
-        <div class="form-group">'.$label1.$input1.'</div>
-        <div class="form-group">'.$label3.$input4.'</div>
-    </div>';
-        } else {
-            $response = '<div>
-        <div class="form-group">'.$label2.$input.'</div>
-    </div>';
+            if (! $provider) {
+                return errorResponse(__('message.providers_value_required'));
+            }
+
+            $record = EmailMobileValidationProviders::where('provider', $provider)
+                ->select('api_key', 'mode', 'api_secret')
+                ->first();
+
+            if (! $record) {
+                return errorResponse(__('message.no_configuration_found'));
+            }
+
+            $data = [
+                'provider' => $provider,
+                'api_key' => $record->api_key,
+                'api_secret' => $record->api_secret,
+                'mode' => $record->mode,
+                'available_modes' => $provider === 'vonage'
+                    ? ['basic', 'standard', 'advanced/async']
+                    : null,
+            ];
+
+            return successResponse(__('message.mobile_provider_fetched'), $data);
+        } catch (\Throwable $e) {
+            \Log::error('Mobile Data API Error: '.$e->getMessage());
+
+            return errorResponse(__('message.mobile_provider_error'));
         }
-
-        return successResponse(trans('message.success'), $response);
     }
 
     public function emailSettingsSave(Request $request)
@@ -1341,6 +1255,197 @@ class SettingsController extends BaseSettingsController
             $emailSave->where('provider', $request->input('provider'))->update(['api_key' => $request->input('apikey'), 'to_use' => 1]);
 
             return successResponse(\Lang::get('message.mobile_validation_success_abstract'));
+        }
+    }
+
+    public function getActivity(Request $request)
+    {
+        try {
+            $searchString = $request->input('search-query', '');
+            $sortOrder = $request->input('sort-order', 'desc');
+            $sortField = $request->input('sort-field', 'created_at');
+            $limit = $request->input('limit', 10);
+
+            $baseQuery = $this->getBaseQueryForSystemLogs();
+
+            // apply filters (module, event, user, date)
+            $baseQuery = $this->filterQueryForActivityLogs($baseQuery);
+
+            $total = $baseQuery->count();
+
+            // search filter
+            if (! empty($searchString)) {
+                $baseQuery->where(function ($q) use ($searchString) {
+                    $q->where('log_name', 'LIKE', "%$searchString%")
+                        ->orWhere('description', 'LIKE', "%$searchString%")
+                        ->orWhereHas('causer', function ($q) use ($searchString) {
+                            $q->where('first_name', 'LIKE', "%$searchString%")
+                                ->orWhere('last_name', 'LIKE', "%$searchString%")
+                                ->orWhere('user_name', 'LIKE', "%$searchString%")
+                                ->orWhere('email', 'LIKE', "%$searchString%")
+                                ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%$searchString%"]);
+                        });
+                });
+            }
+
+            $activityLogs = $baseQuery
+                ->orderBy($sortField, $sortOrder)
+                ->simplePaginate($limit);
+
+            $activityLogs->getCollection()->transform(function ($row) {
+                return [
+                    'id' => $row->id,
+                    'module' => $row->log_name ?? null,
+                    'event' => ucfirst($row->event ?? null),
+                    'role' => ucfirst(optional($row->causer)->role ?? null),
+                    'description' => $row->description ?? null,
+                    'detailed_properties' => $this->formatProperties($row->properties, $row->event),
+                    'performed_by' => $row->causer
+                        ? $this->generateLinkForPerformedBy($row->causer)
+                        : __('message.system'),
+                    'created_at' => $row->created_at ? getDateHtml($row->created_at) : null,
+                ];
+            });
+
+            return successResponse(__('message.activity_logs_fetched_successfully'), [
+                'activityLogs' => $activityLogs,
+                'total' => $total,
+            ]);
+        } catch (\Exception $e) {
+            return errorResponse(__('message.something_went_wrong_try_again'));
+        }
+    }
+
+    public function getBaseQueryForSystemLogs2($from = null, $till = null)
+    {
+        $query = Activity::with(['causer:id,user_name,first_name,last_name,email', 'causer.role'])->select('id', 'log_name', 'description', 'event', 'causer_id', 'causer_type', 'properties', 'created_at');
+
+        try {
+            if ($from || $till) {
+                // If only one date is provided, use it for both "from" and "till"
+                $from = $from ?: $till;
+                $till = $till ?: $from;
+
+                // Convert dates to UTC format
+                $fromUtc = toFormatDateAndTime($from);
+                $tillUtc = toFormatDateAndTime($till);
+
+                // If only date provided (no time), include the entire day
+                $fromUtc = strlen($from) <= 10 ? $fromUtc->startOfDay() : $fromUtc;
+                $tillUtc = strlen($till) <= 10 ? $tillUtc->endOfDay() : $tillUtc;
+
+                $query->whereBetween('created_at', [$fromUtc, $tillUtc]);
+            }
+
+            return $query;
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
+    }
+
+    private function searchQueryForActivityLogs($query, $search)
+    {
+        if (! empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('log_name', 'LIKE', "%$search%")
+                    ->orWhere('description', 'LIKE', "%$search%")
+                    ->orWhereHas('causer', function ($q) use ($search) {
+                        $q->where('first_name', 'LIKE', "%$search%")
+                            ->orWhere('last_name', 'LIKE', "%$search%")
+                            ->orWhere('user_name', 'LIKE', "%$search%")
+                            ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%$search%"]);
+                    });
+            });
+        }
+
+        return $query;
+    }
+
+    private function hyperLinkGenerator($href, $value): string
+    {
+        return "<a href='".url($href)."'>".$value.'</a>';
+    }
+
+    public function getModuleSettings(Request $request)
+    {
+        try {
+            $statusData = [
+                'license_status' => $this->statusSetting->value('license_status'),
+                'msg91_status' => $this->statusSetting->value('msg91_status'),
+                'recaptcha_status' => $this->statusSetting->value('recaptcha_status'),
+                'v3_recaptcha_status' => $this->statusSetting->value('v3_recaptcha_status'),
+                'twitter_status' => $this->statusSetting->value('twitter_status'),
+                'zoho_status' => $this->statusSetting->value('zoho_status'),
+                'pipedrive_status' => $this->statusSetting->value('pipedrive_status'),
+                'domain_check' => $this->statusSetting->value('domain_check'),
+                'github_status' => $this->statusSetting->first()->github_status ?? 0,
+                'mailchimp_status' => $this->statusSetting->value('mailchimp_status'),
+                'terms' => $this->statusSetting->value('terms'),
+                'v3_v2_recaptcha_status' => $this->statusSetting->value('v3_v2_recaptcha_status'),
+                'email_validation_status' => $this->statusSetting->value('email_validation_status'),
+                'mobile_validation_status' => $this->statusSetting->value('mobile_validation_status'),
+            ];
+
+            $modules = [
+                [
+                    'key' => 'license',
+                    'name' => __('message.license_heading'),
+                    'description' => __('message.license_description'),
+                    'enabled' => (bool) $statusData['license_status'],
+                ],
+                [
+                    'key' => 'recaptcha',
+                    'name' => __('message.recaptcha_heading'),
+                    'description' => __('message.google_description'),
+                    'enabled' => (bool) $statusData['v3_v2_recaptcha_status'],
+                ],
+                [
+                    'key' => 'msg91',
+                    'name' => __('message.msg91_heading'),
+                    'description' => __('message.msg91_description'),
+                    'enabled' => (bool) $statusData['msg91_status'],
+                ],
+                [
+                    'key' => 'mailchimp',
+                    'name' => __('message.mailchimp_heading'),
+                    'description' => __('message.mailchimp_description'),
+                    'enabled' => (bool) $statusData['mailchimp_status'],
+                ],
+                [
+                    'key' => 'terms',
+                    'name' => __('message.terms_heading'),
+                    'description' => __('message.terms_description'),
+                    'enabled' => (bool) $statusData['terms'],
+                ],
+                [
+                    'key' => 'pipedrive',
+                    'name' => __('message.pipedrive_heading'),
+                    'description' => __('message.pipedrive_description'),
+                    'enabled' => (bool) $statusData['pipedrive_status'],
+                ],
+                [
+                    'key' => 'github',
+                    'name' => __('message.github_heading'),
+                    'description' => __('message.github_description'),
+                    'enabled' => (bool) $statusData['github_status'],
+                ],
+                [
+                    'key' => 'email_validation',
+                    'name' => __('message.email_provider'),
+                    'description' => __('message.email_validation_description'),
+                    'enabled' => (bool) $statusData['email_validation_status'],
+                ],
+                [
+                    'key' => 'mobile_validation',
+                    'name' => __('message.mobile_provider'),
+                    'description' => __('message.mobile_validation_description'),
+                    'enabled' => (bool) $statusData['mobile_validation_status'],
+                ],
+            ];
+
+            return successResponse(__('message.data_fetched_successfully'), $modules);
+        } catch (\Exception $e) {
+            return errorResponse(__('message.something_went_wrong'), [$e->getMessage()]);
         }
     }
 }

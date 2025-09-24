@@ -20,6 +20,42 @@ class SystemManagerControllerTest extends DBTestCase
         $this->withoutMiddleware();
     }
 
+    public function test_get_system_managers_returns_correct_structure()
+    {
+        // Create account managers
+        $acc1 = User::factory()->create([
+            'role' => 'admin',
+            'position' => 'account_manager',
+            'email' => 'acc1@test.com',
+        ]);
+
+        // Create sales managers
+        $sales1 = User::factory()->create([
+            'role' => 'admin',
+            'position' => 'manager',
+            'email' => 'sales1@test.com',
+        ]);
+
+        // Create Manager Settings
+        ManagerSetting::updateOrCreate(
+            ['manager_role' => 'account'],
+            ['auto_assign' => 1]
+        );
+
+        ManagerSetting::updateOrCreate(
+            ['manager_role' => 'sales'],
+            ['auto_assign' => 1]
+        );
+
+        $response = $this->getJson('/system-managers');
+
+        $response->assertStatus(200)
+                 ->assertJsonFragment(['account_managers_auto_assign' => true])
+                 ->assertJsonFragment(['sales_managers_auto_assign' => true])
+                 ->assertJsonFragment(['email' => $acc1->email])
+                 ->assertJsonFragment(['email' => $sales1->email]);
+    }
+
     public function test_it_shows_system_managers()
     {
         User::factory()->create([
@@ -38,10 +74,17 @@ class SystemManagerControllerTest extends DBTestCase
             'email' => 'jane@example.com',
         ]);
 
-        $response = $this->get(url('system-managers'));
+        $response = $this->getJson('/system-managers');
         $response->assertStatus(200)
-            ->assertViewIs('themes.default1.common.system-managers');
-        $response->assertViewHas(['accountManagers', 'salesManager', 'accountManagersAutoAssign', 'salesManagerAutoAssign']);
+                 ->assertJsonStructure([
+                     'success',
+                     'data' => [
+                         'account_managers',
+                         'sales_managers',
+                         'account_managers_auto_assign',
+                         'sales_managers_auto_assign',
+                     ],
+                 ]);
     }
 
     public function test_it_returns_filtered_admin_users()
@@ -55,7 +98,7 @@ class SystemManagerControllerTest extends DBTestCase
         $response = $this->getJson(route('search-admins', ['q' => 'filter']));
 
         $response->assertOk()->assertJsonFragment([
-            'text' => 'filter@example.com',
+            'email' => 'filter@example.com',
         ]);
     }
 
@@ -150,5 +193,53 @@ class SystemManagerControllerTest extends DBTestCase
             'manager_role' => 'sales',
             'auto_assign' => false,
         ]);
+    }
+
+    public function test_search_admin_requires_term()
+    {
+        User::factory()->create([
+            'role' => 'admin',
+            'position' => 'manager',
+        ]);
+
+        $response = $this->getJson('/search-admins?q=');
+
+        $response->assertStatus(400)
+                 ->assertJsonFragment([
+                     'success' => false,
+                     'message' => __('message.search_term_required'),
+                 ]);
+    }
+
+    public function test_search_admin_returns_no_admins_found()
+    {
+        User::factory()->create([
+            'role' => 'admin',
+            'position' => 'manager',
+        ]);
+
+        $response = $this->getJson('/search-admins?q=unknown');
+
+        $response->assertStatus(400)
+            ->assertJsonFragment([
+                'success' => false,
+                'message' => __('message.no_admins_found'),
+            ]);
+    }
+
+    public function test_search_admin_returns_matching_admins()
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+            'first_name' => 'John',
+            'last_name' => 'Doe',
+            'email' => 'john@example.com',
+        ]);
+
+        $response = $this->getJson('/search-admins?q=john');
+
+        $response->assertStatus(200)
+                 ->assertJsonFragment(['email' => 'john@example.com'])
+                 ->assertJsonFragment(['first_name' => 'John']);
     }
 }

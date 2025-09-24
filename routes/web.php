@@ -19,6 +19,7 @@ use App\Http\Controllers\License\LocalizedLicenseController;
 use App\Http\Controllers\Order;
 //use App\Http\Controllers\PhoneVerificationController;
 use App\Http\Controllers\Payment;
+use App\Http\Controllers\Payment\OpenPaymentController;
 use App\Http\Controllers\Product;
 use App\Http\Controllers\RazorpayController;
 use App\Http\Controllers\Report\ReportController;
@@ -50,15 +51,9 @@ Route::get('refresh-csrf', function () {
         'token' => csrf_token(), ],
         200);
 });
-// social logins routes
-Route::post('otp2/send', [Auth\AuthController::class, 'otp']);
-Route::get('social-logins', [SocialLoginsController::class, 'view'])->middleware('auth');
-Route::get('edit/SocialLogins/{id}', [SocialLoginsController::class, 'edit'])->middleware('auth');
-Route::post('update-social-login', [SocialLoginsController::class, 'update'])->name('update-social-login');
-//Route::post('verifying/phone', [PhoneVerificationController::class, 'create']);
-Route::post('store-basic-details', [Auth\LoginController::class, 'storeBasicDetailsss'])->name('store-basic-details');
 
-// !social logins rotes end
+Route::post('otp2/send', [Auth\AuthController::class, 'otp']);
+//Route::post('verifying/phone', [PhoneVerificationController::class, 'create']);
 
 Route::middleware('installAgora')->group(function () {
     Route::get('whatsapp-test', function () {
@@ -73,7 +68,7 @@ Route::middleware('installAgora')->group(function () {
     Route::post('whatsapp-deregister', [\App\Http\Controllers\WhatsappController::class, 'deregister']);
     Route::post('direct-whatsapp', [\App\Http\Controllers\WhatsappController::class, 'directSaveWhatsapp']);
     Route::post('url-save', [\App\Http\Controllers\WhatsappController::class, 'urlSave']);
-    Route::post('save-access-token', [\App\Http\Controllers\WhatsappController::class, 'saveAccessToken']);
+    // Route::post('save-access-token', [\App\Http\Controllers\WhatsappController::class, 'saveAccessToken']);
     Route::post('save-waba-id', [\App\Http\Controllers\WhatsappController::class, 'saveWabaId']);
     Route::get('whatsapp-integration-info', [\App\Http\Controllers\WhatsappController::class, 'whatsappIntegration']);
     Route::post('whatsapp-integration-save', [\App\Http\Controllers\WhatsappController::class, 'whatsappSave']);
@@ -95,7 +90,6 @@ Route::middleware('installAgora')->group(function () {
     });
 
     Route::post('pricing/update', [Front\CartController::class, 'addCouponUpdate']);
-    Route::post('mail-chimp/subcribe', [Common\MailChimpController::class, 'addSubscriberByClientPanel']);
 //    Route::get('mailchimp', [Common\MailChimpController::class, 'mailChimpSettings'])->middleware('admin');
     Route::patch('mailchimp', [Common\MailChimpController::class, 'postMailChimpSettings']);
     Route::get('mail-chimp/mapping', [Common\MailChimpController::class, 'mapField'])->middleware('admin');
@@ -106,37 +100,105 @@ Route::middleware('installAgora')->group(function () {
     Route::get('contact-us', [Front\PageController::class, 'contactUs']);
     Route::post('contact-us', [Front\PageController::class, 'postContactUs']);
     Route::post('remove-coupon', [Front\CartController::class, 'removeCoupon']);
-
-    Route::post('demo-request', [Front\PageController::class, 'postDemoReq'])->withoutMiddleware(['auth']);
+    Route::post('remove-product');
     Route::get('confirm/payment', [RazorpayController::class, 'afterPayment']);
     Route::post('stripeUpdatePayment/confirm', [Front\ClientController::class, 'stripeUpdatePayment']);
+    Route::get('get-my-payment/{orderid}/{userid}', [Front\ClientController::class, 'getPaymentByOrderId'])->name('get-my-payment');
 
     /*
      * Front Client Pages
+     *
+     * All the api's under this are for client panel
+     *
+     *
+     *
      */
-    Route::get('client-dashboard', [Front\ClientController::class, 'index']);
 
+    //Login api's
+    Route::post('login', [Auth\LoginController::class, 'login'])->name('login')->middleware(['blockFailedVerifications:login']);
+    Route::auth();
+    Route::post('auth/register', [Auth\RegisterController::class, 'postRegister'])->name('auth/register');
+    Route::get('auth/logout', [Auth\LoginController::class, 'logout'])->name('logout');
+
+    Route::middleware(['blockFailedVerifications:2fa', 'session.timeout:10,2fa'])->group(function () {
+        Route::get('2fa/session-check', [Google2FAController::class, 'verifySession'])->name('2fa.session.check');
+        Route::get('recovery-code', [Google2FAController::class, 'showRecoveryCode']);
+        Route::get('verify-2fa', [Google2FAController::class, 'verify2fa']);
+        Route::post('2fa/loginValidate', [Google2FAController::class, 'postLoginValidateToken'])->name('2fa/loginValidate');
+        Route::post('verify-recovery-code', [Google2FAController::class, 'verifyRecoveryCode'])->name('verify-recovery-code');
+    });
+
+    /*
+ * 2FA Routes
+ */
+
+    Route::post('/2fa/enable', [Google2FAController::class, 'enableTwoFactor']);
+    Route::post('2fa/disable/{userId?}', [Google2FAController::class, 'disableTwoFactor']);
+
+    Route::post('2fa/setupValidate', [Google2FAController::class, 'postSetupValidateToken']);
+    Route::get('verify-password', [Google2FAController::class, 'verifyPassword']);
+    Route::post('2fa-recovery-code', [Google2FAController::class, 'generateRecoveryCode']);
+    Route::get('get-recovery-code', [Google2FAController::class, 'getRecoveryCode']);
+    Route::get('recovery-code', [Google2FAController::class, 'showRecoveryCode']);
+    Route::post('verify-2fa-admin', [Google2FAController::class, 'postSetupValidateToken'])->name('verify.2fa.admin');
+    Route::post('verify-recovery-code', [Google2FAController::class, 'verifyRecoveryCode'])->name('verify-recovery-code');
+
+    Route::get('get-loginstate/{state}', [Auth\AuthController::class, 'getState']);
+    Route::get('get-countries', [Auth\AuthController::class, 'getCountries']);
+    Route::get('get-code', [WelcomeController::class, 'getCode']);
+    Route::get('get-currency', [WelcomeController::class, 'getCurrency'])->middleware('admin'); //Not in use
+
+    //Dashboard api's
+    Route::get('client-dashboard', [Front\ClientController::class, 'index']); // use this or use the next one which will be very useful
+    Route::get('client-dashboard-details', [Front\ClientController::class, 'clientDetails']);
+
+    // master api's
+    Route::get('master-data', [Front\ClientController::class, 'masterData'])->name('master-data');
+    Route::post('demo-request', [Front\PageController::class, 'postDemoReq'])->withoutMiddleware(['auth']);
+    Route::get('language/control', [LanguageController::class, 'fetchLangDropdownUsers']);
+    Route::get('js/lang', [LanguageController::class, 'getLanguageFile'])->name('assets.lang');
+    Route::post('trial-cloud-products', [Tenancy\CloudExtraActivities::class, 'trialCloudProducts']);
+    Route::post('create/tenant/purchase', [Tenancy\CloudExtraActivities::class, 'storeTenantTillPurchase']);
+    Route::post('available-groups', [Product\GroupController::class, 'getAvailableGroups'])->withoutMiddleware(['auth', 'admin']);
+    Route::post('mail-chimp/subcribe', [Common\MailChimpController::class, 'addSubscriberByClientPanel']);
     Route::post('first-login', [FreeTrailController::class, 'firstLoginAttempt']);
 
+    //invoice api's
     Route::get('my-invoices', [Front\ClientController::class, 'invoices'])->name('my-invoices');
-
+    Route::get('my-invoice/{id}', [Front\ClientController::class, 'getInvoice']);
     Route::get('get-my-invoices', [Front\ClientController::class, 'getInvoices'])->name('get-my-invoices');
+    Route::delete('invoices/delete/{id}', [Front\ClientController::class, 'invoiceDelete']);
+    Route::get('paynow/{id}', [Front\CheckoutController::class, 'payNow']);
+    //when company name and address is not present in the users details a dialog box will open and the details will be taken
+    Route::post('store-basic-details', [Auth\LoginController::class, 'storeBasicDetailsss'])->name('store-basic-details');
+
+    //order api's
+    Route::get('my-orders', [Front\ClientController::class, 'orders']);
+    Route::get('get-my-orders', [Front\ClientController::class, 'getClientOrderVue'])->name('get-my-orders');
+    Route::get('my-order/{id}', [Front\ClientController::class, 'getOrder']);
+    Route::get('renew-popup-details/{productid}', [Front\ClientController::class, 'renewPopupVue']);
     Route::get('get-my-invoices/{orderid}/{userid}/{admin?}', [Front\ClientController::class, 'getInvoicesByOrderId']);
-
-    Route::get('get-my-payment/{orderid}/{userid}', [Front\ClientController::class, 'getPaymentByOrderId'])->name('get-my-payment');
-
     Route::get('get-my-payment-client/{orderid}/{userid}', [Front\ClientController::class, 'getPaymentByOrderIdClient'])->name('get-my-payment-client');
     // Route::get('autoPayment-client/{orderid}', [Front\ClientController::class, 'getAutoPaymentStatus']);
+    Route::get('get-versions/{productid}/{clientid}/{invoiceid}/', [Front\ClientController::class, 'getVersionList'])->name('get-versions');
+    Route::get('get-github-versions/{productid}/{clientid}/{invoiceid}/', [Front\ClientController::class, 'getGithubVersionList'])->name('get-github-versions');
+
+    //renew api's
+    Route::get('renew/{id}/{agents?}', [Order\RenewController::class, 'renewForm']);
+    Route::post('renew/{id}', [Order\RenewController::class, 'renew']);
+    Route::get('get-renew-cost', [Order\RenewController::class, 'getCost']);
+    Route::post('client/renew/{id}', [Order\RenewController::class, 'renewByClient']);
+    Route::get('autopaynow/{id}', [Front\ClientController::class, 'autoRenewbyid']);
+
+    //cart api's
+    Route::get('cart-access', [Front\BaseClientController::class, 'cartAccess']);
+    Route::post('cart/remove', [Front\CartController::class, 'cartRemove']);
+
     Route::post('strRenewal-enable', [Front\ClientController::class, 'enableAutorenewalStatus']);
     Route::post('renewal-disable', [Front\ClientController::class, 'disableAutorenewalStatus']);
     Route::post('rzpRenewal-disable/{orderid}', [Front\ClientController::class, 'enableRzpStatus']);
-
-    Route::get('my-orders', [Front\ClientController::class, 'orders']);
-    Route::get('get-my-orders', [Front\ClientController::class, 'getOrders'])->name('get-my-orders');
-    Route::get('my-subscriptions', [Front\ClientController::class, 'subscriptions']);
-    Route::get('get-my-subscriptions', [Front\ClientController::class, 'getSubscriptions']);
-    Route::get('my-invoice/{id}', [Front\ClientController::class, 'getInvoice']);
-    Route::get('my-order/{id}', [Front\ClientController::class, 'getOrder']);
+    //Route::get('my-subscriptions', [Front\ClientController::class, 'subscriptions']);
+    //Route::get('get-my-subscriptions', [Front\ClientController::class, 'getSubscriptions']);
     Route::get('uploadFile', [License\LocalizedLicenseController::class, 'storeFile']);
     Route::get('my-profile', [Front\ClientController::class, 'profile']);
     Route::patch('my-profile', [Front\ClientController::class, 'postProfile']);
@@ -156,52 +218,36 @@ Route::middleware('installAgora')->group(function () {
     Route::get('LocalizedLicense/downloadLicense/{fileName}', [License\LocalizedLicenseController::class, 'downloadFileAdmin']);
     Route::get('request', [License\LocalizedLicenseController::class, 'tempOrderLink']);
     Route::get('LocalizedLicense/downloadPrivateKey/{fileName}', [License\LocalizedLicenseController::class, 'downloadPrivateKeyAdmin']);
-    /*
-     * 2FA Routes
-     */
 
-    Route::post('/2fa/enable', [Google2FAController::class, 'enableTwoFactor']);
-    Route::post('2fa/disable/{userId?}', [Google2FAController::class, 'disableTwoFactor']);
-
-    Route::middleware(['blockFailedVerifications:2fa', 'session.timeout:10,2fa'])->group(function () {
-        Route::get('2fa/session-check', [Google2FAController::class, 'verifySession'])->name('2fa.session.check');
-        Route::get('recovery-code', [Google2FAController::class, 'showRecoveryCode']);
-        Route::get('verify-2fa', [Google2FAController::class, 'verify2fa']);
-        Route::post('2fa/loginValidate', [Google2FAController::class, 'postLoginValidateToken'])->name('2fa/loginValidate');
-        Route::post('verify-recovery-code', [Google2FAController::class, 'verifyRecoveryCode'])->name('verify-recovery-code');
-    });
-
-    Route::post('2fa/setupValidate', [Google2FAController::class, 'postSetupValidateToken']);
-    Route::get('verify-password', [Google2FAController::class, 'verifyPassword']);
-    Route::post('2fa-recovery-code', [Google2FAController::class, 'generateRecoveryCode']);
-    Route::get('get-recovery-code', [Google2FAController::class, 'getRecoveryCode']);
-    Route::get('recovery-code', [Google2FAController::class, 'showRecoveryCode']);
-    Route::post('verify-recovery-code', [Google2FAController::class, 'verifyRecoveryCode'])->name('verify-recovery-code');
-    Route::post('verify-2fa-admin', [Google2FAController::class, 'postSetupValidateToken'])->name('verify.2fa.admin');
     /*
      * Social Media
      */
+    Route::prefix('social-media')->group(function () {
+        Route::get('list', [Common\SocialMediaController::class, 'getSocialList']);
+        Route::get('show/{id}', [Common\SocialMediaController::class, 'getSocialMedia']);
+        Route::post('create', [Common\SocialMediaController::class, 'createSocialMedia']);
+        Route::patch('update/{id}', [Common\SocialMediaController::class, 'updateSocial']);
+        Route::delete('delete', [Common\SocialMediaController::class, 'deleteSocialMedia']);
+    });
 
-    Route::resource('social-media', Common\SocialMediaController::class);
-    Route::get('get-social-media', [Common\SocialMediaController::class, 'getSocials'])->name('get-social-media');
-    Route::delete('social-delete', [Common\SocialMediaController::class, 'destroy'])->name('social-delete');
-
-    Route::auth();
-    Route::post('auth/register', [Auth\RegisterController::class, 'postRegister'])->name('auth/register');
-    Route::get('auth/logout', [Auth\LoginController::class, 'logout'])->name('logout');
-    Route::get('/', [DashboardController::class, 'index']);
+//    Route::get('/', [DashboardController::class, 'index']);
+    Route::get('/', fn () => redirect(url('admin/dashboard')));
 
     Route::get('/auth/redirect/{provider}', [Auth\LoginController::class, 'redirectToGithub']);
     Route::get('/auth/callback/{provider}', [Auth\LoginController::class, 'handler']);
 
+    Route::get('activate/{token}', [Auth\AuthController::class, 'activate']);
+    Route::get('footer1', [Front\WidgetController::class, 'footer1'])->name('footer1')->withoutMiddleware(['auth', 'admin']);
 //    Route::get('activate/{token}', [Auth\AuthController::class, 'activate']);
 
     /*
-     * Client
+     * Client api's completion
+     *
      */
 
-    //contact-option
-    Route::get('contact-option', [Common\SettingsController::class, 'contactOption'])->name('contact-option');
+    /*
+     * Email Api keys
+     */
     Route::post('emailData', [Common\SettingsController::class, 'emailData']);
     Route::post('emailCheckboxData', [Common\SettingsController::class, 'emailCheckboxData']);
     Route::get('get-email-validation-logs', [Common\SettingsController::class, 'getEmailValidationLogs']);
@@ -210,8 +256,49 @@ Route::middleware('installAgora')->group(function () {
 
     Route::post('mobileData', [Common\SettingsController::class, 'mobileData']);
     Route::post('email-settings-save', [Common\SettingsController::class, 'emailSettingsSave']);
+
+    /*
+     * Github Api keys
+     */
+    Route::post('githubkeys', [Common\SettingsController::class, 'githubkeys']);
+    Route::post('github-setting', [Github\GithubController::class, 'postSettings']);
+
+    /*
+     * Mobile Api keys
+     */
+    Route::post('mobileData', [Common\SettingsController::class, 'mobileData']);
     Route::post('mobile-settings-save', [Common\SettingsController::class, 'mobileSettingsSave']);
-    Route::post('verificationSettings', [Common\SettingsController::class, 'postContactOption']);
+
+    /*
+     * Google ReCaptcha Api Keys
+     */
+    Route::post('captchaDetails', [Common\BaseSettingsController::class, 'captchaDetails'])->name('captchaDetails');
+    Route::post('googleCaptcha', [Common\SettingsController::class, 'googleCaptcha']);
+
+    /*
+     * Mailchimp Api keys
+     */
+    Route::post('mailchimpkeys', [Common\SettingsController::class, 'mailchimpKeys']);
+    Route::post('updateMailchimpDetails', [Common\BaseSettingsController::class, 'updateMailchimpDetails'])->name('updateMailchimpDetails');
+
+    /*
+     * Mobile Verification Api (Msg91)
+     */
+    Route::post('mobileVerification', [Common\SettingsController::class, 'mobileVerification']);
+    Route::get('msgThirdPartyUpdate/{thirdPartyId}', [MSG91Controller::class, 'getThirdPartyMsgDetails']);
+    Route::post('updatemobileDetails', [Common\BaseSettingsController::class, 'updateMobileDetails'])->name('updatemobileDetails');
+
+    /*
+     * Pipedrive Api keys
+     */
+    Route::post('pipedrivekeys', [Common\SettingsController::class, 'pipedrivekeys']);
+    Route::post('updatepipedriveDetails', [Common\BaseSettingsController::class, 'updatepipedriveDetails'])->name('updatepipedriveDetails');
+
+    /*
+     * Terms Api Keys
+     */
+    Route::post('termsUrl', [Common\SettingsController::class, 'termsUrl']);
+    Route::post('updateTermsDetails', [Common\BaseSettingsController::class, 'updateTermsDetails'])->name('updateTermsDetails');
 
     /*
      * Profile Process
@@ -232,20 +319,61 @@ Route::middleware('installAgora')->group(function () {
     Route::post('mobileVerification', [Common\SettingsController::class, 'mobileVerification']);
     Route::post('termsUrl', [Common\SettingsController::class, 'termsUrl']);
     Route::post('zohokeys', [Common\SettingsController::class, 'zohokeys']);
-    Route::post('pipedrivekeys', [Common\SettingsController::class, 'pipedrivekeys']);
     Route::post('twitterkeys', [Common\SettingsController::class, 'twitterkeys']);
-    Route::post('githubkeys', [Common\SettingsController::class, 'githubkeys']);
-    Route::post('mailchimpkeys', [Common\SettingsController::class, 'mailchimpKeys']);
 
-    Route::get('settings/system', [Common\SettingsController::class, 'settingsSystem']);
-    Route::patch('settings/system', [Common\SettingsController::class, 'postSettingsSystem']);
+    /**
+     * System Settings.
+     */
+    Route::get('systemSettings/list', [Common\SettingsController::class, 'settingsSystem']);
+    Route::post('systemSettings/update', [Common\SettingsController::class, 'postSettingsSystem']);
+
     Route::get('settings/email', [Common\EmailSettingsController::class, 'settingsEmail'])->middleware('auth');
     Route::patch('settings/email', [Common\EmailSettingsController::class, 'postSettingsEmail']);
     Route::get('settings/template', [Common\SettingsController::class, 'settingsTemplate']);
     Route::patch('settings/template', [Common\SettingsController::class, 'postSettingsTemplate']);
     Route::patch('settings/error', [Common\SettingsController::class, 'postSettingsError']);
     Route::get('settings/activitylog', [Common\SettingsController::class, 'settingsActivity']);
+    Route::get('settings/maillog', [Common\SettingsController::class, 'settingsMail']);
+
+    // Debug APi
+    Route::get('debugg', [Common\SettingsController::class, 'debugSettings']);
+    Route::post('save/debugg', [Common\SettingsController::class, 'postdebugSettings']);
+
+    // Social Logins Api
+    Route::get('social-logins', [SocialLoginsController::class, 'getSocialLogin'])->middleware('auth');
+    Route::get('edit/SocialLogins/{id}', [SocialLoginsController::class, 'editSocialLogin'])->middleware('auth');
+    Route::post('update-social-login', [SocialLoginsController::class, 'updateSocialLogin'])->name('update-social-login');
+
+    //language
+    Route::get('languages', [LanguageController::class, 'viewLanguage'])->middleware('auth');
+    Route::post('language-toggle', [LanguageController::class, 'toggleLanguageStatus']);
+
+    // Contact API
+    Route::get('contact-option', [Common\SettingsController::class, 'contactOption'])->name('contact-option');
+    Route::post('verificationSettings', [Common\SettingsController::class, 'postContactOption']);
+
+    // System Manager APi
+    Route::get('system-managers', [Common\SystemManagerController::class, 'getSystemManagers'])->name('system-managers');
+    Route::get('search-admins', [Common\SystemManagerController::class, 'searchAdmin'])->name('search-admins');
+    Route::post('updateSystemManager', [Common\SystemManagerController::class, 'updateManagerSettings']);
+
+    /*
+     * System Logs
+    */
+
+    // Get Activity Log
     Route::get('get-activity', [Common\SettingsController::class, 'getActivity'])->name('get-activity');
+
+    // Get Payment Log
+//    Route::get('settings/paymentlog', [Common\SettingsController::class, 'settingsPayment']);
+    Route::get('get-paymentlog', [Common\SettingsController::class, 'getPaymentlog'])->name('get-paymentlog');
+    Route::delete('paymentlog-delete', [Common\SettingsController::class, 'destroyPayment'])->name('paymentlog-delete');
+
+    // Get Msg91 Log
+//    Route::get('sms/reports', [Common\MSG91Controller::class, 'msg91Reports']);
+    Route::get('sms/reports', [Common\MSG91Controller::class, 'getMsg91Reports']);
+    Route::get('getMsgStatus', [Common\MSG91Controller::class, 'getMsgStauts']);
+
     Route::get('get-email', [Common\SettingsController::class, 'getMails'])->name('get-email');
     Route::get('/email-log/body/{id}', [Common\SettingsController::class, 'getBody'])->name('email-log.body');
     Route::delete('activity-delete', [Common\SettingsController::class, 'destroy'])->name('activity-delete');
@@ -256,24 +384,13 @@ Route::middleware('installAgora')->group(function () {
     Route::post('updatemobileDetails', [Common\SettingsController::class, 'updateMobileDetails'])->name('updatemobileDetails');
     Route::post('updateemailDetails', [Common\SettingsController::class, 'updateEmailDetails'])->name('updateemailDetails');
     Route::post('updatetwitterDetails', [Common\SettingsController::class, 'updateTwitterDetails'])->name('updatetwitterDetails');
-    Route::post('updateMailchimpDetails', [Common\SettingsController::class, 'updateMailchimpDetails'])->name('updateMailchimpDetails');
-    Route::post('updateTermsDetails', [Common\SettingsController::class, 'updateTermsDetails'])->name('updateTermsDetails');
     Route::post('updatezohoDetails', [Common\SettingsController::class, 'updateZohoDetails'])->name('updatezohoDetails');
-    Route::post('updatepipedriveDetails', [Common\SettingsController::class, 'updatepipedriveDetails'])->name('updatepipedriveDetails');
     Route::post('mailchimp-prod-status', [Common\SettingsController::class, 'updateMailchimpProductStatus'])->name('mailchimp-prod-status');
     Route::post('mailchimp-paid-status', [Common\SettingsController::class, 'updateMailchimpIsPaidStatus'])->name('mailchimp-paid-status');
     Route::post('updatedomainCheckDetails', [Common\SettingsController::class, 'updatedomainCheckDetails'])->name('updatedomainCheckDetails');
-    Route::get('system-managers', [Common\SystemManagerController::class, 'getSystemManagers'])->name('system-managers');
-    Route::get('search-admins', [Common\SystemManagerController::class, 'searchAdmin'])->name('search-admins');
-    Route::post('updateSystemManager', [Common\SystemManagerController::class, 'updateManagerSettings']);
-    Route::get('debugg', [Common\SettingsController::class, 'debugSettings']);
-    Route::post('save/debugg', [Common\SettingsController::class, 'postdebugSettings']);
     Route::post('v3captchaDetails', [Common\SettingsController::class, 'v3captchaDetails'])->name('v3captchaDetails');
     Route::get('demo/page', [Front\PageController::class, 'VewDemoPage']);
     Route::post('save/demo', [Front\PageController::class, 'saveDemoPage']);
-    Route::get('settings/paymentlog', [Common\SettingsController::class, 'settingsPayment']);
-    Route::get('get-paymentlog', [Common\SettingsController::class, 'getPaymentlog'])->name('get-paymentlog');
-    Route::delete('paymentlog-delete', [Common\SettingsController::class, 'destroyPayment'])->name('paymentlog-delete');
 
     /*
      * Client
@@ -335,21 +452,25 @@ Route::middleware('installAgora')->group(function () {
     /*
      * Currency
      */
-
-    Route::resource('currency', Payment\CurrencyController::class);
-    Route::get('get-currency/datatable', [Payment\CurrencyController::class, 'getCurrency'])->name('get-currency.datatable');
-    Route::post('change/currency/status', [Payment\CurrencyController::class, 'updatecurrency'])->name('change.currency.status');
+    Route::prefix('currency')->group(function () {
+        Route::get('list', [Payment\CurrencyController::class, 'getCurrencyList']);
+        Route::post('update-currency', [Payment\CurrencyController::class, 'updatecurrency']);
+        Route::post('dashboard-currency/{id}', [Payment\CurrencyController::class, 'setDashboardCurrency']);
+    });
 
     /*
      * Tax
      */
 
-    Route::resource('tax', Payment\TaxController::class);
+    Route::get('tax-options', [Payment\TaxController::class, 'getTaxOptionsApi']);
+    Route::post('taxes/option', [Payment\TaxController::class, 'saveTaxOptionSetting'])->name('taxes/option');
+    Route::get('tax-tables', [Payment\TaxController::class, 'getTax']);
+    Route::get('tax/edit/{id}', [Payment\TaxController::class, 'editTaxApi']);
+    Route::put('tax/{id}', [Payment\TaxController::class, 'updateTaxApi']);
+    Route::post('create/tax-class', [Payment\TaxController::class, 'saveTaxClassSettingApi']);
+    Route::delete('tax/delete', [Payment\TaxController::class, 'deleteTax']);
     Route::get('get-state/{state}', [Payment\TaxController::class, 'getState']);
-    Route::get('get-tax', [Payment\TaxController::class, 'getTax'])->name('get-tax');
-
     Route::get('get-taxtable', [Payment\TaxController::class, 'getTaxTable'])->name('get-taxtable');
-    Route::get('get-loginstate/{state}', [Auth\AuthController::class, 'getState']);
 
     // Route::get('get-tax', [Payment\TaxController::class, 'GetTax']);
 
@@ -382,16 +503,20 @@ Route::middleware('installAgora')->group(function () {
     Route::delete('comment-delete', [User\CommentController::class, 'destroy'])->name('comment-delete');
 
     /*
-         * License
-         */
-    Route::resource('license-type', License\LicenseSettingsController::class);
+     * License Type
+    */
     Route::get('get-license-type', [License\LicenseSettingsController::class, 'getLicenseTypes'])->name('get-license-type');
-    Route::delete('license-type-delete', [License\LicenseSettingsController::class, 'destroy'])->name('license-type-delete');
-    Route::get('license-permissions', [License\LicensePermissionsController::class, 'index']);
+    Route::post('create-license-type', [License\LicenseSettingsController::class, 'createLicense']);
+    Route::put('update-license-type/{id}', [License\LicenseSettingsController::class, 'updateLicense']);
+    Route::delete('delete-license-type', [License\LicenseSettingsController::class, 'deleteLicense'])->name('license-type-delete');
+
+    /*
+     * License Permission
+    */
     Route::get('get-license-permission', [License\LicensePermissionsController::class, 'getPermissions'])->name('get-license-permission');
-    Route::delete('add-permission', [License\LicensePermissionsController::class, 'addPermission'])->name('add-permission');
-    Route::get('tick-permission', [License\LicensePermissionsController::class, 'tickPermission'])->name('tick-permission');
+    Route::post('add-permission', [License\LicensePermissionsController::class, 'addPermission'])->name('add-permission');
     Route::get('orders/license/{order_number}', [License\LicenseController::class, 'licenseRedirect']);
+
     /*
      * Order
      */
@@ -426,26 +551,23 @@ Route::middleware('installAgora')->group(function () {
     Route::get('get-groups', [Product\GroupController::class, 'getGroups'])->name('get-groups');
     Route::delete('groups-delete', [Product\GroupController::class, 'destroy'])->name('groups-delete');
 
-    /*
-     * Templates
+    /**
+     * Templates.
      */
-
-    Route::resource('template', Common\TemplateController::class);
-    Route::get('get-templates', [Common\TemplateController::class, 'getTemplates'])->name('get-templates');
-    // Route::get('get-templates', [Common\TemplateController::class, 'GetTemplates']);
-    Route::delete('templates-delete', [Common\TemplateController::class, 'destroy'])->name('templates-delete');
+    Route::prefix('template')->group(function () {
+        Route::get('list', [Common\TemplateController::class, 'getTemplates']);
+        Route::get('edit/{id}', [Common\TemplateController::class, 'showTemplate']);
+        Route::put('update/{id}', [Common\TemplateController::class, 'updateTemplate']);
+    });
 
     /**
      * Queue.
      */
-    Route::get('queue', [Jobs\QueueController::class, 'index'])->name('queue');
-    Route::get('get-queue', [Jobs\QueueController::class, 'getQueues'])->name('get-queue');
+    Route::get('queue/list', [Jobs\QueueController::class, 'getQueueData']);
     Route::get('queue/{id}', [Jobs\QueueController::class, 'edit'])->name('queue.edit');
     Route::post('queue/{id}', [Jobs\QueueController::class, 'update'])->name('queue.update');
-
     Route::post('queue/{queue}/activate', [Jobs\QueueController::class, 'activate']);
-    Route::get('form/queue', [Jobs\QueueController::class, 'getForm'])->name('queue.form');
-    // Route::get('queue-monitoring', [Jobs\QueueController::class, 'monitorQueues']]);
+    Route::get('queue/{id}/form', [Jobs\QueueController::class, 'getFormById'])->name('queue.form');
 
     /*
      * Monitoring (Pulse / Horizon) — path check API
@@ -456,14 +578,17 @@ Route::middleware('installAgora')->group(function () {
     /*
      * Chat Script
      */
-    Route::resource('chat', Common\ChatScriptController::class);
-    Route::get('get-script', [Common\ChatScriptController::class, 'getScript'])->name('get-script');
-    Route::delete('script-delete', [Common\ChatScriptController::class, 'destroy'])->name('script-delete');
-    Route::post('order/execute', [Order\OrderController::class, 'orderExecute']);
+    Route::prefix('chat')->group(function () {
+        Route::get('list', [Common\ChatScriptController::class, 'getScriptList']);
+        Route::get('show/{id}', [Common\ChatScriptController::class, 'getScript']);
+        Route::post('create', [Common\ChatScriptController::class, 'createScript']);
+        Route::put('update/{id}', [Common\ChatScriptController::class, 'updateScript']);
+        Route::delete('delete', [Common\ChatScriptController::class, 'deleteScript']);
+    });
+
     /*
      * Invoices
-     */
-
+    */
     Route::get('invoices', [Order\InvoiceController::class, 'index']);
     Route::get('invoices/{id}', [Order\InvoiceController::class, 'show']);
     Route::get('get-client-invoice/{id}', [User\ClientController::class, 'getClientInvoice']);
@@ -503,10 +628,13 @@ Route::middleware('installAgora')->group(function () {
     /*
      * Widgets
      */
-    Route::resource('widgets', Front\WidgetController::class);
-    Route::get('get-widgets', [Front\WidgetController::class, 'getPages'])->name('get-widgets');
-    // Route::get('get-widgets', [Front\WidgetController::class, 'GetPages']);
-    Route::delete('widgets-delete', [Front\WidgetController::class, 'destroy']);
+    Route::prefix('widgets')->group(function () {
+        Route::get('list', [Front\WidgetController::class, 'getWidgetList']);
+        Route::get('show/{id}', [Front\WidgetController::class, 'getWidget']);
+        Route::put('update/{id}', [Front\WidgetController::class, 'updateWidget']);
+        Route::delete('delete', [Front\WidgetController::class, 'deleteWidget']);
+        Route::post('create', [Front\WidgetController::class, 'createWidget']);
+    });
 
     /*
      * github
@@ -515,7 +643,6 @@ Route::middleware('installAgora')->group(function () {
     Route::get('github-releases', [Github\GithubController::class, 'listRepositories']);
     Route::get('github-downloads', [Github\GithubController::class, 'getDownloadCount']);
 //    Route::get('github', [Github\GithubController::class, 'getSettings']);
-    Route::post('github-setting', [Github\GithubController::class, 'postSettings']);
 
     /*
      * download
@@ -552,43 +679,37 @@ Route::middleware('installAgora')->group(function () {
     Route::patch('post-scheduler', [Common\SettingsController::class, 'postSchedular'])->name('post.job.scheduler')->name('post-scheduler'); //to update job scheduler
     Route::patch('cron-days', [Common\SettingsController::class, 'saveCronDays'])->name('cron-days')->name('cron-days');
     Route::post('verify-php-path', [Common\SettingsController::class, 'checkPHPExecutablePath'])->name('verify-cron');
+    Route::get('cron/condition/{job}', [Common\SettingsController::class, 'getCronCondition']);
+
     Route::get('file-storage', [Common\SettingsController::class, 'showFileStorage']);
     Route::post('file-storage-path', [Common\SettingsController::class, 'updateStoragePath']);
 //    We don't use this so commanded this
 //    Route::get('expired-subscriptions', [Common\CronController::class, 'eachSubscription']);
 
-    /*
-
-
-     /* Renew
-     */
-
-    Route::get('renew/{id}/{agents?}', [Order\RenewController::class, 'renewForm']);
-    Route::post('renew/{id}', [Order\RenewController::class, 'renew']);
-    Route::get('get-renew-cost', [Order\RenewController::class, 'getCost']);
-    Route::post('client/renew/{id}', [Order\RenewController::class, 'renewByClient']);
-    Route::get('autopaynow/{id}', [Front\ClientController::class, 'autoRenewbyid']);
-
     Route::get('generate-keys', [HomeController::class, 'createEncryptionKeys']);
+
+    Route::get('get-country', [WelcomeController::class, 'getCountry'])->middleware('admin');
 
     Route::get('get-code', [WelcomeController::class, 'getCode']);
     Route::get('get-currency', [WelcomeController::class, 'getCurrency'])->middleware('admin');
-    Route::post('dashboard-currency/{id}', [Payment\CurrencyController::class, 'setDashboardCurrency']);
-    Route::get('get-country', [WelcomeController::class, 'getCountry'])->middleware('admin');
-    Route::get('country-count', [WelcomeController::class, 'countryCount'])->name('country-count')->middleware('admin');
 
     /*
-    Cloud APIs
+     * Third Party Apps
      */
-
-    Route::resource('third-party-keys', ThirdPartyAppController::class);
 
     Route::get('get-third-party-app', [ThirdPartyAppController::class, 'getThirdPartyDetails'])->name('get-third-party-app');
 
+    Route::post('third-party-app-create', [ThirdPartyAppController::class, 'createThirdPartyApp'])->name('third-party-app-create');
+
+    Route::put('third-party-app-update/{id}', [ThirdPartyAppController::class, 'updateThirdPartyApp'])->name('third-party-app-update');
+
     Route::get('get-app-key', [ThirdPartyAppController::class, 'getAppKey'])->name('get-app-key');
 
-    Route::delete('third-party-delete', [ThirdPartyAppController::class, 'destroy'])->name('third-party-delete');
+    Route::delete('third-party-delete', [ThirdPartyAppController::class, 'deleteThirdPartyApp'])->name('third-party-delete');
 
+    /*
+    * Cloud Api's
+    */
     Route::post('create/tenant', [Tenancy\TenantController::class, 'createTenant']);
 
     Route::post('change/domain', [Tenancy\CloudExtraActivities::class, 'changeDomain']);
@@ -613,7 +734,7 @@ Route::middleware('installAgora')->group(function () {
 
     Route::get('api/domain', [Tenancy\CloudExtraActivities::class, 'domainCloudAutofill']);
 
-    Route::post('api/takeCloudDomain', [Tenancy\CloudExtraActivities::class, 'orderDomainCloudAutofill']);
+    Route::post('api/takeCloudDomain', [Tenancy\CloudExtraActivities::class, 'orderDomainCloudAutofill']); //Not in use
 
     Route::post('get-cloud-upgrade-cost', [Tenancy\CloudExtraActivities::class, 'getUpgradeCost']);
 
@@ -636,7 +757,6 @@ Route::middleware('installAgora')->group(function () {
 
     Route::get('fetch-data', [Tenancy\CloudExtraActivities::class, 'fetchData'])->name('fetch-data');
     Route::post('update-trial-status', [Tenancy\CloudExtraActivities::class, 'updateTrialStatus'])->name('update-trial-status');
-    Route::post('trial-cloud-products', [Tenancy\CloudExtraActivities::class, 'trialCloudProducts']);
     Route::delete('delete-cloud-product', [Tenancy\CloudExtraActivities::class, 'DeleteProductConfig'])->name('delete-cloud-product');
 
     Route::delete('remove-location', [Tenancy\CloudExtraActivities::class, 'removeLocation'])->name('remove-location');
@@ -662,7 +782,7 @@ Route::middleware('installAgora')->group(function () {
     Route::get('third-party-integration', [Common\SettingsController::class, 'getKeys']);
     Route::patch('apikeys', [Common\SettingsController::class, 'postKeys']);
     Route::post('login', [Auth\LoginController::class, 'login'])->name('login');
-    // Route::post('login', [Auth\LoginController::class, 'login'])->name('login');
+    Route::post('api/login', [Auth\LoginController::class, 'postLoginAndGetToken']);
 
     Route::middleware(['blockFailedVerifications:verify', 'session.timeout:10,verify'])->group(function () {
         Route::post('otp/send', [Auth\AuthController::class, 'requestOtp']);
@@ -707,6 +827,38 @@ Route::middleware('installAgora')->group(function () {
     Route::post('profile/email/verify-otp', [Front\ProfileVerificationController::class, 'verifyEmailOtp']);
     Route::post('profile/mobile/verify-otp', [Front\ProfileVerificationController::class, 'verifyMobileOtp']);
 });
+
+Route::prefix('open-payment')->withoutMiddleware(['auth', 'web'])->group(function () {
+    // Payment Page View
+    Route::get('/', function () {
+        return view('open-payment');
+    })->name('open-payment.page');
+
+    // Create Order
+    Route::post('create', [OpenPaymentController::class, 'createOrder'])->name('open-payment.create');
+
+    // Get Order Details (Summary)
+    Route::get('order/{id}', [OpenPaymentController::class, 'getOrderDetails'])->name('open-payment.details');
+
+    // Prepare Payment Gateway (AJAX)
+    Route::post('prepare', [OpenPaymentController::class, 'preparePayment'])->name('open-payment.prepare');
+
+    // Verify Payments
+    Route::post('verify/razorpay', [OpenPaymentController::class, 'verifyRazorpayPayment'])->name('open-payment.verify.razorpay');
+    Route::post('verify/stripe', [OpenPaymentController::class, 'verifyStripePayment'])->name('open-payment.verify.stripe');
+
+    // Webhooks (CSRF exempt - handled in VerifyCsrfToken middleware)
+    Route::post('webhook/stripe', [OpenPaymentController::class, 'handleStripeWebhook'])->name('open-payment.webhook.stripe');
+    Route::post('webhook/razorpay', [OpenPaymentController::class, 'handleRazorpayWebhook'])->name('open-payment.webhook.razorpay');
+
+    // Admin Routes
+    Route::get('list', [OpenPaymentController::class, 'listOrders'])->name('open-payment.list');
+    Route::get('admin/{id}', [OpenPaymentController::class, 'getOrder'])->name('open-payment.admin.get');
+
+    // Stripe 3D Secure Redirect Handler
+    Route::get('stripe/callback', [OpenPaymentController::class, 'handleStripeCallback'])->name('open-payment.stripe.callback');
+});
+
 /*
 * Faveo APIs
 */
@@ -733,11 +885,87 @@ Route::get('404', function () {
 })->name('error404');
 Route::get('/api/download/agents', [Product\BaseProductController::class, 'agentProductDownload']);
 Route::get('/product/detail', [Product\BaseProductController::class, 'getProductUsingLicenseCode']);
-Route::get('footer1', [Front\WidgetController::class, 'footer1'])->name('footer1')->withoutMiddleware(['auth', 'admin']);
-
-//language
-Route::get('languages', [LanguageController::class, 'viewLanguage']);
-Route::post('language-toggle', [LanguageController::class, 'toggleLanguageStatus']);
-Route::get('language/control', [LanguageController::class, 'fetchLangDropdownUsers']);
 
 // });
+
+// Updated APIs will need to change after complete API conversion
+
+Route::get('users', [User\ClientController::class, 'getAllUsers']);
+Route::delete('users', [User\ClientController::class, 'deleteBulkUsers']);
+Route::put('users', [User\ClientController::class, 'userCreate']);
+Route::get('user/{id}', [User\ClientController::class, 'getEditUser']);
+Route::patch('user/{id}', [User\ClientController::class, 'userUpdate']);
+
+Route::get('soft-delete', [User\SoftDeleteController::class, 'softDeletedUsers']);
+Route::get('user/restore/{id}', [User\SoftDeleteController::class, 'restoreUser']);
+Route::delete('permanent-delete-client', [User\SoftDeleteController::class, 'permanentDeleteUser']);
+
+Route::get('orders', [Order\OrderController::class, 'getOrders']);
+Route::delete('orders', [Order\OrderController::class, 'deleteBulkOrders']);
+Route::get('order/{id}', [Order\OrderController::class, 'getOrder']);
+
+Route::get('get-installation-details/{orderId}', [Order\OrderController::class, 'getInstallationDetails']);
+Route::get('getOrderPayments/{orderId}', [Order\OrderController::class, 'getPaymentByOrderId']);
+Route::get('getOrderInvoices/{orderId}', [Order\OrderController::class, 'getOrderInvoices']);
+Route::patch('reissue-license', [Order\ExtendedOrderController::class, 'reissueLicense']);
+Route::post('edit-update-expiry', [Order\BaseOrderController::class, 'editUpdateExpiry']);
+Route::post('edit-license-expiry', [Order\BaseOrderController::class, 'editLicenseExpiry']);
+Route::post('edit-support-expiry', [Order\BaseOrderController::class, 'editSupportExpiry']);
+Route::post('edit-installation-limit', [Order\BaseOrderController::class, 'editInstallationLimit']);
+Route::post('switch-license-mode', [License\LocalizedLicenseController::class, 'chooseLicenseMode']);
+Route::get('invoices', [Order\InvoiceController::class, 'getInvoices']);
+Route::delete('invoices', [Order\InvoiceController::class, 'deleteBulkInvoices']);
+Route::get('invoice/{id}', [Order\InvoiceController::class, 'getInvoice']);
+Route::post('get-price', [Product\ProductController::class, 'getPrice']);
+Route::get('dependency/{type}', [Common\Dependency\DependencyController::class, 'handle']);
+
+Route::get('pages', [Front\PageController::class, 'getAllPages']);
+Route::delete('pages', [Front\PageController::class, 'deleteBulkPages']);
+Route::get('page/{id}', [Front\PageController::class, 'getPage']);
+Route::put('page/{id}', [Front\PageController::class, 'updatePage']);
+Route::post('save/demo', [Front\PageController::class, 'saveDemoPage']);
+Route::get('products', [Product\ProductController::class, 'getAllProducts']);
+Route::delete('products', [Product\ProductController::class, 'deleteBulkProducts']);
+Route::get('product/{productId}', [Product\ProductController::class, 'getProduct']);
+Route::get('product/uploads/{productId}', [Product\ProductController::class, 'getProductUploads']);
+Route::delete('product/upload', [Product\ProductController::class, 'deleteBulkProductUpload']);
+Route::get('product/upload/{productUploadId}', [Product\ProductController::class, 'getProductUpload']);
+Route::patch('product/upload/{productUploadId}', [Product\ProductController::class, 'updateProductUpload']);
+Route::put('product/upload/{productId}/', [Product\ProductController::class, 'productUploadCreate']);
+Route::put('product', [Product\ProductController::class, 'productCreate']);
+Route::patch('product/{productId}', [Product\ProductController::class, 'updateProduct']);
+Route::get('plans', [Product\PlanController::class, 'getAllPlans']);
+Route::put('plans', [Product\PlanController::class, 'planCreate']);
+Route::get('plan/{planId}', [Product\PlanController::class, 'getPlan']);
+Route::patch('plan/{planId}', [Product\PlanController::class, 'updatePlan']);
+Route::delete('plans', [Product\PlanController::class, 'deleteBulkPlans']);
+Route::get('promotions', [Payment\PromotionController::class, 'getAllPromotions']);
+Route::get('promotion/{promotionId}', [Payment\PromotionController::class, 'getPromotion']);
+Route::get('getPromotionCode', [Payment\PromotionController::class, 'getCode']);
+Route::patch('updatePromotion/{promotionId}', [Payment\PromotionController::class, 'updatePromotionCode']);
+Route::put('promotionCreate', [Payment\PromotionController::class, 'promotionCodeCreate']);
+Route::delete('promotions', [Payment\PromotionController::class, 'deleteBulkPromotions']);
+Route::get('groups', [Product\GroupController::class, 'getProductGroups']);
+Route::get('group/{group_id}', [Product\GroupController::class, 'getGroup']);
+Route::patch('group/{group_id}', [Product\GroupController::class, 'updateGroup']);
+Route::put('group', [Product\GroupController::class, 'groupCreate']);
+Route::delete('group', [Product\GroupController::class, 'deleteBulkGroups']);
+Route::get('reports', [ReportController::class, 'getAllReports']);
+Route::get('download-exported-file/{id}', [User\ClientController::class, 'downloadExportedFile'])->name('download.exported.file');
+Route::delete('reports', [ReportController::class, 'deleteBulkReports']);
+Route::get('reports/setting', [ReportController::class, 'getReportsSettings']);
+Route::patch('reports/setting', [ReportController::class, 'updateReportsSettings']);
+
+Route::get('dashboard', [DashboardController::class, 'dashboard']);
+
+Route::get('module-settings', [Common\SettingsController::class, 'getModuleSettings']);
+
+// Admin Vue Panel — guard at the server level so unauthenticated users never
+// receive the blade/JS bundle and see a flash of the admin UI.
+Route::get('/admin/{any?}', function () {
+    if (! auth()->check()) {
+        return redirect(url('/login'));
+    }
+
+    return view('admin');
+})->where('any', '.*');

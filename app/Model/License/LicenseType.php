@@ -3,11 +3,12 @@
 namespace App\Model\License;
 
 use App\Traits\SystemActivityLogsTrait;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class LicenseType extends Model
 {
-    use SystemActivityLogsTrait;
+    use HasFactory, SystemActivityLogsTrait;
 
     protected $table = 'license_types';
 

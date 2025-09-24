@@ -3,9 +3,12 @@
 namespace App\Model\Order;
 
 use App\BaseModel;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Payment extends BaseModel
 {
+    use HasFactory;
+
     protected $table = 'payments';
 
     protected $fillable = ['parent_id', 'invoice_id', 'amount',

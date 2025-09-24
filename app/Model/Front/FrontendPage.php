@@ -4,9 +4,12 @@ namespace App\Model\Front;
 
 use App\BaseModel;
 use App\Traits\SystemActivityLogsTrait;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class FrontendPage extends BaseModel
 {
+    use HasFactory;
+
     use SystemActivityLogsTrait;
 
     protected $table = 'frontend_pages';
@@ -45,5 +48,10 @@ class FrontendPage extends BaseModel
     public function setSlugAttribute($value)
     {
         $this->attributes['slug'] = str_replace(' ', '', $value);
+    }
+
+    public function parent()
+    {
+        return $this->belongsTo(FrontendPage::class, 'parent_page_id');
     }
 }

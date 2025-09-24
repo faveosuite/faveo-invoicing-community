@@ -1,8 +1,0 @@
-src/
-libs/
-README.md
-Razorpay.php
-composer.lock
-composer.json
-doc.md
-version.txt

@@ -10,6 +10,7 @@ use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
 class EmailSettingsController extends Controller
 {
     protected $emailConfig;
+    protected $error;
 
     protected $error;
 
@@ -35,9 +36,9 @@ class EmailSettingsController extends Controller
         try {
             $set = $settings->find(1);
 
-            return view('themes.default1.common.setting.email', compact('set'));
+            return successResponse('', $set);
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse($ex->getMessage());
         }
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenancy;
 
+use App\Facades\Cart;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Front\CartController;
 use App\Http\Controllers\License\LicenseController;
@@ -28,11 +29,15 @@ use Illuminate\Http\Request;
 
 class CloudExtraActivities extends Controller
 {
+    public $client;
+    public $cloud;
+    public $cart;
+
     public function __construct(Client $client, FaveoCloud $cloud)
     {
         $this->client = $client;
         $this->cloud = $cloud->first();
-
+        $this->cart = new Cart();
         $this->middleware('auth', ['except' => ['verifyThirdPartyToken', 'storeTenantTillPurchase']]);
     }
 
@@ -87,7 +92,7 @@ class CloudExtraActivities extends Controller
      *  This function checks if the installation path is present or not, and returns installation the path if present.
      *
      * @param  Request  $request
-     * @return JsonResponse
+     * @return
      *
      * @throws
      */
@@ -96,10 +101,12 @@ class CloudExtraActivities extends Controller
         // Output the modified domain value
         $installtion_path = InstallationDetail::where('order_id', $request->orderId)->where('installation_path', '!=', cloudCentralDomain())->latest()->value('installation_path');
         if (! empty($installtion_path)) {
-            return response()->json(['data' => $installtion_path]);
+            return successResponse('', ['url' => $installtion_path]);
+            //return response()->json(['data' => $installtion_path]);
         }
 
-        return response()->json(['data' => '']);
+//        return response()->json(['data' => '']);
+        return successResponse('', ['url' => '']);
     }
 
     /**
@@ -264,7 +271,9 @@ class CloudExtraActivities extends Controller
                 \Session::put('product_id', $product_id);
                 \Session::put('oldLicense', $oldLicense);
 
-                return url('paynow/'.$invoice->invoice_id);
+                $url = url('paynow/'.$invoice->invoice_id);
+
+                return successResponse('success', ['url' => $url]);
             }
         } catch(\Exception $e) {
             \Logger::exception($e);
@@ -277,7 +286,7 @@ class CloudExtraActivities extends Controller
      *  This function is used to get upgrade and downgrade plans value.
      *
      * @param  Request  $request
-     * @return JsonResponse|string
+     * @return
      *
      * @throws
      */
@@ -301,12 +310,14 @@ class CloudExtraActivities extends Controller
 
             $items = $this->getThePaymentCalculationUpgradeDowngrade($agents, $oldLicense, $orderId, $planId);
 
-            \Cart::add($items); //Add Items To the Cart Collection
+            $this->cart->add($items); //Add Items To the Cart Collection
             \Session::put('upgradeDowngradeProduct', \Auth::user()->id);
             \Session::put('upgradeOldLicense', $oldLicense);
             \Session::put('upgradeorderId', $orderId);
 
-            return response()->json(['redirectTo' => url('/checkout')]);
+            $url = url('/checkout');
+
+            return successResponse('success', ['url' => $url]);
         } catch(\Exception $e) {
             \Logger::exception($e);
 
@@ -933,6 +944,7 @@ class CloudExtraActivities extends Controller
         \Session::forget('plan');
 
         \Cart::clear();
+        $this->cart->clear();
     }
 
     public function checkUpgradeDowngrade()
@@ -1093,10 +1105,14 @@ class CloudExtraActivities extends Controller
             $items = ['priceoldplan' => currencyFormat($priceRemaining, $currencyNew['currency'], true), 'pricenewplan' => currencyFormat($priceToBePaid, $currencyNew['currency'], true), 'price_to_be_paid' => currencyFormat(abs($price), $currencyNew['currency'], true), 'discount' => currencyFormat($discount, $currencyNew['currency'], true), 'priceperagent' => currencyFormat($pricePerAgent, $currencyNew['currency'], true)];
 
             return $items;
+
+            return successResponse('success', ['items' => $itmems]);
         } catch(\Exception $e) {
             \Logger::exception($e);
 
-            return ['price_to_be_paid' => 'NaN', 'discount' => 'NaN', 'currency' => 'NaN'];
+            $items = ['price_to_be_paid' => 'NaN', 'discount' => 'NaN', 'currency' => 'NaN'];
+
+            return errorResponse('fail', ['items' => $items]);
         }
     }
 
@@ -1199,7 +1215,7 @@ class CloudExtraActivities extends Controller
      *  This function is used to provide the actual cost before changing number of agents, it will be displayed.
      *
      * @param  request  $request
-     * @return array
+     * @return
      *
      * @throws
      */
@@ -1251,7 +1267,9 @@ class CloudExtraActivities extends Controller
         } catch(\Exception $e) {
             \Logger::exception($e);
 
-            return ['pricePerAgent' => 'NaN', 'totalPrice' => 'NaN', 'priceToPay' => 'NaN'];
+            $data = ['pricePerAgent' => 'NaN', 'totalPrice' => 'NaN', 'priceToPay' => 'NaN'];
+
+            return errorResponse('', ['data' => $data]);
         }
     }
 
@@ -1291,39 +1309,41 @@ class CloudExtraActivities extends Controller
         return json_decode($response);
     }
 
-    public function fetchData()
+    public function fetchData(Request $request)
     {
-        $collection = collect(CloudProducts::cursor());
+        try {
+            $searchQuery = $request->input('search-query', '');
+            $sortOrder = $request->input('sort-order', 'desc');
+            $sortField = $request->input('sort-field', 'updated_at');
+            $limit = $request->input('limit', 10);
 
-        return \DataTables::collection($collection)
-            ->addColumn('Cloud Product', function ($model) {
-                return "<p><a href='".url('/products/'.$model->product->id.'/edit')."'>".$model->product->name.'</a></p>';
-            })
-            ->addColumn('Cloud free plan', function ($model) {
-                return "<p><a href='".url('/plans/'.$model->product->id.'/edit')."'>".$model->plan->name.'</a></p>';
-            })
-            ->addColumn('Cloud product key', function ($model) {
-                return $model->cloud_product_key;
-            })
-            ->addColumn('action', function ($model) {
-                return "<p><button data-toggle='modal'
-                data-id='".$model->id."' data-name='' onclick=\"popProduct('".$model->id."')\" id='delpop".$model->id."'
-                class='btn btn-sm btn-dark btn-xs delTenant' ".tooltip(__('message.delete'))."<i class='fa fa-trash'
-                style='color:white;'> </i></button>&nbsp;</p>";
-            })
+            // Fetch cloud product records with related product and plan
+            $productPlanData = CloudProducts::with(['product', 'plan'])
+                ->when($searchQuery, function ($q) use ($searchQuery) {
+                    $q->whereHas('product', function ($q2) use ($searchQuery) {
+                        $q2->where('name', 'like', "%{$searchQuery}%");
+                    });
+                })
+                ->orderBy($sortField, $sortOrder)
+                ->simplePaginate($limit);
 
-            ->addColumn('status', function ($model) {
-                $checked = $model->trial_status ? 'checked' : '';
+            // Transform output for API
+            $productPlanData->getCollection()->transform(function ($model) {
+                return [
+                    'id' => $model->id,
+                    'cloud_product' => $model->product->name ?? null,
+                    'cloud_product_id' => $model->product->id ?? null,
+                    'cloud_product_key' => $model->cloud_product_key,
+                    'cloud_free_plan' => $model->plan->name ?? null,
+                    'cloud_free_plan_id' => $model->plan->id ?? null,
+                    'trial_status' => (bool) $model->trial_status,
+                ];
+            });
 
-                return '<label class="swich toggle_event_editing trialStatus">
-                <input type="checkbox" class="checkbox9" name="trialStatus"
-                       value="1" data-status="'.$model->trial_status.'" 
-                       id="'.$model->id.'" '.$checked.'>
-                <span class="slidr rund"></span>
-            </label>';
-            })
-            ->rawColumns(['Cloud Product', 'Cloud free plan', 'Cloud product key', 'action', 'status'])
-            ->make(true);
+            return successResponse('', $productPlanData);
+        } catch (\Exception $e) {
+            return errorResponse(__('message.something_went_wrong'));
+        }
     }
 
     public function updateTrialStatus(Request $request)
@@ -1377,9 +1397,9 @@ class CloudExtraActivities extends Controller
                 'longitude' => $geo['longitude'],
             ]);
 
-            return redirect()->back()->with('success', trans('message.saved_data_center'));
+            return successResponse(__('message.saved_data_center'));
         } else {
-            return redirect()->back()->with('fails', trans('message.no_lat_or_long'));
+            return errorResponse(__('message.no_lat_or_long'));
         }
     }
 

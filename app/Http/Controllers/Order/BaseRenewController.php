@@ -116,7 +116,7 @@ class BaseRenewController extends Controller
                 'renewalPrice' => isAgentAllowed($plan->product, $planId) ? $priceForTheAgents : $price,
             ]);
         } catch (Exception $ex) {
-            throw new \Exception($ex->getMessage());
+            return errorResponse($ex->getMessage());
         }
     }
 
@@ -134,8 +134,8 @@ class BaseRenewController extends Controller
             $renewalPrice = $cost; //Get Renewal Price before calculating tax over it to save as regular price of product
             $controller = new \App\Http\Controllers\Order\InvoiceController();
             $tax = $this->calculateTax($product->id, $user->state, $user->country);
-            $tax_name = $tax->getName();
-            $tax_rate = $tax->getValue();
+            $tax_name = $tax['name'];
+            $tax_rate = $tax['value'];
             $cost = rounding($controller->calculateTotal($tax_rate, $cost));
             $number = rand(11111111, 99999999);
             $date = \Carbon\Carbon::now();

@@ -297,19 +297,18 @@ class AuthController extends BaseAuthController
             $states = \App\Model\Common\State::where('country_code_char2', $id)
             ->orderBy('state_subdivision_name', 'asc')->get();
 
-            if (count($states) > 0) {
-                echo '<option value="">'.__('message.choose').'</option>';
-                foreach ($states as $stateList) {
-                    echo '<option value='.$stateList->iso2.'>'
-                .$stateList->state_subdivision_name.'</option>';
-                }
-            } else {
-                echo "<option value=''>".__('message.no_states_available').'</option>';
-            }
+//            if (count($states) > 0) {
+//                echo '<option value="">'.__('message.choose').'</option>';
+//                foreach ($states as $stateList) {
+//                    echo '<option value='.$stateList->iso2.'>'
+//                .$stateList->state_subdivision_name.'</option>';
+//                }
+//            } else {
+//                echo "<option value=''>".__('message.no_states_available').'</option>';
+//            }
+            return successResponse('States', ['states' => $states]);
         } catch (\Exception $ex) {
-            echo "<option value=''>".__('message.problem_while_loading').'</option>';
-
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse(__('message.problem_while_loading'));
         }
     }
 
@@ -412,89 +411,6 @@ class AuthController extends BaseAuthController
         ));
     }
 
-    public function addUserToExternalServices($user, $options = [])
-    {
-        try {
-            $status = StatusSetting::select('mailchimp_status', 'pipedrive_status', 'zoho_status')->first();
-
-            if (! ($options['skip_pipedrive'] ?? false) && $status->pipedrive_status) {
-                (new PipedriveController())->addUserToPipedrive($user);
-            }
-
-            if (! ($options['skip_zoho'] ?? false) && $status->zoho_status) {
-                $this->addUserToZoho($user, $status->zoho_status);
-            }
-
-            if (! ($options['skip_mailchimp'] ?? false) && $status->mailchimp_status) {
-                $this->addUserToMailchimp($user, $status->mailchimp_status);
-            }
-        } catch (\Exception $exception) {
-            \Logger::exception($exception);
-        }
-    }
-
-    public function updateUserWithVerificationStatus($user, $trigger = 'register')
-    {
-        $pipedriveVerificationRequired = ApiKey::first()->value('require_pipedrive_user_verification');
-        $statusSetting = StatusSetting::first([
-            'emailverification_status',
-            'msg91_status',
-            'mailchimp_status',
-            'pipedrive_status',
-            'zoho_status',
-        ]);
-
-        $emailRequired = $statusSetting->emailverification_status;
-        $mobileRequired = $statusSetting->msg91_status;
-        $isEmailVerified = ! $emailRequired || $user->email_verified;
-        $isMobileVerified = ! $mobileRequired || $user->mobile_verified;
-        $isFullyVerified = $isEmailVerified && $isMobileVerified;
-
-        // Determine when to sync each service
-        $shouldSync = $this->shouldSyncServices($trigger, $pipedriveVerificationRequired, $isFullyVerified);
-
-        if ($shouldSync['sync_any']) {
-            $this->addUserToExternalServices($user, [
-                'skip_pipedrive' => ! $shouldSync['pipedrive'],
-                'skip_zoho' => ! $shouldSync['zoho'],
-                'skip_mailchimp' => ! $shouldSync['mailchimp'],
-            ]);
-        }
-    }
-
-    private function shouldSyncServices($trigger, $pipedriveVerificationRequired, $isFullyVerified)
-    {
-        $syncPipedrive = false;
-        $syncZoho = false;
-        $syncMailchimp = false;
-
-        if ($pipedriveVerificationRequired) {
-            // Pipedrive verification is required
-            if ($isFullyVerified) {
-                // User just became fully verified - sync all services
-                $syncPipedrive = true;
-                $syncZoho = true;
-                $syncMailchimp = true;
-            }
-        } else {
-            // Pipedrive verification is NOT required
-            if ($trigger === 'register') {
-                // Sync all services at registration
-                $syncPipedrive = true;
-                $syncZoho = true;
-                $syncMailchimp = true;
-            }
-            // For verification triggers when pipedrive verification is disabled, don't sync (already synced at registration)
-        }
-
-        return [
-            'sync_any' => $syncPipedrive || $syncZoho || $syncMailchimp,
-            'pipedrive' => $syncPipedrive,
-            'zoho' => $syncZoho,
-            'mailchimp' => $syncMailchimp,
-        ];
-    }
-
     private function userNeedVerified($user)
     {
         $setting = StatusSetting::first(['emailverification_status', 'msg91_status']);
@@ -523,5 +439,12 @@ class AuthController extends BaseAuthController
     public function verifySession()
     {
         return successResponse('active');
+    }
+
+    public function getCountries()
+    {
+        $countries = \App\Model\Common\Country::pluck('nicename', 'country_code_char2')->toArray();
+
+        return successResponse('countries', $countries);
     }
 }

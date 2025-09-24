@@ -11,7 +11,9 @@ use App\Model\Common\Country;
 use App\Model\Common\FaveoCloud;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
+use App\Model\Mailjob\ExpiryMailDay;
 use App\Model\Mailjob\QueueService;
+use App\Model\Order\InstallationDetail;
 use App\Model\Order\Order;
 use App\Model\Payment\PlanPrice;
 use App\Model\Product\CloudProducts;
@@ -80,26 +82,17 @@ class TenantController extends Controller
                 ];
             });
 
-            return view('themes.default1.tenant.index', compact('de', 'cloudButton', 'cloud', 'regions', 'cloudPopUp'));
+            return successResponse('', [
+                'de' => $de,
+                'cloudButton' => $cloudButton,
+                'cloud' => $cloud,
+                'regions' => $regions,
+                'cloudPopUp' => $cloudPopUp,
+            ]);
         } catch (\Exception $e) {
             \Logger::exception($e);
-            $cloud = $this->cloud;
-            $cloudPopUp = CloudPopUp::find(1);
-            $cloudButton = StatusSetting::value('cloud_button');
-            $cloudDataCenters = CloudDataCenters::all();
 
-            // Format the results as per the specified format
-            $regions = $cloudDataCenters->map(function ($center) {
-                return [
-                    'name' => ! empty($center->cloud_city) ? $center->cloud_city.', '.$center->cloud_countries : $center->cloud_state.', '.$center->cloud_countries,
-                    'latitude' => $center->latitude,
-                    'longitude' => $center->longitude,
-                ];
-            });
-
-            $de = null;
-
-            return view('themes.default1.tenant.index', compact('de', 'cloudButton', 'cloud', 'regions', 'cloudPopUp'))->withErrors(Lang::get('message.cloud_error_message'));
+            return errorResponse(Lang::get('message.cloud_error_message'));
         }
     }
 
@@ -111,214 +104,89 @@ class TenantController extends Controller
                 'cloud_button' => $request->debug == 'true' ? '1' : '0',
             ]);
 
-            return redirect()->back()->with('success', __('message.updated-successfully'));
+            return successResponse(__('message.updated-successfully'));
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse(__('message.something_went_wrong_try_again'));
         }
     }
 
     public function getTenants(Request $request)
     {
         try {
-            $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
+            $searchQuery = $request->input('search-query', '');
+            $sortOrder = $request->input('sort-order', 'asc');
+            $sortField = $request->input('sort-field', 'created_at');
+            $limit = (int) $request->input('limit', 10);
 
-            if (! $keys->app_key) {//Valdidate if the app key to be sent is valid or not
-                throw new Exception(__('message.cloud_invalid_message'));
+            $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')
+                    ->select('app_key', 'app_secret')
+                    ->first();
+
+            if (! $keys || empty($keys->app_key)) {
+                return errorResponse(__('message.cloud_invalid_message'));
             }
-            $response = $this->client->request(
-                'GET',
+
+            $response = $this->client->request('GET',
                 $this->cloud->cloud_central_domain.'/tenants',
-                [
-                    'query' => [
-                        'key' => $keys->app_key,
-                    ],
-                ]
+                ['query' => ['key' => $keys->app_key]]
             );
 
-            $responseBody = (string) $response->getBody();
-            $responseData = json_decode($responseBody);
+            $data = json_decode($response->getBody(), true);
 
-            $collection = collect($responseData->message)->reject(function ($item) {
-                return $item === null;
+            $tenants = collect($data['message'])->reject(fn ($t) => $t === null);
+
+            $tenantList = $tenants->map(function ($model) {
+                $order_id = $this->getOrderId($model['domain']);
+                $order_number = $order_id ? Order::find($order_id)?->number : null;
+
+                $userData = $this->getUserData($order_id);
+                $subData = $this->getSubscriptionDataForCloud($order_id);
+
+                return [
+                    'tenant_id' => $model['id'] ?? null,
+                    'domain' => $model['domain'] ?? null,
+
+                    'database' => [
+                        'name' => $model['database_name'] ?? null,
+                        'username' => $model['database_user_name'] ?? null,
+                    ],
+
+                    'order' => [
+                        'order_id' => $order_id,
+                        'order_number' => $order_number,
+                        'subscription' => $subData['plan'] ?? null,
+                    ],
+
+                    'user' => $userData,
+                    'dates' => $subData,
+                    'links' => [
+                        'tenant_domain' => $model['domain'] ? "http://{$model['domain']}" : null,
+                    ],
+
+                    'action' => [
+                        'delete' => [
+                            'tenant_id' => $model['id'],
+                            'order_number' => $order_number,
+                            'delete_url' => url("tenants/{$model['id']}/delete"),
+                        ],
+                    ],
+                ];
             });
 
-            return \DataTables::collection($collection)
-                ->addColumn('Order', function ($model) {
-                    $order_id = \DB::table('installation_details')->where('installation_path', $model->domain)->latest()->value('order_id');
-                    $order_number = \DB::table('orders')->where('id', $order_id)->value('number');
-                    if (empty($order_id) || empty($order_number)) {
-                        return '--';
-                    }
-                    $badge = 'badge';
-                    $plan_id = Subscription::where('order_id', $order_id)->latest()->value('plan_id');
-                    $price = PlanPrice::where('plan_id', $plan_id)->latest()->value('add_price');
-                    $message = ($price) ? 'Paid Subscription' : 'Free Trial';
-                    $badgeclass = ($price) ? 'badge-success' : 'badge-info';
+            if ($searchQuery) {
+                $tenantList = $tenantList->filter(function ($item) use ($searchQuery) {
+                    return isset($item['user']['name']) &&
+                        str_contains(strtolower($item['user']['name']), strtolower($searchQuery));
+                });
+            }
 
-                    return "<p><a href='".url('/orders/'.$order_id)."'>$order_number</a> <span class='".$badge.' '.$badgeclass."'  <label data-toggle='tooltip' style='font-weight:500;' data-placement='top'>
+            $tenantList = $tenantList->sortBy($sortField, SORT_REGULAR, $sortOrder);
 
-                         </label>".
-                        $message.'</span></p>';
-                })
-                ->addColumn('name', function ($model) {
-                    $order_id = \DB::table('installation_details')
-                        ->where('installation_path', $model->domain)
-                        ->latest()
-                        ->value('order_id');
+            $tenantList = $tenantList->values()->take($limit);
 
-                    if (! $order_id) {
-                        return '--';
-                    }
-
-                    $userId = Order::where('id', $order_id)->value('client');
-                    if (! $userId) {
-                        return '--';
-                    }
-
-                    $user = User::find($userId);
-                    if (! $user) {
-                        return '--';
-                    }
-
-                    return '<a href="'.url('clients/'.$user->id).'">'.e(ucfirst($user->first_name)).' '.e(ucfirst($user->last_name)).'</a>';
-                })
-                ->addColumn('email', function ($model) {
-                    $order_id = \DB::table('installation_details')
-                        ->where('installation_path', $model->domain)
-                        ->latest()
-                        ->value('order_id');
-
-                    if (! $order_id) {
-                        return '--';
-                    }
-
-                    $userId = Order::where('id', $order_id)->value('client');
-                    if (! $userId) {
-                        return '--';
-                    }
-
-                    $user = User::find($userId);
-                    if (! $user) {
-                        return '--';
-                    }
-
-                    return $user->email ?? '';
-                })
-                   ->addColumn('mobile', function ($model) {
-                       $order_id = \DB::table('installation_details')
-                           ->where('installation_path', $model->domain)
-                           ->latest()
-                           ->value('order_id');
-
-                       if (! $order_id) {
-                           return '--';
-                       }
-
-                       $userId = Order::where('id', $order_id)->value('client');
-                       if (! $userId) {
-                           return '--';
-                       }
-
-                       $user = User::find($userId);
-                       if (! $user) {
-                           return '--';
-                       }
-
-                       return isset($user->mobile_code) && isset($user->mobile) ? '+'.$user->mobile_code.' '.$user->mobile : '--';
-                   })
-
-                   ->addColumn('country', function ($model) {
-                       $order_id = \DB::table('installation_details')
-                           ->where('installation_path', $model->domain)
-                           ->latest()
-                           ->value('order_id');
-
-                       if (! $order_id) {
-                           return '--';
-                       }
-
-                       $userId = Order::where('id', $order_id)->value('client');
-                       if (! $userId) {
-                           return '--';
-                       }
-
-                       $user = User::find($userId);
-                       if (! $user) {
-                           return '--';
-                       }
-                       $country = Country::where('country_code_char2', $user->country)->value('country_name');
-
-                       return $country ?? '';
-                   })
-
-                   ->addColumn('Expiry day', function ($model) {
-                       $order_id = \DB::table('installation_details')->where('installation_path', $model->domain)->latest()->value('order_id');
-                       $subscription_date = Subscription::where('order_id', $order_id)->value('ends_at');
-                       if (empty($subscription_date)) {
-                           return '--';
-                       }
-
-                       return getDateHtml($subscription_date);
-                   })
-
-                ->addColumn('Deletion day', function ($model) {
-                    $order_id = \DB::table('installation_details')->where('installation_path', $model->domain)->latest()->value('order_id');
-                    $subscription_date = Subscription::where('order_id', $order_id)->value('ends_at');
-                    if (empty($subscription_date)) {
-                        return '--';
-                    }
-                    $days = (int) \DB::table('expiry_mail_days')->where('cloud_days', '!=', null)->value('cloud_days');
-                    $originalDate = Carbon::parse($subscription_date)->addDays($days);
-                    $formattedDate = Carbon::parse($originalDate)->format('d M Y');
-
-                    return $formattedDate;
-                })
-
-               ->addColumn('plan', function ($model) {
-                   $order_id = \DB::table('installation_details')->where('installation_path', $model->domain)->latest()->value('order_id');
-                   if (empty($order_id)) {
-                       return '--';
-                   }
-
-                   $plan_id = Subscription::where('order_id', $order_id)->latest()->value('plan_id');
-                   $price = PlanPrice::where('plan_id', $plan_id)->latest()->value('add_price');
-                   $message = ($price) ? 'Paid Subscription' : 'Free Trial';
-
-                   return $message;
-               })
-
-                ->addColumn('tenants', function ($model) {
-                    return $model->id ?? '';
-                })
-                ->addColumn('domain', function ($model) {
-                    return '<a href="http://'.$model->domain.'" target="_blank">'.$model->domain.'</a>';
-                })
-                ->addColumn('db_name', function ($model) {
-                    return $model->database_name ?? '';
-                })
-                ->addColumn('db_username', function ($model) {
-                    return $model->database_user_name ?? '';
-                })
-                ->addColumn('action', function ($model) {
-                    $order_id = \DB::table('installation_details')->where('installation_path', $model->domain)->latest()->value('order_id');
-                    $order_number = \DB::table('orders')->where('id', $order_id)->value('number');
-
-                    if (empty($order_id) || empty($order_number)) {
-                        return "<p><button data-toggle='modal'
-                data-id=".$model->id." data-name= '' onclick=deleteTenant('".$model->id."') id='delten".$model->id."'
-                class='btn btn-sm btn-dark btn-xs delTenant'".tooltip(__('message.delete'))."<i class='fa fa-trash'
-                style='color:white;'> </i></button>&nbsp;</p>";
-                    }
-
-                    return "<p><button data-toggle='modal'
-                data-id='".$model->id."' data-name='' onclick=\"deleteTenant('".$model->id."','".$order_id."')\" id='delten".$model->id."'
-                class='btn btn-sm btn-dark btn-xs delTenant' ".tooltip(__('message.delete'))."<i class='fa fa-trash'
-                style='color:white;'> </i></button>&nbsp;</p>";
-                })
-                ->rawColumns(['Order', 'Deletion day', 'tenants', 'domain', 'db_name', 'db_username', 'action', 'name', 'email', 'mobile', 'country', 'Expiry day', 'plan'])
-                ->make(true);
-        } catch (ConnectException|Exception $e) {
-            return redirect()->back()->with('fails', $e->getMessage());
+            return successResponse(__('message.tenants_fetched_successfully'), $tenantList);
+        } catch (\Throwable $e) {
+            return errorResponse(__('message.something_went_wrong'), 500);
         }
     }
 
@@ -344,7 +212,7 @@ class TenantController extends Controller
     public function createTenant(Request $request)
     {
         $order = Order::wherenumber($request->orderNo)->get();
-        $product = CloudProducts::where('cloud_product', $order[0]->product()->value('id'))->value('cloud_product_key');
+        $product = CloudProducts::where('cloud_product', $order[0]->productRelation()->value('id'))->value('cloud_product_key');
 
         $this->validate($request,
             [
@@ -377,14 +245,16 @@ class TenantController extends Controller
             $dns_record = dns_get_record($faveoCloud, DNS_CNAME);
             if (! strpos($faveoCloud, cloudSubDomain())) {
                 if (empty($dns_record) || ! in_array(cloudSubDomain(), array_column($dns_record, 'target'))) {
-                    return ['status' => 'false', 'message' => trans('message.cname')];
+                    return errorResponse(trans('message.cname'));
+                    //return ['status' => 'false', 'message' => trans('message.cname')];
                 }
             }
 
             $licCode = Order::where('number', $request->input('orderNo'))->first()->serial_key;
             $keys = ThirdPartyApp::where('app_name', 'faveo_app_key')->select('app_key', 'app_secret')->first();
             if (! optional($keys)->app_key) {//Validate if the app key to be sent is valid or not
-                return ['status' => 'false', 'message' => trans('message.something_bad')];
+                return errorResponse(trans('message.something_bad'));
+                //return ['status' => 'false', 'message' => trans('message.something_bad')];
             }
 
             $token = str_random(32);
@@ -414,13 +284,15 @@ class TenantController extends Controller
 
                 $this->googleChat($result->message);
 
-                return ['status' => 'false', 'message' => trans('message.something_bad')];
+                return errorResponse(trans('message.something_bad'));
+                //return ['status' => 'false', 'message' => trans('message.something_bad')];
             } elseif ($result->status == 'validationFailure') {
                 $this->prepareMessages($faveoCloud, $userEmail);
 
                 $this->googleChat($result->message);
 
-                return ['status' => 'validationFailure', 'message' => $result->message];
+                return errorResponse($result->message);
+                //return ['status' => 'validationFailure', 'message' => $result->message];
             } else {
                 $client->request('GET', env('CLOUD_JOB_URL_NORMAL'), [
                     'auth' => [env('CLOUD_USER'), env('CLOUD_AUTH')],
@@ -471,17 +343,23 @@ class TenantController extends Controller
                 $this->prepareMessages($faveoCloud, $userEmail, true);
                 $mail->SendEmail($settings->email, $userEmail, $template->data, $subject, $template->type()->value('name'), $replace, $type);
                 if (isset($result->reason) && $result->reason != '') {
-                    return ['status' => $result->status, 'message' => $result->message.trans('message.cloud_created_successfully'), 'installationUrl' => $result->installationUrl, 'reason' => $result->reason, 'Free_trial_domain' => $faveoCloud];
+                    $data = ['status' => $result->status, 'message' => $result->message.trans('message.cloud_created_successfully'), 'installationUrl' => $result->installationUrl, 'reason' => $result->reason, 'Free_trial_domain' => $faveoCloud];
+
+                    return successResponse('', $data);
                 }
 
-                return ['status' => $result->status, 'message' => $result->message.trans('message.cloud_created_successfully'), 'installationUrl' => $result->installationUrl, 'Free_trial_domain' => $faveoCloud];
+                $data = ['status' => $result->status, 'message' => $result->message.trans('message.cloud_created_successfully'), 'installationUrl' => $result->installationUrl, 'Free_trial_domain' => $faveoCloud];
+
+                return successResponse('', $data);
             }
         } catch (Exception $e) {
             \Logger::exception($e);
             $message = $e->getMessage().' Domain: '.$faveoCloud.' Email: '.$userEmail;
             $this->googleChat($message);
 
-            return ['status' => 'false', 'message' => trans('message.something_bad')];
+            $data = ['status' => 'false', 'message' => trans('message.something_bad')];
+
+            return errorResponse('', [$data]);
         }
     }
 
@@ -605,10 +483,9 @@ class TenantController extends Controller
             $cloud = new FaveoCloud;
             $cloud->updateOrCreate(['id' => 1], ['cloud_central_domain' => $request->input('cloud_central_domain'), 'cloud_cname' => $request->input('cloud_cname')]);
 
-            // $cloud->first()->fill($request->all())->save();
-            return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
+            return successResponse(__('message.updated-successfully'));
         } catch (Exception $e) {
-            return redirect()->back()->with('fails', $e->getMessage());
+            return errorResponse(__('message.something_went_wrong_try_again'));
         }
     }
 
@@ -674,7 +551,7 @@ class TenantController extends Controller
                 }
             }
 
-            return redirect()->back()->with('fails', __('message.something_wrong_cloud_instance'));
+            return errorResponse(__('message.something_wrong_cloud_instance'));
         }
     }
 
@@ -754,9 +631,9 @@ class TenantController extends Controller
                 'cloud_label_field' => $request->input('cloud_label_field'),
                 'cloud_label_radio' => $request->input('cloud_label_radio')]);
 
-            return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
+            return successResponse(__('message.updated-successfully'));
         } catch (Exception $e) {
-            return redirect()->back()->with('fails', $e->getMessage());
+            return errorResponse(__('message.something_went_wrong_try_again'));
         }
     }
 
@@ -777,9 +654,9 @@ class TenantController extends Controller
         try {
             CloudProducts::create($request->all());
 
-            return redirect()->back()->with('success', trans('message.saved_products'));
+            return successResponse(__('message.saved_products'));
         } catch(\Exception $e) {
-            return redirect()->back()->with('fails', $e->getMessage());
+            return errorResponse(__('message.something_went_wrong_try_again'));
         }
     }
 
@@ -803,7 +680,64 @@ class TenantController extends Controller
         } catch (\Exception $e) {
             \Logger::exception($e);
 
-            return response()->json(['message' => $e->getMessage()], 500);
+            return errorResponse($e->getMessage(), 500);
         }
+    }
+
+    private function getOrderId($domain)
+    {
+        return InstallationDetail::where('installation_path', $domain)->latest()->value('order_id');
+    }
+
+    private function getUserData($order_id)
+    {
+        if (! $order_id) {
+            return null;
+        }
+
+        $userId = Order::where('id', $order_id)->value('client');
+        $user = User::find($userId);
+
+        if (! $user) {
+            return null;
+        }
+
+        return [
+            'id' => $user->id,
+            'name' => ucfirst($user->first_name).' '.ucfirst($user->last_name),
+            'email' => $user->email,
+            'mobile' => ($user->mobile_code && $user->mobile)
+                ? '+'.$user->mobile_code.' '.$user->mobile
+                : null,
+            'country' => Country::where('country_code_char2', $user->country)->value('nicename'),
+            'profile' => url("clients/{$user->id}"),
+        ];
+    }
+
+    private function getSubscriptionDataForCloud($order_id)
+    {
+        if (! $order_id) {
+            return null;
+        }
+
+        $subscription = Subscription::where('order_id', $order_id)->first();
+
+        if (! $subscription) {
+            return null;
+        }
+
+        $plan_id = $subscription->plan_id;
+        $price = PlanPrice::where('plan_id', $plan_id)->latest()->value('add_price');
+        $plan = $price ? 'Paid Subscription' : 'Free Trial';
+
+        $expiry = Carbon::parse($subscription->ends_at)->format('d M Y');
+        $cloud_days = ExpiryMailDay::whereNotNull('cloud_days')->value('cloud_days');
+        $deletion_date = $expiry ? Carbon::parse($expiry)->addDays($cloud_days)->format('d M Y') : null;
+
+        return [
+            'subscription_expiry' => $expiry ?: null,
+            'deletion_date' => $deletion_date,
+            'plan' => $plan,
+        ];
     }
 }

@@ -146,4 +146,90 @@ class ReportController extends Controller
 
         return redirect()->back()->with('success', __('message.settings_updated_successfully'));
     }
+
+    public function getAllReports(Request $request)
+    {
+        $searchQuery = $request->input('search-query', '');
+        $sortOrder = $request->input('sort-order', 'asc');
+        $sortField = $request->input('sort-field', 'created_at');
+        $limit = $request->input('limit', 10);
+
+        $reports = ExportDetail::with(['user:id,first_name,last_name'])
+            ->where('user_id', auth()->id())
+            ->when($searchQuery, function ($query) use ($searchQuery) {
+                $query->where(function ($q) use ($searchQuery) {
+                    $q->whereHas('user', function ($q2) use ($searchQuery) {
+                        $q2->where('first_name', 'like', "%{$searchQuery}%")
+                            ->orWhere('last_name', 'like', "%{$searchQuery}%");
+                    })
+                        ->orWhere('file', 'like', "%{$searchQuery}%");
+                });
+            })
+            ->orderBy($sortField, $sortOrder)
+            ->simplePaginate($limit);
+
+        $reports->getCollection()->transform(function ($report) {
+            $fileType = strtoupper(pathinfo($report->file, PATHINFO_EXTENSION)) ?: 'XLSX';
+            $type = $report->name ? ucfirst($report->name).' Report' : 'Report';
+
+            return [
+                'id' => $report->id,
+                'file' => $report->file,
+                'format' => $fileType,
+                'type' => $type,
+                'user' => $report->user,
+                'created_at' => $report->created_at,
+            ];
+        });
+
+        return successResponse('', $reports);
+    }
+
+    public function deleteBulkReports(Request $request)
+    {
+        $ids = $request->input('select', []);
+
+        if (empty($ids)) {
+            return errorResponse(__('message.select-a-row'));
+        }
+
+        try {
+            \DB::transaction(function () use ($ids) {
+                $reports = ExportDetail::where('user_id', auth()->id())
+                    ->whereIn('id', $ids)->get();
+
+                foreach ($reports as $report) {
+                    if (file_exists($report->file_path)) {
+                        $relativeFilePath = str_replace(storage_path('app/'), '', $report->file_path);
+                        Storage::delete($relativeFilePath);
+                    }
+                    $report->delete();
+                }
+            });
+
+            return successResponse(__('message.deleted-successfully'));
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
+    }
+
+    public function getReportsSettings(Request $request)
+    {
+        return successResponse('', ReportSetting::first());
+    }
+
+    public function updateReportsSettings(Request $request)
+    {
+        $validated = $request->validate([
+            'records' => 'required|integer|min:1|max:3000',
+        ]);
+
+        $settings = ReportSetting::first();
+
+        $settings->update([
+            'records' => $validated['records'],
+        ]);
+
+        return successResponse(__('message.settings_updated_successfully'));
+    }
 }

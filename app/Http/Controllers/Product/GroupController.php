@@ -273,4 +273,124 @@ class GroupController extends Controller
         $slug = url('/').'/group/'.str_slug($url, '-');
         echo $slug;
     }
+
+//    This is for the client panel, change it to the client panel controllers, which does not have middleware admin.
+    public function getAvailableGroups()
+    {
+        try {
+            $groups = \App\Model\Product\ProductGroup::select('id', 'name', 'pricing_templates_id')->where('hidden', '!=', 1)->get()->toArray();
+            foreach ($groups as $group) {
+                $grouped[$group['id']]['url'] = url('group/'.$group['pricing_templates_id'].'/'.$group['id']);
+                $grouped[$group['id']]['name'] = $group['name'];
+            }
+
+            return successResponse(trans('message.success'), $grouped);
+        } catch (\Exception $ex) {
+            return errorResponse($ex->getMessage());
+        }
+    }
+
+    public function getProductGroups(Request $request)
+    {
+        $searchQuery = $request->input('search-query', '');
+        $sortOrder = $request->input('sort-order', 'asc');
+        $sortField = $request->input('sort-field', 'created_at');
+        $limit = $request->input('limit', 10);
+
+        $groups = ProductGroup::when($searchQuery, function ($query) use ($searchQuery) {
+            $query->where('name', 'like', "%{$searchQuery}%");
+        })
+            ->orderBy($sortField, $sortOrder)
+            ->simplePaginate($limit);
+
+        return successResponse('', $groups);
+    }
+
+    public function getGroup($groupId, Request $request)
+    {
+        try {
+            return ProductGroup::with([
+                'pricingTemplate:id,image,name',
+                'product:id,name,group',
+            ])->findOrFail($groupId);
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
+    }
+
+    public function updateGroup($groupId, GroupRequest $request)
+    {
+        try {
+            $group = ProductGroup::findOrFail($groupId);
+
+            // Get all visible, non-contact products
+            $products = $group->product()
+                ->where('hidden', 0)
+                ->where('add_to_contact', 0)
+                ->get();
+
+            // Check if all products have both monthly and yearly plans
+            $allProductsHavePlans = $products->every(function ($product) {
+                $monthlyExists = Plan::where('product', $product->id)
+                    ->whereIn('days', [30, 31])
+                    ->exists();
+
+                $yearlyExists = Plan::where('product', $product->id)
+                    ->whereIn('days', [365, 366])
+                    ->exists();
+
+                return $monthlyExists && $yearlyExists;
+            });
+
+            // If enabling the group, ensure all products have plans
+            if ($request->status == 1 && ! $products->isEmpty() && ! $allProductsHavePlans) {
+                return errorResponse(__('message.all_products_monthly_yearly_plan'));
+            }
+
+            // Update group
+            $group->update($request->validated());
+
+            // Update product statuses
+            $productStatus = $request->status == 1 && $allProductsHavePlans ? 1 : 0;
+            $group->product()->update(['status' => $productStatus]);
+
+            return successResponse(__('message.updated-successfully'));
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
+    }
+
+    public function groupCreate(GroupRequest $request)
+    {
+        try {
+            ProductGroup::create($request->validated());
+
+            return successResponse(__('message.saved-successfully'));
+        } catch (\Exception $ex) {
+            return errorResponse($ex->getMessage());
+        }
+    }
+
+    public function deleteBulkGroups(Request $request)
+    {
+        $ids = $request->input('select', []);
+
+        if (empty($ids)) {
+            return errorResponse(__('message.select-a-row'));
+        }
+
+        try {
+            \DB::transaction(function () use ($ids) {
+                $groups = ProductGroup::whereIn('id', $ids)->get();
+
+                foreach ($groups as $group) {
+                    $group->delete();
+                }
+            });
+
+            return successResponse(__('message.deleted-successfully'));
+        } catch (\Exception $e) {
+            return errorResponse($e->getMessage());
+        }
+    }
 }

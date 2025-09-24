@@ -9,15 +9,6 @@ return  [
             0 => 'Barryvdh\\Debugbar\\ServiceProvider',
         ],
     ],
-    'barryvdh/laravel-dompdf' => [
-        'aliases' => [
-            'PDF' => 'Barryvdh\\DomPDF\\Facade\\Pdf',
-            'Pdf' => 'Barryvdh\\DomPDF\\Facade\\Pdf',
-        ],
-        'providers' => [
-            0 => 'Barryvdh\\DomPDF\\ServiceProvider',
-        ],
-    ],
     'beyondcode/laravel-query-detector' => [
         'providers' => [
             0 => 'BeyondCode\\QueryDetector\\QueryDetectorServiceProvider',
@@ -76,6 +67,11 @@ return  [
         ],
         'providers' => [
             0 => 'Laravel\\Horizon\\HorizonServiceProvider',
+        ],
+    ],
+    'laravel/passport' => [
+        'providers' => [
+            0 => 'Laravel\\Passport\\PassportServiceProvider',
         ],
     ],
     'laravel/pulse' => [
@@ -174,6 +170,14 @@ return  [
             0 => 'Spatie\\LaravelIgnition\\IgnitionServiceProvider',
         ],
     ],
+    'spatie/laravel-pdf' => [
+        'aliases' => [
+            'LaravelPdf' => 'Pdf',
+        ],
+        'providers' => [
+            0 => 'Spatie\\LaravelPdf\\PdfServiceProvider',
+        ],
+    ],
     'spatie/laravel-referer' => [
         'providers' => [
             0 => 'Spatie\\Referer\\RefererServiceProvider',
@@ -190,39 +194,6 @@ return  [
     'vemcogroup/laravel-sparkpost-driver' => [
         'providers' => [
             0 => 'Vemcogroup\\SparkPostDriver\\SparkPostDriverServiceProvider',
-        ],
-    ],
-    'yajra/laravel-datatables-buttons' => [
-        'providers' => [
-            0 => 'Yajra\\DataTables\\ButtonsServiceProvider',
-        ],
-    ],
-    'yajra/laravel-datatables-editor' => [
-        'providers' => [
-            0 => 'Yajra\\DataTables\\EditorServiceProvider',
-        ],
-    ],
-    'yajra/laravel-datatables-export' => [
-        'providers' => [
-            0 => 'Yajra\\DataTables\\ExportServiceProvider',
-        ],
-    ],
-    'yajra/laravel-datatables-fractal' => [
-        'providers' => [
-            0 => 'Yajra\\DataTables\\FractalServiceProvider',
-        ],
-    ],
-    'yajra/laravel-datatables-html' => [
-        'providers' => [
-            0 => 'Yajra\\DataTables\\HtmlServiceProvider',
-        ],
-    ],
-    'yajra/laravel-datatables-oracle' => [
-        'aliases' => [
-            'DataTables' => 'Yajra\\DataTables\\Facades\\DataTables',
-        ],
-        'providers' => [
-            0 => 'Yajra\\DataTables\\DataTablesServiceProvider',
         ],
     ],
 ];
