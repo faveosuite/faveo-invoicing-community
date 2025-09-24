@@ -12,6 +12,7 @@ use App\Model\Order\InstallationDetail;
 use App\Model\Order\Invoice;
 use App\Model\Order\InvoiceItem;
 use App\Model\Order\Order;
+use App\Model\Order\Payment;
 use App\Model\Payment\Plan;
 use App\Model\Payment\Promotion;
 use App\Model\Product\Price;
@@ -123,144 +124,92 @@ class OrderController extends BaseOrderController
     public function getOrders(Request $request)
     {
         try {
+            $searchQuery = $request->input('search-query', '');
+            $sortOrder = $request->input('sort-order', 'asc');
+            $sortField = $request->input('sort-field', 'created_at');
+            $limit = $request->input('limit', 10);
+            $page = $request->input('page', 1);
+
             $orderSearch = new OrderSearchController();
             $query = $orderSearch->advanceOrderSearch($request);
 
-            $count = count($query->cursor());
-            $cont = new \App\Http\Controllers\License\LicenseController();
+            $paginated = $query->orderBy($sortField, $sortOrder)
+                ->paginate($limit, ['*'], 'page', $page);
 
-            return \DataTables::of($query)
-                ->orderColumn('client', '-orders.created_at $1')
-                ->orderColumn('product_name', 'orders.created_at $1')
-                ->orderColumn('version', 'orders.created_at $1')
-                ->orderColumn('agents', 'orders.created_at $1')
-                ->orderColumn('number', 'orders.created_at $1')
-                ->orderColumn('order_status', 'orders.created_at $1')
-                ->orderColumn('order_date', 'orders.created_at $1')
-                ->orderColumn('update_ends_at', 'orders.created_at $1')
+            // Map items
+            $paginated->getCollection()->transform(function ($order) {
+                $user = $order->user;
+                $plan = Plan::find($order->subscription->plan_id)->name ?? null;
+                $installedVersions = $order->installationDetail ? $order->installationDetail->pluck('version')->toArray() : [];
+                $latestVersion = count($installedVersions) ? max($installedVersions) : null;
 
-                ->setTotalRecords($count)
+                $licenseAgents = substr($order->serial_key, 12, 16) === '0000'
+                    ? 'Unlimited'
+                    : intval(substr($order->serial_key, 12, 16), 10);
 
-                ->addColumn('checkbox', function ($model) {
-                    return "<input type='checkbox' class='order_checkbox' value=".$model->id.' name=select[] id=check>';
-                })
-                ->addColumn('client', function ($model) {
-                    return '<a href='.url('clients/'.$model->client_id).'>'.ucfirst($model->client_name).'<a>';
-                })
-               ->addColumn('email', function ($model) {
-                   $user = $this->user->where('id', $model->client_id)->first() ?: User::onlyTrashed()->find($model->client_id);
+                $invoiceStatus = $this->checkInvoiceStatusByOrderId($order->id);
 
-                   return $user->email;
-               })
-                ->addColumn('mobile', function ($model) {
-                    $user = $this->user->where('id', $model->client_id)->first() ?: User::onlyTrashed()->find($model->client_id);
+                return [
+                    'id' => $order->id,
+                    'product_name' => $order->productRelation->name,
+                    'plan' => $plan,
+                    'version' => $latestVersion ? getVersionAndLabel($latestVersion, $order->product) : null,
+                    'agents' => $licenseAgents,
+                    'number' => $order->number,
+                    'status' =>  !empty($order->installationDetail) ? 'Active' : 'Inactive',
+                    'order_status' => ucfirst($order->order_status),
+                    'order_date' => $order->created_at,
+                    'update_ends_at' => strtotime($order->subscription->ends_at) > 1 ? $order->subscription->ends_at : null,
+                    'subscription_updated_at' => $order->subscription->updated_at,
+                    'user' => $user,
+                    'action' => $this->getOrderActions($order, $invoiceStatus, $order->subscription?->id, $licenseAgents)
+                ];
+            });
 
-                    return '+'.$user->mobile_code.' '.$user->mobile;
-                })
-                ->addColumn('country', function ($model) {
-                    $user = $this->user->where('id', $model->client_id)->first() ?: User::onlyTrashed()->find($model->client_id);
-                    $country = Country::where('country_code_char2', $user->country)->value('nicename');
+            return successResponse('', $paginated);
 
-                    return $country;
-                })
-                ->addColumn('product_name', function ($model) {
-                    return $model->product_name;
-                })
-                 ->addColumn('plan_name', function ($model) {
-                     $planName = Plan::find($model->plan_id);
-
-                     return $planName->name ?? '';
-                 })
-                ->addColumn('version', function ($model) {
-                    $installedVersions = InstallationDetail::where('order_id', $model->id)->pluck('version')->toArray();
-
-                    if (count($installedVersions)) {
-                        $latest = max($installedVersions);
-
-                        return getVersionAndLabel($latest, $model->product);
-                    } else {
-                        return '--';
-                    }
-                })
-                ->addColumn('agents', function ($model) {
-                    $license = substr($model->serial_key, 12, 16);
-                    if ($license == '0000') {
-                        return 'Unlimited';
-                    }
-
-                    return intval($license, 10);
-                })
-                ->addColumn('number', function ($model) {
-                    $installedPath = InstallationDetail::where('order_id', $model->id)->exists();
-                    $orderLink = '<a href='.url('orders/'.$model->id).'>'.$model->number.'</a>';
-                    if ($model->subscription_updated_at) {
-                        $orderLink = '<a href='.url('orders/'.$model->id).'>'.$model->number.'</a>'.installationStatusLabel(! empty($installationDetails['installed_path']) ? $installationDetails['installed_path'] : $installedPath);
-                    }
-                    if ($model->order_status == 'Terminated') {
-                        $badge = 'badge';
-
-                        return  '<a href='.url('orders/'.$model->id).'>'.$model->number.'</a>'.'&nbsp;<span class="'.$badge.' '.$badge.'-danger"  <label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="'.__('message.order_has_been_terminated').'">
-
-                         </label>
-            Terminated</span>';
-                    }
-
-                    return $orderLink;
-                })
-                 ->addColumn('status', function ($model) {
-                     return InstallationDetail::where('order_id', $model->id)->exists() ? 'Active' : 'Inactive';
-                 })
-                ->addColumn('order_status', function ($model) {
-                    return ucfirst($model->order_status);
-                })
-                ->addColumn('order_date', function ($model) {
-                    return getDateHtml($model->created_at);
-                })
-                ->addColumn('update_ends_at', function ($model) {
-                    $ends_at = strtotime($model->subscription_ends_at) > 1 ? $model->subscription_ends_at : '--';
-
-                    return getExpiryLabel($ends_at);
-                })
-                ->addColumn('action', function ($model) {
-                    $status = $this->checkInvoiceStatusByOrderId($model->id);
-
-                    $license = substr($model->serial_key, 12, 16);
-
-                    if ($license == '0000') {
-                        $agents = 'Unlimited';
-                    } else {
-                        $agents = intval($license, 10);
-                    }
-
-                    return $this->getUrl($model, $status, $model->subscription_id, $agents);
-                })
-
-                ->filterColumn('client', function ($query, $keyword) {
-                    $query->whereRaw("concat(first_name, ' ', last_name) like ?", ["%$keyword%"]);
-                })
-                ->filterColumn('product_name', function ($query, $keyword) {
-                    $query->whereRaw('products.name like ?', ["%$keyword%"]);
-                })
-                ->filterColumn('version', function ($query, $keyword) {
-                    $query->whereRaw('subscriptions.version like ?', ["%$keyword%"]);
-                })
-                ->filterColumn('number', function ($query, $keyword) {
-                    $query->whereRaw('number like ?', ["%{$keyword}%"]);
-                })
-                ->filterColumn('price_override', function ($query, $keyword) {
-                    $query->whereRaw('price_override like ?', ["%{$keyword}%"]);
-                })
-                ->filterColumn('order_status', function ($query, $keyword) {
-                    $query->whereRaw('order_status like ?', ["%{$keyword}%"]);
-                })->filterColumn('email', function ($query, $keyword) {
-                    $query->where('email', 'like', "%$keyword%");
-                })
-
-                ->rawColumns(['checkbox', 'date', 'client', 'email', 'mobile', 'country', 'version', 'agents', 'number', 'status', 'plan_name', 'order_status', 'order_date', 'update_ends_at', 'action'])
-                ->make(true);
         } catch (\Exception $e) {
-            return redirect('orders')->with('fails', $e->getMessage());
+            return errorResponse($e->getMessage());
         }
+    }
+
+    public function getOrder($id)
+    {
+        $order = $this->order
+            ->with([
+                'user:id,first_name,last_name,email,mobile,mobile_code,address,country',
+                'subscription',
+            ])
+            ->findOrFail($id);
+
+        // Check if client is soft-deleted
+        if ($order->user->trashed()) {
+            return errorResponse(__('message.user_suspended_restore_to_view'), 403);
+        }
+
+        $subscription = $order->subscription;
+
+        $expiryDates = [
+            'subscription_end' => $subscription && strtotime($subscription->ends_at) > 1 ? getExpiryLabel($subscription->ends_at) : null,
+            'update_end'       => $subscription && strtotime($subscription->update_ends_at) > 1 ? getExpiryLabel($subscription->update_ends_at) : null,
+            'support_end'      => $subscription && strtotime($subscription->support_ends_at) > 1 ? getExpiryLabel($subscription->support_ends_at) : null,
+        ];
+
+        $settings = StatusSetting::first(['license_status']);
+        $licenseStatus = $settings->license_status ?? 0;
+
+        $licenseController = new \App\Http\Controllers\License\LicenseController();
+        $noOfAllowedInstallation = $licenseStatus ? $licenseController->getNoOfAllowedInstallation($order->serial_key, $order->product) : null;
+
+        return successResponse('', [
+            'order' => $order,
+            'license_details' => [
+                'licence_code' => $order->serial_key,
+                'no_of_allowed_installation' => $noOfAllowedInstallation,
+                'expiry_dates' => $expiryDates,
+            ],
+            'autorenewal' => $order->subscription->autoRenew_status,
+        ]);
     }
 
     /**
@@ -287,102 +236,50 @@ class OrderController extends BaseOrderController
     public function getInstallationDetails($orderId)
     {
         try {
+            // Fetch the order
             $order = $this->order->findOrFail($orderId);
-            $licenseStatus = StatusSetting::pluck('license_status')->first();
+
+            $licenseController = new \App\Http\Controllers\License\LicenseController();
+
+            $installationLogs = $licenseController->getInstallationLogsDetails($order->serial_key);
+
             $installationDetails = [];
 
-            $cont = new \App\Http\Controllers\License\LicenseController();
-            $installationDetails = $cont->searchInstallationPath($order->serial_key, $order->product);
-            if ($installationDetails !== null && ! empty($installationDetails['installed_path'])) {
-                // Loop through each installed_path and corresponding installed_ip
-                for ($i = 0; $i < count($installationDetails['installed_path']); $i++) {
-                    $installedPath = $installationDetails['installed_path'][$i];
-                    $installedIp = $installationDetails['installed_ip'][$i] ?? null;
-                    $installationDate = $installationDetails['installation_date'][$i] ?? null;
-                    $installationStatus = $installationDetails['installation_status'][$i] ?? null;
+            foreach ($installationLogs as $log) {
 
-                    // Find or create InstallationDetail record based on path and IP
-                    $installationDetail = InstallationDetail::where('installation_path', $installedPath)
-                                                            ->where('installation_ip', $installedIp)
-                                                            ->first();
+                $installationPath = $log['installation_domain'] ?? null;
+                $installationIp = $log['installation_ip'] ?? null;
+                $lastActive = $log['installation_last_active_date'] ?? null;
+                $installationStatus = $log['installation_status'] ?? null;
 
-                    if (! $installationDetail) {
-                        // Create a new InstallationDetail record if it doesn't exist
-                        InstallationDetail::create([
-                            'installation_path' => $installedPath,
-                            'installation_ip' => $installedIp,
-                            'last_active' => $installationDate,
+                // Sync with database
+                if ($installationPath || $installationIp) {
+                    InstallationDetail::updateOrCreate(
+                        [
+                            'installation_path' => $installationPath,
+                            'installation_ip' => $installationIp,
+                        ],
+                        [
+                            'last_active' => $lastActive,
                             'order_id' => $orderId,
-                        ]);
-                    } else {
-                        // Update existing record if found
-                        $installationDetail->update([
-                            'last_active' => $installationDate,
-                            'order_id' => $orderId,
-                            // Add more fields to update as needed
-                        ]);
-                    }
+                            'installation_status' => $installationStatus,
+                        ]
+                    );
                 }
+
+                $installationDetails[] = [
+                    'path' => $installationPath,
+                    'ip' => $installationIp,
+                    'version' => $log['version_number'] ?? null,
+                    'status' => $installationStatus,
+                    'last_active_date' => $lastActive,
+                ];
             }
-            $insDetail = InstallationDetail::where('order_id', $orderId)->get();
 
-            if (! $insDetail->isEmpty()) {
-                $installationDetails['installed_path'] = $insDetail->pluck('installation_path')->toArray();
-                $installationDetails['installed_ip'] = $insDetail->pluck('installation_ip')->toArray();
-                $installationDetails['installation_date'] = $insDetail->pluck('last_active')->toArray();
-            }
-            // }
+            return successResponse('', $installationDetails);
 
-            $combinedDetails = array_map(null,
-                $installationDetails['installed_path'] ?? [],
-                $installationDetails['installed_ip'] ?? [],
-                $installationDetails['installation_date'] ?? [],
-                $installationDetails['installation_status'] ?? []
-            );
-            array_multisort(
-                array_column($combinedDetails, 0), SORT_ASC,
-                array_column($combinedDetails, 1), SORT_ASC,
-                array_column($combinedDetails, 2), SORT_ASC
-            );
-            $combinedDetailsWithOrderId = array_map(function ($details) use ($orderId) {
-                return array_merge($details, ['order_id' => $orderId]);
-            }, $combinedDetails);
-
-            $cont = new \App\Http\Controllers\License\LicenseController();
-            $installationLogsDetails = $cont->getInstallationLogsDetails($order->serial_key);
-
-            return \DataTables::of($installationLogsDetails)
-
-                ->addColumn('path', function ($installationLogsDetails) {
-                    return '<a href="https://'.$installationLogsDetails['installation_domain'].'" target="_blank">'.$installationLogsDetails['installation_domain'].'</a>';
-                })
-                ->addColumn('ip', function ($installationLogsDetails) {
-                    return $installationLogsDetails['installation_ip'];
-                })
-
-                ->addColumn('version', function ($installationLogsDetails) {
-                    if ($installationLogsDetails['version_number']) {
-                        return $installationLogsDetails['version_number'];
-                    } else {
-                        return '---';
-                    }
-                })
-                   ->addColumn('active', function ($installationLogsDetails) {
-                       if ($installationLogsDetails === null || empty($installationLogsDetails['installation_domain'])) {
-                           return getDateHtml($installationLogsDetails['installation_last_active_date']).'&nbsp;'.installationStatusLabel('');
-                       }
-                       $installationStatus = $installationLogsDetails['installation_status'] == 1 ? 1 : 0;
-                       if ($installationStatus) {
-                           return getDateHtml($installationLogsDetails['installation_last_active_date']).'&nbsp;'.installationStatusLabel($installationStatus);
-                       } else {
-                           return getDateHtml($installationLogsDetails['installation_last_active_date']).'&nbsp;'.installationStatusLabel('');
-                       }
-                   })
-
-                ->rawColumns(['path', 'ip', 'version', 'active'])
-                 ->make(true);
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse($ex->getMessage());
         }
     }
 
@@ -500,56 +397,30 @@ class OrderController extends BaseOrderController
      * @param  int  $id
      * @return \Response
      */
-    public function destroy(Request $request)
+    public function deleteBulkOrders(Request $request)
     {
         try {
-            $ids = $request->input('select');
-            if (! empty($ids)) {
-                foreach ($ids as $id) {
-                    $order = $this->order->where('id', $id)->first();
+            $ids = $request->input('order_ids', []);
 
-                    if ($order) {
-                        $installation_path = \DB::table('installation_details')->where('order_id', $order->id)->where('installation_path', '!=', cloudCentralDomain())->value('installation_path');
-                        if ($installation_path) {
-                            event(new UserOrderDelete($installation_path));
-                        }
-                        $order->delete();
-                    } else {
-                        echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.no-record').'
-                </div>';
-                        //echo \Lang::get('message.no-record') . '  [id=>' . $id . ']';
-                    }
-                }
-                echo "<div class='alert alert-success alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.success').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */\Lang::get('message.deleted-successfully').'
-                </div>';
-            } else {
-                echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        './* @scrutinizer ignore-type */ \Lang::get('message.select-a-row').'
-                </div>';
-                //echo \Lang::get('message.select-a-row');
+            if (empty($ids)) {
+                return errorResponse(__('message.select-a-row'));
             }
+
+            $orderIds = $this->order->whereIn('id', $ids)->pluck('id');
+
+            $installationDetails = InstallationDetail::whereIn('order_id', $orderIds)
+                ->where('installation_path', '!=', cloudCentralDomain())
+                ->pluck('installation_path');
+
+            foreach ($installationDetails as $path) {
+                event(new UserOrderDelete($path));
+            }
+
+            $this->order->whereIn('id', $orderIds)->delete();
+
+            return successResponse(__('message.deleted-successfully'));
         } catch (\Exception $e) {
-            echo "<div class='alert alert-danger alert-dismissable'>
-                    <i class='fa fa-ban'></i>
-                    <b>"./* @scrutinizer ignore-type */\Lang::get('message.alert').'!</b> '.
-                    /* @scrutinizer ignore-type */\Lang::get('message.failed').'
-                    <button type=button class=close data-dismiss=alert aria-hidden=true>&times;</button>
-                        '.$e->getMessage().'
-                </div>';
+            return errorResponse($e->getMessage());
         }
     }
 
@@ -647,4 +518,74 @@ class OrderController extends BaseOrderController
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }
+
+
+    public function getPaymentByOrderId(Request $request, $orderId)
+    {
+        try {
+            $searchQuery = $request->input('search-query', '');
+            $sortOrder = $request->input('sort-order', 'asc');
+            $sortField = $request->input('sort-field', 'created_at');
+            $limit = $request->input('limit', 10);
+            $page = $request->input('page', 1);
+
+            $order = Order::with([
+                'user:id,first_name,last_name,email',
+                'invoiceRelation'
+            ])->findOrFail($orderId);
+
+           $invoiceIds = $order->invoiceRelation->pluck('invoice_id')->toArray();
+
+            $payments = Payment::whereIn('invoice_id', $invoiceIds)
+                ->select(['id', 'invoice_id', 'user_id', 'amount', 'payment_method', 'payment_status', 'created_at'])
+                ->when($searchQuery, function ($query) use ($searchQuery) {
+                    $query->where(function ($q) use ($searchQuery) {
+                        $q->where('payment_method', 'like', "%{$searchQuery}%")
+                            ->orWhere('payment_status', 'like', "%{$searchQuery}%")
+                            ->orWhere('amount', 'like', "%{$searchQuery}%")
+                            ->orWhereHas('invoice', function ($inv) use ($searchQuery) {
+                                $inv->where('number', 'like', "%{$searchQuery}%");
+                            });
+                    });
+                })
+                ->orderBy($sortField, $sortOrder)
+                ->paginate($limit, ['*'], 'page', $page);
+
+            $payments->getCollection()->transform(function ($payment) {
+                return [
+                    'id' => $payment->id,
+                    'invoice_number' => $payment->invoice->number,
+                    'user_id' => $payment->user_id,
+                    'amount' => currencyFormat($payment->amount, $payment->invoice->currency),
+                    'payment_method' => $payment->payment_method,
+                    'payment_status' => $payment->payment_status,
+                    'created_at' => $payment->created_at,
+                ];
+            });
+
+
+            return successResponse('', $payments);
+
+        } catch (Exception $ex) {
+            return errorResponse($ex->getMessage());
+        }
+    }
+
+    public function getOrderInvoices(Request $request, $orderId)
+    {
+        $searchQuery = $request->input('search-query', '');
+        $sortOrder   = $request->input('sort-order', 'asc');
+        $sortField   = $request->input('sort-field', 'created_at');
+        $limit       = $request->input('limit', 10);
+
+        $order = Order::with('user:id,first_name,last_name,email')->findOrFail($orderId);
+
+        $invoices = $order->invoices()
+            ->with(['invoiceItem:id,invoice_id,product_name'])
+            ->orderBy($sortField, $sortOrder)
+            ->paginate($limit);
+
+        return successResponse('', $invoices);
+    }
+
 }
