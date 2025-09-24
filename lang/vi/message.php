@@ -2702,6 +2702,8 @@ return [
 
     'user_position_prohibited_if' => 'Trường chức vụ không được phép khi vai trò là người dùng.',
     'cloud_plan_error' => 'Vui lòng xóa sản phẩm đám mây hoặc liên kết nó với một gói khác.',
+    'auto_renewal_disable' => 'Gia hạn tự động hiện không khả dụng. Vui lòng liên hệ với quản trị viên để được hỗ trợ.',
+    'auto_renewal_tooltip' => 'Bật hoặc tắt gia hạn tự động cho tất cả người dùng.',
 
     'invalid_code_2fa' => 'Mã không hợp lệ. Vui lòng thử lại.',
     '6_digit_auth_code' => 'Nhập mã xác thực 6 chữ số của bạn',

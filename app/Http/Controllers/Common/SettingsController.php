@@ -23,6 +23,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Spatie\Activitylog\Models\Activity;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Arr;
 
 class SettingsController extends BaseSettingsController
 {
@@ -482,7 +483,8 @@ class SettingsController extends BaseSettingsController
     {
         try {
             $setting = $settings->find(1);
-
+            $input=$request->input();
+            $input['autorenewal_status']= isset($input['autorenewal_status'])?1:0;
             if ($request->hasFile('logo')) {
                 $path = Attach::put('images', $request->file('logo'), null, true);
                 $setting->logo = basename($path);
@@ -502,7 +504,7 @@ class SettingsController extends BaseSettingsController
                             ->pluck('symbol')->first();
             $setting->content = $request->input('language');
 
-            $setting->fill($request->except('password', 'logo', 'admin-logo', 'fav-icon'))->save();
+            $setting->fill(Arr::except($input,['password', 'logo', 'admin-logo', 'fav-icon']))->save();
 
             return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
         } catch (\Exception $ex) {
