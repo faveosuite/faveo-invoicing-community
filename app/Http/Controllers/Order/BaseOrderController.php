@@ -43,17 +43,17 @@ class BaseOrderController extends ExtendedOrderController
 
         $actions[] = [
             'type' => 'view',
-            'url'   => url('orders/' . $order->id),
+            'url' => url('orders/'.$order->id),
         ];
 
         if ($order->order_status != 'Terminated' && $status === 'success' && $subscriptionId) {
-            $renewUrl = !is_null($agents)
+            $renewUrl = ! is_null($agents)
                 ? url("renew/{$subscriptionId}/{$agents}")
                 : url("renew/{$subscriptionId}");
 
             $actions[] = [
                 'type' => 'renew',
-                'url'   => $renewUrl,
+                'url' => $renewUrl,
             ];
         }
 

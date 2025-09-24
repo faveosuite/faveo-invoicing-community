@@ -706,7 +706,6 @@ Route::get('soft-delete', [User\SoftDeleteController::class, 'softDeletedUsers']
 Route::get('user/restore/{id}', [User\SoftDeleteController::class, 'restoreUser']);
 Route::delete('permanent-delete-client', [User\SoftDeleteController::class, 'permanentDeleteUser']);
 
-
 Route::get('getTimeZones', [Common\SettingsController::class, 'getTimeZoneDropdown']);
 
 Route::get('orders', [Order\OrderController::class, 'getOrders'])->name('orders');
