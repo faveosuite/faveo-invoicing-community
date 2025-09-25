@@ -271,4 +271,17 @@ class GroupController extends Controller
         $slug = url('/').'/group/'.str_slug($url, '-');
         echo $slug;
     }
+
+    public function getAvailableGroups(){
+        try {
+            $groups = \App\Model\Product\ProductGroup::select('id', 'name', 'pricing_templates_id')->where('hidden', '!=', 1)->get()->toArray();
+            foreach ($groups as $group) {
+                $grouped[$group['id']]['url']=url('group/'.$group['pricing_templates_id'].'/'.$group['id']);
+                $grouped[$group['id']]['name']=$group['name'];
+            }
+            return successResponse(trans('message.success'), $grouped);
+        }catch (\Exception $ex){
+            return errorResponse($ex->getMessage());
+        }
+    }
 }
