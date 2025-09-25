@@ -531,10 +531,8 @@
                         // ✅ Update new email from DB response
                         $("#finalNewEmailDisplay").text(res.data.email);
 
-                        // ✅ Show the hidden alert box
                         $("#emailUpdatedAlert").show();
 
-                        // ✅ Show success modal
                         $('#emailSuccessModal').modal('show');
 
                     }

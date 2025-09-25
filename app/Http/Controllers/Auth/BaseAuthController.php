@@ -143,7 +143,7 @@ class BaseAuthController extends Controller
         return $this->responseHandler($response);
     }
 
-    private function responseHandler($response): array
+    protected function responseHandler($response): array
     {
         if ($response['status'] === 200) {
             if ($response['body']['type'] === 'error') {

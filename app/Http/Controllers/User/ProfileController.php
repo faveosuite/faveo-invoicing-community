@@ -7,6 +7,8 @@ use App\Facades\Attach;
 use App\Http\Controllers\Auth\BaseAuthController;
 use App\Http\Requests\User\ProfileRequest;
 use App\Model\Common\StatusSetting;
+use App\Model\Common\Template;
+use App\Model\Common\TemplateType;
 use App\Model\User\AccountActivate;
 use App\User;
 use Hash;
@@ -128,7 +130,7 @@ class ProfileController extends BaseAuthController
             return successResponse(
                 $method === 'GET'
                     ? __('message.verification_code_resent')
-                    : __('')
+                    : __('message.email_verification.send_success')
             );
         } catch (\Exception $exception) {
             return errorResponse(__('message.email_verification.send_failure'));
@@ -163,15 +165,26 @@ class ProfileController extends BaseAuthController
 
             // Get settings
             $settings = \App\Model\Common\Setting::find(1);
-            $templateId = match ($mode) {
-                'new_email' => 25,
-                'old_email' => 26,
-                'mobile' => 27,
+            $templateName = match ($mode) {
+                'new_email' => 'verify_new_email',
+                'old_email' => 'confirm_old_email',
+                'mobile' => 'confirm_mobile_number_change',
                 default => null,
             };
+
             // Get template
-            $template = \App\Model\Common\Template::find($templateId);
-            $website_url = url('/contact-us');
+            $template = Template::whereHas('type', function ($q) use ($templateName) {
+                $q->where('name', $templateName);
+            })->first();
+
+            if (!$template) {
+                throw new \Exception( __('message.something_wrong'));
+            }
+
+            $template_data = $template->data;
+            $template_name = $template->name;
+            $website_url   = url('/contact-us');
+            $type = TemplateType::where('id', $template->type)->first()->name ?? '';
 
             $replace = [
                 'name' => $email,
@@ -182,15 +195,9 @@ class ProfileController extends BaseAuthController
                 'contact_url' => $website_url,
             ];
 
-            $type = '';
-            if ($template) {
-                $type_id = $template->type;
-                $temp_type = new \App\Model\Common\TemplateType();
-                $type = $temp_type->where('id', $type_id)->first()->name;
-            }
 
             $mail = new \App\Http\Controllers\Common\PhpMailController();
-            $mail->SendEmail($settings->email, $email, $template->data, $template->name, $replace, $type);
+            $mail->SendEmail($settings->email, $email, $template_data, $template_name, $replace, $type);
         } catch (\Exception $ex) {
             throw new \Exception($ex->getMessage());
         }
@@ -330,7 +337,7 @@ class ProfileController extends BaseAuthController
     /**
      * Send OTP to a new mobile number with msg91.
      */
-    public function sendOtpForNewMobileNo($dialCode, $mobileNo, $countryIso): bool
+    public function sendOtpForNewMobileNo($dialCode, $mobileNo, $countryIso): array
     {
         try {
             $fullMobile = preg_replace('/\D/', '', $dialCode.$mobileNo);
@@ -356,8 +363,7 @@ class ProfileController extends BaseAuthController
 
             // Call MSG91 API
             $response = $this->makeRequest('POST', 'https://api.msg91.com/api/v5/otp', $queryParams);
-
-            return isset($response['type']) && $response['type'] !== 'error';
+            return $this->responseHandler($response);
         } catch (\Exception $e) {
             \Log::error('sendOtpForNewMobileNo error: '.$e->getMessage());
 
