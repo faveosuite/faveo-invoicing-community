@@ -251,7 +251,10 @@ class ProfileControllerTest extends DBTestCase
         // Mock sending OTP
         $this->profileController->shouldReceive('sendOtpForNewMobileNo')
             ->with('91', '8123456789', 'IN')
-            ->andReturn(true);
+            ->andReturn([
+                'type' => 'success',
+                'message' => 'Request successfully completed',
+            ]);
 
         // send OTP
         $response = $this->postJson('/newMobileNoVerify', [
@@ -315,7 +318,10 @@ class ProfileControllerTest extends DBTestCase
         // Mock sending OTP
         $this->profileController->shouldReceive('sendOtpForNewMobileNo')
             ->with('91', '8123456789', 'IN')
-            ->andReturn(true);
+            ->andReturn([
+                'type' => 'success',
+                'message' => 'Request successfully completed',
+            ]);
 
         // send OTP
         $response = $this->postJson('/newMobileNoVerify', [
