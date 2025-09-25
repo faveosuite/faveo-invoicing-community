@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
     {
         TemplateType::updateOrCreate(
             ['id' => '25'],
-            ['name' => 'user_profile_update']
+            ['name' => 'verify_new_email']
         );
 
         Template::updateOrCreate(
@@ -29,6 +29,7 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'Verify your new email address',
                 'type' => 25,
+                'url' => 'null',
                 'data' => '
 <table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
     <tbody>
@@ -93,7 +94,7 @@ class DatabaseSeeder extends Seeder
         // Confirm Old Email Change
         TemplateType::updateOrCreate(
             ['id' => '26'],
-            ['name' => 'user_profile_update']
+            ['name' => 'confirm_old_email']
         );
 
         Template::updateOrCreate(
@@ -101,6 +102,7 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'Confirm your old email address change',
                 'type' => 26,
+                'url' => 'null',
                 'data' => '
 <table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
     <tbody>
@@ -165,7 +167,7 @@ class DatabaseSeeder extends Seeder
 
         TemplateType::updateOrCreate(
             ['id' => '27'],
-            ['name' => 'user_profile_update']
+            ['name' => 'confirm_mobile_number_change']
         );
 
         Template::updateOrCreate(
@@ -173,6 +175,7 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'Confirm your mobile number change',
                 'type' => 27,
+                'url' => 'null',
                 'data' => '
 <table style="background: #f2f2f2; width: 700px;" border="0" cellspacing="0" cellpadding="0">
     <tbody>

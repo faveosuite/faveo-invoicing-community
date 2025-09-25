@@ -201,7 +201,7 @@
             newMobileFull: null,
             dialCode: null,
             isoCode: null,
-            cleanPhone: null, // will hold something like +919000990003
+            cleanPhone: null,
         };
         // Open the New Mobile Modal
         $('#editMobileBtn').on('click', function() {
@@ -284,7 +284,7 @@
             // Extract dial code & ISO
             let dialCode   = mobInput.getAttribute('data-dial-code') || "";
             let isoCode    = $('#newMobile').attr('data-country-iso')?.toUpperCase() || "";
-            let cleanPhone = mobileVal.replace(/\D/g, ''); // remove non-digits
+            let cleanPhone = mobileVal.replace(/\D/g, '');
 
             // Save globally for verify step
             let fullMobile = dialCode + cleanPhone;
@@ -322,9 +322,9 @@
                     let alertBoxMob = $("#mobileAlertShow");
 
                     alertBoxMob
-                        .removeClass() // clear old classes
+                        .removeClass()
                         .addClass("alert alert-danger alert-dismissible fade show")
-                        .css("display", "block"); // force show again
+                        .css("display", "block");
 
                     $("#mobileAlertShowMsg").text(mobMsg1);
 
@@ -579,7 +579,7 @@
                             $("#otpMobileAlertMsg").text(response.message);
                         }, 400);
 
-                        // 🔹 Restart timer after resend
+                        //Restart timer after resend
                         startTimer(
                             document.getElementById("otpMobileResendBtn"),
                             document.getElementById("timerMobile"),
