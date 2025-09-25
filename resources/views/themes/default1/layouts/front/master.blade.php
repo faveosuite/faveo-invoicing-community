@@ -74,7 +74,6 @@ foreach($scripts as $script) {
     } else {
         $everyPageScripts .= $script->script;
     }
-
 }
 ?>
 
@@ -171,6 +170,9 @@ foreach($scripts as $script) {
     </style>
 
 </head>
+<script>
+
+</script>
 <?php
 $domain = [];
 $set = new \App\Model\Common\Setting();
@@ -277,9 +279,7 @@ $days = $pay->where('product','117')->value('days');
                                 </div>
                             </div>
                         </div>
-                        <?php
-                        $groups = \App\Model\Product\ProductGroup::where('hidden','!=', 1)->get();
-                        ?>
+
 
                         <div class="header-row h-100">
 
@@ -309,15 +309,11 @@ $days = $pay->where('product','117')->value('days');
                                                         <a class="nav-link dropdown-toggle {{ strpos(request()->url(), 'group') !== false ? 'active' : '' }}" href="javascript:;">
                                                             &nbsp;{{ __('message.store') }}&nbsp;
                                                         </a>
-
-                                                        <ul class="dropdown-menu border-light mt-n1">
-                                                            @foreach($groups as $group)
-                                                                <li>
-                                                                    <a class="dropdown-item" href="{{url("group/$group->pricing_templates_id/$group->id")}}">{{$group->name}}</a>
-                                                                </li>
-                                                            @endforeach
+{{--                                                          li are dynamically added through ajax [url=available-groups]  --}}
+                                                        <ul class="dropdown-menu border-light mt-n1" id="group_drop_down">
                                                         </ul>
                                                     </li>
+
                                                     <?php $pages = \App\Model\Front\FrontendPage::where('publish', 1)->orderBy('created_at','asc')->get();
                                                     ?>
 
@@ -1215,7 +1211,6 @@ setTimeout(function() {
         }
 
 
-
         $('#createTenant').attr('disabled',true)
         $("#createTenant").html("<i class='fas fa-circle-notch fa-spin'></i>  {{ __('message.please_wait') }}");
         var domain = $('#userdomain').val();
@@ -1289,26 +1284,30 @@ setTimeout(function() {
         }) ;
     }
 
+    $(document).ready(function(){
+        $.ajax({
+            url:"{{url('available-groups')}}",
+            data:{
+                _token:"{{csrf_token()}}"
+            },
+            method:"POST",
+            success:function(response){
+                var data =response.data;
+                const ul = document.getElementById('group_drop_down');
+                Object.keys(data).forEach(key => {
+                    const li = document.createElement('li');
+                    const a = document.createElement('a');
+                    a.className = "dropdown-item";
+                    a.textContent = data[key]['name'];
+                    a.href =data[key]['url'];
+                    li.appendChild(a);
+                    ul.appendChild(li);
+                });
+            },
 
-    {{--$(document).on("click", ".open-createTenantDialog", function () {--}}
-    {{--    $.ajax({--}}
-    {{--        url: "{{url('trial-cloud-products')}}",--}}
-    {{--        type: "POST",--}}
-    {{--        success: function(response){--}}
-    {{--                var data=response['data'];--}}
-    {{--                const select = document.getElementById('serviceType');--}}
+        })
+    });
 
-    {{--                Object.entries(data).forEach(([key, value]) => {--}}
-    {{--                    const option = document.createElement('option');--}}
-    {{--                    option.value = key;--}}
-    {{--                    option.textContent = value;--}}
-    {{--                    select.appendChild(option);--}}
-    {{--                });--}}
-
-    {{--            // $('#tenant').modal('show');--}}
-    {{--        }--}}
-    {{--    })--}}
-    {{--});--}}
     $('.closebutton').on('click',function(){
         location.reload();
     });
@@ -1378,7 +1377,6 @@ setTimeout(function() {
                     // $('#tenant').modal('show');
                 }
             })
-            // If the button is clicked, open the free trial dialog
             openFreeTrialDialog();
         });
         @else

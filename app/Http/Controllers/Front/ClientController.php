@@ -1213,6 +1213,21 @@ class ClientController extends BaseClientController
         return view('themes.default1.front.clients.index', compact('pendingInvoicesCount', 'ordersCount', 'renewalCount'));
     }
 
+    public function clientDetails(){
+        $status = 'pending';
+        $updated_ends_at = 'expired';
+        $user = auth()->user();
+        $pendingInvoicesCount = $user->invoice()->where('status', 'pending')->count();
+        $ordersCount = $user->order()->count();
+        $renewalCount = $user->order()
+            ->whereHas('subscription', function ($query) {
+                $query->where('update_ends_at', '<', now());
+            })
+            ->count();
+
+        return successResponse('success',)
+    }
+
     /**
      * Delete an invoice and its related records based on specific conditions.
      *
@@ -1311,6 +1326,7 @@ class ClientController extends BaseClientController
             'payment_intent' => $paymentIntent->id,
             'amount' => $paymentIntent->amount,
         ]);
+        $amount=$paymentIntent->amount;
         $invoice_id = OrderInvoiceRelation::where('order_id', $orderid)->value('invoice_id');
         $number = Invoice::where('id', $invoice_id)->value('number');
         $customer_details = [

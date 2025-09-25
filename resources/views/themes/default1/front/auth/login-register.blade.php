@@ -126,7 +126,7 @@ foreach($scripts as $script) {
 
                     <h2 class="font-weight-bold text-5 mb-0">{{ __('message.login') }}</h2>
 
-                    {!! html()->form('POST', url('login'))->id('formoid')->open() !!}
+                    {!! html()->form()->id('formoid')->open() !!}
 
                         <div class="row">
 
@@ -193,7 +193,7 @@ foreach($scripts as $script) {
                               <div id="loginrobot-verification"></div><br>
                         @elseif($status->v3_recaptcha_status === 1)
 
-                              <input type="hidden" class="g-recaptcha-token" name="g-recaptcha-response" data-recaptcha-action="login">
+                              <input type="hidden" class="g-recaptcha-token" name="g-recaptcha-response" id="g-recaptcha-response" data-recaptcha-action="login">
                         @endif
                         @endif
                         <div class="row">
@@ -462,7 +462,6 @@ foreach($scripts as $script) {
     <!--Start of Tawk.to Script-->
     {!! $everyPageScripts !!}
     <!--End of Tawk.to Script-->
-
     <script type="text/javascript">
 
         @php
@@ -695,6 +694,21 @@ foreach($scripts as $script) {
                 },
                 submitHandler: function (form) {
                     form.submit();
+                    var formData = $(form).serialize();
+
+                    $.ajax({
+                        url: '{{ route('login') }}',
+                        method: 'POST',
+                        data: {
+                            data: formData,
+                        },
+                        success: function (response) {
+                            console.log(response.message);
+                        },
+                        error: function (xhr) {
+                            console.log('Failed to save column preferences');
+                        }
+                    })
                 }
             });
 
