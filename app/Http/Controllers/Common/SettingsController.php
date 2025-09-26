@@ -425,26 +425,13 @@ class SettingsController extends BaseSettingsController
     public static function checkPaymentGateway($currency)
     {
         try {
-            $plugins = new Plugin();
-            $models = [];
-            $gateways = '';
-            $name = '';
+
+            $active_plugins = Plugin::where('status', 1)->get();
             $allAcivePluginName = [];
-            $active_plugins = $plugins->where('status', 1)->get(); //get the plugins that are active
             if ($active_plugins) {
                 foreach ($active_plugins as $plugin) {
-                    $models[] = \DB::table(strtolower($plugin->name))->first(); //get the table of the active plugin
-                    $allCurrencies[] = \DB::table(strtolower($plugin->name))->pluck('currencies')->toArray(); //get the table of the active plugin
-                    $pluginName[] = $plugin->name; //get the name of active plugin
-                }
-                if ($models) {//If more than 1 plugin is active it will check the currencies allowed for that plugin.If the currencies allowed matches the passed arguement(currency),that plugin name is returned
-                    for ($i = 0; $i < count($pluginName); $i++) {
-                        $curr = implode(',', $allCurrencies[$i]);
-                        $currencies = explode(',', $curr);
-                        if (in_array($currency, $currencies)) {
-                            $name = $pluginName[$i];
-                            $allAcivePluginName[] = $name;
-                        }
+                    if(isCurrencySupportedForPayments($currency, strtolower($plugin->name))){
+                        $allAcivePluginName[] = $plugin->name;
                     }
                 }
             }
