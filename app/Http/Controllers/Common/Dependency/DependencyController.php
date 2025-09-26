@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Common\Dependency;
 
-use App\Http\Controllers\Controller;
 use App\Model\Common\Timezone;
 use Illuminate\Http\Request;
 
@@ -25,7 +24,6 @@ class DependencyController extends NonPublicDependencies
         }
     }
 
-
     public function handleDependencies($type)
     {
         $this->dependencyKey = $type;
@@ -36,9 +34,8 @@ class DependencyController extends NonPublicDependencies
         }
     }
 
-
     /**
-     * gives array of time zones
+     * gives array of time zones.
      *
      * @return array array of time zones
      */
