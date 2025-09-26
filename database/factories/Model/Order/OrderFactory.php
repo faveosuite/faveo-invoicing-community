@@ -17,7 +17,7 @@ class OrderFactory extends Factory
     public function definition()
     {
         return [
-            'number' => 1123244,
+            'number' => rand(1,1000),
             'order_status' => 'executed',
             'serial_key' => 'QWWERRR32434544',
             'domain' => 'faveo.com',

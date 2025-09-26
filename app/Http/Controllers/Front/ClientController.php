@@ -627,7 +627,7 @@ class ClientController extends BaseClientController
      *  Get all the orders in data table.
      *
      * @param  request  $request
-     * @return \Yajra\DataTables\DataTableAbstract
+     * @return
      *
      * @throws Exception
      */
@@ -640,103 +640,208 @@ class ClientController extends BaseClientController
                 $orders = $this->getClientPanelOrdersData()->where('update_ends_at', '<', now());
             }
 
-            return \DataTables::of($orders)
-                        ->orderColumn('products.name', '-orders.id $1')
-                        ->orderColumn('date', '-orders.id $1')
-                        ->orderColumn('orders.number', '-orders.id $1')
-                        ->orderColumn('agents', '-orders.id $1')
-                        ->orderColumn('expiry', '-orders.id $1')
+            $limit='10';
+            $page='page';
+            $sortField='created_at';
+            $sortOrder='asc';
+            $paginated = $orders->orderBy($sortField, $sortOrder)
+                ->paginate($limit, ['*'], 'page', 1);
 
-                            ->addColumn('id', function ($model) {
-                                return $model->id;
-                            })
-                            ->addColumn('date', function ($model) {
-                                return getDateHtml($model->date);
-                            })
-                            ->addColumn('product_name', function ($model) {
-                                return $model->product_name;
-                            })
-                            ->addColumn('number', function ($model) {
-                                if ($model->order_status != 'Terminated') {
-                                    return '<a href='.url('my-order/'.$model->id).'>'.$model->number.'</a>';
-                                } else {
-                                    $badge = 'badge';
+            // Map items
+            $paginated->getCollection()->transform(function ($order) {
+                $user = $order->user;
+                $plan = Plan::find($order->subscription->plan_id)->name ?? null;
+                $installedVersions = $order->installationDetail ? $order->installationDetail->pluck('version')->toArray() : [];
+                $latestVersion = count($installedVersions) ? max($installedVersions) : null;
 
-                                    return '<a href='.url('my-order/'.$model->id).'>'.$model->number.'</a>'.'&nbsp;<span class="'.$badge.' '.$badge.'-danger"  <label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="'.__('message.order_has_been_terminated').'">
+                $licenseAgents = substr($order->serial_key, 12, 16) === '0000'
+                    ? 'Unlimited'
+                    : intval(substr($order->serial_key, 12, 16), 10);
 
-                         </label>
-            Terminated</span>';
-                                }
-                            })
+                $invoiceStatus = $this->checkInvoiceStatusByOrderId($order->id);
 
-                            ->addColumn('agents', function ($model) {
-                                $license = substr($model->serial_key, 12, 16);
-                                if ($license == '0000') {
-                                    return 'Unlimited';
-                                }
+                return [
+                    'id' => $order->id,
+                    'date'=> $order->created_at,
+                    'product_name' => $order->productRelation->name,
+                    'number' => $order->number,
+                    'agents' => $licenseAgents,
+                    'expiry'=> getExpiryLabel($order->subscription->update_ends_at, 'badge'),
+//                    'status' => ! empty($order->installationDetail) ? 'Active' : 'Inactive',
+//                    'order_status' => ucfirst($order->order_status),
+//                    'order_date' => $order->created_at,
+//                    'update_ends_at' => strtotime($order->subscription->ends_at) > 1 ? $order->subscription->ends_at : null,
+//                    'subscription_updated_at' => $order->subscription->updated_at,
+//                    'user' => $user,
+                    'action' => $this->getClientActionButton($order),
+                ];
+            });
 
-                                return intval($license, 10);
-                            })
-                            ->addColumn('expiry', function ($model) {
-                                return getExpiryLabel($model->update_ends_at, 'badge');
-                            })
+            return successResponse('', $paginated);
 
-                            ->addColumn('Action', function ($model) {
-                                if ($model->order_status == 'Terminated') {
-                                    return '<a href="'.url('my-order/'.$model->id).'" 
+
+//            return \DataTables::of($orders)
+//                        ->orderColumn('products.name', '-orders.id $1')
+//                        ->orderColumn('date', '-orders.id $1')
+//                        ->orderColumn('orders.number', '-orders.id $1')
+//                        ->orderColumn('agents', '-orders.id $1')
+//                        ->orderColumn('expiry', '-orders.id $1')
+//
+//                            ->addColumn('id', function ($model) {
+//                                return $model->id;
+//                            })
+//                            ->addColumn('date', function ($model) {
+//                                return getDateHtml($model->date);
+//                            })
+//                            ->addColumn('product_name', function ($model) {
+//                                return $model->product_name;
+//                            })
+//                            ->addColumn('number', function ($model) {
+//                                if ($model->order_status != 'Terminated') {
+//                                    return '<a href='.url('my-order/'.$model->id).'>'.$model->number.'</a>';
+//                                } else {
+//                                    $badge = 'badge';
+//
+//                                    return '<a href='.url('my-order/'.$model->id).'>'.$model->number.'</a>'.'&nbsp;<span class="'.$badge.' '.$badge.'-danger"  <label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="'.__('message.order_has_been_terminated').'">
+//
+//                         </label>
+//            Terminated</span>';
+//                                }
+//                            })
+//
+//                            ->addColumn('agents', function ($model) {
+//                                $license = substr($model->serial_key, 12, 16);
+//                                if ($license == '0000') {
+//                                    return 'Unlimited';
+//                                }
+//
+//                                return intval($license, 10);
+//                            })
+//                            ->addColumn('expiry', function ($model) {
+//                                return getExpiryLabel($model->update_ends_at, 'badge');
+//                            })
+//
+//                            ->addColumn('Action', function ($model) {
+//                                if ($model->order_status == 'Terminated') {
+//                                    return '<a href="'.url('my-order/'.$model->id).'"
+//                                     class="btn btn-light-scale-2 btn-sm text-dark" style="margin-right:5px;">
+//                                     <i class="fa fa-eye" data-toggle="tooltip" data-placement="top" title="'.__('message.click_here_view').'"></i>
+//                                     </a>';
+//                                }
+//                                $plan = Plan::where('product', $model->product_id)->value('id');
+//                                $whatIsSub = Subscription::where('order_id', $model->id)->value('plan_id');
+//                                $planName = Plan::where('id', $whatIsSub)->value('name');
+//                                $price = PlanPrice::where('plan_id', $plan)->where('currency', \Auth::user()->currency)->value('renew_price');
+//                                $order_cont = new \App\Http\Controllers\Order\OrderController();
+//                                $status = $order_cont->checkInvoiceStatusByOrderId($model->id);
+//                                $url = '';
+//                                $deleteCloud = '';
+//                                $listUrl = '';
+//                                if ($status == 'success' && $model->price != '0' && $model->type == '4') {
+//                                    $deleteCloud = $this->getCloudDeletePopup($model, $model->product_id);
+//                                    $listUrl = $this->getPopup($model, $model->product_id);
+//                                } elseif ($status == 'success' && $model->price == '0' && $model->type != '4') {
+//                                    $listUrl = $this->getPopup($model, $model->product_id);
+//                                }
+//                                if (! in_array($model->product_id, cloudPopupProducts())) {
+//                                    $listUrl = $this->getPopup($model, $model->product_id);
+//                                }
+//                                $deleteCloud = $this->getCloudDeletePopup($model, $model->product_id);
+//
+//                                $agents = substr($model->serial_key, 12, 16);
+//                                if ($agents == '0000') {
+//                                    $agents = 'Unlimited';
+//                                } else {
+//                                    $agents = intval($agents, 10);
+//                                }
+//
+//                                $url = $this->renewPopup($model->sub_id, $model->product_id, $agents, $planName);
+//
+//                                $changeDomain = $this->changeDomain($model, $model->product_id); // Need to add this if the client requirement intensifies.
+//
+//                                return '<a href="'.url('my-order/'.$model->id).'"
+//                                class="btn btn-light-scale-2 btn-sm text-dark" style="margin-right:5px;">
+//                                <i class="fa fa-eye" data-toggle="tooltip" data-placement="top" title="'.__('message.click_here_view').'"></i>&nbsp; '
+//                                    .$listUrl.' '.$url.' '.$deleteCloud.' </a>';
+//                            })
+//                            ->filterColumn('product_name', function ($query, $keyword) {
+//                                $sql = 'product.name like ?';
+//                                $query->whereRaw($sql, ["%{$keyword}%"]);
+//                            })
+//                             ->filterColumn('number', function ($query, $keyword) {
+//                                 $sql = 'orders.number like ?';
+//                                 $query->whereRaw($sql, ["%{$keyword}%"]);
+//                             })
+//                            ->rawColumns(['id', 'product_name', 'date', 'number', 'agents', 'expiry', 'Action'])
+//                            ->make(true);
+        } catch (Exception $ex) {
+            app('log')->error($ex->getMessage());
+            echo $ex->getMessage();
+        }
+    }
+
+    public function getClientActionButton($order){
+                                        if ($order->order_status == 'Terminated') {
+                                    return '<a href="'.url('my-order/'.$order->id).'"
                                      class="btn btn-light-scale-2 btn-sm text-dark" style="margin-right:5px;">
                                      <i class="fa fa-eye" data-toggle="tooltip" data-placement="top" title="'.__('message.click_here_view').'"></i>
                                      </a>';
-                                }
-                                $plan = Plan::where('product', $model->product_id)->value('id');
-                                $whatIsSub = Subscription::where('order_id', $model->id)->value('plan_id');
+                               }
+                                $plan = Plan::where('product', $order->product_id)->value('id');
+                                $whatIsSub = Subscription::where('order_id', $order->id)->value('plan_id');
                                 $planName = Plan::where('id', $whatIsSub)->value('name');
                                 $price = PlanPrice::where('plan_id', $plan)->where('currency', \Auth::user()->currency)->value('renew_price');
                                 $order_cont = new \App\Http\Controllers\Order\OrderController();
-                                $status = $order_cont->checkInvoiceStatusByOrderId($model->id);
+                                $status = $order_cont->checkInvoiceStatusByOrderId($order->id);
                                 $url = '';
                                 $deleteCloud = '';
                                 $listUrl = '';
-                                if ($status == 'success' && $model->price != '0' && $model->type == '4') {
-                                    $deleteCloud = $this->getCloudDeletePopup($model, $model->product_id);
-                                    $listUrl = $this->getPopup($model, $model->product_id);
-                                } elseif ($status == 'success' && $model->price == '0' && $model->type != '4') {
-                                    $listUrl = $this->getPopup($model, $model->product_id);
+                                if ($status == 'success' && $order->price_override != '0' && $order->productRelation->type == '4') {
+                                    $deleteCloud = $this->getCloudDeletePopup($order, $order->product);
+                                    $listUrl = $this->getPopup($order, $order->product);
+                                } elseif ($status == 'success' && $order->price_override == '0' && $order->productRelation->type != '4') {
+                                    $listUrl = $this->getPopup($order, $order->product);
                                 }
-                                if (! in_array($model->product_id, cloudPopupProducts())) {
-                                    $listUrl = $this->getPopup($model, $model->product_id);
+                                if (! in_array($order->product, cloudPopupProducts())) {
+                                    $listUrl = $this->getPopup($order, $order->product);
                                 }
-                                $deleteCloud = $this->getCloudDeletePopup($model, $model->product_id);
+                                $deleteCloud = $this->getCloudDeletePopup($order, $order->product);
 
-                                $agents = substr($model->serial_key, 12, 16);
+                                $agents = substr($order->subscription->serial_key, 12, 16);
                                 if ($agents == '0000') {
                                     $agents = 'Unlimited';
                                 } else {
                                     $agents = intval($agents, 10);
                                 }
 
-                                $url = $this->renewPopup($model->sub_id, $model->product_id, $agents, $planName);
+                                $url = $this->renewPopup($order->subscription->id, $order->product, $agents, $planName);
 
-                                $changeDomain = $this->changeDomain($model, $model->product_id); // Need to add this if the client requirement intensifies.
+                                $changeDomain = $this->changeDomain($order, $order->product); // Need to add this if the client requirement intensifies.
 
-                                return '<a href="'.url('my-order/'.$model->id).'" 
+                                return '<a href="'.url('my-order/'.$order->id).'"
                                 class="btn btn-light-scale-2 btn-sm text-dark" style="margin-right:5px;">
                                 <i class="fa fa-eye" data-toggle="tooltip" data-placement="top" title="'.__('message.click_here_view').'"></i>&nbsp; '
                                     .$listUrl.' '.$url.' '.$deleteCloud.' </a>';
-                            })
-                            ->filterColumn('product_name', function ($query, $keyword) {
-                                $sql = 'product.name like ?';
-                                $query->whereRaw($sql, ["%{$keyword}%"]);
-                            })
-                             ->filterColumn('number', function ($query, $keyword) {
-                                 $sql = 'orders.number like ?';
-                                 $query->whereRaw($sql, ["%{$keyword}%"]);
-                             })
-                            ->rawColumns(['id', 'product_name', 'date', 'number', 'agents', 'expiry', 'Action'])
-                            ->make(true);
-        } catch (Exception $ex) {
-            app('log')->error($ex->getMessage());
-            echo $ex->getMessage();
+    }
+
+    public function getOrderNumberStatus($order_status,$number,$id){
+        if ($order_status != 'Terminated') {
+                                    return '<a href='.url('my-order/'.$id).'>'.$number.'</a>';
+                                } else {
+                                    $badge = 'badge';
+
+                                    return '<a href='.url('my-order/'.$id).'>'.$number.'</a>'.'&nbsp;<span class="'.$badge.' '.$badge.'-danger"  <label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="'.__('message.order_has_been_terminated').'">
+
+                         </label>
+            Terminated</span>';
+                                }
+    }
+
+    public function getClientOrders(Request $request){
+        $updated_ends_at = $request->input('updated_ends_at');
+        $orders = $this->getClientPanelOrdersData();
+        if ($updated_ends_at == 'expired') {
+            $orders = $this->getClientPanelOrdersData()->where('update_ends_at', '<', now());
         }
     }
 
@@ -750,14 +855,26 @@ class ClientController extends BaseClientController
      */
     public function getClientPanelOrdersData()
     {
-        return Order::leftJoin('products', 'products.id', '=', 'orders.product')
-            ->leftJoin('subscriptions', 'orders.id', '=', 'subscriptions.order_id')
-            ->leftJoin('invoices', 'orders.invoice_id', 'invoices.id')
-            ->select('products.name as product_name', 'products.github_owner', 'products.github_repository', 'products.type', 'products.id as product_id',
-                'orders.id', 'orders.number', 'orders.client', 'subscriptions.id as sub_id', 'subscriptions.version', 'subscriptions.update_ends_at', 'products.name',
-                'orders.client', 'invoices.id as invoice_id', 'invoices.number as invoice_number', 'orders.created_at as date', 'orders.price_override as price',
-                'orders.serial_key', 'orders.order_status')
-            ->where('orders.client', \Auth::user()->id);
+//        return Order::leftJoin('products', 'products.id', '=', 'orders.product')
+//            ->leftJoin('subscriptions', 'orders.id', '=', 'subscriptions.order_id')
+//            ->leftJoin('invoices', 'orders.invoice_id', 'invoices.id')
+//            ->select('products.name as product_name', 'products.github_owner', 'products.github_repository', 'products.type', 'products.id as product_id',
+//                'orders.id', 'orders.number', 'orders.client', 'subscriptions.id as sub_id', 'subscriptions.version', 'subscriptions.update_ends_at', 'products.name',
+//                'orders.client', 'invoices.id as invoice_id', 'invoices.number as invoice_number', 'orders.created_at as date', 'orders.price_override as price',
+//                'orders.serial_key', 'orders.order_status')
+//            ->where('orders.client', \Auth::user()->id);
+
+        $query = Order::with([
+            'user' => function ($q) {
+                $q->withTrashed()
+                    ->select('id', 'first_name', 'last_name', 'email', 'mobile', 'mobile_code', 'country');
+            },
+            'productRelation',
+            'installationDetail',
+            'subscription',
+        ])->where('orders.client', \Auth::user()->id);
+
+        return $query;
     }
 
     /**
@@ -1213,7 +1330,15 @@ class ClientController extends BaseClientController
         return view('themes.default1.front.clients.index', compact('pendingInvoicesCount', 'ordersCount', 'renewalCount'));
     }
 
+    /**
+     *  Client Dashboard details.
+     *
+     * @return
+     *
+     * @throws
+     */
     public function clientDetails(){
+        try{
         $status = 'pending';
         $updated_ends_at = 'expired';
         $user = auth()->user();
@@ -1224,8 +1349,18 @@ class ClientController extends BaseClientController
                 $query->where('update_ends_at', '<', now());
             })
             ->count();
-
-        return successResponse('success',)
+        $data=[
+            'status'=>$status,
+            'updated_ends_at'=>$updated_ends_at,
+            'user'=>$user,
+            'pendingInvoicesCount'=>$pendingInvoicesCount,
+            'ordersCount'=>$ordersCount,
+            'renewalCount'=>$renewalCount
+        ];
+        return successResponse('success',$data);
+        }catch(\Exception $ex){
+        return errorResponse($ex->getMessage());
+}
     }
 
     /**
