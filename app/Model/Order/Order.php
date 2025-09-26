@@ -19,7 +19,8 @@ class Order extends BaseModel
     protected static $logName = 'Order';
 
     protected $fillable = ['client', 'order_status', 'invoice_item_id',
-        'serial_key', 'product', 'domain', 'subscription', 'price_override', 'qty', 'invoice_id', 'number', ];
+        'serial_key', 'product', 'domain', 'subscription', 'price_override', 'qty', 'invoice_id', 'number', 'license_mode',
+    ];
 
     protected static $logAttributes = ['client', 'order_status', 'invoice_item_id',
         'serial_key', 'product', 'domain', 'subscription', 'price_override', 'qty', 'invoice_id', 'number', ];

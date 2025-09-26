@@ -1255,22 +1255,4 @@ class SettingsController extends BaseSettingsController
             return successResponse(\Lang::get('message.mobile_validation_success_abstract'));
         }
     }
-
-    public function getTimeZoneDropdown(Request $request)
-    {
-        $role = $request->input('role', 'manager');
-        $page = $request->input('page', 1);
-        $search = $request->input('search_query', '');
-
-        $timezones = Timezone::whereRaw("concat(location, ' ', name) LIKE ?", ['%'.$search.'%'])
-            ->select('id', 'name', 'location')
-            ->orderBy('name')
-            ->paginate(10, ['*'], 'page', $page);
-
-        $timezones->getCollection()->transform(function ($element) {
-            return (object) ['id' => $element->id, 'location' => $element->timezone_name, 'name' => $element->name];
-        });
-
-        return successResponse('', $timezones);
-    }
 }

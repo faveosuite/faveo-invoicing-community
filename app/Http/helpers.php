@@ -312,7 +312,11 @@ function userCurrencyAndPrice($userid, $plan, $productid = '')
             'plan' => $currencyAndSymbol['userPlan'],
         ];
     } catch (\Exception $ex) {
-        return redirect()->back()->with('fails', $ex->getMessage());
+       return [
+            'currency' => '',
+            'symbol' => '',
+            'plan' => '',
+        ];
     }
 }
 
@@ -485,6 +489,56 @@ function bifurcateTax($taxName, $taxValue, $currency, $state, $price = '')
 
         return ['html' => $html, 'tax' => $tax_value];
     }
+}
+
+function bifurcate($taxName, $taxValue, $currency, $state, $price = '')
+{
+    $response = [];
+
+    if (\Auth::user()->country == 'IN') {
+        $gst = TaxByState::where('state_code', $state)
+            ->select('c_gst', 's_gst', 'ut_gst')
+            ->first();
+
+        if ($taxName === 'CGST+SGST') {
+            $response = [
+                [
+                    'name'  => 'CGST',
+                    'rate'  => $gst->c_gst,
+                    'value' => TaxCalculation::taxValue($gst->c_gst, $price, false)
+                ],
+                [
+                    'name'  => 'SGST',
+                    'rate'  => $gst->s_gst,
+                    'value' => TaxCalculation::taxValue($gst->s_gst, $price, false)
+                ]
+            ];
+        } elseif ($taxName === 'CGST+UTGST') {
+            $response = [
+                [
+                    'name'  => 'CGST',
+                    'rate'  => $gst->c_gst,
+                    'value' => TaxCalculation::taxValue($gst->c_gst, $price, false)
+                ],
+                [
+                    'name'  => 'UTGST',
+                    'rate'  => $gst->ut_gst,
+                    'value' => TaxCalculation::taxValue($gst->ut_gst, $price, false)
+                ]
+            ];
+        }
+    }
+
+    // Fallback (other countries or generic tax)
+    if (empty($response)) {
+        $response[] = [
+            'name'  => $taxName,
+            'rate'  => $taxValue,
+            'value' => TaxCalculation::taxValue($taxValue, $price, false)
+        ];
+    }
+
+    return $response;
 }
 
 /**
