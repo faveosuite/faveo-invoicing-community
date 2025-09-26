@@ -66,8 +66,8 @@
                                 <strong style="word-wrap: break-word;">{{$set->company}}</strong><br>
                                 {{$set->address}}<br>
                                 {{$set->city}}<br/>
-                                @if(key_exists('name',getStateByCode($set->state)))
-                                {{getStateByCode($set->state)['name']}}
+                                @if(key_exists('name',getStateByCode($set->country, $set->state)))
+                                {{getStateByCode($set->country, $set->state)['name']}}
                                 @endif
                                 {{$set->zip}}<br/>
                                 <strong>{{ __('message.country') }} :</strong> {{getCountryByCode($set->country)}}<br/>
@@ -102,8 +102,8 @@
                                 <strong>{{$user->first_name}} {{$user->last_name}}</strong><br>
                                 {{$user->address}}<br>
                                 {{$user->town}}<br>
-                                @if(key_exists('name',getStateByCode($user->state)))
-                                {{getStateByCode($user->state)['name']}}
+                                @if(key_exists('name',getStateByCode($user->country, $user->state)))
+                                {{getStateByCode($user->country, $user->state)['name']}}
                                 @endif
                                 {{$user->zip}}<br>
                                 <strong>{{ __('message.country') }} :</strong> {{getCountryByCode($user->country)}}<br>

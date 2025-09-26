@@ -2640,6 +2640,11 @@ return [
     'cloud_deleted_successfully' => '租戶已成功刪除',
     'cloud_deleted_failed' => '租戶刪除失敗',
     'not-found' => '無法刪除此產品，因為它目前與一個或多個服務相關聯。請先移除所有相關服務後再嘗試刪除此產品。',
+    'no_available_plans_currency' => '在所選貨幣下，未找到該產品的可用方案。',
+    'unsupported_country' => '該訂單不支援所選國家。',
+    'order_no_active_plan_cancelled' => '由於訂單 #:order_number 沒有可用的活動方案，自動續訂已被取消。',
+    'no_matching_plans' => '沒有符合您選擇條件的方案。',
+    'order_no_active_plan' => '此訂單沒有關聯的活動方案。',
 
     'auto_assign_success' => '自動指派設定已成功更新。',
     'system_manager_settings' => '系統管理員設定',
@@ -2663,4 +2668,5 @@ return [
     'msg_service_down' => '我們目前的 OTP 服務發生故障。請稍後再試。我們正努力儘快解決問題。',
     'cloud_plan_error' => '請移除雲產品或將其連結到其他方案。',
 
+    'period_is_required' => '請選擇一個週期。',
 ];

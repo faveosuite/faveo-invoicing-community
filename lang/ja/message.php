@@ -2685,6 +2685,11 @@ return [
     'deletion_cloud_subscription' => '次より前に期限切れとなったクラウドサブスクリプションを削除...',
     'msg_service_down' => '現在、OTPサービスに問題が発生しています。しばらくしてから再度お試しください。問題の早期解決に努めています。',
 
+    'no_available_plans_currency' => '選択した通貨では、この製品の利用可能なプランが見つかりませんでした。',
+    'unsupported_country' => 'この注文では、選択した国はサポートされていません。',
+    'order_no_active_plan_cancelled' => '注文 #:order_number にアクティブなプランが見つからなかったため、自動更新はキャンセルされました。',
+    'no_matching_plans' => '選択された条件に一致するプランはありません。',
+    'order_no_active_plan' => 'この注文にはアクティブなプランがありません。',
     'auto_assign_success' => '自動割り当ての設定が正常に更新されました。',
     'system_manager_settings' => 'システムマネージャー設定',
     'enable_account_manager' => 'アカウントマネージャーの自動割り当てを有効にする',
@@ -2702,6 +2707,7 @@ return [
     'manager_settings_updated_successfully' => 'マネージャーの設定が正常に更新されました。',
 
     'user_position_prohibited_if' => '役割がユーザーの場合、ポジションフィールドは使用できません。',
+    'period_is_required' => '期間を選択してください。',
     'cloud_plan_error' => 'クラウド製品を削除するか、別のプランにリンクしてください。',
 
 ];

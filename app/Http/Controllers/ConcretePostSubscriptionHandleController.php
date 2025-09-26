@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\ApiKey;
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
@@ -12,6 +13,7 @@ use App\Model\Order\Payment;
 use App\Model\Payment\Plan;
 use App\Model\Product\Subscription;
 use Carbon\Carbon;
+use Razorpay\Api\Api;
 
 abstract class PostSubscriptionHandleController
 {
@@ -267,7 +269,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         $settings = new \App\Model\Common\Setting();
         $setting = $settings::find(1);
 
-        Subscription::where('order_id', $order->id)->update(['autoRenew_status' => '0', 'is_subscribed' => '0', 'rzp_subscription' => '0']);
+        $this->disableAutorenewalStatusByOrderId($order->id);
 
         $mail = new \App\Http\Controllers\Common\PhpMailController();
         $mailer = $mail->setMailConfig($setting);
@@ -280,7 +282,7 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         $type = '';
         $replace = ['name' => ucfirst($user->first_name).' '.ucfirst($user->last_name),
             'product' => $product_details->name,
-            'total' => currencyFormat($total, $code = $currency),
+            'total' => $total ? currencyFormat($total, $code = $currency) : 'N/A',
             'number' => $number,
             'expiry' => date('d-m-Y', strtotime($end)),
             'exception' => $exceptionMessage,
@@ -321,5 +323,41 @@ class ConcretePostSubscriptionHandleController extends PostSubscriptionHandleCon
         }
 
         return $unit_cost;
+    }
+
+    public function disableAutorenewalStatusByOrderId($orderId)
+    {
+        try {
+            $subscription = Subscription::where('order_id', $orderId)->first();
+
+            $cancellationHandlers = collect([
+                'rzp_subscription' => function ($subscribeId) {
+                    $apiKeys = ApiKey::select('rzp_key', 'rzp_secret')->first();
+                    $api = new Api($apiKeys->rzp_key, $apiKeys->rzp_secret);
+                    $api->subscription->fetch($subscribeId)->cancel();
+                },
+                'autoRenew_status' => function ($subscribeId) {
+                    $stripeSecretKey = ApiKey::value('stripe_secret');
+                    $stripe = new \Stripe\StripeClient($stripeSecretKey);
+                    $stripe->subscriptions->cancel($subscribeId, []);
+                },
+            ]);
+
+            if ($subscription->is_subscribed && $subscription->subscribe_id) {
+                $cancellationHandlers
+                    ->filter(fn ($handler, $field) => $subscription->$field)
+                    ->first()($subscription->subscribe_id);
+            }
+
+            $subscription->update([
+                'is_subscribed' => 0,
+                'autoRenew_status' => 0,
+                'rzp_subscription' => 0,
+            ]);
+        } catch (\Exception $ex) {
+            \Log::error('Subscription cancellation failed: '.$ex->getMessage());
+
+            return;
+        }
     }
 }

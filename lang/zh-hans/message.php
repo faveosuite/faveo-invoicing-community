@@ -2678,6 +2678,11 @@ return [
     'deletion_cloud_subscription' => '删除已过期超过...的云订阅',
     'msg_service_down' => '我们目前的 OTP 服务出现故障。请稍后再试。我们正在努力尽快解决问题。',
 
+    'no_available_plans_currency' => '在所选货币下，未找到该产品的可用方案。',
+    'unsupported_country' => '该订单不支持所选国家。',
+    'order_no_active_plan_cancelled' => '由于订单 #:order_number 没有可用的活动方案，自动续订已被取消。',
+    'no_matching_plans' => '没有符合您选择条件的方案。',
+    'order_no_active_plan' => '该订单没有关联任何活动方案。',
     'auto_assign_success' => '自动分配设置已成功更新。',
     'system_manager_settings' => '系统管理员设置',
     'enable_account_manager' => '启用账户经理的自动分配',
@@ -2695,6 +2700,7 @@ return [
     'manager_settings_updated_successfully' => '管理员设置已成功更新。',
 
     'user_position_prohibited_if' => '当角色为用户时，不允许填写职位字段。',
+    'period_is_required' => '请选择一个周期。',
     'cloud_plan_error' => '请移除云产品或将其关联到其他方案。',
 
 ];

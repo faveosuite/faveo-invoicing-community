@@ -504,7 +504,9 @@ $cartSubtotalWithoutCondition = 0;
 
                                                     <img alt="{{$gateway}}" width="111" src="{{asset('images/logo/'.$gateway.'.png')}}">
 
+                                                    @if($processingFee)
                                                         <p class="text-color-dark" id="fee" style="display:none;font-family: sans-serif;">{{ __('message.extra_processing')}} <b>{{$processingFee}}%</b> {{ __('message.time_payment')}}</p>
+                                                    @endif
 
                                                        
 

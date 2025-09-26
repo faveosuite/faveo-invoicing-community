@@ -70,7 +70,7 @@
             processing: true,
             stateSave: false,
             serverSide: true,
-            order: [[ 0, "desc" ]],
+            order: [[ 1, "desc" ]],
             ajax: {
             "url":  '{!! route('country-count') !!}',
                error: function(xhr) {
@@ -104,7 +104,7 @@
             },
     
             columns: [
-                {data: 'country', name: 'countries.nicename'},
+                {data: 'country', name: 'countries.country_name'},
                 {data: 'count', name: 'count'},
             ],
             "fnDrawCallback": function( oSettings ) {

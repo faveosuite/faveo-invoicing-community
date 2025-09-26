@@ -386,7 +386,7 @@ class AuthController extends BaseAuthController
             if (count($states) > 0) {
                 echo '<option value="">'.__('message.choose').'</option>';
                 foreach ($states as $stateList) {
-                    echo '<option value='.$stateList->state_subdivision_code.'>'
+                    echo '<option value='.$stateList->iso2.'>'
                 .$stateList->state_subdivision_name.'</option>';
                 }
             } else {

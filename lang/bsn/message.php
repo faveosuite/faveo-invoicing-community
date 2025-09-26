@@ -2608,6 +2608,11 @@ return [
     'captcha_failed' => 'reCAPTCHA provjera nije uspjela. Molimo provjerite da li je vaš reCAPTCHA tajni ključ ispravan.',
     'captcha_message' => 'reCAPTCHA provjera nije uspjela. Pokušajte ponovo.',
     'not-found' => 'Ovaj proizvod se ne može obrisati jer je trenutno povezan s jednom ili više usluga. Molimo uklonite sve povezane usluge prije pokušaja brisanja ovog proizvoda.',
+    'no_available_plans_currency' => 'Nema dostupnih planova za ovaj proizvod u odabranoj valuti.',
+    'unsupported_country' => 'Odabrana zemlja nije podržana za ovu narudžbu.',
+    'order_no_active_plan_cancelled' => 'Automatsko obnavljanje je otkazano jer nije pronađen aktivan plan za narudžbu broj #:order_number.',
+    'no_matching_plans' => 'Nema dostupnih planova za vaš izbor.',
+    'order_no_active_plan' => 'Nema aktivnog plana povezanog s ovom narudžbom.',
 
     'auto_assign_success' => 'Postavka automatskog dodjeljivanja je uspješno ažurirana.',
     'system_manager_settings' => 'Postavke sistemskog menadžera',
@@ -2626,6 +2631,7 @@ return [
     'manager_settings_updated_successfully' => 'Postavke menadžera su uspješno ažurirane.',
 
     'user_position_prohibited_if' => 'Polje pozicija nije dozvoljeno kada je uloga korisnik.',
+    'period_is_required' => 'Molimo odaberite period.',
     'delete_invoice_older' => 'Obriši fakture starije od...',
     'deletion_cloud_subscription' => 'Obriši cloud pretplate koje su istekle prije više od...',
     'msg_service_down' => 'Trenutno imamo problema s OTP uslugom. Molimo pokušajte ponovo uskoro. Radimo na brzom rješenju problema.',

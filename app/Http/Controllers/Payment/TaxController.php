@@ -60,7 +60,7 @@ class TaxController extends Controller
             if (count($classes) == 0) {
                 $classes = $this->tax_class->get();
             }
-            $countries = Country::pluck('nicename', 'country_code_char2')->toArray();
+            $countries = Country::pluck('country_name', 'country_code_char2')->toArray();
 
             return view('themes.default1.payment.tax.index', compact('options', 'classes', 'countries'));
         } catch (\Exception $ex) {
@@ -101,9 +101,9 @@ class TaxController extends Controller
                                 }
                             })
                             ->addColumn('state', function ($model) {
-                                if ($this->state->where('state_subdivision_code', $model->state)->first()) {
+                                if ($this->state->where('country_code', $model->state)->first()) {
                                     return $this->state
-                                    ->where('state_subdivision_code', $model->state)
+                                    ->where('country_code', $model->state)
                                     ->first()->state_subdivision_name;
                                 } else {
                                     return '--';
@@ -199,7 +199,7 @@ class TaxController extends Controller
             $tax = $this->tax->where('id', $id)->first();
             $taxClassName = $tax->taxClass()->find($tax->tax_classes_id)->name; //Find the Tax Class Name related to the tax
             $txClass = $this->tax_class->where('id', $tax->tax_classes_id)->first();
-            $state = getStateByCode($tax->state);
+            $state = getStateByCode($tax->country, $tax->state);
             $states = findStateByRegionId($tax->country);
 
             return view('themes.default1.payment.tax.edit',
@@ -330,11 +330,11 @@ class TaxController extends Controller
     {
         try {
             $id = $stateid;
-            $states = \App\Model\Common\State::where('country_code_char2', $id)
+            $states = \App\Model\Common\State::where('country_code', $id)
             ->orderBy('state_subdivision_name', 'asc')->get();
             echo '<option value="">'.__('message.choose').'</option>';
             foreach ($states as $state) {
-                echo '<option value='.$state->state_subdivision_code.'>'.$state->state_subdivision_name.'</option>';
+                echo '<option value='.$state->iso2.'>'.$state->state_subdivision_name.'</option>';
             }
         } catch (\Exception $ex) {
             echo "<option value=''>".__('message.problem_while_loading').'</option>';

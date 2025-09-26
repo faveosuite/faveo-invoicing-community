@@ -20,7 +20,7 @@
                         </div>
                     @endif
 
-            {!! html()->form('POST', url('plans'))->id('plan')->open() !!}
+            {!! html()->form('POST', url('plans'))->id('plan_form')->open() !!}
 
 
             <div class="box-body">
@@ -95,7 +95,6 @@
                   <table class="table table-responsive table-bordered table-hover" id="dynamic_table">
                     <thead>
                     <tr>
-                      <th class="col-sm-3" style="width:18%">{{ Lang::get('message.country') }} <span class="text-red">*</span></th>
                       <th class="col-sm-3" style="width:20%">{{ Lang::get('message.currency') }} <span class="text-red">*</span></th>
                       <th class="col-sm-3" style="width:20%">{{ Lang::get('message.price') }} <span class="text-red">*</span></th>
                       <th class="col-sm-3" style="width:20%">
@@ -110,13 +109,6 @@
 
                     <tbody>
                       <tr>
-                        <td>
-                          <select name="country_id[]" class="form-control {{$errors->has('country_id[]') ? ' is-invalid' : ''}}" id="country">
-                            <option value="0">{{ __('message.default') }}</option>
-                              <div class="input-group-append">
-                              </div>
-                          </select>
-                        </td>
                         <td>
                           <select name="currency[]" class="form-control {{$errors->has('currency') ? ' is-invalid' : ''}}" id="currency">
                              <option value="">
@@ -136,21 +128,21 @@
 
                         </td>
                         <td>
-                          <input type="number" class="form-control" name="add_price[]" class="{{ $errors->has('add_price') ? 'is-invalid' : '' }}" value="{{old('add_price.0')}}" id="regular_prices">
+                          <input type="number" min="0" step="any" class="form-control float-number-input {{ $errors->has('add_price') ? 'is-invalid' : '' }}" name="add_price[]" value="{{old('add_price.0')}}" id="regular_prices">
 
                         </td>
 
                          <td>
-                            <input type="number" class="form-control" value="{{old('offer_price.0')}}" name="offer_price[]">
+                            <input type="number" min="0" step="any" class="form-control float-number-input" value="{{old('offer_price.0')}}" name="offer_price[]">
 
                         </td>
 
                         <td>
-                            <input type="number" class="form-control" value="{{old('renew_price.1')}}" name="renew_price[]" id="renew_prices">
+                            <input type="number" min="0" step="any" class="form-control float-number-input" value="{{old('renew_price.1')}}" name="renew_price[]" id="renew_prices">
 
                         </td>
 
-                       
+
 
 
                       </tr>
@@ -183,19 +175,22 @@
                     </div>
                 </div>
 
-                <div class="col-md-6 form-group">
-                  <!-- agents -->
-                  <i class='fa fa-info-circle' style='cursor: help; font-size: small; color: rgb(60, 141, 188)'<label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="{{ __('message.agents_selected') }}">
-                        </label></i>
-
-                    {!! html()->label( __('message.agent'), 'agents')->class('required') !!}
-                    {!! html()->number('no_of_agents')->class('form-control only-numbers'.($errors->has('no_of_agents') ? ' is-invalid' : ''))->id('agentquant')->disabled()->placeholder( __('message.price_agents')) !!}
-                    @error('no_of_agents')
-                    <span class="error-message"> {{$message}}</span>
-                    @enderror
-                    <div class="input-group-append">
-                    </div>
-                </div>
+                  <div class="col-md-6 form-group">
+                      <!-- agents -->
+                      <label data-toggle="tooltip" style="font-weight:500;" data-placement="top" title="{{ __('message.agents_selected') }}">
+                          <i class="fa fa-info-circle" style="cursor: help; font-size: small; color: rgb(60, 141, 188)"></i>
+                      </label>
+                      {!! html()->label( __('message.agent'), 'agents')->class('required') !!}
+                      {!! html()->number('no_of_agents')
+                          ->class('form-control only-numbers'.($errors->has('no_of_agents') ? ' is-invalid' : ''))
+                          ->id('agentquant')
+                          ->disabled()
+                          ->placeholder( __('message.price_agents')) !!}
+                      @error('no_of_agents')
+                      <span class="error-message"> {{$message}}</span>
+                      @enderror
+                      <div class="input-group-append"></div>
+                  </div>
               </div>
             </div>
 
@@ -220,228 +215,312 @@
   </div>
 </div>
 <script>
+    $(document).ready(function () {
 
-    $(document).ready(function() {
+        // ===========================
+        // INIT
+        // ===========================
         const userRequiredFields = {
-            planname:@json(trans('message.plan_details.planname')),
-            planproduct:@json(trans('message.plan_details.planproduct')),
-            productquant:@json(trans('message.plan_details.productquant')),
-            agentquant:@json(trans('message.plan_details.agentquant')),
+            planname: @json(trans('message.plan_details.planname')),
+            planproduct: @json(trans('message.plan_details.planproduct')),
+            productquant: @json(trans('message.plan_details.productquant')),
+            agentquant: @json(trans('message.plan_details.agentquant')),
+            regular_price: @json(trans('message.plan_details.regular_price')),
+            renew_price: @json(trans('message.plan_details.renewal_price')),
+            currency: @json(trans('message.plan_details.currency')),
         };
 
-        $('#planButton').on('click', function (e) {
-            const userFields = {
-                planname:$('#planname'),
-                planproduct:$('#planproduct'),
-                regular_price:$('#regular_prices'),
-                renew_price:$('#renew_prices'),
-                currency:$('#currency'),
-                country:$('#country'),
-            };
+        let countries = [
+                @foreach ($currency as $code => $name)
+            { code: "{{ $code }}", name: "{{ $name }}" }
+            @if (!$loop->last),@endif
+            @endforeach
+        ];
 
+        let i = 1000;
 
-            // Clear previous errors
-            Object.values(userFields).forEach(field => {
-                field.removeClass('is-invalid');
-                field.next().next('.error').remove();
-
+        // ===========================
+        // PRODUCT HANDLING
+        // ===========================
+        function myProduct() {
+            const product = $('#planproduct').val();
+            $.ajax({
+                type: 'GET',
+                url: "{{ url('get-period') }}",
+                data: { product_id: product },
+                success: function (data) {
+                    if (data.subscription != 1) {
+                        $('.plandays').hide();
+                    } else {
+                        $('.plandays').show();
+                    }
+                    if (data.agentEnable != 1) {
+                        $('#prodquant').prop('disabled', false);
+                        $('#agentquant').prop('disabled', true);
+                    } else {
+                        $('#agentquant').prop('disabled', false);
+                        $('#prodquant').prop('disabled', true);
+                    }
+                }
             });
+        }
 
+        $('#planproduct').on('change', myProduct);
+        myProduct();
+
+        // ===========================
+        // VALIDATION
+        // ===========================
+        function showError($field, message) {
+            $field.addClass('is-invalid');
+            const $group = $field.closest('.input-group');
+            const errorEl = `<span class="error invalid-feedback${$group.length ? ' d-block' : ''}">${message}</span>`;
+            if ($group.length) {
+                $group.after(errorEl);
+            } else {
+                $field.after(errorEl);
+            }
+        }
+
+        function clearErrors() {
+            $('.is-invalid').removeClass('is-invalid');
+            $('.error.invalid-feedback').remove();
+        }
+
+        function validateForm() {
             let isValid = true;
+            clearErrors();
 
-            const showError = (field, message) => {
-                field.addClass('is-invalid');
-                field.next().after(`<span class='error invalid-feedback'>${message}</span>`);
-            };
+            // Required static fields
+            const $planname = $('#planname');
+            const $planproduct = $('#planproduct');
+            if (!$planname.val()) {
+                showError($planname, userRequiredFields.planname);
+                isValid = false;
+            }
+            if (!$planproduct.val()) {
+                showError($planproduct, userRequiredFields.planproduct);
+                isValid = false;
+            }
 
-            // Validate required fields
-            Object.keys(userFields).forEach(field => {
-                if (!userFields[field].val()) {
-                    showError(userFields[field], userRequiredFields[field]);
+            // Conditional period validation
+            const $days = $('#plandays');
+            if ($days.is(':visible') && !$days.val()) {
+                showError($days, @json(trans('message.period_is_required')));
+                isValid = false;
+            }
+
+            // Require the enabled quantity field only
+            const $agent = $('#agentquant');
+            const $prod = $('#prodquant');
+            if (!$agent.prop('disabled') && !$agent.val()) {
+                showError($agent, userRequiredFields.agentquant);
+                isValid = false;
+            }
+            if (!$prod.prop('disabled') && !$prod.val()) {
+                showError($prod, userRequiredFields.productquant);
+                isValid = false;
+            }
+
+            // Dynamic rows validation
+            $('#dynamic_table tbody tr').each(function () {
+                const $row = $(this);
+                const $currency = $row.find('select[name="currency[]"]');
+                const $regular = $row.find('input[name="add_price[]"]');
+                const $renew = $row.find('input[name="renew_price[]"]');
+
+                if ($currency.length && !$currency.val()) {
+                    showError($currency, userRequiredFields.currency);
+                    isValid = false;
+                }
+                if ($regular.length && (!$.trim($regular.val()) || parseFloat($regular.val()) <= 0)) {
+                    showError($regular, userRequiredFields.regular_price);
+                    isValid = false;
+                }
+                if ($renew.length && (!$.trim($renew.val()) || parseFloat($renew.val()) <= 0)) {
+                    showError($renew, userRequiredFields.renew_price);
                     isValid = false;
                 }
             });
 
+            return isValid;
+        }
 
-            // If validation fails, prevent form submission
-            if (!isValid) {
-                e.preventDefault();
-            }
-        });
-        // Function to remove error when input'id' => 'changePasswordForm'ng data
-        const removeErrorMessage = (field) => {
-            field.classList.remove('is-invalid');
-            const error = field.nextElementSibling;
-            if (error && error.classList.contains('error')) {
-                error.remove();
-            }
-        };
-
-        document.querySelector('#agentquant').addEventListener('input', function () {
-            let prodquant=document.querySelector('#prodquant');
-            removeErrorMessage(this);
-            removeErrorMessage(prodquant);
+        $(document).on('input change', 'input, select', function () {
+            $(this).removeClass('is-invalid');
+            $(this).siblings('.error.invalid-feedback').remove();
+            $(this).closest('.input-group').next('.error.invalid-feedback').remove();
         });
 
-        document.querySelector('#prodquant').addEventListener('input', function () {
-            let agentquant=document.querySelector('#agentquant');
-            removeErrorMessage(this);
-            removeErrorMessage(agentquant);
+        $('#plan_form').on('submit', function (e) {
+            if (!validateForm()) e.preventDefault();
         });
 
-        // Add input event listeners for all fields
-        ['planname','planproduct','country','currency','renew_prices','plandays','regular_prices'].forEach(id => {
-
-            document.getElementById(id).addEventListener('input', function () {
-                removeErrorMessage(this);
-
+        // ===========================
+        // CURRENCY HANDLING
+        // ===========================
+        function buildCurrencyOptions(exclude = []) {
+            let options = `<option value="">${@json(__('message.choose'))}</option>`;
+            countries.forEach(c => {
+                if (!exclude.includes(c.code)) {
+                    options += `<option value="${c.code}">${c.name}</option>`;
+                }
             });
-        });
+            return options;
+        }
 
+        function refreshCurrencyDropdowns() {
+            let selected = [];
+            $('select[name^="currency"]').each(function () {
+                const val = $(this).val();
+                if (val) selected.push(val);
+            });
+            $('select[name^="currency"]').each(function () {
+                const currentVal = $(this).val();
+                $(this).html(buildCurrencyOptions(selected.filter(v => v !== currentVal)));
+                $(this).val(currentVal);
+            });
+        }
 
-    });
+        $('.add-more').on('click', function (e) {
+            e.preventDefault();
 
+            const rowCount = $('select[name^="currency"]').length;
+            if (rowCount >= countries.length) {
+                $(this).prop('disabled', true);
+                return;
+            }
 
-$("#close-plan").click(function() {
-   location.reload();
-});
-      
-  $(document).ready(function(){
-    myProduct();
-  })
-  /**
-   * Add Periods In the same Modal as Create Plan
-   *
-   * @author Ashutosh Pathak <ashutosh.pathak@ladybirdweb.com>
-   *
-   * @date   2019-01-08T10:35:38+0530
-   *
-   */
-
-  $(function () {
-    var i = 1;
-    $(".add-more").click(function (e) {
-      e.preventDefault();
-      i++;
-      $('#dynamic_table tr:last').after(`
-        <tr id="row` + i + `">
-          <td>
-            <select name="country_id[]" class="form-control" >
-              <option value="" selected disabled>{{ __('message.choose_country') }}</option>
-              @foreach ($countries as $country)
-                <option value="{{$country['country_id']}}">
-                  {{ $country['country_name'] }}
-                </option>
-              @endforeach
-            </select>
-          </td>
-
+            i++;
+            $('#dynamic_table tbody tr:last').after(`
+        <tr id="row${i}">
           <td>
             <select name="currency[]" class="form-control">
-            <option value="">
-                  {{ __('message.choose') }}
-                </option>
-              @foreach ($currency as $code => $name)
-                <option value="{{ $code }}">
-                  {{ $name }}
-                </option>
-              @endforeach
+              ${buildCurrencyOptions()}
             </select>
           </td>
-
           <td>
-            <input type="text" class="form-control" name="add_price[]">
+            <input type="number" min="0" step="any" class="form-control" name="add_price[]">
           </td>
-           <td>
-            <input type="text" class="form-control" name="offer_price[]">
+          <td>
+            <input type="number" min="0" step="any" class="form-control" name="offer_price[]">
           </td>
-
           <td>
             <div class="input-group">
-              <input type="text" class="form-control" style="width:25%" name="renew_price[]">&nbsp;&nbsp;
-              <span id="` + i + `" class="input-group-text btn_remove"><i class="fa fa-minus"></i></span>
+              <input type="number" min="0" step="any" class="form-control" name="renew_price[]">
+              <button id="${i}" type="button" class="input-group-text btn_remove ml-2"><i class="fa fa-minus"></i></button>
             </div>
           </td>
+        </tr>
+      `);
 
-        </tr>`)
-    });
+            refreshCurrencyDropdowns();
+            if ($('select[name^="currency"]').length >= countries.length) {
+                $(this).prop('disabled', true);
+            }
+        });
 
-    $(document).on('click', '.btn_remove', function () {
-      var button_id = $(this).attr("id");
-      $('#row' + button_id + '').remove();
-    });
+        $(document).on('click', '.btn_remove', function () {
+            const button_id = $(this).attr('id');
+            $('#row' + button_id).remove();
 
+            if ($('select[name^="currency"]').length < countries.length) {
+                $('.add-more').prop('disabled', false);
+            }
+            refreshCurrencyDropdowns();
+        });
 
-    $("#period").on('click', function () {
-      $("#period-modal-show").modal();
-    })
-    $('.save-periods').on('click', function () {
-      $("#submit1").html("<i class='fa fa-circle-o-notch fa-spin fa-1x fa-fw'></i>{{ __('message.please_wait') }}");
-      $.ajax({
-        type: 'POST',
-        url: "{{ url('postInsertPeriod') }}",
-        data: {
-          "name": $('#new-period').val(),
-          "days": $('#new-days').val(),
-          'select-period': $('#select-period').val(),
-        },
-        success: function (data) {
-          $('#plandays').append($("<option/>", {
-            value: data.id,
-            text: data.name,
-          }))
-          $('#new-period').val("");
-          $('#new-days').val("");
-          $('#select-period').val("");
-          var result =
-            '<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>{{ __('message.period_added_successfully') }}</div>';
-          $('#error').hide();
-          $('#alertMessage').show();
-          $('#alertMessage').html(result + ".");
-          $("#submit1").html("<i class='fa fa-floppy-o'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
-        },
-        error: function (error) {
-          var html =
-            '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<br><br><ul>';
-          for (key in error.responseJSON.errors) {
-            html += '<li>' + error.responseJSON.errors[key][0] + '</li>'
+        $(document).on('change', 'select[name="currency[]"]', function () {
+            refreshCurrencyDropdowns();
+        });
 
-          }
-          html += '</ul></div>';
-          $('#alertMessage').hide();
-          $('#error').show();
-          document.getElementById('error').innerHTML = html;
-          $("#submit1").html("<i class='fa fa-floppy-o'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
+        if ($('select[name^="currency"]').length >= countries.length) {
+            $('.add-more').prop('disabled', true);
         }
+        refreshCurrencyDropdowns();
 
-      })
-    })
-  })
+        // ===========================
+        // PERIOD MODAL + SAVE
+        // ===========================
+        $('#period').on('click', function () {
+            $('#period-modal-show').modal();
+        });
 
-  function myProduct() {
-    var product = document.getElementById('planproduct').value;
-    $.ajax({
-      type: 'get',
-      url: "{{ url('get-period') }}",
-      data: {
-        'product_id': product
-      },
-      success: function (data) {
-          console.log(data);
-        if (data.subscription != 1) { //Check if Periods to be shown or not
-          $('.plandays').hide();
-        } else {
-          $('.plandays').show();
-        }
-        if (data.agentEnable != 1) { //Check if Product quantity to be shown or No. of Agents
-          document.getElementById("prodquant").disabled = false;
-          document.getElementById("agentquant").disabled = true;
+        $('.save-periods').on('click', function () {
+            $('#submit1').html("<i class='fa fa-circle-o-notch fa-spin fa-1x fa-fw'></i>{{ __('message.please_wait') }}");
+            $.ajax({
+                type: 'POST',
+                url: "{{ url('postInsertPeriod') }}",
+                data: {
+                    name: $('#new-period').val(),
+                    days: $('#new-days').val(),
+                    'select-period': $('#select-period').val(),
+                },
+                success: function (data) {
+                    $('#plandays').append($('<option/>', { value: data.id, text: data.name }));
+                    $('#new-period, #new-days, #select-period').val('');
+                    const result = '<div class="alert alert-success alert-dismissable">' +
+                        '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' +
+                        '<strong><i class="fa fa-check"></i> {{ __('message.success') }}! </strong>{{ __('message.period_added_successfully') }}</div>';
+                    $('#error').hide();
+                    $('#alertMessage').show().html(result + '.');
+                    $('#submit1').html("<i class='fa fa-floppy-o'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
+                },
+                error: function (error) {
+                    let html = '<div class="alert alert-danger">' +
+                        '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' +
+                        '<strong>{{ __('message.whoops') }} </strong>{{ __('message.something_wrong') }}<br><br><ul>';
+                    for (key in error.responseJSON.errors) {
+                        html += '<li>' + error.responseJSON.errors[key][0] + '</li>';
+                    }
+                    html += '</ul></div>';
+                    $('#alertMessage').hide();
+                    $('#error').show().html(html);
+                    $('#submit1').html("<i class='fa fa-floppy-o'>&nbsp;&nbsp;</i>{{ __('message.save') }}");
+                }
+            })
+        });
 
-        } else if (data.agentEnable == 1) {
-          document.getElementById("agentquant").disabled = false;
-          document.getElementById("prodquant").disabled = true;
-        }
-      },
+        // ===========================
+        // UTILITIES
+        // ===========================
+        $('#close-plan').on('click', function () {
+            location.reload();
+        });
+
+        // Numeric input helper for floats
+        (function setupFloatInputs(){
+            const $inputs = $('.float-number-input');
+            $inputs.on('keypress', function (event) {
+                const key = event.which;
+                const val = this.value;
+                const controlKeys = [8, 37, 39, 46, 9];
+                if (controlKeys.includes(key) || (key >= 16 && key <= 18)) return true;
+                if ((key === 46 && val.includes('.')) || (key < 48 || key > 57)) {
+                    event.preventDefault();
+                }
+            });
+            $inputs.on('keyup', function () {
+                let val = this.value;
+                let pos = this.selectionStart;
+                if (val === '' || val === '-') return;
+                val = val.replace(/[^0-9.]/g, '');
+                const dotCount = (val.match(/\./g) || []).length;
+                if (dotCount > 1) {
+                    const lastDotIndex = val.lastIndexOf('.');
+                    val = val.slice(0, lastDotIndex) + val.slice(lastDotIndex + 1);
+                    if (pos > lastDotIndex) pos--;
+                }
+                if (val.startsWith('.')) {
+                    val = '0' + val;
+                    pos++;
+                }
+                if (this.value !== val) {
+                    this.value = val;
+                    this.setSelectionRange(pos, pos);
+                }
+            });
+        })();
+
     });
-  }
 </script>
