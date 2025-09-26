@@ -10,7 +10,6 @@ use App\Model\Common\StatusSetting;
 use App\Model\Order\InstallationDetail;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
-use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 
@@ -160,7 +159,7 @@ class ExtendedOrderController extends Controller
             }
 
             return successResponse(__('message.license_reissued'));
-        }catch (\Exception $ex){
+        } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }

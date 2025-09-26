@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Order;
 use App\Events\UserOrderDelete;
 use App\Http\Requests\Order\OrderRequest;
 use App\Jobs\ReportExport;
-use App\Model\Common\Country;
 use App\Model\Common\StatusSetting;
 use App\Model\Mailjob\QueueService;
 use App\Model\Order\InstallationDetail;
@@ -156,18 +155,17 @@ class OrderController extends BaseOrderController
                     'version' => $latestVersion ? getVersionAndLabel($latestVersion, $order->product) : null,
                     'agents' => $licenseAgents,
                     'number' => $order->number,
-                    'status' =>  !empty($order->installationDetail) ? 'Active' : 'Inactive',
+                    'status' => ! empty($order->installationDetail) ? 'Active' : 'Inactive',
                     'order_status' => ucfirst($order->order_status),
                     'order_date' => $order->created_at,
                     'update_ends_at' => strtotime($order->subscription->ends_at) > 1 ? $order->subscription->ends_at : null,
                     'subscription_updated_at' => $order->subscription->updated_at,
                     'user' => $user,
-                    'action' => $this->getOrderActions($order, $invoiceStatus, $order->subscription?->id, $licenseAgents)
+                    'action' => $this->getOrderActions($order, $invoiceStatus, $order->subscription?->id, $licenseAgents),
                 ];
             });
 
             return successResponse('', $paginated);
-
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }
@@ -191,8 +189,8 @@ class OrderController extends BaseOrderController
 
         $expiryDates = [
             'subscription_end' => $subscription && strtotime($subscription->ends_at) > 1 ? getExpiryLabel($subscription->ends_at) : null,
-            'update_end'       => $subscription && strtotime($subscription->update_ends_at) > 1 ? getExpiryLabel($subscription->update_ends_at) : null,
-            'support_end'      => $subscription && strtotime($subscription->support_ends_at) > 1 ? getExpiryLabel($subscription->support_ends_at) : null,
+            'update_end' => $subscription && strtotime($subscription->update_ends_at) > 1 ? getExpiryLabel($subscription->update_ends_at) : null,
+            'support_end' => $subscription && strtotime($subscription->support_ends_at) > 1 ? getExpiryLabel($subscription->support_ends_at) : null,
         ];
 
         $settings = StatusSetting::first(['license_status']);
@@ -246,7 +244,6 @@ class OrderController extends BaseOrderController
             $installationDetails = [];
 
             foreach ($installationLogs as $log) {
-
                 $installationPath = $log['installation_domain'] ?? null;
                 $installationIp = $log['installation_ip'] ?? null;
                 $lastActive = $log['installation_last_active_date'] ?? null;
@@ -277,7 +274,6 @@ class OrderController extends BaseOrderController
             }
 
             return successResponse('', $installationDetails);
-
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
@@ -520,14 +516,12 @@ class OrderController extends BaseOrderController
                 ->onQueue('reports');
 
             return successResponse(__('message.system_generating_report'));
-
         } catch (\Exception $e) {
             \Log::error(__('message.export_failed').$e->getMessage());
 
             return errorResponse($e->getMessage());
         }
     }
-
 
     public function getPaymentByOrderId(Request $request, $orderId)
     {
@@ -540,10 +534,10 @@ class OrderController extends BaseOrderController
 
             $order = Order::with([
                 'user:id,first_name,last_name,email',
-                'invoiceRelation'
+                'invoiceRelation',
             ])->findOrFail($orderId);
 
-           $invoiceIds = $order->invoiceRelation->pluck('invoice_id')->toArray();
+            $invoiceIds = $order->invoiceRelation->pluck('invoice_id')->toArray();
 
             $payments = Payment::whereIn('invoice_id', $invoiceIds)
                 ->select(['id', 'invoice_id', 'user_id', 'amount', 'payment_method', 'payment_status', 'created_at'])
@@ -572,9 +566,7 @@ class OrderController extends BaseOrderController
                 ];
             });
 
-
             return successResponse('', $payments);
-
         } catch (Exception $ex) {
             return errorResponse($ex->getMessage());
         }
@@ -583,9 +575,9 @@ class OrderController extends BaseOrderController
     public function getOrderInvoices(Request $request, $orderId)
     {
         $searchQuery = $request->input('search-query', '');
-        $sortOrder   = $request->input('sort-order', 'asc');
-        $sortField   = $request->input('sort-field', 'created_at');
-        $limit       = $request->input('limit', 10);
+        $sortOrder = $request->input('sort-order', 'asc');
+        $sortField = $request->input('sort-field', 'created_at');
+        $limit = $request->input('limit', 10);
         $page = $request->input('page', 1);
 
         $order = Order::with('user:id,first_name,last_name,email')->findOrFail($orderId);
@@ -597,16 +589,15 @@ class OrderController extends BaseOrderController
 
         $invoices->getCollection()->transform(function ($invoice) {
             return [
-                'id'            => $invoice->id,
-                'number'        => $invoice->number,
-                'amount'        => currencyFormat($invoice->grand_total, $invoice->currency),
-                'status'        => $invoice->status,
-                'date'          => $invoice->date,
-                'products'      => $invoice->invoiceItem->pluck('product_name')->toArray(),
+                'id' => $invoice->id,
+                'number' => $invoice->number,
+                'amount' => currencyFormat($invoice->grand_total, $invoice->currency),
+                'status' => $invoice->status,
+                'date' => $invoice->date,
+                'products' => $invoice->invoiceItem->pluck('product_name')->toArray(),
             ];
         });
 
         return successResponse('', $invoices);
     }
-
 }
