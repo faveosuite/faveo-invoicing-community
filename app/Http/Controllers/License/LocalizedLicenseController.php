@@ -142,22 +142,24 @@ class LocalizedLicenseController extends Controller
      * */
     public function chooseLicenseMode(Request $request)
     {
-        $chose = $request->input('choose');
         $orderNo = $request->input('orderNo');
+        $chose = $request->boolean('choose');
+        $order = Order::where('number', $orderNo);
+
+        $order->update(['license_mode' => $chose ? 'File' : 'Database']);
+
         if ($chose) {
-            $encrypt = new EncryptDecryptController();
-            $encrypt->generateKeys($orderNo);
-            Order::where('number', $orderNo)->update(['license_mode' => 'File']);
-
-            return response()->json(['success' => __('message.status_change_successfully')]); //return redirect()->back()->with('success', Lang::get('Private and Public Keys generated for this order number: '.$orderNo));
+            (new EncryptDecryptController())->generateKeys($orderNo);
         } else {
-            Order::where('number', $orderNo)->update(['license_mode' => 'Database']);
-            Storage::disk('public')->delete('publicKey-'.$orderNo.'.txt');
-            Storage::disk('public')->delete('privateKey-'.$orderNo.'.txt');
-            Storage::disk('public')->delete('faveo-license-{'.$orderNo.'}.txt');
-
-            return response()->json(['success' => __('message.status_change_successfully')]); //return redirect()->back()->with('success',Lang::get('Reverted back to database license mode' .$orderNo));
+            $files = [
+                "publicKey-{$orderNo}.txt",
+                "privateKey-{$orderNo}.txt",
+                "faveo-license-{$orderNo}.txt"
+            ];
+            Storage::disk('public')->delete($files);
         }
+
+        return successResponse(__('message.status_change_successfully'));
     }
 
     /**
