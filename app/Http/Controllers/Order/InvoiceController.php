@@ -148,115 +148,55 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
 
     public function getInvoices(Request $request)
     {
-        $name = $request->input('name');
-        $invoice_no = $request->input('invoice_no');
-        $status = $request->input('status');
-        $currency = $request->input('currency_id');
-        $from = $request->input('from');
-        $till = $request->input('till');
-        $query = $this->advanceSearch($name, $invoice_no, $currency, $status, $from, $till);
+        try {
+            $searchQuery = $request->input('search-query', '');
+            $sortOrder = $request->input('sort-order', 'asc');
+            $sortField = $request->input('sort-field', 'created_at');
+            $limit = $request->input('limit', 10);
+            $page = $request->input('page', 1);
 
-        return \DataTables::of($query)
-         ->setTotalRecords($query->count())
-         ->orderColumn('number', '-invoices.date $1')
-         ->orderColumn('user_id', '-invoices.date $1')
-         ->orderColumn('date', '-invoices.date $1')
-         ->orderColumn('status', '-invoices.date $1')
-         ->orderColumn('grand_total', '-invoices.date $1')
-         ->orderColumn('action', '-invoices.date $1')
-         ->addColumn('checkbox', function ($model) {
-             return "<input type='checkbox' class='invoice_checkbox' 
-                            value=".$model->id.' name=select[] id=check>';
-         })
-                        ->addColumn('user_id', function ($model) {
-                            $user = $this->user->where('id', $model->user_id)->first() ?: User::onlyTrashed()->find($model->user_id);
+            $query = $this->advanceSearch($request);
 
-                            $id = $user->id;
-                            $first = $user->first_name;
-                            $last = $user->last_name;
+            $invoice = $query->when($searchQuery, function ($query, $search) {
+                $statusMapping = [
+                    'paid'          => 'success',
+                    'unpaid'        => 'pending',
+                    'partially paid' => 'partially paid',
+                    'partially'     => 'partially paid',
+                ];
 
-                            return '<a href='.url('clients/'.$id).'>'.ucfirst($first).' '.ucfirst($last).'</a>';
-                        })
-                           ->addColumn('email', function ($model) {
-                               $user = $this->user->where('id', $model->user_id)->first() ?: User::onlyTrashed()->find($model->user_id);
+                $status = array_key_exists($search, $statusMapping) ? $statusMapping[$search] : $search;
+                $query->where(function ($q) use ($search, $status) {
+                    $q->whereHas('user', function ($q2) use ($search, $status) {
+                        $q2->whereRaw('CONCAT(first_name, " ", last_name) LIKE ?', ["%{$search}%"]);
+                    })
+                        ->orWhere('number', 'like', "%{$search}%")
+                        ->orWhere('status', 'like', "%{$status}%")
+                        ->orWhere('currency', 'like', "%{$search}%");
+                });
+            })->orderBy($sortField, $sortOrder)->paginate($limit, ['*'], 'page', $page);
 
-                               return $user->email;
-                           })
-                          ->addColumn('mobile', function ($model) {
-                              $user = $this->user->where('id', $model->user_id)->first() ?: User::onlyTrashed()->find($model->user_id);
+            $invoice->getCollection()->transform(function ($invoice) {
+                $statusMapping = [
+                   'success'       => 'Paid',
+                   'pending'       => 'Unpaid',
+                   'partially paid' => 'Partially Paid',
+                ];
+                $status = \Str::lower($invoice->status);
+                return [
+                    'id'              => $invoice->id,
+                    'user'            => $invoice->user,
+                    'number'          => $invoice->number,
+                    'grand_total'     => currencyFormat($invoice->grand_total, $invoice->currency),
+                    'status'          => $statusMapping[$status],
+                ];
+            });
 
-                              return $user->mobile;
-                          })
-                            ->addColumn('country', function ($model) {
-                                $user = $this->user->where('id', $model->user_id)->first() ?: User::onlyTrashed()->find($model->user_id);
-                                $country = Country::where('country_code_char2', $user->country)->value('nicename');
+            return successResponse('', $invoice);
 
-                                return $country;
-                            })
-                         ->addColumn('number', function ($model) {
-                             return ucfirst($model->number);
-                         })
-                          ->addColumn('product', function ($model) {
-                              return ucfirst($model->product_name);
-                          })
-
-                        ->addColumn('date', function ($model) {
-                            return getDateHtml($model->date);
-                        })
-                         ->addColumn('grand_total', function ($model) {
-                             return currencyFormat($model->grand_total, $code = $model->currency);
-                         })
-                          ->addColumn('status', function ($model) {
-                              return getStatusLabel($model->status);
-                          })
-
-                        ->addColumn('action', function ($model) {
-                            $action = '';
-
-                            $check = $this->checkExecution($model->id);
-                            if ($check == false) {
-                                $action = '<p><form id="execute-form" method="post" action='.url('order/execute?invoiceid='.$model->id).'>'.'<input type="hidden" name="_token" value='.\Session::token().'>'.'
-                    <button type="submit" style="margin-top:-10px;" class="btn btn-sm btn-secondary btn-xs"'.tooltip(__('message.execute_order')).'<i class="fa fa-tasks" style="color:white;"></i></button></form></p>';
-
-                                $action .= '<script>
-                            $("#execute-form").submit(function(event) {
-                                $("#loader").show();
-                            });
-                          </script>';
-                            }
-
-                            return '<a href='.htmlspecialchars(url('invoices/show?invoiceid='.$model->id))
-                            ." class='btn btn-sm btn-secondary btn-xs'".tooltip(__('message.view'))."<i class='fa fa-eye' 
-                            style='color:white;'> </i></a>"
-                                    ."   $action";
-                        })
-
-                        ->filterColumn('user_id', function ($query, $keyword) {
-                            $sql = "CONCAT(first_name,' ',last_name)  like ?";
-                            $sql2 = 'first_name like ?';
-                            $query->whereRaw($sql, ["%{$keyword}%"])->orWhereRaw($sql2, ["%{$keyword}%"]);
-                        })
-                        ->filterColumn('number', function ($query, $keyword) {
-                            $sql = 'number like ?';
-                            $query->whereRaw($sql, ["%{$keyword}%"]);
-                        })
-                         ->filterColumn('status', function ($query, $keyword) {
-                             if ($keyword == 'Paid' || $keyword == 'paid') {
-                                 $sql = 'status like ?';
-                                 $sql2 = 'success';
-                                 $query->whereRaw($sql, ["%{$sql2}%"]);
-                             } elseif ($keyword == 'Unpaid' || $keyword == 'unpaid') {
-                                 $sql = 'status like ?';
-                                 $sql2 = 'pending';
-                                 $query->whereRaw($sql, ["%{$sql2}%"]);
-                             } elseif ($keyword == 'Partiallypaid' || $keyword == 'Partially' || $keyword == 'partially') {
-                                 $sql = 'status like ?';
-                                 $sql2 = 'partially paid';
-                                 $query->whereRaw($sql, ["%{$sql2}%"]);
-                             }
-                         })
-                         ->rawColumns(['checkbox', 'user_id', 'email', 'mobile', 'country', 'number', 'product', 'date', 'grand_total', 'status', 'action'])
-                        ->make(true);
+        }catch (\Exception $ex){
+            return errorResponse($ex->getMessage());
+        }
     }
 
     /**
@@ -599,5 +539,127 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
 
             return response()->json(['message' => $e->getMessage()], 500);
         }
+    }
+
+    public function getInvoice($id)
+    {
+        try {
+
+            $query = Invoice::with([
+                'user:id,first_name,last_name,email,company,address,town,state,country,zip,mobile_code,mobile',
+                'invoiceItem.order:id,number,invoice_item_id',
+            ])->findOrFail($id);
+
+            if (User::onlyTrashed()->find($query->user->id)) {
+                throw new \Exception(__('message.user_suspended'));
+            }
+
+            // Company settings
+            $setting = Setting::select(
+                'id','company','address','state','zip','city','country',
+                'phone_code','phone','logo','company_email'
+            )->first();
+
+            $setting->state = key_exists('name', getStateByCode($setting->state))
+                ? getStateByCode($setting->state)['name']
+                : $setting->state;
+
+            $query->user->state = key_exists('name', getStateByCode($query->user->state))
+                ? getStateByCode($query->user->state)['name']
+                : $query->user->state;
+
+
+            $result = $this->calculateInvoice($id, true);
+
+            $invoice = [
+                'invoice' => [
+                    'number'   => $query->number,
+                    'date'     => $query->date,
+                ],
+                'from' => $setting,
+                'to'   => $query->user,
+                'items' => $query->invoiceItem,
+                'totals' => $result,
+            ];
+
+
+            return successResponse('', $invoice);
+        } catch (\Exception $ex) {
+            return errorResponse($ex->getMessage());
+        }
+    }
+
+
+    /**
+     * Get dynamic invoice totals for a given invoice ID
+     *
+     * @param int $invoiceId
+     * @param bool $formatCurrency - whether to format currency strings or return numeric
+     * @return array
+     */
+    public static function calculateInvoice($invoiceId, $formatCurrency = false)
+    {
+        $invoice = Invoice::with(['invoiceItem', 'user'])->findOrFail($invoiceId);
+
+        $taxState = $invoice->user->state;
+        $itemSubtotal = 0;
+        $taxComponents = [];
+
+        // Process each item
+        foreach ($invoice->invoiceItem as $item) {
+            $itemSubtotal += $item->subtotal;
+
+            if ($item->tax_name) {
+                $itemTaxes = bifurcate(
+                    $item->tax_name,
+                    $item->tax_percentage,
+                    $invoice->currency,
+                    $taxState,
+                    $item->subtotal
+                );
+
+                foreach ($itemTaxes as $component) {
+                    $taxComponents[$component['name']] = ($taxComponents[$component['name']] ?? 0) + $component['value'];
+                }
+            }
+        }
+
+        // Format taxes if required
+        $taxes = [];
+        foreach ($taxComponents as $name => $value) {
+            $taxes[$name] = $formatCurrency
+                ? currencyFormat($value, $invoice->currency)
+                : round($value, 2);
+        }
+
+        // Processing fee
+        $processingFee = $invoice->processing_fee ? floatval(filter_var($invoice->processing_fee, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION)) : 0;
+        if ($formatCurrency) $processingFee = currencyFormat($processingFee, $invoice->currency);
+
+        // Subtotal
+        $subtotal = $formatCurrency ? currencyFormat($itemSubtotal, $invoice->currency) : round($itemSubtotal, 2);
+
+        // Credits and discounts
+        $credits = $invoice->credits ?? 0;
+        $discount = $invoice->discount ?? 0;
+        if ($formatCurrency) {
+            $credits = $credits ? currencyFormat($credits, $invoice->currency) : null;
+            $discount = $discount ? currencyFormat($discount, $invoice->currency) : null;
+        } else {
+            $credits = round($credits, 2);
+            $discount = round($discount, 2);
+        }
+
+        // Grand total (numeric)
+        $grandTotal = $formatCurrency ? currencyFormat($invoice->grand_total, $invoice->currency) : round($invoice->grand_total, 2);
+
+        return [
+            'subtotal' => $subtotal,
+            'tax' => $taxes,
+            'processing_fee' => $processingFee,
+            'credits' => $credits,
+            'discount' => $discount,
+            'total' => $grandTotal,
+        ];
     }
 }

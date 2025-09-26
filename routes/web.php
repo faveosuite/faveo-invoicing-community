@@ -713,8 +713,6 @@ Route::get('soft-delete', [User\SoftDeleteController::class, 'softDeletedUsers']
 Route::get('user/restore/{id}', [User\SoftDeleteController::class, 'restoreUser']);
 Route::delete('permanent-delete-client', [User\SoftDeleteController::class, 'permanentDeleteUser']);
 
-Route::get('getTimeZones', [Common\SettingsController::class, 'getTimeZoneDropdown']);
-
 Route::get('orders', [Order\OrderController::class, 'getOrders'])->name('orders');
 Route::delete('orders', [Order\OrderController::class, 'deleteBulkOrders']);
 Route::get('order/{id}', [Order\OrderController::class, 'getOrder']);
@@ -722,3 +720,16 @@ Route::get('order/{id}', [Order\OrderController::class, 'getOrder']);
 Route::get('get-installation-details/{orderId}', [Order\OrderController::class, 'getInstallationDetails']);
 Route::get('getOrderPayments/{orderId}', [Order\OrderController::class, 'getPaymentByOrderId']);
 Route::get('getOrderInvoices/{orderId}', [Order\OrderController::class, 'getOrderInvoices']);
+Route::patch('reissue-license', [Order\ExtendedOrderController::class, 'reissueLicense']);
+Route::post('edit-update-expiry', [Order\BaseOrderController::class, 'editUpdateExpiry']);
+Route::post('edit-license-expiry', [Order\BaseOrderController::class, 'editLicenseExpiry']);
+Route::post('edit-support-expiry', [Order\BaseOrderController::class, 'editSupportExpiry']);
+Route::post('edit-installation-limit', [Order\BaseOrderController::class, 'editInstallationLimit']);
+Route::post('switch-license-mode', [License\LocalizedLicenseController::class, 'chooseLicenseMode']);
+Route::get('invoices', [Order\InvoiceController::class, 'getInvoices']);
+Route::delete('invoices', [Order\InvoiceController::class, 'deleteBulkInvoices']);
+Route::get('invoice/{id}', [Order\InvoiceController::class, 'getInvoice']);
+Route::get('productsList', [Product\ProductController::class, 'getProductDropdown']);
+Route::get('getProductPlans/{productId}', [Product\ProductController::class, 'getProductPlans']);
+Route::post('get-price', [Product\ProductController::class, 'getPrice']);
+Route::get('dependency/{type}', [Common\Dependency\DependencyController::class, 'handle']);
