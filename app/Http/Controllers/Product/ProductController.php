@@ -643,7 +643,6 @@ class ProductController extends BaseProductController
     </script>";
     }
 
-
     public function getProductDropdown(Request $request)
     {
         $searchQuery = $request->input('search-query', '');

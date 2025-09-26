@@ -6,7 +6,6 @@ use App\Http\Controllers\Front\CartController;
 use App\Http\Controllers\Tenancy\CloudExtraActivities;
 use App\Http\Requests\InvoiceRequest;
 use App\Jobs\ReportExport;
-use App\Model\Common\Country;
 use App\Model\Common\FaveoCloud;
 use App\Model\Common\Setting;
 use App\Model\Common\Template;
@@ -159,15 +158,15 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
 
             $invoice = $query->when($searchQuery, function ($query, $search) {
                 $statusMapping = [
-                    'paid'          => 'success',
-                    'unpaid'        => 'pending',
+                    'paid' => 'success',
+                    'unpaid' => 'pending',
                     'partially paid' => 'partially paid',
-                    'partially'     => 'partially paid',
+                    'partially' => 'partially paid',
                 ];
 
                 $status = array_key_exists($search, $statusMapping) ? $statusMapping[$search] : $search;
                 $query->where(function ($q) use ($search, $status) {
-                    $q->whereHas('user', function ($q2) use ($search, $status) {
+                    $q->whereHas('user', function ($q2) use ($search) {
                         $q2->whereRaw('CONCAT(first_name, " ", last_name) LIKE ?', ["%{$search}%"]);
                     })
                         ->orWhere('number', 'like', "%{$search}%")
@@ -178,23 +177,23 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
 
             $invoice->getCollection()->transform(function ($invoice) {
                 $statusMapping = [
-                   'success'       => 'Paid',
-                   'pending'       => 'Unpaid',
-                   'partially paid' => 'Partially Paid',
+                    'success' => 'Paid',
+                    'pending' => 'Unpaid',
+                    'partially paid' => 'Partially Paid',
                 ];
                 $status = \Str::lower($invoice->status);
+
                 return [
-                    'id'              => $invoice->id,
-                    'user'            => $invoice->user,
-                    'number'          => $invoice->number,
-                    'grand_total'     => currencyFormat($invoice->grand_total, $invoice->currency),
-                    'status'          => $statusMapping[$status],
+                    'id' => $invoice->id,
+                    'user' => $invoice->user,
+                    'number' => $invoice->number,
+                    'grand_total' => currencyFormat($invoice->grand_total, $invoice->currency),
+                    'status' => $statusMapping[$status],
                 ];
             });
 
             return successResponse('', $invoice);
-
-        }catch (\Exception $ex){
+        } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
     }
@@ -544,7 +543,6 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
     public function getInvoice($id)
     {
         try {
-
             $query = Invoice::with([
                 'user:id,first_name,last_name,email,company,address,town,state,country,zip,mobile_code,mobile',
                 'invoiceItem.order:id,number,invoice_item_id',
@@ -556,8 +554,8 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
 
             // Company settings
             $setting = Setting::select(
-                'id','company','address','state','zip','city','country',
-                'phone_code','phone','logo','company_email'
+                'id', 'company', 'address', 'state', 'zip', 'city', 'country',
+                'phone_code', 'phone', 'logo', 'company_email'
             )->first();
 
             $setting->state = key_exists('name', getStateByCode($setting->state))
@@ -568,20 +566,18 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                 ? getStateByCode($query->user->state)['name']
                 : $query->user->state;
 
-
             $result = $this->calculateInvoice($id, true);
 
             $invoice = [
                 'invoice' => [
-                    'number'   => $query->number,
-                    'date'     => $query->date,
+                    'number' => $query->number,
+                    'date' => $query->date,
                 ],
                 'from' => $setting,
-                'to'   => $query->user,
+                'to' => $query->user,
                 'items' => $query->invoiceItem,
                 'totals' => $result,
             ];
-
 
             return successResponse('', $invoice);
         } catch (\Exception $ex) {
@@ -589,12 +585,11 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
         }
     }
 
-
     /**
-     * Get dynamic invoice totals for a given invoice ID
+     * Get dynamic invoice totals for a given invoice ID.
      *
-     * @param int $invoiceId
-     * @param bool $formatCurrency - whether to format currency strings or return numeric
+     * @param  int  $invoiceId
+     * @param  bool  $formatCurrency  - whether to format currency strings or return numeric
      * @return array
      */
     public static function calculateInvoice($invoiceId, $formatCurrency = false)
@@ -634,7 +629,9 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
 
         // Processing fee
         $processingFee = $invoice->processing_fee ? floatval(filter_var($invoice->processing_fee, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION)) : 0;
-        if ($formatCurrency) $processingFee = currencyFormat($processingFee, $invoice->currency);
+        if ($formatCurrency) {
+            $processingFee = currencyFormat($processingFee, $invoice->currency);
+        }
 
         // Subtotal
         $subtotal = $formatCurrency ? currencyFormat($itemSubtotal, $invoice->currency) : round($itemSubtotal, 2);

@@ -20,14 +20,11 @@ trait CoupCodeAndInvoiceSearch
                     $q->whereRaw('CONCAT(first_name, " ", last_name) LIKE ?', ["%{$name}%"]);
                 });
             })
-            ->when($request->invoice_no, fn($query, $invoice_no) =>
-            $query->where('number', $invoice_no)
+            ->when($request->invoice_no, fn ($query, $invoice_no) => $query->where('number', $invoice_no)
             )
-            ->when($request->status, fn($query, $status) =>
-            $query->where('status', $status)
+            ->when($request->status, fn ($query, $status) => $query->where('status', $status)
             )
-            ->when($request->currency, fn($query, $currency) =>
-            $query->where('currency', $currency)
+            ->when($request->currency, fn ($query, $currency) => $query->where('currency', $currency)
             )
             ->when($request->from_date && $request->to_date, function ($query) use ($request) {
                 $from = Carbon::parse($request->from_date)->startOfDay();
@@ -94,7 +91,6 @@ trait CoupCodeAndInvoiceSearch
             $this->invoice->whereIn('id', $ids)->delete();
 
             return successResponse(__('message.deleted-successfully'));
-
         } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }

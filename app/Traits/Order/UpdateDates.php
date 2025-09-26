@@ -8,7 +8,6 @@ use App\Model\Common\StatusSetting;
 use App\Model\Order\Order;
 use App\Model\Product\Subscription;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 trait UpdateDates
 {
@@ -17,7 +16,7 @@ trait UpdateDates
     private const SUPPORT_EXPIRY = 'support_ends_at';
 
     /**
-     * Edit Updates Expiry Date In Admin panel
+     * Edit Updates Expiry Date In Admin panel.
      */
     public function editUpdateExpiry(Request $request)
     {
@@ -30,7 +29,7 @@ trait UpdateDates
     }
 
     /**
-     * Edit License Expiry Date In Admin panel
+     * Edit License Expiry Date In Admin panel.
      */
     public function editLicenseExpiry(Request $request)
     {
@@ -43,7 +42,7 @@ trait UpdateDates
     }
 
     /**
-     * Edit Support Expiry Date In Admin panel
+     * Edit Support Expiry Date In Admin panel.
      */
     public function editSupportExpiry(Request $request)
     {
@@ -56,7 +55,7 @@ trait UpdateDates
     }
 
     /**
-     * Generic method to update expiry dates
+     * Generic method to update expiry dates.
      */
     private function updateExpiryDate(Request $request, $field, $successMessage, $permission)
     {
@@ -121,9 +120,8 @@ trait UpdateDates
     }
 
     /**
-     * Helper methods
+     * Helper methods.
      */
-
     private function getProductId(int $orderId): int
     {
         return Subscription::where('order_id', $orderId)->value('product_id');
@@ -132,9 +130,10 @@ trait UpdateDates
     private function convertDate($date)
     {
         $dateTime = \DateTime::createFromFormat('m/d/Y', $date);
-        if (!$dateTime) {
+        if (! $dateTime) {
             throw new \InvalidArgumentException('Invalid date format. Expected MM/DD/YYYY');
         }
+
         return $dateTime->format('Y-m-d H:i:s');
     }
 
@@ -144,7 +143,7 @@ trait UpdateDates
 
         if ($excludeField) {
             $fields = ['update_ends_at', 'ends_at', 'support_ends_at'];
-            $fields = array_filter($fields, fn($field) => $field !== $excludeField);
+            $fields = array_filter($fields, fn ($field) => $field !== $excludeField);
             $query = Subscription::where('order_id', $orderId)->select(...$fields);
         }
 
@@ -172,18 +171,18 @@ trait UpdateDates
             self::UPDATE_EXPIRY => [
                 'licenseExpiry' => $subscriptionData->ends_at ?? '',
                 'supportExpiry' => $subscriptionData->support_ends_at ?? '',
-                'expiryDate' => $newDate
+                'expiryDate' => $newDate,
             ],
             self::LICENSE_EXPIRY => [
                 'expiryDate' => $subscriptionData->update_ends_at ?? '',
                 'supportExpiry' => $subscriptionData->support_ends_at ?? '',
-                'licenseExpiry' => $newDate
+                'licenseExpiry' => $newDate,
             ],
             self::SUPPORT_EXPIRY => [
                 'expiryDate' => $subscriptionData->update_ends_at ?? '',
                 'licenseExpiry' => $subscriptionData->ends_at ?? '',
-                'supportExpiry' => $newDate
-            ]
+                'supportExpiry' => $newDate,
+            ],
         ];
 
         $dates = $dateMapping[$field];
@@ -220,6 +219,7 @@ trait UpdateDates
         if (empty($date) || strtotime($date) <= 1) {
             return '';
         }
+
         return date('Y-m-d', strtotime($date));
     }
 }
