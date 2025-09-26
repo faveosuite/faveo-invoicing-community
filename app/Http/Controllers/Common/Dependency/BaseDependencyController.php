@@ -15,99 +15,97 @@ class BaseDependencyController extends Controller
     protected $searchQuery;
 
     /**
-     * if search should match the exact searchQuery
+     * if search should match the exact searchQuery.
      *
      * @var bool
      */
     protected $strictSearch = false;
 
     /**
-     * @var int     Maximum number of rows that are required
+     * @var int Maximum number of rows that are required
      */
     protected $limit;
 
     /**
-     * What should be the order of the result
+     * What should be the order of the result.
      *
      * @var string
      */
     protected $sortOrder;
 
     /**
-     * The field which has to be sorted
+     * The field which has to be sorted.
      *
      * @var string
      */
     protected $sortField;
 
     /**
-     * @var string      Role of the user (admin, user)
-     *                  It should be initialized in a way that if user is not logged in, its value should be 'user'
+     * @var string Role of the user (admin, user)
+     *             It should be initialized in a way that if user is not logged in, its value should be 'user'
      */
     protected $userRole;
 
     /**
-     * @var bool     In most of the cases only few columns like 'id' and 'name' is required in the response,
-     *                  but when more information is required other than 'id' and 'name', meta must be initialized as true
-     *                  for eg. in case of ticket status, sometimes 'id' and 'name' of the status is enough but sometimes we need 'icon' and 'icon_color' also.
-     *                  In that case $meta must be initialized as true, else false
+     * @var bool In most of the cases only few columns like 'id' and 'name' is required in the response,
+     *           but when more information is required other than 'id' and 'name', meta must be initialized as true
+     *           for eg. in case of ticket status, sometimes 'id' and 'name' of the status is enough but sometimes we need 'icon' and 'icon_color' also.
+     *           In that case $meta must be initialized as true, else false
      */
     protected $meta;
 
     /**
-     * @var bool     There are certain differences in data that is required in agent panel (for display purpose)  and in admin panel (for config purpose).
-     *                  For eg. In ticket status, status like 'unapproved' is not required in agent panel but required in admin panel irrespective of
-     *                  user being an admin. In that case $config must initialized as true, else false.
-     *                  Also, when meta is passed as true, all the fields in the DB will be returned irrespective of value of $meta
-     *                  because it is required in admin panel for configuration purpose
+     * @var bool There are certain differences in data that is required in agent panel (for display purpose)  and in admin panel (for config purpose).
+     *           For eg. In ticket status, status like 'unapproved' is not required in agent panel but required in admin panel irrespective of
+     *           user being an admin. In that case $config must initialized as true, else false.
+     *           Also, when meta is passed as true, all the fields in the DB will be returned irrespective of value of $meta
+     *           because it is required in admin panel for configuration purpose
      */
     protected $config;
 
     /**
-     *@var array        When we need to call the methods avaible in EnhancedDependency trait to update or modify list data based on specail conditions
+     * @var array When we need to call the methods avaible in EnhancedDependency trait to update or modify list data based on specail conditions
      */
     protected $supplements;
 
     /**
-     * the ids the dependencies that we need to fetch
+     * the ids the dependencies that we need to fetch.
      *
      * @var array
      */
     protected $ids = [];
 
     /**
-     * Dependency key which will be used to see which dependency to call
+     * Dependency key which will be used to see which dependency to call.
      *
      * @var string
      */
     protected $dependencyKey;
 
     /**
-     * If passed as true, it will paginate the dependency
+     * If passed as true, it will paginate the dependency.
      *
      * @var bool
      */
     protected $paginate = false;
 
     /**
-     * Reauest
+     * Reauest.
      *
      * @var \Request
      */
     protected $request;
 
     /**
-     * check by which method data should be paginated i.e ( simplePaginate() or paginate() )
+     * check by which method data should be paginated i.e ( simplePaginate() or paginate() ).
      */
     protected $simplePaginate = true;
 
-
     protected $limitByStatus = true;
-
 
     /**
      * Populates class variables to handle addition params in the request . For eg. search-query, limit, meta, config, so that
-     * it can be used throughout the class to give user relevant information according to the parameters passed and userType
+     * it can be used throughout the class to give user relevant information according to the parameters passed and userType.
      *
      * @param  object  $request
      */
@@ -184,13 +182,12 @@ class BaseDependencyController extends Controller
         return $baseQuery;
     }
 
-
     /**
-     * Gets dependency record in required format
+     * Gets dependency record in required format.
      *
      * @return array
      */
-    protected function get($dependencyName, $baseQuery, Closure $callback = null)
+    protected function get($dependencyName, $baseQuery, ?Closure $callback = null)
     {
         if ($this->config) {
             $baseQuery->addSelect($baseQuery->getModel()->getTable().'.*');
