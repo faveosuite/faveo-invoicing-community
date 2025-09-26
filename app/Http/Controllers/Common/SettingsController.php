@@ -425,12 +425,11 @@ class SettingsController extends BaseSettingsController
     public static function checkPaymentGateway($currency)
     {
         try {
-
             $active_plugins = Plugin::where('status', 1)->get();
             $allAcivePluginName = [];
             if ($active_plugins) {
                 foreach ($active_plugins as $plugin) {
-                    if(isCurrencySupportedForPayments($currency, strtolower($plugin->name))){
+                    if (isCurrencySupportedForPayments($currency, strtolower($plugin->name))) {
                         $allAcivePluginName[] = $plugin->name;
                     }
                 }
