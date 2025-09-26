@@ -146,4 +146,26 @@ class DashboardTest extends DBTestCase
             'data' => ['*' => ['number', 'orderNo', 'date', 'total', 'status', 'Action']],
         ]);
     }
+
+    public function test_get_client_dashboard_details(){
+        $user = User::factory()->create();
+        $this->actingAs($user);
+        $this->withoutMiddleware();
+        Invoice::factory(['user_id'=>$user->id,'status'=>'pending'])->create();
+        Order::factory(10)->create();
+        $pendingInvoicesCount = $user->invoice()->where('status', 'pending')->count();
+        $ordersCount = $user->order()->count();
+        $renewalCount = $user->order()
+            ->whereHas('subscription', function ($query) {
+                $query->where('update_ends_at', '<', now());
+            })
+            ->count();
+
+     $response=$this->call('get', 'client-dashboard-details');
+     $data=$response['data'];
+     $this->assertEquals($data['status'], 'pending');
+     $this->assertEquals($data['updated_ends_at'],'expired');
+     $this->assertDatabaseHas('users',['id'=>$user->id]);
+     $this->assertEquals($data['pendingInvoicesCount'],$pendingInvoicesCount);
+    }
 }
