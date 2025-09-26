@@ -301,7 +301,7 @@ trait TaxCalculation
      * @param  type  $price
      * @return type
      */
-    public static function taxValue($rate, $price)
+    public static function taxValue($rate, $price, $round = true)
     {
         try {
             if (! $rate || ! is_numeric($price)) {
