@@ -151,6 +151,7 @@ active
                 $('.loader').css('display', 'block');
             },
         });
+
     </script>
 
 
