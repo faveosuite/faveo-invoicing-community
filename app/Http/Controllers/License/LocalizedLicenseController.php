@@ -154,7 +154,7 @@ class LocalizedLicenseController extends Controller
             $files = [
                 "publicKey-{$orderNo}.txt",
                 "privateKey-{$orderNo}.txt",
-                "faveo-license-{$orderNo}.txt"
+                "faveo-license-{$orderNo}.txt",
             ];
             Storage::disk('public')->delete($files);
         }

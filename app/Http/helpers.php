@@ -313,7 +313,7 @@ function userCurrencyAndPrice($userid, $plan, $productid = '')
             'plan' => $currencyAndSymbol['userPlan'],
         ];
     } catch (\Exception $ex) {
-       return [
+        return [
             'currency' => '',
             'symbol' => '',
             'plan' => '',
@@ -504,28 +504,28 @@ function bifurcate($taxName, $taxValue, $currency, $state, $price = '')
         if ($taxName === 'CGST+SGST') {
             $response = [
                 [
-                    'name'  => 'CGST',
-                    'rate'  => $gst->c_gst,
-                    'value' => TaxCalculation::taxValue($gst->c_gst, $price, false)
+                    'name' => 'CGST',
+                    'rate' => $gst->c_gst,
+                    'value' => TaxCalculation::taxValue($gst->c_gst, $price, false),
                 ],
                 [
-                    'name'  => 'SGST',
-                    'rate'  => $gst->s_gst,
-                    'value' => TaxCalculation::taxValue($gst->s_gst, $price, false)
-                ]
+                    'name' => 'SGST',
+                    'rate' => $gst->s_gst,
+                    'value' => TaxCalculation::taxValue($gst->s_gst, $price, false),
+                ],
             ];
         } elseif ($taxName === 'CGST+UTGST') {
             $response = [
                 [
-                    'name'  => 'CGST',
-                    'rate'  => $gst->c_gst,
-                    'value' => TaxCalculation::taxValue($gst->c_gst, $price, false)
+                    'name' => 'CGST',
+                    'rate' => $gst->c_gst,
+                    'value' => TaxCalculation::taxValue($gst->c_gst, $price, false),
                 ],
                 [
-                    'name'  => 'UTGST',
-                    'rate'  => $gst->ut_gst,
-                    'value' => TaxCalculation::taxValue($gst->ut_gst, $price, false)
-                ]
+                    'name' => 'UTGST',
+                    'rate' => $gst->ut_gst,
+                    'value' => TaxCalculation::taxValue($gst->ut_gst, $price, false),
+                ],
             ];
         }
     }
@@ -533,9 +533,9 @@ function bifurcate($taxName, $taxValue, $currency, $state, $price = '')
     // Fallback (other countries or generic tax)
     if (empty($response)) {
         $response[] = [
-            'name'  => $taxName,
-            'rate'  => $taxValue,
-            'value' => TaxCalculation::taxValue($taxValue, $price, false)
+            'name' => $taxName,
+            'rate' => $taxValue,
+            'value' => TaxCalculation::taxValue($taxValue, $price, false),
         ];
     }
 
