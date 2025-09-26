@@ -707,4 +707,40 @@ class ProductController extends BaseProductController
             return response()->json(['error' => 'No file uploaded.'], 500);
         }
     }
+
+
+    public function getProductDropdown(Request $request)
+    {
+        $searchQuery = $request->input('search-query', '');
+        $limit = $request->input('limit', 10);
+        $page = $request->input('page', 1);
+
+        $productsQuery = Product::where('invoice_hidden', 0)
+            ->when($searchQuery, function ($query, $searchQuery) {
+                $query->where('name', 'like', "%{$searchQuery}%");
+            })
+            ->paginate($limit, ['*'], 'page', $page);
+
+        $productsQuery->getCollection()->transform(function ($item) {
+            return ['id' => $item->id, 'name' => $item->name];
+        });
+
+        return successResponse('', $productsQuery);
+    }
+
+    public function getProductPlans(Request $request, $productId)
+    {
+        $searchQuery = $request->input('search-query', '');
+        $limit = $request->input('limit', 10);
+        $page = $request->input('page', 1);
+
+        $plans = Plan::select('id', 'name')
+            ->where('product', $productId)
+            ->when($searchQuery, function ($query, $searchQuery) {
+                $query->where('name', 'like', "%{$searchQuery}%");
+            })
+            ->paginate($limit, ['*'], 'page', $page);
+
+        return successResponse('', $plans);
+    }
 }
