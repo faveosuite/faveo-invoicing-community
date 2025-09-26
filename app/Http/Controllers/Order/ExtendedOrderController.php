@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Order;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\License\LicenseController;
 use App\Http\Controllers\Tenancy\TenantController;
 use App\Model\Common\FaveoCloud;
 use App\Model\Common\StatusSetting;
+use App\Model\Order\InstallationDetail;
 use App\Model\Order\Invoice;
 use App\Model\Order\Order;
 use Carbon\Carbon;
@@ -124,27 +126,43 @@ class ExtendedOrderController extends Controller
 
     public function reissueLicense(Request $request)
     {
-        $order = Order::findorFail($request->input('id'));
-        if (\Auth::user()->role != 'admin' && $order->client != \Auth::user()->id) {
-            return errorResponse(__('message.reissue_license_invalid_modification_data'));
-        }
-        $order->domain = '';
-        $licenseCode = $order->serial_key;
-        $order->save();
-        $licenseStatus = StatusSetting::pluck('license_status')->first();
-        if ($licenseStatus == 1) {
-            $licenseExpiry = $order->subscription->ends_at;
-            $updatesExpiry = $order->subscription->update_ends_at;
-            $supportExpiry = $order->subscription->support_ends_at;
-            $cont = new \App\Http\Controllers\License\LicenseController();
-            $updateLicensedDomain = $cont->updateLicensedDomain($licenseCode, $order->domain, $order->product, $licenseExpiry, $updatesExpiry, $supportExpiry, $order->number);
-            //Now make Installation status as inactive
-            $updateInstallStatus = $cont->updateInstalledDomain($licenseCode, $order->product);
-            //Delete instalation details
-            $installationDetails = \DB::table('installation_details')->Where('order_id', $request->input('id'))->update(['last_active' => Carbon::now()]);
-        }
+        try {
+            $order = Order::findorFail($request->input('id'));
 
-        return ['message' => 'success', 'update' => __('message.license_reissued')];
+            if (\Auth::user()->role != 'admin' && $order->client != \Auth::user()->id) {
+                return errorResponse(__('message.reissue_license_invalid_modification_data'));
+            }
+
+            // Reset domain and save
+            $order->update(['domain' => '']);
+            $licenseCode = $order->serial_key;
+
+            if (StatusSetting::value('license_status') == 1) {
+                $subscription = $order->subscription;
+
+                $cont = app(LicenseController::class);
+
+                // Update license domain and installation status
+                $cont->updateLicensedDomain(
+                    $licenseCode,
+                    $order->domain,
+                    $order->product,
+                    $subscription->ends_at,
+                    $subscription->update_ends_at,
+                    $subscription->support_ends_at,
+                    $order->number
+                );
+
+                $cont->updateInstalledDomain($licenseCode, $order->product);
+
+                InstallationDetail::where('order_id', $order->id)
+                    ->update(['last_active' => now()]);
+            }
+
+            return successResponse(__('message.license_reissued'));
+        }catch (\Exception $ex){
+            return errorResponse($ex->getMessage());
+        }
     }
 
     public function getAllowedDomains($seperateDomains)

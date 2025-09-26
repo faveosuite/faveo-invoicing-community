@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Product;
 
 use App\Facades\Attach;
+use App\Http\Controllers\Front\CartController;
 use App\Http\Controllers\License\LicenseController;
 use App\Http\Controllers\License\LicensePermissionsController;
 use App\Model\Payment\Plan;
@@ -70,24 +71,17 @@ class BaseProductController extends ExtendedBaseProductController
         return false;
     }
 
-    public function getAgentQtyCheck($productid, $planid)
+    public function getAgentQtyCheck($planid, $currency)
     {
-        try {
-            $check = self::checkMultiAgent($productid);
-            if ($check == true) {
-                $value = Product::find($productid)->planRelation->find($planid)->planPrice->first()->no_of_agents;
-                $value = $value == null ? 0 : $value;
+        $check = self::checkMultiAgent($productid);
 
-                return "<div>
-                            <label class='required'>"./* @scrutinizer ignore-type */
-                            \Lang::get('message.agent')."</label>
-                            <input type='text' name='agents' class='form-control' id='agents' value='$value'>
-                            <span class='error-message' id='agents-msg'></span>
-                    </div>";
-            }
-        } catch (\Exception $ex) {
-            return $ex->getMessage();
+        if ($check == true) {
+            return 0;
         }
+
+        $value = Plan::find($planid)->planPrice->where('currency', $currency)->value('no_of_agents');
+
+        return empty($value) ? 0 : $value;
     }
 
     /*
@@ -291,22 +285,29 @@ class BaseProductController extends ExtendedBaseProductController
      */
     public function getPrice(Request $request)
     {
+        $request->validate([
+            'product' => 'required|integer',
+            'plan' => 'required|string',
+            'user' => 'nullable|integer',
+        ]);
+
         try {
-            $id = $request->input('product');
-            $userid = $request->input('user');
+            $productId = $request->input('product');
+            $userId = $request->input('user');
             $plan = $request->input('plan');
-            $controller = new \App\Http\Controllers\Front\CartController();
-            $price = $controller->cost($id, $plan, $userid, true);
-            $field = $this->getProductField($id);
-            $quantity = $this->getProductQtyCheck($id, $plan);
-            $agents = $this->getAgentQtyCheck($id, $plan);
-            $result = ['price' => $price, 'field' => $field, 'quantity' => $quantity, 'agents' => $agents];
 
-            return response()->json($result);
+            $price = (new CartController())->cost($productId, $plan, $userId, true);
+
+            $result = [
+                'price' => $price,
+                'field' => $this->getProductField($productId),
+                'quantity' => $this->getProductQtyCheck($productId, $plan),
+                'agents' => $this->getAgentQtyCheck($plan, userCurrencyAndPrice($userId, Plan::find($plan))['currency']),
+            ];
+
+            return successResponse('', $result);
         } catch (\Exception $ex) {
-            $result = ['price' => $ex->getMessage(), 'field' => ''];
-
-            return response()->json($result);
+            return errorResponse($ex->getMessage());
         }
     }
 

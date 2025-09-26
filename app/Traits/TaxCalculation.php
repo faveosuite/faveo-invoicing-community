@@ -289,21 +289,25 @@ trait TaxCalculation
      * @param  type  $price
      * @return type
      */
-    public static function taxValue($rate, $price)
+    public static function taxValue($rate, $price, $round = true)
     {
         try {
             $result = 0;
+
             if ($rate) {
                 $rate = str_replace('%', '', $rate);
-                $tax = intval($price) * (intval($rate) / 100);
+
+                $tax = floatval($price) * (floatval($rate) / 100);
                 $result = $tax;
 
-                $result = rounding($result);
+                if ($round) {
+                    $result = rounding($result);
+                }
             }
 
             return $result;
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return 0;
         }
     }
 }
