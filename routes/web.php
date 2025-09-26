@@ -97,7 +97,7 @@ Route::middleware('installAgora')->group(function () {
      * Front Client Pages
      */
     Route::get('client-dashboard', [Front\ClientController::class, 'index']);
-    Route::get('client-dashboard-details',[Front\clientController::class, 'clientDetails']);
+    Route::get('client-dashboard-details',[Front\ClientController::class, 'clientDetails']);
     Route::post('first-login', [FreeTrailController::class, 'firstLoginAttempt']);
 
     Route::get('my-invoices', [Front\ClientController::class, 'invoices'])->name('my-invoices');

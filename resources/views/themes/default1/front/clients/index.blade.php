@@ -118,13 +118,15 @@ $updated_ends_at = 'expired';
             </div>
 
 <script>
-    $.ajax({
-        url:"{{'client-dashboard-details'}}",
-        method:"GET",
-        success: function(){
-
-        },
-    })
+    //To get all the details required for dashboard
+        $.ajax({
+            url: "{{url('client-dashboard-details')}}",
+            method: "GET",
+            success: function (response) {
+                var data = response.data;
+                console.log(data);
+            },
+        })
 </script>
 
 
