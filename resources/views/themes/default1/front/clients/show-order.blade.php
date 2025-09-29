@@ -398,7 +398,7 @@
 
                                     <div class="col-sm-7">
 
-                                        {!! $licdate !!}
+                                        {!! $licdate['date'] !!}
                                     </div>
                                 </div>
 
@@ -415,8 +415,7 @@
                                     </div>
 
                                     <div class="col-sm-7">
-
-                                        {!! $date !!}
+                                        {!! $date['date'] !!}
                                     </div>
                                 </div>
 
