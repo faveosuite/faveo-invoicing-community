@@ -215,11 +215,14 @@ class Install extends Command
      */
     public function collectDatabaseCredentials()
     {
-        $this->default = $this->option('sqlengine') ?: $this->choice('Which SQL engine would you like to use?', ['mysql'], 0);
+        $allowedEngines = ['mysql'];
+        $this->default = in_array($this->option('sqlengine'), $allowedEngines)
+            ? $this->option('sqlengine')
+            : $this->choice('Which SQL engine would you like to use?', $allowedEngines, 0);
         $this->host = $this->option('sqlhost') ?: $this->ask('Enter your SQL host');
         $this->dbname = $this->option('dbname') ?: $this->ask('Enter your database name');
         $this->dbuser = $this->option('dbuser') ?: $this->ask('Enter your database username');
-        $this->dbpass = $this->option('dbpass') ?: $this->ask('Enter your database password (leave blank if none)', false);
+        $this->dbpass = $this->option('dbpass') ?: $this->ask('Enter your database password');
         $this->port = $this->option('sqlport') !== null
             ? $this->option('sqlport')
             : $this->ask('Enter your SQL port (leave blank if none)', null);
@@ -235,14 +238,16 @@ class Install extends Command
         $this->sslKey = $this->sslCert = $this->sslCa = null;
         $this->sslVerify = false;
 
-        $securecon = filter_var($this->option('securecon') ?? $this->confirm('Does your database allows secure connection? If yes then make sure you have all required files available on the server as pem bundle. (yes/no)'), FILTER_VALIDATE_BOOLEAN);
+        //If want ssl connection enabled then uncomment below code
 
-        if ($securecon) {
-            $this->sslKey = $this->option('sslkey') ?: $this->ask('Full path to SSL key file in PEM format (Leave blank if not available)');
-            $this->sslCert = $this->option('sslcert') ?: $this->ask('Full path to SSL certificate file in PEM format (Leave blank if not available)');
-            $this->sslCa = $this->option('sslca') ?: $this->ask('Full path to Certificate Authority file in PEM format (Leave blank if not available)');
-            $this->sslVerify = filter_var($this->option('sslverify') ?? $this->confirm('Verify SSL Peer\'s Certificate?'), FILTER_VALIDATE_BOOLEAN);
-        }
+//        $securecon = filter_var($this->option('securecon') ?? $this->confirm('Does your database allows secure connection? If yes then make sure you have all required files available on the server as pem bundle. (yes/no)'), FILTER_VALIDATE_BOOLEAN);
+
+//        if ($securecon) {
+//            $this->sslKey = $this->option('sslkey') ?: $this->ask('Full path to SSL key file in PEM format (Leave blank if not available)');
+//            $this->sslCert = $this->option('sslcert') ?: $this->ask('Full path to SSL certificate file in PEM format (Leave blank if not available)');
+//            $this->sslCa = $this->option('sslca') ?: $this->ask('Full path to Certificate Authority file in PEM format (Leave blank if not available)');
+//            $this->sslVerify = filter_var($this->option('sslverify') ?? $this->confirm('Verify SSL Peer\'s Certificate?'), FILTER_VALIDATE_BOOLEAN);
+//        }
     }
 
     /**
@@ -260,7 +265,12 @@ class Install extends Command
             $migrateOption = trim((string) $this->option('migrate'));
 
             $migrate = filter_var($migrateOption === '' ? $this->confirm('Do you want to migrate tables now?') : $migrateOption, FILTER_VALIDATE_BOOLEAN);
-            $env = $this->option('env') ?: $this->choice('Select application environment', ['production', 'development', 'testing']);
+            $allowedEnvs = ['production', 'development', 'testing'];
+            $env = $this->option('env');
+
+            if (!in_array($env, $allowedEnvs)) {
+                $env = $this->choice('Select application environment', $allowedEnvs);
+            }
 
             $this->call('install:db', [
                 '--migrate' => $migrate,

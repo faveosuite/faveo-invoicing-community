@@ -180,6 +180,7 @@ class InstallDB extends Command
             'password' => \Hash::make('Demo@1234'),
             'active' => 1,
             'mobile_verified' => 1,
+            'email_verified' => 1,
             'currency' => 'INR',
         ]);
 
@@ -210,6 +211,7 @@ class InstallDB extends Command
             'database.connections.mysql.username' => env('DB_USERNAME'),
             'database.connections.mysql.host' => env('DB_HOST'),
             'database.connections.mysql.database' => env('DB_DATABASE'),
+            'database.connections.mysql.port' => env('DB_PORT'),
             'app.url' => env('APP_URL'),
             'app.key' => env('APP_KEY'),
         ]);
