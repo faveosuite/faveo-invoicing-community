@@ -40,4 +40,8 @@ class PlanPrice extends Model
             'offer_price' => ['Offer Price', fn ($value) => $value],
         ];
     }
+
+    public function plan(){
+        return $this->belongsTo(Plan::class,'plan_id','id');
+    }
 }
