@@ -74,10 +74,11 @@ active
                 </div>
 
             </div>
+<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" type="text/javascript"></script>
+<script src="//cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 
-     <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" type="text/javascript"></script>
-    <script src="//cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+
     <script type="text/javascript">
         // Function to remove error when input'id' => 'changePasswordForm'ng data
         const removeErrorMessage = (field) => {
@@ -88,7 +89,7 @@ active
             }
         };
 
-
+//This Function is changed to using this url you will get paginated data not the datatable.
         $('#order-table').DataTable({
             processing: true,
             serverSide: true,

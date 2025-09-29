@@ -52,7 +52,7 @@ class BaseClientController extends Controller
      * @param  $clientid
      * @param  $invoiceid
      * @param  $productid
-     * @return \Illuminate\Contracts\View\View
+     * @return
      *
      * @throws
      */
@@ -60,6 +60,13 @@ class BaseClientController extends Controller
     {
         return view('themes.default1.front.clients.download-list',
             compact('clientid', 'invoiceid', 'productid'));
+//        return '<a onclick="getTable(' . $productid . ', ' . $clientid . ', ' . $invoiceid . ')"
+//           class="btn btn-light-scale-2 btn-sm text-dark"
+//           data-toggle="modal"
+//           data-target="#list">
+//            <i class="fa fa-download" data-toggle="tooltip" title="' . __('message.click_to_download') . '"></i>&nbsp;
+//        </a>';
+
     }
 
     /**
@@ -68,7 +75,7 @@ class BaseClientController extends Controller
      * @param  $clientid
      * @param  $invoiceid
      * @param  $productid
-     * @return \Illuminate\Contracts\View\View
+     * @return
      *
      * @throws
      */
@@ -76,6 +83,13 @@ class BaseClientController extends Controller
     {
         return view('themes.default1.front.clients.download-github-list',
             compact('clientid', 'invoiceid', 'productid'));
+//        return "<a onclick=\"getTables($productid, $clientid, $invoiceid)\"
+//          class=\"btn btn-light-scale-2 btn-sm text-dark\"
+//          data-toggle=\"modal\"
+//          data-target=\"#lists\">
+//          <i class='fa fa-download' data-toggle='tooltip' title='".__('message.click_to_download')."'></i>&nbsp;
+//        </a>";
+
     }
 
     /**
@@ -257,7 +271,7 @@ class BaseClientController extends Controller
         try {
             $order = Order::where('id', $orderid)->where('client', $userid)->first();
 
-            $relation = $order->invoiceRelation()->pluck('invoice_id')->toArray();
+            $relation = $order->invoices()->pluck('invoice_id')->toArray();
             $invoice = new Invoice();
             $invoices = $invoice->leftJoin('invoice_items', 'invoices.id', '=', 'invoice_items.invoice_id')
                 ->where('invoices.id', $relation)
