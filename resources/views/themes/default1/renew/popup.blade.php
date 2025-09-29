@@ -23,14 +23,28 @@
                                         <p class="text-black"><strong>{{ __('message.current_plan') }}</strong> {{$planName}}</p>
                                                     <?php
 
-                                          $plans = App\Model\Payment\Plan::join('products', 'plans.product', '=', 'products.id')
-                                                  ->leftJoin('plan_prices','plans.id','=','plan_prices.plan_id')
-                                                  ->where('plans.product',$productid)
-                                                  ->where('plan_prices.renew_price','!=','0')
-                                                  ->pluck('plans.name', 'plans.id')
-                                                   ->toArray();
+//                                          $plans = App\Model\Payment\Plan::join('products', 'plans.product', '=', 'products.id')
+//                                                  ->leftJoin('plan_prices','plans.id','=','plan_prices.plan_id')
+//                                                  ->where('plans.product',$productid)
+//                                                  ->where('plan_prices.renew_price','!=','0')
+//                                                  ->pluck('plans.name', 'plans.id')
+//                                                   ->toArray();
+                                                    $plans = App\Model\Payment\Plan::with(['planPrice','product'])
+                                                        ->where('product', $productid)
+                                                        ->whereHas('planPrice', function ($q) {
+                                                            $q->where('renew_price', '!=', 0);
+                                                        })
+                                                        ->get()
+                                                        ->mapWithKeys(function ($plan) {
+                                                            return [
+                                                                // pick first price's id
+                                                                $plan->id => $plan->name
+                                                            ];
+                                                        })
+                                                        ->toArray();
 
-                                            $planIds = array_keys($plans);
+
+                                        $planIds = array_keys($plans);
 
                                             $countryids = \App\Model\Common\Country::where('country_code_char2', \Auth::user()->country)->first();
 

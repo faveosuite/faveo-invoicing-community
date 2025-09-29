@@ -272,6 +272,8 @@ class GroupController extends Controller
         echo $slug;
     }
 
+
+//    This is for the client panel, change it to the client panel controllers, which does not have middleware admin.
     public function getAvailableGroups(){
         try {
             $groups = \App\Model\Product\ProductGroup::select('id', 'name', 'pricing_templates_id')->where('hidden', '!=', 1)->get()->toArray();
