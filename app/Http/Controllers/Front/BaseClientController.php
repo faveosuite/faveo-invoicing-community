@@ -278,6 +278,53 @@ class BaseClientController extends Controller
                 ->where('invoice_items.id', $order->invoice_item_id)
             ->select('invoices.number', 'invoices.created_at', 'invoices.date', 'invoices.grand_total', 'invoices.currency', 'invoices.id', 'invoices.status', 'invoice_items.product_name as products');
 
+//            $invoices=$invoice->with(['invoiceItem'])->where('id',$relation)
+//                ->whereHas('invoiceItem', function($query) use ($order) {
+//                    $query->where('id', $order->invoice_item_id);
+//                });
+//
+//                        $limit='10';
+//            $page='page';
+//            $sortField='created_at';
+//            $sortOrder='asc';
+//            $paginated = $invoices->orderBy($sortField, $sortOrder)
+//                ->simplePaginate($limit, ['*'], 'page', 1);
+//
+//            // Map items
+//            $paginated->getCollection()->transform(function ($model) use ($admin) {
+//                $url='';
+//                $status='';
+//                $action='';
+//                $url = $this->getInvoiceLinkUrl($model->id, $admin);
+//                if($url) {
+//                    $url= '<a href=' . url($url) . '>' . $model->number . '</a>';
+//                }
+//                if (\Auth::user()->role == 'admin') {
+//                    $status= getStatusLabel($model->status);
+//                }else {
+//
+//                    $status= getStatusLabel($model->status, 'badge');
+//                }
+//                if ($status != 'Success' && $model->grand_total > 0) {
+//                    $payment = '  <a href='.url('autopaynow/'.$model->id).
+//                        " class='btn btn-light-scale-2 btn-sm text-dark'><i class='fa fa-credit-card'></i></a>";
+//
+//                $action= '<p><a href='.url($url)."
+//                class='btn btn-light-scale-2 btn-sm text-dark'".tooltip(__('message.view'))."<i class='fa fa-eye'
+//                > </i></a>".$payment.'</p>';
+//                }
+//
+//                    return [
+//                    'number' =>$url,
+//                    'products'=> ucfirst($model->invoiceItem->value('product_name')),
+//                    'date' => getDateHtml($model->date),
+//                    'total' => currencyFormat($model->grand_total, $code = $model->currency),
+//                    'status'=>$status,
+//                    'action'=> $action,
+//                ];
+//            });
+//            return successResponse('',$paginated);
+
             if ($invoices->get()->count() == 0) {
                 $invoices = $order->invoice()
                         ->select('number', 'created_at', 'grand_total', 'id', 'status');
@@ -291,6 +338,7 @@ class BaseClientController extends Controller
              ->orderColumn('status', '-invoices.id $1')
 
              ->addColumn('number', function ($model) use ($admin) {
+
                  $url = $this->getInvoiceLinkUrl($model->id, $admin);
 
                  return '<a href='.url($url).'>'.$model->number.'</a>';
@@ -336,6 +384,7 @@ class BaseClientController extends Controller
             ->rawColumns(['number', 'products', 'date', 'total', 'status', 'action'])
                             ->make(true);
         } catch (Exception $ex) {
+            dd($ex->getMessage());
             return redirect()->back()->with('fails', $ex->getMessage());
         }
     }

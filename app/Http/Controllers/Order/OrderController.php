@@ -242,6 +242,34 @@ class OrderController extends BaseOrderController
             $installationLogs = $licenseController->getInstallationLogsDetails($order->serial_key);
 
             $installationDetails = [];
+//            $data=array_map(function($installationLogs) use ($orderId){
+//                $installationPath = $installationLogs['installation_domain'] ?? null;
+//                $installationIp = $installationLogs['installation_ip'] ?? null;
+//                $lastActive = $installationLogs['installation_last_active_date'] ?? null;
+//                $installationStatus = $installationLogs['installation_status'] ?? null;
+//
+//                // Sync with database
+//                if ($installationPath || $installationIp) {
+//                    InstallationDetail::updateOrCreate(
+//                        [
+//                            'installation_path' => $installationPath,
+//                            'installation_ip' => $installationIp,
+//                        ],
+//                        [
+//                            'last_active' => $lastActive,
+//                            'order_id' => $orderId,
+//                            'installation_status' => $installationStatus,
+//                        ]
+//                    );
+//                }
+//                return[
+//                    'path' => $installationLogs['installation_domain'] ?? null,
+//                    'ip' => $installationLogs['installation_ip'] ?? null,
+//                    'version' => $installationLogs['version_number'] ?? null,
+//                    'status' => $installationLogs['installation_status'] ?? null,
+//                    'last_active_date'=>$installationLogs['installation_last_active_date'] ?? null,
+//                ];
+//            },$installationLogs);
 
             foreach ($installationLogs as $log) {
                 $installationPath = $log['installation_domain'] ?? null;
@@ -273,6 +301,7 @@ class OrderController extends BaseOrderController
                 ];
             }
 
+//          return successResponse('',$data);
             return successResponse('', $installationDetails);
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());

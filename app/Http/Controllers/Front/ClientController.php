@@ -294,7 +294,96 @@ class ClientController extends BaseClientController
         ->groupBy('invoices.number')
         ->where('invoices.user_id', '=', \Auth::user()->id);
 
+//        $invoices= Invoice::with(['orderRelation','order'])->groupBy('number')
+//        ->where('user_id','=',\Auth::user()->id);
 
+
+//            $limit='10';
+//            $sortField='created_at';
+//            $sortOrder='desc';
+//            $paginated = $invoices->orderBy($sortField, $sortOrder)
+//                ->simplePaginate($limit, ['*'], 'page', 1);
+//
+//            // Map items
+//            $paginated->getCollection()->transform(function ($model){
+//                $url='';
+//                $status='';
+//                $paid='';
+//                $action='';
+//                $balance='';
+//                if ($model->is_renewed) {
+//                    $url= '<a href='.url('my-invoice/'.$model->id).'>'.$model->number.'</a>&nbsp;'.getStatusLabel('renewed', 'badge');
+//                } else {
+//                    $url= '<a href='.url('my-invoice/'.$model->id).'>'.$model->number.'</a>';
+//                }
+//
+//                if ($model->is_renewed) {
+//                    $order = Order::find($model->order_id);
+//                    if ($order) {
+//                        $orders= $order->first()->getOrderLink($model->order_id, 'my-order');
+//                    } else {
+//                        $orders= '--';
+//                    }
+//
+//                } else {
+//                    $allOrders = $model->order()->select('id', 'number')->get();
+//                    $orderLinks = []; // Using an array to store links
+//
+//                    foreach ($allOrders as $order) {
+//                        $orderLinks[] = $order->getOrderLink($order->id, 'my-order');
+//                    }
+//
+//                    $orderArray = implode(', ', $orderLinks); // Joining the links into a single string
+//
+//                    $orders= $orderArray;
+//                }
+//
+//                $payment = \App\Model\Order\Payment::where('invoice_id', $model->id)->select('amount')->get();
+//                if($payment) {
+//                    $c = count($payment);
+//                    $sum = 0;
+//
+//                    for ($i = 0; $i <= $c - 1; $i++) {
+//                        $sum = $sum + $payment[$i]->amount;
+//                    }
+//                    $pendingAmount = $model->grand_total - $sum;
+//
+//                    $paid= currencyFormat($sum, $code = $model->currency);
+//                    if ($pendingAmount < 0) {
+//                        $pendingAmount = 0;
+//                    }
+//
+//                    $balance= currencyFormat($pendingAmount, $code = $model->currency);
+//                }
+//                $status = $model->status;
+//                $deleteButton = '';
+//                $payNowButton = '';
+//                $payment = '';
+//                $viewButton = '<a href="'.url('my-invoice/'.$model->id).'" class="btn btn-light-scale-2 btn-sm text-dark" id="iconStyle" data-toggle="tooltip" data-placement="top" title="'.__('message.click_here_view').'"><i class="fa fa-eye"></i></a>';
+//
+//                if ($status != 'Success' && $model->grand_total > 0) {
+//                    $payNowButton = '<a href="'.url('paynow/'.$model->id).'" class="btn btn-light-scale-2 btn-sm text-dark" id="iconStyle" data-toggle="tooltip" data-placement="top" title="'.__('message.click_here_pay').'"><i class="fa fa-credit-card"></i></a>';
+//
+//                    if (! $model->orderRelation()->exists()) {
+//                        $deleteButton = '<a class="btn btn-light-scale-2 btn-sm text-dark delete-btn" id="iconStyle" data-id="'.$model->id.'" data-toggle="tooltip" data-placement="top" title="'.__('message.click_here_delete').'"><i class="fa fa-trash"></i></a>';
+//                    }
+//
+//                    $action= $payNowButton.' '.$deleteButton.' '.$viewButton;
+//                }else {
+//                    $action= $viewButton . $payment;
+//                }
+//                    return [
+//                    'number' =>$url,
+//                    'OrderNo'=> $orders,
+//                    'date' => getDateHtml($model->date),
+//                    'total' => currencyFormat($model->grand_total, $code = $model->currency),
+//                     'paid' =>$paid,
+//                    'balance'=>$balance,
+//                    'status'=>getStatusLabel($model->status, 'badge'),
+//                     'action'=> $action,
+//                ];
+//            });
+//            return successResponse('',$paginated);
 
 
         if ($status == 'pending') {
@@ -471,10 +560,14 @@ class ClientController extends BaseClientController
                     break;
             }
 
+//            return successResponse('',['invoice'=>$invoice, 'items'=>$items,
+//                'user'=>$user, 'currency'=>$currency, 'symbol'=>$symbol, 'order'=>$order, 'payments'=>$payments, 'set'=>$set, 'date'=>$date, 'statusClass'=>$statusClass, 'statusText'=>$statusText]);
+
             return view('themes.default1.front.clients.show-invoice', compact('invoice', 'items',
                 'user', 'currency', 'symbol', 'order', 'payments', 'set', 'date', 'statusClass', 'statusText'));
         } catch (Exception $ex) {
             return redirect()->route('my-invoices')->with('fails', $ex->getMessage());
+//            return errorResponse($ex->getMessage());
         }
     }
 
@@ -983,12 +1076,16 @@ class ClientController extends BaseClientController
             $selectedCountry = \DB::table('countries')->where('country_code_char2', $user->country)
             ->value('nicename');
 
+//            return successResponse('',['user'=>$user, 'timezones'=>$timezones, 'state'=>$state, 'states'=>$states, 'bussinesses'=>$bussinesses, 'is2faEnabled'=>$is2faEnabled,
+//                'dateSinceEnabled'=>$dateSinceEnabled, 'selectedIndustry'=>$selectedIndustry, 'selectedCompany'=>$selectedCompany, 'selectedCompanySize'=>$selectedCompanySize, 'selectedCountry'=>$selectedCountry]);
+
             return view(
                 'themes.default1.front.clients.profile',
                 compact('user', 'timezones', 'state', 'states', 'bussinesses', 'is2faEnabled', 'dateSinceEnabled', 'selectedIndustry', 'selectedCompany', 'selectedCompanySize', 'selectedCountry')
             );
         } catch (Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
+//            return errorResponse($ex->getMessage());
         }
     }
 
