@@ -2501,7 +2501,7 @@ $(document).ready(function() {
                                   {data: 'path', name: 'path'},
                                   {data: 'ip', name: 'ip'},
                                   {data: 'version', name: 'version'},
-                                  {data: 'active', name: 'active'},
+                                  {data: 'last_active_date', name: 'active'},
                                   
                               ],
                               "fnDrawCallback": function( oSettings ) {
