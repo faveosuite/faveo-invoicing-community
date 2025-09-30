@@ -268,7 +268,7 @@ class Install extends Command
             $allowedEnvs = ['production', 'development', 'testing'];
             $env = $this->option('env');
 
-            if (!in_array($env, $allowedEnvs)) {
+            if (! in_array($env, $allowedEnvs)) {
                 $env = $this->choice('Select application environment', $allowedEnvs);
             }
 
