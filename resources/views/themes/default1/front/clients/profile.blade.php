@@ -111,6 +111,8 @@ input:checked + .slider:before {
      <div id= "error"></div>
   @include('themes.default1.user.2faModals')
   @include('themes.default1.front.clients.2fa_popup_client')
+  @include('themes.default1.front.clients.clientEmailUpdate')
+  @include('themes.default1.front.clients.clientMobileNoUpdate')
 
 
         <div class="container pt-3 pb-2">
@@ -185,23 +187,51 @@ input:checked + .slider:before {
                                     <div class="form-group row {{ $errors->has('email') ? 'has-error' : '' }}">
                                         <label class="col-lg-3 col-form-label form-control-label line-height-9 pt-2 text-2 required">{{ __('message.email')}}</label>
                                         <div class="col-lg-9">
-                                            {!! html()->email('email')->class('form-control text-3 h-auto py-2')->id('Email') !!}
-                                            <h6 id="emailCheck"></h6>
-                                        </div>
-                                    </div>
-                                    <div class="form-group row {{ $errors->has('mobile_code') ? 'has-error' : '' }}">
-                                        <label class="col-lg-3 col-form-label form-control-label line-height-9 pt-2 text-2 required">{{ __('message.mobile')}}</label>
-                                        <div class="col-lg-9">
-                                            {!! html()->hidden('mobile_code')->id('code_hidden') !!}
-                                            <!--<input class="form-control selected-dial-code"  id="mobile_code" value="{{$user->mobile}}" name="mobile" type="tel"> -->
+                                            <div class="input-group">
+                                            {!! html()->email('email')
+                                                ->class('form-control text-3 h-auto py-2')
+                                                ->id('Email')
+                                                ->attribute('readonly', 'readonly')
+                                                ->attribute('tabindex', '-1')
+                                                ->attribute('style', 'pointer-events: none; background-color: #f8f9fa;') !!}
 
-                                            {!! html()->input('tel', 'mobile', $user->mobile)->class('form-control selected-dial-code')->attribute('dir', in_array(app()->getLocale(), ['ar', 'he']) ? 'rtl' : 'ltr')->id('incode') !!}
-                                            {!! html()->hidden('mobile_country_iso')->id('mobile_country_iso') !!}
-                                            <span id="invalid-msg" class="hide"></span>
-                                               <span id="inerror-msg"></span>
+                                            <h6 id="emailCheck"></h6>
+                                                <span class="input-group-text bg-dark" role="button" id="editEmailBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('message.click_to_change_email') }}">
+                                            <i class="fas fa-pencil-alt text-white"></i>
+                                        </span>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="form-group row {{ $errors->has('company') ? 'has-error' : '' }}">
+                                <div class="form-group row {{ $errors->has('mobile_code') ? 'has-error' : '' }}">
+                                    <label class="col-lg-3 col-form-label form-control-label line-height-9 pt-2 text-2 required">
+                                        {{ __('message.mobile') }}
+                                    </label>
+                                    <div class="col-lg-9">
+                                        <div class="input-group">
+                                            {!! html()->hidden('mobile_code')->id('code_hidden') !!}
+
+                                            <div class="flex-grow-1">
+                                                {!! html()->input('tel', 'mobile', $user->mobile)
+                                                    ->class('form-control selected-dial-code text-3 h-auto py-2')
+                                                    ->attribute('readonly', 'readonly')
+                                                    ->attribute('tabindex', '-1')
+                                                    ->attribute('style', 'pointer-events: none; background-color: #f8f9fa;')
+                                                    ->attribute('dir', in_array(app()->getLocale(), ['ar', 'he']) ? 'rtl' : 'ltr')
+                                                    ->id('incode') !!}
+                                            </div>
+
+                                            <span class="input-group-text bg-dark" role="button" id="editMobileBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('message.click_to_change_mobile_no') }}">
+                                               <i class="fas fa-pencil-alt text-white"></i>
+                                            </span>
+                                        </div>
+
+                                        {!! html()->hidden('mobile_country_iso')->id('mobile_country_iso') !!}
+                                        <span id="invalid-msg" class="hide"></span>
+                                        <span id="inerror-msg"></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row {{ $errors->has('company') ? 'has-error' : '' }}">
                                         <label class="col-lg-3 col-form-label form-control-label line-height-9 pt-2 text-2 required">{{ __('message.front_company')}}</label>
                                         <div class="col-lg-9">
                                             {!! html()->text('company')->class('form-control text-3 h-auto py-2')->id('Company') !!}
@@ -241,7 +271,8 @@ input:checked + .slider:before {
                                      <div class="form-group row {{ $errors->has('=country') ? 'has-error' : '' }}">
                                         <label class="col-lg-3 col-form-label form-control-label line-height-9 pt-2 text-2">{{ __('message.country')}}</label>
                                         <div class="col-lg-9">
-                                            {!! html()->text('country', $selectedCountry)->class('form-control input-lg')->attribute('onChange', 'getCountryAttr(this.value);')->attribute('title',trans('message.admin_update_country'))->attribute('readonly', 'readonly')->attribute('data-toggle', 'tooltip')->attribute('data-placement', 'top') !!}
+                                            {!! html()->text('country', $selectedCountry)->class('form-control input-lg text-3 h-auto py-2')->attribute('onChange', 'getCountryAttr(this.value);')->attribute('title',trans('message.admin_update_country'))->attribute('readonly', 'readonly')->attribute('data-toggle', 'tooltip')->attribute('data-placement', 'top')->attribute('tabindex', '-1')
+                                                    ->attribute('style', 'pointer-events: none; background-color: #f8f9fa;')!!}
 
                                             {!! html()->hidden('country')->id('country') !!}
                                             <h6 id="countryCheck"></h6>
@@ -252,7 +283,7 @@ input:checked + .slider:before {
                                         <label class="col-lg-3 col-form-label form-control-label line-height-9 pt-2 text-2">{{ __('message.time_zone')}}</label>
                                         <div class="col-lg-9">
                                             <div class="custom-select-1">
-                                                {!! html()->select('timezone_id', [Lang::get('message.choose') => $timezones])->class('form-control input-lg')->id('timezone') !!}
+                                                {!! html()->select('timezone_id', [Lang::get('message.choose') => $timezones])->class('form-control input-lg text-3 h-auto py-2')->id('timezone') !!}
 
                                             </div>
                                         </div>
@@ -863,8 +894,4 @@ input:checked + .slider:before {
         }
     });
 </script>
-<!-- <script src="{{asset('common/js/licCode.js')}}"></script> -->
-
 @stop
-
-
