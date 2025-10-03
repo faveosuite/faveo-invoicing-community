@@ -145,54 +145,54 @@ class BaseSettingsController extends PaymentSettingsController
 
     public function getScheduler(StatusSetting $status)
     {
-        $cronPath    = base_path('artisan');
-        $status      = $status->find(1);
+        $cronPath = base_path('artisan');
+        $status = $status->find(1);
         $execEnabled = $this->execEnabled();
-        $paths       = $this->getPHPBinPath();
-        $warn        = '';
-        $condition   = new \App\Model\Mailjob\Condition();
+        $paths = $this->getPHPBinPath();
+        $warn = '';
+        $condition = new \App\Model\Mailjob\Condition();
 
         // ✅ All hardcoded lists grouped into one variable
         $configurations = [
             'commands' => [
-                'everyMinute'       => 'Every Minute',
-                'everyFiveMinutes'  => 'Every Five Minute',
-                'everyTenMinutes'   => 'Every Ten Minute',
-                'everyThirtyMinutes'=> 'Every Thirty Minute',
-                'hourly'            => 'Every Hour',
-                'daily'             => 'Every Day',
-                'dailyAt'           => 'Daily at',
-                'weekly'            => 'Every Week',
-                'monthly'           => 'Monthly',
-                'yearly'            => 'Yearly',
+                'everyMinute' => 'Every Minute',
+                'everyFiveMinutes' => 'Every Five Minute',
+                'everyTenMinutes' => 'Every Ten Minute',
+                'everyThirtyMinutes' => 'Every Thirty Minute',
+                'hourly' => 'Every Hour',
+                'daily' => 'Every Day',
+                'dailyAt' => 'Daily at',
+                'weekly' => 'Every Week',
+                'monthly' => 'Monthly',
+                'yearly' => 'Yearly',
             ],
 
             'expiryDays' => [
                 '30' => '30 days',
                 '15' => '15 days',
-                '7'  => '7 days',
-                '1'  => '1 day',
+                '7' => '7 days',
+                '1' => '1 day',
             ],
 
             'subs_expiry' => [
                 '30' => '30 days',
                 '15' => '15 days',
-                '7'  => '7 days',
-                '1'  => '1 day',
+                '7' => '7 days',
+                '1' => '1 day',
             ],
 
             'post_expiry' => [
                 '30' => '30 days',
                 '15' => '15 days',
-                '7'  => '7 days',
-                '1'  => '1 day',
+                '7' => '7 days',
+                '1' => '1 day',
             ],
 
             'cloudDays' => [
                 '30' => '30 days',
                 '15' => '15 days',
-                '7'  => '7 days',
-                '1'  => '1 day',
+                '7' => '7 days',
+                '1' => '1 day',
             ],
 
             'invoiceDays' => [
@@ -207,12 +207,12 @@ class BaseSettingsController extends PaymentSettingsController
                 '365' => '365 days',
                 '180' => '180 Days',
                 '150' => '150 Days',
-                '60'  => '60 Days',
-                '30'  => '30 Days',
-                '15'  => '15 Days',
-                '5'   => '5 Days',
-                '2'   => '2 Days',
-                '0'   => 'Delete All Reports',
+                '60' => '60 Days',
+                '30' => '30 Days',
+                '15' => '15 Days',
+                '5' => '5 Days',
+                '2' => '2 Days',
+                '0' => 'Delete All Reports',
             ],
 
             'delLogDays' => [
@@ -220,38 +220,37 @@ class BaseSettingsController extends PaymentSettingsController
                 '365' => '365 days',
                 '180' => '180 Days',
                 '150' => '150 Days',
-                '60'  => '60 Days',
-                '30'  => '30 Days',
-                '15'  => '15 Days',
-                '5'   => '5 Days',
-                '2'   => '2 Days',
-                '0'   => 'Delete All Logs',
+                '60' => '60 Days',
+                '30' => '30 Days',
+                '15' => '15 Days',
+                '5' => '5 Days',
+                '2' => '2 Days',
+                '0' => 'Delete All Logs',
             ],
         ];
 
-
         $expiryMail = ExpiryMailDay::first();
-        $beforeLog  = ActivityLogDay::first();
+        $beforeLog = ActivityLogDay::first();
 
         $daysData = [
-            'beforeLogDay'       => $beforeLog?->days,
-            'selectedDays'       => ExpiryMailDay::all()->map(fn($row) => json_decode($row->days, true))->toArray(),
-            'auto_expiry_days'   => $expiryMail ? json_decode($expiryMail->autorenewal_days, true) : [],
-            'post_expiry_days'   => $expiryMail ? json_decode($expiryMail->postexpiry_days, true) : [],
-            'beforeCloudDay'     => $expiryMail?->cloud_days,
+            'beforeLogDay' => $beforeLog?->days,
+            'selectedDays' => ExpiryMailDay::all()->map(fn ($row) => json_decode($row->days, true))->toArray(),
+            'auto_expiry_days' => $expiryMail ? json_decode($expiryMail->autorenewal_days, true) : [],
+            'post_expiry_days' => $expiryMail ? json_decode($expiryMail->postexpiry_days, true) : [],
+            'beforeCloudDay' => $expiryMail?->cloud_days,
             'invoiceDeletionDay' => $expiryMail?->invoice_days,
-            'msgDeletionDays'    => $expiryMail?->msg91_days,
+            'msgDeletionDays' => $expiryMail?->msg91_days,
         ];
 
-        return successResponse('',[
-            'cronPath'      => $cronPath,
-            'warn'          => $warn,
-            'condition'     => $condition,
-            'status'        => $status,
-            'execEnabled'   => $execEnabled,
-            'paths'         => $paths,
-            'configurations'=> $configurations,
-            'daysData'      => $daysData,
+        return successResponse('', [
+            'cronPath' => $cronPath,
+            'warn' => $warn,
+            'condition' => $condition,
+            'status' => $status,
+            'execEnabled' => $execEnabled,
+            'paths' => $paths,
+            'configurations' => $configurations,
+            'daysData' => $daysData,
         ]);
     }
 
@@ -284,8 +283,7 @@ class BaseSettingsController extends PaymentSettingsController
         $allStatus->save();
         $this->saveConditions();
 
-        return successResponse( __('message.updated-successfully'));
-
+        return successResponse(__('message.updated-successfully'));
     }
 
     //Save the Cron Days for expiry Mails and Activity Log

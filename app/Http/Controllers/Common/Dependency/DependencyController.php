@@ -94,7 +94,7 @@ class DependencyController extends NonPublicDependencies
             ->where('nicename', 'LIKE', '%'.$this->searchQuery.'%')
             ->select('country_id', 'nicename', 'phonecode');
 
-        return $this->get('countries', $baseQuery,function ($element) {
+        return $this->get('countries', $baseQuery, function ($element) {
             return (object) ['id' => $element->country_id, 'name' => $element->nicename];
         });
     }
@@ -114,7 +114,7 @@ class DependencyController extends NonPublicDependencies
         $baseQuery = $this->baseQuery(new State)
             ->where('state_subdivision_name', 'LIKE', '%'.$this->searchQuery.'%')
             ->where('country_code_char2', $iso)
-            ->select('state_subdivision_name', 'state_subdivision_code','state_subdivision_id');
+            ->select('state_subdivision_name', 'state_subdivision_code', 'state_subdivision_id');
 
         return $this->get('states', $baseQuery);
     }
