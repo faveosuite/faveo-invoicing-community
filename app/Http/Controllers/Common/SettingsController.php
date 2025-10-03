@@ -5,9 +5,7 @@ namespace App\Http\Controllers\Common;
 use App\ApiKey;
 use App\Email_log;
 use App\Facades\Attach;
-use App\Http\Controllers\BillingInstaller\InstallerController;
 use App\Http\Requests\Common\SettingsRequest;
-use App\Model\Common\Country;
 use App\Model\Common\EmailMobileValidationProviders;
 use App\Model\Common\Mailchimp\MailchimpSetting;
 use App\Model\Common\Setting;
@@ -460,12 +458,13 @@ class SettingsController extends BaseSettingsController
     {
         try {
             $settings = Setting::with([
-                    'defaultCurrency:id,code,name',
-                    'country:country_id,country_name,country_code_char2',
-                    'state:state_subdivision_id,state_subdivision_name,state_subdivision_code',
-                    'language:id,name,locale'
-                ]
+                'defaultCurrency:id,code,name',
+                'country:country_id,country_name,country_code_char2',
+                'state:state_subdivision_id,state_subdivision_name,state_subdivision_code',
+                'language:id,name,locale',
+            ]
             )->findOrFail(1);
+
             return successResponse('System settings fetched successfully', $settings);
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
@@ -498,7 +497,7 @@ class SettingsController extends BaseSettingsController
 
             $setting->fill($request->except('password', 'logo', 'admin-logo', 'fav-icon'))->save();
 
-            return successResponse( __('message.updated-successfully'));
+            return successResponse(__('message.updated-successfully'));
         } catch (\Exception $ex) {
             return errorResponse($ex->getMessage());
         }
