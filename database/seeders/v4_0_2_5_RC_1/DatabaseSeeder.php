@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders\v4_0_3;
+namespace Database\Seeders\v4_0_2_5_RC_1;
 
 
 use App\Plugins\Recaptcha\Model\RecaptchaSetting;

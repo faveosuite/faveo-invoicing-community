@@ -314,7 +314,7 @@
                     await this.renderV2Preview(v2Key, theme, size);
                 }
                 if (selectedVersion === 'v2_invisible' && this.elements.v2SettingsBlock.style.display !== 'none') {
-                    await this.renderV2Preview(v2Key);
+                    await this.renderV2InvisiblePreview(v2Key);
                 }
             }
             async renderV3Preview(siteKey) {
