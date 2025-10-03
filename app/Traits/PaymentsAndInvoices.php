@@ -49,7 +49,7 @@ trait PaymentsAndInvoices
             $updatedAmt = $this->payment->where('user_id', $creditAmtUserId)
         ->where('invoice_id', '=', 0)->update(['amt_to_credit' => $creditAmt]);
         } catch (\Exception $ex) {
-            app('log')->info($ex->getMessage());
+            \Logger::exception($ex);
 
             return redirect()->back()->with('fails', $ex->getMessage());
         }
@@ -189,7 +189,7 @@ trait PaymentsAndInvoices
                 $this->sendMail($userid, $invoiceid);
             }
         } catch (\Exception $ex) {
-            app('log')->info($ex->getMessage());
+            \Logger::exception($ex);
             throw new \Exception($ex->getMessage());
         }
     }
@@ -252,7 +252,7 @@ trait PaymentsAndInvoices
 
             return $balance;
         } catch (\Exception $ex) {
-            app('log')->info($ex->getMessage());
+            \Logger::exception($ex);
 
             return redirect()->back()->with('fails', $ex->getMessage());
         }
@@ -285,7 +285,7 @@ trait PaymentsAndInvoices
 
             return $paidSum;
         } catch (\Exception $ex) {
-            app('log')->info($ex->getMessage());
+            \Logger::exception($ex);
 
             return redirect()->back()->with('fails', $ex->getMessage());
         }

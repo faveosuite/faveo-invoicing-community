@@ -261,7 +261,8 @@ class SettingsController extends Controller
         } catch (ApiErrorException $e) {
             $errorCode = $e->getStripeCode();
             $errorMessage = $e->getMessage();
-            Log::error("Stripe API Error: $errorCode - $errorMessage");
+            $exception = new \Exception("Stripe Error ({$errorCode}): {$errorMessage}");
+            \Logger::exception($exception);
         }
     }
 }

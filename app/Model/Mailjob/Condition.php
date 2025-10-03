@@ -12,7 +12,7 @@ class Condition extends Model
 
     public function checkActiveJob()
     {
-        $result = ['expiryMail' => '', 'deleteLogs' => '', 'subsExpirymail' => '', 'postExpirymail' => '', 'cloud' => '', 'invoice' => '', 'msg91Reports' => ''];
+        $result = ['expiryMail' => '', 'deleteLogs' => '', 'subsExpirymail' => '', 'postExpirymail' => '', 'cloud' => '', 'invoice' => '', 'msg91Reports' => '', 'systemLogs' => ''];
         $allStatus = new \App\Model\Common\StatusSetting();
         $status = $allStatus->find(1);
         if ($status) {
@@ -37,6 +37,9 @@ class Condition extends Model
             }
             if ($status->msg91_report_delete_status == 1) {
                 $result['msg91Reports'] = true;
+            }
+            if ($status->system_log_status == 1) {
+                $result['systemLogs'] = true;
             }
         }
 

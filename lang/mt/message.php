@@ -2625,6 +2625,11 @@
      'manager_settings_updated_successfully' => 'Is-settings tal-maniġer ġew aġġornati b’suċċess.',
 
      'user_position_prohibited_if' => 'Il-qasam tal-pożizzjoni mhuwiex permess meta r-rwol ikun utent.',
+     'system_logs_deletion' => "Tħassir ta' Reġistri tas-Sistema",
+     'please_enable_system_logs_deletion' => 'Jekk jogħġbok ippermetti l-cron tar-reġistri tas-sistema',
+     'cron_trigger_deletion_system_logs' => 'Dan il-cron awtomatikament iħassar reġistri tas-sistema wara l-perjodu speċifikat.',
+     'enable_system_logs_cron' => 'Ippermetti t-tħassir tar-reġistri tas-sistema',
+     'system_logs_deletion_older_than' => "Tħassir ta' Reġistri tas-Sistema Aktar Qadim minn..",
      'cloud_plan_error' => 'Jekk jogħġbok neħħi l-prodott cloud jew għaqqdu ma’ pjan alternattiv.',
 
      'invalid_code_2fa' => 'Kodiċi mhux validu. Jekk jogħġbok erġa\' pprova.',

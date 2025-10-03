@@ -2694,6 +2694,11 @@ return [
     'manager_settings_updated_successfully' => 'மேலாளர் அமைப்புகள் வெற்றிகரமாக புதுப்பிக்கப்பட்டது.',
 
     'user_position_prohibited_if' => 'பங்கு பயனராக இருக்கும்போது நிலை புலம் அனுமதிக்கப்படவில்லை.',
+    'system_logs_deletion' => 'கணினி பதிவுகள் நீக்கம்',
+    'please_enable_system_logs_deletion' => 'கணினி பதிவுகள் க்ரோனை இயக்கவும்',
+    'cron_trigger_deletion_system_logs' => 'இந்த க்ரோன் குறிப்பிட்ட காலத்திற்குப் பிறகு தானாகவே கணினி பதிவுகளை நீக்கும்.',
+    'enable_system_logs_cron' => 'கணினி பதிவுகள் நீக்கத்தை இயக்கு',
+    'system_logs_deletion_older_than' => 'பழைய கணினி பதிவுகள் நீக்கம்..',
     'cloud_plan_error' => 'மேகப் தயாரிப்பை நீக்கவும் அல்லது அதை மாற்று திட்டத்துடன் இணைக்கவும்.',
 
     'invalid_code_2fa' => 'தவறான குறியீடு. தயவுசெய்து மீண்டும் முயற்சிக்கவும்.',

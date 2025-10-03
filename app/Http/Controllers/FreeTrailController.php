@@ -103,12 +103,12 @@ class FreeTrailController extends Controller
                     return $isSuccess;
                 } catch (\Exception $ex) {
                     DB::rollback(); // Rollback the transaction
-                    app('log')->error($ex->getMessage());
+                    \Logger::exception($ex);
                     throw new \Exception(__('message.cannot_generate_freetrial_cloud_instance'));
                 }
             }
         } catch (\Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
             throw new \Exception(__('message.cannot_generate_freetrial_cloud_instance'));
         }
     }
@@ -143,7 +143,7 @@ class FreeTrailController extends Controller
 
             return $invoice;
         } catch (\Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
             throw new \Exception(__('message.cannot_generate_invoice'));
         }
     }
@@ -189,7 +189,7 @@ class FreeTrailController extends Controller
                 throw new \Exception(__('message.cannot_find_product'));
             }
         } catch (\Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
             throw new \Exception(__('message.cannot_generate_invoice_items'));
         }
     }
@@ -212,7 +212,7 @@ class FreeTrailController extends Controller
 
             return $items;
         } catch (\Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
 
             throw new \Exception(__('message.cannot_generate_order'));
         }
@@ -269,7 +269,7 @@ class FreeTrailController extends Controller
 
             return $serial_key;
         } catch (\Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
 
             throw new \Exception(__('message.cannot_generate_free_trial_order'));
         }
@@ -305,7 +305,7 @@ class FreeTrailController extends Controller
 
             return $licCode;
         } catch (\Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
             throw new \Exception(__('message.cannot_generate_free_trial_serialkey'));
         }
     }
