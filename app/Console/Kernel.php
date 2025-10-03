@@ -96,7 +96,9 @@ class Kernel extends ConsoleKernel
             if (\Schema::hasColumn('status_settings', 'msg91_report_delete_status')) {
                 $msgDeletionStatus = StatusSetting::value('msg91_report_delete_status');
             }
-            $systemLogsStatus = StatusSetting::pluck('system_log_status')->first();
+            if (\Schema::hasColumn('status_settings', 'system_log_status')) {
+                $systemLogsStatus = StatusSetting::pluck('system_log_status')->first();
+            }
             if ($delLogDays == null) {
                 $delLogDays = 99999999;
             }
@@ -131,7 +133,7 @@ class Kernel extends ConsoleKernel
                         return $this->getCondition($schedule->command('cleanup:msg-reports'), $command);
                     }
                 case 'systemLogs':
-                    if ($systemLogsStatus) {
+                    if (isset($systemLogsStatus) && $systemLogsStatus) {
                         return $this->getCondition($schedule->command('logs:delete'), $command);
                     }
             }
