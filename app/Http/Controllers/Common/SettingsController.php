@@ -7,6 +7,7 @@ use App\Email_log;
 use App\Facades\Attach;
 use App\Http\Controllers\BillingInstaller\InstallerController;
 use App\Http\Requests\Common\SettingsRequest;
+use App\Model\Common\Country;
 use App\Model\Common\EmailMobileValidationProviders;
 use App\Model\Common\Mailchimp\MailchimpSetting;
 use App\Model\Common\Setting;
@@ -458,23 +459,16 @@ class SettingsController extends BaseSettingsController
     public function settingsSystem(Setting $settings)
     {
         try {
-            $set = $settings->find(1);
-            $state = getStateByCode($set->state);
-            $selectedCountry = \DB::table('countries')->where('country_code_char2', $set->country)
-                ->pluck('nicename', 'country_code_char2')->toArray();
-            $selectedCurrency = \DB::table('currencies')->where('code', $set->default_currency)
-                ->pluck('name', 'symbol')->toArray();
-            $states = findStateByRegionId($set->country);
-            $response = (new InstallerController())->languageList();
-            $languages = $response->getData()->data ?? [];
-            $defaultLang = optional(Setting::first())->content;
-
-            return view(
-                'themes.default1.common.setting.system',
-                compact('set', 'selectedCountry', 'state', 'states', 'selectedCurrency', 'languages', 'defaultLang')
-            );
+            $settings = Setting::with([
+                    'defaultCurrency:id,code,name',
+                    'country:country_id,country_name,country_code_char2',
+                    'state:state_subdivision_id,state_subdivision_name,state_subdivision_code',
+                    'language:id,name,locale'
+                ]
+            )->findOrFail(1);
+            return successResponse('System settings fetched successfully', $settings);
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse($ex->getMessage());
         }
     }
 
@@ -504,9 +498,9 @@ class SettingsController extends BaseSettingsController
 
             $setting->fill($request->except('password', 'logo', 'admin-logo', 'fav-icon'))->save();
 
-            return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
+            return successResponse( __('message.updated-successfully'));
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse($ex->getMessage());
         }
     }
 
