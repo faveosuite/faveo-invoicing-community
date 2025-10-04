@@ -419,6 +419,13 @@ var RecaptchaManager = (function() {
         var container = instance.container;
 
         return this.waitForV2Ready().then(function() {
+
+            var globalBadge = document.querySelector('.grecaptcha-badge[data-hidden-by]');
+            if (globalBadge) {
+                globalBadge.style.display = '';
+                globalBadge.removeAttribute('data-hidden-by');
+            }
+
             var siteKey = config.v2SiteKey || self.globalSiteKeys.v2;
             var renderTarget;
 
@@ -499,32 +506,25 @@ var RecaptchaManager = (function() {
         var config = instance.config;
 
         return this.waitForV3Ready().then(function() {
-            // Hide global badge with CSS (only once)
-            if (config.badge === 'inline' && !document.querySelector('#hide-global-recaptcha-style')) {
-                var style = document.createElement('style');
-                style.id = 'hide-global-recaptcha-style';
-                style.textContent = '.grecaptcha-badge:not(.custom-recaptcha-badge) {' +
-                    'display: none !important;' +
-                    'visibility: hidden !important;' +
-                    '}';
-                document.head.appendChild(style);
-            }
-
             if (config.badge === 'inline') {
+                // Hide the global badge (only while inline mode is active)
+                var globalBadge = document.querySelector('.grecaptcha-badge');
+                if (globalBadge) {
+                    globalBadge.style.display = 'none';
+                    globalBadge.setAttribute('data-hidden-by', instance.id); // track who hid it
+                }
+
+                // Delay clone
                 setTimeout(function() {
                     var originalBadge = document.querySelector('.grecaptcha-badge');
                     if (originalBadge) {
-                        // Clone badge for this container
                         var badgeClone = originalBadge.cloneNode(true);
                         badgeClone.style.position = 'static';
                         badgeClone.style.marginTop = '10px';
                         badgeClone.style.display = 'inline-block';
                         badgeClone.style.transform = 'none';
                         badgeClone.style.visibility = 'visible';
-
-                        // Add a class to identify our custom badges (this makes it visible due to CSS rule above)
                         badgeClone.classList.add('custom-recaptcha-badge');
-
                         container.appendChild(badgeClone);
 
                         self.log('v3 inline badge rendered for instance ' + instance.id);
