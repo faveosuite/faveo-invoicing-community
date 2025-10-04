@@ -325,7 +325,7 @@
                     if (!token) throw new Error('{{ __('recaptcha::recaptcha.complete_recaptcha_v3') }}');
                 } catch (error) {
                     this.clearV3Preview();
-                    this.elements.v3Response.innerHTML = '<span class="text-danger">{{ __('recaptcha::recaptcha.failed_generate_v3_token') }}</span>';
+                    this.elements.v3Error.textContent = '{{ __('recaptcha::recaptcha.failed_generate_v3_token') }}';
                 }
             }
             async renderV2Preview(siteKey, theme, size) {
@@ -481,12 +481,15 @@
                 submitButton.innerHTML = '<i class="fa fa-spinner fa-spin"></i>&nbsp;&nbsp;{{ __('recaptcha::recaptcha.saving') }}...';
                 this.elements.v2Error.textContent = '';
                 this.elements.v3Error.textContent = '';
-                let v2ResponseToken = null, v3ResponseToken = null, hasError = false;
+                let v2ResponseToken = null, v2InvisibleResponseToken = null, v3ResponseToken = null, hasError = false, captchaInstance = null;
                 if (this.instances.v3) {
-                    try { v3ResponseToken = await this.instances.v3.getToken('settings_save'); if (!v3ResponseToken) { this.elements.v3Error.textContent = '{{ __('recaptcha::recaptcha.complete_recaptcha_v3') }}'; hasError = true; } } catch (e) { this.elements.v3Error.textContent = '{{ __('recaptcha::recaptcha.failed_generate_v3_token') }}'; hasError = true; }
+                    try { v3ResponseToken = await this.instances.v3.getToken('settings_save'); captchaInstance = this.instances.v3; if (!v3ResponseToken) { this.elements.v3Error.textContent = '{{ __('recaptcha::recaptcha.complete_recaptcha_v3') }}'; hasError = true; } } catch (e) { this.elements.v3Error.textContent = '{{ __('recaptcha::recaptcha.failed_generate_v3_token') }}'; hasError = true; }
                 }
                 if (this.instances.v2) {
-                    try { v2ResponseToken = await this.instances.v2.getToken(); if (!v2ResponseToken) { this.elements.v2Error.textContent = '{{ __('recaptcha::recaptcha.complete_recaptcha_v2') }}'; hasError = true; } } catch (e) { this.elements.v2Error.textContent = '{{ __('recaptcha::recaptcha.failed_generate_v2_token') }}'; hasError = true; }
+                    try { v2ResponseToken = await this.instances.v2.getToken(); captchaInstance = this.instances.v2; if (!v2ResponseToken) { this.elements.v2Error.textContent = '{{ __('recaptcha::recaptcha.complete_recaptcha_v2') }}'; hasError = true; } } catch (e) { this.elements.v2Error.textContent = '{{ __('recaptcha::recaptcha.failed_generate_v2_token') }}'; hasError = true; }
+                }
+                if (this.instances.v2Invisible) {
+                    try { v2InvisibleResponseToken = await this.instances.v2Invisible.getToken(); captchaInstance = this.instances.v2Invisible; if (!v2InvisibleResponseToken) { this.elements.v2Error.textContent = '{{ __('recaptcha::recaptcha.complete_recaptcha_v2') }}'; hasError = true; } } catch (e) { this.elements.v2Error.textContent = '{{ __('recaptcha::recaptcha.failed_generate_v2_token') }}'; hasError = true; }
                 }
                 if (hasError) { submitButton.disabled = false; submitButton.innerHTML = '<i class="fa fa-save">&nbsp;&nbsp;</i>{{ __('recaptcha::recaptcha.save') }}'; return; }
                 const payload = {
@@ -501,7 +504,7 @@
                     size: document.querySelector('input[name="size"]:checked').value,
                     badge_position: this.elements.badgeGroup.querySelector('select').value,
                     v3_g_recaptcha_response: v3ResponseToken,
-                    v2_g_recaptcha_response: v2ResponseToken
+                    v2_g_recaptcha_response: v2ResponseToken ?? v2InvisibleResponseToken
                 };
                 $.ajax({
                     url: "{{ url('recaptcha-settings') }}",
@@ -533,11 +536,20 @@
 
                         if (response.errors) {
                             var validator = $('#captcha-settings-form').validate();
+                            var self = this;
+
                             $.each(response.errors, function(field, messages) {
-                                // Use the field name directly as the key
-                                validator.showErrors({
-                                    [field]: messages[0]
-                                });
+                                var $field = $('[name="' + field + '"]');
+
+                                if ($field.length) {
+                                    // If the field exists, show the error next to it
+                                    validator.showErrors({
+                                        [field]: messages[0]
+                                    });
+                                } else {
+                                    self.showAlert(messages[0], 'error');
+                                    return false;
+                                }
                             });
                         } else {
                             this.showAlert(msg, 'error');
@@ -545,6 +557,7 @@
                         this.renderPreviews();
                     },
                     complete: () => {
+                        captchaInstance.reset();
                         submitButton.disabled = false;
                         submitButton.innerHTML = '<i class="fa fa-save">&nbsp;&nbsp;</i>{{ __('recaptcha::recaptcha.save') }}';
                     }
