@@ -125,6 +125,11 @@ class UpdateSettingsRequest extends FormRequest
                     $validator->errors()->add('v3_secret_key', $result);
                 }
             }
+
+            if (! $this->filled('v2_g_recaptcha_response') && ! $this->filled('v3_g_recaptcha_response')) {
+                $validator->errors()->add('captcha', __('recaptcha::recaptcha.captcha_verification_failed'));
+            }
+
         });
     }
 
