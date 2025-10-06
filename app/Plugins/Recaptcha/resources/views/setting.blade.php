@@ -221,8 +221,14 @@
                 this.showLoading(true);
                 this.setupValidation();
                 this.setupEvents();
+                this.setupPreviews();
                 await this.fetchSettings();
                 this.showLoading(false);
+            }
+            setupPreviews() {
+                RecaptchaManager.setGlobalConfig({
+                    lang: @json(app()->getLocale() ?? 'en'),
+                });
             }
             setupEvents() {
                 this.elements.captchaVersion.addEventListener('change', () => this.toggleCaptchaSettings());
