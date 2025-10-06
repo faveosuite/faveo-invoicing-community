@@ -309,8 +309,13 @@ class LoginTest extends DBTestCase
             ],
         ]);
 
-        $response->assertRedirect('/');
-        $response->assertSessionHasNoErrors();
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'data' => [
+                'redirect' => url('/'),
+            ],
+        ]);
     }
 
     #[Group('postLogin')]
@@ -332,7 +337,12 @@ class LoginTest extends DBTestCase
             ],
         ]);
 
-        $response->assertRedirect('/client-dashboard');
-        $response->assertSessionHasNoErrors();
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'data' => [
+                'redirect' => url('/client-dashboard'),
+            ],
+        ]);
     }
 }
