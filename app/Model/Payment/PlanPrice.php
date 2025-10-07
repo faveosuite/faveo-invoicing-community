@@ -41,7 +41,8 @@ class PlanPrice extends Model
         ];
     }
 
-    public function plan(){
-        return $this->belongsTo(Plan::class,'plan_id','id');
+    public function plan()
+    {
+        return $this->belongsTo(Plan::class, 'plan_id', 'id');
     }
 }
