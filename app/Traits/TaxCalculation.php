@@ -17,7 +17,7 @@ trait TaxCalculation
             if ($taxCaluculationFromAdminPanel) {
                 $taxCondition = ['name' => 'null', 'value' => '0%'];
             } else {
-                $taxCondition =[
+                $taxCondition = [
                     'name' => 'null', 'type' => 'tax',
                     'value' => '0%',
                 ];

@@ -66,7 +66,6 @@ class BaseClientController extends Controller
 //           data-target="#list">
 //            <i class="fa fa-download" data-toggle="tooltip" title="' . __('message.click_to_download') . '"></i>&nbsp;
 //        </a>';
-
     }
 
     /**
@@ -89,7 +88,6 @@ class BaseClientController extends Controller
 //          data-target=\"#lists\">
 //          <i class='fa fa-download' data-toggle='tooltip' title='".__('message.click_to_download')."'></i>&nbsp;
 //        </a>";
-
     }
 
     /**
@@ -338,7 +336,6 @@ class BaseClientController extends Controller
              ->orderColumn('status', '-invoices.id $1')
 
              ->addColumn('number', function ($model) use ($admin) {
-
                  $url = $this->getInvoiceLinkUrl($model->id, $admin);
 
                  return '<a href='.url($url).'>'.$model->number.'</a>';
@@ -385,6 +382,7 @@ class BaseClientController extends Controller
                             ->make(true);
         } catch (Exception $ex) {
             dd($ex->getMessage());
+
             return redirect()->back()->with('fails', $ex->getMessage());
         }
     }

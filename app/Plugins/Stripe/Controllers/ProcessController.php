@@ -3,13 +3,13 @@
 namespace App\Plugins\Stripe\Controllers;
 
 use App\ApiKey;
+use App\Facades\Cart;
 use App\Http\Controllers\Controller;
 use App\Model\Order\InvoiceItem;
 use App\Model\Product\Product;
 use App\Plugins\Razorpay\Model\RazorpayPayment;
 use App\Plugins\Stripe\Model\StripePayment;
 use Darryldecode\Cart\CartCondition;
-use App\Facades\Cart;
 use Illuminate\Http\Request;
 use Razorpay\Api\Api;
 
@@ -33,7 +33,7 @@ class ProcessController extends Controller
         $razorpay = new RazorpayPayment();
         $this->razorpay = $razorpay;
 
-        $this->cart=new Cart();
+        $this->cart = new Cart();
     }
 
     public function PassToPayment($requests)
@@ -112,10 +112,10 @@ class ProcessController extends Controller
                 }
                 \Session::put('totalToBePaid', $amount);
                 \View::addNamespace('plugins', $path);
-                $cart=$this->cart;
+                $cart = $this->cart;
 
                 echo view('plugins::middle-page', compact('total', 'invoice', 'regularPayment', 'items', 'product', 'amount',
-                    'paid', 'creditBalance', 'gateway', 'rzp_key', 'rzp_secret', 'apilayer_key', 'stripe_key', 'data', 'displayProcessingFee','cart'));
+                    'paid', 'creditBalance', 'gateway', 'rzp_key', 'rzp_secret', 'apilayer_key', 'stripe_key', 'data', 'displayProcessingFee', 'cart'));
             } else {
                 $pay = $this->payment($payment_method, $status = 'pending');
                 $payment_method = $pay['payment'];
@@ -126,10 +126,10 @@ class ProcessController extends Controller
                 $amount = rounding($this->cart->getTotal());
                 \View::addNamespace('plugins', $path);
                 $displayProcessingFee = $invoice->grand_total;
-                $cart=$this->cart;
+                $cart = $this->cart;
 
                 echo view('plugins::middle-page', compact('invoice', 'amount', 'invoice_no', 'payment_method', 'invoice',
-                    'regularPayment', 'gateway', 'rzp_key', 'rzp_secret', 'apilayer_key', 'stripe_key', 'data', 'displayProcessingFee','cart'))->render();
+                    'regularPayment', 'gateway', 'rzp_key', 'rzp_secret', 'apilayer_key', 'stripe_key', 'data', 'displayProcessingFee', 'cart'))->render();
             }
         } catch (\Exception $ex) {
             throw new \Exception($ex->getMessage());
