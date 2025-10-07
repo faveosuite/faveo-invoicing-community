@@ -571,7 +571,8 @@ class CloudActivitiesTest extends DBTestCase
         $this->assertEquals(16, strlen($response));
     }
 
-    public function test_get_cloud_products(){
+    public function test_get_cloud_products()
+    {
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
@@ -580,14 +581,11 @@ class CloudActivitiesTest extends DBTestCase
 
         $plan = Plan::create(['id' => 25, 'name' => 'Hepldesk 1 year', 'product' => $product->id, 'days' => 15]);
         PlanPrice::create(['plan_id' => $plan->id, 'add_price' => '1000', 'currency' => 'USD']);
-        $cloudProduct = CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id, 'cloud_product_key' => $product->name,'trial_status'=>1]);
-        $cloudProduct1 = CloudProducts::create(['cloud_product' => $product1->id, 'cloud_free_plan' => $plan->id, 'cloud_product_key' => $product1->name, 'trial_status'=>1]);
-        $response=$this->call('POST','trial-cloud-products');
-        $this->assertEquals($response['message'],'Products');
-        $data=$response['data'];
-        $this->assertEquals($data[$cloudProduct->cloud_product_key],$cloudProduct->cloud_product_key);
+        $cloudProduct = CloudProducts::create(['cloud_product' => $product->id, 'cloud_free_plan' => $plan->id, 'cloud_product_key' => $product->name, 'trial_status' => 1]);
+        $cloudProduct1 = CloudProducts::create(['cloud_product' => $product1->id, 'cloud_free_plan' => $plan->id, 'cloud_product_key' => $product1->name, 'trial_status' => 1]);
+        $response = $this->call('POST', 'trial-cloud-products');
+        $this->assertEquals($response['message'], 'Products');
+        $data = $response['data'];
+        $this->assertEquals($data[$cloudProduct->cloud_product_key], $cloudProduct->cloud_product_key);
     }
-
-
-
 }
