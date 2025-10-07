@@ -4,11 +4,19 @@ namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
 use App\Model\Product\Product;
-use Cart;
+//use Cart;
+use App\Facades\Cart;
 use Illuminate\Http\Request;
 
 class BaseCartController extends Controller
 {
+    public $cart;
+    public function __construct(){
+        $this->cart=new Cart();
+    }
+
+
+
     /**
      * Reduce No. of Agents When Minus button Is Clicked.
      *
@@ -24,7 +32,7 @@ class BaseCartController extends Controller
             if ($hasPermissionToModifyAgent) {
                 $cartValues = $this->getCartValues($planid, true);
 
-                Cart::update($planid, [
+                $this->cart->update($planid, [
                     'price' => $cartValues['price'],
                     'attributes' => ['agents' => $cartValues['agtqty'], 'currency' => $cartValues['currency'], 'symbol' => $cartValues['symbol']],
                 ]);
@@ -50,7 +58,8 @@ class BaseCartController extends Controller
             $hasPermissionToModifyAgent = Product::find($id)->can_modify_agent;
             if ($hasPermissionToModifyAgent) {
                 $cartValues = $this->getCartValues($planid);
-                Cart::update($planid, [
+
+                $this->cart->update($planid, [
                     'price' => $cartValues['price'],
                     'attributes' => ['agents' => $cartValues['agtqty'], 'currency' => $cartValues['currency'], 'symbol' => $cartValues['symbol'], 'domain' => $cartValues['domain']],
                 ]);
@@ -64,29 +73,29 @@ class BaseCartController extends Controller
 
     private function getCartValues($productId, $canReduceAgent = false)
     {
-        $cart = \Cart::get($productId);
+        $cart = $this->cart->get($productId);
         if ($cart) {
-            $agtqty = $cart->attributes->agents;
-            $price = $cart->price;
-            $currency = $cart->attributes->currency;
-            $symbol = $cart->attributes->currency;
+            $agtqty = $cart['attributes']['agents'];
+            $price = $cart['price'];
+            $currency = $cart['attributes']['currency'];
+            $symbol = $cart['attributes']['currency'];
         } else {
             throw new \Exception(__('message.product_not_in_cart'));
         }
 
-        if ($canReduceAgent) {
-            $price = $cart->price / $agtqty;
+        if ($canReduceAgent && $agtqty>1) {
+            $price = $cart['price'] / $agtqty;
             $agtqty = $agtqty - 1;
-            $price = $cart->price - $price;
+            $price = $cart['price'] - $price;
         } else {
-            $price = $cart->price / $agtqty;
+            $price = $cart['price'] / $agtqty;
 
             $agtqty = $agtqty + 1;
 
             $price = $price * $agtqty;
         }
 
-        return ['agtqty' => $agtqty, 'price' => $price, 'currency' => $currency, 'symbol' => $symbol, 'domain' => $cart->attributes->domain];
+        return ['agtqty' => $agtqty, 'price' => $price, 'currency' => $currency, 'symbol' => $symbol, 'domain' => $cart['attributes']['domain'] ?? null];
     }
 
     /**
@@ -102,13 +111,15 @@ class BaseCartController extends Controller
             $planid = $request->input('planid');
             $hasPermissionToModifyQuantity = Product::find($id)->can_modify_quantity;
             if ($hasPermissionToModifyQuantity) {
-                $cart = \Cart::get($planid);
-                $qty = $cart->quantity - 1;
+                $cart = $this->cart->get($planid);
+                $qty = $cart['quantity'] - 1;
+                if($qty>=1){
                 $price = $this->cost($id, $planid);
-                Cart::update($planid, [
-                    'quantity' => -1,
+                $this->cart->update($planid, [
+                    'quantity' => $qty,
                     'price' => $price,
                 ]);
+                }
             } else {
                 throw new \Exception(__('message.cannot_modify_quantity'));
             }
@@ -130,16 +141,14 @@ class BaseCartController extends Controller
             $planid = $request->input('planid');
             $hasPermissionToModifyQuantity = Product::find($id)->can_modify_quantity;
             if ($hasPermissionToModifyQuantity) {
-                $cart = \Cart::get($planid);
-                $qty = $cart->quantity + 1;
+                $cart = $this->cart->get($planid);
+                $qty = $cart['quantity'] + 1;
                 $price = $this->cost($id, $planid);
-                Cart::update($planid, [
-                    'quantity' => [
-                        'relative' => false,
-                        'value' => $qty,
-                    ],
+                $this->cart->update($planid, [
+                    'quantity' => $qty,
                     'price' => $price,
                 ]);
+
             } else {
                 throw new \Exception(__('message.cannot_modify_quantity'));
             }
