@@ -70,6 +70,7 @@
 
     <?php
     $cartTotal = 0;
+
     ?>
     <div id="global-loader" style="display: none;">
         <div class="global-loader-overlay">
@@ -80,7 +81,7 @@
     <div role="main" class="main shop pb-4">
 
             <div class="container py-4">
-                @if(!Cart::isEmpty())
+                @if(!$cart->isEmpty())
 
 
                 <div class="row pb-4 mb-5">
@@ -96,7 +97,8 @@
                                 $isAgentAllowed = false;
                                 $isAllowedtoEdit = false;
                                 foreach ($cartCollection as $item) {
-                                    $productdetails=$item->associatedModel->getAttributes();
+
+                                    $productdetails=$item['associatedModel']->getAttributes();
                                     // Your existing logic to calculate $isAgentAllowed and $isAllowedtoEdit
                                     // This part should remain the same as in your original code
                                     $cont = new \App\Http\Controllers\Product\ProductController();
@@ -147,21 +149,21 @@
                                     </thead>
                                              @forelse($cartCollection as $item)
                                     @php
-                                                $productdetails1=$item->associatedModel->getAttributes();
+                                                $productdetails1=$item['associatedModel']->getAttributes();
                                                    if(\Auth::check()) {
-                                                   Cart::clearItemConditions($item->id);
+                                                   Cart::clearItemConditions($item['id']);
                                                    if(\Session::has('code')) {
                                                    \Session::forget('code');
                                                    \Session::forget('usage');
                                                     $cartcont = new \App\Http\Controllers\Front\CartController();
-                                                    \Cart::update($item->id, [
-                                                     'price'      => $cartcont->planCost($item->id, \Auth::user()->id),
+                                                    \Cart::update($item['id'], [
+                                                     'price'   => $cartcont->planCost($item['id'], \Auth::user()->id),
                                                    ]);
                                                  }
 
                                                  }
 
-                                                    $cartTotal += $item->getPriceSum();;
+                                                    $cartTotal += $cart->getPriceSum($item['id']);
                                                      $domain = [];
 //                                                     if ($item->associatedModel->require_domain) {
                                                         if($productdetails1['require_domain']){
@@ -184,29 +186,29 @@
 
                                                 <div class="product-thumbnail-wrapper" style="width: 100px;">
 
-                                                    <a onclick="removeItem('{{$item->id}}');" class="product-thumbnail-remove" data-bs-toggle="tooltip" title="{{ __('message.remove_product')}}" style="top: -15px;">
+                                                    <a onclick="removeItem('{{$item['id']}}');" class="product-thumbnail-remove" data-bs-toggle="tooltip" title="{{ __('message.remove_product')}}" style="top: -15px;">
 
                                                         <i class="fas fa-times"></i>
                                                     </a>
 
                                                     <span class="product-thumbnail-image" >
 
-                                                        <img width="90" height="90" alt="" class="img-fluid" src="{{$item->associatedModel->image}}"  data-bs-toggle="tooltip" title="{{$item->name}}">
+                                                        <img width="90" height="90" alt="" class="img-fluid" src="{{$item['associatedModel']->image}}"  data-bs-toggle="tooltip" title="{{$item['name']}}">
                                                     </span>
                                                 </div>
                                             </td>
                                             <td class="product-name">
 
-                                                <span class="font-weight-semi-bold text-color-dark">{{$item->name}}</span>
+                                                <span class="font-weight-semi-bold text-color-dark">{{$item['name']}}</span>
                                                 <br>
-                                                <i style="font-size: 12px;">{{$item->attributes->domain}}</i>
+{{--                                                <i style="font-size: 12px;">{{$item['attributes']['domain']??null}}</i>--}}
                                             </td>
 
                                             <td class="product-price">
                                                 <?php
-                                                    $productPrice = $item->price;
-                                                    if($isAgentAllowed && $item->toArray()['attributes']['agents']!=0){
-                                                        $productPrice = $item->price/$item->toArray()['attributes']['agents'];
+                                                    $productPrice = $item['price'];
+                                                    if($isAgentAllowed && $item['attributes']['agents']!=0){
+                                                        $productPrice = $item['price']/$item['attributes']['agents'];
                                                     }
                                                     ?>
 
@@ -221,39 +223,39 @@
                                                             <input type="button" class="quantityminus minus" value="-">
 
                                                             <input type = "hidden" class="productid" value="{{$productdetails1['id']}}">
-                                                            <input type = "hidden" class="planid" value="{{$item->id}}">
-                                                            <input type = "hidden" class="quatprice" value=" {{$item->price}}">
-                                                            <input type="text" class="input-text qty text quantity-input" title="Qty" value="{{$item->quantity}}" name="quantity" min="1" step="1" disabled>
+                                                            <input type = "hidden" class="planid" value="{{$item['id']}}">
+                                                            <input type = "hidden" class="quatprice" value=" {{$item['price']}}">
+                                                            <input type="text" class="input-text qty text quantity-input" title="Qty" value="{{$item['quantity']}}" name="quantity" min="1" step="1" disabled>
                                                             <input type="button" class="quantityplus plus" value="+" >
                                                         </div>
 
 
                                                         @else
-                                                            {{$item->quantity}}
+                                                            {{$item['quantity']}}
 
                                                         @endif
                                                     </td>
                                                     <td class="product-agents">
 
-                                                    @if (!$item->attributes->agents)
+                                                    @if (!$item['attributes']['agents'])
 
                                                             {{ __('message.unlimited_agents') }}
                                                     @else
                                                         @if($isAllowedtoEdit['agent'])
                                                             <div class="quantity">
                                                                 <input type="button" class="agentminus minus" value="-">
-                                                                <input type="hidden" class="initialagent" value="{{$item->attributes->initialagent}}">
-                                                                <input type = "hidden" class="currency" value="{{$item->attributes->currency}}">
-                                                                <input type = "hidden" class="symbol" value="{{$item->attributes->symbol}}">
+{{--                                                                <input type="hidden" class="initialagent" value="{{$item['attributes']['initialagent']}}">--}}
+                                                                <input type = "hidden" class="currency" value="{{$item['attributes']['currency']}}">
+                                                                <input type = "hidden" class="symbol" value="{{$item['attributes']['symbol']}}">
                                                                 <input type = "hidden" class="productid" value="{{$productdetails1['id']}}">
-                                                                <input type = "hidden" class="planid" value="{{$item->id}}">
-                                                                <input type = "hidden" class="agentprice" value=" {{$item->getPriceSum()}}">
-                                                                <input type="text" class="input-text qty text agent-input" title="Qty" value="{{$item->attributes->agents}}" name="quantity" min="1" step="1" disabled>
+                                                                <input type = "hidden" class="planid" value="{{$item['id']}}">
+                                                                <input type = "hidden" class="agentprice" value=" {{$cart->getPriceSum($item['id'])}}">
+                                                                <input type="text" class="input-text qty text agent-input" title="Qty" value="{{$item['attributes']['agents']}}" name="quantity" min="1" step="1" disabled>
                                                                 <input type="button" class="agentplus plus" value="+">
                                                             </div>
 
                                                         @else
-                                                            {{$item->attributes->agents}}
+                                                            {{$item['attributes']['agents']}}
                                                         @endif
                                                 </td>
                                             @endif
@@ -261,7 +263,8 @@
 
                                             <td class="product-subtotal">
 
-                                                <span class="amount text-color-dark font-weight-bold text-4" style="font-family: Arial;">                                                        {{currencyFormat($item->getPriceSum(),$item->attributes->currency)}}
+                                                <span class="amount text-color-dark font-weight-bold text-4" style="font-family: Arial;">
+                                                    {{currencyFormat($cart->getPriceSum($item['id']),$item['attributes']['currency'])}}
                                                </span>
                                             </td>
                                         </tr>
@@ -298,7 +301,7 @@
                                                 </td>
 
                                                 <td class="text-end">
-                                                    <strong class="text-color-dark"><span class="amount text-color-dark text-5"> {{currencyFormat($cartTotal, $item->attributes->currency)}}</span></strong>
+                                                    <strong class="text-color-dark"><span class="amount text-color-dark text-5"> {{currencyFormat($cartTotal, $item['attributes']['currency'])}}</span></strong>
                                                 </td>
                                             </tr>
                                         </tbody>

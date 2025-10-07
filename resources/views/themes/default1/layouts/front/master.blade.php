@@ -392,8 +392,10 @@ $days = $pay->where('product','117')->value('days');
                                                     <?php
                                                     $cloud = \App\Model\Common\StatusSetting::where('id','1')->value('cloud_button');
                                                     $Demo_page = App\Demo_page::first();
-                                                    ?>
-                                                    @if($cloud == 1)
+                                                     $cart=new App\Facades\Cart(); ?>
+
+
+                                                @if($cloud == 1)
                                                         <li class="demo-icons">
                                                             <a class="nav-link btn open-createTenantDialog startFreeTrialBtn">{{ __('message.start_free_trial') }}</a>
                                                         </li>
@@ -412,20 +414,25 @@ $days = $pay->where('product','117')->value('days');
                                                 <a href="{{ url('show/cart') }}" class="header-nav-features-toggle text-decoration-none">
                                                     <span class="text-dark opacity-8 font-weight-bold text-color-hover-primary"> {{ __('message.cart') }}</span>
                                                     <img src="{{asset('client/porto/fonts/icon-cart.svg')}}" width="14" alt="" class="header-nav-top-icon-img">
-                                                    <span class="position-absolute top-0 start-100 translate-end badge rounded-pill custom-pills">{{ Cart::getTotalQuantity() }}</span>
+                                                    <span class="position-absolute top-0 start-100 translate-end badge rounded-pill custom-pills">{{$cart->getTotalQuantity()}}</span>
                                             </span>
+
                                                 </a>
                                                 <div class="header-nav-features-dropdown right-15" id="headerTopCartDropdown">
                                                     <ol class="mini-products-list">
-                                                        @forelse(Cart::getContent() as $key => $item)
+                                                        @forelse($cart->getContent() as $key => $item)
                                                                 <?php
-                                                                $productdetails=$item->associatedModel->getAttributes();
+
+
+                                                                $productdetails=$item['associatedModel']->getAttributes();
                                                                 $product = App\Model\Product\Product::where('id', $productdetails['id'])->first();
                                                                 if ($product->require_domain == 1) {
-                                                                    $domain[$key] = $item->id;
+                                                                    $domain[$key] = $item['id'];
                                                                 }
-                                                                $currency = $item->attributes['currency'];
-                                                                $total = rounding($item->getPriceSumWithConditions());
+                                                                $currency = $item['attributes']['currency'];
+                                                                $total = rounding($cart->getPriceSum($item['id']));
+//                                                                $total = rounding($item->getPriceSumWithConditions());
+
                                                                 ?>
                                                             <li class="item">
                                                                 <a href="#" data-bs-toggle="tooltip" title="{{ $product->name }}" class="product-image">
@@ -433,10 +440,10 @@ $days = $pay->where('product','117')->value('days');
                                                                 </a>
                                                                 <div class="product-details">
                                                                     <p class="product-name">
-                                                                        <a href="#">{{ $item->name }}</a><br>
+                                                                        <a href="#">{{ $item['name'] }}</a><br>
                                                                         <span class="amount"><strong>{{ currencyFormat($total, $code = $currency) }}</strong></span>
                                                                     </p>
-                                                                    <a onclick="removeItem('{{$item->id}}');"data-bs-toggle="tooltip" title="{{ __('message.remove_this_item') }}" class="btn-remove">
+                                                                    <a onclick="removeItem('{{$item['id']}}');"data-bs-toggle="tooltip" title="{{ __('message.remove_this_item') }}" class="btn-remove">
                                                                         <i class="fas fa-times"></i>
                                                                     </a>
                                                                 </div>
@@ -463,10 +470,10 @@ $days = $pay->where('product','117')->value('days');
 
 
                                                         @endforelse
-                                                        @if (!Cart::isEmpty())
+                                                        @if (!$cart->isEmpty())
                                                             <div class="totals">
                                                                 <span class="label">{{ __('message.total') }}:</span>
-                                                                <span class="price-total"><span class="price">{{ currencyFormat(Cart::getTotal(), $code = $currency) }}</span></span>
+                                                                <span class="price-total"><span class="price">{{ currencyFormat($cart->getTotal(), $code = $currency) }}</span></span>
                                                             </div>
 
                                                             <li>

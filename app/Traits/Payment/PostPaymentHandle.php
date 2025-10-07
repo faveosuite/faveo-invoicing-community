@@ -23,7 +23,7 @@ use DateTime;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Razorpay\Api\Api;
-
+use App\Facades\Cart;
 //////////////////////////////////////////////////////////////////////////////
 // Handle the post manual payment
 //////////////////////////////////////////////////////////////////////////////
@@ -89,6 +89,7 @@ trait PostPaymentHandle
                 }
 
                 $view = $cont->getViewMessageAfterPayment($invoice, $state, $currency);
+
             } elseif ($cloud->checkAgentAlteration()) {
                 if (\Session::has('agentIncreaseDate')) {
                     $control->successRenew($invoice);
@@ -197,14 +198,20 @@ trait PostPaymentHandle
 
     public function getViewMessageAfterPayment($invoice, $state, $currency)
     {
-        $orders = Order::where('invoice_id', $invoice->id)->get();
-        $invoiceItems = InvoiceItem::where('invoice_id', $invoice->id)->get();
-        \Cart::clear();
-        $status = 'Success';
-        $message = view('themes.default1.front.postPaymentTemplate', compact('invoice', 'orders',
-            'invoiceItems', 'state', 'currency'))->render();
+        try {
+            $cart=new Cart();
+            $orders = Order::where('invoice_id', $invoice->id)->get();
+            $invoiceItems = InvoiceItem::where('invoice_id', $invoice->id)->get();
+            $cart->clear();
+            $status = 'Success';
 
-        return ['status' => $status, 'message' => $message];
+            $message = view('themes.default1.front.postPaymentTemplate', compact('invoice', 'orders',
+                'invoiceItems', 'state', 'currency'))->render();
+
+            return ['status' => $status, 'message' => $message];
+        }catch (\Exception $e){
+            dd($e->getMessage());
+        }
     }
 
     public function getViewMessageAfterRenew($invoice, $state, $currency)

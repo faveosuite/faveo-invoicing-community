@@ -9,15 +9,17 @@ use App\Plugins\Stripe\Model\StripePayment;
 use App\Traits\Payment\PostPaymentHandle;
 use Cartalyst\Stripe\Laravel\Facades\Stripe;
 use Illuminate\Http\Request;
+use App\Facades\Cart;
 
 class SettingsController extends Controller
 {
     use PostPaymentHandle;
-
+    public $cart;
     public function __construct()
     {
         $this->middleware('auth');
         $this->middleware('admin', ['except' => ['postPaymentWithStripe']]);
+        $this->cart=new Cart();
     }
 
     public function Settings()
@@ -122,7 +124,7 @@ class SettingsController extends Controller
     {
         try {
             $invoice = \Session::get('invoice');
-            $amount = rounding(\Cart::getTotal()) ?: rounding(\Session::get('totalToBePaid'));
+            $amount = rounding($this->cart->getTotal()) ?: rounding(\Session::get('totalToBePaid'));
             $currency = strtolower($invoice->currency);
             $url = url('/confirm/payment');
             $confirm = $this->handlePayment($request, $amount, $currency, $url, $invoice);

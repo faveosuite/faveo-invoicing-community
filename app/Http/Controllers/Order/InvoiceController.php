@@ -28,6 +28,7 @@ use App\Traits\TaxCalculation;
 use App\User;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use App\Facades\Cart;
 
 class InvoiceController extends TaxRatesAndCodeExpiryController
 {
@@ -62,6 +63,8 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
     public $order;
 
     public $cartController;
+
+    public $cart;
 
     public function __construct()
     {
@@ -112,6 +115,8 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
 
         $cartController = new CartController();
         $this->cartController = $cartController;
+
+        $this->cart=new Cart();
     }
 
     public function index(Request $request)
@@ -269,7 +274,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
             $rule = $tax_rule->findOrFail(1);
             $rounding = $rule->rounding;
             $user_id = \Auth::user()->id;
-            $grand_total = \Cart::getTotal();
+            $grand_total = (string) $this->cart->getTotal();
             $number = rand(11111111, 99999999);
             $date = \Carbon\Carbon::now();
             if ($rounding) {
@@ -287,14 +292,14 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
                     $amt_to_credit = $grand_total;
                 }
             }
-
+            \Session::forget('cloud_domain');
             $currency = \Session::has('cart_currency') ? \Session::get('cart_currency') : getCurrencyForClient(\Auth::user()->country);
             $cloud_domain = \Session::has('cloud_domain') ? \Session::get('cloud_domain') : '';
             $cont = new \App\Http\Controllers\Payment\PromotionController();
             $invoice = $this->invoice->create(['user_id' => $user_id, 'number' => $number, 'date' => $date, 'grand_total' => $grand_total, 'status' => 'pending',
                 'currency' => $currency, 'coupon_code' => \Session::get('code'), 'discount' => \Session::get('discountPrice'), 'discount_mode' => 'coupon', 'billing_pay' => $amt_to_credit, 'cloud_domain' => str_replace('.'.cloudSubDomain(), '', $cloud_domain), 'credits' => \Session::get('priceRemaining')]);
 
-            foreach (\Cart::getContent() as $cart) {
+            foreach ($this->cart->getContent() as $cart) {
                 $this->createInvoiceItems($invoice->id, $cart, $amt_to_credit);
             }
 
@@ -314,22 +319,22 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
     {
         try {
             $planid = 0;
-            $product_name = $cart->name;
+            $product_name = $cart['name'];
             $product_id = Product::where('name', $product_name)->value('id');
-            $regular_price = (\Session::has('priceToBePaid')) ? \Session::get('priceToBePaid') : $cart->price;
-            $quantity = $cart->quantity;
-            $agents = $cart->attributes->agents;
-            $domain = $this->domain($cart->id);
+            $regular_price = (\Session::has('priceToBePaid')) ? \Session::get('priceToBePaid') : $cart['price'];
+            $quantity = $cart['quantity'];
+            $agents = $cart['attributes']['agents'];
+            $domain = $this->domain($cart['id']);
             if (checkPlanSession()) {
                 $planid = \Session::get('plan');
             }
             if ($planid == 0) {
                 //When Product is added from Faveo Website
-                $planid = Plan::where('id', $cart->id)->pluck('id')->first();
+                $planid = Plan::where('id', $cart['id'])->pluck('id')->first();
             }
-            $subtotal = $cart->getPriceSum();
-            $tax_name = $cart->conditions->getName();
-            $tax_percentage = $cart->conditions->getValue();
+            $subtotal = $this->cart->getPriceSum($cart['id']);
+            $tax_name = $cart['conditions']['name'];
+            $tax_percentage = $cart['conditions']['value'];
             $invoiceItem = $this->invoiceItem->create([
                 'invoice_id' => $invoiceid,
                 'product_name' => $product_name,
