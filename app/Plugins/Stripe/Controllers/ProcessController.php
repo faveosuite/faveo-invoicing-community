@@ -9,12 +9,15 @@ use App\Model\Product\Product;
 use App\Plugins\Razorpay\Model\RazorpayPayment;
 use App\Plugins\Stripe\Model\StripePayment;
 use Darryldecode\Cart\CartCondition;
+use App\Facades\Cart;
 use Illuminate\Http\Request;
 use Razorpay\Api\Api;
 
 class ProcessController extends Controller
 {
     protected $stripe;
+
+    protected $cart;
 
     public function __construct()
     {
@@ -29,6 +32,8 @@ class ProcessController extends Controller
 
         $razorpay = new RazorpayPayment();
         $this->razorpay = $razorpay;
+
+        $this->cart=new Cart();
     }
 
     public function PassToPayment($requests)
@@ -36,9 +41,9 @@ class ProcessController extends Controller
         try {
             $request = $requests['request'];
             $invoice = $requests['invoice'];
-            $cart = \Cart::getContent();
+            $cart = $this->cart->getContent();
             if (! $cart->count()) {
-                \Cart::clear();
+                $this->cart->clear();
             } else {
                 $invoice->grand_total = \Cart::getTotal();
             }
@@ -63,7 +68,7 @@ class ProcessController extends Controller
                 }
                 \Session::put('invoice', $invoice);
                 \Session::save();
-                $regularPayment = \Cart::getTotal() ? true : false;
+                $regularPayment = $this->cart->getTotal() ? true : false;
                 $json = $this->processRazorpayOrder($invoice, $regularPayment);
                 $this->middlePage($request->input('payment_gateway'), ['json' => $json]);
             }
@@ -80,10 +85,11 @@ class ProcessController extends Controller
             $stripe_key = ApiKey::where('id', 1)->value('stripe_key');
             $apilayer_key = ApiKey::where('id', 1)->value('apilayer_key');
             $path = app_path().'/Plugins/Stripe/views';
-            $total = intval(\Cart::getTotal());
+            $total = intval($this->cart->getTotal());
             $payment_method = \Session::get('payment_method');
             $regularPayment = true;
             $invoice = \Session::get('invoice');
+
             if (! $total) {
                 $paid = 0;
                 // $total = \Session::get('totalToBePaid');
@@ -106,8 +112,10 @@ class ProcessController extends Controller
                 }
                 \Session::put('totalToBePaid', $amount);
                 \View::addNamespace('plugins', $path);
+                $cart=$this->cart;
+
                 echo view('plugins::middle-page', compact('total', 'invoice', 'regularPayment', 'items', 'product', 'amount',
-                    'paid', 'creditBalance', 'gateway', 'rzp_key', 'rzp_secret', 'apilayer_key', 'stripe_key', 'data', 'displayProcessingFee'));
+                    'paid', 'creditBalance', 'gateway', 'rzp_key', 'rzp_secret', 'apilayer_key', 'stripe_key', 'data', 'displayProcessingFee','cart'));
             } else {
                 $pay = $this->payment($payment_method, $status = 'pending');
                 $payment_method = $pay['payment'];
@@ -115,12 +123,13 @@ class ProcessController extends Controller
                 $status = $pay['status'];
                 $processingFee = $this->getProcessingFee($payment_method, $invoice->currency);
                 $this->updateFinalPrice(new Request(['processing_fee' => $processingFee]));
-                $amount = rounding(\Cart::getTotal());
+                $amount = rounding($this->cart->getTotal());
                 \View::addNamespace('plugins', $path);
                 $displayProcessingFee = $invoice->grand_total;
+                $cart=$this->cart;
 
                 echo view('plugins::middle-page', compact('invoice', 'amount', 'invoice_no', 'payment_method', 'invoice',
-                    'regularPayment', 'gateway', 'rzp_key', 'rzp_secret', 'apilayer_key', 'stripe_key', 'data', 'displayProcessingFee'))->render();
+                    'regularPayment', 'gateway', 'rzp_key', 'rzp_secret', 'apilayer_key', 'stripe_key', 'data', 'displayProcessingFee','cart'))->render();
             }
         } catch (\Exception $ex) {
             throw new \Exception($ex->getMessage());

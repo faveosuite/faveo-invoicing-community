@@ -57,9 +57,10 @@
 @section('main-class') "main shop" @stop
 @section('content')
 
-@if (!\Cart::isEmpty())
+@if (!$cart->isEmpty())
 <?php
 $cartSubtotalWithoutCondition = 0;
+
 ?>
     <div class="container shop py-3">
 
@@ -112,8 +113,9 @@ $cartSubtotalWithoutCondition = 0;
 
 
                                         @php
-                                            $productdetails=$item->associatedModel->getAttributes();
-                                            $cartSubtotalWithoutCondition += $item->getPriceSum();
+                                            $productdetails=$item['associatedModel']->getAttributes();
+                                            $cartSubtotalWithoutCondition += $cart->getPriceSum($item['id']);
+
                                         @endphp
                                 <tr class="cart_table_item">
 
@@ -121,27 +123,26 @@ $cartSubtotalWithoutCondition = 0;
 
                                         <div class="product-thumbnail-wrapper" style="width: 100px;">
 
-                                            <a onclick="removeItem('{{$item->id}}');" class="product-thumbnail-remove" data-bs-toggle="tooltip" title="{{ __('message.remove_product') }}" style="top: -15px;">
+                                            <a onclick="removeItem('{{$item['id']}}');" class="product-thumbnail-remove" data-bs-toggle="tooltip" title="{{ __('message.remove_product') }}" style="top: -15px;">
 
                                                 <i class="fas fa-times"></i>
                                             </a>
 
                                             <span class="product-thumbnail-image">
                                                 <?php
-                                                    $image = \App\Model\Product\Product::find($item->associatedModel->id)->image;
+                                                    $image = \App\Model\Product\Product::find($item['associatedModel']['id'])->image;
                                                     ?>
 
-                                                    <img width="90" height="90" alt="" class="img-fluid" src="{{$image}}"  data-bs-toggle="tooltip" title="{{$item->name}}">
+                                                    <img width="90" height="90" alt="" class="img-fluid" src="{{$image}}"  data-bs-toggle="tooltip" title="{{$item['name']}}">
                                                 </span>
                                         </div>
                                     </td>
 
                                     <td class="product-name">
 
-                                        <span class="font-weight-semi-bold text-color-dark">{{$item->name}}</span>
+                                        <span class="font-weight-semi-bold text-color-dark">{{$item['name']}}</span>
                                     </td>
 
- 
                                     <?php
                                     $cont = new \App\Http\Controllers\Product\ProductController();
                                     $isAgentAllowed = $cont->allowQuantityOrAgent($productdetails['id']);
@@ -149,17 +150,17 @@ $cartSubtotalWithoutCondition = 0;
 
                                     <td class="product-quantity">
 
-                                        <span class="amount font-weight-medium text-color-grey">{{$item->quantity}}</span>
+                                        <span class="amount font-weight-medium text-color-grey">{{$item['quantity']}}</span>
                                     </td>
                                      <td class="product-agents">
-                                    {{($item->attributes->agents)?$item->attributes->agents:'Unlimited'}}
+                                    {{($item['attributes']['agents'])?$item['attributes']['agents']:'Unlimited'}}
 
                                      </td>
 
                                     <td class="product-subtotal ">
 
                                            <?php
-                                    $productId = \DB::table('products')->where('name', $item->name)->value('id');
+                                    $productId = \DB::table('products')->where('name', $item['name'])->value('id');
                                     $planid = null;
                                     if(\Session::has('priceToBePaid')){
                                         $price=\Session::get('priceToBePaid');
@@ -167,14 +168,14 @@ $cartSubtotalWithoutCondition = 0;
                                     else {
                                         if (\Session::has('toggleState') || \Session::get('toggleState') == null) {
                                             $toggleState = \Session::get('toggleState');
-                                            $price = $item->price;
+                                            $price = $item['price'];
                                         } else {
-                                            $planid = \DB::table('plans')->where('product', $item->id)->value('id');
+                                            $planid = \DB::table('plans')->where('product', $item['id'])->value('id');
                                             $countryids = \App\Model\Common\Country::where('country_code_char2', \Auth::user()->country)->value('country_id');
 
-                                            $price = \DB::table('plan_prices')->where('plan_id', $planid)->where('currency', $item->attributes->currency)->where('country_id',$countryids)->value('add_price');
+                                            $price = \DB::table('plan_prices')->where('plan_id', $planid)->where('currency', $item['attributes']['currency'])->where('country_id',$countryids)->value('add_price');
                                             if(!$price){
-                                                $price = \DB::table('plan_prices')->where('plan_id', $planid)->where('currency', $item->attributes->currency)->where('country_id',0)->value('add_price');
+                                                $price = \DB::table('plan_prices')->where('plan_id', $planid)->where('currency', $item['attributes']['currency'])->where('country_id',0)->value('add_price');
 
                                             }
                                         }
@@ -184,17 +185,17 @@ $cartSubtotalWithoutCondition = 0;
 
                                    <strong> <span class="amount font-weight-bold text-color-dark text-4" style="font-family: Arial;">
 
-                                           @if ($item->conditions && $item->conditions->getType() === 'coupon')
+                                           @if ($item['conditions'] && $item['conditions']['type'] === 'coupon')
                                            <?php
-                                           \Session::put('togglePrice',$item->conditions->getName())
+                                           \Session::put('togglePrice',$item['conditions']['name'])
                                            ?>
 
-                                                {{ $item->quantity * $item->conditions->getName() }}
+                                                {{ $item['quantity'] * $item['conditions']['name'] }}
                                            
                                            
 
                                             @else
-                                                {{currencyFormat($item->quantity * $price,$code = $item->attributes->currency)}}
+                                                {{currencyFormat($item['quantity'] * $price,$code = $item['attributes']['currency'])}}
                                             @endif
                                        </span></strong>
                                     </td>
@@ -250,7 +251,7 @@ $cartSubtotalWithoutCondition = 0;
                                         </td>
                                         <td class=" align-top border-top-0 text-end">
                                             <span class="amount font-weight-medium text-color-grey">                                
-                                            {{currencyFormat($cartSubtotalWithoutCondition,$code = $item->attributes->currency)}}
+                                            {{currencyFormat($cartSubtotalWithoutCondition,$code = $item['attributes']['currency'])}}
                                            </span>
                                         </td>
                                     </tr>
@@ -265,10 +266,10 @@ $cartSubtotalWithoutCondition = 0;
                                             <span class="amount font-weight-medium text-color-grey">
                                                  <?php
                                             if (strpos(\Session::get('codevalue'), '%') == true) {
-                                                    $discountValue = currencyFormat($discountPrice,$code = $item->attributes->currency);
+                                                    $discountValue = currencyFormat($discountPrice,$code = $item['attributes']['currency']);
                                                     echo $discountValue . '(<strong title="'. __('message.coupon-code').'">' . (\Session::get('code')) . '</strong>)';
                                                 } else {
-                                                    $discountValue = currencyFormat(\Session::get('codevalue'),$code = $item->attributes->currency);
+                                                    $discountValue = currencyFormat(\Session::get('codevalue'),$code = $item['attributes']['currency']);
                                                     echo $discountValue . '(<strong title="'. __('message.coupon-code').'">' . (\Session::get('code')) . '</strong>)';
                                                 }
                                             ?>
@@ -284,13 +285,16 @@ $cartSubtotalWithoutCondition = 0;
                                     </tr>
 
                                     @endif
-                                           @if(count(\Cart::getConditionsByType('tax')) == 1)
 
-                                               @foreach(\Cart::getConditions() as $tax)
+{{--                                           @if(count($cart->getConditionsByType('tax',$item['id'])) == 1)--}}
+                                    @if($cart->getConditionsByType('tax',$item['id']) == 1)
 
-                                                     @if($tax->getName()!= 'null')
+{{--                                               @foreach($cart->getConditions($item['id']) as $tax)--}}
+                                                   <?php $tax=$cart->getConditions($item['id']) ?>
+                                                     @if($tax['name']!= 'null')
                                                       <?php
-                                                        $bifurcateTax = bifurcateTax($tax->getName(), $tax->getValue(), $item->attributes->currency, \Auth::user()->state, \Cart::getSubTotalWithoutConditions());
+                                                        $bifurcateTax = bifurcateTax($tax['name'], $tax['value'], $item['attributes']['currency'], \Auth::user()->state, $cartSubtotalWithoutCondition);
+
                                                         $partsHtml = explode('<br>', $bifurcateTax['html']);
                                                         $taxParts = explode('<br>', $bifurcateTax['tax']);
                                                         ?>
@@ -300,7 +304,7 @@ $cartSubtotalWithoutCondition = 0;
                                                     @php
                                                         $parts = explode('@', $part);
                                                         $cgst = $parts[0];
-                                                        $percentage = $parts[1]; 
+                                                        $percentage = $parts[1];
                                                     @endphp
                                                     <tr class="Taxes border-top-0">
                                                         <th class="d-block  line-height-1 font-weight-semibold text-color-grey ">{{ $cgst }}
@@ -319,13 +323,13 @@ $cartSubtotalWithoutCondition = 0;
 
 
                                                     @endif
-                                                    @endforeach
+{{--                                                    @endforeach--}}
 
                                                     @else
-                                                    @foreach(Cart::getContent() as $tax)
+                                                    @foreach($cartgetContent() as $tax)
                                                     @if($tax->conditions->getName() != 'null')
                                                         <?php
-                                                        $bifurcateTax = bifurcateTax($tax->conditions->getName(),$tax->conditions->getValue(),$item->attributes->currency, \Auth::user()->state, $tax->price*$tax->quantity);
+                                                        $bifurcateTax = bifurcateTax($tax['name'],$tax['value'],$item['attributes']['currency'], \Auth::user()->state, $tax->price*$tax->quantity);
                                                         $partsHtml = explode('<br>', $bifurcateTax['html']);
                                                         $taxParts = explode('<br>', $bifurcateTax['tax']);
                                                         ?>
@@ -364,12 +368,12 @@ $cartSubtotalWithoutCondition = 0;
                                                             <?php
 
                                                             if (\Cart::getTotal() <= $amt_to_credit) {
-                                                                $cartTotal = \Cart::getTotal();
+                                                                $cartTotal = $cart->getTotal();
                                                             } else {
                                                                 $cartTotal = $amt_to_credit;
                                                             }
                                                             ?>
-                                                        -{{$dd=currencyFormat($cartTotal, $item->attributes->currency)}}
+                                                        -{{$dd=currencyFormat($cartTotal, $item['attributes']['currency'])}}
                                                     </span>
                                                     </td>
                                                 </tr>
@@ -383,18 +387,18 @@ $cartSubtotalWithoutCondition = 0;
                                         </td>
                                          <?php
                                             if (\App\User::where('id',\Auth::user()->id)->value('billing_pay_balance')) {
-                                                if (\Cart::getTotal() <= $amt_to_credit) {
+                                                if ($cart->getTotal() <= $amt_to_credit) {
                                                     $cartTotal = 0;
                                                 } else {
-                                                    $cartTotal = \Cart::getTotal() - $amt_to_credit;
+                                                    $cartTotal = $cart->getTotal() - $amt_to_credit;
                                                 }
                                             } else {
-                                                $cartTotal = \Cart::getTotal();
+                                                $cartTotal =$cart->getTotal();
                                             }
                                             ?>
                                         <td class="text-end" id="balance-content">
                                             <strong><span class="amount text-color-grey text-5">
-                                                {{ currencyFormat($cartTotal, $code = $item->attributes->currency) }}
+                                                {{ currencyFormat($cartTotal, $code = $item['attributes']['currency']) }}
                                             </span></strong>
                                         </td>
                                     </tr>
@@ -409,8 +413,8 @@ $cartSubtotalWithoutCondition = 0;
                                     <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="{{Lang::get('message.remainingAmount')}}"></i></strong></td>
 
                                      <td class=" align-top border-top-0 text-end">
-                                            <span class="amount font-weight-medium text-color-grey">{{currencyFormat(\Session::get('priceRemaining'),$code = $item->attributes->currency)}}-{{currencyFormat(Cart::getTotal(),$code = $item->attributes->currency)}}
-                                                ={{currencyFormat(\Session::get('discount'),$code = $item->attributes->currency)}}
+                                            <span class="amount font-weight-medium text-color-grey">{{currencyFormat(\Session::get('priceRemaining'),$code = $item['attributes']['currency'])}}-{{currencyFormat(Cart::getTotal(),$code = $item['attributes']['currency'])}}
+                                                ={{currencyFormat(\Session::get('discount'),$code = $item['attributes']['currency'])}}
                                             </span></td></tr>
                                     <tr class="totaltopay">
 
@@ -419,7 +423,7 @@ $cartSubtotalWithoutCondition = 0;
                                         </td>
                                         <td class="text-end" id="toPay">
                                             <strong><span class="text-color-dark text-3-5">
-                                                    {{currencyFormat(0,$code = $item->attributes->currency)}}
+                                                    {{currencyFormat(0,$code = $item['attributes']['currency'])}}
                                             </span></strong>
                                         </td>
                                     @else
@@ -432,13 +436,13 @@ $cartSubtotalWithoutCondition = 0;
 
                                          <td class=" align-top border-top-0 text-end">
                                             <span class="amount font-weight-medium text-color-grey">
-                                                {{currencyFormat(\Session::get('discount'),$code = $item->attributes->currency)}}
+                                                {{currencyFormat(\Session::get('discount'),$code = $item['attributes']['currency'])}}
                                             </span></td></tr>
                                 @endif
                                 @endif
-                                    @if(Cart::getTotal()>0 && \Session::get('discount')<=0)
+                                    @if($cart->getTotal()>0 && \Session::get('discount')<=0)
                                     <?php
-                                    $gateways = \App\Http\Controllers\Common\SettingsController::checkPaymentGateway($item->attributes['currency']);
+                                    $gateways = \App\Http\Controllers\Common\SettingsController::checkPaymentGateway($item['attributes']['currency']);
                                      ?>
                                      
                                      @if($gateways)
@@ -471,7 +475,7 @@ $cartSubtotalWithoutCondition = 0;
                                                         @endif
 
                                                         <label class="form-check-label" for="tabContent9Checkbox">
-                                                            {{ __('message.use_your_balance')}} <strong class="text-3-5">{{currencyFormat($amt_to_credit,$code = $item->attributes->currency)}}</strong>
+                                                            {{ __('message.use_your_balance')}} <strong class="text-3-5">{{currencyFormat($amt_to_credit,$code = $item['attributes']['currency'])}}</strong>
                                                         </label>
                                                     </div>
                                                 </div>
@@ -492,7 +496,7 @@ $cartSubtotalWithoutCondition = 0;
                                             <div class="d-flex flex-column">
                                                 @foreach($gateways as $gateway)
                                                  <?php
-                                                $processingFee = \DB::table(strtolower($gateway))->where('currencies',$item->attributes['currency'])->value('processing_fee');
+                                                $processingFee = \DB::table(strtolower($gateway))->where('currencies',$item['attributes']['currency'])->value('processing_fee');
                                                 ?>
 
                                                 <label class="align-items-center text-color-grey mb-0" for="payment_method1">
@@ -606,7 +610,7 @@ $(document).ready(function() {
   $(document).ready(function () {
       function updateContent() {
           var isChecked = $('#billing-pay-balance').prop('checked'); // Get the checkbox status
-          var cartTotal = parseFloat('{{ \Cart::getTotal() }}');
+          var cartTotal = parseFloat('{{ $cart->getTotal() }}');
           // Check if the PHP variable exists and has a value
           var amountToCredit = parseFloat('{{ $amt_to_credit }}');
           var currency = '{{$curr}}';
