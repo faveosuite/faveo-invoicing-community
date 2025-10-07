@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Front;
 
+use App\Facades\Cart;
 use App\Http\Controllers\Common\TemplateController;
 use App\Model\Common\Setting;
 use App\Model\Order\Invoice;
@@ -13,7 +14,6 @@ use App\Model\Payment\TaxByState;
 use App\Model\Payment\TaxOption;
 use App\Model\Product\Product;
 use App\User;
-use App\Facades\Cart;
 //use Cart;
 use Illuminate\Http\Request;
 use Session;
@@ -145,10 +145,11 @@ class CartController extends BaseCartController
             $agents = $agtQty != null ? $agtQty : 0;
             $items = ['id' => $planid, 'name' => $product->name, 'price' => $actualPrice,
                 'quantity' => $qty, 'attributes' => ['currency' => $currency['currency'], 'symbol' => $currency['symbol'], 'agents' => $agents, 'domain' => $domain], 'associatedModel' => $product];
-            $cart=new Cart();
-            $attribute= ['currency' => $currency['currency'], 'symbol' => $currency['symbol'], 'agents' => $agents, 'domain' => $domain];
-            $cart->add($planid,$product->name,$actualPrice,
-                $qty, $attribute,'',$product);
+            $cart = new Cart();
+            $attribute = ['currency' => $currency['currency'], 'symbol' => $currency['symbol'], 'agents' => $agents, 'domain' => $domain];
+            $cart->add($planid, $product->name, $actualPrice,
+                $qty, $attribute, '', $product);
+
 //
             return $items;
         } catch (\Exception $e) {
@@ -193,8 +194,9 @@ class CartController extends BaseCartController
             $cartCollection = $this->cart->getContent()->sortByDesc(function ($item) {
                 return (int) $item['id'];
             });
-            $cart=$this->cart;
-            return view('themes.default1.front.cart', compact('cartCollection','cart'));
+            $cart = $this->cart;
+
+            return view('themes.default1.front.cart', compact('cartCollection', 'cart'));
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
 
@@ -240,12 +242,12 @@ class CartController extends BaseCartController
         try {
             $id = $request->input('id');
             $this->cart->remove($id);
+
 //        Cart::removeConditionsByType('tax');
 //        Cart::removeConditionsByType('coupon');
 //        Cart::clearItemConditions($id);
             return successResponse(__('message.success'));
-
-        }catch (\Exception $ex){
+        } catch (\Exception $ex) {
             return errorResponse(__('message.fail'));
         }
     }

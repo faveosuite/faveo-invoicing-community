@@ -3,23 +3,24 @@
 namespace App\Plugins\Stripe\Controllers;
 
 use App\ApiKey;
+use App\Facades\Cart;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\SyncBillingToLatestVersion;
 use App\Plugins\Stripe\Model\StripePayment;
 use App\Traits\Payment\PostPaymentHandle;
 use Cartalyst\Stripe\Laravel\Facades\Stripe;
 use Illuminate\Http\Request;
-use App\Facades\Cart;
 
 class SettingsController extends Controller
 {
     use PostPaymentHandle;
     public $cart;
+
     public function __construct()
     {
         $this->middleware('auth');
         $this->middleware('admin', ['except' => ['postPaymentWithStripe']]);
-        $this->cart=new Cart();
+        $this->cart = new Cart();
     }
 
     public function Settings()
