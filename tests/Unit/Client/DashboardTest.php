@@ -147,11 +147,12 @@ class DashboardTest extends DBTestCase
         ]);
     }
 
-    public function test_get_client_dashboard_details(){
+    public function test_get_client_dashboard_details()
+    {
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
-        Invoice::factory(['user_id'=>$user->id,'status'=>'pending'])->create();
+        Invoice::factory(['user_id' => $user->id, 'status' => 'pending'])->create();
         Order::factory(10)->create();
         $pendingInvoicesCount = $user->invoice()->where('status', 'pending')->count();
         $ordersCount = $user->order()->count();
@@ -161,11 +162,11 @@ class DashboardTest extends DBTestCase
             })
             ->count();
 
-     $response=$this->call('get', 'client-dashboard-details');
-     $data=$response['data'];
-     $this->assertEquals($data['status'], 'pending');
-     $this->assertEquals($data['updated_ends_at'],'expired');
-     $this->assertDatabaseHas('users',['id'=>$user->id]);
-     $this->assertEquals($data['pendingInvoicesCount'],$pendingInvoicesCount);
+        $response = $this->call('get', 'client-dashboard-details');
+        $data = $response['data'];
+        $this->assertEquals($data['status'], 'pending');
+        $this->assertEquals($data['updated_ends_at'], 'expired');
+        $this->assertDatabaseHas('users', ['id' => $user->id]);
+        $this->assertEquals($data['pendingInvoicesCount'], $pendingInvoicesCount);
     }
 }

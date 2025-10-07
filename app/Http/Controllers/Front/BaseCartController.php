@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers\Front;
 
-use App\Http\Controllers\Controller;
-use App\Model\Product\Product;
-//use Cart;
 use App\Facades\Cart;
+use App\Http\Controllers\Controller;
+//use Cart;
+use App\Model\Product\Product;
 use Illuminate\Http\Request;
 
 class BaseCartController extends Controller
 {
     public $cart;
-    public function __construct(){
-        $this->cart=new Cart();
+
+    public function __construct()
+    {
+        $this->cart = new Cart();
     }
-
-
 
     /**
      * Reduce No. of Agents When Minus button Is Clicked.
@@ -83,7 +83,7 @@ class BaseCartController extends Controller
             throw new \Exception(__('message.product_not_in_cart'));
         }
 
-        if ($canReduceAgent && $agtqty>1) {
+        if ($canReduceAgent && $agtqty > 1) {
             $price = $cart['price'] / $agtqty;
             $agtqty = $agtqty - 1;
             $price = $cart['price'] - $price;
@@ -113,12 +113,12 @@ class BaseCartController extends Controller
             if ($hasPermissionToModifyQuantity) {
                 $cart = $this->cart->get($planid);
                 $qty = $cart['quantity'] - 1;
-                if($qty>=1){
-                $price = $this->cost($id, $planid);
-                $this->cart->update($planid, [
-                    'quantity' => $qty,
-                    'price' => $price,
-                ]);
+                if ($qty >= 1) {
+                    $price = $this->cost($id, $planid);
+                    $this->cart->update($planid, [
+                        'quantity' => $qty,
+                        'price' => $price,
+                    ]);
                 }
             } else {
                 throw new \Exception(__('message.cannot_modify_quantity'));
@@ -148,7 +148,6 @@ class BaseCartController extends Controller
                     'quantity' => $qty,
                     'price' => $price,
                 ]);
-
             } else {
                 throw new \Exception(__('message.cannot_modify_quantity'));
             }

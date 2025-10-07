@@ -3,6 +3,7 @@
 namespace App\Traits\Payment;
 
 use App\ApiKey;
+use App\Facades\Cart;
 use App\Http\Controllers\Tenancy\TenantController;
 use App\Model\Common\FaveoCloud;
 use App\Model\Common\Setting;
@@ -23,7 +24,7 @@ use DateTime;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Razorpay\Api\Api;
-use App\Facades\Cart;
+
 //////////////////////////////////////////////////////////////////////////////
 // Handle the post manual payment
 //////////////////////////////////////////////////////////////////////////////
@@ -89,7 +90,6 @@ trait PostPaymentHandle
                 }
 
                 $view = $cont->getViewMessageAfterPayment($invoice, $state, $currency);
-
             } elseif ($cloud->checkAgentAlteration()) {
                 if (\Session::has('agentIncreaseDate')) {
                     $control->successRenew($invoice);
@@ -199,7 +199,7 @@ trait PostPaymentHandle
     public function getViewMessageAfterPayment($invoice, $state, $currency)
     {
         try {
-            $cart=new Cart();
+            $cart = new Cart();
             $orders = Order::where('invoice_id', $invoice->id)->get();
             $invoiceItems = InvoiceItem::where('invoice_id', $invoice->id)->get();
             $cart->clear();
@@ -209,7 +209,7 @@ trait PostPaymentHandle
                 'invoiceItems', 'state', 'currency'))->render();
 
             return ['status' => $status, 'message' => $message];
-        }catch (\Exception $e){
+        } catch (\Exception $e) {
             dd($e->getMessage());
         }
     }
