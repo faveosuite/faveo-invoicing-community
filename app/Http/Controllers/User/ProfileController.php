@@ -17,7 +17,8 @@ class ProfileController extends Controller
     }
 
     public function profile()
-    {Cache::a();
+    {
+        Cache::a();
         try {
             $user = \Auth::user();
             $timezonesList = \App\Model\Common\Timezone::get();
@@ -38,7 +39,8 @@ class ProfileController extends Controller
             $state = getStateByCode($user->state);
             $states = findStateByRegionId($user->country);
             $bussinesses = \App\Model\Common\Bussiness::pluck('name', 'short')->toArray();
-            return successResponse('',['bussinesses'=>$bussinesses, 'user'=>$user, 'timezones'=>$timezones, 'state'=>$state, 'states'=>$states, 'is2faEnabled'=>$is2faEnabled, 'dateSinceEnabled'=>$dateSinceEnabled]);
+
+            return successResponse('', ['bussinesses' => $bussinesses, 'user' => $user, 'timezones' => $timezones, 'state' => $state, 'states' => $states, 'is2faEnabled' => $is2faEnabled, 'dateSinceEnabled' => $dateSinceEnabled]);
 //            return view('themes.default1.user.profile', compact('bussinesses', 'user', 'timezones', 'state', 'states', 'is2faEnabled', 'dateSinceEnabled'));
         } catch (\Exception $e) {
             return redirect()->back()->with('fails', $e->getMessage());
@@ -54,6 +56,7 @@ class ProfileController extends Controller
                 $user->profile_pic = basename($path);
             }
             $user->fill($request->input())->save();
+
 //            return successResponse(\Lang::get('message.updated-successfully'));
             return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
         } catch (\Exception $e) {
@@ -77,6 +80,7 @@ class ProfileController extends Controller
                 \Auth::logoutOtherDevices($newpassword);
 
                 \DB::table('password_resets')->where('email', $user->email)->delete();
+
 //                return successResponse(\Lang::get('message.updated-successfully'));
                 return redirect()->back()->with('success1', \Lang::get('message.updated-successfully'));
             } else {

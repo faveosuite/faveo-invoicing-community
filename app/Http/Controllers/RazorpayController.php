@@ -108,7 +108,7 @@ class RazorpayController extends Controller
                 \Session::forget(['items', 'code', 'codevalue', 'totalToBePaid', 'invoice', 'cart_currency']);
                 \Cart::removeCartCondition('Processing fee');
 
-                    return redirect('checkout')->with($result['status'], $result['message']);
+                return redirect('checkout')->with($result['status'], $result['message']);
             } else {
                 $control = new \App\Http\Controllers\Order\RenewController();
                 if ($control->checkRenew($invoice->is_renewed) != true) {

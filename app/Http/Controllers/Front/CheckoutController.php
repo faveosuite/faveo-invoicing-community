@@ -99,7 +99,7 @@ class CheckoutController extends InfoController
         $invoiceItem = new InvoiceItem();
         $this->invoiceItem = $invoiceItem;
 
-        $this->cart= new \App\Facades\Cart();
+        $this->cart = new \App\Facades\Cart();
         // $mailchimp = new MailChimpController();
         // $this->mailchimp = $mailchimp;
     }
@@ -151,7 +151,7 @@ class CheckoutController extends InfoController
             foreach ($this->cart->getContent() as $item) {
                 $price = $item['price'];
                 $quantity = $item['quantity'];
-                $domain = $item['attributes']['domain']??null;
+                $domain = $item['attributes']['domain'] ?? null;
                 if (! empty(\Session::get('code'))) {
                     $price = \Session::get('oldPrice');
                     $value = Promotion::where('code', \Session::get('code'))->value('value');
@@ -184,8 +184,9 @@ class CheckoutController extends InfoController
             }
 
             User::where('id', \Auth::user()->id)->update(['billing_pay_balance' => 0]);
-            $cart=$this->cart;
-            return view('themes.default1.front.checkout', compact('content', 'taxConditions', 'discountPrice', 'domain', 'amt_to_credit', 'curr','cart'));
+            $cart = $this->cart;
+
+            return view('themes.default1.front.checkout', compact('content', 'taxConditions', 'discountPrice', 'domain', 'amt_to_credit', 'curr', 'cart'));
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
 
@@ -224,14 +225,12 @@ class CheckoutController extends InfoController
                     //Return array of Product Details,attributes and their conditions
           //          $items[] = ['id' => $item->id, 'name' => $item->name, 'price' => $item->price,
      //                   'quantity' => $item->quantity, 'attributes' => ['currency' => $cart_currency, 'symbol' => $item->attributes->symbol, 'agents' => $item->attributes->agents, 'domain' => optional($item->attributes)->domain, 'priceToBePaid' => $item->attributes->priceToBePaid, 'priceRemaining' => $item->attributes->priceRemaining], 'associatedModel' => Product::find($item->associatedModel->id), 'conditions' => $taxConditions, ];
-                    $attribute= ['currency' => $cart_currency, 'symbol' => $item['attributes']['symbol'], 'agents' => $item['attributes']['agents'],
-                        'domain' => optional($item['attributes']['domain']), 'priceToBePaid' => $item['attributes']['priceToBePaid']??null,
-                        'priceRemaining' => $item['attributes']['priceRemaining']??null];
-                    $this->cart->add($item['id'],$item['name'],$item['price'],
-                        $item['quantity'], $attribute,$taxConditions,Product::find($item['associatedModel']['id']));
+                    $attribute = ['currency' => $cart_currency, 'symbol' => $item['attributes']['symbol'], 'agents' => $item['attributes']['agents'],
+                        'domain' => optional($item['attributes']['domain']), 'priceToBePaid' => $item['attributes']['priceToBePaid'] ?? null,
+                        'priceRemaining' => $item['attributes']['priceRemaining'] ?? null];
+                    $this->cart->add($item['id'], $item['name'], $item['price'],
+                        $item['quantity'], $attribute, $taxConditions, Product::find($item['associatedModel']['id']));
                 }
-
-
 
 //                Cart::add($items);
 
@@ -516,7 +515,7 @@ class CheckoutController extends InfoController
             //get elements from invoice
             $invoice_number = $invoice->number;
             $invoice_id = $invoice->id;
-            if($this->cart->getConditions('fee') != null) {
+            if ($this->cart->getConditions('fee') != null) {
                 foreach ($this->cart->getConditions('fee') as $value) {
                     $invoice->processing_fee = $value['value'];
                 }

@@ -97,7 +97,7 @@ Route::middleware('installAgora')->group(function () {
      * Front Client Pages
      */
     Route::get('client-dashboard', [Front\ClientController::class, 'index']);
-    Route::get('client-dashboard-details',[Front\ClientController::class, 'clientDetails']);
+    Route::get('client-dashboard-details', [Front\ClientController::class, 'clientDetails']);
     Route::post('first-login', [FreeTrailController::class, 'firstLoginAttempt']);
 
     Route::get('my-invoices', [Front\ClientController::class, 'invoices'])->name('my-invoices');
@@ -112,7 +112,7 @@ Route::middleware('installAgora')->group(function () {
     Route::post('strRenewal-enable', [Front\ClientController::class, 'enableAutorenewalStatus']);
     Route::post('renewal-disable', [Front\ClientController::class, 'disableAutorenewalStatus']);
     Route::post('rzpRenewal-disable/{orderid}', [Front\ClientController::class, 'enableRzpStatus']);
-    Route::get('renew-popup-details/{productid}',[Front\ClientController::class, 'renewPopupVue']);
+    Route::get('renew-popup-details/{productid}', [Front\ClientController::class, 'renewPopupVue']);
     Route::get('my-orders', [Front\ClientController::class, 'orders']);
     Route::get('get-my-orders', [Front\ClientController::class, 'getOrders'])->name('get-my-orders');
     Route::get('my-subscriptions', [Front\ClientController::class, 'subscriptions']);
@@ -692,7 +692,7 @@ Route::get('404', function () {
 Route::get('/api/download/agents', [Product\BaseProductController::class, 'agentProductDownload']);
 Route::get('/product/detail', [Product\BaseProductController::class, 'getProductUsingLicenseCode']);
 Route::get('footer1', [Front\WidgetController::class, 'footer1'])->name('footer1')->withoutMiddleware(['auth', 'admin']);
-Route::post('available-groups',[Product\GroupController::class, 'getAvailableGroups'])->withoutMiddleware(['auth', 'admin']);
+Route::post('available-groups', [Product\GroupController::class, 'getAvailableGroups'])->withoutMiddleware(['auth', 'admin']);
 //language
 Route::get('languages', [LanguageController::class, 'viewLanguage'])->middleware('auth');
 Route::post('language-toggle', [LanguageController::class, 'toggleLanguageStatus']);
