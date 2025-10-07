@@ -2,83 +2,88 @@
 
 namespace App\Facades;
 
-use Session;
-use Illuminate\Support\Collection;
 use App\Traits\TaxCalculation;
+use Illuminate\Support\Collection;
+
 class Cart
 {
-
     public $session;
 
     public $sessionName;
 
-use TaxCalculation;
-    public function __construct(){
+    use TaxCalculation;
+
+    public function __construct()
+    {
         $this->session = \Session();
         $this->sessionName = 'cart';
     }
 
-    public function add($id, $name = null, $price = null, $quantity = null, $attributes = array(), $conditions = array(), $associatedModel = null){
-        $cart=$this->getContent();
+    public function add($id, $name = null, $price = null, $quantity = null, $attributes = [], $conditions = [], $associatedModel = null)
+    {
+        $cart = $this->getContent();
 
-
-        $data=array(
-            'id'=>$id,
-            'name'=>$name,
-            'price'=>$price,
-            'quantity'=>$quantity,
-            'attributes'=>$attributes,
-            'conditions'=>$conditions,
-            'associatedModel'=>$associatedModel
-        );
+        $data = [
+            'id' => $id,
+            'name' => $name,
+            'price' => $price,
+            'quantity' => $quantity,
+            'attributes' => $attributes,
+            'conditions' => $conditions,
+            'associatedModel' => $associatedModel,
+        ];
 
         if ($cart->has($id)) {
-            $this->update($id,$data,1);
-        }else{
-            $this->addRow($id,$data);
+            $this->update($id, $data, 1);
+        } else {
+            $this->addRow($id, $data);
         }
-
     }
 
-    public function remove($id){
-        $cart=$this->getContent();
+    public function remove($id)
+    {
+        $cart = $this->getContent();
 
         $cart->forget($id);
         $this->save($cart);
     }
 
-    public function clear(){
+    public function clear()
+    {
         $this->session->forget($this->sessionName);
     }
 
-    public function update($id,$data,$quantity=null){
-        $cart=$this->getContent();
-        $item=$cart->pull($id);
-$quant=$item['quantity'];
-        foreach($data as $key=>$value){
-            $item[$key]=$value;
+    public function update($id, $data, $quantity = null)
+    {
+        $cart = $this->getContent();
+        $item = $cart->pull($id);
+        $quant = $item['quantity'];
+        foreach ($data as $key => $value) {
+            $item[$key] = $value;
         }
-        if($quantity != null){
-            $item['quantity']=$quant+$quantity;
+        if ($quantity != null) {
+            $item['quantity'] = $quant + $quantity;
         }
-        $cart->put($id,$item);
+        $cart->put($id, $item);
         $this->save($cart);
     }
 
-    public function getContent(){
-        return (new Collection($this->session->get($this->sessionName)));
+    public function getContent()
+    {
+        return new Collection($this->session->get($this->sessionName));
     }
 
-    public function getTotal(){
-        $cart=$this->getContent();
-        $actual_price=0;
-        $subTotal=0;
+    public function getTotal()
+    {
+        $cart = $this->getContent();
+        $actual_price = 0;
+        $subTotal = 0;
 
-        foreach($cart as $key=>$value){
-            $subTotal=$this->getSubTotal($key)*$value['quantity'];
-            if($value['conditions'] != null) {
+        foreach ($cart as $key => $value) {
+            $subTotal = $this->getSubTotal($key) * $value['quantity'];
+            if ($value['conditions'] != null) {
                 $actual_price += $this->calculateTotal($value['conditions']['value'], $subTotal);
-            }else{
+            } else {
                 $actual_price += $subTotal;
             }
         }
@@ -86,26 +91,30 @@ $quant=$item['quantity'];
         return $actual_price;
     }
 
-    public function getSubTotal($id){
-        $cart=$this->getContent();
-       $allCart= $cart->pull($id);
-       $subTotal=$allCart['price'];
-       return $subTotal;
+    public function getSubTotal($id)
+    {
+        $cart = $this->getContent();
+        $allCart = $cart->pull($id);
+        $subTotal = $allCart['price'];
+
+        return $subTotal;
     }
 
-    public function addRow($id,$data){
-        $cart=$this->getContent();
-        $cart->put($id,$data);
+    public function addRow($id, $data)
+    {
+        $cart = $this->getContent();
+        $cart->put($id, $data);
         $this->save($cart);
     }
 
-    public function save($cart){
-        $this->session->put($this->sessionName,$cart);
+    public function save($cart)
+    {
+        $this->session->put($this->sessionName, $cart);
     }
 
-    public function get($itemId){
-       return $this->getContent()->get($itemId);
-
+    public function get($itemId)
+    {
+        return $this->getContent()->get($itemId);
     }
 
     public function getCartValues($productId, $canReduceAgent = false)
@@ -142,28 +151,34 @@ $quant=$item['quantity'];
 
     public function getPriceSum($id)
     {
-        $content=$this->get($id);
+        $content = $this->get($id);
+
         return  (int) $content['price'] * $content['quantity'];
     }
 
-    public function getTotalQuantity(){
-        $cart=$this->getContent();
-        $total=0;
-        foreach($cart as $collection){
-            $total+=$collection['quantity'];
+    public function getTotalQuantity()
+    {
+        $cart = $this->getContent();
+        $total = 0;
+        foreach ($cart as $collection) {
+            $total += $collection['quantity'];
         }
+
         return $total;
     }
 
-    public function getConditions($id){
-        $cart=$this->get($id);
-        $content=$cart?$$cart['conditions']:null;
+    public function getConditions($id)
+    {
+        $cart = $this->get($id);
+        $content = $cart ? $$cart['conditions'] : null;
+
         return $content;
     }
 
-    public function getConditionsByType($type,$id){
-        $cart=$this->get($id);
-            return $cart['conditions']['type']==$type;
-    }
+    public function getConditionsByType($type, $id)
+    {
+        $cart = $this->get($id);
 
+        return $cart['conditions']['type'] == $type;
+    }
 }

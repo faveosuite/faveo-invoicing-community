@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Order;
 
+use App\Facades\Cart;
 use App\Http\Controllers\Front\CartController;
 use App\Http\Controllers\Front\ClientController;
 use App\Http\Controllers\Tenancy\CloudExtraActivities;
@@ -29,7 +30,6 @@ use App\Traits\TaxCalculation;
 use App\User;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
-use App\Facades\Cart;
 
 class InvoiceController extends TaxRatesAndCodeExpiryController
 {
@@ -117,7 +117,7 @@ class InvoiceController extends TaxRatesAndCodeExpiryController
         $cartController = new CartController();
         $this->cartController = $cartController;
 
-        $this->cart=new Cart();
+        $this->cart = new Cart();
     }
 
     public function index(Request $request)

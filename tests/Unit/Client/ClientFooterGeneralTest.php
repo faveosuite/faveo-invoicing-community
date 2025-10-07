@@ -171,19 +171,17 @@ class ClientFooterGeneralTest extends DBTestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Group('group')]
-    public function test_master_group_display(){
+    public function test_master_group_display()
+    {
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->withoutMiddleware();
-        $template=PricingTemplate::create(['data'=>'good']);
-        $group1=ProductGroup::create(['name' => 'Helpdesk Advance group','pricing_templates_id' => $template->id,'hidden'=>0]);
-        $group2=ProductGroup::create(['name' => 'Service Advance group','pricing_templates_id' => $template->id,'hidden'=>0]);
+        $template = PricingTemplate::create(['data' => 'good']);
+        $group1 = ProductGroup::create(['name' => 'Helpdesk Advance group', 'pricing_templates_id' => $template->id, 'hidden' => 0]);
+        $group2 = ProductGroup::create(['name' => 'Service Advance group', 'pricing_templates_id' => $template->id, 'hidden' => 0]);
         $response = $this->call('POST', 'available-groups');
-        $this->assertEquals($response['message'],'Success');
-        $data=$response['data'][$group1->id];
-        $this->assertEquals($data['name'],'Helpdesk Advance group');
+        $this->assertEquals($response['message'], 'Success');
+        $data = $response['data'][$group1->id];
+        $this->assertEquals($data['name'], 'Helpdesk Advance group');
     }
-
-
-
 }

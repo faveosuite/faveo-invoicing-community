@@ -66,7 +66,6 @@ class BaseClientController extends Controller
 //           data-target="#list">
 //            <i class="fa fa-download" data-toggle="tooltip" title="' . __('message.click_to_download') . '"></i>&nbsp;
 //        </a>';
-
     }
 
     /**
@@ -89,7 +88,6 @@ class BaseClientController extends Controller
 //          data-target=\"#lists\">
 //          <i class='fa fa-download' data-toggle='tooltip' title='".__('message.click_to_download')."'></i>&nbsp;
 //        </a>";
-
     }
 
     /**
@@ -289,7 +287,7 @@ class BaseClientController extends Controller
                     'invoice_items.product_name as products'
                 );
 
-            //            $invoices=$invoice->with(['invoiceItem'])->where('id',$relation)
+//            $invoices=$invoice->with(['invoiceItem'])->where('id',$relation)
 //                ->whereHas('invoiceItem', function($query) use ($order) {
 //                    $query->where('id', $order->invoice_item_id);
 //                });
