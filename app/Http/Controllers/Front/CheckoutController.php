@@ -62,6 +62,8 @@ class CheckoutController extends InfoController
 
     public $mailchimp;
 
+    public $cart;
+
     public function __construct()
     {
         $subscription = new Subscription();
@@ -97,6 +99,7 @@ class CheckoutController extends InfoController
         $invoiceItem = new InvoiceItem();
         $this->invoiceItem = $invoiceItem;
 
+        $this->cart= new \App\Facades\Cart();
         // $mailchimp = new MailChimpController();
         // $this->mailchimp = $mailchimp;
     }
@@ -114,7 +117,7 @@ class CheckoutController extends InfoController
         if (! \Auth::user()) {//If User is not Logged in then send him to login Page
             $url = $request->segments(); //The requested url (chekout).Save it in Session
             \Session::put('session-url', $url[0]);
-            $content = Cart::getContent();
+            $content = $this->cart->getContent();
             $domain = $request->input('domain');
             if ($domain) {
                 foreach ($domain as $key => $value) {
@@ -133,7 +136,7 @@ class CheckoutController extends InfoController
         //     }
         // }
 
-        $content = Cart::getContent();
+        $content = $this->cart->getContent();
         $taxConditions = $this->getAttributes($content);
         try {
             $domain = $request->input('domain');
@@ -145,10 +148,10 @@ class CheckoutController extends InfoController
             $discountPrice = null;
             $price = [];
             $quantity = [];
-            foreach (\Cart::getContent() as $item) {
-                $price = $item->price;
-                $quantity = $item->quantity;
-                $domain = $item->attributes->domain;
+            foreach ($this->cart->getContent() as $item) {
+                $price = $item['price'];
+                $quantity = $item['quantity'];
+                $domain = $item['attributes']['domain']??null;
                 if (! empty(\Session::get('code'))) {
                     $price = \Session::get('oldPrice');
                     $value = Promotion::where('code', \Session::get('code'))->value('value');
@@ -160,7 +163,7 @@ class CheckoutController extends InfoController
                 \Session::put('cloud_domain', $domain);
             }
             if (\Session::has('priceRemaining')) {
-                $total = \Session::get('priceRemaining') > \Cart::getTotal() ? \Session::get('priceRemaining') - \Cart::getTotal() : \Session::get('discount');
+                $total = \Session::get('priceRemaining') > $this->cart->getTotal() ? \Session::get('priceRemaining') - $this->cart->getTotal() : \Session::get('discount');
                 \Session::forget('discount');
                 \Session::put('discount', $total);
             }
@@ -176,13 +179,13 @@ class CheckoutController extends InfoController
                 $curr = '';
             } else {
                 foreach ($content as $item) {
-                    $curr = $item->attributes->currency;
+                    $curr = $item['attributes']['currency'];
                 }
             }
 
             User::where('id', \Auth::user()->id)->update(['billing_pay_balance' => 0]);
-
-            return view('themes.default1.front.checkout', compact('content', 'taxConditions', 'discountPrice', 'domain', 'amt_to_credit', 'curr'));
+            $cart=$this->cart;
+            return view('themes.default1.front.checkout', compact('content', 'taxConditions', 'discountPrice', 'domain', 'amt_to_credit', 'curr','cart'));
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
 
@@ -201,27 +204,36 @@ class CheckoutController extends InfoController
         try {
             if (count($content) > 0) {//after ProductPurchase this is not true as cart is cleared
                 foreach ($content as $item) {
-                    $cart_currency = $item->attributes->currency; //Get the currency of Product in the cart
+                    $cart_currency = $item['attributes']['currency']; //Get the currency of Product in the cart
                     \Session::put('cart_currency', $cart_currency);
                     $currency = getCurrencyForClient(\Auth::user()->country) != $cart_currency ? getCurrencyForClient(\Auth::user()->country) : $cart_currency; //If User Currency and cart currency are different the currency es set to user currency.
                     if ($cart_currency != $currency) {
                         $id = $item->id;
                         Cart::remove($id);
                     }
-                    $require_domain = $item->associatedModel->require_domain;
+                    $require_domain = $item['associatedModel']['require_domain'];
                     $require = [];
                     if ($require_domain) {
-                        $require[$key] = $item->associatedModel->id;
+                        $require[$key] = $item['associatedModel']['id'];
                     }
-                    $taxConditions = $this->calculateTax($item->associatedModel->id, \Auth::user()->state, \Auth::user()->country); //Calculate Tax Condition by passing ProductId
-                    Cart::condition($taxConditions);
 
-                    Cart::remove($item->id);
+                    $taxConditions = $this->calculateTax($item['associatedModel']['id'], \Auth::user()->state, \Auth::user()->country); //Calculate Tax Condition by passing ProductId
+//                    Cart::condition($taxConditions);
+
+                    $this->cart->remove($item['id']);
                     //Return array of Product Details,attributes and their conditions
-                    $items[] = ['id' => $item->id, 'name' => $item->name, 'price' => $item->price,
-                        'quantity' => $item->quantity, 'attributes' => ['currency' => $cart_currency, 'symbol' => $item->attributes->symbol, 'agents' => $item->attributes->agents, 'domain' => optional($item->attributes)->domain, 'priceToBePaid' => $item->attributes->priceToBePaid, 'priceRemaining' => $item->attributes->priceRemaining], 'associatedModel' => Product::find($item->associatedModel->id), 'conditions' => $taxConditions, ];
+          //          $items[] = ['id' => $item->id, 'name' => $item->name, 'price' => $item->price,
+     //                   'quantity' => $item->quantity, 'attributes' => ['currency' => $cart_currency, 'symbol' => $item->attributes->symbol, 'agents' => $item->attributes->agents, 'domain' => optional($item->attributes)->domain, 'priceToBePaid' => $item->attributes->priceToBePaid, 'priceRemaining' => $item->attributes->priceRemaining], 'associatedModel' => Product::find($item->associatedModel->id), 'conditions' => $taxConditions, ];
+                    $attribute= ['currency' => $cart_currency, 'symbol' => $item['attributes']['symbol'], 'agents' => $item['attributes']['agents'],
+                        'domain' => optional($item['attributes']['domain']), 'priceToBePaid' => $item['attributes']['priceToBePaid']??null,
+                        'priceRemaining' => $item['attributes']['priceRemaining']??null];
+                    $this->cart->add($item['id'],$item['name'],$item['price'],
+                        $item['quantity'], $attribute,$taxConditions,Product::find($item['associatedModel']['id']));
                 }
-                Cart::add($items);
+
+
+
+//                Cart::add($items);
 
                 return $taxConditions;
             }
@@ -310,7 +322,7 @@ class CheckoutController extends InfoController
 
             if ($paynow === false) {//When regular payment
                 $invoice = $invoice_controller->generateInvoice();
-                $amount = (\Session::has('nothingLeft')) ? \Session::get('nothingLeft') : intval(Cart::getSubTotal());
+                $amount = (\Session::has('nothingLeft')) ? \Session::get('nothingLeft') : intval($this->cart->getTotal());
 
                 if ($amount) {//If payment is for paid product
                     \Event::dispatch(new \App\Events\PaymentGateway(['request' => $request, 'invoice' => $invoice]));
@@ -504,9 +516,10 @@ class CheckoutController extends InfoController
             //get elements from invoice
             $invoice_number = $invoice->number;
             $invoice_id = $invoice->id;
-
-            foreach (\Cart::getConditionsByType('fee') as $value) {
-                $invoice->processing_fee = $value->getValue();
+            if($this->cart->getConditions('fee') != null) {
+                foreach ($this->cart->getConditions('fee') as $value) {
+                    $invoice->processing_fee = $value['value'];
+                }
             }
             // $invoice->processing_fee =
             $invoice->status = 'success';
@@ -528,6 +541,7 @@ class CheckoutController extends InfoController
 
             return 'success';
         } catch (\Exception $ex) {
+            dd($ex->getMessage());
             app('log')->error($ex->getMessage());
 
             return redirect()->back()->with('fails', $ex->getMessage());

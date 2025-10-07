@@ -32,9 +32,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Razorpay\Api\Api;
 use Illuminate\Pagination\Paginator;
+use App\Facades\Cart;
+use App\Traits\TaxCalculation;
 
 class ClientController extends BaseClientController
 {
+    use TaxCalculation;
+
+
     public $user;
 
     public $invoice;

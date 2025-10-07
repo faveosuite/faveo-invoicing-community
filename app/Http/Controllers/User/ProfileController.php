@@ -6,6 +6,7 @@ use App\Facades\Attach;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\ProfileRequest;
 use Hash;
+use Illuminate\Support\Facades\Cache;
 
 class ProfileController extends Controller
 {
@@ -16,7 +17,7 @@ class ProfileController extends Controller
     }
 
     public function profile()
-    {
+    {Cache::a();
         try {
             $user = \Auth::user();
             $timezonesList = \App\Model\Common\Timezone::get();
@@ -76,10 +77,11 @@ class ProfileController extends Controller
                 \Auth::logoutOtherDevices($newpassword);
 
                 \DB::table('password_resets')->where('email', $user->email)->delete();
-
+//                return successResponse(\Lang::get('message.updated-successfully'));
                 return redirect()->back()->with('success1', \Lang::get('message.updated-successfully'));
             } else {
                 return redirect()->back()->with('fails1', __('message.incorrect_old_password'));
+//                return errorResponse( __('message.incorrect_old_password'));
             }
         } catch (\Exception $e) {
             return redirect()->back()->with('fails', $e->getMessage());

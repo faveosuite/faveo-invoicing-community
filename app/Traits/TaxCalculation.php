@@ -17,10 +17,10 @@ trait TaxCalculation
             if ($taxCaluculationFromAdminPanel) {
                 $taxCondition = ['name' => 'null', 'value' => '0%'];
             } else {
-                $taxCondition = new \Darryldecode\Cart\CartCondition([
+                $taxCondition =[
                     'name' => 'null', 'type' => 'tax',
                     'value' => '0%',
-                ]);
+                ];
             }
             if (TaxOption::findOrFail(1)->inclusive == 0) {
                 $tax_enable = TaxOption::findOrFail(1)->tax_enable;
@@ -53,19 +53,27 @@ trait TaxCalculation
             if ($taxCaluculationFromAdminPanel) {
                 $taxCondition = ['name' => $tax->name, 'value' => $tax->value.'%'];
             } else {
-                $taxCondition = new \Darryldecode\Cart\CartCondition([
+//                $taxCondition = new \Darryldecode\Cart\CartCondition([
+//                    'name' => $tax->name, 'type' => 'tax',
+//                    'value' => $tax->value.'%',
+//                ]);
+                $taxCondition = [
                     'name' => $tax->name, 'type' => 'tax',
                     'value' => $tax->value.'%',
-                ]);
+                ];
             }
         } else {
             if ($taxCaluculationFromAdminPanel) {
                 $taxCondition = ['name' => 'null', 'value' => '0%'];
             } else {
-                $taxCondition = new \Darryldecode\Cart\CartCondition([
+//                $taxCondition = new \Darryldecode\Cart\CartCondition([
+//                    'name' => 'null', 'type' => 'tax',
+//                    'value' => '0%',
+//                ]);
+                $taxCondition = [
                     'name' => 'null', 'type' => 'tax',
                     'value' => '0%',
-                ]);
+                ];
             }
         }
 
@@ -308,6 +316,30 @@ trait TaxCalculation
             return $result;
         } catch (\Exception $ex) {
             return 0;
+        }
+    }
+
+    public function calculateTotal($rate, $total)
+    {
+        try {
+            $total = intval($total);
+            $rates = explode(',', $rate);
+            $rule = new TaxOption();
+            $rule = $rule->findOrFail(1);
+            if ($rule->inclusive == 0) {
+                foreach ($rates as $rate1) {
+                    if ($rate1 != '') {
+                        $rateTotal = str_replace('%', '', $rate1);
+                        $total += $total * ($rateTotal / 100);
+                    }
+                }
+            }
+
+            return intval(round($total));
+        } catch (\Exception $ex) {
+            app('log')->warning($ex->getMessage());
+
+            throw new \Exception($ex->getMessage());
         }
     }
 }

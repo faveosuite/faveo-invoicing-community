@@ -13,7 +13,8 @@ use App\Model\Payment\TaxByState;
 use App\Model\Payment\TaxOption;
 use App\Model\Product\Product;
 use App\User;
-use Cart;
+use App\Facades\Cart;
+//use Cart;
 use Illuminate\Http\Request;
 use Session;
 
@@ -36,6 +37,8 @@ class CartController extends BaseCartController
     public $tax_by_state;
 
     public $setting;
+
+    public $cart;
 
     public function __construct()
     {
@@ -62,6 +65,7 @@ class CartController extends BaseCartController
 
         $tax_by_state = new TaxByState();
         $this->tax_by_state = new $tax_by_state();
+        $this->cart = new Cart();
     }
 
     /**
@@ -88,9 +92,9 @@ class CartController extends BaseCartController
             if ($request->has('domain')) {
                 $domain = $request->input('domain').'.'.cloudSubDomain();
             }
-            if (! property_exists($subscription, Cart::getContent())) {
+            if (! property_exists($subscription, $this->cart->getContent())) {
                 $items = $this->addProduct($id, $domain);
-                \Cart::add($items); //Add Items To the Cart Collection
+//                \Cart::add($items); //Add Items To the Cart Collection
             }
 
             return redirect('show/cart');
@@ -141,7 +145,11 @@ class CartController extends BaseCartController
             $agents = $agtQty != null ? $agtQty : 0;
             $items = ['id' => $planid, 'name' => $product->name, 'price' => $actualPrice,
                 'quantity' => $qty, 'attributes' => ['currency' => $currency['currency'], 'symbol' => $currency['symbol'], 'agents' => $agents, 'domain' => $domain], 'associatedModel' => $product];
-
+            $cart=new Cart();
+            $attribute= ['currency' => $currency['currency'], 'symbol' => $currency['symbol'], 'agents' => $agents, 'domain' => $domain];
+            $cart->add($planid,$product->name,$actualPrice,
+                $qty, $attribute,'',$product);
+//
             return $items;
         } catch (\Exception $e) {
             app('log')->error($e->getMessage());
@@ -167,25 +175,26 @@ class CartController extends BaseCartController
     public function showCart()
     {
         try {
-            $cartCollection = Cart::getContent();
+            $cartCollection = $this->cart->getContent();
+
             foreach ($cartCollection as $item) {
-                $cart_currency = $item->attributes->currency;
+                $cart_currency = $item['attributes']['currency'];
                 \Session::put('currency', $cart_currency);
                 $unpaidInvoice = $this->checkUnpaidInvoices($item);
 
                 if ($unpaidInvoice) {
-                    Cart::clear($item->id);
+                    $this->cart->clear($item->id);
 
                     return redirect('my-invoice/'.$unpaidInvoice->id.'#invoice-section')
                     ->with('warning', __('message.unpaid_invoice_warning'));
                 }
             }
 
-            $cartCollection = Cart::getContent()->sortByDesc(function ($item) {
-                return (int) $item->id;
+            $cartCollection = $this->cart->getContent()->sortByDesc(function ($item) {
+                return (int) $item['id'];
             });
-
-            return view('themes.default1.front.cart', compact('cartCollection'));
+            $cart=$this->cart;
+            return view('themes.default1.front.cart', compact('cartCollection','cart'));
         } catch (\Exception $ex) {
             app('log')->error($ex->getMessage());
 
@@ -206,7 +215,7 @@ class CartController extends BaseCartController
                 ->where('is_renewed', 0)
                 ->where('status', 'pending')
                 ->whereHas('invoiceItem', function ($query) use ($item) {
-                    $query->where('product_name', $item->name)->where('quantity', $item->quantity);
+                    $query->where('product_name', $item['name'])->where('quantity', $item['quantity']);
                 })
                 ->first();
 
@@ -228,13 +237,17 @@ class CartController extends BaseCartController
      */
     public function cartRemove(Request $request)
     {
-        $id = $request->input('id');
-        Cart::remove($id);
-        Cart::removeConditionsByType('tax');
-        Cart::removeConditionsByType('coupon');
-        Cart::clearItemConditions($id);
+        try {
+            $id = $request->input('id');
+            $this->cart->remove($id);
+//        Cart::removeConditionsByType('tax');
+//        Cart::removeConditionsByType('coupon');
+//        Cart::clearItemConditions($id);
+            return successResponse(__('message.success'));
 
-        return 'success';
+        }catch (\Exception $ex){
+            return errorResponse(__('message.fail'));
+        }
     }
 
     /**
