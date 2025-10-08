@@ -521,7 +521,7 @@ class TenantController extends Controller
                     $sub = $order->subscription()->first();
                     $sub->is_deleted = 1;
                     $sub->save();
-                    $order->delete();
+                  //  $order->delete();
                 }
 //                (empty($request->orderId)) ?: Order::where('number', $request->get('orderId'))->delete();
                 (new LicenseController())->reissueDomain($request->input('id'));
