@@ -95,4 +95,6 @@ return [
     'send' => 'Envoyer',
     'queued' => 'En file d\'attente',
     'delete_logs_entries' => 'Supprimer les entrées de journaux antérieures à',
+    'sent' => 'Envoyé',
+    'failed_jobs' => 'Tâches échouées',
 ];

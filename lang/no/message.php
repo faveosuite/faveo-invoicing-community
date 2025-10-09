@@ -2723,4 +2723,8 @@ return [
     'continue_verify_social_login' => 'Klikk på "Validate" for å fortsette og bekrefte din identitet',
     'auto_renewal_disable' => 'Automatisk fornyelse er for øyeblikket ikke tilgjengelig. Vennligst kontakt administratoren for hjelp.',
     'auto_renewal_tooltip' => 'Aktiver eller deaktiver automatisk fornyelse for alle brukere.',
+    'log_description' => ':module :name har blitt :event',
+    'has_been' => 'har blitt',
+    'cloud' => 'Sky',
+    'attach_helper_no_default_disk' => 'Det er ingen standarddisk satt for fillagring. Vennligst sett en standarddisk i fillagringsinnstillingene.'
 ];

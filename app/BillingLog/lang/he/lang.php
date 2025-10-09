@@ -95,4 +95,6 @@ return [
     'send' => 'שלח',
     'queued' => 'בתור',
     'delete_logs_entries' => 'מחק רשומות יומן לפני',
+    'sent' => 'נשלח',
+    'failed_jobs' => 'משימות שנכשלו',
 ];

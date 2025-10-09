@@ -2553,6 +2553,10 @@ return [
     'cloud_plan_error' => 'يرجى إزالة المنتج السحابي أو ربطه بخطة بديلة.',
 
     'continue_verify_social_login' => 'انقر على "Validate" للمتابعة وتأكيد هويتك',
+    'log_description' => ':module :name تم :event',
+    'has_been' => 'تم',
+    'cloud' => 'السحابة',
+    'attach_helper_no_default_disk' => 'لا يوجد قرص افتراضي لتخزين الملفات. الرجاء تعيين قرص افتراضي في إعدادات تخزين الملفات.',
     'auto_renewal_disable' => 'التجديد التلقائي غير متاح حالياً. يرجى الاتصال بالمسؤول للحصول على المساعدة.',
     'auto_renewal_tooltip' => 'تمكين أو تعطيل التجديد التلقائي لجميع المستخدمين.',
 ];

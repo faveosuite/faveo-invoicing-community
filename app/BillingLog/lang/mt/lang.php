@@ -91,4 +91,6 @@ return [
     'send' => 'Ibgħat',
     'queued' => 'Fil-Kju',
     'delete_logs_entries' => 'Ħassar entrati fir-reġistri qabel',
+    'sent' => 'Mibgħut',
+    'failed_jobs' => 'Trabajji li Fallgħu',
 ];
