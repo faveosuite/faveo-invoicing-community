@@ -3,51 +3,57 @@
 namespace App\Model\Order;
 
 use App\BaseModel;
+use App\Traits\SystemActivityLogsTrait;
 use DateTime;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
 
 class Invoice extends BaseModel
 {
-    use HasFactory;
-    use LogsActivity;
+    use HasFactory, SystemActivityLogsTrait;
 
     protected $table = 'invoices';
 
-    protected $fillable = ['user_id', 'number', 'date', 'coupon_code', 'discount',
-        'grand_total', 'currency', 'status', 'description', 'is_renewed', 'processing_fee', 'billing_pay', 'cloud_domain', 'credits'];
+
+    protected $fillable = [
+        'user_id', 'number', 'date', 'coupon_code', 'discount','discount_mode',
+        'grand_total', 'currency', 'status', 'description', 'is_renewed', 'processing_fee', 'billing_pay', 'cloud_domain', 'credits'
+    ];
 
     protected $casts = [
         'date' => 'datetime',
     ];
 
-    protected static $logName = 'Invoice';
+    protected $logName = 'invoice';
 
-    protected static $logAttributes = ['user_id', 'number', 'date',
-        'coupon_code', 'grand_total', 'currency', 'status', 'description', ];
+    protected $logAttributes = [
+        'user_id', 'number', 'date', 'coupon_code', 'discount','discount_mode',
+        'grand_total', 'currency', 'status', 'description', 'is_renewed', 'processing_fee', 'billing_pay', 'cloud_domain', 'credits'
+    ];
 
-    protected static $logOnlyDirty = true;
 
-    public function getDescriptionForEvent(string $eventName): string
+    protected $logNameColumn = 'number';
+
+    protected $logUrl = ['invoices'];
+
+    protected function getMappings(): array
     {
-        // dd(Activity::where('subject_id',)->pluck('subject_id'));
-        if ($eventName == 'created') {
-            return 'Invoice No.  <strong> '.$this->number.' </strong> was created';
-        }
-
-        if ($eventName == 'updated') {
-            return 'Invoice No. <strong> '.$this->number.'</strong> was updated';
-        }
-
-        if ($eventName == 'deleted') {
-            return 'Invoice No. <strong> '.$this->number.' </strong> was deleted';
-        }
-
-        return '';
-
-        // return "Product  has been {$eventName}";
-        // \Auth::user()->activity;
+        return [
+            'user_id' => ['User', fn ($value) => \App\User::find($value)?->user_name],
+            'number' => ['Invoice Number', fn ($value) => $value],
+            'date' => ['Invoice Date', fn ($value) => $value],
+            'coupon_code' => ['Coupon Code', fn ($value) => $value],
+            'grand_total' => ['Grand Total', fn ($value) => $value],
+            'currency' => ['Currency', fn ($value) => $value],
+            'status' => ['Status', fn ($value) => $value],
+            'description' => ['Description', fn ($value) => $value],
+            'is_renewed' => ['Is Renewed', fn ($value) => $value === 1 ? 'Yes' : 'No'],
+            'processing_fee' => ['Processing Fee', fn ($value) => $value],
+            'billing_pay' => ['Billing Pay', fn ($value) => $value],
+            'cloud_domain' => ['Cloud Domain', fn ($value) => $value],
+            'credits' => ['Credits', fn ($value) => $value],
+            'discount' => ['Discount', fn ($value) => $value],
+            'discount_mode' => ['Discount Mode', fn ($value) => $value],
+        ];
     }
 
     public function invoiceItem()
@@ -111,8 +117,4 @@ class Invoice extends BaseModel
         return parent::delete();
     }
 
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults();
-    }
 }

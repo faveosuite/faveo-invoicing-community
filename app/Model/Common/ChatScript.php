@@ -2,37 +2,39 @@
 
 namespace App\Model\Common;
 
+use App\Traits\SystemActivityLogsTrait;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Activitylog\Traits\LogsActivity;
 
 class ChatScript extends Model
 {
-    // use LogsActivity;
+
+     use SystemActivityLogsTrait;
 
     protected $table = 'chat_scripts';
 
     protected $fillable = ['name', 'script', 'on_registration', 'on_every_page', 'google_analytics', 'google_analytics_tag'];
 
-    protected static $logName = 'Chat Script';
 
-    protected static $logAttributes = ['name', 'script'];
+    protected $logName = 'chat-script';
 
-    protected static $logOnlyDirty = true;
+    protected $logNameColumn = 'settings';
 
-    public function getDescriptionForEvent(string $eventName): string
+
+    protected $logAttributes = [
+        'name', 'script', 'on_registration', 'on_every_page', 'google_analytics', 'google_analytics_tag'
+    ];
+
+    protected $logUrl = ['chat', 'edit'];
+
+    protected function getMappings(): array
     {
-        if ($eventName == 'created') {
-            return 'Chat Script'.$this->name.' was created';
-        }
-
-        if ($eventName == 'updated') {
-            return 'Chat Script  <strong> '.$this->name.'</strong> was updated';
-        }
-
-        if ($eventName == 'deleted') {
-            return 'Chat Script <strong> '.$this->name.' </strong> was deleted';
-        }
-
-        return '';
+        return [
+            'name' => ['Name', fn ($value) => $value],
+            'script' => ['Script', fn ($value) => $value],
+            'on_registration' => ['On Registration', fn ($value) => $value ? __('message.active') : __('message.inactive')],
+            'on_every_page' => ['On Every Page', fn ($value) => $value ? __('message.active') : __('message.inactive')],
+            'google_analytics' => ['Google Analytics', fn ($value) => $value ? __('message.active') : __('message.inactive')],
+            'google_analytics_tag' => ['Google Analytics Tag', fn ($value) => $value],
+        ];
     }
 }

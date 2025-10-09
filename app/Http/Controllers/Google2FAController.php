@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Requests\ValidateSecretRequest;
 use App\Rules\CaptchaValidation;
@@ -244,6 +245,9 @@ class Google2FAController extends Controller
 
         // Normal login flow
         \Auth::login($user, $session->get('remember:user:id'));
+
+        (new LoginController())->logActivityLogin($user);
+
         $this->convertCart();
 
         return redirect()->to((new LoginController())->redirectPath());

@@ -9,6 +9,7 @@ use App\BillingLog\Model\MailLog;
 use DataTables;
 use Illuminate\Http\Request;
 use Illuminate\Support\HtmlString;
+use Laravel\Horizon\Listeners\TrimFailedJobs;
 
 class LogViewController
 {
@@ -100,22 +101,33 @@ class LogViewController
             ->make(true);
     }
 
-    public function deleteLogsByDate($logTypes, $date)
+    public function deleteLogsByDate(array $logTypes, $date = null)
     {
         $logModels = [
-            'cron' => CronLog::class,
-            'exception' => ExceptionLog::class,
-            'mail' => MailLog::class,
+            'cron'        => CronLog::class,
+            'exception'   => ExceptionLog::class,
+            'mail'        => MailLog::class,
+            'failed_jobs' => 'failed_jobs', // Use table name for DB query
         ];
 
         foreach ($logTypes as $type) {
-            $query = $logModels[$type]::query();
-
-            if ($date) {
-                $query->where('created_at', '<=', $date);
+            if (!isset($logModels[$type])) {
+                continue;
             }
 
-            $query->delete();
+            if ($type === 'failed_jobs') {
+                $query = \DB::table($logModels[$type]);
+                if ($date) {
+                    $query->where('failed_at', '<=', $date);
+                }
+                $query->delete();
+            } else {
+                $query = $logModels[$type]::query();
+                if ($date) {
+                    $query->where('created_at', '<=', $date);
+                }
+                $query->delete();
+            }
         }
     }
 }
