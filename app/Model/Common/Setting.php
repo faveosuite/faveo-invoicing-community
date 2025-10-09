@@ -100,9 +100,13 @@ class Setting extends Model
 
     public function getImage($value, $path, $default = null)
     {
-        return $value
-            ? Attach::getUrlPath($path.'/'.$value)
-            : $default;
+        try {
+            return $value
+                ? Attach::getUrlPath($path.'/'.$value)
+                : $default;
+        } catch (\Exception $e) {
+            return $default;
+        }
     }
 
     public function getLogoAttribute($value)
