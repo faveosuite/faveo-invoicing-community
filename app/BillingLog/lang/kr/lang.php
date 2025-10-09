@@ -91,4 +91,6 @@ return [
     'send' => '전송',
     'queued' => '대기열',
     'delete_logs_entries' => '로그 항목 삭제 기준:',
+    'sent' => '전송됨',
+    'failed_jobs' => '실패한 작업',
 ];

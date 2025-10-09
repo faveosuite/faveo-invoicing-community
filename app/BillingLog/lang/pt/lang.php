@@ -95,4 +95,6 @@ return [
     'send' => 'Enviar',
     'queued' => 'Na fila',
     'delete_logs_entries' => 'Apagar entradas de registros anteriores a',
+    'sent' => 'Enviado',
+    'failed_jobs' => 'Trabalhos Falhados',
 ];

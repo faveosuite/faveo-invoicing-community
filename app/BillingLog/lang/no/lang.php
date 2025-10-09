@@ -91,4 +91,6 @@ return [
     'send' => 'Send',
     'queued' => 'I kø',
     'delete_logs_entries' => 'Slett loggoppføringer før',
+    'sent' => 'Sendt',
+    'failed_jobs' => 'Mislykkede jobber',
 ];
