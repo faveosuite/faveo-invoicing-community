@@ -17,9 +17,8 @@ class FrontendPage extends BaseModel
 
     protected $logNameColumn = 'Settings';
 
-
     protected $logAttributes = [
-        'parent_page_id', 'slug', 'name', 'content', 'url', 'publish', 'type'
+        'parent_page_id', 'slug', 'name', 'content', 'url', 'publish', 'type',
     ];
 
     protected $logUrl = ['system-managers'];

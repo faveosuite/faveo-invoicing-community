@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Language extends Model
 {
-
     use SystemActivityLogsTrait;
 
     protected $table = 'languages';
@@ -23,7 +22,6 @@ class Language extends Model
 
     protected $logNameColumn = 'Settings';
 
-
     protected $logAttributes = [
         'name',
         'translation',
@@ -36,10 +34,10 @@ class Language extends Model
     protected function getMappings(): array
     {
         return [
-            'name' => ['Name', fn($value) => $value],
-            'translation' => ['Translation', fn($value) => $value],
-            'locale' => ['Locale', fn($value) => $value],
-            'status' => ["{$this->name} Language", fn($value) => $value === 1 ? __('message.enable') : __('message.disable')],
+            'name' => ['Name', fn ($value) => $value],
+            'translation' => ['Translation', fn ($value) => $value],
+            'locale' => ['Locale', fn ($value) => $value],
+            'status' => ["{$this->name} Language", fn ($value) => $value === 1 ? __('message.enable') : __('message.disable')],
         ];
     }
 }
