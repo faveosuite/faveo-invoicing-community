@@ -1205,7 +1205,8 @@ class SettingsController extends BaseSettingsController
         $apikey = trim($request->input('apikey'));
         try {
             $accepted_output = $request->input('mode') == 'quick' ? $emailSave->where('type', 'email')->value('accepted_output') : $request->input('accepted_output');
-            EmailMobileValidationProviders::where('provider', $request->input('provider'))->update(['api_key' => $apikey,
+            $emailMobileProvider = EmailMobileValidationProviders::where('provider', $request->input('provider'))->firstOrFail();
+            $emailMobileProvider->update(['api_key' => $apikey,
                 'mode' => $request->input('mode'), 'accepted_output' => $accepted_output, 'to_use' => 1]);
 
             return successResponse(trans('message.email_validation_success'));

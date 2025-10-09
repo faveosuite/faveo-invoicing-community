@@ -3,51 +3,40 @@
 namespace App\Model\Payment;
 
 use App\BaseModel;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
+use App\Traits\SystemActivityLogsTrait;
 
 class Currency extends BaseModel
 {
-    use LogsActivity;
+    use SystemActivityLogsTrait;
 
     protected $table = 'currencies';
 
     protected $fillable = ['code', 'symbol', 'name', 'status'];
 
-    protected static $logName = 'Currency';
 
-    protected static $logAttributes = ['code', 'symbol', 'name', 'status'];
+    protected $logName = 'currency';
 
-    protected static $logOnlyDirty = true;
+    protected $logNameColumn = 'Settings';
 
-    public function getDescriptionForEvent(string $eventName): string
+
+    protected $logAttributes = [
+        'code', 'symbol', 'name', 'status'
+    ];
+
+    protected $logUrl = ['currency'];
+
+    protected function getMappings(): array
     {
-        // dd(Activity::where('subject_id',)->pluck('subject_id'));
-        if ($eventName == 'created') {
-            return 'Currency  <strong> '.$this->name.' </strong> was created';
-        }
-
-        if ($eventName == 'updated') {
-            return 'Currency <strong> '.$this->name.'</strong> was updated';
-        }
-
-        if ($eventName == 'deleted') {
-            return 'Currency <strong> '.$this->name.' </strong> was deleted';
-        }
-
-        return '';
-
-        // return "Product  has been {$eventName}";
-        // \Auth::user()->activity;
+        return [
+            'code' => ['Currency Code', fn ($value) => $value],
+            'symbol' => ['Currency Symbol', fn ($value) => $value],
+            'name' => ['Currency Name', fn ($value) => $value],
+            'status' => ["{$this->name} currency status", fn ($value) => $value === 1 ? __('message.active') : __('message.inactive')],
+        ];
     }
 
     public function country()
     {
         return $this->hasMany(\App\Model\Common\Country::class, 'currency_id');
-    }
-
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults();
     }
 }

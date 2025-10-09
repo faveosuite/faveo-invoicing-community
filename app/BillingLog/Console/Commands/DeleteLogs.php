@@ -51,7 +51,7 @@ class DeleteLogs extends LoggableCommand
         $deleteBefore = Carbon::now()->subDays($days)->endOfDay();
 
         (new LogViewController)->deleteLogsByDate(
-            ['mail', 'cron', 'exception'],
+            ['mail', 'cron', 'exception', 'failed_jobs'],
             $deleteBefore
         );
     }

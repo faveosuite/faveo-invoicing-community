@@ -3,39 +3,37 @@
 namespace App\Model\Payment;
 
 use App\BaseModel;
+use App\Traits\SystemActivityLogsTrait;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 class TaxClass extends BaseModel
 {
-    use LogsActivity;
+    use SystemActivityLogsTrait;
 
     protected $table = 'tax_classes';
 
     protected $fillable = ['name'];
 
-    protected static $logName = 'Tax Class';
 
-    protected static $logAttributes = ['name'];
+    protected $logName = 'taxes';
 
-    protected static $logOnlyDirty = true;
+    protected $logNameColumn = 'Settings';
 
-    public function getDescriptionForEvent(string $eventName): string
+
+    protected $logAttributes = [
+        'name'
+    ];
+
+    protected $requireLogUrl = false;
+
+    protected function getMappings(): array
     {
-        if ($eventName == 'created') {
-            return 'Tax Class  <strong> '.$this->name.' </strong> was created';
-        }
-
-        if ($eventName == 'updated') {
-            return 'Tax Class<strong> '.$this->name.'</strong> was updated';
-        }
-
-        if ($eventName == 'deleted') {
-            return 'Tax Class<strong> '.$this->name.' </strong> was deleted';
-        }
-
-        return '';
+        return [
+            'name' => ['Tax Class Name', fn ($value) => $value],
+        ];
     }
+
 
     public function tax()
     {
@@ -45,10 +43,5 @@ class TaxClass extends BaseModel
     public function tax_product_relation()
     {
         return $this->hasMany(\App\Model\Payment\TaxProductRelation::class, 'tax_class_id');
-    }
-
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults();
     }
 }

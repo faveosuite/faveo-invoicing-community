@@ -193,7 +193,7 @@ class LogWriteController
         $validated = $request->validate([
             'to_date' => 'nullable|date',
             'log_types' => 'required|array|min:1',
-            'log_types.*' => 'in:cron,exception,mail',
+            'log_types.*' => 'in:cron,exception,mail,failed_jobs',
         ]);
 
         // Parse to_date with end of day

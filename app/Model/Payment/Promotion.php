@@ -3,39 +3,38 @@
 namespace App\Model\Payment;
 
 use App\BaseModel;
+use App\Traits\SystemActivityLogsTrait;
 use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
 
 class Promotion extends BaseModel
 {
-    use LogsActivity;
+    use SystemActivityLogsTrait;
 
     protected $table = 'promotions';
 
     protected $fillable = ['code', 'type', 'uses', 'value', 'start', 'expiry'];
 
-    protected static $logName = 'Promotion';
+    protected $logName = 'promotions';
 
-    protected static $logAttributes = ['code', 'type', 'uses', 'value', 'start', 'expiry'];
+    protected $logNameColumn = 'Settings';
 
-    protected static $logOnlyDirty = true;
 
-    // protected $dates = ['start','expiry'];
-    public function getDescriptionForEvent(string $eventName): string
+    protected $logAttributes = [
+        'code', 'type', 'uses', 'value', 'start', 'expiry'
+    ];
+
+    protected $logUrl = ['promotions','edit'];
+
+    protected function getMappings(): array
     {
-        if ($eventName == 'created') {
-            return 'Promotion Code  <strong> '.$this->code.' </strong> was created';
-        }
-
-        if ($eventName == 'updated') {
-            return 'Promotion Code <strong> '.$this->code.'</strong> was updated';
-        }
-
-        if ($eventName == 'deleted') {
-            return 'Promotion Code <strong> '.$this->code.' </strong> was deleted';
-        }
-
-        return '';
+        return [
+            'code' => ['Promotion Code', fn ($value) => $value],
+            'type' => ['Promotion Type', fn ($value) => $value === 1 ? 'Percentage' : 'Fixed Amount'],
+            'uses' => ['Number of Uses', fn ($value) => $value],
+            'value' => ['Promotion Value', fn ($value) => $value],
+            'start' => ['Start Date', fn ($value) => $value],
+            'expiry' => ['Expiry Date', fn ($value) => $value],
+        ];
     }
 
     public function relation()
@@ -48,10 +47,5 @@ class Promotion extends BaseModel
         $this->relation()->delete();
 
         return parent::delete();
-    }
-
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults();
     }
 }

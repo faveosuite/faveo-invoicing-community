@@ -1312,7 +1312,8 @@ class CloudExtraActivities extends Controller
         try {
             $id = $request->input('id');
             $status = $request->input('status');
-            CloudProducts::where('id', $id)->update(['trial_status' => $status]);
+            $product = CloudProducts::findOrFail($id);
+            $product->update(['trial_status' => $status]);
 
             return successResponse(\Lang::get('message.trial_status_updated'));
         } catch (\Exception $e) {
@@ -1331,10 +1332,11 @@ class CloudExtraActivities extends Controller
     public function DeleteProductConfig(Request $request)
     {
         try {
-            CloudProducts::whereid($request->get('id'))->delete();
+            $product = CloudProducts::findOrFail($request->input('id'));
+            $product->delete();
 
             return successResponse(trans('message.pop_delete'));
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return errorResponse($e->getMessage());
         }
     }

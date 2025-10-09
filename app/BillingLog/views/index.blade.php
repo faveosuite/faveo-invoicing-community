@@ -289,7 +289,7 @@
             <!-- Filter Section for each log type -->
             <div class="card card-secondary card-outline mt-3">
                 <div class="card-header">
-                    <h3 class="card-title">{{ __('log::lang.filter_logs') }}</h3>
+                    <h3 class="card-title" id="filter-title">{{ __('log::lang.filter_logs') }}</h3>
                 </div>
                 <div class="card-body">
                     <!-- Cron Logs Filter -->
@@ -452,7 +452,7 @@
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="emailModalLabel">{{ __('log::lang.email_subject') }}</h5>
+                    <h5 class="modal-title" id="emailModalLabel">{{ __('log::lang.log_details') }}</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -495,17 +495,41 @@
                     <!-- Inline Checkboxes -->
                     <div class="form-group">
                         <label>{{ __('log::lang.log_types') }}</label><br>
-                        <div class="custom-control custom-checkbox d-inline mr-3">
-                            <input type="checkbox" class="custom-control-input" id="deleteMailLogs" name="log_types[]" value="mail">
-                            <label class="custom-control-label" for="deleteMailLogs">{{ __('log::lang.mail_logs') }}</label>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="custom-control custom-checkbox mb-2">
+                                    <input type="checkbox" class="custom-control-input" id="deleteMailLogs" name="log_types[]" value="mail">
+                                    <label class="custom-control-label" for="deleteMailLogs">
+                                        {{ __('log::lang.mail_logs') }}
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="custom-control custom-checkbox mb-2">
+                                    <input type="checkbox" class="custom-control-input" id="deleteCronLogs" name="log_types[]" value="cron">
+                                    <label class="custom-control-label" for="deleteCronLogs">
+                                        {{ __('log::lang.cron_logs') }}
+                                    </label>
+                                </div>
+                            </div>
                         </div>
-                        <div class="custom-control custom-checkbox d-inline mr-3">
-                            <input type="checkbox" class="custom-control-input" id="deleteCronLogs" name="log_types[]" value="cron">
-                            <label class="custom-control-label" for="deleteCronLogs">{{ __('log::lang.cron_logs') }}</label>
-                        </div>
-                        <div class="custom-control custom-checkbox d-inline">
-                            <input type="checkbox" class="custom-control-input" id="deleteExceptionLogs" name="log_types[]" value="exception">
-                            <label class="custom-control-label" for="deleteExceptionLogs">{{ __('log::lang.exception_logs') }}</label>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="custom-control custom-checkbox mb-2">
+                                    <input type="checkbox" class="custom-control-input" id="deleteExceptionLogs" name="log_types[]" value="exception">
+                                    <label class="custom-control-label" for="deleteExceptionLogs">
+                                        {{ __('log::lang.exception_logs') }}
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="custom-control custom-checkbox mb-2">
+                                    <input type="checkbox" class="custom-control-input" id="deleteFailedJobs" name="log_types[]" value="failed_jobs">
+                                    <label class="custom-control-label" for="deleteFailedJobs">
+                                        {{ __('log::lang.failed_jobs') }}
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -584,8 +608,29 @@
                 });
             },
 
+            updateFilterTitle(type) {
+                const filter = document.getElementById('filter-title');
+                if (!filter) return;
+                switch (type) {
+                    case 'mail':
+                        filter.innerHTML = '{{ __("log::lang.mail_logs") }}';
+                        break;
+                    case 'cron':
+                        filter.innerHTML = '{{ __("log::lang.cron_logs") }}';
+                        break;
+                    case 'exception':
+                        filter.innerHTML = '{{ __("log::lang.exception_logs") }}';
+                        break;
+                    default:
+                        filter.innerHTML = '{{ __("log::lang.filter_logs") }}';
+                }
+            },
+
             showLogType(type) {
                 this.currentType = type;
+
+                // Update filter title per selected type
+                this.updateFilterTitle(type);
 
                 // Fixed: Update selected UI properly
                 document.querySelectorAll('.settingdivblue').forEach(el => {
@@ -842,7 +887,7 @@
                     </span>
                 </div>
                 <div class="info-box-number d-flex justify-content-between mt-1">
-                    <span class="text-blue log-status selector" data-status="sent">${data.sent || 0} {{ __("log::lang.send") }}</span>
+                    <span class="text-blue log-status selector" data-status="sent">${data.sent || 0} {{ __("log::lang.sent") }}</span>
                     <span class="text-red log-status selector" data-status="failed">${data.failed || 0} {{ __("log::lang.failed") }}</span>
                 </div>
             </div>
@@ -882,9 +927,10 @@
                                 data: 'message',
                                 render: function(data) {
                                     if (!data) return '';
+                                    const decoded = decodeHtmlEntities(data);
                                     if (data.length > 100) {
                                         const short = data.substr(0, 100);
-                                        return `${short} <span class="read-more-message text-primary" data-full="${encodeURIComponent(data)}" style="cursor:pointer;"><u>{{ __("log::lang.read_more") }}</u></span>`;
+                                        return `${short} <span class="read-more-message text-primary" data-full="${encodeURIComponent(decoded)}" style="cursor:pointer;"><u>{{ __("log::lang.read_more") }}</u></span>`;
                                     }
                                     return data;
                                 },
@@ -896,9 +942,10 @@
                                 data: 'trace',
                                 render: function(data) {
                                     if (!data) return '';
+                                    const decoded = decodeHtmlEntities(data);
                                     if (data.length > 50) {
                                         const short = data.substr(0, 50);
-                                        return `${short}... <span class="read-more text-primary" data-full="${encodeURIComponent(data)}" style="cursor:pointer;"><u>{{ __("log::lang.read_more") }}</u></span>`;
+                                        return `${short}... <span class="read-more text-primary" data-full="${encodeURIComponent(decoded)}" style="cursor:pointer;"><u>{{ __("log::lang.read_more") }}</u></span>`;
                                     }
                                     return data;
                                 },

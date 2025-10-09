@@ -310,11 +310,18 @@ class CurrencyController extends Controller
 
     public function updatecurrency(Request $request)
     {
-        $code = Currency::where('id', $request->input('current_id'))->value('code');
-        Artisan::call('currency:manage', ['action' => 'add', 'currency' => $code]);
-        $updatedStatus = ($request->current_status == '1') ? 0 : 1;
-        Currency::where('id', $request->current_id)->update(['status' => $updatedStatus]);
+        try {
+            $currency = Currency::findOrFail($request->input('current_id'));
 
-        return Lang::get('message.updated-successfully');
+            Artisan::call('currency:manage', ['action' => 'add', 'currency' => $currency->code]);
+
+            $currency->status = ($request->current_status == '1') ? 0 : 1;
+
+            $currency->save();
+
+            return Lang::get('message.updated-successfully');
+        }catch (\Exception $ex) {
+            return $ex->getMessage();
+        }
     }
 }

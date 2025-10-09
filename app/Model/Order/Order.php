@@ -3,6 +3,7 @@
 namespace App\Model\Order;
 
 use App\BaseModel;
+use App\Traits\SystemActivityLogsTrait;
 use DateTime;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,35 +13,37 @@ use Spatie\Activitylog\Traits\LogsActivity;
 class Order extends BaseModel
 {
     use HasFactory;
-    use LogsActivity;
+    use SystemActivityLogsTrait;
 
     protected $table = 'orders';
 
-    protected static $logName = 'Order';
+    protected static $logName = 'order';
 
     protected $fillable = ['client', 'order_status', 'invoice_item_id',
         'serial_key', 'product', 'domain', 'subscription', 'price_override', 'qty', 'invoice_id', 'number', ];
 
-    protected static $logAttributes = ['client', 'order_status', 'invoice_item_id',
+    protected $logAttributes = ['client', 'order_status', 'invoice_item_id',
         'serial_key', 'product', 'domain', 'subscription', 'price_override', 'qty', 'invoice_id', 'number', ];
 
-    protected static $logOnlyDirty = true;
+    protected $logNameColumn = 'number';
 
-    public function getDescriptionForEvent(string $eventName): string
+    protected $logUrl = ['orders', '/'];
+
+    protected function getMappings(): array
     {
-        if ($eventName == 'created') {
-            return 'Order No.  <strong> '.$this->number.' </strong> was created';
-        }
-
-        if ($eventName == 'updated') {
-            return 'Order No. <strong> '.$this->number.'</strong> was updated';
-        }
-
-        if ($eventName == 'deleted') {
-            return 'Order No. <strong> '.$this->number.' </strong> was deleted';
-        }
-
-        return '';
+        return [
+            'client' => ['Client', fn ($value) => \App\User::find($value)?->user_name],
+            'order_status' => ['Order Status', fn ($value) => ucfirst($value)],
+            'invoice_item_id' => ['Invoice Item ID', fn ($value) => $value],
+            'serial_key' => ['Serial Key', fn ($value) => $value],
+            'product' => ['Product', fn ($value) => \App\Model\Product\Product::find($value)?->name],
+            'domain' => ['Domain', fn ($value) => $value],
+            'subscription' => ['Subscription', fn ($value) => \App\Model\Product\Subscription::find($value)?->name],
+            'price_override' => ['Price Override', fn ($value) => $value],
+            'qty' => ['Quantity', fn ($value) => $value],
+            'invoice_id' => ['Invoice ID', fn ($value) => $value],
+            'number' => ['Order Number', fn ($value) => $value],
+        ];
     }
 
     public function invoice()
@@ -160,10 +163,5 @@ class Order extends BaseModel
         }
 
         return $link;
-    }
-
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults();
     }
 }
