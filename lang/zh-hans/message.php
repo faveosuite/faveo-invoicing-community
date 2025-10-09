@@ -2713,5 +2713,5 @@ return [
     'log_description' => ':module :name 已被 :event',
     'has_been' => '已被',
     'cloud' => '云',
-    'attach_helper_no_default_disk' => '文件存储没有设置默认磁盘。请在文件存储设置中设置默认磁盘。'
+    'attach_helper_no_default_disk' => '文件存储没有设置默认磁盘。请在文件存储设置中设置默认磁盘。',
 ];

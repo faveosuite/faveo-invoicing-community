@@ -2649,5 +2649,5 @@ return [
     'log_description' => ':module :name je :event',
     'has_been' => 'je',
     'cloud' => 'Oblak',
-    'attach_helper_no_default_disk' => 'Nema zadani disk za pohranu datoteka. Molimo postavite zadani disk u postavkama pohrane datoteka.'
+    'attach_helper_no_default_disk' => 'Nema zadani disk za pohranu datoteka. Molimo postavite zadani disk u postavkama pohrane datoteka.',
 ];

@@ -2684,5 +2684,5 @@ return [
     'log_description' => ':module :name is :event',
     'has_been' => 'is',
     'cloud' => 'Cloud',
-    'attach_helper_no_default_disk' => 'Er is geen standaardschijf ingesteld voor bestandsopslag. Stel een standaardschijf in in de bestandsopslaginstellingen.'
+    'attach_helper_no_default_disk' => 'Er is geen standaardschijf ingesteld voor bestandsopslag. Stel een standaardschijf in in de bestandsopslaginstellingen.',
 ];

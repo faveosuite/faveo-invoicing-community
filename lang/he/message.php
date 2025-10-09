@@ -2722,5 +2722,5 @@ return [
     'log_description' => ':module :name היה :event',
     'has_been' => 'היה',
     'cloud' => 'ענן',
-    'attach_helper_no_default_disk' => 'אין דיסק ברירת מחדל לאחסון קבצים. נא להגדיר דיסק ברירת מחדל בהגדרות אחסון הקבצים.'
+    'attach_helper_no_default_disk' => 'אין דיסק ברירת מחדל לאחסון קבצים. נא להגדיר דיסק ברירת מחדל בהגדרות אחסון הקבצים.',
 ];

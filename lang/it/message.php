@@ -2713,5 +2713,5 @@ return [
     'log_description' => ':module :name è stato :event',
     'has_been' => 'è stato',
     'cloud' => 'Cloud',
-    'attach_helper_no_default_disk' => 'Non è stato impostato alcun disco predefinito per l’archiviazione dei file. Si prega di impostare un disco predefinito nelle impostazioni di archiviazione dei file.'
+    'attach_helper_no_default_disk' => 'Non è stato impostato alcun disco predefinito per l’archiviazione dei file. Si prega di impostare un disco predefinito nelle impostazioni di archiviazione dei file.',
 ];

@@ -2731,5 +2731,5 @@ return [
     'log_description' => ':module :name :event edildi',
     'has_been' => 'edildi',
     'cloud' => 'Bulut',
-    'attach_helper_no_default_disk' => 'Dosya depolama için varsayılan bir disk ayarlanmadı. Lütfen dosya depolama ayarlarında bir varsayılan disk ayarlayın.'
+    'attach_helper_no_default_disk' => 'Dosya depolama için varsayılan bir disk ayarlanmadı. Lütfen dosya depolama ayarlarında bir varsayılan disk ayarlayın.',
 ];

@@ -2721,5 +2721,5 @@ return [
     'log_description' => ':module :name が :event されました',
     'has_been' => 'されました',
     'cloud' => 'クラウド',
-    'attach_helper_no_default_disk' => 'ファイルストレージ用のデフォルトディスクが設定されていません。ファイルストレージ設定でデフォルトディスクを設定してください。'
+    'attach_helper_no_default_disk' => 'ファイルストレージ用のデフォルトディスクが設定されていません。ファイルストレージ設定でデフォルトディスクを設定してください。',
 ];

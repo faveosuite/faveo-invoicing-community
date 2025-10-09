@@ -2718,5 +2718,5 @@ return [
     'log_description' => ':module :name ha sido :event',
     'has_been' => 'ha sido',
     'cloud' => 'Nube',
-    'attach_helper_no_default_disk' => 'No hay un disco predeterminado configurado para el almacenamiento de archivos. Por favor, configure un disco predeterminado en los ajustes de almacenamiento de archivos.'
+    'attach_helper_no_default_disk' => 'No hay un disco predeterminado configurado para el almacenamiento de archivos. Por favor, configure un disco predeterminado en los ajustes de almacenamiento de archivos.',
 ];

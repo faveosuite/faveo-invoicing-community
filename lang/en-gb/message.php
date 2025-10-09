@@ -2721,5 +2721,5 @@ return [
     'log_description' => ':module :name has been :event',
     'has_been' => 'has been',
     'cloud' => 'Cloud',
-    'attach_helper_no_default_disk' => 'There is no default disk set for file storage. Please set a default disk in the file storage settings.'
+    'attach_helper_no_default_disk' => 'There is no default disk set for file storage. Please set a default disk in the file storage settings.',
 ];

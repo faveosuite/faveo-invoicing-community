@@ -2712,5 +2712,5 @@ return [
     'log_description' => ':module :name telah :event',
     'has_been' => 'telah',
     'cloud' => 'Cloud',
-    'attach_helper_no_default_disk' => 'Tidak ada disk default yang ditetapkan untuk penyimpanan file. Silakan tetapkan disk default di pengaturan penyimpanan file.'
+    'attach_helper_no_default_disk' => 'Tidak ada disk default yang ditetapkan untuk penyimpanan file. Silakan tetapkan disk default di pengaturan penyimpanan file.',
 ];

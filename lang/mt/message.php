@@ -2643,5 +2643,5 @@
      'log_description' => ':module :name kien :event',
      'has_been' => 'kien',
      'cloud' => 'Cloud',
-     'attach_helper_no_default_disk' => 'Ma hemm l-ebda disk default issettjat għall-ħażna tal-fajls. Jekk jogħġbok issettja disk default fil-parametri tal-ħażna tal-fajls.'
+     'attach_helper_no_default_disk' => 'Ma hemm l-ebda disk default issettjat għall-ħażna tal-fajls. Jekk jogħġbok issettja disk default fil-parametri tal-ħażna tal-fajls.',
  ];

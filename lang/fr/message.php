@@ -2707,5 +2707,5 @@ return [
     'log_description' => ':module :name a été :event',
     'has_been' => 'a été',
     'cloud' => 'Cloud',
-    'attach_helper_no_default_disk' => "Aucun disque par défaut n'est configuré pour le stockage des fichiers. Veuillez définir un disque par défaut dans les paramètres de stockage."
+    'attach_helper_no_default_disk' => "Aucun disque par défaut n'est configuré pour le stockage des fichiers. Veuillez définir un disque par défaut dans les paramètres de stockage.",
 ];

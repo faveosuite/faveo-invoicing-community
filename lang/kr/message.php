@@ -2738,5 +2738,5 @@ return [
     'log_description' => ':module :name 이(가) :event 되었습니다',
     'has_been' => '되었습니다',
     'cloud' => '클라우드',
-    'attach_helper_no_default_disk' => '파일 저장용 기본 디스크가 설정되지 않았습니다. 파일 저장 설정에서 기본 디스크를 설정하십시오.'
+    'attach_helper_no_default_disk' => '파일 저장용 기본 디스크가 설정되지 않았습니다. 파일 저장 설정에서 기본 디스크를 설정하십시오.',
 ];

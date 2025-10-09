@@ -2719,5 +2719,5 @@ return [
     'log_description' => ':module :name đã được :event',
     'has_been' => 'đã được',
     'cloud' => 'Đám mây',
-    'attach_helper_no_default_disk' => 'Không có ổ đĩa mặc định nào được đặt cho lưu trữ tệp. Vui lòng đặt ổ đĩa mặc định trong cài đặt lưu trữ tệp.'
+    'attach_helper_no_default_disk' => 'Không có ổ đĩa mặc định nào được đặt cho lưu trữ tệp. Vui lòng đặt ổ đĩa mặc định trong cài đặt lưu trữ tệp.',
 ];

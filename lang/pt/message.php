@@ -2696,5 +2696,5 @@ return [
     'log_description' => ':module :name foi :event',
     'has_been' => 'foi',
     'cloud' => 'Nuvem',
-    'attach_helper_no_default_disk' => 'Não há disco padrão definido para armazenamento de arquivos. Por favor, defina um disco padrão nas configurações de armazenamento de arquivos.'
+    'attach_helper_no_default_disk' => 'Não há disco padrão definido para armazenamento de arquivos. Por favor, defina um disco padrão nas configurações de armazenamento de arquivos.',
 ];
