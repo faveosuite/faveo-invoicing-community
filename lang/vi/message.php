@@ -2716,4 +2716,8 @@ return [
     'valid_username' => 'Vui lòng nhập tên người dùng hợp lệ',
     'set_auth_invoicing' => 'Tất cả đã sẵn sàng. Từ bây giờ, bạn sẽ sử dụng ứng dụng Authenticator để đăng nhập vào tài khoản Faveo Invoicing của bạn.',
     'continue_verify_social_login' => 'Nhấp vào "Validate" để tiếp tục và xác nhận danh tính của bạn',
+    'log_description' => ':module :name đã được :event',
+    'has_been' => 'đã được',
+    'cloud' => 'Đám mây',
+    'attach_helper_no_default_disk' => 'Không có ổ đĩa mặc định nào được đặt cho lưu trữ tệp. Vui lòng đặt ổ đĩa mặc định trong cài đặt lưu trữ tệp.'
 ];

@@ -2715,4 +2715,8 @@ return [
     'valid_username' => 'Por favor, introduzca un nombre de usuario válido',
     'set_auth_invoicing' => 'Todo está listo. A partir de ahora, usarás la aplicación Authenticator para iniciar sesión en tu cuenta de Faveo Invoicing.',
     'continue_verify_social_login' => 'Haga clic en "Validate" para proceder y confirmar su identidad',
+    'log_description' => ':module :name ha sido :event',
+    'has_been' => 'ha sido',
+    'cloud' => 'Nube',
+    'attach_helper_no_default_disk' => 'No hay un disco predeterminado configurado para el almacenamiento de archivos. Por favor, configure un disco predeterminado en los ajustes de almacenamiento de archivos.'
 ];

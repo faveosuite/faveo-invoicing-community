@@ -2681,4 +2681,8 @@ return [
     'cloud_plan_error' => 'Verwijder het cloudproduct of koppel het aan een alternatief plan.',
 
     'continue_verify_social_login' => 'Klik op "Validate" om verder te gaan en uw identiteit te bevestigen',
+    'log_description' => ':module :name is :event',
+    'has_been' => 'is',
+    'cloud' => 'Cloud',
+    'attach_helper_no_default_disk' => 'Er is geen standaardschijf ingesteld voor bestandsopslag. Stel een standaardschijf in in de bestandsopslaginstellingen.'
 ];

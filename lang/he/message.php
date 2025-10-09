@@ -2719,5 +2719,8 @@ return [
     'valid_username' => 'אנא הזן שם משתמש חוקי',
     'set_auth_invoicing' => 'אתה מוכן. מכאן והלאה, תשתמש באפליקציית האותנטיקטור כדי להיכנס לחשבון Faveo Invoicing שלך.',
     'continue_verify_social_login' => 'לחץ על "Validate" כדי להמשיך ולאמת את זהותך',
-
+    'log_description' => ':module :name היה :event',
+    'has_been' => 'היה',
+    'cloud' => 'ענן',
+    'attach_helper_no_default_disk' => 'אין דיסק ברירת מחדל לאחסון קבצים. נא להגדיר דיסק ברירת מחדל בהגדרות אחסון הקבצים.'
 ];

@@ -2718,4 +2718,8 @@ return [
     'valid_username' => '有効なユーザー名を入力してください',
     'set_auth_invoicing' => '準備完了です。今後、Faveo Invoicingアカウントにサインインする際は、Authenticatorアプリを使用してください。',
     'continue_verify_social_login' => '続行して「Validate」をクリックして、あなたの身元を確認してください',
+    'log_description' => ':module :name が :event されました',
+    'has_been' => 'されました',
+    'cloud' => 'クラウド',
+    'attach_helper_no_default_disk' => 'ファイルストレージ用のデフォルトディスクが設定されていません。ファイルストレージ設定でデフォルトディスクを設定してください。'
 ];

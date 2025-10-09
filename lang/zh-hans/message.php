@@ -2710,4 +2710,8 @@ return [
     'valid_username' => '请输入有效的用户名',
     'set_auth_invoicing' => '一切就绪。从现在开始，您将使用身份验证器应用程序登录您的 Faveo Invoicing 帐户。',
     'continue_verify_social_login' => '点击“Validate”以继续并确认您的身份',
+    'log_description' => ':module :name 已被 :event',
+    'has_been' => '已被',
+    'cloud' => '云',
+    'attach_helper_no_default_disk' => '文件存储没有设置默认磁盘。请在文件存储设置中设置默认磁盘。'
 ];

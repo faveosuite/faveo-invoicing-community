@@ -2676,4 +2676,8 @@ return [
     'valid_username' => '請輸入有效的用戶名',
     'set_auth_invoicing' => '一切就緒。從現在開始，您將使用身份驗證器應用程式登錄您的 Faveo Invoicing 帳戶。',
     'continue_verify_social_login' => '點擊“Validate”以繼續並確認您的身份',
+    'log_description' => ':module :name 已被 :event',
+    'has_been' => '已被',
+    'cloud' => '雲',
+    'attach_helper_no_default_disk' => '文件儲存沒有設定預設磁碟。請在文件儲存設定中設定預設磁碟。'
 ];

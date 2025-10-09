@@ -95,4 +95,6 @@ return [
     'send' => '发送',
     'queued' => '排队中',
     'delete_logs_entries' => '删除早于以下时间的日志条目',
+    'sent' => '已发送',
+    'failed_jobs' => '失败的任务',
 ];
