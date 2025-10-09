@@ -2673,7 +2673,16 @@ return [
     'manager_settings_updated_successfully' => 'Managerinstellingen zijn succesvol bijgewerkt.',
 
     'user_position_prohibited_if' => 'Het veld functie is niet toegestaan wanneer de rol gebruiker is.',
+    'system_logs_deletion' => 'Systeemlogboeken verwijderen',
+    'please_enable_system_logs_deletion' => 'Schakel de cron voor systeemlogboeken in',
+    'cron_trigger_deletion_system_logs' => 'Deze cron verwijdert automatisch systeemlogboeken na de opgegeven periode.',
+    'enable_system_logs_cron' => 'Systeemlogboeken verwijderen inschakelen',
+    'system_logs_deletion_older_than' => 'Systeemlogboeken ouder verwijderen dan..',
     'cloud_plan_error' => 'Verwijder het cloudproduct of koppel het aan een alternatief plan.',
 
     'continue_verify_social_login' => 'Klik op "Validate" om verder te gaan en uw identiteit te bevestigen',
+    'log_description' => ':module :name is :event',
+    'has_been' => 'is',
+    'cloud' => 'Cloud',
+    'attach_helper_no_default_disk' => 'Er is geen standaardschijf ingesteld voor bestandsopslag. Stel een standaardschijf in in de bestandsopslaginstellingen.',
 ];

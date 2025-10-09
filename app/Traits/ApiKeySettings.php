@@ -81,15 +81,21 @@ trait ApiKeySettings
             $statusValue = $input[$inputKey];
 
             if ($statusEntry['key'] === 'v3_v2_recaptcha_status' && ! $statusValue) {
+                StatusSetting::find(1)->fill([
+                    'v3_v2_recaptcha_status' => 0,
+                    'recaptcha_status' => 0,
+                    'v3_recaptcha_status' => 0,
+                ])->save();
+
                 StatusSetting::where('id', 1)->update([
                     'v3_v2_recaptcha_status' => 0,
                     'recaptcha_status' => 0,
                     'v3_recaptcha_status' => 0,
                 ]);
             } else {
-                StatusSetting::where('id', 1)->update([
+                StatusSetting::find(1)->fill([
                     $statusEntry['key'] => $statusValue,
-                ]);
+                ])->save();
             }
 
             return successResponse($statusEntry['lang']);
@@ -323,6 +329,8 @@ trait ApiKeySettings
             $invoice_dailyAt = \Request::get('invoice-dailyAt');
             $msg91_commands = \Request::get('msg91-commands');
             $msg91_dailyAt = \Request::get('msg91-dailyAt');
+            $system_commands = \Request::get('systemlogs-commands');
+            $system_dailyAt = \Request::get('systemlogs-dailyAt');
 
             $activity_command = $this->getCommand($activity_commands, $activity_dailyAt);
             $expiry_command = $this->getCommand($expiry_commands, $expiry_dailyAt);
@@ -332,7 +340,8 @@ trait ApiKeySettings
             $cloud_command = $this->getCommand($cloud_commands, $cloud_dailyAt);
             $invoice_command = $this->getCommand($invoice_commands, $invoice_dailyAt);
             $msg91_command = $this->getCommand($msg91_commands, $msg91_dailyAt);
-            $jobs = ['expiryMail' => $expiry_command, 'deleteLogs' => $activity_command, 'subsExpirymail' => $subexpiry_command, 'postExpirymail' => $postexpiry_command, 'cloud' => $cloud_command, 'invoice' => $invoice_command, 'msg91Reports' => $msg91_command];
+            $system_command = $this->getCommand($system_commands, $system_dailyAt);
+            $jobs = ['expiryMail' => $expiry_command, 'deleteLogs' => $activity_command, 'subsExpirymail' => $subexpiry_command, 'postExpirymail' => $postexpiry_command, 'cloud' => $cloud_command, 'invoice' => $invoice_command, 'msg91Reports' => $msg91_command, 'systemLogs' => $system_command];
 
             $this->storeCommand($jobs);
         }

@@ -2707,6 +2707,12 @@ return [
     'manager_settings_updated_successfully' => 'Manager settings updated successfully.',
 
     'user_position_prohibited_if' => 'The position field is not allowed when role is user.',
+
+    'system_logs_deletion' => 'System Logs Deletion',
+    'please_enable_system_logs_deletion' => 'Please enable system logs cron',
+    'cron_trigger_deletion_system_logs' => 'This cron will automatically delete system logs after the specified period.',
+    'enable_system_logs_cron' => 'Enable system logs deletion',
+    'system_logs_deletion_older_than' => 'System Logs Deletion Older than..',
     'delete_invoice_older' => 'Delete invoices Older than..',
     'deletion_cloud_subscription' => 'Delete cloud subscription expired more than..',
     'msg_service_down' => 'We’re currently experiencing issues with our OTP service. Please try again shortly. We\'re working to resolve this quickly.',
@@ -2722,5 +2728,9 @@ return [
     'valid_username' => 'Please enter a valid username',
     'set_auth_invoicing' => 'You\'re all set. From now on, you\'ll use the Authenticator app to sign in to your Faveo Invoicing account.',
     'continue_verify_social_login' => 'Click "Validate" to proceed and confirm your identity',
+    'log_description' => ':module :name has been :event',
+    'has_been' => 'has been',
+    'cloud' => 'Cloud',
+    'attach_helper_no_default_disk' => 'There is no default disk set for file storage. Please set a default disk in the file storage settings.',
 
 ];

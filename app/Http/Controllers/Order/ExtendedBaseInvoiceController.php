@@ -134,7 +134,7 @@ class ExtendedBaseInvoiceController extends Controller
 
             return response()->json($response);
         } catch (\Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
 
             $result = [$ex->getMessage()];
 
@@ -196,7 +196,7 @@ class ExtendedBaseInvoiceController extends Controller
             }
             // return $payment;
         } catch (Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
 
             return redirect()->back()->with('fails', $ex->getMessage());
         }
@@ -235,7 +235,7 @@ class ExtendedBaseInvoiceController extends Controller
 
             return response()->json($response);
         } catch (\Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
             $result = [$ex->getMessage()];
 
             return response()->json(compact('result'), 500);
@@ -290,7 +290,7 @@ class ExtendedBaseInvoiceController extends Controller
 
             // return $payment;
         } catch (Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
 
             return redirect()->back()->with('fails', $ex->getMessage());
         }

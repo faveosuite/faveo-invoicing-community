@@ -2541,10 +2541,20 @@ return [
     'manager_settings_updated_successfully' => 'تم تحديث إعدادات المدير بنجاح.',
 
     'user_position_prohibited_if' => 'حقل الوظيفة غير مسموح به عندما تكون القيمة للدور هي مستخدم.',
+
+    'system_logs_deletion' => 'حذف سجلات النظام',
+    'please_enable_system_logs_deletion' => 'يرجى تمكين سجلات النظام cron',
+    'cron_trigger_deletion_system_logs' => 'سيقوم هذا cron تلقائيًا بحذف سجلات النظام بعد الفترة المحددة.',
+    'enable_system_logs_cron' => 'تمكين حذف سجلات النظام',
+    'system_logs_deletion_older_than' => 'حذف سجلات النظام الأقدم من..',
     'delete_invoice_older' => 'حذف الفواتير الأقدم من..',
     'deletion_cloud_subscription' => 'حذف الاشتراكات السحابية المنتهية منذ أكثر من..',
     'msg_service_down' => 'نواجه حالياً مشاكل في خدمة OTP. يرجى المحاولة مرة أخرى قريباً. نحن نعمل على حل المشكلة في أسرع وقت ممكن.',
     'cloud_plan_error' => 'يرجى إزالة المنتج السحابي أو ربطه بخطة بديلة.',
 
     'continue_verify_social_login' => 'انقر على "Validate" للمتابعة وتأكيد هويتك',
+    'log_description' => ':module :name تم :event',
+    'has_been' => 'تم',
+    'cloud' => 'السحابة',
+    'attach_helper_no_default_disk' => 'لا يوجد قرص افتراضي لتخزين الملفات. الرجاء تعيين قرص افتراضي في إعدادات تخزين الملفات.',
 ];

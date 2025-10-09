@@ -241,6 +241,7 @@ class WidgetController extends Controller
         $social = SocialMedia::get();
         $footerWidgetTypes = ['footer1', 'footer2', 'footer3'];
         $isV2RecaptchaEnabledForNewsletter = 0;
+        $data = [];
         foreach ($footerWidgetTypes as $widgetType) {
             $widget = \App\Model\Front\Widgets::where('publish', 1)->where('type', $widgetType)->select('name', 'content', 'allow_tweets', 'allow_mailchimp', 'allow_social_media')->first();
             $mailchimpKey = \App\Model\Common\Mailchimp\MailchimpSetting::value('api_key');

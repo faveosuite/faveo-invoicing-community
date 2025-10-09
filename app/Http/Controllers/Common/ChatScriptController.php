@@ -92,7 +92,7 @@ class ChatScriptController extends Controller
             return redirect()->back()->with('success', \Lang::get('message.saved-successfully'));
         } catch (Exception $ex) {
             Bugsnag::notifyException($ex);
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
 
             return redirect()->back()->with('fails', $ex->getMessage());
         }

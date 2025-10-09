@@ -2,17 +2,16 @@
 
 namespace App\Model\Product;
 
+use App\Traits\SystemActivityLogsTrait;
 use DateTime;
 use DateTimeZone;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
 
 class Subscription extends Model
 {
     use HasFactory;
-    use LogsActivity;
+    use SystemActivityLogsTrait;
 
     protected $table = 'subscriptions';
 
@@ -23,28 +22,34 @@ class Subscription extends Model
         'ends_at' => 'datetime',
     ];
 
-    protected static $logName = 'Subscription';
+    protected $logName = 'subscriptions';
 
-    protected static $logAttributes = ['ends_at', 'update_ends_at', 'support_ends_at', 'user_id', 'plan_id', 'order_id',  'version', 'product_id', 'version_updated_at'];
+    protected $logNameColumn = 'Settings';
 
-    protected static $logOnlyDirty = true;
+    protected $logAttributes = [
+        'name', 'description', 'days', 'ends_at', 'update_ends_at',
+        'user_id', 'plan_id', 'order_id', 'deny_after_subscription', 'version', 'product_id', 'support_ends_at', 'version_updated_at', 'is_subscribed', 'is_deleted',
+    ];
 
-    public function getDescriptionForEvent(string $eventName): string
+    protected function getMappings(): array
     {
-        if ($eventName == 'created') {
-            // dd($this->user()->get()->toArray(), 'cxzc');
-            return 'Subscription for User_Id   <strong> '.$this->user_id.' </strong> was created';
-        }
-
-        if ($eventName == 'updated') {
-            return 'Subscription for User <strong> '.$this->user_id.'</strong> was updated';
-        }
-
-        if ($eventName == 'deleted') {
-            return 'Subscription for User <strong> '.$this->user_id.' </strong> was deleted';
-        }
-
-        return '';
+        return [
+            'name' => ['Subscription Name', fn ($value) => $value],
+            'description' => ['Description', fn ($value) => $value],
+            'days' => ['Subscription Days', fn ($value) => $value],
+            'ends_at' => ['Subscription End Date', fn ($value) => $value],
+            'update_ends_at' => ['Update End Date', fn ($value) => $value],
+            'user_id' => ['User', fn ($value) => \App\User::find($value)?->name],
+            'plan_id' => ['Plan', fn ($value) => \App\Model\Payment\Plan::find($value)?->name],
+            'order_id' => ['Order', fn ($value) => $value ? \App\Model\Order\Order::find($value)?->number : 'No Order'],
+            'deny_after_subscription' => ['Deny After Subscription', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
+            'version' => ['Version', fn ($value) => $value],
+            'product_id' => ['Product', fn ($value) => \App\Model\Product\Product::find($value)?->name],
+            'support_ends_at' => ['Support End Date', fn ($value) => $value],
+            'version_updated_at' => ['Version Updated At', fn ($value) => $value],
+            'is_subscribed' => ['Is Subscribed', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
+            'is_deleted' => ['Is Deleted', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
+        ];
     }
 
     public function plan()
@@ -85,8 +90,4 @@ class Subscription extends Model
 //
 //        return parent::delete();
 //    }
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults();
-    }
 }

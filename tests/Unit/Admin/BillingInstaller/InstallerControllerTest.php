@@ -122,7 +122,7 @@ class InstallerControllerTest extends DBTestCase
     public function test_selected_language_stored_in_auth_user()
     {
         // check the authenticated user selected language stored in auth user or not
-        $user = User::factory()->make();
+        $user = User::factory()->create();
         Auth::shouldReceive('check')->andReturn(true);
         Auth::shouldReceive('user')->andReturn($user);
         $response = $this->call('POST', url('update/language'), ['language' => 'ar']);

@@ -2703,6 +2703,11 @@ return [
     'manager_settings_updated_successfully' => 'Lederinnstillingene ble oppdatert vellykket.',
 
     'user_position_prohibited_if' => 'Feltet for stilling er ikke tillatt når rollen er bruker.',
+    'system_logs_deletion' => 'Sletting av systemlogger',
+    'please_enable_system_logs_deletion' => 'Vennligst aktiver systemloggers cron',
+    'cron_trigger_deletion_system_logs' => 'Denne cron-jobben vil automatisk slette systemlogger etter den angitte perioden.',
+    'enable_system_logs_cron' => 'Aktiver sletting av systemlogger',
+    'system_logs_deletion_older_than' => 'Sletting av systemlogger eldre enn...',
     'delete_invoice_older' => 'Slett fakturaer eldre enn...',
     'deletion_cloud_subscription' => 'Slett skytjenesteabonnementer som utløp for mer enn...',
     'msg_service_down' => 'Vi opplever for øyeblikket problemer med vår OTP-tjeneste. Vennligst prøv igjen om en liten stund. Vi jobber med å løse problemet så raskt som mulig.',
@@ -2716,4 +2721,8 @@ return [
     'valid_username' => 'Vennligst skriv inn et gyldig brukernavn',
     'set_auth_invoicing' => 'Du er klar. Fra nå av vil du bruke Authenticator-appen for å logge inn på Faveo Invoicing-kontoen din.',
     'continue_verify_social_login' => 'Klikk på "Validate" for å fortsette og bekrefte din identitet',
+    'log_description' => ':module :name har blitt :event',
+    'has_been' => 'har blitt',
+    'cloud' => 'Sky',
+    'attach_helper_no_default_disk' => 'Det er ingen standarddisk satt for fillagring. Vennligst sett en standarddisk i fillagringsinnstillingene.',
 ];

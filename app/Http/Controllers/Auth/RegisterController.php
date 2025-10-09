@@ -199,8 +199,6 @@ class RegisterController extends Controller
 
             $userInput = User::create($user);
 
-            activity()->log('User <strong>'.$user['first_name'].' '.$user['last_name'].'</strong> was created');
-
             $need_verify = $this->getEmailMobileStatusResponse();
 
             AddUserToExternalService::dispatch($userInput, 'register');
@@ -212,11 +210,13 @@ class RegisterController extends Controller
                 'verification_user_id' => $userInput->id,
             ]);
 
+            $this->logActivityRegister($userInput);
+
             \Session::flash('user', $userInput);
 
             return successResponse(__('message.registration_complete'), ['need_verify' => $need_verify]);
         } catch (Exception $ex) {
-            app('log')->error($ex->getMessage());
+            \Logger::exception($ex);
 
             return errorResponse($ex->getMessage());
         }
@@ -303,5 +303,21 @@ class RegisterController extends Controller
         //     'email' => $data['email'],
         //     'password' => bcrypt($data['password']),
         // ]);
+    }
+
+    public function logActivityRegister($user): void
+    {
+        if (! $user) {
+            return;
+        }
+
+        $message = "User {$user->first_name} {$user->last_name} ({$user->email}) was created.";
+
+        logActivity(
+            $message,
+            'created',
+            'authentication',
+            $user
+        );
     }
 }

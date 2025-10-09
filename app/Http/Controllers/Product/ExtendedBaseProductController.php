@@ -114,7 +114,7 @@ class ExtendedBaseProductController extends Controller
             ]);
         try {
             $file_upload = ProductUpload::find($id);
-            $file_upload->where('id', $id)->update(['title' => $request->input('title'), 'description' => $request->input('description'), 'version' => $request->input('version'), 'dependencies' => json_encode($request->input('dependencies')), 'is_private' => $request->input('is_private'), 'is_restricted' => $request->input('is_restricted'), 'release_type' => $request->input('release_type')]);
+            $file_upload->update(['title' => $request->input('title'), 'description' => $request->input('description'), 'version' => $request->input('version'), 'dependencies' => json_encode($request->input('dependencies')), 'is_private' => $request->input('is_private'), 'is_restricted' => $request->input('is_restricted'), 'release_type' => $request->input('release_type')]);
             $autoUpdateStatus = StatusSetting::pluck('license_status')->first();
             if ($autoUpdateStatus == 1) { //If License Setting Status is on,Add Product to the AutoUpdate Script
                 $productSku = $file_upload->product->product_sku;
@@ -124,7 +124,7 @@ class ExtendedBaseProductController extends Controller
 
             return redirect()->back()->with('success', __('message.product_updated_successfully'));
         } catch (\Exception $e) {
-            app('log')->error($e->getMessage());
+            \Logger::exception($e);
             $message = [$e->getMessage()];
             $response = ['success' => 'false', 'message' => $message];
 

@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
+use App\Console\LoggableCommand;
 use Illuminate\Support\Facades\File;
 
-class moveImages extends Command
+class moveImages extends LoggableCommand
 {
     /**
      * The name and signature of the console command.
@@ -26,7 +26,7 @@ class moveImages extends Command
      *
      * @return int
      */
-    public function handle()
+    public function handleAndLog()
     {
         // Define the source directories and corresponding destination directories
         $directories = [

@@ -3,43 +3,36 @@
 namespace App\Model\Payment;
 
 use App\BaseModel;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
+use App\Traits\SystemActivityLogsTrait;
 
 class TaxOption extends BaseModel
 {
-    use LogsActivity;
+    use SystemActivityLogsTrait;
 
     protected $table = 'tax_rules';
 
     protected $fillable = ['tax_enable', 'inclusive', 'shop_inclusive', 'cart_inclusive', 'rounding', 'Gst_no', 'cif_no'];
 
-    protected static $logName = 'Tax Class';
+    protected $logName = 'taxes';
 
-    protected static $logAttributes = ['tax_enable', 'inclusive',
-        'shop_inclusive', 'cart_inclusive', 'rounding', 'Gst_no', ];
+    protected $logNameColumn = 'Settings';
 
-    protected static $logOnlyDirty = true;
+    protected $logAttributes = [
+        'tax_enable', 'inclusive', 'shop_inclusive', 'cart_inclusive', 'rounding', 'Gst_no', 'cif_no',
+    ];
 
-    public function getDescriptionForEvent(string $eventName): string
+    protected $requireLogUrl = false;
+
+    protected function getMappings(): array
     {
-        if ($eventName == 'created') {
-            return 'Tax Rule   was created';
-        }
-
-        if ($eventName == 'updated') {
-            return 'Tax Rule was updated';
-        }
-
-        if ($eventName == 'deleted') {
-            return 'Tax Rule  was deleted';
-        }
-
-        return '';
-    }
-
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults();
+        return [
+            'tax_enable' => ['Tax Enable', fn ($value) => $value === 1 ? __('message.active') : __('message.inactive')],
+            'inclusive' => ['Prices Entered With Tax', fn ($value) => $value === 1 ? 'Yes' : 'No'],
+            'shop_inclusive' => ['Shop Prices Entered With Tax', fn ($value) => $value === 1 ? 'Yes' : 'No'],
+            'cart_inclusive' => ['Cart Prices Entered With Tax', fn ($value) => $value === 1 ? 'Yes' : 'No'],
+            'rounding' => ['Rounding', fn ($value) => $value === 1 ? 'Round per line' : 'Round total'],
+            'Gst_no' => ['GST Number', fn ($value) => $value ?: 'N/A'],
+            'cif_no' => ['CIF Number', fn ($value) => $value ?: 'N/A'],
+        ];
     }
 }

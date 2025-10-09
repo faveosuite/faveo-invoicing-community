@@ -2697,6 +2697,11 @@ return [
     'manager_settings_updated_successfully' => 'La configuración del gerente se actualizó correctamente.',
 
     'user_position_prohibited_if' => 'El campo de posición no está permitido cuando el rol es usuario.',
+    'system_logs_deletion' => 'Eliminación de registros del sistema',
+    'please_enable_system_logs_deletion' => 'Habilite el cron de registros del sistema',
+    'cron_trigger_deletion_system_logs' => 'Este cron eliminará automáticamente los registros del sistema después del período especificado.',
+    'enable_system_logs_cron' => 'Habilitar la eliminación de registros del sistema',
+    'system_logs_deletion_older_than' => 'Eliminación de registros del sistema anteriores a...',
     'delete_invoice_older' => 'Eliminar facturas anteriores a...',
     'deletion_cloud_subscription' => 'Eliminar suscripciones en la nube que hayan expirado hace más de...',
     'msg_service_down' => 'Actualmente estamos experimentando problemas con nuestro servicio de OTP. Por favor, inténtalo de nuevo en breve. Estamos trabajando para resolverlo lo antes posible.',
@@ -2710,4 +2715,8 @@ return [
     'valid_username' => 'Por favor, introduzca un nombre de usuario válido',
     'set_auth_invoicing' => 'Todo está listo. A partir de ahora, usarás la aplicación Authenticator para iniciar sesión en tu cuenta de Faveo Invoicing.',
     'continue_verify_social_login' => 'Haga clic en "Validate" para proceder y confirmar su identidad',
+    'log_description' => ':module :name ha sido :event',
+    'has_been' => 'ha sido',
+    'cloud' => 'Nube',
+    'attach_helper_no_default_disk' => 'No hay un disco predeterminado configurado para el almacenamiento de archivos. Por favor, configure un disco predeterminado en los ajustes de almacenamiento de archivos.',
 ];

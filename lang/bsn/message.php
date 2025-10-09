@@ -2626,6 +2626,13 @@ return [
     'manager_settings_updated_successfully' => 'Postavke menadžera su uspješno ažurirane.',
 
     'user_position_prohibited_if' => 'Polje pozicija nije dozvoljeno kada je uloga korisnik.',
+
+    'system_logs_deletion' => 'Brisanje sistemskih zapisa',
+    'please_enable_system_logs_deletion' => 'Omogućite cron za sistemske zapise',
+    'cron_trigger_deletion_system_logs' => 'Ovaj cron će automatski izbrisati sistemske zapise nakon određenog perioda.',
+    'enable_system_logs_cron' => 'Omogući brisanje sistemskih zapisa',
+    'system_logs_deletion_older_than' => 'Brisanje sistemskih zapisa starijih od...',
+
     'delete_invoice_older' => 'Obriši fakture starije od...',
     'deletion_cloud_subscription' => 'Obriši cloud pretplate koje su istekle prije više od...',
     'msg_service_down' => 'Trenutno imamo problema s OTP uslugom. Molimo pokušajte ponovo uskoro. Radimo na brzom rješenju problema.',
@@ -2639,4 +2646,8 @@ return [
     'valid_username' => 'Molimo unesite važeće korisničko ime',
     'set_auth_invoicing' => 'Sve je spremno. Od sada ćete koristiti aplikaciju Authenticator za prijavu na vaš Faveo Invoicing nalog.',
     'continue_verify_social_login' => 'Kliknite na "Validate" da nastavite i potvrdite svoj identitet',
+    'log_description' => ':module :name je :event',
+    'has_been' => 'je',
+    'cloud' => 'Oblak',
+    'attach_helper_no_default_disk' => 'Nema zadani disk za pohranu datoteka. Molimo postavite zadani disk u postavkama pohrane datoteka.',
 ];

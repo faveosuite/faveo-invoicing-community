@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
+use App\Console\LoggableCommand;
 use Illuminate\Foundation\Inspiring;
 
-class Inspire extends Command
+class Inspire extends LoggableCommand
 {
     /**
      * The console command name.
@@ -26,7 +26,7 @@ class Inspire extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handleAndLog()
     {
         $this->comment(PHP_EOL.Inspiring::quote().PHP_EOL);
     }

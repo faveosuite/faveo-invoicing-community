@@ -2658,6 +2658,11 @@ return [
     'manager_settings_updated_successfully' => '管理員設定已成功更新。',
 
     'user_position_prohibited_if' => '當角色為使用者時，不允許填寫職位欄位。',
+    'system_logs_deletion' => '系統日誌刪除',
+    'please_enable_system_logs_deletion' => '請啟用系統日誌定期刪除',
+    'cron_trigger_deletion_system_logs' => '此定期排程將在指定時間後自動刪除系統日誌。',
+    'enable_system_logs_cron' => '啟用系統日誌刪除',
+    'system_logs_deletion_older_than' => '刪除早於...',
     'delete_invoice_older' => '刪除早於...的發票',
     'deletion_cloud_subscription' => '刪除已過期超過...的雲端訂閱',
     'msg_service_down' => '我們目前的 OTP 服務發生故障。請稍後再試。我們正努力儘快解決問題。',
@@ -2671,4 +2676,8 @@ return [
     'valid_username' => '請輸入有效的用戶名',
     'set_auth_invoicing' => '一切就緒。從現在開始，您將使用身份驗證器應用程式登錄您的 Faveo Invoicing 帳戶。',
     'continue_verify_social_login' => '點擊“Validate”以繼續並確認您的身份',
+    'log_description' => ':module :name 已被 :event',
+    'has_been' => '已被',
+    'cloud' => '雲',
+    'attach_helper_no_default_disk' => '文件儲存沒有設定預設磁碟。請在文件儲存設定中設定預設磁碟。',
 ];

@@ -4,43 +4,36 @@ namespace App\Model\Payment;
 
 use App\BaseModel;
 use App\Model\Configure\ConfigOption;
+use App\Traits\SystemActivityLogsTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
 
 class Plan extends BaseModel
 {
     use HasFactory;
-    use LogsActivity;
+    use SystemActivityLogsTrait;
 
     protected $table = 'plans';
 
     protected $fillable = ['name', 'product', 'allow_tax', 'days'];
 
-    protected static $logName = 'Plans';
+    protected $logName = 'plan';
 
-    protected static $logAttributes = ['name', 'product', 'days'];
+    protected $logNameColumn = 'name';
 
-    protected static $logOnlyDirty = true;
+    protected $logAttributes = [
+        'name', 'product', 'allow_tax', 'days',
+    ];
 
-    public function getDescriptionForEvent(string $eventName): string
+    protected $logUrl = ['plans', 'edit'];
+
+    protected function getMappings(): array
     {
-        if ($eventName == 'created') {
-            return 'Plan  <strong> '.$this->name.' </strong> was created';
-        }
-
-        if ($eventName == 'updated') {
-            return 'Plan <strong> '.$this->name.'</strong> was updated';
-        }
-
-        if ($eventName == 'deleted') {
-            return 'Plan <strong> '.$this->name.' </strong> was deleted';
-        }
-
-        return '';
-
-        // return "Product  has been {$eventName}";
-        // \Auth::user()->activity;
+        return [
+            'name' => ['Plan Name', fn ($value) => $value],
+            'product' => ['Product', fn ($value) => \App\Model\Product\Product::find($value)?->name],
+            'allow_tax' => ['Allow Tax', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
+            'days' => ['Plan Days', fn ($value) => $value],
+        ];
     }
 
     public function planPrice()
@@ -62,11 +55,6 @@ class Plan extends BaseModel
     {
         parent::delete();
         $this->planPrice()->delete();
-    }
-
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults();
     }
 
     public function configOptions()

@@ -2713,6 +2713,11 @@ return [
     'manager_settings_updated_successfully' => 'Yönetici ayarları başarıyla güncellendi.',
 
     'user_position_prohibited_if' => 'Rol kullanıcı olduğunda pozisyon alanına izin verilmez.',
+    'system_logs_deletion' => 'Sistem Günlükleri Silme',
+    'please_enable_system_logs_deletion' => "Lütfen sistem günlükleri cron'unu etkinleştirin",
+    'cron_trigger_deletion_system_logs' => 'Bu cron, belirtilen süreden sonra sistem günlüklerini otomatik olarak siler.',
+    'enable_system_logs_cron' => 'Sistem günlükleri silmeyi etkinleştir',
+    'system_logs_deletion_older_than' => 'Şundan eski Sistem Günlüklerini Sil..',
     'cloud_plan_error' => 'Lütfen bulut ürününü kaldırın veya alternatif bir plana bağlayın.',
 
     'invalid_code_2fa' => 'Geçersiz kod. Lütfen tekrar deneyin.',
@@ -2723,4 +2728,8 @@ return [
     'valid_username' => 'Lütfen geçerli bir kullanıcı adı girin',
     'set_auth_invoicing' => 'Her şey hazır. Artık Faveo Invoicing hesabınıza giriş yapmak için Authenticator uygulamasını kullanacaksınız.',
     'continue_verify_social_login' => 'Devam etmek ve kimliğinizi doğrulamak için "Validate" e tıklayın',
+    'log_description' => ':module :name :event edildi',
+    'has_been' => 'edildi',
+    'cloud' => 'Bulut',
+    'attach_helper_no_default_disk' => 'Dosya depolama için varsayılan bir disk ayarlanmadı. Lütfen dosya depolama ayarlarında bir varsayılan disk ayarlayın.',
 ];

@@ -2694,6 +2694,11 @@ return [
     'manager_settings_updated_successfully' => 'Pengaturan manajer berhasil diperbarui.',
 
     'user_position_prohibited_if' => 'Kolom posisi tidak diizinkan saat peran adalah pengguna.',
+    'system_logs_deletion' => 'Penghapusan Log Sistem',
+    'please_enable_system_logs_deletion' => 'Harap aktifkan cron log sistem',
+    'cron_trigger_deletion_system_logs' => 'Cron ini akan secara otomatis menghapus log sistem setelah periode yang ditentukan.',
+    'enable_system_logs_cron' => 'Aktifkan penghapusan log sistem',
+    'system_logs_deletion_older_than' => 'Penghapusan Log Sistem Lebih Lama dari..',
     'cloud_plan_error' => 'Harap hapus produk cloud atau hubungkan ke paket alternatif.',
 
     'invalid_code_2fa' => 'Kode tidak valid. Silakan coba lagi.',
@@ -2704,4 +2709,8 @@ return [
     'valid_username' => 'Silakan masukkan nama pengguna yang valid',
     'set_auth_invoicing' => 'Semua sudah siap. Mulai sekarang, Anda akan menggunakan aplikasi Authenticator untuk masuk ke akun Faveo Invoicing Anda.',
     'continue_verify_social_login' => 'Klik "Validate" untuk melanjutkan dan mengonfirmasi identitas Anda',
+    'log_description' => ':module :name telah :event',
+    'has_been' => 'telah',
+    'cloud' => 'Cloud',
+    'attach_helper_no_default_disk' => 'Tidak ada disk default yang ditetapkan untuk penyimpanan file. Silakan tetapkan disk default di pengaturan penyimpanan file.',
 ];

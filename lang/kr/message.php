@@ -2720,6 +2720,11 @@ return [
     'manager_settings_updated_successfully' => '관리자 설정이 성공적으로 업데이트되었습니다.',
 
     'user_position_prohibited_if' => '역할이 사용자일 때는 직위 필드를 사용할 수 없습니다.',
+    'system_logs_deletion' => '시스템 로그 삭제',
+    'please_enable_system_logs_deletion' => '시스템 로그 cron을 활성화하십시오.',
+    'cron_trigger_deletion_system_logs' => '이 cron은 지정된 기간 후에 시스템 로그를 자동으로 삭제합니다.',
+    'enable_system_logs_cron' => '시스템 로그 삭제 활성화',
+    'system_logs_deletion_older_than' => '오래된 시스템 로그 삭제 기준..',
     'cloud_plan_error' => '클라우드 제품을 삭제하거나 다른 요금제에 연결해 주세요.',
 
     'invalid_code_2fa' => '잘못된 코드입니다. 다시 시도해주세요.',
@@ -2730,4 +2735,8 @@ return [
     'valid_username' => '유효한 사용자 이름을 입력하세요',
     'set_auth_invoicing' => '모든 준비가 완료되었습니다. 이제부터 Faveo Invoicing 계정에 로그인할 때 Authenticator 앱을 사용하게 됩니다.',
     'continue_verify_social_login' => '계속 진행하려면 "Validate" 버튼을 클릭하여 본인 확인을 완료하세요',
+    'log_description' => ':module :name 이(가) :event 되었습니다',
+    'has_been' => '되었습니다',
+    'cloud' => '클라우드',
+    'attach_helper_no_default_disk' => '파일 저장용 기본 디스크가 설정되지 않았습니다. 파일 저장 설정에서 기본 디스크를 설정하십시오.',
 ];

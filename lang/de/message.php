@@ -2694,6 +2694,11 @@ return [
     'manager_settings_updated_successfully' => 'Manager-Einstellungen wurden erfolgreich aktualisiert.',
 
     'user_position_prohibited_if' => 'Das Feld Position ist nicht erlaubt, wenn die Rolle Benutzer ist.',
+    'system_logs_deletion' => 'Systemprotokoll-Löschung',
+    'please_enable_system_logs_deletion' => 'Bitte aktivieren Sie Systemprotokoll-Cron',
+    'cron_trigger_deletion_system_logs' => 'Dieser Cron löscht Systemprotokolle nach dem angegebenen Zeitraum automatisch.',
+    'enable_system_logs_cron' => 'Systemprotokoll-Löschung aktivieren',
+    'system_logs_deletion_older_than' => 'Systemprotokoll-Löschung älter als..',
     'delete_invoice_older' => 'Rechnungen löschen, die älter sind als...',
     'deletion_cloud_subscription' => 'Cloud-Abonnements löschen, die vor mehr als ... abgelaufen sind...',
     'msg_service_down' => 'Derzeit gibt es Probleme mit unserem OTP-Dienst. Bitte versuchen Sie es in Kürze erneut. Wir arbeiten an einer schnellen Lösung.',
@@ -2706,4 +2711,8 @@ return [
     'auth_code_required' => 'Potrebno je unijeti kod za autentifikaciju.',
     'valid_username' => 'Bitte geben Sie einen gültigen Benutzernamen ein',
     'continue_verify_social_login' => 'Klicken Sie auf "Validate", um fortzufahren und Ihre Identität zu bestätigen',
+    'log_description' => ':module :name wurde :event',
+    'has_been' => 'wurde',
+    'cloud' => 'Cloud',
+    'attach_helper_no_default_disk' => 'Es ist kein Standardlaufwerk für die Dateispeicherung festgelegt. Bitte legen Sie in den Dateispeichereinstellungen ein Standardlaufwerk fest.',
 ];

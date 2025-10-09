@@ -2,34 +2,32 @@
 
 namespace App\Model\Common;
 
+use App\Traits\SystemActivityLogsTrait;
 use Illuminate\Database\Eloquent\Model;
 
 class FaveoCloud extends Model
 {
+    use SystemActivityLogsTrait;
+
     protected $table = 'faveo_cloud';
 
     protected $fillable = ['cloud_central_domain', 'cloud_cname'];
 
-    protected static $logName = 'Cloud detail';
+    protected $logName = 'cloud';
 
-    protected static $logAttributes = ['cloud_central_domain', 'cloud_cname'];
+    protected $logNameColumn = 'Faveo Cloud';
 
-    protected static $logOnlyDirty = true;
+    protected $logAttributes = [
+        'cloud_central_domain', 'cloud_cname',
+    ];
 
-    public function getDescriptionForEvent(string $eventName): string
+    protected $logUrl = ['view/tenant'];
+
+    protected function getMappings(): array
     {
-        if ($eventName == 'created') {
-            return 'Cloud detail'.$this->name.' was created';
-        }
-
-        if ($eventName == 'updated') {
-            return 'Cloud detail  <strong> '.$this->name.'</strong> was updated';
-        }
-
-        if ($eventName == 'deleted') {
-            return 'Cloud detail <strong> '.$this->name.' </strong> was deleted';
-        }
-
-        return '';
+        return [
+            'cloud_central_domain' => ['Cloud Central Domain', fn ($value) => $value],
+            'cloud_cname' => ['Cloud Cname', fn ($value) => $value],
+        ];
     }
 }

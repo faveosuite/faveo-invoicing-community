@@ -132,8 +132,7 @@ class SettingsController extends BaseSettingsController
             $allists = $mailchimp->get('lists?count=20')['lists'];
             $selectedList[] = $set->list_id;
         } catch (\Exception $e) {
-            // Log the error if needed
-            \Log::error('Mailchimp Initialization Failed: '.$e->getMessage());
+            \Logger::exception($e);
 
             // Return null when it fails
             $mailchimp = '';
@@ -269,7 +268,7 @@ class SettingsController extends BaseSettingsController
                 $allists = $mailchimp->get('lists?count=20')['lists'];
                 $selectedList[] = $set->list_id;
             } catch (\Exception $e) {
-                \Log::error('Mailchimp Initialization Failed: '.$e->getMessage());
+                \Logger::exception($e);
                 $allists = [];
                 $selectedList = [];
             }
@@ -617,15 +616,14 @@ class SettingsController extends BaseSettingsController
         }
     }
 
-    public function settingsMail(Request $request)
+    public function getBody($id)
     {
         try {
-            $from = $request->input('mailfrom');
-            $till = $request->input('mailtill');
+            $email = Email_log::findOrFail($id);
 
-            return view('themes.default1.common.email-log', compact('from', 'till'));
+            return successResponse('', ['body' => $email->body, 'subject' => $email->subject]);
         } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            return errorResponse($ex->getMessage());
         }
     }
 
@@ -741,7 +739,7 @@ class SettingsController extends BaseSettingsController
                 })
 
                 ->addColumn('subject', function ($model) {
-                    return ucfirst($model->subject);
+                    return '<a href="#" class="text-primary view-mail" data-id="'.$model->id.'">'.e(ucfirst($model->subject)).'</a>';
                 })
                 ->rawColumns(['checkbox', 'date', 'from', 'to',
                     'bcc', 'subject',  'status', ])
@@ -1207,7 +1205,8 @@ class SettingsController extends BaseSettingsController
         $apikey = trim($request->input('apikey'));
         try {
             $accepted_output = $request->input('mode') == 'quick' ? $emailSave->where('type', 'email')->value('accepted_output') : $request->input('accepted_output');
-            EmailMobileValidationProviders::where('provider', $request->input('provider'))->update(['api_key' => $apikey,
+            $emailMobileProvider = EmailMobileValidationProviders::where('provider', $request->input('provider'))->firstOrFail();
+            $emailMobileProvider->update(['api_key' => $apikey,
                 'mode' => $request->input('mode'), 'accepted_output' => $accepted_output, 'to_use' => 1]);
 
             return successResponse(trans('message.email_validation_success'));

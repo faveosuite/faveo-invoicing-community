@@ -15,6 +15,8 @@ use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\RateLimiter;
+use Spatie\Activitylog\ActivityLogger;
+use Spatie\Activitylog\ActivityLogStatus;
 
 function getLocation()
 {
@@ -23,7 +25,7 @@ function getLocation()
 
         return $location;
     } catch (Exception $ex) {
-        app('log')->error($ex->getMessage());
+        \Logger::exception($ex);
         $location = \Config::get('geoip.default_location');
 
         return $location;
@@ -896,6 +898,18 @@ function createUrl(string $path): string
 
     return rtrim($baseUrl, '/').'/'.ltrim($path, '/');
 }
+/**
+ * log the actions in log files.
+ *
+ * @param  string  $context
+ * @param  string  $message
+ * @param  string  $level
+ * @param  array  $array
+ */
+function loging($context, $message, $level = 'error', $array = [])
+{
+    \Log::$level($message.':-:-:-'.$context, $array);
+}
 
 /**
  * Deletes all user sessions except the current session.
@@ -947,4 +961,35 @@ function deleteUserSessions(int $userId, string $password): void
     // Clean directory keeping only selected sessions
     $keepFiles = $sessionsToKeep->map(fn ($file) => $file->getFilename())->all();
     File::cleanDirectoryFiles($sessionPath, $keepFiles);
+}
+
+/**
+ * Log activity in a standard format across the system.
+ *
+ * @param  string  $event
+ * @param  string  $message
+ * @param  array  $properties
+ * @return void
+ */
+function logActivity(
+    string $message,
+    string $event,
+    ?string $module = null,
+    ?User $user = null,
+    array $properties = []
+): void {
+    $defaultLogName = config('activitylog.default_log_name');
+    $logStatus = app(ActivityLogStatus::class);
+
+    $actor = $user ?? (Auth::check() ? Auth::user() : null);
+
+    $log = app(ActivityLogger::class)
+        ->useLog($module ?? $defaultLogName)
+        ->setLogStatus($logStatus)
+        ->event($event)
+        ->withProperties($properties);
+
+    $actor ? $log->causedBy($actor) : $log->causedByAnonymous();
+
+    $log->log($message);
 }

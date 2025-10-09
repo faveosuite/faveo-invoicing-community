@@ -2711,6 +2711,11 @@ return [
     'manager_settings_updated_successfully' => 'प्रबंधक की सेटिंग्स सफलतापूर्वक अपडेट की गईं।',
 
     'user_position_prohibited_if' => 'जब भूमिका उपयोगकर्ता हो, तो स्थिति फ़ील्ड की अनुमति नहीं है।',
+    'system_logs_deletion' => 'सिस्टम लॉग विलोपन',
+    'please_enable_system_logs_deletion' => 'कृपया सिस्टम लॉग क्रोन सक्षम करें',
+    'cron_trigger_deletion_system_logs' => 'यह क्रोन निर्दिष्ट अवधि के बाद स्वचालित रूप से सिस्टम लॉग हटा देगा।',
+    'enable_system_logs_cron' => 'सिस्टम लॉग विलोपन सक्षम करें',
+    'system_logs_deletion_older_than' => 'सिस्टम लॉग इससे पुराने हटाएं..',
     'cloud_plan_error' => 'कृपया क्लाउड उत्पाद को हटाएँ या इसे किसी वैकल्पिक योजना से जोड़ें।',
 
     'invalid_code_2fa' => 'अमान्य कोड। कृपया पुनः प्रयास करें।',
@@ -2721,4 +2726,8 @@ return [
     'valid_username' => 'कृपया एक मान्य उपयोगकर्ता नाम दर्ज करें',
     'set_auth_invoicing' => 'आप तैयार हैं। अब से, आप अपने Faveo Invoicing खाते में साइन इन करने के लिए ऑथेंटिकेटर ऐप का उपयोग करेंगे।',
     'continue_verify_social_login' => 'जारी रखने और अपनी पहचान की पुष्टि करने के लिए "Validate" पर क्लिक करें',
+    'log_description' => ':module :name :event किया गया',
+    'has_been' => 'किया गया',
+    'cloud' => 'क्लाउड',
+    'attach_helper_no_default_disk' => 'फ़ाइल भंडारण के लिए कोई डिफ़ॉल्ट डिस्क सेट नहीं है। कृपया फ़ाइल भंडारण सेटिंग्स में डिफ़ॉल्ट डिस्क सेट करें।',
 ];

@@ -2678,6 +2678,11 @@ return [
     'manager_settings_updated_successfully' => 'As configurações do gerente foram atualizadas com sucesso.',
 
     'user_position_prohibited_if' => 'O campo posição não é permitido quando o papel é usuário.',
+    'system_logs_deletion' => 'Exclusão de Logs do Sistema',
+    'please_enable_system_logs_deletion' => 'Por favor, habilite o cron de logs do sistema',
+    'cron_trigger_deletion_system_logs' => 'Este cron excluirá automaticamente os logs do sistema após o período especificado.',
+    'enable_system_logs_cron' => 'Habilitar a exclusão de logs do sistema',
+    'system_logs_deletion_older_than' => 'Exclusão de Logs do Sistema Mais Antigos que...',
     'cloud_plan_error' => 'Por favor, remova o produto em nuvem ou vincule-o a um plano alternativo.',
 
     'invalid_code_2fa' => 'Código inválido. Por favor, tente novamente.',
@@ -2688,4 +2693,8 @@ return [
     'valid_username' => 'Por favor, insira um nome de usuário válido',
     'set_auth_invoicing' => 'Tudo está pronto. A partir de agora, você usará o aplicativo Authenticator para fazer login na sua conta Faveo Invoicing.',
     'continue_verify_social_login' => 'Clique em "Validate" para prosseguir e confirmar sua identidade',
+    'log_description' => ':module :name foi :event',
+    'has_been' => 'foi',
+    'cloud' => 'Nuvem',
+    'attach_helper_no_default_disk' => 'Não há disco padrão definido para armazenamento de arquivos. Por favor, defina um disco padrão nas configurações de armazenamento de arquivos.',
 ];

@@ -2695,6 +2695,11 @@ return [
     'manager_settings_updated_successfully' => '管理员设置已成功更新。',
 
     'user_position_prohibited_if' => '当角色为用户时，不允许填写职位字段。',
+    'system_logs_deletion' => '系统日志删除',
+    'please_enable_system_logs_deletion' => '请启用系统日志计划任务',
+    'cron_trigger_deletion_system_logs' => '此计划任务将在指定时间段后自动删除系统日志。',
+    'enable_system_logs_cron' => '启用系统日志删除',
+    'system_logs_deletion_older_than' => '删除早于以下时间的系统日志..',
     'cloud_plan_error' => '请移除云产品或将其关联到其他方案。',
 
     'invalid_code_2fa' => '无效的代码。请再试一次。',
@@ -2705,4 +2710,8 @@ return [
     'valid_username' => '请输入有效的用户名',
     'set_auth_invoicing' => '一切就绪。从现在开始，您将使用身份验证器应用程序登录您的 Faveo Invoicing 帐户。',
     'continue_verify_social_login' => '点击“Validate”以继续并确认您的身份',
+    'log_description' => ':module :name 已被 :event',
+    'has_been' => '已被',
+    'cloud' => '云',
+    'attach_helper_no_default_disk' => '文件存储没有设置默认磁盘。请在文件存储设置中设置默认磁盘。',
 ];

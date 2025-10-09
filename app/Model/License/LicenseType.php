@@ -2,35 +2,32 @@
 
 namespace App\Model\License;
 
+use App\Traits\SystemActivityLogsTrait;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
 
 class LicenseType extends Model
 {
-    use LogsActivity;
+    use SystemActivityLogsTrait;
 
     protected $table = 'license_types';
 
     protected $fillable = ['id', 'name'];
 
-    protected static $logName = 'License Type';
+    protected $logName = 'license_types';
 
-    protected static $logOnlyDirty = true;
+    protected $logNameColumn = 'Settings';
 
-    public function getDescriptionForEvent(string $eventName): string
+    protected $logAttributes = [
+        'id', 'name',
+    ];
+
+    protected $logUrl = ['license-type'];
+
+    protected function getMappings(): array
     {
-        if ($eventName == 'created') {
-            return 'License Type '.$this->name.' was created';
-        }
-        if ($eventName == 'updated') {
-            return 'License Type  <strong> '.$this->name.'</strong> was updated';
-        }
-        if ($eventName == 'deleted') {
-            return 'License Type <strong> '.$this->name.' </strong> was deleted';
-        }
-
-        return '';
+        return [
+            'name' => ['License Type', fn ($value) => $value],
+        ];
     }
 
     public function permissions()
@@ -49,10 +46,5 @@ class LicenseType extends Model
         $this->products()->delete();
 
         return parent::delete();
-    }
-
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults();
     }
 }
