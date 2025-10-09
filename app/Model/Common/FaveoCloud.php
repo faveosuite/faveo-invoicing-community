@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class FaveoCloud extends Model
 {
-
     use SystemActivityLogsTrait;
 
     protected $table = 'faveo_cloud';
@@ -18,9 +17,8 @@ class FaveoCloud extends Model
 
     protected $logNameColumn = 'Faveo Cloud';
 
-
     protected $logAttributes = [
-        'cloud_central_domain', 'cloud_cname'
+        'cloud_central_domain', 'cloud_cname',
     ];
 
     protected $logUrl = ['view/tenant'];

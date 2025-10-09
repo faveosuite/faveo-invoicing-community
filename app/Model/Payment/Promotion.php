@@ -4,7 +4,6 @@ namespace App\Model\Payment;
 
 use App\BaseModel;
 use App\Traits\SystemActivityLogsTrait;
-use Spatie\Activitylog\LogOptions;
 
 class Promotion extends BaseModel
 {
@@ -18,12 +17,11 @@ class Promotion extends BaseModel
 
     protected $logNameColumn = 'Settings';
 
-
     protected $logAttributes = [
-        'code', 'type', 'uses', 'value', 'start', 'expiry'
+        'code', 'type', 'uses', 'value', 'start', 'expiry',
     ];
 
-    protected $logUrl = ['promotions','edit'];
+    protected $logUrl = ['promotions', 'edit'];
 
     protected function getMappings(): array
     {

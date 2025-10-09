@@ -13,14 +13,12 @@ class Github extends BaseModel
 
     protected $fillable = ['client_id', 'client_secret', 'username', 'password'];
 
-
     protected $logName = 'github';
 
     protected $logNameColumn = 'Settings';
 
-
     protected $logAttributes = [
-        'client_id', 'client_secret', 'username', 'password'
+        'client_id', 'client_secret', 'username', 'password',
     ];
 
     protected $logUrl = ['third-party-integration'];

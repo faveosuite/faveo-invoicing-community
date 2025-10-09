@@ -13,11 +13,9 @@ class CloudDataCenters extends BaseModel
 
     protected $guarded = [];
 
-
     protected $logName = 'cloud';
 
     protected $logNameColumn = 'Settings';
-
 
     protected $logAttributes = [
         'cloud_countries',
@@ -27,7 +25,7 @@ class CloudDataCenters extends BaseModel
         'longitude',
     ];
 
-    protected $logUrl = ['tax','edit'];
+    protected $logUrl = ['tax', 'edit'];
 
     protected function getMappings(): array
     {

@@ -13,14 +13,12 @@ class LicenseType extends Model
 
     protected $fillable = ['id', 'name'];
 
-
     protected $logName = 'license_types';
 
     protected $logNameColumn = 'Settings';
 
-
     protected $logAttributes = [
-        'id', 'name'
+        'id', 'name',
     ];
 
     protected $logUrl = ['license-type'];

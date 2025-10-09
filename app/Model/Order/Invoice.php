@@ -13,10 +13,9 @@ class Invoice extends BaseModel
 
     protected $table = 'invoices';
 
-
     protected $fillable = [
-        'user_id', 'number', 'date', 'coupon_code', 'discount','discount_mode',
-        'grand_total', 'currency', 'status', 'description', 'is_renewed', 'processing_fee', 'billing_pay', 'cloud_domain', 'credits'
+        'user_id', 'number', 'date', 'coupon_code', 'discount', 'discount_mode',
+        'grand_total', 'currency', 'status', 'description', 'is_renewed', 'processing_fee', 'billing_pay', 'cloud_domain', 'credits',
     ];
 
     protected $casts = [
@@ -26,10 +25,9 @@ class Invoice extends BaseModel
     protected $logName = 'invoice';
 
     protected $logAttributes = [
-        'user_id', 'number', 'date', 'coupon_code', 'discount','discount_mode',
-        'grand_total', 'currency', 'status', 'description', 'is_renewed', 'processing_fee', 'billing_pay', 'cloud_domain', 'credits'
+        'user_id', 'number', 'date', 'coupon_code', 'discount', 'discount_mode',
+        'grand_total', 'currency', 'status', 'description', 'is_renewed', 'processing_fee', 'billing_pay', 'cloud_domain', 'credits',
     ];
-
 
     protected $logNameColumn = 'number';
 
@@ -116,5 +114,4 @@ class Invoice extends BaseModel
 
         return parent::delete();
     }
-
 }

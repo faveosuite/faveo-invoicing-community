@@ -18,9 +18,8 @@ class Demo_page extends Model
 
     protected $logNameColumn = 'Demo page';
 
-
     protected $logAttributes = [
-        'id', 'link', 'email', 'status'
+        'id', 'link', 'email', 'status',
     ];
 
     protected $logUrl = ['/demo/page'];
@@ -28,10 +27,10 @@ class Demo_page extends Model
     protected function getMappings(): array
     {
         return [
-            'id' => ['ID', fn($value) => $value],
-            'link' => ['Link', fn($value) => $value],
-            'email' => ['Email', fn($value) => $value],
-            'status' => ['Status', fn($value) => $value === 1 ? __('message.active') : __('message.inactive')],
+            'id' => ['ID', fn ($value) => $value],
+            'link' => ['Link', fn ($value) => $value],
+            'email' => ['Email', fn ($value) => $value],
+            'status' => ['Status', fn ($value) => $value === 1 ? __('message.active') : __('message.inactive')],
         ];
     }
 }

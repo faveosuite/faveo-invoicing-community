@@ -966,15 +966,15 @@ function deleteUserSessions(int $userId, string $password): void
 /**
  * Log activity in a standard format across the system.
  *
- * @param string $event
- * @param string $message
- * @param array $properties
+ * @param  string  $event
+ * @param  string  $message
+ * @param  array  $properties
  * @return void
  */
 function logActivity(
     string $message,
     string $event,
-    string $module = null,
+    ?string $module = null,
     ?User $user = null,
     array $properties = []
 ): void {
