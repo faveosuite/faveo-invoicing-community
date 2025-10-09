@@ -2784,6 +2784,7 @@ return [
     'log_description' => ':module :name has been :event',
     'has_been' => 'has been',
     'cloud' => 'Cloud',
+    'attach_helper_no_default_disk' => 'There is no default disk set for file storage. Please set a default disk in the file storage settings.',
 
     'auto_renewal_disable' => 'Auto-renewal is currently not available. Please contact the administrator for assistance.',
     'auto_renewal_tooltip' => 'Enable or disable auto-renewal for all users.',
