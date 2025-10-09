@@ -153,7 +153,7 @@ class ThirdPartyAppController extends Controller
      * @param  \App\ThirdPartyApp  $thirdPartyApp
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, ThirdPartyApp $thirdPartyApp, $id)
+    public function update(Request $request, $id)
     {
         $this->validate($request, [
             'app_name' => 'required',
@@ -166,12 +166,12 @@ class ThirdPartyAppController extends Controller
                 'app_key.size' => __('validation.thirdparty_api.app_key_size'),
                 'app_secret.required' => __('validation.thirdparty_api.app_secret_required'),
             ]);
-        $app_name = $request->input('app_name');
-        $app_key = $request->input('app_key');
-        $app_secret = $request->input('app_secret');
-        $this->thirdParty->where('id', $id)->update(['app_name' => $app_name, 'app_key' => $app_key, 'app_secret' => $app_secret]);
 
-        return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
+        $thirdPartyApp = ThirdPartyApp::findOrFail($id);
+
+        $thirdPartyApp->update($request->only(['app_name', 'app_key', 'app_secret']));
+
+        return redirect()->back()->with('success', __('message.updated-successfully'));
     }
 
     /**

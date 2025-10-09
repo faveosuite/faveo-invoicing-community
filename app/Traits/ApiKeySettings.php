@@ -81,15 +81,21 @@ trait ApiKeySettings
             $statusValue = $input[$inputKey];
 
             if ($statusEntry['key'] === 'v3_v2_recaptcha_status' && ! $statusValue) {
+                StatusSetting::find(1)->fill([
+                    'v3_v2_recaptcha_status' => 0,
+                    'recaptcha_status' => 0,
+                    'v3_recaptcha_status' => 0,
+                ])->save();
+
                 StatusSetting::where('id', 1)->update([
                     'v3_v2_recaptcha_status' => 0,
                     'recaptcha_status' => 0,
                     'v3_recaptcha_status' => 0,
                 ]);
             } else {
-                StatusSetting::where('id', 1)->update([
+                StatusSetting::find(1)->fill([
                     $statusEntry['key'] => $statusValue,
-                ]);
+                ])->save();
             }
 
             return successResponse($statusEntry['lang']);

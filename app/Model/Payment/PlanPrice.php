@@ -2,47 +2,41 @@
 
 namespace App\Model\Payment;
 
+use App\Traits\SystemActivityLogsTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
 
 class PlanPrice extends Model
 {
-    use HasFactory,LogsActivity;
+    use HasFactory,SystemActivityLogsTrait;
 
     protected $table = 'plan_prices';
 
     protected $fillable = ['plan_id', 'currency', 'add_price', 'renew_price', 'price_description', 'product_quantity', 'no_of_agents', 'country_id', 'offer_price'];
 
-    protected static $logName = 'Plan Price';
+    protected $logName = 'plan';
 
-    protected static $logAttributes = ['plan_id', 'currency', 'add_price', 'renew_price', 'price_description', 'product_quantity', 'no_of_agents', 'offer_price'];
+    protected $logNameColumn = 'price';
 
-    protected static $logOnlyDirty = true;
 
-    public function getDescriptionForEvent(string $eventName): string
+    protected $logAttributes = [
+        'plan_id', 'currency', 'add_price', 'renew_price', 'price_description', 'product_quantity', 'no_of_agents', 'country_id', 'offer_price'
+    ];
+
+    protected $logUrl = ['plans'];
+
+    protected function getMappings(): array
     {
-        if ($eventName == 'created') {
-            return 'Plan Price with Id <strong> '.$this->plan_id.' </strong> was created';
-        }
-
-        if ($eventName == 'updated') {
-            return 'Plan Price with Id<strong> '.$this->plan_id.'</strong> was updated';
-        }
-
-        if ($eventName == 'deleted') {
-            return 'Plan Price with Id<strong> '.$this->plan_id.' </strong> was deleted';
-        }
-
-        return '';
-
-        // return "Product  has been {$eventName}";
-        // \Auth::user()->activity;
-    }
-
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults();
+        return [
+            'plan_id' => ['Plan Name', fn ($value) => \App\Model\Payment\Plan::find($value)?->name],
+            'currency' => ['Currency', fn ($value) => $value],
+            'add_price' => ['Add Price', fn ($value) => $value],
+            'renew_price' => ['Renew Price', fn ($value) => $value],
+            'price_description' => ['Price Description', fn ($value) => $value],
+            'product_quantity' => ['Product Quantity', fn ($value) => $value],
+            'no_of_agents' => ['Number of Agents', fn ($value) => $value],
+            'country_id' => ['Country', fn ($value) => \App\Model\Common\Country::find($value)?->name],
+            'offer_price' => ['Offer Price', fn ($value) => $value],
+        ];
     }
 }

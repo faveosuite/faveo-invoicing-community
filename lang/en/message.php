@@ -2728,6 +2728,9 @@ return [
     'valid_username' => 'Please enter a valid username',
     'set_auth_invoicing' => 'You\'re all set. From now on, you\'ll use the Authenticator app to sign in to your Faveo Invoicing account.',
     'continue_verify_social_login' => 'Click "Validate" to proceed and confirm your identity',
+    'log_description' => ':module :name has been :event',
+    'has_been' => 'has been',
+    'cloud' => 'Cloud',
 
     'auto_renewal_disable' => 'Auto-renewal is currently not available. Please contact the administrator for assistance.',
     'auto_renewal_tooltip' => 'Enable or disable auto-renewal for all users.',

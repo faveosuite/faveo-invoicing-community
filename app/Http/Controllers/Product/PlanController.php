@@ -277,24 +277,20 @@ class PlanController extends ExtendedPlanController
         }
 
         if (count($add_prices) > 0) {
-            $dataForCreating = [];
-            $plan->planPrice()->delete();
+            $plan->planPrice->each->delete();
 
             foreach ($add_prices as $key => $value) {
-                $dataForCreating[] = [
-                    'plan_id' => $plan->id,
+                $plan->planPrice()->create([
                     'country_id' => $request->country_id[$key],
                     'currency' => $request->currency[$key],
                     'add_price' => $value,
                     'renew_price' => $renew_prices[$key],
-                    'offer_price' => isset($request->offer_price[$key]) ? $request->offer_price[$key] : null,
+                    'offer_price' => $request->offer_price[$key] ?? null,
                     'price_description' => $request->price_description,
                     'product_quantity' => $request->product_quantity,
                     'no_of_agents' => $request->no_of_agents,
-                ];
+                ]);
             }
-
-            $plan->planPrice()->insert($dataForCreating);
         }
 
         return redirect()->back()->with('success', trans('message.updated-successfully'));
