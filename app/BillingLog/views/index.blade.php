@@ -216,14 +216,16 @@
             background-color: #fff;
 
             display: flex;
-            justify-content: center;  /* center calendar */
+            justify-content: center;
             align-items: center;
 
             margin-bottom: 1rem;
-            padding: .5rem;
+            padding: 20px;
 
-            width: 320px;   /* fixed width for all cards */
-            height: 320px;  /* fixed height for all cards */
+            /* Remove fixed dimensions */
+            width: 100%;
+            max-width: 320px;  /* Maximum width on large screens */
+            min-height: 280px;
 
             position: relative;
             flex-shrink: 0;
@@ -231,7 +233,33 @@
             overflow: hidden;
         }
 
+        /* Ensure date picker fits container */
+        .bootstrap-datetimepicker-widget {
+            width: 100% !important;
+            max-width: 100%;
+        }
 
+        .bootstrap-datetimepicker-widget .datepicker table {
+            width: 100% !important;
+            max-width: 100%;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1400px) {
+            .filter-box .row > [class*='col-'] {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+
+            .date-box {
+                max-width: 320px;
+                margin: 0 auto 1rem;
+            }
+        }
+
+        #cron-table, #exception-table, #mail-table {
+            table-layout: fixed;
+        }
     </style>
 
     <div class="card card-secondary card-outline">
@@ -295,12 +323,12 @@
                     <!-- Cron Logs Filter -->
                     <div id="cron-filter" class="filter-box">
                         <div class="row">
-                            <div class="col-md-9">
+                            <div class="col-12 col-lg-9 mb-3 mb-lg-0">
                                 <div class="row" id="cron-category-container">
                                     <!-- Cron categories will be loaded here -->
                                 </div>
                             </div>
-                            <div class="col-md-3 d-flex justify-content-center">
+                            <div class="col-12 col-lg-3 d-flex justify-content-center">
                                 <div class="date-card date-box">
                                     <div id="cron-date"></div>
                                 </div>
@@ -311,12 +339,12 @@
                     <!-- Exception Logs Filter -->
                     <div id="exception-filter" class="filter-box">
                         <div class="row">
-                            <div class="col-md-9">
+                            <div class="col-12 col-lg-9 mb-3 mb-lg-0">
                                 <div class="row" id="exception-category-container">
                                     <!-- Exception categories will be loaded here -->
                                 </div>
                             </div>
-                            <div class="col-md-3 d-flex justify-content-center">
+                            <div class="col-12 col-lg-3 d-flex justify-content-center">
                                 <div class="date-card date-box">
                                     <div id="exception-date"></div>
                                 </div>
@@ -327,12 +355,12 @@
                     <!-- Mail Logs Filter -->
                     <div id="mail-filter" class="filter-box">
                         <div class="row">
-                            <div class="col-md-9">
+                            <div class="col-12 col-lg-9 mb-3 mb-lg-0">
                                 <div class="row" id="mail-category-container">
                                     <!-- Mail categories will be loaded here -->
                                 </div>
                             </div>
-                            <div class="col-md-3 d-flex justify-content-center">
+                            <div class="col-12 col-lg-3 d-flex justify-content-center">
                                 <div class="date-card date-box">
                                     <div id="mail-date"></div>
                                 </div>
@@ -812,6 +840,7 @@
                     processing: true,
                     scrollX: true,
                     responsive: false,
+                    autoWidth: false,
                     ajax: {
                         url: this.getEndpoint(type),
                         type: 'POST',
@@ -900,29 +929,16 @@
                 switch(type) {
                     case 'cron':
                         return [
-                            { data: 'command', defaultContent: '' },
-                            { data: 'description', defaultContent: '' },
-                            { data: 'duration', defaultContent: '' },
-                            {
-                                data: 'created_at',
-                                defaultContent: ''
-                            },
-                            { data: 'status', defaultContent: '' },
+                            { data: 'command', defaultContent: '', width: '200px' },
+                            { data: 'description', defaultContent: '', width: '250px' },
+                            { data: 'duration', defaultContent: '', width: '100px' },
+                            { data: 'created_at', defaultContent: '', width: '150px' },
+                            { data: 'status', defaultContent: '', width: '100px' },
                         ];
                     case 'exception':
                         return [
-                            {
-                                data: 'file',
-                                defaultContent: '',
-                                className: 'text-start log-file',
-                                width: '200px'
-                            },
-                            {
-                                data: 'line',
-                                defaultContent: '',
-                                className: 'text-center log-line',
-                                width: '70px'
-                            },
+                            { data: 'file', defaultContent: '', className: 'text-start log-file', width: '200px' },
+                            { data: 'line', defaultContent: '', className: 'text-center log-line', width: '70px' },
                             {
                                 data: 'message',
                                 render: function(data) {
@@ -953,62 +969,38 @@
                                 className: 'text-start log-trace',
                                 width: '300px'
                             },
-                            {
-                                data: 'created_at',
-                                defaultContent: '',
-                                className: 'text-center log-created',
-                                width: '180px'
-                            }
+                            { data: 'created_at', defaultContent: '', className: 'text-center log-created', width: '150px' }
                         ];
                     case 'mail':
                         return [
-                            { data: 'sender_mail', defaultContent: '---' },
-                            { data: 'receiver_mail', defaultContent: '---' },
-                            { data: 'carbon_copy', defaultContent: '---' },
-                            { data: 'blind_carbon_copy', defaultContent: '---' },
+                            { data: 'sender_mail', defaultContent: '---', width: '150px' },
+                            { data: 'receiver_mail', defaultContent: '---', width: '150px' },
+                            { data: 'carbon_copy', defaultContent: '---', width: '100px' },
+                            { data: 'blind_carbon_copy', defaultContent: '---', width: '100px' },
                             {
                                 data: 'subject',
                                 defaultContent: '',
-                                render: function (data, type, row) {
-                                    return `
-            <a href="#" class="view-body" data-body="${encodeURIComponent(row.body)}">
-                ${data}
-            </a>
-        `;
+                                width: '250px',
+                                render: function(data, type, row) {
+                                    return `<a href="#" class="view-body" data-body="${encodeURIComponent(row.body)}">${data}</a>`;
                                 }
                             },
-                            {
-                                data: 'created_at',
-                                render: function(data) {
-                                    return data;
-                                },
-                                defaultContent: ''
-                            },
-                            {
-                                data: 'updated_at',
-                                render: function(data) {
-                                    return data;
-                                },
-                                defaultContent: ''
-                            },
-                            {
-                                data: 'status',
-                                defaultContent: ''
-                            },
+                            { data: 'created_at', render: data => data, defaultContent: '', width: '150px' },
+                            { data: 'updated_at', render: data => data, defaultContent: '', width: '150px' },
+                            { data: 'status', defaultContent: '', width: '100px' },
                             {
                                 data: 'is_retry',
                                 orderable: false,
                                 searchable: false,
+                                width: '80px',
                                 render: function(status, type, row) {
-                                    return `
-            <button class="btn btn-light btn-sm retry-log-btn"
-                    data-id="${row.id}"
-                    ${status ? '' : 'disabled'}
-                    title="{{ __("log::lang.retry_log") }}"
-                    type="button">
-                <i class="fas fa-redo"></i>
-            </button>
-        `;
+                                    return `<button class="btn btn-light btn-sm retry-log-btn"
+                                    data-id="${row.id}"
+                                    ${status ? '' : 'disabled'}
+                                    title="{{ __("log::lang.retry_log") }}"
+                                    type="button">
+                                <i class="fas fa-redo"></i>
+                            </button>`;
                                 }
                             }
                         ];
