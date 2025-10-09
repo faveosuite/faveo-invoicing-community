@@ -20,12 +20,11 @@ class Plan extends BaseModel
 
     protected $logNameColumn = 'name';
 
-
     protected $logAttributes = [
-        'name', 'product', 'allow_tax', 'days'
+        'name', 'product', 'allow_tax', 'days',
     ];
 
-    protected $logUrl = ['plans','edit'];
+    protected $logUrl = ['plans', 'edit'];
 
     protected function getMappings(): array
     {
@@ -36,7 +35,6 @@ class Plan extends BaseModel
             'days' => ['Plan Days', fn ($value) => $value],
         ];
     }
-
 
     public function planPrice()
     {

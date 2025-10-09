@@ -4,8 +4,6 @@ namespace App\Model\Payment;
 
 use App\BaseModel;
 use App\Traits\SystemActivityLogsTrait;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
 
 class TaxOption extends BaseModel
 {
@@ -19,9 +17,8 @@ class TaxOption extends BaseModel
 
     protected $logNameColumn = 'Settings';
 
-
     protected $logAttributes = [
-        'tax_enable', 'inclusive', 'shop_inclusive', 'cart_inclusive', 'rounding', 'Gst_no', 'cif_no'
+        'tax_enable', 'inclusive', 'shop_inclusive', 'cart_inclusive', 'rounding', 'Gst_no', 'cif_no',
     ];
 
     protected $requireLogUrl = false;

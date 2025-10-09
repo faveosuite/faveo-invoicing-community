@@ -18,12 +18,12 @@ trait SystemActivityLogsTrait
      * [
      *   'first_name' => ['name', fn($val) => strtoupper($val)],
      *   'email' => ['email_address', fn($val) => strtolower($val)],
-     * ]
+     * ].
      */
     abstract protected function getMappings(): array;
 
     /**
-     * Configure activity log options
+     * Configure activity log options.
      */
     public function getActivitylogOptions(): LogOptions
     {
@@ -31,11 +31,11 @@ trait SystemActivityLogsTrait
             ->logOnly($this->logAttributes ?? [])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName(trans('message.' . $this->getLogName()));
+            ->useLogName(trans('message.'.$this->getLogName()));
     }
 
     /**
-     * Tap into the activity before saving
+     * Tap into the activity before saving.
      */
     public function tapActivity(Activity $activity, string $eventName): void
     {
@@ -44,7 +44,7 @@ trait SystemActivityLogsTrait
     }
 
     /**
-     * Modify properties based on mappings
+     * Modify properties based on mappings.
      */
     protected function tapActivityLogs(Activity $activity): void
     {
@@ -64,7 +64,7 @@ trait SystemActivityLogsTrait
     }
 
     /**
-     * Format attributes using mappings
+     * Format attributes using mappings.
      */
     private function formatLoggingAttributes(array $attributes, array $mappings): array
     {
@@ -81,9 +81,8 @@ trait SystemActivityLogsTrait
     }
 
     /**
-     * Generate dynamic description for logs
+     * Generate dynamic description for logs.
      */
-
     private function generateDescriptionForLogs(Activity $activity, string $eventName): void
     {
         $logName = $this->getLogName();
@@ -92,24 +91,24 @@ trait SystemActivityLogsTrait
         $name = $activity->subject->{$logColumn} ?? $logColumn;
 
         if ($eventName === 'deleted') {
-            $activity->description = trans("message.log_description", [
-                'module' => trans('message.' . $logName),
-                'name'   => $name,
-                'event'  => $eventName,
+            $activity->description = trans('message.log_description', [
+                'module' => trans('message.'.$logName),
+                'name' => $name,
+                'event' => $eventName,
             ]);
         } else {
             $displayName = $this->requireLogUrl ?? true
                 ? "<a href='{$logUrl}'>{$name}</a>"
                 : '';
 
-            $activity->description = trans('message.' . $logName) . ' ' .
-                $displayName . ' ' .
-                trans('message.has_been') . " {$eventName}";
+            $activity->description = trans('message.'.$logName).' '.
+                $displayName.' '.
+                trans('message.has_been')." {$eventName}";
         }
     }
 
     /**
-     * Get dynamic log name
+     * Get dynamic log name.
      */
     private function getLogName(): string
     {
@@ -117,11 +116,11 @@ trait SystemActivityLogsTrait
     }
 
     /**
-     * Get dynamic log URL for the model
+     * Get dynamic log URL for the model.
      *
      * If you need to include the ID at the end of the URL, set the logUrl property to an array with two elements:
      *
-     * @param  mixed $id
+     * @param  mixed  $id
      * @return string|null
      */
     protected function getLogUrl($id = null): ?string
@@ -132,7 +131,7 @@ trait SystemActivityLogsTrait
 
         $segments = is_array($this->logUrl) ? $this->logUrl : [$this->logUrl];
 
-        $segments = array_map(fn($part) => trim($part, '/'), $segments);
+        $segments = array_map(fn ($part) => trim($part, '/'), $segments);
 
         if (count($segments) > 1 && $id !== null) {
             $segments = array_merge(
@@ -146,6 +145,4 @@ trait SystemActivityLogsTrait
 
         return url($path);
     }
-
-
 }

@@ -7,8 +7,6 @@ use DateTime;
 use DateTimeZone;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
 
 class Subscription extends Model
 {
@@ -28,10 +26,9 @@ class Subscription extends Model
 
     protected $logNameColumn = 'Settings';
 
-
     protected $logAttributes = [
         'name', 'description', 'days', 'ends_at', 'update_ends_at',
-        'user_id', 'plan_id', 'order_id', 'deny_after_subscription', 'version', 'product_id', 'support_ends_at', 'version_updated_at', 'is_subscribed', 'is_deleted'
+        'user_id', 'plan_id', 'order_id', 'deny_after_subscription', 'version', 'product_id', 'support_ends_at', 'version_updated_at', 'is_subscribed', 'is_deleted',
     ];
 
     protected function getMappings(): array
