@@ -12,9 +12,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Models\Activity;
-use Spatie\Activitylog\Traits\LogsActivity;
 
 //use Laravel\Cashier\Billable;
 //use LinkThrow\Billing\CustomerBillableTrait;
@@ -222,38 +219,38 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     protected function getMappings(): array
     {
         return [
-            'first_name'            => ['First name', fn($value) => strip_tags($value)],
-            'last_name'             => ['Last name', fn($value) => strip_tags($value)],
-            'user_name'             => ['User name', fn($value) => $value],
-            'company'               => ['Company', fn($value) => $value],
-            'zip'                   => ['ZIP code', fn($value) => $value],
-            'state'                 => ['State', fn($value) => $value],
-            'town'                  => ['Town', fn($value) => $value],
-            'mobile'                => ['Mobile', fn($value) => $value],
-            'mobile_country_iso'    => ['Mobile country ISO', fn($value) => $value],
-            'email'                 => ['Email', fn($value) => $value],
-            'role'                  => ['Role', fn($value) => ucfirst($value)],
-            'active'                => ['User active status', fn($value) => $value === 1 ? trans('message.active') : trans('message.inactive')],
-            'profile_pic'           => ['Profile picture', fn($value) => $value],
-            'address'               => ['Address', fn($value) => $value],
-            'country'               => ['Country', fn($value) => $value],
-            'currency'              => ['Currency', fn($value) => $value],
-            'timezone_id'           => ['Timezone', fn($value) => $value],
-            'mobile_code'           => ['Mobile code', fn($value) => $value],
-            'bussiness'             => ['Business', fn($value) => $value],
-            'company_type'          => ['Company type', fn($value) => $value],
-            'company_size'          => ['Company size', fn($value) => $value],
-            'ip'                    => ['IP address', fn($value) => $value],
-            'mobile_verified'       => ['Mobile verified', fn($value) => $value === 1 ? trans('message.active') : trans('message.inactive')],
-            'email_verified'        => ['Email verified', fn($value) => $value === 1 ? trans('message.active') : trans('message.inactive')],
-            'position'              => ['Position', fn($value) => $value],
-            'skype'                 => ['Skype', fn($value) => $value],
-            'manager'               => ['Manager', fn($value) => $value],
-            'account_manager'       => ['Account manager', fn($value) => $value],
-            'google2fa_activation_date' => ['2FA activation date', fn($value) => $value],
-            'backup_code'           => ['Backup code', fn($value) => $value],
-            'code_usage_count'      => ['Code usage count', fn($value) => $value],
-            'language'              => ['Language', fn($value) => $value],
+            'first_name' => ['First name', fn ($value) => strip_tags($value)],
+            'last_name' => ['Last name', fn ($value) => strip_tags($value)],
+            'user_name' => ['User name', fn ($value) => $value],
+            'company' => ['Company', fn ($value) => $value],
+            'zip' => ['ZIP code', fn ($value) => $value],
+            'state' => ['State', fn ($value) => $value],
+            'town' => ['Town', fn ($value) => $value],
+            'mobile' => ['Mobile', fn ($value) => $value],
+            'mobile_country_iso' => ['Mobile country ISO', fn ($value) => $value],
+            'email' => ['Email', fn ($value) => $value],
+            'role' => ['Role', fn ($value) => ucfirst($value)],
+            'active' => ['User active status', fn ($value) => $value === 1 ? trans('message.active') : trans('message.inactive')],
+            'profile_pic' => ['Profile picture', fn ($value) => $value],
+            'address' => ['Address', fn ($value) => $value],
+            'country' => ['Country', fn ($value) => $value],
+            'currency' => ['Currency', fn ($value) => $value],
+            'timezone_id' => ['Timezone', fn ($value) => $value],
+            'mobile_code' => ['Mobile code', fn ($value) => $value],
+            'bussiness' => ['Business', fn ($value) => $value],
+            'company_type' => ['Company type', fn ($value) => $value],
+            'company_size' => ['Company size', fn ($value) => $value],
+            'ip' => ['IP address', fn ($value) => $value],
+            'mobile_verified' => ['Mobile verified', fn ($value) => $value === 1 ? trans('message.active') : trans('message.inactive')],
+            'email_verified' => ['Email verified', fn ($value) => $value === 1 ? trans('message.active') : trans('message.inactive')],
+            'position' => ['Position', fn ($value) => $value],
+            'skype' => ['Skype', fn ($value) => $value],
+            'manager' => ['Manager', fn ($value) => $value],
+            'account_manager' => ['Account manager', fn ($value) => $value],
+            'google2fa_activation_date' => ['2FA activation date', fn ($value) => $value],
+            'backup_code' => ['Backup code', fn ($value) => $value],
+            'code_usage_count' => ['Code usage count', fn ($value) => $value],
+            'language' => ['Language', fn ($value) => $value],
         ];
     }
 

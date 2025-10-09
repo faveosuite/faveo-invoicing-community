@@ -18,9 +18,8 @@ class CloudProducts extends BaseModel
 
     protected $logNameColumn = 'Settings';
 
-
     protected $logAttributes = [
-        'cloud_product'	,'cloud_free_plan','cloud_product_key', 'trial_status'
+        'cloud_product', 'cloud_free_plan', 'cloud_product_key', 'trial_status',
     ];
 
     protected $logUrl = ['view/tenant'];
@@ -36,7 +35,7 @@ class CloudProducts extends BaseModel
             'cloud_product_key' => ['Product Key', fn ($value) => $value],
             'trial_status' => [
                 "Trial Status for {$product} (Plan : {$plan})",
-                fn ($value) => $value ? __('message.active') : __('message.inactive')
+                fn ($value) => $value ? __('message.active') : __('message.inactive'),
             ],
         ];
     }

@@ -13,14 +13,12 @@ class Currency extends BaseModel
 
     protected $fillable = ['code', 'symbol', 'name', 'status'];
 
-
     protected $logName = 'currency';
 
     protected $logNameColumn = 'Settings';
 
-
     protected $logAttributes = [
-        'code', 'symbol', 'name', 'status'
+        'code', 'symbol', 'name', 'status',
     ];
 
     protected $logUrl = ['currency'];

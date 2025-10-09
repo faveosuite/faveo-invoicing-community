@@ -13,17 +13,15 @@ class Widgets extends BaseModel
 
     protected $fillable = ['name', 'type', 'publish', 'content', 'allow_tweets', 'allow_mailchimp', 'allow_social_media'];
 
-
     protected $logName = 'widgets';
 
     protected $logNameColumn = 'Settings';
 
-
     protected $logAttributes = [
-        'name', 'type', 'publish', 'content', 'allow_tweets', 'allow_mailchimp', 'allow_social_media'
+        'name', 'type', 'publish', 'content', 'allow_tweets', 'allow_mailchimp', 'allow_social_media',
     ];
 
-    protected $logUrl = ['widgets','edit'];
+    protected $logUrl = ['widgets', 'edit'];
 
     protected function getMappings(): array
     {

@@ -307,7 +307,7 @@ class RegisterController extends Controller
 
     public function logActivityRegister($user): void
     {
-        if (!$user) {
+        if (! $user) {
             return;
         }
 

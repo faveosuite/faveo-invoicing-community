@@ -4,8 +4,6 @@ namespace App\Model\Payment;
 
 use App\BaseModel;
 use App\Traits\SystemActivityLogsTrait;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
 
 class Tax extends BaseModel
 {
@@ -19,12 +17,11 @@ class Tax extends BaseModel
 
     protected $logNameColumn = 'Settings';
 
-
     protected $logAttributes = [
-        'level', 'name', 'country', 'state', 'rate', 'active', 'tax_classes_id', 'compound'
+        'level', 'name', 'country', 'state', 'rate', 'active', 'tax_classes_id', 'compound',
     ];
 
-    protected $logUrl = ['tax','edit'];
+    protected $logUrl = ['tax', 'edit'];
 
     protected function getMappings(): array
     {
@@ -39,7 +36,6 @@ class Tax extends BaseModel
             'compound' => ['Is Compound Tax', fn ($value) => $value === 1 ? 'Yes' : 'No'],
         ];
     }
-
 
     public function taxClass()
     {

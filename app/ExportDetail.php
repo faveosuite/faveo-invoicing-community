@@ -18,12 +18,10 @@ class ExportDetail extends Model
         return $this->belongsTo(\App\User::class);
     }
 
-
     protected $logName = 'export';
 
-
     protected $logAttributes = [
-        'user_id', 'file', 'file_path', 'name'
+        'user_id', 'file', 'file_path', 'name',
     ];
 
     protected $requireLogUrl = false;

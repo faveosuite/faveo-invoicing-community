@@ -18,9 +18,8 @@ class ReportSetting extends Model
 
     protected $logNameColumn = 'settings';
 
-
     protected $logAttributes = [
-        'records'
+        'records',
     ];
 
     protected $logUrl = ['records/column'];

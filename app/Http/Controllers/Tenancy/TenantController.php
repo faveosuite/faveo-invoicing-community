@@ -460,7 +460,7 @@ class TenantController extends Controller
                 ];
 
                 logActivity(
-                    "Cloud instance ".$faveoCloud." created successfully for user ".$userEmail,
+                    'Cloud instance '.$faveoCloud.' created successfully for user '.$userEmail,
                     'created',
                     'Cloud'
                 );
@@ -528,7 +528,7 @@ class TenantController extends Controller
                 (new LicenseController())->reissueDomain($request->input('id'));
 
                 logActivity(
-                    "Cloud instance ".$request->input('id')." deleted by ".$user,
+                    'Cloud instance '.$request->input('id').' deleted by '.$user,
                     'deleted',
                     'Cloud'
                 );
@@ -538,12 +538,14 @@ class TenantController extends Controller
                 return successResponse(__('message.cloud_deleted_successfully'));
             } else {
                 $this->googleChat('Tenant deletion failed for '.$user.'. Reason: '.$responseBody);
+
                 return errorResponse(__('message.cloud_deleted_failed'));
             }
         } catch (Exception $e) {
             \Logger::exception($e);
-            $message = 'Tenant deletion error, Request '. json_encode($request->all()).'. Reason: '.$e->getMessage();
+            $message = 'Tenant deletion error, Request '.json_encode($request->all()).'. Reason: '.$e->getMessage();
             $this->googleChat($message);
+
             return errorResponse($e->getMessage());
         }
     }
@@ -630,7 +632,7 @@ class TenantController extends Controller
                             \DB::table('free_trial_allowed')->where('domain', $installation_path)->delete();
 
                             logActivity(
-                                "Cloud instance ".$installation_path." deleted by ".$user,
+                                'Cloud instance '.$installation_path.' deleted by '.$user,
                                 'deleted',
                                 'Cloud'
                             );

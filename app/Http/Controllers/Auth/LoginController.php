@@ -412,10 +412,9 @@ class LoginController extends Controller
         }
     }
 
-
     public function logActivityLogin($user): void
     {
-        if (!$user) {
+        if (! $user) {
             return;
         }
 

@@ -7,21 +7,18 @@ use Illuminate\Database\Eloquent\Model;
 
 class ChatScript extends Model
 {
-
-     use SystemActivityLogsTrait;
+    use SystemActivityLogsTrait;
 
     protected $table = 'chat_scripts';
 
     protected $fillable = ['name', 'script', 'on_registration', 'on_every_page', 'google_analytics', 'google_analytics_tag'];
 
-
     protected $logName = 'chat-script';
 
     protected $logNameColumn = 'settings';
 
-
     protected $logAttributes = [
-        'name', 'script', 'on_registration', 'on_every_page', 'google_analytics', 'google_analytics_tag'
+        'name', 'script', 'on_registration', 'on_every_page', 'google_analytics', 'google_analytics_tag',
     ];
 
     protected $logUrl = ['chat', 'edit'];
