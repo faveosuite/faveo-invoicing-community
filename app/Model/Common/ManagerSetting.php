@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class ManagerSetting extends Model
 {
-
     use SystemActivityLogsTrait;
 
     protected $fillable = [
@@ -18,7 +17,6 @@ class ManagerSetting extends Model
     protected $logName = 'system_manager';
 
     protected $logNameColumn = 'Settings';
-
 
     protected $logAttributes = [
         'manager_role',

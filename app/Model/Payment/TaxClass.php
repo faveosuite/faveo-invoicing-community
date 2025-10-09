@@ -4,8 +4,6 @@ namespace App\Model\Payment;
 
 use App\BaseModel;
 use App\Traits\SystemActivityLogsTrait;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
 
 class TaxClass extends BaseModel
 {
@@ -15,14 +13,12 @@ class TaxClass extends BaseModel
 
     protected $fillable = ['name'];
 
-
     protected $logName = 'taxes';
 
     protected $logNameColumn = 'Settings';
 
-
     protected $logAttributes = [
-        'name'
+        'name',
     ];
 
     protected $requireLogUrl = false;
@@ -33,7 +29,6 @@ class TaxClass extends BaseModel
             'name' => ['Tax Class Name', fn ($value) => $value],
         ];
     }
-
 
     public function tax()
     {

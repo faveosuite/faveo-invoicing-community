@@ -17,12 +17,11 @@ class ProductUpload extends Model
 
     protected $logNameColumn = 'Settings';
 
-
     protected $logAttributes = [
-        'product_id', 'title', 'description', 'version', 'file', 'is_private', 'is_restricted', 'release_type'
+        'product_id', 'title', 'description', 'version', 'file', 'is_private', 'is_restricted', 'release_type',
     ];
 
-    protected $logUrl = ['edit-upload/','/'];
+    protected $logUrl = ['edit-upload/', '/'];
 
     protected function getMappings(): array
     {
@@ -34,7 +33,7 @@ class ProductUpload extends Model
             'file' => ['File', fn ($value) => $value],
             'is_private' => ['Is Private', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
             'is_restricted' => ['Is Restricted', fn ($value) => $value === 1 ? __('message.yes') : __('message.no')],
-            'release_type' => ['Release Type', fn ($value) => ucfirst($value) ],
+            'release_type' => ['Release Type', fn ($value) => ucfirst($value)],
         ];
     }
 

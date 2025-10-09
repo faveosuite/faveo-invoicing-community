@@ -320,7 +320,7 @@ class CurrencyController extends Controller
             $currency->save();
 
             return Lang::get('message.updated-successfully');
-        }catch (\Exception $ex) {
+        } catch (\Exception $ex) {
             return $ex->getMessage();
         }
     }

@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class ThirdPartyApp extends Model
 {
-
     use SystemActivityLogsTrait;
 
     protected $table = 'third_party_apps';
@@ -18,9 +17,8 @@ class ThirdPartyApp extends Model
 
     protected $logNameColumn = 'settings';
 
-
     protected $logAttributes = [
-        'app_name', 'app_key', 'app_secret'
+        'app_name', 'app_key', 'app_secret',
     ];
 
     protected $logUrl = ['third-party-keys'];

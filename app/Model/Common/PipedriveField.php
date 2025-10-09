@@ -25,7 +25,6 @@ class PipedriveField extends Model
 
     protected $logNameColumn = 'Settings';
 
-
     protected $logAttributes = [
         'field_name',
         'field_key',

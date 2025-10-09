@@ -20,7 +20,6 @@ class FileSystemSettings extends Model
 
     protected $logNameColumn = 'File Storage Settings';
 
-
     protected $logAttributes = [
         'disk', 'local_file_storage_path',
     ];
@@ -30,8 +29,8 @@ class FileSystemSettings extends Model
     protected function getMappings(): array
     {
         return [
-            'disk' => ['Disk', fn($value) => $value],
-            'local_file_storage_path' => ['Local File Storage Path', fn($value) => $value],
+            'disk' => ['Disk', fn ($value) => $value],
+            'local_file_storage_path' => ['Local File Storage Path', fn ($value) => $value],
         ];
     }
 }

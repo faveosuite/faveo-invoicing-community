@@ -18,9 +18,8 @@ class PlanPrice extends Model
 
     protected $logNameColumn = 'price';
 
-
     protected $logAttributes = [
-        'plan_id', 'currency', 'add_price', 'renew_price', 'price_description', 'product_quantity', 'no_of_agents', 'country_id', 'offer_price'
+        'plan_id', 'currency', 'add_price', 'renew_price', 'price_description', 'product_quantity', 'no_of_agents', 'country_id', 'offer_price',
     ];
 
     protected $logUrl = ['plans'];

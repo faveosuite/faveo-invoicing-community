@@ -9,8 +9,6 @@ use App\Model\Configure\PluginCompatibleWithProducts;
 use App\Model\Configure\ProductPluginGroup;
 use App\Traits\SystemActivityLogsTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
 
 class Product extends BaseModel
 {
@@ -30,17 +28,16 @@ class Product extends BaseModel
 
     protected $logNameColumn = 'Settings';
 
-
     protected $logAttributes = [
         'name', 'description', 'type', 'group', 'file', 'image', 'require_domain', 'category',
         'can_modify_agent',  'can_modify_quantity', 'show_agent', 'tax_apply', 'show_product_quantity', 'hidden',  'auto_terminate',
         'setup_order_placed', 'setup_first_payment', 'setup_accept_manually',
         'no_auto_setup', 'shoping_cart_link', 'process_url', 'github_owner',
         'github_repository',
-        'deny_after_subscription', 'version', 'subscription', 'product_sku', 'perpetual_license', 'product_description', 'invoice_hidden'
+        'deny_after_subscription', 'version', 'subscription', 'product_sku', 'perpetual_license', 'product_description', 'invoice_hidden',
     ];
 
-    protected $logUrl = ['products','edit'];
+    protected $logUrl = ['products', 'edit'];
 
     protected function getMappings(): array
     {

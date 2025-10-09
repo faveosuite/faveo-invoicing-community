@@ -108,7 +108,7 @@ class SystemManagerController extends Controller
 
             $roles = [
                 'account' => $request->autoAssignAccount,
-                'sales'   => $request->autoAssignSales,
+                'sales' => $request->autoAssignSales,
             ];
 
             foreach ($roles as $role => $autoAssign) {
