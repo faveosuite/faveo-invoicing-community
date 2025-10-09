@@ -2724,5 +2724,5 @@ return [
     'log_description' => ':module :name har blitt :event',
     'has_been' => 'har blitt',
     'cloud' => 'Sky',
-    'attach_helper_no_default_disk' => 'Det er ingen standarddisk satt for fillagring. Vennligst sett en standarddisk i fillagringsinnstillingene.'
+    'attach_helper_no_default_disk' => 'Det er ingen standarddisk satt for fillagring. Vennligst sett en standarddisk i fillagringsinnstillingene.',
 ];
