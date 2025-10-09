@@ -55,7 +55,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         'state', 'town', 'mobile', 'mobile_country_iso',
         'email', 'role', 'active', 'profile_pic',
         'address', 'country', 'currency', 'timezone_id', 'mobile_code', 'bussiness',
-        'company_type', 'company_size', 'ip', 'mobile_verified', 'email_verified', 'position', 'skype', 'manager', 'account_manager', 'google2fa_activation_date', 'backup_code', 'code_usage_count', 'gstin', 'language'];
+        'company_type', 'company_size', 'ip', 'mobile_verified', 'email_verified', 'position', 'skype', 'google2fa_activation_date', 'backup_code', 'code_usage_count', 'gstin', 'language'];
 
     protected $logUrl = ['/clients'];
 
@@ -245,8 +245,6 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             'email_verified' => ['Email verified', fn ($value) => $value === 1 ? trans('message.active') : trans('message.inactive')],
             'position' => ['Position', fn ($value) => $value],
             'skype' => ['Skype', fn ($value) => $value],
-            'manager' => ['Manager', fn ($value) => $value],
-            'account_manager' => ['Account manager', fn ($value) => $value],
             'google2fa_activation_date' => ['2FA activation date', fn ($value) => $value],
             'backup_code' => ['Backup code', fn ($value) => $value],
             'code_usage_count' => ['Code usage count', fn ($value) => $value],
