@@ -95,4 +95,6 @@ return [
     'send' => 'Senden',
     'queued' => 'In Warteschlange',
     'delete_logs_entries' => 'Protokolleinträge löschen vor',
+    'sent' => 'Gesendet',
+    'failed_jobs' => 'Fehlgeschlagene Aufträge',
 ];

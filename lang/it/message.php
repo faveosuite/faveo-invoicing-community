@@ -2710,4 +2710,8 @@ return [
     'cloud_plan_error' => 'Si prega di rimuovere il prodotto cloud o collegarlo a un piano alternativo.',
 
     'continue_verify_social_login' => 'Clicca su "Validate" per procedere e confermare la tua identità',
+    'log_description' => ':module :name è stato :event',
+    'has_been' => 'è stato',
+    'cloud' => 'Cloud',
+    'attach_helper_no_default_disk' => 'Non è stato impostato alcun disco predefinito per l’archiviazione dei file. Si prega di impostare un disco predefinito nelle impostazioni di archiviazione dei file.'
 ];

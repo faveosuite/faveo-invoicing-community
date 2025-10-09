@@ -91,4 +91,6 @@ return [
     'send' => 'Gönder',
     'queued' => 'Sıraya Alındı',
     'delete_logs_entries' => 'Önceki günlük girişlerini sil',
+    'sent' => 'Gönderildi',
+    'failed_jobs' => 'Başarısız İşler',
 ];

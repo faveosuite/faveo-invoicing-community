@@ -91,4 +91,6 @@ return [
     'send' => 'Verzenden',
     'queued' => 'In wachtrij',
     'delete_logs_entries' => 'Logboekvermeldingen verwijderen voor',
+    'sent' => 'Verzonden',
+    'failed_jobs' => 'Mislukte Taken',
 ];

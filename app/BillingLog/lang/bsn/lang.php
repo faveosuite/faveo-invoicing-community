@@ -95,4 +95,6 @@ return [
     'send' => 'Pošalji',
     'queued' => 'Na čekanju',
     'delete_logs_entries' => 'Izbriši unose u zapisnicima prije',
+    'sent' => 'Poslano',
+    'failed_jobs' => 'Neuspjele radnje',
 ];

@@ -2728,4 +2728,8 @@ return [
     'valid_username' => 'Lütfen geçerli bir kullanıcı adı girin',
     'set_auth_invoicing' => 'Her şey hazır. Artık Faveo Invoicing hesabınıza giriş yapmak için Authenticator uygulamasını kullanacaksınız.',
     'continue_verify_social_login' => 'Devam etmek ve kimliğinizi doğrulamak için "Validate" e tıklayın',
+    'log_description' => ':module :name :event edildi',
+    'has_been' => 'edildi',
+    'cloud' => 'Bulut',
+    'attach_helper_no_default_disk' => 'Dosya depolama için varsayılan bir disk ayarlanmadı. Lütfen dosya depolama ayarlarında bir varsayılan disk ayarlayın.'
 ];

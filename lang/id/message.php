@@ -2709,4 +2709,8 @@ return [
     'valid_username' => 'Silakan masukkan nama pengguna yang valid',
     'set_auth_invoicing' => 'Semua sudah siap. Mulai sekarang, Anda akan menggunakan aplikasi Authenticator untuk masuk ke akun Faveo Invoicing Anda.',
     'continue_verify_social_login' => 'Klik "Validate" untuk melanjutkan dan mengonfirmasi identitas Anda',
+    'log_description' => ':module :name telah :event',
+    'has_been' => 'telah',
+    'cloud' => 'Cloud',
+    'attach_helper_no_default_disk' => 'Tidak ada disk default yang ditetapkan untuk penyimpanan file. Silakan tetapkan disk default di pengaturan penyimpanan file.'
 ];

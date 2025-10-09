@@ -92,4 +92,6 @@ return [
     'queued' => 'Queued',
 
     'delete_logs_entries' => 'Delete logs entries before',
+    'sent' => 'Sent',
+    'failed_jobs' => 'Failed Jobs',
 ];

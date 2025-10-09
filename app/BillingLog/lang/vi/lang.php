@@ -95,4 +95,6 @@ return [
     'send' => 'Gửi',
     'queued' => 'Đang chờ',
     'delete_logs_entries' => 'Xóa các mục nhật ký trước',
+    'sent' => 'Đã gửi',
+    'failed_jobs' => 'Công việc thất bại',
 ];

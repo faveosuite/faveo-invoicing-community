@@ -95,4 +95,6 @@ return [
     'send' => 'Invia',
     'queued' => 'In coda',
     'delete_logs_entries' => 'Elimina le voci dei log precedenti a',
+    'sent' => 'Inviato',
+    'failed_jobs' => 'Processi Falliti',
 ];

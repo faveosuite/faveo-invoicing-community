@@ -2646,4 +2646,8 @@ return [
     'valid_username' => 'Molimo unesite važeće korisničko ime',
     'set_auth_invoicing' => 'Sve je spremno. Od sada ćete koristiti aplikaciju Authenticator za prijavu na vaš Faveo Invoicing nalog.',
     'continue_verify_social_login' => 'Kliknite na "Validate" da nastavite i potvrdite svoj identitet',
+    'log_description' => ':module :name je :event',
+    'has_been' => 'je',
+    'cloud' => 'Oblak',
+    'attach_helper_no_default_disk' => 'Nema zadani disk za pohranu datoteka. Molimo postavite zadani disk u postavkama pohrane datoteka.'
 ];

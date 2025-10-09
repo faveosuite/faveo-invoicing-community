@@ -95,4 +95,6 @@ return [
     'send' => 'Kirim',
     'queued' => 'Dalam Antrian',
     'delete_logs_entries' => 'Hapus entri log sebelum',
+    'sent' => 'Terkirim',
+    'failed_jobs' => 'Pekerjaan Gagal',
 ];

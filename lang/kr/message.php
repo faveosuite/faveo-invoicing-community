@@ -2735,4 +2735,8 @@ return [
     'valid_username' => '유효한 사용자 이름을 입력하세요',
     'set_auth_invoicing' => '모든 준비가 완료되었습니다. 이제부터 Faveo Invoicing 계정에 로그인할 때 Authenticator 앱을 사용하게 됩니다.',
     'continue_verify_social_login' => '계속 진행하려면 "Validate" 버튼을 클릭하여 본인 확인을 완료하세요',
+    'log_description' => ':module :name 이(가) :event 되었습니다',
+    'has_been' => '되었습니다',
+    'cloud' => '클라우드',
+    'attach_helper_no_default_disk' => '파일 저장용 기본 디스크가 설정되지 않았습니다. 파일 저장 설정에서 기본 디스크를 설정하십시오.'
 ];

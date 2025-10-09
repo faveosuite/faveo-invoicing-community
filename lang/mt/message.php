@@ -2640,4 +2640,8 @@
      'valid_username' => 'Jekk jogħġbok daħħal username validu',
      'set_auth_invoicing' => 'Int lest. Minn issa ’l quddiem, se tuża l-App Authenticator biex tidħol fil-kont Faveo Invoicing tiegħek.',
      'continue_verify_social_login' => 'Ikklikkja "Validate" biex tkompli u tikkonferma l-identità tiegħek',
+     'log_description' => ':module :name kien :event',
+     'has_been' => 'kien',
+     'cloud' => 'Cloud',
+     'attach_helper_no_default_disk' => 'Ma hemm l-ebda disk default issettjat għall-ħażna tal-fajls. Jekk jogħġbok issettja disk default fil-parametri tal-ħażna tal-fajls.'
  ];

@@ -95,4 +95,6 @@ return [
     'send' => '發送',
     'queued' => '排隊中',
     'delete_logs_entries' => '刪除之前的日誌項目',
+    'sent' => '已發送',
+    'failed_jobs' => '失敗的任務',
 ];

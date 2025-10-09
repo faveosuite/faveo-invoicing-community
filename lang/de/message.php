@@ -2711,4 +2711,8 @@ return [
     'auth_code_required' => 'Potrebno je unijeti kod za autentifikaciju.',
     'valid_username' => 'Bitte geben Sie einen gültigen Benutzernamen ein',
     'continue_verify_social_login' => 'Klicken Sie auf "Validate", um fortzufahren und Ihre Identität zu bestätigen',
+    'log_description' => ':module :name wurde :event',
+    'has_been' => 'wurde',
+    'cloud' => 'Cloud',
+    'attach_helper_no_default_disk' => 'Es ist kein Standardlaufwerk für die Dateispeicherung festgelegt. Bitte legen Sie in den Dateispeichereinstellungen ein Standardlaufwerk fest.'
 ];
