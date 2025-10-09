@@ -2679,5 +2679,5 @@ return [
     'log_description' => ':module :name 已被 :event',
     'has_been' => '已被',
     'cloud' => '雲',
-    'attach_helper_no_default_disk' => '文件儲存沒有設定預設磁碟。請在文件儲存設定中設定預設磁碟。'
+    'attach_helper_no_default_disk' => '文件儲存沒有設定預設磁碟。請在文件儲存設定中設定預設磁碟。',
 ];

@@ -2714,5 +2714,5 @@ return [
     'log_description' => ':module :name wurde :event',
     'has_been' => 'wurde',
     'cloud' => 'Cloud',
-    'attach_helper_no_default_disk' => 'Es ist kein Standardlaufwerk für die Dateispeicherung festgelegt. Bitte legen Sie in den Dateispeichereinstellungen ein Standardlaufwerk fest.'
+    'attach_helper_no_default_disk' => 'Es ist kein Standardlaufwerk für die Dateispeicherung festgelegt. Bitte legen Sie in den Dateispeichereinstellungen ein Standardlaufwerk fest.',
 ];
