@@ -117,7 +117,7 @@ class LoginController extends Controller
 
         $this->convertCart();
 
-        activity()->log('Logged In');
+        $this->logActivityLogin($user);
 
         return successResponse('', ['redirect' => $this->redirectPath()]);
     }
@@ -411,5 +411,22 @@ class LoginController extends Controller
             \Cache::forget("penalty_level:{$key}");
             \Cache::forget("penalty_applied:{$key}");
         }
+    }
+
+
+    public function logActivityLogin($user): void
+    {
+        if (!$user) {
+            return;
+        }
+
+        $message = "User {$user->first_name} {$user->last_name} ({$user->email}) logged in successfully.";
+
+        logActivity(
+            $message,
+            'login',
+            'authentication',
+            $user,
+        );
     }
 }

@@ -34,8 +34,9 @@ class LanguageController extends Controller
                 $languageById = Language::find($language->id);
 
                 if ($languageById) {
-                    $languageById->status = $request->status;
-                    $languageById->save();
+                    $languageById->update([
+                        'status' => $request->status,
+                    ]);
 
                     return response()->json([
                         'success' => true,

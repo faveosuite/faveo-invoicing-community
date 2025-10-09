@@ -84,7 +84,12 @@ class LicenseSettingsController extends LicensePermissionsController
     {
         try {
             $type_name = $request->input('name');
-            $type = $this->licenseType->where('id', $id)->update(['name' => $type_name]);
+            $type = $this->licenseType->find($id);
+
+            if ($type) {
+                $type->name = $type_name;
+                $type->save();
+            }
 
             return redirect()->back()->with('success', \Lang::get('message.updated-successfully'));
         } catch (\Exception $ex) {
