@@ -471,6 +471,7 @@
         }
 
         async function resendOTP(default_type, type) {
+            const data = {eid, default_type, type};
             $.ajax({
                 url: '{{ url('resend_otp') }}',
                 type: 'POST',
@@ -497,6 +498,7 @@
 
         async function sendOTP() {
             startTimer(otpButton, timerDisplay, TIMER_DURATION, 'mobile');
+            const data = {eid : eid};
             $.ajax({
                 url: '{{ url('otp/send') }}',
                 type: 'POST',
@@ -611,6 +613,7 @@
         }
 
         async function sendEmail() {
+            const data = {eid: eid};
             $.ajax({
                 url: '{{ url('/send-email') }}',
                 type: 'POST',
