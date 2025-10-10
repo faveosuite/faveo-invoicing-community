@@ -13,13 +13,15 @@ class UserOrderDelete
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $domain;
+    public $order_id;
 
     /**
      * Create a new event instance.
      */
-    public function __construct($domain)
+    public function __construct($domain, $order_id)
     {
         $this->domain = $domain;
+        $this->order_id = $order_id;
     }
 
     /**

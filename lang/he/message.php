@@ -2705,6 +2705,8 @@ return [
 
     'user_position_prohibited_if' => 'השדה תפקיד אינו מותר כאשר התפקיד הוא משתמש.',
     'cloud_plan_error' => 'אנא הסר את מוצר הענן או קשר אותו לתוכנית חלופית.',
+    'short_description' => 'תיאור קצר',
+    'add_short_description' => 'אנא הזן תיאור קצר.',
 
     'invalid_code_2fa' => 'קוד שגוי. אנא נסה שוב.',
     '6_digit_auth_code' => 'הזן את קוד האימות בן 6 הספרות שלך',

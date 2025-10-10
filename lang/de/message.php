@@ -2698,6 +2698,8 @@ return [
     'deletion_cloud_subscription' => 'Cloud-Abonnements löschen, die vor mehr als ... abgelaufen sind...',
     'msg_service_down' => 'Derzeit gibt es Probleme mit unserem OTP-Dienst. Bitte versuchen Sie es in Kürze erneut. Wir arbeiten an einer schnellen Lösung.',
     'cloud_plan_error' => 'Bitte entfernen Sie das Cloud-Produkt oder verknüpfen Sie es mit einem alternativen Plan.',
+    'short_description' => 'Kurze Beschreibung',
+    'add_short_description' => 'Bitte geben Sie eine kurze Beschreibung ein.',
 
     'invalid_code_2fa' => 'Nevažeći kod. Molimo pokušajte ponovo.',
     '6_digit_auth_code' => 'Unesite svoj 6-cifreni autentifikacijski kod',

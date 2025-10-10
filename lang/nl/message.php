@@ -2674,6 +2674,8 @@ return [
 
     'user_position_prohibited_if' => 'Het veld functie is niet toegestaan wanneer de rol gebruiker is.',
     'cloud_plan_error' => 'Verwijder het cloudproduct of koppel het aan een alternatief plan.',
+    'short_description' => 'Korte beschrijving',
+    'add_short_description' => 'Voer een korte beschrijving in.',
 
     'continue_verify_social_login' => 'Klik op "Validate" om verder te gaan en uw identiteit te bevestigen',
 ];

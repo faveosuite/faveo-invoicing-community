@@ -2714,6 +2714,8 @@ return [
 
     'user_position_prohibited_if' => 'Rol kullanıcı olduğunda pozisyon alanına izin verilmez.',
     'cloud_plan_error' => 'Lütfen bulut ürününü kaldırın veya alternatif bir plana bağlayın.',
+    'short_description' => 'Kısa açıklama',
+    'add_short_description' => 'Lütfen kısa bir açıklama girin.',
 
     'invalid_code_2fa' => 'Geçersiz kod. Lütfen tekrar deneyin.',
     '6_digit_auth_code' => '6 haneli doğrulama kodunuzu girin',

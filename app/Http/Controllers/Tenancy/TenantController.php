@@ -309,7 +309,7 @@ class TenantController extends Controller
                     }
 
                     return "<p><button data-toggle='modal'
-                data-id='".$model->id."' data-name='' onclick=\"deleteTenant('".$model->id."','".$order_number."')\" id='delten".$model->id."'
+                data-id='".$model->id."' data-name='' onclick=\"deleteTenant('".$model->id."','".$order_id."')\" id='delten".$model->id."'
                 class='btn btn-sm btn-dark btn-xs delTenant' ".tooltip(__('message.delete'))."<i class='fa fa-trash'
                 style='color:white;'> </i></button>&nbsp;</p>";
                 })
@@ -516,7 +516,14 @@ class TenantController extends Controller
             if ($response->status == 'success') {
                 $this->deleteCronForTenant($request->input('id'));
                 \DB::table('free_trial_allowed')->where('domain', $request->input('id'))->delete();
-                (empty($request->orderId)) ?: Order::where('id', $request->get('orderId'))->delete();
+                if (! empty($request->orderId)) {
+                    $order = Order::where('id', $request->get('orderId'))->first();
+                    $sub = $order->subscription()->first();
+                    $sub->is_deleted = 1;
+                    $sub->save();
+                    $order->delete();
+                }
+//                (empty($request->orderId)) ?: Order::where('number', $request->get('orderId'))->delete();
                 (new LicenseController())->reissueDomain($request->input('id'));
 
                 $user = optional(\Auth::user())->email ?? 'Auto deletion';

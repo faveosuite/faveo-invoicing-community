@@ -2721,6 +2721,8 @@ return [
 
     'user_position_prohibited_if' => '역할이 사용자일 때는 직위 필드를 사용할 수 없습니다.',
     'cloud_plan_error' => '클라우드 제품을 삭제하거나 다른 요금제에 연결해 주세요.',
+    'short_description' => '짧은 설명',
+    'add_short_description' => '짧은 설명을 입력하세요.',
 
     'invalid_code_2fa' => '잘못된 코드입니다. 다시 시도해주세요.',
     '6_digit_auth_code' => '6자리 인증 코드를 입력하세요',

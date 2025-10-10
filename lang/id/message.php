@@ -2695,6 +2695,8 @@ return [
 
     'user_position_prohibited_if' => 'Kolom posisi tidak diizinkan saat peran adalah pengguna.',
     'cloud_plan_error' => 'Harap hapus produk cloud atau hubungkan ke paket alternatif.',
+    'short_description' => 'Deskripsi singkat',
+    'add_short_description' => 'Silakan masukkan deskripsi singkat.',
 
     'invalid_code_2fa' => 'Kode tidak valid. Silakan coba lagi.',
     '6_digit_auth_code' => 'Masukkan kode autentikasi 6 digit Anda',
