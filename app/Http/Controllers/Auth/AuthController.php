@@ -9,7 +9,6 @@ use App\Http\Controllers\License\LicenseController;
 use App\Jobs\AddUserToExternalService;
 use App\Model\Common\StatusSetting;
 use App\Model\User\AccountActivate;
-use App\Rules\CaptchaValidation;
 use App\User;
 use App\VerificationAttempt;
 use Carbon\Carbon;
@@ -141,7 +140,6 @@ class AuthController extends BaseAuthController
     {
         $request->validate([
             'eid' => 'required|string',
-            'g-recaptcha-response' => [isCaptchaRequired('v3')['is_required'], new CaptchaValidation('sendOtp')],
         ],
             [
                 'eid.required' => __('validation.eid_required'),
@@ -190,7 +188,6 @@ class AuthController extends BaseAuthController
         $request->validate([
             'eid' => 'required|string',
             'type' => 'required|string|in:text,voice',
-            'g-recaptcha-response' => [isCaptchaRequired('v3')['is_required'], new CaptchaValidation('resendOtp')],
         ], [
             'eid.required' => __('validation.resend_otp.eid_required'),
             'eid.string' => __('validation.resend_otp.eid_string'),
@@ -228,7 +225,6 @@ class AuthController extends BaseAuthController
     {
         $request->validate([
             'eid' => 'required|string',
-            'g-recaptcha-response' => [isCaptchaRequired('v3')['is_required'], new CaptchaValidation('sendEmail')],
         ], [
             'eid.required' => __('validation.eid_required'),
             'eid.string' => __('validation.eid_string'),
@@ -267,14 +263,12 @@ class AuthController extends BaseAuthController
         $request->validate([
             'eid' => 'required|string',
             'otp' => 'required|string|size:6',
-            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('verifyMobileOtp')],
         ],
             [
                 'eid.required' => __('validation.verify_otp.eid_required'),  // Translating for eid field
                 'eid.string' => __('validation.verify_otp.eid_string'),
                 'otp.required' => __('validation.verify_otp.otp_required'),
                 'otp.size' => __('validation.verify_otp.otp_size'),
-                'g-recaptcha-response.required' => __('validation.verify_otp.recaptcha_required'),
             ]);
         try {
             // Decrypt the email
@@ -318,14 +312,12 @@ class AuthController extends BaseAuthController
         $request->validate([
             'eid' => 'required|string',
             'otp' => 'required|string|size:6',
-            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('verifyEmailOtp')],
         ],
             [
                 'eid.required' => __('validation.verify_otp.eid_required'),  // Translating for eid field
                 'eid.string' => __('validation.verify_otp.eid_string'),
                 'otp.required' => __('validation.verify_otp.otp_required'),
                 'otp.size' => __('validation.verify_otp.otp_size'),
-                'g-recaptcha-response.required' => __('validation.verify_otp.recaptcha_required'),
             ]);
 
         try {
@@ -484,11 +476,8 @@ class AuthController extends BaseAuthController
         $eid = Crypt::encrypt($user->email);
 
         $setting = StatusSetting::select(
-            'recaptcha_status',
-            'v3_recaptcha_status',
             'emailverification_status',
             'msg91_status',
-            'v3_v2_recaptcha_status'
         )->first();
 
         $isMobileVerified = ! ($setting->msg91_status == 1 && $user->mobile_verified != 1);

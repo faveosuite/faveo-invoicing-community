@@ -183,25 +183,14 @@ foreach($scripts as $script) {
                                                       </div>
                                                   </div>
                                               </div>
-                         <?php
-                         use App\Model\Common\StatusSetting;
-                         $gcaptcha = StatusSetting::pluck('v3_v2_recaptcha_status')->first();
-                         ?>
-
-                                              @if($gcaptcha===1)
-                        @if ($status->recaptcha_status === 1)
-                              <div id="login_recaptcha"></div>
-                              <div id="loginrobot-verification"></div><br>
-                        @elseif($status->v3_recaptcha_status === 1)
-
-                              <input type="hidden" class="g-recaptcha-token" name="g-recaptcha-response" data-recaptcha-action="login">
-                        @endif
-                        @endif
+                                              <div class="row mb-3 align-items-center">
+                                                  <div id="login_recaptcha"></div>
+                                              </div>
                         <div class="row">
 
                             <div class="form-group col">
 
-                                <button type="submit" id="login-btn" class="btn btn-dark btn-modern w-100 text-uppercase font-weight-bold text-3 py-3" data-loading-text="{{ __('message.loading') }}">{{ __('message.login')}}</button>
+                                <button type="submit" id="login-btn" class="btn btn-dark btn-modern w-100 text-uppercase font-weight-bold text-3 py-3" data-loading-text="{{ __('message.loading') }}" data-original-text="{{ __('message.login') }}">{{ __('message.login')}}</button>
                                 @if($google_status == 1 || $twitter_status == 1 || $github_status == 1 ||$linkedin_status == 1)
 
                                 <div class="divider">
@@ -414,17 +403,6 @@ foreach($scripts as $script) {
                             </ul>
                         </small>
 
-                        <div class="form-row">
-                        <div class="form-group col-lg-6">
-                            @if ($status->recaptcha_status === 1)
-                               <div id="register_recaptcha"></div>
-                                <span id="captchacheck"></span>
-                            @elseif($status->v3_recaptcha_status === 1)
-                                <input type="hidden" id="g-recaptcha-register" class="g-recaptcha-token" name="g-recaptcha-response" data-recaptcha-action="register">
-                            @endif
-                        </div>
-                    </div>
-
                         {!! honeypotField('registerForm') !!}
 
                         <div class="row">
@@ -439,6 +417,10 @@ foreach($scripts as $script) {
                                     </div>
                                 </div>
                             @endif
+                        </div>
+
+                        <div class="row mb-3 align-items-center">
+                            <div id="register_recaptcha"></div>
                         </div>
 
                         <div class="row">
@@ -458,6 +440,27 @@ foreach($scripts as $script) {
     </div>
 @stop
 @section('script')
+    <script>
+        let loginRecaptcha, registerRecaptcha;
+
+        (async () => {
+            const loginRecaptchaContainer = document.getElementById('login_recaptcha');
+            const registerRecaptchaContainer = document.getElementById('register_recaptcha');
+
+            loginRecaptcha = await RecaptchaManager.init(loginRecaptchaContainer, {
+                action: 'login',
+            });
+
+            registerRecaptcha = await RecaptchaManager.init(registerRecaptchaContainer, {
+                action: 'register'
+            });
+
+            // Make them globally available
+            window.loginRecaptcha = loginRecaptcha;
+            window.registerRecaptcha = registerRecaptcha;
+
+        })();
+    </script>
     <!--<script async src="https://www.googletagmanager.com/gtag/js?id=<?php echo $analyticsTag; ?>"></script>-->
 {{--@extends('mini_views.recaptcha')--}}
     <!--Start of Tawk.to Script-->
@@ -483,16 +486,6 @@ foreach($scripts as $script) {
         function updateToMobile(value) {
             updateCountryCodeAndFlag(input, value)
         }
-
-        // Recaptcha v2
-        let login_recaptcha_id;
-        let register_recaptcha_id;
-        @if($status->recaptcha_status === 1)
-        recaptchaFunctionToExecute.push(() => {
-            login_recaptcha_id = grecaptcha.render('login_recaptcha', {'sitekey': siteKey});
-            register_recaptcha_id = grecaptcha.render('register_recaptcha', {'sitekey': siteKey});
-        });
-        @endif
 
 
         $(document).ready(function () {
@@ -644,24 +637,12 @@ foreach($scripts as $script) {
                 return validatePhoneNumber(element);
             }, "{{ __('message.error_valid_number') }}");
 
-            $.validator.addMethod("recaptchaRequired", function(value, element) {
-                try {
-                    if(!recaptchaEnabled) {
-                        return false;
-                    }
-                }catch (ex){
-                    return false
-                }
-                return value.trim() !== "";
-            }, "{{ __('message.recaptcha_required') }}");
-
             $(document).on('change', '#term', function () {
                 $(this).val($(this).val() === "false" ? "true" : "false");
             });
 
 
             $('#formoid').validate({
-                ignore: ":hidden:not(.g-recaptcha-response)",
                 rules: {
                     email_username: {
                         required: true,
@@ -671,9 +652,6 @@ foreach($scripts as $script) {
                     password1: {
                         required: true,
                     },
-                    "g-recaptcha-response": {
-                        recaptchaRequired: true
-                    }
                 },
                 messages: {
                     email_username: {
@@ -683,9 +661,6 @@ foreach($scripts as $script) {
                     password1: {
                         required: "{{ __('message.received_password_enter') }}",
                     },
-                    "g-recaptcha-response": {
-                        recaptchaRequired: "{{ __('message.recaptcha_required') }}"
-                    }
                 },
                 unhighlight: function(element) {
                     $(element).removeClass("is-valid");
@@ -694,13 +669,82 @@ foreach($scripts as $script) {
                     var errorMapping = {
                         "email_username": "#error-login-email",
                         "password1": "#error-login-password",
-                        "g-recaptcha-response": "#loginrobot-verification"
                     };
 
                     placeErrorMessage(error, element, errorMapping);
                 },
-                submitHandler: function (form) {
-                    form.submit();
+            });
+
+            $("#formoid").on("submit", async function (event) {
+                event.preventDefault();
+
+                const $form = $(this);
+                const $submitButton = $("#login-btn");
+
+                if (!$form.valid()) {
+                    return;
+                }
+
+                try {
+                    // Validate reCAPTCHA
+                    let recaptchaToken = await window.loginRecaptcha.tokenValidation(loginRecaptcha, "login");
+                    if (!recaptchaToken) return;
+
+                    // Collect form data
+                    let formData = $form.serializeArray();
+                    if (!window.loginRecaptcha.isDisabled() && recaptchaToken) {
+                        formData.push({ name: "g-recaptcha-response", value: recaptchaToken });
+                        formData.push({ name: "page_id", value: window.pageId });
+                    }
+
+                    // Submit form
+                    $.ajax({
+                        url: "{{url('login')}}",
+                        method: "POST",
+                        data: $.param(formData),
+                        beforeSend: function () {
+                            $submitButton.prop("disabled", true).html($submitButton.data("loading-text"));
+                        },
+                        success: function (response) {
+
+                            if (response.data?.redirect) {
+                                window.location.href = response.data?.redirect;
+                            } else {
+                                showAlert("success", response.message);
+                            }
+                        },
+                        error: async function (xhr) {
+                            let response = xhr.responseJSON || JSON.parse(xhr.responseText || "{}");
+
+                            // Handle reCAPTCHA fallback
+                            if (response.data?.show_v2_recaptcha) {
+                                await window.loginRecaptcha.useFallback(true);
+                                showAlert("error", response.message || "An unexpected error occurred.");
+                                return;
+                            }
+
+                            // Handle validation errors
+                            if (response.errors) {
+                                let validator = $form.validate();
+                                $.each(response.errors, function (field, messages) {
+                                    if (["login"].includes(field)) {
+                                        showAlert("error", messages[0]);
+                                        return;
+                                    }
+                                    validator.showErrors({ [field]: messages[0] });
+                                });
+                            } else {
+                                showAlert("error", response.message || "An unexpected error occurred.");
+                            }
+                        },
+                        complete: function () {
+                            $submitButton.prop("disabled", false).html($submitButton.data("original-text"));
+                            window.loginRecaptcha.reset();
+                        }
+                    });
+                } catch (err) {
+                    console.error("Form submit error:", err);
+                    showAlert("error", "Something went wrong. Please try again.");
                 }
             });
 
@@ -746,9 +790,6 @@ foreach($scripts as $script) {
                             return {{ $status->terms == 1 ? 'true' : 'false' }};
                         }
                     },
-                    "g-recaptcha-response": {
-                        recaptchaRequired: true
-                    }
                 },
                 messages: {
                     first_name: {
@@ -787,9 +828,6 @@ foreach($scripts as $script) {
                     terms: {
                         required: "{{ __('message.login_validation.terms_conditions_required') }}"
                     },
-                    "g-recaptcha-response": {
-                        recaptchaRequired: "{{ __('message.recaptcha_required') }}"
-                    }
 
                 },
                 unhighlight: function(element) {
@@ -807,69 +845,95 @@ foreach($scripts as $script) {
                         "password": "#password1check",
                         "password_confirmation": "#conpasscheck",
                         "terms": "#termscheck",
-                        "g-recaptcha-response": "#captchacheck"
                     };
 
                     placeErrorMessage(error, element, errorMapping);
                 },
-                submitHandler: function (form) {
-                    $('#mobile_code').val(input.getAttribute('data-dial-code'));
-                    $('#mobile_country_iso').val(input.getAttribute('data-country-iso').toUpperCase());
-                    input.value = input.value.replace(/\D/g, '');
-                    var formData = $(form).serialize();
-                    let submitButton = $('#register');
-                    var tag = "<?php echo $analyticsTag; ?>";
-                    if (tag !== "") {
-                        gtag_report_conversion(tag);
+            });
+
+            $("#regiser-form").on("submit", async function (event) {
+                event.preventDefault();
+
+                const $form = $(this);
+                const $submitButton = $("#register");
+
+                if (!$form.valid()) {
+                    return;
+                }
+
+                try {
+                    // Validate reCAPTCHA
+                    let recaptchaToken = await window.registerRecaptcha.tokenValidation(registerRecaptcha, "register");
+                    if (!recaptchaToken) return;
+
+                    // Set hidden fields for mobile details
+                    $("#mobile_code").val(input.getAttribute("data-dial-code"));
+                    $("#mobile_country_iso").val(input.getAttribute("data-country-iso").toUpperCase());
+                    input.value = input.value.replace(/\D/g, "");
+
+                    // Collect form data
+                    let formData = $form.serializeArray();
+
+                    if (!window.registerRecaptcha.isDisabled() && recaptchaToken) {
+                        formData.push({ name: "g-recaptcha-response", value: recaptchaToken });
+                        formData.push({ name: "page_id", value: window.pageId });
                     }
+
+                    const tag = "<?php echo $analyticsTag; ?>";
+                    if (tag) gtag_report_conversion(tag);
+
+                    // Submit form
                     $.ajax({
-                        url: '{{url("auth/register")}}',
-                        method: 'POST',
-                        data: formData,
+                        url: "{{url('auth/register')}}",
+                        method: "POST",
+                        data: $.param(formData),
                         beforeSend: function () {
-                            submitButton.prop('disabled', true).html(submitButton.data('loading-text'));
+                            $submitButton.prop("disabled", true).html($submitButton.data("loading-text"));
                         },
-                        success: function(response) {
+                        success: function (response) {
                             @if($status->terms)
-                            document.getElementById('term').value = false;
+                            document.getElementById("term").value = false;
                             @endif
-                            form.reset();
-                            if (response.data.need_verify === 1) {
+                                $form[0].reset();
+
+                            if (response.data?.need_verify) {
                                 window.location.href = "{{ url('/verify') }}";
-                            }else {
-                                showAlert('success', response.message);
+                            } else {
+                                showAlert("success", response.message);
                             }
                         },
-                        error: function(data, status, error) {
-                            var response = data.responseJSON ? data.responseJSON : JSON.parse(data.responseText);
+                        error: async function (xhr) {
+                            let response = xhr.responseJSON || JSON.parse(xhr.responseText || "{}");
 
+                            // Handle reCAPTCHA fallback
+                            if (response.data?.show_v2_recaptcha) {
+                                await window.registerRecaptcha.useFallback(true);
+                                showAlert("error", response.message || "An unexpected error occurred.");
+                                return;
+                            }
+
+                            // Handle validation errors
                             if (response.errors) {
-                                $.each(response.errors, function(field, messages) {
-                                    if (field === 'register' || field === 'g-recaptcha-response') {
-                                        showAlert('error', messages[0]);
+                                let validator = $form.validate();
+                                $.each(response.errors, function (field, messages) {
+                                    if (["register"].includes(field)) {
+                                        showAlert("error", messages[0]);
                                         return;
                                     }
-                                    var validator = $('#regiser-form').validate();
-
-                                    var fieldSelector = $(`[name="${field}"]`).attr('name');  // Get the name attribute of the selected field
-
-                                    validator.showErrors({
-                                        [fieldSelector]: messages[0]
-                                    });
+                                    validator.showErrors({ [field]: messages[0] });
                                 });
                             } else {
-                                showAlert('error', response);
+                                showAlert("error", response.message || "An unexpected error occurred.");
                             }
                         },
                         complete: function () {
-                            submitButton.prop('disabled', false).html(submitButton.data('original-text'));
-                            @if($status->recaptcha_status === 1)
-                            regenerateRecaptchaV2(register_recaptcha_id)
-                            @endif
+                            $submitButton.prop("disabled", false).html($submitButton.data("original-text"));
+                            window.registerRecaptcha.reset();
                         }
                     });
-
-                    return false;
+                } catch (err) {
+                    console.error("Form submit error:", err);
+                    showAlert("error", "Something went wrong. Please try again.");
                 }
             });
         });

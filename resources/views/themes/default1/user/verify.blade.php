@@ -219,18 +219,21 @@
             font-size: 13px;
         }
 
-       [dir="rtl"] #otpButton{
-           width: 125px !important;
-       }
-         [dir="rtl"] #otpButtonn{
-              width: 135px !important;
-         }
-       #otpAlertMsg{
-           text-align:left;
-       }
-         [dir="rtl"] #otpAlertMsg{
-              text-align:right;
-         }
+        [dir="rtl"] #otpButton {
+            width: 125px !important;
+        }
+
+        [dir="rtl"] #otpButtonn {
+            width: 135px !important;
+        }
+
+        #otpAlertMsg {
+            text-align: left;
+        }
+
+        [dir="rtl"] #otpAlertMsg {
+            text-align: right;
+        }
 
         .hidden {
             display: none !important;
@@ -246,10 +249,12 @@
                         <ul id="progressbar">
                             @if(!$isMobileVerified && !$isEmailVerified)
                                 @if($verification_preference === 'email')
-                                    <li class="active" id="email_li"><strong>{{ __('message.verify_email') }}</strong></li>
+                                    <li class="active" id="email_li"><strong>{{ __('message.verify_email') }}</strong>
+                                    </li>
                                     <li id="otp_li"><strong>{{ __('message.verify_mobile') }}</strong></li>
                                 @else
-                                    <li class="active" id="otp_li"><strong>{{ __('message.verify_mobile') }}</strong></li>
+                                    <li class="active" id="otp_li"><strong>{{ __('message.verify_mobile') }}</strong>
+                                    </li>
                                     <li id="email_li"><strong>{{ __('message.verify_email') }}</strong></li>
                                 @endif
                             @elseif(!$isMobileVerified && $isEmailVerified)
@@ -264,15 +269,15 @@
                         <fieldset id="fieldset_otp">
                             <div class="form-card">
                                 <div id="alert-container"></div>
-                                <p class="text-left text-color-dark text-3">{{ __('message.enter_code') }} <span class="text-color-danger"> *</span></p>
-                                <input class="form-control h-100" type="text" id="otp" name="otp" placeholder="{{ __('message.otp_placeholder') }}"/>
+                                <p class="text-left text-color-dark text-3">{{ __('message.enter_code') }} <span
+                                            class="text-color-danger"> *</span></p>
+                                <input class="form-control h-100" type="text" id="otp" name="otp"
+                                       placeholder="{{ __('message.otp_placeholder') }}"/>
                                 <p class="mt-3">{{ __('message.otp_description') }}</p>
 
-                                @if ($setting->recaptcha_status === 1)
-                                    <div id="recaptchaMobile"></div>
-                                @elseif($setting->v3_recaptcha_status === 1)
-                                    <input type="hidden" id="g-recaptcha-mobile" class="g-recaptcha-token" name="g-recaptcha-response"  data-recaptcha-action="verifyMobileOtp">
-                                @endif
+                                {{--Recaptcha--}}
+                                <div id="recaptchaMobile"></div>
+
                                 <div class="col-12">
                                     <div class="row">
                                         <div class="col-6 px-0">
@@ -288,12 +293,14 @@
                                                 <button id="additionalButton" type="button"
                                                         onclick="resendOTP('mobile','voice')"
                                                         class="border-0 px-1 background-transparent"
-                                                        disabled><i class="fa fa-phone"></i> {{ __('message.otp_call') }}
+                                                        disabled><i
+                                                            class="fa fa-phone"></i> {{ __('message.otp_call') }}
                                                 </button>
                                             </div>
                                         </div>
                                         <div class="col-6 px-0">
-                                            <button type="button" id="mobileVerifyBtn" onclick="submitOtp()" class="btn btn-primary btn-flat float-right btn-lg">
+                                            <button type="button" id="mobileVerifyBtn" onclick="submitOtp()"
+                                                    class="btn btn-primary btn-flat float-right btn-lg">
                                                 <span id="mobileVerifyBtnText">{{ __('message.verify') }}</span>
                                             </button>
                                         </div>
@@ -304,16 +311,15 @@
                         <fieldset id="fieldset_email">
                             <div class="form-card">
                                 <div id="alert-container-email"></div>
-                                <p class="text-left text-color-dark text-3">{{ __('message.enter_code') }} <span class="text-color-danger"> *</span></p>
-                                <input class="form-control h-100" type="text" id="email_otp" name="email_otp" placeholder="{{ __('message.otp_placeholder') }}"/>
+                                <p class="text-left text-color-dark text-3">{{ __('message.enter_code') }} <span
+                                            class="text-color-danger"> *</span></p>
+                                <input class="form-control h-100" type="text" id="email_otp" name="email_otp"
+                                       placeholder="{{ __('message.otp_placeholder') }}"/>
                                 <p class="mt-3">{{ __('message.email_otp_description') }}</p>
-                                @if($setting->v3_v2_recaptcha_status)
-                                    @if ($setting->recaptcha_status === 1)
-                                        <div id="recaptchaEmail"></div>
-                                    @elseif($setting->v3_recaptcha_status === 1)
-                                        <input type="hidden" id="g-recaptcha-email" class="g-recaptcha-token" name="g-recaptcha-response"  data-recaptcha-action="verifyEmailOtp">
-                                    @endif
-                                @endif
+
+                                {{--Recaptcha--}}
+                                <div id="recaptchaEmail"></div>
+
                                 <div class="col-12 mt-4">
                                     <div class="row">
                                         <div class="col-6 px-0">
@@ -327,7 +333,8 @@
                                             </div>
                                         </div>
                                         <div class="col-6 px-0">
-                                            <button type="button" id="emailVerifyBtn" onclick="isEmailVerified()" class="btn btn-primary btn-flat float-right btn-lg">
+                                            <button type="button" id="emailVerifyBtn" onclick="isEmailVerified()"
+                                                    class="btn btn-primary btn-flat float-right btn-lg">
                                                 <span id="emailVerifyBtnText">{{ __('message.verify') }}</span>
                                             </button>
                                         </div>
@@ -338,13 +345,16 @@
                         <fieldset id="fieldset_success">
                             <div class="form-card">
 
-                                <h2 class="purple-text text-center"><strong>{{ __('message.all_success') }}</strong></h2>
+                                <h2 class="purple-text text-center"><strong>{{ __('message.all_success') }}</strong>
+                                </h2>
                             </div>
                         </fieldset>
                     </form>
 
                     <div class="mt-2 text-start text-2">
-                        {{ __('message.trouble_logging_in') }} <a href="{{ url('/contact-us') }}" class="text-decoration-none" target="_blank">{{ __('message.click_here') }}</a>
+                        {{ __('message.trouble_logging_in') }} <a href="{{ url('/contact-us') }}"
+                                                                  class="text-decoration-none"
+                                                                  target="_blank">{{ __('message.click_here') }}</a>
                     </div>
                 </div>
             </div>
@@ -353,7 +363,28 @@
 
 @stop
 @section('script')
-{{--    @extends('mini_views.recaptcha')--}}
+    <script>
+        let emailVerifyRecaptcha;
+        let mobileVerifyRecaptcha;
+
+        (async () => {
+            const emailRecaptchaContainer = document.getElementById('recaptchaEmail');
+            const mobileRecaptchaContainer = document.getElementById('recaptchaMobile');
+
+            emailVerifyRecaptcha = await RecaptchaManager.init(emailRecaptchaContainer, {
+                action: 'email_verify',
+            });
+
+            mobileVerifyRecaptcha = await RecaptchaManager.init(mobileRecaptchaContainer, {
+                action: 'mobile_verify',
+            });
+
+            // Make them globally available
+            window.emailVerifyRecaptcha = emailVerifyRecaptcha;
+            window.mobileVerifyRecaptcha = mobileVerifyRecaptcha;
+
+        })();
+    </script>
     <script>
         const otpButton = document.getElementById("otpButton");
         const additionalButton = document.getElementById("additionalButton");
@@ -368,24 +399,12 @@
         let mobileCountdown = TIMER_DURATION;
         let emailCountdown = TIMER_DURATION;
 
-        let mobile_recaptcha_id;
-        let email_recaptcha_id;
-        let recaptcha;
-        let recaptchaToken;
-
         // Verification state tracking
         let verificationState = {
             isMobileVerified: @json($isMobileVerified),
             isEmailVerified: @json($isEmailVerified),
             verificationPreference: @json($verification_preference ?? 'mobile')
         };
-
-        @if($setting->recaptcha_status === 1)
-        recaptchaFunctionToExecute.push(() => {
-            mobile_recaptcha_id = grecaptcha.render('recaptchaMobile', { 'sitekey': siteKey });
-            email_recaptcha_id = grecaptcha.render('recaptchaEmail', { 'sitekey': siteKey });
-        });
-        @endif
 
         // Restrict input to 6 digits only
         ['email_otp', 'otp'].forEach(id => {
@@ -450,21 +469,9 @@
                 }, 1000);
             }
         }
-        async function generateV3Token(data, action = 'default') {
-            @if($setting->v3_recaptcha_status === 1)
-                try {
-                const token = await generateRecaptchaToken(action);
-                data['g-recaptcha-response'] = token;
-            } catch (error) {
-                // handle token error silently
-            }
-            @endif
-                return data;
-        }
 
         async function resendOTP(default_type, type) {
-            let recaptchaAction = default_type === 'email' ? 'sendEmail' : 'resendOtp';
-            const data = await generateV3Token({eid, default_type, type}, recaptchaAction);
+            const data = {eid, default_type, type};
             $.ajax({
                 url: '{{ url('resend_otp') }}',
                 type: 'POST',
@@ -491,7 +498,7 @@
 
         async function sendOTP() {
             startTimer(otpButton, timerDisplay, TIMER_DURATION, 'mobile');
-            const data = await generateV3Token({eid : eid}, 'sendOtp');
+            const data = {eid : eid};
             $.ajax({
                 url: '{{ url('otp/send') }}',
                 type: 'POST',
@@ -506,7 +513,7 @@
             });
         }
 
-        function submitOtp() {
+        async function submitOtp() {
             const otpField = $('#otp');
             const otpValue = otpField.val();
             const otpRegex = /^[0-9]{6}$/;
@@ -524,19 +531,16 @@
                 return;
             }
 
-            @if($setting->recaptcha_status === 1)
-                recaptcha = $('#recaptchaMobile');
-            recaptchaToken = getRecaptchaTokenFromId(mobile_recaptcha_id);
-            if(getRecaptchaTokenFromId(mobile_recaptcha_id) === ''){
-                showError(recaptcha, "{{ __('message.recaptcha_required') }}");
-                return;
-            }
-            @elseif($setting->v3_recaptcha_status === 1)
-            updateRecaptchaTokens();
-            recaptchaToken = $('#g-recaptcha-mobile').val();
-            @endif
+            // Validate reCAPTCHA
+            let recaptchaToken = await window.mobileVerifyRecaptcha.tokenValidation(mobileVerifyRecaptcha, "mobile_verify");
+            if (!recaptchaToken) return;
 
-            const data = {eid, otp: otpValue, 'g-recaptcha-response': recaptchaToken ?? ''};
+            const data = { eid, otp: otpValue };
+
+            if (!window.mobileVerifyRecaptcha.isDisabled() && recaptchaToken) {
+                data["g-recaptcha-response"] = recaptchaToken;
+                data["page_id"] = window.pageId;
+            }
 
             $.ajax({
                 url: '{{ url('otp/verify') }}',
@@ -555,15 +559,22 @@
                         showSuccessAndRedirect();
                     }
                 },
-                error: function (error) {
+                error: async function (error) {
+
+                    let response = error.responseJSON || JSON.parse(error.responseText || "{}");
+
+                    if (response.data?.show_v2_recaptcha) {
+                        await window.mobileVerifyRecaptcha.useFallback(true);
+                        showAlert("danger", response.message || "An unexpected error occurred.", '#alert-container');
+                        return;
+                    }
+
                     showAlert('danger', error.responseJSON.message, '#alert-container');
                     handleTooManyAttempts(error);
                 },
                 complete: function () {
                     toggleButtonState('mobileVerifyBtn', 'mobileVerifyBtnText', false); // Re-enable and reset text to "Verify"
-                    @if($setting->recaptcha_status === 1)
-                    regenerateRecaptchaV2(mobile_recaptcha_id)
-                    @endif
+                    window.mobileVerifyRecaptcha.reset();
                 }
             });
         }
@@ -602,7 +613,7 @@
         }
 
         async function sendEmail() {
-            const data = await generateV3Token({eid: eid}, 'sendEmail');
+            const data = {eid: eid};
             $.ajax({
                 url: '{{ url('/send-email') }}',
                 type: 'POST',
@@ -618,7 +629,7 @@
             });
         }
 
-        function isEmailVerified() {
+        async function isEmailVerified() {
             const otpField = $('#email_otp');
             const otpValue = otpField.val();
             const otpRegex = /^[0-9]{6}$/;
@@ -636,19 +647,17 @@
                 return;
             }
 
-            @if($setting->recaptcha_status === 1)
-                recaptcha = $('#recaptchaEmail');
-            recaptchaToken = getRecaptchaTokenFromId(email_recaptcha_id);
-            if(getRecaptchaTokenFromId(email_recaptcha_id) === ''){
-                showError(recaptcha, "{{ __('message.recaptcha_required') }}");
-                return;
-            }
-            @elseif($setting->v3_recaptcha_status === 1)
-            updateRecaptchaTokens();
-            recaptchaToken = $('#g-recaptcha-email').val();
-            @endif
+            // Validate reCAPTCHA
+            let recaptchaToken = await window.emailVerifyRecaptcha.tokenValidation(emailVerifyRecaptcha, "email_verify");
+            if (!recaptchaToken) return;
 
-            const data = {eid, otp: otpValue, 'g-recaptcha-response':recaptchaToken ?? ''};
+            const data = { eid, otp: otpValue };
+
+            if (!window.emailVerifyRecaptcha.isDisabled() && recaptchaToken) {
+                data["g-recaptcha-response"] = recaptchaToken;
+                data["page_id"] = window.pageId;
+            }
+
             $.ajax({
                 url: '{{ url('email/verify') }}',
                 type: 'POST',
@@ -666,15 +675,22 @@
                         showSuccessAndRedirect();
                     }
                 },
-                error: function (error) {
+                error: async function (error) {
+
+                    let response = error.responseJSON || JSON.parse(error.responseText || "{}");
+
+                    if (response.data?.show_v2_recaptcha) {
+                        await window.emailVerifyRecaptcha.useFallback(true);
+                        showAlert("danger", response.message || "An unexpected error occurred.", '#alert-container-email');
+                        return;
+                    }
+
                     showAlert('danger', error.responseJSON.message, '#alert-container-email');
                     handleTooManyAttempts(error);
                 },
                 complete: function () {
                     toggleButtonState('emailVerifyBtn', 'emailVerifyBtnText', false); // Re-enable and reset text to "Verify"
-                    @if($setting->recaptcha_status === 1)
-                    regenerateRecaptchaV2(email_recaptcha_id)
-                    @endif
+                    window.emailVerifyRecaptcha.reset();
                 }
             });
         }
@@ -786,7 +802,7 @@
         }
 
         // Initialize the appropriate verification step on page load
-        $(document).ready(function() {
+        $(document).ready(function () {
             if (verificationState.isMobileVerified && verificationState.isEmailVerified) {
                 // Both verified - should not reach here, but redirect just in case
                 window.location.href = "{{ url('/login') }}";
@@ -806,25 +822,25 @@
             }
         });
     </script>
-<script>
-    (function() {
-        const checkUrl = "{{ route('verify.session.check') }}";
-        const checkInterval = 30000;
+    <script>
+        (function () {
+            const checkUrl = "{{ route('verify.session.check') }}";
+            const checkInterval = 30000;
 
-        function checkSession() {
-            $.ajax({
-                url: checkUrl,
-                type: 'GET',
-                success: function(response, status, xhr) {
-                },
-                error: function() {
-                    window.location.href = '{{ url('login') }}';
-                }
-            });
-        }
+            function checkSession() {
+                $.ajax({
+                    url: checkUrl,
+                    type: 'GET',
+                    success: function (response, status, xhr) {
+                    },
+                    error: function () {
+                        window.location.href = '{{ url('login') }}';
+                    }
+                });
+            }
 
-        setInterval(checkSession, checkInterval);
-    })();
-</script>
+            setInterval(checkSession, checkInterval);
+        })();
+    </script>
 
 @stop

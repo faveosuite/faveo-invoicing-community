@@ -9,7 +9,6 @@ use App\Model\Common\EmailMobileValidationProviders;
 use App\Model\Common\ManagerSetting;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
-use App\Rules\CaptchaValidation;
 use App\Rules\Honeypot;
 use App\User;
 use Exception;
@@ -143,7 +142,6 @@ class RegisterController extends Controller
     public function postRegister(ProfileRequest $request, User $user)
     {
         $this->validate($request, [
-            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('register')],
             'registerForm' => [new Honeypot()],
         ]);
         try {

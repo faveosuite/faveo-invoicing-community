@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Auth;
 use App\ApiKey;
 use App\Http\Controllers\Controller;
 use App\Model\Common\StatusSetting;
-use App\Rules\CaptchaValidation;
 use App\Rules\Honeypot;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 use Illuminate\Http\Request;
@@ -33,11 +32,13 @@ class ForgotPasswordController extends Controller
     public function __construct()
     {
         $this->middleware('guest');
+
+        $this->middleware(['recaptcha:forgot'])->only('sendResetLinkEmail');
     }
 
     public function showLinkRequestForm()
     {
-        $status = StatusSetting::select('recaptcha_status', 'v3_recaptcha_status', 'msg91_status', 'emailverification_status', 'terms')->first();
+        $status = StatusSetting::select('msg91_status', 'emailverification_status', 'terms')->first();
         $apiKeys = ApiKey::select('nocaptcha_sitekey', 'captcha_secretCheck', 'msg91_auth_key', 'terms_url')->first();
 
         return view('themes.default1.front.auth.password', compact('status', 'apiKeys'));
@@ -54,14 +55,12 @@ class ForgotPasswordController extends Controller
         try {
             $this->validate($request,
                 ['email' => 'required|email|exists:users,email',
-                    'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('forgotPassword')],
                     'forgot' => [new Honeypot()],
                 ],
                 [
                     'email.required' => __('validation.custom_email.required'),
                     'email.email' => __('validation.custom_email.email'),
                     'email.exists' => __('validation.custom_email.exists'),
-                    'g-recaptcha-response.required' => __('validation.verify_otp.recaptcha_required'),
                 ]);
             $email = $request->email;
 

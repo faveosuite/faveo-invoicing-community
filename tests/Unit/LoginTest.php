@@ -2,9 +2,7 @@
 
 namespace Tests\Unit;
 
-use App\ApiKey;
-use App\Http\Controllers\Auth\LoginController;
-use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Middleware\Install;
 use App\Model\Common\StatusSetting;
 use App\User;
 use App\VerificationAttempt;
@@ -15,76 +13,108 @@ class LoginTest extends DBTestCase
 {
     use DatabaseTransactions;
 
-    /**
-     * Helper method to mock captcha requirement.
-     */
-    private function mockCaptchaRequired()
-    {
-        StatusSetting::updateOrCreate(
-            ['id' => 1],
-            [
-                'v3_v2_recaptcha_status' => 1,
-                'v3_recaptcha_status' => 1,
-                'recaptcha_status' => 0,
-            ]
-        );
-
-        ApiKey::updateOrCreate(
-            ['id' => 1],
-            [
-                'nocaptcha_sitekey' => 'test-sitekey',
-                'captcha_secretCheck' => 'test-secret',
-            ]
-        );
-    }
-
     #[Group('postLogin')]
     public function test_postLogin_forVerifiedUsers()
     {
         $user = User::factory()->create(['password' => \Hash::make('password')]);
-        $setting = StatusSetting::create(['emailverification_status' => 0, 'msg91_status' => 0, 'v3_recaptcha_status' => 0, 'recaptcha_status' => 0, 'v3_v2_recaptcha_status' => 0]);
+        StatusSetting::create(['emailverification_status' => 0, 'msg91_status' => 0, 'recaptcha_status' => 0]);
         $this->withoutMiddleware();
-        $response = $this->call('POST', 'login', ['email_username' => $user->email, 'password1' => 'password', 'login' => [
+        $response = $this->postJson('/login', ['email_username' => $user->email, 'password1' => 'password', 'login' => [
             'pot_field' => '',     // valid
             'time_field' => encrypt(time() - 10), // valid
         ]]);
-        $response->assertRedirect();
+
+        $response->assertStatus(200);
         $this->assertAuthenticatedAs($user);
+
+        $response->assertJsonStructure([
+            'success',
+            'data' => [
+                'redirect',
+            ],
+        ]);
+
+        $response->assertJson([
+            'success' => true,
+            'data' => [
+                'redirect' => url('/client-dashboard'),
+            ],
+        ]);
     }
 
     #[\PHPUnit\Framework\Attributes\Group('postLogin')]
     public function test_postLogin_forAdmin()
     {
-        $user = User::factory()->create(['role' => 'admin']);
+        $user = User::factory()->create(['role' => 'admin', 'password' => \Hash::make('password')]);
+        StatusSetting::create(['emailverification_status' => 0, 'msg91_status' => 0, 'recaptcha_status' => 0]);
         $this->withoutMiddleware();
-        $response = $this->call('POST', 'login', ['email1' => $user->email, 'password1' => 'password', 'login' => [
+        $response = $this->postJson('/login', ['email_username' => $user->email, 'password1' => 'password', 'login' => [
             'pot_field' => '',     // valid
             'time_field' => encrypt(time() - 10), // valid
         ]]);
-        $this->assertStringContainsSubstring($response->getTargetUrl(), '/');
+
+        $response->assertStatus(200);
+        $this->assertAuthenticatedAs($user);
+
+        $response->assertJsonStructure([
+            'success',
+            'data' => [
+                'redirect',
+            ],
+        ]);
+
+        $response->assertJson([
+            'success' => true,
+            'data' => [
+                'redirect' => url('/'),
+            ],
+        ]);
     }
 
     #[\PHPUnit\Framework\Attributes\Group('postLogin')]
     public function test_postLogin_when_mobile_is_Unverified()
     {
-        $user = User::factory()->create(['mobile_verified' => 0]);
-        $response = $this->call('POST', 'login', ['email1' => $user->email, 'password1' => 'password', 'login' => [
+        $user = User::factory()->create(['mobile_verified' => 0, 'password' => \Hash::make('password')]);
+        StatusSetting::updateOrCreate(
+            ['id' => 1],
+            ['msg91_status' => 1, 'emailverification_status' => 0]
+        );
+        $this->withoutMiddleware();
+        $response = $this->postJson('/login', ['email_username' => $user->email, 'password1' => 'password', 'login' => [
             'pot_field' => '',     // valid
             'time_field' => encrypt(time() - 10), // valid
         ]]);
-        $response->assertStatus(302);
-        // $this->assertStringContainsSubstring($response->getTargetUrl(), '/verify');
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'data' => [
+                'redirect' => url('/verify'),
+            ],
+        ]);
     }
 
     #[\PHPUnit\Framework\Attributes\Group('postLogin')]
     public function test_postLogin_when_email_is_Unverified()
     {
-        $user = User::factory()->create(['active' => 0]);
-        $response = $this->call('POST', 'login', ['email1' => $user->email, 'password1' => 'password', 'login' => [
+        $user = User::factory()->create(['email_verified' => 0, 'password' => \Hash::make('password')]);
+        StatusSetting::updateOrCreate(
+            ['id' => 1],
+            ['emailverification_status' => 1, 'msg91_status' => 0]
+        );
+        $this->withoutMiddleware();
+        $response = $this->postJson('/login', ['email_username' => $user->email, 'password1' => 'password', 'login' => [
             'pot_field' => '',     // valid
             'time_field' => encrypt(time() - 10), // valid
         ]]);
-        $response->assertStatus(302);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'data' => [
+                'redirect' => url('/verify'),
+            ],
+        ]);
     }
 
     #[\PHPUnit\Framework\Attributes\Group('postLogin')]
@@ -92,51 +122,62 @@ class LoginTest extends DBTestCase
     {
         $user = User::factory()->create(['password' => \Hash::make('password'), 'email_verified' => 0, 'mobile_verified' => 0]);
         $this->withoutMiddleware();
-        $setting = StatusSetting::first(['emailverification_status', 'msg91_status', 'id']);
-        if (! $setting) {
-            $setting = StatusSetting::create(['id' => 1, 'emailverification_status' => 1, 'msg91_status' => 1, 'v3_recaptcha_status' => 0, 'recaptcha_status' => 0, 'v3_v2_recaptcha_status' => 0]);
-        } else {
-            $setting->update(['emailverification_status' => 1, 'msg91_status' => 1]);
-        }
+        StatusSetting::updateOrCreate(
+            ['id' => 1],
+            ['emailverification_status' => 1, 'msg91_status' => 1]
+        );
         $attempts = VerificationAttempt::create(['user_id' => $user->id, 'mobile_attempt' => 2, 'email_attempt' => 3]);
-        $response = $this->call('POST', 'login', ['email_username' => $user->email, 'password1' => 'password']);
-        $response->assertRedirect();
-        $response->assertSessionHasErrors();
+        $response = $this->postJson('/login', ['email_username' => $user->email, 'password1' => 'password',  'login' => [
+            'pot_field' => '',     // valid
+            'time_field' => encrypt(time() - 10), // valid
+        ]]);
+
+        $response->assertJson([
+            'success' => true,
+            'data' => [
+                'redirect' => url('/verify'),
+            ],
+        ]);
     }
 
     public function test_login_should_fail_when_the_user_not_present()
     {
-        $user = User::factory()->create(['password' => \Hash::make('password')]);
-        $setting = StatusSetting::create(['emailverification_status' => 1, 'msg91_status' => 0, 'v3_recaptcha_status' => 0, 'recaptcha_status' => 0, 'v3_v2_recaptcha_status' => 0]);
+        User::factory()->create(['password' => \Hash::make('password')]);
+        StatusSetting::create(['emailverification_status' => 1, 'msg91_status' => 0, 'v3_recaptcha_status' => 0, 'recaptcha_status' => 0, 'v3_v2_recaptcha_status' => 0]);
         $this->withoutMiddleware();
-        $response = $this->call('POST', 'login', ['email_username' => 'santhanuchakrapa@gmail.com', 'password1' => 'password', 'login' => [
+        $response = $this->postJson('/login', ['email_username' => 'santhanuchakrapa@gmail.com', 'password1' => 'password', 'login' => [
             'pot_field' => '',     // valid
             'time_field' => encrypt(time() - 10), // valid
         ]]);
-        $response->assertRedirect();
-        $response->assertSessionHas('fails', 'Your email or password is incorrect. Please check and try again.');
-        $this->assertTrue(session()->hasOldInput('email_username'));
+
+        $response->assertJson([
+            'success' => false,
+            'message' => 'Your email or password is incorrect. Please check and try again.',
+        ]);
     }
 
     public function test_login_fails_when_password_is_wrong()
     {
         $user = User::factory()->create(['password' => \Hash::make('password')]);
-        $setting = StatusSetting::create(['emailverification_status' => 0, 'msg91_status' => 0, 'v3_recaptcha_status' => 0, 'recaptcha_status' => 0, 'v3_v2_recaptcha_status' => 0]);
+        StatusSetting::create(['emailverification_status' => 0, 'msg91_status' => 0, 'v3_recaptcha_status' => 0, 'recaptcha_status' => 0, 'v3_v2_recaptcha_status' => 0]);
         $this->withoutMiddleware();
-        $response = $this->call('POST', 'login', ['email_username' => $user->email, 'password1' => 'passwor', 'login' => [
+        $response = $this->postJson('/login', ['email_username' => $user->email, 'password1' => 'passwor', 'login' => [
             'pot_field' => '',     // valid
             'time_field' => encrypt(time() - 10), // valid
         ]]);
-        $response->assertRedirect();
-        $response->assertSessionHas('fails', 'Your email or password is incorrect. Please check and try again.');
+
+        $response->assertJson([
+            'success' => false,
+            'message' => 'Your email or password is incorrect. Please check and try again.',
+        ]);
     }
 
     public function test_when_2fa_is_enabled()
     {
         $user = User::factory()->create(['password' => \Hash::make('password'), 'is_2fa_enabled' => 1]);
-        $setting = StatusSetting::create(['emailverification_status' => 0, 'msg91_status' => 0, 'v3_recaptcha_status' => 0, 'recaptcha_status' => 0, 'v3_v2_recaptcha_status' => 0]);
+        StatusSetting::create(['emailverification_status' => 0, 'msg91_status' => 0, 'v3_recaptcha_status' => 0, 'recaptcha_status' => 0, 'v3_v2_recaptcha_status' => 0]);
         $this->withoutMiddleware();
-        $request = LoginRequest::create('/login', 'POST', [
+        $response = $this->postJson('/login', [
             'email_username' => $user->email,
             'password1' => 'password',
             'login' => [
@@ -144,9 +185,14 @@ class LoginTest extends DBTestCase
                 'time_field' => encrypt(time() - 10), // valid
             ],
         ]);
-        $controller = new LoginController();
-        $response = $controller->login($request);
-        $this->assertEquals($user->id, session('2fa:user:id'));
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'data' => [
+                'redirect' => url('/verify-2fa'),
+            ],
+        ]);
     }
 
     #[Group('postLogin')]
@@ -154,7 +200,7 @@ class LoginTest extends DBTestCase
     {
         $this->withoutMiddleware();
 
-        $response = $this->post('/login', [
+        $response = $this->postJson('/login', [
             'email_username' => 'user@example.com',
             'password1' => 'password',
             'g-recaptcha-response' => 'dummy-token',
@@ -164,18 +210,22 @@ class LoginTest extends DBTestCase
             ],
         ]);
 
-        $response->assertRedirect(); // Should redirect back
-        $response->assertSessionHasErrors('login');
+        $response->assertStatus(422);
     }
 
     #[Group('postLogin')]
     public function test_it_fails_when_recaptcha_is_missing()
     {
-        $this->mockCaptchaRequired();
+        StatusSetting::updateOrCreate(
+            ['id' => 1],
+            [
+                'recaptcha_status' => 1,
+            ]
+        );
 
-        $this->withoutMiddleware();
+        $this->withoutMiddleware([Install::class]);
 
-        $response = $this->post('/login', [
+        $response = $this->postJson('/login', [
             'email_username' => 'user@example.com',
             'password1' => 'password',
             //this is a honeypot field, it should be empty
@@ -186,18 +236,21 @@ class LoginTest extends DBTestCase
             // missing g-recaptcha-response
         ]);
 
-        $response->assertRedirect();
-
-        $response->assertSessionHasErrors('g-recaptcha-response');
+        $response->assertStatus(422);
+        $response->assertJson([
+            'success' => false,
+            'message' => __('recaptcha::recaptcha.captcha_message'),
+        ]);
     }
 
     #[Group('postLogin')]
     public function test_it_succeeds_with_valid_input_and_no_honeypot()
     {
-        User::factory()->create(['active' => 1, 'email' => 'user@example.com', 'password' => bcrypt('password')]);
+        $user = User::factory()->create(['active' => 1, 'email' => 'user@example.com', 'password' => bcrypt('password')]);
+        StatusSetting::create(['emailverification_status' => 0, 'msg91_status' => 0, 'recaptcha_status' => 0]);
         $this->withoutMiddleware();
 
-        $response = $this->post('/login', [
+        $response = $this->postJson('/login', [
             'email_username' => 'user@example.com',
             'password1' => 'password',
             'g-recaptcha-response' => 'test-bypass',
@@ -207,9 +260,14 @@ class LoginTest extends DBTestCase
             ],
         ]);
 
-        $response->assertRedirect();
-
-        $this->assertAuthenticated();
+        $response->assertStatus(200);
+        $this->assertAuthenticatedAs($user);
+        $response->assertJson([
+            'success' => true,
+            'data' => [
+                'redirect' => url('/client-dashboard'),
+            ],
+        ]);
     }
 
     #[Group('postLogin')]
@@ -251,8 +309,13 @@ class LoginTest extends DBTestCase
             ],
         ]);
 
-        $response->assertRedirect('/');
-        $response->assertSessionHasNoErrors();
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'data' => [
+                'redirect' => url('/'),
+            ],
+        ]);
     }
 
     #[Group('postLogin')]
@@ -274,7 +337,12 @@ class LoginTest extends DBTestCase
             ],
         ]);
 
-        $response->assertRedirect('/client-dashboard');
-        $response->assertSessionHasNoErrors();
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'data' => [
+                'redirect' => url('/client-dashboard'),
+            ],
+        ]);
     }
 }

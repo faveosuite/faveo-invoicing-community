@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Requests\ValidateSecretRequest;
-use App\Rules\CaptchaValidation;
 use App\Rules\Honeypot;
 use App\User;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -85,7 +84,7 @@ class Google2FAController extends Controller
                 }
             });
         } catch (\Exception $e) {
-            return redirect('verify-2fa')->with('fails', $e->getMessage());
+            return errorResponse($e->getMessage());
         }
     }
 
@@ -173,7 +172,6 @@ class Google2FAController extends Controller
     {
         $this->validate($request, [
             'rec_code' => 'required',
-            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('recovery')],
             'recovery_code' => [new Honeypot()],
         ], [
             'rec_code.required' => __('validation.please_enter_recovery_code'),
@@ -197,7 +195,7 @@ class Google2FAController extends Controller
                 $user->save();
             });
         } catch (\Exception $e) {
-            return redirect('recovery-code')->with('fails', $e->getMessage());
+            return errorResponse($e->getMessage());
         }
     }
 
@@ -239,14 +237,14 @@ class Google2FAController extends Controller
         if ($token = $session->get('reset_token')) {
             $session->put('2fa_verified', true);
 
-            return redirect()->route('password.reset', ['token' => $token]);
+            return successResponse('', ['redirect' => route('password.reset', ['token' => $token])]);
         }
 
         // Normal login flow
         \Auth::login($user, $session->get('remember:user:id'));
         $this->convertCart();
 
-        return redirect()->to((new LoginController())->redirectPath());
+        return successResponse('', ['redirect' => (new LoginController())->redirectPath()]);
     }
 
     public function verifySession()

@@ -12,7 +12,6 @@ use App\Model\Common\Mailchimp\MailchimpSetting;
 use App\Model\Common\Setting;
 use App\Model\Common\StatusSetting;
 use App\Model\Product\Product;
-use App\Rules\CaptchaValidation;
 use App\User;
 use Exception;
 use Illuminate\Http\Request;
@@ -97,7 +96,6 @@ class MailChimpController extends BaseMailChimpController
     {
         $this->validate($request, [
             'newsletterEmail' => 'required|email',
-            'g-recaptcha-response' => [isCaptchaRequired()['is_required'], new CaptchaValidation('mailChimp')],
         ], [
             'mailchimp-recaptcha-response-1.required' => __('message.robot_verification_failed'),
             'newsletterEmail.required' => __('validation.newsletterEmail.email'),
