@@ -10,6 +10,8 @@ use App\Http\Controllers\Common\PipedriveController;
 use App\Model\Common\PipedriveGroups;
 use App\Model\Common\PipedriveLocalFields;
 use App\Model\Common\PricingTemplate;
+use App\Model\Common\Template;
+use App\Model\Common\TemplateType;
 use App\Model\Github\Github;
 use App\Model\Mailjob\ExpiryMailDay;
 use App\Model\Order\InvoiceItem;

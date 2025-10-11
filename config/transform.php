@@ -251,4 +251,30 @@ return[
         'reply_email' => '{{reply_email}}',
     ],
 
+    'verify_new_email' => [
+        'logo' => '{{logo}}',
+        'name' => '{{name}}',
+        'otp' => '{{otp}}',
+        'app_name' => '{{app_name}}',
+        'contact' => '{{contact}}',
+        'contact_url' => '{{contact_url}}',
+    ],
+
+    'confirm_old_email' => [
+        'logo' => '{{logo}}',
+        'name' => '{{name}}',
+        'otp' => '{{otp}}',
+        'app_name' => '{{app_name}}',
+        'contact' => '{{contact}}',
+        'contact_url' => '{{contact_url}}',
+    ],
+
+    'confirm_mobile_number_change' => [
+        'logo' => '{{logo}}',
+        'name' => '{{name}}',
+        'otp' => '{{otp}}',
+        'app_name' => '{{app_name}}',
+        'contact' => '{{contact}}',
+        'contact_url' => '{{contact_url}}',
+    ],
 ];
