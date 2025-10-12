@@ -914,7 +914,7 @@ function isCurrencySupportedForPayments(string $currency, array|string $paymentM
 
     foreach ($methods as $method) {
         $method = strtolower($method);
-        if (! isset($pluginMap[$method]) || ! in_array($currency, $pluginMap[$method]['supported_currencies'])) {
+        if (! isset($pluginMap[$method]) || ! array_key_exists($currency, $pluginMap[$method]['supported_currencies'])) {
             return false;
         }
     }
@@ -925,13 +925,52 @@ function isCurrencySupportedForPayments(string $currency, array|string $paymentM
 function getMinimumAmountForPayments(string $currency, string $paymentMethod): float|int
 {
     $method = strtolower($paymentMethod);
-    if (! isCurrencySupportedForPayments($currency, $method)) {
+
+    if (!isCurrencySupportedForPayments($currency, $method)) {
         throw new \InvalidArgumentException('Currency not supported for payments');
     }
 
-    $pluginMap = (new \App\Http\Controllers\Common\PaymentSettingsController)->getPaymentPluginMap();
+    $pluginMap = (new \App\Http\Controllers\Common\PaymentSettingsController())->getPaymentPluginMap();
 
-    $amount = (int) number_format($pluginMap[$method]['minimum_amount'][$currency] * pow(10, 2), 0, '.', '') ?? 1;
+    switch ($method) {
+        case 'razorpay':
+            $amount =  calculateUnitCost($currency, $pluginMap[$method]['supported_currencies'][$currency]);
+            break;
+
+        case 'stripe':
+            $amount = $pluginMap[$method]['supported_currencies'][$currency] ?? 1;
+            break;
+
+        default:
+            $amount = 1;
+            break;
+    }
 
     return $amount;
 }
+
+
+function calculateUnitCost($currency, $cost)
+{
+    $decimalPlaces = [
+        // 0 decimal places
+        "BIF" => 0, "CLP" => 0, "DJF" => 0, "GNF" => 0, "ISK" => 0, "JPY" => 0, "KMF" => 0,
+        "KRW" => 0, "PYG" => 0, "RWF" => 0, "UGX" => 0, "UYI" => 0, "VND" => 0, "VUV" => 0,
+        "XAF" => 0, "XOF" => 0, "XPF" => 0,
+
+        // 1 decimal place
+        "MGA" => 1, "MRU" => 1,
+
+        // 3 decimal places
+        "BHD" => 3, "IQD" => 3, "JOD" => 3, "KWD" => 3, "LYD" => 3, "OMR" => 3, "TND" => 3,
+
+        // 4 decimal places
+        "CLF" => 4,
+    ];
+
+    // Default to 2 decimals if currency not listed
+    $decimals = $decimalPlaces[$currency] ?? 2;
+
+    return ($decimals === 0) ? (int) round($cost) : (int) round($cost * pow(10, $decimals));
+}
+

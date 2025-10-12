@@ -110,7 +110,6 @@ class PaymentSettingsController extends Controller
                 $attributes[$key]['version'] = $field['version'];
                 $attributes[$key]['author'] = $field['author'];
                 $attributes[$key]['supported_currencies'] = $field['supported_currencies'];
-                $attributes[$key]['minimum_amount'] = $field['minimum_amount'];
             }
         }
 
@@ -380,7 +379,6 @@ class PaymentSettingsController extends Controller
                 $name = strtolower($plugin['name']);
                 $pluginMap[$name] = [
                     'supported_currencies' => $plugin['supported_currencies'] ?? [],
-                    'minimum_amount' => $plugin['minimum_amount'] ?? [],
                 ];
             }
         }
