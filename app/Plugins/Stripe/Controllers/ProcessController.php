@@ -51,7 +51,6 @@ class ProcessController extends Controller
                     throw new \Exception(__('message.stripe_fields_not_given'));
                 }
                 \Session::put('invoice', $invoice);
-                \Session::save();
                 $this->middlePage($request->input('payment_gateway'));
             } elseif ($request->input('payment_gateway') == 'Razorpay') {
                 if (! \Schema::hasTable('razorpay')) {
@@ -62,11 +61,11 @@ class ProcessController extends Controller
                     throw new \Exception(__('message.razorpay_fields_not_given'));
                 }
                 \Session::put('invoice', $invoice);
-                \Session::save();
                 $regularPayment = \Cart::getTotal() ? true : false;
                 $json = $this->processRazorpayOrder($invoice, $regularPayment);
                 $this->middlePage($request->input('payment_gateway'), ['json' => $json]);
             }
+             \Session::save(); // This we added because we use echo in this middle page that does not return the view so the session will not save properly.
         } catch (\Exception $ex) {
             throw new \Exception($ex->getMessage(), $ex->getCode(), $ex->getPrevious());
         }
@@ -91,10 +90,10 @@ class ProcessController extends Controller
                 $items = $invoice->invoiceItem()->get();
                 $product = $this->product($invoice->id);
                 $processingFee = $this->getProcessingFee($payment_method, $invoice->currency);
-                $this->updateFinalPrice(new Request(['processing_fee' => $processingFee]));
+                $this->updateFinalPrice($processingFee);
                 $invoice->processing_fee = $processingFee;
                 $displayProcessingFee = $invoice->grand_total;
-                $invoice->grand_total = intval($invoice->grand_total * (1 + $processingFee / 100));
+                $invoice->grand_total = rounding($invoice->grand_total * (1 + $processingFee / 100));
                 $amount = rounding($invoice->grand_total);
                 $creditBalance = $invoice->billing_pay;
                 if (empty($creditBalance)) {
@@ -114,7 +113,8 @@ class ProcessController extends Controller
                 $invoice_no = $invoice->number;
                 $status = $pay['status'];
                 $processingFee = $this->getProcessingFee($payment_method, $invoice->currency);
-                $this->updateFinalPrice(new Request(['processing_fee' => $processingFee]));
+                $this->updateFinalPrice($processingFee);
+                $invoice->grand_total = rounding($invoice->grand_total * (1 + $processingFee / 100));
                 $amount = rounding(\Cart::getTotal());
                 \View::addNamespace('plugins', $path);
                 $displayProcessingFee = $invoice->grand_total;
@@ -127,12 +127,9 @@ class ProcessController extends Controller
         }
     }
 
-    public static function updateFinalPrice(Request $request)
+    public static function updateFinalPrice($processingFee)
     {
-        $value = '0%';
-        if ($request->input('processing_fee')) {
-            $value = $request->input('processing_fee').'%';
-        }
+        $value = $processingFee ? $processingFee.'%' : '0%';
 
         $updateValue = new CartCondition([
             'name' => 'Processing fee',

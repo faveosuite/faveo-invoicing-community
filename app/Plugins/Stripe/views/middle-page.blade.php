@@ -113,9 +113,9 @@ $cartSubtotalWithoutCondition = 0;
 $currency = $invoice->currency;
 
 $processingFee = \DB::table(strtolower('stripe'))->where('currencies',$currency)->value('processing_fee');
-$processingFee = (float) $processingFee / 100;
+$processingFee = $processingFee ? floatval(filter_var($processingFee, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION)) : null;
 
-$feeAmount = intval(ceil($displayProcessingFee*$processingFee));
+$feeAmount = $displayProcessingFee*($processingFee/100);
 ?>
 @if($regularPayment)
  <div role="main" class="main">
