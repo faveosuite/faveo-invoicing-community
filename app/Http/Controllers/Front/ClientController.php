@@ -898,7 +898,7 @@ class ClientController extends BaseClientController
             $exchangeRate = '';
             $orderData = [
                 'receipt' => '3456',
-                'amount' => round(1.00 * 100), // 2000 rupees in paise
+                'amount' => getMinimumAmountForPayments($currency, 'razorpay'),
                 'currency' => $displayCurrency,
                 'payment_capture' => 0, // auto capture
             ];

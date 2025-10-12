@@ -31,4 +31,8 @@ return [
         'XOF', 'XPF', 'YER', 'ZAR', 'ZMW',
     ],
 
+    'minimum_amount' => [
+
+    ],
+
 ];

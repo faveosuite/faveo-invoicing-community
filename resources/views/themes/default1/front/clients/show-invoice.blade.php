@@ -155,7 +155,7 @@ active
 
                                <tbody>
                     @foreach($items as $item)
-           
+
                         <tr>
                             @php
                             $taxName[] =  $item->tax_name.'@'.$item->tax_percentage;
@@ -168,7 +168,7 @@ active
                             @if($orderForThisItem)
 
                             <td> {!! $orderForThisItem->getOrderLink($orderForThisItem->id,'my-order') !!}</td>
-                           
+
                                 @elseif($order != '--')
                                 <td>{!! $order !!}
                                 <span class='badge badge-primary'>{{ __('message.renewed')}}</span></td>
@@ -242,7 +242,7 @@ active
                                     ?>
                                     @if ($taxDetails[0]!= 'null')
 
-                                       
+
                                    <tr>
                                     <?php
                                     $bifurcateTax = bifurcateTax($taxDetails[0], $taxDetails[1], \Auth::user()->currency, \Auth::user()->state, $taxAmt);
@@ -272,8 +272,8 @@ active
 
 
 
-                                     
-                                       
+
+
                                     @endif
                                     @endforeach
 {{--                                    @endif--}}
@@ -282,8 +282,8 @@ active
 
                                 @if($invoice->processing_fee != null && $invoice->processing_fee != '0%')
                                         <?php
-                                        $percentage = floatval(preg_replace('/[^0-9.]/', '', $invoice->processing_fee));
-                                        $feeAmount = intval(ceil($invoice->grand_total * $percentage / 100));
+                                        $processingFee = $invoice->processing_fee ? floatval(filter_var($invoice->processing_fee, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION)) : 0;
+                                        $processingFee = currencyFormat(($processingFee / 100) * $itemsSubtotal, $invoice->currency);
                                         ?>
                                     <tr>
                                         <th class="font-weight-bold text-color-grey">
@@ -292,7 +292,7 @@ active
                                                 ({{ Str::endsWith($invoice->processing_fee, '%') ? $invoice->processing_fee : $invoice->processing_fee . '%' }})
                                             </label>
                                         </th>
-                                        <td class="text-color-grey moveleft">{{currencyFormat($feeAmount,$code = $symbol)}}</td>
+                                        <td class="text-color-grey moveleft">{{ $processingFee }}</td>
                                 </tr>
                                 @endif
                                 <tr class="h6">
@@ -308,13 +308,13 @@ active
                     </div>
                 </div>
             </div>
-  
+
           @if(!$payments->isEmpty())
             <div class="card p-3 mt-3">
 
                 <div class="table-responsive">
                     <table class="table">
-                        
+
                         @foreach($payments as $payment)
 
                         @php
@@ -345,7 +345,7 @@ active
 
                         </tbody>
                         @endforeach
-                       
+
                     </table>
                 </div>
             </div>

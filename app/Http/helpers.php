@@ -906,25 +906,32 @@ function isAgentAllowed($productId)
 
     return in_array($productId, cloudPopupProducts()) || $product->can_modify_agent;
 }
-function isCurrencySupportedForPayments($currency, $paymentMethods)
+function isCurrencySupportedForPayments(string $currency, array|string $paymentMethods): bool
 {
     $currency = strtoupper($currency);
-    $methods = is_array($paymentMethods)
-        ? array_map('strtolower', $paymentMethods)
-        : [strtolower($paymentMethods)];
-
-    $values = (new \App\Http\Controllers\Common\PaymentSettingsController())->fetchConfig();
-
-    $pluginMap = [];
-    foreach ($values as $plugin) {
-        $pluginMap[strtolower($plugin['name'])] = $plugin['supported_currencies'] ?? [];
-    }
+    $methods = is_array($paymentMethods) ? $paymentMethods : [$paymentMethods];
+    $pluginMap = (new \App\Http\Controllers\Common\PaymentSettingsController)->getPaymentPluginMap();
 
     foreach ($methods as $method) {
-        if (! isset($pluginMap[$method]) || ! in_array($currency, $pluginMap[$method])) {
+        $method = strtolower($method);
+        if (!isset($pluginMap[$method]) || !in_array($currency, $pluginMap[$method]['supported_currencies'])) {
             return false;
         }
     }
 
     return true;
+}
+
+function getMinimumAmountForPayments(string $currency, string $paymentMethod): float|int
+{
+    $method = strtolower($paymentMethod);
+    if (!isCurrencySupportedForPayments($currency, $method)) {
+        throw new \InvalidArgumentException('Currency not supported for payments');
+    }
+
+    $pluginMap = (new \App\Http\Controllers\Common\PaymentSettingsController)->getPaymentPluginMap();
+
+    $amount = (int) (number_format($pluginMap[$method]['minimum_amount'][$currency] * pow(10, 2), 0, ".", "")) ?? 1;
+
+    return $amount;
 }
