@@ -914,7 +914,7 @@ function isCurrencySupportedForPayments(string $currency, array|string $paymentM
 
     foreach ($methods as $method) {
         $method = strtolower($method);
-        if (!isset($pluginMap[$method]) || !in_array($currency, $pluginMap[$method]['supported_currencies'])) {
+        if (! isset($pluginMap[$method]) || ! in_array($currency, $pluginMap[$method]['supported_currencies'])) {
             return false;
         }
     }
@@ -925,13 +925,13 @@ function isCurrencySupportedForPayments(string $currency, array|string $paymentM
 function getMinimumAmountForPayments(string $currency, string $paymentMethod): float|int
 {
     $method = strtolower($paymentMethod);
-    if (!isCurrencySupportedForPayments($currency, $method)) {
+    if (! isCurrencySupportedForPayments($currency, $method)) {
         throw new \InvalidArgumentException('Currency not supported for payments');
     }
 
     $pluginMap = (new \App\Http\Controllers\Common\PaymentSettingsController)->getPaymentPluginMap();
 
-    $amount = (int) (number_format($pluginMap[$method]['minimum_amount'][$currency] * pow(10, 2), 0, ".", "")) ?? 1;
+    $amount = (int) number_format($pluginMap[$method]['minimum_amount'][$currency] * pow(10, 2), 0, '.', '') ?? 1;
 
     return $amount;
 }
