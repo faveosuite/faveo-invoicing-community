@@ -15,21 +15,6 @@ return [
     'website' => 'https://www.faveohelpdesk.com/',
 
     'supported_currencies' => [
-        'AED', 'ALL', 'AMD', 'AUD', 'AZN', 'BBD', 'BDT', 'BHD', 'BIF', 'BMD',
-        'BND', 'BOB', 'BAM', 'BWP', 'BZD', 'BSD', 'BRL', 'BGN', 'CAD', 'CHF',
-        'CLP', 'CNY', 'CVE', 'CRC', 'CUP', 'CZK', 'DJF', 'DKK', 'DOP', 'EGP',
-        'ETB', 'EUR', 'FJD', 'GBP', 'GHS', 'GIP', 'GNF', 'GTQ', 'GYD', 'HKD',
-        'HNL', 'HTG', 'HUF', 'IDR', 'ILS', 'INR', 'IQD', 'ISK', 'JMD', 'JOD',
-        'JPY', 'KES', 'KHR', 'KGS', 'KRW', 'KWD', 'KYD', 'KZT', 'LAK', 'LSL',
-        'LRD', 'LKR', 'MAD', 'MDL', 'MKD', 'MMK', 'MNT', 'MOP', 'MGA', 'MWK',
-        'MYR', 'MVR', 'MUR', 'MXN', 'NAD', 'NGN', 'NIO', 'NOK', 'NZD', 'OMR',
-        'PEN', 'PHP', 'PKR', 'PLN', 'PYG', 'QAR', 'RON', 'RSD', 'RUB', 'RWF',
-        'SAR', 'SCR', 'SEK', 'SGD', 'SLL', 'SOS', 'SZL', 'THB', 'TND', 'TRY',
-        'TTD', 'TZS', 'UAH', 'UGX', 'USD', 'UYU', 'UZS', 'VND', 'VUV', 'XAF',
-        'XCD', 'XOF', 'XPF', 'YER', 'ZAR', 'ZMW',
-    ],
-
-    'minimum_amount' => [
         'AED' => 1,  'ALL' => 3,   'AMD' => 10,  'AUD' => 1,  'AZN' => 1,  'BBD' => 1,  'BDT' => 2,  'BHD' => 1,  'BIF' => 1,  'BMD' => 1,
         'BND' => 1,  'BOB' => 1,  'BAM' => 1,   'BWP' => 1,  'BZD' => 1,  'BSD' => 1,  'BRL' => 1,  'BGN' => 1,  'CAD' => 1,  'CHF' => 1,
         'CLP' => 1,  'CNY' => 1,  'CVE' => 1,   'CRC' => 10, 'CUP' => 1,  'CZK' => 1,  'DJF' => 1,  'DKK' => 3,  'DOP' => 2,  'EGP' => 1,
@@ -43,5 +28,4 @@ return [
         'TTD' => 1,  'TZS' => 10, 'UAH' => 1,   'UGX' => 1,  'USD' => 1,  'UYU' => 1,  'UZS' => 10, 'VND' => 10, 'VUV' => 1,  'XAF' => 1,
         'XCD' => 1,  'XOF' => 1,  'XPF' => 1,   'YER' => 6,  'ZAR' => 1,  'ZMW' => 1,
     ],
-
 ];

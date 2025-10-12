@@ -88,8 +88,8 @@ class ClientController extends BaseClientController
     public function enableAutorenewalStatus(Request $request)
     {
         try {
-            $amount = 1;
             $currency = getCurrencyForClient(\Auth::user()->country);
+            $amount = getMinimumAmountForPayments($currency, 'stripe');
             $orderid = $request->get('order_id');
             $url = url('my-order/'.$orderid.'#auto-renew');
             $controller = new SettingsController();
