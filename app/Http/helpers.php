@@ -973,7 +973,6 @@ function calculateUnitCost($currency, $cost)
     return ($decimals === 0) ? (int) round($cost) : (int) round($cost * pow(10, $decimals));
 }
 
-
 /**
  * Deletes all user sessions except the current session.
  *
