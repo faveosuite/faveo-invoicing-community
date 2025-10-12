@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Requests\ValidateSecretRequest;
-use App\Model\Payment\Plan;
 use App\Rules\CaptchaValidation;
 use App\Rules\Honeypot;
 use App\User;
@@ -224,7 +223,7 @@ class Google2FAController extends Controller
         // Normal login flow
         \Auth::login($user, $session->get('remember:user:id'));
 
-        $loginController  = new LoginController();
+        $loginController = new LoginController();
 
         $loginController->convertCart();
 

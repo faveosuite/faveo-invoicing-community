@@ -21,24 +21,23 @@ class Product extends BaseModel
     /**
      * --------------------------------------------------------------------------
      * Model Attributes
-     * --------------------------------------------------------------------------
-     * @property int         $id
-     * @property string      $name
+     * --------------------------------------------------------------------------.
+     *
+     * @property int $id
+     * @property string $name
      * @property string|null $description
-     * @property int         $status    Product status:
-     *                                   1 = Active — monthly/yearly subscription toggle is shown in the store
-     *                                   0 = Inactive — product is visible in the store but monthly/yearly toggle is hidden
-     * --------------------------------------------------------------------------
+     * @property int $status Product status:
+     *                       1 = Active — monthly/yearly subscription toggle is shown in the store
+     *                       0 = Inactive — product is visible in the store but monthly/yearly toggle is hidden
+     *                       --------------------------------------------------------------------------
      */
-
-
     protected $fillable = ['id', 'name', 'description', 'type', 'group', 'file', 'image', 'require_domain', 'category',
         'can_modify_agent',  'can_modify_quantity', 'show_agent', 'tax_apply', 'show_product_quantity', 'hidden',  'auto_terminate',
         'setup_order_placed', 'setup_first_payment', 'setup_accept_manually',
         'no_auto_setup', 'shoping_cart_link', 'process_url', 'github_owner',
         'github_repository',
         'deny_after_subscription', 'version', 'parent', 'subscription', 'product_sku', 'perpetual_license', 'product_description', 'invoice_hidden',
-        'status'
+        'status',
     ];
 
     protected static $logName = 'Product';
