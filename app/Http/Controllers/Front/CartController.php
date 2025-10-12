@@ -294,7 +294,7 @@ class CartController extends BaseCartController
      *
      * @throws Exception
      */
-    public function planCost($productId, $userId = null, $planId = null, $admin = false , $shouldApplyOffer = true)
+    public function planCost($productId, $userId = null, $planId = null, $admin = false, $shouldApplyOffer = true)
     {
         $product = Product::findOrFail($productId);
 
@@ -302,13 +302,12 @@ class CartController extends BaseCartController
 
         $userPlan = userCurrencyAndPrice($userId, $product->planRelation()->findOrFail($planID));
 
-        if (empty($userPlan['plan'])){
+        if (empty($userPlan['plan'])) {
             throw new \Exception(__('message.no_available_plans_currency'));
         }
 
         return $this->applyOfferPrice($userPlan, $shouldApplyOffer);
     }
-
 
     protected function getPlanIdBasedOnProductStatus(Product $product, $plan = null)
     {
@@ -322,7 +321,7 @@ class CartController extends BaseCartController
                 ->value('id');
 
             Session::put([
-                'plan'     => $planID,
+                'plan' => $planID,
                 'planDays' => Session::get('toggleState'),
             ]);
 
@@ -334,11 +333,11 @@ class CartController extends BaseCartController
         return $plan;
     }
 
-    protected function applyOfferPrice(array $userPlanPrice , bool $shouldApplyOffer): float
+    protected function applyOfferPrice(array $userPlanPrice, bool $shouldApplyOffer): float
     {
         $cost = $userPlanPrice['plan']->add_price;
 
-        if ( !$shouldApplyOffer ){
+        if (! $shouldApplyOffer) {
             return $cost;
         }
 
