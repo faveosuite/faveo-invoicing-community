@@ -193,7 +193,12 @@ select {
     width:100% !important;
 }
 
-/* Firefox-only CSS */
+        .price {
+            white-space: nowrap;
+        }
+
+
+        /* Firefox-only CSS */
 @-moz-document url-prefix() {
     /* Firefox-specific CSS rules here */
     .pricing-block .plan-price .price-label {

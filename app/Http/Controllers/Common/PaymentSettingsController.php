@@ -110,6 +110,7 @@ class PaymentSettingsController extends Controller
                 $attributes[$key]['version'] = $field['version'];
                 $attributes[$key]['author'] = $field['author'];
                 $attributes[$key]['supported_currencies'] = $field['supported_currencies'];
+                $attributes[$key]['minimum_amount'] = $field['minimum_amount'];
             }
         }
 
@@ -365,5 +366,25 @@ class PaymentSettingsController extends Controller
         $plug->save();
 
         return successResponse(\Lang::get('message.status_change'));
+    }
+
+    public function getPaymentPluginMap(): array
+    {
+        static $pluginMap = null;
+
+        if ($pluginMap === null) {
+            $values = $this->fetchConfig();
+            $pluginMap = [];
+
+            foreach ($values as $plugin) {
+                $name = strtolower($plugin['name']);
+                $pluginMap[$name] = [
+                    'supported_currencies' => $plugin['supported_currencies'] ?? [],
+                    'minimum_amount' => $plugin['minimum_amount'] ?? [],
+                ];
+            }
+        }
+
+        return $pluginMap;
     }
 }

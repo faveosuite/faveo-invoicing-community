@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Requests\ValidateSecretRequest;
+use App\Model\Payment\Plan;
 use App\Rules\Honeypot;
 use App\User;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -201,28 +202,6 @@ class Google2FAController extends Controller
         }
     }
 
-    private function convertCart()
-    {
-        $contents = \Cart::getContent();
-        foreach ($contents as $content) {
-            $cartcont = new \App\Http\Controllers\Front\CartController();
-            $price = $cartcont->planCost($content->id, \Auth::user()->id);
-            if ($content->attributes->domain != '') {
-                $price = $price * $content->attributes->agents;
-            }
-            \Cart::update($content->id, [
-                'price' => $price,
-                'attributes' => [
-                    'currency' => getCurrencyForClient(\Auth::user()->country),
-                    'symbol' => \App\Model\Payment\Currency::where('code', getCurrencyForClient(\Auth::user()->country))->value('symbol'),
-                    'agents' => $content->attributes->agents,
-                    'domain' => $content->attributes->domain,
-                ],
-            ]);
-        }
-        \Session::forget('toggleState');
-    }
-
     private function handleTwoFactorLogin(Request $request, User $user, string $rateLimiterKey, callable $validator)
     {
         // Rate limit for 6 hours
@@ -244,7 +223,10 @@ class Google2FAController extends Controller
 
         // Normal login flow
         \Auth::login($user, $session->get('remember:user:id'));
-        $this->convertCart();
+
+        $loginController  = new LoginController();
+
+        $loginController->convertCart();
 
         return successResponse('', ['redirect' => (new LoginController())->redirectPath()]);
     }

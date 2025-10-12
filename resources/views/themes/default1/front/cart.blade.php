@@ -155,7 +155,7 @@
                                                    \Session::forget('usage');
                                                     $cartcont = new \App\Http\Controllers\Front\CartController();
                                                     \Cart::update($item->id, [
-                                                     'price'      => $cartcont->planCost($item->id, \Auth::user()->id),
+                                                     'price'      => $cartcont->planCost(\App\Model\Payment\Plan::find($item->id)->product , \Auth::user()->id, $item->id),
                                                    ]);
                                                  }
 

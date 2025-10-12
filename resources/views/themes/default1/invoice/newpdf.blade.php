@@ -241,14 +241,15 @@
                                     @endif
                                      @endforeach
                                     <?php
-                                    $feeAmount = intval(ceil($invoice->grand_total * 0.99 / 100));
+                                    $processingFee = $invoice->processing_fee ? floatval(filter_var($invoice->processing_fee, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION)) : 0;
+                                    $processingFee = currencyFormat(($processingFee / 100) * $itemsSubtotal, $invoice->currency);
                                     ?>
 
 
                                 @if($invoice->processing_fee != null && $invoice->processing_fee != '0%')
                                 <tr>
                                     <th class="font-weight-bold text-color-grey">{{ __('message.processing_fee') }} <span style="font-weight: normal;">({{$invoice->processing_fee}})</span></th>
-                                    <td class="text-color-grey">{{currencyFormat($feeAmount,$code = $symbol)}}</td>
+                                    <td class="text-color-grey">{{ $processingFee }}</td>
                                 </tr>
                                 @endif
                                     <tr>
