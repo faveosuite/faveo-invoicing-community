@@ -93,7 +93,7 @@ class PromotionControllerTest extends DBTestCase
         $plan = Plan::create(['name' => 'HD Plan 1 year', 'product' => $product->id, 'days' => 366]);
 
         $planPrice = PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
-
+        \Session::put('plan', $plan->id);
         $this->call('POST', 'promotions', ['code' => 'FAVEOCOUPON', 'type' => 1, 'value' => 10, 'uses' => 10, 'applied' => $product->id, 'start' => '08/01/2020', 'expiry' => '08/15/2050']);
         $promotion = Promotion::orderBy('id', 'desc')->first();
         $promotion = $this->classObject->findCostAfterDiscount($promotion->id, $product->id, $this->user->id);
@@ -109,7 +109,7 @@ class PromotionControllerTest extends DBTestCase
         $plan = Plan::create(['name' => 'HD Plan 1 year', 'product' => $product->id, 'days' => 366]);
 
         $planPrice = PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
-
+        \Session::put('plan', $plan->id);
         $this->call('POST', 'promotions', ['code' => 'FAVEOCOUPON', 'type' => 2, 'value' => 10, 'uses' => 10, 'applied' => $product->id, 'start' => '08/01/2020', 'expiry' => '08/15/2050']);
         $promotion = Promotion::orderBy('id', 'desc')->first();
         $promotion = $this->classObject->findCostAfterDiscount($promotion->id, $product->id, $this->user->id);
@@ -125,7 +125,7 @@ class PromotionControllerTest extends DBTestCase
         $plan = Plan::create(['name' => 'HD Plan 1 year', 'product' => $product->id, 'days' => 366]);
 
         $planPrice = PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
-
+        \Session::put('plan', $plan->id);
         $this->call('POST', 'promotions', ['code' => 'FAVEOCOUPON', 'type' => 2, 'value' => 10, 'uses' => 10, 'applied' => $product->id, 'start' => '08/01/2020', 'expiry' => '08/15/2050']);
         $promotion = Promotion::orderBy('id', 'desc')->first();
         \Cart::add([
@@ -150,7 +150,7 @@ class PromotionControllerTest extends DBTestCase
         $plan = Plan::create(['name' => 'HD Plan 1 year', 'product' => $product->id, 'days' => 366]);
 
         $planPrice = PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
-
+        \Session::put('plan', $plan->id);
         $this->call('POST', 'promotions', ['code' => 'FAVEOCOUPON', 'type' => 1, 'value' => 10, 'uses' => 10, 'applied' => $product->id, 'start' => '08/01/2020', 'expiry' => '08/15/2050']);
         $promotion = Promotion::orderBy('id', 'desc')->first();
         \Cart::add([
@@ -203,7 +203,7 @@ class PromotionControllerTest extends DBTestCase
         $plan = Plan::create(['name' => 'HD Plan 1 year', 'product' => $product->id, 'days' => 366]);
 
         $planPrice = PlanPrice::create(['plan_id' => $plan->id, 'currency' => 'INR', 'add_price' => '1000', 'renew_price' => '500', 'price_description' => 'Random description', 'product_quantity' => 1, 'no_of_agents' => 0]);
-
+        \Session::put('plan', $plan->id);
         $this->call('POST', 'promotions', ['code' => 'FAVEOCOUPON', 'type' => 1, 'value' => 10, 'uses' => 10, 'applied' => $product->id, 'start' => '08/01/2020', 'expiry' => '08/15/2050']);
         $promotion = Promotion::orderBy('id', 'desc')->first();
         \Cart::add([
