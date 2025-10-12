@@ -338,11 +338,11 @@ class LoginController extends Controller
                 $plan = Plan::find($content->id);
 
                 // If plan or product is missing, throw to remove it
-                throw_if(!$plan || !$plan->product, new \Exception('Invalid plan or product.'));
+                throw_if(! $plan || ! $plan->product, new \Exception('Invalid plan or product.'));
 
                 $price = $cartController->planCost($plan->product, $user->id, $content->id);
 
-                if (!empty($content->attributes->domain)) {
+                if (! empty($content->attributes->domain)) {
                     $price *= $content->attributes->agents;
                 }
 

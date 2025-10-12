@@ -224,7 +224,7 @@ class Google2FAController extends Controller
         // Normal login flow
         \Auth::login($user, $session->get('remember:user:id'));
 
-        $loginController  = new LoginController();
+        $loginController = new LoginController();
 
         $loginController->convertCart();
 

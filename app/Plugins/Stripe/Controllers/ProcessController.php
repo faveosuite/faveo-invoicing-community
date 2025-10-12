@@ -65,7 +65,7 @@ class ProcessController extends Controller
                 $json = $this->processRazorpayOrder($invoice, $regularPayment);
                 $this->middlePage($request->input('payment_gateway'), ['json' => $json]);
             }
-             \Session::save(); // This we added because we use echo in this middle page that does not return the view so the session will not save properly.
+            \Session::save(); // This we added because we use echo in this middle page that does not return the view so the session will not save properly.
         } catch (\Exception $ex) {
             throw new \Exception($ex->getMessage(), $ex->getCode(), $ex->getPrevious());
         }
