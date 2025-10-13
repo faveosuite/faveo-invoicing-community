@@ -877,7 +877,6 @@ function isRtlForLang()
 {
     return in_array(app()->getLocale(), ['ar', 'he']);
 }
-
 function honeypotField(string $name = 'honeypot'): string
 {
     $potFieldName = 'p'.Str::random();
