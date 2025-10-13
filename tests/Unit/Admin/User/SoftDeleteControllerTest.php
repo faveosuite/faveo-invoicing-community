@@ -8,6 +8,7 @@ use App\Model\Order\Invoice;
 use App\Model\Order\Order;
 use App\Model\Product\Product;
 use App\User;
+use App\WhatsappIntegrationUser;
 use Tests\DBTestCase;
 
 class SoftDeleteControllerTest extends DBTestCase
@@ -38,6 +39,9 @@ class SoftDeleteControllerTest extends DBTestCase
     {
         $this->withoutMiddleware();
         $user = User::factory()->create();
+        WhatsappIntegrationUser::create(['user_id' => $user->id, 'waba_id' => 'wiuefh32843ry9',
+            'phone_number_id' => 'fisufhiewfuhiu23', 'business_id' => 'fiowehfiu233',
+            'user_callback_url'=>'iwehfowihfwef','access_token'=>'fiowehfoiwhef','order_id'=>'fiowhefowiefh','phone_number'=>'khfwiohfoihwefoifh']);
         $user->delete();
         $this->expectOutputRegex('/Deleted Successfully/');
         $response = $this->call('DELETE', 'permanent-delete-client', ['select' => [$user->id]]);

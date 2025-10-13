@@ -287,6 +287,7 @@ class SettingsController extends BaseSettingsController
         $checked = $captchaStatus ? 'checked' : '';
         $emailStatus = $this->statusSetting->value('email_validation_status');
         $mobileValStatus = $this->statusSetting->value('mobile_validation_status');
+        $whatsappStatus= $this->statusSetting->value('whatsapp_status');
         $toggleSwitch = '
         <label class="switch toggle_event_editing gcaptcha">
             <input type="checkbox" value="'.$checkboxValue.'"  
@@ -304,6 +305,8 @@ class SettingsController extends BaseSettingsController
         $recaptchaAction = $captchaStatus ? '<button id="captcha-edit-button" class="btn btn-sm btn-secondary btn-xs" ><span class="nav-icon fa fa-fw fa-edit"></span></button>' : '';
         $emailValidationAction = $emailStatus ? '<button id="emailValidation-edit-button" class="btn btn-sm btn-secondary btn-xs" ><span class="nav-icon fa fa-fw fa-edit"></span></button>' : '';
         $mobileValidationAction = $mobileValStatus ? '<button id="mobileValidation-edit-button" class="btn btn-sm btn-secondary btn-xs" ><span class="nav-icon fa fa-fw fa-edit"></span></button>' : '';
+        $whatsappAction = $whatsappStatus ? '<button id="whatsapp-edit-button" class="btn btn-sm btn-secondary btn-xs" ><span class="nav-icon fa fa-fw fa-edit"></span></button>' : '';
+
 
         if ($request->ajax()) {
             $dataTable = collect([
@@ -360,6 +363,11 @@ class SettingsController extends BaseSettingsController
                         <span class="slider round"></span>
                     </label>', 'action' => $mobileValidationAction,
                 ],
+                ['options'=>\Lang::get('message.whatsapp_config'),'description'=> \Lang::get('message.whatsapp_thirdParty_explanation'),'status'=>'<label class="switch toggle_event_editing whatsapp_status">
+                        <input type="checkbox" value="'.($whatsappStatus ? '1' : '0').'"  name="whatsapp_status"
+                               class="checkbox11 whatsapp_status" id="whatsapp_status"'.($whatsappStatus ? 'checked' : '').'>
+                        <span class="slider round"></span>
+                    </label>','action'=>$whatsappAction,],
             ]);
 
             return DataTables::of($dataTable)
