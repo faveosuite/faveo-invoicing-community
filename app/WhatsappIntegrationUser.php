@@ -1,0 +1,16 @@
+<?php
+
+namespace App;
+
+use Illuminate\Database\Eloquent\Model;
+use App\User;
+class WhatsappIntegrationUser extends Model
+{
+    protected $table='whatsapp_integration_user';
+
+    protected $fillable=['waba_id','phone_number_id','phone_number','user_id','access_token','user_callback_url','business_id','order_id'];
+
+    public function user(){
+        return $this->belongsTo(User::class);
+    }
+}

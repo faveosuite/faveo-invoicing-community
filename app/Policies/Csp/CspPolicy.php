@@ -34,6 +34,8 @@ class CspPolicy extends Policy
                 'www.googletagmanager.com',
                 'www.gstatic.com',
                 'unpkg.com',
+                'https://connect.facebook.net',
+                'https://www.facebook.com/platform',
             ])
             ->addDirective(Directive::STYLE, [
                 Keyword::REPORT_SAMPLE,
@@ -50,6 +52,8 @@ class CspPolicy extends Policy
                 'stackpath.bootstrapcdn.com',
                 'www.tinymce.com',
                 'unpkg.com',
+                'https://www.facebook.com/platform/',
+                'https://www.facebook.com/',
             ])
             ->addDirective(Directive::OBJECT, ['none'])
             ->addDirective(Directive::BASE, [Keyword::SELF])
@@ -70,6 +74,8 @@ class CspPolicy extends Policy
                 'wss://*.tawk.to',
                 'stats.g.doubleclick.net',
                 'cdn.tiny.cloud',
+                'https://www.facebook.com/platform/',
+                'https://www.facebook.com/',
             ])
             ->addDirective(Directive::FONT, [
                 Keyword::SELF,
@@ -78,6 +84,7 @@ class CspPolicy extends Policy
                 'embed.tawk.to',
                 'fonts.bunny.net',
                 'fonts.gstatic.com',
+                'https://www.facebook.com/',
             ])
             ->addDirective(Directive::FRAME, [
                 Keyword::SELF,

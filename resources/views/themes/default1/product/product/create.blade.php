@@ -459,6 +459,20 @@
 
                                     </div>
                                 </li>
+                                <li>
+                                    <div class="row">
+
+                                        <div class="form-group {{ $errors->has('add_to_contact') ? 'has-error' : '' }}">
+                                            <!-- first name -->
+                                            {!! html()->label(trans('message.whatsapp_product_heading'))->for('whatsapp_integration') !!}
+                                            {!! html()->hidden('whatsapp_integration', 0) !!}
+
+                                            <p>{!! html()->checkbox('whatsapp_integration') !!}  {{Lang::get('message.whatsapp_product_explanation')}}</p>
+
+                                        </div>
+
+                                    </div>
+                                </li>
                             </ul>
 
                         </div>

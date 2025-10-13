@@ -26,12 +26,16 @@ use App\Model\Product\Subscription;
 use App\Payment_log;
 use App\Plugins\Stripe\Controllers\SettingsController;
 use App\User;
+use App\WhatsappIntegration;
 use Exception;
+use GuzzleHttp\Client;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Razorpay\Api\Api;
+use Illuminate\Support\Facades\Http;
+
 
 class ClientController extends BaseClientController
 {
@@ -1004,11 +1008,14 @@ class ClientController extends BaseClientController
             $planNameReal = \App\Model\Payment\Plan::where('id', $planIdOld)->value('name');
             $autorenewal_status = Setting::where('id', 1)->value('autorenewal_status');
 
+            $whatsappStatus=$product->whatsapp_integration;
+            [$app_id, $config_id] =
+                array_values(WhatsappIntegration::first()?->only(['app_id','config_id']) ?? [null, null]);
             return view(
                 'themes.default1.front.clients.show-order',
                 compact('invoice', 'order', 'user', 'product', 'subscription', 'licenseStatus', 'installationDetails', 'allowDomainStatus', 'date',
                     'licdate', 'versionLabel', 'installationDetails', 'id', 'statusAutorenewal', 'status', 'payment_log', 'recentPayment', 'stripe_key', 'json', 'gateways',
-                    'price', 'installation_path', 'latestAgents', 'terminatedOrderId', 'terminatedOrderNumber', 'payment_log', 'plans', 'planNameReal', 'autorenewal_status'
+                    'price', 'installation_path', 'latestAgents', 'terminatedOrderId', 'terminatedOrderNumber', 'payment_log', 'plans', 'planNameReal','whatsappStatus','app_id','config_id','autorenewal_status'
                 )
             );
         } catch (Exception $ex) {
